@@ -39,7 +39,7 @@ START_HERE.md (you are here)
 ## First session — architecture review in under 30 minutes (buyer / evaluator)
 
 1. **Start here:** open **[CORE_PILOT.md](CORE_PILOT.md#first-session-checklist)** (no prior architecture deep-dives required).
-2. **In the product:** complete the four steps — request → pipeline → finalize → review outputs — so you have a **review package** (findings, manifest summary, downloadable artifacts).
+2. **In the product:** complete the four buyer steps — **create an architecture review**, let **pipeline runs** finish, **finalize**, then **review the package** (manifest summary and findings on review detail).
 3. **Proof for a sponsor:** use **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)** and exports from review detail; optional metrics in **[library/PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)**.
 4. **Defer until later:** compare, replay, graph, and heavy governance workflows — listed as secondary in **CORE_PILOT.md** §4.
 

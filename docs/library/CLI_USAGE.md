@@ -95,6 +95,8 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 | `comparisons tag <comparisonRecordId>` | Update label and tags on a comparison record. |
 | `completions bash` \| `zsh` \| `powershell` | Print a shell completion script to stdout (source from your profile). |
 
+**Before sending a support bundle:** use redacted **`support-bundle`** output (or the documented API export path), not raw `.env` or ad-hoc screenshots of secrets; omit full LLM prompts unless support asks; include timeframe, safe scope identifiers, **run id**, and correlation/trace headers when you have them.
+
 ---
 
 ## archlucid try

@@ -169,6 +169,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
   "effectiveDate": "2026-04-17",
   "currency": "USD",
   "teamStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
+  "teamStripeCheckoutUrlSalesLedPlaceholder": true,
   "packages": [
     {
       "id": "team",
@@ -202,7 +203,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
 }
 ```
 
-**`teamStripeCheckoutUrl` (Team card — optional Stripe CTA).** The value above is a **non-production placeholder** (not a real Payment Link or Checkout session). Replace it with a live `https://buy.stripe.com/…` or `https://checkout.stripe.com/c/…` URL before launch, or remove the key to hide the “Subscribe with Stripe” button until billing is ready. Backend Checkout (**`Billing:Stripe:PriceIdTeam`**) must attach a Stripe recurring Price matching **§ 3.2** (**$249** / month interim Team SKU).
+**`teamStripeCheckoutUrl` (Team card — optional Stripe CTA).** The value above is a **non-production placeholder** (not a real Payment Link or Checkout session). Replace it with a live `https://buy.stripe.com/…` or `https://checkout.stripe.com/c/…` URL before launch, or remove the key to hide the “Subscribe with Stripe” button until billing is ready. **`teamStripeCheckoutUrlSalesLedPlaceholder`** must remain **`true`** while the URL contains substring markers matched by **`archlucid-ui/src/lib/team-stripe-checkout-url.ts`** (`placeholder-replace-before-launch`, `checkout-placeholder`) so CI proves the Subscribe CTA stays **sales-led** unless **Next.js build-time** **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED`** opt-in deliberately surfaces Stripe. Allowed states for public pricing: (**a**) live Checkout URL — set **`teamStripeCheckoutUrlSalesLedPlaceholder`** to **`false`** or omit it; (**b**) placeholder URL with **`teamStripeCheckoutUrlSalesLedPlaceholder: true`** (CTA hidden by default — quote path remains primary); (**c**) no **`teamStripeCheckoutUrl`** property (subscribe link omitted). Backend Checkout (**`Billing:Stripe:PriceIdTeam`**) must attach a Stripe recurring Price matching **§ 3.2** (**$249** / month interim Team SKU).
 
 | Item | Price |
 |------|-------|

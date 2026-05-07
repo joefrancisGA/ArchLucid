@@ -10,8 +10,8 @@ export const CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON = "Show first-review check
 
 /** High-level flow; technical terms (manifest, run ID) stay in step bodies and tooltips. */
 export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
-  "New review → Track progress → Finalize → Open manifest summary";
+  "Create architecture review → Pipeline runs → Finalize → Review package";
 
 /** One-line cognitive-load hint for the operator shell (first session). */
 export const CORE_PILOT_FIRST_SESSION_GUIDANCE =
-  "If this feels like a lot: for your first session, create one architecture review, let the pipeline finish, finalize it, then open the manifest summary. You can ignore extras until that package exists. When you need sponsor-facing output, export the first-value report and read Proof sendability and the buyer-safe gate section before sharing outside your team.";
+  "If this feels like a lot: for your first session, create one architecture review, let the pipeline runs finish, finalize, then open the review package (manifest summary). You can ignore extras until that package exists. When you need sponsor-facing output, export the first-value report and read Proof sendability and the buyer-safe gate section before sharing outside your team.";

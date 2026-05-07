@@ -197,6 +197,22 @@ jobs:
       - name: Procurement claim coherence guard
         run: python scripts/ci/check_procurement_claim_coherence.py
 
+      - name: V1 ITSM connector catalog vs V1_SCOPE doc alignment
+        run: python scripts/ci/assert_v1_connector_catalog_alignment.py
+
+      - name: High-risk documentation coherence guard (trust / MCP / pricing policy)
+        run: python scripts/ci/assert_high_risk_doc_coherence.py
+
+      - name: Public pricing placeholder hard guard (sales-led posture)
+        run: python scripts/ci/assert_public_pricing_placeholder_guard.py
+
+      - name: Doc guard unit tests (connector + coherence + pricing + data-consistency report)
+        run: |
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_v1_connector_catalog_alignment.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_high_risk_doc_coherence.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_public_pricing_placeholder_guard.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_data_consistency_mode_readiness_report.py"
+
       - name: Procurement doc freshness guard (warn-only)
         continue-on-error: true
         run: python scripts/ci/check_procurement_doc_freshness.py
@@ -318,6 +334,12 @@ jobs:
 
       - name: Pricing single-source-of-truth guard
         run: python scripts/ci/check_pricing_single_source.py
+
+      - name: Regenerate public pricing.json from PRICING_PHILOSOPHY locked block
+        run: python scripts/ci/generate_pricing_json.py
+
+      - name: Pricing JSON must match generator (no drift)
+        run: git diff --exit-code -- archlucid-ui/public/pricing.json
 
       - name: Worked-example ROI PDF freshness (warn-only; set WORKED_EXAMPLE_ROI_FRESHNESS_FAIL=1 to enforce)
         run: python scripts/ci/check_worked_example_roi_freshness.py

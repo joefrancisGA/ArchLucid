@@ -42,6 +42,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         cohort.TraceabilityZipEntryNames.Should().NotBeEmpty();
         cohort.FirstValueReportMarkdown.Should().NotBeNullOrWhiteSpace();
         cohort.FirstValueReportMarkdown.Should().Contain("Sponsor send readiness (buyer-safe gate)");
+        cohort.FirstValueReportMarkdown.Should().Contain("First-value evidence completeness");
         cohort.CommitManifestDecisionTraceIdCount.Should().BePositive();
     }
 

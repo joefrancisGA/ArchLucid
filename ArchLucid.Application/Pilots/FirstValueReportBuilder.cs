@@ -57,6 +57,16 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     /// </summary>
     public async System.Threading.Tasks.Task<System.String?> BuildMarkdownAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
+        FirstValueReportBuildResult? built = await BuildReportAsync(runId, apiBaseForLinks, cancellationToken);
+
+        return built?.Markdown;
+    }
+
+    /// <summary>
+    ///     Returns Markdown plus evidence classification for PDF watermarks, or <see langword="null"/> when the run does not exist.
+    /// </summary>
+    public async System.Threading.Tasks.Task<FirstValueReportBuildResult?> BuildReportAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
+    {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(apiBaseForLinks);
         if (string.IsNullOrWhiteSpace(runId))
@@ -94,6 +104,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         }
 
         PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
+        FirstValueEvidenceCompletenessLevel evidenceCompleteness = FirstValueEvidenceCompletenessClassifier.Classify(buyerSafeGate);
+        FirstValueEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, evidenceCompleteness);
         PilotBuyerSafeEvidenceGateMarkdownFormatter.AppendMarkdownSection(sb, buyerSafeGate);
         ProofPackageCompletenessResponse proofCompleteness =
             PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot);
@@ -126,7 +138,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine($"- Operator review UI: {ui}/reviews/{run.RunId}");
         sb.AppendLine($"- Pilot scorecard: {ui}/scorecard");
         sb.AppendLine($"- API anchor (authenticated): {baseUrl}/v1/architecture/run/{run.RunId}");
-        return sb.ToString();
+
+        return new FirstValueReportBuildResult(sb.ToString(), evidenceCompleteness);
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)
@@ -191,7 +204,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine($"| Buyer-safe redaction profile | {c.BuyerSafeRedactionProfile} |");
         sb.AppendLine(
             $"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
-        sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` |");
+        sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` · **{c.EvidenceCompleteness}** |");
         sb.AppendLine();
     }
 

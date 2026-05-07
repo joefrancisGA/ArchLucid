@@ -22,10 +22,11 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     expect(CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT).toContain("checklist");
   });
 
-  it("summarizes the four-step flow without internal pipeline jargon", () => {
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/new review/i);
+  it("summarizes the four-step flow with buyer concepts", () => {
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/create architecture review/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/pipeline runs/i);
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/finalize/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/manifest summary/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/review package/i);
   });
 
   it("labels the minimized first-review control consistently", () => {

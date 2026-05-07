@@ -14,7 +14,7 @@ This document is the operator-facing first-pilot path. The sponsor-facing narrat
 
 | Question | Answer |
 | --- | --- |
-| **What do I do first?** | Follow the **four steps** in §3: create an architecture **request**, let the **pipeline** finish, **finalize** when ready, then **review outputs** on review detail. Entry from [START_HERE.md](START_HERE.md) → this doc — no deep architecture reading required. |
+| **What do I do first?** | Follow the **four steps** in §3: **create an architecture review** (request), let **pipeline runs** complete, **finalize** when ready, then **review your package** on review detail — that is the buyer outcome. Entry from [START_HERE.md](START_HERE.md) → this doc — no deep architecture reading required. |
 | **What output proves value?** | A **finalized** architecture review: manifest summary, ranked findings, and **exportable artifacts** (table + bundle). That bundle is the **review package** you can walk a sponsor through. |
 | **What do I send a sponsor?** | Narrative: [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md). Artifacts: export from review detail after finalization. Before external sharing, generate the **first-value report** and read **Proof sendability** + **buyer-safe gate** in that Markdown (and honor demo-tenant warnings). Optional pilot metrics: [PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md). |
 | **What should I ignore for now?** | **Compare**, **replay**, **graph**, advisory-heavy flows, governance dashboards, alerts tuning, and anything labeled extended/advanced in §4 — until the first package is done. |

@@ -26,19 +26,27 @@ Use this drill after a candidate release build to gather **signals** (not a subs
    npx playwright test --config archlucid-ui/playwright.live.config.ts
    ```
 
-4. **Optional live Azure OpenAI gate** (skips when env vars unset)
+4. **Optional live Azure OpenAI gate** (skips when env vars unset — always writes **`artifacts/release/real-llm-evidence-gate.md`**)
 
    ```powershell
    .\scripts\Invoke-RealLlmEvidenceGate.ps1
    ```
 
-5. **Aggregated script** (non-fatal collection)
+5. **Production profile preflight (repo-only, no Azure login)**
+
+   ```powershell
+   .\scripts\Emit-ProductionProfilePreflightMarkdown.ps1
+   ```
+
+6. **Aggregated script** (non-fatal collection)
 
    ```powershell
    .\scripts\Invoke-ReleaseEvidenceSummary.ps1 [-MarkdownOut artifacts\release\release-evidence-summary.md] [-FailOnError]
    ```
 
-6. **Fixture expectation (offline):** `scripts/fixtures/release-evidence/expected-status-labels.txt` lists the Result labels this script must emit (`Passed`, `Failed`, `Skipped`, `Not captured`).
+7. **Fixture expectation (offline):** `scripts/fixtures/release-evidence/expected-status-labels.txt` lists the Result labels this script must emit (`Passed`, `Failed`, `Skipped`, `Not captured`).
+
+**Optional:** data consistency documentation readiness (no DB): `python scripts/data_consistency_mode_readiness_report.py` → `artifacts/deployment/data-consistency-mode-readiness.md`.
 
 ## Interpretation
 
