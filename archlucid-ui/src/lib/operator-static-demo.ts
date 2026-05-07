@@ -555,6 +555,12 @@ export type PolicyPacksStaticFallbackOptions = {
 };
 
 function isPolicyPacksStaticFallbackActive(options?: PolicyPacksStaticFallbackOptions): boolean {
+  // Buyer-polished shell uses the same env flags as static demo today; keep explicit so empty API responses still
+  // merge curated Healthcare Claims sample layers if flags or option wiring ever diverge.
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return true;
+  }
+
   if (isStaticDemoPayloadFallbackEnabled()) {
     return true;
   }

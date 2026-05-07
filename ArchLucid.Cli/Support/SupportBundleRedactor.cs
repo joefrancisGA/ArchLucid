@@ -15,6 +15,7 @@ public static class SupportBundleRedactor
         "strip-x-api-key-header-secret",
         "mask-connection-keyword-secrets",
         "mask-jwt-like-tokens",
+        "mask-json-escaped-jwt-strings",
         "mask-openai-sk-shaped-keys",
         "mask-inline-apikey-assignments",
         "mask-json-quoted-apikey-clientsecret",
@@ -33,14 +34,22 @@ public static class SupportBundleRedactor
         @"(?i)(\b(?:Password|Pwd|AccountKey|SharedAccessKey)\s*=\s*)[^\s;""]+",
         RegexOptions.Compiled);
 
-    /// <summary>JWT-shaped three-segment tokens (RFC 7519 header.payload.signature) often appear in logs.</summary>
+    /// <summary>
+    ///     JWT emitted inside JSON string literals as <c>\\u0022...\u0022</c>; plain <see cref="JwtLikeToken" />
+    ///     cannot anchor when a digit precedes <c>e</c> (end of Unicode escape digits).
+    /// </summary>
+    private static readonly Regex JwtEmbeddedInJsonEscapedUnicodeQuotes = new(
+        @"\\u0022eyJ[^.\\]+\.[^.\\]+\.[^.\\]+\\u0022",
+        RegexOptions.Compiled);
+
+    /// <summary>JWT-shaped three-segment tokens (base64url header.payload.signature) in logs and plain strings.</summary>
     private static readonly Regex JwtLikeToken = new(
-        @"\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{8,}\b",
+        @"(?<!\w)eyJ[^.\s""\\]{8,}\.[^.\s""\\]{10,}\.[^.\s""\\]{8,}(?!\w)",
         RegexOptions.Compiled);
 
     /// <summary>OpenAI-style API keys in pasted logs.</summary>
     private static readonly Regex OpenAiSkKey = new(
-        @"\bsk-(?:proj-)?[A-Za-z0-9]{16,}\b",
+        @"(?<!\w)sk-(?:proj-)?[A-Za-z0-9]{16,}(?!\w)",
         RegexOptions.Compiled);
 
     private static readonly Regex InlineApiKeyAssignment = new(
@@ -157,6 +166,7 @@ public static class SupportBundleRedactor
         string s = BearerHeader.Replace(text, m => m.Groups[1].Value + "[REDACTED]");
         s = ApiKeyHeader.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
         s = ConnectionSecret.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
+        s = JwtEmbeddedInJsonEscapedUnicodeQuotes.Replace(s, @"\\u0022[REDACTED_JWT]\\u0022");
         s = JwtLikeToken.Replace(s, "[REDACTED_JWT]");
         s = OpenAiSkKey.Replace(s, "[REDACTED_API_KEY]");
         s = InlineApiKeyAssignment.Replace(s, m => m.Groups[1].Value + "[REDACTED]");

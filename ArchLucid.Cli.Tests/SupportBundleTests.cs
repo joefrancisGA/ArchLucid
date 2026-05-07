@@ -209,6 +209,7 @@ public sealed class SupportBundleTests
             manifest.Should().Contain("\"redactionPassAppliedToSerializedSections\": true");
             manifest.Should().Contain("strip-authorization-bearer-secret");
             manifest.Should().Contain("mask-jwt-like-tokens");
+            manifest.Should().Contain("mask-json-escaped-jwt-strings");
             manifest.Should().Contain("includedFilesLexOrder");
 
             string logJson = File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.LogsFileName));
