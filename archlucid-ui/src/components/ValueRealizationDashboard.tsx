@@ -92,8 +92,9 @@ export function ValueRealizationDashboard() {
   }
 
   const impliedUsd = safeHours > 0 && Number.isFinite(hourlyUsd) && !Number.isNaN(hourlyUsd) ? safeHours * hourlyUsd : 0;
+  // Align with RoiTelemetryCard: whole-dollar rounding can show $0 below ~$0.50 — omit the dollar snapshot in that band.
   const showMeasuredRoiBlock =
-    safeHours > 0 && Number.isFinite(impliedUsd) && !Number.isNaN(impliedUsd) && impliedUsd >= 1;
+    safeHours > 0 && Number.isFinite(impliedUsd) && !Number.isNaN(impliedUsd) && impliedUsd >= 0.5;
 
   return (
     <Card className="mb-6">

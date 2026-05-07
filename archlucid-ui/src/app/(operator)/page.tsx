@@ -32,7 +32,7 @@ export default function HomePage() {
     <OperatorHomeGate>
     <TrialWelcomeRunDeepLink />
     <main className="space-y-6">
-      <OperatorCoArchitectHomeStrip />
+      {buyerPolishedShell ? null : <OperatorCoArchitectHomeStrip />}
       <WelcomeBanner />
       
       {buyerPolishedShell ? null : <ValueRealizationDashboard />}
@@ -46,10 +46,11 @@ export default function HomePage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
         <div className="min-w-0 space-y-6">
           <RunsDashboardPanel />
-          <OperatorCorePilotDiagnosticsChecklist />
-          <AfterCorePilotChecklistHint />
+          {buyerPolishedShell ? null : <OperatorCorePilotDiagnosticsChecklist />}
+          {buyerPolishedShell ? null : <AfterCorePilotChecklistHint />}
 
           <OperationalMetricsGate>
+            {buyerPolishedShell ? null : (
             <section aria-labelledby="operational-metrics-heading">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <h3
@@ -69,10 +70,11 @@ export default function HomePage() {
                 <OperatorTaskSuccessTile />
               </div>
             </section>
+            )}
 
-            <BeforeAfterDeltaPanel />
+            {buyerPolishedShell ? null : <BeforeAfterDeltaPanel />}
 
-            <HomeMaturityLayerCards />
+            {buyerPolishedShell ? null : <HomeMaturityLayerCards />}
           </OperationalMetricsGate>
         </div>
 

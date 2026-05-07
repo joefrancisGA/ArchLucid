@@ -265,7 +265,7 @@ export function RunsDashboardPanel() {
                           <Link
                             href={`/manifests/${encodeURIComponent(showcaseDemoRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
                           >
-                            Open manifest
+                            Open review package
                           </Link>
                         </Button>
                       </div>

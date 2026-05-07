@@ -118,7 +118,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     renderHomeWithCoArchitectStrip();
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Architecture review workspace" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Your review workspace" })).toBeInTheDocument();
     });
 
     expect(within(screen.getByRole("banner", { name: "Welcome" })).getByText(/Open in-progress architecture reviews/i)).toBeInTheDocument();

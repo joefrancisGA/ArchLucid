@@ -142,9 +142,9 @@ export function WelcomeBanner() {
 
   const headingText =
     returningUser
-      ? "Architecture review workspace"
+      ? "Your review workspace"
       : buyerPolishedShell
-        ? "Create a governed architecture review package"
+        ? "See how a governed review package comes together"
         : "Review an existing architecture—with evidence-backed outcomes.";
   const subheadingText = returningUser ? (
     <>
@@ -193,9 +193,11 @@ export function WelcomeBanner() {
             {days} day{days === 1 ? "" : "s"} left on trial
           </span>
         ) : null}
-        <Button asChild size="sm" className="h-8" variant="primary">
-          <Link href="/reviews/new">{OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}</Link>
-        </Button>
+        {buyerPolishedShell ? null : (
+          <Button asChild size="sm" className="h-8" variant="primary">
+            <Link href="/reviews/new">{OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}</Link>
+          </Button>
+        )}
         <Button
           type="button"
           variant="ghost"
@@ -276,33 +278,24 @@ export function WelcomeBanner() {
           </h2>
           <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">{subheadingText}</p>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2.5">
-            {buyerPolishedShell && !returningUser ? (
-              <>
-                <Button asChild variant="primary" className="h-10 px-5 text-sm font-semibold">
-                  <Link href="/reviews/new">{OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
-                >
-                  <Link href="/showcase/claims-intake-modernization">See sample output</Link>
-                </Button>
-              </>
-            ) : (
-              <>
-                <OptInTourLauncher className="h-10 px-4 text-sm" />
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
-                >
-                  <Link href="/showcase/claims-intake-modernization">See completed example</Link>
-                </Button>
-              </>
-            )}
-          </div>
+          {buyerPolishedShell ? (
+            !returningUser ? (
+              <p className="mt-4 m-0 max-w-lg text-xs text-neutral-600 dark:text-neutral-400">
+                Use the sample card below to open the walkthrough output, or start a new review when you&apos;re ready.
+              </p>
+            ) : null
+          ) : (
+            <div className="mt-4 flex flex-wrap items-center gap-2.5">
+              <OptInTourLauncher className="h-10 px-4 text-sm" />
+              <Button
+                asChild
+                variant="outline"
+                className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
+              >
+                <Link href="/showcase/claims-intake-modernization">See completed example</Link>
+              </Button>
+            </div>
+          )}
         </div>
 
         {!returningUser ? (
