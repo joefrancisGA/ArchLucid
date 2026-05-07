@@ -79,6 +79,27 @@ beforeEach(() => {
   });
 });
 
+describe("HomePage — buyer-polished shell", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("omits co-architect strip, maturity explore cards, and pilot metrics rail", async () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
+
+    render(<HomePage />);
+
+    expect(screen.queryByText("ArchLucid — your AI co-architect.")).toBeNull();
+    expect(screen.queryByText("Advanced Analysis")).toBeNull();
+    expect(screen.queryByText("Explore when ready")).toBeNull();
+    expect(screen.queryByText("Operational metrics")).toBeNull();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("welcome-banner-mock")).toBeInTheDocument();
+    });
+  });
+});
+
 describe("HomePage (55R smoke — landing)", () => {
   it("renders Runs panel, maturity layer cards, and workflow panel", async () => {
     render(<HomePage />);

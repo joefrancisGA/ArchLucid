@@ -43,9 +43,11 @@ COPY ArchLucid.ArtifactSynthesis.Tests/*.csproj ArchLucid.ArtifactSynthesis.Test
 COPY ArchLucid.Contracts/*.csproj          ArchLucid.Contracts/
 COPY ArchLucid.ContextIngestion/*.csproj   ArchLucid.ContextIngestion/
 COPY ArchLucid.Core/*.csproj               ArchLucid.Core/
+COPY ArchLucid.Capabilities.Cost/*.csproj  ArchLucid.Capabilities.Cost/
 COPY ArchLucid.Decisioning/*.csproj        ArchLucid.Decisioning/
 COPY ArchLucid.Integrations.AzureDevOps/*.csproj ArchLucid.Integrations.AzureDevOps/
 COPY ArchLucid.KnowledgeGraph/*.csproj     ArchLucid.KnowledgeGraph/
+COPY ArchLucid.Notifications/*.csproj      ArchLucid.Notifications/
 COPY ArchLucid.Persistence/*.csproj        ArchLucid.Persistence/
 COPY ArchLucid.Persistence.Coordination/*.csproj ArchLucid.Persistence.Coordination/
 COPY ArchLucid.Persistence.Runtime/*.csproj ArchLucid.Persistence.Runtime/

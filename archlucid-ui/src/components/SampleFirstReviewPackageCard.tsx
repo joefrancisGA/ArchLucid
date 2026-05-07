@@ -75,17 +75,20 @@ export function SampleFirstReviewPackageCard() {
             </dl>
           )}
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             {buyerPolished ? (
               <>
                 <Button asChild variant="primary" className="h-9">
                   <Link href={sampleReviewHref} onClick={recordSampleOpened}>
-                    Open architecture review
+                    Open sample review
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="h-9">
-                  <Link href="/reviews/new">Create a new review</Link>
-                </Button>
+                <Link
+                  href="/reviews/new"
+                  className="text-sm font-medium text-teal-800 underline underline-offset-4 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                >
+                  Start your own review
+                </Link>
               </>
             ) : (
               <>
