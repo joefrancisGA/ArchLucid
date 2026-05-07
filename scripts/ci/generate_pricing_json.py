@@ -12,6 +12,12 @@ import json
 import sys
 from pathlib import Path
 
+_CI_DIR = Path(__file__).resolve().parent
+if str(_CI_DIR) not in sys.path:
+    sys.path.insert(0, str(_CI_DIR))
+
+import pricing_json_checkout_guard as checkout_guard  # noqa: E402
+
 
 def extract_locked_prices_json(doc: str) -> str:
     """Prefer a line-start fence so inline prose cannot accidentally embed the token."""
@@ -69,17 +75,12 @@ def main() -> int:
         print("ERROR: pricing JSON must include a non-empty packages array", file=sys.stderr)
         return 1
 
-    url_raw = data.get("teamStripeCheckoutUrl")
-    if isinstance(url_raw, str):
-        lower = url_raw.lower()
-        is_placeholder = ("placeholder-replace-before-launch" in lower) or ("checkout-placeholder" in lower)
-        if is_placeholder and data.get("teamStripeCheckoutUrlSalesLedPlaceholder") is not True:
-            print(
-                "ERROR: teamStripeCheckoutUrl is a placeholder substring but "
-                "teamStripeCheckoutUrlSalesLedPlaceholder is not true — see PRICING_PHILOSOPHY.md §5.2.",
-                file=sys.stderr,
-            )
-            return 1
+    checkout_err = checkout_guard.validate_pricing_json_team_checkout(data)
+
+    if checkout_err is not None:
+        print(f"ERROR: {checkout_err}", file=sys.stderr)
+
+        return 1
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
