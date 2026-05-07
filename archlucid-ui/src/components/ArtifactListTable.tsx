@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import type { ArtifactDescriptor } from "@/types/authority";
 import { getArtifactDownloadUrl } from "@/lib/api";
@@ -132,7 +133,9 @@ export function ArtifactListTable(props: {
                 <td className="px-2 py-2.5">
                   <Link href={reviewHref}>{previewLinkLabel}</Link>
                   <span className="mx-2 text-neutral-300 dark:text-neutral-600">|</span>
-                  <a href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>Download</a>
+                  <FunnelTelemetryExportAnchor href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>
+                    Download
+                  </FunnelTelemetryExportAnchor>
                   {runId && !hidePilotFeedbackOnArtifacts ? (
                     <div className="mt-2 max-w-xs">
                       <ProductLearningFeedbackControls

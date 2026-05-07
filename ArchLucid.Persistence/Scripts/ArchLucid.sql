@@ -6161,6 +6161,8 @@ BEGIN
                 N'first_run_started',
                 N'first_run_committed',
                 N'first_finding_viewed',
+                N'first_finalization_attempted',
+                N'first_export_opened',
                 N'thirty_minute_milestone'
             )),
         CONSTRAINT FK_FirstTenantFunnelEvents_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)

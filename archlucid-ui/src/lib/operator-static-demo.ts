@@ -443,7 +443,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
     nodes: [
 
-      { id: "n-run", type: "ArchitectureRun", referenceId: rid, name: "Architecture run" },
+      { id: "n-run", type: "ArchitectureRun", referenceId: rid, name: "Review started" },
 
       {
 
@@ -453,7 +453,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.contextSnapshotId ?? "ctx-demo",
 
-        name: "Context snapshot",
+        name: "Context captured",
 
       },
 
@@ -465,7 +465,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.graphSnapshotId ?? "graph-demo",
 
-        name: "Graph snapshot",
+        name: "Evidence graph created",
 
       },
 
@@ -477,8 +477,15 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.findingsSnapshotId ?? "find-demo",
 
-        name: "Findings snapshot",
+        name: "Findings captured",
 
+      },
+
+      {
+        id: "n-phi",
+        type: "Finding",
+        referenceId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+        name: "PHI minimization risk",
       },
 
       {
@@ -489,7 +496,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: manifest.manifestId,
 
-        name: "Reviewed manifest",
+        name: "Manifest finalized",
 
       },
 
@@ -501,7 +508,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.artifactBundleId ?? "bundle-demo",
 
-        name: "Artifact bundle",
+        name: "Artifacts bundled",
 
       },
 
@@ -515,7 +522,9 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
       { id: "e-graph-find", type: "next", fromNodeId: "n-graph", toNodeId: "n-find" },
 
-      { id: "e-find-manifest", type: "materialized", fromNodeId: "n-find", toNodeId: "n-manifest" },
+      { id: "e-find-phi", type: "raised", fromNodeId: "n-find", toNodeId: "n-phi" },
+
+      { id: "e-phi-manifest", type: "recorded in", fromNodeId: "n-phi", toNodeId: "n-manifest" },
 
       { id: "e-manifest-bundle", type: "packaged", fromNodeId: "n-manifest", toNodeId: "n-bundle" },
 

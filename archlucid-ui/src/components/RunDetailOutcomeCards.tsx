@@ -62,6 +62,13 @@ export function RunDetailOutcomeCards({
               <span className="font-medium">Warnings (manifest):</span>{" "}
               <span className="text-lg font-semibold">{finiteIntegerCountDisplay(warningCountDisplay)}</span>
             </p>
+            {buyerPolishedShell ? (
+              <p className="m-0 mt-2 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">Note:</span> “Findings” totals
+                reflect structured review findings. “Warnings (manifest)” reflects checklist items on the reviewed
+                manifest—they are related, but not the same count.
+              </p>
+            ) : null}
             {unresolvedTrunc !== null && unresolvedTrunc > 0 ? (
               <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
                 {unresolvedTrunc} unresolved on manifest

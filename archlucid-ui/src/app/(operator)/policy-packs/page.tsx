@@ -133,7 +133,9 @@ export default function PolicyPacksPage() {
         getEffectivePolicyContent(),
       ]);
       const merged = mergePolicyPacksStateWithStaticDemo(p, eff, doc, "default", {
-        afterEmptyLiveResponse: p.length === 0 && (eff === null || eff.packs.length === 0),
+        afterEmptyLiveResponse:
+          buyerPolishedShell ||
+          (p.length === 0 && (eff === null || eff.packs.length === 0)),
       });
 
       setPacks(merged.packs);

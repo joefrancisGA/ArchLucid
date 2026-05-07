@@ -41,6 +41,7 @@ import { RunDetailTechnicalIdentifiersSection } from "@/components/RunDetailTech
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
+import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
@@ -75,6 +76,7 @@ import {
   tryStaticDemoPipelineTimeline,
   tryStaticDemoRunDetail,
 } from "@/lib/operator-static-demo";
+import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
@@ -407,6 +409,25 @@ export default async function RunDetailPage({
 
   const runSummaryForBadge = progressForPipelineUi;
   const descriptionTrimmed = resolvedDetail.run.description?.trim() ?? "";
+
+  const { findingCountDisplay, warningCountDisplay } = resolveReviewOutcomeCounts({
+    runId: resolvedDetail.run.runId,
+    usedStaticDemoRun,
+    explanationSummary,
+    manifestSummary,
+  });
+
+  const manifestSummaryForUi: ManifestSummary | null =
+    manifestSummary === null
+      ? null
+      : {
+          ...manifestSummary,
+          warningCount:
+            typeof warningCountDisplay === "number" && Number.isFinite(warningCountDisplay)
+              ? Math.trunc(warningCountDisplay)
+              : manifestSummary.warningCount,
+        };
+
   const headline = buyerPolishedArtifactTable
     ? buyerFacingReviewTitleFromSummary(resolvedDetail.run as RunSummary)
     : descriptionTrimmed.length > 0
@@ -450,7 +471,7 @@ export default async function RunDetailPage({
           runId={resolvedDetail.run.runId}
           manifestId={manifestId}
           artifactCount={artifacts.length}
-          findingCount={explanationSummary?.findingCount ?? null}
+          findingCount={findingCountDisplay}
         />
       ) : null}
 
@@ -458,8 +479,8 @@ export default async function RunDetailPage({
         runId={resolvedDetail.run.runId}
         manifestId={manifestId}
         artifactCount={artifacts.length}
-        findingCountDisplay={explanationSummary?.findingCount ?? null}
-        warningCountDisplay={manifestSummary?.warningCount ?? null}
+        findingCountDisplay={findingCountDisplay}
+        warningCountDisplay={warningCountDisplay}
         hasGoldenManifest={Boolean(manifestId)}
         unresolvedIssueCountDisplay={manifestSummary?.unresolvedIssueCount ?? null}
         governanceGateLabel={
@@ -481,9 +502,9 @@ export default async function RunDetailPage({
         <RunTrustEvidenceCardSection card={resolvedDetail.trustEvidenceCard} />
       ) : null}
 
-      {manifestId && manifestSummary ? (
+      {manifestId && manifestSummaryForUi ? (
         <ManifestSummarySection
-          manifestSummary={manifestSummary}
+          manifestSummary={manifestSummaryForUi}
           buyerPolishedShell={buyerPolishedArtifactTable}
           runExecution={{
             realModeFellBackToSimulator: resolvedDetail.run.realModeFellBackToSimulator,
@@ -819,7 +840,7 @@ export default async function RunDetailPage({
                   runId={resolvedDetail.run.runId}
                   manifestId={manifestId}
                   goldenManifestJson={goldenManifestJsonForExport}
-                  manifestSummary={manifestSummary}
+                  manifestSummary={manifestSummaryForUi ?? manifestSummary}
                   trustEvidenceCard={resolvedDetail.trustEvidenceCard ?? null}
                 />
                 <Button
@@ -832,10 +853,14 @@ export default async function RunDetailPage({
                   }
                   asChild
                 >
-                  <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
+                  <FunnelTelemetryExportAnchor href={getBundleDownloadUrl(manifestId)}>
+                    Download bundle (ZIP)
+                  </FunnelTelemetryExportAnchor>
                 </Button>
                 <Button variant="outline" size="sm" asChild>
-                  <a href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>Download review export (ZIP)</a>
+                  <FunnelTelemetryExportAnchor href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>
+                    Download review export (ZIP)
+                  </FunnelTelemetryExportAnchor>
                 </Button>
               </div>
             </CollapsibleSection>
@@ -865,9 +890,9 @@ export default async function RunDetailPage({
                 </Button>
               ) : null}
               <Button variant="secondary" size="sm" asChild>
-                <a href={getTraceabilityBundleDownloadUrl(resolvedDetail.run.runId)}>
+                <FunnelTelemetryExportAnchor href={getTraceabilityBundleDownloadUrl(resolvedDetail.run.runId)}>
                   Download traceability bundle (ZIP)
-                </a>
+                </FunnelTelemetryExportAnchor>
               </Button>
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>

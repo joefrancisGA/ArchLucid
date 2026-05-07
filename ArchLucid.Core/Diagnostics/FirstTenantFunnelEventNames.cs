@@ -1,7 +1,7 @@
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-///     Canonical six-event catalog for the first-tenant onboarding telemetry funnel
+///     Canonical funnel event catalog for the first-tenant onboarding telemetry funnel
 ///     (Improvement 12 / pending question 40). The catalog is the contract between:
 ///     <list type="bullet">
 ///         <item>the operator-shell client (<c>archlucid-ui/src/lib/first-tenant-funnel-telemetry.ts</c>),</item>
@@ -28,9 +28,15 @@ public static class FirstTenantFunnelEventNames
     /// <summary>First finding viewed on the run-detail or finding-detail page.</summary>
     public const string FirstFindingViewed = "first_finding_viewed";
 
+    /// <summary>Operator confirmed finalization — client fires before commit API resolves.</summary>
+    public const string FirstFinalizationAttempted = "first_finalization_attempted";
+
+    /// <summary>First deliberate export/download (bundle, traceability, Markdown, etc.).</summary>
+    public const string FirstExportOpened = "first_export_opened";
+
     /// <summary>
-    ///     Server-side derived: all five preceding events fell within 30 minutes of <see cref="Signup" />.
-    ///     Emitted at most once per tenant.
+    ///     Milestone synthesized on the client (browser): fires when <see cref="FirstFindingViewed" />
+    ///     arrives within thirty minutes wall-clock after <see cref="Signup" />. Emitted at most once per browser session.
     /// </summary>
     public const string ThirtyMinuteMilestone = "thirty_minute_milestone";
 
@@ -42,10 +48,12 @@ public static class FirstTenantFunnelEventNames
         FirstRunStarted,
         FirstRunCommitted,
         FirstFindingViewed,
+        FirstFinalizationAttempted,
+        FirstExportOpened,
         ThirtyMinuteMilestone
     ];
 
-    /// <summary>True when <paramref name="value" /> is one of the six canonical event names.</summary>
+    /// <summary>True when <paramref name="value" /> matches a catalog event name.</summary>
     public static bool IsValid(string? value) =>
         !string.IsNullOrWhiteSpace(value) && All.Contains(value, StringComparer.Ordinal);
 }

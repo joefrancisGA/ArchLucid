@@ -8,8 +8,9 @@
   row is empty until the owner enables per-tenant emission.
 
   Schema is intentionally minimal — no UserId, no IP, no UserAgent. The CHECK
-  constraint on EventName pins the catalog to the six canonical values defined in
-  ArchLucid.Core.Diagnostics.FirstTenantFunnelEventNames.
+  constraint on EventName pins the catalog to values defined in
+  ArchLucid.Core.Diagnostics.FirstTenantFunnelEventNames (see migration 150 for
+  catalog extensions after the initial six-value set).
 
   RLS: not applied. The application never exposes raw rows — the API surface is
   aggregate-only (the Workbook reads from Application Insights customMetrics).

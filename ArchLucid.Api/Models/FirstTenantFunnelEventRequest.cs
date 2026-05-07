@@ -10,7 +10,8 @@ public sealed class FirstTenantFunnelEventRequest
     /// <summary>
     ///     Funnel event name; one of <c>FirstTenantFunnelEventNames</c> constants
     ///     (<c>signup</c>, <c>tour_opt_in</c>, <c>first_run_started</c>, <c>first_run_committed</c>,
-    ///     <c>first_finding_viewed</c>, <c>thirty_minute_milestone</c>).
+    ///     <c>first_finding_viewed</c>, <c>first_finalization_attempted</c>, <c>first_export_opened</c>,
+    ///     <c>thirty_minute_milestone</c>).
     /// </summary>
     public string? Event
     {
