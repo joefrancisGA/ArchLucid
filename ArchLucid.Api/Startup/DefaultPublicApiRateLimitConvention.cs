@@ -28,16 +28,9 @@ internal sealed class DefaultPublicApiRateLimitConvention : IApplicationModelCon
 
     private static bool HasExistingRateLimitMetadata(ControllerModel controller, ActionModel action)
     {
-        if (MetadataFromAttributes(controller.Attributes))
-            return true;
+        if (MetadataFromAttributes(controller.Attributes)) return true;
 
-        if (MetadataFromAttributes(action.Attributes))
-            return true;
-
-        if (SelectorsHaveRateLimiting(action.Selectors))
-            return true;
-
-        return false;
+        return MetadataFromAttributes(action.Attributes) || SelectorsHaveRateLimiting(action.Selectors);
     }
 
     private static bool MetadataFromAttributes(IReadOnlyList<object> attributes)

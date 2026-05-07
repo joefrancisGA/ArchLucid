@@ -13,13 +13,12 @@ namespace ArchLucid.Application.Advisory;
 /// <param name = "profileRepository">Stores and loads latest profile.</param>
 public sealed class RecommendationLearningService(IRecommendationRepository recommendationRepository, IRecommendationLearningAnalyzer analyzer, IRecommendationLearningProfileRepository profileRepository) : IRecommendationLearningService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(recommendationRepository, analyzer, profileRepository);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Decisioning.Advisory.Workflow.IRecommendationRepository recommendationRepository, ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningAnalyzer analyzer, ArchLucid.Persistence.Advisory.IRecommendationLearningProfileRepository profileRepository)
+    private static byte __ValidatePrimaryConstructorArguments(IRecommendationRepository recommendationRepository, IRecommendationLearningAnalyzer analyzer, IRecommendationLearningProfileRepository profileRepository)
     {
         ArgumentNullException.ThrowIfNull(recommendationRepository);
         ArgumentNullException.ThrowIfNull(analyzer);
         ArgumentNullException.ThrowIfNull(profileRepository);
-        return (byte)0;
+        return 0;
     }
 
     /// <summary>
@@ -37,7 +36,7 @@ public sealed class RecommendationLearningService(IRecommendationRepository reco
     }
 
     /// <inheritdoc/>
-    public System.Threading.Tasks.Task<ArchLucid.Decisioning.Advisory.Learning.RecommendationLearningProfile?> GetLatestProfileAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
+    public Task<RecommendationLearningProfile?> GetLatestProfileAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
     {
         return profileRepository.GetLatestAsync(tenantId, workspaceId, projectId, ct);
     }

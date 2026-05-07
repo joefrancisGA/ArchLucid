@@ -46,6 +46,28 @@ public sealed class SupportBundleTests
     }
 
     [Fact]
+    public void RedactSensitivePatterns_strips_jwt_openai_sk_json_keys_and_long_content_fields()
+    {
+        string markerJwt = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIiJ9.BADMARKERPAYLOADSIGNATUREZZZZ.BADMARKERSIGTOKENZZZZZ";
+        const string markerSk = "sk-proj-ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEF";
+        const string markerCompact = "{\"apiKey\":\"K_COMPACT_SECRET_LEAK_xx\"}";
+        string markerPromptPad = "{\"content\":\"" + "PROMPT_UNIQUE_PAD_" + new string('z', 450) + "\"}";
+
+        string raw =
+            $"{markerJwt} bearer {markerSk} {markerCompact}\r\nAuthorization: Bearer shouldalsoredact\r\n{markerPromptPad}";
+
+        string redacted = SupportBundleRedactor.RedactSensitivePatterns(raw);
+
+        redacted.Should().NotContain("BADMARKERPAYLOADSIGNATUREZZZZ");
+        redacted.Should().NotContain(markerSk);
+        redacted.Should().NotContain("K_COMPACT_SECRET_LEAK_xx");
+        redacted.Should().NotContain("PROMPT_UNIQUE_PAD_");
+        redacted.Should().Contain("[REDACTED_JWT]");
+        redacted.Should().Contain("[REDACTED_API_KEY]");
+        redacted.Should().Contain("[REDACTED_LONG_STRING]");
+    }
+
+    [Fact]
     public async Task CollectAsync_with_mock_http_produces_all_sections()
     {
         using HttpMessageHandler handler = new StubApiHandler();
@@ -98,6 +120,17 @@ public sealed class SupportBundleTests
             payload.Workspace.FileCount.Should().Be(1);
             payload.References.Documentation.Should()
                 .Contain(d => d.StartsWith(SupportBundleDocLinks.PilotRescuePlaybookRelativePath, StringComparison.Ordinal));
+            payload.Health.AttemptedHealthRelativePaths.Should()
+                .Equal("/health/live", "/health/ready", "/health");
+            payload.References.CorrelationTraceGuidance.Should().HaveCount(SupportBundleCorrelationTraceCatalog.GuidanceBullets.Count);
+            payload.References.CorrelationTraceGuidance.Should()
+                .Contain(s => s.Contains("X-Correlation-ID", StringComparison.OrdinalIgnoreCase));
+            payload.ConfigSummary.StorageProviderSummary.Should().NotBeNullOrWhiteSpace();
+            payload.ConfigSummary.HostAuthModeSummary.Should().NotBeNullOrWhiteSpace();
+            payload.ConfigSummary.ValidateConfigAlerts.Should()
+                .Contain(a => a.Severity == "Warning"
+                              && string.Equals(a.Category, "Bootstrap", StringComparison.Ordinal)
+                              && a.Check.Contains("appsettings", StringComparison.OrdinalIgnoreCase));
         }
         finally
         {
@@ -175,12 +208,67 @@ public sealed class SupportBundleTests
 
             manifest.Should().Contain("\"redactionPassAppliedToSerializedSections\": true");
             manifest.Should().Contain("strip-authorization-bearer-secret");
+            manifest.Should().Contain("mask-jwt-like-tokens");
             manifest.Should().Contain("includedFilesLexOrder");
 
             string logJson = File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.LogsFileName));
 
             logJson.Should().NotContain("supersecret");
             logJson.Should().Contain("[REDACTED]");
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
+
+                Directory.Delete(dir, true);
+        }
+    }
+
+    [Fact]
+    public void WriteDirectoryWithRedaction_no_file_text_contains_obvious_secret_markers()
+    {
+        const string csMarker = "Server=tcp:evil.example.com,1433;Password=UNIQUE_CS_PASSWORD_MARKER_42;";
+        const string jwtMarker =
+            "eyJhbGciOiJub25lIiwidHlwIjoiSldUIiJ9.UNIQUEJWTBODYMARKER999ZZ.UNIQUEJWTSIGZZZZZZZZ";
+        const string skMarker = "sk-proj-UNIQUESKPROJMARKER123456789012345678901234";
+        string promptPad = "{\"systemPrompt\":\"" + "UNIQUE_SYSTEM_PROMPT_" + new string('y', 420) + "\"}";
+
+        SupportBundleLogsSection logs = new()
+        {
+            LocalLogExcerpt =
+                $"probe {jwtMarker} key {skMarker} {csMarker}\r\nAuthorization: Bearer UNIQUE_BEARER_MARK\r\n{promptPad}"
+        };
+
+        SupportBundleBuildSection build = new()
+        {
+            ApiVersionJson = "{\"token\":\"" + jwtMarker + "\"}"
+        };
+
+        SupportBundlePayload payload = new(
+            new SupportBundleManifest { CreatedUtc = "2026-01-01T00:00:00Z", CliWorkingDirectory = "/tmp" },
+            build,
+            new SupportBundleHealthSection(),
+            new SupportBundleApiContractSection(),
+            new SupportBundleConfigSummary(),
+            new SupportBundleEnvironmentSection(),
+            new SupportBundleWorkspaceSection(),
+            new SupportBundleReferencesSection(),
+            logs);
+
+        string dir = Path.Combine(Path.GetTempPath(), "bundleSecretShape." + Guid.NewGuid().ToString("N")[..8]);
+
+        try
+        {
+            SupportBundleArchiveWriter.WriteDirectoryWithRedaction(payload, dir);
+
+            string combined = string.Join('\n', Directory.GetFiles(dir, "*", SearchOption.TopDirectoryOnly)
+                .Select(File.ReadAllText));
+
+            combined.Should().NotContain("UNIQUE_CS_PASSWORD_MARKER_42");
+            combined.Should().NotContain("UNIQUEJWTBODYMARKER999ZZ");
+            combined.Should().NotContain("UNIQUESKPROJMARKER");
+            combined.Should().NotContain("UNIQUE_BEARER_MARK");
+            combined.Should().NotContain("UNIQUE_SYSTEM_PROMPT_");
         }
         finally
         {

@@ -14,7 +14,12 @@ internal static class ValidateConfigConfigurationFactory
     /// <summary>
     ///     Merges JSON files (including environment-specific overlay), CLI overlays, then environment variables — last wins.
     /// </summary>
-    internal static IConfiguration BuildMerged(ArchLucidProjectScaffolder.ArchLucidCliConfig? cli)
+    /// <param name="cli">Optional CLI manifest used for overlays (API URL).</param>
+    /// <param name="contentRoot">
+    ///     Directory containing <c>archlucid.json</c> / <c>appsettings*.json</c> for merges; defaults to
+    ///     <see cref="Directory.GetCurrentDirectory" /> when null or whitespace.
+    /// </param>
+    internal static IConfiguration BuildMerged(ArchLucidProjectScaffolder.ArchLucidCliConfig? cli, string? contentRoot = null)
     {
         List<KeyValuePair<string, string?>> overlays = new(2);
 
@@ -24,11 +29,13 @@ internal static class ValidateConfigConfigurationFactory
                 "ARCHLUCID_API_URL",
                 cli.ApiUrl.Trim().TrimEnd('/')));
 
-        string contentRoot = Directory.GetCurrentDirectory();
+        string root = string.IsNullOrWhiteSpace(contentRoot)
+            ? Directory.GetCurrentDirectory()
+            : Path.GetFullPath(contentRoot);
 
         // Bootstrap ASP.NET environment name so appsettings.{env}.json participates like the API host.
         IConfiguration bootstrap = new ConfigurationBuilder()
-            .SetBasePath(contentRoot)
+            .SetBasePath(root)
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
             .AddEnvironmentVariables()
             .Build();
@@ -42,7 +49,7 @@ internal static class ValidateConfigConfigurationFactory
         string envJsonPath = $"appsettings.{hostingEnvironment}.json";
 
         return new ConfigurationBuilder()
-            .SetBasePath(contentRoot)
+            .SetBasePath(root)
             .AddJsonFile("archlucid.json", optional: true, reloadOnChange: false)
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
             .AddJsonFile(envJsonPath, optional: true, reloadOnChange: false)

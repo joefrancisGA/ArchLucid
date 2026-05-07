@@ -335,7 +335,7 @@ function CompareForm() {
                 setRightRunId("claims-intake-run-v2");
               }}
             >
-              <span className="block font-semibold text-neutral-900 dark:text-neutral-100">Target: Hardened PHI flow</span>
+              <span className="block font-semibold text-neutral-900 dark:text-neutral-100">Updated: Hardened PHI flow</span>
               <span className="mt-1 block text-xs text-neutral-600 dark:text-neutral-400">
                 Pair with baseline for sponsor-ready before/after narrative.
               </span>

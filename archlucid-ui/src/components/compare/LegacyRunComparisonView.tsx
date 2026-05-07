@@ -51,7 +51,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
     <section id="compare-legacy" className="mt-7">
       <h3 className="mb-2">Review-level diff</h3>
       <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
-        <strong>Base:</strong> <code className={monoCls}>{result.leftRunId}</code> ·{" "}
+        <strong>Baseline:</strong> <code className={monoCls}>{result.leftRunId}</code> ·{" "}
         <strong>Updated:</strong> <code className={monoCls}>{result.rightRunId}</code>
         {result.runLevelDiffCount !== undefined && (
           <>

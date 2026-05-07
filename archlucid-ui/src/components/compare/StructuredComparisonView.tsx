@@ -13,18 +13,28 @@ const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 da
  * Prefer dollar + monthly framing when the payload is numeric (demo-friendly "100 vs 120" deltas).
  */
 function formatCostEstimateCell(value: unknown): string {
-  if (value === null || value === undefined) return "?";
+  if (value === null || value === undefined) {
+    return "—";
+  }
 
   const s = String(value).trim();
 
-  if (s.length === 0) return "?";
+  if (s.length === 0) {
+    return "—";
+  }
 
   if (/^[\$\u00a3\u20ac]/.test(s)) {
-    return `${s}/mo ? projected monthly run rate (from manifest pipeline cost model)`;
+    return `${s}/mo — projected monthly run rate (from manifest pipeline cost model)`;
   }
 
   if (/^\d+([\.,]\d+)?$/.test(s.replace(/,/g, ""))) {
-    return `~$${s.replace(/,/g, "")}/mo ? projected monthly run rate`;
+    const n = Number(s.replace(/,/g, ""));
+
+    if (Number.isFinite(n)) {
+      return `~${new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)}/mo — projected monthly run rate`;
+    }
+
+    return `~$${s.replace(/,/g, "")}/mo — projected monthly run rate`;
   }
 
   return s;
@@ -75,7 +85,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
     <section id="compare-structured" className="mt-7">
       <h3 className="mb-2">Manifest comparison</h3>
       <p className="mb-3 max-w-3xl text-sm font-medium leading-relaxed text-neutral-800 dark:text-neutral-100">
-        Compare finalized manifests to understand what changed between reviews ? each card below summarizes one category.
+        Compare finalized manifests to understand what changed between reviews — each card below summarizes one category.
         Prefer this narrative before supplementary diffs further down.
       </p>
       <div className="mb-3 flex flex-wrap items-baseline gap-3 text-sm text-neutral-700 dark:text-neutral-300">
@@ -83,7 +93,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
           <strong>Baseline review:</strong> {compareRunHeadingLabel(golden.baseRunId)}
         </span>
         <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-600">
-          ?
+          →
         </span>
         <span>
           <strong>Updated review:</strong> {compareRunHeadingLabel(golden.targetRunId)}
@@ -133,7 +143,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
           <strong className="font-semibold">No other material changes</strong>
           <span className="text-neutral-600 dark:text-neutral-400">
             {" "}
-            ? no decision, requirement, security posture, topology, or modeled cost changes in this comparison payload.
+            — no decision, requirement, security posture, topology, or modeled cost changes in this comparison payload.
           </span>
         </div>
       ) : (
@@ -144,8 +154,8 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
                     <th className={cellCls}>Decision</th>
-                    <th className={cellCls}>Base</th>
-                    <th className={cellCls}>Target</th>
+                    <th className={cellCls}>Baseline</th>
+                    <th className={cellCls}>Updated</th>
                     <th className={cellCls}>Change</th>
                   </tr>
                 </thead>
@@ -208,8 +218,8 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
                     <th className={cellCls}>Control</th>
-                    <th className={cellCls}>Base</th>
-                    <th className={cellCls}>Target</th>
+                    <th className={cellCls}>Baseline</th>
+                    <th className={cellCls}>Updated</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -251,8 +261,8 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
               <table className="mt-2 w-full border-collapse text-sm">
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                    <th className={cellCls}>Baseline ? projected monthly run rate</th>
-                    <th className={cellCls}>Updated ? projected monthly run rate</th>
+                    <th className={cellCls}>Baseline — projected monthly run rate</th>
+                    <th className={cellCls}>Updated — projected monthly run rate</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -266,7 +276,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
               </table>
               <p className="mt-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
                 Projected monthly run rates are derived from the manifest pipeline cost model. Figures reflect the
-                architecture as described ? validate against your FinOps baseline before using in budget planning.
+                architecture as described; validate against your FinOps baseline before using in budget planning.
                 Use &ldquo;Summarize for sponsor&rdquo; to include this delta in an executive narrative.
               </p>
             </ComparisonFoldSection>

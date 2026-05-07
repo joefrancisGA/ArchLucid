@@ -307,6 +307,15 @@ export default async function RunDetailPage({
     }
   }
 
+  if (pipelineTimeline === null || pipelineTimeline.length === 0) {
+    const staticTimeline = tryStaticDemoPipelineTimeline(runId);
+
+    if (staticTimeline !== null && staticTimeline.length > 0) {
+      pipelineTimeline = staticTimeline;
+      pipelineTimelineFailure = null;
+    }
+  }
+
   if (manifestId) {
     try {
       const rawSummary: unknown = await getManifestSummary(manifestId);
@@ -356,6 +365,18 @@ export default async function RunDetailPage({
       if (staticExplanation !== null) {
         explanationSummary = staticExplanation;
         explanationFailure = null;
+      }
+    }
+
+    if (
+      explanationSummary !== null &&
+      explanationFailure === null &&
+      (explanationSummary.findingCount ?? 0) === 0
+    ) {
+      const staticExplanation = tryStaticDemoExplanationSummary(runId);
+
+      if (staticExplanation !== null && (staticExplanation.findingCount ?? 0) > 0) {
+        explanationSummary = staticExplanation;
       }
     }
   }
