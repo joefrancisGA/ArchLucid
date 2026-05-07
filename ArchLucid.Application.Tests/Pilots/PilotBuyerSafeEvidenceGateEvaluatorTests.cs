@@ -175,6 +175,43 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         gate.SoftGaps.Should().Contain(g => g.Contains("not attested", StringComparison.OrdinalIgnoreCase));
     }
 
+    [Fact]
+    public void Evaluate_EmptyRunId_HardGap_IsNotSendable()
+    {
+        ArchitectureRun run = CommittedRun();
+        run.RunId = "";
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run),
+            TenantCapturedSnapshot());
+
+        gate.HardGaps.Should().Contain(g => g.Contains("run id is missing", StringComparison.OrdinalIgnoreCase));
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
+    }
+
+    [Fact]
+    public void Evaluate_DefaultManifestCreatedUtc_AddsSoftGap_AndPartial()
+    {
+        ArchitectureRun run = CommittedRun();
+        GoldenManifest manifest = MinimalManifest();
+        manifest.Metadata.CreatedUtc = default;
+
+        PilotRunDeltas deltas = MinimalDeltas(run) with
+        {
+            ManifestCommittedUtc = default,
+            TimeToCommittedManifest = default,
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate =
+            PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.SoftGaps.Should().Contain(g => g.Contains("default commit UTC", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static ArchitectureRun CommittedRun() =>
         new()
         {

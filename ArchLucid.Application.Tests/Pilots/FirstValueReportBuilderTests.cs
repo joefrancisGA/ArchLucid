@@ -86,6 +86,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("Buyer-safe proof package contract");
         md.Should().Contain("| PilotStrict agent-output posture |");
         md.Should().Contain("| Support run id | Present |");
+        md.Should().Contain("| Committed manifest timestamp (UTC) | Present — `2026-04-01T00:10:00.0000000Z`");
         md.Should().Contain("| Top finding evidence-chain pointer | Present |");
         md.Should().Contain("| ROI evidence confidence | **Strong**");
         md.Should().Contain("Computed deltas (from this run)");

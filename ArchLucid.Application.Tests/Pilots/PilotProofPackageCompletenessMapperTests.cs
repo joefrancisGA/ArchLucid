@@ -27,6 +27,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.DemoTenantWarningRequired.Should().BeFalse();
         c.CommittedManifestPresent.Should().BeTrue();
         c.TimeToCommittedManifestResolved.Should().BeTrue();
+        c.CommittedManifestTimestampResolved.Should().BeTrue();
         c.FindingsBySeverityPresent.Should().BeTrue();
         c.TopFindingEvidenceChainPresentOrNotApplicable.Should().BeTrue();
         c.AuditRowsPresentOrLowerBound.Should().BeTrue();
@@ -35,6 +36,19 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.ProofSendability.Should().Be(nameof(ProofPackageSendability.Sendable));
         c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Strong));
         c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Build_ZeroTotalFindings_StillMarksFindingsEvidencePresent()
+    {
+        (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
+            StrongBaselineFixture();
+        deltas = deltas with { FindingsBySeverity = [], TopFindingId = null, TopFindingEvidenceChain = null, };
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+
+        ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
+
+        c.FindingsBySeverityPresent.Should().BeTrue();
     }
 
     [Fact]
