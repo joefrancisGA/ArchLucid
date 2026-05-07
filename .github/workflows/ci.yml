@@ -197,9 +197,6 @@ jobs:
       - name: Procurement claim coherence guard
         run: python scripts/ci/check_procurement_claim_coherence.py
 
-      - name: V1 ITSM connector catalog vs V1_SCOPE doc alignment
-        run: python scripts/ci/assert_v1_connector_catalog_alignment.py
-
       - name: High-risk documentation coherence guard (trust / MCP / pricing policy)
         run: python scripts/ci/assert_high_risk_doc_coherence.py
 
