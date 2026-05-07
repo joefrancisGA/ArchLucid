@@ -11,12 +11,12 @@ public abstract record BackgroundJobWorkUnit;
 /// <summary>Standard analysis report exported as DOCX.</summary>
 public sealed record AnalysisReportDocxWorkUnit(AnalysisReportDocxJobPayload Payload, string FileName, string ContentType) : BackgroundJobWorkUnit
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Payload, FileName, ContentType);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Jobs.AnalysisReportDocxJobPayload Payload, System.String FileName, System.String ContentType)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Payload, FileName, ContentType);
+    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Jobs.AnalysisReportDocxJobPayload payload, System.String fileName, System.String contentType)
     {
-        ArgumentNullException.ThrowIfNull(Payload);
-        ArgumentNullException.ThrowIfNull(FileName);
-        ArgumentNullException.ThrowIfNull(ContentType);
+        ArgumentNullException.ThrowIfNull(payload);
+        ArgumentNullException.ThrowIfNull(fileName);
+        ArgumentNullException.ThrowIfNull(contentType);
         return (byte)0;
     }
 }
@@ -24,12 +24,12 @@ public sealed record AnalysisReportDocxWorkUnit(AnalysisReportDocxJobPayload Pay
 /// <summary>Consulting-style analysis report exported as DOCX.</summary>
 public sealed record ConsultingDocxWorkUnit(ConsultingDocxJobPayload Payload, string FileName, string ContentType) : BackgroundJobWorkUnit
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Payload, FileName, ContentType);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Jobs.ConsultingDocxJobPayload Payload, System.String FileName, System.String ContentType)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Payload, FileName, ContentType);
+    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Jobs.ConsultingDocxJobPayload payload, System.String fileName, System.String contentType)
     {
-        ArgumentNullException.ThrowIfNull(Payload);
-        ArgumentNullException.ThrowIfNull(FileName);
-        ArgumentNullException.ThrowIfNull(ContentType);
+        ArgumentNullException.ThrowIfNull(payload);
+        ArgumentNullException.ThrowIfNull(fileName);
+        ArgumentNullException.ThrowIfNull(contentType);
         return (byte)0;
     }
 }

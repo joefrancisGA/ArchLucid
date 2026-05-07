@@ -23,7 +23,7 @@ namespace ArchLucid.Application.Pilots;
 /// </remarks>
 public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQuery, PilotScorecardBuilder scorecardBuilder, IPilotRunDeltaComputer deltaComputer, IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQuery, scorecardBuilder, deltaComputer, publicSiteOptions);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQuery, scorecardBuilder, deltaComputer, publicSiteOptions);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQuery, ArchLucid.Application.Pilots.PilotScorecardBuilder scorecardBuilder, ArchLucid.Application.Pilots.IPilotRunDeltaComputer deltaComputer, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.PublicSiteOptions> publicSiteOptions)
     {
         ArgumentNullException.ThrowIfNull(runDetailQuery);

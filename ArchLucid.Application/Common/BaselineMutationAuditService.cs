@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Common;
 /// <inheritdoc cref = "IBaselineMutationAuditService"/>
 public sealed class BaselineMutationAuditService(ILogger<BaselineMutationAuditService> logger, IAuditService auditService, IScopeContextProvider scopeContextProvider) : IBaselineMutationAuditService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(logger, auditService, scopeContextProvider);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(logger, auditService, scopeContextProvider);
     private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Common.BaselineMutationAuditService> logger, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider)
     {
         ArgumentNullException.ThrowIfNull(logger);

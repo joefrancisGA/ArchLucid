@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Governance.Preview;
 /// </summary>
 public sealed class GovernancePreviewService(IGovernanceEnvironmentActivationRepository activationRepository, IRunDetailQueryService runDetailQueryService, IUnifiedGoldenManifestReader unifiedGoldenManifestReader) : IGovernancePreviewService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(activationRepository, runDetailQueryService, unifiedGoldenManifestReader);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(activationRepository, runDetailQueryService, unifiedGoldenManifestReader);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IGovernanceEnvironmentActivationRepository activationRepository, ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Decisioning.Interfaces.IUnifiedGoldenManifestReader unifiedGoldenManifestReader)
     {
         ArgumentNullException.ThrowIfNull(activationRepository);

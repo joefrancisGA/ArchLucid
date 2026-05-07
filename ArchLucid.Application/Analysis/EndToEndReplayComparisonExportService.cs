@@ -19,7 +19,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayComparisonSummaryFormatter summaryFormatter) : IEndToEndReplayComparisonExportService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(summaryFormatter);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(summaryFormatter);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Analysis.IEndToEndReplayComparisonSummaryFormatter summaryFormatter)
     {
         ArgumentNullException.ThrowIfNull(summaryFormatter);

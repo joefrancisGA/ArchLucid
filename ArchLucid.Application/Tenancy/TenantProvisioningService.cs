@@ -17,7 +17,7 @@ public sealed class TenantProvisioningService(
     ILogger<TenantProvisioningService> logger,
     ITenantSqlCatalogProvisioner tenantSqlCatalogProvisioner) : ITenantProvisioningService
 {
-    private readonly byte __primaryConstructorArgumentValidation =
+    private readonly byte _primaryConstructorArgumentValidation =
         __ValidatePrimaryConstructorArguments(
             tenantRepository,
             actorContext,

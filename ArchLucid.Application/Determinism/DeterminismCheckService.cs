@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Determinism;
 /// </summary>
 public sealed class DeterminismCheckService(IReplayRunService replayRunService, IAgentResultDiffService agentResultDiffService, IManifestDiffService manifestDiffService) : IDeterminismCheckService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(replayRunService, agentResultDiffService, manifestDiffService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(replayRunService, agentResultDiffService, manifestDiffService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IReplayRunService replayRunService, ArchLucid.Application.Diffs.IAgentResultDiffService agentResultDiffService, ArchLucid.Application.Diffs.IManifestDiffService manifestDiffService)
     {
         ArgumentNullException.ThrowIfNull(replayRunService);

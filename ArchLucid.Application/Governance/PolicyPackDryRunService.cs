@@ -30,7 +30,7 @@ namespace ArchLucid.Application.Governance;
 /// </remarks>
 public sealed class PolicyPackDryRunService(IRunDetailQueryService runDetailQueryService, IPilotRunDeltaComputer pilotRunDeltaComputer, IPromptRedactor promptRedactor, IAuditService auditService, ILogger<PolicyPackDryRunService> logger) : IPolicyPackDryRunService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, pilotRunDeltaComputer, promptRedactor, auditService, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, pilotRunDeltaComputer, promptRedactor, auditService, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Application.Pilots.IPilotRunDeltaComputer pilotRunDeltaComputer, ArchLucid.Core.Llm.Redaction.IPromptRedactor promptRedactor, ArchLucid.Core.Audit.IAuditService auditService, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Governance.PolicyPackDryRunService> logger)
     {
         ArgumentNullException.ThrowIfNull(runDetailQueryService);

@@ -14,7 +14,7 @@ public interface ISyntheticOperatorDemoPackWriter
 /// </summary>
 public sealed class SyntheticOperatorDemoPackWriter(IAuditService auditService) : ISyntheticOperatorDemoPackWriter
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(auditService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(auditService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Audit.IAuditService auditService)
     {
         ArgumentNullException.ThrowIfNull(auditService);

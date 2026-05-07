@@ -8,11 +8,11 @@ namespace ArchLucid.Application.Pilots;
 /// </summary>
 public sealed record TenantMeasuredRoiSummary(WhyArchLucidSnapshotResponse ProcessSignals, TenantCostEstimate? MonthlyCostBand, string Disclaimer)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ProcessSignals, MonthlyCostBand, Disclaimer);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Contracts.Pilots.WhyArchLucidSnapshotResponse ProcessSignals, ArchLucid.Application.Billing.TenantCostEstimate? MonthlyCostBand, System.String Disclaimer)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ProcessSignals, MonthlyCostBand, Disclaimer);
+    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Contracts.Pilots.WhyArchLucidSnapshotResponse processSignals, ArchLucid.Application.Billing.TenantCostEstimate? monthlyCostBand, System.String disclaimer)
     {
-        ArgumentNullException.ThrowIfNull(ProcessSignals);
-        ArgumentNullException.ThrowIfNull(Disclaimer);
+        ArgumentNullException.ThrowIfNull(processSignals);
+        ArgumentNullException.ThrowIfNull(disclaimer);
         return (byte)0;
     }
 }

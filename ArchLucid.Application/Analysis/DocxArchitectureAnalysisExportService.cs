@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer diagramImageRenderer) : IArchitectureAnalysisDocxExportService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(diagramImageRenderer);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(diagramImageRenderer);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Diagrams.IDiagramImageRenderer diagramImageRenderer)
     {
         ArgumentNullException.ThrowIfNull(diagramImageRenderer);

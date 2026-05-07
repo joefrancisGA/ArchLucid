@@ -6,7 +6,7 @@ namespace ArchLucid.Application.Pilots;
 /// <inheritdoc cref = "ITenantMeasuredRoiService"/>
 public sealed class TenantMeasuredRoiService(IWhyArchLucidSnapshotService snapshotService, ITenantCostEstimateService costEstimateService) : ITenantMeasuredRoiService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(snapshotService, costEstimateService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(snapshotService, costEstimateService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Pilots.IWhyArchLucidSnapshotService snapshotService, ArchLucid.Application.Billing.ITenantCostEstimateService costEstimateService)
     {
         ArgumentNullException.ThrowIfNull(snapshotService);

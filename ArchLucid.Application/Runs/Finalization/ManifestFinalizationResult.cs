@@ -5,10 +5,10 @@ namespace ArchLucid.Application.Runs.Finalization;
 /// <param name = "PersistedManifest">Null when <paramref name = "WasIdempotentReturn"/> is true.</param>
 public sealed record ManifestFinalizationResult(Guid ManifestId, bool WasIdempotentReturn, string ManifestVersion, Dm.ManifestDocument? PersistedManifest)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ManifestVersion, PersistedManifest);
-    private static byte __ValidatePrimaryConstructorArguments(System.String ManifestVersion, ArchLucid.Decisioning.Models.ManifestDocument? PersistedManifest)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ManifestVersion, PersistedManifest);
+    private static byte __ValidatePrimaryConstructorArguments(System.String manifestVersion, ArchLucid.Decisioning.Models.ManifestDocument? persistedManifest)
     {
-        ArgumentNullException.ThrowIfNull(ManifestVersion);
+        ArgumentNullException.ThrowIfNull(manifestVersion);
         return (byte)0;
     }
 }

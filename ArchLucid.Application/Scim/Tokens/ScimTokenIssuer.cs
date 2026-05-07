@@ -4,7 +4,7 @@ using ArchLucid.Core.Scim;
 namespace ArchLucid.Application.Scim.Tokens;
 public sealed class ScimTokenIssuer(IScimTenantTokenRepository tokens) : IScimTokenIssuer
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tokens);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tokens);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scim.IScimTenantTokenRepository tokens)
     {
         ArgumentNullException.ThrowIfNull(tokens);

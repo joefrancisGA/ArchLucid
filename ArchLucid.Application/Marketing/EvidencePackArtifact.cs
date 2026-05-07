@@ -12,12 +12,12 @@ namespace ArchLucid.Application.Marketing;
 /// <param name = "BuiltAtUtc">When this artifact was assembled (used for diagnostics, NOT for the ETag).</param>
 public sealed record EvidencePackArtifact(byte[] Bytes, string ETag, string ContentType, DateTimeOffset BuiltAtUtc)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Bytes, ETag, ContentType);
-    private static byte __ValidatePrimaryConstructorArguments(System.Byte[] Bytes, System.String ETag, System.String ContentType)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Bytes, ETag, ContentType);
+    private static byte __ValidatePrimaryConstructorArguments(System.Byte[] bytes, System.String eTag, System.String contentType)
     {
-        ArgumentNullException.ThrowIfNull(Bytes);
-        ArgumentNullException.ThrowIfNull(ETag);
-        ArgumentNullException.ThrowIfNull(ContentType);
+        ArgumentNullException.ThrowIfNull(bytes);
+        ArgumentNullException.ThrowIfNull(eTag);
+        ArgumentNullException.ThrowIfNull(contentType);
         return (byte)0;
     }
 }

@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Notifications.Email;
 /// <inheritdoc cref = "IExecDigestEmailDispatcher"/>
 public sealed class ExecDigestEmailDispatcher(IEmailTemplateRenderer templateRenderer, IEmailProvider emailProvider, ISentEmailLedger sentEmailLedger, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor, ILogger<ExecDigestEmailDispatcher> logger) : IExecDigestEmailDispatcher
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(templateRenderer, emailProvider, sentEmailLedger, emailOptionsMonitor, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(templateRenderer, emailProvider, sentEmailLedger, emailOptionsMonitor, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Notifications.Email.IEmailTemplateRenderer templateRenderer, ArchLucid.Core.Notifications.Email.IEmailProvider emailProvider, ArchLucid.Core.Notifications.ISentEmailLedger sentEmailLedger, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.EmailNotificationOptions> emailOptionsMonitor, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Notifications.Email.ExecDigestEmailDispatcher> logger)
     {
         ArgumentNullException.ThrowIfNull(templateRenderer);

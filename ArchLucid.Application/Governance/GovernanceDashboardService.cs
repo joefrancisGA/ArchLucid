@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Governance;
 /// </summary>
 public sealed class GovernanceDashboardService(IGovernanceApprovalRequestRepository approvalRequestRepository, IPolicyPackChangeLogRepository policyPackChangeLogRepository) : IGovernanceDashboardService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(approvalRequestRepository, policyPackChangeLogRepository);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(approvalRequestRepository, policyPackChangeLogRepository);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IGovernanceApprovalRequestRepository approvalRequestRepository, ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackChangeLogRepository policyPackChangeLogRepository)
     {
         ArgumentNullException.ThrowIfNull(approvalRequestRepository);

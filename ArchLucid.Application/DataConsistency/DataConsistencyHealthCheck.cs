@@ -4,7 +4,7 @@ namespace ArchLucid.Application.DataConsistency;
 /// <summary>Maps the last scheduled reconciliation outcome to ASP.NET health status.</summary>
 public sealed class DataConsistencyHealthCheck(DataConsistencyReconciliationHealthState healthState) : IHealthCheck
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(healthState);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(healthState);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.DataConsistency.DataConsistencyReconciliationHealthState healthState)
     {
         ArgumentNullException.ThrowIfNull(healthState);

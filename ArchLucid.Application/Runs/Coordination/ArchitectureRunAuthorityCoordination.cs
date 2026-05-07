@@ -20,7 +20,7 @@ namespace ArchLucid.Application.Runs.Coordination;
 /// </summary>
 public sealed class ArchitectureRunAuthorityCoordination(IAuthorityRunOrchestrator authorityRunOrchestrator, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IAzureExtractorPackageRepository azureExtractorPackageRepository, ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityRunOrchestrator, runRepository, scopeContextProvider, azureExtractorPackageRepository, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityRunOrchestrator, runRepository, scopeContextProvider, azureExtractorPackageRepository, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Orchestration.IAuthorityRunOrchestrator authorityRunOrchestrator, ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Data.Repositories.IAzureExtractorPackageRepository azureExtractorPackageRepository, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Runs.Coordination.ArchitectureRunAuthorityCoordination> logger)
     {
         ArgumentNullException.ThrowIfNull(authorityRunOrchestrator);

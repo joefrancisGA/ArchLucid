@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Notifications.Email;
 /// <inheritdoc cref = "IMarketingPricingQuoteSalesNotifier"/>
 public sealed class MarketingPricingQuoteSalesNotifier(IEmailProvider emailProvider, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor, ILogger<MarketingPricingQuoteSalesNotifier> logger) : IMarketingPricingQuoteSalesNotifier
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(emailProvider, emailOptionsMonitor, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(emailProvider, emailOptionsMonitor, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Notifications.Email.IEmailProvider emailProvider, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.EmailNotificationOptions> emailOptionsMonitor, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Notifications.Email.MarketingPricingQuoteSalesNotifier> logger)
     {
         ArgumentNullException.ThrowIfNull(emailProvider);

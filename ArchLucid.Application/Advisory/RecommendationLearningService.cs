@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Advisory;
 /// <param name = "profileRepository">Stores and loads latest profile.</param>
 public sealed class RecommendationLearningService(IRecommendationRepository recommendationRepository, IRecommendationLearningAnalyzer analyzer, IRecommendationLearningProfileRepository profileRepository) : IRecommendationLearningService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(recommendationRepository, analyzer, profileRepository);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(recommendationRepository, analyzer, profileRepository);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Decisioning.Advisory.Workflow.IRecommendationRepository recommendationRepository, ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningAnalyzer analyzer, ArchLucid.Persistence.Advisory.IRecommendationLearningProfileRepository profileRepository)
     {
         ArgumentNullException.ThrowIfNull(recommendationRepository);

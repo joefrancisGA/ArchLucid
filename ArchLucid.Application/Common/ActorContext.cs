@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Common;
 /// </summary>
 public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IActorContext
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(httpContextAccessor);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(httpContextAccessor);
     private static byte __ValidatePrimaryConstructorArguments(Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor)
     {
         ArgumentNullException.ThrowIfNull(httpContextAccessor);

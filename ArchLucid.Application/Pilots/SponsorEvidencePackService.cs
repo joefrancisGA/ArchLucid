@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Pilots;
 /// <inheritdoc cref = "ISponsorEvidencePackService"/>
 public sealed class SponsorEvidencePackService(IWhyArchLucidSnapshotService whyArchLucidSnapshotService, IRunDetailQueryService runDetailQueryService, IPilotRunDeltaComputer pilotRunDeltaComputer, IFindingsSnapshotRepository findingsSnapshotRepository, IGovernanceDashboardService governanceDashboardService, IScopeContextProvider scopeContextProvider, ILogger<SponsorEvidencePackService> logger) : ISponsorEvidencePackService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(whyArchLucidSnapshotService, runDetailQueryService, pilotRunDeltaComputer, findingsSnapshotRepository, governanceDashboardService, scopeContextProvider, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(whyArchLucidSnapshotService, runDetailQueryService, pilotRunDeltaComputer, findingsSnapshotRepository, governanceDashboardService, scopeContextProvider, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Pilots.IWhyArchLucidSnapshotService whyArchLucidSnapshotService, ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Application.Pilots.IPilotRunDeltaComputer pilotRunDeltaComputer, ArchLucid.Decisioning.Interfaces.IFindingsSnapshotRepository findingsSnapshotRepository, ArchLucid.Application.Governance.IGovernanceDashboardService governanceDashboardService, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Pilots.SponsorEvidencePackService> logger)
     {
         ArgumentNullException.ThrowIfNull(whyArchLucidSnapshotService);

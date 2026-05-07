@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Pilots;
 /// </summary>
 public sealed class WhyArchLucidSnapshotService(IInstrumentationCounterSnapshotProvider counters, IAuditRepository auditRepository, TimeProvider timeProvider, ILogger<WhyArchLucidSnapshotService> logger) : IWhyArchLucidSnapshotService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(counters, auditRepository, timeProvider, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(counters, auditRepository, timeProvider, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Diagnostics.IInstrumentationCounterSnapshotProvider counters, ArchLucid.Persistence.Audit.IAuditRepository auditRepository, System.TimeProvider timeProvider, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Pilots.WhyArchLucidSnapshotService> logger)
     {
         ArgumentNullException.ThrowIfNull(counters);

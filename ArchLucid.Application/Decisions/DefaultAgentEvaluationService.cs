@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Decisions;
 /// </summary>
 public sealed class DefaultAgentEvaluationService(ILogger<DefaultAgentEvaluationService> logger) : IAgentEvaluationService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(logger);
     private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Decisions.DefaultAgentEvaluationService> logger)
     {
         ArgumentNullException.ThrowIfNull(logger);

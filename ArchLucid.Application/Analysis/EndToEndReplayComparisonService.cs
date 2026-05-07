@@ -17,7 +17,7 @@ namespace ArchLucid.Application.Analysis;
 /// </remarks>
 public sealed class EndToEndReplayComparisonService(IRunDetailQueryService runDetailQueryService, IRunExportRecordRepository runExportRecordRepository, IAgentResultDiffService agentResultDiffService, IManifestDiffService manifestDiffService, IExportRecordDiffService exportRecordDiffService) : IEndToEndReplayComparisonService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, runExportRecordRepository, agentResultDiffService, manifestDiffService, exportRecordDiffService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, runExportRecordRepository, agentResultDiffService, manifestDiffService, exportRecordDiffService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Persistence.Data.Repositories.IRunExportRecordRepository runExportRecordRepository, ArchLucid.Application.Diffs.IAgentResultDiffService agentResultDiffService, ArchLucid.Application.Diffs.IManifestDiffService manifestDiffService, ArchLucid.Application.Analysis.IExportRecordDiffService exportRecordDiffService)
     {
         ArgumentNullException.ThrowIfNull(runDetailQueryService);

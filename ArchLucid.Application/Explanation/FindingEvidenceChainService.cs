@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Explanation;
 /// <inheritdoc cref = "IFindingEvidenceChainService"/>
 public sealed class FindingEvidenceChainService(IAuthorityQueryService authorityQuery, IScopeContextProvider scopeContextProvider, IAgentExecutionTraceRepository agentExecutionTraceRepository) : IFindingEvidenceChainService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQuery, scopeContextProvider, agentExecutionTraceRepository);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQuery, scopeContextProvider, agentExecutionTraceRepository);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Queries.IAuthorityQueryService authorityQuery, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository agentExecutionTraceRepository)
     {
         ArgumentNullException.ThrowIfNull(authorityQuery);

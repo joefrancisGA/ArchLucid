@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Tenancy;
 /// <inheritdoc cref = "ITrialTenantBootstrapService"/>
 public sealed class TrialTenantBootstrapService(IDemoSeedService demoSeedService, ITenantRepository tenantRepository, IAuditService auditService, ITrialBootstrapEmailVerificationPolicy emailVerificationPolicy, ILogger<TrialTenantBootstrapService> logger) : ITrialTenantBootstrapService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(demoSeedService, tenantRepository, auditService, emailVerificationPolicy, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(demoSeedService, tenantRepository, auditService, emailVerificationPolicy, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Bootstrap.IDemoSeedService demoSeedService, ArchLucid.Core.Tenancy.ITenantRepository tenantRepository, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Application.Identity.ITrialBootstrapEmailVerificationPolicy emailVerificationPolicy, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Tenancy.TrialTenantBootstrapService> logger)
     {
         ArgumentNullException.ThrowIfNull(demoSeedService);

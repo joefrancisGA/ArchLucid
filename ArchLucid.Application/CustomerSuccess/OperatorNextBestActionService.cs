@@ -4,13 +4,13 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.CustomerSuccess;
 public sealed record OperatorNextBestActionItem(string ActionId, string Title, string Reason, string Href, int SortOrder)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ActionId, Title, Reason, Href);
-    private static byte __ValidatePrimaryConstructorArguments(System.String ActionId, System.String Title, System.String Reason, System.String Href)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ActionId, Title, Reason, Href);
+    private static byte __ValidatePrimaryConstructorArguments(System.String actionId, System.String title, System.String reason, System.String href)
     {
-        ArgumentNullException.ThrowIfNull(ActionId);
-        ArgumentNullException.ThrowIfNull(Title);
-        ArgumentNullException.ThrowIfNull(Reason);
-        ArgumentNullException.ThrowIfNull(Href);
+        ArgumentNullException.ThrowIfNull(actionId);
+        ArgumentNullException.ThrowIfNull(title);
+        ArgumentNullException.ThrowIfNull(reason);
+        ArgumentNullException.ThrowIfNull(href);
         return (byte)0;
     }
 }
@@ -22,7 +22,7 @@ public interface IOperatorNextBestActionService
 
 public sealed class OperatorNextBestActionService(IScopeContextProvider scopeProvider, IOperatorStickinessSnapshotReader snapshotReader) : IOperatorNextBestActionService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(scopeProvider, snapshotReader);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(scopeProvider, snapshotReader);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scoping.IScopeContextProvider scopeProvider, ArchLucid.Core.CustomerSuccess.IOperatorStickinessSnapshotReader snapshotReader)
     {
         ArgumentNullException.ThrowIfNull(scopeProvider);

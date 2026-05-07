@@ -4,10 +4,10 @@ public abstract record ScimPatchPathParseOutcome;
 /// <summary>Unfiltered attribute path (<c>userName</c>, <c>members</c>, etc.).</summary>
 public sealed record ScimPatchFlatAttributePathOutcome(string AttributePath) : ScimPatchPathParseOutcome
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(AttributePath);
-    private static byte __ValidatePrimaryConstructorArguments(System.String AttributePath)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(AttributePath);
+    private static byte __ValidatePrimaryConstructorArguments(System.String attributePath)
     {
-        ArgumentNullException.ThrowIfNull(AttributePath);
+        ArgumentNullException.ThrowIfNull(attributePath);
         return (byte)0;
     }
 }
@@ -15,8 +15,8 @@ public sealed record ScimPatchFlatAttributePathOutcome(string AttributePath) : S
 /// <summary><c>members[value eq "..."]</c> optionally followed by <c>.subAttr</c> (<c>active</c> only).</summary>
 public sealed record ScimPatchMembersFilteredPathOutcome(Guid ReferenceUserId, string? SubAttribute) : ScimPatchPathParseOutcome
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(SubAttribute);
-    private static byte __ValidatePrimaryConstructorArguments(System.String? SubAttribute)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(SubAttribute);
+    private static byte __ValidatePrimaryConstructorArguments(System.String? subAttribute)
     {
         return (byte)0;
     }
@@ -25,10 +25,10 @@ public sealed record ScimPatchMembersFilteredPathOutcome(Guid ReferenceUserId, s
 /// <summary>Bracketed attribute path ArchLucid does not implement (valid-looking SCIM grammar subset).</summary>
 public sealed record ScimPatchPathNotImplementedOutcome(string Detail) : ScimPatchPathParseOutcome
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Detail);
-    private static byte __ValidatePrimaryConstructorArguments(System.String Detail)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Detail);
+    private static byte __ValidatePrimaryConstructorArguments(System.String detail)
     {
-        ArgumentNullException.ThrowIfNull(Detail);
+        ArgumentNullException.ThrowIfNull(detail);
         return (byte)0;
     }
 }
@@ -36,10 +36,10 @@ public sealed record ScimPatchPathNotImplementedOutcome(string Detail) : ScimPat
 /// <summary>Path is not valid for group membership PATCH (<c>invalidPath</c>).</summary>
 public sealed record ScimPatchPathInvalidOutcome(string Detail) : ScimPatchPathParseOutcome
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Detail);
-    private static byte __ValidatePrimaryConstructorArguments(System.String Detail)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Detail);
+    private static byte __ValidatePrimaryConstructorArguments(System.String detail)
     {
-        ArgumentNullException.ThrowIfNull(Detail);
+        ArgumentNullException.ThrowIfNull(detail);
         return (byte)0;
     }
 }

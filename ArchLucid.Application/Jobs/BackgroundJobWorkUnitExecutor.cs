@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Jobs;
 /// </summary>
 public sealed class BackgroundJobWorkUnitExecutor(IRunDetailQueryService runDetailQuery, IArchitectureAnalysisService architectureAnalysisService, IArchitectureAnalysisDocxExportService docxExportService, IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService, IAuditService auditService) : IBackgroundJobWorkUnitExecutor
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQuery, architectureAnalysisService, docxExportService, consultingDocxExportService, auditService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQuery, architectureAnalysisService, docxExportService, consultingDocxExportService, auditService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQuery, ArchLucid.Application.Analysis.IArchitectureAnalysisService architectureAnalysisService, ArchLucid.Application.Analysis.IArchitectureAnalysisDocxExportService docxExportService, ArchLucid.Application.Analysis.IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService, ArchLucid.Core.Audit.IAuditService auditService)
     {
         ArgumentNullException.ThrowIfNull(runDetailQuery);

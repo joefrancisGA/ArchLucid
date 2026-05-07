@@ -5,7 +5,7 @@ using ArchLucid.Core.Scim.Models;
 namespace ArchLucid.Application.Scim.Tokens;
 public sealed class ScimBearerTokenAuthenticator(IScimTenantTokenRepository tokens) : IScimBearerTokenAuthenticator
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tokens);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tokens);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scim.IScimTenantTokenRepository tokens)
     {
         ArgumentNullException.ThrowIfNull(tokens);

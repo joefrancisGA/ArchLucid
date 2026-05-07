@@ -15,7 +15,7 @@ namespace ArchLucid.Decisioning.Tests.Alerts.Delivery;
 public sealed class AlertSlackWebhookVendorConformanceTests
 {
     [Fact]
-    public async Task SendAsync_conformance_posts_to_destination_with_authority_shaped_text_and_idempotency_headers_left_to_poster()
+    public async Task SendAsync_conformance_posts_to_destination_with_authority_shaped_text()
     {
         const string destination = "https://hooks.slack.com/services/FAKE/ONLY/UNITTEST";
 

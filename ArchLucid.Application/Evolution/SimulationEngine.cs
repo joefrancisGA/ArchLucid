@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Evolution;
 /// </summary>
 public sealed class SimulationEngine(IArchitectureAnalysisService analysisService) : ISimulationEngine
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(analysisService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(analysisService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Analysis.IArchitectureAnalysisService analysisService)
     {
         ArgumentNullException.ThrowIfNull(analysisService);

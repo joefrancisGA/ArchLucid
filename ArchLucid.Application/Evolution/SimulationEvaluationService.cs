@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Evolution;
 /// </summary>
 public sealed class SimulationEvaluationService(IManifestDiffService manifestDiffService, IDeterminismCheckService determinismCheckService) : ISimulationEvaluationService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(manifestDiffService, determinismCheckService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(manifestDiffService, determinismCheckService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Diffs.IManifestDiffService manifestDiffService, ArchLucid.Application.Determinism.IDeterminismCheckService determinismCheckService)
     {
         ArgumentNullException.ThrowIfNull(manifestDiffService);

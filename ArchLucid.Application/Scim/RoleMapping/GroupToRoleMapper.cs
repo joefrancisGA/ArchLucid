@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Scim.RoleMapping;
 /// </summary>
 public sealed class GroupToRoleMapper(IOptions<ScimOptions> options) : IGroupToRoleMapper
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(options);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(options);
     private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.ScimOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);

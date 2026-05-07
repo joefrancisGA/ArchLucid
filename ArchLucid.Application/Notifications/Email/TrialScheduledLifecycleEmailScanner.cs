@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Notifications.Email;
 /// </summary>
 public sealed class TrialScheduledLifecycleEmailScanner(ITenantRepository tenantRepository, IIntegrationEventOutboxRepository outboxRepository, IIntegrationEventPublisher integrationEventPublisher, IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions, IOptionsMonitor<TrialLifecycleEmailRoutingOptions> trialLifecycleEmailRoutingOptions, ILogger<TrialScheduledLifecycleEmailScanner> logger)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository, outboxRepository, integrationEventPublisher, integrationEventsOptions, trialLifecycleEmailRoutingOptions, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository, outboxRepository, integrationEventPublisher, integrationEventsOptions, trialLifecycleEmailRoutingOptions, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Tenancy.ITenantRepository tenantRepository, ArchLucid.Persistence.IIntegrationEventOutboxRepository outboxRepository, ArchLucid.Core.Integration.IIntegrationEventPublisher integrationEventPublisher, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Integration.IntegrationEventsOptions> integrationEventsOptions, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.TrialLifecycleEmailRoutingOptions> trialLifecycleEmailRoutingOptions, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Notifications.Email.TrialScheduledLifecycleEmailScanner> logger)
     {
         ArgumentNullException.ThrowIfNull(tenantRepository);

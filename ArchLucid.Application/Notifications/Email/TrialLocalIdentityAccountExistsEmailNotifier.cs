@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Notifications.Email;
 public sealed class TrialLocalIdentityAccountExistsEmailNotifier(IEmailProvider emailProvider, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor, ILogger<TrialLocalIdentityAccountExistsEmailNotifier> logger) : ITrialLocalIdentityAccountExistsNotifier
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(emailProvider, emailOptionsMonitor, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(emailProvider, emailOptionsMonitor, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Notifications.Email.IEmailProvider emailProvider, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.EmailNotificationOptions> emailOptionsMonitor, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Notifications.Email.TrialLocalIdentityAccountExistsEmailNotifier> logger)
     {
         ArgumentNullException.ThrowIfNull(emailProvider);

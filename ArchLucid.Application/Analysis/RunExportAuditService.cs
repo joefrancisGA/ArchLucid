@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class RunExportAuditService(IRunExportRecordRepository repository, IAuditService auditService) : IRunExportAuditService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(repository, auditService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(repository, auditService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IRunExportRecordRepository repository, ArchLucid.Core.Audit.IAuditService auditService)
     {
         ArgumentNullException.ThrowIfNull(repository);

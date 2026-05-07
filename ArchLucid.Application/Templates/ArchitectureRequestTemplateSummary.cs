@@ -5,12 +5,12 @@ namespace ArchLucid.Application.Templates;
 /// </summary>
 public sealed record ArchitectureRequestTemplateSummary(string TemplateId, string Title, string ShortDescription)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(TemplateId, Title, ShortDescription);
-    private static byte __ValidatePrimaryConstructorArguments(System.String TemplateId, System.String Title, System.String ShortDescription)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(TemplateId, Title, ShortDescription);
+    private static byte __ValidatePrimaryConstructorArguments(System.String templateId, System.String title, System.String shortDescription)
     {
-        ArgumentNullException.ThrowIfNull(TemplateId);
-        ArgumentNullException.ThrowIfNull(Title);
-        ArgumentNullException.ThrowIfNull(ShortDescription);
+        ArgumentNullException.ThrowIfNull(templateId);
+        ArgumentNullException.ThrowIfNull(title);
+        ArgumentNullException.ThrowIfNull(shortDescription);
         return (byte)0;
     }
 }

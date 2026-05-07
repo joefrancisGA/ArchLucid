@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class ComparisonAuditService(IComparisonRecordRepository repository, IAuditService auditService) : IComparisonAuditService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(repository, auditService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(repository, auditService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IComparisonRecordRepository repository, ArchLucid.Core.Audit.IAuditService auditService)
     {
         ArgumentNullException.ThrowIfNull(repository);

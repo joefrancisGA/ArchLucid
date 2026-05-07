@@ -6,11 +6,11 @@ namespace ArchLucid.Application.Runs;
 /// </summary>
 public sealed record CreateRunIdempotencyState(Guid TenantId, Guid WorkspaceId, Guid ProjectId, byte[] IdempotencyKeyHash, byte[] RequestFingerprint)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(IdempotencyKeyHash, RequestFingerprint);
-    private static byte __ValidatePrimaryConstructorArguments(System.Byte[] IdempotencyKeyHash, System.Byte[] RequestFingerprint)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(IdempotencyKeyHash, RequestFingerprint);
+    private static byte __ValidatePrimaryConstructorArguments(System.Byte[] idempotencyKeyHash, System.Byte[] requestFingerprint)
     {
-        ArgumentNullException.ThrowIfNull(IdempotencyKeyHash);
-        ArgumentNullException.ThrowIfNull(RequestFingerprint);
+        ArgumentNullException.ThrowIfNull(idempotencyKeyHash);
+        ArgumentNullException.ThrowIfNull(requestFingerprint);
         return (byte)0;
     }
 }
