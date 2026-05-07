@@ -19,7 +19,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 
 - **No public SMB or shared infra** for test data; Compose binds SQL/Redis/Azurite locally on the runner.
 - **List endpoints:** prefer **keyset** cursors where the API exposes them (e.g. **`GET /v1/audit/search?beforeUtc=…`** for audit); offset pagination remains on some paths — see **`docs/API_CONTRACTS.md`**.
-- **Merge-blocking** k6 operator-path smoke runs in **`.github/workflows/ci.yml`** after full regression (`tests/load/k6-api-smoke.js`). The **Compose full-stack** workflow **`.github/workflows/load-test.yml`** remains **manual only** for longer / heavier profiles.
+- **Merge-blocking** k6 operator-path smoke runs in **`.github/workflows/ci.yml`** after full regression (`tests/load/k6-api-smoke.js`) with **per-tag Core Pilot smoke budgets** (`k6api:*` thresholds + **`scripts/ci/assert_k6_ci_smoke_summary.py --per-tag-k6-api-smoke`**). The **Compose full-stack** workflow **`.github/workflows/load-test.yml`** remains **manual only** for longer / heavier profiles.
 - k6 **checks** rate threshold is **0.85**; **`http_req_duration` p(95)** cap is **2000** ms from the **Initial** baseline (2× ~773 ms p95, rounded up to 500 ms). Re-run the recorder after material infra or API changes and refresh this doc + `hotpaths.js`.
 
 ## Architecture overview
@@ -39,7 +39,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 | k6 script (manual, full write) | `scripts/load/hotpaths.js` |
 | k6 script (CI smoke, read + write) | `tests/load/ci-smoke.js` |
 | k6 script (CI smoke, read-only) | `tests/load/smoke.js` |
-| k6 script (CI after full regression, operator path) | `tests/load/k6-api-smoke.js` |
+| k6 script (CI after full regression, Core Pilot operator path + budgets) | `tests/load/k6-api-smoke.js` |
 | k6 script (weekly scheduled, per-tenant burst operator path) | `tests/load/per-tenant-burst.js` |
 | GitHub workflow (weekly per-tenant burst) | `.github/workflows/k6-per-tenant-burst-scheduled.yml` |
 | Local runbook | `scripts/load/README.md` |

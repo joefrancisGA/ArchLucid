@@ -134,7 +134,7 @@ Three k6 scripts run in CI via `.github/workflows/ci.yml` (merge-blocking) and `
 
 | CI job | Script | Scenarios | Write paths | Blocking |
 |--------|--------|-----------|-------------|----------|
-| `k6-smoke-api` | `tests/load/k6-api-smoke.js` | health ready, version, create run, authority runs list | **Yes** (`POST /v1/architecture/request`) | Yes (merge-blocking) |
+| `k6-smoke-api` | `tests/load/k6-api-smoke.js` | Core Pilot-shaped operator path (ready, version, create run, run snapshot, authority list; seed→commit→artifacts unless minimal) | **Yes** (`POST /v1/architecture/request` + internal seed/commit) | Yes — **`assert_k6_ci_smoke_summary.py --per-tag-k6-api-smoke`** (failed rate ≤ 2%) |
 | `k6-ci-smoke` | `tests/load/ci-smoke.js` | health live/ready, create run, list runs, audit search, version | **Yes** (`POST /v1/architecture/request`) | **Yes** — `assert_k6_ci_smoke_summary.py` (per-tag p95; failed rate ≤ 2%) |
 | `k6-soak-scheduled` | `tests/load/soak.js` | longer low-rate read-only mix | No | No (`continue-on-error`; needs secret **`ARCHLUCID_SOAK_BASE_URL`**) |
 

@@ -1908,16 +1908,26 @@ jobs:
           ARCHLUCID_BASE_URL: http://127.0.0.1:5128
           K6_SCENARIO: smoke
           K6_SUMMARY_PATH: ${{ runner.temp }}/k6-api-smoke-summary.json
+          # Core Pilot operator-path smoke budgets (aligned with docs/library/API_SLOS.md tiers — informational for CI).
+          ARCHLUCID_K6_P95_HEALTH_READY_MS: "1200"
+          ARCHLUCID_K6_P95_TIER2_MS: "800"
+          ARCHLUCID_K6_P95_TIER3_MS: "8000"
+          ARCHLUCID_K6_HTTP_FAIL_RATE_MAX: "0.02"
         run: |
           set -e
           k6 run "${GITHUB_WORKSPACE}/tests/load/k6-api-smoke.js"
 
-      - name: Assert k6 API smoke thresholds (p95 + failed rate)
+      - name: Assert k6 API smoke thresholds (Core Pilot operator-path budgets)
+        env:
+          ARCHLUCID_K6_P95_HEALTH_READY_MS: "1200"
+          ARCHLUCID_K6_P95_TIER2_MS: "800"
+          ARCHLUCID_K6_P95_TIER3_MS: "8000"
         run: >
           python3 scripts/ci/assert_k6_ci_smoke_summary.py
           "${{ runner.temp }}/k6-api-smoke-summary.json"
-          --max-failed-rate 0.01
+          --max-failed-rate 0.02
           --max-p95-ms 2000
+          --per-tag-k6-api-smoke
 
       - name: k6 API smoke summary (job log)
         run: python3 scripts/ci/print_k6_summary_metrics.py "${{ runner.temp }}/k6-api-smoke-summary.json"

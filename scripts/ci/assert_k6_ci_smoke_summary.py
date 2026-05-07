@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-"""Fail CI if k6 ci-smoke summary-export JSON exceeds http_req_failed rate or p(95) latency.
+"""Fail CI if k6 summary-export JSON exceeds http_req_failed rate or p(95) latency.
 
-Supports two modes:
+Supports modes:
   1. **Global** (default): checks overall ``http_req_duration`` p(95) against ``--max-p95-ms``.
-  2. **Per-tag** (``--per-tag-ci-smoke``): checks per-``k6ci`` tag p(95) against built-in caps
-     matching ``tests/load/ci-smoke.js`` thresholds.  Falls back to global if tagged metrics
-     are absent (older k6 or different script).
+  2. **Per-tag CI smoke** (``--per-tag-ci-smoke``): checks per-``k6ci`` tag p(95) against caps
+     matching ``tests/load/ci-smoke.js``. Falls back to global if tagged metrics are absent.
+  3. **Per-tag operator path / Core Pilot smoke** (``--per-tag-k6-api-smoke``): checks per-``k6api``
+     tag against caps matching ``tests/load/k6-api-smoke.js`` (respects
+     ``ARCHLUCID_K6_OPERATOR_MINIMAL`` — omit extended caps when minimal).
+
+Caps for modes **2** and **3** follow ``ARCHLUCID_K6_P95_*`` env overrides when set (same names as workflows).
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -27,6 +32,40 @@ _CI_SMOKE_TAG_CAPS: dict[str, float] = {
     "http_req_duration{k6ci:get_run_detail}": 800.0,
     "http_req_duration{k6ci:client_error_telemetry}": 800.0,
 }
+
+
+def _env_float(key: str, default: str) -> float:
+    raw = os.environ.get(key)
+    if raw is None or raw.strip() == "":
+        return float(default)
+    return float(raw)
+
+
+def _k6_api_smoke_tag_caps() -> dict[str, float]:
+    """Caps for tests/load/k6-api-smoke.js — MUST stay aligned with that script's P95_MS + thresholds."""
+    tier2 = _env_float("ARCHLUCID_K6_P95_TIER2_MS", "800")
+    tier3 = _env_float("ARCHLUCID_K6_P95_TIER3_MS", "8000")
+    hr = _env_float("ARCHLUCID_K6_P95_HEALTH_READY_MS", "1200")
+    seed_raw = os.environ.get("ARCHLUCID_K6_P95_SEED_FAKE_MS")
+    seed = float(seed_raw) if seed_raw not in (None, "") else tier3
+    commit_raw = os.environ.get("ARCHLUCID_K6_P95_COMMIT_MS")
+    commit = float(commit_raw) if commit_raw not in (None, "") else tier3
+    caps: dict[str, float] = {
+        "http_req_duration{k6api:health_ready}": hr,
+        "http_req_duration{k6api:version}": tier2,
+        "http_req_duration{k6api:create_run}": tier3,
+        "http_req_duration{k6api:list_authority_runs}": tier2,
+    }
+    minimal_raw = os.environ.get("ARCHLUCID_K6_OPERATOR_MINIMAL", "")
+    minimal = minimal_raw.strip() in ("1", "true", "True")
+
+    if not minimal:
+        caps["http_req_duration{k6api:run_status}"] = tier2
+        caps["http_req_duration{k6api:seed_fake}"] = seed
+        caps["http_req_duration{k6api:pilot_commit}"] = commit
+        caps["http_req_duration{k6api:artifacts_list}"] = tier2
+
+    return caps
 
 
 def _metric_values(payload: dict, metric_name: str) -> dict:
@@ -56,11 +95,15 @@ def _float(values: dict, *keys: str) -> float | None:
     return None
 
 
-def _check_per_tag(payload: dict, errors: list[str]) -> bool:
-    """Check per-tag p95 caps.  Returns True if at least one tagged metric was found."""
+def _check_per_tag(
+    payload: dict,
+    errors: list[str],
+    caps: dict[str, float],
+) -> bool:
+    """Check per-tag p95 caps. Returns True if at least one tagged metric was found."""
     found_any = False
 
-    for metric_name, cap_ms in _CI_SMOKE_TAG_CAPS.items():
+    for metric_name, cap_ms in caps.items():
         values = _metric_values(payload, metric_name)
         p95 = _float(values, "p(95)")
 
@@ -75,6 +118,23 @@ def _check_per_tag(payload: dict, errors: list[str]) -> bool:
             )
 
     return found_any
+
+
+def _print_k6_api_budget_summary(payload: dict, caps: dict[str, float]) -> None:
+    """One-line-per-tag summary for job logs (pass uses measured p95 vs cap)."""
+    print("Core Pilot operator-path smoke budget (CI/pilot; not contractual SLOs):")
+
+    for metric_name in sorted(caps.keys()):
+        cap_ms = caps[metric_name]
+        values = _metric_values(payload, metric_name)
+        p95 = _float(values, "p(95)")
+
+        if p95 is None:
+            print(f"  {metric_name}: no samples — SKIP")
+            continue
+
+        status = "PASS" if p95 <= cap_ms + 1e-9 else "FAIL"
+        print(f"  {metric_name}: p(95)={p95:.1f} ms cap={cap_ms:.0f} ms [{status}]")
 
 
 def main() -> int:
@@ -98,7 +158,20 @@ def main() -> int:
         default=False,
         help="Enforce per-k6ci-tag p95 caps matching tests/load/ci-smoke.js thresholds; falls back to global --max-p95-ms if tags are absent",
     )
+    parser.add_argument(
+        "--per-tag-k6-api-smoke",
+        action="store_true",
+        default=False,
+        help="Enforce per-k6api-tag p95 caps matching tests/load/k6-api-smoke.js (honours ARCHLUCID_K6_OPERATOR_MINIMAL)",
+    )
     args = parser.parse_args()
+
+    if args.per_tag_ci_smoke and args.per_tag_k6_api_smoke:
+        print(
+            "error: --per-tag-ci-smoke and --per-tag-k6-api-smoke are mutually exclusive",
+            file=sys.stderr,
+        )
+        return 2
 
     path: Path = args.summary_json
     if not path.is_file():
@@ -118,7 +191,7 @@ def main() -> int:
         )
 
     if args.per_tag_ci_smoke:
-        found = _check_per_tag(payload, errors)
+        found = _check_per_tag(payload, errors, _CI_SMOKE_TAG_CAPS)
 
         if not found:
             print(
@@ -133,6 +206,25 @@ def main() -> int:
                 errors.append(
                     f"http_req_duration p(95) {p95_ms:.1f} ms exceeds cap {args.max_p95_ms:.0f} ms (global fallback)",
                 )
+    elif args.per_tag_k6_api_smoke:
+        caps = _k6_api_smoke_tag_caps()
+        found = _check_per_tag(payload, errors, caps)
+
+        if not found:
+            print(
+                "warning: --per-tag-k6-api-smoke requested but no k6api tagged metrics found; "
+                "falling back to global --max-p95-ms",
+                file=sys.stderr,
+            )
+            duration = _metric_values(payload, "http_req_duration")
+            p95_ms = _float(duration, "p(95)")
+
+            if p95_ms is not None and p95_ms > args.max_p95_ms + 1e-9:
+                errors.append(
+                    f"http_req_duration p(95) {p95_ms:.1f} ms exceeds cap {args.max_p95_ms:.0f} ms (global fallback)",
+                )
+        elif not errors:
+            _print_k6_api_budget_summary(payload, caps)
     else:
         duration = _metric_values(payload, "http_req_duration")
         p95_ms = _float(duration, "p(95)")
@@ -143,13 +235,19 @@ def main() -> int:
             )
 
     if errors:
-        print("k6 CI smoke gate failed:", file=sys.stderr)
+        print("k6 smoke gate failed:", file=sys.stderr)
         for line in errors:
             print(f"  - {line}", file=sys.stderr)
         return 1
 
-    mode = "per-tag" if args.per_tag_ci_smoke else "global"
-    print(f"k6 CI smoke gate OK ({mode}; http_req_failed rate={failed_rate!s})")
+    if args.per_tag_ci_smoke:
+        mode = "per-tag-ci-smoke"
+    elif args.per_tag_k6_api_smoke:
+        mode = "per-tag-k6-api-smoke"
+    else:
+        mode = "global"
+
+    print(f"k6 smoke gate OK ({mode}; http_req_failed rate={failed_rate!s})")
     return 0
 
 
