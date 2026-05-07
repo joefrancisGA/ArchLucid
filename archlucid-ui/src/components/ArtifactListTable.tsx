@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import type { ArtifactDescriptor } from "@/types/authority";
 import { getArtifactDownloadUrl } from "@/lib/api";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getArtifactBusinessLabel, getArtifactFormatLabel } from "@/lib/artifact-review-helpers";
 
 /** Formats an ISO 8601 date string for display, falling back to the raw string on failure. */
@@ -48,6 +49,7 @@ export function ArtifactListTable(props: {
 }) {
   const { manifestId, artifacts, currentArtifactId, runId, sponsorMode } = props;
   const sorted = [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+  const hidePilotFeedbackOnArtifacts = isBuyerPolishedOperatorShellEnv();
   const artifactColumnLabel = sponsorMode ? "Output" : "Artifact";
   const previewLinkLabel = sponsorMode ? "View" : "Preview";
   const createdColumnLabel = sponsorMode ? "Generated" : "Created";
@@ -122,7 +124,7 @@ export function ArtifactListTable(props: {
                   <Link href={reviewHref}>{previewLinkLabel}</Link>
                   <span className="mx-2 text-neutral-300 dark:text-neutral-600">|</span>
                   <a href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>Download</a>
-                  {runId ? (
+                  {runId && !hidePilotFeedbackOnArtifacts ? (
                     <div className="mt-2 max-w-xs">
                       <ProductLearningFeedbackControls
                         runId={runId}

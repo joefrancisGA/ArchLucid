@@ -20,6 +20,7 @@ import {
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -48,7 +49,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [technicalOpen, setTechnicalOpen] = useState(false);
   const demoChrome = isNextPublicDemoMode() || isBuyerSafeDemoMarketingChromeEnv();
-  const showcaseStory = run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID;
+  const showcaseStory = canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
   const buyerSafePrimary = isBuyerSafePrimaryReviewNavigationPreferred(run.runId);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
@@ -73,7 +74,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         }`
       : run.hasArtifactBundle
         ? buyerPolished
-          ? "Deliverables are listed with the review package — open Review package or Deliverables below when available."
+          ? "Deliverables are listed with the review package — use Open manifest or Deliverables below when available."
           : "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."
         : buyerPolished
           ? "No file bundle reported for this row yet."
@@ -95,12 +96,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
     <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <p
-            className={cn(
-              "m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100",
-              buyerPolished && "line-clamp-2",
-            )}
-          >
+          <p className="m-0 break-words text-sm font-semibold leading-snug text-neutral-900 dark:text-neutral-100">
             {headline}
           </p>
           {showcaseStory && demoChrome ? (
@@ -205,7 +201,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           {!buyerSafePrimary ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
               <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>
-                {buyerPolished ? "Review package" : "Manifest"}
+                {buyerPolished ? "Open manifest" : "Manifest"}
               </Link>
             </Button>
           ) : null}

@@ -25,6 +25,14 @@ describe("buyerFacingReviewTitleFromSummary", () => {
     expect(title).toBe("Claims Intake Modernization Review");
   });
 
+  it("uses stable title for legacy demo run id aliases", () => {
+    expect(
+      buyerFacingReviewTitleFromSummary(
+        summary({ runId: "claims-intake-modernization-run", description: "Claims Intake Modernization — sample case…" }),
+      ),
+    ).toBe("Claims Intake Modernization Review");
+  });
+
   it("falls back to description then untitled", () => {
     expect(buyerFacingReviewTitleFromSummary(summary({ runId: "other", description: "  My review  " }))).toBe("My review");
 

@@ -65,6 +65,24 @@ export default function AskPage() {
   const hideCompareChrome =
     isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || buyerPolishedShell;
 
+  useEffect(() => {
+    if (!buyerPolishedShell) {
+      return;
+    }
+
+    const fromWs = workspaceRun?.activeRunId?.trim() ?? "";
+
+    if (fromWs.length === 0) {
+      return;
+    }
+
+    if (selectedThreadId.trim().length > 0) {
+      return;
+    }
+
+    setRunId(canonicalizeDemoRunId(fromWs));
+  }, [buyerPolishedShell, workspaceRun?.activeRunId, selectedThreadId]);
+
   const loadThreads = useCallback(async () => {
     setListFailure(null);
 
@@ -83,7 +101,7 @@ export default function AskPage() {
               workspaceId: "demo",
               projectId: "default",
               runId: SHOWCASE_STATIC_DEMO_RUN_ID,
-              title: "Claims Intake — PHI risk briefing",
+              title: "Sample conversation — PHI risk briefing",
               createdUtc: "2026-01-12T10:06:00.000Z",
               lastUpdatedUtc: "2026-01-12T10:06:12.000Z",
             },
@@ -107,7 +125,7 @@ export default function AskPage() {
               workspaceId: "demo",
               projectId: "default",
               runId: SHOWCASE_STATIC_DEMO_RUN_ID,
-              title: "Claims Intake — PHI risk briefing",
+              title: "Sample conversation — PHI risk briefing",
               createdUtc: "2026-01-12T10:06:00.000Z",
               lastUpdatedUtc: "2026-01-12T10:06:12.000Z",
             },
@@ -375,7 +393,7 @@ export default function AskPage() {
                       className="font-medium text-teal-800 underline dark:text-teal-300"
                       href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
                     >
-                      Open review package
+                      Open manifest
                     </Link>
                   ) : null}
                 </p>

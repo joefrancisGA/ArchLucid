@@ -48,7 +48,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
   },
   "architecture-graph": {
-    text: "Review evidence graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh.",
+    text: "Review trail graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh.",
     learnMoreUrl: "/docs/KNOWLEDGE_GRAPH.md",
   },
   "audit-log": {

@@ -1,4 +1,5 @@
 import type { AuditEvent } from "@/lib/api";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -128,7 +129,7 @@ export function shouldInjectDemoAuditSample(filters: {
 
   const runTrim = filters.runId.trim();
 
-  if (runTrim.length > 0 && runTrim !== SHOWCASE_STATIC_DEMO_RUN_ID) {
+  if (runTrim.length > 0 && canonicalizeDemoRunId(runTrim) !== SHOWCASE_STATIC_DEMO_RUN_ID) {
     return false;
   }
 

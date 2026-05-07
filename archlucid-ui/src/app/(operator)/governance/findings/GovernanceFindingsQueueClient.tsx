@@ -38,7 +38,7 @@ export type GovernanceFindingQueueRow = {
 function demoPhiRow(): GovernanceFindingQueueRow {
   return {
     runId: SHOWCASE_STATIC_DEMO_RUN_ID,
-    runLabel: "Claims Intake Modernization",
+    runLabel: "Claims Intake Modernization Review",
     manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
     findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
     title: "PHI Minimization Risk",
@@ -54,7 +54,7 @@ function staticDemoGovernanceRows(): GovernanceFindingQueueRow[] {
   const phi = demoPhiRow();
   const decisionRows: GovernanceFindingQueueRow[] = SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES.slice(0, 8).map((syn, i) => ({
     runId: SHOWCASE_STATIC_DEMO_RUN_ID,
-    runLabel: "Claims Intake Modernization",
+    runLabel: "Claims Intake Modernization Review",
     manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
     findingId: `sample-decision-${i + 1}`,
     title: syn.length > 96 ? `${syn.slice(0, 93)}…` : syn,
