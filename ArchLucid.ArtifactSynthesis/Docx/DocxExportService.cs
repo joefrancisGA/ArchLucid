@@ -116,6 +116,11 @@ public sealed class DocxExportService(
         WordDocumentBuilder.AddBodyText(body, $"Run ID: {manifest.RunId}");
         WordDocumentBuilder.AddBodyText(body, $"Manifest ID: {manifest.ManifestId}");
         WordDocumentBuilder.AddBodyText(body, $"Generated: {manifest.CreatedUtc:u}");
+        WordDocumentBuilder.AddSpacer(body);
+        WordDocumentBuilder.AddBodyText(
+            body,
+            "Review continuity: in the operator shell, open Reviews and navigate to " +
+            $"\"/reviews/{manifest.RunId:D}\" to return to this run after export.");
         WordDocumentBuilder.AddSpacer(body, 2);
 
         WordDocumentBuilder.AddHeading(body, "Executive Summary");

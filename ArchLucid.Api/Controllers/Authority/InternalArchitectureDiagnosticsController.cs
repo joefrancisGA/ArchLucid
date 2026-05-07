@@ -104,13 +104,12 @@ public sealed class InternalArchitectureDiagnosticsController(
                 },
                 cancellationToken);
 
-            logger.LogInformation(
-                "Run replayed (internal): OriginalRunId={OriginalRunId}, ReplayRunId={ReplayRunId}, ExecutionMode={ExecutionMode}, User={User}, CorrelationId={CorrelationId}",
-                LogSanitizer.Sanitize(result.OriginalRunId),
-                LogSanitizer.Sanitize(result.ReplayRunId),
-                LogSanitizer.Sanitize(result.ExecutionMode),
-                LogSanitizer.Sanitize(user),
-                LogSanitizer.Sanitize(correlationId));
+            logger.LogInformationInternalArchitectureRunReplayed(
+                result.OriginalRunId,
+                result.ReplayRunId,
+                result.ExecutionMode,
+                user,
+                correlationId);
 
             return Ok(response);
         }

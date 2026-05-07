@@ -283,7 +283,8 @@ public sealed class ArtifactExportController(
         {
             ManifestDisplayName = string.IsNullOrWhiteSpace(golden.Metadata.Name) ? null : golden.Metadata.Name,
             ManifestHash = string.IsNullOrWhiteSpace(golden.ManifestHash) ? null : golden.ManifestHash,
-            RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine
+            RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine,
+            OperatorShellReviewRelativePath = $"/reviews/{runId:D}",
         };
 
         ArtifactPackage package = artifactPackagingService.BuildRunExportPackage(

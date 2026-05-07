@@ -53,13 +53,13 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
 import { useNavSurface } from "@/lib/use-nav-surface";
-import { applyAlertAction, listAlertsPaged } from "@/lib/api";
+import { applyAlertAction, fetchAlertActionLoop, listAlertsPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
-import type { AlertRecord } from "@/types/alerts";
+import type { AlertActionLoopDto } from "@/types/operate-rhythm";
 
 const ALERTS_PAGE_SIZE = 25;
 
@@ -102,6 +102,10 @@ export function AlertsInboxContent() {
   const [pendingAction, setPendingAction] = useState<PendingActionState | null>(null);
   const [actionComment, setActionComment] = useState("");
   const [actionBusy, setActionBusy] = useState(false);
+  const [actionLoopAlertId, setActionLoopAlertId] = useState<string | null>(null);
+  const [actionLoopData, setActionLoopData] = useState<AlertActionLoopDto | null>(null);
+  const [actionLoopLoading, setActionLoopLoading] = useState(false);
+  const [actionLoopError, setActionLoopError] = useState<string | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / ALERTS_PAGE_SIZE));
 
@@ -352,6 +356,31 @@ export function AlertsInboxContent() {
                     <span className="text-neutral-500 dark:text-neutral-500">Trigger:</span> {alert.triggerValue}
                   </div>
                   <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{alert.description}</p>
+                  <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setActionLoopAlertId(alert.alertId);
+                        setActionLoopData(null);
+                        setActionLoopError(null);
+                        setActionLoopLoading(true);
+                        void fetchAlertActionLoop(alert.alertId)
+                          .then((row) => {
+                            setActionLoopData(row);
+                          })
+                          .catch((e: unknown) => {
+                            setActionLoopError(e instanceof Error ? e.message : "Could not load action loop.");
+                          })
+                          .finally(() => {
+                            setActionLoopLoading(false);
+                          });
+                      }}
+                    >
+                      Routing &amp; delivery
+                    </Button>
+                  </div>
                 </div>
 
                 <section
@@ -508,6 +537,82 @@ export function AlertsInboxContent() {
                 : canMutateAlertInbox
                   ? "Confirm"
                   : alertsTriageDialogConfirmButtonLabelReaderRank}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={actionLoopAlertId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setActionLoopAlertId(null);
+            setActionLoopData(null);
+            setActionLoopError(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Routing &amp; delivery</DialogTitle>
+            <DialogDescription>
+              {actionLoopAlertId === null
+                ? ""
+                : `Alert ${actionLoopAlertId} — destinations are redacted; use this to confirm channels attempted.`}
+            </DialogDescription>
+          </DialogHeader>
+          {actionLoopLoading ? <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</p> : null}
+          {actionLoopError !== null ? (
+            <p className="text-sm text-red-700 dark:text-red-300" role="alert">
+              {actionLoopError}
+            </p>
+          ) : null}
+          {actionLoopData !== null ? (
+            <div className="space-y-3 text-sm">
+              <p className="m-0">
+                Status: <strong>{actionLoopData.status}</strong>
+                {actionLoopData.runId ? (
+                  <>
+                    {" "}
+                    · Run:{" "}
+                    <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/reviews/${actionLoopData.runId}`}>
+                      {actionLoopData.runId}
+                    </Link>
+                  </>
+                ) : null}
+              </p>
+              {actionLoopData.resolutionComment ? (
+                <p className="m-0 text-neutral-600 dark:text-neutral-400">Comment: {actionLoopData.resolutionComment}</p>
+              ) : null}
+              {actionLoopData.deliveryAttempts.length === 0 ? (
+                <p className="m-0 text-neutral-600 dark:text-neutral-400">No delivery attempts recorded for this alert.</p>
+              ) : (
+                <ul className="m-0 list-none space-y-2 p-0">
+                  {actionLoopData.deliveryAttempts.map((a, idx) => (
+                    <li key={`${a.attemptedUtc}-${a.channelType}-${idx}`} className="rounded border border-neutral-200 p-2 dark:border-neutral-700">
+                      <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                        {a.channelType} · {a.status}
+                      </div>
+                      <div className="text-xs text-neutral-500 dark:text-neutral-400">{a.attemptedUtc}</div>
+                      <div className="text-xs">Destination: {a.destinationRedacted}</div>
+                      {a.errorMessage ? <div className="text-xs text-red-700 dark:text-red-300">{a.errorMessage}</div> : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : null}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setActionLoopAlertId(null);
+                setActionLoopData(null);
+                setActionLoopError(null);
+              }}
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

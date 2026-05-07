@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:109 -->
+<!-- route-tier-policy-nav-registry-count:111 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -146,8 +146,10 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Tenancy/TenantCostEstimateController.cs` | `/v1/tenant/cost-estimate` | standard | Authorize | /settings/tenant-cost |  |
 | `Tenancy/TenantCustomerSuccessController.cs` | `/v1/tenant/customer-success` | standard | Authorize |  |  |
 | `Tenancy/TenantExecDigestPreferencesController.cs` | `/v1/tenant` | standard | Authorize |  |  |
+| `Tenancy/TenantIntegrationsOperationsController.cs` | `/v1/tenant/integrations/operations` | standard | Authorize | /integrations/operations |  |
 | `Tenancy/TenantMeasuredRoiController.cs` | `/v1/tenant/measured-roi` | standard | Authorize | /value-report/roi |  |
 | `Tenancy/TenantPilotValueReportController.cs` | `/v1/tenant` | none | Authorize | /value-report/pilot |  |
 | `Tenancy/TenantTrialController.cs` | `/v1/tenant` | none | Authorize | /settings/tenant |  |
+| `Tenancy/TenantWeeklyDigestHealthController.cs` | `/v1/tenant/operate/weekly-digest-health` | standard | Authorize | /digests |  |
 | `ValueReports/ValueReportController.cs` | `/v1/value-report` | standard | ExecuteAuthority | /value-report |  |
 | `Webhooks/OutboundWebhookDryRunController.cs` | `/v1/webhooks` | none | ExecuteAuthority |  |  |

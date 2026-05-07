@@ -27,6 +27,8 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/digests": "advanced-only",
   "/evolution-review": "advanced-only",
   "/integrations/teams": "advanced-only",
+  "/integrations/operations": "advanced-only",
+  "/governance/first-30-days": "advanced-only",
   "/governance": "advanced-only",
   "/governance/dashboard": "advanced-only",
   "/governance-resolution": "advanced-only",

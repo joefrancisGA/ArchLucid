@@ -130,6 +130,16 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
                     readme.AppendLine($"Manifest hash: {readmeContext.ManifestHash}");
             }
 
+            if (!string.IsNullOrWhiteSpace(readmeContext?.OperatorShellReviewRelativePath))
+            {
+                readme.AppendLine();
+                readme.AppendLine("Review continuity");
+                readme.AppendLine("---------------");
+                readme.AppendLine(
+                    $"Operator shell path (when hosted): {readmeContext.OperatorShellReviewRelativePath.Trim()}");
+                readme.AppendLine("Use this path after signing in to return to the live review, findings, and governance state.");
+            }
+
             readme.AppendLine($"Artifact file count: {artifacts.Count}");
             readme.AppendLine();
             readme.AppendLine("Contents:");

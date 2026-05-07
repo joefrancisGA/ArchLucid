@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
 import { OperatorNextActionsCard } from "@/components/OperatorNextActionsCard";
+import { OperatorStickinessSnapshotCard } from "@/components/OperatorStickinessSnapshotCard";
 import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
 import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
 import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCorePilotDiagnosticsChecklist";
@@ -42,6 +43,8 @@ export default function HomePage() {
       <SampleFirstReviewPackageCard />
 
       <OperatorNextActionsCard />
+
+      {buyerPolishedShell ? null : <OperatorStickinessSnapshotCard />}
 
       <div
         className={

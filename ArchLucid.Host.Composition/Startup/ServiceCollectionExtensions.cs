@@ -95,6 +95,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(IntegrationsItsmInboundOptions.SectionName));
         services.Configure<IntegrationsItsmOutboundOptions>(
             configuration.GetSection(IntegrationsItsmOutboundOptions.SectionName));
+        services.Configure<ConfluencePublishingOptions>(
+            configuration.GetSection(ConfluencePublishingOptions.SectionName));
         services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60));
         services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60));
         services.AddScoped<ItsmOutboundIssueCreationService>();

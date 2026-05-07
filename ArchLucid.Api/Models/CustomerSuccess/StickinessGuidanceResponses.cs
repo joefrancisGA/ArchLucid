@@ -77,3 +77,31 @@ public sealed class PilotFunnelSnapshotResponse
         set;
     }
 }
+
+/// <summary>Funnel milestones plus operator habit signals for customer-success surfaces.</summary>
+public sealed class OperatorStickinessSnapshotResponse
+{
+    public PilotFunnelSnapshotResponse PilotFunnel
+    {
+        get;
+        set;
+    } = new();
+
+    public Guid? LatestRunId
+    {
+        get;
+        set;
+    }
+
+    public int ComparisonEventsLast30Days
+    {
+        get;
+        set;
+    }
+
+    public int PendingGovernanceApprovals
+    {
+        get;
+        set;
+    }
+}

@@ -92,6 +92,7 @@ public sealed class ArtifactPackagingServiceTests
             ManifestDisplayName = "Staging rollout",
             ManifestHash = "sha-example",
             RuleSetLabel = "default-rules 2.0",
+            OperatorShellReviewRelativePath = "/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         };
 
         ArtifactPackage package = sut.BuildRunExportPackage(
@@ -113,6 +114,8 @@ public sealed class ArtifactPackagingServiceTests
         text.Should().Contain("Staging rollout");
         text.Should().Contain("sha-example");
         text.Should().Contain("default-rules 2.0");
+        text.Should().Contain("Review continuity");
+        text.Should().Contain("/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         text.Should().Contain("manifest.json");
     }
 }

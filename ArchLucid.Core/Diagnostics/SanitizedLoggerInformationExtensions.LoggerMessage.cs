@@ -126,4 +126,17 @@ public static partial class SanitizedLoggerInformationExtensions
         string requestId,
         string systemName,
         string environment);
+
+    [LoggerMessage(
+        EventId = 3010,
+        Level = LogLevel.Information,
+        Message =
+            "Run replayed (internal): OriginalRunId={OriginalRunId}, ReplayRunId={ReplayRunId}, ExecutionMode={ExecutionMode}, User={User}, CorrelationId={CorrelationId}")]
+    private static partial void EmitInternalArchitectureRunReplayed(
+        ILogger logger,
+        string originalRunId,
+        string replayRunId,
+        string executionMode,
+        string user,
+        string correlationId);
 }
