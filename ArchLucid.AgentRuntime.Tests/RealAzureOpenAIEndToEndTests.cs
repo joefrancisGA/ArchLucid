@@ -1,6 +1,8 @@
+using System.Text.Json;
+
 using ArchLucid.AgentRuntime.Prompts;
-using ArchLucid.Capabilities.Cost;
 using ArchLucid.Application.Runs.Coordination;
+using ArchLucid.Capabilities.Cost;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -21,8 +23,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
-
-using System.Text.Json;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
@@ -305,10 +305,10 @@ public sealed class RealAzureOpenAIEndToEndTests
             RawResponses.Add(rawResponse);
             ParseOutcomeHistory.Add((parseSucceeded, inputTokenCount, outputTokenCount));
 
-            if (inputTokenCount is { } ip && ip > 0)
+            if (inputTokenCount is { } ip and > 0)
                 InputTokensTotal += ip;
 
-            if (outputTokenCount is { } op && op > 0)
+            if (outputTokenCount is { } op and > 0)
                 OutputTokensTotal += op;
 
             return Task.CompletedTask;

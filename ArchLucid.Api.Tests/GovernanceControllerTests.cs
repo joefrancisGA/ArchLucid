@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -23,8 +23,8 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
 
         payload.Should().NotBeNull();
-        payload!.Run.Should().NotBeNull();
-        payload.Run!.RunId.Should().NotBeNullOrWhiteSpace(
+        payload.Run.Should().NotBeNull();
+        payload.Run.RunId.Should().NotBeNullOrWhiteSpace(
             "CreateRun response must include Run.RunId so downstream governance calls validate.");
 
         return payload.Run.RunId;
@@ -69,7 +69,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         GovernanceApprovalResponseDto? payload =
             JsonSerializer.Deserialize<GovernanceApprovalResponseDto>(body, JsonOptions);
         payload.Should().NotBeNull();
-        payload!.ApprovalRequestId.Should().NotBeNullOrWhiteSpace();
+        payload.ApprovalRequestId.Should().NotBeNullOrWhiteSpace();
         payload.Status.Should().Be("Submitted");
         payload.RequestedBy.Should().Be(GovernanceSubmitterName);
         AssertSameArchitectureRunId(runId, payload.RunId);

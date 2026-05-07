@@ -94,14 +94,14 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.GateResult.Blocked.Should().BeTrue();
+        result.GateResult.Blocked.Should().BeTrue();
         result.FailedChecks.Should().ContainSingle();
 
         fixture.Audit.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
                     e.EventType == AuditEventTypes.GovernanceDryRunRequested &&
-                    e.DataJson!.Contains("\"workflow\":\"proposedPolicyPackContent\"", StringComparison.Ordinal)),
+                    e.DataJson.Contains("\"workflow\":\"proposedPolicyPackContent\"", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -179,7 +179,7 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.ResolvedRunId.Should().Be(runGuid.ToString("N"));
+        result.ResolvedRunId.Should().Be(runGuid.ToString("N"));
         result.TargetManifestId.Should().Be(manifestGuid);
         result.GateResult.Blocked.Should().BeFalse();
 

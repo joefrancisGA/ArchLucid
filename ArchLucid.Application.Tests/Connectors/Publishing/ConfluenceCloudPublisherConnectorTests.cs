@@ -46,7 +46,8 @@ public sealed class ConfluenceCloudPublisherConnectorTests
     public async Task PublishAsync_when_disabled_skips_http_and_returns_configuration_error()
     {
         ThrowOnSendHandler handler = new();
-        using HttpClient http = new(handler) { BaseAddress = new Uri("https://example.atlassian.net/") };
+        using HttpClient http = new(handler);
+        http.BaseAddress = new Uri("https://example.atlassian.net/");
         Mock<IOptionsMonitor<ConfluencePublishingOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(new ConfluencePublishingOptions { Enabled = false, SpaceKey = "S" });
         ConfluenceCloudPublisherConnector sut =
@@ -63,7 +64,8 @@ public sealed class ConfluenceCloudPublisherConnectorTests
     public async Task PublishAsync_when_enabled_but_space_missing_skips_http()
     {
         ThrowOnSendHandler handler = new();
-        using HttpClient http = new(handler) { BaseAddress = new Uri("https://example.atlassian.net/") };
+        using HttpClient http = new(handler);
+        http.BaseAddress = new Uri("https://example.atlassian.net/");
         Mock<IOptionsMonitor<ConfluencePublishingOptions>> monitor = new();
         monitor
             .Setup(m => m.CurrentValue)
@@ -83,7 +85,8 @@ public sealed class ConfluenceCloudPublisherConnectorTests
     {
         QueueHandler handler = new();
         handler.Enqueue(new HttpResponseMessage(System.Net.HttpStatusCode.TooManyRequests));
-        using HttpClient http = new(handler) { BaseAddress = new Uri("https://example.atlassian.net/") };
+        using HttpClient http = new(handler);
+        http.BaseAddress = new Uri("https://example.atlassian.net/");
         Mock<IOptionsMonitor<ConfluencePublishingOptions>> monitor = new();
         monitor
             .Setup(m => m.CurrentValue)

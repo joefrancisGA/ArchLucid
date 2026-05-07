@@ -46,7 +46,7 @@ public sealed class ArchitectureProvenanceExplanationEndpointTests
 
         created.Should().NotBeNull();
 
-        string runId = created!.Run.RunId;
+        string runId = created.Run.RunId;
 
         HttpResponseMessage response =
             await client.GetAsync($"/v1/architecture/run/{runId}/provenance/test-node/explanation");

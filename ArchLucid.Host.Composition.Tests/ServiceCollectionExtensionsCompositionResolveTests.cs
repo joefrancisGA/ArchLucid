@@ -293,9 +293,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     {
         if (node is T) return true;
 
-        if (node is null) return false;
-
-        return (from field in node.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic) where typeof(IAgentCompletionClient).IsAssignableFrom(field.FieldType) select field.GetValue(node)).OfType<object>().Any(next => DecoratorChainContains<T>(next));
+        return node is not null && (from field in node.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic) where typeof(IAgentCompletionClient).IsAssignableFrom(field.FieldType) select field.GetValue(node)).OfType<object>().Any(next => DecoratorChainContains<T>(next));
     }
 
     private static Dictionary<string, string?> CreateSimulatorCompositionDictionary()

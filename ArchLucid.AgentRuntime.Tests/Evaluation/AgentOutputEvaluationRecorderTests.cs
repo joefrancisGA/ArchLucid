@@ -224,7 +224,7 @@ public sealed class AgentOutputEvaluationRecorderTests
         AgentExecutionTrace? updated = await repo.GetByTraceIdAsync("t-no-cites", CancellationToken.None);
 
         updated.Should().NotBeNull();
-        updated!.QualityWarning.Should().BeTrue();
+        updated.QualityWarning.Should().BeTrue();
     }
 
     [SkippableFact]
