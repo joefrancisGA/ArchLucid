@@ -10606,6 +10606,9 @@
       },
       "ProofPackageCompletenessResponse": {
         "properties": {
+          "agentOutputPilotStrictEvidenceSatisfied": {
+            "type": "boolean"
+          },
           "artifactDescriptorCount": {
             "format": "int32",
             "type": [

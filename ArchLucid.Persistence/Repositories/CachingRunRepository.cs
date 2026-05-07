@@ -84,9 +84,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
             ct,
             absoluteExpirationSecondsOverride: ListAbsoluteExpirationSeconds);
 
-        if (cached is null) throw new InvalidOperationException("Run list cache returned null unexpectedly.");
-
-        return cached;
+        return cached ?? throw new InvalidOperationException("Run list cache returned null unexpectedly.");
     }
 
     /// <inheritdoc />
@@ -129,9 +127,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
             ct,
             absoluteExpirationSecondsOverride: ListAbsoluteExpirationSeconds);
 
-        if (cached is null) throw new InvalidOperationException("Run list cache returned null unexpectedly.");
-
-        return cached;
+        return cached ?? throw new InvalidOperationException("Run list cache returned null unexpectedly.");
     }
 
     /// <inheritdoc />
@@ -179,7 +175,9 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         {
             ScopeContext scope = new()
             {
-                TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ScopeProjectId
             };
 
             await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
@@ -197,7 +195,9 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         {
             ScopeContext scope = new()
             {
-                TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ScopeProjectId
             };
 
             await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
@@ -210,7 +210,9 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     {
         return new ScopeContext
         {
-            TenantId = run.TenantId, WorkspaceId = run.WorkspaceId, ProjectId = run.ScopeProjectId
+            TenantId = run.TenantId,
+            WorkspaceId = run.WorkspaceId,
+            ProjectId = run.ScopeProjectId
         };
     }
 }
