@@ -43,8 +43,7 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
         return _hotPathReadCache.GetOrCreateAsync(
             HotPathCacheKeys.PolicyPack(policyPackId),
             innerCt => _inner.GetByIdAsync(policyPackId, innerCt),
-            ct,
-            HotPathCacheKeys.LegacyPolicyPack(policyPackId));
+            ct);
     }
 
     /// <inheritdoc />

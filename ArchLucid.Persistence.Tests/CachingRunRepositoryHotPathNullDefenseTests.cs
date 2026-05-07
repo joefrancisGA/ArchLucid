@@ -22,7 +22,6 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
                 It.IsAny<string>(),
                 It.IsAny<Func<CancellationToken, Task<RunListPage?>>>(),
                 It.IsAny<CancellationToken>(),
-                It.IsAny<string?>(),
                 It.IsAny<int?>()))
             .ReturnsAsync((RunListPage?)null);
 
@@ -48,7 +47,6 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
                 It.IsAny<string>(),
                 It.IsAny<Func<CancellationToken, Task<RunListPage?>>>(),
                 It.IsAny<CancellationToken>(),
-                It.IsAny<string?>(),
                 It.IsAny<int?>()))
             .ReturnsAsync((RunListPage?)null);
 
@@ -102,7 +100,6 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
                 It.IsAny<string>(),
                 It.IsAny<Func<CancellationToken, Task<RunListPage?>>>(),
                 It.IsAny<CancellationToken>(),
-                It.IsAny<string?>(),
                 It.IsAny<int?>()),
             Times.Never);
     }
@@ -143,7 +140,6 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
                 It.IsAny<string>(),
                 It.IsAny<Func<CancellationToken, Task<RunListPage?>>>(),
                 It.IsAny<CancellationToken>(),
-                It.IsAny<string?>(),
                 It.IsAny<int?>()),
             Times.Never);
     }

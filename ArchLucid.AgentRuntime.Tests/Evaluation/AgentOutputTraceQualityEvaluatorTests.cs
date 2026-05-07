@@ -84,6 +84,45 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     }
 
     [Fact]
+    public void TryEvaluateTrace_pilot_strict_rejects_when_evidence_ref_floor_not_met_even_with_citations()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            PilotStrictMinEvidenceRefCount = 2,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1.0,
+            SemanticWarnBelow = 1.0
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                """
+                {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":["only-one"],"confidence":0.5,"findings":[{"severity":"High","description":"Long enough description text","recommendation":"Fix it"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"stub"}]}
+                """
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
+            AgentOutputTraceQualityEvaluator.TryEvaluateTrace(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                new AgentOutputSemanticEvaluator(),
+                new AgentOutputQualityGate(Options.Create(options)));
+
+        r.Should().NotBeNull();
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+    }
+
+    [Fact]
     public void TryEvaluateTrace_warn_only_unparsed_skips_entirely()
     {
         AgentOutputQualityGateOptions options = new() { Enabled = true, Mode = AgentOutputQualityGateMode.WarnOnly };

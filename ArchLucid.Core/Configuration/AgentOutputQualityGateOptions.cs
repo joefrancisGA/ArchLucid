@@ -27,7 +27,7 @@ public sealed class AgentOutputQualityGateOptions
     {
         get;
         set;
-    } = 0.45;
+    } = 0.90;
 
     /// <summary>
     ///     When <see cref="Mode"/> is <see cref="AgentOutputQualityGateMode.PilotStrict"/>, semantic scores strictly below
@@ -37,7 +37,7 @@ public sealed class AgentOutputQualityGateOptions
     {
         get;
         set;
-    } = 0.25;
+    } = 0.50;
 
     /// <summary>
     ///     When non-zero and mode is <see cref="AgentOutputQualityGateMode.PilotStrict"/>, the top-level JSON
@@ -47,7 +47,7 @@ public sealed class AgentOutputQualityGateOptions
     {
         get;
         set;
-    }
+    } = 2;
 
     /// <summary>
     ///     Optional aggregate explanation faithfulness floor for sponsor proof when mode is PilotStrict.

@@ -1,10 +1,9 @@
 ﻿using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Options;
-using ArchLucid.Persistence.Repositories;
 
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
+using ArchLucid.Persistence.Caching;
+using ArchLucid.Persistence.Coordination.Caching;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Repositories;
 
 namespace ArchLucid.Persistence.Tests;
 
@@ -19,8 +18,7 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
     public async Task ArchiveRunsCreatedBeforeAsync_removes_cached_GetById_row()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
-        IOptionsMonitor<HotPathCacheOptions> monitor = new FixedOptionsMonitor<HotPathCacheOptions>(options);
-        MemoryHotPathReadCache hotPath = new(new MemoryCache(new MemoryCacheOptions()), monitor);
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
         InMemoryRunRepository inner = new();
         CachingRunRepository repo = new(inner, hotPath);
 

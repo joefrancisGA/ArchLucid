@@ -52,7 +52,7 @@ public sealed class HotPathCacheEvictionTests
         await HotPathCacheEviction.RemoveManifestAsync(cache.Object, scope, manifestId, ct);
 
         cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.Manifest(scope, manifestId), ct), Times.Once);
-        cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.LegacyManifest(scope, manifestId), ct), Times.Once);
+
         cache.VerifyNoOtherCalls();
     }
 
@@ -89,7 +89,7 @@ public sealed class HotPathCacheEvictionTests
         await HotPathCacheEviction.RemoveRunAsync(cache.Object, scope, runId, ct);
 
         cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.Run(scope, runId), ct), Times.Once);
-        cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.LegacyRun(scope, runId), ct), Times.Once);
+
         cache.VerifyNoOtherCalls();
     }
 
@@ -114,7 +114,7 @@ public sealed class HotPathCacheEvictionTests
         await HotPathCacheEviction.RemovePolicyPackAsync(cache.Object, policyPackId, ct);
 
         cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.PolicyPack(policyPackId), ct), Times.Once);
-        cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.LegacyPolicyPack(policyPackId), ct), Times.Once);
+
         cache.VerifyNoOtherCalls();
     }
 }

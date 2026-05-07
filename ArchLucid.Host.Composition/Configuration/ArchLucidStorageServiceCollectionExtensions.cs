@@ -29,6 +29,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
@@ -205,11 +206,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
         if (!snapshot.Enabled)
         {
-            // Hot-path repository decorators stay off, but a lightweight in-process cache is still registered so
-            // optional consumers (e.g. `GET /v1/demo/preview`) can cache small read-only bundles without forcing
-            // `HotPathCache:Enabled=true` on Development profiles that disable SQL hot-path caching.
-            services.AddMemoryCache();
-            services.AddSingleton<IHotPathReadCache, MemoryHotPathReadCache>();
+            // Hot-path repository decorators stay off; optional consumers (e.g. `GET /v1/demo/preview`) still use
+            // IHotPathReadCache without enabling SQL hot-path repository decorators.
+            RegisterHybridCacheCore(services, snapshot);
+            services.AddSingleton<IHotPathReadCache, HybridHotPathReadCache>();
 
             return;
         }
@@ -226,14 +226,45 @@ public static class ArchLucidStorageServiceCollectionExtensions
                     "HotPathCache:RedisConnectionString is required when HotPathCache:Provider is Redis.");
 
 
-            services.AddStackExchangeRedisCache(o => o.Configuration = redis);
-            services.AddSingleton<IHotPathReadCache, DistributedHotPathReadCache>();
-
-            return;
+            TryRegisterStackExchangeRedisDistributedCache(services, redis);
         }
 
-        services.AddMemoryCache();
-        services.AddSingleton<IHotPathReadCache, MemoryHotPathReadCache>();
+        RegisterHybridCacheCore(services, snapshot);
+        services.AddSingleton<IHotPathReadCache, HybridHotPathReadCache>();
+    }
+
+    private static void RegisterHybridCacheCore(IServiceCollection services, HotPathCacheOptions snapshot)
+    {
+        int seconds = snapshot.AbsoluteExpirationSeconds;
+
+        if (seconds < 1)
+            seconds = 60;
+
+        seconds = Math.Clamp(seconds, 1, 3600);
+        TimeSpan ttl = TimeSpan.FromSeconds(seconds);
+
+        services.AddHybridCache(options =>
+        {
+            options.MaximumPayloadBytes = 16 * 1024 * 1024;
+
+            options.DefaultEntryOptions = new HybridCacheEntryOptions
+            {
+                Expiration = ttl,
+                LocalCacheExpiration = ttl
+            };
+        });
+    }
+
+    /// <summary>
+    ///     Registers StackExchange Redis backing for <see cref="IDistributedCache" /> when none is present (shared with LLM
+    ///     distributed completion store when both are enabled).
+    /// </summary>
+    private static void TryRegisterStackExchangeRedisDistributedCache(IServiceCollection services, string redis)
+    {
+        if (services.Any(static d => d.ServiceType == typeof(IDistributedCache)))
+            return;
+
+        services.AddStackExchangeRedisCache(o => o.Configuration = redis);
     }
 
     internal static void RegisterGoldenManifestRunAndPolicyPackRepositories(
