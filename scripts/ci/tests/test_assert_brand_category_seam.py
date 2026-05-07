@@ -33,8 +33,9 @@ SCRIPT = REPO_ROOT / "scripts" / "ci" / "assert_brand_category_seam.py"
 
 SEAM_CONTENTS = textwrap.dedent(
     """\
-    export const BRAND_CATEGORY = "AI Architecture Review Board";
-    export const BRAND_CATEGORY_LEGACY = "AI Architecture Intelligence";
+    export const BRAND_CATEGORY = "Architecture Proof Engine";
+    export const BRAND_CATEGORY_LEGACY = "AI Architecture Review Board";
+    export const BRAND_CATEGORY_LEGACY_ORIGINAL = "AI Architecture Intelligence";
     """
 )
 
@@ -114,7 +115,7 @@ class TestAssertBrandCategorySeam(unittest.TestCase):
             _make_seam(root)
             _write(
                 root / "docs" / "go-to-market" / "COMPETITIVE_LANDSCAPE.md",
-                "# Landscape\n\nArchLucid is an AI Architecture Intelligence platform.\n",
+                "# Landscape\n\nArchLucid is an AI Architecture Review Board platform.\n",
             )
 
             result = _run(root, "--fail")

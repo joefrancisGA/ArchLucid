@@ -250,8 +250,8 @@ jobs:
           cd scripts/ci
           python -m unittest test_golden_cohort_budget_probe
 
-      - name: "Brand-category seam — rebrand workstream guard (WARN mode through PR-6, flips to FAIL in PR-7)"
-        run: python scripts/ci/assert_brand_category_seam.py
+      - name: "Brand-category seam — rebrand guard (FAIL if legacy phrases hardcoded)"
+        run: python scripts/ci/assert_brand_category_seam.py --fail
 
       - name: Brand-category seam guard self-test
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_brand_category_seam.py"

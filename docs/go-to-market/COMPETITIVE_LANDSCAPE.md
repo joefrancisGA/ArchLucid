@@ -7,7 +7,7 @@
 
 **Audience:** Product leadership, sales, and marketing teams who need to position ArchLucid against alternatives during evaluations and deal cycles.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-05-07
 
 **Grounding rule:** Every capability claimed for ArchLucid in this document is based on what the repository actually ships today per [V1_SCOPE.md](../library/V1_SCOPE.md), [ARCHITECTURE_CONTEXT.md](../library/ARCHITECTURE_CONTEXT.md), and [QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](../archive/quality/2026-04-23-doc-depth-reorg/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md). Claims are not aspirational.
 
@@ -15,7 +15,7 @@
 
 ## 1. Market context
 
-### The category: AI Architecture Intelligence
+### The category: Architecture Proof Engine
 
 ArchLucid operates at the intersection of two established markets and one emerging one:
 

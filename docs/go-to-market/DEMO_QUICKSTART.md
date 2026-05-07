@@ -49,7 +49,7 @@ Adjust the path if you prefer to start from the home dashboard at `http://localh
 
 ## What you are seeing
 
-- **AI Architecture Intelligence** — A multi-agent pipeline (topology, cost, compliance, critic) produces structured findings and a versioned golden manifest; in simulator mode, agents run without calling cloud LLMs.
+- **Architecture Proof Engine** — A multi-agent pipeline (topology, cost, compliance, critic) produces structured findings and a versioned golden manifest; in simulator mode, agents run without calling cloud LLMs.
 - **Governance and audit** — Policy packs, optional pre-commit gates, and durable audit patterns match [POSITIONING.md](POSITIONING.md) and [PRODUCT_DATASHEET.md](PRODUCT_DATASHEET.md).
 - **Explainability** — Findings carry traces suitable for review and audit narratives.
 

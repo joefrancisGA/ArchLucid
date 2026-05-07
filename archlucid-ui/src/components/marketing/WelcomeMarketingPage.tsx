@@ -9,7 +9,7 @@ import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 
 /** Homepage hero pitch — category label flows through `BRAND_CATEGORY`. */
-const HERO_PITCH = `ArchLucid is an ${BRAND_CATEGORY} platform. You describe a system you want to build, and our AI agents analyze it for topology, cost, compliance, and design quality — then produce a versioned manifest with every finding traced and explained. Think of it as an AI-powered architecture review board that runs in minutes instead of weeks, with a full audit trail.`;
+const HERO_PITCH = `ArchLucid is an ${BRAND_CATEGORY} platform. You bring real architecture context, and our AI agents analyze it for topology, cost, compliance, and design quality — then produce a versioned manifest with every finding traced and explained. You get a defensible package in minutes instead of weeks: evidence, stated limits, and a governance-ready audit trail — without a founder narrating why it matters.`;
 
 type WelcomeVerifyLink = {
   readonly label: string;
@@ -96,7 +96,7 @@ export function WelcomeMarketingPage() {
           {BRAND_CATEGORY}
         </p>
         <h1 id="hero-heading" className="mt-2 text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 sm:text-4xl">
-          Ship governed architecture decisions faster
+          Defensible architecture, on demand.
         </h1>
         <p
           className="mx-auto mt-4 max-w-3xl text-left text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-center"
