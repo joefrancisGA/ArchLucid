@@ -28,7 +28,7 @@ internal sealed class TenantPrimingGovernancePromotionRecordRepository : IGovern
 
         _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString.Trim());
         _inner = new GovernancePromotionRecordRepository(
-            new GovernanceContractScopeRlsBypassDbConnectionFactory(_connectionString),
+            new GovernanceContractScopeDbConnectionFactory(_connectionString),
             scopeContextProvider);
     }
 
@@ -51,7 +51,7 @@ internal sealed class TenantPrimingGovernancePromotionRecordRepository : IGovern
 
         await SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync(_connectionString, cancellationToken);
 
-        GovernanceContractScopeRlsBypassDbConnectionFactory factory = new(_connectionString);
+        GovernanceContractScopeDbConnectionFactory factory = new(_connectionString);
         await using SqlConnection conn = (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
 
         await using SqlTransaction tran =

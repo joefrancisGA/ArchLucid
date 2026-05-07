@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(116)
+        return new List<ConfigurationKeyEntry>(115)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -31,8 +31,6 @@ public static class ConfigurationKeyCatalog
                 "see default dev", "When SQL is active",
                 "Primary SQL connection string (required when using Sql storage).",
                 ConfigKeyRequirementKind.WhenDefaultSqlStorage),
-            E("ArchLucid", "ArchLucid:Persistence:AllowRlsBypass", M("appsettings", "env"), "false", "—",
-                "Dev-only: bypass SQL row-level security in tests.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:PublicSite:BaseUrl", M("appsettings", "env"), "https://archlucid.net", "—",
                 "Public marketing / operator link base for emails and exports.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Notifications:TrialLifecycle:Owner", M("appsettings", "env"), "Hosted", "—",

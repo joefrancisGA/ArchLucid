@@ -10,15 +10,10 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Feedback;
 
 [ExcludeFromCodeCoverage(Justification = "SQL Server–dependent repository.")]
-public sealed class SqlFindingFeedbackRepository(
-    ISqlConnectionFactory connectionFactory,
-    IRlsSessionContextApplicator rlsSessionContextApplicator) : IFindingFeedbackRepository
+public sealed class SqlFindingFeedbackRepository(ISqlConnectionFactory connectionFactory) : IFindingFeedbackRepository
 {
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-
-    private readonly IRlsSessionContextApplicator _rlsSessionContextApplicator =
-        rlsSessionContextApplicator ?? throw new ArgumentNullException(nameof(rlsSessionContextApplicator));
 
     /// <inheritdoc />
     public async Task InsertAsync(FindingFeedbackSubmission submission, CancellationToken cancellationToken = default)
@@ -26,8 +21,6 @@ public sealed class SqlFindingFeedbackRepository(
         ArgumentNullException.ThrowIfNull(submission);
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
 
         const string sql = """
                            INSERT INTO dbo.FindingFeedback (

@@ -9,7 +9,7 @@ public sealed class SupportBundleManifest
     {
         get;
         init;
-    } = "1.2";
+    } = "1.3";
 
     [JsonPropertyName("createdUtc")]
     public string CreatedUtc
@@ -55,4 +55,28 @@ public sealed class SupportBundleManifest
         init;
     } =
         "No secrets, connection strings, or API key values are included. Sensitive env vars appear only as (set)/(not set).";
+
+    /// <summary>Bundle member file names at this bundle root, lexicographically sorted for deterministic manifests.</summary>
+    [JsonPropertyName("includedFilesLexOrder")]
+    public IReadOnlyList<string> IncludedFilesLexOrder
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>When <see langword="true" />, <see cref="SupportBundleArchiveWriter.WriteDirectoryWithRedaction" /> ran the text pass over serialized JSON/readme.</summary>
+    [JsonPropertyName("redactionPassAppliedToSerializedSections")]
+    public bool RedactionPassAppliedToSerializedSections
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Logical redaction rules applied to text (see <see cref="SupportBundleRedactor.TextPatternRedactionRules" />).</summary>
+    [JsonPropertyName("redactionRulesApplied")]
+    public IReadOnlyList<string> RedactionRulesApplied
+    {
+        get;
+        init;
+    } = [];
 }

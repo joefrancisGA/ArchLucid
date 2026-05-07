@@ -2,7 +2,6 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.CustomerSuccess;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -12,19 +11,15 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.CustomerSuccess;
 
 /// <summary>
-///     SQL-backed health scores and feedback. Maintenance path uses <see cref="SqlRowLevelSecurityBypassAmbient" />
-///     together with <see cref="dbo.sp_TenantHealthScores_BatchRefresh" />.
+///     SQL-backed health scores and feedback; batch refresh runs via <c>dbo.sp_TenantHealthScores_BatchRefresh</c> in per-tenant
+///     catalogs (application-scoped tenancy, no database row-level security).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL Server–dependent repository.")]
-public sealed class SqlTenantCustomerSuccessRepository(
-    ISqlConnectionFactory connectionFactory,
-    IRlsSessionContextApplicator rlsSessionContextApplicator) : ITenantCustomerSuccessRepository
+public sealed class SqlTenantCustomerSuccessRepository(ISqlConnectionFactory connectionFactory)
+    : ITenantCustomerSuccessRepository
 {
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-
-    private readonly IRlsSessionContextApplicator _rlsSessionContextApplicator =
-        rlsSessionContextApplicator ?? throw new ArgumentNullException(nameof(rlsSessionContextApplicator));
 
     /// <inheritdoc />
     public async Task<TenantHealthScoreRecord?> GetHealthScoreAsync(
@@ -34,8 +29,6 @@ public sealed class SqlTenantCustomerSuccessRepository(
         CancellationToken ct)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, ct);
 
         const string sql = """
                            SELECT TenantId,
@@ -84,8 +77,6 @@ public sealed class SqlTenantCustomerSuccessRepository(
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
-        await _rlsSessionContextApplicator.ApplyAsync(connection, ct);
-
         const string sql = """
                            INSERT INTO dbo.ProductFeedback (
                                FeedbackId,
@@ -117,11 +108,7 @@ public sealed class SqlTenantCustomerSuccessRepository(
     /// <inheritdoc />
     public async Task RefreshAllTenantHealthScoresAsync(CancellationToken ct)
     {
-        using IDisposable _ = SqlRowLevelSecurityBypassAmbient.Enter();
-
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, ct);
 
         await connection.ExecuteAsync(
             new CommandDefinition(

@@ -20,7 +20,6 @@ namespace ArchLucid.Host.Composition.Tests;
 [Trait("Category", "Unit")]
 public sealed class StartupConfigWarningsInstrumentationTests
 {
-    private static readonly Lock RlsBypassEnvGate = new();
     [Fact]
     public void AuthSafetyGuard_development_bypass_in_development_increments_startup_config_warning_metric()
     {
@@ -75,42 +74,6 @@ public sealed class StartupConfigWarningsInstrumentationTests
                     t.Value as string,
                     StartupValidationWarningRuleNames.LlmPromptRedactionDisabledProductionLike,
                     StringComparison.Ordinal)));
-    }
-
-    [Fact]
-    public void RlsBypassPolicyBootstrap_when_break_glass_enabled_increments_metric()
-    {
-        _ = ArchLucidInstrumentation.StartupConfigWarningsTotal;
-
-        const string envName = "ARCHLUCID_ALLOW_RLS_BYPASS";
-        lock (RlsBypassEnvGate)
-        {
-            string? previous = Environment.GetEnvironmentVariable(envName);
-
-            try
-            {
-                Environment.SetEnvironmentVariable(envName, "true");
-                IConfiguration configuration = new ConfigurationBuilder()
-                    .AddInMemoryCollection(
-                        [new KeyValuePair<string, string?>("ArchLucid:Persistence:AllowRlsBypass", "true")])
-                    .Build();
-
-                using StartupConfigWarningsCapture capture = StartupConfigWarningsCapture.Start();
-
-                RlsBypassPolicyBootstrap.Apply(configuration, new StubHostEnvironment(Environments.Development), NullLogger.Instance);
-
-                capture.LongMeasures.Should().Contain(m =>
-                    m.Name == "archlucid_startup_config_warnings_total"
-                    && m.Value == 1
-                    && m.Tags.Any(t =>
-                        t.Key == "rule_name"
-                        && string.Equals(t.Value as string, StartupValidationWarningRuleNames.RlsBreakGlassEnabled, StringComparison.Ordinal)));
-            }
-            finally
-            {
-                Environment.SetEnvironmentVariable(envName, previous);
-            }
-        }
     }
 
     private sealed class StartupConfigWarningsCapture : IDisposable

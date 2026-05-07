@@ -1,6 +1,9 @@
 ﻿using System.Globalization;
 
 using ArchLucid.Core.Tenancy;
+
+using FluentAssertions;
+
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tenancy;
 
@@ -32,13 +35,6 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
         await using (SqlConnection setup = new(_fixture.ConnectionString))
         {
             await setup.OpenAsync();
-
-            // RLS BLOCK predicates on UsageEvents / AuditEvents (migrations 068 + 070) reject inserts that do not
-            // match the session's tenant/workspace/project scope. Tests in other xUnit collections may toggle the
-            // consolidated tenant RLS security policy in schema rls (DbUp 036) STATE = ON in parallel, so set the
-            // same bypass key the production SqlTenantHardPurgeService uses; this keeps setup deterministic
-            // regardless of current policy state.
-            await EnableRlsBypassAsync(setup);
 
             await using SqlCommand tenantCmd = setup.CreateCommand();
             tenantCmd.CommandText = """
@@ -97,7 +93,6 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
 
         await using SqlConnection verify = new(_fixture.ConnectionString);
         await verify.OpenAsync();
-        await EnableRlsBypassAsync(verify);
 
         await using SqlCommand tenantCount = verify.CreateCommand();
         tenantCount.CommandText = "SELECT COUNT(*) FROM dbo.Tenants WHERE Id = @Id;";
@@ -110,20 +105,5 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
         auditCount.Parameters.AddWithValue("@EventId", auditEventId);
         object? aScalar = await auditCount.ExecuteScalarAsync();
         Convert.ToInt32(aScalar, CultureInfo.InvariantCulture).Should().Be(1);
-    }
-
-    /// <summary>
-    ///     Sets <c>SESSION_CONTEXT(N'al_rls_bypass') = 1</c> so writes pass the BLOCK predicates on scope-keyed tables
-    ///     covered by the tenant RLS rollout (DbUp 036 + 108; see <c>docs/security/MULTI_TENANT_RLS.md</c>).
-    ///     Mirrors <c>SqlTenantHardPurgeService.ApplyBypassSessionAsync</c>.
-    /// </summary>
-    private static async Task EnableRlsBypassAsync(SqlConnection connection)
-    {
-        await using SqlCommand cmd = connection.CreateCommand();
-        cmd.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
-        cmd.Parameters.AddWithValue("@k", "al_rls_bypass");
-        cmd.Parameters.AddWithValue("@v", 1);
-        cmd.Parameters.AddWithValue("@read_only", 0);
-        await cmd.ExecuteNonQueryAsync();
     }
 }

@@ -41,7 +41,6 @@ public sealed class TrialArchitecturePreseedExecutor(ITenantRepository tenantRep
             WorkspaceId = link.WorkspaceId,
             ProjectId = link.DefaultProjectId
         };
-        using (SqlRowLevelSecurityBypassAmbient.Enter())
         using (AmbientScopeContext.Push(scope))
         {
             ArchitectureRequest request = BuildRequest(tenantId);

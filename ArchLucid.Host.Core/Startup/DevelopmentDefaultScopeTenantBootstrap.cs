@@ -20,7 +20,6 @@ public static class DevelopmentDefaultScopeTenantBootstrap
 
         using SqlConnection connection = new(connectionString);
         connection.Open();
-        ApplyRlsBypassSessionContext(connection);
 
         int tenantsTableExists = connection.QuerySingle<int>(
             "SELECT CASE WHEN OBJECT_ID(N'dbo.Tenants', N'U') IS NULL THEN 0 ELSE 1 END;");
@@ -78,16 +77,5 @@ public static class DevelopmentDefaultScopeTenantBootstrap
 
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug("Development default scope tenant/workspace ensured.");
-    }
-
-    /// <summary>RLS predicates may block bootstrap without an explicit bypass on this ADO.NET connection.</summary>
-    private static void ApplyRlsBypassSessionContext(SqlConnection connection)
-    {
-        using SqlCommand command = connection.CreateCommand();
-        command.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
-        command.Parameters.AddWithValue("@k", "al_rls_bypass");
-        command.Parameters.AddWithValue("@v", 1);
-        command.Parameters.AddWithValue("@read_only", 0);
-        _ = command.ExecuteNonQuery();
     }
 }

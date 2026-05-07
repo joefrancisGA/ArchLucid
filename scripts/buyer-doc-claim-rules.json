@@ -1,0 +1,33 @@
+{
+  "docScanVersion": "1.0",
+  "notes": "Warning-only heuristics — triage hits manually; align wording with V1_SCOPE / V1_DEFERRED / TRUST_CENTER.",
+  "targets": [
+    "README.md",
+    "docs/START_HERE.md",
+    "docs/CORE_PILOT.md",
+    "docs/EXECUTIVE_SPONSOR_BRIEF.md",
+    "docs/go-to-market/TRUST_CENTER.md",
+    "docs/library/V1_SCOPE.md",
+    "docs/library/V1_DEFERRED.md"
+  ],
+  "rules": [
+    {
+      "id": "soc2-cpa-issued-claim",
+      "pattern": "(?i)SOC\\s*2\\s*Type\\s*(I|II|1|2)\\b.*\\b(issued|CPA\\s+report|attestation\\s+report)\\b",
+      "hint": "SOC 2 CPA issuance is deferred for V1 headline; use self-assessment + roadmap wording (see docs/security/SOC2_SELF_ASSESSMENT_2026.md, V1_DEFERRED).",
+      "ignorePathFragments": ["V1_DEFERRED.md", "V1_SCOPE.md"]
+    },
+    {
+      "id": "mcp-live-product-claim",
+      "pattern": "(?i)\\bMCP\\s+(connector|server)\\s+is\\s+live\\b",
+      "hint": "MCP scope is deferred per V1_DEFERRED — do not imply GA MCP unless explicitly promoted.",
+      "ignorePathFragments": ["V1_DEFERRED.md", "V1_SCOPE.md"]
+    },
+    {
+      "id": "design-partner-required-claim",
+      "pattern": "(?i)design\\s+partner\\s+(is\\s+)?required\\b",
+      "hint": "Design partner is not a V1 gate — see workspace assessment rules and V1_SCOPE.",
+      "ignorePathFragments": ["V1_DEFERRED.md", "V1_SCOPE.md"]
+    }
+  ]
+}

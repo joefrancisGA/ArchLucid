@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Tests.Support;
@@ -25,7 +26,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task Save_then_GetById_round_trips_relational_collections()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -101,7 +102,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task ListIndexedEdgesAsync_preserves_order_by_EdgeId_and_core_fields()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphSnapshotId = Guid.NewGuid();
@@ -161,7 +162,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         GetById_relational_edges_merge_label_and_properties_from_edges_json_when_edge_properties_table_empty()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -266,7 +267,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task GetById_when_no_relational_children_returns_empty_collections_even_when_json_columns_populated()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -352,7 +353,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task GetById_when_no_relational_children_and_json_columns_null_returns_empty_collections()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -414,7 +415,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task SaveAsync_with_explicit_transaction_commits_relational_rows()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -456,7 +457,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task Save_then_GetById_round_trips_when_node_count_exceeds_legacy_sql_chunk_size()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -511,7 +512,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task Save_then_GetById_round_trips_dense_node_properties()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -568,7 +569,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task Save_then_GetById_round_trips_many_edge_property_rows()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -639,7 +640,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task BackfillRelationalSlicesAsync_inserts_nodes_via_SqlBulkCopy_when_json_populated()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
 
         Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         Guid workspaceId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");

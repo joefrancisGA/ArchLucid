@@ -8,6 +8,14 @@ namespace ArchLucid.Cli.Support;
 /// </summary>
 public static class SupportBundleRedactor
 {
+    /// <summary>Identifiers for bundle manifest transparency — kept stable for operator diffing.</summary>
+    public static IReadOnlyList<string> TextPatternRedactionRules { get; } =
+    [
+        "strip-authorization-bearer-secret",
+        "strip-x-api-key-header-secret",
+        "mask-connection-keyword-secrets"
+    ];
+
     private static readonly Regex BearerHeader = new(
         @"(?i)(Authorization\s*:\s*Bearer\s+)[^\s\r\n""]+",
         RegexOptions.Compiled);

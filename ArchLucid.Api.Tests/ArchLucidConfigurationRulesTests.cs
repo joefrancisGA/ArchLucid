@@ -121,34 +121,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("ArchLucid:StorageProvider=InMemory", StringComparison.OrdinalIgnoreCase));
     }
 
-    [SkippableFact]
-    public void CollectErrors_WhenProductionAndAllowRlsBypass_contains_fail_fast_rule_prefix()
-    {
-        Dictionary<string, string?> data = new()
-        {
-            ["ArchLucid:StorageProvider"] = "Sql",
-            ["ArchLucid:Persistence:AllowRlsBypass"] = "true",
-            ["ConnectionStrings:ArchLucid"] =
-                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
-            ["ArchLucidAuth:Mode"] = "JwtBearer",
-            ["ArchLucidAuth:Authority"] = "https://login.example.com",
-            ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
-            ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
-            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false"
-        };
 
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
-        Mock<IWebHostEnvironment> env = new();
-        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
-
-        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
-
-        errors.Should()
-            .Contain(
-                e => e.Contains("[persistence_allow_rls_bypass_disallowed]", StringComparison.OrdinalIgnoreCase));
-    }
 
     [SkippableFact]
     public void CollectErrors_WhenStagingStrictAndJwtWithoutAuthority_contains_fail_fast_rule_prefix()
@@ -159,7 +132,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
             ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
@@ -185,7 +157,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
             ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
@@ -210,7 +181,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false"
@@ -233,7 +203,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "NotARealMode",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false"
@@ -257,7 +226,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -302,7 +270,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = "/tmp/archlucid-ci-public.pem",
             ["ArchLucidAuth:JwtLocalIssuer"] = "https://ci.local",
@@ -329,7 +296,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "ApiKey",
             ["Authentication:ApiKey:Enabled"] = "false",
             ["Authentication:ApiKey:AdminKey"] = "k",
@@ -354,7 +320,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
             ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
@@ -380,7 +345,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Authentication:ApiKey:Enabled"] = "true",
@@ -407,7 +371,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Authentication:ApiKey:Enabled"] = "true",
@@ -436,7 +399,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Authentication:ApiKey:Enabled"] = "true",
@@ -487,7 +449,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Authentication:ApiKey:Enabled"] = "true",
@@ -515,7 +476,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Authentication:ApiKey:Enabled"] = "true",
@@ -543,7 +503,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Authentication:ApiKey:Enabled"] = "true",
@@ -571,7 +530,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Authentication:ApiKey:Enabled"] = "false",
@@ -1065,7 +1023,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false"
@@ -1089,7 +1046,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false"
@@ -1112,7 +1068,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "*",
@@ -1136,7 +1091,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -1181,7 +1135,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -1334,7 +1287,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "ApiKey",
             ["Authentication:ApiKey:Enabled"] = "true",
             ["Authentication:ApiKey:AdminKey"] = "",
@@ -1423,7 +1375,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -1799,7 +1750,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["CosmosDb:AgentTracesEnabled"] = "true",
@@ -1823,7 +1773,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "ApiKey",
             ["ArchLucidAuth:RequireJwtBearerInProduction"] = "true",
             ["Authentication:ApiKey:Enabled"] = "true",
@@ -1850,7 +1799,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:RequireJwtBearerInProduction"] = "true",
             ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
@@ -1875,7 +1823,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/common/v2.0",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -1901,7 +1848,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/common/v2.0",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -1927,7 +1873,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -1954,7 +1899,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
@@ -1979,7 +1923,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -2006,7 +1949,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -2032,7 +1974,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
@@ -2056,7 +1997,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -2083,7 +2023,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -2110,7 +2049,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -2138,7 +2076,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -2269,7 +2206,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["ArchLucid:SqlTopology:Mode"] = "SingleCatalog",

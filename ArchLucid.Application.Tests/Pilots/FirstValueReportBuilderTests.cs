@@ -96,6 +96,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("| Audit rows for this run | 7 |");
         md.Should().Contain("Top-severity finding");
         md.Should().Contain("evidence chain excerpt");
+        md.Should().Contain("Why this top finding is trustworthy");
         md.Should().Contain("`top-finding-id`");
         md.Should().Contain("11111111-1111-1111-1111-111111111111");
         md.Should().Contain("docs/EXECUTIVE_SPONSOR_BRIEF.md");

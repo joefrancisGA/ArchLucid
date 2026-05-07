@@ -27,6 +27,8 @@ Use **[`infra/terraform-pilot/`](../../infra/terraform-pilot/README.md)** as the
 
 **Script default:** [`infra/apply-saas.ps1`(../../infra/apply-saas.ps1) runs **only** `terraform-pilot` unless you pass **`-MultiRoot`** (opt-in multi-root path).
 
+**Canonical production profile (multi-tenant SaaS):** [AZURE_PRODUCTION_PROFILE.md](AZURE_PRODUCTION_PROFILE.md)
+
 ---
 
 ## Advanced (opt-in): multi-root separate state
@@ -83,6 +85,7 @@ Manifest delta surfaces (`GET /v1/compare`) ship as **GitHub composite actions**
 
 ## Related
 
+- [AZURE_PRODUCTION_PROFILE.md](AZURE_PRODUCTION_PROFILE.md) — canonical multi-tenant SaaS Terraform posture (summary).
 - [TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md](TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md) — blast-radius matrix, safe-apply checklist, variable hand-offs (separate Terraform state roots).
 - [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md) — full root map and constraints.
 - [RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md) — recovery targets by tier.

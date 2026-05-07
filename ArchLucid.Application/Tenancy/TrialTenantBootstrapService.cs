@@ -52,7 +52,6 @@ public sealed class TrialTenantBootstrapService(IDemoSeedService demoSeedService
             WorkspaceId = result.DefaultWorkspaceId,
             ProjectId = result.DefaultProjectId
         };
-        using (SqlRowLevelSecurityBypassAmbient.Enter())
         using (AmbientScopeContext.Push(scope))
             try
             {

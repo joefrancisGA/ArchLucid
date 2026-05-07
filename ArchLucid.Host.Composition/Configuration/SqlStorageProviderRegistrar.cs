@@ -146,7 +146,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantSqlCatalogProvisioner, SqlTenantSqlCatalogProvisioner>();
     }
 
-    /// <summary>Tenant-plane SQL stack: routing, resilience, optional RLS session context, read replicas, bootstrapper.</summary>
+    /// <summary>Tenant-plane SQL stack: routing, resilience, read replicas, bootstrapper.</summary>
     private static void RegisterTenantRuntimeInfrastructure(
         IServiceCollection services,
         string connectionString,
@@ -175,21 +175,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                     TimeSpan.FromMilliseconds(sqlOpenOpts.BaseDelayMilliseconds)));
         });
 
-        services.AddScoped<IRlsSessionContextApplicator, RlsSessionContextApplicator>();
-        services.AddScoped<ISqlConnectionFactory>(sp =>
-        {
-            SqlServerOptions sqlOpts =
-                sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>().CurrentValue;
-            ResilientSqlConnectionFactory resilient = sp.GetRequiredService<ResilientSqlConnectionFactory>();
-
-            if (!sqlOpts.RowLevelSecurity.ApplySessionContext)
-                return resilient;
-
-            return new SessionContextSqlConnectionFactory(
-                resilient,
-                sp.GetRequiredService<IRlsSessionContextApplicator>(),
-                sp.GetRequiredService<ILogger<SessionContextSqlConnectionFactory>>());
-        });
+        services.AddScoped<ISqlConnectionFactory>(static sp =>
+            sp.GetRequiredService<ResilientSqlConnectionFactory>());
 
         services.AddScoped<ITenantSqlConnectionFactory>(sp =>
             new DelegatingTenantSqlConnectionFactory(sp.GetRequiredService<ISqlConnectionFactory>()));
@@ -197,19 +184,16 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IAuthorityRunListConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
-            sp.GetRequiredService<IRlsSessionContextApplicator>(),
             ReadReplicaQueryRoute.AuthorityRunList));
 
         services.AddScoped<IGovernanceResolutionReadConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
-            sp.GetRequiredService<IRlsSessionContextApplicator>(),
             ReadReplicaQueryRoute.GovernanceResolution));
 
         services.AddScoped<IGoldenManifestLookupReadConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
-            sp.GetRequiredService<IRlsSessionContextApplicator>(),
             ReadReplicaQueryRoute.GoldenManifestLookup));
 
         services.AddScoped<ISchemaBootstrapper>(sp =>

@@ -10,15 +10,11 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.CustomerSuccess;
 
 [ExcludeFromCodeCoverage(Justification = "SQL Server–dependent repository.")]
-public sealed class SqlCorePilotTeamChecklistRepository(
-    ISqlConnectionFactory connectionFactory,
-    IRlsSessionContextApplicator rlsSessionContextApplicator) : ICorePilotTeamChecklistRepository
+public sealed class SqlCorePilotTeamChecklistRepository(ISqlConnectionFactory connectionFactory)
+    : ICorePilotTeamChecklistRepository
 {
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-
-    private readonly IRlsSessionContextApplicator _rlsSessionContextApplicator =
-        rlsSessionContextApplicator ?? throw new ArgumentNullException(nameof(rlsSessionContextApplicator));
 
     public async Task<IReadOnlyList<CorePilotChecklistStepRow>> ListAsync(
         Guid tenantId,
@@ -27,8 +23,6 @@ public sealed class SqlCorePilotTeamChecklistRepository(
         CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
 
         const string sql = """
                              SELECT StepIndex, IsCompleted, UpdatedUtc, UpdatedByUserId
@@ -67,8 +61,6 @@ public sealed class SqlCorePilotTeamChecklistRepository(
             throw new ArgumentOutOfRangeException(nameof(stepIndex));
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
 
         const string sql = """
                              MERGE dbo.CorePilotTeamChecklist AS t

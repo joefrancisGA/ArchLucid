@@ -219,7 +219,7 @@ internal static class DoctorCommand
         Console.WriteLine(
             "| `Authentication:ApiKey:DevelopmentBypassAll` | MANUAL | Must be **false** in SaaS; see `ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`. |");
         Console.WriteLine(
-            "| RLS bypass | MANUAL | `ArchLucid:Persistence:AllowRlsBypass` must stay **false** outside break-glass. |");
+            "| SQL tenancy | N/A | Per-tenant catalogs + request scope; database RLS was removed (DbUp 148). |");
         Console.WriteLine();
 
         static string Cell(string value)

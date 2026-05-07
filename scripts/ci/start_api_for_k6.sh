@@ -27,9 +27,7 @@ export ArchLucid__StorageProvider=Sql
 export ArchLucidAuth__Mode=DevelopmentBypass
 export Authentication__ApiKey__DevelopmentBypassAll=true
 export AgentExecution__Mode=Simulator
-# appsettings.Advanced.json enables SqlServer:RowLevelSecurity:ApplySessionContext; DbUp + ISchemaBootstrapper use SqlRowLevelSecurityBypassAmbient.Enter().
-export ARCHLUCID_ALLOW_RLS_BYPASS=true
-export ArchLucid__Persistence__AllowRlsBypass=true
+# k6 path uses appsettings.Advanced.json (chained in Program); DbUp + schema bootstrap run without database RLS.
 export RateLimiting__FixedWindow__PermitLimit=200000
 export RateLimiting__FixedWindow__WindowMinutes=1
 # k6 create_run hits the full authority pipeline; SqlClient's default 30s per-command limit surfaces as ~30.3s HTTP latency under cold SQL.

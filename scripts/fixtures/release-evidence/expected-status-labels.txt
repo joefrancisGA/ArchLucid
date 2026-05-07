@@ -1,0 +1,4 @@
+Passed
+Failed
+Skipped
+Not captured

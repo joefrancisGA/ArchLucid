@@ -213,6 +213,11 @@ jobs:
       - name: Buyer first-30-minutes guard self-test
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_buyer_first_30_minutes_in_sync.py"
 
+      - name: Buyer-facing doc claim drift (heuristic, warn-only)
+        continue-on-error: true
+        shell: pwsh
+        run: ./scripts/Scan-BuyerDocClaims.ps1
+
       - name: BillingProductionSafetyRules — sk_live_ + Marketplace landing + GA offer-id checks shipped
         run: python scripts/ci/assert_billing_safety_rules_shipped.py
 
@@ -944,9 +949,6 @@ jobs:
           ArchLucidAuth__Mode: DevelopmentBypass
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
-          # Demo seed / schema bootstrap use SqlRowLevelSecurityBypassAmbient when RLS session context is on.
-          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
-          ArchLucid__Persistence__AllowRlsBypass: "true"
           # Readiness includes data_consistency, which requires at least one reconciliation pass. Env wins over
           # appsettings when using an older Release output snapshot; single-process CI: skip SQL leader leases.
           DataConsistency__InitialDelaySeconds: "0"
@@ -1543,8 +1545,6 @@ jobs:
           ArchLucidAuth__Mode: DevelopmentBypass
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
-          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
-          ArchLucid__Persistence__AllowRlsBypass: "true"
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
@@ -1668,8 +1668,6 @@ jobs:
           Authentication__ApiKey__AdminKey: "e2e-admin-key-ci"
           Authentication__ApiKey__ReadOnlyKey: "e2e-readonly-key-ci"
           AgentExecution__Mode: Simulator
-          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
-          ArchLucid__Persistence__AllowRlsBypass: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
         run: |
@@ -1806,8 +1804,6 @@ jobs:
           ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
-          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
-          ArchLucid__Persistence__AllowRlsBypass: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
         run: |

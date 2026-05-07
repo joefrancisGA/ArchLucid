@@ -178,19 +178,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(transaction);
 
-        /* Pooled sessions can inherit stale SESSION_CONTEXT; governance tables use RLS block predicates and FK checks
-         * must see dbo.Tenants rows reliably in the same transaction as MERGE/INSERT. */
 
-        if (connection is SqlConnection sqlConnection)
-            await PersistenceIntegrationTestRlsSession.ApplyArchLucidRlsBypassAndTenantScopeAsync(
-                sqlConnection,
-                cancellationToken,
-                GovernanceRepositoryContractScope.TenantId,
-                GovernanceRepositoryContractScope.WorkspaceId,
-                GovernanceRepositoryContractScope.ProjectId,
-                ambientTransaction: (SqlTransaction)transaction);
 
-        await AcquireGovernanceContractTenantMergeLockAsync(connection, transaction, cancellationToken);
 
         Guid tenantId = GovernanceRepositoryContractScope.TenantId;
         string slug = "archgov-contract-" + tenantId.ToString("N");
@@ -281,8 +270,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     /// <summary>
     ///     Ensures <see cref="GovernanceRepositoryContractScope.TenantId" /> exists in <c>dbo.Tenants</c> (migration 118 FK).
     ///     Uses <c>MERGE</c> with <c>HOLDLOCK</c> so priming stays atomic vs parallel deletes under the default isolation level.
-    ///     Governance SQL contract tests open connections with <see cref="RlsBypassTestDbConnectionFactory" /> so pooled
-    ///     <c>SESSION_CONTEXT</c> does not block inserts or confuse FK checks.
+    ///     Governance SQL contract tests open connections via <see cref="RlsBypassTestDbConnectionFactory" /> (plain open;
+    ///     no session context) to avoid cross-test pool noise.
     /// </summary>
     public static async Task PrimeGovernanceContractTenantAsync(string connectionString, CancellationToken cancellationToken = default)
     {

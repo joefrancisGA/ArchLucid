@@ -7,9 +7,9 @@ using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
-using Microsoft.Data.SqlClient;
+using FluentAssertions;
 
-using Moq;
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.CustomerSuccess;
 
@@ -26,11 +26,8 @@ public sealed class TenantHealthScoresBatchRefreshIntegrationTests(SqlServerPers
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository tenants = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
-        Mock<IRlsSessionContextApplicator> rls = new();
-        rls.Setup(a => a.ApplyAsync(It.IsAny<SqlConnection>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
 
-        SqlTenantCustomerSuccessRepository sut = new(factory, rls.Object);
+        SqlTenantCustomerSuccessRepository sut = new(factory);
         Guid tenantId = Guid.NewGuid();
         string slug = "hs-" + Guid.NewGuid().ToString("N")[..8];
         Guid workspaceId = Guid.NewGuid();
@@ -55,7 +52,6 @@ public sealed class TenantHealthScoresBatchRefreshIntegrationTests(SqlServerPers
 
         await using SqlConnection read = new(fixture.ConnectionString);
         await read.OpenAsync();
-        await PersistenceIntegrationTestRlsSession.ApplyArchLucidRlsBypassAsync(read, CancellationToken.None);
 
         decimal? composite = await read.ExecuteScalarAsync<decimal?>(
             """

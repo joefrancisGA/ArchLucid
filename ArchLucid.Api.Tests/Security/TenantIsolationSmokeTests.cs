@@ -14,8 +14,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Api.Tests.Security;
 
 /// <summary>
-///     Smoke test: with SQL + RLS session context, runs created under tenant A are invisible to API calls scoped as
-///     tenant B (headers <c>x-tenant-id</c> / workspace / project).
+///     Smoke test: with SQL storage, runs created under tenant A are invisible to API calls scoped as tenant B (headers
+///     <c>x-tenant-id</c> / workspace / project). Isolation is enforced by the API and repository query scope, not database RLS.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -24,7 +24,7 @@ public sealed class TenantIsolationSmokeTests
     // Unlike idempotent-create SQL tests, this one requires *explicit* SQL (env var). Windows+localhost only is too easy
     // to misconfigure and caused long host-build hangs; CI sets the standard variables (see docs/BUILD.md).
     private const string SqlExplicitUnavailable =
-        "Tenant RLS smoke: set "
+        "Tenant isolation smoke: set "
         + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
         + " or "
         + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable
@@ -72,7 +72,7 @@ public sealed class TenantIsolationSmokeTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        await using SqlRlsTenantIsolationApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
@@ -98,7 +98,7 @@ public sealed class TenantIsolationSmokeTests
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
         HttpResponseMessage getOther = await clientB.GetAsync($"/v1/architecture/run/{runId}");
-        getOther.StatusCode.Should().Be(HttpStatusCode.NotFound, "RLS + scope must hide other-tenant runs.");
+        getOther.StatusCode.Should().Be(HttpStatusCode.NotFound, "Cross-tenant scope must hide other-tenant runs.");
 
         HttpResponseMessage listOther = await clientB.GetAsync("/v1/architecture/runs?limit=200");
         listOther.EnsureSuccessStatusCode();
@@ -114,7 +114,7 @@ public sealed class TenantIsolationSmokeTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        await using SqlRlsTenantIsolationApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
@@ -146,7 +146,7 @@ public sealed class TenantIsolationSmokeTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        await using SqlRlsTenantIsolationApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
@@ -172,7 +172,7 @@ public sealed class TenantIsolationSmokeTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        await using SqlRlsTenantIsolationApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
@@ -220,14 +220,6 @@ public sealed class TenantIsolationSmokeTests
     {
         await using SqlConnection connection = new(connectionString);
         await connection.OpenAsync();
-        await using (SqlCommand bypass = connection.CreateCommand())
-        {
-            bypass.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
-            bypass.Parameters.AddWithValue("@k", "al_rls_bypass");
-            bypass.Parameters.AddWithValue("@v", 1);
-            bypass.Parameters.AddWithValue("@read_only", 0);
-            await bypass.ExecuteNonQueryAsync();
-        }
 
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText =
@@ -277,14 +269,6 @@ public sealed class TenantIsolationSmokeTests
     {
         await using SqlConnection connection = new(connectionString);
         await connection.OpenAsync();
-        await using (SqlCommand bypass = connection.CreateCommand())
-        {
-            bypass.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
-            bypass.Parameters.AddWithValue("@k", "al_rls_bypass");
-            bypass.Parameters.AddWithValue("@v", 1);
-            bypass.Parameters.AddWithValue("@read_only", 0);
-            await bypass.ExecuteNonQueryAsync();
-        }
 
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText =

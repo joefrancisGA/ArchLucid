@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 
-using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
@@ -82,31 +81,27 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
         Dictionary<string, int> counts = new(StringComparer.Ordinal);
         int totalDeleted = 0;
 
-        using (SqlRowLevelSecurityBypassAmbient.Enter())
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        if (options.DryRun)
         {
-            await using SqlConnection connection =
-                await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+            await AccumulateDryRunCountsAsync(connection, tenantId, counts, cancellationToken);
 
-            await ApplyBypassSessionAsync(connection, cancellationToken);
+            return new TenantHardPurgeResult { RowsDeleted = 0, RowCountsByTable = counts };
+        }
 
-            if (options.DryRun)
-            {
-                await AccumulateDryRunCountsAsync(connection, tenantId, counts, cancellationToken);
+        totalDeleted += await DeleteLoopAsync(
+            connection,
+            "DELETE TOP (@Cap) FROM dbo.AgentExecutionTraces WHERE TaskId IN (SELECT TaskId FROM dbo.AgentTasks WHERE TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId))",
+            tenantId,
+            options.MaxRowsPerStatement,
+            counts,
+            "AgentExecutionTraces",
+            cancellationToken);
 
-                return new TenantHardPurgeResult { RowsDeleted = 0, RowCountsByTable = counts };
-            }
-
-            totalDeleted += await DeleteLoopAsync(
-                connection,
-                "DELETE TOP (@Cap) FROM dbo.AgentExecutionTraces WHERE TaskId IN (SELECT TaskId FROM dbo.AgentTasks WHERE TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId))",
-                tenantId,
-                options.MaxRowsPerStatement,
-                counts,
-                "AgentExecutionTraces",
-                cancellationToken);
-
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.AgentResults WHERE TaskId IN (SELECT TaskId FROM dbo.AgentTasks WHERE TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId))",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -114,8 +109,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "AgentResults",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.AgentTasks WHERE TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId)",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -123,8 +118,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "AgentTasks",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.ArtifactBundles WHERE TenantId = @TenantId",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -132,8 +127,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "ArtifactBundles",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.GoldenManifests WHERE TenantId = @TenantId",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -141,8 +136,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "GoldenManifests",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.FindingsSnapshots WHERE RunId IN (SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId)",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -150,8 +145,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "FindingsSnapshots",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.GraphSnapshots WHERE RunId IN (SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId)",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -159,8 +154,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "GraphSnapshots",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.ContextSnapshots WHERE RunId IN (SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId)",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -168,8 +163,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "ContextSnapshots",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.DecisioningTraces WHERE RunId IN (SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId)",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -177,8 +172,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "DecisioningTraces",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 """
                 DELETE TOP (@Cap) FROM dbo.ComparisonRecords
                 WHERE TRY_CAST(LeftRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId)
@@ -190,8 +185,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "ComparisonRecords",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.Runs WHERE TenantId = @TenantId",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -199,22 +194,22 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "Runs",
                 cancellationToken);
 
-            totalDeleted += await DeleteProductLearningPlanChildrenAsync(
-                connection,
+        totalDeleted += await DeleteProductLearningPlanChildrenAsync(
+            connection,
                 tenantId,
                 options.MaxRowsPerStatement,
                 counts,
                 cancellationToken);
 
-            totalDeleted += await DeleteTenantScopedTablesAsync(
-                connection,
+        totalDeleted += await DeleteTenantScopedTablesAsync(
+            connection,
                 tenantId,
                 options.MaxRowsPerStatement,
                 counts,
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.TenantLifecycleTransitions WHERE TenantId = @TenantId",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -222,8 +217,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "TenantLifecycleTransitions",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.TenantWorkspaces WHERE TenantId = @TenantId",
                 tenantId,
                 options.MaxRowsPerStatement,
@@ -231,27 +226,16 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 "TenantWorkspaces",
                 cancellationToken);
 
-            totalDeleted += await DeleteLoopAsync(
-                connection,
+        totalDeleted += await DeleteLoopAsync(
+            connection,
                 "DELETE TOP (@Cap) FROM dbo.Tenants WHERE Id = @TenantId",
                 tenantId,
                 options.MaxRowsPerStatement,
                 counts,
                 "Tenants",
                 cancellationToken);
-        }
 
         return new TenantHardPurgeResult { RowsDeleted = totalDeleted, RowCountsByTable = counts };
-    }
-
-    private static async Task ApplyBypassSessionAsync(SqlConnection connection, CancellationToken cancellationToken)
-    {
-        await using SqlCommand cmd = connection.CreateCommand();
-        cmd.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
-        cmd.Parameters.AddWithValue("@k", "al_rls_bypass");
-        cmd.Parameters.AddWithValue("@v", 1);
-        cmd.Parameters.AddWithValue("@read_only", 0);
-        await cmd.ExecuteNonQueryAsync(cancellationToken);
     }
 
     private static async Task AccumulateDryRunCountsAsync(

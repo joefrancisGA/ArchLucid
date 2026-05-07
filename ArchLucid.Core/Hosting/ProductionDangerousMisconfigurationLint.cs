@@ -118,15 +118,6 @@ public static class ProductionDangerousMisconfigurationLint
                     + "configure API keys or switch ArchLucidAuth:Mode."));
         }
 
-        if (configuration.GetValue("ArchLucid:Persistence:AllowRlsBypass", false))
-        {
-            findings.Add(
-                new HostingMisconfigurationWarning(
-                    ProductionLikeHostingMisconfigurationAdvisorRuleNames.PersistenceAllowRlsBypassDisallowed,
-                    "ArchLucid:Persistence:AllowRlsBypass must be false under production-profile validation "
-                    + "(SQL RLS break-glass belongs only in controlled break-glass operations)."));
-        }
-
         string? agentMode = configuration["AgentExecution:Mode"]?.Trim();
         bool realMode = string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase);
 

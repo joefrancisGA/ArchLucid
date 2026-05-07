@@ -1,7 +1,6 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
@@ -15,8 +14,6 @@ public static class ArchLucidPersistenceStartup
 
     public static void RunSchemaBootstrapMigrationsAndOptionalDemoSeed(WebApplication app)
     {
-        RlsBypassPolicyBootstrap.Apply(app.Configuration, app.Environment, app.Logger);
-
         ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(app.Configuration);
         ArchLucidPersistenceOptions persistenceOptions =
             app.Configuration.GetSection(ArchLucidPersistenceOptions.SectionPath).Get<ArchLucidPersistenceOptions>()
@@ -139,7 +136,7 @@ public static class ArchLucidPersistenceStartup
         }
 
         using (IServiceScope scope = app.Services.CreateScope())
-
+        {
             if (storageIsSql)
             {
                 app.Logger.LogInformation(
@@ -150,24 +147,23 @@ public static class ArchLucidPersistenceStartup
                     ? persistenceOptions.DefaultSqlCommandTimeoutSeconds
                     : DefaultSchemaBootstrapTimeoutSeconds;
                 using CancellationTokenSource cts = new(TimeSpan.FromSeconds(bootstrapTimeoutSeconds));
-                using (SqlRowLevelSecurityBypassAmbient.Enter())
-                {
-                    bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
 
-                    app.Logger.LogInformation("Startup: schema bootstrap completed.");
+                bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
 
-                    SqlTopologyOptions topology = app.Configuration.GetSection(SqlTopologyOptions.SectionPath)
-                        .Get<SqlTopologyOptions>() ?? new SqlTopologyOptions();
+                app.Logger.LogInformation("Startup: schema bootstrap completed.");
 
-                    string? catalogConnectionString =
-                        topology.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs
-                            ? topology.DevelopmentTenantConnectionString
-                            : ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
+                SqlTopologyOptions topology = app.Configuration.GetSection(SqlTopologyOptions.SectionPath)
+                    .Get<SqlTopologyOptions>() ?? new SqlTopologyOptions();
 
-                    if (app.Environment.IsDevelopment() && !string.IsNullOrWhiteSpace(catalogConnectionString))
-                        DevelopmentDefaultScopeTenantBootstrap.TryEnsure(catalogConnectionString, app.Logger);
-                }
+                string? catalogConnectionString =
+                    topology.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs
+                        ? topology.DevelopmentTenantConnectionString
+                        : ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
+
+                if (app.Environment.IsDevelopment() && !string.IsNullOrWhiteSpace(catalogConnectionString))
+                    DevelopmentDefaultScopeTenantBootstrap.TryEnsure(catalogConnectionString, app.Logger);
             }
+        }
 
         if (!app.Environment.IsDevelopment())
             return;
@@ -186,15 +182,7 @@ public static class ArchLucidPersistenceStartup
             using IServiceScope seedScope = app.Services.CreateScope();
             IDemoSeedService demoSeed = seedScope.ServiceProvider.GetRequiredService<IDemoSeedService>();
 
-            // SQL RLS predicates would otherwise block trusted startup inserts (same pattern as trial bootstrap).
-            if (storageIsSql)
-
-                using (SqlRowLevelSecurityBypassAmbient.Enter())
-                    demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
-
-            else
-
-                demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
+            demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             app.Logger.LogInformation("Startup: demo seed completed.");
         }

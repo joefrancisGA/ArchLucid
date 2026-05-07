@@ -28,7 +28,7 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
 
         _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString.Trim());
         _inner = new GovernanceApprovalRequestRepository(
-            new GovernanceContractScopeRlsBypassDbConnectionFactory(_connectionString),
+            new GovernanceContractScopeDbConnectionFactory(_connectionString),
             scopeContextProvider);
     }
 
@@ -49,7 +49,7 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
             return;
         }
 
-        GovernanceContractScopeRlsBypassDbConnectionFactory factory = new(_connectionString);
+        GovernanceContractScopeDbConnectionFactory factory = new(_connectionString);
         await using SqlConnection conn = (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
         SqlTransaction? tran = null;
 

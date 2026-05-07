@@ -9,21 +9,14 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Billing;
 
-public sealed class SqlBillingLedger(
-    ISqlConnectionFactory connectionFactory,
-    IRlsSessionContextApplicator rlsSessionContextApplicator) : IBillingLedger
+public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : IBillingLedger
 {
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
-    private readonly IRlsSessionContextApplicator _rlsSessionContextApplicator =
-        rlsSessionContextApplicator ?? throw new ArgumentNullException(nameof(rlsSessionContextApplicator));
-
     public async Task<bool> TenantHasActiveSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
 
         const string sql = """
                            SELECT CAST(1 AS bit)
@@ -52,8 +45,6 @@ public sealed class SqlBillingLedger(
         CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -228,8 +219,6 @@ public sealed class SqlBillingLedger(
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
-
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_ChangePlan",
@@ -247,8 +236,6 @@ public sealed class SqlBillingLedger(
         CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -273,8 +260,6 @@ public sealed class SqlBillingLedger(
 
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
 
         const string sql = """
                            SELECT TOP (@MaxRows)
