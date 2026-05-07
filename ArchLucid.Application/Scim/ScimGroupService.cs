@@ -7,14 +7,6 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.Scim;
 public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService audit) : IScimGroupService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(groups, audit);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scim.IScimGroupRepository groups, ArchLucid.Core.Audit.IAuditService audit)
-    {
-        ArgumentNullException.ThrowIfNull(groups);
-        ArgumentNullException.ThrowIfNull(audit);
-        return (byte)0;
-    }
-
     private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
     private readonly IScimGroupRepository _groups = groups ?? throw new ArgumentNullException(nameof(groups));
     /// <inheritdoc/>

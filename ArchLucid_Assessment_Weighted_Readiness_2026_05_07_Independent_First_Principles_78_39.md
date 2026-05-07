@@ -782,7 +782,7 @@ ArchLucid is closest to being commercially ready when it behaves less like an im
 
 ## Top Improvement Opportunities
 
-This list includes **2 deferred items**, **2 completed items**, and **8 fully actionable items** with Cursor prompts. Deferred items are included because they are high-leverage, but they require user/operator input before meaningful work can begin.
+This list includes **2 deferred items**, **3 completed items**, and **7 fully actionable items** with Cursor prompts. Deferred items are included because they are high-leverage, but they require user/operator input before meaningful work can begin.
 
 ### 1. Harden Real-Mode Agent Output Evaluation Corpus
 
@@ -879,7 +879,9 @@ _(Prompt satisfied; Cursor implementation merged per completion summary above.)_
 
 ### 3. Hydrate Prior Manifest Evidence for Follow-On Runs
 
-Status: **Fully actionable now**
+Status: **Completed** (2026-05-07)
+
+**Completion summary:** Shipped scoped prior-manifest hydration via `IUnifiedGoldenManifestReader` injected into `DefaultEvidenceBuilder`; bounded mapping in `PriorManifestEvidenceMapper` (version, summary, sorted service/datastore names, merged required controls — no full manifest dump). Missing-in-scope requests keep `PriorManifest` null with an updated `PriorManifestUnavailable` greenfield note. Tests: `DefaultEvidenceBuilderTests`; orchestrator audit tests updated with strict manifest-reader mocks.
 
 Why it matters: Real architecture work is rarely greenfield. If a request references a prior manifest, treating it as unavailable weakens correctness, change clarity, and trust.
 
@@ -918,6 +920,7 @@ Constraints:
 - Do not change public API request/response contracts unless a narrow optional field is already supported.
 - Use existing repository and scope patterns.
 ```
+_(Prompt satisfied; Cursor implementation merged per completion summary above.)_
 
 ### 4. Standardize Connector Smoke Evidence for Jira, ServiceNow, Confluence, and Slack
 

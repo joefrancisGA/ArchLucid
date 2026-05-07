@@ -14,21 +14,15 @@ namespace ArchLucid.Application.Analysis;
 /// </remarks>
 public sealed class ComparisonReplayService(IComparisonRecordRepository comparisonRecordRepository, IComparisonAuditService comparisonAuditService, IComparisonDriftAnalyzer driftAnalyzer, IEndToEndReplayComparisonService endToEndReplayComparisonService, IEndToEndReplayComparisonExportService endToEndExportService, IExportRecordDiffService exportRecordDiffService, IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter, IExportRecordDiffExportService exportRecordDiffExportService, IRunExportRecordRepository runExportRecordRepository) : IComparisonReplayService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(comparisonRecordRepository, comparisonAuditService, driftAnalyzer, endToEndReplayComparisonService, endToEndExportService, exportRecordDiffService, exportRecordDiffSummaryFormatter, exportRecordDiffExportService, runExportRecordRepository);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IComparisonRecordRepository comparisonRecordRepository, ArchLucid.Application.Analysis.IComparisonAuditService comparisonAuditService, ArchLucid.Application.Analysis.IComparisonDriftAnalyzer driftAnalyzer, ArchLucid.Application.Analysis.IEndToEndReplayComparisonService endToEndReplayComparisonService, ArchLucid.Application.Analysis.IEndToEndReplayComparisonExportService endToEndExportService, ArchLucid.Application.Analysis.IExportRecordDiffService exportRecordDiffService, ArchLucid.Application.Analysis.IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter, ArchLucid.Application.Analysis.IExportRecordDiffExportService exportRecordDiffExportService, ArchLucid.Persistence.Data.Repositories.IRunExportRecordRepository runExportRecordRepository)
-    {
-        ArgumentNullException.ThrowIfNull(comparisonRecordRepository);
-        ArgumentNullException.ThrowIfNull(comparisonAuditService);
-        ArgumentNullException.ThrowIfNull(driftAnalyzer);
-        ArgumentNullException.ThrowIfNull(endToEndReplayComparisonService);
-        ArgumentNullException.ThrowIfNull(endToEndExportService);
-        ArgumentNullException.ThrowIfNull(exportRecordDiffService);
-        ArgumentNullException.ThrowIfNull(exportRecordDiffSummaryFormatter);
-        ArgumentNullException.ThrowIfNull(exportRecordDiffExportService);
-        ArgumentNullException.ThrowIfNull(runExportRecordRepository);
-        return (byte)0;
-    }
-
+    private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
+    private readonly IExportRecordDiffService _exportRecordDiffService = exportRecordDiffService ?? throw new ArgumentNullException(nameof(exportRecordDiffService));
+    private readonly IExportRecordDiffExportService _exportRecordDiffExportService = exportRecordDiffExportService ?? throw new ArgumentNullException(nameof(exportRecordDiffExportService));
+    private readonly IComparisonRecordRepository _comparisonRecordRepository = comparisonRecordRepository ?? throw new ArgumentNullException(nameof(comparisonRecordRepository));
+    private readonly IEndToEndReplayComparisonService _endToEndReplayComparisonService = endToEndReplayComparisonService ?? throw new ArgumentNullException(nameof(endToEndReplayComparisonService));
+    private readonly IExportRecordDiffSummaryFormatter _exportRecordDiffSummaryFormatter = exportRecordDiffSummaryFormatter ?? throw new ArgumentNullException(nameof(exportRecordDiffSummaryFormatter));
+    private readonly IComparisonDriftAnalyzer _driftAnalyzer = driftAnalyzer ?? throw new ArgumentNullException(nameof(driftAnalyzer));
+    private readonly IComparisonAuditService _comparisonAuditService = comparisonAuditService ?? throw new ArgumentNullException(nameof(comparisonAuditService));
+    private readonly IEndToEndReplayComparisonExportService _endToEndExportService = endToEndExportService ?? throw new ArgumentNullException(nameof(endToEndExportService));
     /// <summary>
     ///     Replay a comparison record by ID and return an export payload (text or binary).
     /// </summary>

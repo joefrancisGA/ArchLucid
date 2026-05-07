@@ -91,15 +91,27 @@ internal static class Program
             CompilationUnitSyntax root =
                 await tree.GetRootAsync() as CompilationUnitSyntax ?? throw new InvalidOperationException();
 
-            ThrowIfNullRewriter rewriter = new(semanticModel);
-            CompilationUnitSyntax rewrittenRoot = rewriter.Visit(root) as CompilationUnitSyntax ?? root;
+            PrimaryConstructorValidationMigrator validationMigrator = new(semanticModel);
+            CompilationUnitSyntax migratedRoot =
+                validationMigrator.MigrateCompilationUnit(root);
 
-            RemoveAnnotatedNullableThrowIfNullRewriter cleanup = new(semanticModel);
-            CompilationUnitSyntax finalRoot =
-                cleanup.Visit(rewrittenRoot) as CompilationUnitSyntax ?? rewrittenRoot;
+            CompilationUnitSyntax finalRoot;
 
-            if (!rewriter.MadeChanges && !cleanup.MadeChanges)
-                continue;
+            if (!ReferenceEquals(root, migratedRoot))
+                finalRoot = migratedRoot;
+            else
+            {
+                ThrowIfNullRewriter rewriter = new(semanticModel);
+                CompilationUnitSyntax rewrittenRoot =
+                    rewriter.Visit(migratedRoot) as CompilationUnitSyntax ?? migratedRoot;
+
+                RemoveAnnotatedNullableThrowIfNullRewriter cleanup = new(semanticModel);
+                finalRoot =
+                    cleanup.Visit(rewrittenRoot) as CompilationUnitSyntax ?? rewrittenRoot;
+
+                if (!rewriter.MadeChanges && !cleanup.MadeChanges)
+                    continue;
+            }
 
             string originalText =
                 SourceText.From(await File.ReadAllTextAsync(doc.FilePath)).ToString();
@@ -221,136 +233,20 @@ internal sealed class ThrowIfNullRewriter : CSharpSyntaxRewriter
         ClassDeclarationSyntax visited,
         ParameterListSyntax? plistOriginal)
     {
-        if (plistOriginal is null || plistOriginal.Parameters.Count is 0)
-            return visited;
+        _ = plistOriginal;
 
-        if (visited.Members.OfType<MethodDeclarationSyntax>().Any(static m =>
-                string.Equals(m.Identifier.Text, "__ValidatePrimaryConstructorArguments", StringComparison.Ordinal)))
-            return visited;
-
-        ImmutableArray<IParameterSymbol> refParams =
-            GetReferenceParametersNeedingCheck(plistOriginal);
-        if (refParams.IsEmpty)
-            return visited;
-
-        string argList = string.Join(", ", refParams.Select(static p => p.Name));
-        string paramDecl =
-            string.Join(", ", refParams.Select(static p =>
-                $"{p.Type.ToDisplayString(Program.PrimaryCtorParameterDisplay)} {p.Name}"));
-
-        string fieldAndMethod =
-            $$"""
-            private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments({{argList}});
-            private static byte __ValidatePrimaryConstructorArguments({{paramDecl}})
-            {
-            {{string.Join(Environment.NewLine, refParams.Select(static p => $"    ArgumentNullException.ThrowIfNull({p.Name});"))}}
-                return (byte)0;
-            }
-
-            """;
-
-        MemberDeclarationSyntax[] parsed = ParseMembers(fieldAndMethod);
-        SyntaxList<MemberDeclarationSyntax> newMembers = visited.Members.InsertRange(0, parsed);
-        MadeChanges = true;
-        return visited.WithMembers(newMembers);
+        // Primary-constructor parameters are validated via `private readonly _p = p ?? throw …`
+        // (see PrimaryConstructorValidationMigrator). Do not inject legacy byte/__Validate scaffolding.
+        return visited;
     }
 
     private RecordDeclarationSyntax MaybeInjectPrimaryConstructorValidationOnRecord(
         RecordDeclarationSyntax visited,
         ParameterListSyntax? plistOriginal)
     {
-        if (plistOriginal is null || plistOriginal.Parameters.Count is 0)
-            return visited;
+        _ = plistOriginal;
 
-        if (visited.Members.OfType<MethodDeclarationSyntax>().Any(static m =>
-                string.Equals(m.Identifier.Text, "__ValidatePrimaryConstructorArguments", StringComparison.Ordinal)))
-            return visited;
-
-        ImmutableArray<IParameterSymbol> refParams =
-            GetReferenceParametersNeedingCheck(plistOriginal);
-        if (refParams.IsEmpty)
-            return visited;
-
-        RecordDeclarationSyntax opened = EnsureSemicolonPrimaryRecordHasBraces(visited);
-
-        string argList =
-            string.Join(", ", refParams.Select(static p => p.Name));
-        string paramDecl =
-            string.Join(", ", refParams.Select(static p =>
-                $"{p.Type.ToDisplayString(Program.PrimaryCtorParameterDisplay)} {p.Name}"));
-
-        string fieldAndMethod =
-            $$"""
-            private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments({{argList}});
-            private static byte __ValidatePrimaryConstructorArguments({{paramDecl}})
-            {
-            {{string.Join(Environment.NewLine, refParams.Select(static p =>
-                $"        ArgumentNullException.ThrowIfNull({p.Name});"))}}
-                return (byte)0;
-            }
-
-            """;
-
-        MemberDeclarationSyntax[] parsed = ParseMembers(fieldAndMethod);
-        SyntaxList<MemberDeclarationSyntax> newMembers =
-            opened.Members.InsertRange(0, parsed);
-        MadeChanges = true;
-
-        return opened.WithMembers(newMembers);
-    }
-
-    private static RecordDeclarationSyntax EnsureSemicolonPrimaryRecordHasBraces(
-        RecordDeclarationSyntax recordDeclaration)
-    {
-        if (!recordDeclaration.OpenBraceToken.IsKind(SyntaxKind.None))
-            return recordDeclaration;
-
-        if (!recordDeclaration.SemicolonToken.IsKind(SyntaxKind.SemicolonToken))
-            return recordDeclaration;
-
-        SyntaxTriviaList semicolonTrailing =
-            recordDeclaration.SemicolonToken.TrailingTrivia;
-        SyntaxToken closingBrace =
-            SyntaxFactory.Token(SyntaxKind.CloseBraceToken).WithTrailingTrivia(semicolonTrailing);
-
-        return recordDeclaration
-            .WithSemicolonToken(default)
-            .WithOpenBraceToken(SyntaxFactory.Token(SyntaxKind.OpenBraceToken))
-            .WithCloseBraceToken(closingBrace);
-    }
-
-    private static MemberDeclarationSyntax[] ParseMembers(string text)
-    {
-        string wrapped = "class __Tmp { " + text + " }";
-        CompilationUnitSyntax unit = CSharpSyntaxTree.ParseText(
-                wrapped,
-                CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview))
-            .GetCompilationUnitRoot();
-        ClassDeclarationSyntax tmp =
-            unit.DescendantNodes().OfType<ClassDeclarationSyntax>().First();
-
-        return tmp.Members.ToArray();
-    }
-
-    private ImmutableArray<IParameterSymbol>
-        GetReferenceParametersNeedingCheck(ParameterListSyntax plist)
-    {
-        ImmutableArray<IParameterSymbol>.Builder builder =
-            ImmutableArray.CreateBuilder<IParameterSymbol>();
-
-        foreach (ParameterSyntax ps in plist.Parameters)
-        {
-            IParameterSymbol? p = _semanticModel.GetDeclaredSymbol(ps);
-            if (p is null || p.RefKind == RefKind.Out)
-                continue;
-
-            if (!RequiresNonNullableReferenceThrowIfNull(p))
-                continue;
-
-            builder.Add(p);
-        }
-
-        return builder.ToImmutable();
+        return visited;
     }
 
     private static bool RequiresNonNullableReferenceThrowIfNull(IParameterSymbol p)
@@ -643,7 +539,16 @@ internal sealed class RemoveAnnotatedNullableThrowIfNullRewriter : CSharpSyntaxR
         if (firstArg.Expression is not IdentifierNameSyntax idName)
             return base.VisitExpressionStatement(node);
 
-        ISymbol? enclosing = _semanticModel.GetEnclosingSymbol(node.SpanStart);
+        ISymbol? enclosing;
+
+        try
+        {
+            enclosing = _semanticModel.GetEnclosingSymbol(node.SpanStart);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return base.VisitExpressionStatement(node);
+        }
 
         IMethodSymbol? method = enclosing as IMethodSymbol;
         if (method is null && enclosing is not null)

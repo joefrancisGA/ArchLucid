@@ -14,93 +14,28 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Pilots;
-
-/// <inheritdoc cref="IPilotRunDeltaComputer"/>
+/// <inheritdoc cref = "IPilotRunDeltaComputer"/>
 /// <remarks>
 ///     Read-only by construction: makes one filtered audit query, one trace query, one artifact-descriptor list (when a
 ///     golden manifest id exists), and at most one evidence-chain query per call. Failures in the audit / trace /
 ///     artifact / evidence queries are swallowed (warning-logged) so a sponsor report still renders for runs whose
 ///     ancillary stores are temporarily unavailable.
 /// </remarks>
-public sealed class PilotRunDeltaComputer(
-    IFindingEvidenceChainService evidenceChainService,
-    IAgentExecutionTraceRepository agentExecutionTraceRepository,
-    IAuditRepository auditRepository,
-    IArtifactQueryService artifactQueryService,
-    IScopeContextProvider scopeContextProvider,
-    IRunExplanationSummaryService runExplanationSummaryService,
-    IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator,
-    IOptions<AgentOutputQualityGateOptions> gateOptions,
-    ILogger<PilotRunDeltaComputer> logger)
-    : IPilotRunDeltaComputer
+public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceChainService, IAgentExecutionTraceRepository agentExecutionTraceRepository, IAuditRepository auditRepository, IArtifactQueryService artifactQueryService, IScopeContextProvider scopeContextProvider, IRunExplanationSummaryService runExplanationSummaryService, IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator, IOptions<AgentOutputQualityGateOptions> gateOptions, ILogger<PilotRunDeltaComputer> logger) : IPilotRunDeltaComputer
 {
-    private readonly byte _primaryConstructorArgumentValidation =
-        __ValidatePrimaryConstructorArguments(
-            evidenceChainService,
-            agentExecutionTraceRepository,
-            auditRepository,
-            artifactQueryService,
-            scopeContextProvider,
-            runExplanationSummaryService,
-            pilotEvidenceAggregator,
-            gateOptions,
-            logger);
-
-    private static byte __ValidatePrimaryConstructorArguments(
-        IFindingEvidenceChainService evidenceChainService,
-        IAgentExecutionTraceRepository agentExecutionTraceRepository,
-        IAuditRepository auditRepository,
-        IArtifactQueryService artifactQueryService,
-        IScopeContextProvider scopeContextProvider,
-        IRunExplanationSummaryService runExplanationSummaryService,
-        IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator,
-        IOptions<AgentOutputQualityGateOptions> gateOptions,
-        ILogger<PilotRunDeltaComputer> logger)
-    {
-        ArgumentNullException.ThrowIfNull(evidenceChainService);
-        ArgumentNullException.ThrowIfNull(agentExecutionTraceRepository);
-        ArgumentNullException.ThrowIfNull(auditRepository);
-        ArgumentNullException.ThrowIfNull(artifactQueryService);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(runExplanationSummaryService);
-        ArgumentNullException.ThrowIfNull(pilotEvidenceAggregator);
-        ArgumentNullException.ThrowIfNull(gateOptions);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
-    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
-        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
-
-    private readonly IArtifactQueryService _artifactQueryService =
-        artifactQueryService ?? throw new ArgumentNullException(nameof(artifactQueryService));
-
-    private readonly IAuditRepository _auditRepository =
-        auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
-
-    private readonly IFindingEvidenceChainService _evidenceChainService =
-        evidenceChainService ?? throw new ArgumentNullException(nameof(evidenceChainService));
-
-    private readonly ILogger<PilotRunDeltaComputer> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
-
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly IRunExplanationSummaryService _runExplanationSummaryService =
-        runExplanationSummaryService ?? throw new ArgumentNullException(nameof(runExplanationSummaryService));
-
-    private readonly IRunAgentOutputPilotEvidenceAggregator _pilotEvidenceAggregator =
-        pilotEvidenceAggregator ?? throw new ArgumentNullException(nameof(pilotEvidenceAggregator));
-
-    private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions =
-        gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
-
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository = agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+    private readonly IArtifactQueryService _artifactQueryService = artifactQueryService ?? throw new ArgumentNullException(nameof(artifactQueryService));
+    private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
+    private readonly IFindingEvidenceChainService _evidenceChainService = evidenceChainService ?? throw new ArgumentNullException(nameof(evidenceChainService));
+    private readonly ILogger<PilotRunDeltaComputer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IRunExplanationSummaryService _runExplanationSummaryService = runExplanationSummaryService ?? throw new ArgumentNullException(nameof(runExplanationSummaryService));
+    private readonly IRunAgentOutputPilotEvidenceAggregator _pilotEvidenceAggregator = pilotEvidenceAggregator ?? throw new ArgumentNullException(nameof(pilotEvidenceAggregator));
+    private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions = gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
     /// <inheritdoc/>
     public async Task<PilotRunDeltas> ComputeAsync(ArchitectureRunDetail detail, CancellationToken cancellationToken = default)
     {
@@ -111,22 +46,15 @@ public sealed class PilotRunDeltaComputer(
         TimeSpan? wall = committedUtc is { } c ? c - run.CreatedUtc : null;
         IReadOnlyList<KeyValuePair<string, int>> findings = AggregateFindingsBySeverity(detail);
         ArchitectureFinding? topFinding = SelectTopSeverityFinding(detail);
-
-        (IReadOnlyList<AgentExecutionTrace> traces, int llmCallCount, bool tracesResolved) =
-            await TryListExecutionTracesAsync(runId, cancellationToken);
-
+        (IReadOnlyList<AgentExecutionTrace> traces, int llmCallCount, bool tracesResolved) = await TryListExecutionTracesAsync(runId, cancellationToken);
         AgentOutputQualityGateOptions gateOpts = _gateOptions.Value;
-
         bool pilotStrictFails = false;
-
         if (tracesResolved && gateOpts is { Enabled: true, Mode: AgentOutputQualityGateMode.PilotStrict })
         {
             RunExplanationSummary? summary = null;
-
             if (gateOpts.PilotStrictMinFaithfulnessSupportRatio.HasValue && TryParseRunGuid(runId, out Guid runGuid))
             {
                 ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
                 summary = await _runExplanationSummaryService.GetSummaryAsync(scope, runGuid, cancellationToken);
             }
 
@@ -137,7 +65,6 @@ public sealed class PilotRunDeltaComputer(
         FindingEvidenceChainResponse? chain = topFinding is null ? null : await TryBuildEvidenceChainAsync(runId, topFinding.FindingId, cancellationToken);
         bool isDemo = ContosoRetailDemoIdentifiers.IsDemoRunId(runId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(run.RequestId);
         (int? artifactCount, bool artifactResolved) = await TryCountArtifactsAsync(run.GoldenManifestId, cancellationToken);
-
         return new PilotRunDeltas
         {
             RunCreatedUtc = run.CreatedUtc,
@@ -159,24 +86,16 @@ public sealed class PilotRunDeltaComputer(
         };
     }
 
-    private async Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryListExecutionTracesAsync(
-        string runId,
-        CancellationToken cancellationToken)
+    private async Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryListExecutionTracesAsync(string runId, CancellationToken cancellationToken)
     {
         try
         {
-            IReadOnlyList<AgentExecutionTrace> list =
-                await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
-
+            IReadOnlyList<AgentExecutionTrace> list = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
             return (list, list.Count, true);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex)when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(
-                ex,
-                "Pilot delta: execution traces unavailable for run {RunId}; LLM counts and PilotStrict gates not attested.",
-                runId);
-
+            _logger.LogWarning(ex, "Pilot delta: execution traces unavailable for run {RunId}; LLM counts and PilotStrict gates not attested.", runId);
             return (Array.Empty<AgentExecutionTrace>(), 0, false);
         }
     }
@@ -185,21 +104,15 @@ public sealed class PilotRunDeltaComputer(
     {
         if (goldenManifestId is null || goldenManifestId == Guid.Empty)
             return (null, false);
-
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            IReadOnlyList<ArtifactDescriptor> list =
-                await _artifactQueryService.ListArtifactsByManifestIdAsync(scope, goldenManifestId.Value, cancellationToken);
-
+            IReadOnlyList<ArtifactDescriptor> list = await _artifactQueryService.ListArtifactsByManifestIdAsync(scope, goldenManifestId.Value, cancellationToken);
             return (list.Count, true);
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(
-                ex,
-                "Pilot delta: artifact descriptor count unavailable for manifest {ManifestId}; omitting count.",
-                goldenManifestId);
+            _logger.LogWarning(ex, "Pilot delta: artifact descriptor count unavailable for manifest {ManifestId}; omitting count.", goldenManifestId);
             return (null, false);
         }
     }
@@ -220,7 +133,6 @@ public sealed class PilotRunDeltaComputer(
     {
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return (0, false);
-
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -229,13 +141,7 @@ public sealed class PilotRunDeltaComputer(
                 RunId = runGuid,
                 Take = 1,
             };
-
-            int count = await _auditRepository.CountFilteredAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                filter,
-                cancellationToken);
+            int count = await _auditRepository.CountFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken);
             return (count, false);
         }
         catch (Exception ex)when (ex is not OperationCanceledException)

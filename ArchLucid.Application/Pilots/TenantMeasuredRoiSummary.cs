@@ -6,13 +6,16 @@ namespace ArchLucid.Application.Pilots;
 ///     Operator-facing bundle: live process counters (same source as <see cref = "IWhyArchLucidSnapshotService"/>)
 ///     plus optional non-authoritative monthly spend band from <see cref = "ITenantCostEstimateService"/>.
 /// </summary>
-public sealed record TenantMeasuredRoiSummary(WhyArchLucidSnapshotResponse ProcessSignals, TenantCostEstimate? MonthlyCostBand, string Disclaimer)
+public sealed record TenantMeasuredRoiSummary
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ProcessSignals, MonthlyCostBand, Disclaimer);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Contracts.Pilots.WhyArchLucidSnapshotResponse processSignals, ArchLucid.Application.Billing.TenantCostEstimate? monthlyCostBand, System.String disclaimer)
+    public WhyArchLucidSnapshotResponse ProcessSignals { get; init; }
+    public TenantCostEstimate? MonthlyCostBand { get; init; }
+    public string Disclaimer { get; init; }
+
+    public TenantMeasuredRoiSummary(WhyArchLucidSnapshotResponse processSignals, TenantCostEstimate? monthlyCostBand, string disclaimer)
     {
-        ArgumentNullException.ThrowIfNull(processSignals);
-        ArgumentNullException.ThrowIfNull(disclaimer);
-        return (byte)0;
+        ProcessSignals = processSignals ?? throw new ArgumentNullException(nameof(processSignals));
+        MonthlyCostBand = monthlyCostBand;
+        Disclaimer = disclaimer ?? throw new ArgumentNullException(nameof(disclaimer));
     }
 }

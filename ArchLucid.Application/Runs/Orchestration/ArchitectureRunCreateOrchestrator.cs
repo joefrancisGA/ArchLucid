@@ -28,29 +28,7 @@ namespace ArchLucid.Application.Runs.Orchestration;
 /// </remarks>
 public sealed class ArchitectureRunCreateOrchestrator(IArchitectureRunAuthorityCoordination authorityCoordination, IArchitectureRequestRepository requestRepository, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IEvidenceBundleRepository evidenceBundleRepository, IAgentTaskRepository taskRepository, IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository, IActorContext actorContext, IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IUsageMeteringService usageMetering, IDistributedCreateRunIdempotencyLock distributedCreateRunIdempotencyLock, IOptions<ArchitectureRunCreateOptions> createRunOptions, TimeProvider timeProvider, IRequestContentSafetyPrecheck requestContentSafetyPrecheck, ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityCoordination, requestRepository, runRepository, scopeContextProvider, evidenceBundleRepository, taskRepository, architectureRunIdempotencyRepository, actorContext, baselineMutationAudit, auditService, unitOfWorkFactory, usageMetering, distributedCreateRunIdempotencyLock, createRunOptions, timeProvider, requestContentSafetyPrecheck, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Runs.Coordination.IArchitectureRunAuthorityCoordination authorityCoordination, ArchLucid.Persistence.Data.Repositories.IArchitectureRequestRepository requestRepository, ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Data.Repositories.IEvidenceBundleRepository evidenceBundleRepository, ArchLucid.Persistence.Data.Repositories.IAgentTaskRepository taskRepository, ArchLucid.Persistence.Data.Repositories.IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository, ArchLucid.Application.Common.IActorContext actorContext, ArchLucid.Application.Common.IBaselineMutationAuditService baselineMutationAudit, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Core.Transactions.IArchLucidUnitOfWorkFactory unitOfWorkFactory, ArchLucid.Core.Metering.IUsageMeteringService usageMetering, ArchLucid.Core.Concurrency.IDistributedCreateRunIdempotencyLock distributedCreateRunIdempotencyLock, Microsoft.Extensions.Options.IOptions<ArchLucid.Application.Runs.Orchestration.ArchitectureRunCreateOptions> createRunOptions, System.TimeProvider timeProvider, ArchLucid.Application.Runs.Orchestration.IRequestContentSafetyPrecheck requestContentSafetyPrecheck, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Runs.Orchestration.ArchitectureRunCreateOrchestrator> logger)
-    {
-        ArgumentNullException.ThrowIfNull(authorityCoordination);
-        ArgumentNullException.ThrowIfNull(requestRepository);
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(evidenceBundleRepository);
-        ArgumentNullException.ThrowIfNull(taskRepository);
-        ArgumentNullException.ThrowIfNull(architectureRunIdempotencyRepository);
-        ArgumentNullException.ThrowIfNull(actorContext);
-        ArgumentNullException.ThrowIfNull(baselineMutationAudit);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
-        ArgumentNullException.ThrowIfNull(usageMetering);
-        ArgumentNullException.ThrowIfNull(distributedCreateRunIdempotencyLock);
-        ArgumentNullException.ThrowIfNull(createRunOptions);
-        ArgumentNullException.ThrowIfNull(timeProvider);
-        ArgumentNullException.ThrowIfNull(requestContentSafetyPrecheck);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
+    private readonly IOptions<ArchitectureRunCreateOptions> _createRunOptions = createRunOptions ?? throw new ArgumentNullException(nameof(createRunOptions));
     private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck = requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IArchitectureRunIdempotencyRepository _architectureRunIdempotencyRepository = architectureRunIdempotencyRepository ?? throw new ArgumentNullException(nameof(architectureRunIdempotencyRepository));

@@ -5,13 +5,6 @@ namespace ArchLucid.Application.Analysis;
 /// <inheritdoc cref = "IComparisonReplayCostEstimator"/>
 public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository comparisonRecords) : IComparisonReplayCostEstimator
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(comparisonRecords);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IComparisonRecordRepository comparisonRecords)
-    {
-        ArgumentNullException.ThrowIfNull(comparisonRecords);
-        return (byte)0;
-    }
-
     private readonly IComparisonRecordRepository _comparisonRecords = comparisonRecords ?? throw new ArgumentNullException(nameof(comparisonRecords));
     /// <inheritdoc/>
     public async System.Threading.Tasks.Task<ArchLucid.Application.Analysis.ComparisonReplayCostEstimate?> TryEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool persistReplay, CancellationToken ct)

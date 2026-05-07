@@ -28,6 +28,7 @@ import {
   fixtureRunDetailAlignedToShowcase,
   fixtureRunExplanationSummary,
 } from "./fixtures/index";
+import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
 import type { RunDetail } from "@/types/authority";
 
@@ -315,11 +316,17 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       }
 
       if (req.method === "GET" && pathname === "/v1/audit/search") {
+        const requestedTake = Math.min(
+          200,
+          Math.max(1, Number.parseInt(u.searchParams.get("take") ?? "200", 10) || 200),
+        );
+        const items = getDemoSampleAuditTrailEvents();
+
         sendJson(res, 200, {
-          items: [],
+          items: items.slice(0, requestedTake),
           nextCursor: null,
           hasMore: false,
-          requestedTake: 200,
+          requestedTake,
         });
         return;
       }

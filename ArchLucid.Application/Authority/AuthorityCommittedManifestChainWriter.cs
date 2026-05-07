@@ -14,18 +14,6 @@ namespace ArchLucid.Application.Authority;
 /// <inheritdoc cref = "IAuthorityCommittedManifestChainWriter"/>
 public sealed class AuthorityCommittedManifestChainWriter(IContextSnapshotRepository contextSnapshots, IGraphSnapshotRepository graphSnapshots, IFindingsSnapshotRepository findingsSnapshots, IDecisionTraceRepository decisionTraces, IGoldenManifestRepository goldenManifests, IManifestHashService manifestHash) : IAuthorityCommittedManifestChainWriter
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(contextSnapshots, graphSnapshots, findingsSnapshots, decisionTraces, goldenManifests, manifestHash);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.ContextIngestion.Interfaces.IContextSnapshotRepository contextSnapshots, ArchLucid.KnowledgeGraph.Interfaces.IGraphSnapshotRepository graphSnapshots, ArchLucid.Decisioning.Interfaces.IFindingsSnapshotRepository findingsSnapshots, ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository decisionTraces, ArchLucid.Decisioning.Interfaces.IGoldenManifestRepository goldenManifests, ArchLucid.Decisioning.Interfaces.IManifestHashService manifestHash)
-    {
-        ArgumentNullException.ThrowIfNull(contextSnapshots);
-        ArgumentNullException.ThrowIfNull(graphSnapshots);
-        ArgumentNullException.ThrowIfNull(findingsSnapshots);
-        ArgumentNullException.ThrowIfNull(decisionTraces);
-        ArgumentNullException.ThrowIfNull(goldenManifests);
-        ArgumentNullException.ThrowIfNull(manifestHash);
-        return (byte)0;
-    }
-
     private const string DemoRuleSetId = "archlucid.authority.demo-seed";
     private const string DemoRuleSetVersion = "1";
     private const string DemoRuleSetHash = "sha256:0000000000000000000000000000000000000000000000000000000000000000";

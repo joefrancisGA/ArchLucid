@@ -1,4 +1,5 @@
 using System.Text.Json;
+
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
@@ -10,14 +11,6 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class ComparisonAuditService(IComparisonRecordRepository repository, IAuditService auditService) : IComparisonAuditService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(repository, auditService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IComparisonRecordRepository repository, ArchLucid.Core.Audit.IAuditService auditService)
-    {
-        ArgumentNullException.ThrowIfNull(repository);
-        ArgumentNullException.ThrowIfNull(auditService);
-        return (byte)0;
-    }
-
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true

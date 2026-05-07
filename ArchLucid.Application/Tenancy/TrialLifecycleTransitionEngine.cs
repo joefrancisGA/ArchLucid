@@ -10,18 +10,6 @@ namespace ArchLucid.Application.Tenancy;
 /// <summary>Applies one trial lifecycle step per invocation (Worker scheduler calls this per tenant).</summary>
 public sealed class TrialLifecycleTransitionEngine(ITenantRepository tenantRepository, ITenantHardPurgeService tenantHardPurgeService, IAuditService auditService, IOptionsMonitor<TrialLifecycleSchedulerOptions> lifecycleOptions, TimeProvider timeProvider, ILogger<TrialLifecycleTransitionEngine> logger)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository, tenantHardPurgeService, auditService, lifecycleOptions, timeProvider, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Tenancy.ITenantRepository tenantRepository, ArchLucid.Core.Tenancy.ITenantHardPurgeService tenantHardPurgeService, ArchLucid.Core.Audit.IAuditService auditService, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.TrialLifecycleSchedulerOptions> lifecycleOptions, System.TimeProvider timeProvider, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Tenancy.TrialLifecycleTransitionEngine> logger)
-    {
-        ArgumentNullException.ThrowIfNull(tenantRepository);
-        ArgumentNullException.ThrowIfNull(tenantHardPurgeService);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(lifecycleOptions);
-        ArgumentNullException.ThrowIfNull(timeProvider);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IOptionsMonitor<TrialLifecycleSchedulerOptions> _lifecycleOptions = lifecycleOptions ?? throw new ArgumentNullException(nameof(lifecycleOptions));
     private readonly ILogger<TrialLifecycleTransitionEngine> _logger = logger ?? throw new ArgumentNullException(nameof(logger));

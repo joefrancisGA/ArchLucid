@@ -1,4 +1,5 @@
 using System.Text.Json;
+
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
@@ -15,7 +16,7 @@ public static class AnalysisExportRequestRehydrator
     {
         PropertyNameCaseInsensitive = true
     };
-    public static ArchLucid.Application.Analysis.PersistedAnalysisExportRequest? Rehydrate(RunExportRecord record)
+    public static PersistedAnalysisExportRequest? Rehydrate(RunExportRecord record)
     {
         ArgumentNullException.ThrowIfNull(record);
         if (string.IsNullOrWhiteSpace(record.AnalysisRequestJson))

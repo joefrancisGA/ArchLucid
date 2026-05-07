@@ -30,14 +30,6 @@ namespace ArchLucid.Application.Support;
 /// </remarks>
 public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMonitor<SupportBundleOptions> supportBundleOptions) : ISupportBundleAssembler
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(timeProvider, supportBundleOptions);
-    private static byte __ValidatePrimaryConstructorArguments(System.TimeProvider timeProvider, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Application.Support.SupportBundleOptions> supportBundleOptions)
-    {
-        ArgumentNullException.ThrowIfNull(timeProvider);
-        ArgumentNullException.ThrowIfNull(supportBundleOptions);
-        return (byte)0;
-    }
-
     /// <summary>File names mirror the CLI <c>SupportBundleArchiveWriter</c> constants.</summary>
     public const string ReadmeFileName = "README.txt";
     /// <summary>Manifest file inside the ZIP.</summary>

@@ -13,19 +13,13 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Import;
 public sealed class ImportRequestFileService(IScopeContextProvider scopeContextProvider, IActorContext actorContext, IAuditService auditService, IImportedArchitectureRequestRepository importedRequestRepository, IArchitectureRequestImportValidator architectureRequestImportValidator, IRequestContentSafetyPrecheck requestContentSafetyPrecheck, ILogger<ImportRequestFileService> logger) : IImportRequestFileService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(scopeContextProvider, actorContext, auditService, importedRequestRepository, architectureRequestImportValidator, requestContentSafetyPrecheck, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Application.Common.IActorContext actorContext, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Persistence.Data.Repositories.IImportedArchitectureRequestRepository importedRequestRepository, ArchLucid.Application.Import.IArchitectureRequestImportValidator architectureRequestImportValidator, ArchLucid.Application.Runs.Orchestration.IRequestContentSafetyPrecheck requestContentSafetyPrecheck, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Import.ImportRequestFileService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(actorContext);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(importedRequestRepository);
-        ArgumentNullException.ThrowIfNull(architectureRequestImportValidator);
-        ArgumentNullException.ThrowIfNull(requestContentSafetyPrecheck);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
+    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IImportedArchitectureRequestRepository _importedRequestRepository = importedRequestRepository ?? throw new ArgumentNullException(nameof(importedRequestRepository));
+    private readonly ILogger<ImportRequestFileService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IArchitectureRequestImportValidator _architectureRequestImportValidator = architectureRequestImportValidator ?? throw new ArgumentNullException(nameof(architectureRequestImportValidator));
+    private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck = requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
     private const int MaxFileBytes = 512 * 1024;
     private const int MaxSourceFileNameLength = 400;
     public async Task<ImportRequestFileResult> ImportAsync(IFormFile? file, CancellationToken ct, string? correlationId = null)

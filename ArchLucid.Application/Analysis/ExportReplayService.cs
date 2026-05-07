@@ -9,17 +9,11 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class ExportReplayService(IRunExportRecordRepository runExportRecordRepository, IArchitectureAnalysisService architectureAnalysisService, IArchitectureAnalysisDocxExportService analysisDocxExportService, IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService, IRunExportAuditService runExportAuditService) : IExportReplayService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runExportRecordRepository, architectureAnalysisService, analysisDocxExportService, consultingDocxExportService, runExportAuditService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IRunExportRecordRepository runExportRecordRepository, ArchLucid.Application.Analysis.IArchitectureAnalysisService architectureAnalysisService, ArchLucid.Application.Analysis.IArchitectureAnalysisDocxExportService analysisDocxExportService, ArchLucid.Application.Analysis.IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService, ArchLucid.Application.Analysis.IRunExportAuditService runExportAuditService)
-    {
-        ArgumentNullException.ThrowIfNull(runExportRecordRepository);
-        ArgumentNullException.ThrowIfNull(architectureAnalysisService);
-        ArgumentNullException.ThrowIfNull(analysisDocxExportService);
-        ArgumentNullException.ThrowIfNull(consultingDocxExportService);
-        ArgumentNullException.ThrowIfNull(runExportAuditService);
-        return (byte)0;
-    }
-
+    private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
+    private readonly IArchitectureAnalysisConsultingDocxExportService _consultingDocxExportService = consultingDocxExportService ?? throw new ArgumentNullException(nameof(consultingDocxExportService));
+    private readonly IRunExportAuditService _runExportAuditService = runExportAuditService ?? throw new ArgumentNullException(nameof(runExportAuditService));
+    private readonly IArchitectureAnalysisDocxExportService _analysisDocxExportService = analysisDocxExportService ?? throw new ArgumentNullException(nameof(analysisDocxExportService));
+    private readonly IArchitectureAnalysisService _architectureAnalysisService = architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
     private const string ExportTypeConsultingDocx = "analysis-report-consulting-docx";
     /// <summary>
     ///     Standard (non-consulting) analysis DOCX exports; must match the <see cref = "RunExportRecord.ExportType"/>

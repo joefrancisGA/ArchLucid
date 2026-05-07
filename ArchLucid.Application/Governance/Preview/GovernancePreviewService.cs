@@ -13,15 +13,9 @@ namespace ArchLucid.Application.Governance.Preview;
 /// </summary>
 public sealed class GovernancePreviewService(IGovernanceEnvironmentActivationRepository activationRepository, IRunDetailQueryService runDetailQueryService, IUnifiedGoldenManifestReader unifiedGoldenManifestReader) : IGovernancePreviewService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(activationRepository, runDetailQueryService, unifiedGoldenManifestReader);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IGovernanceEnvironmentActivationRepository activationRepository, ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Decisioning.Interfaces.IUnifiedGoldenManifestReader unifiedGoldenManifestReader)
-    {
-        ArgumentNullException.ThrowIfNull(activationRepository);
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(unifiedGoldenManifestReader);
-        return (byte)0;
-    }
-
+    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IGovernanceEnvironmentActivationRepository _activationRepository = activationRepository ?? throw new ArgumentNullException(nameof(activationRepository));
+    private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader = unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
     private const string DiffOnlyNote = "Only governance keys that differ are listed; unchanged keys are omitted.";
     public async Task<GovernancePreviewResult> PreviewActivationAsync(GovernancePreviewRequest request, CancellationToken cancellationToken = default)
     {

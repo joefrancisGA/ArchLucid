@@ -10,14 +10,6 @@ namespace ArchLucid.Application.Traceability;
 /// <inheritdoc/>
 public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQueryService, IAuditRepository auditRepository) : ITraceabilityBundleBuilder
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, auditRepository);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Persistence.Audit.IAuditRepository auditRepository)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(auditRepository);
-        return (byte)0;
-    }
-
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,

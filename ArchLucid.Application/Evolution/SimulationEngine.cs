@@ -15,13 +15,7 @@ namespace ArchLucid.Application.Evolution;
 /// </summary>
 public sealed class SimulationEngine(IArchitectureAnalysisService analysisService) : ISimulationEngine
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(analysisService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Analysis.IArchitectureAnalysisService analysisService)
-    {
-        ArgumentNullException.ThrowIfNull(analysisService);
-        return (byte)0;
-    }
-
+    private readonly IArchitectureAnalysisService _analysisService = analysisService ?? throw new ArgumentNullException(nameof(analysisService));
     private const int SummaryPreviewMaxChars = 512;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

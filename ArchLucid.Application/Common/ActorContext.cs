@@ -7,13 +7,7 @@ namespace ArchLucid.Application.Common;
 /// </summary>
 public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IActorContext
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(httpContextAccessor);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor)
-    {
-        ArgumentNullException.ThrowIfNull(httpContextAccessor);
-        return (byte)0;
-    }
-
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     internal const string JwtActorKeyPrefix = "jwt:";
     private const string FallbackActor = "api-user";
     private const string TidClaimType = "tid";

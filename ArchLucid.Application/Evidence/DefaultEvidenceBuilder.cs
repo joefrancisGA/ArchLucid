@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Decisioning.Interfaces;
 
 using static ArchLucid.Core.Requests.RequestConstraintClassifier;
 
@@ -15,10 +17,13 @@ namespace ArchLucid.Application.Evidence;
 ///     querying a live policy or catalog store. Replace or decorate it in production when dynamic
 ///     catalog resolution is required.
 /// </remarks>
-public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
+public sealed class DefaultEvidenceBuilder(IUnifiedGoldenManifestReader goldenManifestReader) : IEvidenceBuilder
 {
+    private readonly IUnifiedGoldenManifestReader _goldenManifestReader =
+        goldenManifestReader ?? throw new ArgumentNullException(nameof(goldenManifestReader));
+
     /// <inheritdoc />
-    public Task<AgentEvidencePackage> BuildAsync(
+    public async Task<AgentEvidencePackage> BuildAsync(
         string runId,
         ArchitectureRequest request,
         CancellationToken cancellationToken = default)
@@ -26,6 +31,9 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
+
+        (PriorManifestEvidence? priorManifest, bool priorManifestMissingInScope) =
+            await TryResolvePriorManifestAsync(request, cancellationToken).ConfigureAwait(false);
 
         AgentEvidencePackage package = new()
         {
@@ -45,12 +53,30 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
             Policies = BuildPolicies(request),
             ServiceCatalog = BuildServiceCatalog(request),
             Patterns = BuildPatterns(request),
-            PriorManifest = BuildPriorManifest(request),
-            Notes = BuildNotes(request),
+            PriorManifest = priorManifest,
+            Notes = BuildNotes(request, priorManifestMissingInScope),
             CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
-        return Task.FromResult(package);
+        return package;
+    }
+
+    private async Task<(PriorManifestEvidence? Evidence, bool MissingRequestedVersion)> TryResolvePriorManifestAsync(
+        ArchitectureRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.PriorManifestVersion))
+            return (null, false);
+
+        GoldenManifest? prior =
+            await _goldenManifestReader
+                .GetByVersionAsync(request.PriorManifestVersion!, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (prior is null)
+            return (null, true);
+
+        return (PriorManifestEvidenceMapper.Map(prior), false);
     }
 
     private static List<PolicyEvidence> BuildPolicies(ArchitectureRequest request)
@@ -173,15 +199,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         return patterns;
     }
 
-    // ReSharper disable once UnusedParameter.Local
-    private static PriorManifestEvidence? BuildPriorManifest(ArchitectureRequest request)
-    {
-        // Return null until real manifest hydration is implemented; agents must not treat
-        // an empty placeholder as valid prior-state evidence.
-        return null;
-    }
-
-    private static List<EvidenceNote> BuildNotes(ArchitectureRequest request)
+    private static List<EvidenceNote> BuildNotes(ArchitectureRequest request, bool priorManifestMissingInScope)
     {
         List<EvidenceNote> notes =
         [
@@ -192,13 +210,14 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
             }
         ];
 
-        if (!string.IsNullOrWhiteSpace(request.PriorManifestVersion))
+        if (priorManifestMissingInScope)
 
             notes.Add(new EvidenceNote
             {
                 NoteType = EvidenceNoteTypes.PriorManifestUnavailable,
                 Message = $"A prior manifest version '{request.PriorManifestVersion}' was requested " +
-                          "but prior manifest hydration is not yet implemented. Agents should treat this as a greenfield design."
+                          "but no matching committed manifest was found in the current tenant/workspace/project scope. " +
+                          "Agents should treat this as a greenfield design."
             });
 
         if (RequiresSearchCapability(request))

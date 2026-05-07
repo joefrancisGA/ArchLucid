@@ -4,15 +4,6 @@ using ArchLucid.Persistence.Pilots;
 namespace ArchLucid.Application.Pilots;
 public sealed class PilotInProductScorecardService(IScopeContextProvider scopeContextProvider, IPilotScorecardMetricsReader scorecardMetricsReader, IPilotBaselineRepository pilotBaselineRepository) : IPilotInProductScorecardService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(scopeContextProvider, scorecardMetricsReader, pilotBaselineRepository);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Pilots.IPilotScorecardMetricsReader scorecardMetricsReader, ArchLucid.Persistence.Pilots.IPilotBaselineRepository pilotBaselineRepository)
-    {
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(scorecardMetricsReader);
-        ArgumentNullException.ThrowIfNull(pilotBaselineRepository);
-        return (byte)0;
-    }
-
     private readonly IPilotBaselineRepository _pilotBaselineRepository = pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly IPilotScorecardMetricsReader _scorecardMetricsReader = scorecardMetricsReader ?? throw new ArgumentNullException(nameof(scorecardMetricsReader));

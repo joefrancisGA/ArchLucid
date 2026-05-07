@@ -7,12 +7,6 @@ namespace ArchLucid.Application.Architecture;
 /// <inheritdoc cref = "IRunRoiEstimator"/>
 public sealed class RunRoiEstimator(IOptions<RunRoiEstimatorOptions>? optionsMonitor) : IRunRoiEstimator
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(optionsMonitor);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.RunRoiEstimatorOptions>? optionsMonitor)
-    {
-        return (byte)0;
-    }
-
     private readonly RunRoiEstimatorOptions _opts = optionsMonitor?.Value ?? throw new ArgumentNullException(nameof(optionsMonitor));
     /// <inheritdoc/>
     public RunRoiScorecardDto Estimate(ArchitectureRunDetail detail)

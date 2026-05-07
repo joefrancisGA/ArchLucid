@@ -13,18 +13,6 @@ namespace ArchLucid.Application.Notifications.Email;
 /// </summary>
 public sealed class TrialScheduledLifecycleEmailScanner(ITenantRepository tenantRepository, IIntegrationEventOutboxRepository outboxRepository, IIntegrationEventPublisher integrationEventPublisher, IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions, IOptionsMonitor<TrialLifecycleEmailRoutingOptions> trialLifecycleEmailRoutingOptions, ILogger<TrialScheduledLifecycleEmailScanner> logger)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository, outboxRepository, integrationEventPublisher, integrationEventsOptions, trialLifecycleEmailRoutingOptions, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Tenancy.ITenantRepository tenantRepository, ArchLucid.Persistence.IIntegrationEventOutboxRepository outboxRepository, ArchLucid.Core.Integration.IIntegrationEventPublisher integrationEventPublisher, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Integration.IntegrationEventsOptions> integrationEventsOptions, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.TrialLifecycleEmailRoutingOptions> trialLifecycleEmailRoutingOptions, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Notifications.Email.TrialScheduledLifecycleEmailScanner> logger)
-    {
-        ArgumentNullException.ThrowIfNull(tenantRepository);
-        ArgumentNullException.ThrowIfNull(outboxRepository);
-        ArgumentNullException.ThrowIfNull(integrationEventPublisher);
-        ArgumentNullException.ThrowIfNull(integrationEventsOptions);
-        ArgumentNullException.ThrowIfNull(trialLifecycleEmailRoutingOptions);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly IIntegrationEventPublisher _integrationEventPublisher = integrationEventPublisher ?? throw new ArgumentNullException(nameof(integrationEventPublisher));
     private readonly IOptionsMonitor<IntegrationEventsOptions> _integrationEventsOptions = integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
     private readonly ILogger<TrialScheduledLifecycleEmailScanner> _logger = logger ?? throw new ArgumentNullException(nameof(logger));

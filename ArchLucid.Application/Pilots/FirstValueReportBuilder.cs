@@ -29,20 +29,6 @@ namespace ArchLucid.Application.Pilots;
 /// </remarks>
 public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuery, IPilotRunDeltaComputer deltaComputer, ValueReportBuilder valueReportBuilder, IScopeContextProvider scopeProvider, IExecutionProvenanceFooterRenderer executionProvenanceFooter, IConfiguration configuration, IOptionsMonitor<PublicSiteOptions> publicSiteOptions, ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQuery, deltaComputer, valueReportBuilder, scopeProvider, executionProvenanceFooter, configuration, publicSiteOptions, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQuery, ArchLucid.Application.Pilots.IPilotRunDeltaComputer deltaComputer, ArchLucid.Application.Value.ValueReportBuilder valueReportBuilder, ArchLucid.Core.Scoping.IScopeContextProvider scopeProvider, ArchLucid.Application.Pilots.IExecutionProvenanceFooterRenderer executionProvenanceFooter, Microsoft.Extensions.Configuration.IConfiguration configuration, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.PublicSiteOptions> publicSiteOptions, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Pilots.FirstValueReportBuilder> logger)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQuery);
-        ArgumentNullException.ThrowIfNull(deltaComputer);
-        ArgumentNullException.ThrowIfNull(valueReportBuilder);
-        ArgumentNullException.ThrowIfNull(scopeProvider);
-        ArgumentNullException.ThrowIfNull(executionProvenanceFooter);
-        ArgumentNullException.ThrowIfNull(configuration);
-        ArgumentNullException.ThrowIfNull(publicSiteOptions);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
     /// <summary>Sponsor-facing banner appended above any computed line for runs that match the demo seed.</summary>
     private const string DemoTenantBanner = "_demo tenant — replace before publishing._";
@@ -59,15 +45,16 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     /// </summary>
     public async System.Threading.Tasks.Task<System.String?> BuildMarkdownAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(runId);
+        ArgumentNullException.ThrowIfNull(apiBaseForLinks);
         FirstValueReportBuildResult? built = await BuildReportAsync(runId, apiBaseForLinks, cancellationToken);
-
         return built?.Markdown;
     }
 
     /// <summary>
     ///     Returns Markdown plus evidence classification for PDF watermarks, or <see langword="null"/> when the run does not exist.
     /// </summary>
-    public async System.Threading.Tasks.Task<FirstValueReportBuildResult?> BuildReportAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
+    public async System.Threading.Tasks.Task<ArchLucid.Application.Pilots.FirstValueReportBuildResult?> BuildReportAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(apiBaseForLinks);
@@ -90,22 +77,14 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         GoldenManifest? manifest = detail.Manifest;
         PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
         FirstValueEvidenceCompletenessLevel evidenceCompleteness = FirstValueEvidenceCompletenessClassifier.Classify(buyerSafeGate);
-        SponsorSafeProofDisposition sponsorSafeDisposition =
-            SponsorSafeProofStatusMarkdownFormatter.ResolveDisposition(buyerSafeGate);
-        ProofPackageCompletenessResponse proofCompleteness =
-            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot);
+        SponsorSafeProofDisposition sponsorSafeDisposition = SponsorSafeProofStatusMarkdownFormatter.ResolveDisposition(buyerSafeGate);
+        ProofPackageCompletenessResponse proofCompleteness = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot);
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid — first value report (pilot)");
         sb.AppendLine();
         sb.AppendLine("This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
         sb.AppendLine();
-        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
-            sb,
-            sponsorSafeDisposition,
-            buyerSafeGate,
-            proofCompleteness,
-            deltas,
-            run);
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
         if (run.RealModeFellBackToSimulator)
         {
             sb.AppendLine(_executionProvenanceFooter.BuildYellowSimulatorSubstitutionCallout());
@@ -149,7 +128,6 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine($"- Operator review UI: {ui}/reviews/{run.RunId}");
         sb.AppendLine($"- Pilot scorecard: {ui}/scorecard");
         sb.AppendLine($"- API anchor (authenticated): {baseUrl}/v1/architecture/run/{run.RunId}");
-
         return new FirstValueReportBuildResult(sb.ToString(), evidenceCompleteness);
     }
 
@@ -192,11 +170,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine();
     }
 
-    private static void AppendProofPackageContractSection(
-        StringBuilder sb,
-        PilotRunDeltas deltas,
-        ProofPackageCompletenessResponse c,
-        GoldenManifest? manifest)
+    private static void AppendProofPackageContractSection(StringBuilder sb, PilotRunDeltas deltas, ProofPackageCompletenessResponse c, GoldenManifest? manifest)
     {
         sb.AppendLine("## Buyer-safe proof package contract");
         sb.AppendLine();
@@ -204,11 +178,9 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine();
         sb.AppendLine("| Required proof field | Status in this report |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine(
-            $"| Non-demo / external-share discipline | {(c.DemoTenantWarningRequired ? "**FAILED — non-negotiable demo warning.** Replace seeded identifiers before any sponsor-facing circulation." : "Pass — operator identifiers only per loaded tenant scope.")} |");
+        sb.AppendLine($"| Non-demo / external-share discipline | {(c.DemoTenantWarningRequired ? "**FAILED — non-negotiable demo warning.** Replace seeded identifiers before any sponsor-facing circulation." : "Pass — operator identifiers only per loaded tenant scope.")} |");
         sb.AppendLine($"| Support run id | {FormatProofStatus(c.SupportRunIdPresent)} |");
-        sb.AppendLine(
-            $"| Committed manifest + status | {FormatProofStatus(c.CommittedManifestPresent && c.RunInCommittedStatus)} |");
+        sb.AppendLine($"| Committed manifest + status | {FormatProofStatus(c.CommittedManifestPresent && c.RunInCommittedStatus)} |");
         sb.AppendLine($"| Committed manifest timestamp (UTC) | {FormatCommittedManifestTimestampProofCell(deltas, c, manifest)} |");
         sb.AppendLine($"| Artifact descriptor count | {FormatArtifactDescriptorsProofCell(c)} |");
         sb.AppendLine($"| Time to committed manifest | {FormatProofStatus(c.TimeToCommittedManifestResolved)} |");
@@ -218,8 +190,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine($"| LLM-call count | {FormatLlmCallCountProofCell(deltas, c)} |");
         sb.AppendLine($"| ROI evidence confidence | **{c.RoiEvidenceConfidence}** — {c.RoiConfidenceLabel} |");
         sb.AppendLine($"| Buyer-safe redaction profile | {c.BuyerSafeRedactionProfile} |");
-        sb.AppendLine(
-            $"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
+        sb.AppendLine($"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
         sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` · **{c.EvidenceCompleteness}** |");
         sb.AppendLine();
     }
@@ -228,23 +199,16 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     {
         if (!c.ArtifactDescriptorCountResolved)
             return "Missing — golden manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing).";
-
         return $"Present — `{c.ArtifactDescriptorCount}` descriptor(s) for this golden manifest.";
     }
 
-    private static string FormatCommittedManifestTimestampProofCell(
-        PilotRunDeltas deltas,
-        ProofPackageCompletenessResponse c,
-        GoldenManifest? manifest)
+    private static string FormatCommittedManifestTimestampProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c, GoldenManifest? manifest)
     {
         if (!c.CommittedManifestPresent)
             return "Missing — no golden manifest on this run detail.";
-
         if (!c.CommittedManifestTimestampResolved)
             return "Missing — `GoldenManifest.Metadata.CreatedUtc` is default / not a real commit timestamp.";
-
         DateTime committedUtc = deltas.ManifestCommittedUtc ?? manifest!.Metadata.CreatedUtc;
-
         return $"Present — `{committedUtc:O}` (`GoldenManifest.Metadata.CreatedUtc`).";
     }
 
@@ -252,10 +216,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     {
         if (deltas.TopFindingId is null)
             return "Not applicable — no findings on this run.";
-
         if (deltas.TopFindingEvidenceChain is not null)
             return "Present";
-
         return "Explicitly unavailable — persisted finding without resolvable evidence-chain pointers (see buyer-safe gate).";
     }
 
@@ -263,9 +225,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     {
         if (!c.LlmCallCountResolved)
             return "Missing — execution trace query failed; count is not attested.";
-
-        return
-            $"`{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
+        return $"`{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
     }
 
     private static string FormatProofStatus(bool present) => present ? "Present" : "Missing or not applicable; review before sponsor send";

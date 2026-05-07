@@ -8,13 +8,6 @@ namespace ArchLucid.Application.Tenancy;
 /// </summary>
 public sealed class TrialSeatAccountant(ITenantRepository tenantRepository)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Tenancy.ITenantRepository tenantRepository)
-    {
-        ArgumentNullException.ThrowIfNull(tenantRepository);
-        return (byte)0;
-    }
-
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     /// <summary>
     ///     Attempts to claim a seat for <paramref name = "principalKey"/> when the tenant is on a metered active trial.

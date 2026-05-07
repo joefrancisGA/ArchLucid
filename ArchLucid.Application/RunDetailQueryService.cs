@@ -31,19 +31,13 @@ namespace ArchLucid.Application;
 /// </remarks>
 public sealed class RunDetailQueryService(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IAgentTaskRepository taskRepository, IAgentResultRepository resultRepository, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IDecisionTraceRepository authorityDecisionTraceRepository, ILogger<RunDetailQueryService> logger) : IRunDetailQueryService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runRepository, scopeContextProvider, taskRepository, resultRepository, unifiedGoldenManifestReader, authorityDecisionTraceRepository, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Data.Repositories.IAgentTaskRepository taskRepository, ArchLucid.Persistence.Data.Repositories.IAgentResultRepository resultRepository, ArchLucid.Decisioning.Interfaces.IUnifiedGoldenManifestReader unifiedGoldenManifestReader, ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository authorityDecisionTraceRepository, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.RunDetailQueryService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(taskRepository);
-        ArgumentNullException.ThrowIfNull(resultRepository);
-        ArgumentNullException.ThrowIfNull(unifiedGoldenManifestReader);
-        ArgumentNullException.ThrowIfNull(authorityDecisionTraceRepository);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
+    private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
+    private readonly IDecisionTraceRepository _authorityDecisionTraceRepository = authorityDecisionTraceRepository ?? throw new ArgumentNullException(nameof(authorityDecisionTraceRepository));
+    private readonly ILogger<RunDetailQueryService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
+    private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader = unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
     /// <inheritdoc/>
     public async System.Threading.Tasks.Task<ArchLucid.Contracts.Architecture.ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default)
     {

@@ -10,14 +10,7 @@ namespace ArchLucid.Application.Scim.RoleMapping;
 /// </summary>
 public sealed class GroupToRoleMapper(IOptions<ScimOptions> options) : IGroupToRoleMapper
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(options);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.ScimOptions> options)
-    {
-        ArgumentNullException.ThrowIfNull(options);
-        return (byte)0;
-    }
-
-    private readonly ScimOptions _options = options.Value;
+    private readonly IOptions<ScimOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
     /// <inheritdoc/>
     public System.String? TryMapGroupToRole(string displayName, string externalId)
     {
@@ -28,7 +21,7 @@ public sealed class GroupToRoleMapper(IOptions<ScimOptions> options) : IGroupToR
         {
             if (string.IsNullOrEmpty(key))
                 continue;
-            if (_options.GroupRoleMappingOverrides.TryGetValue(key, out string? mapped) && !string.IsNullOrWhiteSpace(mapped))
+            if (_options.Value.GroupRoleMappingOverrides.TryGetValue(key, out string? mapped) && !string.IsNullOrWhiteSpace(mapped))
                 return mapped.Trim();
         }
 

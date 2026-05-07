@@ -5,13 +5,6 @@ namespace ArchLucid.Application.Notifications.Email;
 /// <remarks>Uses ASP.NET Core data protection; API and worker hosts must share key material in multi-process deployments.</remarks>
 public sealed class ExecDigestUnsubscribeTokenFactory(IDataProtectionProvider dataProtectionProvider) : IExecDigestUnsubscribeTokenFactory
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(dataProtectionProvider);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.AspNetCore.DataProtection.IDataProtectionProvider dataProtectionProvider)
-    {
-        ArgumentNullException.ThrowIfNull(dataProtectionProvider);
-        return (byte)0;
-    }
-
     private const string Purpose = "ArchLucid.ExecDigest.Unsubscribe.v1";
     private readonly IDataProtectionProvider _dataProtectionProvider = dataProtectionProvider ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
     /// <inheritdoc/>

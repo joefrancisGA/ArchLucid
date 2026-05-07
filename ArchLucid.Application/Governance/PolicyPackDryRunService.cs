@@ -30,17 +30,6 @@ namespace ArchLucid.Application.Governance;
 /// </remarks>
 public sealed class PolicyPackDryRunService(IRunDetailQueryService runDetailQueryService, IPilotRunDeltaComputer pilotRunDeltaComputer, IPromptRedactor promptRedactor, IAuditService auditService, ILogger<PolicyPackDryRunService> logger) : IPolicyPackDryRunService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, pilotRunDeltaComputer, promptRedactor, auditService, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Application.Pilots.IPilotRunDeltaComputer pilotRunDeltaComputer, ArchLucid.Core.Llm.Redaction.IPromptRedactor promptRedactor, ArchLucid.Core.Audit.IAuditService auditService, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Governance.PolicyPackDryRunService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(pilotRunDeltaComputer);
-        ArgumentNullException.ThrowIfNull(promptRedactor);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly ILogger<PolicyPackDryRunService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer = pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
@@ -132,10 +121,7 @@ public sealed class PolicyPackDryRunService(IRunDetailQueryService runDetailQuer
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
         {
-            _logger.LogWarningWithSanitizedUserArg(
-                ex,
-                "Dry-run: failed to load run {RunId}; treating as missing.",
-                runId);
+            _logger.LogWarningWithSanitizedUserArg(ex, "Dry-run: failed to load run {RunId}; treating as missing.", runId);
             return null;
         }
     }

@@ -1,0 +1,35 @@
+---
+description: Primary constructor null checks — use backing-field coalescing, not byte/__Validate scaffolding.
+globs: "*.cs"
+alwaysApply: false
+---
+
+# Primary constructor null checks (C#)
+
+## Preferred pattern (classes)
+
+When a **public class** uses a **primary constructor** and must reject null non-nullable reference dependencies, capture each dependency with an explicit backing field and coalesce to `throw`:
+
+```csharp
+public sealed class MyService(IFoo foo, IBar bar) : IMyService
+{
+    private readonly IFoo _foo = foo ?? throw new ArgumentNullException(nameof(foo));
+    private readonly IBar _bar = bar ?? throw new ArgumentNullException(nameof(bar));
+}
+```
+
+Use the primary-constructor parameter names only in those initializers; use `_foo` / `_bar` in instance members.
+
+## Do not use
+
+- **No** `private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(...);`
+- **No** `private static byte __ValidatePrimaryConstructorArguments(...)` helpers that only exist to run `ArgumentNullException.ThrowIfNull` via a side-effect field  
+  ReSharper correctly flags the byte field as unused; the pattern exists solely to force initialization order.
+
+## Records / DTOs
+
+Prefer **explicit constructors** that assign `init` properties when you need constructor-time validation, or keep positional records without redundant scaffolding. Do not add unused validation fields solely to satisfy analyzers.
+
+## Tooling
+
+Repo maintenance codemod: `tools/ApplicationThrowIfNullCodemod`. It migrates legacy primary-constructor validation to the coalescing pattern. After large migrations, run `dotnet build` on affected projects.

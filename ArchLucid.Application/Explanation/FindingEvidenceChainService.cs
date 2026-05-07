@@ -9,15 +9,6 @@ namespace ArchLucid.Application.Explanation;
 /// <inheritdoc cref = "IFindingEvidenceChainService"/>
 public sealed class FindingEvidenceChainService(IAuthorityQueryService authorityQuery, IScopeContextProvider scopeContextProvider, IAgentExecutionTraceRepository agentExecutionTraceRepository) : IFindingEvidenceChainService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQuery, scopeContextProvider, agentExecutionTraceRepository);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Queries.IAuthorityQueryService authorityQuery, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository agentExecutionTraceRepository)
-    {
-        ArgumentNullException.ThrowIfNull(authorityQuery);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(agentExecutionTraceRepository);
-        return (byte)0;
-    }
-
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository = agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
     private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));

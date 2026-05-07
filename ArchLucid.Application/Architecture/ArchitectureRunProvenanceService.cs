@@ -13,16 +13,10 @@ namespace ArchLucid.Application.Architecture;
 /// <inheritdoc/>
 public sealed class ArchitectureRunProvenanceService(IRunDetailQueryService runDetailQueryService, IArchitectureRequestRepository requestRepository, IEvidenceBundleRepository evidenceBundleRepository, IDecisionNodeRepository decisionNodeRepository) : IArchitectureRunProvenanceService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, requestRepository, evidenceBundleRepository, decisionNodeRepository);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Persistence.Data.Repositories.IArchitectureRequestRepository requestRepository, ArchLucid.Persistence.Data.Repositories.IEvidenceBundleRepository evidenceBundleRepository, ArchLucid.Persistence.Data.Repositories.IDecisionNodeRepository decisionNodeRepository)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(requestRepository);
-        ArgumentNullException.ThrowIfNull(evidenceBundleRepository);
-        ArgumentNullException.ThrowIfNull(decisionNodeRepository);
-        return (byte)0;
-    }
-
+    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IDecisionNodeRepository _decisionNodeRepository = decisionNodeRepository ?? throw new ArgumentNullException(nameof(decisionNodeRepository));
+    private readonly IEvidenceBundleRepository _evidenceBundleRepository = evidenceBundleRepository ?? throw new ArgumentNullException(nameof(evidenceBundleRepository));
+    private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
     /// <inheritdoc/>
     public async System.Threading.Tasks.Task<ArchLucid.Contracts.Architecture.ArchitectureRunProvenanceGraph?> GetProvenanceAsync(string runId, CancellationToken cancellationToken = default)
     {

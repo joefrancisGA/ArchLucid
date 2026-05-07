@@ -11,16 +11,6 @@ namespace ArchLucid.Application.Explanation;
 /// <inheritdoc cref = "IFindingLlmAuditService"/>
 public sealed class FindingLlmAuditService(IAuthorityQueryService authorityQuery, IScopeContextProvider scopeContextProvider, IAgentExecutionTraceRepository agentExecutionTraceRepository, IPromptRedactor promptRedactor) : IFindingLlmAuditService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQuery, scopeContextProvider, agentExecutionTraceRepository, promptRedactor);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Queries.IAuthorityQueryService authorityQuery, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository agentExecutionTraceRepository, ArchLucid.Core.Llm.Redaction.IPromptRedactor promptRedactor)
-    {
-        ArgumentNullException.ThrowIfNull(authorityQuery);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(agentExecutionTraceRepository);
-        ArgumentNullException.ThrowIfNull(promptRedactor);
-        return (byte)0;
-    }
-
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository = agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
     private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
     private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));

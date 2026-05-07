@@ -6,14 +6,6 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Value;
 public sealed class ValueReportBuilder(IValueReportMetricsReader metricsReader, IOptionsMonitor<ValueReportComputationOptions> optionsMonitor)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(metricsReader, optionsMonitor);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Value.IValueReportMetricsReader metricsReader, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.ValueReportComputationOptions> optionsMonitor)
-    {
-        ArgumentNullException.ThrowIfNull(metricsReader);
-        ArgumentNullException.ThrowIfNull(optionsMonitor);
-        return (byte)0;
-    }
-
     private readonly IValueReportMetricsReader _metricsReader = metricsReader ?? throw new ArgumentNullException(nameof(metricsReader));
     private readonly IOptionsMonitor<ValueReportComputationOptions> _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
     public async Task<ValueReportSnapshot> BuildAsync(Guid tenantId, Guid workspaceId, Guid projectId, DateTimeOffset fromUtcInclusive, DateTimeOffset toUtcExclusive, CancellationToken cancellationToken)

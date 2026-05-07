@@ -25,25 +25,19 @@ namespace ArchLucid.Application.Governance;
 /// </summary>
 public sealed class GovernanceWorkflowService(IGovernanceApprovalRequestRepository approvalRepo, IGovernancePromotionRecordRepository promotionRepo, IGovernanceEnvironmentActivationRepository activationRepo, IRunDetailQueryService runDetailQueryService, IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IScopeContextProvider scopeContextProvider, IIntegrationEventPublisher integrationEventPublisher, IIntegrationEventOutboxRepository integrationEventOutbox, IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions, IOptions<GovernanceGateOptions> governanceGateOptions, IArchLucidUnitOfWorkFactory unitOfWorkFactory, ILogger<GovernanceWorkflowService> logger) : IGovernanceWorkflowService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(approvalRepo, promotionRepo, activationRepo, runDetailQueryService, baselineMutationAudit, auditService, scopeContextProvider, integrationEventPublisher, integrationEventOutbox, integrationEventsOptions, governanceGateOptions, unitOfWorkFactory, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IGovernanceApprovalRequestRepository approvalRepo, ArchLucid.Persistence.Data.Repositories.IGovernancePromotionRecordRepository promotionRepo, ArchLucid.Persistence.Data.Repositories.IGovernanceEnvironmentActivationRepository activationRepo, ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Application.Common.IBaselineMutationAuditService baselineMutationAudit, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Core.Integration.IIntegrationEventPublisher integrationEventPublisher, ArchLucid.Persistence.IIntegrationEventOutboxRepository integrationEventOutbox, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Integration.IntegrationEventsOptions> integrationEventsOptions, Microsoft.Extensions.Options.IOptions<ArchLucid.Contracts.Governance.PreCommitGovernanceGateOptions> governanceGateOptions, ArchLucid.Core.Transactions.IArchLucidUnitOfWorkFactory unitOfWorkFactory, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Governance.GovernanceWorkflowService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(approvalRepo);
-        ArgumentNullException.ThrowIfNull(promotionRepo);
-        ArgumentNullException.ThrowIfNull(activationRepo);
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(baselineMutationAudit);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(integrationEventPublisher);
-        ArgumentNullException.ThrowIfNull(integrationEventOutbox);
-        ArgumentNullException.ThrowIfNull(integrationEventsOptions);
-        ArgumentNullException.ThrowIfNull(governanceGateOptions);
-        ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
+    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IIntegrationEventOutboxRepository _integrationEventOutbox = integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
+    private readonly ILogger<GovernanceWorkflowService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IGovernanceEnvironmentActivationRepository _activationRepo = activationRepo ?? throw new ArgumentNullException(nameof(activationRepo));
+    private readonly IOptionsMonitor<IntegrationEventsOptions> _integrationEventsOptions = integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
+    private readonly IGovernancePromotionRecordRepository _promotionRepo = promotionRepo ?? throw new ArgumentNullException(nameof(promotionRepo));
+    private readonly IGovernanceApprovalRequestRepository _approvalRepo = approvalRepo ?? throw new ArgumentNullException(nameof(approvalRepo));
+    private readonly IOptions<GovernanceGateOptions> _governanceGateOptions = governanceGateOptions ?? throw new ArgumentNullException(nameof(governanceGateOptions));
+    private readonly IIntegrationEventPublisher _integrationEventPublisher = integrationEventPublisher ?? throw new ArgumentNullException(nameof(integrationEventPublisher));
+    private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private const string OpaqueProdApprovalValidationFailed = "Promotion to prod requires an approved approval request that matches the provided run, manifest version, and target environment.";
     private const string OpaqueProdApprovalMismatch = "The approval request does not match the promoted run, manifest version, or target environment.";
     /// <inheritdoc/>

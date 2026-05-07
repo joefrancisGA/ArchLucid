@@ -7,15 +7,9 @@ namespace ArchLucid.Application.Common;
 /// <inheritdoc cref = "IBaselineMutationAuditService"/>
 public sealed class BaselineMutationAuditService(ILogger<BaselineMutationAuditService> logger, IAuditService auditService, IScopeContextProvider scopeContextProvider) : IBaselineMutationAuditService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(logger, auditService, scopeContextProvider);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Common.BaselineMutationAuditService> logger, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider)
-    {
-        ArgumentNullException.ThrowIfNull(logger);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        return (byte)0;
-    }
-
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly ILogger<BaselineMutationAuditService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private const int MaxDetailsLength = 500;
     /// <inheritdoc/>
     public async Task RecordAsync(string eventType, string actor, string entityId, string? details = null, CancellationToken cancellationToken = default)

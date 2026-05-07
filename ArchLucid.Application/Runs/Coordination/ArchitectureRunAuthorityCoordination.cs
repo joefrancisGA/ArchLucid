@@ -20,21 +20,8 @@ namespace ArchLucid.Application.Runs.Coordination;
 /// </summary>
 public sealed class ArchitectureRunAuthorityCoordination(IAuthorityRunOrchestrator authorityRunOrchestrator, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IAzureExtractorPackageRepository azureExtractorPackageRepository, ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityRunOrchestrator, runRepository, scopeContextProvider, azureExtractorPackageRepository, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Orchestration.IAuthorityRunOrchestrator authorityRunOrchestrator, ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Data.Repositories.IAzureExtractorPackageRepository azureExtractorPackageRepository, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Runs.Coordination.ArchitectureRunAuthorityCoordination> logger)
-    {
-        ArgumentNullException.ThrowIfNull(authorityRunOrchestrator);
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(azureExtractorPackageRepository);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator = authorityRunOrchestrator ?? throw new ArgumentNullException(nameof(authorityRunOrchestrator));
-    private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
-        azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
-
+    private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository = azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
     private readonly ILogger<ArchitectureRunAuthorityCoordination> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -53,26 +40,11 @@ public sealed class ArchitectureRunAuthorityCoordination(IAuthorityRunOrchestrat
         }
 
         EvidenceBundle evidenceBundle = RunStarterTaskFactory.BuildEvidenceBundle(request);
-
-        RunRecord authorityRun =
-            await _authorityRunOrchestrator.ExecuteAsync(
-                ContextIngestionRequestMapper.FromArchitectureRequest(request),
-                cancellationToken,
-                evidenceBundle.EvidenceBundleId);
-
+        RunRecord authorityRun = await _authorityRunOrchestrator.ExecuteAsync(ContextIngestionRequestMapper.FromArchitectureRequest(request), cancellationToken, evidenceBundle.EvidenceBundleId);
         ScopeContext scopeForExtractor = _scopeContextProvider.GetCurrentScope();
-
-        AzureExtractorPackageProvenance? extractorProvenance =
-            await _azureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(
-                scopeForExtractor,
-                authorityRun.RunId,
-
-                cancellationToken);
-
+        AzureExtractorPackageProvenance? extractorProvenance = await _azureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(scopeForExtractor, authorityRun.RunId, cancellationToken);
         if (extractorProvenance is not null)
-
             AzureExtractorEvidenceBundleMerger.Merge(evidenceBundle, extractorProvenance);
-
         bool deferred = authorityRun.ContextSnapshotId is null;
         string runId = authorityRun.RunId.ToString("N");
         ArchitectureRun run = BuildRunFromAuthority(authorityRun, request, deferred);

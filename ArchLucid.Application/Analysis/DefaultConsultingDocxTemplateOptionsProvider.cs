@@ -7,13 +7,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class DefaultConsultingDocxTemplateOptionsProvider(IOptions<ConsultingDocxTemplateOptions> options) : IConsultingDocxTemplateOptionsProvider
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(options);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptions<ArchLucid.Application.Analysis.ConsultingDocxTemplateOptions> options)
-    {
-        ArgumentNullException.ThrowIfNull(options);
-        return (byte)0;
-    }
-
+    private readonly IOptions<ConsultingDocxTemplateOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
     /// <inheritdoc/>
     public ConsultingDocxTemplateOptions GetOptions()
     {

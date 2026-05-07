@@ -3,20 +3,28 @@ namespace ArchLucid.Application.Pilots;
 ///     Pre-rendered markdown fragments for <see cref = "WhyArchLucidPackBuilder"/> — populated by the API from
 ///     <c>GET /v1/demo/preview</c> data so Application stays free of <c>ArchLucid.Host.Core.Demo</c> types.
 /// </summary>
-public sealed record WhyArchLucidPackSourceDto(string RunId, string ProjectId, string ManifestSectionMarkdown, string AuthorityChainSectionMarkdown, string ArtifactsSectionMarkdown, string PipelineTimelineSectionMarkdown, string RunExplanationSectionMarkdown, string CitationsSectionMarkdown, string ComparisonDeltaSampleMarkdown)
+public sealed record WhyArchLucidPackSourceDto
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(RunId, ProjectId, ManifestSectionMarkdown, AuthorityChainSectionMarkdown, ArtifactsSectionMarkdown, PipelineTimelineSectionMarkdown, RunExplanationSectionMarkdown, CitationsSectionMarkdown, ComparisonDeltaSampleMarkdown);
-    private static byte __ValidatePrimaryConstructorArguments(System.String runId, System.String projectId, System.String manifestSectionMarkdown, System.String authorityChainSectionMarkdown, System.String artifactsSectionMarkdown, System.String pipelineTimelineSectionMarkdown, System.String runExplanationSectionMarkdown, System.String citationsSectionMarkdown, System.String comparisonDeltaSampleMarkdown)
+    public string RunId { get; init; }
+    public string ProjectId { get; init; }
+    public string ManifestSectionMarkdown { get; init; }
+    public string AuthorityChainSectionMarkdown { get; init; }
+    public string ArtifactsSectionMarkdown { get; init; }
+    public string PipelineTimelineSectionMarkdown { get; init; }
+    public string RunExplanationSectionMarkdown { get; init; }
+    public string CitationsSectionMarkdown { get; init; }
+    public string ComparisonDeltaSampleMarkdown { get; init; }
+
+    public WhyArchLucidPackSourceDto(string runId, string projectId, string manifestSectionMarkdown, string authorityChainSectionMarkdown, string artifactsSectionMarkdown, string pipelineTimelineSectionMarkdown, string runExplanationSectionMarkdown, string citationsSectionMarkdown, string comparisonDeltaSampleMarkdown)
     {
-        ArgumentNullException.ThrowIfNull(runId);
-        ArgumentNullException.ThrowIfNull(projectId);
-        ArgumentNullException.ThrowIfNull(manifestSectionMarkdown);
-        ArgumentNullException.ThrowIfNull(authorityChainSectionMarkdown);
-        ArgumentNullException.ThrowIfNull(artifactsSectionMarkdown);
-        ArgumentNullException.ThrowIfNull(pipelineTimelineSectionMarkdown);
-        ArgumentNullException.ThrowIfNull(runExplanationSectionMarkdown);
-        ArgumentNullException.ThrowIfNull(citationsSectionMarkdown);
-        ArgumentNullException.ThrowIfNull(comparisonDeltaSampleMarkdown);
-        return (byte)0;
+        RunId = runId ?? throw new ArgumentNullException(nameof(runId));
+        ProjectId = projectId ?? throw new ArgumentNullException(nameof(projectId));
+        ManifestSectionMarkdown = manifestSectionMarkdown ?? throw new ArgumentNullException(nameof(manifestSectionMarkdown));
+        AuthorityChainSectionMarkdown = authorityChainSectionMarkdown ?? throw new ArgumentNullException(nameof(authorityChainSectionMarkdown));
+        ArtifactsSectionMarkdown = artifactsSectionMarkdown ?? throw new ArgumentNullException(nameof(artifactsSectionMarkdown));
+        PipelineTimelineSectionMarkdown = pipelineTimelineSectionMarkdown ?? throw new ArgumentNullException(nameof(pipelineTimelineSectionMarkdown));
+        RunExplanationSectionMarkdown = runExplanationSectionMarkdown ?? throw new ArgumentNullException(nameof(runExplanationSectionMarkdown));
+        CitationsSectionMarkdown = citationsSectionMarkdown ?? throw new ArgumentNullException(nameof(citationsSectionMarkdown));
+        ComparisonDeltaSampleMarkdown = comparisonDeltaSampleMarkdown ?? throw new ArgumentNullException(nameof(comparisonDeltaSampleMarkdown));
     }
 }

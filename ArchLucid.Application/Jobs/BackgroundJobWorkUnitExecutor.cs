@@ -10,17 +10,6 @@ namespace ArchLucid.Application.Jobs;
 /// </summary>
 public sealed class BackgroundJobWorkUnitExecutor(IRunDetailQueryService runDetailQuery, IArchitectureAnalysisService architectureAnalysisService, IArchitectureAnalysisDocxExportService docxExportService, IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService, IAuditService auditService) : IBackgroundJobWorkUnitExecutor
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQuery, architectureAnalysisService, docxExportService, consultingDocxExportService, auditService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQuery, ArchLucid.Application.Analysis.IArchitectureAnalysisService architectureAnalysisService, ArchLucid.Application.Analysis.IArchitectureAnalysisDocxExportService docxExportService, ArchLucid.Application.Analysis.IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService, ArchLucid.Core.Audit.IAuditService auditService)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQuery);
-        ArgumentNullException.ThrowIfNull(architectureAnalysisService);
-        ArgumentNullException.ThrowIfNull(docxExportService);
-        ArgumentNullException.ThrowIfNull(consultingDocxExportService);
-        ArgumentNullException.ThrowIfNull(auditService);
-        return (byte)0;
-    }
-
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly IArchitectureAnalysisService _architectureAnalysisService = architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
     private readonly IArchitectureAnalysisDocxExportService _docxExportService = docxExportService ?? throw new ArgumentNullException(nameof(docxExportService));

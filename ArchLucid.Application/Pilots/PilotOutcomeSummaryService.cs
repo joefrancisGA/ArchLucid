@@ -8,15 +8,6 @@ namespace ArchLucid.Application.Pilots;
 /// </summary>
 public sealed class PilotOutcomeSummaryService(PilotScorecardBuilder pilotScorecardBuilder, IMemoryCache memoryCache, IScopeContextProvider scopeContextProvider)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(pilotScorecardBuilder, memoryCache, scopeContextProvider);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Pilots.PilotScorecardBuilder pilotScorecardBuilder, Microsoft.Extensions.Caching.Memory.IMemoryCache memoryCache, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider)
-    {
-        ArgumentNullException.ThrowIfNull(pilotScorecardBuilder);
-        ArgumentNullException.ThrowIfNull(memoryCache);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        return (byte)0;
-    }
-
     private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
     private readonly PilotScorecardBuilder _pilotScorecardBuilder = pilotScorecardBuilder ?? throw new ArgumentNullException(nameof(pilotScorecardBuilder));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));

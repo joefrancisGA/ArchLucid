@@ -13,15 +13,6 @@ namespace ArchLucid.Application.Pilots;
 /// </remarks>
 public sealed class RecentPilotRunDeltasService(IRunDetailQueryService runDetailQueryService, IPilotRunDeltaComputer pilotRunDeltaComputer, ILogger<RecentPilotRunDeltasService> logger) : IRecentPilotRunDeltasService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, pilotRunDeltaComputer, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Application.Pilots.IPilotRunDeltaComputer pilotRunDeltaComputer, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Pilots.RecentPilotRunDeltasService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(pilotRunDeltaComputer);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly ILogger<RecentPilotRunDeltasService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer = pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));

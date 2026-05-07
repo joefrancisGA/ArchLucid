@@ -11,14 +11,8 @@ namespace ArchLucid.Application.Explanation;
 /// <inheritdoc/>
 public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, IRunDetailQueryService runDetailQuery) : IRunRationaleService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQuery, runDetailQuery);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Queries.IAuthorityQueryService authorityQuery, ArchLucid.Application.IRunDetailQueryService runDetailQuery)
-    {
-        ArgumentNullException.ThrowIfNull(authorityQuery);
-        ArgumentNullException.ThrowIfNull(runDetailQuery);
-        return (byte)0;
-    }
-
+    private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
+    private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
     private const string PipelineAuthority = "authority";
     private const string PipelineCoordinator = "coordinator";
     private const string KindRuleAudit = "ruleAudit";

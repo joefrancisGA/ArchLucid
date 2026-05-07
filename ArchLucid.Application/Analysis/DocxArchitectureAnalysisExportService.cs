@@ -10,13 +10,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer diagramImageRenderer) : IArchitectureAnalysisDocxExportService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(diagramImageRenderer);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Diagrams.IDiagramImageRenderer diagramImageRenderer)
-    {
-        ArgumentNullException.ThrowIfNull(diagramImageRenderer);
-        return (byte)0;
-    }
-
+    private readonly IDiagramImageRenderer _diagramImageRenderer = diagramImageRenderer ?? throw new ArgumentNullException(nameof(diagramImageRenderer));
     private const string MermaidLanguage = "mermaid";
     public async Task<byte[]> GenerateDocxAsync(ArchitectureAnalysisReport report, CancellationToken cancellationToken = default)
     {
