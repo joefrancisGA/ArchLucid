@@ -244,7 +244,7 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
             await using SqlConnection connection =
                 await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-            DateTimeOffset linkedUtc = DateTimeOffset.UtcNow;
+            DateTimeOffset linkedUtc = TimeProvider.System.GetUtcNow();
 
             const string sql = """
                                UPDATE dbo.IdentityUsers

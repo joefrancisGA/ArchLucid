@@ -26,7 +26,7 @@ public static class DecisionMergeTraceRecorder
             RunId = runId,
             EventType = eventType,
             EventDescription = description,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Metadata = snapshot
         }));
     }

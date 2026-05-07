@@ -315,7 +315,7 @@ internal static class DecisionEngineInputBuilder
                 AgentType = AgentType.Topology,
                 Confidence = topoConfidence,
                 ResultId = AlphaNumFromSeed(seeds.e ^ seeds.f, 8, 16),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
         ];
 

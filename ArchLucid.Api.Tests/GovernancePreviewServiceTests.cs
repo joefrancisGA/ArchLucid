@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Governance.Preview;
+using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -44,7 +44,7 @@ public sealed class GovernancePreviewServiceTests
             Datastores = [],
             Relationships = [],
             Governance = gov,
-            Metadata = new ManifestMetadata { ManifestVersion = version, CreatedUtc = DateTime.UtcNow }
+            Metadata = new ManifestMetadata { ManifestVersion = version, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime }
         };
     }
 
@@ -55,7 +55,7 @@ public sealed class GovernancePreviewServiceTests
             RunId = runId,
             RequestId = "req-1",
             Status = ArchitectureRunStatus.Committed,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 

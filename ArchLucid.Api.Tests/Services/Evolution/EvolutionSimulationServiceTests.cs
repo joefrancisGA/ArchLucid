@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Services.Evolution;
@@ -107,7 +107,7 @@ public sealed class EvolutionSimulationServiceTests
             Summary = "s",
             PlanSnapshotJson = snapshotJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         Mock<IProductLearningPlanningRepository> planning = new();

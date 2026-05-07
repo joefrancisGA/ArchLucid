@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -34,7 +34,7 @@ public abstract class AlertRuleRepositoryContractTests
             IsEnabled = isEnabled,
             TargetChannelType = "DigestOnly",
             MetadataJson = """{"contract":"test"}""",
-            CreatedUtc = createdUtc ?? DateTime.UtcNow
+            CreatedUtc = createdUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 

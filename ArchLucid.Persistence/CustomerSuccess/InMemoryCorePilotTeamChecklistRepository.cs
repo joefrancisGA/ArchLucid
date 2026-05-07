@@ -37,7 +37,7 @@ public sealed class InMemoryCorePilotTeamChecklistRepository : ICorePilotTeamChe
     {
         lock (_gate)
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = TimeProvider.System.GetUtcNow();
             _rows[(tenantId, workspaceId, projectId, stepIndex)] = new CorePilotChecklistStepRow(
                 stepIndex,
                 isCompleted,

@@ -98,7 +98,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         string wid = workspaceId.ToString("D");
         string pid = projectId.ToString("D");
 
-        QueryDefinition query = BuildFilteredQuery(wid, pid, filter);
+        QueryDefinition query = BuildSelectFilteredQuery(wid, pid, filter);
 
         using FeedIterator<AuditEventDocument> iterator = container.GetItemQueryIterator<AuditEventDocument>(
             query,
@@ -120,6 +120,40 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         }
 
         return list;
+    }
+
+    /// <inheritdoc />
+    public async Task<int> CountFilteredAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+
+        Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
+        string tid = tenantId.ToString("D");
+        string wid = workspaceId.ToString("D");
+        string pid = projectId.ToString("D");
+
+        QueryDefinition query = BuildCountFilteredQuery(wid, pid, filter);
+
+        using FeedIterator<int> iterator = container.GetItemQueryIterator<int>(
+            query,
+            requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(tid), MaxItemCount = 1 });
+
+        int total = 0;
+
+        while (iterator.HasMoreResults)
+        {
+            FeedResponse<int> page = await iterator.ReadNextAsync(ct);
+
+            foreach (int row in page)
+                total += row;
+        }
+
+        return total;
     }
 
     /// <inheritdoc />
@@ -174,7 +208,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         return list;
     }
 
-    private static QueryDefinition BuildFilteredQuery(string wid, string pid, AuditEventFilter filter)
+    private static QueryDefinition BuildSelectFilteredQuery(string wid, string pid, AuditEventFilter filter)
     {
         StringBuilder sql = new(
             """
@@ -188,6 +222,46 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
             new("@pid", pid)
         ];
 
+        AppendCosmosScopedFilterPredicates(sql, parameters, filter);
+        sql.Append(" ORDER BY c.occurredUtc DESC, c.id DESC");
+
+        QueryDefinition query = new(sql.ToString());
+
+        foreach (KeyValuePair<string, object?> pair in parameters)
+            query = query.WithParameter(pair.Key, pair.Value!);
+
+        return query;
+    }
+
+    private static QueryDefinition BuildCountFilteredQuery(string wid, string pid, AuditEventFilter filter)
+    {
+        StringBuilder sql = new(
+            """
+            SELECT VALUE COUNT(1) FROM c
+            WHERE c.workspaceId = @wid AND c.projectId = @pid
+            """);
+
+        List<KeyValuePair<string, object?>> parameters =
+        [
+            new("@wid", wid),
+            new("@pid", pid)
+        ];
+
+        AppendCosmosScopedFilterPredicates(sql, parameters, filter);
+
+        QueryDefinition query = new(sql.ToString());
+
+        foreach (KeyValuePair<string, object?> pair in parameters)
+            query = query.WithParameter(pair.Key, pair.Value!);
+
+        return query;
+    }
+
+    private static void AppendCosmosScopedFilterPredicates(
+        StringBuilder sql,
+        List<KeyValuePair<string, object?>> parameters,
+        AuditEventFilter filter)
+    {
         if (!string.IsNullOrWhiteSpace(filter.EventType))
         {
             sql.Append(" AND c.eventType = @eventType");
@@ -245,15 +319,6 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
                 parameters.Add(new KeyValuePair<string, object?>("@beforeUtc", FormatUtcIso(filter.BeforeUtc.Value)));
             }
         }
-
-        sql.Append(" ORDER BY c.occurredUtc DESC, c.id DESC");
-
-        QueryDefinition query = new(sql.ToString());
-
-        foreach (KeyValuePair<string, object?> pair in parameters)
-            query = query.WithParameter(pair.Key, pair.Value!);
-
-        return query;
     }
 
     private static string FormatUtcIso(DateTime value)

@@ -207,7 +207,7 @@ public sealed class DecisionEngineV2Tests
                 AgentType = AgentType.Topology,
                 Confidence = 0.75,
                 ResultId = "ar",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
         ];
 
@@ -244,7 +244,7 @@ public sealed class DecisionEngineV2Tests
                 AgentType = AgentType.Topology,
                 Confidence = 0.7,
                 ResultId = "r",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
         ];
 
@@ -294,7 +294,7 @@ public sealed class DecisionEngineV2Tests
                 AgentType = AgentType.Topology,
                 Confidence = 0.5,
                 ResultId = "r",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
         ];
 

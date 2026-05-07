@@ -240,7 +240,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
-        DateTime utc = DateTime.UtcNow;
+        DateTime utc = TimeProvider.System.GetUtcNow().UtcDateTime;
         (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
             configureFindings: s =>
             {
@@ -278,7 +278,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
-        DateTime utc = DateTime.UtcNow;
+        DateTime utc = TimeProvider.System.GetUtcNow().UtcDateTime;
         (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
             configureFindings: s =>
             {
@@ -327,7 +327,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
-        DateTime utc = DateTime.UtcNow;
+        DateTime utc = TimeProvider.System.GetUtcNow().UtcDateTime;
         (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
             configureFindings: s =>
             {
@@ -405,7 +405,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             WorkspaceId = Guid.NewGuid(),
             ScopeProjectId = Guid.NewGuid(),
             ProjectId = "p1",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         Mock<IArchLucidUnitOfWork> uow = new();
@@ -457,7 +457,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
                         SnapshotId = snapshotId,
                         RunId = Guid.Empty,
                         ProjectId = "p1",
-                        CreatedUtc = DateTime.UtcNow
+                        CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
                     });
         }
 
@@ -478,7 +478,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = snapshotId,
                     RunId = Guid.Empty,
-                    CreatedUtc = DateTime.UtcNow
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
                 });
 
         Mock<IGraphSnapshotRepository> graphRepo = new();
@@ -493,7 +493,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             RunId = Guid.Empty,
             ContextSnapshotId = snapshotId,
             GraphSnapshotId = graphId,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         configureFindings?.Invoke(findingsReturn);
@@ -519,7 +519,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             GraphSnapshotId = graphId,
             FindingsSnapshotId = findingsId,
             DecisionTraceId = traceId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "h",
             RuleSetId = "r",
             RuleSetVersion = "1",
@@ -527,7 +527,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         };
 
         DecisionTrace trace = RuleAuditTrace.From(
-            new RuleAuditTracePayload { DecisionTraceId = traceId, RunId = Guid.Empty, CreatedUtc = DateTime.UtcNow });
+            new RuleAuditTracePayload { DecisionTraceId = traceId, RunId = Guid.Empty, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime });
 
         Mock<IDecisionEngine> decision = new();
         decision
@@ -571,7 +571,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
                     BundleId = bundleId,
                     RunId = Guid.Empty,
                     ManifestId = manifestId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     Artifacts = [oneArtifact],
                     Trace = new SynthesisTrace { TraceId = Guid.NewGuid() }
                 });

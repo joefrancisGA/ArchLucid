@@ -71,7 +71,7 @@ public sealed class ScimTokenRotationReminderJob(IServiceScopeFactory scopeFacto
         int reminderDays = _options.Value.TokenRotationReminderDays;
         if (reminderDays <= 0)
             return;
-        DateTimeOffset cutoffUtc = DateTimeOffset.UtcNow.AddDays(-reminderDays);
+        DateTimeOffset cutoffUtc = TimeProvider.System.GetUtcNow().AddDays(-reminderDays);
         using IServiceScope scope = _scopeFactory.CreateScope();
         IScimTenantTokenRepository tokens = scope.ServiceProvider.GetRequiredService<IScimTenantTokenRepository>();
         IAdminNotificationsRepository notices = scope.ServiceProvider.GetRequiredService<IAdminNotificationsRepository>();

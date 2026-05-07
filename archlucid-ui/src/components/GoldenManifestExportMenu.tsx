@@ -15,20 +15,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { ManifestSummary } from "@/types/authority";
+import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 export type GoldenManifestExportMenuProps = {
   runId: string;
   manifestId: string;
   goldenManifestJson: unknown | null;
   manifestSummary: ManifestSummary | null;
+  trustEvidenceCard?: RunTrustEvidenceCard | null;
 };
 
 /**
  * Export menu for reviewed (golden) manifest artifacts on run detail — Markdown is generated entirely in the browser.
  */
 export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
-  const { runId, manifestId, goldenManifestJson, manifestSummary } = props;
+  const { runId, manifestId, goldenManifestJson, manifestSummary, trustEvidenceCard } = props;
   const [exportMenuKey, setExportMenuKey] = useState(0);
 
   const canExport: boolean =
@@ -49,6 +50,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         const markdown: string = formatGoldenManifestMarkdown(goldenManifestJson, {
           runId,
           manifestSummaryFallback: manifestSummary,
+          trustEvidenceCard: trustEvidenceCard ?? null,
         });
 
         const filename: string = buildGoldenManifestMarkdownFilename(runId, manifestId);

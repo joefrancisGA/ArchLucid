@@ -1,4 +1,4 @@
-﻿using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Explanation;
@@ -154,7 +154,7 @@ public sealed class RunExplanationSummaryServiceTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "h",
             RuleSetId = "rs",
             RuleSetVersion = "1",
@@ -270,7 +270,7 @@ public sealed class RunExplanationSummaryServiceTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "h",
             RuleSetId = "rs",
             RuleSetVersion = "1",

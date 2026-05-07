@@ -5,6 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Trust;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Configuration;
@@ -34,6 +35,7 @@ public sealed class DemoViewerController(
     IRunDetailQueryService runDetailQueryService,
     IArchitectureRunProvenanceService architectureRunProvenanceService,
     IAuthorityCompareService authorityCompareService,
+    IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
     IConfiguration configuration) : ControllerBase
 {
     private readonly IArchitectureRunProvenanceService _architectureRunProvenanceService =
@@ -50,6 +52,9 @@ public sealed class DemoViewerController(
 
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IRunTrustEvidenceCardBuilder _trustEvidenceCardBuilder =
+        trustEvidenceCardBuilder ?? throw new ArgumentNullException(nameof(trustEvidenceCardBuilder));
 
     /// <summary>Lists recent runs in the Contoso demo scope.</summary>
     [HttpGet("runs")]
@@ -109,6 +114,14 @@ public sealed class DemoViewerController(
         response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             detail.Run,
             _configuration["AgentExecution:Mode"]);
+
+        if (detail.IsCommitted)
+        {
+            response.TrustEvidenceCard = await _trustEvidenceCardBuilder.BuildAsync(
+                detail,
+                _configuration["AgentExecution:Mode"],
+                cancellationToken);
+        }
 
         return Ok(response);
     }

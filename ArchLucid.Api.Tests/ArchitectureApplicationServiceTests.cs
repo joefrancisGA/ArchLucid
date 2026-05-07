@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Common;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -96,7 +96,7 @@ public sealed class ArchitectureApplicationServiceTests
                 ServiceCatalog = [],
                 Patterns = [],
                 Notes = [],
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             });
 
         _sut = new ArchitectureApplicationService(
@@ -135,7 +135,7 @@ public sealed class ArchitectureApplicationServiceTests
             RunId = runId,
             RequestId = requestId,
             Status = ArchitectureRunStatus.TasksGenerated,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 
@@ -747,7 +747,7 @@ public sealed class ArchitectureApplicationServiceTests
             WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             ScopeProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
             ProjectId = "p",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             RealModeFellBackToSimulator = false
         };
 

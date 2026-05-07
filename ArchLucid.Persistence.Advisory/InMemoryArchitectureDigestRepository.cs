@@ -68,7 +68,7 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
     {
         ct.ThrowIfCancellationRequested();
         DateTime cutoff = cutoffUtc.UtcDateTime;
-        DateTime stamp = DateTime.UtcNow;
+        DateTime stamp = TimeProvider.System.GetUtcNow().UtcDateTime;
         int count = 0;
         lock (_gate)
             foreach (ArchitectureDigest d in _items.Where(d => !d.ArchivedUtc.HasValue && d.GeneratedUtc < cutoff))

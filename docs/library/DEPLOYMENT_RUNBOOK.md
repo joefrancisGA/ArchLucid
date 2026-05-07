@@ -94,7 +94,13 @@ Then **`GET /version`** and **`GET /health/ready`** again.
 
 ---
 
-## Observability — production trace sampling
+## Production-profile configuration fail-fast validation
+
+API and worker hosts evaluate **production-profile dangerous misconfiguration** before migrations. Logged startup errors include a stable **`[rule_name]`** prefix (for example **`jwt_bearer_missing_authority_and_pem`**) so operators can match CLI + metrics.
+
+Validation runs when **ASP.NET Core** is **Production**, when **`ARCHLUCID_ENVIRONMENT=Production`**, or when **`ProductionValidation:Strict=true`** together with **Staging** (ASP.NET Core or ArchLucid environment name). Optional **`ProductionValidation:RequireTelemetryExport=true`** requires at least one telemetry sink: OTLP endpoint, Application Insights connection string, or Prometheus enabled. Operators can dry-run matching checks with **`archlucid config lint`** (use **`--simulate-production`** and optional **`--strict-staging`** with **`--hosting-advisor`** for advisory parity).
+
+---
 
 For **Azure Container Apps**, set a head-based sampling ratio so OTLP trace volume stays manageable in production (see [OBSERVABILITY.md](OBSERVABILITY.md) §Sampling strategy).
 

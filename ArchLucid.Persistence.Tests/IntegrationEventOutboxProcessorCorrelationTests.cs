@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
@@ -47,7 +47,7 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     RetryCount = 0
                 }
             ]);
@@ -104,7 +104,7 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     RetryCount = 0
                 }
             ]);

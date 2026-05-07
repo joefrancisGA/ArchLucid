@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 
 using FluentAssertions;
@@ -43,7 +43,7 @@ public sealed class GovernanceRationaleServiceTests
                         TargetEnvironment = "test",
                         Status = GovernanceApprovalStatus.Submitted,
                     },
-                    Run = new GovernanceLineageRunSummary { RunId = "run-a", Status = "Ready", CreatedUtc = DateTime.UtcNow },
+                    Run = new GovernanceLineageRunSummary { RunId = "run-a", Status = "Ready", CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime },
                     Manifest = new GovernanceLineageManifestSummary
                     {
                         ManifestVersion = "v2", DecisionCount = 3, UnresolvedIssueCount = 1, ComplianceGapCount = 0,

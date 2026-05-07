@@ -110,7 +110,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
     {
         ct.ThrowIfCancellationRequested();
         DateTime cutoff = cutoffUtc.UtcDateTime;
-        DateTime stamp = DateTime.UtcNow;
+        DateTime stamp = TimeProvider.System.GetUtcNow().UtcDateTime;
         int count = 0;
 
         lock (_gate)

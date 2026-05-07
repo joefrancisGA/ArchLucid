@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Api.Models.Evolution;
 using ArchLucid.Api.Services.Evolution;
@@ -40,11 +40,11 @@ public sealed class EvolutionSimulationReportBuilderTests
             Summary = "Candidate summary body.",
             PlanSnapshotJson = planJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         EvolutionSimulationReportDocument document =
-            EvolutionSimulationReportBuilder.Build(candidate, [], DateTime.UtcNow);
+            EvolutionSimulationReportBuilder.Build(candidate, [], TimeProvider.System.GetUtcNow().UtcDateTime);
 
         document.SchemaVersion.Should().Be(EvolutionSimulationReportDocument.ExportSchemaVersion);
         document.Candidate.Title.Should().Be("Candidate title");
@@ -87,7 +87,7 @@ public sealed class EvolutionSimulationReportBuilderTests
             Summary = "Cand sum",
             PlanSnapshotJson = planJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         const string outcomeJson =
@@ -103,12 +103,12 @@ public sealed class EvolutionSimulationReportBuilderTests
             EvaluationMode = EvolutionEvaluationModeValues.ReadOnlyArchitectureAnalysis,
             OutcomeJson = outcomeJson,
             WarningsJson = null,
-            CompletedUtc = DateTime.UtcNow,
+            CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             IsShadowOnly = true
         };
 
         EvolutionSimulationReportDocument document =
-            EvolutionSimulationReportBuilder.Build(candidate, [run], DateTime.UtcNow);
+            EvolutionSimulationReportBuilder.Build(candidate, [run], TimeProvider.System.GetUtcNow().UtcDateTime);
 
         document.SimulationRuns.Should().ContainSingle();
         document.SimulationRuns[0].DiffSummaryLines.Should().NotBeEmpty();

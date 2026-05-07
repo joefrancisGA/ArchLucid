@@ -49,7 +49,7 @@ public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQu
         if (detail is null)
             return null;
         PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
-        DateTimeOffset end = DateTimeOffset.UtcNow;
+        DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         PilotScorecardSummary scorecard = await _scorecardBuilder.BuildAsync(start, end, cancellationToken);
         Settings.License = LicenseType.Community;
@@ -78,7 +78,7 @@ public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQu
                 page.Content().Column(column =>
                 {
                     column.Item().Text($"Run: {run.RunId}").FontSize(11);
-                    column.Item().Text($"Generated (UTC): {DateTime.UtcNow:O}");
+                    column.Item().Text($"Generated (UTC): {TimeProvider.System.GetUtcNow().UtcDateTime:O}");
                     column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
                     column.Item().Element(c => RenderComputedDeltasTable(c, deltas));

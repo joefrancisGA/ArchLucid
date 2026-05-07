@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
@@ -201,7 +201,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             ExportType = record.ExportType,
             Format = record.Format,
             FileName = "x.docx",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         audit.Setup(a => a.RecordAsync(
@@ -280,7 +280,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             TemplateProfileDisplayName = "Executive",
             WasAutoSelected = false,
             ResolutionReason = "test",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 

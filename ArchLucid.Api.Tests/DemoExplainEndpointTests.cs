@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Bootstrap;
@@ -119,7 +119,7 @@ public sealed class DemoExplainEndpointTests : IClassFixture<ArchLucidApiFactory
         {
             DemoExplainResponse response = new()
             {
-                GeneratedUtc = DateTimeOffset.UtcNow,
+                GeneratedUtc = TimeProvider.System.GetUtcNow(),
                 RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"),
                 ManifestVersion = ContosoRetailDemoIdentifiers.ManifestBaseline,
                 IsDemoData = true,

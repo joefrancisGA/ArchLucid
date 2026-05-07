@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 using FluentAssertions;
 
@@ -40,9 +40,9 @@ public sealed class ReplayDiagnosticsRecorderTests
 
         sut.Record(new ReplayDiagnosticsEntry
         {
-            TimestampUtc = DateTime.UtcNow.AddHours(-2), ComparisonRecordId = "old"
+            TimestampUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-2), ComparisonRecordId = "old"
         });
-        sut.Record(new ReplayDiagnosticsEntry { TimestampUtc = DateTime.UtcNow, ComparisonRecordId = "new" });
+        sut.Record(new ReplayDiagnosticsEntry { TimestampUtc = TimeProvider.System.GetUtcNow().UtcDateTime, ComparisonRecordId = "new" });
 
         IReadOnlyList<ReplayDiagnosticsEntry> recent = sut.GetRecent(10);
         recent.Should().ContainSingle(e => e.ComparisonRecordId == "new");
@@ -51,6 +51,6 @@ public sealed class ReplayDiagnosticsRecorderTests
 
     private static ReplayDiagnosticsEntry NewEntry(string id)
     {
-        return new ReplayDiagnosticsEntry { TimestampUtc = DateTime.UtcNow, ComparisonRecordId = id };
+        return new ReplayDiagnosticsEntry { TimestampUtc = TimeProvider.System.GetUtcNow().UtcDateTime, ComparisonRecordId = id };
     }
 }

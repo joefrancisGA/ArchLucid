@@ -9,6 +9,8 @@
 
 Record **repeatable** latency and throughput for the five highest-traffic API paths so horizontal scaling (Container Apps, read replicas, worker queue depth) is justified with numbers, not assumptions. Complement micro-benchmarks in `ArchLucid.Benchmarks` and cold-start guidance in `docs/PERFORMANCE_COLD_START_AND_TRIMMING.md`.
 
+**V1 pilot-scale envelope (what CI vs scheduled jobs claim):** **[PERFORMANCE.md](PERFORMANCE.md#v1-pilot-scale-envelope-evidence-backed)**.
+
 ## Assumptions
 
 - Load tests run against **Docker Compose `full-stack`** on a **dedicated** machine or GitHub Actions runner — not production or shared staging.

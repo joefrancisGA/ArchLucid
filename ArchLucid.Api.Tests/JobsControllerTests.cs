@@ -1,4 +1,4 @@
-﻿using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Jobs;
 
@@ -59,9 +59,9 @@ public sealed class JobsControllerTests
         BackgroundJobInfo info = new(
             "j1",
             BackgroundJobState.Succeeded,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow,
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow(),
             null,
             "out.docx",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
@@ -109,7 +109,7 @@ public sealed class JobsControllerTests
         BackgroundJobInfo info = new(
             "j1",
             BackgroundJobState.Pending,
-            DateTimeOffset.UtcNow,
+            TimeProvider.System.GetUtcNow(),
             null,
             null,
             null,
@@ -132,9 +132,9 @@ public sealed class JobsControllerTests
         BackgroundJobInfo info = new(
             "j1",
             BackgroundJobState.Succeeded,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow,
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow(),
             null,
             null,
             null);
@@ -157,9 +157,9 @@ public sealed class JobsControllerTests
         BackgroundJobInfo info = new(
             "j1",
             BackgroundJobState.Succeeded,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow,
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow(),
             null,
             "r.docx",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document");

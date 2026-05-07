@@ -89,7 +89,7 @@ public sealed class IntegrationEventOutboxProcessor(
                         entry.OutboxId,
                         newRetryCount,
                         nextRetryUtc: null,
-                        deadLetteredUtc: DateTime.UtcNow,
+                        deadLetteredUtc: TimeProvider.System.GetUtcNow().UtcDateTime,
                         lastErrorMessage: err,
                         ct);
 
@@ -103,7 +103,7 @@ public sealed class IntegrationEventOutboxProcessor(
                 else
                 {
                     TimeSpan delay = IntegrationEventOutboxRetryCalculator.DelayUntilNextAttempt(newRetryCount, maxBackoffSeconds);
-                    DateTime nextUtc = DateTime.UtcNow.Add(delay);
+                    DateTime nextUtc = TimeProvider.System.GetUtcNow().UtcDateTime.Add(delay);
 
                     await outbox.RecordPublishFailureAsync(
                         entry.OutboxId,

@@ -172,5 +172,5 @@ public sealed class RunExportRecord
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

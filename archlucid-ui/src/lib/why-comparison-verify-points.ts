@@ -10,7 +10,7 @@ export type WhyVerifyLink = {
 };
 
 export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
-  [{ label: "/demo/preview", href: "/demo/preview" }],
+  [{ label: "Demo preview", href: "/demo/preview" }],
   [
     { label: "Evidence pack (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
     {
@@ -31,7 +31,7 @@ export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
       href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/COMPARISON_REPLAY.md`,
     },
   ],
-  [{ label: "/demo/explain", href: "/demo/explain" }],
+  [{ label: "Explainability demo (live run)", href: "/demo/explain" }],
   [
     {
       label: "PRE_COMMIT_GOVERNANCE_GATE.md",

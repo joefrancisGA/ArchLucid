@@ -42,7 +42,7 @@ public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
             ArtifactId = Guid.NewGuid(),
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ArtifactType = Models.ArtifactType.ComplianceMatrix,
             Name = "compliance-matrix.json",
             Format = "json",

@@ -48,7 +48,7 @@ public sealed class AuthorityReplayService(
         {
             RunId = request.RunId,
             Mode = mode,
-            ReplayedUtc = DateTime.UtcNow,
+            ReplayedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Original = original,
             Validation = new ReplayValidationResult
             {

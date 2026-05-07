@@ -17,7 +17,7 @@ public sealed class ReplayDiagnosticsRecorder(IOptionsMonitor<ReplayDiagnosticsO
         int capacity = opts.Capacity is > 0 and <= 1000 ? opts.Capacity : 100;
         int retentionMinutes = Math.Max(0, opts.RetentionMinutes);
         DateTime cutoffUtc = retentionMinutes > 0
-            ? DateTime.UtcNow.AddMinutes(-retentionMinutes)
+            ? TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-retentionMinutes)
             : DateTime.MinValue;
 
         lock (_lock)
@@ -37,7 +37,7 @@ public sealed class ReplayDiagnosticsRecorder(IOptionsMonitor<ReplayDiagnosticsO
         ReplayDiagnosticsOptions opts = _optionsMonitor.CurrentValue;
         int retentionMinutes = Math.Max(0, opts.RetentionMinutes);
         DateTime cutoffUtc = retentionMinutes > 0
-            ? DateTime.UtcNow.AddMinutes(-retentionMinutes)
+            ? TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-retentionMinutes)
             : DateTime.MinValue;
 
         lock (_lock)

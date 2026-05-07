@@ -12111,6 +12111,16 @@
               "$ref": "#/components/schemas/AgentTask"
             },
             "type": "array"
+          },
+          "trustEvidenceCard": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunTrustEvidenceCard"
+              }
+            ]
           }
         },
         "type": "object"
@@ -12675,6 +12685,85 @@
           },
           "runId": {
             "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunTrustEvidenceCard": {
+        "properties": {
+          "agentTraces": {
+            "$ref": "#/components/schemas/TrustEvidenceFieldSnapshot"
+          },
+          "aiExplainability": {
+            "$ref": "#/components/schemas/TrustEvidenceFieldSnapshot"
+          },
+          "artifactBundlePointer": {
+            "$ref": "#/components/schemas/TrustEvidenceFieldSnapshot"
+          },
+          "auditTrail": {
+            "$ref": "#/components/schemas/TrustEvidenceFieldSnapshot"
+          },
+          "executionMode": {
+            "$ref": "#/components/schemas/TrustEvidenceFieldSnapshot"
+          },
+          "goldenManifest": {
+            "$ref": "#/components/schemas/TrustEvidenceFieldSnapshot"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/RunTrustEvidenceRouteRef"
+            },
+            "type": "array"
+          },
+          "selfAttestationNotice": {
+            "type": "string"
+          },
+          "topFinding": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunTrustEvidenceTopFindingRow"
+              }
+            ]
+          },
+          "traceabilityExport": {
+            "$ref": "#/components/schemas/TrustEvidenceFieldSnapshot"
+          }
+        },
+        "type": "object"
+      },
+      "RunTrustEvidenceRouteRef": {
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "rel": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunTrustEvidenceTopFindingRow": {
+        "properties": {
+          "evidencePointersSummary": {
+            "type": "string"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "traceCompletenessLabel": {
             "type": "string"
           }
         },
@@ -14179,6 +14268,23 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "TrustEvidenceFieldSnapshot": {
+        "properties": {
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
           }
         },
         "type": "object"

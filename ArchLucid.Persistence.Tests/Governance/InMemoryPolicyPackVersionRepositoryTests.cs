@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Governance;
 
 namespace ArchLucid.Persistence.Tests.Governance;
@@ -83,8 +83,8 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
     {
         InMemoryPolicyPackVersionRepository sut = new();
         Guid packId = Guid.NewGuid();
-        DateTime older = DateTime.UtcNow.AddHours(-2);
-        DateTime newer = DateTime.UtcNow.AddHours(-1);
+        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-2);
+        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-1);
 
         await sut.CreateAsync(
             new PolicyPackVersion

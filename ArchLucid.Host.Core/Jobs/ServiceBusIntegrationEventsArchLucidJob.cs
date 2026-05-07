@@ -84,10 +84,10 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
             new ServiceBusReceiverOptions { ReceiveMode = ServiceBusReceiveMode.PeekLock });
 
         int processed = 0;
-        DateTimeOffset deadlineUtc = DateTimeOffset.UtcNow + MaxRunDuration;
+        DateTimeOffset deadlineUtc = TimeProvider.System.GetUtcNow() + MaxRunDuration;
 
         while (processed < MaxMessagesPerRun
-               && DateTimeOffset.UtcNow < deadlineUtc
+               && TimeProvider.System.GetUtcNow() < deadlineUtc
                && !cancellationToken.IsCancellationRequested)
         {
             int remaining = MaxMessagesPerRun - processed;

@@ -55,7 +55,7 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
             Diff = diff,
             Artifacts = artifacts,
             Warnings = warnings,
-            CompletedUtc = DateTime.UtcNow
+            CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 

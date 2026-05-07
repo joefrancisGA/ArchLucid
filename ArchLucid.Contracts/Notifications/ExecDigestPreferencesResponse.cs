@@ -70,7 +70,7 @@ public sealed class ExecDigestPreferencesResponse
             IanaTimeZoneId = "UTC",
             DayOfWeek = 1,
             HourOfDay = 8,
-            UpdatedUtc = DateTimeOffset.UtcNow
+            UpdatedUtc = TimeProvider.System.GetUtcNow()
         };
     }
 }

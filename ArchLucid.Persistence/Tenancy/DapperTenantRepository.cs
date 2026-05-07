@@ -456,7 +456,7 @@ public sealed class DapperTenantRepository(
             return;
         }
 
-        if (t.TrialExpiresUtc is { } exp && exp <= DateTimeOffset.UtcNow)
+        if (t.TrialExpiresUtc is { } exp && exp <= TimeProvider.System.GetUtcNow())
         {
             await tran.RollbackAsync(ct);
 
@@ -778,7 +778,7 @@ public sealed class DapperTenantRepository(
         if (trialExpiresUtc is null)
             return 0;
 
-        double totalDays = (trialExpiresUtc.Value - DateTimeOffset.UtcNow).TotalDays;
+        double totalDays = (trialExpiresUtc.Value - TimeProvider.System.GetUtcNow()).TotalDays;
         int days = (int)Math.Floor(totalDays);
 
         return days < 0 ? 0 : days;
@@ -811,7 +811,7 @@ public sealed class DapperTenantRepository(
             return;
 
 
-        if (row.TrialExpiresUtc is { } exp && exp <= DateTimeOffset.UtcNow)
+        if (row.TrialExpiresUtc is { } exp && exp <= TimeProvider.System.GetUtcNow())
 
             throw new TrialLimitExceededException(
                 TrialLimitReason.Expired,

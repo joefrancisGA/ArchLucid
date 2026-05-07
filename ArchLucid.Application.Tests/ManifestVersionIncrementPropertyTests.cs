@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 
@@ -43,7 +43,7 @@ public sealed class ManifestVersionIncrementPropertyTests
             RunId = runId,
             RequestId = "r",
             Status = ArchitectureRunStatus.ReadyForCommit,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentManifestVersion = null,
         };
 
@@ -82,7 +82,7 @@ public sealed class ManifestVersionIncrementPropertyTests
             RunId = runId,
             RequestId = "r",
             Status = ArchitectureRunStatus.ReadyForCommit,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentManifestVersion = "v3",
         };
 

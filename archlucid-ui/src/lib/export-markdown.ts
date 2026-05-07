@@ -1,10 +1,12 @@
-import type { ManifestSummary } from "@/types/authority";
+import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 export type GoldenManifestMarkdownOptions = {
   /** Echoed in metadata. */
   runId?: string | null;
   /** When full manifest JSON is missing, format a short summary from API manifest summary instead. */
   manifestSummaryFallback?: ManifestSummary | null;
+  /** Appended to sponsor-style Markdown exports when the run detail includes this card. */
+  trustEvidenceCard?: RunTrustEvidenceCard | null;
 };
 
 function isRecord(data: unknown): data is Record<string, unknown> {
@@ -672,6 +674,59 @@ function looksLikeSandboxGoldenManifest(m: Record<string, unknown>): boolean {
   );
 }
 
+function appendTrustEvidenceMarkdownSection(body: string, card: RunTrustEvidenceCard | null | undefined): string {
+  if (!card) {
+    return body;
+  }
+
+  return `${body.trimEnd()}\n\n${formatTrustEvidenceCardMarkdown(card)}\n`;
+}
+
+/** Reusable Markdown block for sponsor packets (mirrors the committed-run trust evidence card). */
+export function formatTrustEvidenceCardMarkdown(card: RunTrustEvidenceCard): string {
+  const lines: string[] = [];
+
+  const pushField = (title: string, status: string, detail?: string | null): void => {
+    const extra = detail && detail.trim().length > 0 ? ` — ${detail.trim()}` : "";
+    lines.push(`- **${title}:** ${status}${extra}`);
+  };
+
+  lines.push("## Trust evidence (operational)");
+  lines.push("");
+  lines.push(card.selfAttestationNotice);
+  lines.push("");
+  pushField(card.executionMode.title, card.executionMode.status, card.executionMode.detail);
+  pushField(card.goldenManifest.title, card.goldenManifest.status, card.goldenManifest.detail);
+  pushField(card.auditTrail.title, card.auditTrail.status, card.auditTrail.detail);
+  pushField(card.agentTraces.title, card.agentTraces.status, card.agentTraces.detail);
+  pushField(card.artifactBundlePointer.title, card.artifactBundlePointer.status, card.artifactBundlePointer.detail);
+  pushField(card.traceabilityExport.title, card.traceabilityExport.status, card.traceabilityExport.detail);
+  pushField(card.aiExplainability.title, card.aiExplainability.status, card.aiExplainability.detail);
+
+  if (card.topFinding) {
+    lines.push("");
+    lines.push("### Top finding (severity-first)");
+    lines.push(`- **Finding id:** \`${card.topFinding.findingId}\``);
+
+    if (card.topFinding.title) {
+      lines.push(`- **Title:** ${card.topFinding.title}`);
+    }
+
+    lines.push(`- **Trace completeness:** ${card.topFinding.traceCompletenessLabel}`);
+    lines.push(`- **Evidence pointers:** ${card.topFinding.evidencePointersSummary}`);
+  }
+
+  lines.push("");
+  lines.push("### Evidence routes (API-relative paths)");
+  lines.push("");
+
+  for (const l of card.links) {
+    lines.push(`- ${l.label}: \`${l.path}\``);
+  }
+
+  return lines.join("\n");
+}
+
 /**
  * Renders a readable Markdown summary from a golden manifest JSON value (ManifestDocument or legacy sandbox shapes).
  */
@@ -679,24 +734,25 @@ export function formatGoldenManifestMarkdown(
   goldenManifestJson: unknown,
   options?: GoldenManifestMarkdownOptions,
 ): string {
+  let body: string;
+
   if (isUsableGoldenManifestExportJson(goldenManifestJson)) {
     const m = goldenManifestJson as Record<string, unknown>;
 
     if (looksLikeSandboxGoldenManifest(m)) {
-      return formatSandboxStyleGoldenManifest(m);
+      body = formatSandboxStyleGoldenManifest(m);
+    } else {
+      body = formatManifestDocumentShape(m);
     }
-
-    return formatManifestDocumentShape(m);
+  } else if (options?.manifestSummaryFallback) {
+    body = formatManifestSummaryFallback(options.manifestSummaryFallback, options.runId ?? null);
+  } else {
+    body =
+      `# Golden manifest export\n\n` +
+      `Manifest JSON was not available and no summary fallback was provided.\n`;
   }
 
-  if (options?.manifestSummaryFallback) {
-    return formatManifestSummaryFallback(options.manifestSummaryFallback, options.runId ?? null);
-  }
-
-  return (
-    `# Golden manifest export\n\n` +
-    `Manifest JSON was not available and no summary fallback was provided.\n`
-  );
+  return appendTrustEvidenceMarkdownSection(body, options?.trustEvidenceCard);
 }
 
 export function buildGoldenManifestMarkdownFilename(runId: string, manifestId?: string | null): string {

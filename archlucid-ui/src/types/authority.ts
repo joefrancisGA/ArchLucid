@@ -120,6 +120,8 @@ export type ReplayResponse = {
 export type RunDetail = {
   /** Sponsor-safe agent execution line from GET /v1/authority/runs/{runId} (simulator vs live vs fallback). */
   executionFlavorBuyerSummary?: string | null;
+  /** Committed runs only — operational evidence summary (API 2026-05+). */
+  trustEvidenceCard?: RunTrustEvidenceCard | null;
   run: {
     runId: string;
     projectId: string;
@@ -176,4 +178,36 @@ export type PipelineTimelineItem = {
   eventType: string;
   actorUserName: string;
   correlationId?: string | null;
+};
+
+export type TrustEvidenceFieldSnapshot = {
+  title: string;
+  status: string;
+  detail?: string | null;
+};
+
+export type RunTrustEvidenceRouteRef = {
+  rel: string;
+  path: string;
+  label: string;
+};
+
+export type RunTrustEvidenceTopFindingRow = {
+  findingId: string;
+  title?: string | null;
+  traceCompletenessLabel: string;
+  evidencePointersSummary: string;
+};
+
+export type RunTrustEvidenceCard = {
+  selfAttestationNotice: string;
+  executionMode: TrustEvidenceFieldSnapshot;
+  goldenManifest: TrustEvidenceFieldSnapshot;
+  auditTrail: TrustEvidenceFieldSnapshot;
+  agentTraces: TrustEvidenceFieldSnapshot;
+  artifactBundlePointer: TrustEvidenceFieldSnapshot;
+  traceabilityExport: TrustEvidenceFieldSnapshot;
+  aiExplainability: TrustEvidenceFieldSnapshot;
+  topFinding?: RunTrustEvidenceTopFindingRow | null;
+  links: RunTrustEvidenceRouteRef[];
 };

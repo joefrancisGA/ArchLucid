@@ -38,7 +38,7 @@ public sealed class RunEventTracePayload
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>Structured facets (ids, versions, scores) attached to the event.</summary>
     public Dictionary<string, string> Metadata

@@ -62,7 +62,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
     {
         _ = cancellationToken;
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
         ScimUserRecord u = new()
         {
             Id = Guid.NewGuid(),
@@ -101,7 +101,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             return Task.CompletedTask;
 
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
         _byId[id] = new ScimUserRecord
         {
             Id = id,
@@ -150,7 +150,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             ResolvedRoleOrigin = resolvedRoleOrigin,
             DirectoryRemovedUtc = e.DirectoryRemovedUtc,
             CreatedUtc = e.CreatedUtc,
-            UpdatedUtc = DateTimeOffset.UtcNow
+            UpdatedUtc = TimeProvider.System.GetUtcNow()
         };
 
         _byId[id] = u;
@@ -167,7 +167,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             return Task.CompletedTask;
 
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
         _byId[id] = new ScimUserRecord
         {
             Id = id,

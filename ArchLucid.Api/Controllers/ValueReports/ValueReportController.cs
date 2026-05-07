@@ -71,7 +71,7 @@ public sealed class ValueReportController(
         if (tenantId != scope.TenantId)
             return StatusCode(StatusCodes.Status403Forbidden);
 
-        DateTimeOffset end = to ?? DateTimeOffset.UtcNow;
+        DateTimeOffset end = to ?? TimeProvider.System.GetUtcNow();
         DateTimeOffset start = from ?? end.AddDays(-30);
 
         if (end <= start)

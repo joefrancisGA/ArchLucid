@@ -271,7 +271,7 @@ public sealed class AzureExtractorIngestService(
 
             RunId = persistedRunKey,
 
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
 
             SchemaVersion = manifest.SchemaVersion,
 

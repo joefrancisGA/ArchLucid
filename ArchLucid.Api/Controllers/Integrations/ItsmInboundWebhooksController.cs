@@ -159,7 +159,7 @@ public sealed class ItsmInboundWebhooksController(
         {
             string? ts = Request.Headers["X-ArchLucid-Timestamp"].FirstOrDefault();
 
-            if (!WebhookSecrets.TimestampWithinSkew(DateTimeOffset.UtcNow, ts, o.WebhookTimestampSkewSeconds))
+            if (!WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), ts, o.WebhookTimestampSkewSeconds))
             {
                 reject = Unauthorized();
 

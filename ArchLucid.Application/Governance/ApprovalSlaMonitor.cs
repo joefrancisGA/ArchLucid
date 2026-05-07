@@ -39,14 +39,14 @@ public sealed class ApprovalSlaMonitor
         int? slaHours = _options.Value.ApprovalSlaHours;
         if (slaHours is null)
             return;
-        IReadOnlyList<GovernanceApprovalRequest> breached = await _approvalRequestRepository.GetPendingSlaBreachedAsync(DateTime.UtcNow, cancellationToken);
+        IReadOnlyList<GovernanceApprovalRequest> breached = await _approvalRequestRepository.GetPendingSlaBreachedAsync(TimeProvider.System.GetUtcNow().UtcDateTime, cancellationToken);
         foreach (GovernanceApprovalRequest request in breached)
         {
             try
             {
-                await _auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.GovernanceApprovalSlaBreached, ActorUserId = "system", ActorUserName = "SLA Monitor", DataJson = JsonSerializer.Serialize(new { approvalRequestId = request.ApprovalRequestId, runId = request.RunId, requestedBy = request.RequestedBy, slaDeadlineUtc = request.SlaDeadlineUtc, breachedByMinutes = (int)(DateTime.UtcNow - request.SlaDeadlineUtc!.Value).TotalMinutes }) }, cancellationToken);
+                await _auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.GovernanceApprovalSlaBreached, ActorUserId = "system", ActorUserName = "SLA Monitor", DataJson = JsonSerializer.Serialize(new { approvalRequestId = request.ApprovalRequestId, runId = request.RunId, requestedBy = request.RequestedBy, slaDeadlineUtc = request.SlaDeadlineUtc, breachedByMinutes = (int)(TimeProvider.System.GetUtcNow().UtcDateTime - request.SlaDeadlineUtc!.Value).TotalMinutes }) }, cancellationToken);
                 await TrySendEscalationWebhookAsync(request, cancellationToken);
-                await _approvalRequestRepository.PatchSlaBreachNotifiedAsync(request.ApprovalRequestId, DateTime.UtcNow, cancellationToken);
+                await _approvalRequestRepository.PatchSlaBreachNotifiedAsync(request.ApprovalRequestId, TimeProvider.System.GetUtcNow().UtcDateTime, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -62,7 +62,7 @@ public sealed class ApprovalSlaMonitor
         if (string.IsNullOrWhiteSpace(webhookUrl))
             return;
         string sanitizedLabel = LogSanitizer.Sanitize(request.ApprovalRequestId);
-        string payload = JsonSerializer.Serialize(new { approvalRequestId = request.ApprovalRequestId, runId = request.RunId, requestedBy = request.RequestedBy, slaDeadlineUtc = request.SlaDeadlineUtc, breachedByMinutes = (int)(DateTime.UtcNow - request.SlaDeadlineUtc!.Value).TotalMinutes });
+        string payload = JsonSerializer.Serialize(new { approvalRequestId = request.ApprovalRequestId, runId = request.RunId, requestedBy = request.RequestedBy, slaDeadlineUtc = request.SlaDeadlineUtc, breachedByMinutes = (int)(TimeProvider.System.GetUtcNow().UtcDateTime - request.SlaDeadlineUtc!.Value).TotalMinutes });
         string? secret = _options.Value.EscalationWebhookSecret;
         ResiliencePipeline<HttpResponseMessage> retryPipeline = GovernanceSlaEscalationWebhookRetryPipeline.Create(_logger, sanitizedLabel);
         try

@@ -31,7 +31,7 @@ public sealed class DemoCommitPagePreviewClientTests
             GoldenManifestId = manifestId,
             ProjectId = "default",
             Description = "demo",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ContextSnapshotId = Guid.NewGuid(),
             GraphSnapshotId = Guid.NewGuid()
         };
@@ -48,7 +48,7 @@ public sealed class DemoCommitPagePreviewClientTests
         {
             ManifestId = manifestId,
             RunId = run.RunId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "hash",
             RuleSetId = "rs",
             RuleSetVersion = "1",
@@ -66,14 +66,14 @@ public sealed class DemoCommitPagePreviewClientTests
                 ArtifactType = "docx",
                 Name = "a",
                 Format = "binary",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 ContentHash = "h1"
             }
         ];
 
         IReadOnlyList<RunPipelineTimelineItemDto> timeline =
         [
-            new(Guid.NewGuid(), DateTime.UtcNow, "Commit", "actor", "corr")
+            new(Guid.NewGuid(), TimeProvider.System.GetUtcNow().UtcDateTime, "Commit", "actor", "corr")
         ];
 
         RunExplanationSummary summary = new()
@@ -159,7 +159,7 @@ public sealed class DemoCommitPagePreviewClientTests
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = manifestId,
             ProjectId = "default",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         Mock<IDemoSeedRunResolver> seedResolver = new();
@@ -175,7 +175,7 @@ public sealed class DemoCommitPagePreviewClientTests
             {
                 ManifestId = manifestId,
                 RunId = run.RunId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 ManifestHash = "h",
                 RuleSetId = "r",
                 RuleSetVersion = "v",

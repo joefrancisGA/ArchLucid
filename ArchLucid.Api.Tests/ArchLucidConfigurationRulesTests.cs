@@ -104,7 +104,10 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ARCHLUCID_ENVIRONMENT"] = "Production",
             ["ArchLucid:StorageProvider"] = "InMemory",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
+            ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
+            ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
             ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
@@ -116,6 +119,87 @@ public sealed class ArchLucidConfigurationRulesTests
 
         errors.Should().Contain(e =>
             e.Contains("ArchLucid:StorageProvider=InMemory", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenProductionAndAllowRlsBypass_contains_fail_fast_rule_prefix()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ArchLucid:Persistence:AllowRlsBypass"] = "true",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
+            ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .Contain(
+                e => e.Contains("[persistence_allow_rls_bypass_disallowed]", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenStagingStrictAndJwtWithoutAuthority_contains_fail_fast_rule_prefix()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ProductionValidation:Strict"] = "true",
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
+            ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Staging);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .Contain(e => e.Contains("[jwt_bearer_missing_authority_and_pem]", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenStagingAndJwtWithoutAuthority_skips_fail_without_strict()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
+            ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Staging);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .NotContain(e => e.Contains("[jwt_bearer_missing_authority_and_pem]", StringComparison.OrdinalIgnoreCase));
     }
 
     [SkippableFact]

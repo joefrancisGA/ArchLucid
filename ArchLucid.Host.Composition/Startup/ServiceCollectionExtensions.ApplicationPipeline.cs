@@ -20,6 +20,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Application.Support;
 using ArchLucid.Application.Traceability;
+using ArchLucid.Application.Trust;
 using ArchLucid.Application.Value;
 using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
@@ -153,6 +154,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRunRoiEstimator, RunRoiEstimator>();
         services.AddScoped<ITraceabilityBundleBuilder, TraceabilityBundleBuilder>();
         services.AddScoped<IFindingEvidenceChainService, FindingEvidenceChainService>();
+        services.AddScoped<IRunTrustEvidenceCardBuilder, RunTrustEvidenceCardBuilder>();
         services.AddScoped<IFindingLlmAuditService, FindingLlmAuditService>();
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
         services.AddScoped<IRecentPilotRunDeltasService, RecentPilotRunDeltasService>();

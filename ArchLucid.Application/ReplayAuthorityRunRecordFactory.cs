@@ -24,7 +24,7 @@ internal static class ReplayAuthorityRunRecordFactory
         ArgumentNullException.ThrowIfNull(callScope);
         ArgumentNullException.ThrowIfNull(request);
 
-        DateTime createdUtc = DateTime.UtcNow;
+        DateTime createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         if (sourceAuthorityRun is not null)
 

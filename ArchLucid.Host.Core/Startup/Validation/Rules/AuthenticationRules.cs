@@ -1,3 +1,5 @@
+using ArchLucid.Core.Hosting;
+
 using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
@@ -17,12 +19,6 @@ internal static class AuthenticationRules
         if (string.IsNullOrWhiteSpace(adminKey) && string.IsNullOrWhiteSpace(readerKey))
             errors.Add(
                 "When Authentication:ApiKey:Enabled is true, at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey must be configured.");
-    }
-
-    public static void CollectProductionApiKeyBypass(IConfiguration configuration, List<string> errors)
-    {
-        if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
-            errors.Add("Authentication:ApiKey:DevelopmentBypassAll must be false in Production.");
     }
 
     /// <summary>
@@ -76,47 +72,22 @@ internal static class AuthenticationRules
                 "ArchLucidAuth:JwtLocalAudience is required when ArchLucidAuth:JwtSigningPublicKeyPemPath is set.");
     }
 
-    /// <summary>JwtBearer / ApiKey production checks for API hosts (not Worker).</summary>
+    /// <summary>
+    ///     Production ASP.NET Core-only API key checks. Dangerous auth combinations are validated for a broader
+    ///     production profile via <see cref="ProductionDangerousMisconfigurationLint" /> (includes ARCHLUCID_ENVIRONMENT
+    ///     and strict staging).
+    /// </summary>
     public static void CollectProductionAuthModes(IConfiguration configuration, List<string> errors)
     {
         string? authMode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
-
-        if (!IsWellKnownAuthMode(authMode))
-            errors.Add(
-                "ArchLucidAuth:Mode must be ApiKey, JwtBearer, or DevelopmentBypass. "
-                + "Unrecognized values are not allowed (they are treated as an unsupported auth path at startup).");
 
         if (configuration.GetValue("ArchLucidAuth:RequireJwtBearerInProduction", false) &&
             !string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
             errors.Add(
                 "ArchLucidAuth:RequireJwtBearerInProduction is true: Production must use ArchLucidAuth:Mode=JwtBearer (Entra or OIDC Authority).");
 
-        if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
-            errors.Add(
-                "ArchLucidAuth:Mode cannot be DevelopmentBypass when the host environment is Production.");
-
-        if (string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
-        {
-            string? pemPath =
-                ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "JwtSigningPublicKeyPemPath");
-
-            if (!string.IsNullOrWhiteSpace(pemPath))
-
-                errors.Add(
-                    "ArchLucidAuth:JwtSigningPublicKeyPemPath is set; local JWT validation is for non-production / CI only and must not be used in Production.");
-
-            else if (string.IsNullOrWhiteSpace(
-                         ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Authority")))
-                errors.Add(
-                    "ArchLucidAuth:Authority is required when auth Mode is JwtBearer in Production.");
-        }
-
         if (!string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase))
             return;
-
-        if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
-            errors.Add(
-                "Authentication:ApiKey:Enabled must be true when ArchLucidAuth:Mode is ApiKey in Production.");
 
         string? productionApiAdminKey = configuration["Authentication:ApiKey:AdminKey"];
         string? productionApiReaderKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
@@ -125,19 +96,5 @@ internal static class AuthenticationRules
 
             errors.Add(
                 "Production ApiKey auth requires at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey.");
-    }
-
-
-    private static bool IsWellKnownAuthMode(string? mode)
-    {
-        // Omitted in JSON binds to the ArchLucidAuthOptions class default (ApiKey).
-        if (string.IsNullOrWhiteSpace(mode))
-            return true;
-
-        if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase);
     }
 }

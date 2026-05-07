@@ -52,7 +52,7 @@ public class ArchitectureDigest
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     public string Title
     {

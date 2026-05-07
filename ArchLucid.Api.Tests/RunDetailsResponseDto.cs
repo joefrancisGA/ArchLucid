@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Trust;
 
 namespace ArchLucid.Api.Tests;
 
@@ -42,4 +43,10 @@ public sealed class RunDetailsResponseDto
         get;
         set;
     } = [];
+
+    public RunTrustEvidenceCard? TrustEvidenceCard
+    {
+        get;
+        set;
+    }
 }

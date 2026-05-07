@@ -22,7 +22,7 @@ public sealed class AuthorityCommitProjectionBuilderTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "x",
             RuleSetId = "r",
             RuleSetVersion = "1",

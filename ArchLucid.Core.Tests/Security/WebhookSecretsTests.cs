@@ -39,15 +39,15 @@ public sealed class WebhookSecretsTests
     [Fact]
     public void TimestampWithinSkew_rejects_when_skew_required_but_missing_header()
     {
-        WebhookSecrets.TimestampWithinSkew(DateTimeOffset.UtcNow, null, 60).Should().BeFalse();
+        WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), null, 60).Should().BeFalse();
     }
 
     [Fact]
     public void TimestampWithinSkew_accepts_recent_epoch()
     {
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        long now = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
 
-        WebhookSecrets.TimestampWithinSkew(DateTimeOffset.UtcNow, now.ToString(), 120).Should().BeTrue();
+        WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), now.ToString(), 120).Should().BeTrue();
     }
 
     private static string ComputeHmacHex(string secret, string body)

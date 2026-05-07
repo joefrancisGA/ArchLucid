@@ -24,6 +24,10 @@ public sealed class AuthorityChainRunForeignKeyDdlTests
             sql.Should().MatchRegex($@"\b{Regex.Escape(name)}\b", $"expected {name} in ArchLucid.sql");
         }
 
+        sql.Should().MatchRegex(
+            @"ALTER TABLE dbo\.GoldenManifests WITH NOCHECK ADD CONSTRAINT FK_GoldenManifests_Runs_RunId",
+            "GoldenManifests -> dbo.Runs FK must be added brownfield-safe (WITH NOCHECK) in consolidated DDL");
+
         MatchCollection matches = FkNameRegex.Matches(sql);
         matches.Count.Should().BeGreaterThanOrEqualTo(4);
     }

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application.Agents;
@@ -158,7 +158,7 @@ public sealed class ReplayRunServiceTests
             RunId = originalRunId,
             RequestId = requestId,
             Status = ArchitectureRunStatus.Committed,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentManifestVersion = "v1",
         };
 
@@ -169,7 +169,7 @@ public sealed class ReplayRunServiceTests
             AgentType = AgentType.Topology,
             Objective = "o",
             Status = AgentTaskStatus.Completed,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             EvidenceBundleRef = "eb",
         };
 
@@ -211,7 +211,7 @@ public sealed class ReplayRunServiceTests
             AgentType = AgentType.Topology,
             Confidence = 0.8,
             ResultId = "r1",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
         Mock<IAgentExecutor> executor = new();
@@ -286,7 +286,7 @@ public sealed class ReplayRunServiceTests
             RunId = originalRunId,
             RequestId = requestId,
             Status = ArchitectureRunStatus.Committed,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentManifestVersion = "v1",
         };
 
@@ -297,7 +297,7 @@ public sealed class ReplayRunServiceTests
             AgentType = AgentType.Topology,
             Objective = "o",
             Status = AgentTaskStatus.Completed,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             EvidenceBundleRef = "eb",
         };
 
@@ -341,7 +341,7 @@ public sealed class ReplayRunServiceTests
                 AgentType = AgentType.Topology,
                 Confidence = 0.9,
                 ResultId = "r1",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
         ];
 

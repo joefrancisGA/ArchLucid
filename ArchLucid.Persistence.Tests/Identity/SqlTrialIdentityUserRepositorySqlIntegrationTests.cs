@@ -23,7 +23,7 @@ public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerP
         SqlTrialIdentityUserRepository sut = new(factory);
         string email = "linktest+" + Guid.NewGuid().ToString("N")[..8] + "@example.com";
         string normalized = TrialEmailNormalizer.Normalize(email);
-        DateTimeOffset confirmWindowEnd = DateTimeOffset.UtcNow.AddDays(1);
+        DateTimeOffset confirmWindowEnd = TimeProvider.System.GetUtcNow().AddDays(1);
 
         await sut.CreatePendingUserAsync(
             normalized,
@@ -35,7 +35,7 @@ public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerP
             emailConfirmationExpiresUtc: confirmWindowEnd,
             CancellationToken.None);
 
-        (await sut.TryConfirmEmailAsync(normalized, "tokhash", DateTimeOffset.UtcNow, CancellationToken.None)).Should()
+        (await sut.TryConfirmEmailAsync(normalized, "tokhash", TimeProvider.System.GetUtcNow(), CancellationToken.None)).Should()
             .BeTrue();
 
         (await sut.TryLinkLocalIdentityToEntraAsync(normalized, "oid-a1b2", CancellationToken.None)).Should().BeTrue();
@@ -64,10 +64,10 @@ public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerP
             "s",
             "c",
             "th",
-            DateTimeOffset.UtcNow.AddDays(1),
+            TimeProvider.System.GetUtcNow().AddDays(1),
             CancellationToken.None);
 
-        (await sut.TryConfirmEmailAsync(normalized, "th", DateTimeOffset.UtcNow, CancellationToken.None)).Should().BeTrue();
+        (await sut.TryConfirmEmailAsync(normalized, "th", TimeProvider.System.GetUtcNow(), CancellationToken.None)).Should().BeTrue();
         (await sut.TryLinkLocalIdentityToEntraAsync(normalized, "oid-first", CancellationToken.None)).Should().BeTrue();
 
         (await sut.TryLinkLocalIdentityToEntraAsync(normalized, "oid-second", CancellationToken.None)).Should().BeFalse();

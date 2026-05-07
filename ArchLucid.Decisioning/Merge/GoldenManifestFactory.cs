@@ -36,7 +36,7 @@ public static class GoldenManifestFactory
                 ParentManifestVersion = parentManifestVersion,
                 ChangeDescription = $"Merged manifest for run {runId}",
                 DecisionTraceIds = [],
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             }
         };
     }

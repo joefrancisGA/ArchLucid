@@ -81,7 +81,7 @@ public sealed class BackgroundJobWorkUnitExecutor(IRunDetailQueryService runDeta
     private async Task LogArchitectureDocxExportGeneratedAsync(string runId, string exportChannel, int byteCount, string fileName, CancellationToken cancellationToken)
     {
         Guid correlationSuffix = Guid.NewGuid();
-        DateTime occurredUtc = DateTime.UtcNow;
+        DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         Guid? auditRunId = TryParseRunGuid(runId);
         await _auditService.LogAsync(new AuditEvent { OccurredUtc = occurredUtc, EventType = AuditEventTypes.ArchitectureDocxExportGenerated, CorrelationId = $"{exportChannel}:{runId}:{correlationSuffix:N}", RunId = auditRunId, DataJson = JsonSerializer.Serialize(new { runId, exportChannel, byteCount, fileName }, AuditJsonSerializationOptions.Instance) }, cancellationToken);
     }

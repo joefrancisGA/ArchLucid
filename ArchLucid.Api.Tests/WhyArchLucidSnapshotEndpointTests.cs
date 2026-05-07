@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Bootstrap;
@@ -29,7 +29,7 @@ public sealed class WhyArchLucidSnapshotEndpointTests(ArchLucidApiFactory factor
 
         snapshot.Should().NotBeNull();
         snapshot.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
-        snapshot.GeneratedUtc.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromMinutes(2));
+        snapshot.GeneratedUtc.Should().BeCloseTo(TimeProvider.System.GetUtcNow(), TimeSpan.FromMinutes(2));
         snapshot.RunsCreatedTotal.Should().BeGreaterThanOrEqualTo(0);
         snapshot.AuditRowCount.Should().BeGreaterThanOrEqualTo(0);
         snapshot.AuditRowCountTruncated.Should().BeFalse();

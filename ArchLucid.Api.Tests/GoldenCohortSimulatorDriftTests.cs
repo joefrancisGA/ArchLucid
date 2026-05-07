@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -128,7 +128,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             "Simulator path: POST /v1/architecture/request â†’ execute â†’ commit; SHA from `GoldenManifestFingerprint`; "
             + "categories from distinct finding categories across agent results after execute.";
 
-        string markdown = GoldenCohortDriftMarkdown.BuildReport(DateTimeOffset.UtcNow, rows, preamble);
+        string markdown = GoldenCohortDriftMarkdown.BuildReport(TimeProvider.System.GetUtcNow(), rows, preamble);
 
         string? reportRoot = Environment.GetEnvironmentVariable("ARCHLUCID_GOLDEN_COHORT_DRIFT_REPORT_ROOT");
 

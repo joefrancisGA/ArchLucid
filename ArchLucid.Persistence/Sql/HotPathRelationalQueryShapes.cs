@@ -155,4 +155,13 @@ public static class HotPathRelationalQueryShapes
     public const string AuditEventsFilteredOrderByOccurredUtcEventIdDesc = """
                                                                              ORDER BY OccurredUtc DESC, EventId DESC;
                                                                              """;
+
+    /// <summary>Opening clause for <c>DapperAuditRepository.CountFilteredAsync</c>; dynamic filters append before terminator.</summary>
+    public const string AuditEventsFilteredCountFromWhereScope = """
+                                                                       SELECT COUNT(*)
+                                                                       FROM dbo.AuditEvents
+                                                                       WHERE TenantId = @TenantId
+                                                                         AND WorkspaceId = @WorkspaceId
+                                                                         AND ProjectId = @ProjectId
+                                                                       """;
 }

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -39,7 +39,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = DateTime.UtcNow
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
                 }
             ]);
         outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);

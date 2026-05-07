@@ -31,7 +31,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
         ArgumentException.ThrowIfNullOrWhiteSpace(entry.ChangeType);
         ArgumentException.ThrowIfNullOrWhiteSpace(entry.ChangedBy);
 
-        DateTime changedUtc = entry.ChangedUtc == default ? DateTime.UtcNow : entry.ChangedUtc;
+        DateTime changedUtc = entry.ChangedUtc == default ? TimeProvider.System.GetUtcNow().UtcDateTime : entry.ChangedUtc;
 
         const string sql = """
                            INSERT INTO dbo.PolicyPackChangeLog

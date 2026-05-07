@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -71,7 +71,7 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
                     ScopeProjectId = scope.ProjectId,
                     ProjectId = "p_" + idx,
                     Description = "trial cap",
-                    CreatedUtc = DateTime.UtcNow
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
                 };
 
                 try
@@ -139,7 +139,7 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
             ScopeProjectId = scope.ProjectId,
             ProjectId = "p",
             Description = "no trial",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         await repo.SaveAsync(run, CancellationToken.None);

@@ -52,7 +52,7 @@ public sealed class AlertRulesController(
         rule.TenantId = scope.TenantId;
         rule.WorkspaceId = scope.WorkspaceId;
         rule.ProjectId = scope.ProjectId;
-        rule.CreatedUtc = DateTime.UtcNow;
+        rule.CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         if (string.IsNullOrWhiteSpace(rule.MetadataJson))
             rule.MetadataJson = "{}";
 

@@ -29,7 +29,7 @@ public sealed class ThresholdRecommendationService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        ThresholdRecommendationResult result = new() { EvaluatedUtc = DateTime.UtcNow, RuleKind = request.RuleKind, TunedMetricType = request.TunedMetricType };
+        ThresholdRecommendationResult result = new() { EvaluatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, RuleKind = request.RuleKind, TunedMetricType = request.TunedMetricType };
 
         string slug = string.IsNullOrWhiteSpace(request.RunProjectSlug)
             ? DefaultProjectSlug

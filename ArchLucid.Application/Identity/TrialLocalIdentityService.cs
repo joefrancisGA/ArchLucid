@@ -55,7 +55,7 @@ public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialO
         string concurrencyStamp = Guid.NewGuid().ToString("N");
         string rawToken = CreateRawVerificationToken();
         string tokenHash = TrialEmailVerificationTokenHasher.Hash(rawToken);
-        DateTimeOffset expires = DateTimeOffset.UtcNow.AddDays(2);
+        DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddDays(2);
         Guid userId = await _repository.CreatePendingUserAsync(normalized, email.Trim(), hash, securityStamp, concurrencyStamp, tokenHash, expires, cancellationToken);
         return new TrialLocalRegistrationResult
         {
@@ -74,7 +74,7 @@ public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialO
             return false;
         string normalized = TrialEmailNormalizer.Normalize(email);
         string tokenHash = TrialEmailVerificationTokenHasher.Hash(rawToken);
-        return await _repository.TryConfirmEmailAsync(normalized, tokenHash, DateTimeOffset.UtcNow, cancellationToken);
+        return await _repository.TryConfirmEmailAsync(normalized, tokenHash, TimeProvider.System.GetUtcNow(), cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -91,7 +91,7 @@ public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialO
             return null;
         }
 
-        if (row is { LockoutEnabled: true, LockoutEnd: { } le } && le > DateTimeOffset.UtcNow)
+        if (row is { LockoutEnabled: true, LockoutEnd: { } le } && le > TimeProvider.System.GetUtcNow())
             return null;
         PasswordVerificationResult verify = _passwordHasher.VerifyHashedPassword(new TrialIdentityHasherUser(), row.PasswordHash, password);
         if (verify != PasswordVerificationResult.Success && verify != PasswordVerificationResult.SuccessRehashNeeded)
@@ -99,7 +99,7 @@ public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialO
             int fails = row.AccessFailedCount + 1;
             DateTimeOffset? lockoutEnd = null;
             if (fails >= _trial.LocalIdentity.MaxFailedAccessAttemptsBeforeLockout)
-                lockoutEnd = DateTimeOffset.UtcNow.AddMinutes(_trial.LocalIdentity.LockoutMinutes);
+                lockoutEnd = TimeProvider.System.GetUtcNow().AddMinutes(_trial.LocalIdentity.LockoutMinutes);
             await _repository.RecordAccessFailedAsync(normalized, fails, lockoutEnd, cancellationToken);
             return null;
         }

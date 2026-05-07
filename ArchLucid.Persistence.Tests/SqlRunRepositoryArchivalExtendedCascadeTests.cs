@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
@@ -51,7 +51,7 @@ public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersis
         string slug = "ext_cascade_" + Guid.NewGuid().ToString("N");
         string runIdText = runId.ToString("D");
 
-        RunRecord run = NewRun(scope, runId, slug, DateTime.UtcNow);
+        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.GetUtcNow().UtcDateTime);
         await repo.SaveAsync(run, CancellationToken.None);
 
         await using SqlConnection seed = new(fixture.ConnectionString);
@@ -131,7 +131,7 @@ public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersis
             AgentType = AgentType.Topology,
             Objective = "test",
             Status = AgentTaskStatus.Created,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CompletedUtc = null,
             EvidenceBundleRef = null
         };

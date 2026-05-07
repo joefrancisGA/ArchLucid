@@ -1,4 +1,4 @@
-﻿using ArchLucid.Persistence.GoldenManifests;
+using ArchLucid.Persistence.GoldenManifests;
 
 namespace ArchLucid.Persistence.Tests;
 
@@ -39,7 +39,7 @@ public sealed class GoldenManifestPayloadBlobEnvelopeTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "h",
             RuleSetId = "r",
             RuleSetVersion = "1",

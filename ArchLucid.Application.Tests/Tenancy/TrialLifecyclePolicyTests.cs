@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
@@ -117,7 +117,7 @@ public sealed class TrialLifecyclePolicyTests
             Name = "n",
             Slug = "s",
             Tier = TenantTier.Standard,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             TrialExpiresUtc = trialExpiresUtc,
             TrialStatus = status,
         };

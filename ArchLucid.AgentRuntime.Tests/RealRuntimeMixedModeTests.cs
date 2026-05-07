@@ -1,4 +1,4 @@
-﻿using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.ContextIngestion.Models;
@@ -389,7 +389,7 @@ public sealed class RealRuntimeMixedModeTests
                 RunId = runId,
                 ProjectId = request.ProjectId,
                 Description = request.Description,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
                 FindingsSnapshotId = Guid.NewGuid(),
@@ -410,7 +410,7 @@ public sealed class RealRuntimeMixedModeTests
                 RunId = request.RunId,
                 ProjectId = request.ProjectId,
                 Description = request.Description,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
                 FindingsSnapshotId = Guid.NewGuid(),

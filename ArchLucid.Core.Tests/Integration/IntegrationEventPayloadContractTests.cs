@@ -97,7 +97,7 @@ public sealed class IntegrationEventPayloadContractTests
             manifestVersion = "v",
             environment = "prod",
             activatedBy = "u",
-            activatedUtc = DateTime.UtcNow
+            activatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         AssertPayloadMatchesCommittedSchema("governance-promotion-activated.v1.schema.json", payload);
@@ -159,7 +159,7 @@ public sealed class IntegrationEventPayloadContractTests
             runId = (Guid?)null,
             comparedToRunId = (Guid?)null,
             digestId = (Guid?)null,
-            completedUtc = DateTime.UtcNow
+            completedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         AssertPayloadMatchesCommittedSchema("advisory-scan-completed.v1.schema.json", payload);
@@ -175,7 +175,7 @@ public sealed class IntegrationEventPayloadContractTests
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
             driftSignalId = Guid.NewGuid(),
-            escalatedUtc = DateTime.UtcNow,
+            escalatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             metricKey = "policyPackStaleHours",
             thresholdValue = 72.0,
             observedValue = 96.0
@@ -194,7 +194,7 @@ public sealed class IntegrationEventPayloadContractTests
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
             reservationId = Guid.NewGuid(),
-            releasedUtc = DateTime.UtcNow,
+            releasedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             releaseReason = "expired"
         };
 

@@ -123,7 +123,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                 StructuralMatch = structural.StructuralCompletenessRatio,
                 SemanticMatch = semantic.OverallSemanticScore,
                 MissingKeysJson = missingKeysJson,
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             };
 
             await resultRepository.AppendAsync(row, cancellationToken);

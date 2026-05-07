@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Tests.Support;
 
@@ -104,8 +104,8 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Guid tenantId = Guid.NewGuid();
         Guid sample = Guid.NewGuid();
         string slug = "tr-" + Guid.NewGuid().ToString("N")[..8];
-        DateTimeOffset start = DateTimeOffset.UtcNow.AddDays(-1);
-        DateTimeOffset exp = DateTimeOffset.UtcNow.AddDays(14);
+        DateTimeOffset start = TimeProvider.System.GetUtcNow().AddDays(-1);
+        DateTimeOffset exp = TimeProvider.System.GetUtcNow().AddDays(14);
         await sut.InsertTenantAsync(
             tenantId,
             "Trial T",
@@ -134,7 +134,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             tenantId,
             2.5m,
             2,
-            DateTimeOffset.UtcNow,
+            TimeProvider.System.GetUtcNow(),
             CancellationToken.None);
         (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.BaselinePeoplePerReview.Should().Be(2);
 
@@ -163,8 +163,8 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(7),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(7),
             4,
             2,
             sample,
@@ -192,10 +192,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
 
         TrialFirstManifestCommitOutcome? first = await sut.TryMarkFirstManifestCommittedAsync(
             tenantId,
-            DateTimeOffset.UtcNow,
+            TimeProvider.System.GetUtcNow(),
             CancellationToken.None);
         first.Should().NotBeNull();
-        (await sut.TryMarkFirstManifestCommittedAsync(tenantId, DateTimeOffset.UtcNow, CancellationToken.None))
+        (await sut.TryMarkFirstManifestCommittedAsync(tenantId, TimeProvider.System.GetUtcNow(), CancellationToken.None))
             .Should()
             .BeNull();
     }
@@ -218,8 +218,8 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(3),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(3),
             1,
             1,
             Guid.NewGuid(),
@@ -231,7 +231,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             null,
             null,
             CancellationToken.None);
-        DateTimeOffset next = DateTimeOffset.UtcNow.AddDays(60);
+        DateTimeOffset next = TimeProvider.System.GetUtcNow().AddDays(60);
         await sut.E2eHarnessSetTrialExpiresUtcAsync(tenantId, next, CancellationToken.None);
         (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.TrialExpiresUtc.Should().BeCloseTo(next, TimeSpan.FromSeconds(1));
     }
@@ -254,8 +254,8 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(1),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(1),
             runsLimit: 2,
             seatsLimit: 3,
             Guid.NewGuid(),
@@ -293,8 +293,8 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(1),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(1),
             10,
             seatsLimit: 2,
             Guid.NewGuid(),
@@ -334,8 +334,8 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(1),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(1),
             5,
             3,
             Guid.NewGuid(),
@@ -410,8 +410,8 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             tenantId,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(3),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(3),
             5,
             2,
             Guid.NewGuid(),

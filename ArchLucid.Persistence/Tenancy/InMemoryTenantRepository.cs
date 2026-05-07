@@ -93,7 +93,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             Slug = slugKey,
             Tier = tier,
             EntraTenantId = entraTenantId,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             SuspendedUtc = null,
             TrialStartUtc = null,
             TrialExpiresUtc = null,
@@ -164,7 +164,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                     TenantId = tenantId,
                     Name = name,
                     DefaultProjectId = defaultProjectId,
-                    CreatedUtc = DateTimeOffset.UtcNow
+                    CreatedUtc = TimeProvider.System.GetUtcNow()
                 });
 
 
@@ -186,7 +186,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             Tier = existing.Tier,
             EntraTenantId = existing.EntraTenantId,
             CreatedUtc = existing.CreatedUtc,
-            SuspendedUtc = DateTimeOffset.UtcNow,
+            SuspendedUtc = TimeProvider.System.GetUtcNow(),
             TrialStartUtc = existing.TrialStartUtc,
             TrialExpiresUtc = existing.TrialExpiresUtc,
             TrialRunsLimit = existing.TrialRunsLimit,
@@ -458,7 +458,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 return Task.CompletedTask;
 
 
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
             if (t.TrialExpiresUtc is { } exp && exp <= now)
 
@@ -499,7 +499,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 return Task.CompletedTask;
 
 
-            if (t.TrialExpiresUtc is { } exp && exp <= DateTimeOffset.UtcNow)
+            if (t.TrialExpiresUtc is { } exp && exp <= TimeProvider.System.GetUtcNow())
 
                 throw new TrialLimitExceededException(
                     TrialLimitReason.Expired,
@@ -673,7 +673,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 return Task.CompletedTask;
 
 
-            _byId[tenantId] = CopyTenant(existing, trialArchitecturePreseedEnqueuedUtc: DateTimeOffset.UtcNow);
+            _byId[tenantId] = CopyTenant(existing, trialArchitecturePreseedEnqueuedUtc: TimeProvider.System.GetUtcNow());
         }
 
         return Task.CompletedTask;
@@ -763,7 +763,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             return;
 
         const string slug = "archlucid-dev-default-scope";
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
         TenantRecord record = new()
         {
@@ -857,7 +857,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         if (trialExpiresUtc is null)
             return 0;
 
-        double totalDays = (trialExpiresUtc.Value - DateTimeOffset.UtcNow).TotalDays;
+        double totalDays = (trialExpiresUtc.Value - TimeProvider.System.GetUtcNow()).TotalDays;
         int days = (int)Math.Floor(totalDays);
 
         return days < 0 ? 0 : days;

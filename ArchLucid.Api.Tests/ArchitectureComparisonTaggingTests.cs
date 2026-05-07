@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 
 using ArchLucid.Contracts.Metadata;
 
@@ -35,7 +35,7 @@ public sealed class ArchitectureComparisonTaggingTests(ArchLucidApiFactory facto
                 Format = "json+markdown",
                 SummaryMarkdown = "s",
                 PayloadJson = "{}",
-                CreatedUtc = DateTime.UtcNow.AddMinutes(-5)
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5)
             });
         }
 

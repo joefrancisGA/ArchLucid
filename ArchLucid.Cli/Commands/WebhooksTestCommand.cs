@@ -227,7 +227,7 @@ internal static class WebhooksTestCommand
             ["type"] = "com.archlucid.finding.created.sample",
             ["source"] = "https://cli.archlucid.local/webhooks/test",
             ["id"] = Guid.NewGuid().ToString("D"),
-            ["time"] = DateTime.UtcNow.ToString("O"),
+            ["time"] = TimeProvider.System.GetUtcNow().UtcDateTime.ToString("O"),
             ["datacontenttype"] = "application/json",
             ["data"] = new Dictionary<string, object?>
             {

@@ -33,7 +33,7 @@ public sealed class DemoReadModelClientTests
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = manifestId,
             CurrentManifestVersion = ContosoRetailDemoIdentifiers.ManifestBaseline,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         Mock<IDemoSeedRunResolver> seedResolver = new();
@@ -92,7 +92,7 @@ public sealed class DemoReadModelClientTests
             RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         Mock<IDemoSeedRunResolver> seedResolver = new();
@@ -120,7 +120,7 @@ public sealed class DemoReadModelClientTests
             RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         Mock<IDemoSeedRunResolver> seedResolver = new();

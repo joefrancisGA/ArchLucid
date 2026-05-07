@@ -130,7 +130,7 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
             SnapshotId = snapshotId ?? Guid.NewGuid(),
             RunId = Guid.NewGuid(),
             ProjectId = projectId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CanonicalObjects = objects
         };
     }

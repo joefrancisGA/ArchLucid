@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -38,7 +38,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
             IsEnabled = isEnabled,
             ScopeLevel = scopeLevel,
             IsPinned = false,
-            AssignedUtc = DateTime.UtcNow,
+            AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ArchivedUtc = null
         };
     }

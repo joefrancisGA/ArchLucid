@@ -45,7 +45,7 @@ public sealed class InMemoryScimTenantTokenRepository : IScimTenantTokenReposito
             TenantId = tenantId,
             PublicLookupKey = publicLookupKey,
             SecretHash = secretHash,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             RevokedUtc = null
         };
 
@@ -95,7 +95,7 @@ public sealed class InMemoryScimTenantTokenRepository : IScimTenantTokenReposito
                 PublicLookupKey = r.PublicLookupKey,
                 SecretHash = r.SecretHash,
                 CreatedUtc = r.CreatedUtc,
-                RevokedUtc = DateTimeOffset.UtcNow
+                RevokedUtc = TimeProvider.System.GetUtcNow()
             };
 
             _byPublicKey[pair.Key] = revoked;

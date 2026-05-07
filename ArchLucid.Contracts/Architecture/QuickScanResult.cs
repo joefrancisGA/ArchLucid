@@ -19,5 +19,5 @@ public sealed class QuickScanResult
     public List<ArchitectureFinding> Findings { get; init; } = [];
 
     /// <summary>UTC timestamp when this scan was completed.</summary>
-    public DateTime CompletedUtc { get; init; } = DateTime.UtcNow;
+    public DateTime CompletedUtc { get; init; } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

@@ -37,7 +37,7 @@ public sealed class HotPathCacheEvictionTests
     }
 
     [Fact]
-    public async Task RemoveManifestAsync_removes_current_and_legacy_keys()
+    public async Task RemoveManifestAsync_removes_manifest_key()
     {
         Mock<IHotPathReadCache> cache = new();
         ScopeContext scope = new()
@@ -74,7 +74,7 @@ public sealed class HotPathCacheEvictionTests
     }
 
     [Fact]
-    public async Task RemoveRunAsync_removes_current_and_legacy_keys()
+    public async Task RemoveRunAsync_removes_run_key()
     {
         Mock<IHotPathReadCache> cache = new();
         ScopeContext scope = new()
@@ -105,7 +105,7 @@ public sealed class HotPathCacheEvictionTests
     }
 
     [Fact]
-    public async Task RemovePolicyPackAsync_removes_current_and_legacy_keys()
+    public async Task RemovePolicyPackAsync_removes_policy_pack_key()
     {
         Mock<IHotPathReadCache> cache = new();
         Guid policyPackId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

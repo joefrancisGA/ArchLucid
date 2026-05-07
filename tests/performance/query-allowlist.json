@@ -1,5 +1,6 @@
 [
   { "name": "AppendAuditEvent", "p95ThresholdMs": 50 },
+  { "name": "CountAuditEventsFiltered", "p95ThresholdMs": 220 },
   { "name": "GetFindingsSnapshotById", "p95ThresholdMs": 150 },
   { "name": "GetGoldenManifestById", "p95ThresholdMs": 100 },
   { "name": "GetRunByScopedId", "p95ThresholdMs": 80 },

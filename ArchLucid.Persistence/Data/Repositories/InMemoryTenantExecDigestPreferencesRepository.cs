@@ -42,7 +42,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
             IanaTimeZoneId = string.IsNullOrWhiteSpace(ianaTimeZoneId) ? "UTC" : ianaTimeZoneId.Trim(),
             DayOfWeek = dayOfWeek,
             HourOfDay = hourOfDay,
-            UpdatedUtc = DateTimeOffset.UtcNow
+            UpdatedUtc = TimeProvider.System.GetUtcNow()
         };
 
         _store[tenantId] = row;
@@ -82,7 +82,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
             IanaTimeZoneId = existing.IanaTimeZoneId,
             DayOfWeek = existing.DayOfWeek,
             HourOfDay = existing.HourOfDay,
-            UpdatedUtc = DateTimeOffset.UtcNow
+            UpdatedUtc = TimeProvider.System.GetUtcNow()
         };
 
         _store[tenantId] = updated;

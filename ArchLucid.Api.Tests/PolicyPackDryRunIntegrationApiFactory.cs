@@ -70,6 +70,26 @@ public sealed class CapturingAuditRepository : IAuditRepository
         return Task.FromResult<IReadOnlyList<AuditEvent>>([]);
     }
 
+    public Task<int> CountFilteredAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(filter);
+
+        int count;
+
+        lock (_gate)
+        {
+            count = AuditEventFilterEnumerable.WhereMatches(_events, tenantId, workspaceId, projectId, filter).Count();
+        }
+
+        return Task.FromResult(count);
+    }
+
     public Task<IReadOnlyList<AuditEvent>> GetExportAsync(
         Guid tenantId,
         Guid workspaceId,

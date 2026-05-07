@@ -49531,6 +49531,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("tasks")]
         public System.Collections.Generic.ICollection<AgentTask>? Tasks { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("trustEvidenceCard")]
+        public RunTrustEvidenceCard? TrustEvidenceCard { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -50021,6 +50024,102 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public System.Guid? RunId { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunTrustEvidenceCard
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentTraces")]
+        public TrustEvidenceFieldSnapshot? AgentTraces { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("aiExplainability")]
+        public TrustEvidenceFieldSnapshot? AiExplainability { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("artifactBundlePointer")]
+        public TrustEvidenceFieldSnapshot? ArtifactBundlePointer { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("auditTrail")]
+        public TrustEvidenceFieldSnapshot? AuditTrail { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("executionMode")]
+        public TrustEvidenceFieldSnapshot? ExecutionMode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("goldenManifest")]
+        public TrustEvidenceFieldSnapshot? GoldenManifest { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("links")]
+        public System.Collections.Generic.ICollection<RunTrustEvidenceRouteRef>? Links { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("selfAttestationNotice")]
+        public string? SelfAttestationNotice { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("topFinding")]
+        public RunTrustEvidenceTopFindingRow? TopFinding { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("traceabilityExport")]
+        public TrustEvidenceFieldSnapshot? TraceabilityExport { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunTrustEvidenceRouteRef
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("label")]
+        public string? Label { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("path")]
+        public string? Path { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("rel")]
+        public string? Rel { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunTrustEvidenceTopFindingRow
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("evidencePointersSummary")]
+        public string? EvidencePointersSummary { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingId")]
+        public string? FindingId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("title")]
+        public string? Title { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("traceCompletenessLabel")]
+        public string? TraceCompletenessLabel { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -51483,6 +51582,30 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("token")]
         public string? Token { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class TrustEvidenceFieldSnapshot
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("detail")]
+        public string? Detail { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        public string? Status { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("title")]
+        public string? Title { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

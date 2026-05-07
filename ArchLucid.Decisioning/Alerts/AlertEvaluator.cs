@@ -133,7 +133,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         AlertEvaluationContext context,
         List<AlertRecord> alerts)
     {
-        DateTime cutoff = DateTime.UtcNow.AddDays(-(double)rule.ThresholdValue);
+        DateTime cutoff = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-(double)rule.ThresholdValue);
 
         alerts.AddRange(
             context.RecommendationRecords
@@ -229,7 +229,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
             Status = AlertStatus.Open,
             TriggerValue = triggerValue,
             Description = description,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             DeduplicationKey = $"{rule.RuleId}:{dedupeSuffix}"
         };
     }

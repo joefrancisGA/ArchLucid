@@ -68,14 +68,14 @@ public class ConversationThread
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>Updated when messages are appended.</summary>
     public DateTime LastUpdatedUtc
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>When set, thread list/get hide this row (soft archival by retention job).</summary>
     public DateTime? ArchivedUtc

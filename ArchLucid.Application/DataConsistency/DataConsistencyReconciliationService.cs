@@ -29,7 +29,7 @@ public sealed class DataConsistencyReconciliationService(IDbConnectionFactory co
     private readonly IArchLucidStorageMode _storageMode = storageMode ?? throw new ArgumentNullException(nameof(storageMode));
     public async Task<DataConsistencyReport> RunReconciliationAsync(CancellationToken cancellationToken)
     {
-        DateTime checkedAt = DateTime.UtcNow;
+        DateTime checkedAt = TimeProvider.System.GetUtcNow().UtcDateTime;
         Stopwatch sw = Stopwatch.StartNew();
         if (_storageMode.IsInMemory)
         {

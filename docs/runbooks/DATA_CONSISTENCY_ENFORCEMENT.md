@@ -15,6 +15,8 @@ Use this card when Grafana fires **ArchLucidDataConsistencyOrphansDetected**, **
 
 There is **no automated delete or corrective SQL** inside the orphan probe loop: **`Quarantine`** only **INSERT**s staging rows into **`dbo.DataConsistencyQuarantine`** so humans can reconcile. Comparisons/other slices still follow **[COMPARISON_RECORD_ORPHAN_REMEDIATION.md](./COMPARISON_RECORD_ORPHAN_REMEDIATION.md)** (manual dry-run, then remediation).
 
+**Prevention:** After DbUp **147** (and consolidated **`ArchLucid.sql`**), missing authority-chain foreign keys to **`dbo.Runs`** are added with **`WITH NOCHECK`** where needed so **legacy** orphans can remain, but **new** inserts that violate **`dbo.Runs`** should fail with a SQL foreign-key error. Full semantics: **[../data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md](../data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md)** (*Prevention vs detection*).
+
 ## Triage checklist
 
 1. Filter detection counter by **`table`** / **`column`** — identify which FK slice drifted versus **`dbo.Runs`**.

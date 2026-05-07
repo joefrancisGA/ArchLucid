@@ -111,7 +111,7 @@ public class AlertRecord
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>Updated on lifecycle actions.</summary>
     public DateTime? LastUpdatedUtc

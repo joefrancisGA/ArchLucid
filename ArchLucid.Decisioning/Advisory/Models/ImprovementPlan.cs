@@ -35,7 +35,7 @@ public class ImprovementPlan
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>Ordered advisory items (scores assigned by the advisor pipeline).</summary>
     public List<ImprovementRecommendation> Recommendations

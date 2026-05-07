@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
@@ -17,7 +17,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
             FrequencyScore = 1,
             SeverityScore = 2,
             TrustImpactScore = 0,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 

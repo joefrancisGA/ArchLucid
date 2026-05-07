@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
@@ -45,8 +45,8 @@ public sealed class ApprovalSlaMonitorTests
             TargetEnvironment = "test",
             Status = GovernanceApprovalStatus.Submitted,
             RequestedBy = "user-a",
-            RequestedUtc = DateTime.UtcNow.AddHours(-48),
-            SlaDeadlineUtc = DateTime.UtcNow.AddHours(-24),
+            RequestedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-48),
+            SlaDeadlineUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-24),
         };
         await _approvalRepo.CreateAsync(request, CancellationToken.None);
 
@@ -74,8 +74,8 @@ public sealed class ApprovalSlaMonitorTests
             TargetEnvironment = "test",
             Status = GovernanceApprovalStatus.Submitted,
             RequestedBy = "user-b",
-            RequestedUtc = DateTime.UtcNow,
-            SlaDeadlineUtc = DateTime.UtcNow.AddHours(24),
+            RequestedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            SlaDeadlineUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(24),
         };
         await _approvalRepo.CreateAsync(request, CancellationToken.None);
 
@@ -98,9 +98,9 @@ public sealed class ApprovalSlaMonitorTests
             TargetEnvironment = "test",
             Status = GovernanceApprovalStatus.Submitted,
             RequestedBy = "user-c",
-            RequestedUtc = DateTime.UtcNow.AddHours(-48),
-            SlaDeadlineUtc = DateTime.UtcNow.AddHours(-24),
-            SlaBreachNotifiedUtc = DateTime.UtcNow.AddHours(-12),
+            RequestedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-48),
+            SlaDeadlineUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-24),
+            SlaBreachNotifiedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-12),
         };
         await _approvalRepo.CreateAsync(request, CancellationToken.None);
 
@@ -123,8 +123,8 @@ public sealed class ApprovalSlaMonitorTests
             TargetEnvironment = "test",
             Status = GovernanceApprovalStatus.Submitted,
             RequestedBy = "user-d",
-            RequestedUtc = DateTime.UtcNow.AddHours(-48),
-            SlaDeadlineUtc = DateTime.UtcNow.AddHours(-24),
+            RequestedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-48),
+            SlaDeadlineUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-24),
         };
         await _approvalRepo.CreateAsync(request, CancellationToken.None);
 
@@ -153,8 +153,8 @@ public sealed class ApprovalSlaMonitorTests
             TargetEnvironment = "test",
             Status = GovernanceApprovalStatus.Submitted,
             RequestedBy = "user-e",
-            RequestedUtc = DateTime.UtcNow.AddHours(-48),
-            SlaDeadlineUtc = DateTime.UtcNow.AddHours(-24),
+            RequestedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-48),
+            SlaDeadlineUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-24),
         };
         await _approvalRepo.CreateAsync(request, CancellationToken.None);
 

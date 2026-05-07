@@ -33,7 +33,7 @@ public sealed class ExecDigestWeeklyHostedService(
                 ExecDigestWeeklyDeliveryScanner scanner =
                     scope.ServiceProvider.GetRequiredService<ExecDigestWeeklyDeliveryScanner>();
 
-                await scanner.PublishDueAsync(DateTimeOffset.UtcNow, leaderToken).ConfigureAwait(false);
+                await scanner.PublishDueAsync(TimeProvider.System.GetUtcNow(), leaderToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {

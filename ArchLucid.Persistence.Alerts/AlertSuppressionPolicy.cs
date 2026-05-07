@@ -46,7 +46,7 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
             };
 
 
-        double ageMinutes = (DateTime.UtcNow - existing.CreatedUtc).TotalMinutes;
+        double ageMinutes = (TimeProvider.System.GetUtcNow().UtcDateTime - existing.CreatedUtc).TotalMinutes;
 
         if (ageMinutes < rule.CooldownMinutes)
 

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Resilience;
@@ -40,7 +40,7 @@ public sealed class CircuitBreakerAuditBridgeTests
         CircuitBreakerAuditBridge sut = new(scopeFactory, scopeProvider.Object, auditRetry.Object, logger.Object);
 
         Action<CircuitBreakerAuditEntry> cb = sut.CreateCallback();
-        DateTimeOffset occurred = DateTimeOffset.UtcNow;
+        DateTimeOffset occurred = TimeProvider.System.GetUtcNow();
         cb.Invoke(new CircuitBreakerAuditEntry("gate-x", "StateTransition", "Closed", "Open", null, occurred));
 
         AuditEvent captured = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(10));
@@ -78,7 +78,7 @@ public sealed class CircuitBreakerAuditBridgeTests
             Mock.Of<ILogger<CircuitBreakerAuditBridge>>());
 
         Action<CircuitBreakerAuditEntry> cb = sut.CreateCallback();
-        cb.Invoke(new CircuitBreakerAuditEntry("g", "Rejection", "Open", "Open", null, DateTimeOffset.UtcNow));
+        cb.Invoke(new CircuitBreakerAuditEntry("g", "Rejection", "Open", "Open", null, TimeProvider.System.GetUtcNow()));
 
         AuditEvent captured = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(10));
         captured.EventType.Should().Be(AuditEventTypes.CircuitBreakerRejection);
@@ -108,7 +108,7 @@ public sealed class CircuitBreakerAuditBridgeTests
 
         Action<CircuitBreakerAuditEntry> cb = sut.CreateCallback();
         Action act = () => cb.Invoke(
-            new CircuitBreakerAuditEntry("g", "StateTransition", "A", "B", null, DateTimeOffset.UtcNow));
+            new CircuitBreakerAuditEntry("g", "StateTransition", "A", "B", null, TimeProvider.System.GetUtcNow()));
 
         act.Should().NotThrow();
         await Task.Delay(500);

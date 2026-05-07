@@ -44,7 +44,7 @@ public sealed class ArchitectureRun
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>
     ///     UTC timestamp when the run reached a terminal state (<c>Committed</c> or <c>Failed</c>).

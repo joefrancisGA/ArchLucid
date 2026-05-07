@@ -35,7 +35,7 @@ public sealed class GoldenManifestFactoryTests
     public void CreateBase_Metadata_MapsVersions_ChangeDescription_AndFreshUtcTimestamp()
     {
         ArchitectureRequest request = SampleRequest();
-        DateTime before = DateTime.UtcNow;
+        DateTime before = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         GoldenManifest manifest = GoldenManifestFactory.CreateBase(
             "run-42",
@@ -43,7 +43,7 @@ public sealed class GoldenManifestFactoryTests
             manifestVersion: "v9",
             parentManifestVersion: "v8");
 
-        DateTime after = DateTime.UtcNow;
+        DateTime after = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         ManifestMetadata metadata = manifest.Metadata;
         metadata.ManifestVersion.Should().Be("v9");

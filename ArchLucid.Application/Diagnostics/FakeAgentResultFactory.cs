@@ -111,7 +111,7 @@ public static class FakeAgentResultFactory
                 RequiredControls = [],
                 Warnings = ["Topology intentionally favors implementation simplicity over maximum future extensibility."]
             },
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 
@@ -150,7 +150,7 @@ public static class FakeAgentResultFactory
                 RequiredControls = [],
                 Warnings = ["Search capacity and token usage should be tracked from the start.", "Future high-scale growth may justify re-evaluating the hosting model."]
             },
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 
@@ -199,7 +199,7 @@ public static class FakeAgentResultFactory
                     RequiredControls = requiredControls,
                     Warnings = ["Any public network exposure should be treated as an exception requiring explicit review."]
                 },
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             };
         if (!requiredControls.Contains("Private Networking", StringComparer.OrdinalIgnoreCase))
             requiredControls.Add("Private Networking");
@@ -241,7 +241,7 @@ public static class FakeAgentResultFactory
                 RequiredControls = requiredControls,
                 Warnings = ["Any public network exposure should be treated as an exception requiring explicit review."]
             },
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 
@@ -280,7 +280,7 @@ public static class FakeAgentResultFactory
                 RequiredControls = [],
                 Warnings = ["Ensure observability stack (Application Insights or equivalent) is included before production."]
             },
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 

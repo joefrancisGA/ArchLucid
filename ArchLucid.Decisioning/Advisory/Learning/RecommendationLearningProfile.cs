@@ -33,7 +33,7 @@ public class RecommendationLearningProfile
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>Counts by recommendation category.</summary>
     public List<RecommendationOutcomeStats> CategoryStats

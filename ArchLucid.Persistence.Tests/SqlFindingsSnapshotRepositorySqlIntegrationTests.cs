@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Models;
@@ -118,7 +118,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
             RunId = runId,
             ContextSnapshotId = contextId,
             GraphSnapshotId = graphId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             SchemaVersion = 1,
             Findings =
             [
@@ -750,7 +750,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
             RunId = runId,
             ContextSnapshotId = contextId,
             GraphSnapshotId = graphId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Findings = []
         };
 
@@ -787,7 +787,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 {
                     RunId = runId,
                     ProjectId = "proj-seed",
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
                     ScopeProjectId = scopeProjectId
@@ -818,7 +818,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     SnapshotId = contextSnapshotId,
                     RunId = runId,
                     ProjectId = "proj-seed",
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     CanonicalObjectsJson = emptyCanonical,
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyStringList,
@@ -852,7 +852,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     GraphSnapshotId = graphSnapshotId,
                     ContextSnapshotId = contextSnapshotId,
                     RunId = runId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
                     WarningsJson = emptyGraphWarnings

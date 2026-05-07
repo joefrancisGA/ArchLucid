@@ -184,7 +184,7 @@ public sealed class LlmCompletionAccountingClient(
         if (scope.TenantId == Guid.Empty)
             return;
 
-        DateTimeOffset recordedUtc = DateTimeOffset.UtcNow;
+        DateTimeOffset recordedUtc = TimeProvider.System.GetUtcNow();
         string? correlationId = Activity.Current?.Id;
 
         try

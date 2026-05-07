@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Conversation;
@@ -26,7 +26,7 @@ public sealed class DataArchivalCoordinatorTests
             threads,
             NullLogger<DataArchivalCoordinator>.Instance);
 
-        DateTime old = DateTime.UtcNow.AddDays(-400);
+        DateTime old = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-400);
         ScopeContext scope = new()
         {
             TenantId = Guid.NewGuid(),
@@ -73,7 +73,7 @@ public sealed class DataArchivalCoordinatorTests
             threads,
             NullLogger<DataArchivalCoordinator>.Instance);
 
-        DateTime old = DateTime.UtcNow.AddDays(-400);
+        DateTime old = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-400);
         ScopeContext scope = new()
         {
             TenantId = Guid.NewGuid(),

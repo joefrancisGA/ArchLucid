@@ -66,7 +66,7 @@ public sealed class AgentTask
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>UTC timestamp when the task reached a terminal state. <see langword="null" /> while still in progress.</summary>
     public DateTime? CompletedUtc

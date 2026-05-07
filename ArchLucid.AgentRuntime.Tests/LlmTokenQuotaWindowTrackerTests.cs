@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core;
+using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
@@ -48,7 +48,7 @@ public sealed class LlmTokenQuotaWindowTrackerTests
 
         LlmTokenQuotaExceededException ex = act.Should().Throw<LlmTokenQuotaExceededException>().Which;
         ex.RetryAfterUtc.Should().NotBeNull();
-        ex.RetryAfterUtc!.Value.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-1));
+        ex.RetryAfterUtc!.Value.Should().BeAfter(TimeProvider.System.GetUtcNow().AddSeconds(-1));
     }
 
     [SkippableFact]

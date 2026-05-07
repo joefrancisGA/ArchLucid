@@ -63,7 +63,7 @@ public sealed class ApiRequestMeteringMiddleware(
                         ProjectId = scope.ProjectId,
                         Kind = UsageMeterKind.ApiRequest,
                         Quantity = 1,
-                        RecordedUtc = DateTimeOffset.UtcNow,
+                        RecordedUtc = TimeProvider.System.GetUtcNow(),
                         CorrelationId = context.TraceIdentifier
                     },
                     context.RequestAborted)

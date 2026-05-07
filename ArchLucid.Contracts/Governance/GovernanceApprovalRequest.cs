@@ -121,7 +121,7 @@ public sealed class GovernanceApprovalRequest
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>UTC timestamp when the request was reviewed, or <see langword="null" /> when pending.</summary>
     public DateTime? ReviewedUtc

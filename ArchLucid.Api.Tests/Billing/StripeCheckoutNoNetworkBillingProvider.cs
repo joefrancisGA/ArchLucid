@@ -37,7 +37,7 @@ internal sealed class StripeCheckoutNoNetworkBillingProvider(IBillingLedger ledg
             CheckoutUrl =
                 $"https://checkout.stripe.com/c/pay/e2e_test#{Uri.EscapeDataString(sessionId)}",
             ProviderSessionId = sessionId,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+            ExpiresUtc = TimeProvider.System.GetUtcNow().AddHours(1)
         };
     }
 

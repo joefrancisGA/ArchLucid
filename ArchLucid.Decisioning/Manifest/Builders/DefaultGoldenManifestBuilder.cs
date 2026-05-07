@@ -35,7 +35,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             GraphSnapshotId = graphSnapshot.GraphSnapshotId,
             FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId,
             DecisionTraceId = audit.DecisionTraceId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             RuleSetId = ruleSet.RuleSetId,
             RuleSetVersion = ruleSet.Version,
             RuleSetHash = ruleSet.RuleSetHash,

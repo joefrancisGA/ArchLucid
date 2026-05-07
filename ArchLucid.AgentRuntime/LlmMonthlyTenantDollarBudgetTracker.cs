@@ -182,7 +182,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
     private static (int Year, int Month) GetUtcYearMonth()
     {
-        DateTime utc = DateTime.UtcNow;
+        DateTime utc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         return (utc.Year, utc.Month);
     }

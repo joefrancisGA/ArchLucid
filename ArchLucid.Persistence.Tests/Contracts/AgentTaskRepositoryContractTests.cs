@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -34,8 +34,8 @@ public abstract class AgentTaskRepositoryContractTests
 
         await PrepareRequestAndRunAsync(requestId, runId, CancellationToken.None);
 
-        DateTime older = DateTime.UtcNow.AddMinutes(-5);
-        DateTime newer = DateTime.UtcNow.AddMinutes(-1);
+        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5);
+        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1);
 
         List<AgentTask> tasks =
         [

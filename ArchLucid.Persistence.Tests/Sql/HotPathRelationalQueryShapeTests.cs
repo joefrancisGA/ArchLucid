@@ -109,4 +109,16 @@ public sealed class HotPathRelationalQueryShapeTests
 
         combined.Should().MatchRegex(@"(?s)@ProjectId\s+ORDER BY OccurredUtc DESC, EventId DESC");
     }
+
+    [SkippableFact]
+    public void Audit_count_shape_prefix_contains_count_star_and_scope_keys()
+    {
+        string countShape = HotPathRelationalQueryShapes.AuditEventsFilteredCountFromWhereScope;
+
+        countShape.Should().Contain("SELECT COUNT(*)");
+        countShape.Should().Contain("FROM dbo.AuditEvents");
+        countShape.Should().Contain("TenantId = @TenantId");
+        countShape.Should().Contain("WorkspaceId = @WorkspaceId");
+        countShape.Should().Contain("ProjectId = @ProjectId");
+    }
 }

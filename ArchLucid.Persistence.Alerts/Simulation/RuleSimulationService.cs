@@ -36,7 +36,7 @@ public sealed class RuleSimulationService(
             return new RuleSimulationResult
             {
                 RuleKind = request.RuleKind,
-                SimulatedUtc = DateTime.UtcNow,
+                SimulatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 EvaluatedRunCount = 0,
                 SummaryNotes = { "UseHistoricalWindow is false and no RunId was provided; nothing evaluated." },
             };
@@ -57,7 +57,7 @@ public sealed class RuleSimulationService(
         RuleSimulationResult result = new()
         {
             RuleKind = request.RuleKind,
-            SimulatedUtc = DateTime.UtcNow,
+            SimulatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             EvaluatedRunCount = contexts.Count,
         };
 

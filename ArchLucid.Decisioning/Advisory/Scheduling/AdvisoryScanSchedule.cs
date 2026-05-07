@@ -80,7 +80,7 @@ public class AdvisoryScanSchedule
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>UTC time of the last completed or attempted run (updated when the runner advances the schedule).</summary>
     public DateTime? LastRunUtc

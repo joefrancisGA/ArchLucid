@@ -1,4 +1,4 @@
-﻿using ArchLucid.Api.Controllers.Tenancy;
+using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Billing;
@@ -68,7 +68,7 @@ public sealed class TenantTrialControllerTests
             Name = "t",
             Slug = "t",
             Tier = TenantTier.Free,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             TrialRunsUsed = 1,
             TrialSeatsUsed = 0,
             TrialStatus = "   "
@@ -114,7 +114,7 @@ public sealed class TenantTrialControllerTests
             Name = "t",
             Slug = "t",
             Tier = TenantTier.Standard,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             TrialRunsUsed = 0,
             TrialSeatsUsed = 0,
             TrialStatus = "   ",
@@ -153,7 +153,7 @@ public sealed class TenantTrialControllerTests
             WorkspaceId = Guid.Parse("eeeeeeee-ffff-0000-1111-222222222222"),
             ProjectId = Guid.Parse("ffffffff-0000-1111-2222-333333333333")
         };
-        DateTimeOffset expires = DateTimeOffset.UtcNow.AddDays(9);
+        DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddDays(9);
         DateTimeOffset committed = DateTimeOffset.Parse("2026-03-01T00:00:00+00:00");
         TenantRecord tenant = new()
         {
@@ -161,11 +161,11 @@ public sealed class TenantTrialControllerTests
             Name = "t",
             Slug = "t",
             Tier = TenantTier.Free,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             TrialRunsUsed = 0,
             TrialSeatsUsed = 0,
             TrialStatus = TrialLifecycleStatus.Active,
-            TrialStartUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            TrialStartUtc = TimeProvider.System.GetUtcNow().AddDays(-1),
             TrialExpiresUtc = expires,
             TrialRunsLimit = 5,
             TrialSeatsLimit = 10,
@@ -210,7 +210,7 @@ public sealed class TenantTrialControllerTests
             Name = "t",
             Slug = "t",
             Tier = TenantTier.Standard,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             TrialRunsUsed = 0,
             TrialSeatsUsed = 0,
             TrialStatus = TrialLifecycleStatus.Converted,
@@ -259,7 +259,7 @@ public sealed class TenantTrialControllerTests
             Name = "t",
             Slug = "t",
             Tier = TenantTier.Standard,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             TrialRunsUsed = 0,
             TrialSeatsUsed = 0,
             TrialStatus = TrialLifecycleStatus.Converted,
@@ -302,18 +302,18 @@ public sealed class TenantTrialControllerTests
             WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
             ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
         };
-        DateTimeOffset expires = DateTimeOffset.UtcNow.AddDays(9);
+        DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddDays(9);
         TenantRecord tenant = new()
         {
             Id = scope.TenantId,
             Name = "t",
             Slug = "t",
             Tier = TenantTier.Free,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             TrialRunsUsed = 0,
             TrialSeatsUsed = 0,
             TrialStatus = TrialLifecycleStatus.Active,
-            TrialStartUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            TrialStartUtc = TimeProvider.System.GetUtcNow().AddDays(-1),
             TrialExpiresUtc = expires,
             TrialRunsLimit = 5,
             TrialSeatsLimit = 10

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GoldenManifests;
@@ -89,7 +89,7 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
                     GraphSnapshotId = graphId,
                     FindingsSnapshotId = findingsId,
                     DecisionTraceId = traceId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     ManifestHash = "h",
                     RuleSetId = "r",
                     RuleSetVersion = "1",
@@ -185,7 +185,7 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
                     GraphSnapshotId = graphId,
                     FindingsSnapshotId = findingsId,
                     DecisionTraceId = traceId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     ManifestHash = "h",
                     RuleSetId = "r",
                     RuleSetVersion = "1",
@@ -269,7 +269,7 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
                     GraphSnapshotId = graphId,
                     FindingsSnapshotId = findingsId,
                     DecisionTraceId = traceId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     ManifestHash = "h",
                     RuleSetId = "r",
                     RuleSetVersion = "1",

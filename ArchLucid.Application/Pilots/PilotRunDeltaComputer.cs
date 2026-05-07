@@ -74,9 +74,6 @@ public sealed class PilotRunDeltaComputer(
         return (byte)0;
     }
 
-    /// <summary>Hard cap on audit-row scans for a single run; keeps the sponsor report O(1) even on noisy runs.</summary>
-    private const int AuditRowQueryCap = 500;
-
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
 
@@ -230,13 +227,16 @@ public sealed class PilotRunDeltaComputer(
             AuditEventFilter filter = new()
             {
                 RunId = runGuid,
-                Take = AuditRowQueryCap
+                Take = 1,
             };
 
-            IReadOnlyList<AuditEvent> events = await _auditRepository.GetFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken);
-            int count = events.Count;
-            bool truncated = count >= AuditRowQueryCap;
-            return (count, truncated);
+            int count = await _auditRepository.CountFilteredAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                filter,
+                cancellationToken);
+            return (count, false);
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
         {

@@ -3,10 +3,12 @@ using System.Globalization;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Traceability;
+using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
@@ -24,8 +26,6 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-
-using ArchLucid.Api.Support;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -52,6 +52,7 @@ public sealed class RunQueryController(
     IFindingInspectReadRepository findingInspectReadRepository,
     IScopeContextProvider scopeContextProvider,
     ITraceabilityBundleBuilder traceabilityBundleBuilder,
+    IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
     IConfiguration configuration) : ControllerBase
 {
     /// <summary>
@@ -85,6 +86,14 @@ public sealed class RunQueryController(
         response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             detail.Run,
             configuration["AgentExecution:Mode"]);
+
+        if (detail.IsCommitted)
+        {
+            response.TrustEvidenceCard = await trustEvidenceCardBuilder.BuildAsync(
+                detail,
+                configuration["AgentExecution:Mode"],
+                cancellationToken);
+        }
 
         return Ok(response);
     }

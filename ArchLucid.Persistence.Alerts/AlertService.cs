@@ -183,7 +183,7 @@ public sealed class AlertService(
         alert.AcknowledgedByUserId = userId;
         alert.AcknowledgedByUserName = userName;
         alert.ResolutionComment = request.Comment;
-        alert.LastUpdatedUtc = DateTime.UtcNow;
+        alert.LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         await alertRepository.UpdateAsync(alert, ct);
 

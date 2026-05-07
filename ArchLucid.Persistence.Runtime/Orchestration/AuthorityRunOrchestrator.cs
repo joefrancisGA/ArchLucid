@@ -86,7 +86,7 @@ public sealed class AuthorityRunOrchestrator(
                 ArchitectureRequestId = request.ArchitectureRequestId,
                 ProjectId = request.ProjectId,
                 Description = request.Description,
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             };
             ApplyScope(run, scope);
 

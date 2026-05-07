@@ -161,7 +161,7 @@ public sealed class AgentExecutionTraceRecorder(
             EstimatedCostUsd = estimated,
             ModelDeploymentName = resolvedDeployment,
             ModelVersion = resolvedVersion,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         if (parseSucceeded && !string.IsNullOrWhiteSpace(parsedResultJson))

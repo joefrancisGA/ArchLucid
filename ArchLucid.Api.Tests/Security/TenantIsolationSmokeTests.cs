@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -205,7 +205,7 @@ public sealed class TenantIsolationSmokeTests
 
         HttpResponseMessage archive = await clientA.PostAsJsonAsync(
             "/v1/admin/runs/archive-batch",
-            new AdminArchiveRunsBatchRequest { CreatedBeforeUtc = DateTimeOffset.UtcNow.AddYears(1) });
+            new AdminArchiveRunsBatchRequest { CreatedBeforeUtc = TimeProvider.System.GetUtcNow().AddYears(1) });
 
         archive.EnsureSuccessStatusCode();
 

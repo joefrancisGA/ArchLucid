@@ -24,7 +24,7 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
             return;
 
         TenantWindow window = _windows.GetOrAdd(tenantId, _ => new TenantWindow());
-        DateTime utcNow = DateTime.UtcNow;
+        DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
         TimeSpan windowLength = TimeSpan.FromMinutes(Math.Clamp(opts.WindowMinutes, 1, 1440));
 
         lock (window.Sync)
@@ -72,7 +72,7 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
             return;
 
         TenantWindow window = _windows.GetOrAdd(tenantId, _ => new TenantWindow());
-        DateTime utcNow = DateTime.UtcNow;
+        DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
         TimeSpan windowLength = TimeSpan.FromMinutes(Math.Clamp(opts.WindowMinutes, 1, 1440));
 
         lock (window.Sync)

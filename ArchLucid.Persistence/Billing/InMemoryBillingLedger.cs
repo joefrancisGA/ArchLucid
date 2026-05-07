@@ -224,7 +224,7 @@ public sealed class InMemoryBillingLedger : IBillingLedger
                 TenantId = next.TenantId,
                 WorkspaceId = next.WorkspaceId,
                 ProjectId = next.ProjectId,
-                RecordedUtc = DateTimeOffset.UtcNow,
+                RecordedUtc = TimeProvider.System.GetUtcNow(),
                 ChangeKind = changeKind,
                 PrevStatus = previous?.Status,
                 NewStatus = next.Status,

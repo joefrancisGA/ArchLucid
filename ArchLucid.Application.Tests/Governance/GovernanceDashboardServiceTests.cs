@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Data.Repositories;
@@ -17,7 +17,7 @@ public sealed class GovernanceDashboardServiceTests
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
         GovernanceApprovalRequest pending = new() { ApprovalRequestId = "p1", Status = GovernanceApprovalStatus.Submitted };
-        GovernanceApprovalRequest decision = new() { ApprovalRequestId = "d1", Status = GovernanceApprovalStatus.Approved, ReviewedUtc = DateTime.UtcNow, };
+        GovernanceApprovalRequest decision = new() { ApprovalRequestId = "d1", Status = GovernanceApprovalStatus.Approved, ReviewedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, };
 
         PolicyPackChangeLogEntry change = new()
         {
@@ -26,7 +26,7 @@ public sealed class GovernanceDashboardServiceTests
             TenantId = tenantId,
             ChangeType = "Published",
             ChangedBy = "u1",
-            ChangedUtc = DateTime.UtcNow,
+            ChangedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
         Mock<IGovernanceApprovalRequestRepository> approvals = new();

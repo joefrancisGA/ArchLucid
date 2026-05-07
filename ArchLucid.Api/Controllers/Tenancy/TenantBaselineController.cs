@@ -121,7 +121,7 @@ public sealed class TenantBaselineController(
         }
 
         bool firstCapture = existing.BaselineManualPrepCapturedUtc is null;
-        DateTimeOffset captured = DateTimeOffset.UtcNow;
+        DateTimeOffset captured = TimeProvider.System.GetUtcNow();
         await _tenantRepository.UpdateBaselineAsync(scope.TenantId, prep, people, captured, cancellationToken);
         ArchLucidInstrumentation.RecordBaselineManualPrepCaptured();
         string actor = User.Identity?.Name ?? "operator";

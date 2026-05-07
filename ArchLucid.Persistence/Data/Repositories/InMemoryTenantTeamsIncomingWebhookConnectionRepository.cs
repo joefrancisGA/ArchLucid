@@ -31,7 +31,7 @@ public sealed class
             Label = label,
             KeyVaultSecretName = keyVaultSecretName,
             EnabledTriggers = nextTriggers,
-            UpdatedUtc = DateTimeOffset.UtcNow
+            UpdatedUtc = TimeProvider.System.GetUtcNow()
         };
 
         _store[tenantId] = row;

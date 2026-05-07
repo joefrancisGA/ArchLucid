@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
@@ -34,9 +34,9 @@ public sealed class TrialLimitGateTests
                     Name = "n",
                     Slug = "s",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialStatus = TrialLifecycleStatus.Active,
-                    TrialExpiresUtc = DateTimeOffset.UtcNow.AddDays(7),
+                    TrialExpiresUtc = TimeProvider.System.GetUtcNow().AddDays(7),
                     TrialRunsLimit = 10,
                     TrialRunsUsed = 3,
                     TrialSeatsLimit = 5,
@@ -64,7 +64,7 @@ public sealed class TrialLimitGateTests
                     Name = "n",
                     Slug = "s",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialStatus = TrialLifecycleStatus.Active,
                     TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
                     TrialRunsLimit = 10,
@@ -92,9 +92,9 @@ public sealed class TrialLimitGateTests
                     Name = "n",
                     Slug = "s",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialStatus = TrialLifecycleStatus.Active,
-                    TrialExpiresUtc = DateTimeOffset.UtcNow.AddDays(1),
+                    TrialExpiresUtc = TimeProvider.System.GetUtcNow().AddDays(1),
                     TrialRunsLimit = 100,
                     TrialRunsUsed = 0,
                     TrialSeatsLimit = 3,
@@ -122,9 +122,9 @@ public sealed class TrialLimitGateTests
                     Name = "n",
                     Slug = "s",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialStatus = TrialLifecycleStatus.Active,
-                    TrialExpiresUtc = DateTimeOffset.UtcNow.AddDays(1),
+                    TrialExpiresUtc = TimeProvider.System.GetUtcNow().AddDays(1),
                     TrialRunsLimit = 10,
                     TrialRunsUsed = 10,
                 });
@@ -150,7 +150,7 @@ public sealed class TrialLimitGateTests
                     Name = "n",
                     Slug = "s",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialStatus = TrialLifecycleStatus.Converted,
                     TrialRunsLimit = 10,
                     TrialRunsUsed = 99,
@@ -177,7 +177,7 @@ public sealed class TrialLimitGateTests
                     Name = "n",
                     Slug = "s",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialStatus = null,
                 });
 
@@ -202,7 +202,7 @@ public sealed class TrialLimitGateTests
                     Name = "n",
                     Slug = "s",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialStatus = TrialLifecycleStatus.ReadOnly,
                     TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
                 });
@@ -230,7 +230,7 @@ public sealed class TrialLimitGateTests
                     Name = "n",
                     Slug = "s",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialStatus = TrialLifecycleStatus.ReadOnly,
                     TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
                 });
@@ -258,7 +258,7 @@ public sealed class TrialLimitGateTests
                     Name = "n",
                     Slug = "s",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialStatus = TrialLifecycleStatus.Expired,
                     TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
                 });

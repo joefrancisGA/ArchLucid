@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 using ArchLucid.Persistence.Models;
@@ -50,7 +50,7 @@ public sealed class AuthorityRunMapperTests
         {
             ManifestId = manifestId,
             RunId = runId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "h",
             RuleSetId = "r",
             RuleSetVersion = "v",

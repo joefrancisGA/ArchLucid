@@ -1,4 +1,4 @@
-﻿using ArchLucid.Api.Services.Evolution;
+using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evolution;
 using ArchLucid.Contracts.Evolution;
@@ -41,7 +41,7 @@ public sealed class EvolutionSimulationServiceInvalidPlanSnapshotJsonTests
             Summary = "s",
             PlanSnapshotJson = "null",
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         Mock<IProductLearningPlanningRepository> planning = new();

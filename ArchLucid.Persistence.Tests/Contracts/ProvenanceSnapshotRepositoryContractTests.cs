@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Provenance;
 
@@ -45,7 +45,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         ScopeContext scope = NewScope();
         Guid runId = Guid.NewGuid();
 
-        DecisionProvenanceSnapshot snap = NewSnapshot(runId, """{"n":1}""", DateTime.UtcNow);
+        DecisionProvenanceSnapshot snap = NewSnapshot(runId, """{"n":1}""", TimeProvider.System.GetUtcNow().UtcDateTime);
 
         await repo.SaveAsync(snap, CancellationToken.None);
 
@@ -65,7 +65,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
 
         Guid runId = Guid.NewGuid();
 
-        await repo.SaveAsync(NewSnapshot(runId, "{}", DateTime.UtcNow), CancellationToken.None);
+        await repo.SaveAsync(NewSnapshot(runId, "{}", TimeProvider.System.GetUtcNow().UtcDateTime), CancellationToken.None);
 
         ScopeContext other = new()
         {
@@ -87,8 +87,8 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         ScopeContext scope = NewScope();
         Guid runId = Guid.NewGuid();
 
-        await repo.SaveAsync(NewSnapshot(runId, "first", DateTime.UtcNow.AddMinutes(-2)), CancellationToken.None);
-        await repo.SaveAsync(NewSnapshot(runId, "second", DateTime.UtcNow), CancellationToken.None);
+        await repo.SaveAsync(NewSnapshot(runId, "first", TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-2)), CancellationToken.None);
+        await repo.SaveAsync(NewSnapshot(runId, "second", TimeProvider.System.GetUtcNow().UtcDateTime), CancellationToken.None);
 
         DecisionProvenanceSnapshot? loaded = await repo.GetByRunIdAsync(scope, runId, CancellationToken.None);
 

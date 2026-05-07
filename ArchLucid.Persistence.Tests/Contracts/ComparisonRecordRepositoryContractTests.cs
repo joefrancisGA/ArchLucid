@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -30,7 +30,7 @@ public abstract class ComparisonRecordRepositoryContractTests
             Format = "json+markdown",
             SummaryMarkdown = "s",
             PayloadJson = "{}",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Label = "lbl",
             Tags = ["a", "b"]
         };

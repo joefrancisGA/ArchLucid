@@ -16,8 +16,8 @@ namespace ArchLucid.Application.Pilots;
 ///         quoted as a real-customer outcome.
 ///     </para>
 ///     <para>
-///         <see cref="AuditRowCountTruncated" /> is set when the audit row query hit the <c>Take</c> cap; in
-///         that case the figure is a lower bound, not an exact count.
+///         <see cref="AuditRowCountTruncated" /> is legacy: <see cref="PilotRunDeltaComputer" /> now uses
+///         <c>IAuditRepository.CountFilteredAsync</c> for an exact run-scoped total when the query succeeds (otherwise count 0).
 ///     </para>
 /// </remarks>
 public sealed record PilotRunDeltas
@@ -57,7 +57,7 @@ public sealed record PilotRunDeltas
         init;
     }
 
-    /// <summary><see langword="true" /> when <see cref="AuditRowCount" /> hit the query cap and is a lower bound.</summary>
+    /// <summary>Reserved; <see cref="PilotRunDeltaComputer" /> leaves this <see langword="false" /> for successful count queries.</summary>
     public bool AuditRowCountTruncated
     {
         get;

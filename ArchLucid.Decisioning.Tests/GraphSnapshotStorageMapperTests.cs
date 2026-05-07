@@ -27,7 +27,7 @@ public sealed class GraphSnapshotStorageMapperTests
         Guid graphId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
-        DateTime created = DateTime.UtcNow;
+        DateTime created = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         string nodesJson = JsonEntitySerializer.Serialize(new List<GraphNode>());
         string edgesJson = JsonEntitySerializer.Serialize(new List<GraphEdge>());
@@ -64,7 +64,7 @@ public sealed class GraphSnapshotStorageMapperTests
             GraphSnapshotId = graphId,
             ContextSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             NodesJson = "{invalid nodes",
             EdgesJson = "{invalid edges",
             WarningsJson = "{invalid warnings",
@@ -100,7 +100,7 @@ public sealed class GraphSnapshotStorageMapperTests
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             NodesJson = "{not valid",
             EdgesJson = JsonEntitySerializer.Serialize(new List<GraphEdge>()),
             WarningsJson = JsonEntitySerializer.Serialize(new List<string>()),

@@ -17,7 +17,7 @@ public sealed class ImprovementPlanningOptions
         init;
     } = 5;
 
-    /// <summary>Optional fixed timestamp for tests; default uses <see cref="DateTime.UtcNow" />.</summary>
+    /// <summary>Optional fixed timestamp for tests; when null, callers use the current UTC instant from <see cref="TimeProvider.System" />.</summary>
     public DateTime? CreatedUtcOverride
     {
         get;

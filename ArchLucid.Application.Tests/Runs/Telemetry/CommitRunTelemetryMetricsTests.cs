@@ -57,7 +57,7 @@ public sealed class CommitRunTelemetryMetricsTests
     [Fact]
     public void FromCommitContext_clamps_minimum_and_maximum_estimated_hours()
     {
-        DateTime t0 = DateTime.UtcNow;
+        DateTime t0 = TimeProvider.System.GetUtcNow().UtcDateTime;
         RunRecord runHeader = new() { CreatedUtc = t0 };
         AgentEvidencePackage evidence = new() { CreatedUtc = t0 };
 

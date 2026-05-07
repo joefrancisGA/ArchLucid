@@ -255,7 +255,7 @@ public sealed class AgentExecutionTrace
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>
     ///     Set when the post-execute output quality gate classified this trace as <c>warned</c> (persisted in

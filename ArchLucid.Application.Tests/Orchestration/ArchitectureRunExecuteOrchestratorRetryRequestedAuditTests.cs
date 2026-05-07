@@ -51,7 +51,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             ProjectId = "default",
             ArchitectureRequestId = "req-retry-audit",
             LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
         ArchitectureRequest request = new() { RequestId = "req-retry-audit", Description = new string('x', 12), SystemName = "RetryAudit", };
@@ -155,7 +155,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             ProjectId = "default",
             ArchitectureRequestId = "req-retry-audit-sql",
             LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
         ArchitectureRequest request = new() { RequestId = "req-retry-audit-sql", Description = new string('x', 12), SystemName = "RetryAuditSql", };

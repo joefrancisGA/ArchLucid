@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -117,7 +117,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
                 Content =
                     "The system uses a microservices topology with three primary services: API Gateway, Order Service, and Payment Service.",
                 ContentHash = "hash-001",
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             },
             new()
             {
@@ -133,7 +133,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
                 Content =
                     "All inter-service communication is encrypted using mTLS. No public SMB (port 445) exposure is permitted.",
                 ContentHash = "hash-002",
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             }
         ];
 

@@ -106,7 +106,7 @@ public sealed class ManifestFinalizationService(IArchLucidUnitOfWorkFactory unit
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();
         await decisionTraceRepository.SaveAsync(request.Trace, cancellationToken, connection, transaction);
         Dm.ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService, cancellationToken, connection, transaction, request.ManifestModel);
-        DateTime occurredUtc = DateTime.UtcNow;
+        DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         Guid auditEventId = Guid.NewGuid();
         Guid outboxId = Guid.NewGuid();
         string auditDataJson = JsonSerializer.Serialize(new { manifestVersion = request.Contract.Metadata.ManifestVersion, findingsSnapshotId = request.ExpectedFindingsSnapshotId, artifactBundleId = request.ExpectedArtifactBundleId, decisionTraceId = audit.DecisionTraceId, manifestId = persisted.ManifestId }, IntegrationEventJson.Options);
@@ -191,7 +191,7 @@ public sealed class ManifestFinalizationService(IArchLucidUnitOfWorkFactory unit
         header.CurrentManifestVersion = request.Contract.Metadata.ManifestVersion;
         header.GoldenManifestId = persisted.ManifestId;
         header.DecisionTraceId = audit.DecisionTraceId;
-        header.CompletedUtc ??= DateTime.UtcNow;
+        header.CompletedUtc ??= TimeProvider.System.GetUtcNow().UtcDateTime;
         await runRepository.UpdateAsync(header, cancellationToken);
         await auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.ManifestFinalized, ActorUserId = request.ActorUserId, ActorUserName = request.ActorUserName, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId, RunId = request.RunId, ManifestId = persisted.ManifestId, DataJson = JsonSerializer.Serialize(new { manifestVersion = request.Contract.Metadata.ManifestVersion, findingsSnapshotId = request.ExpectedFindingsSnapshotId, artifactBundleId = request.ExpectedArtifactBundleId, decisionTraceId = audit.DecisionTraceId }, IntegrationEventJson.Options), CorrelationId = request.CorrelationId }, cancellationToken);
         object outboxPayload = new

@@ -63,7 +63,7 @@ public sealed class DigestSubscriptionsController(
         subscription.TenantId = scope.TenantId;
         subscription.WorkspaceId = scope.WorkspaceId;
         subscription.ProjectId = scope.ProjectId;
-        subscription.CreatedUtc = DateTime.UtcNow;
+        subscription.CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         if (string.IsNullOrWhiteSpace(subscription.MetadataJson))
             subscription.MetadataJson = "{}";
 

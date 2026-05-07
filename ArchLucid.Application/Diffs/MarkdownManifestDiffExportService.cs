@@ -28,7 +28,7 @@ public sealed class MarkdownManifestDiffExportService : IManifestDiffExportServi
         sb.AppendLine();
         sb.AppendLine($"- Left Manifest Version: {diff.LeftManifestVersion}");
         sb.AppendLine($"- Right Manifest Version: {diff.RightManifestVersion}");
-        sb.AppendLine($"- Generated UTC: {DateTime.UtcNow:O}");
+        sb.AppendLine($"- Generated UTC: {TimeProvider.System.GetUtcNow().UtcDateTime:O}");
         sb.AppendLine();
 
         sb.AppendLine("---");

@@ -36,8 +36,8 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        DateTime first = DateTime.UtcNow.AddMinutes(-2);
-        DateTime second = DateTime.UtcNow.AddMinutes(-1);
+        DateTime first = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-2);
+        DateTime second = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1);
 
         await repo.CreateAsync(NewTrace(runId, task.TaskId, "t1", first), CancellationToken.None);
         await repo.CreateAsync(NewTrace(runId, task.TaskId, "t2", second), CancellationToken.None);
@@ -60,11 +60,11 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p0", DateTime.UtcNow.AddMinutes(-3)),
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p0", TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-3)),
             CancellationToken.None);
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p1", DateTime.UtcNow.AddMinutes(-2)),
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p1", TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-2)),
             CancellationToken.None);
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p2", DateTime.UtcNow.AddMinutes(-1)),
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p2", TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1)),
             CancellationToken.None);
 
         (IReadOnlyList<AgentExecutionTrace> page, int total) = await repo.GetPagedByRunIdAsync(
@@ -90,8 +90,8 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         await PrepareRunAndTaskAsync(requestId, runId, taskA, CancellationToken.None);
         await PrepareRunAndTaskAsync(requestId, runId, taskB, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, taskA.TaskId, "x1", DateTime.UtcNow), CancellationToken.None);
-        await repo.CreateAsync(NewTrace(runId, taskB.TaskId, "x2", DateTime.UtcNow), CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, taskA.TaskId, "x1", TimeProvider.System.GetUtcNow().UtcDateTime), CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, taskB.TaskId, "x2", TimeProvider.System.GetUtcNow().UtcDateTime), CancellationToken.None);
 
         IReadOnlyList<AgentExecutionTrace> forA = await repo.GetByTaskIdAsync(taskA.TaskId, CancellationToken.None);
 
@@ -110,7 +110,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "patch-trace", DateTime.UtcNow);
+        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "patch-trace", TimeProvider.System.GetUtcNow().UtcDateTime);
         await repo.CreateAsync(created, CancellationToken.None);
 
         await repo.PatchBlobStorageFieldsAsync(
@@ -138,7 +138,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "inline-trace", DateTime.UtcNow);
+        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "inline-trace", TimeProvider.System.GetUtcNow().UtcDateTime);
         await repo.CreateAsync(created, CancellationToken.None);
 
         await repo.PatchInlinePromptFallbackAsync(
@@ -179,7 +179,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "by-trace-id-1", DateTime.UtcNow), CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "by-trace-id-1", TimeProvider.System.GetUtcNow().UtcDateTime), CancellationToken.None);
 
         AgentExecutionTrace? found = await repo.GetByTraceIdAsync("by-trace-id-1", CancellationToken.None);
 
@@ -199,7 +199,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "inline-fail-trace", DateTime.UtcNow),
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "inline-fail-trace", TimeProvider.System.GetUtcNow().UtcDateTime),
             CancellationToken.None);
 
         await repo.PatchInlineFallbackFailedAsync("inline-fail-trace", true, CancellationToken.None);
@@ -221,7 +221,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "qw-trace", DateTime.UtcNow), CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "qw-trace", TimeProvider.System.GetUtcNow().UtcDateTime), CancellationToken.None);
 
         await repo.PatchQualityWarningAsync("qw-trace", true, CancellationToken.None);
 
@@ -240,7 +240,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
             AgentType = AgentType.Topology,
             Objective = "o",
             Status = AgentTaskStatus.Created,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             EvidenceBundleRef = "eb-aet"
         };
     }

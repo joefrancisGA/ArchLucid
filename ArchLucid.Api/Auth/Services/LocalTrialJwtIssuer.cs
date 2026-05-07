@@ -35,7 +35,7 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
 
         SigningCredentials creds = new(_signingKey.Value, SecurityAlgorithms.RsaSha256);
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
         DateTimeOffset expires = now.AddMinutes(Math.Clamp(local.AccessTokenLifetimeMinutes, 5, 24 * 60));
 
         Claim[] claims =

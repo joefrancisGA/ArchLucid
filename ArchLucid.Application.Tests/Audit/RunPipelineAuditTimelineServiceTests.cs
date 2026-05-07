@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Audit;
+using ArchLucid.Application.Audit;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
@@ -50,7 +50,7 @@ public sealed class RunPipelineAuditTimelineServiceTests
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
 
-        RunSummaryDto summary = new() { RunId = runId, ProjectId = "default", CreatedUtc = DateTime.UtcNow, };
+        RunSummaryDto summary = new() { RunId = runId, ProjectId = "default", CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, };
 
         Mock<IAuthorityQueryService> query = new();
         query

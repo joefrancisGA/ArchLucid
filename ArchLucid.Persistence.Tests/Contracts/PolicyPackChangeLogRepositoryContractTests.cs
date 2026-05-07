@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -35,7 +35,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
             ProjectId = ProjectP,
             ChangeType = PolicyPackChangeTypes.Created,
             ChangedBy = "tester",
-            ChangedUtc = changedUtc ?? DateTime.UtcNow,
+            ChangedUtc = changedUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime,
             PreviousValue = null,
             NewValue = null,
             SummaryText = summary

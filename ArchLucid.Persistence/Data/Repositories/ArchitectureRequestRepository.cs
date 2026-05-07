@@ -62,7 +62,7 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
                     request.Environment,
                     CloudProvider = request.CloudProvider.ToString(),
                     RequestJson = json,
-                    CreatedUtc = DateTime.UtcNow
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
                 },
                 transaction,
                 cancellationToken: cancellationToken));

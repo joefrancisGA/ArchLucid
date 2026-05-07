@@ -36,7 +36,7 @@ public sealed class SchemaValidationTests
             Claims = ["Bad payload"],
             EvidenceRefs = ["request"],
             Confidence = 0.5,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         SchemaValidationService validationService = new(

@@ -64,7 +64,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = tenantPackId,
                 Version = "1.0.0",
                 ContentJson = """{"metadata":{"tier":"tenant"},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 IsPublished = true,
             },
             CancellationToken.None);
@@ -76,7 +76,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = projectPackId,
                 Version = "1.0.0",
                 ContentJson = """{"metadata":{"tier":"project"},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 IsPublished = true,
             },
             CancellationToken.None);
@@ -90,7 +90,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = tenantPackId,
                 PolicyPackVersion = "1.0.0",
                 ScopeLevel = GovernanceScopeLevel.Tenant,
-                AssignedUtc = DateTime.UtcNow.AddMinutes(-1),
+                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1),
             },
             CancellationToken.None);
 
@@ -103,7 +103,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = projectPackId,
                 PolicyPackVersion = "1.0.0",
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = DateTime.UtcNow,
+                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -150,7 +150,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = packId,
                 Version = "1.0.0",
                 ContentJson = """{"metadata":{"orphan":"x"},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 IsPublished = true,
             },
             CancellationToken.None);
@@ -164,8 +164,8 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = packId,
                 PolicyPackVersion = "1.0.0",
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = DateTime.UtcNow,
-                ArchivedUtc = DateTime.UtcNow,
+                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                ArchivedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -197,7 +197,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = missingPackId,
                 PolicyPackVersion = "1.0.0",
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = DateTime.UtcNow,
+                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -242,7 +242,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = packId,
                 Version = "1.0.0",
                 ContentJson = """{"metadata":{},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 IsPublished = true,
             },
             CancellationToken.None);
@@ -256,7 +256,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = packId,
                 PolicyPackVersion = "9.9.9",
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = DateTime.UtcNow,
+                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -301,7 +301,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = packId,
                 Version = "1.0.0",
                 ContentJson = "{ not json",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 IsPublished = true,
             },
             CancellationToken.None);
@@ -315,7 +315,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = packId,
                 PolicyPackVersion = "1.0.0",
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = DateTime.UtcNow,
+                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -360,7 +360,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = packId,
                 Version = "1.0.0",
                 ContentJson = "null",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 IsPublished = true,
             },
             CancellationToken.None);
@@ -374,7 +374,7 @@ public sealed class EffectiveGovernanceResolverTests
                 PolicyPackId = packId,
                 PolicyPackVersion = "1.0.0",
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = DateTime.UtcNow,
+                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 

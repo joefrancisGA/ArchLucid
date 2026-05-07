@@ -51,17 +51,13 @@ public sealed class PilotRunDeltaComputerTests
                 new AgentExecutionTrace { TraceId = "t-3" },
             ]);
 
-        audit.Setup(a => a.GetFilteredAsync(
+        audit.Setup(a => a.CountFilteredAsync(
                 sc.TenantId,
                 sc.WorkspaceId,
                 sc.ProjectId,
                 It.Is<AuditEventFilter>(f => f.RunId == runGuid),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new AuditEvent { EventType = "RunCreated", ActorUserId = "u", ActorUserName = "u" },
-                new AuditEvent { EventType = "RunCommitted", ActorUserId = "u", ActorUserName = "u" },
-            ]);
+            .ReturnsAsync(2);
 
         FindingEvidenceChainResponse chain = new()
         {
@@ -127,7 +123,7 @@ public sealed class PilotRunDeltaComputerTests
     }
 
     [SkippableFact]
-    public async Task ComputeAsync_WhenAuditRowsHitCap_MarksTruncated()
+    public async Task ComputeAsync_WhenManyAuditRows_ReturnsExactCount()
     {
         Guid runGuid = Guid.Parse("bbbbbbbb-1111-2222-3333-444444444444");
         ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
@@ -139,22 +135,18 @@ public sealed class PilotRunDeltaComputerTests
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
         traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
-        // Return exactly the cap (500) so the computer flags the count as a lower bound.
-        AuditEvent[] events = Enumerable.Range(0, 500)
-            .Select(_ => new AuditEvent { EventType = "Noise", ActorUserId = "u", ActorUserName = "u" })
-            .ToArray();
-        audit.Setup(a => a.GetFilteredAsync(
+        audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(events);
+            .ReturnsAsync(520);
 
         PilotRunDeltaComputer sut =
             CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
-        result.AuditRowCount.Should().Be(500);
-        result.AuditRowCountTruncated.Should().BeTrue();
+        result.AuditRowCount.Should().Be(520);
+        result.AuditRowCountTruncated.Should().BeFalse();
     }
 
     [SkippableFact]
@@ -169,7 +161,7 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
         traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        audit.Setup(a => a.GetFilteredAsync(
+        audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("audit store offline"));
@@ -196,10 +188,10 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
-        audit.Setup(a => a.GetFilteredAsync(
+        audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(0);
 
         PilotRunDeltaComputer sut =
             CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object);
@@ -268,10 +260,10 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Mock<IAuditRepository> audit = new();
-        audit.Setup(a => a.GetFilteredAsync(
+        audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(0);
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
@@ -303,7 +295,7 @@ public sealed class PilotRunDeltaComputerTests
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
         result.AuditRowCount.Should().Be(0);
-        audit.Verify(a => a.GetFilteredAsync(
+        audit.Verify(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -324,10 +316,10 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IScopeContextProvider> scope = new();
         ScopeContext sc = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
-        audit.Setup(a => a.GetFilteredAsync(
+        audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(0);
         evidence.Setup(e => e.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((FindingEvidenceChainResponse?)null);
 
@@ -340,7 +332,7 @@ public sealed class PilotRunDeltaComputerTests
                 ArtifactType = "Doc",
                 Name = "a",
                 Format = "md",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 ContentHash = "h1",
             },
             new ArtifactDescriptor
@@ -349,7 +341,7 @@ public sealed class PilotRunDeltaComputerTests
                 ArtifactType = "Doc",
                 Name = "b",
                 Format = "md",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 ContentHash = "h2",
             },
         ];
@@ -376,10 +368,10 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
-        audit.Setup(a => a.GetFilteredAsync(
+        audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(0);
 
         Mock<IRunAgentOutputPilotEvidenceAggregator> agg = new();
         agg.Setup(a => a.WouldPilotStrictBlockSponsorEvidence(It.IsAny<IReadOnlyList<AgentExecutionTrace>>(), It.IsAny<RunExplanationSummary?>()))
@@ -411,10 +403,10 @@ public sealed class PilotRunDeltaComputerTests
         traces = new Mock<IAgentExecutionTraceRepository>();
         traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Mock<IAuditRepository> audit = new();
-        audit.Setup(a => a.GetFilteredAsync(
+        audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(0);
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
         evidence.Setup(e => e.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))

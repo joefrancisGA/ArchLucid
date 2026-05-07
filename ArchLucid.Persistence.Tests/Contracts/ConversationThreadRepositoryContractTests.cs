@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Conversation;
 using ArchLucid.Persistence.Conversation;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -30,7 +30,7 @@ public abstract class ConversationThreadRepositoryContractTests
         DateTime? lastUpdatedUtc = null,
         Guid? projectId = null)
     {
-        DateTime stamp = lastUpdatedUtc ?? DateTime.UtcNow;
+        DateTime stamp = lastUpdatedUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime;
 
         return new ConversationThread
         {
@@ -99,8 +99,8 @@ public abstract class ConversationThreadRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IConversationThreadRepository repo = CreateRepository();
-        DateTime older = DateTime.UtcNow.AddMinutes(-30);
-        DateTime newer = DateTime.UtcNow.AddMinutes(-10);
+        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-30);
+        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-10);
         ConversationThread first = NewThread(older);
         ConversationThread second = NewThread(newer);
 
@@ -127,7 +127,7 @@ public abstract class ConversationThreadRepositoryContractTests
 
         for (int i = 0; i < SeededThreadsForPagedScopeContract; i++)
         {
-            await repo.CreateAsync(NewThread(DateTime.UtcNow.AddSeconds(-i)), CancellationToken.None);
+            await repo.CreateAsync(NewThread(TimeProvider.System.GetUtcNow().UtcDateTime.AddSeconds(-i)), CancellationToken.None);
         }
 
         (IReadOnlyList<ConversationThread> page, int total) = await repo.ListByScopePagedAsync(
@@ -150,7 +150,7 @@ public abstract class ConversationThreadRepositoryContractTests
         ConversationThread thread = NewThread();
         await repo.CreateAsync(thread, CancellationToken.None);
 
-        DateTime updated = DateTime.UtcNow.AddHours(1);
+        DateTime updated = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(1);
         await repo.UpdateLastUpdatedAsync(thread.ThreadId, updated, CancellationToken.None);
 
         ConversationThread? loaded = await repo.GetByIdAsync(thread.ThreadId, CancellationToken.None);
@@ -168,11 +168,11 @@ public abstract class ConversationThreadRepositoryContractTests
 
         SkipIfSqlServerUnavailable();
         IConversationThreadRepository repo = CreateRepository();
-        ConversationThread old = NewThread(DateTime.UtcNow.AddDays(-10));
+        ConversationThread old = NewThread(TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-10));
         await repo.CreateAsync(old, CancellationToken.None);
 
         int n = await repo.ArchiveThreadsLastUpdatedBeforeAsync(
-            DateTimeOffset.UtcNow.AddDays(-1),
+            TimeProvider.System.GetUtcNow().AddDays(-1),
             CancellationToken.None);
 
         n.Should().BeGreaterThan(0);

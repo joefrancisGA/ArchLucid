@@ -82,7 +82,7 @@ public class PolicyPackAssignment
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>
     ///     When set, the assignment is retained for audit but ignored by

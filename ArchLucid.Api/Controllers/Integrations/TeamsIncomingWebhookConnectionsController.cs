@@ -62,7 +62,7 @@ public sealed class TeamsIncomingWebhookConnectionsController(
                     Label = null,
                     KeyVaultSecretName = null,
                     EnabledTriggers = TeamsNotificationTriggerCatalog.All,
-                    UpdatedUtc = DateTimeOffset.UtcNow
+                    UpdatedUtc = TimeProvider.System.GetUtcNow()
                 });
         }
 

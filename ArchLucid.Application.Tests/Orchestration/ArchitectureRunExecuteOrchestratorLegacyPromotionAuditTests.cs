@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Common;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
@@ -52,7 +52,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             ProjectId = "default",
             ArchitectureRequestId = "req-promote-audit",
             LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
         ArchitectureRequest request = new() { RequestId = "req-promote-audit", Description = new string('x', 12), SystemName = "PromoteAudit", };

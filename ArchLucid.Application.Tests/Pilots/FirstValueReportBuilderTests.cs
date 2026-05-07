@@ -200,7 +200,7 @@ public sealed class FirstValueReportBuilderTests
                     0,
                     8m,
                     "signup",
-                    DateTimeOffset.UtcNow,
+                    TimeProvider.System.GetUtcNow(),
                     6m,
                     3,
                     null,

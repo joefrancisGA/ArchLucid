@@ -237,7 +237,7 @@ public sealed class RegistrationController(
                 cancellationToken);
 
             TrialSignupBaselineReviewCycleCapture? baselineCapture = body.BaselineReviewCycleHours is { } h
-                ? new TrialSignupBaselineReviewCycleCapture(h, normalizedBaselineSource, DateTimeOffset.UtcNow)
+                ? new TrialSignupBaselineReviewCycleCapture(h, normalizedBaselineSource, TimeProvider.System.GetUtcNow())
                 : null;
 
             bool hasCompanyProfile = body.CompanySize is not null

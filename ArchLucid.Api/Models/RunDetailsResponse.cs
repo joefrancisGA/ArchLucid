@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Trust;
 
 namespace ArchLucid.Api.Models;
 
@@ -50,4 +51,11 @@ public sealed class RunDetailsResponse
         get;
         set;
     } = [];
+
+    /// <summary>Committed runs only; self-attested operational evidence (never CPA/pen-test/legal claims).</summary>
+    public RunTrustEvidenceCard? TrustEvidenceCard
+    {
+        get;
+        set;
+    }
 }

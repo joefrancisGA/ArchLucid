@@ -56,7 +56,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
                     e.RunId == Guid.ParseExact(runId, "N") &&
                     !string.IsNullOrWhiteSpace(e.CorrelationId) &&
                     e.CorrelationId.StartsWith("analysis-report-docx-async:", StringComparison.Ordinal) &&
-                    e.OccurredUtc <= DateTime.UtcNow),
+                    e.OccurredUtc <= TimeProvider.System.GetUtcNow().UtcDateTime),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
