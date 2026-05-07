@@ -1,4 +1,4 @@
-using ArchLucid.Application.Pilots;
+using System.Text;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -69,6 +69,38 @@ public sealed class FirstValueReportPdfBuilderTests
         head[1].Should().Be((byte)'P');
         head[2].Should().Be((byte)'D');
         head[3].Should().Be((byte)'F');
+    }
+
+    [SkippableFact]
+    public async Task BuildPdfAsync_WhenEvidenceIncomplete_IncludesWatermarkPhraseInPdf()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r-pdf-incomplete", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PilotRunDeltas
+            {
+                RunCreatedUtc = detail.Run.CreatedUtc,
+                ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+                TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+                FindingsBySeverity = [],
+                AuditRowCount = 0,
+                LlmCallCount = 0,
+                LlmCallCountResolved = true,
+                IsDemoTenant = false,
+            });
+
+        FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
+        FirstValueReportPdfBuilder sut = new(markdown);
+
+        byte[]? pdf = await sut.BuildPdfAsync("r-pdf-incomplete", "http://localhost:5000");
+
+        pdf.Should().NotBeNull();
+        Encoding.ASCII.GetString(pdf!).Should()
+            .Contain("INCOMPLETE — NOT FOR EXTERNAL SPONSOR DISTRIBUTION", StringComparison.Ordinal);
     }
 
     [SkippableFact]

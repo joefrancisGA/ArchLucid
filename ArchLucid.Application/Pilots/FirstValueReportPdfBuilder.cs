@@ -54,7 +54,7 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
                         .Text(IncompletePdfBanner)
                         .Bold()
                         .FontSize(28)
-                        .FontColor(Colors.Red.Lighten3);
+                        .FontColor(Colors.Red.Medium.WithAlpha((byte)(0.18f * 255)));
                 }
 
                 page.Header().Column(header =>
