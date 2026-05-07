@@ -14,9 +14,6 @@ public static class IntegrationDestinationRedactor
             d.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             return "[webhook-url-redacted]";
 
-        if (d.Contains('@', StringComparison.Ordinal))
-            return "[email-redacted]";
-
-        return "[destination-redacted]";
+        return d.Contains('@', StringComparison.Ordinal) ? "[email-redacted]" : "[destination-redacted]";
     }
 }

@@ -9,27 +9,33 @@ namespace ArchLucid.Application.Jobs;
 [JsonDerivedType(typeof(ConsultingDocxWorkUnit), "consultingDocx")]
 public abstract record BackgroundJobWorkUnit;
 /// <summary>Standard analysis report exported as DOCX.</summary>
-public sealed record AnalysisReportDocxWorkUnit(AnalysisReportDocxJobPayload Payload, string FileName, string ContentType) : BackgroundJobWorkUnit
+public sealed record AnalysisReportDocxWorkUnit : BackgroundJobWorkUnit
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Payload, FileName, ContentType);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Jobs.AnalysisReportDocxJobPayload payload, System.String fileName, System.String contentType)
+    public AnalysisReportDocxJobPayload Payload { get; init; }
+    public string FileName { get; init; }
+    public string ContentType { get; init; }
+
+    [global::System.Text.Json.Serialization.JsonConstructor]
+    public AnalysisReportDocxWorkUnit(AnalysisReportDocxJobPayload payload, string fileName, string contentType)
     {
-        ArgumentNullException.ThrowIfNull(payload);
-        ArgumentNullException.ThrowIfNull(fileName);
-        ArgumentNullException.ThrowIfNull(contentType);
-        return (byte)0;
+        Payload = payload ?? throw new ArgumentNullException(nameof(payload));
+        FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
+        ContentType = contentType ?? throw new ArgumentNullException(nameof(contentType));
     }
 }
 
 /// <summary>Consulting-style analysis report exported as DOCX.</summary>
-public sealed record ConsultingDocxWorkUnit(ConsultingDocxJobPayload Payload, string FileName, string ContentType) : BackgroundJobWorkUnit
+public sealed record ConsultingDocxWorkUnit : BackgroundJobWorkUnit
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Payload, FileName, ContentType);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Jobs.ConsultingDocxJobPayload payload, System.String fileName, System.String contentType)
+    public ConsultingDocxJobPayload Payload { get; init; }
+    public string FileName { get; init; }
+    public string ContentType { get; init; }
+
+    [global::System.Text.Json.Serialization.JsonConstructor]
+    public ConsultingDocxWorkUnit(ConsultingDocxJobPayload payload, string fileName, string contentType)
     {
-        ArgumentNullException.ThrowIfNull(payload);
-        ArgumentNullException.ThrowIfNull(fileName);
-        ArgumentNullException.ThrowIfNull(contentType);
-        return (byte)0;
+        Payload = payload ?? throw new ArgumentNullException(nameof(payload));
+        FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
+        ContentType = contentType ?? throw new ArgumentNullException(nameof(contentType));
     }
 }

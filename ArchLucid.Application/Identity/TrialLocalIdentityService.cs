@@ -9,18 +9,6 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Identity;
 public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialOptions, ITrialIdentityUserRepository repository, PasswordHasher<TrialIdentityHasherUser> passwordHasher, TrialPasswordPolicyValidator passwordPolicy, PwnedPasswordRangeClient pwnedClient, ITrialLocalIdentityAccountExistsNotifier accountExistsNotifier, ILogger<TrialLocalIdentityService> logger) : ITrialLocalIdentityService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(trialOptions, repository, passwordHasher, passwordPolicy, pwnedClient, accountExistsNotifier, logger);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.TrialAuthOptions>? trialOptions, ArchLucid.Core.Identity.ITrialIdentityUserRepository repository, Microsoft.AspNetCore.Identity.PasswordHasher<ArchLucid.Application.Identity.TrialIdentityHasherUser> passwordHasher, ArchLucid.Application.Identity.TrialPasswordPolicyValidator passwordPolicy, ArchLucid.Application.Identity.PwnedPasswordRangeClient pwnedClient, ArchLucid.Application.Identity.ITrialLocalIdentityAccountExistsNotifier accountExistsNotifier, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Identity.TrialLocalIdentityService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(repository);
-        ArgumentNullException.ThrowIfNull(passwordHasher);
-        ArgumentNullException.ThrowIfNull(passwordPolicy);
-        ArgumentNullException.ThrowIfNull(pwnedClient);
-        ArgumentNullException.ThrowIfNull(accountExistsNotifier);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     // Fixed payload so failed lookups perform password hashing work comparable to the success path's verifier cost.
     // Intentionally readable (low entropy in source) so secret scanners do not treat it as a credential; it is never a user password.
     private const string AuthenticationTimingDummyPassword = "archlucid-trial-local-identity-timing-mitigation-dummy-password";

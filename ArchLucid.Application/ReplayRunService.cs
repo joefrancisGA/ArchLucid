@@ -36,26 +36,14 @@ namespace ArchLucid.Application;
 /// </remarks>
 public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolver, IDecisionEngineService decisionEngineService, IAgentEvaluationService agentEvaluationService, IDecisionEngineV2 decisionEngineV2, IArchitectureRequestRepository requestRepository, IRunDetailQueryService runDetailQueryService, IRunRepository authorityRunRepository, IScopeContextProvider scopeContextProvider, IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter, IAgentEvidencePackageRepository agentEvidencePackageRepository, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IAuditService auditService, IActorContext actorContext, ILogger<ReplayRunService> logger) : IReplayRunService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(agentExecutorResolver, decisionEngineService, agentEvaluationService, decisionEngineV2, requestRepository, runDetailQueryService, authorityRunRepository, scopeContextProvider, authorityCommittedManifestChainWriter, agentEvidencePackageRepository, unitOfWorkFactory, auditService, actorContext, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Agents.IAgentExecutorResolver agentExecutorResolver, ArchLucid.Decisioning.Merge.IDecisionEngineService decisionEngineService, ArchLucid.Application.Decisions.IAgentEvaluationService agentEvaluationService, ArchLucid.Decisioning.Merge.IDecisionEngineV2 decisionEngineV2, ArchLucid.Persistence.Data.Repositories.IArchitectureRequestRepository requestRepository, ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Persistence.Interfaces.IRunRepository authorityRunRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Application.Authority.IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter, ArchLucid.Persistence.Data.Repositories.IAgentEvidencePackageRepository agentEvidencePackageRepository, ArchLucid.Core.Transactions.IArchLucidUnitOfWorkFactory unitOfWorkFactory, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Application.Common.IActorContext actorContext, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.ReplayRunService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(agentExecutorResolver);
-        ArgumentNullException.ThrowIfNull(decisionEngineService);
-        ArgumentNullException.ThrowIfNull(agentEvaluationService);
-        ArgumentNullException.ThrowIfNull(decisionEngineV2);
-        ArgumentNullException.ThrowIfNull(requestRepository);
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(authorityRunRepository);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(authorityCommittedManifestChainWriter);
-        ArgumentNullException.ThrowIfNull(agentEvidencePackageRepository);
-        ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(actorContext);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
+    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IAgentExecutorResolver _agentExecutorResolver = agentExecutorResolver ?? throw new ArgumentNullException(nameof(agentExecutorResolver));
+    private readonly IDecisionEngineService _decisionEngineService = decisionEngineService ?? throw new ArgumentNullException(nameof(decisionEngineService));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository = agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+    private readonly IRunRepository _authorityRunRepository = authorityRunRepository ?? throw new ArgumentNullException(nameof(authorityRunRepository));
+    private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter = authorityCommittedManifestChainWriter ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));

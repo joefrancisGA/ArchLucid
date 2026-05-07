@@ -5,14 +5,6 @@ namespace ArchLucid.Application.Billing;
 /// <inheritdoc cref = "ITenantCostEstimateService"/>
 public sealed class TenantCostEstimateService(ITenantRepository tenantRepository, IOptionsMonitor<BillingUnitRatesOptions> ratesMonitor) : ITenantCostEstimateService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository, ratesMonitor);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Tenancy.ITenantRepository tenantRepository, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Application.Billing.BillingUnitRatesOptions> ratesMonitor)
-    {
-        ArgumentNullException.ThrowIfNull(tenantRepository);
-        ArgumentNullException.ThrowIfNull(ratesMonitor);
-        return (byte)0;
-    }
-
     private readonly IOptionsMonitor<BillingUnitRatesOptions> _ratesMonitor = ratesMonitor ?? throw new ArgumentNullException(nameof(ratesMonitor));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     /// <inheritdoc/>

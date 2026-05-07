@@ -10,19 +10,6 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Notifications.Email;
 public sealed class TrialLifecycleEmailDispatcher(ITenantRepository tenantRepository, ITenantTrialEmailContactLookup contactLookup, IEmailTemplateRenderer templateRenderer, IEmailProvider emailProvider, ISentEmailLedger sentEmailLedger, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor, ILogger<TrialLifecycleEmailDispatcher> logger) : ITrialLifecycleEmailDispatcher
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository, contactLookup, templateRenderer, emailProvider, sentEmailLedger, emailOptionsMonitor, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Tenancy.ITenantRepository tenantRepository, ArchLucid.Core.Tenancy.ITenantTrialEmailContactLookup contactLookup, ArchLucid.Application.Notifications.Email.IEmailTemplateRenderer templateRenderer, ArchLucid.Core.Notifications.Email.IEmailProvider emailProvider, ArchLucid.Core.Notifications.ISentEmailLedger sentEmailLedger, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.EmailNotificationOptions> emailOptionsMonitor, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Notifications.Email.TrialLifecycleEmailDispatcher> logger)
-    {
-        ArgumentNullException.ThrowIfNull(tenantRepository);
-        ArgumentNullException.ThrowIfNull(contactLookup);
-        ArgumentNullException.ThrowIfNull(templateRenderer);
-        ArgumentNullException.ThrowIfNull(emailProvider);
-        ArgumentNullException.ThrowIfNull(sentEmailLedger);
-        ArgumentNullException.ThrowIfNull(emailOptionsMonitor);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private const string DefaultProductName = "ArchLucid";
     private readonly ITenantTrialEmailContactLookup _contactLookup = contactLookup ?? throw new ArgumentNullException(nameof(contactLookup));
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor = emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));

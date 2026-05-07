@@ -17,19 +17,6 @@ namespace ArchLucid.Application.Governance;
 /// </summary>
 public sealed class PreCommitGovernanceGate(IOptions<PreCommitGovernanceGateOptions> options, IScopeContextProvider scopeContextProvider, IRunRepository runRepository, IFindingsSnapshotRepository findingsSnapshotRepository, IPolicyPackAssignmentRepository policyPackAssignmentRepository, ISchemaValidationService schemaValidationService, IOptions<AuthorityCommitSchemaValidationOptions> authorityCommitSchemaValidationOptions) : IPreCommitGovernanceGate
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(options, scopeContextProvider, runRepository, findingsSnapshotRepository, policyPackAssignmentRepository, schemaValidationService, authorityCommitSchemaValidationOptions);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptions<ArchLucid.Contracts.Governance.PreCommitGovernanceGateOptions> options, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Decisioning.Interfaces.IFindingsSnapshotRepository findingsSnapshotRepository, ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackAssignmentRepository policyPackAssignmentRepository, ArchLucid.Decisioning.Validation.ISchemaValidationService schemaValidationService, Microsoft.Extensions.Options.IOptions<ArchLucid.Contracts.Architecture.AuthorityCommitSchemaValidationOptions> authorityCommitSchemaValidationOptions)
-    {
-        ArgumentNullException.ThrowIfNull(options);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(findingsSnapshotRepository);
-        ArgumentNullException.ThrowIfNull(policyPackAssignmentRepository);
-        ArgumentNullException.ThrowIfNull(schemaValidationService);
-        ArgumentNullException.ThrowIfNull(authorityCommitSchemaValidationOptions);
-        return (byte)0;
-    }
-
     private readonly IOptions<AuthorityCommitSchemaValidationOptions> _authorityCommitSchemaValidationOptions = authorityCommitSchemaValidationOptions ?? throw new ArgumentNullException(nameof(authorityCommitSchemaValidationOptions));
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository = findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
     private readonly IOptions<PreCommitGovernanceGateOptions> _options = options ?? throw new ArgumentNullException(nameof(options));

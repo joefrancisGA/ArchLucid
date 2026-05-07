@@ -4,15 +4,6 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.CustomerSuccess;
 public sealed record OperatorNextBestActionItem(string ActionId, string Title, string Reason, string Href, int SortOrder)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ActionId, Title, Reason, Href);
-    private static byte __ValidatePrimaryConstructorArguments(System.String actionId, System.String title, System.String reason, System.String href)
-    {
-        ArgumentNullException.ThrowIfNull(actionId);
-        ArgumentNullException.ThrowIfNull(title);
-        ArgumentNullException.ThrowIfNull(reason);
-        ArgumentNullException.ThrowIfNull(href);
-        return (byte)0;
-    }
 }
 
 public interface IOperatorNextBestActionService
@@ -22,14 +13,6 @@ public interface IOperatorNextBestActionService
 
 public sealed class OperatorNextBestActionService(IScopeContextProvider scopeProvider, IOperatorStickinessSnapshotReader snapshotReader) : IOperatorNextBestActionService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(scopeProvider, snapshotReader);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scoping.IScopeContextProvider scopeProvider, ArchLucid.Core.CustomerSuccess.IOperatorStickinessSnapshotReader snapshotReader)
-    {
-        ArgumentNullException.ThrowIfNull(scopeProvider);
-        ArgumentNullException.ThrowIfNull(snapshotReader);
-        return (byte)0;
-    }
-
     private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
     private readonly IOperatorStickinessSnapshotReader _snapshotReader = snapshotReader ?? throw new ArgumentNullException(nameof(snapshotReader));
     public async Task<IReadOnlyList<OperatorNextBestActionItem>> GetActionsAsync(CancellationToken cancellationToken)

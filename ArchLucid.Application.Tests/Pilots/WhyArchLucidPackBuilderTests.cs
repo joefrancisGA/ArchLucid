@@ -11,15 +11,15 @@ public sealed class WhyArchLucidPackBuilderTests
     public void BuildMarkdown_includes_benchmarked_differentiation_table_and_demo_banner()
     {
         WhyArchLucidPackSourceDto source = new(
-            RunId: "run",
-            ProjectId: "proj",
-            ManifestSectionMarkdown: "| a | b |\n|---|---|\n| x | y |",
-            AuthorityChainSectionMarkdown: "| id | v |\n|----|---|\n| a | b |",
-            ArtifactsSectionMarkdown: "_none_",
-            PipelineTimelineSectionMarkdown: "_none_",
-            RunExplanationSectionMarkdown: "**Summary**\n\nhello",
-            CitationsSectionMarkdown: "_none_",
-            ComparisonDeltaSampleMarkdown: "- theme");
+            runId: "run",
+            projectId: "proj",
+            manifestSectionMarkdown: "| a | b |\n|---|---|\n| x | y |",
+            authorityChainSectionMarkdown: "| id | v |\n|----|---|\n| a | b |",
+            artifactsSectionMarkdown: "_none_",
+            pipelineTimelineSectionMarkdown: "_none_",
+            runExplanationSectionMarkdown: "**Summary**\n\nhello",
+            citationsSectionMarkdown: "_none_",
+            comparisonDeltaSampleMarkdown: "- theme");
 
         string md = WhyArchLucidPackBuilder.BuildMarkdown(source);
 

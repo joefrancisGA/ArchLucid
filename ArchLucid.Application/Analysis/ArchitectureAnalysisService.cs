@@ -16,22 +16,6 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class ArchitectureAnalysisService(IRunDetailQueryService runDetailQueryService, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IAgentEvidencePackageRepository evidenceRepository, IAgentExecutionTraceRepository traceRepository, IAgentResultRepository resultRepository, IDiagramGenerator diagramGenerator, IManifestSummaryGenerator summaryGenerator, IDeterminismCheckService determinismCheckService, IManifestDiffService manifestDiffService, IAgentResultDiffService agentResultDiffService) : IArchitectureAnalysisService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, unifiedGoldenManifestReader, evidenceRepository, traceRepository, resultRepository, diagramGenerator, summaryGenerator, determinismCheckService, manifestDiffService, agentResultDiffService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Decisioning.Interfaces.IUnifiedGoldenManifestReader unifiedGoldenManifestReader, ArchLucid.Persistence.Data.Repositories.IAgentEvidencePackageRepository evidenceRepository, ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository traceRepository, ArchLucid.Persistence.Data.Repositories.IAgentResultRepository resultRepository, ArchLucid.Application.Diagrams.IDiagramGenerator diagramGenerator, ArchLucid.Application.Summaries.IManifestSummaryGenerator summaryGenerator, ArchLucid.Application.Determinism.IDeterminismCheckService determinismCheckService, ArchLucid.Application.Diffs.IManifestDiffService manifestDiffService, ArchLucid.Application.Diffs.IAgentResultDiffService agentResultDiffService)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(unifiedGoldenManifestReader);
-        ArgumentNullException.ThrowIfNull(evidenceRepository);
-        ArgumentNullException.ThrowIfNull(traceRepository);
-        ArgumentNullException.ThrowIfNull(resultRepository);
-        ArgumentNullException.ThrowIfNull(diagramGenerator);
-        ArgumentNullException.ThrowIfNull(summaryGenerator);
-        ArgumentNullException.ThrowIfNull(determinismCheckService);
-        ArgumentNullException.ThrowIfNull(manifestDiffService);
-        ArgumentNullException.ThrowIfNull(agentResultDiffService);
-        return (byte)0;
-    }
-
     private const string ExecutionModeCurrent = ExecutionModes.Current;
     /// <inheritdoc/>
     public async Task<ArchitectureAnalysisReport> BuildAsync(ArchitectureAnalysisRequest request, CancellationToken cancellationToken = default)
@@ -44,6 +28,7 @@ public sealed class ArchitectureAnalysisService(IRunDetailQueryService runDetail
         {
             if (!string.Equals(primaryDetail.Run.RunId, request.RunId, StringComparison.Ordinal))
                 throw new ArgumentException("PreloadedRunDetail.Run.RunId must match RunId.", nameof(request));
+
             run = primaryDetail.Run;
         }
         else if (request.PreloadedRun is not null)

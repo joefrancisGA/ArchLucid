@@ -13,15 +13,7 @@ namespace ArchLucid.Application.Pilots;
 /// </summary>
 public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownBuilder)
 {
-    private const string IncompletePdfBanner =
-        "INCOMPLETE — NOT FOR EXTERNAL SPONSOR DISTRIBUTION";
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(markdownBuilder);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Pilots.FirstValueReportBuilder markdownBuilder)
-    {
-        ArgumentNullException.ThrowIfNull(markdownBuilder);
-        return (byte)0;
-    }
-
+    private const string IncompletePdfBanner = "INCOMPLETE — NOT FOR EXTERNAL SPONSOR DISTRIBUTION";
     private readonly FirstValueReportBuilder _markdownBuilder = markdownBuilder ?? throw new ArgumentNullException(nameof(markdownBuilder));
     /// <summary>Returns PDF bytes, or <see langword="null"/> when the run is missing (mirrors the Markdown sibling).</summary>
     public async System.Threading.Tasks.Task<System.Byte[]?> BuildPdfAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
@@ -33,7 +25,6 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
         FirstValueReportBuildResult? built = await _markdownBuilder.BuildReportAsync(runId, apiBaseForLinks, cancellationToken);
         if (built is null)
             return null;
-
         bool incompleteWatermark = built.EvidenceCompleteness == FirstValueEvidenceCompletenessLevel.Incomplete;
         string markdown = built.Markdown;
         Settings.License = LicenseType.Community;
@@ -44,36 +35,25 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
                 page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Helvetica"));
-
                 if (incompleteWatermark)
                 {
-                    page.Foreground()
-                        .AlignCenter()
-                        .AlignMiddle()
-                        .Rotate(45)
-                        .Text(IncompletePdfBanner)
-                        .Bold()
-                        .FontSize(28)
-                        .FontColor(Colors.Red.Medium.WithAlpha((byte)(0.18f * 255)));
+                    page.Foreground().AlignCenter().AlignMiddle().Rotate(45).Text(IncompletePdfBanner).Bold().FontSize(28).FontColor(Colors.Red.Medium.WithAlpha((byte)(0.18f * 255)));
                 }
 
                 page.Header().Column(header =>
                 {
                     if (incompleteWatermark)
                     {
-                        header.Item().Background(Colors.Red.Lighten4).Padding(6)
-                            .Text(IncompletePdfBanner).Bold().FontColor(Colors.Red.Darken3).FontSize(11);
+                        header.Item().Background(Colors.Red.Lighten4).Padding(6).Text(IncompletePdfBanner).Bold().FontColor(Colors.Red.Darken3).FontSize(11);
                     }
 
                     header.Item().Text("ArchLucid — first value report (pilot)").Bold().FontSize(14);
                 });
-
                 page.Content().Column(column => MarkdownPdfRenderer.Render(column, markdown));
                 page.Footer().Column(foot =>
                 {
                     if (incompleteWatermark)
                         foot.Item().AlignCenter().Text(IncompletePdfBanner).FontSize(9).Italic().FontColor(Colors.Grey.Medium);
-
                     foot.Item().AlignCenter().Text(text =>
                     {
                         text.Span("Generated from run ");

@@ -4,13 +4,6 @@ namespace ArchLucid.Application.Governance;
 /// <inheritdoc cref = "IGovernanceRationaleService"/>
 public sealed class GovernanceRationaleService(IGovernanceLineageService lineageService) : IGovernanceRationaleService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(lineageService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Governance.IGovernanceLineageService lineageService)
-    {
-        ArgumentNullException.ThrowIfNull(lineageService);
-        return (byte)0;
-    }
-
     private readonly IGovernanceLineageService _lineageService = lineageService ?? throw new ArgumentNullException(nameof(lineageService));
     /// <inheritdoc/>
     public async System.Threading.Tasks.Task<ArchLucid.Contracts.Governance.GovernanceRationaleResult?> GetApprovalRequestRationaleAsync(string approvalRequestId, CancellationToken cancellationToken = default)

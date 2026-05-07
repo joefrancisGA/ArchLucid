@@ -8,14 +8,6 @@ namespace ArchLucid.Application.ExecutiveSummary;
 /// <inheritdoc cref = "IExecutiveSummaryService"/>
 public sealed class ExecutiveSummaryService(IRunRepository runRepository, IRunDetailQueryService runDetailQueryService) : IExecutiveSummaryService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runRepository, runDetailQueryService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Application.IRunDetailQueryService runDetailQueryService)
-    {
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        return (byte)0;
-    }
-
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
     public async Task<ExecutiveSummaryResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default)

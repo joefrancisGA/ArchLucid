@@ -4,12 +4,6 @@ namespace ArchLucid.Application;
 /// </summary>
 public sealed class RunNotFoundException(string runId) : Exception($"Run '{runId}' was not found.")
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runId);
-    private static byte __ValidatePrimaryConstructorArguments(System.String runId)
-    {
-        ArgumentNullException.ThrowIfNull(runId);
-        return (byte)0;
-    }
-
+    private readonly string _runId = runId ?? throw new ArgumentNullException(nameof(runId));
     public string RunId { get; } = runId;
 }

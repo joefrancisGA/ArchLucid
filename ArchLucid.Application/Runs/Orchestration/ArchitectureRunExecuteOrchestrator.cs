@@ -24,29 +24,23 @@ namespace ArchLucid.Application.Runs.Orchestration;
 /// <inheritdoc cref = "IArchitectureRunExecuteOrchestrator"/>
 public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IArchitectureRequestRepository requestRepository, IAgentTaskRepository taskRepository, IAgentExecutor agentExecutor, IAgentEvaluationService agentEvaluationService, IAgentResultRepository resultRepository, IAgentEvaluationRepository agentEvaluationRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IActorContext actorContext, IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IRequestContentSafetyPrecheck requestContentSafetyPrecheck, ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository, agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, auditService, unitOfWorkFactory, outputTraceEvaluationHook, requestContentSafetyPrecheck, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Data.Repositories.IArchitectureRequestRepository requestRepository, ArchLucid.Persistence.Data.Repositories.IAgentTaskRepository taskRepository, ArchLucid.Contracts.Abstractions.Agents.IAgentExecutor agentExecutor, ArchLucid.Application.Decisions.IAgentEvaluationService agentEvaluationService, ArchLucid.Persistence.Data.Repositories.IAgentResultRepository resultRepository, ArchLucid.Persistence.Data.Repositories.IAgentEvaluationRepository agentEvaluationRepository, ArchLucid.Persistence.Data.Repositories.IAgentEvidencePackageRepository agentEvidencePackageRepository, ArchLucid.Application.Evidence.IEvidenceBuilder evidenceBuilder, ArchLucid.Application.Common.IActorContext actorContext, ArchLucid.Application.Common.IBaselineMutationAuditService baselineMutationAudit, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Core.Transactions.IArchLucidUnitOfWorkFactory unitOfWorkFactory, ArchLucid.Contracts.Agents.IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, ArchLucid.Application.Runs.Orchestration.IRequestContentSafetyPrecheck requestContentSafetyPrecheck, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Runs.Orchestration.ArchitectureRunExecuteOrchestrator> logger)
-    {
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(requestRepository);
-        ArgumentNullException.ThrowIfNull(taskRepository);
-        ArgumentNullException.ThrowIfNull(agentExecutor);
-        ArgumentNullException.ThrowIfNull(agentEvaluationService);
-        ArgumentNullException.ThrowIfNull(resultRepository);
-        ArgumentNullException.ThrowIfNull(agentEvaluationRepository);
-        ArgumentNullException.ThrowIfNull(agentEvidencePackageRepository);
-        ArgumentNullException.ThrowIfNull(evidenceBuilder);
-        ArgumentNullException.ThrowIfNull(actorContext);
-        ArgumentNullException.ThrowIfNull(baselineMutationAudit);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
-        ArgumentNullException.ThrowIfNull(outputTraceEvaluationHook);
-        ArgumentNullException.ThrowIfNull(requestContentSafetyPrecheck);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
+    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
+    private readonly IAgentOutputTraceEvaluationHook _outputTraceEvaluationHook = outputTraceEvaluationHook ?? throw new ArgumentNullException(nameof(outputTraceEvaluationHook));
+    private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IAgentEvaluationService _agentEvaluationService = agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
+    private readonly IAgentEvaluationRepository _agentEvaluationRepository = agentEvaluationRepository ?? throw new ArgumentNullException(nameof(agentEvaluationRepository));
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository = agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
+    private readonly IEvidenceBuilder _evidenceBuilder = evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
+    private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
+    private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+    private readonly IAgentExecutor _agentExecutor = agentExecutor ?? throw new ArgumentNullException(nameof(agentExecutor));
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+    private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck = requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
     /// <summary>One persisted result per required agent type (Topology, Cost, Compliance, Critic) before commit.</summary>
     private static readonly HashSet<AgentType> RequiredAgentTypesForCommit = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
     /// <inheritdoc/>

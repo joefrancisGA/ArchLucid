@@ -19,21 +19,15 @@ namespace ArchLucid.Application.Runs.Finalization;
 /// <inheritdoc cref = "IManifestFinalizationService"/>
 public sealed class ManifestFinalizationService(IArchLucidUnitOfWorkFactory unitOfWorkFactory, IScopeContextProvider scopeContextProvider, IRunRepository runRepository, IFindingsSnapshotRepository findingsSnapshotRepository, IDecisionTraceRepository decisionTraceRepository, IGoldenManifestRepository goldenManifestRepository, IManifestHashService manifestHashService, IAuditService auditService, IIntegrationEventOutboxRepository integrationEventOutbox) : IManifestFinalizationService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(unitOfWorkFactory, scopeContextProvider, runRepository, findingsSnapshotRepository, decisionTraceRepository, goldenManifestRepository, manifestHashService, auditService, integrationEventOutbox);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Transactions.IArchLucidUnitOfWorkFactory unitOfWorkFactory, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Decisioning.Interfaces.IFindingsSnapshotRepository findingsSnapshotRepository, ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository decisionTraceRepository, ArchLucid.Decisioning.Interfaces.IGoldenManifestRepository goldenManifestRepository, ArchLucid.Decisioning.Interfaces.IManifestHashService manifestHashService, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Persistence.IIntegrationEventOutboxRepository integrationEventOutbox)
-    {
-        ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(findingsSnapshotRepository);
-        ArgumentNullException.ThrowIfNull(decisionTraceRepository);
-        ArgumentNullException.ThrowIfNull(goldenManifestRepository);
-        ArgumentNullException.ThrowIfNull(manifestHashService);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(integrationEventOutbox);
-        return (byte)0;
-    }
-
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IIntegrationEventOutboxRepository _integrationEventOutbox = integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
+    private readonly IManifestHashService _manifestHashService = manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IGoldenManifestRepository _goldenManifestRepository = goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IDecisionTraceRepository _decisionTraceRepository = decisionTraceRepository ?? throw new ArgumentNullException(nameof(decisionTraceRepository));
+    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository = findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private const int SqlRunNotFoundOrScope = 50001;
     private const int SqlCommittedDifferentManifest = 50002;
     private const int SqlBadRunStatus = 50003;

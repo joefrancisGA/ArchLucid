@@ -7,15 +7,9 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class ConsultingDocxArchitectureAnalysisExportService(IDiagramImageRenderer diagramImageRenderer, IConsultingDocxTemplateOptionsProvider optionsProvider, IDocumentLogoProvider logoProvider) : IArchitectureAnalysisConsultingDocxExportService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(diagramImageRenderer, optionsProvider, logoProvider);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Diagrams.IDiagramImageRenderer diagramImageRenderer, ArchLucid.Application.Analysis.IConsultingDocxTemplateOptionsProvider optionsProvider, ArchLucid.Application.Analysis.IDocumentLogoProvider logoProvider)
-    {
-        ArgumentNullException.ThrowIfNull(diagramImageRenderer);
-        ArgumentNullException.ThrowIfNull(optionsProvider);
-        ArgumentNullException.ThrowIfNull(logoProvider);
-        return (byte)0;
-    }
-
+    private readonly IConsultingDocxTemplateOptionsProvider _optionsProvider = optionsProvider ?? throw new ArgumentNullException(nameof(optionsProvider));
+    private readonly IDocumentLogoProvider _logoProvider = logoProvider ?? throw new ArgumentNullException(nameof(logoProvider));
+    private readonly IDiagramImageRenderer _diagramImageRenderer = diagramImageRenderer ?? throw new ArgumentNullException(nameof(diagramImageRenderer));
     public async Task<byte[]> GenerateDocxAsync(ArchitectureAnalysisReport report, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(report);

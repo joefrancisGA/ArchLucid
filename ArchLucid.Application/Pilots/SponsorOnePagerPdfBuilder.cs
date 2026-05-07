@@ -23,16 +23,6 @@ namespace ArchLucid.Application.Pilots;
 /// </remarks>
 public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQuery, PilotScorecardBuilder scorecardBuilder, IPilotRunDeltaComputer deltaComputer, IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQuery, scorecardBuilder, deltaComputer, publicSiteOptions);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQuery, ArchLucid.Application.Pilots.PilotScorecardBuilder scorecardBuilder, ArchLucid.Application.Pilots.IPilotRunDeltaComputer deltaComputer, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.PublicSiteOptions> publicSiteOptions)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQuery);
-        ArgumentNullException.ThrowIfNull(scorecardBuilder);
-        ArgumentNullException.ThrowIfNull(deltaComputer);
-        ArgumentNullException.ThrowIfNull(publicSiteOptions);
-        return (byte)0;
-    }
-
     private const string IllustrationOnlyPerPageHeader = "ILLUSTRATION ONLY — not a commitment";
     private readonly IPilotRunDeltaComputer _deltaComputer = deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -69,8 +59,7 @@ public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQu
                 {
                     if (deltas.IsDemoTenant)
                     {
-                        header.Item().Background(Colors.Yellow.Lighten3).Padding(6)
-                            .Text(IllustrationOnlyPerPageHeader).Bold().FontColor(Colors.Red.Darken2).FontSize(11);
+                        header.Item().Background(Colors.Yellow.Lighten3).Padding(6).Text(IllustrationOnlyPerPageHeader).Bold().FontColor(Colors.Red.Darken2).FontSize(11);
                     }
 
                     header.Item().Text("ArchLucid — sponsor one-pager (pilot)").Bold().FontSize(14);

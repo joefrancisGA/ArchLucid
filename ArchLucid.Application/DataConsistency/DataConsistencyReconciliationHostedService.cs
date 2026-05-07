@@ -10,19 +10,6 @@ namespace ArchLucid.Application.DataConsistency;
 /// <summary>Schedules read-only data consistency reconciliation on the leader host.</summary>
 public sealed class DataConsistencyReconciliationHostedService(IServiceScopeFactory scopeFactory, IOptionsMonitor<DataConsistencyReconciliationOptions> optionsMonitor, ILeaderElectionWorkRunner electionWorkRunner, DataConsistencyReconciliationHealthState healthState, IIntegrationEventPublisher integrationEventPublisher, IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions, ILogger<DataConsistencyReconciliationHostedService> logger) : BackgroundService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(scopeFactory, optionsMonitor, electionWorkRunner, healthState, integrationEventPublisher, integrationEventsOptions, logger);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Application.DataConsistency.DataConsistencyReconciliationOptions> optionsMonitor, ArchLucid.Core.Hosting.ILeaderElectionWorkRunner electionWorkRunner, ArchLucid.Application.DataConsistency.DataConsistencyReconciliationHealthState healthState, ArchLucid.Core.Integration.IIntegrationEventPublisher integrationEventPublisher, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Integration.IntegrationEventsOptions> integrationEventsOptions, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.DataConsistency.DataConsistencyReconciliationHostedService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(scopeFactory);
-        ArgumentNullException.ThrowIfNull(optionsMonitor);
-        ArgumentNullException.ThrowIfNull(electionWorkRunner);
-        ArgumentNullException.ThrowIfNull(healthState);
-        ArgumentNullException.ThrowIfNull(integrationEventPublisher);
-        ArgumentNullException.ThrowIfNull(integrationEventsOptions);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     /// <summary>Must stay aligned with Host leader lease name <c>hosted:data-consistency-reconciliation</c>.</summary>
     private const string LeaderLeaseName = "hosted:data-consistency-reconciliation";
     /// <summary>Sentinel tenancy for platform-scope reconciliation events (no single tenant/workspace).</summary>

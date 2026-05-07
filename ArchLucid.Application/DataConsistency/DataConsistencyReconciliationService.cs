@@ -13,16 +13,6 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.DataConsistency;
 public sealed class DataConsistencyReconciliationService(IDbConnectionFactory connectionFactory, IRunRepository runRepository, IArchLucidStorageMode storageMode, ILogger<DataConsistencyReconciliationService> logger) : IDataConsistencyReconciliationService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(connectionFactory, runRepository, storageMode, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Infrastructure.IDbConnectionFactory connectionFactory, ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Configuration.IArchLucidStorageMode storageMode, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.DataConsistency.DataConsistencyReconciliationService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(connectionFactory);
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(storageMode);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly IDbConnectionFactory _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
     private readonly ILogger<DataConsistencyReconciliationService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));

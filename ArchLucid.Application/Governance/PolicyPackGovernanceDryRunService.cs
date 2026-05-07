@@ -28,20 +28,6 @@ namespace ArchLucid.Application.Governance;
 /// </remarks>
 public sealed class PolicyPackGovernanceDryRunService(IScopeContextProvider scopeContextProvider, IRunRepository runRepository, IFindingsSnapshotRepository findingsSnapshotRepository, IGoldenManifestRepository goldenManifestRepository, IOptions<PreCommitGovernanceGateOptions> preCommitOptions, IPromptRedactor promptRedactor, IAuditService auditService, ILogger<PolicyPackGovernanceDryRunService> logger) : IPolicyPackGovernanceDryRunService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(scopeContextProvider, runRepository, findingsSnapshotRepository, goldenManifestRepository, preCommitOptions, promptRedactor, auditService, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Decisioning.Interfaces.IFindingsSnapshotRepository findingsSnapshotRepository, ArchLucid.Decisioning.Interfaces.IGoldenManifestRepository goldenManifestRepository, Microsoft.Extensions.Options.IOptions<ArchLucid.Contracts.Governance.PreCommitGovernanceGateOptions> preCommitOptions, ArchLucid.Core.Llm.Redaction.IPromptRedactor promptRedactor, ArchLucid.Core.Audit.IAuditService auditService, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Governance.PolicyPackGovernanceDryRunService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(findingsSnapshotRepository);
-        ArgumentNullException.ThrowIfNull(goldenManifestRepository);
-        ArgumentNullException.ThrowIfNull(preCommitOptions);
-        ArgumentNullException.ThrowIfNull(promptRedactor);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private static readonly string[] BlockCommitOnCriticalMetadataKeys = ["governance.blockCommitOnCritical", "blockCommitOnCritical"];
     private static readonly string[] BlockCommitMinimumSeverityMetadataKeys = ["governance.blockCommitMinimumSeverity", "blockCommitMinimumSeverity"];
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));

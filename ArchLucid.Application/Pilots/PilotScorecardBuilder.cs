@@ -7,15 +7,6 @@ namespace ArchLucid.Application.Pilots;
 /// <summary>Builds tenant-scoped pilot scorecard aggregates from <see cref = "IRunRepository"/> (read-only).</summary>
 public sealed class PilotScorecardBuilder(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, ILogger<PilotScorecardBuilder> logger)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runRepository, scopeContextProvider, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Pilots.PilotScorecardBuilder> logger)
-    {
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly ILogger<PilotScorecardBuilder> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));

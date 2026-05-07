@@ -15,15 +15,6 @@ namespace ArchLucid.Application.Scim.Tokens;
 /// </summary>
 public sealed class ScimTokenRotationReminderJob(IServiceScopeFactory scopeFactory, IOptions<ScimOptions> options, ILogger<ScimTokenRotationReminderJob> logger) : BackgroundService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(scopeFactory, options, logger);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.ScimOptions> options, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Scim.Tokens.ScimTokenRotationReminderJob> logger)
-    {
-        ArgumentNullException.ThrowIfNull(scopeFactory);
-        ArgumentNullException.ThrowIfNull(options);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly ILogger<ScimTokenRotationReminderJob> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IOptions<ScimOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));

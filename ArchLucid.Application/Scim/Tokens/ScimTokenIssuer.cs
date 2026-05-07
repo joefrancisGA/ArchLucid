@@ -4,13 +4,6 @@ using ArchLucid.Core.Scim;
 namespace ArchLucid.Application.Scim.Tokens;
 public sealed class ScimTokenIssuer(IScimTenantTokenRepository tokens) : IScimTokenIssuer
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tokens);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scim.IScimTenantTokenRepository tokens)
-    {
-        ArgumentNullException.ThrowIfNull(tokens);
-        return (byte)0;
-    }
-
     private readonly IScimTenantTokenRepository _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
     /// <inheritdoc/>
     public async Task<ScimTokenIssueResult> IssueTokenAsync(Guid tenantId, CancellationToken cancellationToken)

@@ -15,7 +15,6 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -31,41 +30,36 @@ namespace ArchLucid.Application;
 /// </remarks>
 public sealed class ArchitectureApplicationService(IRunDetailQueryService runDetailQueryService, IAgentResultRepository resultRepository, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IArchitectureRequestRepository requestRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IConfiguration configuration, IAuditService auditService, IActorContext actorContext, IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher, ILogger<ArchitectureApplicationService> logger) : IArchitectureApplicationService
 {
-    private static byte __ValidatePrimaryConstructorArguments(IRunDetailQueryService runDetailQueryService, IAgentResultRepository resultRepository, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IArchitectureRequestRepository requestRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IConfiguration configuration, IAuditService auditService, IActorContext actorContext, IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher, ILogger<ArchitectureApplicationService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(resultRepository);
-        ArgumentNullException.ThrowIfNull(unifiedGoldenManifestReader);
-        ArgumentNullException.ThrowIfNull(requestRepository);
-        ArgumentNullException.ThrowIfNull(agentEvidencePackageRepository);
-        ArgumentNullException.ThrowIfNull(evidenceBuilder);
-        ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(configuration);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(actorContext);
-        ArgumentNullException.ThrowIfNull(architectureFindingConfidenceEnricher);
-        ArgumentNullException.ThrowIfNull(logger);
-        return 0;
-    }
-
+    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+    private readonly IAgentArchitectureFindingConfidenceEnricher _architectureFindingConfidenceEnricher = architectureFindingConfidenceEnricher ?? throw new ArgumentNullException(nameof(architectureFindingConfidenceEnricher));
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
+    private readonly ILogger<ArchitectureApplicationService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository = agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
+    private readonly IEvidenceBuilder _evidenceBuilder = evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+    private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader = unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
     /// <summary>Agent types that must each have exactly one result before a run can transition to ReadyForCommit.</summary>
     private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
     /// <summary>Run statuses that allow submitting agent results.</summary>
     private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses = [ArchitectureRunStatus.TasksGenerated, ArchitectureRunStatus.WaitingForResults];
-    public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
+    public async System.Threading.Tasks.Task<ArchLucid.Application.GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(runId);
         if (string.IsNullOrWhiteSpace(runId))
             return null;
-
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
-
         return detail is null ? null : new GetRunResult(detail.Run, detail.Tasks, detail.Results);
     }
 
     public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult? result, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(runId);
         if (result is null)
             return new SubmitResultResult(false, null, "Agent result is required.", ApplicationServiceFailureKind.BadRequest);
         if (string.IsNullOrWhiteSpace(runId))
@@ -100,7 +94,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
             {
                 await architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex)when (ex is not OperationCanceledException)
             {
                 if (logger.IsEnabled(LogLevel.Warning))
                     logger.LogWarningWithSanitizedUserArg(ex, "Architecture finding confidence enrichment failed after submit for RunId={RunId}; continuing.", runId);
@@ -117,7 +111,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         }
     }
 
-    public async Task<Contracts.Manifest.GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
+    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Manifest.GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(version);
         return await unifiedGoldenManifestReader.GetByVersionAsync(version, cancellationToken);
@@ -125,6 +119,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
 
     public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, PilotSeedFakeResultsOptions? pilotOptions = null, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(runId);
         if (string.IsNullOrWhiteSpace(runId))
             return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
         if (pilotOptions?.MarkRealModeFellBackToSimulator == true)
@@ -171,7 +166,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         {
             await architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex)when (ex is not OperationCanceledException)
         {
             if (logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarning(ex, "Architecture finding confidence enrichment failed after fake seed for RunId={RunId}; continuing.", runId);

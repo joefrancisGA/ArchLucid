@@ -12,15 +12,6 @@ namespace ArchLucid.Application.Billing;
 /// </summary>
 public sealed class MarketplaceChangeQuantityWebhookMutationHandler(IOptionsMonitor<BillingOptions> billingOptions, IBillingLedger ledger, ILogger<MarketplaceChangeQuantityWebhookMutationHandler> logger) : IMarketplaceChangeQuantityWebhookMutationHandler
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(billingOptions, ledger, logger);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.BillingOptions> billingOptions, ArchLucid.Core.Billing.IBillingLedger ledger, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Billing.MarketplaceChangeQuantityWebhookMutationHandler> logger)
-    {
-        ArgumentNullException.ThrowIfNull(billingOptions);
-        ArgumentNullException.ThrowIfNull(ledger);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly IOptionsMonitor<BillingOptions> _billingOptions = billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
     private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
     private readonly ILogger<MarketplaceChangeQuantityWebhookMutationHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));

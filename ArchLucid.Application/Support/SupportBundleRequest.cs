@@ -11,9 +11,4 @@ namespace ArchLucid.Application.Support;
 /// <param name = "TenantDisplayName">Tenant name (or null when anonymous / cross-tenant operator).</param>
 public sealed record SupportBundleRequest(string? RequesterDisplayId, string? TenantDisplayName)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(RequesterDisplayId, TenantDisplayName);
-    private static byte __ValidatePrimaryConstructorArguments(System.String? requesterDisplayId, System.String? tenantDisplayName)
-    {
-        return (byte)0;
-    }
 }

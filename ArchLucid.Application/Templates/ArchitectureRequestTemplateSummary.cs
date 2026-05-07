@@ -3,14 +3,16 @@ namespace ArchLucid.Application.Templates;
 ///     Catalog metadata for a wizard-selectable architecture request template (read via
 ///     <c>GET /v1/architecture/templates</c>).
 /// </summary>
-public sealed record ArchitectureRequestTemplateSummary(string TemplateId, string Title, string ShortDescription)
+public sealed record ArchitectureRequestTemplateSummary
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(TemplateId, Title, ShortDescription);
-    private static byte __ValidatePrimaryConstructorArguments(System.String templateId, System.String title, System.String shortDescription)
+    public string TemplateId { get; init; }
+    public string Title { get; init; }
+    public string ShortDescription { get; init; }
+
+    public ArchitectureRequestTemplateSummary(string templateId, string title, string shortDescription)
     {
-        ArgumentNullException.ThrowIfNull(templateId);
-        ArgumentNullException.ThrowIfNull(title);
-        ArgumentNullException.ThrowIfNull(shortDescription);
-        return (byte)0;
+        TemplateId = templateId ?? throw new ArgumentNullException(nameof(templateId));
+        Title = title ?? throw new ArgumentNullException(nameof(title));
+        ShortDescription = shortDescription ?? throw new ArgumentNullException(nameof(shortDescription));
     }
 }

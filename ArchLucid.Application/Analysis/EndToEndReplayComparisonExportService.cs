@@ -19,13 +19,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayComparisonSummaryFormatter summaryFormatter) : IEndToEndReplayComparisonExportService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(summaryFormatter);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Analysis.IEndToEndReplayComparisonSummaryFormatter summaryFormatter)
-    {
-        ArgumentNullException.ThrowIfNull(summaryFormatter);
-        return (byte)0;
-    }
-
+    private readonly IEndToEndReplayComparisonSummaryFormatter _summaryFormatter = summaryFormatter ?? throw new ArgumentNullException(nameof(summaryFormatter));
     static EndToEndReplayComparisonExportService()
     {
         Settings.License = LicenseType.Community;

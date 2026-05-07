@@ -13,13 +13,7 @@ namespace ArchLucid.Application.Decisions;
 /// </summary>
 public sealed class DefaultAgentEvaluationService(ILogger<DefaultAgentEvaluationService> logger) : IAgentEvaluationService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(logger);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Decisions.DefaultAgentEvaluationService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
+    private readonly ILogger<DefaultAgentEvaluationService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     public Task<IReadOnlyList<AgentEvaluation>> EvaluateAsync(string runId, ArchitectureRequest request, AgentEvidencePackage evidence, IReadOnlyCollection<AgentTask> tasks, IReadOnlyCollection<AgentResult> results, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);

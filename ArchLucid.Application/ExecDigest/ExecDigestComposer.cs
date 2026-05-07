@@ -13,17 +13,6 @@ namespace ArchLucid.Application.ExecDigest;
 /// <inheritdoc cref = "IExecDigestComposer"/>
 public sealed class ExecDigestComposer(IComplianceDriftTrendService complianceDriftTrendService, IAuthorityQueryService authorityQueryService, IRunDetailQueryService runDetailQueryService, IPilotRunDeltaComputer pilotRunDeltaComputer, ILogger<ExecDigestComposer> logger) : IExecDigestComposer
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(complianceDriftTrendService, authorityQueryService, runDetailQueryService, pilotRunDeltaComputer, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Governance.IComplianceDriftTrendService complianceDriftTrendService, ArchLucid.Persistence.Queries.IAuthorityQueryService authorityQueryService, ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Application.Pilots.IPilotRunDeltaComputer pilotRunDeltaComputer, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.ExecDigest.ExecDigestComposer> logger)
-    {
-        ArgumentNullException.ThrowIfNull(complianceDriftTrendService);
-        ArgumentNullException.ThrowIfNull(authorityQueryService);
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(pilotRunDeltaComputer);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private const int MaxListRuns = 200;
     private const int MaxRunDetailLookups = 40;
     private const int TopRunCount = 3;

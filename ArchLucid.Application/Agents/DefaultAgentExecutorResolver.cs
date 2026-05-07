@@ -8,13 +8,6 @@ namespace ArchLucid.Application.Agents;
 /// </summary>
 public sealed class DefaultAgentExecutorResolver(IAgentExecutor currentExecutor) : IAgentExecutorResolver
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(currentExecutor);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Contracts.Abstractions.Agents.IAgentExecutor currentExecutor)
-    {
-        ArgumentNullException.ThrowIfNull(currentExecutor);
-        return (byte)0;
-    }
-
     private static readonly HashSet<string> KnownModes = new(StringComparer.OrdinalIgnoreCase)
     {
         ExecutionModes.Current,
@@ -25,8 +18,6 @@ public sealed class DefaultAgentExecutorResolver(IAgentExecutor currentExecutor)
     public IAgentExecutor Resolve(string executionMode)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
-        if (!KnownModes.Contains(executionMode))
-            throw new ArgumentException($"Unknown execution mode '{executionMode}'. Supported modes: {string.Join(", ", KnownModes)}.", nameof(executionMode));
-        return currentExecutor;
+        return !KnownModes.Contains(executionMode) ? throw new ArgumentException($"Unknown execution mode '{executionMode}'. Supported modes: {string.Join(", ", KnownModes)}.", nameof(executionMode)) : currentExecutor;
     }
 }

@@ -12,20 +12,6 @@ namespace ArchLucid.Application.ExecDigest;
 /// <summary>Worker/CLI entry that evaluates per-tenant schedules and sends at most one digest per tenant per ISO week.</summary>
 public sealed class ExecDigestWeeklyDeliveryScanner(ITenantExecDigestPreferencesRepository digestPreferencesRepository, ITenantRepository tenantRepository, IExecDigestComposer execDigestComposer, IExecDigestEmailDispatcher execDigestEmailDispatcher, ITenantTrialEmailContactLookup tenantTrialEmailContactLookup, IExecDigestUnsubscribeTokenFactory unsubscribeTokenFactory, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor, ILogger<ExecDigestWeeklyDeliveryScanner> logger)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(digestPreferencesRepository, tenantRepository, execDigestComposer, execDigestEmailDispatcher, tenantTrialEmailContactLookup, unsubscribeTokenFactory, emailOptionsMonitor, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.ITenantExecDigestPreferencesRepository digestPreferencesRepository, ArchLucid.Core.Tenancy.ITenantRepository tenantRepository, ArchLucid.Application.ExecDigest.IExecDigestComposer execDigestComposer, ArchLucid.Application.Notifications.Email.IExecDigestEmailDispatcher execDigestEmailDispatcher, ArchLucid.Core.Tenancy.ITenantTrialEmailContactLookup tenantTrialEmailContactLookup, ArchLucid.Application.Notifications.Email.IExecDigestUnsubscribeTokenFactory unsubscribeTokenFactory, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.EmailNotificationOptions> emailOptionsMonitor, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.ExecDigest.ExecDigestWeeklyDeliveryScanner> logger)
-    {
-        ArgumentNullException.ThrowIfNull(digestPreferencesRepository);
-        ArgumentNullException.ThrowIfNull(tenantRepository);
-        ArgumentNullException.ThrowIfNull(execDigestComposer);
-        ArgumentNullException.ThrowIfNull(execDigestEmailDispatcher);
-        ArgumentNullException.ThrowIfNull(tenantTrialEmailContactLookup);
-        ArgumentNullException.ThrowIfNull(unsubscribeTokenFactory);
-        ArgumentNullException.ThrowIfNull(emailOptionsMonitor);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private readonly ITenantExecDigestPreferencesRepository _digestPreferencesRepository = digestPreferencesRepository ?? throw new ArgumentNullException(nameof(digestPreferencesRepository));
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor = emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
     private readonly IExecDigestComposer _execDigestComposer = execDigestComposer ?? throw new ArgumentNullException(nameof(execDigestComposer));

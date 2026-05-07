@@ -14,14 +14,8 @@ namespace ArchLucid.Application.Evolution;
 /// </summary>
 public sealed class ShadowExecutionService(IRunDetailQueryService runDetailQueryService, IArchitectureAnalysisService architectureAnalysisService) : IShadowExecutionService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, architectureAnalysisService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Application.Analysis.IArchitectureAnalysisService architectureAnalysisService)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(architectureAnalysisService);
-        return (byte)0;
-    }
-
+    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IArchitectureAnalysisService _architectureAnalysisService = architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
     /// <inheritdoc/>
     public async Task<ArchitectureAnalysisReport> ExecuteAsync(ShadowExecutionRequest request, CancellationToken cancellationToken = default)
     {

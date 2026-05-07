@@ -11,17 +11,6 @@ namespace ArchLucid.Application.Governance;
 /// <inheritdoc cref = "IGovernanceLineageService"/>
 public sealed class GovernanceLineageService(IGovernanceApprovalRequestRepository approvalRepo, IGovernancePromotionRecordRepository promotionRepo, IRunDetailQueryService runDetailQuery, IAuthorityQueryService authorityQuery, IScopeContextProvider scopeProvider) : IGovernanceLineageService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(approvalRepo, promotionRepo, runDetailQuery, authorityQuery, scopeProvider);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IGovernanceApprovalRequestRepository approvalRepo, ArchLucid.Persistence.Data.Repositories.IGovernancePromotionRecordRepository promotionRepo, ArchLucid.Application.IRunDetailQueryService runDetailQuery, ArchLucid.Persistence.Queries.IAuthorityQueryService authorityQuery, ArchLucid.Core.Scoping.IScopeContextProvider scopeProvider)
-    {
-        ArgumentNullException.ThrowIfNull(approvalRepo);
-        ArgumentNullException.ThrowIfNull(promotionRepo);
-        ArgumentNullException.ThrowIfNull(runDetailQuery);
-        ArgumentNullException.ThrowIfNull(authorityQuery);
-        ArgumentNullException.ThrowIfNull(scopeProvider);
-        return (byte)0;
-    }
-
     private readonly IGovernanceApprovalRequestRepository _approvalRepo = approvalRepo ?? throw new ArgumentNullException(nameof(approvalRepo));
     private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
     private readonly IGovernancePromotionRecordRepository _promotionRepo = promotionRepo ?? throw new ArgumentNullException(nameof(promotionRepo));

@@ -1,75 +1,78 @@
 namespace ArchLucid.Application.Notifications.Email.Models;
-public sealed record TrialWelcomeEmailModel(string OrganizationHint, string ProductName, string? LogoImageUrl = null)
+public sealed record TrialWelcomeEmailModel
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(OrganizationHint, ProductName, LogoImageUrl);
-    private static byte __ValidatePrimaryConstructorArguments(System.String organizationHint, System.String productName, System.String? logoImageUrl)
+    public string OrganizationHint { get; init; }
+    public string ProductName { get; init; }
+    public string? LogoImageUrl { get; init; }
+
+    public TrialWelcomeEmailModel(string organizationHint, string productName, string? logoImageUrl = null)
     {
-        ArgumentNullException.ThrowIfNull(organizationHint);
-        ArgumentNullException.ThrowIfNull(productName);
-        return (byte)0;
+        OrganizationHint = organizationHint ?? throw new ArgumentNullException(nameof(organizationHint));
+        ProductName = productName ?? throw new ArgumentNullException(nameof(productName));
+        LogoImageUrl = logoImageUrl;
     }
 }
 
-public sealed record TrialFirstRunEmailModel(string ProductName, string GettingStartedUrl, string? LogoImageUrl = null)
+public sealed record TrialFirstRunEmailModel
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ProductName, GettingStartedUrl, LogoImageUrl);
-    private static byte __ValidatePrimaryConstructorArguments(System.String productName, System.String gettingStartedUrl, System.String? logoImageUrl)
+    public string ProductName { get; init; }
+    public string GettingStartedUrl { get; init; }
+    public string? LogoImageUrl { get; init; }
+
+    public TrialFirstRunEmailModel(string productName, string gettingStartedUrl, string? logoImageUrl = null)
     {
-        ArgumentNullException.ThrowIfNull(productName);
-        ArgumentNullException.ThrowIfNull(gettingStartedUrl);
-        return (byte)0;
+        ProductName = productName ?? throw new ArgumentNullException(nameof(productName));
+        GettingStartedUrl = gettingStartedUrl ?? throw new ArgumentNullException(nameof(gettingStartedUrl));
+        LogoImageUrl = logoImageUrl;
     }
 }
 
-public sealed record TrialMidTrialEmailModel(string ProductName, string DashboardUrl, string? LogoImageUrl = null)
+public sealed record TrialMidTrialEmailModel
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ProductName, DashboardUrl, LogoImageUrl);
-    private static byte __ValidatePrimaryConstructorArguments(System.String productName, System.String dashboardUrl, System.String? logoImageUrl)
+    public string ProductName { get; init; }
+    public string DashboardUrl { get; init; }
+    public string? LogoImageUrl { get; init; }
+
+    public TrialMidTrialEmailModel(string productName, string dashboardUrl, string? logoImageUrl = null)
     {
-        ArgumentNullException.ThrowIfNull(productName);
-        ArgumentNullException.ThrowIfNull(dashboardUrl);
-        return (byte)0;
+        ProductName = productName ?? throw new ArgumentNullException(nameof(productName));
+        DashboardUrl = dashboardUrl ?? throw new ArgumentNullException(nameof(dashboardUrl));
+        LogoImageUrl = logoImageUrl;
     }
 }
 
 public sealed record TrialApproachingRunLimitEmailModel(string ProductName, int RunsUsed, int RunsLimit, string? LogoImageUrl = null)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ProductName, LogoImageUrl);
-    private static byte __ValidatePrimaryConstructorArguments(System.String productName, System.String? logoImageUrl)
-    {
-        ArgumentNullException.ThrowIfNull(productName);
-        return (byte)0;
-    }
 }
 
 public sealed record TrialExpiringSoonEmailModel(string ProductName, int DaysRemaining, string? LogoImageUrl = null)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ProductName, LogoImageUrl);
-    private static byte __ValidatePrimaryConstructorArguments(System.String productName, System.String? logoImageUrl)
+}
+
+public sealed record TrialExpiredEmailModel
+{
+    public string ProductName { get; init; }
+    public string ExportHelpUrl { get; init; }
+    public string? LogoImageUrl { get; init; }
+
+    public TrialExpiredEmailModel(string productName, string exportHelpUrl, string? logoImageUrl = null)
     {
-        ArgumentNullException.ThrowIfNull(productName);
-        return (byte)0;
+        ProductName = productName ?? throw new ArgumentNullException(nameof(productName));
+        ExportHelpUrl = exportHelpUrl ?? throw new ArgumentNullException(nameof(exportHelpUrl));
+        LogoImageUrl = logoImageUrl;
     }
 }
 
-public sealed record TrialExpiredEmailModel(string ProductName, string ExportHelpUrl, string? LogoImageUrl = null)
+public sealed record TrialConvertedEmailModel
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ProductName, ExportHelpUrl, LogoImageUrl);
-    private static byte __ValidatePrimaryConstructorArguments(System.String productName, System.String exportHelpUrl, System.String? logoImageUrl)
-    {
-        ArgumentNullException.ThrowIfNull(productName);
-        ArgumentNullException.ThrowIfNull(exportHelpUrl);
-        return (byte)0;
-    }
-}
+    public string ProductName { get; init; }
+    public string Tier { get; init; }
+    public string? LogoImageUrl { get; init; }
 
-public sealed record TrialConvertedEmailModel(string ProductName, string Tier, string? LogoImageUrl = null)
-{
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(ProductName, Tier, LogoImageUrl);
-    private static byte __ValidatePrimaryConstructorArguments(System.String productName, System.String tier, System.String? logoImageUrl)
+    public TrialConvertedEmailModel(string productName, string tier, string? logoImageUrl = null)
     {
-        ArgumentNullException.ThrowIfNull(productName);
-        ArgumentNullException.ThrowIfNull(tier);
-        return (byte)0;
+        ProductName = productName ?? throw new ArgumentNullException(nameof(productName));
+        Tier = tier ?? throw new ArgumentNullException(nameof(tier));
+        LogoImageUrl = logoImageUrl;
     }
 }

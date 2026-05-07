@@ -2,14 +2,16 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application;
-public sealed record GetRunResult(ArchitectureRun Run, IReadOnlyList<AgentTask> Tasks, IReadOnlyList<AgentResult> Results)
+public sealed record GetRunResult
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Run, Tasks, Results);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Contracts.Metadata.ArchitectureRun run, System.Collections.Generic.IReadOnlyList<ArchLucid.Contracts.Agents.AgentTask> tasks, System.Collections.Generic.IReadOnlyList<ArchLucid.Contracts.Agents.AgentResult> results)
+    public ArchitectureRun Run { get; init; }
+    public IReadOnlyList<AgentTask> Tasks { get; init; }
+    public IReadOnlyList<AgentResult> Results { get; init; }
+
+    public GetRunResult(ArchitectureRun run, IReadOnlyList<AgentTask> tasks, IReadOnlyList<AgentResult> results)
     {
-        ArgumentNullException.ThrowIfNull(run);
-        ArgumentNullException.ThrowIfNull(tasks);
-        ArgumentNullException.ThrowIfNull(results);
-        return (byte)0;
+        Run = run ?? throw new ArgumentNullException(nameof(run));
+        Tasks = tasks ?? throw new ArgumentNullException(nameof(tasks));
+        Results = results ?? throw new ArgumentNullException(nameof(results));
     }
 }

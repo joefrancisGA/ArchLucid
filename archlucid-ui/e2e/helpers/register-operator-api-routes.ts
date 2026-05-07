@@ -4,6 +4,7 @@ import type { ComparisonExplanation } from "@/types/explanation";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ArtifactDescriptor, ManifestSummary, RunComparison, RunDetail } from "@/types/authority";
 
+import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import {
   fixtureArtifactDescriptorsNonEmpty,
   fixtureComparisonExplanation,
@@ -317,6 +318,24 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
         page: Number(url.searchParams.get("page") ?? "1"),
         pageSize: Number(url.searchParams.get("pageSize") ?? "50"),
         hasMore: false,
+      });
+
+      return;
+    }
+
+    /**
+     * Audit log: mock HTTP returns an empty page; demo sample injection is build-flagged. Full-route screenshots must
+     * always show the Claims Intake trail (see `screenshot-demo-quality-gates` — forbid "Showing 0 events").
+     */
+    if (apiPath === "/v1/audit/search") {
+      const requestedTake = Math.min(200, Math.max(1, Number.parseInt(url.searchParams.get("take") ?? "200", 10) || 200));
+      const items = getDemoSampleAuditTrailEvents();
+
+      await fulfillJson(route, 200, {
+        items: items.slice(0, requestedTake),
+        nextCursor: null,
+        hasMore: false,
+        requestedTake,
       });
 
       return;

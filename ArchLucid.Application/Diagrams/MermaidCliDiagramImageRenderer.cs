@@ -14,13 +14,7 @@ namespace ArchLucid.Application.Diagrams;
 [ExcludeFromCodeCoverage(Justification = "Requires external mmdc CLI tool installed on the host; tested manually.")]
 public sealed class MermaidCliDiagramImageRenderer(ILogger<MermaidCliDiagramImageRenderer> logger) : IDiagramImageRenderer
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(logger);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Diagrams.MermaidCliDiagramImageRenderer> logger)
-    {
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
+    private readonly ILogger<MermaidCliDiagramImageRenderer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     /// <summary>Maximum time to wait for the <c>mmdc</c> process before cancelling and throwing.</summary>
     private static readonly TimeSpan ProcessTimeout = TimeSpan.FromSeconds(30);
     /// <inheritdoc/>

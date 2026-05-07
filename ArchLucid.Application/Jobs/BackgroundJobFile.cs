@@ -1,12 +1,14 @@
 namespace ArchLucid.Application.Jobs;
-public sealed record BackgroundJobFile(string FileName, string ContentType, byte[] Bytes)
+public sealed record BackgroundJobFile
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(FileName, ContentType, Bytes);
-    private static byte __ValidatePrimaryConstructorArguments(System.String fileName, System.String contentType, System.Byte[] bytes)
+    public string FileName { get; init; }
+    public string ContentType { get; init; }
+    public byte[] Bytes { get; init; }
+
+    public BackgroundJobFile(string fileName, string contentType, byte[] bytes)
     {
-        ArgumentNullException.ThrowIfNull(fileName);
-        ArgumentNullException.ThrowIfNull(contentType);
-        ArgumentNullException.ThrowIfNull(bytes);
-        return (byte)0;
+        FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
+        ContentType = contentType ?? throw new ArgumentNullException(nameof(contentType));
+        Bytes = bytes ?? throw new ArgumentNullException(nameof(bytes));
     }
 }

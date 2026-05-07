@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -148,6 +149,8 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             .Setup(p => p.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
 
+        Mock<IUnifiedGoldenManifestReader> manifestReader = new(MockBehavior.Strict);
+
         ArchitectureRunExecuteOrchestrator sut = new(
             runRepo.Object,
             scopeProvider.Object,
@@ -158,7 +161,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             resultRepo.Object,
             evalRepo.Object,
             evidenceRepo.Object,
-            new DefaultEvidenceBuilder(),
+            new DefaultEvidenceBuilder(manifestReader.Object),
             actorContext.Object,
             baselineAudit.Object,
             auditService.Object,

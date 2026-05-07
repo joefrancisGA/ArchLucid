@@ -5,13 +5,7 @@ namespace ArchLucid.Application.Identity;
 /// <summary>NIST SP 800-63B aligned: length bounds only (no composition rules).</summary>
 public sealed class TrialPasswordPolicyValidator(IOptions<TrialAuthOptions> trialOptions)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(trialOptions);
-    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.TrialAuthOptions> trialOptions)
-    {
-        ArgumentNullException.ThrowIfNull(trialOptions);
-        return (byte)0;
-    }
-
+    private readonly IOptions<TrialAuthOptions> _trialOptions = trialOptions ?? throw new ArgumentNullException(nameof(trialOptions));
     private readonly TrialAuthOptions _trial = trialOptions.Value ?? throw new ArgumentNullException(nameof(trialOptions));
     public TrialPasswordValidationResult Validate(string? password)
     {

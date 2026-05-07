@@ -35,26 +35,16 @@ namespace ArchLucid.Application.Bootstrap;
 /// </remarks>
 public sealed class DemoSeedService(IArchitectureRequestRepository requestRepository, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IAgentTaskRepository taskRepository, IAgentResultRepository resultRepository, IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter, IOptionsMonitor<DemoOptions> demoOptions, IGovernanceApprovalRequestRepository approvalRepository, IGovernancePromotionRecordRepository promotionRepository, IGovernanceEnvironmentActivationRepository activationRepository, IRunExportRecordRepository runExportRecordRepository, IAuditService auditService, IActorContext actorContext, ILogger<DemoSeedService> logger) : IDemoSeedService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(requestRepository, runRepository, scopeContextProvider, taskRepository, resultRepository, authorityCommittedManifestChainWriter, demoOptions, approvalRepository, promotionRepository, activationRepository, runExportRecordRepository, auditService, actorContext, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IArchitectureRequestRepository requestRepository, ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Data.Repositories.IAgentTaskRepository taskRepository, ArchLucid.Persistence.Data.Repositories.IAgentResultRepository resultRepository, ArchLucid.Application.Authority.IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.DemoOptions> demoOptions, ArchLucid.Persistence.Data.Repositories.IGovernanceApprovalRequestRepository approvalRepository, ArchLucid.Persistence.Data.Repositories.IGovernancePromotionRecordRepository promotionRepository, ArchLucid.Persistence.Data.Repositories.IGovernanceEnvironmentActivationRepository activationRepository, ArchLucid.Persistence.Data.Repositories.IRunExportRecordRepository runExportRecordRepository, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Application.Common.IActorContext actorContext, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Bootstrap.DemoSeedService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(requestRepository);
-        ArgumentNullException.ThrowIfNull(runRepository);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(taskRepository);
-        ArgumentNullException.ThrowIfNull(resultRepository);
-        ArgumentNullException.ThrowIfNull(authorityCommittedManifestChainWriter);
-        ArgumentNullException.ThrowIfNull(demoOptions);
-        ArgumentNullException.ThrowIfNull(approvalRepository);
-        ArgumentNullException.ThrowIfNull(promotionRepository);
-        ArgumentNullException.ThrowIfNull(activationRepository);
-        ArgumentNullException.ThrowIfNull(runExportRecordRepository);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(actorContext);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
+    private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
+    private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
+    private readonly IGovernancePromotionRecordRepository _promotionRepository = promotionRepository ?? throw new ArgumentNullException(nameof(promotionRepository));
+    private readonly IGovernanceEnvironmentActivationRepository _activationRepository = activationRepository ?? throw new ArgumentNullException(nameof(activationRepository));
+    private readonly ILogger<DemoSeedService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IGovernanceApprovalRequestRepository _approvalRepository = approvalRepository ?? throw new ArgumentNullException(nameof(approvalRepository));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
+    private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
     private static readonly DateTime DemoUtc = new(2025, 3, 1, 12, 0, 0, DateTimeKind.Utc);
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));

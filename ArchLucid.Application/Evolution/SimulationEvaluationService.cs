@@ -15,14 +15,8 @@ namespace ArchLucid.Application.Evolution;
 /// </summary>
 public sealed class SimulationEvaluationService(IManifestDiffService manifestDiffService, IDeterminismCheckService determinismCheckService) : ISimulationEvaluationService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(manifestDiffService, determinismCheckService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Diffs.IManifestDiffService manifestDiffService, ArchLucid.Application.Determinism.IDeterminismCheckService determinismCheckService)
-    {
-        ArgumentNullException.ThrowIfNull(manifestDiffService);
-        ArgumentNullException.ThrowIfNull(determinismCheckService);
-        return (byte)0;
-    }
-
+    private readonly IDeterminismCheckService _determinismCheckService = determinismCheckService ?? throw new ArgumentNullException(nameof(determinismCheckService));
+    private readonly IManifestDiffService _manifestDiffService = manifestDiffService ?? throw new ArgumentNullException(nameof(manifestDiffService));
     private const string RuleVersion = "60R-eval-v1";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

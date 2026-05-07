@@ -5,13 +5,6 @@ namespace ArchLucid.Application.Governance;
 /// <inheritdoc/>
 public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository changeLogRepository) : IComplianceDriftTrendService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(changeLogRepository);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackChangeLogRepository changeLogRepository)
-    {
-        ArgumentNullException.ThrowIfNull(changeLogRepository);
-        return (byte)0;
-    }
-
     private readonly IPolicyPackChangeLogRepository _changeLogRepository = changeLogRepository ?? throw new ArgumentNullException(nameof(changeLogRepository));
     /// <inheritdoc/>
     public async Task<IReadOnlyList<ComplianceDriftTrendPoint>> GetTrendAsync(Guid tenantId, DateTime fromUtc, DateTime toUtc, TimeSpan bucketSize, CancellationToken cancellationToken = default)

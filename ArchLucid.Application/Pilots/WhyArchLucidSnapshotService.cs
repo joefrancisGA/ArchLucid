@@ -15,16 +15,10 @@ namespace ArchLucid.Application.Pilots;
 /// </summary>
 public sealed class WhyArchLucidSnapshotService(IInstrumentationCounterSnapshotProvider counters, IAuditRepository auditRepository, TimeProvider timeProvider, ILogger<WhyArchLucidSnapshotService> logger) : IWhyArchLucidSnapshotService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(counters, auditRepository, timeProvider, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Diagnostics.IInstrumentationCounterSnapshotProvider counters, ArchLucid.Persistence.Audit.IAuditRepository auditRepository, System.TimeProvider timeProvider, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Pilots.WhyArchLucidSnapshotService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(counters);
-        ArgumentNullException.ThrowIfNull(auditRepository);
-        ArgumentNullException.ThrowIfNull(timeProvider);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
+    private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+    private readonly ILogger<WhyArchLucidSnapshotService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IInstrumentationCounterSnapshotProvider _counters = counters ?? throw new ArgumentNullException(nameof(counters));
     /// <inheritdoc/>
     public async Task<WhyArchLucidSnapshotResponse> BuildAsync(CancellationToken cancellationToken)
     {

@@ -19,16 +19,6 @@ namespace ArchLucid.Application.Pilots;
 /// </summary>
 public sealed class BoardPackPdfBuilder(IExecDigestComposer execDigestComposer, ValueReportBuilder valueReportBuilder, IScopeContextProvider scopeProvider, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(execDigestComposer, valueReportBuilder, scopeProvider, emailOptionsMonitor);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.ExecDigest.IExecDigestComposer execDigestComposer, ArchLucid.Application.Value.ValueReportBuilder valueReportBuilder, ArchLucid.Core.Scoping.IScopeContextProvider scopeProvider, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.EmailNotificationOptions> emailOptionsMonitor)
-    {
-        ArgumentNullException.ThrowIfNull(execDigestComposer);
-        ArgumentNullException.ThrowIfNull(valueReportBuilder);
-        ArgumentNullException.ThrowIfNull(scopeProvider);
-        ArgumentNullException.ThrowIfNull(emailOptionsMonitor);
-        return (byte)0;
-    }
-
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor = emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
     private readonly IExecDigestComposer _execDigestComposer = execDigestComposer ?? throw new ArgumentNullException(nameof(execDigestComposer));
     private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));

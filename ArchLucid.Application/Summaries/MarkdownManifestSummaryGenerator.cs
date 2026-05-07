@@ -12,13 +12,7 @@ namespace ArchLucid.Application.Summaries;
 /// </summary>
 public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter evidenceFormatter) : IManifestSummaryGenerator
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(evidenceFormatter);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Evidence.IEvidenceSummaryFormatter evidenceFormatter)
-    {
-        ArgumentNullException.ThrowIfNull(evidenceFormatter);
-        return (byte)0;
-    }
-
+    private readonly IEvidenceSummaryFormatter _evidenceFormatter = evidenceFormatter ?? throw new ArgumentNullException(nameof(evidenceFormatter));
     /// <inheritdoc/>
     public string GenerateMarkdown(GoldenManifest manifest, AgentEvidencePackage? evidence = null)
     {

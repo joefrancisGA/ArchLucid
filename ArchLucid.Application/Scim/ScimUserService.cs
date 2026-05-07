@@ -12,16 +12,6 @@ using ArchLucid.Core.Tenancy;
 namespace ArchLucid.Application.Scim;
 public sealed class ScimUserService(IScimUserRepository users, ITenantRepository tenants, IGroupToRoleMapper roleMapper, IAuditService audit) : IScimUserService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(users, tenants, roleMapper, audit);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scim.IScimUserRepository users, ArchLucid.Core.Tenancy.ITenantRepository tenants, ArchLucid.Application.Scim.RoleMapping.IGroupToRoleMapper roleMapper, ArchLucid.Core.Audit.IAuditService audit)
-    {
-        ArgumentNullException.ThrowIfNull(users);
-        ArgumentNullException.ThrowIfNull(tenants);
-        ArgumentNullException.ThrowIfNull(roleMapper);
-        ArgumentNullException.ThrowIfNull(audit);
-        return (byte)0;
-    }
-
     internal const string ManualResolvedRoleFlatPath = "manualResolvedRole";
     private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
     private readonly IGroupToRoleMapper _roleMapper = roleMapper ?? throw new ArgumentNullException(nameof(roleMapper));

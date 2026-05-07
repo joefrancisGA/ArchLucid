@@ -29,18 +29,6 @@ public interface IPilotValueReportService
 /// </summary>
 public sealed class PilotValueReportService(IRunDetailQueryService runDetailQuery, IAuditRepository auditRepository, ITenantRepository tenantRepository, IScopeContextProvider scopeContextProvider, IGovernanceDashboardService governanceDashboardService, ILogger<PilotValueReportService> logger) : IPilotValueReportService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQuery, auditRepository, tenantRepository, scopeContextProvider, governanceDashboardService, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQuery, ArchLucid.Persistence.Audit.IAuditRepository auditRepository, ArchLucid.Core.Tenancy.ITenantRepository tenantRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Application.Governance.IGovernanceDashboardService governanceDashboardService, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Pilots.PilotValueReportService> logger)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQuery);
-        ArgumentNullException.ThrowIfNull(auditRepository);
-        ArgumentNullException.ThrowIfNull(tenantRepository);
-        ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArgumentNullException.ThrowIfNull(governanceDashboardService);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     /// <summary>
     ///     Max committed runs fully loaded for finding/agent/timing aggregation per report (defense against huge
     ///     tenants).

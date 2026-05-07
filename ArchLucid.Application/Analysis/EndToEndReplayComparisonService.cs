@@ -17,17 +17,11 @@ namespace ArchLucid.Application.Analysis;
 /// </remarks>
 public sealed class EndToEndReplayComparisonService(IRunDetailQueryService runDetailQueryService, IRunExportRecordRepository runExportRecordRepository, IAgentResultDiffService agentResultDiffService, IManifestDiffService manifestDiffService, IExportRecordDiffService exportRecordDiffService) : IEndToEndReplayComparisonService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, runExportRecordRepository, agentResultDiffService, manifestDiffService, exportRecordDiffService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Persistence.Data.Repositories.IRunExportRecordRepository runExportRecordRepository, ArchLucid.Application.Diffs.IAgentResultDiffService agentResultDiffService, ArchLucid.Application.Diffs.IManifestDiffService manifestDiffService, ArchLucid.Application.Analysis.IExportRecordDiffService exportRecordDiffService)
-    {
-        ArgumentNullException.ThrowIfNull(runDetailQueryService);
-        ArgumentNullException.ThrowIfNull(runExportRecordRepository);
-        ArgumentNullException.ThrowIfNull(agentResultDiffService);
-        ArgumentNullException.ThrowIfNull(manifestDiffService);
-        ArgumentNullException.ThrowIfNull(exportRecordDiffService);
-        return (byte)0;
-    }
-
+    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
+    private readonly IExportRecordDiffService _exportRecordDiffService = exportRecordDiffService ?? throw new ArgumentNullException(nameof(exportRecordDiffService));
+    private readonly IAgentResultDiffService _agentResultDiffService = agentResultDiffService ?? throw new ArgumentNullException(nameof(agentResultDiffService));
+    private readonly IManifestDiffService _manifestDiffService = manifestDiffService ?? throw new ArgumentNullException(nameof(manifestDiffService));
     public async Task<EndToEndReplayComparisonReport> BuildAsync(string leftRunId, string rightRunId, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(leftRunId);

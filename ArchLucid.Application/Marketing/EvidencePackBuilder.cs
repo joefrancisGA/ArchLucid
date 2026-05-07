@@ -25,14 +25,6 @@ namespace ArchLucid.Application.Marketing;
 /// </remarks>
 public sealed class EvidencePackBuilder(IEvidencePackSourceProvider sourceProvider, TimeProvider timeProvider) : IEvidencePackBuilder
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(sourceProvider, timeProvider);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Marketing.IEvidencePackSourceProvider sourceProvider, System.TimeProvider timeProvider)
-    {
-        ArgumentNullException.ThrowIfNull(sourceProvider);
-        ArgumentNullException.ThrowIfNull(timeProvider);
-        return (byte)0;
-    }
-
     /// <summary>Pinned last-write-time used for every ZIP entry so the bytes are reproducible.</summary>
     public static readonly DateTimeOffset DeterministicEntryTimestamp = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
     private readonly IEvidencePackSourceProvider _sourceProvider = sourceProvider ?? throw new ArgumentNullException(nameof(sourceProvider));
