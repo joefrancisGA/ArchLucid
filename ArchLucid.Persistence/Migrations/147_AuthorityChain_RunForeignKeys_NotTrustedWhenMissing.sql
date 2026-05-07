@@ -11,8 +11,7 @@
 
   ON DELETE omitted => NO ACTION (SQL Server default).
 
-  Rollback: Rollback/R134_FK_Authority_Chain_Runs_DbUpParity.sql for the chain through ContextSnapshots;
-  additionally drop FK_ArtifactBundles_* if reverting bundle wiring only (027 parity).
+  Rollback: Rollback/R147_AuthorityChain_RunForeignKeys_NotTrustedWhenMissing.sql (ArtifactBundles + same chain as R134).
 */
 
 SET NOCOUNT ON;

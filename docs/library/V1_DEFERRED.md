@@ -177,6 +177,28 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ---
 
+## 6f. Azure Container Apps Jobs + Durable Task Framework (V2 backlog, situational) (engineering note 2026-05-07)
+
+**V1 stance:** The **`ArchLucid.Worker`** host and **`AuthorityRunOrchestrator`** authority pipeline handle long-running analysis with retry, queuing, and state transitions. V1 does **not** adopt **Azure Container Apps Jobs** or embed the **Durable Task Framework (DTF)** as an orchestration engine.
+
+**What it is:**
+
+- **Container Apps Jobs** — event-driven or scheduled **one-shot** containers (no always-on replica required for bursty work).
+- **Durable Task Framework** — the same orchestration model as **Azure Durable Functions**, usable **as a library** without the Functions host: checkpointed replay, retries, fan-out/fan-in, and human-in-the-loop patterns.
+
+**Why it could matter later:** If orchestrations grow well beyond today’s complexity (multi-step agent pipelines, approval workflows with timeouts, compensation flows), DTF offers **checkpoint-based replay** and structured orchestration instead of hand-rolled state machines. Container Apps Jobs could run **one-shot heavy compute** (e.g. Terraform export batches, large context ingestion spikes) without keeping a permanent Worker replica sized for peaks.
+
+**Trade-off:** High adoption cost — switching orchestration substrate touches reliability contracts, testing, and operations. The **current orchestrator pattern is intentional and well-tested**; this is **only** worth revisiting if pipeline complexity materially exceeds what exists today.
+
+**Verdict:** **Backlog / V2 candidate**, situational — **not** required for current pipeline complexity.
+
+**Rules:**
+
+- Quality assessments **must not** treat absence of Container Apps Jobs or DTF as a **V1** defect.
+- Promoting this row to a **dated** engineering commitment requires [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |
@@ -192,6 +214,6 @@ This file is **maintainer hygiene**. It is **not** a commitment to ship listed i
 - After a changelog entry marks something **“intentionally deferred”** or **“gap.”**
 - When **AUDIT_COVERAGE_MATRIX** gains or loses a **Known gaps** row.
 - When **Phase 7** rename items move (only with program approval).
-- When a **V2 platform enhancement** is recorded from engineering/architecture review (see §6e pattern — add §3 row in [V1_SCOPE.md](V1_SCOPE.md) in the same change).
+- When a **V2 platform enhancement** is recorded from engineering/architecture review (see §6e–§6f pattern — add §3 row in [V1_SCOPE.md](V1_SCOPE.md) in the same change).
 
 **Change control:** Prefer updating **this file** and [V1_SCOPE.md](V1_SCOPE.md) §3 together so external messaging stays aligned.

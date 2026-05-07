@@ -30,6 +30,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
+import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDetailSectionNav";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
