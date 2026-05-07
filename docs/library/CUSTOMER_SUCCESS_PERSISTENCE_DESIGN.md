@@ -107,7 +107,7 @@ critical scalability problem.
 | CS-04 | `TenantHealthScoreRecord` is a `class` with `init` properties — should be a `sealed record` per project patterns | Low |
 | CS-05 | `TenantHealthScoreSqlRow` (private record) and `SignalAggRow` are correct but `UpdatedUtc` is `DateTime` not `DateTimeOffset`, requiring a `new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero)` conversion — fragile if the column ever changes timezone encoding | Medium |
 
-**Fix for CS-03 (implemented):** `RefreshAllTenantHealthScoresAsync` delegates to **`dbo.sp_TenantHealthScores_BatchRefresh`** (DbUp **`141_TenantHealthScores_BatchRefresh.sql`**), a single MERGE that mirrors **`TenantHealthScoringCalculator`** — see **`ArchLucid.Persistence.Tests/CustomerSuccess/TenantHealthScoresBatchRefreshIntegrationTests.cs`** for parity smoke.
+**Fix for CS-03 (implemented):** `RefreshAllTenantHealthScoresAsync` delegates to **`dbo.sp_TenantHealthScores_BatchRefresh`** (DbUp **`149_TenantHealthScores_BatchRefresh.sql`**), a single MERGE that mirrors **`TenantHealthScoringCalculator`** — see **`ArchLucid.Persistence.Tests/CustomerSuccess/TenantHealthScoresBatchRefreshIntegrationTests.cs`** for parity smoke.
 
 ---
 

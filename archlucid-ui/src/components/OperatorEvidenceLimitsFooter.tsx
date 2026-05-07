@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
 export type OperatorEvidenceLimitsExecutionProps = {
   readonly realModeFellBackToSimulator?: boolean;
   readonly pilotAoaiDeploymentSnapshot?: string | null;
@@ -35,6 +37,8 @@ export function OperatorEvidenceLimitsFooter({
   execution,
   inspectMetadata,
 }: OperatorEvidenceLimitsFooterProps) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   const safeRunId = runId.trim();
   const runBase = `/reviews/${encodeURIComponent(safeRunId)}`;
   const provenanceHref = `${runBase}/provenance`;
@@ -114,17 +118,32 @@ export function OperatorEvidenceLimitsFooter({
           className="m-0 mt-3 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300"
           data-testid="operator-evidence-limits-fallback-disclaimer"
         >
-          This review is flagged in API data as real-mode fallback: Azure OpenAI execution did not complete and deterministic
-          simulator output was substituted (see review record field{' '}
-          <span className="font-mono text-[11px]">realModeFellBackToSimulator</span>
-          ).
-          {deploymentSnapshot.length > 0 ? (
+          {buyerPolishedShell ? (
             <>
-              {" "}
-              Recorded deployment snapshot at fallback:{" "}
-              <span className="font-mono text-[11px]">{deploymentSnapshot}</span>.
+              Live cloud model execution did not complete for every step in this review; outputs reflect the persisted review
+              package shown here.
+              {deploymentSnapshot.length > 0 ? (
+                <>
+                  {" "}
+                  Deployment note: <span className="font-mono text-[11px]">{deploymentSnapshot}</span>.
+                </>
+              ) : null}
             </>
-          ) : null}
+          ) : (
+            <>
+              This review is flagged in API data as real-mode fallback: Azure OpenAI execution did not complete and deterministic
+              simulator output was substituted (see review record field{" "}
+              <span className="font-mono text-[11px]">realModeFellBackToSimulator</span>
+              ).
+              {deploymentSnapshot.length > 0 ? (
+                <>
+                  {" "}
+                  Recorded deployment snapshot at fallback:{" "}
+                  <span className="font-mono text-[11px]">{deploymentSnapshot}</span>.
+                </>
+              ) : null}
+            </>
+          )}
         </p>
       ) : null}
 
