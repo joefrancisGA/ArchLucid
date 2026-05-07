@@ -27,7 +27,6 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
 } from "@/lib/showcase-static-demo";
-import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 function snapshotLabel(ok: boolean | undefined): string {
