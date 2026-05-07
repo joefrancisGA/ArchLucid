@@ -123,7 +123,13 @@ public sealed class SqlRunRepository(
             return await connection.QuerySingleOrDefaultAsync<RunRecord>(
                 new CommandDefinition(
                     sql,
-                    new { RunId = runId, scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
+                    new
+                    {
+                        RunId = runId,
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId
+                    },
                     cancellationToken: ct));
         }
         finally
@@ -157,7 +163,10 @@ public sealed class SqlRunRepository(
             await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
             return await connection.QuerySingleOrDefaultAsync<RunRecord>(
-                new CommandDefinition(sql, new { RunId = runId }, cancellationToken: ct));
+                new CommandDefinition(sql, new
+                {
+                    RunId = runId
+                }, cancellationToken: ct));
         }
         finally
         {
@@ -273,7 +282,13 @@ public sealed class SqlRunRepository(
             IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
                 new CommandDefinition(
                     HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock,
-                    new { scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId, Take = Math.Clamp(take <= 0 ? 200 : take, 1, 200) },
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId,
+                        Take = Math.Clamp(take <= 0 ? 200 : take, 1, 200)
+                    },
                     cancellationToken: ct));
 
             return rows.ToList();
@@ -500,7 +515,10 @@ public sealed class SqlRunRepository(
             await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
                 new CommandDefinition(
                     sql,
-                    new { Cutoff = cutoffUtc.UtcDateTime },
+                    new
+                    {
+                        Cutoff = cutoffUtc.UtcDateTime
+                    },
                     tran,
                     cancellationToken: ct));
 
@@ -527,11 +545,7 @@ public sealed class SqlRunRepository(
         List<Guid> distinctOrdered = [];
         HashSet<Guid> seen = [];
 
-        foreach (Guid id in runIds)
-
-            if (seen.Add(id))
-
-                distinctOrdered.Add(id);
+        distinctOrdered.AddRange(runIds.Where(id => seen.Add(id)));
 
         const string selectSql = """
                                  SELECT RunId, ArchivedUtc
@@ -542,7 +556,10 @@ public sealed class SqlRunRepository(
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<(Guid RunId, DateTime? ArchivedUtc)> existingRows =
             await connection.QueryAsync<(Guid RunId, DateTime? ArchivedUtc)>(
-                new CommandDefinition(selectSql, new { RunIds = distinctOrdered }, cancellationToken: ct));
+                new CommandDefinition(selectSql, new
+                {
+                    RunIds = distinctOrdered
+                }, cancellationToken: ct));
 
         Dictionary<Guid, DateTime?> stateById =
             existingRows.ToDictionary(static r => r.RunId, static r => r.ArchivedUtc);
@@ -683,7 +700,10 @@ public sealed class SqlRunRepository(
         try
         {
             await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
-                new CommandDefinition(updateSql, new { ToArchive = toArchive }, tran, cancellationToken: ct));
+                new CommandDefinition(updateSql, new
+                {
+                    ToArchive = toArchive
+                }, tran, cancellationToken: ct));
 
             archived = (await multi.ReadAsync<ArchivedRunScopeRow>()).ToList();
             childCascade = (await multi.ReadAsync<RunArchiveChildCascadeCounts>()).Single();
@@ -707,7 +727,10 @@ public sealed class SqlRunRepository(
 
         return new RunArchiveByIdsResult
         {
-            SucceededRunIds = archived.Select(static r => r.RunId).ToList(), ArchivedRuns = archived, Failed = failed, ChildCascade = childCascade
+            SucceededRunIds = archived.Select(static r => r.RunId).ToList(),
+            ArchivedRuns = archived,
+            Failed = failed,
+            ChildCascade = childCascade
         };
     }
 

@@ -616,7 +616,8 @@ Constraints:
 - **Why it matters:** Revenue depends on proof that can be sent to a sponsor without manual narrative invention.
 - **Expected impact:** Directly improves Proof-of-ROI Readiness (+8-10 pts), Executive Value Visibility (+4-6 pts), Trustworthiness (+3-5 pts), Decision Velocity (+2-4 pts). Weighted readiness impact: +0.65-0.95%.
 - **Affected qualities:** Proof-of-ROI Readiness, Executive Value Visibility, Decision Velocity, Marketability, Trustworthiness.
-- **Actionability:** Fully actionable now.
+- **Actionability:** **Complete.**
+- **Status:** **Complete (2026-05-07).** Buyer-safe gate hardens on missing run id and default manifest commit timestamps; proof package exposes `CommittedManifestTimestampResolved`, treats zero-findings severity rollup as present evidence, and adds an explicit committed-manifest timestamp row in the Markdown contract. Incomplete PDFs still return 200 with header/footer banner plus a diagonal `FirstValueReportPdfBuilder` foreground watermark. Tests: `FirstValueEvidenceCompletenessMarkdownFormatterTests`, extended Pilots unit tests, and `ArchitectureRunCommitPathParityIntegrationTests` now POST `first-value-report.pdf` on the same cohort client.
 - **Cursor prompt:**
 
 ```text
@@ -903,6 +904,7 @@ Constraints:
 
 ### Buyer-Safe First-Value Evidence Gate
 
+- **Answered (delivery):** Shipped **2026-05-07** — deterministic Strong/Partial/Incomplete classification, proof contract + watermark/PDF behavior as in action-plan **§2 Status** (not pending build work).
 - Which customer-specific baseline fields are mandatory for a guided pilot versus optional for self-serve?
 - **Answered:** Incomplete evidence classification should **watermark** the artifact (PDF + visible Markdown notice); **do not block** PDF generation for Incomplete.
 

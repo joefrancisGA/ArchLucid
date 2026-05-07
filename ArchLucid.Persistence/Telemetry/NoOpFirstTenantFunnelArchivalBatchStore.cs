@@ -15,9 +15,6 @@ public sealed class NoOpFirstTenantFunnelArchivalBatchStore : IFirstTenantFunnel
     /// <inheritdoc />
     public Task DeleteByEventIdsAsync(IReadOnlyList<long> eventIds, CancellationToken ct)
     {
-        if (eventIds is null)
-            throw new ArgumentNullException(nameof(eventIds));
-
-        return Task.CompletedTask;
+        return eventIds is null ? throw new ArgumentNullException(nameof(eventIds)) : Task.CompletedTask;
     }
 }

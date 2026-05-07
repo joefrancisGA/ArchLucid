@@ -149,8 +149,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         {
             FeedResponse<int> page = await iterator.ReadNextAsync(ct);
 
-            foreach (int row in page)
-                total += row;
+            total += page.Sum();
         }
 
         return total;
@@ -298,7 +297,9 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
             parameters.Add(new KeyValuePair<string, object?>("@runId", filter.RunId.Value.ToString("D")));
         }
 
-        if (filter.BeforeUtc.HasValue)
+        if (!filter.BeforeUtc.HasValue)
+            return;
+
         {
             if (filter.BeforeEventId.HasValue)
             {

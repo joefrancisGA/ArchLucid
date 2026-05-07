@@ -60,6 +60,7 @@ import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import type { AlertActionLoopDto } from "@/types/operate-rhythm";
+import type { AlertRecord } from "@/types/alerts";
 
 const ALERTS_PAGE_SIZE = 25;
 

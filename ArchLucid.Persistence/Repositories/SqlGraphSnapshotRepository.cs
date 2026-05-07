@@ -168,7 +168,7 @@ public sealed class SqlGraphSnapshotRepository(
 
         throw new InvalidOperationException(
             "Graph snapshot persistence requires Microsoft.Data.SqlClient.SqlConnection for SqlBulkCopy on child tables. "
-            + $"Received connection type '{connection?.GetType().FullName ?? "(null)"}'.");
+            + $"Received connection type '{connection.GetType().FullName ?? "(null)"}'.");
     }
 
     /// <summary>

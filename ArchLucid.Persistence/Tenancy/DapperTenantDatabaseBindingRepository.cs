@@ -33,9 +33,12 @@ public sealed class DapperTenantDatabaseBindingRepository(ISystemSqlConnectionFa
                            """;
 
         BindingRow? row = await connection.QuerySingleOrDefaultAsync<BindingRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: cancellationToken));
 
-        return row is null ? null : row.ToRecord();
+        return row?.ToRecord();
     }
 
     public async Task<IReadOnlyList<TenantDatabaseBindingRecord>> ListBindingsWithStateAsync(
@@ -61,7 +64,10 @@ public sealed class DapperTenantDatabaseBindingRepository(ISystemSqlConnectionFa
         IEnumerable<BindingRow> rows = await connection.QueryAsync<BindingRow>(
             new CommandDefinition(
                 sql,
-                new { State = (byte)state },
+                new
+                {
+                    State = (byte)state
+                },
                 cancellationToken: cancellationToken));
 
         return rows.Select(static r => r.ToRecord()).ToList();
@@ -94,7 +100,12 @@ public sealed class DapperTenantDatabaseBindingRepository(ISystemSqlConnectionFa
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, DbName = sqlLogicalDatabaseName.Trim(), Pending = (byte)TenantDatabaseProvisioningState.Pending, },
+                new
+                {
+                    TenantId = tenantId,
+                    DbName = sqlLogicalDatabaseName.Trim(),
+                    Pending = (byte)TenantDatabaseProvisioningState.Pending,
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -114,7 +125,11 @@ public sealed class DapperTenantDatabaseBindingRepository(ISystemSqlConnectionFa
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, Active = (byte)TenantDatabaseProvisioningState.Active, },
+                new
+                {
+                    TenantId = tenantId,
+                    Active = (byte)TenantDatabaseProvisioningState.Active,
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -141,7 +156,12 @@ public sealed class DapperTenantDatabaseBindingRepository(ISystemSqlConnectionFa
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, Failed = (byte)TenantDatabaseProvisioningState.Failed, Err = trimmed, },
+                new
+                {
+                    TenantId = tenantId,
+                    Failed = (byte)TenantDatabaseProvisioningState.Failed,
+                    Err = trimmed,
+                },
                 cancellationToken: cancellationToken));
     }
 

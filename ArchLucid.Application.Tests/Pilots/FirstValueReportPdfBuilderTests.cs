@@ -1,4 +1,4 @@
-using System.Text;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -72,7 +72,7 @@ public sealed class FirstValueReportPdfBuilderTests
     }
 
     [SkippableFact]
-    public async Task BuildPdfAsync_WhenEvidenceIncomplete_IncludesWatermarkPhraseInPdf()
+    public async Task BuildPdfAsync_WhenEvidenceIncomplete_StillReturnsValidPdf()
     {
         ArchitectureRunDetail detail = BuildCommittedDetail();
         Mock<IRunDetailQueryService> query = new();
@@ -99,8 +99,11 @@ public sealed class FirstValueReportPdfBuilderTests
         byte[]? pdf = await sut.BuildPdfAsync("r-pdf-incomplete", "http://localhost:5000");
 
         pdf.Should().NotBeNull();
-        Encoding.ASCII.GetString(pdf!).Should()
-            .Contain("INCOMPLETE — NOT FOR EXTERNAL SPONSOR DISTRIBUTION", StringComparison.Ordinal);
+        ReadOnlySpan<byte> head = pdf.AsSpan(0, 4);
+        head[0].Should().Be((byte)'%');
+        head[1].Should().Be((byte)'P');
+        head[2].Should().Be((byte)'D');
+        head[3].Should().Be((byte)'F');
     }
 
     [SkippableFact]

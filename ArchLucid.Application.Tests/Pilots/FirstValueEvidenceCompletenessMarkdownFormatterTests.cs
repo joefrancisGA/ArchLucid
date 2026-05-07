@@ -22,7 +22,7 @@ public sealed class FirstValueEvidenceCompletenessMarkdownFormatterTests
 
         string md = sb.ToString();
         md.Should().Contain("First-value evidence completeness");
-        md.Should().Contain("Incomplete", StringComparison.InvariantCulture);
+        md.Should().Contain("Incomplete");
         md.Should().Contain("Watermark notice");
         md.Should().Contain("still export");
     }
@@ -37,7 +37,7 @@ public sealed class FirstValueEvidenceCompletenessMarkdownFormatterTests
             FirstValueEvidenceCompletenessLevel.Strong);
 
         string md = sb.ToString();
-        md.Should().Contain("Strong", StringComparison.InvariantCulture);
+        md.Should().Contain("Strong");
         md.Should().NotContain("Watermark notice");
     }
 
@@ -51,7 +51,7 @@ public sealed class FirstValueEvidenceCompletenessMarkdownFormatterTests
             FirstValueEvidenceCompletenessLevel.Partial);
 
         string md = sb.ToString();
-        md.Should().Contain("Partial", StringComparison.InvariantCulture);
+        md.Should().Contain("Partial");
         md.Should().NotContain("Watermark notice");
     }
 }

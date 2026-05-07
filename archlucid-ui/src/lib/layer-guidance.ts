@@ -21,8 +21,10 @@ export type LayerGuidancePageKey =
   | "compare"
   | "replay"
   | "graph"
+  | "integrations-operations"
   | "governance-dashboard"
   | "governance-findings"
+  | "governance-first-30-days"
   | "governance-resolution"
   | "governance-workflow"
   | "policy-packs"
@@ -76,6 +78,14 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "Best once you have a committed review—a graph complements manifest and finding tables when stakeholders need visuals.",
   },
+  "integrations-operations": {
+    layerBadge: "Advanced operations",
+    headline: "Connector readiness across Teams, Slack, ITSM, Confluence, digests, and messaging buses.",
+    useWhen:
+      "Use when operators need a single read-only health view of wiring without storing connector secrets in this UI.",
+    firstPilotNote:
+      "After Pilot proof when integration footprint spans multiple channels and operators want a consolidated snapshot.",
+  },
   "governance-dashboard": {
     layerBadge: "Governance",
     headline: "Executive Workspace Health — governance and value signals in your current scope.",
@@ -91,6 +101,15 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "After Pilot proof, use review detail for drill-down; dashboard queues cross-review findings.",
     enterpriseFootnote: "Review-scoped detail; cross-review queue on governance dashboard.",
+  },
+  "governance-first-30-days": {
+    layerBadge: "Governance",
+    headline: "Preset operating checklist after Core Pilot.",
+    useWhen:
+      "Follow inspect-first links to policy packs, alert routing, approvals, and dashboards—no mutations initiated from this page.",
+    firstPilotNote:
+      "Optional rhythm after first Pilot proof when sponsors want a minimal enterprise cadence anchored on one baseline each.",
+    enterpriseFootnote: "Deep links only; configuration changes happen on the linked surfaces.",
   },
   alerts: {
     layerBadge: "Governance",

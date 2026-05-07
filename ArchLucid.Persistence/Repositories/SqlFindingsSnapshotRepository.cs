@@ -414,20 +414,20 @@ public sealed class SqlFindingsSnapshotRepository(
             finding.Rationale,
             finding.PayloadType,
             PayloadJson = FindingPayloadJsonCodec.SerializePayload(finding.Payload),
-            RequestInputRef = finding.RequestInputRef,
-            RunIdRef = finding.RunIdRef,
+            finding.RequestInputRef,
+            finding.RunIdRef,
             AgentExecutionTraceId = finding.AgentExecutionTraceId ?? finding.Trace.SourceAgentExecutionTraceId,
             finding.ModelDeploymentName,
             finding.ModelVersion,
             finding.PromptTemplateId,
             finding.PromptTemplateVersion,
             finding.ConfidenceScore,
-            EvaluationConfidenceScore = finding.EvaluationConfidenceScore,
+            finding.EvaluationConfidenceScore,
             EvaluationConfidenceLevel = finding.ConfidenceLevel is { } lvl ? lvl.ToString() : null,
             finding.PolicyRuleId,
             HumanReviewStatus = finding.HumanReviewStatus.ToString(),
             finding.ReviewedByUserId,
-            ReviewedAtUtc = finding.ReviewedAtUtc,
+            finding.ReviewedAtUtc,
             finding.ReviewNotes
         };
 
@@ -574,7 +574,7 @@ public sealed class SqlFindingsSnapshotRepository(
         for (int offset = 0; offset < rows.Count; offset += FindingChildTripleColumnInsertRows)
         {
             int len = Math.Min(FindingChildTripleColumnInsertRows, rows.Count - offset);
-            StringBuilder sb = new StringBuilder(insertHeaderThroughValuesKeyword.Length + len * 80);
+            StringBuilder sb = new(insertHeaderThroughValuesKeyword.Length + len * 80);
             sb.Append(insertHeaderThroughValuesKeyword);
             DynamicParameters dp = new();
             dp.Add("fid", findingRecordId, DbType.Guid);
@@ -620,7 +620,7 @@ public sealed class SqlFindingsSnapshotRepository(
         for (int offset = 0; offset < orderedProps.Count; offset += FindingChildPropertyInsertRows)
         {
             int len = Math.Min(FindingChildPropertyInsertRows, orderedProps.Count - offset);
-            StringBuilder sb = new StringBuilder(preamble.Length + len * 96);
+            StringBuilder sb = new(preamble.Length + len * 96);
             sb.Append(preamble);
             DynamicParameters dp = new();
             dp.Add("fid", findingRecordId, DbType.Guid);

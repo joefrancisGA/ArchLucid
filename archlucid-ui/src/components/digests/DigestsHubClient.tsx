@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { DigestsBrowseContent } from "./DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
+import { ExecDigestScheduleContent } from "./ExecDigestScheduleContent";
 import { WeeklyDigestHealthBanner } from "./WeeklyDigestHealthBanner";
 
 const TAB_PARAM = "tab";

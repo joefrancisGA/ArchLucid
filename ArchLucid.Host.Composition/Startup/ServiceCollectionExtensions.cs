@@ -36,10 +36,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IConfigurationHealthProbe>(sp =>
             new ConfigurationHealthProbe(
                 sp.GetRequiredService<IConfiguration>(),
-                sp.GetService<ArchLucid.Persistence.Connections.ISqlConnectionFactory>(),
+                sp.GetService<Persistence.Connections.ISqlConnectionFactory>(),
                 sp.GetRequiredService<IHttpClientFactory>()));
-        services.AddScoped<ArchLucid.Application.Diagnostics.ISyntheticOperatorDemoPackWriter,
-            ArchLucid.Application.Diagnostics.SyntheticOperatorDemoPackWriter>();
+        services.AddScoped<Application.Diagnostics.ISyntheticOperatorDemoPackWriter,
+            Application.Diagnostics.SyntheticOperatorDemoPackWriter>();
         services.AddScoped<Application.Authority.IAuthorityCommittedManifestChainWriter,
             Application.Authority.AuthorityCommittedManifestChainWriter>();
         RegisterAzureOpenAiCircuitBreakerOptions(services, configuration);
