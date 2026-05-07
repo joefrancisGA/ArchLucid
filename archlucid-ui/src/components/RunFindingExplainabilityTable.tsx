@@ -9,6 +9,7 @@ import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityDialog";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { truncateForList } from "@/lib/truncate-for-list";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 
@@ -87,6 +88,8 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
     estimateSize: () => 190,
     overscan: 10,
   });
+
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   if (rows.length === 0) {
     return null;
@@ -222,19 +225,21 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
                     </Button>
                   </div>
                   <CopyTraceRowWorkItemButton row={row} runId={runId} />
-                  <ProductLearningFeedbackControls
-                    runId={runId}
-                    subjectType="Finding"
-                    artifactHint={`finding:${row.findingId}`}
-                    patternKey={row.ruleId ? `finding-rule:${row.ruleId}` : "finding"}
-                    detail={{
-                      findingId: row.findingId,
-                      title: row.findingTitle,
-                      traceCompletenessRatio: row.traceCompletenessRatio,
-                    }}
-                    compact
-                    title="Useful?"
-                  />
+                  {!buyerPolishedShell ? (
+                    <ProductLearningFeedbackControls
+                      runId={runId}
+                      subjectType="Finding"
+                      artifactHint={`finding:${row.findingId}`}
+                      patternKey={row.ruleId ? `finding-rule:${row.ruleId}` : "finding"}
+                      detail={{
+                        findingId: row.findingId,
+                        title: row.findingTitle,
+                        traceCompletenessRatio: row.traceCompletenessRatio,
+                      }}
+                      compact
+                      title="Useful?"
+                    />
+                  ) : null}
                 </div>
               </div>
             );

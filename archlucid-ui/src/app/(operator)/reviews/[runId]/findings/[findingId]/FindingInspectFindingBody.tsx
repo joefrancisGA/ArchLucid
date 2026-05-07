@@ -6,7 +6,7 @@ import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayloa
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -128,22 +128,25 @@ export function FindingInspectFindingBody({
               </p>
             )}
           </section>
-          <ProductLearningFeedbackControls
-            runId={runId}
-            manifestVersion={payload.manifestVersion}
-            subjectType="Finding"
-            artifactHint={`finding:${decodedFindingId}`}
-            patternKey={
-              payload.decisionRuleId
-                ? `finding-rule:${payload.decisionRuleId}`
-                : "finding"
-            }
-            detail={{
-              findingId: decodedFindingId,
-              decisionRuleId: payload.decisionRuleId,
-            }}
-            title="Was this finding useful?"
-          />
+
+          {!isBuyerPolishedOperatorShellEnv() ? (
+            <ProductLearningFeedbackControls
+              runId={runId}
+              manifestVersion={payload.manifestVersion}
+              subjectType="Finding"
+              artifactHint={`finding:${decodedFindingId}`}
+              patternKey={
+                payload.decisionRuleId
+                  ? `finding-rule:${payload.decisionRuleId}`
+                  : "finding"
+              }
+              detail={{
+                findingId: decodedFindingId,
+                decisionRuleId: payload.decisionRuleId,
+              }}
+              title="Was this finding useful?"
+            />
+          ) : null}
         </>
       ) : null}
 
