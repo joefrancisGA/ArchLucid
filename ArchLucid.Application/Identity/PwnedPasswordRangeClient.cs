@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Identity;
 /// <summary>Have I Been Pwned k-anonymity range API (SHA-1 prefix).</summary>
 public sealed class PwnedPasswordRangeClient(HttpClient httpClient, IMemoryCache cache, IOptions<TrialAuthOptions>? trialOptions)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(httpClient, cache, trialOptions);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(httpClient, cache, trialOptions);
     private static byte __ValidatePrimaryConstructorArguments(System.Net.Http.HttpClient httpClient, Microsoft.Extensions.Caching.Memory.IMemoryCache cache, Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.TrialAuthOptions>? trialOptions)
     {
         ArgumentNullException.ThrowIfNull(httpClient);

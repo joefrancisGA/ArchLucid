@@ -13,12 +13,12 @@ namespace ArchLucid.Application.Support;
 /// </param>
 public sealed record SupportBundleArtifact(byte[] Bytes, string FileName, string ContentType, DateTimeOffset GeneratedUtc, DateTimeOffset RetentionDiscardAfterUtc)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Bytes, FileName, ContentType);
-    private static byte __ValidatePrimaryConstructorArguments(System.Byte[] Bytes, System.String FileName, System.String ContentType)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(Bytes, FileName, ContentType);
+    private static byte __ValidatePrimaryConstructorArguments(System.Byte[] bytes, System.String fileName, System.String contentType)
     {
-        ArgumentNullException.ThrowIfNull(Bytes);
-        ArgumentNullException.ThrowIfNull(FileName);
-        ArgumentNullException.ThrowIfNull(ContentType);
+        ArgumentNullException.ThrowIfNull(bytes);
+        ArgumentNullException.ThrowIfNull(fileName);
+        ArgumentNullException.ThrowIfNull(contentType);
         return (byte)0;
     }
 }

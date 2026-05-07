@@ -14,7 +14,7 @@ namespace ArchLucid.Application.Diagrams;
 [ExcludeFromCodeCoverage(Justification = "Requires external mmdc CLI tool installed on the host; tested manually.")]
 public sealed class MermaidCliDiagramImageRenderer(ILogger<MermaidCliDiagramImageRenderer> logger) : IDiagramImageRenderer
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(logger);
     private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Diagrams.MermaidCliDiagramImageRenderer> logger)
     {
         ArgumentNullException.ThrowIfNull(logger);

@@ -1,22 +1,21 @@
 using System.Net;
 using System.Text;
-using System.Text.Json;
 
 using ArchLucid.Application.Integrations.Itsm.Outbound;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integrations;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.TestSupport.Connectors;
+using ArchLucid.TestSupport.Http;
 
 using FluentAssertions;
 
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
-
 using Moq;
+
+using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundConnectorTestFixture;
 
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 
@@ -26,61 +25,16 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
 {
     private const string JiraConnectorName = "Jira outbound (ITSM issue create)";
 
-    private static ScopeContext Scope() =>
-        new()
-        {
-            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
-        };
-
-    private static FindingInspectResponse Inspect(FindingSeverity severity, string findingId = "fid1") =>
-        new()
-        {
-            FindingId = findingId,
-            RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-            TypedPayload = JsonSerializer.SerializeToElement(
-                new ArchitectureFinding { FindingId = findingId, Severity = severity, Message = "Hello" },
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
-            HumanReviewStatus = FindingHumanReviewStatus.Pending,
-            Evidence = [],
-            RecommendedActions = []
-        };
-
-    private static IntegrationsItsmOutboundOptions OutboundJiraConfigured(string projectKey = "DP") =>
-        new()
-        {
-            Jira = new JiraItsmOutboundOptions
-            {
-                CloudBaseUrl = "https://example.atlassian.net",
-                ServiceAccountEmail = "svc@example.com",
-                ApiToken = "token",
-                DefaultProjectKey = projectKey
-            }
-        };
-
-    private static Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> Monitor(IntegrationsItsmOutboundOptions o)
-    {
-        Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> m = new();
-        m.Setup(x => x.CurrentValue).Returns(o);
-
-        return m;
-    }
-
-    private static JiraOutboundIssueClient JiraClient(HttpMessageHandler handler) =>
-        new(new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(5) }, NullLogger<JiraOutboundIssueClient>.Instance);
-
     [Fact]
     public async Task Jira_conformance_when_jira_returns_400_failed_audit_has_status_code()
     {
-        StubStatusHandler handler = new(HttpStatusCode.BadRequest, """{"errorMessages":["project missing"]}""");
+        FixedResponseHttpMessageHandler handler = new(HttpStatusCode.BadRequest, """{"errorMessages":["project missing"]}""");
         Mock<IFindingInspectReadRepository> findings = new();
         findings
             .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "x", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Inspect(FindingSeverity.Error, findingId: "x"));
 
         ScopeContext scope = Scope();
-
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,
             Mock.Of<IItsmFindingCorrelationRepository>(),
@@ -89,25 +43,25 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
             JiraClient(handler),
-            new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHandler()), NullLogger<ServiceNowOutboundIncidentClient>.Instance));
+            ServiceNowClient(new UnexpectedHttpCallMessageHandler()));
 
-        ItsmOutboundIssueCreationResult r = await sut.TryCreateForFindingAsync(
+        ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
             ItsmOutboundIssueProvider.Jira,
             scope,
             "x",
             CancellationToken.None);
 
-        ItsmOutboundConnectorTestAssertions.AssertClearTerminalOutcome(JiraConnectorName, r, ItsmOutboundCreateTerminalKind.VendorError);
-        r.VendorStatusCode.Should().Be(400);
-        AuditEvent ev = r.AuditEvents.Single();
-        AuditEventOutboundConnectorConformance.AssertScopePreserved(JiraConnectorName, scope, ev);
-        ev.DataJson.Should().Contain("400");
+        ItsmOutboundConnectorTestAssertions.AssertClearTerminalOutcome(JiraConnectorName, result, ItsmOutboundCreateTerminalKind.VendorError);
+        result.VendorStatusCode.Should().Be(400);
+        AuditEvent audit = result.AuditEvents.Single();
+        AuditEventOutboundConnectorConformance.AssertScopePreserved(JiraConnectorName, scope, audit);
+        audit.DataJson.Should().Contain("400");
     }
 
     [Fact]
-    public async Task Jira_conformance_posts_to_rest_api_3_issue_with_basic_auth_header()
+    public async Task Jira_conformance_posts_to_rest_api_3_issue_with_basic_auth_header_and_finding_payload()
     {
-        RecordingHandler handler = new(
+        RecordingHttpMessageHandler handler = new(
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent("""{"id":"1","key":"DP-9"}""", Encoding.UTF8, "application/json"),
@@ -132,7 +86,6 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
             .Returns(Task.CompletedTask);
 
         ScopeContext scope = Scope();
-
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,
             correlations.Object,
@@ -141,56 +94,52 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
             JiraClient(handler),
-            new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHandler()), NullLogger<ServiceNowOutboundIncidentClient>.Instance));
+            ServiceNowClient(new UnexpectedHttpCallMessageHandler()));
 
-        ItsmOutboundIssueCreationResult r = await sut.TryCreateForFindingAsync(
+        ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
             ItsmOutboundIssueProvider.Jira,
             scope,
             "x",
             CancellationToken.None);
 
-        r.Kind.Should().Be(ItsmOutboundCreateTerminalKind.Succeeded);
+        result.Kind.Should().Be(ItsmOutboundCreateTerminalKind.Succeeded);
         handler.LastRequest.Should().NotBeNull();
         handler.LastRequest!.Method.Should().Be(HttpMethod.Post);
         handler.LastRequest.RequestUri!.AbsolutePath.Should().Be("/rest/api/3/issue");
-        handler.LastRequest.Headers.Authorization.Should().NotBeNull();
-        handler.LastRequest.Headers.Authorization!.Scheme.Should().Be("Basic");
+        AssertBasicAuthPresent(handler.LastRequest);
+        handler.LastRequestBody.Should().NotBeNullOrWhiteSpace();
+        handler.LastRequestBody.Should().Contain("\"key\":\"DP\"", "Project key comes from configured default.");
+        handler.LastRequestBody.Should().Contain("Hello", "Summary should embed ArchitectureFinding message per mapper.");
+        handler.LastRequestBody.Should().Contain("findingId", "Description must retain correlation paths from authority shape.");
     }
 
-    private sealed class BoomHandler : HttpMessageHandler
+    [Fact]
+    public async Task Jira_conformance_when_transport_fails_vendor_error_without_live_call()
     {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
-            Task.FromException<HttpResponseMessage>(new InvalidOperationException("Unexpected HTTP call."));
-    }
+        FaultingHttpMessageHandler handler = new(new HttpRequestException("simulated network failure"));
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "x", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Inspect(FindingSeverity.Warning, findingId: "x"));
 
-    private sealed class StubStatusHandler : HttpMessageHandler
-    {
-        private readonly HttpStatusCode _code;
-        private readonly string _body;
+        ItsmOutboundIssueCreationService sut = new(
+            findings.Object,
+            Mock.Of<IItsmFindingCorrelationRepository>(),
+            Mock.Of<ITenantItsmOutboundSettingsRepository>(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IArchitectureRequestRepository>(),
+            Monitor(OutboundJiraConfigured()).Object,
+            JiraClient(handler),
+            ServiceNowClient(new UnexpectedHttpCallMessageHandler()));
 
-        public StubStatusHandler(HttpStatusCode code, string body)
-        {
-            _code = code;
-            _body = body;
-        }
+        ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
+            ItsmOutboundIssueProvider.Jira,
+            Scope(),
+            "x",
+            CancellationToken.None);
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
-            Task.FromResult(new HttpResponseMessage(_code) { Content = new StringContent(_body, Encoding.UTF8, "application/json") });
-    }
-
-    private sealed class RecordingHandler : HttpMessageHandler
-    {
-        private readonly HttpResponseMessage _response;
-
-        public RecordingHandler(HttpResponseMessage response) => _response = response;
-
-        public HttpRequestMessage? LastRequest { get; private set; }
-
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            LastRequest = request;
-
-            return Task.FromResult(_response);
-        }
+        ItsmOutboundConnectorTestAssertions.AssertClearTerminalOutcome(JiraConnectorName, result, ItsmOutboundCreateTerminalKind.VendorError);
+        result.UserMessage.Should().Contain("network");
+        result.VendorStatusCode.Should().Be(503);
     }
 }

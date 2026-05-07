@@ -5,7 +5,7 @@ namespace ArchLucid.Application.Governance;
 /// <inheritdoc/>
 public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository changeLogRepository) : IComplianceDriftTrendService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(changeLogRepository);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(changeLogRepository);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackChangeLogRepository changeLogRepository)
     {
         ArgumentNullException.ThrowIfNull(changeLogRepository);

@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Audit;
 /// <inheritdoc cref = "IRunPipelineAuditTimelineService"/>
 public sealed class RunPipelineAuditTimelineService(IAuthorityQueryService authorityQuery, IAuditRepository auditRepository) : IRunPipelineAuditTimelineService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQuery, auditRepository);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQuery, auditRepository);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Queries.IAuthorityQueryService authorityQuery, ArchLucid.Persistence.Audit.IAuditRepository auditRepository)
     {
         ArgumentNullException.ThrowIfNull(authorityQuery);

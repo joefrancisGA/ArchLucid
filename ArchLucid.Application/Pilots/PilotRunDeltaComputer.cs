@@ -39,7 +39,7 @@ public sealed class PilotRunDeltaComputer(
     ILogger<PilotRunDeltaComputer> logger)
     : IPilotRunDeltaComputer
 {
-    private readonly byte __primaryConstructorArgumentValidation =
+    private readonly byte _primaryConstructorArgumentValidation =
         __ValidatePrimaryConstructorArguments(
             evidenceChainService,
             agentExecutionTraceRepository,

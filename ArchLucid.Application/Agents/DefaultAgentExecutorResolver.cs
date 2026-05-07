@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Agents;
 /// </summary>
 public sealed class DefaultAgentExecutorResolver(IAgentExecutor currentExecutor) : IAgentExecutorResolver
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(currentExecutor);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(currentExecutor);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Contracts.Abstractions.Agents.IAgentExecutor currentExecutor)
     {
         ArgumentNullException.ThrowIfNull(currentExecutor);

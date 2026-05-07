@@ -25,7 +25,7 @@ namespace ArchLucid.Application.Marketing;
 /// </remarks>
 public sealed class EvidencePackBuilder(IEvidencePackSourceProvider sourceProvider, TimeProvider timeProvider) : IEvidencePackBuilder
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(sourceProvider, timeProvider);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(sourceProvider, timeProvider);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Marketing.IEvidencePackSourceProvider sourceProvider, System.TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(sourceProvider);

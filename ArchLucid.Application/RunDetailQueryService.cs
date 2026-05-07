@@ -31,7 +31,7 @@ namespace ArchLucid.Application;
 /// </remarks>
 public sealed class RunDetailQueryService(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IAgentTaskRepository taskRepository, IAgentResultRepository resultRepository, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IDecisionTraceRepository authorityDecisionTraceRepository, ILogger<RunDetailQueryService> logger) : IRunDetailQueryService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runRepository, scopeContextProvider, taskRepository, resultRepository, unifiedGoldenManifestReader, authorityDecisionTraceRepository, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runRepository, scopeContextProvider, taskRepository, resultRepository, unifiedGoldenManifestReader, authorityDecisionTraceRepository, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Persistence.Data.Repositories.IAgentTaskRepository taskRepository, ArchLucid.Persistence.Data.Repositories.IAgentResultRepository resultRepository, ArchLucid.Decisioning.Interfaces.IUnifiedGoldenManifestReader unifiedGoldenManifestReader, ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository authorityDecisionTraceRepository, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.RunDetailQueryService> logger)
     {
         ArgumentNullException.ThrowIfNull(runRepository);

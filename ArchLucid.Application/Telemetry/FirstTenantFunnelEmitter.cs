@@ -14,7 +14,7 @@ namespace ArchLucid.Application.Telemetry;
 /// </summary>
 public sealed class FirstTenantFunnelEmitter(IOptionsMonitor<FirstTenantFunnelOptions> optionsMonitor, IFirstTenantFunnelEventStore eventStore, TimeProvider timeProvider, ILogger<FirstTenantFunnelEmitter> logger) : IFirstTenantFunnelEmitter
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(optionsMonitor, eventStore, timeProvider, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(optionsMonitor, eventStore, timeProvider, logger);
     private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.FirstTenantFunnelOptions> optionsMonitor, ArchLucid.Persistence.Telemetry.IFirstTenantFunnelEventStore eventStore, System.TimeProvider timeProvider, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Telemetry.FirstTenantFunnelEmitter> logger)
     {
         ArgumentNullException.ThrowIfNull(optionsMonitor);

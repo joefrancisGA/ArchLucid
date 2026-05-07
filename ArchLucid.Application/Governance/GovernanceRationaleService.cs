@@ -4,7 +4,7 @@ namespace ArchLucid.Application.Governance;
 /// <inheritdoc cref = "IGovernanceRationaleService"/>
 public sealed class GovernanceRationaleService(IGovernanceLineageService lineageService) : IGovernanceRationaleService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(lineageService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(lineageService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Governance.IGovernanceLineageService lineageService)
     {
         ArgumentNullException.ThrowIfNull(lineageService);

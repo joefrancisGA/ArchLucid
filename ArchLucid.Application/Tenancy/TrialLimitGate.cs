@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Tenancy;
 /// </summary>
 public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvider timeProvider)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository, timeProvider);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository, timeProvider);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Tenancy.ITenantRepository tenantRepository, System.TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(tenantRepository);

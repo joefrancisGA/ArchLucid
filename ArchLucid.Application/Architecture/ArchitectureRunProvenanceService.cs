@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Architecture;
 /// <inheritdoc/>
 public sealed class ArchitectureRunProvenanceService(IRunDetailQueryService runDetailQueryService, IArchitectureRequestRepository requestRepository, IEvidenceBundleRepository evidenceBundleRepository, IDecisionNodeRepository decisionNodeRepository) : IArchitectureRunProvenanceService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, requestRepository, evidenceBundleRepository, decisionNodeRepository);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, requestRepository, evidenceBundleRepository, decisionNodeRepository);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Persistence.Data.Repositories.IArchitectureRequestRepository requestRepository, ArchLucid.Persistence.Data.Repositories.IEvidenceBundleRepository evidenceBundleRepository, ArchLucid.Persistence.Data.Repositories.IDecisionNodeRepository decisionNodeRepository)
     {
         ArgumentNullException.ThrowIfNull(runDetailQueryService);

@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Traceability;
 /// <inheritdoc/>
 public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQueryService, IAuditRepository auditRepository) : ITraceabilityBundleBuilder
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, auditRepository);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, auditRepository);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Persistence.Audit.IAuditRepository auditRepository)
     {
         ArgumentNullException.ThrowIfNull(runDetailQueryService);

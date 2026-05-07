@@ -30,7 +30,7 @@ namespace ArchLucid.Application.Support;
 /// </remarks>
 public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMonitor<SupportBundleOptions> supportBundleOptions) : ISupportBundleAssembler
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(timeProvider, supportBundleOptions);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(timeProvider, supportBundleOptions);
     private static byte __ValidatePrimaryConstructorArguments(System.TimeProvider timeProvider, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Application.Support.SupportBundleOptions> supportBundleOptions)
     {
         ArgumentNullException.ThrowIfNull(timeProvider);

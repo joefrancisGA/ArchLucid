@@ -15,7 +15,7 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
 {
     private const string IncompletePdfBanner =
         "INCOMPLETE — NOT FOR EXTERNAL SPONSOR DISTRIBUTION";
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(markdownBuilder);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(markdownBuilder);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Pilots.FirstValueReportBuilder markdownBuilder)
     {
         ArgumentNullException.ThrowIfNull(markdownBuilder);

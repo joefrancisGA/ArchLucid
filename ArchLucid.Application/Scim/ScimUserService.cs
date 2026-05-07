@@ -12,7 +12,7 @@ using ArchLucid.Core.Tenancy;
 namespace ArchLucid.Application.Scim;
 public sealed class ScimUserService(IScimUserRepository users, ITenantRepository tenants, IGroupToRoleMapper roleMapper, IAuditService audit) : IScimUserService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(users, tenants, roleMapper, audit);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(users, tenants, roleMapper, audit);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scim.IScimUserRepository users, ArchLucid.Core.Tenancy.ITenantRepository tenants, ArchLucid.Application.Scim.RoleMapping.IGroupToRoleMapper roleMapper, ArchLucid.Core.Audit.IAuditService audit)
     {
         ArgumentNullException.ThrowIfNull(users);

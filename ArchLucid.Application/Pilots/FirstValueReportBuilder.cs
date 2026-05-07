@@ -27,7 +27,7 @@ namespace ArchLucid.Application.Pilots;
 /// </remarks>
 public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuery, IPilotRunDeltaComputer deltaComputer, ValueReportBuilder valueReportBuilder, IScopeContextProvider scopeProvider, IExecutionProvenanceFooterRenderer executionProvenanceFooter, IConfiguration configuration, IOptionsMonitor<PublicSiteOptions> publicSiteOptions, ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQuery, deltaComputer, valueReportBuilder, scopeProvider, executionProvenanceFooter, configuration, publicSiteOptions, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQuery, deltaComputer, valueReportBuilder, scopeProvider, executionProvenanceFooter, configuration, publicSiteOptions, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQuery, ArchLucid.Application.Pilots.IPilotRunDeltaComputer deltaComputer, ArchLucid.Application.Value.ValueReportBuilder valueReportBuilder, ArchLucid.Core.Scoping.IScopeContextProvider scopeProvider, ArchLucid.Application.Pilots.IExecutionProvenanceFooterRenderer executionProvenanceFooter, Microsoft.Extensions.Configuration.IConfiguration configuration, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.PublicSiteOptions> publicSiteOptions, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Pilots.FirstValueReportBuilder> logger)
     {
         ArgumentNullException.ThrowIfNull(runDetailQuery);

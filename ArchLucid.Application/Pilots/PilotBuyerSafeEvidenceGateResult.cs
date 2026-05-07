@@ -8,15 +8,15 @@ public sealed record PilotBuyerSafeEvidenceGateResult(
     IReadOnlyList<string> HardGaps,
     IReadOnlyList<string> SoftGaps)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(DemoGaps, HardGaps, SoftGaps);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(DemoGaps, HardGaps, SoftGaps);
     private static byte __ValidatePrimaryConstructorArguments(
-        System.Collections.Generic.IReadOnlyList<System.String> DemoGaps,
-        System.Collections.Generic.IReadOnlyList<System.String> HardGaps,
-        System.Collections.Generic.IReadOnlyList<System.String> SoftGaps)
+        System.Collections.Generic.IReadOnlyList<System.String> demoGaps,
+        System.Collections.Generic.IReadOnlyList<System.String> hardGaps,
+        System.Collections.Generic.IReadOnlyList<System.String> softGaps)
     {
-        ArgumentNullException.ThrowIfNull(DemoGaps);
-        ArgumentNullException.ThrowIfNull(HardGaps);
-        ArgumentNullException.ThrowIfNull(SoftGaps);
+        ArgumentNullException.ThrowIfNull(demoGaps);
+        ArgumentNullException.ThrowIfNull(hardGaps);
+        ArgumentNullException.ThrowIfNull(softGaps);
         return (byte)0;
     }
 }

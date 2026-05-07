@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Tenancy;
 /// </summary>
 public sealed class TrialSeatAccountant(ITenantRepository tenantRepository)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Tenancy.ITenantRepository tenantRepository)
     {
         ArgumentNullException.ThrowIfNull(tenantRepository);

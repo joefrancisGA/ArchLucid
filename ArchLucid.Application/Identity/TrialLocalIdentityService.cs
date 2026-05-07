@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Identity;
 public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialOptions, ITrialIdentityUserRepository repository, PasswordHasher<TrialIdentityHasherUser> passwordHasher, TrialPasswordPolicyValidator passwordPolicy, PwnedPasswordRangeClient pwnedClient, ITrialLocalIdentityAccountExistsNotifier accountExistsNotifier, ILogger<TrialLocalIdentityService> logger) : ITrialLocalIdentityService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(trialOptions, repository, passwordHasher, passwordPolicy, pwnedClient, accountExistsNotifier, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(trialOptions, repository, passwordHasher, passwordPolicy, pwnedClient, accountExistsNotifier, logger);
     private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.TrialAuthOptions>? trialOptions, ArchLucid.Core.Identity.ITrialIdentityUserRepository repository, Microsoft.AspNetCore.Identity.PasswordHasher<ArchLucid.Application.Identity.TrialIdentityHasherUser> passwordHasher, ArchLucid.Application.Identity.TrialPasswordPolicyValidator passwordPolicy, ArchLucid.Application.Identity.PwnedPasswordRangeClient pwnedClient, ArchLucid.Application.Identity.ITrialLocalIdentityAccountExistsNotifier accountExistsNotifier, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Identity.TrialLocalIdentityService> logger)
     {
         ArgumentNullException.ThrowIfNull(repository);

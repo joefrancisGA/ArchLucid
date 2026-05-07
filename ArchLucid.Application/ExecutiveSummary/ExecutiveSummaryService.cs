@@ -8,7 +8,7 @@ namespace ArchLucid.Application.ExecutiveSummary;
 /// <inheritdoc cref = "IExecutiveSummaryService"/>
 public sealed class ExecutiveSummaryService(IRunRepository runRepository, IRunDetailQueryService runDetailQueryService) : IExecutiveSummaryService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runRepository, runDetailQueryService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runRepository, runDetailQueryService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Application.IRunDetailQueryService runDetailQueryService)
     {
         ArgumentNullException.ThrowIfNull(runRepository);

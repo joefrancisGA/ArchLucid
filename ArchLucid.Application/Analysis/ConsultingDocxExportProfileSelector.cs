@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Analysis;
 /// </remarks>
 public sealed class ConsultingDocxExportProfileSelector(IConsultingDocxTemplateProfileResolver profileResolver, IConsultingDocxTemplateRecommendationService recommendationService) : IConsultingDocxExportProfileSelector
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(profileResolver, recommendationService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(profileResolver, recommendationService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Analysis.IConsultingDocxTemplateProfileResolver profileResolver, ArchLucid.Application.Analysis.IConsultingDocxTemplateRecommendationService recommendationService)
     {
         ArgumentNullException.ThrowIfNull(profileResolver);

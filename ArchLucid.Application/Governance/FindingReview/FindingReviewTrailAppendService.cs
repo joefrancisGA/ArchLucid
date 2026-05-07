@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Governance.FindingReview;
 /// <inheritdoc cref = "IFindingReviewTrailAppendService"/>
 public sealed class FindingReviewTrailAppendService(IFindingReviewTrailRepository trailRepository, IAuditService auditService) : IFindingReviewTrailAppendService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(trailRepository, auditService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(trailRepository, auditService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository trailRepository, ArchLucid.Core.Audit.IAuditService auditService)
     {
         ArgumentNullException.ThrowIfNull(trailRepository);

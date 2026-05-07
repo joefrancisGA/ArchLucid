@@ -1,12 +1,12 @@
 namespace ArchLucid.Application.DataConsistency;
 public sealed record DataConsistencyFinding(string CheckName, DataConsistencyFindingSeverity Severity, string Description, IReadOnlyList<string> AffectedEntityIds)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(CheckName, Description, AffectedEntityIds);
-    private static byte __ValidatePrimaryConstructorArguments(System.String CheckName, System.String Description, System.Collections.Generic.IReadOnlyList<System.String> AffectedEntityIds)
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(CheckName, Description, AffectedEntityIds);
+    private static byte __ValidatePrimaryConstructorArguments(System.String checkName, System.String description, System.Collections.Generic.IReadOnlyList<System.String> affectedEntityIds)
     {
-        ArgumentNullException.ThrowIfNull(CheckName);
-        ArgumentNullException.ThrowIfNull(Description);
-        ArgumentNullException.ThrowIfNull(AffectedEntityIds);
+        ArgumentNullException.ThrowIfNull(checkName);
+        ArgumentNullException.ThrowIfNull(description);
+        ArgumentNullException.ThrowIfNull(affectedEntityIds);
         return (byte)0;
     }
 }

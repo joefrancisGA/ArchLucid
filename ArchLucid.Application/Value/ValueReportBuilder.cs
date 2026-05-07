@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Value;
 public sealed class ValueReportBuilder(IValueReportMetricsReader metricsReader, IOptionsMonitor<ValueReportComputationOptions> optionsMonitor)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(metricsReader, optionsMonitor);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(metricsReader, optionsMonitor);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Value.IValueReportMetricsReader metricsReader, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.ValueReportComputationOptions> optionsMonitor)
     {
         ArgumentNullException.ThrowIfNull(metricsReader);

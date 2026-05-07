@@ -15,6 +15,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -30,7 +31,7 @@ namespace ArchLucid.Application;
 /// </remarks>
 public sealed class ArchitectureApplicationService(IRunDetailQueryService runDetailQueryService, IAgentResultRepository resultRepository, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IArchitectureRequestRepository requestRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IConfiguration configuration, IAuditService auditService, IActorContext actorContext, IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher, ILogger<ArchitectureApplicationService> logger) : IArchitectureApplicationService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, resultRepository, unifiedGoldenManifestReader, requestRepository, agentEvidencePackageRepository, evidenceBuilder, unitOfWorkFactory, runRepository, scopeContextProvider, configuration, auditService, actorContext, architectureFindingConfidenceEnricher, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, resultRepository, unifiedGoldenManifestReader, requestRepository, agentEvidencePackageRepository, evidenceBuilder, unitOfWorkFactory, runRepository, scopeContextProvider, configuration, auditService, actorContext, architectureFindingConfidenceEnricher, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Persistence.Data.Repositories.IAgentResultRepository resultRepository, ArchLucid.Decisioning.Interfaces.IUnifiedGoldenManifestReader unifiedGoldenManifestReader, ArchLucid.Persistence.Data.Repositories.IArchitectureRequestRepository requestRepository, ArchLucid.Persistence.Data.Repositories.IAgentEvidencePackageRepository agentEvidencePackageRepository, ArchLucid.Application.Evidence.IEvidenceBuilder evidenceBuilder, ArchLucid.Core.Transactions.IArchLucidUnitOfWorkFactory unitOfWorkFactory, ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, Microsoft.Extensions.Configuration.IConfiguration configuration, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Application.Common.IActorContext actorContext, ArchLucid.Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.ArchitectureApplicationService> logger)
     {
         ArgumentNullException.ThrowIfNull(runDetailQueryService);
@@ -98,7 +99,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
             {
                 await architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
             }
-            catch (Exception ex)when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 if (logger.IsEnabled(LogLevel.Warning))
                     logger.LogWarningWithSanitizedUserArg(ex, "Architecture finding confidence enrichment failed after submit for RunId={RunId}; continuing.", runId);
@@ -169,7 +170,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         {
             await architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarning(ex, "Architecture finding confidence enrichment failed after fake seed for RunId={RunId}; continuing.", runId);

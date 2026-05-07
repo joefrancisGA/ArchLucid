@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class ExportReplayService(IRunExportRecordRepository runExportRecordRepository, IArchitectureAnalysisService architectureAnalysisService, IArchitectureAnalysisDocxExportService analysisDocxExportService, IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService, IRunExportAuditService runExportAuditService) : IExportReplayService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runExportRecordRepository, architectureAnalysisService, analysisDocxExportService, consultingDocxExportService, runExportAuditService);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runExportRecordRepository, architectureAnalysisService, analysisDocxExportService, consultingDocxExportService, runExportAuditService);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IRunExportRecordRepository runExportRecordRepository, ArchLucid.Application.Analysis.IArchitectureAnalysisService architectureAnalysisService, ArchLucid.Application.Analysis.IArchitectureAnalysisDocxExportService analysisDocxExportService, ArchLucid.Application.Analysis.IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService, ArchLucid.Application.Analysis.IRunExportAuditService runExportAuditService)
     {
         ArgumentNullException.ThrowIfNull(runExportRecordRepository);

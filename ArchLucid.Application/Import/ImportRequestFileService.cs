@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Import;
 public sealed class ImportRequestFileService(IScopeContextProvider scopeContextProvider, IActorContext actorContext, IAuditService auditService, IImportedArchitectureRequestRepository importedRequestRepository, IArchitectureRequestImportValidator architectureRequestImportValidator, IRequestContentSafetyPrecheck requestContentSafetyPrecheck, ILogger<ImportRequestFileService> logger) : IImportRequestFileService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(scopeContextProvider, actorContext, auditService, importedRequestRepository, architectureRequestImportValidator, requestContentSafetyPrecheck, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(scopeContextProvider, actorContext, auditService, importedRequestRepository, architectureRequestImportValidator, requestContentSafetyPrecheck, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, ArchLucid.Application.Common.IActorContext actorContext, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Persistence.Data.Repositories.IImportedArchitectureRequestRepository importedRequestRepository, ArchLucid.Application.Import.IArchitectureRequestImportValidator architectureRequestImportValidator, ArchLucid.Application.Runs.Orchestration.IRequestContentSafetyPrecheck requestContentSafetyPrecheck, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Import.ImportRequestFileService> logger)
     {
         ArgumentNullException.ThrowIfNull(scopeContextProvider);

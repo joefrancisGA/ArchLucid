@@ -1,6 +1,5 @@
-using System.Text.Json;
-
 using ArchLucid.Application.Integrations.Itsm.Outbound;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -8,11 +7,15 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integrations;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.TestSupport.Connectors;
+using ArchLucid.TestSupport.Http;
 
-using Microsoft.Extensions.Logging.Abstractions;
+using FluentAssertions;
+
 using Microsoft.Extensions.Options;
 
 using Moq;
+
+using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundConnectorTestFixture;
 
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 
@@ -24,54 +27,10 @@ public sealed class ItsmOutboundConnectorConformanceTests
 
     private const string ServiceNowConnectorName = "ServiceNow outbound (ITSM incident create)";
 
-    private static ScopeContext Scope() =>
-        new()
-        {
-            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
-        };
-
-    private static FindingInspectResponse Inspect(FindingSeverity severity, string findingId = "fid1") =>
-        new()
-        {
-            FindingId = findingId,
-            RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-            TypedPayload = JsonSerializer.SerializeToElement(
-                new ArchitectureFinding { FindingId = findingId, Severity = severity, Message = "Hello" },
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
-            HumanReviewStatus = FindingHumanReviewStatus.Pending,
-            Evidence = [],
-            RecommendedActions = []
-        };
-
-    private static IntegrationsItsmOutboundOptions OutboundJiraConfigured(string projectKey = "DP") =>
-        new()
-        {
-            Jira = new JiraItsmOutboundOptions
-            {
-                CloudBaseUrl = "https://example.atlassian.net",
-                ServiceAccountEmail = "svc@example.com",
-                ApiToken = "token",
-                DefaultProjectKey = projectKey
-            }
-        };
-
-    private static Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> Monitor(IntegrationsItsmOutboundOptions o)
-    {
-        Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> m = new();
-        m.Setup(x => x.CurrentValue).Returns(o);
-
-        return m;
-    }
-
-    private static JiraOutboundIssueClient JiraClient(HttpMessageHandler handler) =>
-        new(new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(5) }, NullLogger<JiraOutboundIssueClient>.Instance);
-
     [Fact]
     public async Task Jira_conformance_when_credentials_missing_skipped_audit_preserves_scope_and_excludes_secrets()
     {
-        HttpMessageHandler boom = new BoomHttpMessageHandler();
+        HttpMessageHandler boom = new UnexpectedHttpCallMessageHandler();
         Mock<IFindingInspectReadRepository> findings = new();
         findings
             .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "x", It.IsAny<CancellationToken>()))
@@ -89,26 +48,26 @@ public sealed class ItsmOutboundConnectorConformanceTests
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(outbound).Object,
             JiraClient(boom),
-            new ServiceNowOutboundIncidentClient(new HttpClient(boom), NullLogger<ServiceNowOutboundIncidentClient>.Instance));
+            ServiceNowClient(boom));
 
-        ItsmOutboundIssueCreationResult r = await sut.TryCreateForFindingAsync(
+        ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
             ItsmOutboundIssueProvider.Jira,
             scope,
             "x",
             CancellationToken.None);
 
-        ItsmOutboundConnectorTestAssertions.AssertClearTerminalOutcome(JiraConnectorName, r, ItsmOutboundCreateTerminalKind.Skipped);
-        AuditEvent ev = r.AuditEvents.Single();
+        ItsmOutboundConnectorTestAssertions.AssertClearTerminalOutcome(JiraConnectorName, result, ItsmOutboundCreateTerminalKind.Skipped);
+        AuditEvent audit = result.AuditEvents.Single();
 
-        AuditEventOutboundConnectorConformance.AssertScopePreserved(JiraConnectorName, scope, ev);
-        AuditEventOutboundConnectorConformance.AssertAuditDataExcludesSecretMaterial(JiraConnectorName, ev.DataJson);
-        AuditEventOutboundConnectorConformance.AssertAuditDataContainsFindingIdWhenPresent(JiraConnectorName, "x", ev.DataJson);
+        AuditEventOutboundConnectorConformance.AssertScopePreserved(JiraConnectorName, scope, audit);
+        AuditEventOutboundConnectorConformance.AssertAuditDataExcludesSecretMaterial(JiraConnectorName, audit.DataJson);
+        AuditEventOutboundConnectorConformance.AssertAuditDataContainsFindingIdWhenPresent(JiraConnectorName, "x", audit.DataJson);
     }
 
     [Fact]
     public async Task Jira_conformance_when_finding_missing_failed_audit_preserves_scope()
     {
-        HttpMessageHandler boom = new BoomHttpMessageHandler();
+        HttpMessageHandler boom = new UnexpectedHttpCallMessageHandler();
         Mock<IFindingInspectReadRepository> findings = new();
         findings
             .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "missing", It.IsAny<CancellationToken>()))
@@ -124,25 +83,25 @@ public sealed class ItsmOutboundConnectorConformanceTests
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
             JiraClient(boom),
-            new ServiceNowOutboundIncidentClient(new HttpClient(boom), NullLogger<ServiceNowOutboundIncidentClient>.Instance));
+            ServiceNowClient(boom));
 
-        ItsmOutboundIssueCreationResult r = await sut.TryCreateForFindingAsync(
+        ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
             ItsmOutboundIssueProvider.Jira,
             scope,
             "missing",
             CancellationToken.None);
 
-        ItsmOutboundConnectorTestAssertions.AssertClearTerminalOutcome(JiraConnectorName, r, ItsmOutboundCreateTerminalKind.VendorError);
-        AuditEvent ev = r.AuditEvents.Single();
+        ItsmOutboundConnectorTestAssertions.AssertClearTerminalOutcome(JiraConnectorName, result, ItsmOutboundCreateTerminalKind.VendorError);
+        AuditEvent audit = result.AuditEvents.Single();
 
-        AuditEventOutboundConnectorConformance.AssertScopePreserved(JiraConnectorName, scope, ev);
-        AuditEventOutboundConnectorConformance.AssertAuditDataExcludesSecretMaterial(JiraConnectorName, ev.DataJson);
+        AuditEventOutboundConnectorConformance.AssertScopePreserved(JiraConnectorName, scope, audit);
+        AuditEventOutboundConnectorConformance.AssertAuditDataExcludesSecretMaterial(JiraConnectorName, audit.DataJson);
     }
 
     [Fact]
     public async Task ServiceNow_conformance_when_credentials_missing_skipped_audit_preserves_scope()
     {
-        HttpMessageHandler boom = new BoomHttpMessageHandler();
+        HttpMessageHandler boom = new UnexpectedHttpCallMessageHandler();
         Mock<IFindingInspectReadRepository> findings = new();
         findings
             .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "f1", It.IsAny<CancellationToken>()))
@@ -164,10 +123,10 @@ public sealed class ItsmOutboundConnectorConformanceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(outbound).Object,
-            new JiraOutboundIssueClient(new HttpClient(boom), NullLogger<JiraOutboundIssueClient>.Instance),
-            new ServiceNowOutboundIncidentClient(new HttpClient(boom), NullLogger<ServiceNowOutboundIncidentClient>.Instance));
+            JiraClient(boom),
+            ServiceNowClient(boom));
 
-        ItsmOutboundIssueCreationResult r = await sut.TryCreateForFindingAsync(
+        ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
             ItsmOutboundIssueProvider.ServiceNow,
             scope,
             "f1",
@@ -175,19 +134,13 @@ public sealed class ItsmOutboundConnectorConformanceTests
 
         ItsmOutboundConnectorTestAssertions.AssertClearTerminalOutcome(
             ServiceNowConnectorName,
-            r,
+            result,
             ItsmOutboundCreateTerminalKind.Skipped);
 
-        AuditEvent ev = r.AuditEvents.Single();
+        AuditEvent audit = result.AuditEvents.Single();
 
-        AuditEventOutboundConnectorConformance.AssertScopePreserved(ServiceNowConnectorName, scope, ev);
-        AuditEventOutboundConnectorConformance.AssertAuditDataExcludesSecretMaterial(ServiceNowConnectorName, ev.DataJson);
-        AuditEventOutboundConnectorConformance.AssertAuditDataContainsFindingIdWhenPresent(ServiceNowConnectorName, "f1", ev.DataJson);
-    }
-
-    private sealed class BoomHttpMessageHandler : HttpMessageHandler
-    {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
-            Task.FromException<HttpResponseMessage>(new InvalidOperationException("Unexpected HTTP call."));
+        AuditEventOutboundConnectorConformance.AssertScopePreserved(ServiceNowConnectorName, scope, audit);
+        AuditEventOutboundConnectorConformance.AssertAuditDataExcludesSecretMaterial(ServiceNowConnectorName, audit.DataJson);
+        AuditEventOutboundConnectorConformance.AssertAuditDataContainsFindingIdWhenPresent(ServiceNowConnectorName, "f1", audit.DataJson);
     }
 }

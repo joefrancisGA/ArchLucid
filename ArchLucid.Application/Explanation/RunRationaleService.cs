@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Explanation;
 /// <inheritdoc/>
 public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, IRunDetailQueryService runDetailQuery) : IRunRationaleService
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQuery, runDetailQuery);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQuery, runDetailQuery);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Queries.IAuthorityQueryService authorityQuery, ArchLucid.Application.IRunDetailQueryService runDetailQuery)
     {
         ArgumentNullException.ThrowIfNull(authorityQuery);

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Notifications.Email;
 public sealed class CommitSponsorEmailNotifier(ITenantTrialEmailContactLookup contactLookup, IEmailProvider emailProvider, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor, ILogger<CommitSponsorEmailNotifier> logger) : ICommitSponsorEmailNotifier
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(contactLookup, emailProvider, emailOptionsMonitor, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(contactLookup, emailProvider, emailOptionsMonitor, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Tenancy.ITenantTrialEmailContactLookup contactLookup, ArchLucid.Core.Notifications.Email.IEmailProvider emailProvider, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Configuration.EmailNotificationOptions> emailOptionsMonitor, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Notifications.Email.CommitSponsorEmailNotifier> logger)
     {
         ArgumentNullException.ThrowIfNull(contactLookup);

@@ -5,7 +5,7 @@ namespace ArchLucid.Application.Analysis;
 /// <inheritdoc cref = "IComparisonReplayCostEstimator"/>
 public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository comparisonRecords) : IComparisonReplayCostEstimator
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(comparisonRecords);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(comparisonRecords);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IComparisonRecordRepository comparisonRecords)
     {
         ArgumentNullException.ThrowIfNull(comparisonRecords);

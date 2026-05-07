@@ -9,7 +9,7 @@ namespace ArchLucid.Application;
 /// <summary>Creates, executes (simulator), and commits one authority run for trial welcome UX.</summary>
 public sealed class TrialArchitecturePreseedExecutor(ITenantRepository tenantRepository, IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator, IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator, IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator, ILogger<TrialArchitecturePreseedExecutor> logger)
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository, architectureRunCreateOrchestrator, architectureRunExecuteOrchestrator, architectureRunCommitOrchestrator, logger);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(tenantRepository, architectureRunCreateOrchestrator, architectureRunExecuteOrchestrator, architectureRunCommitOrchestrator, logger);
     private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Core.Tenancy.ITenantRepository tenantRepository, ArchLucid.Application.Runs.Orchestration.IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator, ArchLucid.Application.Runs.Orchestration.IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator, ArchLucid.Application.Runs.Orchestration.IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.TrialArchitecturePreseedExecutor> logger)
     {
         ArgumentNullException.ThrowIfNull(tenantRepository);

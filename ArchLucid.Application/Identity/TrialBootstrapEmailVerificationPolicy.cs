@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Identity;
 /// </remarks>
 public sealed class TrialBootstrapEmailVerificationPolicy(IOptions<TrialAuthOptions>? trialOptions, ITrialIdentityUserRepository identityUsers) : ITrialBootstrapEmailVerificationPolicy
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(trialOptions, identityUsers);
+    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(trialOptions, identityUsers);
     private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.TrialAuthOptions>? trialOptions, ArchLucid.Core.Identity.ITrialIdentityUserRepository identityUsers)
     {
         ArgumentNullException.ThrowIfNull(identityUsers);
