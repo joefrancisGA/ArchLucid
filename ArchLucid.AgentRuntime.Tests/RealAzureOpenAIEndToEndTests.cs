@@ -22,12 +22,15 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using System.Text.Json;
+
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
 ///     Optional live Azure OpenAI integration: set <c>ARCHLUCID_REAL_AOAI_TEST_ENDPOINT</c> and
 ///     <c>ARCHLUCID_REAL_AOAI_TEST_KEY</c>. Optional <c>ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT</c> (defaults to
-///     <c>gpt-4o</c>).
+///     <c>gpt-4o</c>). When <c>ARCHLUCID_REAL_LLM_RUN_METRICS_JSON</c> is set to an absolute path (done by
+///     <c>scripts/Invoke-RealLlmEvidenceGate.ps1</c>), a camelCase metrics JSON file is written after the test passes.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -199,6 +202,61 @@ public sealed class RealAzureOpenAIEndToEndTests
 
         bool anyCitation = traceSpy.RawResponses.Any(static s => s.Contains("evidenceRefs", StringComparison.Ordinal));
         anyCitation.Should().BeTrue("trace should include evidence references for explainability");
+
+        TryWriteRealLlmRunMetricsJson(
+            traceSpy,
+            merge,
+            results,
+            deployment,
+            anyCitation);
+    }
+
+    /// <summary>
+    ///     When <c>ARCHLUCID_REAL_LLM_RUN_METRICS_JSON</c> is set (absolute path), writes camelCase JSON for
+    ///     <c>scripts/Invoke-RealLlmEvidenceGate.ps1</c>. No-op when unset.
+    /// </summary>
+    private static void TryWriteRealLlmRunMetricsJson(
+        LiveAoaiTraceSpy traceSpy,
+        DecisionMergeResult merge,
+        IReadOnlyList<AgentResult> results,
+        string deploymentName,
+        bool evidenceRefsObserved)
+    {
+        string? path = Environment.GetEnvironmentVariable("ARCHLUCID_REAL_LLM_RUN_METRICS_JSON");
+
+        if (string.IsNullOrWhiteSpace(path))
+            return;
+
+        int parseFailures = traceSpy.ParseOutcomeHistory.Count(static x => !x.ParseSucceeded);
+
+        Dictionary<string, object?> payload = new()
+        {
+            ["generatedUtc"] = DateTime.UtcNow.ToString("o"),
+            ["deploymentName"] = deploymentName.Trim(),
+            ["mergeSuccess"] = merge.Success,
+            ["manifestServiceCount"] = merge.Manifest.Services.Count,
+            ["decisionsCount"] = merge.Decisions.Count,
+            ["totalClaims"] = results.Sum(static r => r.Claims.Count),
+            ["parseAttempts"] = traceSpy.ParseOutcomeHistory.Count,
+            ["parseFailures"] = parseFailures,
+            ["inputTokensTotal"] = traceSpy.InputTokensTotal,
+            ["outputTokensTotal"] = traceSpy.OutputTokensTotal,
+            ["estimatedCostUsd"] = null,
+            ["semanticScoreCaptured"] = false,
+            ["evidenceRefsObserved"] = evidenceRefsObserved,
+            ["traceRecorderInvocations"] = traceSpy.RawResponses.Count,
+            ["durableSqlPersistenceExercised"] = false
+        };
+
+        JsonSerializerOptions options = new()
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        string json = JsonSerializer.Serialize(payload, options);
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+        File.WriteAllText(path.Trim(), json);
     }
 
     private sealed class LiveAoaiTraceSpy : IAgentExecutionTraceRecorder
@@ -207,6 +265,23 @@ public sealed class RealAzureOpenAIEndToEndTests
         {
             get;
         } = [];
+
+        public List<(bool ParseSucceeded, int? InputTokens, int? OutputTokens)> ParseOutcomeHistory
+        {
+            get;
+        } = [];
+
+        public int InputTokensTotal
+        {
+            get;
+            private set;
+        }
+
+        public int OutputTokensTotal
+        {
+            get;
+            private set;
+        }
 
         public Task RecordAsync(
             string runId,
@@ -228,6 +303,13 @@ public sealed class RealAzureOpenAIEndToEndTests
             CancellationToken cancellationToken = default)
         {
             RawResponses.Add(rawResponse);
+            ParseOutcomeHistory.Add((parseSucceeded, inputTokenCount, outputTokenCount));
+
+            if (inputTokenCount is { } ip && ip > 0)
+                InputTokensTotal += ip;
+
+            if (outputTokenCount is { } op && op > 0)
+                OutputTokensTotal += op;
 
             return Task.CompletedTask;
         }

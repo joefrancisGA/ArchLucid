@@ -32,6 +32,8 @@ Use this drill after a candidate release build to gather **signals** (not a subs
    .\scripts\Invoke-RealLlmEvidenceGate.ps1
    ```
 
+   **Generated report (attach to release artifacts; gitignored):** [`artifacts/release/real-llm-evidence-gate.md`](../../artifacts/release/real-llm-evidence-gate.md). With credentials, companion metrics may appear next to it as **`artifacts/release/real-llm-last-run-metrics.json`** (also gitignored).
+
 5. **Production profile preflight (repo-only, no Azure login)**
 
    ```powershell

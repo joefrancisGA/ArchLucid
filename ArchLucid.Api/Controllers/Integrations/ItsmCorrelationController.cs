@@ -41,10 +41,6 @@ public sealed class ItsmCorrelationController(
         [FromBody] RegisterItsmCorrelationRequest body,
         CancellationToken ct)
     {
-        if (body is null)
-
-            return this.BadRequestProblem("body is required.", ProblemTypes.RequestBodyRequired);
-
         if (string.IsNullOrWhiteSpace(body.FindingId))
             return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
 
