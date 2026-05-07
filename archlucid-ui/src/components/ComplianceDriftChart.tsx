@@ -4,6 +4,28 @@ export interface ComplianceDriftChartProps {
   points: ComplianceDriftTrendPoint[];
 }
 
+function safeNonNegativeCount(value: unknown): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.floor(value));
+}
+
+function sanitizedChangesByType(raw: Record<string, number>): Record<string, number> {
+  const next: Record<string, number> = {};
+
+  for (const [key, value] of Object.entries(raw)) {
+    const n = safeNonNegativeCount(value);
+
+    if (n > 0) {
+      next[key] = n;
+    }
+  }
+
+  return next;
+}
+
 function formatBucketLabel(isoUtc: string): string {
   const d = new Date(isoUtc);
   if (Number.isNaN(d.getTime())) {
@@ -32,7 +54,13 @@ export function ComplianceDriftChart({ points }: ComplianceDriftChartProps) {
     );
   }
 
-  const maxCount = Math.max(...points.map((p) => p.changeCount), 1);
+  const normalized = points.map((p) => ({
+    bucketUtc: p.bucketUtc,
+    changeCount: safeNonNegativeCount(p.changeCount),
+    changesByType: sanitizedChangesByType(p.changesByType ?? {}),
+  }));
+
+  const maxCount = Math.max(...normalized.map((p) => p.changeCount), 1);
   const barMaxPx = 120;
 
   return (
@@ -41,7 +69,7 @@ export function ComplianceDriftChart({ points }: ComplianceDriftChartProps) {
       role="img"
       aria-label="Compliance drift trend: bar height shows policy pack change count per time bucket"
     >
-      {points.map((point) => {
+      {normalized.map((point) => {
         const barPx =
           point.changeCount === 0 ? 0 : Math.max(2, (point.changeCount / maxCount) * barMaxPx);
 
