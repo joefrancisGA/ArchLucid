@@ -1,6 +1,5 @@
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
-
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -54,7 +53,6 @@ public sealed class SqlTenantSqlCatalogProvisioner(
                 throw new InvalidOperationException(
                     "ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate is required when provisioning tenant catalogs.");
 
-
             string tenantConnectionString = SqlTenantCatalogConnectionStringFactory.FromTemplate(
                 snapshot.TenantCatalogConnectionStringTemplate.Trim(),
                 sqlLogicalDatabaseName.Trim());
@@ -102,7 +100,6 @@ public sealed class SqlTenantSqlCatalogProvisioner(
         if (row is null)
             throw new InvalidOperationException(
                 "Control-plane tenant row is missing before tenant catalog mirror for id '" + tenantId.ToString("D") + "'.");
-
 
         await using SqlConnection tenantConnection = new(
             SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(tenantConnectionString));

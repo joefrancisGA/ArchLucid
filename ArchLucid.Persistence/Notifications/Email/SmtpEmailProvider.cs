@@ -27,17 +27,12 @@ public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> 
         if (string.IsNullOrWhiteSpace(options.SmtpHost))
             throw new InvalidOperationException("Email:SmtpHost is required when Email:Provider is Smtp.");
 
-
         if (string.IsNullOrWhiteSpace(options.FromAddress))
             throw new InvalidOperationException("Email:FromAddress is required when Email:Provider is Smtp.");
 
-
 #pragma warning disable CA1416 // SmtpClient is obsolete but intentionally used for lightweight dev SMTP.
 #pragma warning disable SYSLIB0014
-        SmtpClient smtp = new(options.SmtpHost.Trim(), options.SmtpPort)
-        {
-            EnableSsl = options.SmtpPort is 587 or 465
-        };
+        SmtpClient smtp = new(options.SmtpHost.Trim(), options.SmtpPort) { EnableSsl = options.SmtpPort is 587 or 465 };
 
         if (!string.IsNullOrWhiteSpace(options.SmtpUser))
             smtp.Credentials = new NetworkCredential(options.SmtpUser.Trim(), options.SmtpPassword ?? string.Empty);

@@ -27,7 +27,6 @@ public sealed class InMemoryAgentTaskRepository : IAgentTaskRepository
 
                 _tasks.Add(task);
 
-
         return Task.CompletedTask;
     }
 

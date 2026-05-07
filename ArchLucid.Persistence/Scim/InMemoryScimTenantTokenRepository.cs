@@ -63,13 +63,8 @@ public sealed class InMemoryScimTenantTokenRepository : IScimTenantTokenReposito
         IReadOnlyList<ScimTokenSummaryRow> list = _byPublicKey.Values
             .Where(r => r.TenantId == tenantId)
             .OrderByDescending(static r => r.CreatedUtc)
-            .Select(static r => new ScimTokenSummaryRow
-            {
-                Id = r.Id,
-                CreatedUtc = r.CreatedUtc,
-                RevokedUtc = r.RevokedUtc,
-                PublicLookupKey = r.PublicLookupKey
-            })
+            .Select(static r =>
+                new ScimTokenSummaryRow { Id = r.Id, CreatedUtc = r.CreatedUtc, RevokedUtc = r.RevokedUtc, PublicLookupKey = r.PublicLookupKey })
             .ToList();
 
         return Task.FromResult(list);
@@ -86,7 +81,6 @@ public sealed class InMemoryScimTenantTokenRepository : IScimTenantTokenReposito
 
             if (r.Id != tokenId || r.TenantId != tenantId || r.RevokedUtc is not null)
                 continue;
-
 
             ScimTokenRow revoked = new()
             {

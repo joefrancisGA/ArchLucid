@@ -23,10 +23,7 @@ public sealed class DapperPilotBaselineRepository(ISqlConnectionFactory connecti
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         BaselineRow? row = await connection.QuerySingleOrDefaultAsync<BaselineRow>(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
         if (row is null)
             return null;
@@ -79,31 +76,25 @@ public sealed class DapperPilotBaselineRepository(ISqlConnectionFactory connecti
         ArgumentNullException.ThrowIfNull(record);
 
         const string sql = """
-                             IF EXISTS (SELECT 1 FROM dbo.PilotBaselines WHERE TenantId = @TenantId)
-                                 UPDATE dbo.PilotBaselines
-                                 SET BaselineHoursPerReview = @BaselineHoursPerReview,
-                                     BaselineReviewsPerQuarter = @BaselineReviewsPerQuarter,
-                                     BaselineArchitectHourlyCost = @BaselineArchitectHourlyCost,
-                                     UpdatedUtc = SYSUTCDATETIME()
-                                 WHERE TenantId = @TenantId;
-                             ELSE
-                                 INSERT INTO dbo.PilotBaselines
-                                     (TenantId, BaselineHoursPerReview, BaselineReviewsPerQuarter, BaselineArchitectHourlyCost, UpdatedUtc)
-                                 VALUES
-                                     (@TenantId, @BaselineHoursPerReview, @BaselineReviewsPerQuarter, @BaselineArchitectHourlyCost, SYSUTCDATETIME());
-                             """;
+                           IF EXISTS (SELECT 1 FROM dbo.PilotBaselines WHERE TenantId = @TenantId)
+                               UPDATE dbo.PilotBaselines
+                               SET BaselineHoursPerReview = @BaselineHoursPerReview,
+                                   BaselineReviewsPerQuarter = @BaselineReviewsPerQuarter,
+                                   BaselineArchitectHourlyCost = @BaselineArchitectHourlyCost,
+                                   UpdatedUtc = SYSUTCDATETIME()
+                               WHERE TenantId = @TenantId;
+                           ELSE
+                               INSERT INTO dbo.PilotBaselines
+                                   (TenantId, BaselineHoursPerReview, BaselineReviewsPerQuarter, BaselineArchitectHourlyCost, UpdatedUtc)
+                               VALUES
+                                   (@TenantId, @BaselineHoursPerReview, @BaselineReviewsPerQuarter, @BaselineArchitectHourlyCost, SYSUTCDATETIME());
+                           """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    record.TenantId,
-                    record.BaselineHoursPerReview,
-                    record.BaselineReviewsPerQuarter,
-                    record.BaselineArchitectHourlyCost
-                },
+                new { record.TenantId, record.BaselineHoursPerReview, record.BaselineReviewsPerQuarter, record.BaselineArchitectHourlyCost },
                 cancellationToken: cancellationToken));
     }
 }

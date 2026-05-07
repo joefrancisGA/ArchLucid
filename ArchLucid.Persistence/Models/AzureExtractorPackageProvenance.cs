@@ -53,15 +53,11 @@ public sealed class AzureExtractorPackageProvenance
         return new AzureExtractorPackageProvenance
         {
             PackageId = record.PackageId,
-
             SchemaVersion = record.SchemaVersion,
-
-            CollectionTimestampUtc = record.CollectionTimestampUtc.HasValue ? DateTime.SpecifyKind(record.CollectionTimestampUtc.Value, DateTimeKind.Utc) : null,
-
+            CollectionTimestampUtc =
+                record.CollectionTimestampUtc.HasValue ? DateTime.SpecifyKind(record.CollectionTimestampUtc.Value, DateTimeKind.Utc) : null,
             CreatedUtc = record.CreatedUtc.Kind == DateTimeKind.Utc ? record.CreatedUtc : record.CreatedUtc.ToUniversalTime(),
-
             SubscriptionId = record.SubscriptionId,
-
             OriginalFileName = record.OriginalFileName,
         };
     }

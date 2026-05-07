@@ -155,7 +155,6 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
 
             throw new InvalidOperationException("Cursor paging currently supports sortBy=createdUtc only.");
 
-
         int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
         bool sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
 
@@ -185,7 +184,6 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                           (r.CreatedUtc == cursorCreatedUtc.Value &&
                            string.Compare(r.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) >
                            0));
-
 
             query = ApplyOrdering(query, sortBy, sortDir);
             List<ComparisonRecord> page = query.Take(safeLimit).ToList();
@@ -261,7 +259,8 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             q = q.Where(r => string.Equals(r.Label, label, StringComparison.Ordinal));
 
         if (tags is { Count: > 0 })
-            q = tags.Where(t => !string.IsNullOrWhiteSpace(t)).Aggregate(q, (current, needle) => current.Where(r => r.Tags.Any(x => string.Equals(x, needle, StringComparison.Ordinal))));
+            q = tags.Where(t => !string.IsNullOrWhiteSpace(t)).Aggregate(q,
+                (current, needle) => current.Where(r => r.Tags.Any(x => string.Equals(x, needle, StringComparison.Ordinal))));
 
         return q;
     }

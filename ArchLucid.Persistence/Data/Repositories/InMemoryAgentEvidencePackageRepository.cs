@@ -31,7 +31,6 @@ public sealed class InMemoryAgentEvidencePackageRepository : IAgentEvidencePacka
 
                 _byId.Remove(prior.EvidencePackageId);
 
-
             AgentEvidencePackage copy = Clone(evidencePackage);
             _byId[copy.EvidencePackageId] = copy;
             _byRunId[copy.RunId] = copy;

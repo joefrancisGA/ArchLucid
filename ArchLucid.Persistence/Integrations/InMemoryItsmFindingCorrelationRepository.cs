@@ -53,13 +53,7 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
 
         _ = _byKey.TryAdd(
             k,
-            new ItsmFindingCorrelationRecord
-            {
-                TenantId = tenantId,
-                WorkspaceId = workspaceId,
-                ProjectId = projectId,
-                FindingId = findingId.Trim()
-            });
+            new ItsmFindingCorrelationRecord { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, FindingId = findingId.Trim() });
 
         return Task.CompletedTask;
     }
@@ -75,7 +69,9 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
 
         if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
 
-        return string.IsNullOrWhiteSpace(humanReviewStatus) ? throw new ArgumentException("humanReviewStatus is required.", nameof(humanReviewStatus)) :
+        return string.IsNullOrWhiteSpace(humanReviewStatus)
+            ? throw new ArgumentException("humanReviewStatus is required.", nameof(humanReviewStatus))
+            :
             // In-memory hosts do not model FindingRecords; webhook path still emits audit when correlation exists.
             Task.FromResult(0);
     }

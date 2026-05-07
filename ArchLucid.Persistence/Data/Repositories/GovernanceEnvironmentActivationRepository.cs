@@ -102,10 +102,10 @@ public sealed class GovernanceEnvironmentActivationRepository(
         string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
 
         string sql = $"""
-                           UPDATE dbo.GovernanceEnvironmentActivations
-                           SET IsActive = @IsActive
-                           WHERE ActivationId = @ActivationId{scopeSql};
-                           """;
+                      UPDATE dbo.GovernanceEnvironmentActivations
+                      SET IsActive = @IsActive
+                      WHERE ActivationId = @ActivationId{scopeSql};
+                      """;
 
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
@@ -215,7 +215,6 @@ public sealed class GovernanceEnvironmentActivationRepository(
 
         if (ctx.TenantId == Guid.Empty)
             return;
-
 
         item.TenantId = ctx.TenantId;
         item.WorkspaceId = ctx.WorkspaceId;

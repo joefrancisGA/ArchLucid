@@ -12,7 +12,9 @@ public sealed class
 
     public Task<TeamsIncomingWebhookConnectionResponse?> GetAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        return _store.TryGetValue(tenantId, out TeamsIncomingWebhookConnectionResponse? row) ? Task.FromResult<TeamsIncomingWebhookConnectionResponse?>(row) : Task.FromResult<TeamsIncomingWebhookConnectionResponse?>(null);
+        return _store.TryGetValue(tenantId, out TeamsIncomingWebhookConnectionResponse? row)
+            ? Task.FromResult<TeamsIncomingWebhookConnectionResponse?>(row)
+            : Task.FromResult<TeamsIncomingWebhookConnectionResponse?>(null);
     }
 
     public Task<TeamsIncomingWebhookConnectionResponse?> UpsertAsync(
@@ -52,6 +54,8 @@ public sealed class
             return TeamsNotificationTriggerCatalog
                 .ParseOrDefault(TeamsNotificationTriggerCatalog.Serialize(enabledTriggers));
 
-        return _store.TryGetValue(tenantId, out TeamsIncomingWebhookConnectionResponse? existing) ? existing.EnabledTriggers : TeamsNotificationTriggerCatalog.All;
+        return _store.TryGetValue(tenantId, out TeamsIncomingWebhookConnectionResponse? existing)
+            ? existing.EnabledTriggers
+            : TeamsNotificationTriggerCatalog.All;
     }
 }

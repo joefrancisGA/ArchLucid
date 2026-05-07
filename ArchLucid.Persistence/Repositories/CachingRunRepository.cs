@@ -35,7 +35,6 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
 
     /// <inheritdoc />
     public Task<RunRecord?> GetByRunIdAdminAsync(Guid runId, CancellationToken ct)
-
         => _inner.GetByRunIdAdminAsync(runId, ct);
 
     /// <inheritdoc />
@@ -172,12 +171,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
 
         foreach (ArchivedRunScopeRow row in batch.ArchivedRuns)
         {
-            ScopeContext scope = new()
-            {
-                TenantId = row.TenantId,
-                WorkspaceId = row.WorkspaceId,
-                ProjectId = row.ScopeProjectId
-            };
+            ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
 
             await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
         }
@@ -192,12 +186,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
 
         foreach (ArchivedRunScopeRow row in result.ArchivedRuns)
         {
-            ScopeContext scope = new()
-            {
-                TenantId = row.TenantId,
-                WorkspaceId = row.WorkspaceId,
-                ProjectId = row.ScopeProjectId
-            };
+            ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
 
             await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
         }
@@ -207,11 +196,6 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
 
     private static ScopeContext ScopeForRun(RunRecord run)
     {
-        return new ScopeContext
-        {
-            TenantId = run.TenantId,
-            WorkspaceId = run.WorkspaceId,
-            ProjectId = run.ScopeProjectId
-        };
+        return new ScopeContext { TenantId = run.TenantId, WorkspaceId = run.WorkspaceId, ProjectId = run.ScopeProjectId };
     }
 }

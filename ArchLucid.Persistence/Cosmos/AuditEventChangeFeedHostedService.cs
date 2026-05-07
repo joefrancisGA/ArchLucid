@@ -64,7 +64,6 @@ public sealed class AuditEventChangeFeedHostedService : BackgroundService
                 "Cosmos audit change feed processor started: InstanceName={InstanceName}",
                 instanceName);
 
-
         try
         {
             await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken);

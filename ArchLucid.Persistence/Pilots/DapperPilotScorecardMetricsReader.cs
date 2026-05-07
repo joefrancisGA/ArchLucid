@@ -14,51 +14,48 @@ public sealed class DapperPilotScorecardMetricsReader(ISqlConnectionFactory conn
     public async Task<PilotScorecardTenantMetrics> GetAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         const string sql = """
-                             SELECT
-                                 (SELECT COUNT(*)
-                                  FROM dbo.Runs r
-                                  WHERE r.TenantId = @TenantId
-                                    AND r.ArchivedUtc IS NULL
-                                    AND (
-                                         (NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL)
-                                         OR (r.GoldenManifestId IS NOT NULL)
-                                     )) AS TotalRunsCommitted,
-                                 (SELECT COUNT(*)
-                                  FROM dbo.GoldenManifests gm
-                                  INNER JOIN dbo.Runs r ON r.RunId = gm.RunId
-                                  WHERE r.TenantId = @TenantId
-                                    AND r.ArchivedUtc IS NULL) AS TotalManifestsCreated,
-                                 (SELECT COUNT(*)
-                                  FROM dbo.FindingFeedback ff
-                                  WHERE ff.TenantId = @TenantId
-                                    AND ff.Score = 1) AS TotalFindingsResolved,
-                                 (SELECT AVG(CAST(DATEDIFF_BIG(MINUTE, r.CreatedUtc, gm.CreatedUtc) AS FLOAT))
-                                  FROM dbo.Runs r
-                                  INNER JOIN dbo.GoldenManifests gm ON gm.RunId = r.RunId
-                                  WHERE r.TenantId = @TenantId
-                                    AND r.ArchivedUtc IS NULL) AS AverageTimeToManifestMinutes,
-                                 (SELECT COUNT(*)
-                                  FROM dbo.AuditEvents ae
-                                  WHERE ae.TenantId = @TenantId) AS TotalAuditEventsGenerated,
-                                 (SELECT COUNT(*)
-                                  FROM dbo.GovernanceApprovalRequests g
-                                  INNER JOIN dbo.Runs r ON TRY_CONVERT(UNIQUEIDENTIFIER, g.RunId) = r.RunId
-                                  WHERE r.TenantId = @TenantId
-                                    AND g.Status = N'Approved') AS TotalGovernanceApprovalsCompleted,
-                                 (SELECT MIN(gm.CreatedUtc)
-                                  FROM dbo.GoldenManifests gm
-                                  INNER JOIN dbo.Runs r ON r.RunId = gm.RunId
-                                  WHERE r.TenantId = @TenantId
-                                    AND r.ArchivedUtc IS NULL) AS FirstCommitUtc;
-                             """;
+                           SELECT
+                               (SELECT COUNT(*)
+                                FROM dbo.Runs r
+                                WHERE r.TenantId = @TenantId
+                                  AND r.ArchivedUtc IS NULL
+                                  AND (
+                                       (NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL)
+                                       OR (r.GoldenManifestId IS NOT NULL)
+                                   )) AS TotalRunsCommitted,
+                               (SELECT COUNT(*)
+                                FROM dbo.GoldenManifests gm
+                                INNER JOIN dbo.Runs r ON r.RunId = gm.RunId
+                                WHERE r.TenantId = @TenantId
+                                  AND r.ArchivedUtc IS NULL) AS TotalManifestsCreated,
+                               (SELECT COUNT(*)
+                                FROM dbo.FindingFeedback ff
+                                WHERE ff.TenantId = @TenantId
+                                  AND ff.Score = 1) AS TotalFindingsResolved,
+                               (SELECT AVG(CAST(DATEDIFF_BIG(MINUTE, r.CreatedUtc, gm.CreatedUtc) AS FLOAT))
+                                FROM dbo.Runs r
+                                INNER JOIN dbo.GoldenManifests gm ON gm.RunId = r.RunId
+                                WHERE r.TenantId = @TenantId
+                                  AND r.ArchivedUtc IS NULL) AS AverageTimeToManifestMinutes,
+                               (SELECT COUNT(*)
+                                FROM dbo.AuditEvents ae
+                                WHERE ae.TenantId = @TenantId) AS TotalAuditEventsGenerated,
+                               (SELECT COUNT(*)
+                                FROM dbo.GovernanceApprovalRequests g
+                                INNER JOIN dbo.Runs r ON TRY_CONVERT(UNIQUEIDENTIFIER, g.RunId) = r.RunId
+                                WHERE r.TenantId = @TenantId
+                                  AND g.Status = N'Approved') AS TotalGovernanceApprovalsCompleted,
+                               (SELECT MIN(gm.CreatedUtc)
+                                FROM dbo.GoldenManifests gm
+                                INNER JOIN dbo.Runs r ON r.RunId = gm.RunId
+                                WHERE r.TenantId = @TenantId
+                                  AND r.ArchivedUtc IS NULL) AS FirstCommitUtc;
+                           """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         MetricsRow row = await connection.QuerySingleAsync<MetricsRow>(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
         return new PilotScorecardTenantMetrics
         {

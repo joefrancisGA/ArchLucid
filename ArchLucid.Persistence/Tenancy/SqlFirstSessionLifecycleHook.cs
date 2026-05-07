@@ -19,12 +19,10 @@ public sealed class SqlFirstSessionLifecycleHook(ITenantOnboardingStateRepositor
         if (tenantId == Guid.Empty)
             return;
 
-
         bool first = await _repository.TryMarkFirstSessionCompletedAsync(tenantId, cancellationToken);
 
         if (!first)
             return;
-
 
         ArchLucidInstrumentation.RecordFirstSessionCompleted();
         ArchLucidInstrumentation.RecordOperatorTaskSuccess("first_run_committed");

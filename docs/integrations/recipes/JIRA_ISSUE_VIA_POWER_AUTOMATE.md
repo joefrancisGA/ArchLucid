@@ -329,7 +329,7 @@ Power Automate does not have built-in deduplication. To prevent duplicate Jira i
 
 | Limitation | First-party V1 connector ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13) |
 |------------|--------------------------------------------------------------------------|
-| **One-way only** — this recipe creates Jira issues but does not sync status back to ArchLucid. | First-party connector includes **bi-directional status sync** (may ship as fast-follow within V1). |
+| **One-way only** — this recipe creates Jira issues but does not sync status back to ArchLucid. | First-party **V1 GA** commits **bi-directional** Jira → ArchLucid status sync ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13; *Resolved 2026-05-06*). **This Power Automate flow does not** implement inbound sync — use the hosted connector + inbound webhook path when you need parity. |
 | **No native HMAC in Power Automate** — HMAC validation requires an Azure Function or API Management in front. | Managed connector handles authentication natively; no external HMAC layer for ArchLucid→Jira traffic. |
 | **Manual severity mapping** — you maintain the severity-to-priority map in flow expressions. | Managed connector ships configurable mapping with sensible defaults. |
 | **No deduplication** — you must build JQL-based dedup logic yourself. | Managed connector uses `deduplicationKey` / `runId` + `findingId` natively for idempotent issue creation. |

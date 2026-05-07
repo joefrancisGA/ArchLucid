@@ -53,7 +53,6 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 .Take(n)
                 .ToList();
 
-
         return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
     }
 
@@ -114,7 +113,6 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         int take = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
         List<AuditEvent> result;
 
-
         lock (_gate)
 
             result = _events
@@ -128,7 +126,6 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 .ThenBy(x => x.EventId)
                 .Take(take)
                 .ToList();
-
 
         return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
     }

@@ -1,6 +1,5 @@
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
-
 using ArchLucid.Persistence.Connections;
 
 using Dapper;

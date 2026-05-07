@@ -11,9 +11,7 @@ public sealed class NoOpAzureExtractorPackageRepository : IAzureExtractorPackage
 
     public Task<AzureExtractorPackageProvenance?> TryGetLatestProvenanceByRunIdAsync(
         ScopeContext scope,
-
         Guid runId,
-
         CancellationToken cancellationToken = default)
         => Task.FromResult<AzureExtractorPackageProvenance?>(null);
 }

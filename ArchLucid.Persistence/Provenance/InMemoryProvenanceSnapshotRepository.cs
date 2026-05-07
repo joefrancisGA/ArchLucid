@@ -35,7 +35,6 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
 
             _store[key] = snapshot;
 
-
         return Task.CompletedTask;
     }
 

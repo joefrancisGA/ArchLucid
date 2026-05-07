@@ -15,6 +15,7 @@
 ## Verification
 
 - **ITSM row:** incident exists with correlation field pointing back to ArchLucid run/finding identifiers.
+- **Inbound status sync (V1 GA committed):** after outbound create, transition the incident in ServiceNow and confirm ArchLucid receives the inbound webhook (`POST /v1/integrations/webhooks/servicenow` per OpenAPI) and updates the correlated finding state — mapping is configurable under **`Integrations:ItsmInbound`** (see [`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md) and [`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13).
 - **Audit:** connector write attempts appear in audit stream with success outcome (see audit catalog for event types).
 
 ## Troubleshooting

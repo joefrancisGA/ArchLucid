@@ -25,13 +25,13 @@ public sealed class SqlCorePilotTeamChecklistRepository(ISqlConnectionFactory co
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string sql = """
-                             SELECT StepIndex, IsCompleted, UpdatedUtc, UpdatedByUserId
-                             FROM dbo.CorePilotTeamChecklist
-                             WHERE TenantId = @TenantId
-                               AND WorkspaceId = @WorkspaceId
-                               AND ProjectId = @ProjectId
-                             ORDER BY StepIndex;
-                             """;
+                           SELECT StepIndex, IsCompleted, UpdatedUtc, UpdatedByUserId
+                           FROM dbo.CorePilotTeamChecklist
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY StepIndex;
+                           """;
 
         IEnumerable<Row> rows = await connection.QueryAsync<Row>(
             new CommandDefinition(
@@ -63,22 +63,22 @@ public sealed class SqlCorePilotTeamChecklistRepository(ISqlConnectionFactory co
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string sql = """
-                             MERGE dbo.CorePilotTeamChecklist AS t
-                             USING (SELECT @TenantId AS TenantId, @WorkspaceId AS WorkspaceId, @ProjectId AS ProjectId,
-                                           @StepIndex AS StepIndex) AS s
-                             ON t.TenantId = s.TenantId
-                                AND t.WorkspaceId = s.WorkspaceId
-                                AND t.ProjectId = s.ProjectId
-                                AND t.StepIndex = s.StepIndex
-                             WHEN MATCHED THEN
-                                 UPDATE SET
-                                     IsCompleted = @IsCompleted,
-                                     UpdatedUtc = SYSUTCDATETIME(),
-                                     UpdatedByUserId = @UpdatedByUserId
-                             WHEN NOT MATCHED THEN
-                                 INSERT (TenantId, WorkspaceId, ProjectId, StepIndex, IsCompleted, UpdatedUtc, UpdatedByUserId)
-                                 VALUES (@TenantId, @WorkspaceId, @ProjectId, @StepIndex, @IsCompleted, SYSUTCDATETIME(), @UpdatedByUserId);
-                             """;
+                           MERGE dbo.CorePilotTeamChecklist AS t
+                           USING (SELECT @TenantId AS TenantId, @WorkspaceId AS WorkspaceId, @ProjectId AS ProjectId,
+                                         @StepIndex AS StepIndex) AS s
+                           ON t.TenantId = s.TenantId
+                              AND t.WorkspaceId = s.WorkspaceId
+                              AND t.ProjectId = s.ProjectId
+                              AND t.StepIndex = s.StepIndex
+                           WHEN MATCHED THEN
+                               UPDATE SET
+                                   IsCompleted = @IsCompleted,
+                                   UpdatedUtc = SYSUTCDATETIME(),
+                                   UpdatedByUserId = @UpdatedByUserId
+                           WHEN NOT MATCHED THEN
+                               INSERT (TenantId, WorkspaceId, ProjectId, StepIndex, IsCompleted, UpdatedUtc, UpdatedByUserId)
+                               VALUES (@TenantId, @WorkspaceId, @ProjectId, @StepIndex, @IsCompleted, SYSUTCDATETIME(), @UpdatedByUserId);
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -97,9 +97,28 @@ public sealed class SqlCorePilotTeamChecklistRepository(ISqlConnectionFactory co
 
     private sealed class Row
     {
-        public int StepIndex { get; init; }
-        public bool IsCompleted { get; init; }
-        public DateTime UpdatedUtc { get; init; }
-        public string? UpdatedByUserId { get; init; }
+        public int StepIndex
+        {
+            get;
+            init;
+        }
+
+        public bool IsCompleted
+        {
+            get;
+            init;
+        }
+
+        public DateTime UpdatedUtc
+        {
+            get;
+            init;
+        }
+
+        public string? UpdatedByUserId
+        {
+            get;
+            init;
+        }
     }
 }

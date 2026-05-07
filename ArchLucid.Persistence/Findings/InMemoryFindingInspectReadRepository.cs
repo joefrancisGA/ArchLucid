@@ -45,19 +45,16 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         if (!Guid.TryParseExact(m.Groups["run"].Value, "N", out Guid runId))
             return null;
 
-
         RunDetailDto? detail = await _authorityQuery.GetRunDetailAsync(scope, runId, ct);
 
         if (detail?.FindingsSnapshot?.Findings is not { Count: > 0 } findings)
             return null;
-
 
         Finding? match = findings.FirstOrDefault(f =>
             string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
 
         if (match is null)
             return null;
-
 
         List<FindingInspectEvidenceItem> evidence = match.RelatedNodeIds
             .Where(static n => !string.IsNullOrWhiteSpace(n))

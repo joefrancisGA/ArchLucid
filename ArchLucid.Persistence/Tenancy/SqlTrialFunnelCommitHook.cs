@@ -34,7 +34,6 @@ public sealed class SqlTrialFunnelCommitHook(ITenantRepository tenantRepository,
         if (outcome is null)
             return;
 
-
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenant is null)
@@ -48,7 +47,6 @@ public sealed class SqlTrialFunnelCommitHook(ITenantRepository tenantRepository,
         // column pin via TryMarkFirstManifestCommittedAsync above.
         if (tenant.TrialExpiresUtc is null)
             return;
-
 
         ArchLucidInstrumentation.RecordTrialFirstRunLatencySeconds(outcome.SignupToCommitSeconds);
         ArchLucidInstrumentation.RecordTrialRunsUsedRatio(outcome.TrialRunUsageRatio);
@@ -70,11 +68,7 @@ public sealed class SqlTrialFunnelCommitHook(ITenantRepository tenantRepository,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        signupToCommitSeconds = outcome.SignupToCommitSeconds,
-                        trialRunUsageRatio = outcome.TrialRunUsageRatio
-                    })
+                    new { signupToCommitSeconds = outcome.SignupToCommitSeconds, trialRunUsageRatio = outcome.TrialRunUsageRatio })
             },
             cancellationToken).ConfigureAwait(false);
     }

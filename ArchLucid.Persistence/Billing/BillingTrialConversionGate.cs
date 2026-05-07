@@ -12,6 +12,7 @@ public sealed class BillingTrialConversionGate(IOptionsMonitor<BillingOptions> o
 
     private readonly IOptionsMonitor<BillingOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
+
     public async Task EnsureManualConversionAllowedAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         string provider = _options.CurrentValue.Provider.Trim();

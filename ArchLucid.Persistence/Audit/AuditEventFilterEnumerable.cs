@@ -36,16 +36,13 @@ public static class AuditEventFilterEnumerable
             query = query.Where(x => x.OccurredUtc <= filter.ToUtc.Value);
 
         if (!string.IsNullOrWhiteSpace(filter.CorrelationId))
-
             query = query.Where(x =>
                 string.Equals(x.CorrelationId, filter.CorrelationId, StringComparison.Ordinal));
 
         if (!string.IsNullOrWhiteSpace(filter.ActorUserId))
-
             query = query.Where(x => string.Equals(x.ActorUserId, filter.ActorUserId, StringComparison.Ordinal));
 
         if (filter.RunId.HasValue)
-
             query = query.Where(x => x.RunId == filter.RunId.Value);
 
         if (!filter.BeforeUtc.HasValue)

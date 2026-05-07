@@ -54,6 +54,15 @@ UI alignment: **`docs/operator-shell.md`**.
 
 Runbook: **`docs/runbooks/AZURE_EXTRACTOR_INGEST.md`**.
 
+## ITSM connectors (first-party)
+
+**Scope:** [`V1_SCOPE.md`](V1_SCOPE.md) §2.13–§2.15 — outbound issue/incident create plus **status-only** inbound sync from **Jira** and **ServiceNow** when correlation rows exist.
+
+| Direction | Entry point | Notes |
+|-----------|-------------|-------|
+| Outbound | **`POST /v1/integrations/itsm/outbound/issues`** | Requires **ExecuteAuthority**; providers **`Jira`** \| **`ServiceNow`**. Persists correlation for inbound callbacks. |
+| Inbound | **`POST /v1/integrations/webhooks/jira`**, **`POST /v1/integrations/webhooks/servicenow`** | Shared-secret headers per **`Integrations:ItsmInbound`**; anonymous route with connector secrets (no JWT). Payload shapes and headers are defined in **`GET /openapi/v1.json`**. |
+
 ## Explain (`/v1/explain`)
 
 All routes require **ReadAuthority** and use versioned paths under **`/v1/explain`**. Response JSON uses **camelCase** property names.

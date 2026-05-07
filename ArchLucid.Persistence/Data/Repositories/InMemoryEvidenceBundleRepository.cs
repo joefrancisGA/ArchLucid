@@ -28,7 +28,6 @@ public sealed class InMemoryEvidenceBundleRepository : IEvidenceBundleRepository
 
             _byId[evidenceBundle.EvidenceBundleId] = Clone(evidenceBundle);
 
-
         return Task.CompletedTask;
     }
 
@@ -54,15 +53,12 @@ public sealed class InMemoryEvidenceBundleRepository : IEvidenceBundleRepository
         lock (_gate)
 
         {
-
             if (!_byId.ContainsKey(evidenceBundle.EvidenceBundleId))
                 throw new InvalidOperationException(
                     $"Evidence bundle '{evidenceBundle.EvidenceBundleId}' was not found for update.");
 
             _byId[evidenceBundle.EvidenceBundleId] = Clone(evidenceBundle);
-
         }
-
 
         return Task.CompletedTask;
     }

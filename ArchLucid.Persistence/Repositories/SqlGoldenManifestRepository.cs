@@ -558,7 +558,6 @@ public sealed class SqlGoldenManifestRepository(
                         transaction,
                         cancellationToken: ct));
 
-
             for (int n = 0; n < decision.RelatedNodeIds.Count; n++)
 
                 await connection.ExecuteAsync(

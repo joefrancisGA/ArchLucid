@@ -36,7 +36,7 @@ Ship tracks **V1 GA** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13
 
 | Connector | MVP commitment |
 |-----------|----------------|
-| **ServiceNow** | Finding → **`incident`** with correlation back-link; OAuth 2.0 / basic auth. **`cmdb_ci`** via **`cmdb_ci_appl`** name lookup on **`SystemName`** ([§ Sequencing and CMDB](#sequencing-and-cmdb) below). **Two-way** ServiceNow → ArchLucid **status-only** sync is **committed for V1 GA** (configurable mapping; see [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13). |
+| **ServiceNow** | Finding → **`incident`** with correlation back-link; **basic auth** for V1 MVP (OAuth 2.0 follow-on per §2.13). **`cmdb_ci`** via **`cmdb_ci_appl`** name lookup on **`SystemName`** ([§ Sequencing and CMDB](#sequencing-and-cmdb) below). **Two-way** ServiceNow → ArchLucid **status-only** sync is **committed for V1 GA** (configurable mapping; see [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13). |
 | **Jira** | Finding → issue with correlation back-link; **bi-directional** Jira → ArchLucid status sync is **committed for V1 GA** (configurable mapping; see [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13). OAuth 2.0 / API token auth. **Atlassian tranche:** ships **after** **Confluence** in the **same** paired workstream. |
 
 ### V1 committed — Slack (chat-ops)

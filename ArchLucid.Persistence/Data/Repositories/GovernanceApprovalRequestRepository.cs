@@ -138,17 +138,17 @@ public sealed class GovernanceApprovalRequestRepository(
         // @@ROWCOUNT batch: pooled sessions often inherit SET NOCOUNT ON, so ExecuteAsync's return value is unreliable
         // for matched-row detection under concurrent Serializable transitions (contract test expects exactly one winner).
         string updateSql = $"""
-                                 UPDATE dbo.GovernanceApprovalRequests
-                                 SET
-                                     Status = @NewStatus,
-                                     ReviewedBy = @ReviewedBy,
-                                     ReviewedByActorKey = @ReviewedByActorKey,
-                                     ReviewComment = @ReviewComment,
-                                     ReviewedUtc = @ReviewedUtc
-                                 WHERE ApprovalRequestId = @ApprovalRequestId
-                                   AND (Status = @Draft OR Status = @Submitted){scopeSql};
-                                 SELECT @@ROWCOUNT;
-                                 """;
+                            UPDATE dbo.GovernanceApprovalRequests
+                            SET
+                                Status = @NewStatus,
+                                ReviewedBy = @ReviewedBy,
+                                ReviewedByActorKey = @ReviewedByActorKey,
+                                ReviewComment = @ReviewComment,
+                                ReviewedUtc = @ReviewedUtc
+                            WHERE ApprovalRequestId = @ApprovalRequestId
+                              AND (Status = @Draft OR Status = @Submitted){scopeSql};
+                            SELECT @@ROWCOUNT;
+                            """;
 
         DynamicParameters transitionParams = new();
         transitionParams.Add("ApprovalRequestId", approvalRequestId);
@@ -188,16 +188,16 @@ public sealed class GovernanceApprovalRequestRepository(
         string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
 
         string sql = $"""
-                           UPDATE GovernanceApprovalRequests
-                           SET
-                               Status = @Status,
-                               ReviewedBy = @ReviewedBy,
-                               ReviewComment = @ReviewComment,
-                               ReviewedUtc = @ReviewedUtc,
-                               SlaDeadlineUtc = @SlaDeadlineUtc,
-                               SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
-                           WHERE ApprovalRequestId = @ApprovalRequestId{scopeSql};
-                           """;
+                      UPDATE GovernanceApprovalRequests
+                      SET
+                          Status = @Status,
+                          ReviewedBy = @ReviewedBy,
+                          ReviewComment = @ReviewComment,
+                          ReviewedUtc = @ReviewedUtc,
+                          SlaDeadlineUtc = @SlaDeadlineUtc,
+                          SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
+                      WHERE ApprovalRequestId = @ApprovalRequestId{scopeSql};
+                      """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -222,29 +222,29 @@ public sealed class GovernanceApprovalRequestRepository(
         string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
 
         string sql = $"""
-                           SELECT
-                               ApprovalRequestId,
-                               RunId,
-                               TenantId,
-                               WorkspaceId,
-                               ProjectId,
-                               ManifestVersion,
-                               SourceEnvironment,
-                               TargetEnvironment,
-                               Status,
-                               RequestedBy,
-                               RequestedByActorKey,
-                               ReviewedBy,
-                               ReviewedByActorKey,
-                               RequestComment,
-                               ReviewComment,
-                               RequestedUtc,
-                               ReviewedUtc,
-                               SlaDeadlineUtc,
-                               SlaBreachNotifiedUtc
-                           FROM GovernanceApprovalRequests
-                           WHERE ApprovalRequestId = @ApprovalRequestId{scopeSql};
-                           """;
+                      SELECT
+                          ApprovalRequestId,
+                          RunId,
+                          TenantId,
+                          WorkspaceId,
+                          ProjectId,
+                          ManifestVersion,
+                          SourceEnvironment,
+                          TargetEnvironment,
+                          Status,
+                          RequestedBy,
+                          RequestedByActorKey,
+                          ReviewedBy,
+                          ReviewedByActorKey,
+                          RequestComment,
+                          ReviewComment,
+                          RequestedUtc,
+                          ReviewedUtc,
+                          SlaDeadlineUtc,
+                          SlaBreachNotifiedUtc
+                      FROM GovernanceApprovalRequests
+                      WHERE ApprovalRequestId = @ApprovalRequestId{scopeSql};
+                      """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -316,35 +316,34 @@ public sealed class GovernanceApprovalRequestRepository(
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
-
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
 
         string sql = $"""
-                           SELECT TOP (@MaxRows)
-                               ApprovalRequestId,
-                               RunId,
-                               TenantId,
-                               WorkspaceId,
-                               ProjectId,
-                               ManifestVersion,
-                               SourceEnvironment,
-                               TargetEnvironment,
-                               Status,
-                               RequestedBy,
-                               RequestedByActorKey,
-                               ReviewedBy,
-                               ReviewedByActorKey,
-                               RequestComment,
-                               ReviewComment,
-                               RequestedUtc,
-                               ReviewedUtc,
-                               SlaDeadlineUtc,
-                               SlaBreachNotifiedUtc
-                           FROM GovernanceApprovalRequests
-                           WHERE Status IN (@Draft, @Submitted){scopeSql}
-                           ORDER BY RequestedUtc DESC;
-                           """;
+                      SELECT TOP (@MaxRows)
+                          ApprovalRequestId,
+                          RunId,
+                          TenantId,
+                          WorkspaceId,
+                          ProjectId,
+                          ManifestVersion,
+                          SourceEnvironment,
+                          TargetEnvironment,
+                          Status,
+                          RequestedBy,
+                          RequestedByActorKey,
+                          ReviewedBy,
+                          ReviewedByActorKey,
+                          RequestComment,
+                          ReviewComment,
+                          RequestedUtc,
+                          ReviewedUtc,
+                          SlaDeadlineUtc,
+                          SlaBreachNotifiedUtc
+                      FROM GovernanceApprovalRequests
+                      WHERE Status IN (@Draft, @Submitted){scopeSql}
+                      ORDER BY RequestedUtc DESC;
+                      """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -370,36 +369,35 @@ public sealed class GovernanceApprovalRequestRepository(
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
-
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
 
         string sql = $"""
-                           SELECT TOP (@MaxRows)
-                               ApprovalRequestId,
-                               RunId,
-                               TenantId,
-                               WorkspaceId,
-                               ProjectId,
-                               ManifestVersion,
-                               SourceEnvironment,
-                               TargetEnvironment,
-                               Status,
-                               RequestedBy,
-                               RequestedByActorKey,
-                               ReviewedBy,
-                               ReviewedByActorKey,
-                               RequestComment,
-                               ReviewComment,
-                               RequestedUtc,
-                               ReviewedUtc,
-                               SlaDeadlineUtc,
-                               SlaBreachNotifiedUtc
-                           FROM GovernanceApprovalRequests
-                           WHERE Status IN (@Approved, @Rejected, @Promoted)
-                             AND ReviewedUtc IS NOT NULL{scopeSql}
-                           ORDER BY ReviewedUtc DESC, ApprovalRequestId DESC;
-                           """;
+                      SELECT TOP (@MaxRows)
+                          ApprovalRequestId,
+                          RunId,
+                          TenantId,
+                          WorkspaceId,
+                          ProjectId,
+                          ManifestVersion,
+                          SourceEnvironment,
+                          TargetEnvironment,
+                          Status,
+                          RequestedBy,
+                          RequestedByActorKey,
+                          ReviewedBy,
+                          ReviewedByActorKey,
+                          RequestComment,
+                          ReviewComment,
+                          RequestedUtc,
+                          ReviewedUtc,
+                          SlaDeadlineUtc,
+                          SlaBreachNotifiedUtc
+                      FROM GovernanceApprovalRequests
+                      WHERE Status IN (@Approved, @Rejected, @Promoted)
+                        AND ReviewedUtc IS NOT NULL{scopeSql}
+                      ORDER BY ReviewedUtc DESC, ApprovalRequestId DESC;
+                      """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -427,33 +425,33 @@ public sealed class GovernanceApprovalRequestRepository(
         string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
 
         string sql = $"""
-                           SELECT TOP 200
-                               ApprovalRequestId,
-                               RunId,
-                               TenantId,
-                               WorkspaceId,
-                               ProjectId,
-                               ManifestVersion,
-                               SourceEnvironment,
-                               TargetEnvironment,
-                               Status,
-                               RequestedBy,
-                               RequestedByActorKey,
-                               ReviewedBy,
-                               ReviewedByActorKey,
-                               RequestComment,
-                               ReviewComment,
-                               RequestedUtc,
-                               ReviewedUtc,
-                               SlaDeadlineUtc,
-                               SlaBreachNotifiedUtc
-                           FROM GovernanceApprovalRequests
-                           WHERE Status IN (@Draft, @Submitted)
-                             AND SlaDeadlineUtc IS NOT NULL
-                             AND SlaDeadlineUtc <= @UtcNow
-                             AND SlaBreachNotifiedUtc IS NULL{scopeSql}
-                           ORDER BY SlaDeadlineUtc ASC;
-                           """;
+                      SELECT TOP 200
+                          ApprovalRequestId,
+                          RunId,
+                          TenantId,
+                          WorkspaceId,
+                          ProjectId,
+                          ManifestVersion,
+                          SourceEnvironment,
+                          TargetEnvironment,
+                          Status,
+                          RequestedBy,
+                          RequestedByActorKey,
+                          ReviewedBy,
+                          ReviewedByActorKey,
+                          RequestComment,
+                          ReviewComment,
+                          RequestedUtc,
+                          ReviewedUtc,
+                          SlaDeadlineUtc,
+                          SlaBreachNotifiedUtc
+                      FROM GovernanceApprovalRequests
+                      WHERE Status IN (@Draft, @Submitted)
+                        AND SlaDeadlineUtc IS NOT NULL
+                        AND SlaDeadlineUtc <= @UtcNow
+                        AND SlaBreachNotifiedUtc IS NULL{scopeSql}
+                      ORDER BY SlaDeadlineUtc ASC;
+                      """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -483,10 +481,10 @@ public sealed class GovernanceApprovalRequestRepository(
         string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
 
         string sql = $"""
-                           UPDATE GovernanceApprovalRequests
-                           SET SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
-                           WHERE ApprovalRequestId = @ApprovalRequestId{scopeSql};
-                           """;
+                      UPDATE GovernanceApprovalRequests
+                      SET SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
+                      WHERE ApprovalRequestId = @ApprovalRequestId{scopeSql};
+                      """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -504,7 +502,6 @@ public sealed class GovernanceApprovalRequestRepository(
 
         if (ctx.TenantId == Guid.Empty)
             return;
-
 
         item.TenantId = ctx.TenantId;
         item.WorkspaceId = ctx.WorkspaceId;

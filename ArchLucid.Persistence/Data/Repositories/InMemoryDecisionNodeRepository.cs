@@ -27,7 +27,6 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
         if (decisions.Count == 0)
             return Task.CompletedTask;
 
-
         lock (_gate)
 
             foreach (DecisionNode decision in decisions)
@@ -40,7 +39,6 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
 
                 list.Add(Clone(decision));
             }
-
 
         return Task.CompletedTask;
     }
@@ -55,7 +53,6 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
         {
             if (!_byRunId.TryGetValue(runId, out List<DecisionNode>? list))
                 return Task.FromResult<IReadOnlyList<DecisionNode>>([]);
-
 
             List<DecisionNode> ordered = list
                 .OrderBy(d => d.CreatedUtc)

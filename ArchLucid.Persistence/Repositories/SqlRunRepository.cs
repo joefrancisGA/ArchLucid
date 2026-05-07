@@ -3,10 +3,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Common;
-
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
-
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
@@ -275,13 +273,7 @@ public sealed class SqlRunRepository(
             IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
                 new CommandDefinition(
                     HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock,
-                    new
-                    {
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        ScopeProjectId = scope.ProjectId,
-                        Take = Math.Clamp(take <= 0 ? 200 : take, 1, 200)
-                    },
+                    new { scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId, Take = Math.Clamp(take <= 0 ? 200 : take, 1, 200) },
                     cancellationToken: ct));
 
             return rows.ToList();
@@ -517,10 +509,7 @@ public sealed class SqlRunRepository(
 
             await tran.CommitAsync(ct);
 
-            return new RunArchiveBatchResult
-            {
-                UpdatedCount = rows.Count, ArchivedRuns = rows, ChildCascade = childCascade
-            };
+            return new RunArchiveBatchResult { UpdatedCount = rows.Count, ArchivedRuns = rows, ChildCascade = childCascade };
         }
         catch
         {
@@ -535,7 +524,6 @@ public sealed class SqlRunRepository(
         if (runIds.Count == 0)
             return new RunArchiveByIdsResult();
 
-
         List<Guid> distinctOrdered = [];
         HashSet<Guid> seen = [];
 
@@ -544,7 +532,6 @@ public sealed class SqlRunRepository(
             if (seen.Add(id))
 
                 distinctOrdered.Add(id);
-
 
         const string selectSql = """
                                  SELECT RunId, ArchivedUtc
@@ -583,7 +570,6 @@ public sealed class SqlRunRepository(
         if (toArchive.Count == 0)
 
             return new RunArchiveByIdsResult { SucceededRunIds = [], ArchivedRuns = [], Failed = failed };
-
 
         const string updateSql = """
                                  DECLARE @Archived TABLE (
@@ -719,13 +705,9 @@ public sealed class SqlRunRepository(
                 failed.Add(new RunArchiveByIdFailure(id,
                     "Run could not be archived (concurrent update or missing row)."));
 
-
         return new RunArchiveByIdsResult
         {
-            SucceededRunIds = archived.Select(static r => r.RunId).ToList(),
-            ArchivedRuns = archived,
-            Failed = failed,
-            ChildCascade = childCascade
+            SucceededRunIds = archived.Select(static r => r.RunId).ToList(), ArchivedRuns = archived, Failed = failed, ChildCascade = childCascade
         };
     }
 
@@ -822,7 +804,6 @@ public sealed class SqlRunRepository(
         {
             if (run.RowVersion is not null)
                 throw new RunConcurrencyConflictException(run.RunId);
-
 
             throw new InvalidOperationException($"Run '{run.RunId:D}' was not found for update.");
         }

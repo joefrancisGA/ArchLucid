@@ -74,13 +74,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
                 new CommandDefinition(
                     HotPathRelationalQueryShapes.AuditEventsGetByScope,
-                    new
-                    {
-                        TenantId = tenantId,
-                        WorkspaceId = workspaceId,
-                        ProjectId = projectId,
-                        Take = Math.Clamp(take <= 0 ? 100 : take, 1, 500)
-                    },
+                    new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, Take = Math.Clamp(take <= 0 ? 100 : take, 1, 500) },
                     cancellationToken: ct));
 
             return rows.ToList();

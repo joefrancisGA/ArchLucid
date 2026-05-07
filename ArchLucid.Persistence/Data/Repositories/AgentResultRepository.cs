@@ -123,7 +123,6 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                 $"Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(results));
 
-
         // Delete all existing results for this run before bulk-inserting so that a retry
         // of ExecuteRunAsync (inside IArchLucidUnitOfWork) does not produce duplicate rows.
         const string deleteSql = "DELETE FROM AgentResults WHERE RunId = @RunId;";
@@ -251,7 +250,6 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                 throw new InvalidOperationException(
                     $"An AgentResult row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
-
 
             results.Add(result);
         }

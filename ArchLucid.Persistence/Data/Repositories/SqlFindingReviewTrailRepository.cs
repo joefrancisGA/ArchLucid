@@ -1,5 +1,6 @@
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Models;
+
 using Dapper;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -11,11 +12,11 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
         ArgumentNullException.ThrowIfNull(reviewEvent);
 
         const string sql = """
-            INSERT INTO dbo.FindingReviewEvents
-            (EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes, OccurredAtUtc, RunId)
-            VALUES
-            (@EventId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @ReviewerUserId, @Action, @Notes, @OccurredAtUtc, @RunId);
-            """;
+                           INSERT INTO dbo.FindingReviewEvents
+                           (EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes, OccurredAtUtc, RunId)
+                           VALUES
+                           (@EventId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @ReviewerUserId, @Action, @Notes, @OccurredAtUtc, @RunId);
+                           """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -47,11 +48,11 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
             throw new ArgumentException("Finding id is required.", nameof(findingId));
 
         const string sql = """
-            SELECT EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes, OccurredAtUtc, RunId
-            FROM dbo.FindingReviewEvents
-            WHERE TenantId = @TenantId AND FindingId = @FindingId
-            ORDER BY OccurredAtUtc DESC;
-            """;
+                           SELECT EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes, OccurredAtUtc, RunId
+                           FROM dbo.FindingReviewEvents
+                           WHERE TenantId = @TenantId AND FindingId = @FindingId
+                           ORDER BY OccurredAtUtc DESC;
+                           """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

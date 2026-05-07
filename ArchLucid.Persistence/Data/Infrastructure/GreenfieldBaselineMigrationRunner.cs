@@ -297,7 +297,8 @@ public static partial class GreenfieldBaselineMigrationRunner
         if (!IsKnownDuplicateBaselineConstraintMessage(message))
             return false;
 
-        return message.Contains("already an object named", StringComparison.OrdinalIgnoreCase) || message.Contains("Could not create constraint", StringComparison.OrdinalIgnoreCase);
+        return message.Contains("already an object named", StringComparison.OrdinalIgnoreCase) ||
+               message.Contains("Could not create constraint", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -614,7 +615,6 @@ public static partial class GreenfieldBaselineMigrationRunner
             else
 
                 current.Add(line);
-
 
         if (current.Count > 0)
             batches.Add(string.Join(Environment.NewLine, current));

@@ -28,7 +28,6 @@ public sealed class InMemoryAgentEvaluationRepository : IAgentEvaluationReposito
         if (evaluations.Count == 0)
             return Task.CompletedTask;
 
-
         List<string> distinctRunIds = evaluations.Select(e => e.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
 
@@ -36,13 +35,11 @@ public sealed class InMemoryAgentEvaluationRepository : IAgentEvaluationReposito
                 $"All evaluations in a batch must belong to the same run. Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(evaluations));
 
-
         string runId = evaluations.First().RunId;
 
         lock (_gate)
 
             _byRunId[runId] = evaluations.Select(Clone).ToList();
-
 
         return Task.CompletedTask;
     }
@@ -57,7 +54,6 @@ public sealed class InMemoryAgentEvaluationRepository : IAgentEvaluationReposito
         {
             if (!_byRunId.TryGetValue(runId, out List<AgentEvaluation>? list))
                 return Task.FromResult<IReadOnlyList<AgentEvaluation>>([]);
-
 
             List<AgentEvaluation> ordered = list
                 .OrderBy(e => e.CreatedUtc)

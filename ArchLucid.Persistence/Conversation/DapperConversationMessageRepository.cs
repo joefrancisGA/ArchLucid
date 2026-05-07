@@ -21,10 +21,10 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
     {
         ArgumentNullException.ThrowIfNull(message);
         const string scopeSql = """
-                                 SELECT TenantId, WorkspaceId, ProjectId
-                                 FROM dbo.ConversationThreads
-                                 WHERE ThreadId = @ThreadId;
-                                 """;
+                                SELECT TenantId, WorkspaceId, ProjectId
+                                FROM dbo.ConversationThreads
+                                WHERE ThreadId = @ThreadId;
+                                """;
 
         const string sql = """
                            INSERT INTO dbo.ConversationMessages
@@ -48,7 +48,7 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
         if (scopeHdr?.TenantId is null || scopeHdr.WorkspaceId is null || scopeHdr.ProjectId is null)
             throw new InvalidOperationException(
                 "dbo.ConversationThreads row for ThreadId=" + message.ThreadId
-                + " lacks denormalized RLS scope; cannot persist ConversationMessages.");
+                                                            + " lacks denormalized RLS scope; cannot persist ConversationMessages.");
 
         await connection.ExecuteAsync(
             new CommandDefinition(

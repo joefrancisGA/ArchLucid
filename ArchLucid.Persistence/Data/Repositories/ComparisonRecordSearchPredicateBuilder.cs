@@ -28,7 +28,6 @@ internal static class ComparisonRecordSearchPredicateBuilder
 
         if (!string.IsNullOrWhiteSpace(leftRunId))
         {
-
             if (!Guid.TryParse(leftRunId, out Guid leftGuid))
             {
                 conditions.Add("1 = 0");
@@ -42,7 +41,6 @@ internal static class ComparisonRecordSearchPredicateBuilder
 
         if (!string.IsNullOrWhiteSpace(rightRunId))
         {
-
             if (!Guid.TryParse(rightRunId, out Guid rightGuid))
             {
                 conditions.Add("1 = 0");

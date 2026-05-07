@@ -51,7 +51,6 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
 
                 _items.RemoveAt(0);
 
-
             _items.Add(stored);
         }
 
@@ -66,7 +65,6 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
     {
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
-
 
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
@@ -90,7 +88,6 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
-
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
@@ -113,7 +110,6 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
     {
         if (fromUtc >= toUtc)
             throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
-
 
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)

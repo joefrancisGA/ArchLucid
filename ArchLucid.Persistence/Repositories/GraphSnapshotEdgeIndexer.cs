@@ -22,7 +22,6 @@ public static class GraphSnapshotEdgeIndexer
                 edge.EdgeType,
                 edge.Weight));
 
-
         return rows;
     }
 }

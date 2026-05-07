@@ -30,11 +30,11 @@ public sealed class SqlFirstTenantFunnelArchivalBatchStore(SqlConnectionFactory 
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
         const string sql = """
-                             SELECT TOP (@Take) EventId, TenantId, EventName, OccurredUtc
-                             FROM dbo.FirstTenantFunnelEvents
-                             WHERE OccurredUtc < DATEADD(day, -@RetentionDays, SYSUTCDATETIME())
-                             ORDER BY EventId ASC;
-                             """;
+                           SELECT TOP (@Take) EventId, TenantId, EventName, OccurredUtc
+                           FROM dbo.FirstTenantFunnelEvents
+                           WHERE OccurredUtc < DATEADD(day, -@RetentionDays, SYSUTCDATETIME())
+                           ORDER BY EventId ASC;
+                           """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 

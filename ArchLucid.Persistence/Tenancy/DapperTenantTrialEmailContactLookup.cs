@@ -33,7 +33,6 @@ public sealed class DapperTenantTrialEmailContactLookup(ISqlConnectionFactory co
         if (string.IsNullOrWhiteSpace(actor))
             return null;
 
-
         string trimmed = actor.Trim();
 
         return trimmed.Contains('@', StringComparison.Ordinal) ? trimmed : null;

@@ -150,7 +150,6 @@ public sealed class GovernancePromotionRecordRepository(
         if (ctx.TenantId == Guid.Empty)
             return;
 
-
         item.TenantId = ctx.TenantId;
         item.WorkspaceId = ctx.WorkspaceId;
         item.ProjectId = ctx.ProjectId;

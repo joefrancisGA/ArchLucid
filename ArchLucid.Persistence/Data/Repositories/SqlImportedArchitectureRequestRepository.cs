@@ -1,5 +1,6 @@
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Models;
+
 using Dapper;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -12,11 +13,11 @@ public sealed class SqlImportedArchitectureRequestRepository(ISqlConnectionFacto
         ArgumentNullException.ThrowIfNull(record);
 
         const string sql = """
-            INSERT INTO dbo.ImportedArchitectureRequests
-            (ImportId, TenantId, WorkspaceId, ProjectId, CreatedUtc, SourceFileName, Format, Status, RequestJson)
-            VALUES
-            (@ImportId, @TenantId, @WorkspaceId, @ProjectId, @CreatedUtc, @SourceFileName, @Format, @Status, @RequestJson);
-            """;
+                           INSERT INTO dbo.ImportedArchitectureRequests
+                           (ImportId, TenantId, WorkspaceId, ProjectId, CreatedUtc, SourceFileName, Format, Status, RequestJson)
+                           VALUES
+                           (@ImportId, @TenantId, @WorkspaceId, @ProjectId, @CreatedUtc, @SourceFileName, @Format, @Status, @RequestJson);
+                           """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

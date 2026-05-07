@@ -347,9 +347,9 @@ public sealed class SqlGraphSnapshotRepository(
             ct);
 
         bool needsRelationalSlices = (nodesCount == 0 && snapshot.Nodes.Count > 0)
-            || (warningsCount == 0 && snapshot.Warnings.Count > 0)
-            || (edgesCount == 0 && snapshot.Edges.Count > 0)
-            || (edgesCount > 0 && edgePropsCount == 0 && snapshot.Edges.Count > 0);
+                                     || (warningsCount == 0 && snapshot.Warnings.Count > 0)
+                                     || (edgesCount == 0 && snapshot.Edges.Count > 0)
+                                     || (edgesCount > 0 && edgePropsCount == 0 && snapshot.Edges.Count > 0);
 
         if (!needsRelationalSlices)
             return;
@@ -376,9 +376,7 @@ public sealed class SqlGraphSnapshotRepository(
 
         ScopeContext scopeFill = new()
         {
-            TenantId = scopeHdr.TenantId!.Value,
-            WorkspaceId = scopeHdr.WorkspaceId!.Value,
-            ProjectId = scopeHdr.ScopeProjectId!.Value
+            TenantId = scopeHdr.TenantId!.Value, WorkspaceId = scopeHdr.WorkspaceId!.Value, ProjectId = scopeHdr.ScopeProjectId!.Value
         };
 
         if (nodesCount == 0 && snapshot.Nodes.Count > 0)

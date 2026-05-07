@@ -79,9 +79,6 @@ public sealed class CachingGoldenManifestRepository(
 
     private static ScopeContext AmbientScope(ManifestDocument manifest)
     {
-        return new ScopeContext
-        {
-            TenantId = manifest.TenantId, WorkspaceId = manifest.WorkspaceId, ProjectId = manifest.ProjectId
-        };
+        return new ScopeContext { TenantId = manifest.TenantId, WorkspaceId = manifest.WorkspaceId, ProjectId = manifest.ProjectId };
     }
 }

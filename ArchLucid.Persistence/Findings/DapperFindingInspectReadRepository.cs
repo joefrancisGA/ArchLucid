@@ -66,18 +66,11 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         MainRow? row = await connection.QuerySingleOrDefaultAsync<MainRow>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    FindingId = findingId.Trim(),
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId
-                },
+                new { FindingId = findingId.Trim(), scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
                 cancellationToken: ct));
 
         if (row is null)
             return null;
-
 
         const string relatedSql = """
                                   SELECT frn.NodeId
@@ -95,16 +88,9 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         List<string> relatedNodes = (await connection.QueryAsync<string>(
                 new CommandDefinition(
                     relatedSql,
-                    new
-                    {
-                        FindingId = findingId.Trim(),
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        ScopeProjectId = scope.ProjectId
-                    },
+                    new { FindingId = findingId.Trim(), scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
                     cancellationToken: ct)))
             .ToList();
-
 
         const string ruleSql = """
                                SELECT TOP 1 tra.RuleText
@@ -122,15 +108,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         string? firstRuleText = await connection.QuerySingleOrDefaultAsync<string>(
             new CommandDefinition(
                 ruleSql,
-                new
-                {
-                    FindingId = findingId.Trim(),
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId
-                },
+                new { FindingId = findingId.Trim(), scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
                 cancellationToken: ct));
-
 
         const string actionsSql = """
                                   SELECT fra.ActionText
@@ -148,17 +127,10 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         List<string> recommendedActions = (await connection.QueryAsync<string>(
                 new CommandDefinition(
                     actionsSql,
-                    new
-                    {
-                        FindingId = findingId.Trim(),
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        ScopeProjectId = scope.ProjectId
-                    },
+                    new { FindingId = findingId.Trim(), scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
                     cancellationToken: ct)))
             .Where(static a => !string.IsNullOrWhiteSpace(a))
             .ToList();
-
 
         const string auditSql = """
                                 SELECT TOP 1 ae.EventId
@@ -172,12 +144,7 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         Guid? auditRowId = await connection.QuerySingleOrDefaultAsync<Guid?>(
             new CommandDefinition(
                 auditSql,
-                new
-                {
-                    row.RunId,
-                    scope.TenantId,
-                    EventType = AuditEventTypes.AuthorityCommittedChainPersisted
-                },
+                new { row.RunId, scope.TenantId, EventType = AuditEventTypes.AuthorityCommittedChainPersisted },
                 cancellationToken: ct));
 
         (string? ruleId, string? ruleName) = ResolveRuleFields(row.AppliedRuleIdsJson, firstRuleText);

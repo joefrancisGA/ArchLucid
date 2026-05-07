@@ -23,7 +23,6 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         if (string.IsNullOrWhiteSpace(record.ExportRecordId))
             throw new ArgumentException("ExportRecordId is required.", nameof(record));
 
-
         RunExportRecord stored = Clone(record);
 
         lock (_gate)
@@ -52,7 +51,6 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         {
             if (!_byRunId.TryGetValue(runId, out List<RunExportRecord>? list))
                 return Task.FromResult<IReadOnlyList<RunExportRecord>>([]);
-
 
             List<RunExportRecord> ordered = list
                 .OrderByDescending(r => r.CreatedUtc)

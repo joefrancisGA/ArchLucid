@@ -100,7 +100,6 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
         if (!_byId.TryGetValue(id, out ScimUserRecord? existing) || existing.TenantId != tenantId)
             return Task.CompletedTask;
 
-
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
         _byId[id] = new ScimUserRecord
         {
@@ -137,7 +136,6 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
         if (!_byId.TryGetValue(id, out ScimUserRecord? e) || e.TenantId != tenantId)
             return Task.CompletedTask;
 
-
         ScimUserRecord u = new()
         {
             Id = id,
@@ -165,7 +163,6 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
 
         if (!_byId.TryGetValue(id, out ScimUserRecord? e) || e.TenantId != tenantId)
             return Task.CompletedTask;
-
 
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
         _byId[id] = new ScimUserRecord

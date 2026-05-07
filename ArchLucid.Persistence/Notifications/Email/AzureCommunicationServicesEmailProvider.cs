@@ -29,12 +29,10 @@ public sealed class AzureCommunicationServicesEmailProvider(
             throw new InvalidOperationException(
                 "Email:AzureCommunicationServicesEndpoint is required when Email:Provider is AzureCommunicationServices.");
 
-
         if (string.IsNullOrWhiteSpace(options.FromAddress))
 
             throw new InvalidOperationException(
                 "Email:FromAddress is required when Email:Provider is AzureCommunicationServices.");
-
 
         string messageId = await _acsApi.SendAsync(
                 options.AzureCommunicationServicesEndpoint.Trim(),

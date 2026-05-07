@@ -116,7 +116,6 @@ public sealed class SqlFindingsSnapshotRepository(
                         Findings = []
                     };
 
-
                 FindingsSnapshot fromJson = JsonEntitySerializer.Deserialize<FindingsSnapshot>(row.FindingsJson);
                 fromJson.FindingsSnapshotId = row.FindingsSnapshotId;
                 fromJson.RunId = row.RunId;
@@ -160,21 +159,21 @@ public sealed class SqlFindingsSnapshotRepository(
         int fetchLimit = cappedTake + 1;
 
         const string sql = """
-                             SELECT TOP (@Limit)
-                                    FindingRecordId, SortOrder, FindingId, FindingType, Category, EngineType, Severity, Title
-                             FROM dbo.FindingRecords
-                             WHERE FindingsSnapshotId = @FsId
-                               AND (@Severity IS NULL OR Severity = @Severity)
-                               AND (@Category IS NULL OR Category = @Category)
-                               AND (@FindingType IS NULL OR FindingType = @FindingType)
-                               AND (
-                                 @HasCursor = 0
-                                 OR (
-                                   SortOrder > @CurSo OR (SortOrder = @CurSo AND FindingRecordId > @CurFrid)
-                                 )
+                           SELECT TOP (@Limit)
+                                  FindingRecordId, SortOrder, FindingId, FindingType, Category, EngineType, Severity, Title
+                           FROM dbo.FindingRecords
+                           WHERE FindingsSnapshotId = @FsId
+                             AND (@Severity IS NULL OR Severity = @Severity)
+                             AND (@Category IS NULL OR Category = @Category)
+                             AND (@FindingType IS NULL OR FindingType = @FindingType)
+                             AND (
+                               @HasCursor = 0
+                               OR (
+                                 SortOrder > @CurSo OR (SortOrder = @CurSo AND FindingRecordId > @CurFrid)
                                )
-                             ORDER BY SortOrder ASC, FindingRecordId ASC;
-                             """;
+                             )
+                           ORDER BY SortOrder ASC, FindingRecordId ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
@@ -220,21 +219,53 @@ public sealed class SqlFindingsSnapshotRepository(
 
     private sealed class FindingMetaSqlRow
     {
-        public Guid FindingRecordId { get; init; }
+        public Guid FindingRecordId
+        {
+            get;
+            init;
+        }
 
-        public int SortOrder { get; init; }
+        public int SortOrder
+        {
+            get;
+            init;
+        }
 
-        public string FindingId { get; init; } = null!;
+        public string FindingId
+        {
+            get;
+            init;
+        } = null!;
 
-        public string FindingType { get; init; } = null!;
+        public string FindingType
+        {
+            get;
+            init;
+        } = null!;
 
-        public string Category { get; init; } = null!;
+        public string Category
+        {
+            get;
+            init;
+        } = null!;
 
-        public string EngineType { get; init; } = null!;
+        public string EngineType
+        {
+            get;
+            init;
+        } = null!;
 
-        public string Severity { get; init; } = null!;
+        public string Severity
+        {
+            get;
+            init;
+        } = null!;
 
-        public string Title { get; init; } = null!;
+        public string Title
+        {
+            get;
+            init;
+        } = null!;
     }
 
     private async Task SaveCoreAsync(
@@ -581,10 +612,10 @@ public sealed class SqlFindingsSnapshotRepository(
             return;
 
         const string preamble = """
-            INSERT INTO dbo.FindingProperties (
-                FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue, TenantId, WorkspaceId, ProjectId)
-            VALUES
-            """;
+                                INSERT INTO dbo.FindingProperties (
+                                    FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue, TenantId, WorkspaceId, ProjectId)
+                                VALUES
+                                """;
 
         for (int offset = 0; offset < orderedProps.Count; offset += FindingChildPropertyInsertRows)
         {

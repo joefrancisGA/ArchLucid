@@ -60,20 +60,20 @@ public static class HotPathRelationalQueryShapes
     ///     EXISTS predicate for committed architecture reviews with persisted golden manifests (nav narrowing signal).
     /// </summary>
     public const string CommittedArchitectureReviewExistsNoLock = """
-                                                                      SELECT CASE WHEN EXISTS (
-                                                                          SELECT 1
-                                                                          FROM dbo.Runs r WITH (NOLOCK)
-                                                                          INNER JOIN dbo.GoldenManifests gm WITH (NOLOCK)
-                                                                              ON gm.ManifestId = r.GoldenManifestId AND gm.TenantId = r.TenantId
-                                                                          WHERE r.TenantId = @TenantId
-                                                                            AND r.WorkspaceId = @WorkspaceId
-                                                                            AND r.ScopeProjectId = @ScopeProjectId
-                                                                            AND r.ArchivedUtc IS NULL
-                                                                            AND gm.ArchivedUtc IS NULL
-                                                                            AND r.LegacyRunStatus = @CommittedStatus
-                                                                            AND r.GoldenManifestId IS NOT NULL
-                                                                      ) THEN 1 ELSE 0 END;
-                                                                      """;
+                                                                  SELECT CASE WHEN EXISTS (
+                                                                      SELECT 1
+                                                                      FROM dbo.Runs r WITH (NOLOCK)
+                                                                      INNER JOIN dbo.GoldenManifests gm WITH (NOLOCK)
+                                                                          ON gm.ManifestId = r.GoldenManifestId AND gm.TenantId = r.TenantId
+                                                                      WHERE r.TenantId = @TenantId
+                                                                        AND r.WorkspaceId = @WorkspaceId
+                                                                        AND r.ScopeProjectId = @ScopeProjectId
+                                                                        AND r.ArchivedUtc IS NULL
+                                                                        AND gm.ArchivedUtc IS NULL
+                                                                        AND r.LegacyRunStatus = @CommittedStatus
+                                                                        AND r.GoldenManifestId IS NOT NULL
+                                                                  ) THEN 1 ELSE 0 END;
+                                                                  """;
 
     /// <summary>Recent runs in ambient scope (<c>SqlRunRepository.ListRecentInScopeAsync</c>).</summary>
     public const string RunsListRecentInScopeNoLock = """
@@ -139,29 +139,29 @@ public static class HotPathRelationalQueryShapes
     ///     dynamic filters append <c>AND …</c> before <see cref="AuditEventsFilteredOrderByOccurredUtcEventIdDesc" />.
     /// </summary>
     public const string AuditEventsFilteredSelectFromWhereScope = """
-                                                                    SELECT TOP (@Take)
-                                                                        EventId, OccurredUtc, EventType,
-                                                                        ActorUserId, ActorUserName,
-                                                                        TenantId, WorkspaceId, ProjectId,
-                                                                        RunId, ManifestId, ArtifactId,
-                                                                        DataJson, CorrelationId
-                                                                    FROM dbo.AuditEvents
-                                                                    WHERE TenantId = @TenantId
-                                                                      AND WorkspaceId = @WorkspaceId
-                                                                      AND ProjectId = @ProjectId
-                                                                    """;
+                                                                  SELECT TOP (@Take)
+                                                                      EventId, OccurredUtc, EventType,
+                                                                      ActorUserId, ActorUserName,
+                                                                      TenantId, WorkspaceId, ProjectId,
+                                                                      RunId, ManifestId, ArtifactId,
+                                                                      DataJson, CorrelationId
+                                                                  FROM dbo.AuditEvents
+                                                                  WHERE TenantId = @TenantId
+                                                                    AND WorkspaceId = @WorkspaceId
+                                                                    AND ProjectId = @ProjectId
+                                                                  """;
 
     /// <summary>Stable keyset ordering for audit search/export listings.</summary>
     public const string AuditEventsFilteredOrderByOccurredUtcEventIdDesc = """
-                                                                             ORDER BY OccurredUtc DESC, EventId DESC;
-                                                                             """;
+                                                                           ORDER BY OccurredUtc DESC, EventId DESC;
+                                                                           """;
 
     /// <summary>Opening clause for <c>DapperAuditRepository.CountFilteredAsync</c>; dynamic filters append before terminator.</summary>
     public const string AuditEventsFilteredCountFromWhereScope = """
-                                                                       SELECT COUNT(*)
-                                                                       FROM dbo.AuditEvents
-                                                                       WHERE TenantId = @TenantId
-                                                                         AND WorkspaceId = @WorkspaceId
-                                                                         AND ProjectId = @ProjectId
-                                                                       """;
+                                                                 SELECT COUNT(*)
+                                                                 FROM dbo.AuditEvents
+                                                                 WHERE TenantId = @TenantId
+                                                                   AND WorkspaceId = @WorkspaceId
+                                                                   AND ProjectId = @ProjectId
+                                                                 """;
 }

@@ -83,7 +83,6 @@ public static class DatabaseMigrator
                 nameof(trailingScriptCountToSkip),
                 "Must be at least 1 and less than the total migration script count.");
 
-
         string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
         using (MigrationCatalogMutexScope.Acquire(secured, MigrationRunMutexWait))
         {

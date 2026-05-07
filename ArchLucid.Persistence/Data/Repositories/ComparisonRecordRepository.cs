@@ -125,7 +125,6 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         if (!Guid.TryParse(runId, out Guid runGuid))
             return [];
 
-
         string sql = $"""
                       SELECT TOP 200
                           {ComparisonRecordRunIdSql.ProjectionRow}
@@ -184,11 +183,11 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         // - filter predicates are optional
         // - tag matching is stored as JSON in an NVARCHAR column (OPENJSON)
         string baseSql = $"""
-                           SELECT
-                               {ComparisonRecordRunIdSql.ProjectionRow}
-                           FROM ComparisonRecords
-                           WHERE 1 = 1
-                           """;
+                          SELECT
+                              {ComparisonRecordRunIdSql.ProjectionRow}
+                          FROM ComparisonRecords
+                          WHERE 1 = 1
+                          """;
 
         List<string> conditions = [];
         DynamicParameters parameters = new();
@@ -251,11 +250,11 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         CancellationToken cancellationToken = default)
     {
         string baseSql = $"""
-                           SELECT
-                               {ComparisonRecordRunIdSql.ProjectionRow}
-                           FROM ComparisonRecords
-                           WHERE 1 = 1
-                           """;
+                          SELECT
+                              {ComparisonRecordRunIdSql.ProjectionRow}
+                          FROM ComparisonRecords
+                          WHERE 1 = 1
+                          """;
 
         List<string> conditions = [];
         DynamicParameters parameters = new();
@@ -284,7 +283,6 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
             throw new InvalidOperationException("Cursor paging currently supports sortBy=createdUtc only.");
 
-
         if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
         {
             parameters.Add("@CursorCreatedUtc", cursorCreatedUtc);
@@ -300,7 +298,6 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         if (conditions.Count > 0)
 
             sql += " AND " + string.Join(" AND ", conditions);
-
 
         sql += sortDescending
             ? $" ORDER BY {orderColumn} DESC, ComparisonRecordId DESC"
@@ -335,12 +332,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         string? tagsJson = tags is null || tags.Count == 0 ? null : JsonSerializer.Serialize(tags);
         int rows = await connection.ExecuteAsync(new CommandDefinition(
             sql,
-            new
-            {
-                ComparisonRecordId = comparisonRecordId,
-                Label = label ?? (object)DBNull.Value,
-                Tags = tagsJson ?? (object)DBNull.Value
-            },
+            new { ComparisonRecordId = comparisonRecordId, Label = label ?? (object)DBNull.Value, Tags = tagsJson ?? (object)DBNull.Value },
             cancellationToken: cancellationToken));
         return rows > 0;
     }

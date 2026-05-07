@@ -25,10 +25,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
                            """;
 
         bool? row = await connection.ExecuteScalarAsync<bool?>(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
         return row == true;
     }
@@ -81,13 +78,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
                     INSERT INTO dbo.BillingWebhookEvents (EventId, Provider, EventType, PayloadJson, ReceivedUtc, ProcessedUtc, ResultStatus)
                     VALUES (@EventId, @Provider, @EventType, @PayloadJson, SYSUTCDATETIME(), NULL, N'Received');
                     """,
-                    new
-                    {
-                        EventId = dedupeKey,
-                        Provider = provider,
-                        EventType = eventType,
-                        PayloadJson = payloadJson
-                    },
+                    new { EventId = dedupeKey, Provider = provider, EventType = eventType, PayloadJson = payloadJson },
                     cancellationToken: cancellationToken));
 
             return true;
@@ -110,11 +101,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
                 SET ProcessedUtc = SYSUTCDATETIME(), ResultStatus = @ResultStatus
                 WHERE EventId = @EventId;
                 """,
-                new
-                {
-                    EventId = dedupeKey,
-                    ResultStatus = resultStatus
-                },
+                new { EventId = dedupeKey, ResultStatus = resultStatus },
                 cancellationToken: cancellationToken));
     }
 
@@ -129,10 +116,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
                 FROM dbo.BillingWebhookEvents
                 WHERE EventId = @EventId;
                 """,
-                new
-                {
-                    EventId = dedupeKey
-                },
+                new { EventId = dedupeKey },
                 cancellationToken: cancellationToken));
     }
 
@@ -176,10 +160,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_Suspend",
-                new
-                {
-                    TenantId = tenantId
-                },
+                new { TenantId = tenantId },
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
@@ -191,10 +172,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_Reinstate",
-                new
-                {
-                    TenantId = tenantId
-                },
+                new { TenantId = tenantId },
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
@@ -206,10 +184,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_Cancel",
-                new
-                {
-                    TenantId = tenantId
-                },
+                new { TenantId = tenantId },
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
@@ -222,12 +197,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_ChangePlan",
-                new
-                {
-                    TenantId = tenantId,
-                    Tier = tierCode,
-                    RawWebhookJson = rawWebhookJson
-                },
+                new { TenantId = tenantId, Tier = tierCode, RawWebhookJson = rawWebhookJson },
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
@@ -240,12 +210,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_ChangeQuantity",
-                new
-                {
-                    TenantId = tenantId,
-                    SeatsPurchased = seatsPurchased,
-                    RawWebhookJson = rawWebhookJson
-                },
+                new { TenantId = tenantId, SeatsPurchased = seatsPurchased, RawWebhookJson = rawWebhookJson },
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
@@ -257,7 +222,6 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
     {
         if (maxRows is <= 0 or > 500)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
-
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -288,11 +252,7 @@ public sealed class SqlBillingLedger(ISqlConnectionFactory connectionFactory) : 
 
         IEnumerable<BillingSubscriptionStateHistoryEntry> rows =
             await connection.QueryAsync<BillingSubscriptionStateHistoryEntry>(
-                new CommandDefinition(sql, new
-                {
-                    TenantId = tenantId,
-                    MaxRows = maxRows
-                },
+                new CommandDefinition(sql, new { TenantId = tenantId, MaxRows = maxRows },
                     cancellationToken: cancellationToken));
 
         return [.. rows];

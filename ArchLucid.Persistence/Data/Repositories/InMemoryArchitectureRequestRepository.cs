@@ -30,7 +30,6 @@ public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequest
 
             _byId[request.RequestId] = Clone(request);
 
-
         return Task.CompletedTask;
     }
 

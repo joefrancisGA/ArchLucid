@@ -53,11 +53,9 @@ public sealed class SqlSchemaBootstrapper(
 
                 current.Add(line);
 
-
         if (current.Count > 0)
 
             batches.Add(string.Join(Environment.NewLine, current));
-
 
         return batches;
     }

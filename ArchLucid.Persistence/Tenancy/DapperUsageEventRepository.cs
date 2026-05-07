@@ -145,7 +145,6 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
 
             parameters = new { Take = take, TenantId = tenantId, PeriodStart = periodStart, PeriodEnd = periodEnd };
 
-
         sql += " ORDER BY RecordedUtc DESC;";
 
         IEnumerable<EventRow> rows = await connection.QueryAsync<EventRow>(

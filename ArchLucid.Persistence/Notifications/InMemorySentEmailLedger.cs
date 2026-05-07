@@ -17,7 +17,6 @@ public sealed class InMemorySentEmailLedger : ISentEmailLedger
         if (string.IsNullOrWhiteSpace(entry.IdempotencyKey))
             return Task.FromResult(false);
 
-
         bool added = _keys.TryAdd(entry.IdempotencyKey.Trim(), 0);
 
         return Task.FromResult(added);

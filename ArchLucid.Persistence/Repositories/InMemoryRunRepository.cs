@@ -3,9 +3,7 @@ using System.Data;
 using System.Globalization;
 
 using ArchLucid.Contracts.Common;
-
 using ArchLucid.Core.Pagination;
-
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Interfaces;
@@ -60,7 +58,6 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
         if (!_store.TryGetValue(runId, out RunRecord? r) || !MatchesScope(r, scope) || r.ArchivedUtc.HasValue)
             return Task.FromResult<RunRecord?>(null);
-
 
         return Task.FromResult<RunRecord?>(r);
     }
@@ -127,7 +124,6 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
             filtered.RemoveAt(filtered.Count - 1);
 
-
         return Task.FromResult(new RunListPage(filtered, hasMore));
     }
 
@@ -184,7 +180,6 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
             filtered.RemoveAt(filtered.Count - 1);
 
-
         return Task.FromResult(new RunListPage(filtered, hasMore));
     }
 
@@ -204,14 +199,12 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             throw new InvalidOperationException(
                 string.Format(CultureInfo.InvariantCulture, "Run '{0:D}' was not found for update.", run.RunId));
 
-
         if (run.RowVersion is not null &&
             _store.TryGetValue(run.RunId, out RunRecord? existing) &&
             existing.RowVersion is not null &&
             !existing.RowVersion.AsSpan().SequenceEqual(run.RowVersion))
 
             throw new RunConcurrencyConflictException(run.RunId);
-
 
         run.RowVersion = NextFakeRowVersion();
         _store[run.RunId] = run;
@@ -233,14 +226,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             if (r.ArchivedUtc.HasValue || r.CreatedUtc >= cutoff)
                 continue;
 
-
-            archived.Add(new ArchivedRunScopeRow
-            {
-                RunId = r.RunId,
-                TenantId = r.TenantId,
-                WorkspaceId = r.WorkspaceId,
-                ScopeProjectId = r.ScopeProjectId
-            });
+            archived.Add(new ArchivedRunScopeRow { RunId = r.RunId, TenantId = r.TenantId, WorkspaceId = r.WorkspaceId, ScopeProjectId = r.ScopeProjectId });
 
             r.ArchivedUtc = stamp;
             _store[kv.Key] = r;
@@ -282,10 +268,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
             archived.Add(new ArchivedRunScopeRow
             {
-                RunId = run.RunId,
-                TenantId = run.TenantId,
-                WorkspaceId = run.WorkspaceId,
-                ScopeProjectId = run.ScopeProjectId
+                RunId = run.RunId, TenantId = run.TenantId, WorkspaceId = run.WorkspaceId, ScopeProjectId = run.ScopeProjectId
             });
 
             run.ArchivedUtc = stamp;
@@ -294,9 +277,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
         return Task.FromResult(new RunArchiveByIdsResult
         {
-            SucceededRunIds = archived.Select(static r => r.RunId).ToList(),
-            ArchivedRuns = archived,
-            Failed = failed
+            SucceededRunIds = archived.Select(static r => r.RunId).ToList(), ArchivedRuns = archived, Failed = failed
         });
     }
 

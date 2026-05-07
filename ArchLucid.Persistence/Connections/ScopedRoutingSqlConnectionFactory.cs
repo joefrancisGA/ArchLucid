@@ -1,7 +1,6 @@
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;

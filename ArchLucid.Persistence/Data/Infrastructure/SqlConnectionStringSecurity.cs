@@ -22,10 +22,7 @@ public static class SqlConnectionStringSecurity
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentException("Connection string is required.", nameof(connectionString));
 
-        SqlConnectionStringBuilder builder = new(connectionString.Trim())
-        {
-            Encrypt = SqlConnectionEncryptOption.Mandatory
-        };
+        SqlConnectionStringBuilder builder = new(connectionString.Trim()) { Encrypt = SqlConnectionEncryptOption.Mandatory };
 
         return builder.ConnectionString;
     }

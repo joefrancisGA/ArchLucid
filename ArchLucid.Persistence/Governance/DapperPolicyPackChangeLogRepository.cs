@@ -85,7 +85,6 @@ public sealed class DapperPolicyPackChangeLogRepository(
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
-
         const string sql = """
                            SELECT TOP (@MaxRows)
                                ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
@@ -116,7 +115,6 @@ public sealed class DapperPolicyPackChangeLogRepository(
     {
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
-
 
         const string sql = """
                            SELECT TOP (@MaxRows)
@@ -149,7 +147,6 @@ public sealed class DapperPolicyPackChangeLogRepository(
     {
         if (fromUtc >= toUtc)
             throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
-
 
         const string sql = """
                            SELECT

@@ -43,23 +43,14 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
                 .QueryFirstOrDefaultAsync<ArchitectureRunIdempotencyRow>(
                     new CommandDefinition(
                         sql,
-                        new
-                        {
-                            TenantId = tenantId,
-                            WorkspaceId = workspaceId,
-                            ProjectId = projectId,
-                            IdempotencyKeyHash = idempotencyKeyHash
-                        },
+                        new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, IdempotencyKeyHash = idempotencyKeyHash },
                         cancellationToken: cancellationToken))
             ;
 
         if (row is null)
             return null;
 
-        return new ArchitectureRunIdempotencyLookup
-        {
-            RunId = row.RunId, RequestFingerprint = row.RequestFingerprint ?? []
-        };
+        return new ArchitectureRunIdempotencyLookup { RunId = row.RunId, RequestFingerprint = row.RequestFingerprint ?? [] };
     }
 
     /// <inheritdoc />

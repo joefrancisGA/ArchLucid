@@ -21,14 +21,14 @@ public sealed class SqlTenantItsmOutboundSettingsRepository(SqlConnectionFactory
             throw new ArgumentException("tenantId is required.", nameof(tenantId));
 
         const string sql = """
-                             SELECT TenantId,
-                                    JiraProjectKeyOverride,
-                                    JiraSendInfoSeverity,
-                                    JiraIssueTypeBySeverityJson,
-                                    ServiceNowAutoCreateCmdbCi
-                             FROM dbo.TenantItsmOutboundSettings
-                             WHERE TenantId = @TenantId;
-                             """;
+                           SELECT TenantId,
+                                  JiraProjectKeyOverride,
+                                  JiraSendInfoSeverity,
+                                  JiraIssueTypeBySeverityJson,
+                                  ServiceNowAutoCreateCmdbCi
+                           FROM dbo.TenantItsmOutboundSettings
+                           WHERE TenantId = @TenantId;
+                           """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
@@ -54,14 +54,34 @@ public sealed class SqlTenantItsmOutboundSettingsRepository(SqlConnectionFactory
 
     private sealed class Row
     {
-        public Guid TenantId { get; init; }
+        public Guid TenantId
+        {
+            get;
+            init;
+        }
 
-        public string? JiraProjectKeyOverride { get; init; }
+        public string? JiraProjectKeyOverride
+        {
+            get;
+            init;
+        }
 
-        public bool JiraSendInfoSeverity { get; init; }
+        public bool JiraSendInfoSeverity
+        {
+            get;
+            init;
+        }
 
-        public string? JiraIssueTypeBySeverityJson { get; init; }
+        public string? JiraIssueTypeBySeverityJson
+        {
+            get;
+            init;
+        }
 
-        public bool ServiceNowAutoCreateCmdbCi { get; init; }
+        public bool ServiceNowAutoCreateCmdbCi
+        {
+            get;
+            init;
+        }
     }
 }

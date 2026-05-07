@@ -118,12 +118,7 @@ public sealed class SqlItsmFindingCorrelationRepository(SqlConnectionFactory con
 
         CommandDefinition cmd = new(
             sql,
-            new
-            {
-                TenantId = tenantId,
-                FindingId = findingId.Trim(),
-                HumanReviewStatus = humanReviewStatus.Trim()
-            },
+            new { TenantId = tenantId, FindingId = findingId.Trim(), HumanReviewStatus = humanReviewStatus.Trim() },
             cancellationToken: ct);
 
         return await connection.ExecuteAsync(cmd);

@@ -82,7 +82,6 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
             if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
                 return el.GetString();
 
-
         return null;
     }
 

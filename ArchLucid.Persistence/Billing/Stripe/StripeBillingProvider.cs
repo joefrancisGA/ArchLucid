@@ -40,14 +40,12 @@ public sealed class StripeBillingProvider(
         if (string.IsNullOrWhiteSpace(secretKey))
             throw new InvalidOperationException("Billing:Stripe:SecretKey is not configured.");
 
-
         string? priceId = ResolvePriceId(billing, request.TargetTier);
 
         if (string.IsNullOrWhiteSpace(priceId))
 
             throw new InvalidOperationException(
                 "Stripe price id is not configured for the requested tier (Billing:Stripe:PriceIdTeam/Pro/Enterprise).");
-
 
         SessionService sessionService = new();
 
@@ -76,11 +74,7 @@ public sealed class StripeBillingProvider(
 
             options.CustomerEmail = request.BillingEmail;
 
-
-        RequestOptions requestOptions = new()
-        {
-            ApiKey = secretKey
-        };
+        RequestOptions requestOptions = new() { ApiKey = secretKey };
 
         Session session = await sessionService.CreateAsync(options, requestOptions, cancellationToken);
 
@@ -102,12 +96,7 @@ public sealed class StripeBillingProvider(
             ? new DateTimeOffset(DateTime.SpecifyKind(dt, DateTimeKind.Utc))
             : null;
 
-        return new BillingCheckoutResult
-        {
-            CheckoutUrl = session.Url ?? string.Empty,
-            ProviderSessionId = session.Id,
-            ExpiresUtc = expiresUtc
-        };
+        return new BillingCheckoutResult { CheckoutUrl = session.Url ?? string.Empty, ProviderSessionId = session.Id, ExpiresUtc = expiresUtc };
     }
 
     public async Task<BillingWebhookHandleResult> HandleWebhookAsync(
@@ -121,7 +110,6 @@ public sealed class StripeBillingProvider(
 
             return BillingWebhookHandleResult.Rejected(
                 "Stripe webhook signing secret or Stripe-Signature header is missing.");
-
 
         Event stripeEvent;
 
@@ -161,7 +149,6 @@ public sealed class StripeBillingProvider(
 
                 await HandleCheckoutSessionCompletedAsync(session, inbound.RawBody, cancellationToken);
 
-
             await _ledger.MarkWebhookProcessedAsync(stripeEvent.Id, "Processed", cancellationToken);
 
             return BillingWebhookHandleResult.Ok();
@@ -182,13 +169,11 @@ public sealed class StripeBillingProvider(
         if (session.Metadata is null)
             return;
 
-
         if (!TryParseGuid(session.Metadata, "tenant_id", out Guid tenantId) ||
             !TryParseGuid(session.Metadata, "workspace_id", out Guid workspaceId) ||
             !TryParseGuid(session.Metadata, "project_id", out Guid projectId))
 
             return;
-
 
         BillingCheckoutTier checkoutTier = ParseCheckoutTier(session.Metadata, "tier");
         string tierCode = BillingTierCode.FromCheckoutTier(checkoutTier);
@@ -229,7 +214,6 @@ public sealed class StripeBillingProvider(
         if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
             return false;
 
-
         return Guid.TryParse(raw.Trim(), out value);
     }
 
@@ -237,7 +221,6 @@ public sealed class StripeBillingProvider(
     {
         if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
             return BillingCheckoutTier.Team;
-
 
         return raw.Trim() switch
         {
@@ -251,7 +234,6 @@ public sealed class StripeBillingProvider(
     {
         if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
             return fallback;
-
 
         return int.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int n) && n > 0
             ? n
