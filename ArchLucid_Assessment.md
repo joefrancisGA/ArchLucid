@@ -495,7 +495,7 @@ Record and propagate two owner decisions into docs: (1) ServiceNow-first sequenc
 
 **Doc-only changes (no runtime code in this pass):**
 
-1. **`docs/go-to-market/INTEGRATION_CATALOG.md`** — Below the **V1 committed — first-party ITSM connectors** table, add a **Sequencing and CMDB** subsection: (a) ServiceNow builds before Jira depth; (b) CMDB CI class is `cmdb_ci_appl`, matched by `SystemName → name`, `cmdb_ci` field set to matched `sys_id`; (c) `AutoCreateCmdbCi` defaults to `false`; (d) two-way ServiceNow → ArchLucid status sync is **not** in committed V1 scope.
+1. **`docs/go-to-market/INTEGRATION_CATALOG.md`** — Below the **V1 committed — first-party ITSM connectors** table, add a **Sequencing and CMDB** subsection: (a) ServiceNow builds before Jira depth; (b) CMDB CI class is `cmdb_ci_appl`, matched by `SystemName → name`, `cmdb_ci` field set to matched `sys_id`; (c) `AutoCreateCmdbCi` defaults to `false`; (d) two-way ServiceNow → ArchLucid **status-only** sync is **committed for V1 GA** per §2.13 (*Resolved 2026-05-06*).
 
 2. **`docs/library/ITSM_BRIDGE_V1_RECIPES.md`** — In the intro, note: (a) ServiceNow before Jira for platform-led depth; (b) the first-party connector will populate `cmdb_ci` via a `cmdb_ci_appl` name lookup on `SystemName`.
 

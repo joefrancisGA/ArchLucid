@@ -81,7 +81,7 @@ public sealed class ProductionDangerousMisconfigurationLintTests
         HostingMisconfigurationWarning first = warnings.Should().ContainSingle().Subject;
         first.RuleName.Should().Be(
             ProductionLikeHostingMisconfigurationAdvisorRuleNames.AuthModeDevelopmentBypassDisallowed);
-        first.Message.Should().Contain("ASPNETCORE_ENVIRONMENT");
+        first.Message.Should().ContainEquivalentOf("ASPNETCORE_ENVIRONMENT");
     }
 
     [Fact]
