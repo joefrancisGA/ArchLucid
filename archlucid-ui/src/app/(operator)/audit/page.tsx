@@ -37,11 +37,13 @@ import {
   auditLoadMoreButtonTitleReader,
   auditResultsSectionHeadingOperator,
   auditResultsSectionHeadingReader,
+  auditResultsSectionHeadingBuyerPolished,
   auditSearchEventsButtonLabelReaderRank,
   auditSearchEventsButtonTitleOperator,
   auditSearchEventsButtonTitleReader,
   auditSearchEventsSectionHeadingOperator,
   auditSearchEventsSectionHeadingReader,
+  auditSearchEventsSectionHeadingBuyerPolished,
   auditSearchNoResultsBuyerPolishedLine,
   auditSearchNoResultsOperatorLine,
   auditSearchNoResultsReaderLine,
@@ -346,9 +348,11 @@ export default function AuditPage() {
         className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-4 bg-white dark:bg-neutral-950"
       >
         <h3 id="audit-search-heading" className="mt-0 mb-3 text-base">
-          {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-            ? auditSearchEventsSectionHeadingReader
-            : auditSearchEventsSectionHeadingOperator}
+          {buyerPolishedShell
+            ? auditSearchEventsSectionHeadingBuyerPolished
+            : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+              ? auditSearchEventsSectionHeadingReader
+              : auditSearchEventsSectionHeadingOperator}
         </h3>
         {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority && !buyerPolishedShell ? (
           <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
@@ -544,9 +548,11 @@ export default function AuditPage() {
 
       <section aria-labelledby="audit-results-heading">
         <h3 id="audit-results-heading" className="mt-0 mb-2 text-base">
-          {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-            ? auditResultsSectionHeadingReader
-            : auditResultsSectionHeadingOperator}
+          {buyerPolishedShell
+            ? auditResultsSectionHeadingBuyerPolished
+            : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+              ? auditResultsSectionHeadingReader
+              : auditResultsSectionHeadingOperator}
         </h3>
         <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
           Each card is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>

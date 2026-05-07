@@ -23,6 +23,7 @@ import {
   registerScreenshotSuiteProxyRoutes,
 } from "./helpers/register-operator-api-routes";
 import { publicDirUnderUi } from "./screenshot-output-helpers";
+import { assertPageFreeOfScreenshotDemoFailures } from "./screenshot-demo-quality-gates";
 
 const OUT = publicDirUnderUi("screenshots", "all-routes");
 
@@ -152,6 +153,7 @@ test.describe("all routes screenshots (mock API)", () => {
       }
 
       await expect(page.locator("body")).toBeVisible({ timeout: 120_000 });
+      await assertPageFreeOfScreenshotDemoFailures(page, href);
       await page.screenshot({ path: filePathForHref(href), fullPage: true });
     }
   });

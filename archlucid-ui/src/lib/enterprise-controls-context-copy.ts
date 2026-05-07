@@ -164,6 +164,9 @@ export const auditSearchEventsSectionHeadingOperator = "Search audit events";
 
 export const auditSearchEventsSectionHeadingReader = "Search audit events (inspect)";
 
+/** Audit log — buyer demo shell: section title without internal “inspect” cue. */
+export const auditSearchEventsSectionHeadingBuyerPolished = "Search audit events";
+
 /** Audit log — search is always **GET**; label nudges read-tier callers away from export expectations. */
 export const auditSearchEventsButtonLabelReaderRank = "Search audit log";
 
@@ -177,6 +180,9 @@ export const auditSearchEventsButtonTitleReader =
 export const auditResultsSectionHeadingOperator = "Audit results";
 
 export const auditResultsSectionHeadingReader = "Audit results (inspect)";
+
+/** Audit log — buyer demo shell: results block title without “inspect”. */
+export const auditResultsSectionHeadingBuyerPolished = "Audit results";
 
 /** Audit log — **Load more** pagination (`GET`). */
 export const auditLoadMoreButtonTitleOperator = "Load the next page of audit events for the current filters (GET).";

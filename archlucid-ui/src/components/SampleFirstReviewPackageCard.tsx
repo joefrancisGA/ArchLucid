@@ -32,16 +32,14 @@ export function SampleFirstReviewPackageCard() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-300">
-            {buyerPolished ? "Sample output" : "Zero-config sample"}
+            {buyerPolished ? "Claims Intake sample review" : "Zero-config sample"}
           </p>
           <h2 id="sample-first-review-heading" className="m-0 mt-1 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-            {buyerPolished
-              ? "Claims Intake Modernization Review"
-              : "Start with a completed architecture review package"}
+            {buyerPolished ? "Sample review package" : "Start with a completed architecture review package"}
           </h2>
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {buyerPolished
-              ? "A finalized architecture review package — PHI risk findings, evidence trail, manifest, and artifacts."
+              ? "Finalized manifest, evidence trail, PHI-oriented findings, and exportable artifacts — illustrative counts for the intake storyline."
               : "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."}
           </p>
           {buyerPolished ? null : (
@@ -53,8 +51,8 @@ export function SampleFirstReviewPackageCard() {
 
         <div className="shrink-0 space-y-3 lg:min-w-64">
           {buyerPolished ? (
-            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-              Sample spine includes findings, decisions, and review artifacts — counts are illustrative.
+            <p className="m-0 inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
+              Illustrative sample
             </p>
           ) : (
             <dl className="grid grid-cols-3 gap-2 text-center">
@@ -79,25 +77,21 @@ export function SampleFirstReviewPackageCard() {
             </dl>
           )}
 
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             {buyerPolished ? (
               <>
                 <Button asChild variant="primary" className="h-9">
-                  <Link href={getShowcaseManifestHref()} onClick={recordSampleOpened}>
-                    Open review package
+                  <Link
+                    href={getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID)}
+                    onClick={recordSampleOpened}
+                  >
+                    Open sample review package
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="h-9">
-                  <Link href={getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID)}>
-                    Open review workspace
-                  </Link>
+                  <Link href="/reviews/new">Start your own review</Link>
                 </Button>
-                <Link
-                  href="/reviews/new"
-                  className="text-sm font-medium text-teal-800 underline underline-offset-4 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                >
-                  Start your own review
-                </Link>
               </>
             ) : (
               <>
@@ -111,6 +105,16 @@ export function SampleFirstReviewPackageCard() {
                 </Button>
               </>
             )}
+            </div>
+            {buyerPolished ? (
+              <Link
+                href={getShowcaseManifestHref()}
+                className="text-xs font-medium text-teal-800 underline underline-offset-4 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                onClick={recordSampleOpened}
+              >
+                View manifest summary
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>

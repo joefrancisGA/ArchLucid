@@ -72,25 +72,25 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     vi.clearAllMocks();
   });
 
-  it("uses manifest-first primary CTA and a secondary workspace link", () => {
+  it("uses review-primary CTA, secondary new-run, and a manifest text link", () => {
     render(<SampleFirstReviewPackageCard />);
 
-    expect(screen.getByRole("heading", { name: "Claims Intake Modernization Review" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open review package" })).toHaveAttribute(
-      "href",
-      "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
-    );
-    expect(screen.getByRole("link", { name: "Open review workspace" })).toHaveAttribute(
+    expect(screen.getByRole("heading", { name: "Sample review package" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open sample review package" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Start your own review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
+      "href",
+      "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+    );
   });
 
-  it("records review-output telemetry when the review package is opened", () => {
+  it("records review-output telemetry when the sample review package is opened", () => {
     render(<SampleFirstReviewPackageCard />);
 
-    fireEvent.click(screen.getByRole("link", { name: "Open review package" }));
+    fireEvent.click(screen.getByRole("link", { name: "Open sample review package" }));
 
     expect(recordCorePilotRailChecklistStep).toHaveBeenCalledWith(3);
   });
