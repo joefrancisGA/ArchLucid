@@ -42,11 +42,12 @@ COPY ACCESSIBILITY.md ./go-to-market-samples/ACCESSIBILITY.md
 # Public Trust Center marketing route reads docs/trust-center.md (mirrors monorepo `../docs/trust-center.md`).
 COPY docs/trust-center.md ./go-to-market-samples/trust-center.md
 
-# The pricing generator and its single-source document must be present at
-# build time.  They live outside the archlucid-ui/ subtree, so we copy them
-# to a dedicated directory (/pricing-source/) and invoke the generator with
-# --repo-root pointing there.
+# The pricing generator (plus `pricing_json_checkout_guard.py`) and its
+# single-source document must be present at build time. They live outside
+# the archlucid-ui/ subtree, so we copy them to /pricing-source/ and invoke
+# the generator with --repo-root pointing there.
 COPY scripts/ci/generate_pricing_json.py /pricing-source/scripts/ci/generate_pricing_json.py
+COPY scripts/ci/pricing_json_checkout_guard.py /pricing-source/scripts/ci/pricing_json_checkout_guard.py
 COPY docs/go-to-market/PRICING_PHILOSOPHY.md /pricing-source/docs/go-to-market/PRICING_PHILOSOPHY.md
 
 # python3 is only needed in this build stage; it is NOT carried into the
