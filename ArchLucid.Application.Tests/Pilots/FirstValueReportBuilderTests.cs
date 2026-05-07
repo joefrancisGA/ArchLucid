@@ -76,6 +76,8 @@ public sealed class FirstValueReportBuilderTests
         string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
 
         md.Should().NotBeNull();
+        md.Should().Contain("First-value evidence completeness");
+        md.Should().Contain("**Classification:** **Strong**");
         md.Should().Contain("Architecture review identity");
         md.Should().Contain("Support run id");
         md.Should().Contain("Sponsor send readiness (buyer-safe gate)");
@@ -136,6 +138,8 @@ public sealed class FirstValueReportBuilderTests
         firstBanner.Should().BeGreaterThan(0);
         secondBanner.Should().BeGreaterThan(firstBanner);
         md.Should().Contain("| Non-demo / external-share discipline | **FAILED — non-negotiable demo warning.**");
+        md.Should().Contain("**Classification:** **Incomplete**");
+        md.Should().Contain("Watermark notice");
         md.Should().Contain("**Proof sendability:** **Not sendable externally**");
         md.Should().Contain("**Publishing posture:** **Demo-only**");
     }

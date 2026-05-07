@@ -143,4 +143,11 @@ public sealed class ProofPackageCompletenessResponse
         get;
         init;
     } = string.Empty;
+
+    /// <summary><c>Strong</c>, <c>Partial</c>, or <c>Incomplete</c> — mirrors <see cref="FirstValueEvidenceCompletenessLevel" />.</summary>
+    public string EvidenceCompleteness
+    {
+        get;
+        init;
+    } = string.Empty;
 }

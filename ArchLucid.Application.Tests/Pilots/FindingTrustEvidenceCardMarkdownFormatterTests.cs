@@ -46,6 +46,7 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         {
             ProofSendability = "Sendable",
             PublishingTier = "Complete",
+            EvidenceCompleteness = "Strong",
         };
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
@@ -76,5 +77,6 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         {
             ProofSendability = "SendableWithCaveats",
             PublishingTier = "Partial",
+            EvidenceCompleteness = "Partial",
         };
 }

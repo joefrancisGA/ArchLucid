@@ -48079,6 +48079,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("demoTenantWarningRequired")]
         public bool? DemoTenantWarningRequired { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("evidenceCompleteness")]
+        public string? EvidenceCompleteness { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("findingsBySeverityPresent")]
         public bool? FindingsBySeverityPresent { get; set; } = default!;
 

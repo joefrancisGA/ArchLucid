@@ -88,6 +88,10 @@ public sealed class SupportBundleTests
             payload.Health.Ready.HttpStatus.Should().Be(200);
             payload.ApiContract.MicrosoftOpenApiV1.HttpStatus.Should().Be(200);
             payload.ApiContract.MicrosoftOpenApiV1.BodyPreview.Should().Contain("openapi");
+            payload.Health.Live.HttpStatus.Should().Be(200);
+            payload.Health.Ready.HttpStatus.Should().Be(200);
+            payload.References.ApiEndpoints.Should().NotBeEmpty();
+            SupportBundleCollector.SerializeIndented(payload).Should().NotContain("Bearer ");
             payload.Manifest.TriageReadOrder[0].File.Should().Be(SupportBundleLayout.NextStepsFileName);
             payload.Manifest.TriageReadOrder[1].File.Should().Be(SupportBundleArchiveWriter.HealthFileName);
             payload.ConfigSummary.HasArchlucidJson.Should().BeTrue();

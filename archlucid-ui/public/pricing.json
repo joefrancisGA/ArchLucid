@@ -3,6 +3,7 @@
   "effectiveDate": "2026-04-17",
   "currency": "USD",
   "teamStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
+  "teamStripeCheckoutUrlSalesLedPlaceholder": true,
   "packages": [
     {
       "id": "team",

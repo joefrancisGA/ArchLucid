@@ -33,6 +33,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.LlmCallCountResolved.Should().BeTrue();
         c.LlmCallCount.Should().Be(2);
         c.ProofSendability.Should().Be(nameof(ProofPackageSendability.Sendable));
+        c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Strong));
         c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeTrue();
     }
 
@@ -46,6 +47,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
 
         c.RoiEvidenceConfidence.Should().Be(PilotRoiEvidenceConfidence.Partial);
+        c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Partial));
     }
 
     [Fact]
@@ -58,6 +60,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
 
         c.RoiEvidenceConfidence.Should().Be(PilotRoiEvidenceConfidence.Low);
+        c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Partial));
     }
 
     [Fact]
@@ -73,6 +76,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.DemoTenantWarningRequired.Should().BeTrue();
         c.ProofSendability.Should().Be(nameof(ProofPackageSendability.NotSendable));
         c.PublishingTier.Should().Be(nameof(PilotBuyerSafeEvidencePublishingTier.DemoOnly));
+        c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Incomplete));
     }
 
     [Fact]
@@ -90,6 +94,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
 
         c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeFalse();
+        c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Incomplete));
     }
 
     [Fact]
@@ -103,6 +108,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
 
         c.LlmCallCountResolved.Should().BeFalse();
+        c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Partial));
     }
 
     private static (ArchitectureRun Run, GoldenManifest Manifest, PilotRunDeltas Deltas, PilotBuyerSafeEvidenceGateResult Gate, ValueReportSnapshot Snap) StrongBaselineFixture()

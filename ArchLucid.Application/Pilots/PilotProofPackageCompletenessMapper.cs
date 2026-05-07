@@ -27,6 +27,7 @@ public static class PilotProofPackageCompletenessMapper
 
         bool manifestPresent = manifest is not null;
         PilotRoiEvidenceConfidence roiTier = PilotRoiEvidenceConfidenceResolver.Resolve(snapshot);
+        FirstValueEvidenceCompletenessLevel evidenceLevel = FirstValueEvidenceCompletenessClassifier.Classify(gate);
 
         return new ProofPackageCompletenessResponse
         {
@@ -50,6 +51,7 @@ public static class PilotProofPackageCompletenessMapper
             BuyerSafeRedactionProfile = ResolveBuyerSafeRedactionProfile(deltas.IsDemoTenant),
             PublishingTier = gate.PublishingTier.ToString(),
             ProofSendability = gate.ProofSendability.ToString(),
+            EvidenceCompleteness = evidenceLevel.ToString(),
             AgentOutputPilotStrictEvidenceSatisfied = !(deltas.AgentOutputPilotStrictSignalsResolved &&
                                                         deltas.AgentOutputPilotStrictViolatesSponsorEvidence),
         };

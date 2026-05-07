@@ -22,5 +22,7 @@ export type PricingDoc = {
    * (`team-stripe-checkout-url.ts`), the Team tier card uses Stripe Checkout as its primary CTA. Placeholders stay hidden.
    */
   teamStripeCheckoutUrl?: string | null;
+  /** Must be true when `teamStripeCheckoutUrl` contains CI placeholder markers — see `scripts/ci/generate_pricing_json.py`. */
+  teamStripeCheckoutUrlSalesLedPlaceholder?: boolean;
   packages: PricingPackage[];
 };

@@ -69,6 +69,18 @@ def main() -> int:
         print("ERROR: pricing JSON must include a non-empty packages array", file=sys.stderr)
         return 1
 
+    url_raw = data.get("teamStripeCheckoutUrl")
+    if isinstance(url_raw, str):
+        lower = url_raw.lower()
+        is_placeholder = ("placeholder-replace-before-launch" in lower) or ("checkout-placeholder" in lower)
+        if is_placeholder and data.get("teamStripeCheckoutUrlSalesLedPlaceholder") is not True:
+            print(
+                "ERROR: teamStripeCheckoutUrl is a placeholder substring but "
+                "teamStripeCheckoutUrlSalesLedPlaceholder is not true — see PRICING_PHILOSOPHY.md §5.2.",
+                file=sys.stderr,
+            )
+            return 1
+
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {out_path}")
