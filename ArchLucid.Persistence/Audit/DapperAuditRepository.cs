@@ -74,7 +74,13 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
                 new CommandDefinition(
                     HotPathRelationalQueryShapes.AuditEventsGetByScope,
-                    new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, Take = Math.Clamp(take <= 0 ? 100 : take, 1, 500) },
+                    new
+                    {
+                        TenantId = tenantId,
+                        WorkspaceId = workspaceId,
+                        ProjectId = projectId,
+                        Take = Math.Clamp(take <= 0 ? 100 : take, 1, 500)
+                    },
                     cancellationToken: ct));
 
             return rows.ToList();
@@ -248,25 +254,25 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             parameters.Add("RunId", filter.RunId.Value);
         }
 
-        if (filter.BeforeUtc.HasValue)
+        if (!filter.BeforeUtc.HasValue)
+            return;
+
+        if (filter.BeforeEventId.HasValue)
         {
-            if (filter.BeforeEventId.HasValue)
-            {
-                sql.Append(
-                    """
-                     AND (
-                        OccurredUtc < @BeforeUtc
-                        OR (OccurredUtc = @BeforeUtc AND EventId < @BeforeEventId)
-                    )
-                    """);
-                parameters.Add("BeforeUtc", filter.BeforeUtc.Value);
-                parameters.Add("BeforeEventId", filter.BeforeEventId.Value);
-            }
-            else
-            {
-                sql.Append(" AND OccurredUtc < @BeforeUtc");
-                parameters.Add("BeforeUtc", filter.BeforeUtc.Value);
-            }
+            sql.Append(
+                """
+                 AND (
+                    OccurredUtc < @BeforeUtc
+                    OR (OccurredUtc = @BeforeUtc AND EventId < @BeforeEventId)
+                )
+                """);
+            parameters.Add("BeforeUtc", filter.BeforeUtc.Value);
+            parameters.Add("BeforeEventId", filter.BeforeEventId.Value);
+        }
+        else
+        {
+            sql.Append(" AND OccurredUtc < @BeforeUtc");
+            parameters.Add("BeforeUtc", filter.BeforeUtc.Value);
         }
     }
 }

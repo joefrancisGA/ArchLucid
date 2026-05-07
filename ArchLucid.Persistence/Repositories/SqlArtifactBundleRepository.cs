@@ -82,7 +82,13 @@ public sealed class SqlArtifactBundleRepository(
         ArtifactBundleStorageRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleStorageRow>(
             new CommandDefinition(
                 sql,
-                new { scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId, ManifestId = manifestId },
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ManifestId = manifestId
+                },
                 cancellationToken: ct));
 
         if (row is null)
@@ -441,7 +447,10 @@ public sealed class SqlArtifactBundleRepository(
         ArtifactBundleStorageRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleStorageRow>(
             new CommandDefinition(
                 sql,
-                new { BundleId = bundleId },
+                new
+                {
+                    BundleId = bundleId
+                },
                 transaction,
                 cancellationToken: ct));
 
@@ -477,33 +486,45 @@ public sealed class SqlArtifactBundleRepository(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleArtifacts WHERE BundleId = @BundleId",
-            new { BundleId = bundleId },
+            new
+            {
+                BundleId = bundleId
+            },
             ct);
 
         int genCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceGenerators WHERE BundleId = @BundleId",
-            new { BundleId = bundleId },
+            new
+            {
+                BundleId = bundleId
+            },
             ct);
 
         int traceDecCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceDecisionLinks WHERE BundleId = @BundleId",
-            new { BundleId = bundleId },
+            new
+            {
+                BundleId = bundleId
+            },
             ct);
 
         int notesCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceNotes WHERE BundleId = @BundleId",
-            new { BundleId = bundleId },
+            new
+            {
+                BundleId = bundleId
+            },
             ct);
 
         if (artifactRowCount == 0 && bundle.Artifacts.Count > 0)
         {
-            await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct, null);
+            await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct);
             await InsertArtifactBundleTraceRelationalAsync(bundle, connection, transaction, ct);
             return;
         }

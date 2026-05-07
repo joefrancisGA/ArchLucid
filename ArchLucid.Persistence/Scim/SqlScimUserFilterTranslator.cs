@@ -8,10 +8,7 @@ internal static class SqlScimUserFilterTranslator
 {
     public static string BuildWhere(ScimFilterNode? filter, DynamicParameters parameters, ref int nextParam)
     {
-        if (filter is null)
-            return "1 = 1";
-
-        return Build(filter, parameters, ref nextParam);
+        return filter is null ? "1 = 1" : Build(filter, parameters, ref nextParam);
     }
 
     private static string Build(ScimFilterNode node, DynamicParameters parameters, ref int nextParam)
@@ -100,22 +97,15 @@ internal static class SqlScimUserFilterTranslator
 
         if (string.Equals(p, "userName", StringComparison.OrdinalIgnoreCase))
             return "u.UserName";
-
         if (string.Equals(p, "displayName", StringComparison.OrdinalIgnoreCase))
             return "u.DisplayName";
-
         if (ScimKnownUserFilterPaths.IsEmailsWorkValuePath(p))
             return "u.UserName";
-
         if (string.Equals(p, "externalId", StringComparison.OrdinalIgnoreCase))
             return "u.ExternalId";
-
         if (string.Equals(p, "active", StringComparison.OrdinalIgnoreCase))
             return "u.Active";
 
-        if (string.Equals(p, "id", StringComparison.OrdinalIgnoreCase))
-            return "CAST(u.Id AS NVARCHAR(36))";
-
-        throw new ScimFilterSqlException($"Unknown attribute '{attributePath}' for SQL translation.");
+        return string.Equals(p, "id", StringComparison.OrdinalIgnoreCase) ? "CAST(u.Id AS NVARCHAR(36))" : throw new ScimFilterSqlException($"Unknown attribute '{attributePath}' for SQL translation.");
     }
 }

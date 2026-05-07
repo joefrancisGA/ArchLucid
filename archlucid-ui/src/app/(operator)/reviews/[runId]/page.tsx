@@ -45,6 +45,7 @@ import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorVa
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { PostCommitRetentionRail } from "@/components/PostCommitRetentionRail";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import {

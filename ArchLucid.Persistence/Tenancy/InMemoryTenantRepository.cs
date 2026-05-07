@@ -10,17 +10,11 @@ namespace ArchLucid.Persistence.Tenancy;
 public sealed class InMemoryTenantRepository : ITenantRepository
 {
     private readonly ConcurrentDictionary<Guid, TenantRecord> _byId = new();
-
     private readonly ConcurrentDictionary<Guid, Guid> _entraTenantIdToTenantId = new();
-
     private readonly ConcurrentDictionary<string, Guid> _slugToId = new(StringComparer.OrdinalIgnoreCase);
-
     private readonly ConcurrentDictionary<Guid, byte> _trialFirstManifestCommitted = new();
-
-    private readonly object _trialGate = new();
-
+    private readonly Lock _trialGate = new();
     private readonly ConcurrentDictionary<(Guid TenantId, string PrincipalKey), byte> _trialSeatOccupants = new();
-
     private readonly ConcurrentDictionary<Guid, List<TenantWorkspaceRow>> _workspacesByTenant = new();
 
     /// <summary>
@@ -36,7 +30,10 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        return Task.FromResult(_byId.TryGetValue(tenantId, out TenantRecord? r) ? r : null);
+        lock (_trialGate)
+        {
+            return Task.FromResult(_byId.GetValueOrDefault(tenantId));
+        }
     }
 
     public Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct)
@@ -46,20 +43,14 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         string key = slug.Trim().ToLowerInvariant();
 
-        if (!_slugToId.TryGetValue(key, out Guid id))
-            return Task.FromResult<TenantRecord?>(null);
-
-        return GetByIdAsync(id, ct);
+        return !_slugToId.TryGetValue(key, out Guid id) ? Task.FromResult<TenantRecord?>(null) : GetByIdAsync(id, ct);
     }
 
     public Task<TenantRecord?> GetByEntraTenantIdAsync(Guid entraTenantId, CancellationToken ct)
     {
         _ = ct;
 
-        if (!_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid tenantId))
-            return Task.FromResult<TenantRecord?>(null);
-
-        return GetByIdAsync(tenantId, ct);
+        return !_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid tenantId) ? Task.FromResult<TenantRecord?>(null) : GetByIdAsync(tenantId, ct);
     }
 
     public Task<IReadOnlyList<TenantRecord>> ListAsync(CancellationToken ct)
@@ -210,7 +201,10 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
         };
 
-        _byId[tenantId] = updated;
+        lock (_trialGate)
+        {
+            _byId[tenantId] = updated;
+        }
 
         return Task.CompletedTask;
     }
@@ -271,7 +265,10 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
         };
 
-        _byId[tenantId] = updated;
+        lock (_trialGate)
+        {
+            _byId[tenantId] = updated;
+        }
 
         return Task.CompletedTask;
     }
@@ -386,7 +383,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         if (!_byId.TryGetValue(tenantId, out TenantRecord? tenant))
             return Task.FromResult(false);
 
-        if (tenant.EntraTenantId is Guid existing && existing != entraTenantId)
+        if (tenant.EntraTenantId is { } existing && existing != entraTenantId)
             return Task.FromResult(false);
 
         if (tenant.EntraTenantId == entraTenantId)
@@ -397,39 +394,42 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         _entraTenantIdToTenantId[entraTenantId] = tenantId;
 
-        _byId[tenantId] = new TenantRecord
+        lock (_trialGate)
         {
-            Id = tenant.Id,
-            Name = tenant.Name,
-            Slug = tenant.Slug,
-            Tier = tenant.Tier,
-            EntraTenantId = entraTenantId,
-            CreatedUtc = tenant.CreatedUtc,
-            SuspendedUtc = tenant.SuspendedUtc,
-            TrialStartUtc = tenant.TrialStartUtc,
-            TrialExpiresUtc = tenant.TrialExpiresUtc,
-            TrialRunsLimit = tenant.TrialRunsLimit,
-            TrialRunsUsed = tenant.TrialRunsUsed,
-            TrialSeatsLimit = tenant.TrialSeatsLimit,
-            TrialSeatsUsed = tenant.TrialSeatsUsed,
-            TrialStatus = tenant.TrialStatus,
-            TrialSampleRunId = tenant.TrialSampleRunId,
-            TrialArchitecturePreseedEnqueuedUtc = tenant.TrialArchitecturePreseedEnqueuedUtc,
-            TrialWelcomeRunId = tenant.TrialWelcomeRunId,
-            TrialFirstManifestCommittedUtc = tenant.TrialFirstManifestCommittedUtc,
-            BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
-            BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
-            BaselineManualPrepHoursPerReview = tenant.BaselineManualPrepHoursPerReview,
-            BaselinePeoplePerReview = tenant.BaselinePeoplePerReview,
-            BaselineManualPrepCapturedUtc = tenant.BaselineManualPrepCapturedUtc,
-            CompanySize = tenant.CompanySize,
-            ArchitectureTeamSize = tenant.ArchitectureTeamSize,
-            IndustryVertical = tenant.IndustryVertical,
-            IndustryVerticalOther = tenant.IndustryVerticalOther,
-            EnterpriseSeatsLimit = tenant.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = tenant.EnterpriseSeatsUsed
-        };
+            _byId[tenantId] = new TenantRecord
+            {
+                Id = tenant.Id,
+                Name = tenant.Name,
+                Slug = tenant.Slug,
+                Tier = tenant.Tier,
+                EntraTenantId = entraTenantId,
+                CreatedUtc = tenant.CreatedUtc,
+                SuspendedUtc = tenant.SuspendedUtc,
+                TrialStartUtc = tenant.TrialStartUtc,
+                TrialExpiresUtc = tenant.TrialExpiresUtc,
+                TrialRunsLimit = tenant.TrialRunsLimit,
+                TrialRunsUsed = tenant.TrialRunsUsed,
+                TrialSeatsLimit = tenant.TrialSeatsLimit,
+                TrialSeatsUsed = tenant.TrialSeatsUsed,
+                TrialStatus = tenant.TrialStatus,
+                TrialSampleRunId = tenant.TrialSampleRunId,
+                TrialArchitecturePreseedEnqueuedUtc = tenant.TrialArchitecturePreseedEnqueuedUtc,
+                TrialWelcomeRunId = tenant.TrialWelcomeRunId,
+                TrialFirstManifestCommittedUtc = tenant.TrialFirstManifestCommittedUtc,
+                BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
+                BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
+                BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
+                BaselineManualPrepHoursPerReview = tenant.BaselineManualPrepHoursPerReview,
+                BaselinePeoplePerReview = tenant.BaselinePeoplePerReview,
+                BaselineManualPrepCapturedUtc = tenant.BaselineManualPrepCapturedUtc,
+                CompanySize = tenant.CompanySize,
+                ArchitectureTeamSize = tenant.ArchitectureTeamSize,
+                IndustryVertical = tenant.IndustryVertical,
+                IndustryVerticalOther = tenant.IndustryVerticalOther,
+                EnterpriseSeatsLimit = tenant.EnterpriseSeatsLimit,
+                EnterpriseSeatsUsed = tenant.EnterpriseSeatsUsed
+            };
+        }
 
         return Task.FromResult(true);
     }
@@ -615,7 +615,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
                 return Task.FromResult(false);
 
-            if (t.EnterpriseSeatsLimit is int lim && t.EnterpriseSeatsUsed >= lim)
+            if (t.EnterpriseSeatsLimit is { } lim && t.EnterpriseSeatsUsed >= lim)
                 return Task.FromResult(false);
 
             _byId[tenantId] = CopyTenant(t, enterpriseSeatsUsedOverride: t.EnterpriseSeatsUsed + 1);
@@ -727,18 +727,24 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-            throw new InvalidOperationException($"Tenant '{tenantId:D}' is missing from the in-memory registry.");
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+                throw new InvalidOperationException($"Tenant '{tenantId:D}' is missing from the in-memory registry.");
 
-        _byId[tenantId] = CopyTenant(existing, commercialTier: tier);
+            _byId[tenantId] = CopyTenant(existing, commercialTier: tier);
+        }
 
         return Task.CompletedTask;
     }
 
     private void TrySeedDefaultDevelopmentTenant()
     {
-        if (_byId.ContainsKey(ScopeIds.DefaultTenant))
-            return;
+        lock (_trialGate)
+        {
+            if (_byId.ContainsKey(ScopeIds.DefaultTenant))
+                return;
+        }
 
         const string slug = "archlucid-dev-default-scope";
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
@@ -776,8 +782,11 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             EnterpriseSeatsUsed = 0
         };
 
-        if (!_byId.TryAdd(ScopeIds.DefaultTenant, record))
-            return;
+        lock (_trialGate)
+        {
+            if (!_byId.TryAdd(ScopeIds.DefaultTenant, record))
+                return;
+        }
 
         _ = _slugToId.TryAdd(slug, ScopeIds.DefaultTenant);
     }

@@ -24,7 +24,7 @@ public sealed class SqlCommittedArchitectureReviewFlagReader(IAuthorityRunListCo
         authorityRunListConnectionFactory
         ?? throw new ArgumentNullException(nameof(authorityRunListConnectionFactory));
 
-    private static readonly string CommittedLegacyStatus = ArchitectureRunStatus.Committed.ToString();
+    private static readonly string CommittedLegacyStatus = nameof(ArchitectureRunStatus.Committed);
 
     /// <inheritdoc />
     public async Task<bool> TenantHasCommittedArchitectureReviewAsync(ScopeContext scope, CancellationToken cancellationToken)
@@ -38,7 +38,10 @@ public sealed class SqlCommittedArchitectureReviewFlagReader(IAuthorityRunListCo
                 HotPathRelationalQueryShapes.CommittedArchitectureReviewExistsNoLock,
                 new
                 {
-                    scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId, CommittedStatus = CommittedLegacyStatus,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    CommittedStatus = CommittedLegacyStatus,
                 },
                 cancellationToken: cancellationToken));
 

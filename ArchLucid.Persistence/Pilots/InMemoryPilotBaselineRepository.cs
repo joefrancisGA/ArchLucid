@@ -10,7 +10,7 @@ public sealed class InMemoryPilotBaselineRepository : IPilotBaselineRepository
     {
         _ = cancellationToken;
 
-        return Task.FromResult(_byTenant.TryGetValue(tenantId, out PilotBaselineRecord? r) ? r : null);
+        return Task.FromResult(_byTenant.GetValueOrDefault(tenantId));
     }
 
     public Task UpsertAsync(PilotBaselineRecord record, CancellationToken cancellationToken)

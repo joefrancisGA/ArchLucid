@@ -49,10 +49,7 @@ public sealed class InMemoryScimTenantTokenRepository : IScimTenantTokenReposito
             RevokedUtc = null
         };
 
-        if (!_byPublicKey.TryAdd(publicLookupKey, row))
-            throw new InvalidOperationException("Duplicate SCIM token public key.");
-
-        return Task.FromResult(id);
+        return !_byPublicKey.TryAdd(publicLookupKey, row) ? throw new InvalidOperationException("Duplicate SCIM token public key.") : Task.FromResult(id);
     }
 
     /// <inheritdoc />

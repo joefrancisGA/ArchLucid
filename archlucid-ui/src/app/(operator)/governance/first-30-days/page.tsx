@@ -19,7 +19,7 @@ export default function FirstThirtyDaysGovernancePage() {
         title="First 30 days — governance operating preset"
         subtitle="A minimal enterprise rhythm: one policy baseline, one alert route, one approval SLA story, and one dashboard anchor."
       />
-      <LayerHeader layer="operate" eyebrow="Governance" title="Preset checklist" />
+      <LayerHeader pageKey="governance-first-30-days" />
 
       <ol className="m-0 list-decimal space-y-4 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
         <li>

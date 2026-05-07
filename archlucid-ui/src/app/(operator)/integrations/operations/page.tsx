@@ -12,7 +12,7 @@ export default function IntegrationsOperationsPage() {
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-1 py-4 sm:px-0">
       <OperatorPageHeader title="Connector operations" subtitle="Readiness across Teams, Slack, ITSM, Confluence, digests, and Service Bus (no secrets)." />
-      <LayerHeader layer="operate" eyebrow="Integrations" title="Operations dashboard" />
+      <LayerHeader pageKey="integrations-operations" />
       <ConnectorOperationsDashboard />
     </main>
   );

@@ -121,7 +121,13 @@ public sealed class SqlGoldenManifestRepository(
             GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
                 new CommandDefinition(
                     sql,
-                    new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, ManifestId = manifestId },
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        ManifestId = manifestId
+                    },
                     cancellationToken: ct));
 
             if (row is null)
@@ -170,7 +176,13 @@ public sealed class SqlGoldenManifestRepository(
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
             new CommandDefinition(
                 sql,
-                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, ManifestVersion = manifestVersion },
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ManifestVersion = manifestVersion
+                },
                 cancellationToken: ct));
 
         if (row is null)
@@ -289,7 +301,7 @@ public sealed class SqlGoldenManifestRepository(
             WarningsJson = warningsJson,
             ProvenanceJson = provenanceJson,
             ManifestPayloadBlobUri = manifestBlobUri,
-            LifecycleStatus = GoldenManifestLifecycleStatus.Active.ToString()
+            LifecycleStatus = nameof(GoldenManifestLifecycleStatus.Active)
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
@@ -616,42 +628,60 @@ public sealed class SqlGoldenManifestRepository(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         int provFindingCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         int provNodeCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         int provRuleCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         int decisionsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         if (assumptionsCount == 0 && manifest.Assumptions.Count > 0)
