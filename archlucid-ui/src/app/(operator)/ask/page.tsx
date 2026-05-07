@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
@@ -62,6 +62,7 @@ export default function AskPage() {
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const questionRef = useRef<HTMLTextAreaElement>(null);
   const hideCompareChrome =
     isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || buyerPolishedShell;
 
@@ -250,6 +251,32 @@ export default function AskPage() {
     },
     [threads, loadMessages],
   );
+
+  const mergePromptLine = useCallback((line: string) => {
+    const addition = line.trim();
+
+    if (addition.length === 0) {
+      return;
+    }
+
+    setQuestion((previous) => {
+      const prior = previous.trim();
+
+      if (prior.length === 0) {
+        return addition;
+      }
+
+      if (prior.includes(addition)) {
+        return prior;
+      }
+
+      return `${prior}\n\n${addition}`;
+    });
+
+    requestAnimationFrame(() => {
+      questionRef.current?.focus();
+    });
+  }, []);
 
   useEffect(() => {
     if (listFailure !== null) {
@@ -443,6 +470,7 @@ export default function AskPage() {
                 <Label htmlFor="ask-question">Question</Label>
                 <Textarea
                   id="ask-question"
+                  ref={questionRef}
                   className="min-h-[5rem] font-sans"
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
@@ -462,7 +490,7 @@ export default function AskPage() {
                       size="sm"
                       className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
                       disabled={runMissing}
-                      onClick={() => setQuestion(line)}
+                      onClick={() => mergePromptLine(line)}
                     >
                       {line}
                     </Button>
@@ -532,7 +560,7 @@ export default function AskPage() {
                         size="sm"
                         className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
                         disabled={runMissing}
-                        onClick={() => setQuestion(line)}
+                        onClick={() => mergePromptLine(line)}
                       >
                         {line}
                       </Button>

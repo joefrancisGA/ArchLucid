@@ -32,4 +32,27 @@ describe("ComplianceDriftChart", () => {
       }),
     ).toBeInTheDocument();
   });
+
+  it("treats non-finite change counts as zero without breaking layout", () => {
+    const points = [
+      {
+        bucketUtc: "2026-04-01T00:00:00.000Z",
+        changeCount: Number.NaN,
+        changesByType: { Created: Number.NaN },
+      },
+      {
+        bucketUtc: "2026-04-02T00:00:00.000Z",
+        changeCount: 4,
+        changesByType: { Updated: 4 },
+      },
+    ];
+
+    render(<ComplianceDriftChart points={points} />);
+
+    expect(
+      screen.getByRole("img", {
+        name: /compliance drift trend/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });
