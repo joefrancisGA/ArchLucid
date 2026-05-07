@@ -5,10 +5,13 @@ import Link from "next/link";
 import { pickPriorForSameRequest } from "@/components/BeforeAfterDelta/pick-prior-for-same-request";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { Button } from "@/components/ui/button";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 
 type PostCommitAdvancedAnalysisHintProps = {
   runId: string;
+  /** Omits outer card chrome when wrapped in {@link CollapsibleSection} on review detail. */
+  embeddedInCollapsible?: boolean;
 };
 
 const LOOKBACK = 25;
@@ -18,7 +21,10 @@ const LOOKBACK = 25;
  * Analysis surfaces without pulling operators off the first-review path before finalization.
  * When a prior committed run exists for the same request (recent window), surfaces a primary compare CTA.
  */
-export function PostCommitAdvancedAnalysisHint({ runId }: PostCommitAdvancedAnalysisHintProps) {
+export function PostCommitAdvancedAnalysisHint({
+  runId,
+  embeddedInCollapsible = false,
+}: PostCommitAdvancedAnalysisHintProps) {
   const { status, data } = useDeltaQuery({ count: LOOKBACK });
   const current =
     status === "ready" && data !== null ? data.items.find((row) => row.runId === runId) : undefined;
@@ -31,19 +37,26 @@ export function PostCommitAdvancedAnalysisHint({ runId }: PostCommitAdvancedAnal
       : null;
 
   const encoded = encodeURIComponent(runId);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const sidebarHint = buyerPolishedShell ? (
+    <>Use the links below when you need a deeper technical pass.</>
+  ) : (
+    <>
+      Use the links below; enable <em>{NAV_DISCLOSURE.extended.show}</em> in the sidebar if needed.
+    </>
+  );
 
-  return (
-    <aside
-      className="mb-6 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/50"
-      aria-label="Advanced Analysis — optional next steps after finalization"
-    >
-      <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-        Advanced Analysis — optional
-      </p>
+  const body = (
+    <>
+      {!embeddedInCollapsible ? (
+        <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+          Advanced Analysis — optional
+        </p>
+      ) : null}
       <p className="m-0 mt-1 text-sm text-neutral-800 dark:text-neutral-200">
         This run has a finalized manifest. None of this is required to judge first-pilot value—only when you have a
         concrete question the first-review path does not answer (diff two runs, re-validate the provenance chain, or explore a
-        graph). Use the links below; enable <em>{NAV_DISCLOSURE.extended.show}</em> in the sidebar if needed.
+        graph). {sidebarHint}
       </p>
       {compareWithPriorHref !== null ? (
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -77,6 +90,19 @@ export function PostCommitAdvancedAnalysisHint({ runId }: PostCommitAdvancedAnal
           </Link>
         </li>
       </ul>
+    </>
+  );
+
+  if (embeddedInCollapsible) {
+    return <div className="space-y-1">{body}</div>;
+  }
+
+  return (
+    <aside
+      className="mb-6 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/50"
+      aria-label="Advanced Analysis — optional next steps after finalization"
+    >
+      {body}
     </aside>
   );
 }

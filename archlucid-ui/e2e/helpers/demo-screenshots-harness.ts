@@ -31,7 +31,7 @@ export const DEMO_SCREENSHOT_FAILURE_SUBSTRINGS: readonly string[] = [
   "NEXT_PUBLIC_",
   "API-enforced",
   "client-only bundle",
-  "not wired in this build",
+  "Open Policy packs registry",
   "coming soon",
 ];
 

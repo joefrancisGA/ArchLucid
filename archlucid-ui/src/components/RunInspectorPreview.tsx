@@ -104,6 +104,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </span>
           ) : null}
         </div>
+        {buyerPolished ? null : (
         <button
           type="button"
           className="mt-1 text-xs font-medium text-teal-800 underline dark:text-teal-300"
@@ -112,7 +113,8 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         >
           {technicalOpen ? "Hide technical details" : "Technical details (IDs)"}
         </button>
-        {technicalOpen ? (
+        )}
+        {!buyerPolished && technicalOpen ? (
           <dl className="m-0 mt-2 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">
             <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
               Review ID

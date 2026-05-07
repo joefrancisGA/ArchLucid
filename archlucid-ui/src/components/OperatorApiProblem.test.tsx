@@ -36,6 +36,13 @@ describe("OperatorApiProblem", () => {
     expect(screen.getByText("abc-123")).toBeInTheDocument();
   });
 
+  it("treats omitted problem details like null (no throw)", () => {
+    render(<OperatorApiProblem problem={undefined} fallbackMessage="Network error" />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Request failed");
+    expect(screen.getByRole("alert")).toHaveTextContent("Network error");
+  });
+
   it("does not surface ERR reference text to the user (logged to console only)", () => {
     const spy = vi.spyOn(console, "info").mockImplementation(() => {});
 

@@ -110,7 +110,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         ProofPackageCompletenessResponse proofCompleteness =
             PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot);
         AppendRunSection(sb, run, manifest, baseUrl);
-        AppendProofPackageContractSection(sb, deltas, proofCompleteness);
+        AppendProofPackageContractSection(sb, deltas, proofCompleteness, manifest);
         AppendComputedDeltasSection(sb, deltas);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
@@ -181,7 +181,11 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine();
     }
 
-    private static void AppendProofPackageContractSection(StringBuilder sb, PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
+    private static void AppendProofPackageContractSection(
+        StringBuilder sb,
+        PilotRunDeltas deltas,
+        ProofPackageCompletenessResponse c,
+        GoldenManifest? manifest)
     {
         sb.AppendLine("## Buyer-safe proof package contract");
         sb.AppendLine();
@@ -194,6 +198,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine($"| Support run id | {FormatProofStatus(c.SupportRunIdPresent)} |");
         sb.AppendLine(
             $"| Committed manifest + status | {FormatProofStatus(c.CommittedManifestPresent && c.RunInCommittedStatus)} |");
+        sb.AppendLine($"| Committed manifest timestamp (UTC) | {FormatCommittedManifestTimestampProofCell(deltas, c, manifest)} |");
         sb.AppendLine($"| Artifact descriptor count | {FormatArtifactDescriptorsProofCell(c)} |");
         sb.AppendLine($"| Time to committed manifest | {FormatProofStatus(c.TimeToCommittedManifestResolved)} |");
         sb.AppendLine($"| Findings by severity | {FormatProofStatus(c.FindingsBySeverityPresent)} |");
@@ -214,6 +219,22 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
             return "Missing — golden manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing).";
 
         return $"Present — `{c.ArtifactDescriptorCount}` descriptor(s) for this golden manifest.";
+    }
+
+    private static string FormatCommittedManifestTimestampProofCell(
+        PilotRunDeltas deltas,
+        ProofPackageCompletenessResponse c,
+        GoldenManifest? manifest)
+    {
+        if (!c.CommittedManifestPresent)
+            return "Missing — no golden manifest on this run detail.";
+
+        if (!c.CommittedManifestTimestampResolved)
+            return "Missing — `GoldenManifest.Metadata.CreatedUtc` is default / not a real commit timestamp.";
+
+        DateTime committedUtc = deltas.ManifestCommittedUtc ?? manifest!.Metadata.CreatedUtc;
+
+        return $"Present — `{committedUtc:O}` (`GoldenManifest.Metadata.CreatedUtc`).";
     }
 
     private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas)

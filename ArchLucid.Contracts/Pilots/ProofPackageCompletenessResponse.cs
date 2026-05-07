@@ -27,6 +27,15 @@ public sealed class ProofPackageCompletenessResponse
         init;
     }
 
+    /// <summary>
+    ///     Non-default <c>GoldenManifest.Metadata.CreatedUtc</c> — the committed snapshot UTC sponsors use to anchor timing.
+    /// </summary>
+    public bool CommittedManifestTimestampResolved
+    {
+        get;
+        init;
+    }
+
     /// <summary>Run status is <c>Committed</c> alongside a loaded manifest reference.</summary>
     public bool RunInCommittedStatus
     {
@@ -59,7 +68,9 @@ public sealed class ProofPackageCompletenessResponse
         init;
     }
 
-    /// <summary>At least one findings-by-severity bucket on agent results.</summary>
+    /// <summary>
+    ///     Findings-by-severity slice computed from persisted results (including **zero** total — still a valid proof field).
+    /// </summary>
     public bool FindingsBySeverityPresent
     {
         get;

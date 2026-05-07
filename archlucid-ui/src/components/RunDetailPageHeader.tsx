@@ -1,20 +1,14 @@
 "use client";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
-import { CopyIdButton } from "@/components/CopyIdButton";
-import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { HelpLink } from "@/components/HelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import type { RunSummary } from "@/types/authority";
 
 export type RunDetailPageHeaderProps = {
   runSummary: RunSummary;
   runId: string;
-  projectId: string;
-  createdLabel: string;
   headline: string;
   hasGoldenManifest: boolean;
   executionFlavorBuyerSummary?: string | null;
@@ -27,18 +21,10 @@ export type RunDetailPageHeaderProps = {
 export function RunDetailPageHeader({
   runSummary,
   runId,
-  projectId,
-  createdLabel,
   headline,
   hasGoldenManifest,
   executionFlavorBuyerSummary,
 }: RunDetailPageHeaderProps) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const technicalIdentifiersTriggerLabel = buyerPolishedShell
-    ? "Technical details"
-    : "Developer & API identifiers";
-  const projectDisplay = buyerPolishedShell ? formatOperatorProjectIdDisplay(projectId) : projectId;
-
   return (
     <header className="mb-6 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -73,30 +59,6 @@ export function RunDetailPageHeader({
           </p>
         </div>
       </div>
-
-      <AdvancedOptionsAccordion triggerLabel={technicalIdentifiersTriggerLabel}>
-        <dl className="m-0 grid gap-2 text-sm text-neutral-600 dark:text-neutral-400 sm:grid-cols-[auto_1fr] sm:gap-x-6 sm:gap-y-1">
-          <dt className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</dt>
-          <dd className="m-0 flex min-w-0 flex-wrap items-center gap-1">
-            <code className="truncate rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-xs text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
-              {runId}
-            </code>
-            <CopyIdButton value={runId} aria-label="Copy review ID" />
-          </dd>
-          <dt className="font-medium text-neutral-700 dark:text-neutral-300">Project</dt>
-          <dd
-            className={
-              buyerPolishedShell
-                ? "m-0 text-xs text-neutral-800 dark:text-neutral-200"
-                : "m-0 font-mono text-xs text-neutral-800 dark:text-neutral-200"
-            }
-          >
-            {projectDisplay}
-          </dd>
-          <dt className="font-medium text-neutral-700 dark:text-neutral-300">Created</dt>
-          <dd className="m-0">{createdLabel}</dd>
-        </dl>
-      </AdvancedOptionsAccordion>
     </header>
   );
 }

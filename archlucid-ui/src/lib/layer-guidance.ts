@@ -164,7 +164,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Packs in scope, published versions, and effective policy.",
     useWhen: "Start by reviewing inventory and diffs; publish or assign when your role allows.",
     firstPilotNote: "After Pilot proof when you steward pack publish and assignment.",
-    enterpriseFootnote: "Inspect registered packs and resolved policy layers for your scope.",
+    enterpriseFootnote: "Inspect registered packs and active governance rule layers for your scope.",
   },
   "alert-rules": {
     layerBadge: "Governance",

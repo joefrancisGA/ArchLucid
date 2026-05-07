@@ -37,6 +37,7 @@ import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChrome
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDetailSectionNav";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
+import { RunDetailTechnicalIdentifiersSection } from "@/components/RunDetailTechnicalIdentifiersSection";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
@@ -358,17 +359,29 @@ export default async function RunDetailPage({
     }
   }
 
-  const runDetailNavSections: RunDetailSection[] = [
-    { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
-    { id: "trust-evidence", label: "Evidence card", available: Boolean(resolvedDetail.trustEvidenceCard) },
-    { id: "run-metadata", label: "Review", available: true },
-    { id: "pipeline-timeline", label: "Timeline", available: true },
-    { id: "authority-chain", label: "Review trail", available: true },
-    { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
-    { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
-    { id: "agent-forensics", label: "Diagnostics", available: true },
-    { id: "run-actions", label: "Actions", available: true },
-  ];
+  const buyerPolishedSections = buyerPolishedArtifactTable;
+
+  const runDetailNavSections: RunDetailSection[] = buyerPolishedSections
+    ? [
+        { id: "manifest-summary", label: "Package", available: Boolean(manifestSummary) },
+        { id: "trust-evidence", label: "Evidence", available: Boolean(resolvedDetail.trustEvidenceCard) },
+        { id: "run-metadata", label: "Review", available: true },
+        { id: "pipeline-timeline", label: "Activity", available: true },
+        { id: "run-explanation", label: "Findings", available: Boolean(manifestId) },
+        { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
+        { id: "run-actions", label: "Next steps", available: true },
+      ]
+    : [
+        { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
+        { id: "trust-evidence", label: "Evidence card", available: Boolean(resolvedDetail.trustEvidenceCard) },
+        { id: "run-metadata", label: "Review", available: true },
+        { id: "pipeline-timeline", label: "Timeline", available: true },
+        { id: "authority-chain", label: "Review trail", available: true },
+        { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
+        { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
+        { id: "agent-forensics", label: "Diagnostics", available: true },
+        { id: "run-actions", label: "Actions", available: true },
+      ];
 
   const runSummaryForBadge = progressForPipelineUi;
   const descriptionTrimmed = resolvedDetail.run.description?.trim() ?? "";
@@ -405,8 +418,6 @@ export default async function RunDetailPage({
       <RunDetailPageHeader
         runSummary={runSummaryForBadge}
         runId={resolvedDetail.run.runId}
-        projectId={resolvedDetail.run.projectId}
-        createdLabel={createdLabel}
         headline={headline}
         hasGoldenManifest={Boolean(manifestId)}
         executionFlavorBuyerSummary={resolvedDetail.executionFlavorBuyerSummary}
@@ -678,7 +689,13 @@ export default async function RunDetailPage({
       )}
 
       {manifestId ? <PostCommitRetentionRail runId={runId} /> : null}
-      {manifestId ? <PostCommitAdvancedAnalysisHint runId={runId} /> : null}
+      {manifestId ? (
+        <section id="advanced-analysis" className="scroll-mt-24">
+          <CollapsibleSection title="Advanced analysis (optional)" defaultOpen={false}>
+            <PostCommitAdvancedAnalysisHint runId={runId} embeddedInCollapsible />
+          </CollapsibleSection>
+        </section>
+      ) : null}
 
       {manifestId && (
         <section id="run-explanation" className="scroll-mt-24">
@@ -783,7 +800,16 @@ export default async function RunDetailPage({
                   manifestSummary={manifestSummary}
                   trustEvidenceCard={resolvedDetail.trustEvidenceCard ?? null}
                 />
-                <Button variant="outline" size="sm" asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={
+                    buyerPolishedArtifactTable
+                      ? "border-teal-200 bg-teal-50/60 text-teal-900 hover:bg-teal-50 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100 dark:hover:bg-teal-950/55"
+                      : undefined
+                  }
+                  asChild
+                >
                   <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
                 </Button>
                 <Button variant="outline" size="sm" asChild>
@@ -830,9 +856,25 @@ export default async function RunDetailPage({
                 </Button>
               ) : null}
             </div>
+            {buyerPolishedArtifactTable ? (
+              <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+                <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="#agent-forensics">
+                  Pipeline diagnostics
+                </Link>
+                {" — "}
+                operator tooling for troubleshooting; optional after value review.
+              </p>
+            ) : null}
           </CardContent>
         </Card>
       </section>
+
+      <RunDetailTechnicalIdentifiersSection
+        runId={resolvedDetail.run.runId}
+        projectId={resolvedDetail.run.projectId}
+        createdLabel={createdLabel}
+        buyerPolishedShell={buyerPolishedArtifactTable}
+      />
     </main>
   );
 }

@@ -13,7 +13,7 @@ type OperatorApiProblemFromFailure = {
 };
 
 type OperatorApiProblemManual = {
-  problem: ApiProblemDetails | null;
+  problem: ApiProblemDetails | null | undefined;
   fallbackMessage: string;
   correlationId?: string | null;
   httpStatus?: number | null;
@@ -42,13 +42,13 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
   let retryAfterSeconds: number | null;
 
   if (isFromFailure(props)) {
-    problem = props.failure.problem;
+    problem = props.failure.problem ?? null;
     fallbackMessage = props.failure.message;
     correlationId = props.failure.correlationId;
     httpStatus = props.failure.httpStatus;
     retryAfterSeconds = props.failure.retryAfterSeconds;
   } else {
-    problem = props.problem;
+    problem = props.problem ?? null;
     fallbackMessage = props.fallbackMessage;
     correlationId = props.correlationId ?? null;
     httpStatus = props.httpStatus ?? null;

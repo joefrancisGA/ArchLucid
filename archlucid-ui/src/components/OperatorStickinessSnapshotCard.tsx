@@ -17,7 +17,7 @@ import type { OperatorStickinessSnapshotDto } from "@/types/operate-rhythm";
 export function OperatorStickinessSnapshotCard(): ReactElement {
   const [data, setData] = useState<OperatorStickinessSnapshotDto | null>(null);
   const [problem, setProblem] = useState<{
-    problem?: ApiProblemDetails;
+    problem: ApiProblemDetails | null;
     message: string;
     correlationId?: string | null;
   } | null>(null);
@@ -39,7 +39,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement {
       } catch (e: unknown) {
         if (!cancelled) {
           const message = e instanceof Error ? e.message : "Could not load stickiness snapshot.";
-          setProblem({ message });
+          setProblem({ message, problem: null });
           setData(null);
         }
       } finally {
