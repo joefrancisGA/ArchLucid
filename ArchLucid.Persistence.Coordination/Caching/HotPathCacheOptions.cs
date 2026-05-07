@@ -11,8 +11,8 @@ public sealed class HotPathCacheOptions
     public const string SectionName = "HotPathCache";
 
     /// <summary>
-    ///     When false, repository decorators hit SQL directly; the API host may still register a small in-memory
-    ///     <see cref="IHotPathReadCache" /> for optional read-model caches that must not imply SQL hot-path caching is on.
+    ///     When false, repository decorators hit SQL directly; the API host still registers <see cref="IHotPathReadCache" /> (
+    ///     HybridCache-backed) for optional read-model caches that must not imply SQL hot-path caching is on.
     /// </summary>
     public bool Enabled
     {

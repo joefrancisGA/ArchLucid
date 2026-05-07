@@ -67,8 +67,7 @@ public sealed class CachingGoldenManifestRepository(
         return _hotPathReadCache.GetOrCreateAsync(
             key,
             innerCt => _inner.GetByIdAsync(scope, manifestId, innerCt),
-            ct,
-            HotPathCacheKeys.LegacyManifest(scope, manifestId));
+            ct);
     }
 
     /// <inheritdoc />

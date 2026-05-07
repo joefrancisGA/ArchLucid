@@ -30,8 +30,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         return _hotPathReadCache.GetOrCreateAsync(
             HotPathCacheKeys.Run(scope, runId),
             innerCt => _inner.GetByIdAsync(scope, runId, innerCt),
-            ct,
-            HotPathCacheKeys.LegacyRun(scope, runId));
+            ct);
     }
 
     /// <inheritdoc />

@@ -94,7 +94,6 @@ public sealed class DemoCommitPagePreviewController(
                 return await _previewClient.GetLatestCommittedDemoCommitPageAsync(ct);
             },
             cancellationToken,
-            null,
             ttlSeconds);
 
         if (payload is null)

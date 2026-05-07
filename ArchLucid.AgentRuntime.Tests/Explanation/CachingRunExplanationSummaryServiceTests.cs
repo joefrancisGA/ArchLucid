@@ -192,7 +192,7 @@ public sealed class CachingRunExplanationSummaryServiceTests
         };
     }
 
-    /// <summary>Mimics <see cref="IHotPathReadCache" /> no-null-cache semantics for tests.</summary>
+    /// <summary>In-memory <see cref="IHotPathReadCache" /> stub for unit tests (does not persist negative cache).</summary>
     private sealed class DictionaryHotPathReadCache : IHotPathReadCache
     {
         private readonly Dictionary<string, object> _store = new(StringComparer.Ordinal);
@@ -201,7 +201,6 @@ public sealed class CachingRunExplanationSummaryServiceTests
             string key,
             Func<CancellationToken, Task<T?>> factory,
             CancellationToken ct,
-            string? legacyCacheKey = null,
             int? absoluteExpirationSecondsOverride = null)
             where T : class
         {
@@ -210,14 +209,7 @@ public sealed class CachingRunExplanationSummaryServiceTests
             if (_store.TryGetValue(key, out object? boxed) && boxed is T typed)
                 return Task.FromResult<T?>(typed);
 
-            if (legacyCacheKey is null
-                || !_store.TryGetValue(legacyCacheKey, out object? leg) ||
-                leg is not T legTyped)
-                return MaterializeAsync(key, factory, ct);
-            _store[key] = legTyped;
-            _store.Remove(legacyCacheKey);
-
-            return Task.FromResult<T?>(legTyped);
+            return MaterializeAsync(key, factory, ct);
         }
 
         public Task RemoveAsync(string key, CancellationToken ct)
