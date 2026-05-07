@@ -1,5 +1,5 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
+import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -43,7 +43,7 @@ export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExplor
   if (isDemoRunIdEligibleForStaticFallback(id)) {
     return {
       href: getShowcaseManifestHref(),
-      label: isBuyerPolishedOperatorShellEnv() ? "Open manifest" : "Manifest summary",
+      label: "Manifest summary",
     };
   }
 

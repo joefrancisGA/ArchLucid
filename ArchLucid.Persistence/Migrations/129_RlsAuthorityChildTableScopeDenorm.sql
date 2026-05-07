@@ -13,6 +13,7 @@ GO
   Backfill UPDATEs appear before new policy binds on initial apply — on replay they would run under active RLS and
   can fail for non-bypass principals. Turn the policy off only for this replay shape, then restore prior STATE.
   If migration 148 has removed RLS (no rls.ArchLucidTenantScope), skip ALTER SECURITY POLICY—replay must stay a no-op.
+  Implementation: policy mutations use EXEC(N'…') so the batch does not compile-bind dropped rls.ArchLucidTenantScope (same idea as ConversationMessages dynamic SQL below).
 */
 CREATE TABLE #ArchLucid129RlsReplayRestore (
     RestoreStateToOn bit NOT NULL
@@ -36,7 +37,7 @@ IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
           AND schema_id = SCHEMA_ID(N'rls')
           AND is_enabled = 1)
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope WITH (STATE = OFF);
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope WITH (STATE = OFF);');
 
     UPDATE #ArchLucid129RlsReplayRestore
     SET RestoreStateToOn = 1;
@@ -701,11 +702,11 @@ IF EXISTS (
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingRecords', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecords,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecords AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecords AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecords BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecords,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecords AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecords AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecords BEFORE DELETE;');
 END;
 GO
 
@@ -720,11 +721,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingRelatedNodes', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRelatedNodes,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRelatedNodes AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRelatedNodes AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRelatedNodes BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRelatedNodes,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRelatedNodes AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRelatedNodes AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRelatedNodes BEFORE DELETE;');
 END;
 GO
 
@@ -739,11 +740,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingRecommendedActions', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecommendedActions,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecommendedActions AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecommendedActions AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecommendedActions BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecommendedActions,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecommendedActions AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecommendedActions AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingRecommendedActions BEFORE DELETE;');
 END;
 GO
 
@@ -758,11 +759,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingProperties', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingProperties,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingProperties AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingProperties AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingProperties BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingProperties,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingProperties AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingProperties AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingProperties BEFORE DELETE;');
 END;
 GO
 
@@ -777,11 +778,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingTraceGraphNodesExamined', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceGraphNodesExamined,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceGraphNodesExamined AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceGraphNodesExamined AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceGraphNodesExamined BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceGraphNodesExamined,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceGraphNodesExamined AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceGraphNodesExamined AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceGraphNodesExamined BEFORE DELETE;');
 END;
 GO
 
@@ -796,11 +797,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingTraceRulesApplied', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceRulesApplied,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceRulesApplied AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceRulesApplied AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceRulesApplied BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceRulesApplied,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceRulesApplied AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceRulesApplied AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceRulesApplied BEFORE DELETE;');
 END;
 GO
 
@@ -815,11 +816,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingTraceDecisionsTaken', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceDecisionsTaken,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceDecisionsTaken AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceDecisionsTaken AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceDecisionsTaken BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceDecisionsTaken,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceDecisionsTaken AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceDecisionsTaken AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceDecisionsTaken BEFORE DELETE;');
 END;
 GO
 
@@ -834,11 +835,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingTraceAlternativePaths', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceAlternativePaths,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceAlternativePaths AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceAlternativePaths AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceAlternativePaths BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceAlternativePaths,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceAlternativePaths AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceAlternativePaths AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceAlternativePaths BEFORE DELETE;');
 END;
 GO
 
@@ -853,11 +854,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingTraceNotes', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceNotes,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceNotes AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceNotes AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceNotes BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceNotes,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceNotes AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceNotes AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingTraceNotes BEFORE DELETE;');
 END;
 GO
 
@@ -872,11 +873,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleArtifacts', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifacts,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifacts AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifacts AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifacts BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifacts,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifacts AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifacts AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifacts BEFORE DELETE;');
 END;
 GO
 
@@ -891,11 +892,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleArtifactMetadata', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactMetadata,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactMetadata AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactMetadata AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactMetadata BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactMetadata,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactMetadata AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactMetadata AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactMetadata BEFORE DELETE;');
 END;
 GO
 
@@ -910,11 +911,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleArtifactDecisionLinks', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactDecisionLinks,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactDecisionLinks AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactDecisionLinks AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactDecisionLinks BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactDecisionLinks,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactDecisionLinks AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactDecisionLinks AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleArtifactDecisionLinks BEFORE DELETE;');
 END;
 GO
 
@@ -929,11 +930,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleTraceGenerators', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceGenerators,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceGenerators AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceGenerators AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceGenerators BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceGenerators,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceGenerators AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceGenerators AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceGenerators BEFORE DELETE;');
 END;
 GO
 
@@ -948,11 +949,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleTraceDecisionLinks', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceDecisionLinks,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceDecisionLinks AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceDecisionLinks AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceDecisionLinks BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceDecisionLinks,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceDecisionLinks AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceDecisionLinks AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceDecisionLinks BEFORE DELETE;');
 END;
 GO
 
@@ -967,11 +968,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleTraceNotes', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceNotes,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceNotes AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceNotes AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceNotes BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceNotes,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceNotes AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceNotes AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundleTraceNotes BEFORE DELETE;');
 END;
 GO
 
@@ -1008,11 +1009,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.PolicyPackVersions', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackVersions,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackVersions AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackVersions AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackVersions BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackVersions,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackVersions AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackVersions AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackVersions BEFORE DELETE;');
 END;
 GO
 
@@ -1027,11 +1028,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.CompositeAlertRuleConditions', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRuleConditions,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRuleConditions AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRuleConditions AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRuleConditions BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRuleConditions,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRuleConditions AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRuleConditions AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRuleConditions BEFORE DELETE;');
 END;
 GO
 
@@ -1046,11 +1047,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.EvolutionSimulationRuns', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionSimulationRuns,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionSimulationRuns AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionSimulationRuns AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionSimulationRuns BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionSimulationRuns,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionSimulationRuns AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionSimulationRuns AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionSimulationRuns BEFORE DELETE;');
 END;
 GO
 
@@ -1065,11 +1066,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestWarnings', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestWarnings,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestWarnings AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestWarnings AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestWarnings BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestWarnings,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestWarnings AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestWarnings AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestWarnings BEFORE DELETE;');
 END;
 GO
 
@@ -1084,11 +1085,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestDecisions', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisions,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisions AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisions AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisions BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisions,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisions AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisions AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisions BEFORE DELETE;');
 END;
 GO
 
@@ -1103,11 +1104,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestDecisionEvidenceLinks', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionEvidenceLinks,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionEvidenceLinks AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionEvidenceLinks AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionEvidenceLinks BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionEvidenceLinks,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionEvidenceLinks AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionEvidenceLinks AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionEvidenceLinks BEFORE DELETE;');
 END;
 GO
 
@@ -1122,11 +1123,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestDecisionNodeLinks', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionNodeLinks,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionNodeLinks AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionNodeLinks AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionNodeLinks BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionNodeLinks,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionNodeLinks AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionNodeLinks AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestDecisionNodeLinks BEFORE DELETE;');
 END;
 GO
 
@@ -1141,11 +1142,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestProvenanceSourceFindings', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceFindings,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceFindings AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceFindings AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceFindings BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceFindings,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceFindings AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceFindings AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceFindings BEFORE DELETE;');
 END;
 GO
 
@@ -1160,11 +1161,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestProvenanceSourceGraphNodes', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceGraphNodes,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceGraphNodes AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceGraphNodes AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceGraphNodes BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceGraphNodes,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceGraphNodes AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceGraphNodes AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceSourceGraphNodes BEFORE DELETE;');
 END;
 GO
 
@@ -1179,11 +1180,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestProvenanceAppliedRules', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceAppliedRules,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceAppliedRules AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceAppliedRules AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceAppliedRules BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceAppliedRules,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceAppliedRules AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceAppliedRules AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestProvenanceAppliedRules BEFORE DELETE;');
 END;
 GO
 
@@ -1198,11 +1199,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ProductLearningImprovementPlanArchitectureRuns', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArchitectureRuns,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArchitectureRuns AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArchitectureRuns AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArchitectureRuns BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArchitectureRuns,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArchitectureRuns AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArchitectureRuns AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArchitectureRuns BEFORE DELETE;');
 END;
 GO
 
@@ -1217,11 +1218,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ProductLearningImprovementPlanSignalLinks', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanSignalLinks,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanSignalLinks AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanSignalLinks AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanSignalLinks BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanSignalLinks,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanSignalLinks AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanSignalLinks AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanSignalLinks BEFORE DELETE;');
 END;
 GO
 
@@ -1236,11 +1237,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ProductLearningImprovementPlanArtifactLinks', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArtifactLinks,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArtifactLinks AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArtifactLinks AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArtifactLinks BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArtifactLinks,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArtifactLinks AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArtifactLinks AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlanArtifactLinks BEFORE DELETE;');
 END;
 GO
 
@@ -1255,11 +1256,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshots', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshots,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshots AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshots AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshots BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshots,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshots AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshots AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshots BEFORE DELETE;');
 END;
 GO
 
@@ -1274,11 +1275,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshotEdges', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdges,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdges AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdges AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdges BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdges,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdges AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdges AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdges BEFORE DELETE;');
 END;
 GO
 
@@ -1293,11 +1294,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshotNodes', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodes,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodes AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodes AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodes BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodes,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodes AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodes AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodes BEFORE DELETE;');
 END;
 GO
 
@@ -1312,11 +1313,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshotNodeProperties', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodeProperties,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodeProperties AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodeProperties AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodeProperties BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodeProperties,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodeProperties AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodeProperties AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotNodeProperties BEFORE DELETE;');
 END;
 GO
 
@@ -1331,11 +1332,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshotEdgeProperties', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdgeProperties,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdgeProperties AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdgeProperties AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdgeProperties BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdgeProperties,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdgeProperties AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdgeProperties AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotEdgeProperties BEFORE DELETE;');
 END;
 GO
 
@@ -1350,11 +1351,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshotWarnings', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotWarnings,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotWarnings AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotWarnings AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotWarnings BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotWarnings,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotWarnings AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotWarnings AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.GraphSnapshotWarnings BEFORE DELETE;');
 END;
 GO
 
@@ -1369,11 +1370,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ContextSnapshotCanonicalObjects', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjects,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjects AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjects AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjects BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjects,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjects AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjects AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjects BEFORE DELETE;');
 END;
 GO
 
@@ -1388,11 +1389,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ContextSnapshotCanonicalObjectProperties', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjectProperties,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjectProperties AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjectProperties AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjectProperties BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjectProperties,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjectProperties AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjectProperties AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotCanonicalObjectProperties BEFORE DELETE;');
 END;
 GO
 
@@ -1407,11 +1408,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ContextSnapshotWarnings', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotWarnings,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotWarnings AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotWarnings AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotWarnings BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotWarnings,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotWarnings AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotWarnings AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotWarnings BEFORE DELETE;');
 END;
 GO
 
@@ -1426,11 +1427,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ContextSnapshotErrors', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotErrors,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotErrors AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotErrors AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotErrors BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotErrors,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotErrors AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotErrors AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotErrors BEFORE DELETE;');
 END;
 GO
 
@@ -1445,11 +1446,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
           AND pol.schema_id = SCHEMA_ID(N'rls')
           AND p.target_object_id = OBJECT_ID(N'dbo.ContextSnapshotSourceHashes', N'U'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotSourceHashes,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotSourceHashes AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotSourceHashes AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotSourceHashes BEFORE DELETE;
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotSourceHashes,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotSourceHashes AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotSourceHashes AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshotSourceHashes BEFORE DELETE;');
 END;
 GO
 
@@ -1463,6 +1464,6 @@ IF EXISTS (
         WHERE name = N'ArchLucidTenantScope'
           AND schema_id = SCHEMA_ID(N'rls'))
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope WITH (STATE = ON);
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope WITH (STATE = ON);');
 END;
 GO

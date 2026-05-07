@@ -26,6 +26,7 @@ import {
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
@@ -171,6 +172,11 @@ export function RunsDashboardPanel() {
   const showcasePrimaryCta =
     showcaseDemoRun !== undefined ? getBuyerSafeReviewsTableLink(showcaseDemoRun.runId) : null;
 
+  const showcaseEvidenceGraph =
+    showcaseDemoRun !== undefined &&
+    (canonicalizeDemoRunId(showcaseDemoRun.runId) === SHOWCASE_STATIC_DEMO_RUN_ID ||
+      showcaseDemoRun.hasGraphSnapshot === true);
+
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const attentionRuns = useMemo(() => effectiveItems.filter(isRunNeedingAttention), [effectiveItems]);
@@ -240,6 +246,51 @@ export function RunsDashboardPanel() {
                     fallbackMessage={failure.message}
                     correlationId={failure.correlationId}
                   />
+                </div>
+              ) : null}
+
+              {(phase === "ready" || phase === "error") && showcaseDemoRun && buyerPolishedShell ? (
+                <div
+                  className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-3 dark:border-emerald-900 dark:bg-emerald-950/25"
+                  data-testid="operator-home-showcase-demo-banner"
+                >
+                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                    Claims Intake — completed example review
+                  </p>
+                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                    {buyerSafeHighlight ? (
+                      <>
+                        Start with the manifest summary and evidence graph. Optional guided preview and full workspace
+                        detail stay available for stakeholders who want deeper navigation.
+                      </>
+                    ) : (
+                      <>
+                        Preview the sample output: manifest summary, evidence graph, and optional walkthrough paths.
+                      </>
+                    )}
+                  </p>
+                  <div className="space-y-2">
+                    <div className={cn("grid gap-2", showcaseEvidenceGraph ? "sm:grid-cols-2" : "")}>
+                      {showcasePrimaryCta ? (
+                        <Button asChild variant="primary" size="sm" className="h-8 w-full">
+                          <Link href={showcasePrimaryCta.href}>{showcasePrimaryCta.label}</Link>
+                        </Button>
+                      ) : null}
+                      {showcaseEvidenceGraph ? (
+                        <Button asChild variant="outline" size="sm" className="h-8 w-full">
+                          <Link href="/graph">View evidence graph</Link>
+                        </Button>
+                      ) : null}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button asChild variant="outline" size="sm" className="h-8">
+                        <Link href={getShowcaseWalkthroughHref()}>Guided preview</Link>
+                      </Button>
+                      <Button asChild variant="outline" size="sm" className="h-8">
+                        <Link href={getCanonicalReviewWorkspaceHref(showcaseDemoRun.runId)}>Full review detail</Link>
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               ) : null}
 

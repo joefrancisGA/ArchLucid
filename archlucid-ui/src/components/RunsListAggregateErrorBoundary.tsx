@@ -6,8 +6,9 @@ import { Component, type ErrorInfo, type ReactNode } from "react";
 import { RunsListClient, type RunsListClientProps } from "@/app/(operator)/reviews/RunsListClient";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { Button } from "@/components/ui/button";
-import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 function runListPrimaryTitle(run: RunSummary): string {
@@ -21,6 +22,8 @@ function runListPrimaryTitle(run: RunSummary): string {
 }
 
 function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
       <table className="w-full border-collapse text-sm">
@@ -39,24 +42,26 @@ function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
             const action = getBuyerSafeReviewsTableLink(run.runId);
 
             return (
-            <tr key={run.runId}>
-              <td className="max-w-[min(100vw,28rem)] px-3 py-2 align-top">
-                <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">
-                  {runListPrimaryTitle(run)}
-                </span>
-                <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
-                  {run.runId}
-                </code>
-              </td>
-              <td className="whitespace-nowrap px-3 py-2 align-top">
-                <Link
-                  href={action.href}
-                  className="font-medium text-teal-800 underline dark:text-teal-300"
-                >
-                  {action.label}
-                </Link>
-              </td>
-            </tr>
+              <tr key={run.runId}>
+                <td className="max-w-[min(100vw,28rem)] px-3 py-2 align-top">
+                  <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">
+                    {runListPrimaryTitle(run)}
+                  </span>
+                  {buyerPolishedShell ? null : (
+                    <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                      {run.runId}
+                    </code>
+                  )}
+                </td>
+                <td className="whitespace-nowrap px-3 py-2 align-top">
+                  <Link
+                    href={action.href}
+                    className="font-medium text-teal-800 underline dark:text-teal-300"
+                  >
+                    {action.label}
+                  </Link>
+                </td>
+              </tr>
             );
           })}
         </tbody>
