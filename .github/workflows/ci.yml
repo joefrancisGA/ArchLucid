@@ -203,13 +203,14 @@ jobs:
       - name: Public pricing placeholder hard guard (sales-led posture)
         run: python scripts/ci/assert_public_pricing_placeholder_guard.py
 
-      - name: Doc guard unit tests (connector + coherence + pricing + data-consistency report + real-LLM gate script)
+      - name: Doc guard unit tests (connector + coherence + pricing + data-consistency report + observability export report + real-LLM gate script)
         run: |
           python -m unittest discover -s scripts/ci/tests -p "test_assert_v1_connector_catalog_alignment.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_high_risk_doc_coherence.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_public_pricing_placeholder_guard.py"
           python -m unittest discover -s scripts/ci/tests -p "test_pricing_json_checkout_guard.py"
           python -m unittest discover -s scripts/ci/tests -p "test_data_consistency_mode_readiness_report.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_report_observability_export_readiness.py"
           python -m unittest discover -s scripts/ci/tests -p "test_invoke_real_llm_evidence_gate.py"
 
       - name: Procurement doc freshness guard (warn-only)
