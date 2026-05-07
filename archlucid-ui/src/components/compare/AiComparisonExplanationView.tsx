@@ -10,7 +10,7 @@ export function AiComparisonExplanationView(props: { explanation: ComparisonExpl
   const { explanation } = props;
 
   return (
-    <section id="compare-ai" className="mt-7">
+    <section className="mt-7">
       <h3 className="mb-2">AI explanation</h3>
       <p className="mt-0 text-[13px] text-neutral-500 dark:text-neutral-400">
         Generated from structured deltas. Treat as narrative assistance only—confirm every claim against the

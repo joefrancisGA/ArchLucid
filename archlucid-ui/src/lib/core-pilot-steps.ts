@@ -9,7 +9,11 @@ export type CorePilotStepBase = {
 /**
  * Core Pilot path titles and links — shared between the first-review checklist and diagnostics summary on operator home.
  * No JSX here; `OperatorFirstRunWorkflowPanel` adds rich optional `secondary` for specific steps locally.
+ *
+ * {@link CORE_PILOT_STEP_COUNT} must match `CORE_PILOT_STEPS.length` (enforced at module load).
  */
+export const CORE_PILOT_STEP_COUNT = 4;
+
 export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {
     title: "Create an architecture review request",
@@ -45,3 +49,9 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     primaryLabel: "Open a finalized review",
   },
 ];
+
+if (CORE_PILOT_STEPS.length !== CORE_PILOT_STEP_COUNT) {
+  throw new Error(
+    `CORE_PILOT_STEP_COUNT (${CORE_PILOT_STEP_COUNT}) must match CORE_PILOT_STEPS.length (${CORE_PILOT_STEPS.length}).`,
+  );
+}

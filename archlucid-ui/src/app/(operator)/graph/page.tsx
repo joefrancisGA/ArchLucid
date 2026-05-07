@@ -2,7 +2,8 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { GraphIdleLegend, GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
@@ -91,9 +92,13 @@ function applyProvenanceDemoPresentationIfEligible(
 }
 
 /** Interactive graph viewer page. Operator picks a review, graph mode, and optional filters. */
-export default function GraphPage() {
+function GraphPageContent() {
+  const searchParams = useSearchParams();
+  const urlRunId = searchParams.get("runId")?.trim() ?? "";
   const workspaceRun = useWorkspaceActiveRun();
-  const [runId, setRunId] = useState(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const [runId, setRunId] = useState(() =>
+    urlRunId.length > 0 ? urlRunId : SHOWCASE_STATIC_DEMO_RUN_ID,
+  );
   const [decisionId, setDecisionId] = useState("");
   const [nodeId, setNodeId] = useState("");
   const [depth, setDepth] = useState(1);
@@ -108,6 +113,18 @@ export default function GraphPage() {
   const loadGenRef = useRef(0);
 
   useEffect(() => {
+    if (urlRunId.length === 0) {
+      return;
+    }
+
+    setRunId(urlRunId);
+  }, [urlRunId]);
+
+  useEffect(() => {
+    if (urlRunId.length > 0) {
+      return;
+    }
+
     const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";
 
     if (fromWorkspace.length === 0) {
@@ -115,7 +132,7 @@ export default function GraphPage() {
     }
 
     setRunId(fromWorkspace);
-  }, [workspaceRun?.activeRunId]);
+  }, [workspaceRun?.activeRunId, urlRunId]);
 
   const nodeTypes = useMemo(() => {
     if (!graph) {
@@ -552,5 +569,22 @@ export default function GraphPage() {
         </>
       ) : null}
     </main>
+  );
+}
+
+export default function GraphPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="max-w-4xl">
+          <OperatorLoadingNotice>
+            <strong>Loading graph.</strong>
+            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">Reading review id from the URL…</p>
+          </OperatorLoadingNotice>
+        </main>
+      }
+    >
+      <GraphPageContent />
+    </Suspense>
   );
 }

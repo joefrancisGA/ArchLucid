@@ -7,6 +7,7 @@ import {
   countSidebarLinksHiddenByCollapsedPilot,
   filterNavLinksForOperatorShell,
   listNavGroupsVisibleInOperatorShell,
+  visibleOperatorShellHrefSet,
 } from "@/lib/nav-shell-visibility";
 
 describe("filterNavLinksForOperatorShell", () => {
@@ -512,5 +513,23 @@ describe("committed architecture review gate — operator shell composition", ()
 
     expect(rows.map((r) => r.group.id)).toEqual(["pilot"]);
     expect(rows[0]!.visibleLinks.map((l) => l.href)).toEqual(["/", "/reviews/new", "/reviews?projectId=default"]);
+  });
+});
+
+describe("visibleOperatorShellHrefSet", () => {
+  it("matches the flattened href set from listNavGroupsVisibleInOperatorShell", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      "all",
+      true,
+    );
+    const fromRows = new Set(rows.flatMap((r) => r.visibleLinks.map((l) => l.href)));
+    const direct = visibleOperatorShellHrefSet(true, true, AUTHORITY_RANK.AdminAuthority, true);
+
+    expect(direct).toEqual(fromRows);
   });
 });

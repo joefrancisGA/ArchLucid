@@ -1,4 +1,5 @@
 import type { NavGroupConfig, NavLinkItem, NavShellSurface } from "@/lib/nav-config";
+import { NAV_GROUPS } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-committed-architecture-review-gate";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
@@ -160,6 +161,36 @@ export function listNavGroupsVisibleInOperatorShell(
   }
 
   return out;
+}
+
+/**
+ * Hrefs the operator shell currently exposes (tier ∩ authority ∩ publish gates, all nav groups).
+ * Used to filter curated command-palette tasks so ⌘K never lists destinations the sidebar would hide.
+ */
+export function visibleOperatorShellHrefSet(
+  showExtended: boolean,
+  showAdvanced: boolean,
+  callerAuthorityRank: number,
+  hasCommittedArchitectureReview: boolean,
+): Set<string> {
+  const rows = listNavGroupsVisibleInOperatorShell(
+    NAV_GROUPS,
+    showExtended,
+    showAdvanced,
+    callerAuthorityRank,
+    false,
+    "all",
+    hasCommittedArchitectureReview,
+  );
+  const hrefs = new Set<string>();
+
+  for (const row of rows) {
+    for (const link of row.visibleLinks) {
+      hrefs.add(link.href);
+    }
+  }
+
+  return hrefs;
 }
 
 /**
