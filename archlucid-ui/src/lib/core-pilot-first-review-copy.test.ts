@@ -4,7 +4,7 @@ import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
   CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
   CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON,
-  CORE_PILOT_FIRST_SESSION_GUIDANCE,
+  CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
   CORE_PILOT_WORKFLOW_SUMMARY_LINE,
 } from "./core-pilot-first-review-copy";
 
@@ -34,9 +34,17 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     expect(CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON.toLowerCase()).toContain("first");
   });
 
-  it("offers a single-path first-session hint without extra jargon", () => {
-    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE.length).toBeGreaterThan(40);
-    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE.toLowerCase()).toMatch(/first/);
-    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE).toMatch(/manifest summary/i);
+  it("keeps first-session guidance as short bullets aligned with the checklist flow", () => {
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS).toHaveLength(3);
+
+    for (const bullet of CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS) {
+      expect(bullet.length).toBeGreaterThan(36);
+      expect(bullet.length).toBeLessThan(400);
+      expect(bullet.toLowerCase()).toMatch(/(first session|defer|finalize|architecture review|wizard|manifest)/);
+    }
+
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("manifest"))).toBe(true);
+
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.includes("Proof sendability"))).toBe(false);
   });
 });

@@ -16,9 +16,14 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { getFindingExplainability } from "@/lib/api";
-import { truncateForList } from "@/lib/truncate-for-list";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  findingEvidenceCountPlainLine,
+  findingSeverityAudienceCopy,
+  findingTraceCompletenessPlainEnglish,
+} from "@/lib/finding-explainability-summary";
+import { truncateForList } from "@/lib/truncate-for-list";
 import type { FindingExplainability } from "@/types/explanation";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
@@ -78,6 +83,22 @@ export function FindingExplainabilityDialog({
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
+  const technicalAuditSummary = buyerPolishedShell ? "Technical audit" : "Trace audit";
+
+  const severityInspect =
+    data !== null ? findingSeverityAudienceCopy(data.severity) : { meaningForOperators: "", suggestedNext: "" };
+
+  const evidenceRefs = data?.evidence?.evidenceRefs ?? [];
+
+  const trimmedNarrative = data !== null ? data.narrativeText.trim() : "";
+
+  const trimmedConclusion = (data?.evidence?.conclusion ?? "").trim();
+
+  const inspectTeaserSource = trimmedNarrative.length > 0 ? trimmedNarrative : trimmedConclusion;
+
+  const inspectTeaser =
+    inspectTeaserSource.length > 0 ? truncateForList(inspectTeaserSource, 260) : null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -105,6 +126,8 @@ export function FindingExplainabilityDialog({
             problem={failure.problem}
             fallbackMessage={failure.message}
             correlationId={failure.correlationId}
+            httpStatus={failure.httpStatus}
+            retryAfterSeconds={failure.retryAfterSeconds}
           />
         ) : null}
 
@@ -120,144 +143,179 @@ export function FindingExplainabilityDialog({
             <p className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100" title={data.title}>
               {truncateForList(data.title, 280)}
             </p>
-            {data.evidence ? (
-              <section aria-labelledby="finding-evidence-heading" className="rounded-md border border-sky-200 bg-sky-50/80 p-3 dark:border-sky-900 dark:bg-sky-950/30">
-                <h3 id="finding-evidence-heading" className="mb-2 text-sm font-semibold text-sky-950 dark:text-sky-100">
-                  {buyerPolishedShell ? "Structured evidence" : "Structured evidence (deterministic)"}
-                </h3>
-                <dl className="m-0 space-y-2 text-xs text-sky-950 dark:text-sky-50">
-                  <div>
-                    <dt className="font-semibold text-sky-900 dark:text-sky-200">Rule id</dt>
-                    <dd className="m-0 font-mono">{data.evidence.ruleId}</dd>
-                  </div>
-                  <div>
-                    <dt className="font-semibold text-sky-900 dark:text-sky-200">Conclusion (from finding rationale)</dt>
-                    <dd className="m-0 whitespace-pre-wrap leading-relaxed">{data.evidence.conclusion}</dd>
-                  </div>
-                  <div>
-                    <dt className="font-semibold text-sky-900 dark:text-sky-200">Evidence refs</dt>
-                    <dd className="m-0">
-                      {data.evidence.evidenceRefs.length === 0 ? (
-                        <span className="text-sky-800/80 dark:text-sky-200/80">None recorded</span>
-                      ) : (
-                        <ul className="m-0 list-disc space-y-0.5 pl-5">
-                          {data.evidence.evidenceRefs.map((ref, i) => (
-                            <li key={`${ref}-${i}`} className="font-mono">
-                              {ref}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </dd>
-                  </div>
-                  {data.evidence.alternativePathsConsidered.length > 0 ? (
-                    <div>
-                      <dt className="font-semibold text-sky-900 dark:text-sky-200">Alternative paths (structured)</dt>
-                      <dd className="m-0">
-                        <ul className="m-0 list-disc space-y-0.5 pl-5">
-                          {data.evidence.alternativePathsConsidered.map((a, i) => (
-                            <li key={`${a}-${i}`}>{a}</li>
-                          ))}
-                        </ul>
-                      </dd>
-                    </div>
-                  ) : null}
-                </dl>
-              </section>
-            ) : null}
-            <div className="space-y-1">
-              <div className="flex items-center justify-between gap-2 text-xs text-neutral-600 dark:text-neutral-400">
-                <span>Trace completeness</span>
-                <span>{ratioPct}%</span>
-              </div>
-              <Progress
-                value={ratioPct}
-                className="h-2"
-                aria-label={`Trace completeness ${ratioPct} percent`}
-              />
-            </div>
-            {missingFields.length > 0 ? (
-              <section
-                aria-label="Missing trace fields"
-                className="rounded-md border border-amber-200 bg-amber-50/90 p-3 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-50"
-              >
-                <p className="m-0 font-semibold">Not populated in trace</p>
-                <ul className="m-0 mt-1 list-disc space-y-0.5 pl-5">
-                  {missingFields.map((m) => (
-                    <li key={m}>{m}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-            {data.narrativeText.trim().length > 0 ? (
-              <section aria-labelledby="finding-narrative-heading">
-                <h3 id="finding-narrative-heading" className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                  Narrative (presentation)
-                </h3>
-                <p className="m-0 whitespace-pre-wrap leading-relaxed text-neutral-700 dark:text-neutral-300">
-                  {data.narrativeText}
+
+            <section
+              aria-labelledby="finding-inspect-summary-heading"
+              className="rounded-md border border-neutral-200 bg-neutral-50/90 p-3 text-xs leading-relaxed text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
+            >
+              <h3 id="finding-inspect-summary-heading" className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                Inspect first
+              </h3>
+              <p className="m-0 mt-2 text-sm text-neutral-900 dark:text-neutral-100">
+                <span className="font-semibold">Severity read:</span> {severityInspect.meaningForOperators}
+              </p>
+              <p className="m-0 mt-1.5 text-sm text-neutral-900 dark:text-neutral-100">
+                <span className="font-semibold">Suggested next step:</span> {severityInspect.suggestedNext}
+              </p>
+              <p className="m-0 mt-1.5 text-sm text-neutral-800 dark:text-neutral-200">
+                {findingTraceCompletenessPlainEnglish(ratioPct)}
+              </p>
+              <p className="m-0 mt-1.5 text-sm text-neutral-800 dark:text-neutral-200">
+                {findingEvidenceCountPlainLine(evidenceRefs)}
+              </p>
+              {inspectTeaser !== null ? (
+                <p className="m-0 mt-1.5 text-sm text-neutral-700 dark:text-neutral-300">
+                  <span className="font-semibold">Rationale preview:</span> {inspectTeaser}
                 </p>
-              </section>
-            ) : null}
-            {data.rulesApplied.length > 0 ? (
-              <section>
-                <h3 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Rules applied</h3>
-                <ul className="m-0 list-disc space-y-0.5 pl-5">
-                  {data.rulesApplied.map((r, i) => (
-                    <li key={`${r}-${i}`}>{r}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-            {data.decisionsTaken.length > 0 ? (
-              <section>
-                <h3 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decisions taken</h3>
-                <ol className="m-0 list-decimal space-y-0.5 pl-5">
-                  {data.decisionsTaken.map((d, i) => (
-                    <li key={`${d}-${i}`}>{d}</li>
-                  ))}
-                </ol>
-              </section>
-            ) : null}
-            {data.graphNodeIdsExamined.length > 0 ? (
-              <section>
-                <h3 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Graph nodes examined</h3>
-                <div className="flex flex-wrap gap-1">
-                  {data.graphNodeIdsExamined.map((id, i) => (
-                    <Badge key={`${id}-${i}`} variant="outline" className="font-mono text-xs">
-                      {id}
-                    </Badge>
-                  ))}
+              ) : null}
+            </section>
+
+            <details className="group rounded-md border border-neutral-200 bg-white p-0 dark:border-neutral-700 dark:bg-neutral-950/40">
+              <summary className="cursor-pointer select-none rounded-md px-3 py-2 text-sm font-semibold text-neutral-900 marker:text-neutral-400 dark:text-neutral-100">
+                {technicalAuditSummary}
+              </summary>
+              <div className="space-y-4 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
+                {data.evidence ? (
+                  <section aria-labelledby="finding-evidence-heading" className="rounded-md border border-sky-200 bg-sky-50/80 p-3 dark:border-sky-900 dark:bg-sky-950/30">
+                    <h3 id="finding-evidence-heading" className="mb-2 text-sm font-semibold text-sky-950 dark:text-sky-100">
+                      {buyerPolishedShell ? "Structured evidence" : "Structured evidence (deterministic)"}
+                    </h3>
+                    <dl className="m-0 space-y-2 text-xs text-sky-950 dark:text-sky-50">
+                      <div>
+                        <dt className="font-semibold text-sky-900 dark:text-sky-200">Rule id</dt>
+                        <dd className="m-0 font-mono">{data.evidence.ruleId}</dd>
+                      </div>
+                      <div>
+                        <dt className="font-semibold text-sky-900 dark:text-sky-200">Conclusion (from finding rationale)</dt>
+                        <dd className="m-0 whitespace-pre-wrap leading-relaxed">{data.evidence.conclusion}</dd>
+                      </div>
+                      <div>
+                        <dt className="font-semibold text-sky-900 dark:text-sky-200">Evidence refs</dt>
+                        <dd className="m-0">
+                          {data.evidence.evidenceRefs.length === 0 ? (
+                            <span className="text-sky-800/80 dark:text-sky-200/80">None recorded</span>
+                          ) : (
+                            <ul className="m-0 list-disc space-y-0.5 pl-5">
+                              {data.evidence.evidenceRefs.map((ref, i) => (
+                                <li key={`${ref}-${i}`} className="font-mono">
+                                  {ref}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </dd>
+                      </div>
+                      {data.evidence.alternativePathsConsidered.length > 0 ? (
+                        <div>
+                          <dt className="font-semibold text-sky-900 dark:text-sky-200">Alternative paths (structured)</dt>
+                          <dd className="m-0">
+                            <ul className="m-0 list-disc space-y-0.5 pl-5">
+                              {data.evidence.alternativePathsConsidered.map((a, i) => (
+                                <li key={`${a}-${i}`}>{a}</li>
+                              ))}
+                            </ul>
+                          </dd>
+                        </div>
+                      ) : null}
+                    </dl>
+                  </section>
+                ) : null}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+                    <span>Trace completeness</span>
+                    <span>{ratioPct}%</span>
+                  </div>
+                  <Progress
+                    value={ratioPct}
+                    className="h-2"
+                    aria-label={`Trace completeness ${ratioPct} percent`}
+                  />
                 </div>
-              </section>
-            ) : null}
-            {data.alternativePathsConsidered.length > 0 ? (
-              <section className="rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/40">
-                <h3 className="mb-1 text-sm font-semibold text-amber-900 dark:text-amber-100">Alternative paths considered</h3>
-                <ul className="m-0 list-disc space-y-0.5 pl-5 text-amber-950 dark:text-amber-50">
-                  {data.alternativePathsConsidered.map((a, i) => (
-                    <li key={`${a}-${i}`}>{a}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-            {data.notes.length > 0 ? (
-              <section>
-                <h3 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Notes</h3>
-                <ul className="m-0 list-disc space-y-0.5 pl-5">
-                  {data.notes.map((n, i) => (
-                    <li key={`${n}-${i}`}>{n}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-            {findingId !== null && findingId.trim().length > 0 ? (
-              <FindingExplainPanel
-                runId={runId}
-                findingId={findingId.trim()}
-                confidenceLevel={data.confidenceLevel ?? null}
-              />
-            ) : null}
+                {missingFields.length > 0 ? (
+                  <section
+                    aria-label="Missing trace fields"
+                    className="rounded-md border border-amber-200 bg-amber-50/90 p-3 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-50"
+                  >
+                    <p className="m-0 font-semibold">Not populated in trace</p>
+                    <ul className="m-0 mt-1 list-disc space-y-0.5 pl-5">
+                      {missingFields.map((m) => (
+                        <li key={m}>{m}</li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+                {data.narrativeText.trim().length > 0 ? (
+                  <section aria-labelledby="finding-narrative-heading">
+                    <h3 id="finding-narrative-heading" className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                      Narrative (presentation)
+                    </h3>
+                    <p className="m-0 whitespace-pre-wrap leading-relaxed text-neutral-700 dark:text-neutral-300">
+                      {data.narrativeText}
+                    </p>
+                  </section>
+                ) : null}
+                {data.rulesApplied.length > 0 ? (
+                  <section>
+                    <h3 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Rules applied</h3>
+                    <ul className="m-0 list-disc space-y-0.5 pl-5">
+                      {data.rulesApplied.map((r, i) => (
+                        <li key={`${r}-${i}`}>{r}</li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+                {data.decisionsTaken.length > 0 ? (
+                  <section>
+                    <h3 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decisions taken</h3>
+                    <ol className="m-0 list-decimal space-y-0.5 pl-5">
+                      {data.decisionsTaken.map((d, i) => (
+                        <li key={`${d}-${i}`}>{d}</li>
+                      ))}
+                    </ol>
+                  </section>
+                ) : null}
+                {data.graphNodeIdsExamined.length > 0 ? (
+                  <section>
+                    <h3 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Graph nodes examined</h3>
+                    <div className="flex flex-wrap gap-1">
+                      {data.graphNodeIdsExamined.map((nid, i) => (
+                        <Badge key={`${nid}-${i}`} variant="outline" className="font-mono text-xs">
+                          {nid}
+                        </Badge>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+                {data.alternativePathsConsidered.length > 0 ? (
+                  <section className="rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/40">
+                    <h3 className="mb-1 text-sm font-semibold text-amber-900 dark:text-amber-100">Alternative paths considered</h3>
+                    <ul className="m-0 list-disc space-y-0.5 pl-5 text-amber-950 dark:text-amber-50">
+                      {data.alternativePathsConsidered.map((a, i) => (
+                        <li key={`${a}-${i}`}>{a}</li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+                {data.notes.length > 0 ? (
+                  <section>
+                    <h3 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Notes</h3>
+                    <ul className="m-0 list-disc space-y-0.5 pl-5">
+                      {data.notes.map((n, i) => (
+                        <li key={`${n}-${i}`}>{n}</li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+                {findingId !== null && findingId.trim().length > 0 ? (
+                  <FindingExplainPanel
+                    runId={runId}
+                    findingId={findingId.trim()}
+                    confidenceLevel={data.confidenceLevel ?? null}
+                  />
+                ) : null}
+              </div>
+            </details>
+
             <div className="flex justify-end border-t border-neutral-200 pt-3 dark:border-neutral-700">
               <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
                 Close

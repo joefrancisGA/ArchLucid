@@ -782,7 +782,7 @@ ArchLucid is closest to being commercially ready when it behaves less like an im
 
 ## Top Improvement Opportunities
 
-This list includes **2 deferred items**, **4 completed items**, and **6 fully actionable items** with Cursor prompts. Deferred items are included because they are high-leverage, but they require user/operator input before meaningful work can begin.
+This list includes **2 deferred items**, **6 completed items**, and **4 fully actionable items** with Cursor prompts. Deferred items are included because they are high-leverage, but they require user/operator input before meaningful work can begin.
 
 ### 1. Harden Real-Mode Agent Output Evaluation Corpus
 
@@ -1056,7 +1056,9 @@ Constraints:
 
 ### 7. Add Connector Status-Sync Consistency Tests
 
-Status: **Fully actionable now**
+Status: **Completed** (2026-05-07)
+
+**Completion summary:** Shipped expanded coverage in `ArchLucid.Application.Tests/Integrations/Itsm/ItsmInboundWebhookSyncServiceTests.cs` for `ItsmInboundWebhookSyncService`: default Jira and ServiceNow inbound status mapping (including numeric ServiceNow states and `number` vs `sys_id` keys), unmapped status rejection without repository side effects, no-correlation path (no `UpdateHumanReviewStatusForFindingAsync`, no durable audit), tenant id taken strictly from the correlation row, and audit payload shape including `Integration.JiraIssueStatusSynced` / `Integration.ServiceNowIncidentStatusSynced` with `rowsUpdated` (including zero-row updates). No live vendor HTTP; repository is mocked.
 
 Why it matters: Bidirectional ITSM sync is now a V1 obligation. Incorrect status mapping would create data consistency and trust failures.
 

@@ -20,7 +20,7 @@ import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
   CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
   CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON,
-  CORE_PILOT_FIRST_SESSION_GUIDANCE,
+  CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
   CORE_PILOT_WORKFLOW_SUMMARY_LINE,
 } from "@/lib/core-pilot-first-review-copy";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
@@ -536,9 +536,18 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 {CORE_PILOT_WORKFLOW_SUMMARY_LINE}
               </p>
               <p className="m-0 mt-1.5 text-xs leading-snug text-neutral-600 dark:text-neutral-400">{OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER}</p>
-              <p className="m-0 mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-400">
-                {CORE_PILOT_FIRST_SESSION_GUIDANCE}
-              </p>
+              <div className="m-0 mt-2 rounded-md border border-neutral-200/90 bg-neutral-50 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/55">
+                <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                  First session focus
+                </p>
+                <ul className="m-0 mt-1.5 list-disc space-y-1.5 pl-4 text-xs leading-snug text-neutral-800 dark:text-neutral-200">
+                  {CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.map((line) => (
+                    <li key={line} className="pl-0.5 marker:text-teal-700 dark:marker:text-teal-400">
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </>
           ) : null}
         </div>
@@ -651,25 +660,40 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         <p className="m-0 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
           After finalizing your first manifest
         </p>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          <Link
-            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
-            href="/compare"
-          >
-            Compare
-          </Link>
-          <Link
-            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
-            href="/replay"
-          >
-            Replay
-          </Link>
-          <Link
-            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
-            href="/graph"
-          >
-            Graph
-          </Link>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
+          <div className="min-w-[9.5rem] flex-1 space-y-1">
+            <Link
+              className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+              href="/compare"
+            >
+              Compare
+            </Link>
+            <p className="m-0 text-[10px] leading-snug text-neutral-600 dark:text-neutral-400">
+              Contrast two finalized reviews to explain what changed and why it matters.
+            </p>
+          </div>
+          <div className="min-w-[9.5rem] flex-1 space-y-1">
+            <Link
+              className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+              href="/replay"
+            >
+              Replay
+            </Link>
+            <p className="m-0 text-[10px] leading-snug text-neutral-600 dark:text-neutral-400">
+              Step through how the review produced its outputs for a single request.
+            </p>
+          </div>
+          <div className="min-w-[9.5rem] flex-1 space-y-1">
+            <Link
+              className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+              href="/graph"
+            >
+              Graph
+            </Link>
+            <p className="m-0 text-[10px] leading-snug text-neutral-600 dark:text-neutral-400">
+              Open linkage and provenance paths when you need architectural context, not a table view.
+            </p>
+          </div>
         </div>
       </div>
     </section>

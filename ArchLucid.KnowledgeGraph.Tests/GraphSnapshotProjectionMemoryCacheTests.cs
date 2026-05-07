@@ -45,12 +45,6 @@ public sealed class GraphSnapshotProjectionMemoryCacheTests
 
         int loadCount = 0;
 
-        Task<GraphSnapshot?> Loader(CancellationToken _)
-        {
-            loadCount++;
-            return Task.FromResult<GraphSnapshot?>(materialized);
-        }
-
         GraphSnapshot? first =
             await sut.GetOrLoadAsync(scope, runId, graphSnapshotId, Loader, CancellationToken.None);
         GraphSnapshot? second =
@@ -59,6 +53,13 @@ public sealed class GraphSnapshotProjectionMemoryCacheTests
         loadCount.Should().Be(1);
         first.Should().NotBeNull();
         second.Should().BeSameAs(first);
+        return;
+
+        Task<GraphSnapshot?> Loader(CancellationToken _)
+        {
+            loadCount++;
+            return Task.FromResult<GraphSnapshot?>(materialized);
+        }
     }
 
     [Fact]
@@ -78,20 +79,20 @@ public sealed class GraphSnapshotProjectionMemoryCacheTests
         Guid graphSnapshotId = Guid.NewGuid();
         int loadCount = 0;
 
-        Task<GraphSnapshot?> Loader(CancellationToken _)
-        {
-            loadCount++;
-
-            return Task.FromResult<GraphSnapshot?>(null);
-        }
-
-
         GraphSnapshot? first = await sut.GetOrLoadAsync(scope, runId, graphSnapshotId, Loader, CancellationToken.None);
         GraphSnapshot? second = await sut.GetOrLoadAsync(scope, runId, graphSnapshotId, Loader, CancellationToken.None);
 
         first.Should().BeNull();
         second.Should().BeNull();
         loadCount.Should().Be(2);
+        return;
+
+        Task<GraphSnapshot?> Loader(CancellationToken _)
+        {
+            loadCount++;
+
+            return Task.FromResult<GraphSnapshot?>(null);
+        }
     }
 
     [Fact]
