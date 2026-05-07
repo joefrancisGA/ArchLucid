@@ -116,15 +116,19 @@ export function MobileNavDrawer() {
     hasCommittedArchitectureReview,
   );
 
-  const adminNavRows = listNavGroupsVisibleInOperatorShell(
-    NAV_GROUPS,
-    extendedForShell,
-    advancedForShell,
-    callerAuthorityRank,
-    false,
-    "platform-admin",
-    hasCommittedArchitectureReview,
-  );
+  const omitAdminClusters = demoUi || buyerPolishedShell;
+
+  const adminNavRows = omitAdminClusters
+    ? ([] as NavGroupWithVisibleLinks[])
+    : listNavGroupsVisibleInOperatorShell(
+        NAV_GROUPS,
+        extendedForShell,
+        advancedForShell,
+        callerAuthorityRank,
+        false,
+        "platform-admin",
+        hasCommittedArchitectureReview,
+      );
 
   return (
     <>

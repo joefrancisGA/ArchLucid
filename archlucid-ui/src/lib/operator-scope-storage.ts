@@ -122,10 +122,10 @@ export function defaultLabelsForScopeIds(
 ): { workspace: string; project: string } {
   const ws =
     workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID
-      ? "Workspace"
+      ? "Claims Intake Demo Workspace"
       : workspaceId.slice(0, 8) + "…";
   const pr =
-    projectId.trim() === DEV_SCOPE_PROJECT_ID ? "Default" : projectId.slice(0, 8) + "…";
+    projectId.trim() === DEV_SCOPE_PROJECT_ID ? "Primary project" : projectId.slice(0, 8) + "…";
   return { workspace: ws, project: pr };
 }
 

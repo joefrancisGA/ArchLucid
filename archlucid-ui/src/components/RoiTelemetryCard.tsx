@@ -11,6 +11,7 @@ import {
   hoursSurfaced,
   readStoredHourlyUsd,
 } from "@/lib/roi-assumptions";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { PilotValueReportSeverityJson } from "@/types/pilot-value-report";
 
 export type RoiTelemetryCardProps = {
@@ -71,6 +72,7 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
   /** Whole-dollar formatting hides sub-dollar totals as "$0" — omit the implied line unless rounding is meaningful. */
   const showImpliedDollarTotal = hours > 1e-9 && Number.isFinite(usdTotal) && usdTotal >= 0.5;
   const hourlyIsDefault = Math.abs(hourlyUsd - DEFAULT_LOADED_HOURLY_USD) < 1e-6;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
     <section
@@ -135,6 +137,10 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
             <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
               Implied total: <span className="font-mono font-medium">{formatUsd(usdTotal)}</span> (estimate only; not an
               invoice).
+            </p>
+          ) : buyerPolishedShell ? (
+            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-500">
+              Not enough surfaced hours yet for a sponsor-facing dollar estimate.
             </p>
           ) : (
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-500">

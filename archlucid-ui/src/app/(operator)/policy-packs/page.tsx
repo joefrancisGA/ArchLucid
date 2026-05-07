@@ -359,7 +359,7 @@ export default function PolicyPacksPage() {
         </Link>
         .
       </p>
-      <EnterpriseControlsExecutePageHint className="mb-3" />
+      {buyerPolishedShell ? null : <EnterpriseControlsExecutePageHint className="mb-3" />}
 
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         <Card>
@@ -390,7 +390,9 @@ export default function PolicyPacksPage() {
             <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
               {selectedPackSummary !== undefined ? selectedPackSummary.name : "—"}
             </p>
-            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">Inspect versions and effective policy</p>
+            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+              {buyerPolishedShell ? "Overview for this workspace snapshot" : "Inspect versions and effective policy"}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -448,13 +450,14 @@ export default function PolicyPacksPage() {
             <option value="">—</option>
             {packs.map((p) => (
               <option key={p.policyPackId} value={p.policyPackId}>
-                {p.name} ({p.policyPackId.slice(0, 8)}…)
+                {buyerPolishedShell ? p.name : `${p.name} (${p.policyPackId.slice(0, 8)}…)`}
               </option>
             ))}
           </select>
         </label>
       </section>
 
+      {!buyerPolishedShell ? (
       <AdvancedOptionsAccordion className="mb-8">
         <section className="mb-0" aria-labelledby="policy-packs-content-heading">
         <h3 id="policy-packs-content-heading">
@@ -833,6 +836,11 @@ export default function PolicyPacksPage() {
       </section>
       )}
       </AdvancedOptionsAccordion>
+      ) : (
+        <p className="mb-8 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          Version comparison, raw configuration inspection, and lifecycle assignments remain administrator workflows in production workspaces.
+        </p>
+      )}
       </div>
     </main>
   );

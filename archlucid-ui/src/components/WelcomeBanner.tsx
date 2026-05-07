@@ -220,7 +220,7 @@ export function WelcomeBanner() {
     returningUser
       ? "Your review workspace"
       : buyerPolishedShell
-        ? "See how a governed review package comes together"
+        ? "Create a governed architecture review package"
         : "Review an existing architecture—with evidence-backed outcomes.";
   const subheadingText = returningUser ? (
     <>
