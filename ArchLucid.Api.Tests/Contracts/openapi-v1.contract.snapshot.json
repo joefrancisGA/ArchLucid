@@ -10771,6 +10771,9 @@
           "committedManifestPresent": {
             "type": "boolean"
           },
+          "committedManifestTimestampResolved": {
+            "type": "boolean"
+          },
           "demoTenantWarningRequired": {
             "type": "boolean"
           },

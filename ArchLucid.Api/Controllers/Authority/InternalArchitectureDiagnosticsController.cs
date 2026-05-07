@@ -223,7 +223,7 @@ public sealed class InternalArchitectureDiagnosticsController(
 
         logger.LogInformation(
             "Fake results seeded (internal): RunId={RunId}, ResultCount={ResultCount}",
-            runId,
+            LogSanitizer.Sanitize(runId),
             result.ResultCount);
 
         return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });

@@ -97,12 +97,12 @@ resource "azurerm_mssql_elasticpool" "tenant" {
 }
 
 resource "azurerm_mssql_database" "system" {
-  name             = var.system_database_name
-  server_id        = data.azurerm_mssql_server.this.id
-  elastic_pool_id  = azurerm_mssql_elasticpool.tenant.id
-  sku_name         = "ElasticPool"
-  read_scale       = false
-  zone_redundant   = false
+  name            = var.system_database_name
+  server_id       = data.azurerm_mssql_server.this.id
+  elastic_pool_id = azurerm_mssql_elasticpool.tenant.id
+  sku_name        = "ElasticPool"
+  read_scale      = false
+  zone_redundant  = false
 }
 
 resource "azurerm_mssql_database" "tenant" {

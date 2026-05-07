@@ -142,9 +142,7 @@ public sealed class ItsmInboundWebhooksController(
             return false;
         }
 
-        if (!o.RequireBodyHmacSignature)
-
-            return true;
+        if (!o.RequireBodyHmacSignature) return true;
 
         string? signature = Request.Headers["X-ArchLucid-Signature"].FirstOrDefault();
 

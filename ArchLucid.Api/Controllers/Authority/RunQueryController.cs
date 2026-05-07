@@ -146,7 +146,7 @@ public sealed class RunQueryController(
 
         long totalRuns = aggregateRow?.TotalRuns ?? 0L;
         decimal totalHoursSaved = aggregateRow?.TotalHoursSaved ?? 0m;
-        long averageTimeToCommitMs = aggregateRow?.AverageTimeToCommitMs is double avgMs
+        long averageTimeToCommitMs = aggregateRow?.AverageTimeToCommitMs is { } avgMs
             ? (long)Math.Round(avgMs, MidpointRounding.AwayFromZero)
             : 0L;
 
