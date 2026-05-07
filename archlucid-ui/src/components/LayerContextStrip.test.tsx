@@ -40,4 +40,13 @@ describe("LayerContextStrip", () => {
     }
     unmount();
   });
+
+  it("uses polished operate-analysis label when provided", () => {
+    const { getByTestId, unmount } = render(
+      <LayerContextStrip layerId="operate-analysis" polishedOperateAnalysisLabel="Analysis & exploration" />,
+    );
+    const strip = getByTestId("layer-context-strip");
+    expect((strip.textContent ?? "").replace(/\s+/g, " ")).toContain("Analysis & exploration");
+    unmount();
+  });
 });

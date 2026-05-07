@@ -822,7 +822,7 @@ export default async function RunDetailPage({
         </section>
       )}
 
-      <RunAgentForensicsSection runId={runId} />
+      {!buyerPolishedArtifactTable ? <RunAgentForensicsSection runId={runId} /> : null}
 
       <section id="run-actions" className="scroll-mt-24">
         <Card>
@@ -836,6 +836,13 @@ export default async function RunDetailPage({
           <CardContent className="space-y-6">
             {manifestId ? <GenerateSponsorValueReportButton /> : null}
             <div className="flex flex-wrap gap-3">
+              {manifestId && buyerPolishedArtifactTable ? (
+                <Button variant="primary" size="sm" asChild>
+                  <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>
+                    Open executive view
+                  </Link>
+                </Button>
+              ) : null}
               <Button variant="secondary" size="sm" asChild>
                 <a href={getTraceabilityBundleDownloadUrl(resolvedDetail.run.runId)}>
                   Download traceability bundle (ZIP)
@@ -843,13 +850,15 @@ export default async function RunDetailPage({
               </Button>
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
-                  Compare two reviews (base = this review)
+                  Compare two reviews (baseline = this review)
                 </Link>
               </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this review</Link>
-              </Button>
-              {manifestId ? (
+              {!buyerPolishedArtifactTable ? (
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this review</Link>
+                </Button>
+              ) : null}
+              {manifestId && !buyerPolishedArtifactTable ? (
                 <Button variant="outline" size="sm" asChild>
                   <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>
                     Open executive view
@@ -857,13 +866,13 @@ export default async function RunDetailPage({
                 </Button>
               ) : null}
             </div>
-            {buyerPolishedArtifactTable ? (
+            {!buyerPolishedArtifactTable ? (
               <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
                 <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="#agent-forensics">
                   Pipeline diagnostics
                 </Link>
                 {" — "}
-                operator tooling for troubleshooting; optional after value review.
+                optional detail for operators troubleshooting pipeline steps.
               </p>
             ) : null}
           </CardContent>
