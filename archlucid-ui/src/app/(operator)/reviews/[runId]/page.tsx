@@ -29,6 +29,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
+import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDetailSectionNav";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
@@ -177,19 +178,21 @@ export default async function RunDetailPage({
       loadFailure?.message ?? "Review not found or could not be loaded.";
 
     return (
-      <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
-        <OperatorApiProblem
-          problem={loadFailure?.problem ?? null}
-          fallbackMessage={fallback}
-          correlationId={loadFailure?.correlationId ?? null}
-        />
-        <p>
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
-            ← Back to reviews
-          </Link>
-        </p>
-      </main>
+      <RunDetailMinimalChromeMount>
+        <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
+          <OperatorApiProblem
+            problem={loadFailure?.problem ?? null}
+            fallbackMessage={fallback}
+            correlationId={loadFailure?.correlationId ?? null}
+          />
+          <p>
+            <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+              ← Back to reviews
+            </Link>
+          </p>
+        </main>
+      </RunDetailMinimalChromeMount>
     );
   }
 
@@ -207,21 +210,23 @@ export default async function RunDetailPage({
 
   if (!envelope.ok) {
     return (
-      <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
-        <OperatorMalformedCallout>
-          <strong>Review detail response was not usable.</strong>
-          <p className="mt-2">{envelope.message}</p>
-          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-            The review record could not be displayed. Try reloading.
+      <RunDetailMinimalChromeMount>
+        <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
+          <OperatorMalformedCallout>
+            <strong>Review detail response was not usable.</strong>
+            <p className="mt-2">{envelope.message}</p>
+            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+              The review record could not be displayed. Try reloading.
+            </p>
+          </OperatorMalformedCallout>
+          <p>
+            <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+              ← Back to reviews
+            </Link>
           </p>
-        </OperatorMalformedCallout>
-        <p>
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
-            ← Back to reviews
-          </Link>
-        </p>
-      </main>
+        </main>
+      </RunDetailMinimalChromeMount>
     );
   }
 

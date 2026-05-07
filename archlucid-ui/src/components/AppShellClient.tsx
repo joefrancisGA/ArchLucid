@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { HelpCircle } from "lucide-react";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
@@ -16,6 +17,10 @@ import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider"
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { CorePilotWizardLauncher } from "@/components/CorePilotWizard";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
+import {
+  OperatorChromeModeProvider,
+  useOperatorChromeMode,
+} from "@/components/OperatorChromeModeContext";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { SidebarNav } from "@/components/SidebarNav";
@@ -39,7 +44,16 @@ type AppShellClientProps = {
  * collapsible sidebar nav landmark (lg+), mobile drawer, keyboard shortcuts, primary <main> landmark.
  */
 export function AppShellClient({ children }: AppShellClientProps) {
+  return (
+    <OperatorChromeModeProvider>
+      <AppShellInner>{children}</AppShellInner>
+    </OperatorChromeModeProvider>
+  );
+}
+
+function AppShellInner({ children }: AppShellClientProps) {
   const pathname = usePathname();
+  const chromeMode = useOperatorChromeMode();
   const [helpOpen, setHelpOpen] = useState(false);
   const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
@@ -79,6 +93,88 @@ export function AppShellClient({ children }: AppShellClientProps) {
         <AppToaster />
         <RouteAnnouncer />
       </div>
+    );
+  }
+
+  if (chromeMode === "minimal") {
+    return (
+      <OperatorNavAuthorityProvider>
+        <WorkspaceActiveRunProvider>
+          <TooltipProvider delayDuration={200}>
+            <a href="#main-content" className="skip-to-main">
+              Skip to main content
+            </a>
+            <div
+              ref={shellRootRef}
+              data-testid="app-shell-minimal-root"
+              className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950"
+            >
+              <header
+                data-testid="app-shell-minimal-topbar"
+                className="sticky top-0 z-30 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur print:hidden dark:border-neutral-700 dark:bg-neutral-950/95"
+              >
+                <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6">
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+                    <h1 className="m-0">
+                      <Button variant="ghost" className="h-auto p-0" asChild>
+                        <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
+                      </Button>
+                    </h1>
+                    <Link
+                      href="/reviews?projectId=default"
+                      className="text-sm font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                    >
+                      Reviews
+                    </Link>
+                    <Link
+                      href="/"
+                      className="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline dark:text-neutral-300"
+                    >
+                      Home
+                    </Link>
+                  </div>
+                  <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                    <AuthPanel />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      aria-label="Open help"
+                      onClick={() => {
+                        setHelpOpen(true);
+                      }}
+                    >
+                      <HelpCircle className="h-4 w-4" aria-hidden />
+                    </Button>
+                    <ColorModeToggle />
+                  </div>
+                </div>
+              </header>
+              <LayerContextFromRoute />
+              <div data-testid="app-shell-main" className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6">
+                <KeyboardShortcutProvider
+                  onHelpRequested={() => {
+                    setHelpOpen(true);
+                  }}
+                >
+                  <main
+                    id="main-content"
+                    tabIndex={-1}
+                    className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
+                  >
+                    <SyncActiveRunFromPathname />
+                    {children}
+                  </main>
+                </KeyboardShortcutProvider>
+              </div>
+            </div>
+            <AppToaster />
+            <RouteAnnouncer />
+            <HelpPanel open={helpOpen} onOpenChange={setHelpOpen} />
+          </TooltipProvider>
+        </WorkspaceActiveRunProvider>
+      </OperatorNavAuthorityProvider>
     );
   }
 
