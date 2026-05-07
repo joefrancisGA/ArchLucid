@@ -153,18 +153,14 @@ public sealed class ItsmInboundWebhooksController(
             return false;
         }
 
-        if (o.WebhookTimestampSkewSeconds > 0)
-        {
-            string? ts = Request.Headers["X-ArchLucid-Timestamp"].FirstOrDefault();
+        if (o.WebhookTimestampSkewSeconds <= 0) return true;
+        
+        string? ts = Request.Headers["X-ArchLucid-Timestamp"].FirstOrDefault();
 
-            if (!WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), ts, o.WebhookTimestampSkewSeconds))
-            {
-                reject = Unauthorized();
+        if (WebhookSecrets.TimestampWithinSkew(TimeProvider.System.GetUtcNow(), ts, o.WebhookTimestampSkewSeconds)) return true;
+        reject = Unauthorized();
 
-                return false;
-            }
-        }
+        return false;
 
-        return true;
     }
 }

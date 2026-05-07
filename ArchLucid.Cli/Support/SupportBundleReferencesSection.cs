@@ -17,4 +17,11 @@ public sealed class SupportBundleReferencesSection
         get;
         init;
     } = [];
+
+    [JsonPropertyName("correlationTraceGuidance")]
+    public IReadOnlyList<string> CorrelationTraceGuidance
+    {
+        get;
+        init;
+    } = [];
 }

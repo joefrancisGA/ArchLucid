@@ -73,4 +73,36 @@ public sealed class SupportBundleConfigSummary
         get;
         init;
     }
+
+    /// <summary>Effective <c>ArchLucid:StorageProvider</c> (secrets never included).</summary>
+    [JsonPropertyName("storageProviderSummary")]
+    public string StorageProviderSummary
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    /// <summary>Effective <c>ArchLucidAuth:Mode</c> label (never includes keys or tokens).</summary>
+    [JsonPropertyName("hostAuthModeSummary")]
+    public string HostAuthModeSummary
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    /// <summary>Whether <c>ARCHLUCID_API_KEY</c> is set for outbound CLI calls (value never serialized).</summary>
+    [JsonPropertyName("cliOutboundApiKeyEnvironmentPresent")]
+    public bool CliOutboundApiKeyEnvironmentPresent
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Config validation warnings and errors only (category + check), aligned with <c>validate-config</c>.</summary>
+    [JsonPropertyName("validateConfigAlerts")]
+    public IReadOnlyList<SupportBundleValidateConfigAlert> ValidateConfigAlerts
+    {
+        get;
+        init;
+    } = [];
 }

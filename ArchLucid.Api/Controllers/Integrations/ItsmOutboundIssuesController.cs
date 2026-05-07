@@ -89,7 +89,7 @@ public sealed class ItsmOutboundIssuesController(
     {
         int? code = result.VendorStatusCode;
 
-        if (code is 401 or 403 or 404 or 429 || (code is >= 500 and <= 599))
+        if (code is 401 or 403 or 404 or 429 or >= 500 and <= 599)
             return this.ServiceUnavailableProblem(
                 result.UserMessage ?? "Upstream ITSM request failed.",
                 ProblemTypes.UpstreamIntegrationFailed);
@@ -113,13 +113,12 @@ public sealed class ItsmOutboundIssuesController(
             return true;
         }
 
-        if (s.Equals("ServiceNow", StringComparison.OrdinalIgnoreCase))
-        {
-            provider = ItsmOutboundIssueProvider.ServiceNow;
+        if (!s.Equals("ServiceNow", StringComparison.OrdinalIgnoreCase))
+            return false;
 
-            return true;
-        }
+        provider = ItsmOutboundIssueProvider.ServiceNow;
 
-        return false;
+        return true;
+
     }
 }

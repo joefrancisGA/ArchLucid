@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { GraphIdleLegend, GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
+import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
@@ -481,6 +482,10 @@ export default function GraphPage() {
                 ? `${graph.nodes.length} nodes in this view`
                 : `${graph.nodes.length} nodes, ${graph.edges.length} edges (before filter)`}
             </span>
+          </div>
+          <div className="mb-3 max-w-4xl">
+            <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Legend</p>
+            <GraphNodeKindLegendChips />
           </div>
           {graphControls}
           {demoUi && buyerPolishedShell ? (

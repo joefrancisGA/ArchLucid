@@ -13,7 +13,12 @@ public static class SupportBundleRedactor
     [
         "strip-authorization-bearer-secret",
         "strip-x-api-key-header-secret",
-        "mask-connection-keyword-secrets"
+        "mask-connection-keyword-secrets",
+        "mask-jwt-like-tokens",
+        "mask-openai-sk-shaped-keys",
+        "mask-inline-apikey-assignments",
+        "mask-json-quoted-apikey-clientsecret",
+        "truncate-long-llm-json-string-values"
     ];
 
     private static readonly Regex BearerHeader = new(
@@ -26,6 +31,32 @@ public static class SupportBundleRedactor
 
     private static readonly Regex ConnectionSecret = new(
         @"(?i)(\b(?:Password|Pwd|AccountKey|SharedAccessKey)\s*=\s*)[^\s;""]+",
+        RegexOptions.Compiled);
+
+    /// <summary>JWT-shaped three-segment tokens (RFC 7519 header.payload.signature) often appear in logs.</summary>
+    private static readonly Regex JwtLikeToken = new(
+        @"\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{8,}\b",
+        RegexOptions.Compiled);
+
+    /// <summary>OpenAI-style API keys in pasted logs.</summary>
+    private static readonly Regex OpenAiSkKey = new(
+        @"\bsk-(?:proj-)?[A-Za-z0-9]{16,}\b",
+        RegexOptions.Compiled);
+
+    private static readonly Regex InlineApiKeyAssignment = new(
+        @"(?i)(\b(?:ApiKey|ClientSecret|Secret)(?:\s*[:=])\s*)([^\s"",\r\n]+)",
+        RegexOptions.Compiled);
+
+    private static readonly Regex JsonQuotedApiKeyOrClientSecret = new(
+        @"(?i)(""(?:apiKey|clientSecret)""\s*:\s*"")([^""\\]{3,})("")",
+        RegexOptions.Compiled);
+
+    /// <summary>
+    ///     Drops large JSON string fields that often hold LLM prompts/responses (simple quoted strings only — sufficient for
+    ///     typical log lines).
+    /// </summary>
+    private static readonly Regex LongLlmJsonString = new(
+        @"(?i)(""(?:content|systemPrompt|userPrompt|rawResponse)""\s*:\s*"")([^""\\]{400,})("")",
         RegexOptions.Compiled);
 
     private static readonly HashSet<string> SensitiveEnvironmentNameSubstrings =
@@ -126,6 +157,11 @@ public static class SupportBundleRedactor
         string s = BearerHeader.Replace(text, m => m.Groups[1].Value + "[REDACTED]");
         s = ApiKeyHeader.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
         s = ConnectionSecret.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
+        s = JwtLikeToken.Replace(s, "[REDACTED_JWT]");
+        s = OpenAiSkKey.Replace(s, "[REDACTED_API_KEY]");
+        s = InlineApiKeyAssignment.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
+        s = JsonQuotedApiKeyOrClientSecret.Replace(s, m => m.Groups[1].Value + "[REDACTED]" + m.Groups[3].Value);
+        s = LongLlmJsonString.Replace(s, m => m.Groups[1].Value + "[REDACTED_LONG_STRING]" + m.Groups[3].Value);
 
         return s;
     }
