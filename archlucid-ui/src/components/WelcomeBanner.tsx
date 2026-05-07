@@ -49,6 +49,8 @@ export function WelcomeBanner() {
   const [compact, setCompact] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [trial, setTrial] = useState<TrialStatusPayload | null>(null);
+  const [trialStatusResolved, setTrialStatusResolved] = useState(false);
+  const [runsPresenceResolved, setRunsPresenceResolved] = useState(false);
   const [hasExistingRuns, setHasExistingRuns] = useState(false);
 
   useEffect(() => {
@@ -74,6 +76,9 @@ export function WelcomeBanner() {
     }
 
     if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
+      setTrialStatusResolved(true);
+      setRunsPresenceResolved(true);
+
       return;
     }
 
@@ -92,6 +97,10 @@ export function WelcomeBanner() {
         }
       } catch {
         /* ignore */
+      } finally {
+        if (!cancelled) {
+          setTrialStatusResolved(true);
+        }
       }
 
       try {
@@ -119,6 +128,10 @@ export function WelcomeBanner() {
           setHasExistingRuns(false);
           writeHasExistingRunsCache(false);
         }
+      } finally {
+        if (!cancelled) {
+          setRunsPresenceResolved(true);
+        }
       }
     })();
 
@@ -135,10 +148,73 @@ export function WelcomeBanner() {
     return null;
   }
 
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  if (buyerPolishedShell && !runsPresenceResolved) {
+    return null;
+  }
+
   const trialActive = trial?.status === "Active";
   const days = trial?.daysRemaining;
   const returningUser = hasExistingRuns;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  if (buyerPolishedShell && runsPresenceResolved && !hasExistingRuns && !trialStatusResolved) {
+    return null;
+  }
+
+  if (
+    buyerPolishedShell &&
+    runsPresenceResolved &&
+    trialStatusResolved &&
+    !hasExistingRuns &&
+    trialActive
+  ) {
+    return (
+      <div
+        role="banner"
+        aria-label="Trial welcome"
+        className="mb-2 flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm shadow-sm dark:border-amber-900 dark:bg-amber-950/40"
+      >
+        {typeof days === "number" ? (
+          <span className="inline-block rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+            {days} day{days === 1 ? "" : "s"} left on trial
+          </span>
+        ) : (
+          <span className="inline-block rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+            Trial active
+          </span>
+        )}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200"
+          aria-label="Dismiss welcome for this session"
+          onClick={() => {
+            setDismissed(true);
+
+            try {
+              window.sessionStorage.setItem(SESSION_DISMISS_KEY, "1");
+            } catch {
+              /* private mode */
+            }
+          }}
+        >
+          <X className="h-4 w-4" aria-hidden />
+        </Button>
+      </div>
+    );
+  }
+
+  if (
+    buyerPolishedShell &&
+    runsPresenceResolved &&
+    trialStatusResolved &&
+    !hasExistingRuns &&
+    !trialActive
+  ) {
+    return null;
+  }
 
   const headingText =
     returningUser
@@ -278,13 +354,7 @@ export function WelcomeBanner() {
           </h2>
           <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">{subheadingText}</p>
 
-          {buyerPolishedShell ? (
-            !returningUser ? (
-              <p className="mt-4 m-0 max-w-lg text-xs text-neutral-600 dark:text-neutral-400">
-                Use the sample card below to open the walkthrough output, or start a new review when you&apos;re ready.
-              </p>
-            ) : null
-          ) : (
+          {buyerPolishedShell ? null : (
             <div className="mt-4 flex flex-wrap items-center gap-2.5">
               <OptInTourLauncher className="h-10 px-4 text-sm" />
               <Button

@@ -21,4 +21,4 @@ Starter **`ArchitectureRequest`** JSON payloads (same shape as `POST /v1/archite
 
 **Usage:** copy a file, set `requestId`, adjust `systemName` / `description`, then POST via CLI or operator UI wizard. Wizard wiring to pick these files is a follow-on; today they are copy-paste starters.
 
-For **buyer-category second runs** after the demo (regulated SaaS, healthcare workflow, Azure cost/governance), see [`templates/starter-proof-packs/`](../starter-proof-packs/README.md) — each pack includes `second-run.json` plus a full `architecture-request.json` and checklist.
+For **buyer-category second runs** after the demo (regulated SaaS, healthcare workflow, Azure cost/governance, **AI/LLM RAG/copilot**), see [`templates/starter-proof-packs/`](../starter-proof-packs/README.md) — each pack includes `second-run.json` plus a full `architecture-request.json` and checklist.

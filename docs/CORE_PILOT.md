@@ -140,7 +140,7 @@ After `archlucid try` (or the operator wizard demo), the lowest-friction “real
 
 **Operator UI:** On **New run → Starting point**, use **Paste SECOND_RUN.toml** (or JSON) to pre-fill the wizard from the same schema, then continue through identity and constraints as usual.
 
-**Optional vertical starters:** Fictional second-run packs for common buyer categories (regulated SaaS, healthcare workflow, Azure cost and governance) live under `templates/starter-proof-packs/` and are linked from [SECOND_RUN.md](library/SECOND_RUN.md) under **Vertical starter proof packs**. They are **not** the Home-page sample review and not part of the default first-session checklist.
+**Optional vertical starters:** Fictional second-run packs for common buyer categories (regulated SaaS, healthcare workflow, Azure cost and governance, **AI/LLM workload**) live under `templates/starter-proof-packs/` and are linked from [SECOND_RUN.md](library/SECOND_RUN.md) under **Vertical starter proof packs**. They are **not** the Home-page sample review and not part of the default first-session checklist.
 
 ---
 

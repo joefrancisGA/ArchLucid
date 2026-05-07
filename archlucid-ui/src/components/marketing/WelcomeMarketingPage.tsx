@@ -69,7 +69,7 @@ const PILLARS: readonly WelcomePillar[] = [
     title: "Auditable decision trail",
     body: "Every architecture recommendation ArchLucid produces is designed to ship with a chain of evidence: explainability metadata on findings records what was examined, what rules were applied, what decisions were taken, and why. Provenance and graph surfaces connect evidence to decisions and artifacts for investigation in the operator shell — not an anonymous “AI said so” reply.",
     verify: [
-      { label: "/demo/explain", href: "/demo/explain" },
+      { label: "Explainability demo (live run)", href: "/demo/explain" },
       { label: "Knowledge graph overview", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/KNOWLEDGE_GRAPH.md` },
     ],
   },
@@ -77,7 +77,7 @@ const PILLARS: readonly WelcomePillar[] = [
     title: "Enterprise governance",
     body: "Operate-layer governance is configuration-driven: policy packs, approval workflows with segregation of duties, optional pre-commit gates that block commits when findings exceed thresholds, SLA tracking with webhook escalation on breach, and typed audit events in an append-only store with CSV export — all within the published V1 operator surface. That is the evidence profile buyers use for diligence; it is not a disposable chat log.",
     verify: [
-      { label: "/trust", href: "/trust" },
+      { label: "Trust center", href: "/trust" },
       { label: "Evidence pack (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
       { label: "Audit event coverage", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/AUDIT_COVERAGE_MATRIX.md` },
       { label: "Pre-commit governance", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/PRE_COMMIT_GOVERNANCE_GATE.md` },
@@ -136,15 +136,15 @@ export function WelcomeMarketingPage() {
           <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
             <span className="font-semibold text-neutral-600 dark:text-neutral-300">Verify:</span>{" "}
             <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/why">
-              /why
+              Why ArchLucid
             </Link>
             {" · "}
             <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
-              /trust
+              Trust center
             </Link>
             {" · "}
             <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/explain">
-              /demo/explain
+              Explainability demo
             </Link>
           </p>
         </div>

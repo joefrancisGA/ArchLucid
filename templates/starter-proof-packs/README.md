@@ -1,6 +1,6 @@
 # Starter proof packs (buyer categories)
 
-Curated **sample** inputs for a **second architecture review** after the default Core Pilot demo. Each folder pairs:
+Curated **sample** inputs for a **second architecture review** after the default Core Pilot demo. **Buyer categories:** regulated SaaS (SOC-oriented procurement language), healthcare data workflow, Azure cost-and-governance, and **AI / LLM** (RAG / copilot style). Each folder pairs:
 
 - `second-run.json` — paste into **New run → Starting point → SECOND_RUN**, or `archlucid second-run <path>`
 - `architecture-request.json` — full `POST /v1/architecture/request` shape if you POST from automation

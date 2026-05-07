@@ -678,6 +678,10 @@ Constraints:
 
 ### 3. Make Real-Mode AI Quality Gates Pilot-Safe by Default
 
+**Completed (threshold policy lock, 2026-05-07):** Buyer-facing PilotStrict numeric bars are locked in code and hosted configuration—`StructuralRejectBelow` **0.90**, `StructuralWarnBelow` **1.00**, `SemanticRejectBelow` **0.50**, `SemanticWarnBelow` **0.70**, `PilotStrictMinStructuralCompleteness` **0.90**, `PilotStrictMinSemanticScore` **0.50**, `PilotStrictMinEvidenceRefCount` **2** (`ArchLucid:AgentOutput:QualityGate` in `appsettings.Production.json` and `appsettings.Staging.json`; matching defaults on `AgentOutputQualityGateOptions` and `ConfigurationKeyCatalog`). Dev/base `appsettings` remain WarnOnly with reject floors at zero so local simulator flows stay unchanged; unit coverage includes PilotStrict citation and evidence-ref floor cases.
+
+**Remainder:** Sponsor-proof packet ProblemDetails/blocking UX, broader “real-mode only” profiling, and end-to-end tests called out in the Cursor prompt below are not claimed done by this lock.
+
 - **Why it matters:** Correctness and trust depend on rejecting weak AI outputs, not merely observing them.
 - **Expected impact:** Gives operators confidence that real model runs will not quietly produce low-evidence artifacts.
 - **Affected qualities:** Correctness, Trustworthiness, Explainability, AI/Agent Readiness, Security.
@@ -1039,8 +1043,8 @@ Constraints:
 
 ### Make Real-Mode AI Quality Gates Pilot-Safe by Default
 
-- What minimum structural and semantic thresholds should be considered buyer-safe for a real pilot?
-- Should failed real-mode quality gate outcomes block commit, block sponsor packet generation, or downgrade evidence confidence?
+- **Resolved:** Minimum structural / semantic thresholds and pilot evidence-ref floor for hosted PilotStrict (see Recommendation **3**, completed paragraph above).
+- **Open:** Should failed real-mode quality gate outcomes block commit, block sponsor packet generation, or downgrade evidence confidence?
 
 ### Add Production Profile Fail-Fast Validation
 

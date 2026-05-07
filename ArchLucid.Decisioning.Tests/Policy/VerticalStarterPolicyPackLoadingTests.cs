@@ -20,6 +20,7 @@ public sealed class VerticalStarterPolicyPackLoadingTests
     [InlineData("retail")]
     [InlineData("saas")]
     [InlineData("public-sector")]
+    [InlineData("ai-llm")]
     public async Task Vertical_starter_compliance_pack_and_policy_pack_materialize_rules(string verticalSlug)
     {
         string compliancePath = Path.Combine(

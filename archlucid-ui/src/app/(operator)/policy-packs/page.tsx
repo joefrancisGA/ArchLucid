@@ -89,6 +89,7 @@ const VERTICAL_POLICY_PACK_IMPORTS: ReadonlyArray<{ slug: string; label: string 
   { slug: "retail", label: "Retail / PCI" },
   { slug: "saas", label: "SaaS / SOC 2" },
   { slug: "public-sector", label: "Public sector (EU)" },
+  { slug: "ai-llm", label: "AI / LLM workload" },
 ];
 
 export default function PolicyPacksPage() {

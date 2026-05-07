@@ -40,7 +40,8 @@ public sealed class StarterProofPackPolicyContextTests
     [
         Path.Combine("Templates", "StarterProofPacks", "regulated-saas-soc-procurement", "policy-context.json"),
         Path.Combine("Templates", "StarterProofPacks", "healthcare-data-workflow", "policy-context.json"),
-        Path.Combine("Templates", "StarterProofPacks", "azure-cost-governance", "policy-context.json")
+        Path.Combine("Templates", "StarterProofPacks", "azure-cost-governance", "policy-context.json"),
+        Path.Combine("Templates", "StarterProofPacks", "ai-llm-workload", "policy-context.json")
     ];
 
     [Theory]

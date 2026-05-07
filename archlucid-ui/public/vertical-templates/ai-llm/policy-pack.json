@@ -1,0 +1,22 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "aillm-ctrl-001",
+    "aillm-ctrl-002",
+    "aillm-ctrl-003",
+    "aillm-ctrl-004",
+    "aillm-ctrl-005",
+    "aillm-ctrl-006",
+    "aillm-ctrl-007",
+    "aillm-ctrl-008"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning"
+  },
+  "metadata": {
+    "vertical": "ai-llm",
+    "regulatoryAnchor": "Responsible AI and model governance (NIST AI RMF style vocabulary for review sessions only — not a certification)"
+  }
+}

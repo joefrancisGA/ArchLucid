@@ -43,7 +43,13 @@ export default function HomePage() {
 
       <OperatorNextActionsCard />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
+      <div
+        className={
+          buyerPolishedShell
+            ? "min-w-0 space-y-6"
+            : "grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start"
+        }
+      >
         <div className="min-w-0 space-y-6">
           <RunsDashboardPanel />
           {buyerPolishedShell ? null : <OperatorCorePilotDiagnosticsChecklist />}
@@ -78,12 +84,14 @@ export default function HomePage() {
           </OperationalMetricsGate>
         </div>
 
-        <aside
-          className="min-w-0 space-y-3 pt-0 lg:sticky lg:top-20 lg:self-start"
-          aria-label="Explore completed output and first-review checklist"
-        >
-          <HomeFirstRunWorkflowGate />
-        </aside>
+        {buyerPolishedShell ? null : (
+          <aside
+            className="min-w-0 space-y-3 pt-0 lg:sticky lg:top-20 lg:self-start"
+            aria-label="Explore completed output and first-review checklist"
+          >
+            <HomeFirstRunWorkflowGate />
+          </aside>
+        )}
       </div>
     </main>
     </OperatorHomeGate>

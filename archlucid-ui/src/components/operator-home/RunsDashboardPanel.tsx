@@ -243,35 +243,11 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {(phase === "ready" || phase === "error") && showcaseDemoRun ? (
+              {(phase === "ready" || phase === "error") && showcaseDemoRun && !buyerPolishedShell ? (
                 <div
                   className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-3 dark:border-emerald-900 dark:bg-emerald-950/25"
                   data-testid="operator-home-showcase-demo-banner"
                 >
-                  {buyerPolishedShell ? (
-                    <>
-                      <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                        Claims Intake Modernization Review
-                      </p>
-                      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                        Illustrative sample review — open the review package or the finalized manifest to see governed
-                        outputs.
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Button asChild variant="primary" size="sm" className="h-8">
-                          <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Open review</Link>
-                        </Button>
-                        <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link
-                            href={`/manifests/${encodeURIComponent(showcaseDemoRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
-                          >
-                            Open review package
-                          </Link>
-                        </Button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                     Claims Intake — completed example review
                   </p>
@@ -328,8 +304,6 @@ export function RunsDashboardPanel() {
                       </>
                     )}
                   </div>
-                    </>
-                  )}
                 </div>
               ) : null}
 
