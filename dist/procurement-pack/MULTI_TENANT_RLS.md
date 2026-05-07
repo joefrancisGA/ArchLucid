@@ -13,11 +13,12 @@ Describe how ArchLucid enforces **tenant / workspace / project isolation in SQL 
 
 - Primary store is **SQL Server** (Azure SQL or boxed) with **private connectivity**; SMB/file shares are not used for tenant data at the API boundary.
 - **Entra ID** (or API keys in constrained scenarios) identifies the caller; **scope** (tenant, workspace, project) is derived from claims or headers and validated in the application layer.
+- When **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`** (the production topology), the **database boundary is the primary and sufficient tenant isolation mechanism**. RLS is not required for defense-in-depth and is not a production requirement; it ships with `STATE = OFF` by default and is available as optional configuration. See [../library/TENANT_DATABASE_TOPOLOGY.md](../library/TENANT_DATABASE_TOPOLOGY.md).
 - RLS is rolled out on **every authority table that carries the scope triple on the row** (initially DbUp `036_RlsArchiforgeTenantScope.sql`; renamed to `rls.ArchLucidTenantScope` + `rls.archlucid_*_predicate` + `al_*` SESSION_CONTEXT keys in DbUp `108_RlsRenameToArchLucid.sql`, 2026-04-21).
 
 ## 3. Constraints
 
-- **RLS does not replace authZ in the API**; it is a **defense-in-depth** control when the connection uses a mid-tier identity (e.g. managed identity) shared across tenants.
+- **RLS does not replace authZ in the API**. In `SystemWithPerTenantCatalogs` (production) mode RLS is optional; tenant isolation is provided by the database boundary. RLS may be enabled as an additional safeguard if desired but is not a required control.
 - **SESSION_CONTEXT** predicates must stay **simple** to avoid plan regression; heavy joins inside predicates are not used.
 - **Operational complexity**: every connection must set context (or use bypass for trusted jobs). Missing context defaults to **no rows** (deny-by-default) when policies are **ON**.
 - **Child tables** without denormalized `TenantId` / `WorkspaceId` / `ProjectId` cannot use the same predicate pattern without schema changes (see §9).
@@ -124,6 +125,8 @@ When **`096`** has run, these tables use **tenant id only** (no workspace/projec
 **Future hardening:** denormalize scope onto additional high-traffic child tables (or add security-barrier views) so predicates can attach without referencing other tables inside the inline function (not supported for RLS predicates). `dbo.ContextSnapshots` / `dbo.FindingsSnapshots` / `dbo.GoldenManifestAssumptions` are done in **046**.
 
 **Risk acceptance (governance):** when RLS is **ON** with residual uncovered tables or bypass procedures, capture sign-off using [RLS_RISK_ACCEPTANCE.md](RLS_RISK_ACCEPTANCE.md).
+
+**Residual coverage matrix (tables vs defense depth):** operator-facing mapping of uncovered surfaces, blast-radius framing, and compensating controls lives in [MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md](MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md).
 
 ## 10. Evolution
 

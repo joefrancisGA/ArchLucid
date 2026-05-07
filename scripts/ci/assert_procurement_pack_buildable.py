@@ -10,9 +10,9 @@ from pathlib import Path
 
 def main() -> int:
     root = Path(__file__).resolve().parents[2]
-    script = root / "scripts" / "build_procurement_pack.py"
+    script = root / "scripts" / "validate_procurement_pack.py"
     r = subprocess.run(
-        [sys.executable, str(script), "--dry-run"],
+        [sys.executable, str(script)],
         cwd=str(root),
         check=False,
     )

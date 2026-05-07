@@ -6,9 +6,13 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_SCRIPTS_DIR = _REPO_ROOT / "scripts"
 
-def repo_root() -> Path:
-    return Path(__file__).resolve().parents[2]
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+import procurement_pack_validation as pp_val  # noqa: E402
 
 
 def read(path: Path) -> str:
@@ -16,41 +20,41 @@ def read(path: Path) -> str:
 
 
 def main() -> int:
-    root = repo_root()
-    docs = [
-        root / "docs" / "go-to-market" / "TRUST_CENTER.md",
-        root / "docs" / "go-to-market" / "CURRENT_ASSURANCE_POSTURE.md",
-        root / "docs" / "go-to-market" / "PROCUREMENT_FAQ.md",
-        root / "docs" / "go-to-market" / "SOC2_STATUS_PROCUREMENT.md",
-    ]
-
-    missing = [d for d in docs if not d.is_file()]
-    if missing:
-        for m in missing:
-            print(f"ERROR missing required doc: {m.relative_to(root).as_posix()}", file=sys.stderr)
-        return 1
+    docs = (
+        Path("docs") / "go-to-market" / "TRUST_CENTER.md",
+        Path("docs") / "go-to-market" / "CURRENT_ASSURANCE_POSTURE.md",
+        Path("docs") / "go-to-market" / "PROCUREMENT_FAQ.md",
+        Path("docs") / "go-to-market" / "SOC2_STATUS_PROCUREMENT.md",
+    )
 
     errors: list[str] = []
-    for d in docs:
+
+    for rel in docs:
+        d = _REPO_ROOT / rel
+
+        if not d.is_file():
+
+            print(f"ERROR missing required doc: {rel.as_posix()}", file=sys.stderr)
+            return 1
+
         text = read(d)
-        rel = d.relative_to(root).as_posix()
-        if "ASSURANCE_STATUS_CANONICAL.md" not in text:
-            errors.append(f"{rel}: missing ASSURANCE_STATUS_CANONICAL.md reference")
-        if "SOC 2 Type II" in text and "Not yet issued" not in text and "not currently issued" not in text:
-            errors.append(f"{rel}: SOC2 Type II wording is missing non-issued statement")
-        if "third-party" in text.lower() and "in-flight" in text.lower():
-            errors.append(f"{rel}: uses 'in-flight' for third-party assurance wording")
+        issue = pp_val.coherence_procurement_claims(text)
+
+        if issue is not None:
+            errors.append(f"{rel.as_posix()}: {issue}")
 
     if errors:
         print("Procurement claim coherence FAILED:", file=sys.stderr)
+
         for error in errors:
             print(f"  - {error}", file=sys.stderr)
+
         return 1
 
     print("Procurement claim coherence OK")
+
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

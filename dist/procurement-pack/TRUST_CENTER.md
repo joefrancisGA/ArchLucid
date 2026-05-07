@@ -20,12 +20,22 @@ ArchLucid is built so that **security, privacy, and operational transparency** a
 
 - **Identity:** Microsoft **Entra ID** (OIDC / JWT) with **app roles** (**Admin**, **Operator**, **Reader**, **Auditor**) and optional **API keys** for automation; see [../SECURITY.md](../library/SECURITY.md) and [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md).
 - **Network:** Optional **Azure Front Door + WAF**, optional **API Management**, **TLS** to the API, and **private endpoints** for **Azure SQL** and **Blob** when the private stack is enabled; **no public SMB (port 445)** for tenant data paths (see [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)).
-- **Data isolation:** **Row-level security** in SQL with per-request **`SESSION_CONTEXT`** scope (tenant / workspace / project) on covered tables — defense-in-depth alongside application authorization; see [TENANT_ISOLATION.md](TENANT_ISOLATION.md) and [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md).
+- **Data isolation:** **Database-per-tenant** SQL catalogs (`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`) with **`TenantDatabaseBindings`** routing — the database boundary is the primary tenant isolation mechanism. Application-layer scope enforcement (`IScopeContextProvider`, policies) provides authorization within a tenant. Row-level security is available as optional configuration but is not a required production control; see [TENANT_ISOLATION.md](TENANT_ISOLATION.md), [../library/TENANT_DATABASE_TOPOLOGY.md](../library/TENANT_DATABASE_TOPOLOGY.md), and [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md).
 - **Secrets:** **Azure Key Vault** references for application configuration in hosted deployments (see [../CONFIGURATION_KEY_VAULT.md](../library/CONFIGURATION_KEY_VAULT.md)).
 - **Auditability:** Durable **append-only** audit trail in SQL (`dbo.AuditEvents`) with a **typed event catalog** and correlation identifiers; see [../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) and [../SECURITY.md](../library/SECURITY.md) (PII / exports).
 - **Testing in CI:** **OWASP ZAP** baseline on the API image, **Schemathesis** contract checks, and documented rate limiting / RBAC — see [../SECURITY.md](../library/SECURITY.md).
 - **SOC 2 self-assessment:** The in-repo [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) is maintained under **internal CISO ownership** (interim posture until a CPA attestation is funded — see compliance table below).
 - **LLM outbound hygiene:** Optional deny-list **prompt redaction** before Azure OpenAI and aligned redaction for trace persistence (`LlmPromptRedaction`); see [../runbooks/LLM_PROMPT_REDACTION.md](../runbooks/LLM_PROMPT_REDACTION.md).
+
+## Azure connectivity (extractor posture)
+
+**Tier 1 (default V1):** ArchLucid does **not** need login access to your Azure tenant for cost and architecture ingestion. Operators run **`scripts/azure/Get-ArchLucidAzurePackage.ps1`**, inspect the artifact, and upload the **`schemaVersion`-versioned ZIP** via **`POST /v1/azure-extractor/upload`** (see [../runbooks/AZURE_EXTRACTOR_INGEST.md](../runbooks/AZURE_EXTRACTOR_INGEST.md)).
+
+**Tier 2 (planned continuous mode, optional V1.x+):** If a future release offers pull-based collection, the customer would provision a **dedicated** service principal with **only** Azure **`Reader`** and **`Cost Management Reader`**, scoped to a subscription or management group, with **federated workload identity** preferred over long-lived secrets. See [../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
+
+### What we will never ask you to assign
+
+ArchLucid will **never** ask for directory-wide **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, any **write or destructive** role on your workloads, or any role that lets ArchLucid apply or tear down your infrastructure **on your behalf**. Terraform tooling we ship is **advisory-only** (`archlucid azure terraform-export` wraps Microsoft **aztfexport**; ArchLucid does not run **`terraform apply`** / **`terraform destroy`** for customers). Operational detail: [../runbooks/AZURE_EXTRACTOR_INGEST.md](../runbooks/AZURE_EXTRACTOR_INGEST.md).
 
 For a **STRIDE-oriented** view of the whole product boundary, see [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md).
 
@@ -64,6 +74,10 @@ This table lists **engagement metadata only** — not redacted findings, not cus
 | Quarterly staging chaos exercise | ArchLucid Platform / on-call | Staging-only fault injection (SQL pool exhaustion 2026-04-29; subsequent runs 2026-07-29, 2026-10-28) — production chaos out-of-scope per owner decision 2026-04-22 ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 34) | Calendar published 2026-04-22; first run 2026-04-29 (staging) — see [`docs/quality/game-day-log/`](../quality/game-day-log/README.md) | Public — closing reports linked from the game-day calendar |
 
 > Wording note: the quarterly chaos row is intentionally conservative — it records that a calendar is published and the first run is scheduled, not that production fault injection is in scope. `PENDING_QUESTIONS.md` item 34 remains the owner gate for any production chaos.
+
+### Hosted staging probes (internal rollup)
+
+Scheduled **`hosted-saas-probe`** workflow results can be rolled into a **30-day internal summary** for reliability conversations. Do **not** treat staging curl probes as a buyer-facing production SLO without separate policy — see [`../runbooks/HOSTED_AVAILABILITY_ROLLUP.md`](../runbooks/HOSTED_AVAILABILITY_ROLLUP.md).
 
 ---
 
@@ -122,7 +136,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 
 | Item | Status | Notes |
 |------|--------|--------|
-| **SOC 2** (Type I / II) | **Deferred** — interim self-assessment + Trust Center honesty until ARR materially supports CPA attestation cost | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). We will pursue SOC 2 Type 1 readiness once we cross approximately **$1M ARR**; until then, we publish a self-attested security and compliance summary. (Directional, not contractual — see `docs/PENDING_QUESTIONS.md` item 6 resolved 2026-04-22.) External readiness consultant + CPA firm selection paused until that threshold; G-001 in the self-assessment captures the resumption checklist. |
+| **SOC 2** (Type I / II) | **Deferred** — interim self-assessment + Trust Center honesty until trigger is reached | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). SOC 2 Type I engagement planned when ArchLucid reaches **$250K ARR** or upon a **binding procurement requirement from a contracted customer**, whichever is earlier; until then, we publish a self-attested security and compliance summary. (Directional, not contractual — see `docs/PENDING_QUESTIONS.md` *Resolved 2026-05-05 (SOC 2 ARR trigger)*.) External readiness consultant + CPA firm selection paused until that threshold; G-001 in the self-assessment captures the resumption checklist. |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
 | **ISO 27001** | Not claimed | Roadmap timing tied to SOC 2 program (date not yet set). |
 
