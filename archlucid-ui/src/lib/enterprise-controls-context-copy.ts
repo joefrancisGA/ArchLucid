@@ -347,6 +347,14 @@ export const policyPacksPageLeadOperator =
 export const policyPacksPageLeadReader =
   "Inspect registered packs and combined policy content for this scope (read-only where your role limits changes).";
 
+/** Policy packs — buyer demo shell: lead under title (Execute+); avoids “effective/registry” jargon. */
+export const policyPacksPageLeadOperatorBuyerPolished =
+  "Review which rules are active for this workspace first; your role controls whether you can publish or assign packs.";
+
+/** Policy packs — buyer demo shell: lead for read tier. */
+export const policyPacksPageLeadReaderBuyerPolished =
+  "See which compliance rules apply to architecture reviews in this workspace. Changes require the appropriate role in your organization.";
+
 /** Policy packs — **Current policy packs** section heading (`policy-packs/page.tsx`). */
 export const policyPacksCurrentPacksHeadingOperator = "Current policy packs";
 
@@ -360,6 +368,10 @@ export const policyPacksPackContentHeadingReader = "Pack content (inspect)";
 /** Policy packs — reader assist next to **Refresh** (`policy-packs/page.tsx`); reload is GET-only. */
 export const policyPacksRefreshAssistReaderLine =
   "Refresh reloads inventory and effective policy (GET only; no lifecycle writes).";
+
+/** Policy packs — buyer demo shell: reader assist next to **Refresh** (no internal “effective policy” phrasing). */
+export const policyPacksRefreshAssistReaderLineBuyerPolished =
+  "Refresh updates the pack list and the combined rules shown for this workspace (read-only).";
 
 /** Policy packs — empty list under “Packs in scope”. */
 export const policyPacksEmptyScopeReaderLine =

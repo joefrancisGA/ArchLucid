@@ -33,12 +33,10 @@ import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@
 import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 
+/** Operator shell: at most three suggested prompts (buyer shell uses `ASK_FOLLOW_UP_CHIPS_BUYER`). */
 const ASK_EXAMPLE_PROMPTS: readonly string[] = [
   "Summarize the PHI risk for this review.",
   "What should the sponsor review before sign-off?",
-  "Explain the finalized manifest in plain language.",
-  "Summarize the finalized manifest for a sponsor.",
-  "What evidence supports the PHI minimization risk?",
   "Summarize this for an executive sponsor.",
 ];
 
@@ -435,7 +433,9 @@ export default function AskPage() {
                       className="h-auto w-full justify-between gap-2 p-0 font-medium text-neutral-900 hover:bg-transparent dark:text-neutral-100"
                       aria-expanded={compareOpen}
                     >
-                      <span>Compare against another review</span>
+                      <span>
+                        {buyerPolishedShell ? "Optional comparison review" : "Compare against another review"}
+                      </span>
                       <ChevronDown
                         className={cn(
                           "h-4 w-4 shrink-0 text-neutral-600 transition-transform dark:text-neutral-400",
