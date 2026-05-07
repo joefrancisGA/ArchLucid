@@ -84,7 +84,9 @@ public static class ProductionDangerousMisconfigurationLint
             findings.Add(
                 new HostingMisconfigurationWarning(
                     ProductionLikeHostingMisconfigurationAdvisorRuleNames.AuthModeDevelopmentBypassDisallowed,
-                    "ArchLucidAuth:Mode cannot be DevelopmentBypass under production-profile validation."));
+                    "ArchLucidAuth:Mode cannot be DevelopmentBypass under production-profile validation "
+                    + "(ASP.NET Core Production via ASPNETCORE_ENVIRONMENT/DOTNET_ENVIRONMENT, ARCHLUCID_ENVIRONMENT=Production, "
+                    + "or ProductionValidation:Strict with Staging)."));
         }
         else if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
         {

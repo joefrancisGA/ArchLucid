@@ -320,14 +320,16 @@ public abstract class AuditRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
+        Guid isolatedProjectId = Guid.NewGuid();
+
         for (int i = 0; i < SeededAuditEventsAboveListingTakeCap; i++)
         {
-            await repo.AppendAsync(NewEvent("Bulk"), CancellationToken.None);
+            await repo.AppendAsync(NewEvent("Bulk", projectId: isolatedProjectId), CancellationToken.None);
         }
 
         AuditEventFilter filter = new() { EventType = "Bulk", Take = 10_000 };
         IReadOnlyList<AuditEvent> list =
-            await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
+            await repo.GetFilteredAsync(TenantId, WorkspaceId, isolatedProjectId, filter, CancellationToken.None);
 
         list.Count.Should().Be(PaginationDefaults.MaxListingTake);
     }
@@ -337,15 +339,17 @@ public abstract class AuditRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
+        Guid isolatedProjectId = Guid.NewGuid();
+
         for (int i = 0; i < SeededAuditEventsAboveListingTakeCap; i++)
-            await repo.AppendAsync(NewEvent("Bulk"), CancellationToken.None);
+            await repo.AppendAsync(NewEvent("Bulk", projectId: isolatedProjectId), CancellationToken.None);
 
         AuditEventFilter filter = new() { EventType = "Bulk", Take = 10_000 };
 
         IReadOnlyList<AuditEvent> listed =
-            await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
+            await repo.GetFilteredAsync(TenantId, WorkspaceId, isolatedProjectId, filter, CancellationToken.None);
         int counted =
-            await repo.CountFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
+            await repo.CountFilteredAsync(TenantId, WorkspaceId, isolatedProjectId, filter, CancellationToken.None);
 
         listed.Count.Should().Be(PaginationDefaults.MaxListingTake);
         counted.Should().Be(SeededAuditEventsAboveListingTakeCap);

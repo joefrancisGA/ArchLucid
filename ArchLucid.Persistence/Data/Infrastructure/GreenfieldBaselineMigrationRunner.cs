@@ -138,6 +138,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         EnsureSchemaVersionsTable(connection, null);
         StampIncrementalScriptsThrough050(connection, null);
         StampRunTelemetryMigration138WhenDboTableExists(connection, null);
+        StampPostBaselineJournalEntriesWhenRowLevelSecurityRemovalDrift(connection, null);
     }
 
     /// <summary>
@@ -165,6 +166,83 @@ public static partial class GreenfieldBaselineMigrationRunner
             tx);
         stamp.Parameters.AddWithValue("@ScriptName", resourceName);
         stamp.ExecuteNonQuery();
+    }
+
+    /// <summary>
+    ///     Journal drift after <c>148_RemoveRowLevelSecurity.sql</c>: that script drops RLS policies, predicate functions,
+    ///     and often the <c>rls</c> schema. If <c>dbo.SchemaVersions</c> was emptied while the catalog already reflects all
+    ///     incremental DDL (including 148), DbUp must not replay <c>051</c>+ — statements such as
+    ///     <c>068_RlsBlockPredicatesTenantScope.sql</c> require <c>rls</c> and an existing security policy. When core tenant
+    ///     tables, <c>dbo.RunTelemetry</c>, and post-148 RLS teardown are all present, stamp every embedded migration script
+    ///     after <c>050</c> (numeric <c>051</c>+ plus <c>Migrations/System</c>) so DbUp only reconciles new scripts.
+    /// </summary>
+    private static void StampPostBaselineJournalEntriesWhenRowLevelSecurityRemovalDrift(
+        SqlConnection connection,
+        SqlTransaction? tx)
+    {
+        if (!TenantCoreTablesFromInitialMigrationExist(connection))
+            return;
+
+        if (!DboRunTelemetryUserTableExists(connection))
+            return;
+
+        if (!RowLevelSecurityTenantArtifactsRemovedAfterMigration148(connection))
+            return;
+
+        foreach (string resourceName in DatabaseMigrator.GetOrderedMigrationResourceNames())
+        {
+            Match match = MigrationNumberRegex().Match(resourceName);
+
+            if (match.Success)
+            {
+                int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+
+                if (n <= 50)
+                    continue;
+            }
+
+            using SqlCommand stamp = new(
+                """
+                IF NOT EXISTS (SELECT 1 FROM dbo.SchemaVersions WHERE ScriptName = @ScriptName)
+                    INSERT INTO dbo.SchemaVersions (ScriptName, Applied) VALUES (@ScriptName, SYSUTCDATETIME());
+                """,
+                connection,
+                tx);
+            stamp.Parameters.AddWithValue("@ScriptName", resourceName);
+            stamp.ExecuteNonQuery();
+        }
+    }
+
+    /// <summary>
+    ///     True when the catalog matches <c>148_RemoveRowLevelSecurity.sql</c> outcome (policies and legacy predicate
+    ///     function dropped). Used to avoid replaying <c>051</c>+ on journal drift — replay would fail without <c>rls</c>.
+    /// </summary>
+    private static bool RowLevelSecurityTenantArtifactsRemovedAfterMigration148(SqlConnection connection)
+    {
+        const string sql = """
+                           SELECT CASE WHEN NOT EXISTS (
+                                   SELECT 1
+                                   FROM sys.security_policies
+                                   WHERE name IN (
+                                       N'RunsScopeFilter',
+                                       N'ArchiforgeTenantScope',
+                                       N'ArchLucidTenantScope'))
+                               AND OBJECT_ID(N'rls.archiforge_scope_predicate', N'IF') IS NULL
+                               THEN 1
+                               ELSE 0
+                           END;
+                           """;
+
+        using SqlCommand command = new(sql, connection);
+        object? scalar = command.ExecuteScalar();
+
+        if (scalar is null or DBNull)
+            return false;
+
+        if (scalar is bool asBool)
+            return asBool;
+
+        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
 
     private static bool DboRunTelemetryUserTableExists(SqlConnection connection)
