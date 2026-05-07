@@ -803,7 +803,7 @@ function GovernanceWorkflowPageInner() {
             </OperatorEmptyState>
           ) : null}
 
-          {approvals.map((row) => (
+          {buyerPolishedShell && approvals.length > 0 ? null : approvals.map((row) => (
             <Card key={row.approvalRequestId}>
               <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
                 <div className="min-w-0 flex-1">

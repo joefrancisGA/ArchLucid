@@ -21,6 +21,7 @@ import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect } from "@/li
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
@@ -358,8 +359,11 @@ export default async function RunDetailPage({
 
   const runSummaryForBadge = progressForPipelineUi;
   const descriptionTrimmed = resolvedDetail.run.description?.trim() ?? "";
-  const headline =
-    descriptionTrimmed.length > 0 ? descriptionTrimmed : `Review ${resolvedDetail.run.runId}`;
+  const headline = buyerPolishedArtifactTable
+    ? buyerFacingReviewTitleFromSummary(resolvedDetail.run as RunSummary)
+    : descriptionTrimmed.length > 0
+      ? descriptionTrimmed
+      : `Review ${resolvedDetail.run.runId}`;
   const createdLabel = formatInstantForLocale(resolvedDetail.run.createdUtc);
 
   const showPilotScorecardPackageCta =

@@ -592,16 +592,18 @@ Scope:
 - Review docs/go-to-market/INTEGRATION_CATALOG.md, docs/integrations/CONNECTOR_SMOKE_INDEX.md, docs/library/API_CONTRACTS.md, and connector smoke docs under docs/integrations/smoke/.
 - Reconcile Jira, ServiceNow, Slack, and Confluence status language, especially ServiceNow/Jira inbound status-sync commitments.
 - Add or update a small CI guard script under scripts/ci/ that checks the canonical connector status terms are consistent between V1_SCOPE.md and INTEGRATION_CATALOG.md.
+- If CI or review finds doc vs **code** disagreement, **do not** auto-change implementation to match docs or auto-change V1 scope: **open an owner decision** (e.g. `docs/PENDING_QUESTIONS.md` row) to either narrow scope or schedule implementation work.
 - Add focused unit tests for the guard under scripts/ci/tests/.
 
 Acceptance criteria:
 - No current doc says ServiceNow status sync is both committed and not committed.
 - The Integration Catalog clearly distinguishes first-party V1 commitments, optional customer-operated recipes, and non-V1 marketplace/OAuth/listing items.
 - CI has a deterministic guard for the highest-risk connector status rows.
+- Doc-to-doc drift fails the guard with a clear message; **doc-to-code drift** is reported for **owner decision** (not silently "fixed" to one side).
 - Existing V1 deferrals remain intact and are not re-scored as current defects.
 
 Constraints:
-- Do not change product scope without an owner decision.
+- Do not change product scope or shipping behavior without an **explicit owner decision** after doc-code drift is surfaced.
 - Do not add new connectors.
 - Do not remove optional customer-operated recipes.
 - Do not reference prior assessments.
@@ -622,12 +624,14 @@ Scope:
 - Start from docs/library/PILOT_ROI_MODEL.md and the existing first-value report paths in ArchLucid.Application/Pilots and ArchLucid.Api /v1/pilots endpoints.
 - Add a deterministic evidence-completeness model that classifies each generated first-value report as Strong, Partial, or Incomplete based on required fields: run id, committed manifest timestamp, findings by severity, top finding evidence-chain pointer, audit row count/lower bound, LLM call count, demo-tenant warning, and baseline confidence.
 - Surface the classification in Markdown and PDF output.
+- When classification is **Incomplete**, **still generate the PDF**; apply a clear **watermark** (and/or header/footer notice) on the PDF and equivalent visible notice in Markdown—**do not return 403 or omit the PDF solely for Incomplete**.
 - Add tests in ArchLucid.Application.Tests/Pilots and relevant API tests.
 
 Acceptance criteria:
 - Demo runs are always visibly marked as demo-derived.
 - Missing proof fields are rendered as missing, not silently omitted or backfilled with prose.
 - Strong/Partial/Incomplete classification is deterministic and unit-tested.
+- **Incomplete** gate: watermark (or banner) only; PDF and Markdown endpoints remain callable and succeed when auth and run scope allow.
 - Existing report endpoints keep their routes and auth behavior.
 
 Constraints:
@@ -872,35 +876,35 @@ Constraints:
 ### DEFERRED 11. Commerce Un-Hold: Live Stripe, Marketplace Publication, and Signup DNS
 
 - **Reason it is deferred:** The current source explicitly places the live commerce un-hold in V1.1 and identifies owner-only dependencies: Stripe live keys, production webhook secret, Partner Center seller verification, payout/tax profile, Marketplace `Published` state, and `signup.archlucid.net` DNS cutover.
-- **Specific information needed from you later:** Confirmation that Stripe live keys are ready, the production webhook secret is available, Partner Center seller/tax/payout setup is complete, Marketplace publication is approved, and the final DNS/Front Door target for `signup.archlucid.net`.
+- **Specific information needed from you later:** Sequencing intent: Stripe self-serve first on 2026-06-09, then Marketplace SaaS offer on 2026-06-16. **Stripe live keys and the production webhook secret are not ready to configure yet; you will validate on Stripe test mode first.** **Partner Center seller verification, payout setup, and tax profile are not complete yet** (blocking Marketplace publication); **you asked to be reminded on this periodically** toward the 6/16 Marketplace target. Still needed when ready: Partner Center completion confirmation, Marketplace publication approval, production DNS/Front Door for `signup.archlucid.net`, and Stripe live key + production webhook secret after test-mode sign-off.
 
 ### DEFERRED 12. External Assurance Upgrade: CPA SOC 2 / Third-Party Pen Test
 
 - **Reason it is deferred:** CPA SOC 2 and third-party penetration testing are explicitly outside the current headline scope. They require budget, vendor selection, legal/procurement engagement, and owner timing decisions.
-- **Specific information needed from you later:** Target assurance milestone, budget approval, selected CPA or security assessor, intended report audience, NDA/public-summary policy, and target window.
+- **Specific information needed from you later:** Target assurance milestone, budget approval, selected CPA or security assessor, NDA/public-summary policy, and target window. **Audience / driver:** not chosen for inherent security sensitivity of the workload; engagements are gated by **`$250K ARR`** (per trust-center SOC narrative) **or binding procurement requirement from a contracted enterprise customer**—whichever comes first—as the practical trigger alongside budget and vendor selection.
 
 ## Pending Questions for Later
 
 ### Commerce Un-Hold: Live Stripe, Marketplace Publication, and Signup DNS
 
-- Are Stripe live keys and the production webhook secret ready to be configured?
-- Has Partner Center seller verification, payout, and tax profile setup completed?
+- **Answered:** Stripe live keys and the production webhook secret are **not** ready to configure yet; you will exercise **test mode** first before live cutover.
+- **Answered:** Partner Center seller verification, payout, and tax profile setup are **not** complete yet. **Reminder:** revisit before Marketplace target 2026-06-16 (and again after Stripe test-mode validation); you asked for ongoing nudges on this item.
 - What exact production Front Door/custom-domain target should `signup.archlucid.net` use?
-- Should the Marketplace SaaS offer go live before, after, or simultaneously with Stripe self-serve?
+- **Answered:** Stripe self-serve goes live first on 2026-06-09; Marketplace SaaS offer follows on 2026-06-16.
 
 ### External Assurance Upgrade: CPA SOC 2 / Third-Party Pen Test
 
 - Which external assurance milestone should come first: SOC 2 Type I, SOC 2 readiness review, or third-party penetration test?
-- Who is the intended audience: internal readiness, named enterprise prospect, or public trust-center posture?
+- **Answered:** There is nothing inherently security-sensitive mandating CPA SOC / third-party pen as a default posture. The **driver** is economic and commercial: **`$250K ARR`** threshold and/or **binding demand from an enterprise customer** under contract procurement (alongside budget, vendor choice, NDA stance, and timeline).
 - What NDA/public-summary policy should apply to resulting reports?
 - What budget and calendar window are approved?
 
 ### Buyer-Safe First-Value Evidence Gate
 
 - Which customer-specific baseline fields are mandatory for a guided pilot versus optional for self-serve?
-- Should an Incomplete evidence gate block PDF generation, or only watermark the artifact?
+- **Answered:** Incomplete evidence classification should **watermark** the artifact (PDF + visible Markdown notice); **do not block** PDF generation for Incomplete.
 
 ### Connector Scope, Contracts, and Smoke Evidence
 
-- If docs and code disagree after the coherence pass, should the implementation be corrected to the current V1 scope, or should scope be narrowed by owner decision?
+- **Answered:** If docs and code disagree after the coherence pass, resolution is an **owner decision** only: either narrow/adjust scope (documented) or schedule implementation to match agreed scope—**do not** assume implementation must automatically match `V1_SCOPE.md` without that decision.
 

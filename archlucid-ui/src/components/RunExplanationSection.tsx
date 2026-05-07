@@ -6,6 +6,7 @@ import { CitationChips } from "@/components/explanation/CitationChips";
 import { DocumentLayout, type DocumentTocItem } from "@/components/DocumentLayout";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Progress } from "@/components/ui/progress";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ExplanationResult, RunExplanationSummary } from "@/types/explanation";
 
 export type RunExplanationSectionProps = {
@@ -106,6 +107,8 @@ function explanationBody(summary: RunExplanationSummary): ExplanationResult {
  * Run-level aggregate explanation: assessment, posture, confidence, themes, drivers/risks, provenance.
  */
 export function RunExplanationSection({ summary, loading, error, runId }: RunExplanationSectionProps) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   const tocItems = useMemo((): DocumentTocItem[] => {
     if (summary === null) {
       return [];
@@ -127,11 +130,14 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
     );
 
     if (expl.provenance !== null && expl.provenance !== undefined) {
-      items.push({ id: "doc-explanation-provenance", label: "LLM provenance" });
+      items.push({
+        id: "doc-explanation-provenance",
+        label: buyerPolishedShell ? "Source attribution" : "LLM provenance",
+      });
     }
 
     return items;
-  }, [summary]);
+  }, [summary, buyerPolishedShell]);
 
   if (loading) {
     return (
@@ -306,7 +312,9 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
 
       {prov ? (
         <details id="doc-explanation-provenance" className="text-sm text-neutral-700 dark:text-neutral-300">
-          <summary className="cursor-pointer font-semibold text-neutral-900 dark:text-neutral-100">Provenance metadata</summary>
+          <summary className="cursor-pointer font-semibold text-neutral-900 dark:text-neutral-100">
+            {buyerPolishedShell ? "How this narrative was produced" : "Provenance metadata"}
+          </summary>
           <dl className="m-0 mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
             <dt>Agent type</dt>
             <dd className="m-0">{prov.agentType}</dd>
