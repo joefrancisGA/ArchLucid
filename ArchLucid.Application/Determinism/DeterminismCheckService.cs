@@ -8,22 +8,15 @@ namespace ArchLucid.Application.Determinism;
 /// </summary>
 public sealed class DeterminismCheckService(IReplayRunService replayRunService, IAgentResultDiffService agentResultDiffService, IManifestDiffService manifestDiffService) : IDeterminismCheckService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(replayRunService, agentResultDiffService, manifestDiffService);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IReplayRunService replayRunService, ArchLucid.Application.Diffs.IAgentResultDiffService agentResultDiffService, ArchLucid.Application.Diffs.IManifestDiffService manifestDiffService)
-    {
-        ArgumentNullException.ThrowIfNull(replayRunService);
-        ArgumentNullException.ThrowIfNull(agentResultDiffService);
-        ArgumentNullException.ThrowIfNull(manifestDiffService);
-        return (byte)0;
-    }
-
     /// <inheritdoc/>
     public async Task<DeterminismCheckResult> RunAsync(DeterminismCheckRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
+        
         if (request.Iterations < 2)
             throw new ArgumentOutOfRangeException(nameof(request), "Iterations must be at least 2.");
+        
         DeterminismCheckResult output = new()
         {
             SourceRunId = request.RunId,

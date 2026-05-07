@@ -6,6 +6,7 @@ import {
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/OperatorEvidenceLimitsFooter";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
@@ -64,6 +65,24 @@ export function FindingInspectView({
           className="text-sky-700 underline dark:text-sky-300"
         >
           Open the correct inspector
+        </Link>
+      </main>
+    );
+  }
+
+  if (!findingIdsAlignForInspectRoute(decodedFindingId, payload.findingId)) {
+    return (
+      <main className="mx-auto max-w-3xl space-y-4 p-6">
+        <p className="text-sm text-neutral-700 dark:text-neutral-300">
+          This inspection payload corresponds to finding{" "}
+          <span className="font-mono">{payload.findingId}</span>, not{" "}
+          <span className="font-mono">{decodedFindingId}</span>.
+        </p>
+        <Link
+          href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(payload.findingId)}/inspect`}
+          className="text-sky-700 underline dark:text-sky-300"
+        >
+          Open the inspector for finding {payload.findingId}
         </Link>
       </main>
     );

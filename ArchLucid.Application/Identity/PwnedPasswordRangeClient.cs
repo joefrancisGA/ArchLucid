@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
+
 using ArchLucid.Core.Configuration;
+
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
@@ -8,14 +10,6 @@ namespace ArchLucid.Application.Identity;
 /// <summary>Have I Been Pwned k-anonymity range API (SHA-1 prefix).</summary>
 public sealed class PwnedPasswordRangeClient(HttpClient httpClient, IMemoryCache cache, IOptions<TrialAuthOptions>? trialOptions)
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(httpClient, cache, trialOptions);
-    private static byte __ValidatePrimaryConstructorArguments(System.Net.Http.HttpClient httpClient, Microsoft.Extensions.Caching.Memory.IMemoryCache cache, Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.TrialAuthOptions>? trialOptions)
-    {
-        ArgumentNullException.ThrowIfNull(httpClient);
-        ArgumentNullException.ThrowIfNull(cache);
-        return (byte)0;
-    }
-
     private const string CacheKeyPrefix = "pwned-range:";
     /// <summary>How long downloaded HIBP range lines stay in <see cref = "IMemoryCache"/> (per SHA-1 prefix).</summary>
     public static readonly TimeSpan RangeResponseCacheDuration = TimeSpan.FromHours(24);
@@ -28,6 +22,7 @@ public sealed class PwnedPasswordRangeClient(HttpClient httpClient, IMemoryCache
         ArgumentNullException.ThrowIfNull(password);
         if (!_trial.LocalIdentity.PwnedPasswordRangeCheckEnabled)
             return false;
+
         ArgumentException.ThrowIfNullOrWhiteSpace(password);
         byte[] sha1 = SHA1.HashData(Encoding.UTF8.GetBytes(password));
         string fullHex = Convert.ToHexString(sha1);
@@ -48,7 +43,7 @@ public sealed class PwnedPasswordRangeClient(HttpClient httpClient, IMemoryCache
     {
         HashSet<string> suffixes = new(StringComparer.OrdinalIgnoreCase);
         using StringReader reader = new(body);
-        while (reader.ReadLine()is { } line)
+        while (reader.ReadLine() is { } line)
         {
             int colon = line.IndexOf(':', StringComparison.Ordinal);
             if (colon <= 0)

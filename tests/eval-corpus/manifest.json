@@ -10,6 +10,7 @@
     "scenario-regulated-data-workflow.json",
     "scenario-cost-constrained-modernization.json",
     "scenario-governance-heavy-review.json",
-    "scenario-b2b-api-integration.json"
+    "scenario-b2b-api-integration.json",
+    "scenario-real-mode-smoke.json"
   ]
 }

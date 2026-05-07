@@ -9,10 +9,11 @@ import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
 import { Badge } from "@/components/ui/badge";
-import { getFindingInspect } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
-import { tryStaticDemoFindingInspect } from "@/lib/operator-static-demo";
+import {
+  loadFindingInspectForRoute,
+  shouldTreatFindingInspectFailureAsNotFound,
+} from "@/lib/load-finding-inspect-for-route";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import {
@@ -25,12 +26,6 @@ import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
-
-function authorityRunIdsAlignForDemo(urlRunId: string, payloadRunId: string): boolean {
-  const norm = (s: string): string => s.replace(/-/g, "").toLowerCase();
-
-  return norm(urlRunId) === norm(payloadRunId);
-}
 
 /**
  * Finding detail: severity and narrative first; technical identifiers and export tools collapsed.
@@ -52,33 +47,15 @@ export default async function RunFindingExplainPage({
 
   const decodedFindingId = decodeURIComponent(findingId);
 
-  let inspectPayload: FindingInspectPayload | null = null;
+  const { payload: inspectPayloadRaw, failure: inspectFailureRaw, invalidRouteAlignment } =
+    await loadFindingInspectForRoute(runId, decodedFindingId);
 
-  let inspectFailure: ApiLoadFailureState | null = null;
-
-  try {
-    inspectPayload = await getFindingInspect(runId, decodedFindingId);
-  } catch (e) {
-    inspectFailure = toApiLoadFailure(e);
-
-    const staticInspect = tryStaticDemoFindingInspect(runId, decodedFindingId);
-
-    if (staticInspect !== null) {
-      inspectPayload = staticInspect;
-      inspectFailure = null;
-    } else if (isApiNotFoundFailure(inspectFailure)) {
-      notFound();
-    }
+  if (invalidRouteAlignment || shouldTreatFindingInspectFailureAsNotFound(inspectFailureRaw)) {
+    notFound();
   }
 
-  if (inspectPayload !== null) {
-    const staticInspect = tryStaticDemoFindingInspect(runId, decodedFindingId);
-
-    if (staticInspect !== null && !authorityRunIdsAlignForDemo(runId, inspectPayload.runId)) {
-      inspectPayload = staticInspect;
-      inspectFailure = null;
-    }
-  }
+  const inspectPayload: FindingInspectPayload | null = inspectPayloadRaw;
+  const inspectFailure: ApiLoadFailureState | null = inspectFailureRaw;
 
   const runExecutionFootnote = await tryLoadRunExecutionFootnote(runId);
 

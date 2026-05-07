@@ -5,6 +5,10 @@ Optional V1 quality slice: deterministic structural + semantic scores on committ
 ``agent-results/*.simulator.json`` files (parity with ``AgentOutputEvaluator`` /
 ``AgentOutputSemanticEvaluator`` / default ``AgentOutputQualityGate`` floors).
 
+Real-mode rows (``qualityEvidence.mode: "real"``) reuse the same scorer over a
+filesystem path from ``qualityEvidence.agentResultPathEnv`` (PR CI leaves the
+variable unset so those rows **skip** without failing the build).
+
 Default: informational only (exit 0). Use ``--enforce`` when you want recall /
 unexpected probes to block; use ``--enforce-quality-gate`` when rejected gate
 outcomes must fail the process (release automation).
@@ -14,10 +18,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Mapping, Sequence
+
+
+# AgentResultPathEnv names are forwarded to os.environ lookups (no substitution).
+_AGENT_RESULT_PATH_ENV_SAFE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,200}$")
 
 
 SEVERITY_RANK: dict[str, int] = {
@@ -284,17 +294,63 @@ def evaluate_quality_evidence_block(corpus_root: Path, scenario_id: str, qe: Map
     agent_type = str(qe.get("agentType") or "").strip() or "(unspecified)"
 
     if mode_raw == "real":
-        return {
-            "scenario_id": scenario_id,
-            "mode": "real",
-            "agent_type": agent_type,
-            "skipped": True,
-            "reason": (
-                "Real-mode evidence is not committed. Run with Azure OpenAI using "
-                "``GET /v1/architecture/run/{runId}/agent-evaluation`` after execute — "
-                "see docs/library/AGENT_EVAL_CORPUS.md."
-            ),
-        }
+        raw_env = qe.get("agentResultPathEnv")
+
+        if not isinstance(raw_env, str) or not raw_env.strip():
+            return {
+                "scenario_id": scenario_id,
+                "mode": "real",
+                "agent_type": agent_type,
+                "skipped": False,
+                "error": "qualityEvidence.agentResultPathEnv is required for real mode.",
+            }
+
+        env_key = raw_env.strip()
+
+        if _AGENT_RESULT_PATH_ENV_SAFE.fullmatch(env_key) is None:
+            return {
+                "scenario_id": scenario_id,
+                "mode": "real",
+                "agent_type": agent_type,
+                "skipped": False,
+                "error": f"agentResultPathEnv must be a safe PROCESS environment name; got {env_key!r}.",
+            }
+
+        raw_path = str(os.environ.get(env_key, "") or "").strip()
+
+        if raw_path == "":
+            return {
+                "scenario_id": scenario_id,
+                "mode": "real",
+                "agent_type": agent_type,
+                "skipped": True,
+                "evidence_env": env_key,
+                "reason": (
+                    f"Set `{env_key}` to the filesystem path of an exported Web-serialized AgentResult JSON "
+                    f"(for example pasted from architecture-run trace export). Omit in PR CI."
+                ),
+            }
+
+        resolved = Path(raw_path).expanduser().resolve()
+
+        if not resolved.is_file():
+            return {
+                "scenario_id": scenario_id,
+                "mode": "real",
+                "agent_type": agent_type,
+                "skipped": False,
+                "evidence_env": env_key,
+                "error": f"AgentResult path is not a file: {resolved}",
+            }
+
+        scored = score_committed_agent_result_json(resolved.read_text(encoding="utf-8"))
+        scored["scenario_id"] = scenario_id
+        scored["mode"] = "real"
+        scored["agent_type"] = agent_type
+        scored["agent_result_path"] = str(resolved)
+        scored["evidence_env"] = env_key
+        scored["evidence_captured"] = True
+        return scored
 
     if mode_raw != "simulator":
         return {
@@ -363,6 +419,44 @@ def _quality_remediation(quality: Mapping[str, Any]) -> str:
     return "None (gate accepted)."
 
 
+def _real_mode_quality_rollup(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """Counts qualityEvidence rows where mode is ``real`` (findings slice is unchanged)."""
+
+    total = 0
+    skipped_no_env = 0
+    evaluated = 0
+    errors = 0
+
+    for row in rows:
+        q = row.get("quality")
+
+        if not isinstance(q, dict):
+            continue
+
+        if q.get("mode") != "real":
+            continue
+
+        total += 1
+
+        if q.get("error"):
+            errors += 1
+            continue
+
+        if q.get("skipped"):
+            skipped_no_env += 1
+            continue
+
+        evaluated += 1
+
+    return {
+        "total": total,
+        "skipped_no_env": skipped_no_env,
+        "evaluated": evaluated,
+        "errors": errors,
+        "evidence_captured": evaluated > 0,
+    }
+
+
 def render_markdown_report(
     rows: Sequence[Mapping[str, Any]],
     corpus_root: Path,
@@ -370,6 +464,9 @@ def render_markdown_report(
     worst_recall: float,
 ) -> str:
     now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rollup = _real_mode_quality_rollup(rows)
+    captured = "yes" if rollup["evidence_captured"] else "no"
+
     lines: list[str] = [
         "## Agent eval corpus — offline evidence slice",
         "",
@@ -380,7 +477,19 @@ def render_markdown_report(
         "| Path | Meaning |",
         "|------|---------|",
         "| **Simulator** | Committed `agent-results/*.simulator.json` — **no Azure OpenAI**; deterministic scoring only. |",
-        "| **Real (AOAI)** | Not stored in-repo; capture via architecture run + `agent-evaluation` API when exercising a **named reference deployment** (see AGENT_EVAL_CORPUS.md). |",
+        "| **Real (optional)** | Not committed. Set the scenario's `qualityEvidence.agentResultPathEnv` to an absolute path of exported **AgentResult** JSON (same shape as simulator files). |",
+        "",
+        "### Real-mode AgentResult slice (optional)",
+        "",
+        "_Scenarios with `qualityEvidence.mode: \"real\"`. PR CI leaves the env var unset so these rows **skip** unless you opt in locally or in a release job._",
+        "",
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Real-mode quality scenarios | {rollup['total']} |",
+        f"| Skipped (env var unset / empty) | {rollup['skipped_no_env']} |",
+        f"| Evaluated (file read + structural / semantic / gate) | {rollup['evaluated']} |",
+        f"| Errors (bad env name, missing file, invalid JSON) | {rollup['errors']} |",
+        f"| **Evidence captured this run** | **{captured}** |",
         "",
         "### Release / quality policy",
         "",
@@ -408,7 +517,7 @@ def render_markdown_report(
     lines.extend(
         [
             "",
-            "### Simulator AgentResult quality (structural + semantic + gate)",
+            "### AgentResult quality — simulator + optional real (structural + semantic + gate)",
             "",
             "_“Explanation / trace completeness” proxy: claims-with-evidence ratio and findings field completeness "
             "(same signals as `AgentOutputSemanticEvaluator`; full prompts/traces need real execution — "
@@ -428,16 +537,18 @@ def render_markdown_report(
             )
             continue
 
+        md_mode = str(q.get("mode") or "?")
+
         if q.get("skipped"):
             lines.append(
-                f"| `{row.get('id')}` | real | {q.get('agent_type')} | — | — | — | — | — | — | "
-                f"_Manual AOAI path — {q.get('reason', '')}_ |",
+                f"| `{row.get('id')}` | {md_mode} | {q.get('agent_type')} | — | — | — | — | — | — | "
+                f"_{q.get('reason', 'Skipped.')}_ |",
             )
             continue
 
         if q.get("error"):
             lines.append(
-                f"| `{row.get('id')}` | simulator | {q.get('agent_type')} | — | — | — | **error** | — | — | "
+                f"| `{row.get('id')}` | {md_mode} | {q.get('agent_type')} | — | — | — | **error** | — | — | "
                 f"{_quality_remediation(q)} |",
             )
             continue
@@ -450,7 +561,7 @@ def render_markdown_report(
         gate = str(q.get("gate_outcome") or "")
 
         lines.append(
-            f"| `{row.get('id')}` | simulator | {q.get('agent_type')} | {struct:.2f} | {sem:.2f} | {pf} | "
+            f"| `{row.get('id')}` | {md_mode} | {q.get('agent_type')} | {struct:.2f} | {sem:.2f} | {pf} | "
             f"{gate} | {cq:.2f} | {fq:.2f} | {_quality_remediation(q)} |",
         )
 
@@ -553,7 +664,7 @@ def main() -> int:
     parser.add_argument(
         "--enforce-quality-gate",
         action="store_true",
-        help="Exit non-zero when any simulator quality row gate_outcome is rejected.",
+        help="Exit non-zero when any simulator-mode quality row gate_outcome is rejected (real mode excluded).",
     )
     args = parser.parse_args()
 
@@ -617,7 +728,11 @@ def main() -> int:
                 quality_failed = True
                 print(f"::error::qualityEvidence error for {row['id']}: {q['error']}", file=sys.stderr)
 
-            if args.enforce_quality_gate and q.get("gate_outcome") == "rejected":
+            if (
+                args.enforce_quality_gate
+                and q.get("mode") == "simulator"
+                and q.get("gate_outcome") == "rejected"
+            ):
                 quality_failed = True
                 print(
                     f"::error::quality gate rejected for {row['id']} (structural="
@@ -627,6 +742,16 @@ def main() -> int:
 
     worst_line = f"(worst recall {worst_recall:.2f} vs min {float(args.min_recall):.2f})"
     print(worst_line)
+
+    rrollup = _real_mode_quality_rollup(rows)
+    print(
+        "real_mode_quality\t"
+        f"total={rrollup['total']}\t"
+        f"skipped_no_env={rrollup['skipped_no_env']}\t"
+        f"evaluated={rrollup['evaluated']}\t"
+        f"errors={rrollup['errors']}\t"
+        f"evidence_captured={'yes' if rrollup['evidence_captured'] else 'no'}",
+    )
 
     md = render_markdown_report(rows, corpus_root, float(args.min_recall), worst_recall)
     if args.markdown_report is not None:

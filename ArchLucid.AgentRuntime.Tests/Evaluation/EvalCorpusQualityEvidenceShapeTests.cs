@@ -35,7 +35,7 @@ public sealed class EvalCorpusQualityEvidenceShapeTests
     }
 
     [SkippableFact]
-    public void Manifest_scenarios_with_quality_evidence_point_at_existing_simulator_agent_results()
+    public void Manifest_scenarios_with_quality_evidence_reference_valid_agent_result_sources()
     {
         string corpusDir = EvalCorpusDirectory();
         string manifestPath = Path.Combine(corpusDir, "manifest.json");
@@ -67,12 +67,30 @@ public sealed class EvalCorpusQualityEvidenceShapeTests
             string mode = qe.GetProperty("mode").GetString()!;
             mode.Should().NotBeNullOrWhiteSpace();
 
-            if (!string.Equals(mode, "simulator", StringComparison.OrdinalIgnoreCase))
-                continue;
-            string agentPath = qe.GetProperty("agentResultPath").GetString()!;
-            agentPath.Should().NotBeNullOrWhiteSpace();
-            File.Exists(Path.Combine(corpusDir, agentPath)).Should().BeTrue(
-                $"scenario {scenarioFile} missing {agentPath}");
+            bool isSimulator = string.Equals(mode, "simulator", StringComparison.OrdinalIgnoreCase);
+            bool isReal = string.Equals(mode, "real", StringComparison.OrdinalIgnoreCase);
+
+            (isSimulator || isReal).Should().BeTrue(
+                $"scenario {scenarioFile} qualityEvidence.mode must be simulator or real");
+
+            if (isSimulator)
+            {
+                string agentPath = qe.GetProperty("agentResultPath").GetString()!;
+                agentPath.Should().NotBeNullOrWhiteSpace();
+                File.Exists(Path.Combine(corpusDir, agentPath)).Should().BeTrue(
+                    $"scenario {scenarioFile} missing {agentPath}");
+            }
+
+            if (isReal)
+            {
+                qe.TryGetProperty("agentResultPathEnv", out JsonElement envEl).Should().BeTrue(
+                    $"scenario {scenarioFile} must declare qualityEvidence.agentResultPathEnv for real mode");
+                string envName = envEl.GetString()!;
+                envName.Should().NotBeNullOrWhiteSpace();
+                envName.Should().MatchRegex(
+                    "^[A-Za-z_][A-Za-z0-9_]*$",
+                    because: "eval_agent_corpus forwards the name to os.environ without substitution");
+            }
         }
     }
 }

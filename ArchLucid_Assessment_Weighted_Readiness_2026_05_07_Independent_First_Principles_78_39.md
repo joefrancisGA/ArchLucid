@@ -782,11 +782,13 @@ ArchLucid is closest to being commercially ready when it behaves less like an im
 
 ## Top Improvement Opportunities
 
-This list includes **2 deferred items** and **10 fully actionable items with Cursor prompts**. Deferred items are included because they are high-leverage, but they require user/operator input before meaningful work can begin.
+This list includes **2 deferred items**, **1 completed item**, and **9 fully actionable items** with Cursor prompts. Deferred items are included because they are high-leverage, but they require user/operator input before meaningful work can begin.
 
 ### 1. Harden Real-Mode Agent Output Evaluation Corpus
 
-Status: **Fully actionable now**
+Status: **Completed** (2026-05-07)
+
+**Completion summary:** Shipped `scenario-real-mode-smoke` (`tests/eval-corpus/`) with `qualityEvidence.mode: "real"` and env-based `AgentResult` JSON path (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT`); extended `scripts/ci/eval_agent_corpus.py` with real-mode rollup (`real_mode_quality` line + Markdown “Real-mode AgentResult slice”); `--enforce-quality-gate` unchanged for simulator-only; tests in `scripts/ci/tests/test_eval_agent_corpus_scoring.py` and `EvalCorpusQualityEvidenceShapeTests`; docs updated in `docs/library/AGENT_OUTPUT_EVALUATION.md` and `docs/library/AGENT_EVAL_CORPUS.md`.
 
 Why it matters: AI correctness is the biggest engineering and trust risk. The current deterministic checks are valuable, but simulator-heavy evidence does not sufficiently prove live model behavior.
 
@@ -829,6 +831,7 @@ Constraints:
 - Do not change production agent execution behavior.
 - Do not weaken existing simulator fixture checks.
 ```
+_(Prompt satisfied; Cursor implementation merged per completion summary above.)_
 
 ### 2. Add Sponsor-Safe Proof Completeness Gate to First-Value Report
 
