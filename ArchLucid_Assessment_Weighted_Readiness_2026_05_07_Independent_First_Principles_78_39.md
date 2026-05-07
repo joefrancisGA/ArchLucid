@@ -924,7 +924,7 @@ _(Prompt satisfied; Cursor implementation merged per completion summary above.)_
 
 ### 4. Standardize Connector Smoke Evidence for Jira, ServiceNow, Confluence, and Slack
 
-Status: **Fully actionable now**
+Status: **Completed**
 
 Why it matters: Workflow embeddedness is a buyer adoption issue. The V1 connectors need one consistent proof pattern so buyers and operators can see what works.
 
@@ -963,6 +963,8 @@ Constraints:
 - Do not add a new connector.
 - Do not move deferred OAuth/App Directory/Marketplace listing work into V1.
 ```
+
+_(Connector smoke docs aligned to a single section template; `CONNECTOR_SMOKE_INDEX.md` maps each recipe to conformance tests and labels automated vs live-provider evidence per the acceptance criteria.)_
 
 ### 5. Wire Agent-Output Metrics Export Verification
 
