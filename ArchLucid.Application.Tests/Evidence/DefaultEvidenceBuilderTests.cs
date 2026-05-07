@@ -17,7 +17,12 @@ public sealed class DefaultEvidenceBuilderTests
 {
     private static ArchitectureRequest MinimalRequest(params Action<ArchitectureRequest>?[] adjust)
     {
-        ArchitectureRequest req = new() { Description = new string('b', 20), SystemName = "AcctSvc", Environment = "prod", };
+        ArchitectureRequest req = new()
+        {
+            Description = new string('b', 20),
+            SystemName = "AcctSvc",
+            Environment = "prod",
+        };
 
         foreach (Action<ArchitectureRequest>? a in adjust)
         {
@@ -46,7 +51,7 @@ public sealed class DefaultEvidenceBuilderTests
     [Fact]
     public async Task Prior_version_found_hydrates_PriorManifest_and_omits_unavailable_note()
     {
-        const string PriorVersionKey = "v-prior-integration";
+        const string priorVersionKey = "v-prior-integration";
         GoldenManifest prior = SamplePriorManifest(PriorVersionKey);
 
         Mock<IUnifiedGoldenManifestReader> reader = new();
@@ -64,10 +69,10 @@ public sealed class DefaultEvidenceBuilderTests
         package.PriorManifest!.ManifestVersion.Should().Be(PriorVersionKey);
         package.PriorManifest.Summary.Should().Contain("AcctDb");
 
-        package.PriorManifest.ExistingServices.Should().Equal(["B", "C Service"]);
-        package.PriorManifest.ExistingDatastores.Should().Equal(["AcctDb"]);
+        package.PriorManifest.ExistingServices.Should().Equal("B", "C Service");
+        package.PriorManifest.ExistingDatastores.Should().Equal("AcctDb");
 
-        package.PriorManifest.ExistingRequiredControls.Should().Equal(["Encryption", "IAM"]);
+        package.PriorManifest.ExistingRequiredControls.Should().Equal("Encryption", "IAM");
 
         package.Notes.Should().NotContain(n => n.NoteType == EvidenceNoteTypes.PriorManifestUnavailable);
     }
@@ -75,19 +80,19 @@ public sealed class DefaultEvidenceBuilderTests
     [Fact]
     public async Task Prior_version_missing_produces_greenfield_note_and_null_PriorManifest()
     {
-        const string Gone = "v-does-not-exist";
+        const string gone = "v-does-not-exist";
         Mock<IUnifiedGoldenManifestReader> reader = new();
-        reader.Setup(r => r.GetByVersionAsync(Gone, It.IsAny<CancellationToken>())).ReturnsAsync((GoldenManifest?)null);
+        reader.Setup(r => r.GetByVersionAsync(gone, It.IsAny<CancellationToken>())).ReturnsAsync((GoldenManifest?)null);
 
         DefaultEvidenceBuilder sut = new(reader.Object);
-        ArchitectureRequest request = MinimalRequest(r => r.PriorManifestVersion = Gone);
+        ArchitectureRequest request = MinimalRequest(r => r.PriorManifestVersion = gone);
 
         AgentEvidencePackage package = await sut.BuildAsync(Guid.NewGuid().ToString("N"), request);
 
         package.PriorManifest.Should().BeNull();
         EvidenceNote? note = package.Notes.SingleOrDefault(n => n.NoteType == EvidenceNoteTypes.PriorManifestUnavailable);
         note.Should().NotBeNull();
-        note!.Message.Should().Contain("greenfield");
+        note.Message.Should().Contain("greenfield");
     }
 
     private static GoldenManifest SamplePriorManifest(string version)
@@ -98,7 +103,9 @@ public sealed class DefaultEvidenceBuilderTests
             SystemName = "AcctDb",
             Metadata = new ManifestMetadata
             {
-                ManifestVersion = version, ChangeDescription = "Rollout", CreatedUtc = new DateTime(2026, 4, 2, 12, 0, 0, DateTimeKind.Utc),
+                ManifestVersion = version,
+                ChangeDescription = "Rollout",
+                CreatedUtc = new DateTime(2026, 4, 2, 12, 0, 0, DateTimeKind.Utc),
             },
             Governance = new ManifestGovernance { RequiredControls = ["Encryption"], },
             Services =

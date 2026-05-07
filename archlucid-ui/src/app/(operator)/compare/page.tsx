@@ -155,10 +155,18 @@ function CompareForm() {
   }, []);
 
   useEffect(() => {
-    const left = searchParams.get("leftRunId");
-    const right = searchParams.get("rightRunId");
-    if (left) setLeftRunId(left.trim());
-    if (right) setRightRunId(right.trim());
+    const leftParam = searchParams.get("leftRunId")?.trim() ?? "";
+    const fromParam = searchParams.get("fromRunId")?.trim() ?? "";
+    const left = leftParam.length > 0 ? leftParam : fromParam;
+    const right = searchParams.get("rightRunId")?.trim() ?? "";
+
+    if (left.length > 0) {
+      setLeftRunId(left);
+    }
+
+    if (right.length > 0) {
+      setRightRunId(right);
+    }
   }, [searchParams]);
 
   useEffect(() => {
@@ -171,9 +179,11 @@ function CompareForm() {
     }
 
     const leftQ = searchParams.get("leftRunId")?.trim() ?? "";
+    const fromQ = searchParams.get("fromRunId")?.trim() ?? "";
+    const leftQEffective = leftQ.length > 0 ? leftQ : fromQ;
     const rightQ = searchParams.get("rightRunId")?.trim() ?? "";
 
-    if (leftQ.length > 0 || rightQ.length > 0) {
+    if (leftQEffective.length > 0 || rightQ.length > 0) {
       return;
     }
 
@@ -187,7 +197,9 @@ function CompareForm() {
   }, [searchParams, leftRunId, rightRunId]);
 
   useEffect(() => {
-    const left = searchParams.get("leftRunId")?.trim() ?? "";
+    const leftQ = searchParams.get("leftRunId")?.trim() ?? "";
+    const fromQ = searchParams.get("fromRunId")?.trim() ?? "";
+    const left = leftQ.length > 0 ? leftQ : fromQ;
     const right = searchParams.get("rightRunId")?.trim() ?? "";
 
     if (left.length === 0 || right.length === 0 || autoComparedFromUrlRef.current) {

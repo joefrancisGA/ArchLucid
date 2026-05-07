@@ -843,6 +843,14 @@ export default async function RunDetailPage({
                   manifestSummary={manifestSummaryForUi ?? manifestSummary}
                   trustEvidenceCard={resolvedDetail.trustEvidenceCard ?? null}
                 />
+                <Button variant="outline" size="sm" asChild>
+                  <Link
+                    href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
+                    className={buyerPolishedArtifactTable ? "no-underline" : undefined}
+                  >
+                    Compare with another review
+                  </Link>
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"

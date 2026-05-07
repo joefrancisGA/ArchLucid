@@ -43,6 +43,11 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
       "Executive Workspace Health summarizes pre-commit outcomes, severity exposure, compliance drift, approval SLAs, and a hours-first value proxy for the active tenant/workspace/project scope.",
     learnMoreUrl: "/docs/CORE_PILOT.md#governance-gate",
   },
+  "governance-workflow": {
+    text:
+      "Submit governed changes for approval, promote manifest versions, and activate environments. Execute role required for mutations; readers can review pending items.",
+    learnMoreUrl: "/docs/library/GOVERNANCE.md",
+  },
   "replay-run": {
     text: "Replay re-validates a stored comparison. Verify mode detects drift since the original comparison.",
     learnMoreUrl: "/docs/COMPARISON_REPLAY.md",

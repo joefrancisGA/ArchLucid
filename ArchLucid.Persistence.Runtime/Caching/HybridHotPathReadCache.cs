@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Serialization;
 
@@ -64,7 +65,7 @@ public sealed class HybridHotPathReadCache(
         {
             _logger.LogWarning(
                 "HotPath hybrid cache entry for key {CacheKey} is invalid (missing payload); refreshing.",
-                key);
+                LogSanitizer.Sanitize(key));
 
             await _hybridCache.RemoveAsync(key, ct).ConfigureAwait(false);
 
@@ -80,7 +81,7 @@ public sealed class HybridHotPathReadCache(
             _logger.LogWarning(
                 ex,
                 "HotPath hybrid cache entry for key {CacheKey} is corrupt; refreshing.",
-                key);
+                LogSanitizer.Sanitize(key));
 
             await _hybridCache.RemoveAsync(key, ct).ConfigureAwait(false);
 

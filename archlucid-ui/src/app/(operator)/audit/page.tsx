@@ -72,6 +72,12 @@ function formatUtc(iso: string): string {
 
 const AUDIT_PAGE_SIZE = 200;
 
+function toDatetimeLocalInputValue(d: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function tryFormatDataJson(dataJson: string): string {
   try {
     const parsed: unknown = JSON.parse(dataJson);
@@ -116,6 +122,7 @@ export default function AuditPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(null);
   const demoAuditPrimedRef = useRef(false);
 
   const loadTypes = useCallback(async () => {
@@ -202,6 +209,96 @@ export default function AuditPage() {
     }
   }, [currentFilters, executeSearch]);
 
+  const applyAuditDatePreset = useCallback(
+    async (preset: "24h" | "7d") => {
+      const hours = preset === "24h" ? 24 : 168;
+      const fromStr = toDatetimeLocalInputValue(new Date(Date.now() - hours * 3600 * 1000));
+      setAuditDatePreset(preset);
+      setFromUtc(fromStr);
+      setToUtc("");
+      setFailure(null);
+      setSearching(true);
+
+      const filters: AuditFilterFields = {
+        eventType,
+        fromUtc: fromStr,
+        toUtc: "",
+        correlationId,
+        actorUserId,
+        runId,
+      };
+
+      try {
+        const page = await executeSearch(filters);
+        const curatedBuyer =
+          shouldMergeOperatorDemoAlertSample() && shouldPreferCuratedAuditTrailForBuyerShell(filters);
+        const injectEmptyOnly =
+          shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(filters) && page.items.length === 0;
+        const useDemoRows = curatedBuyer || injectEmptyOnly;
+
+        setEvents(useDemoRows ? getDemoSampleAuditTrailEvents() : page.items);
+        setHasMoreResults(useDemoRows ? false : page.hasMore);
+        setAuditNextCursor(useDemoRows ? null : page.nextCursor);
+      } catch (e) {
+        const injectOnError = shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(filters);
+
+        if (injectOnError) {
+          setEvents(getDemoSampleAuditTrailEvents());
+          setHasMoreResults(false);
+          setAuditNextCursor(null);
+          setFailure(null);
+        } else {
+          setFailure(toApiLoadFailure(e));
+        }
+      } finally {
+        setSearching(false);
+      }
+    },
+    [actorUserId, correlationId, eventType, executeSearch, runId],
+  );
+
+  const clearDateRangeAndSearch = useCallback(async () => {
+    setAuditDatePreset(null);
+    setFromUtc("");
+    setToUtc("");
+    setFailure(null);
+    setSearching(true);
+
+    const filters: AuditFilterFields = {
+      eventType,
+      fromUtc: "",
+      toUtc: "",
+      correlationId,
+      actorUserId,
+      runId,
+    };
+
+    try {
+      const page = await executeSearch(filters);
+      const curatedBuyer = shouldMergeOperatorDemoAlertSample() && shouldPreferCuratedAuditTrailForBuyerShell(filters);
+      const injectEmptyOnly =
+        shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(filters) && page.items.length === 0;
+      const useDemoRows = curatedBuyer || injectEmptyOnly;
+
+      setEvents(useDemoRows ? getDemoSampleAuditTrailEvents() : page.items);
+      setHasMoreResults(useDemoRows ? false : page.hasMore);
+      setAuditNextCursor(useDemoRows ? null : page.nextCursor);
+    } catch (e) {
+      const injectOnError = shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(filters);
+
+      if (injectOnError) {
+        setEvents(getDemoSampleAuditTrailEvents());
+        setHasMoreResults(false);
+        setAuditNextCursor(null);
+        setFailure(null);
+      } else {
+        setFailure(toApiLoadFailure(e));
+      }
+    } finally {
+      setSearching(false);
+    }
+  }, [actorUserId, correlationId, eventType, executeSearch, runId]);
+
   useEffect(() => {
     if (!shouldMergeOperatorDemoAlertSample() || demoAuditPrimedRef.current) {
       return;
@@ -212,6 +309,7 @@ export default function AuditPage() {
   }, [runSearch]);
 
   const clearFiltersAndSearch = useCallback(async () => {
+    setAuditDatePreset(null);
     setEventType("");
     setFromUtc("");
     setToUtc("");
@@ -368,6 +466,50 @@ export default function AuditPage() {
             {auditSearchSectionLeadReaderLine}
           </p>
         ) : null}
+        <div className="mb-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            className={cn(
+              "rounded border px-2 py-1 text-xs font-medium transition-colors",
+              auditDatePreset === "24h"
+                ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
+                : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
+            )}
+            disabled={searching || loadingTypes}
+            onClick={() => {
+              void applyAuditDatePreset("24h");
+            }}
+          >
+            Last 24 hours
+          </button>
+          <button
+            type="button"
+            className={cn(
+              "rounded border px-2 py-1 text-xs font-medium transition-colors",
+              auditDatePreset === "7d"
+                ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
+                : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
+            )}
+            disabled={searching || loadingTypes}
+            onClick={() => {
+              void applyAuditDatePreset("7d");
+            }}
+          >
+            Last 7 days
+          </button>
+          {auditDatePreset !== null || fromUtc.length > 0 || toUtc.length > 0 ? (
+            <button
+              type="button"
+              className="rounded border border-neutral-300 bg-neutral-50 px-2 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900"
+              disabled={searching}
+              onClick={() => {
+                void clearDateRangeAndSearch();
+              }}
+            >
+              Clear date range
+            </button>
+          ) : null}
+        </div>
         {buyerPolishedShell ? (
           <>
             <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">

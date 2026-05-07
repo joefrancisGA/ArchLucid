@@ -40,7 +40,8 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
     public async Task ExecuteAsync_OnPersistent503_InvokesHandlerFourTimes_before_returning_terminal_503()
     {
         StatusSequenceHandler capturing = new(HttpStatusCode.ServiceUnavailable, successAfterAttemptInclusive: 999);
-        using HttpClient httpClient = new(capturing) { Timeout = TimeSpan.FromSeconds(30) };
+        using HttpClient httpClient = new(capturing);
+        httpClient.Timeout = TimeSpan.FromSeconds(30);
 
         ResiliencePipeline<HttpResponseMessage> pipeline =
             GovernanceSlaEscalationWebhookRetryPipeline.Create(
@@ -65,7 +66,8 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
     {
         StatusSequenceHandler capturing =
             new(HttpStatusCode.InternalServerError, successAfterAttemptInclusive: 2);
-        using HttpClient httpClient = new(capturing) { Timeout = TimeSpan.FromSeconds(30) };
+        using HttpClient httpClient = new(capturing);
+        httpClient.Timeout = TimeSpan.FromSeconds(30);
 
         ResiliencePipeline<HttpResponseMessage> pipeline =
             GovernanceSlaEscalationWebhookRetryPipeline.Create(NullLogger.Instance, "tid", static _ => TimeSpan.Zero);
@@ -88,7 +90,10 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
     public async Task ExecuteAsync_On400_does_not_retry()
     {
         StatusSequenceHandler capturing = new(HttpStatusCode.BadRequest, successAfterAttemptInclusive: 999);
-        using HttpClient httpClient = new(capturing) { Timeout = TimeSpan.FromSeconds(30) };
+        using HttpClient httpClient = new(capturing)
+        {
+            Timeout = TimeSpan.FromSeconds(30)
+        };
 
         ResiliencePipeline<HttpResponseMessage> pipeline =
             GovernanceSlaEscalationWebhookRetryPipeline.Create(NullLogger.Instance, "bad", static _ => TimeSpan.Zero);

@@ -21,7 +21,7 @@ import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { SHORTCUTS } from "@/lib/shortcut-registry";
+import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -164,6 +164,18 @@ export function CommandPalette() {
 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onOpenRequest = (): void => {
+      setOpen(true);
+    };
+
+    window.addEventListener(OPEN_COMMAND_PALETTE_EVENT, onOpenRequest);
+
+    return () => {
+      window.removeEventListener(OPEN_COMMAND_PALETTE_EVENT, onOpenRequest);
     };
   }, []);
 

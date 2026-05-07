@@ -23,6 +23,19 @@ The **Host roles** column is a hint for where a key is most often relevant; most
 
 The **When required** column reflects `ConfigurationKeyRequirement` in code (e.g. SQL connection string when storage is SQL; Azure OpenAI when `AgentExecution:Mode=Real` and the completion client is not `Echo`).
 
+## Quick start by mode
+
+Use **`archlucid config check`** and the full table below to validate your host. This section is a **minimum set** per pilot profile only; all other keys remain optional unless their **When required** column applies.
+
+| Mode | Minimum keys (set these first) | Notes |
+| --- | --- | --- |
+| **Simulator (offline, no LLM)** | `ConnectionStrings:ArchLucid`, `ArchLucidAuth:Mode`, `AgentExecution:Mode` = `Simulator`, `Hosting:Role` | `AgentExecution:CompletionClient` = `Echo` when you want an explicit non-network completion client; see AgentExecution validation rules. |
+| **Real LLM (Azure OpenAI)** | Simulator row **plus** `AzureOpenAI:Endpoint`, `AzureOpenAI:ApiKey`, `AzureOpenAI:DeploymentName` | Required when `AgentExecution:Mode=Real` and the completion client is not `Echo`. |
+| **Entra OIDC auth** | Real LLM row **plus** `ArchLucidAuth:Authority`, `ArchLucidAuth:Audience` | When OIDC mode is enabled per auth startup rules. |
+| **Production billing (Stripe + Marketplace posture)** | Entra-oriented row **plus** `Billing:Stripe:SecretKey`, `Billing:Stripe:WebhookSigningSecret`, `Billing:AzureMarketplace:LandingPageUrl`, `Billing:AzureMarketplace:MarketplaceOfferId` | Applies when billing is live in production per `BillingProductionSafetyRules` and marketplace alignment docs; staging/test may omit or use test keys. |
+
+All other keys are optional unless **When required** in the detailed table says otherwise.
+
 | Section | Key | Source(s) | Default | When required | Host roles | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | Hosting | `Hosting:LogStartupConfigurationSummary` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Log effective configuration on startup (host). |

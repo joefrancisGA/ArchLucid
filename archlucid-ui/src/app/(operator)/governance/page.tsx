@@ -541,6 +541,7 @@ function GovernanceWorkflowPageInner() {
       <OperatorPageHeader
         title="Governance workflow"
         subtitle={canMutateWorkflow ? governanceWorkflowPageLeadOperator : governanceWorkflowPageLeadReader}
+        helpKey="governance-workflow"
       />
 
       {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) ? (
