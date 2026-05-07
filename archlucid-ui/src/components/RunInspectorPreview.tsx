@@ -121,7 +121,9 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
               <code className="truncate font-mono text-[11px] text-neutral-900 dark:text-neutral-100">{run.runId}</code>
               <CopyIdButton value={run.runId} aria-label="Copy review ID" />
             </dd>
-            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Workspace</dt>
+            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              {buyerPolished ? "Project" : "Workspace"}
+            </dt>
             <dd className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
               {formatOperatorProjectIdDisplay(run.projectId)}
             </dd>

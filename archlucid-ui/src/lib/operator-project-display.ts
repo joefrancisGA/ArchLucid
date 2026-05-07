@@ -7,7 +7,7 @@ export function formatOperatorProjectIdDisplay(projectId: string): string {
   const trimmed = projectId.trim();
 
   if (trimmed.toLowerCase() === "default") {
-    return isBuyerPolishedOperatorShellEnv() ? "Claims Intake Demo Workspace" : "Primary workspace";
+    return isBuyerPolishedOperatorShellEnv() ? "Primary project" : "Primary workspace";
   }
 
   if (trimmed === "claims-intake-sample-workspace") {

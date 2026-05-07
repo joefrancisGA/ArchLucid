@@ -4021,7 +4021,7 @@ GO
 /* ---- DbUp 141_00 parity (see Migrations/141_00_ScopeColumns_TenantHealthScores_Governance.sql) ---- */
 
 /*
-  141_00: Ensure triple-scope columns exist before 141_TenantHealthScores_BatchRefresh.
+  141_00: Ensure triple-scope columns exist before 149_TenantHealthScores_BatchRefresh (runs after 148).
 
   sp_TenantHealthScores_BatchRefresh joins dbo.GovernanceApprovalRequests on WorkspaceId and MERGEs
   dbo.TenantHealthScores with WorkspaceId/ProjectId. Legacy catalogs can have:
@@ -4029,7 +4029,7 @@ GO
   - governance tables with TenantId populated but WorkspaceId/ProjectId never added (118 only added
     all three when TenantId was absent).
 
-  This script is idempotent and ordered lexicographically before 141_TenantHealthScores_BatchRefresh.sql.
+  Batch refresh is migration 149_TenantHealthScores_BatchRefresh.sql (must run after this governance DDL).
 */
 
 /* ---- dbo.TenantHealthScores (083 forward shape) ---- */

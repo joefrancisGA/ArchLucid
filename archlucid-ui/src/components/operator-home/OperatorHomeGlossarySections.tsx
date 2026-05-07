@@ -6,6 +6,7 @@ import type { ComponentType } from "react";
 import { Fragment } from "react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 type PipelineStepStatus = "not-started" | "current" | "completed";
 
@@ -75,6 +76,8 @@ function PipelineConnectorBar() {
  * Four action cards for Core Pilot + two summary cards for optional maturity layers.
  */
 export function OperatorHomeGlossarySections() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <section className="mt-1 mb-2" aria-labelledby="quick-actions-heading">
       <h3 id="quick-actions-heading" className="sr-only">
@@ -82,14 +85,14 @@ export function OperatorHomeGlossarySections() {
       </h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:hidden">
         {PIPELINE_STEPS.map((config) => (
-          <ActionCard key={config.step} {...config} />
+          <ActionCard key={config.step} {...config} shortcut={buyerPolishedShell ? undefined : config.shortcut} />
         ))}
       </div>
       <div className="hidden lg:flex lg:items-stretch lg:gap-0">
         {PIPELINE_STEPS.map((config, index) => (
           <Fragment key={config.step}>
             <div className="min-w-0 flex-1">
-              <ActionCard {...config} />
+              <ActionCard {...config} shortcut={buyerPolishedShell ? undefined : config.shortcut} />
             </div>
             {index < PIPELINE_STEPS.length - 1 ? <PipelineConnectorBar /> : null}
           </Fragment>
