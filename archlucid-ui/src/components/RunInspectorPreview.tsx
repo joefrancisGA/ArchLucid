@@ -7,7 +7,11 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
-import { isBuyerSafeDemoMarketingChromeEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import {
+  isBuyerPolishedOperatorShellEnv,
+  isBuyerSafeDemoMarketingChromeEnv,
+  isNextPublicDemoMode,
+} from "@/lib/demo-ui-env";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import {
@@ -22,6 +26,7 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
 } from "@/lib/showcase-static-demo";
+import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 function snapshotLabel(ok: boolean | undefined): string {
@@ -45,6 +50,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const demoChrome = isNextPublicDemoMode() || isBuyerSafeDemoMarketingChromeEnv();
   const showcaseStory = run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID;
   const buyerSafePrimary = isBuyerSafePrimaryReviewNavigationPreferred(run.runId);
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
   const workspaceHref = getCanonicalReviewWorkspaceHref(run.runId);
   const showcaseWalkthroughHref = getShowcaseWalkthroughHref();
@@ -62,10 +68,16 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
     : `/reviews/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
   const artifactNote =
     showcaseStory && demoChrome
-      ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} warnings (demo totals)`
+      ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} warnings${
+          buyerPolished ? "" : " (demo totals)"
+        }`
       : run.hasArtifactBundle
-        ? "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."
-        : "Artifact bundle not reported in list payload";
+        ? buyerPolished
+          ? "Deliverables are listed with the review package — open Review package or Deliverables below when available."
+          : "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."
+        : buyerPolished
+          ? "No file bundle reported for this row yet."
+          : "Artifact bundle not reported in list payload";
 
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
   const hasArtifactsLink = run.hasArtifactBundle === true || showcaseStory;
@@ -83,7 +95,14 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
     <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{headline}</p>
+          <p
+            className={cn(
+              "m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100",
+              buyerPolished && "line-clamp-2",
+            )}
+          >
+            {headline}
+          </p>
           {showcaseStory && demoChrome ? (
             <span className="inline-flex shrink-0 rounded border border-teal-200 bg-teal-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">
               Sample
@@ -123,7 +142,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
 
       <div>
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Pipeline output
+          {buyerPolished ? "Review progress" : "Pipeline output"}
         </p>
         <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-200">{artifactNote}</p>
         <ul className="m-0 mt-2 list-none space-y-1 p-0 text-xs">
@@ -134,7 +153,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </span>
           </li>
           <li className="flex justify-between gap-2">
-            <span>Graph generated</span>
+            <span>{buyerPolished ? "Evidence map" : "Graph generated"}</span>
             <span aria-label={run.hasGraphSnapshot ? "Graph snapshot present" : "Graph snapshot missing"}>
               {snapshotLabel(run.hasGraphSnapshot)}
             </span>
@@ -146,7 +165,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </span>
           </li>
           <li className="flex justify-between gap-2">
-            <span>Manifest finalized</span>
+            <span>{buyerPolished ? "Package finalized" : "Manifest finalized"}</span>
             <span aria-label={run.hasGoldenManifest ? "Reviewed manifest present" : "Reviewed manifest missing"}>
               {snapshotLabel(run.hasGoldenManifest)}
             </span>
@@ -159,19 +178,24 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         <Button variant="primary" size="sm" className="w-full" asChild>
           <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
         </Button>
+        {buyerPolished && (showcaseStory || run.hasGraphSnapshot === true) ? (
+          <Button variant="outline" size="sm" className="w-full" asChild>
+            <Link href="/graph">View evidence graph</Link>
+          </Button>
+        ) : null}
         {buyerSafePrimary ? (
           <div className="flex flex-col gap-2">
             <Button variant="outline" size="sm" className="w-full" asChild>
-              <Link href={showcaseWalkthroughHref}>Public walkthrough</Link>
+              <Link href={showcaseWalkthroughHref}>{buyerPolished ? "Guided preview" : "Public walkthrough"}</Link>
             </Button>
             <Button variant="outline" size="sm" className="w-full" asChild>
-              <Link href={workspaceHref}>Technical workspace detail</Link>
+              <Link href={workspaceHref}>{buyerPolished ? "Full review detail" : "Technical workspace detail"}</Link>
             </Button>
           </div>
         ) : null}
       </div>
 
-      {/* Quick links — hidden for buyer-safe showcase spine (Manifest summary is the primary control). */}
+      {/* Quick links — hidden for buyer-safe showcase spine (review package is the primary control). */}
       {!(buyerSafePrimary && showcaseStory) ? (
       <div>
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
@@ -180,7 +204,9 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         <div className="mt-2 flex flex-wrap gap-2">
           {!buyerSafePrimary ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Manifest</Link>
+              <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>
+                {buyerPolished ? "Review package" : "Manifest"}
+              </Link>
             </Button>
           ) : null}
           {hasFindingsLink ? (
@@ -190,7 +216,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           ) : null}
           {hasArtifactsLink ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={artifactsQuickHref}>Artifacts</Link>
+              <Link href={artifactsQuickHref}>{buyerPolished ? "Deliverables" : "Artifacts"}</Link>
             </Button>
           ) : null}
           <Button variant="outline" size="sm" className="h-8" asChild>
@@ -200,42 +226,43 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       </div>
       ) : null}
 
-      {/* Secondary actions collapsed behind "More actions" */}
-      <div>
-        <button
-          type="button"
-          className="text-xs text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
-          onClick={() => setMoreOpen((v) => !v)}
-          aria-expanded={moreOpen}
-        >
-          {moreOpen ? "▾ Less" : "▸ More actions"}
-        </button>
-        {moreOpen ? (
-          <div className="mt-2 flex flex-wrap gap-2">
-          {showcaseStory ? (
-            <>
+      {!buyerPolished ? (
+        <div>
+          <button
+            type="button"
+            className="text-xs text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+            onClick={() => setMoreOpen((v) => !v)}
+            aria-expanded={moreOpen}
+          >
+            {moreOpen ? "▾ Less" : "▸ More actions"}
+          </button>
+          {moreOpen ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {showcaseStory ? (
+                <>
+                  <Button variant="outline" size="sm" className="h-8" asChild>
+                    <Link href={findingHref}>Primary finding</Link>
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-8" asChild>
+                    <Link href={timelineQuickHref}>Timeline (walkthrough)</Link>
+                  </Button>
+                </>
+              ) : null}
+              {run.hasGraphSnapshot === true || showcaseStory ? (
+                <Button variant="outline" size="sm" className="h-8" asChild>
+                  <Link href="/graph">Trail graph</Link>
+                </Button>
+              ) : null}
               <Button variant="outline" size="sm" className="h-8" asChild>
-                <Link href={findingHref}>Primary finding</Link>
+                <Link href={compareHref}>Compare</Link>
               </Button>
               <Button variant="outline" size="sm" className="h-8" asChild>
-                <Link href={timelineQuickHref}>Timeline (walkthrough)</Link>
+                <Link href={replayHref}>Replay</Link>
               </Button>
-            </>
+            </div>
           ) : null}
-          {run.hasGraphSnapshot === true || showcaseStory ? (
-            <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href="/graph">Trail graph</Link>
-            </Button>
-          ) : null}
-            <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={compareHref}>Compare</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={replayHref}>Replay</Link>
-            </Button>
-          </div>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }

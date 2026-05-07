@@ -251,6 +251,8 @@ export default function GraphPage() {
     isStaticDemoPayloadFallbackEnabled() ||
     isStaticDemoPayloadFallbackActiveForRun(runId.trim());
 
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   const graphIdlePreset = useMemo(() => {
     if (demoUi && showIdleCard) {
       return {
@@ -465,18 +467,27 @@ export default function GraphPage() {
               </select>
             </label>
             <span className="text-neutral-500 dark:text-neutral-400 text-sm">
-              {graph.nodes.length} nodes, {graph.edges.length} edges (before filter)
+              {buyerPolishedShell
+                ? `${graph.nodes.length} nodes in this view`
+                : `${graph.nodes.length} nodes, ${graph.edges.length} edges (before filter)`}
             </span>
           </div>
           {graphControls}
-          {demoUi ? (
+          {demoUi && buyerPolishedShell ? (
+            <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+              Use the controls above to switch reviews or views. The sample review loads this graph automatically when data
+              is available.
+            </p>
+          ) : null}
+          {demoUi && !buyerPolishedShell ? (
             <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
               Use the controls above to switch reviews or exploration mode — the Claims Intake sample loads this graph
               automatically.
             </p>
-          ) : (
+          ) : null}
+          {!demoUi ? (
             <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">{leadIntro}</p>
-          )}
+          ) : null}
         </>
       ) : null}
     </main>
