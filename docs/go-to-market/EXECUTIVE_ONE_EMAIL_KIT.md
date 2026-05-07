@@ -17,7 +17,7 @@ ArchLucid pilot — executive summary and evidence requests
 ```
 
 ```
-Request: V1 scope summary for architecture-intelligence evaluation
+Request: V1 scope summary for Architecture Proof Engine evaluation
 ```
 
 ```
@@ -29,7 +29,7 @@ Architecture review automation — vendor briefing (ArchLucid V1)
 ## 2. Executive summary (~120 words, paste into body)
 
 ```
-ArchLucid V1 is a bounded product contract for AI-assisted architecture work: operators submit a structured request, run the analysis pipeline, and commit a versioned golden manifest with reviewable artifacts. V1 includes the core pilot path plus Operate layers—compare and replay, knowledge-graph views, advisory and ask, governance with policy packs, typed audit logging, and alerts—where configuration allows. We position ArchLucid as AI Architecture Intelligence for leaders who need explainable, governed outcomes with a durable evidence trail, not disposable chat. Reference deployments are Azure-native per published architecture intent. For shipped-versus-deferred capability detail rely on the linked V1 scope and positioning pages; list pricing language is maintained only in our pricing-philosophy document.
+ArchLucid V1 is a bounded product contract for AI-assisted architecture work: operators submit a structured request, run the analysis pipeline, and commit a versioned golden manifest with reviewable artifacts. V1 includes the core pilot path plus Operate layers—compare and replay, knowledge-graph views, advisory and ask, governance with policy packs, typed audit logging, and alerts—where configuration allows. We position ArchLucid as an Architecture Proof Engine for leaders who need explainable, governed outcomes with a durable evidence trail, not disposable chat. Reference deployments are Azure-native per published architecture intent. For shipped-versus-deferred capability detail rely on the linked V1 scope and positioning pages; list pricing language is maintained only in our pricing-philosophy document.
 ```
 
 **Grounding (paste below the paragraph if the recipient wants URLs):**

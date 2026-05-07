@@ -14,13 +14,13 @@
 
 ### Positioning
 
-ArchLucid is an **AI Architecture Review Board** platform. It orchestrates specialized AI agents to analyze system designs, produce explainable findings, and enforce governance workflows — all with a durable audit trail.
+ArchLucid is an **Architecture Proof Engine**: buyers supply real architecture context and receive a **defensible** review package — evidence-linked findings, stated limits, and governance-ready outputs — fast enough that the value is obvious without a founder walkthrough.
 
-Category label (UI constant): `BRAND_CATEGORY = "AI Architecture Review Board"` (`archlucid-ui/src/lib/brand-category.ts`).
+Category label (UI constant): `BRAND_CATEGORY = "Architecture Proof Engine"` (`archlucid-ui/src/lib/brand-category.ts`). Legacy outbound strings remain on the seam as `BRAND_CATEGORY_LEGACY` and `BRAND_CATEGORY_LEGACY_ORIGINAL`.
 
 ### Tagline
 
-> Ship governed architecture decisions faster
+> Defensible architecture, on demand.
 
 This is the `<h1>` on the marketing landing page (`WelcomeMarketingPage`).
 
@@ -351,9 +351,9 @@ These are brand-level accessibility commitments, not just engineering details:
 ### Above the fold
 
 ```
-  [Eyebrow: AI Architecture Review Board]
+  [Eyebrow: Architecture Proof Engine]
 
-  Ship governed architecture decisions faster
+  Defensible architecture, on demand.
 
   [30-second pitch paragraph]
 

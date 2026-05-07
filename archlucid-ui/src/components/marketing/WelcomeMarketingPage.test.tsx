@@ -39,10 +39,10 @@ describe("WelcomeMarketingPage", () => {
   it("renders hero, pillars, and pricing cards from fetched JSON", async () => {
     render(<WelcomeMarketingPage />);
 
-    expect(screen.getByRole("heading", { level: 1, name: /Ship governed architecture decisions faster/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: /Defensible architecture, on demand/i })).toBeInTheDocument();
     const escapedCategory = BRAND_CATEGORY.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     expect(
-      screen.getByText(new RegExp(`ArchLucid is an ${escapedCategory} platform\\. You describe a system`, "i")),
+      screen.getByText(new RegExp(`ArchLucid is an ${escapedCategory} platform\\. You bring real architecture context`, "i")),
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Three pillars/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /AI-native architecture analysis/i })).toBeInTheDocument();

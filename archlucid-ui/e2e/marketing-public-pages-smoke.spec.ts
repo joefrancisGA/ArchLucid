@@ -7,7 +7,7 @@ import { expect, test } from "@playwright/test";
 test.describe.parallel("marketing public pages smoke @marketing-public-smoke", () => {
   test("welcome, why, and trust surfaces render primary hero headings", async ({ page }) => {
     await page.goto("/welcome", { waitUntil: "load" });
-    await expect(page.getByRole("heading", { name: /Ship governed architecture decisions faster/i })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /Defensible architecture, on demand/i })).toBeVisible({
       timeout: 60_000,
     });
     await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);

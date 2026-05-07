@@ -926,8 +926,9 @@ IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_FindingsSna
         CHECK (GenerationStatus IN (N'Generating', N'Complete', N'PartiallyComplete', N'Failed'));
 GO
 
-/* Relational findings — greenfield parity with DbUp 129 (scope columns on child tables) and DbUp 148
-   (no SQL Server RLS in consolidated bootstrap; optional RLS removal is forward migration only). */
+/* Relational findings — greenfield CREATE TABLE parity with DbUp 129 (scope columns on child/authority-path tables).
+   DbUp 129 replay backfills and SECURITY POLICY binds are brownfield-only (dynamic SQL / replay guards); keep this file aligned
+   with 129's final column layout. DbUp 148 may remove RLS after migrate (MULTI_TENANT_RLS.md). */
 -- Relational findings (dual-write with FindingsJson; typed payload only in FindingRecords.PayloadJson).
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NULL
 BEGIN

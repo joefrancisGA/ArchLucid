@@ -13,11 +13,8 @@ export const metadata: Metadata = {
   description:
     "How ArchLucid compares to common enterprise architecture tools — AI orchestration, governance, and audit evidence grounded in shipped V1 capabilities.",
   robots: { index: true, follow: true },
-  // Hidden HTML <meta> carrying the legacy brand-category phrase for ~30 days
-  // post-rebrand so SEO redirect handlers and analytics tag mappers can still
-  // resolve historical inbound links / search-result snippets that reference
-  // "AI Architecture Intelligence". Removed by the closing PR-7 of the rebrand
-  // workstream — see docs/architecture/REBRAND_WORKSTREAM_2026_04_23.md.
+  // SEO/analytics: `BRAND_CATEGORY_LEGACY` from the seam (~30-day outbound resolve window).
+  // Tracker: `docs/architecture/REBRAND_WORKSTREAM_2026_05_07.md`.
   other: {
     "x-archlucid-brand-category-legacy": BRAND_CATEGORY_LEGACY,
   },

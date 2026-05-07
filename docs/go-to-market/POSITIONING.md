@@ -7,7 +7,7 @@
 
 **Audience:** Anyone who needs to explain what ArchLucid is and why it matters — in a sentence, a paragraph, or a two-minute conversation.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-05-07
 
 **Grounding rule:** Every claim maps to a shipped V1 capability. See [V1_SCOPE.md](../library/V1_SCOPE.md) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) for evidence.
 
@@ -19,9 +19,9 @@
 
 ## 1. Positioning statement
 
-> For **enterprise architects and the CTOs who sponsor their work**, ArchLucid turns scattered architecture evidence into a **prioritized, evidence-linked risk review** — complete with recommended actions, confidence ratings, and an exportable executive summary. Unlike **manual architecture review** which is slow, inconsistent, and undocumented, or **ad-hoc AI tools** which produce prose without accountability, ArchLucid delivers findings you can defend: every risk traced to evidence, every recommendation actionable, every decision auditable.
+> For **enterprise architects and the CTOs who sponsor their work**, ArchLucid turns scattered architecture evidence into a **prioritized, evidence-linked risk review** — complete with recommended actions, confidence ratings, explicit limits where the system does not conclude, and an exportable executive summary. Unlike **manual architecture review** which is slow, inconsistent, and undocumented, or **ad-hoc AI tools** which produce prose without accountability, ArchLucid delivers a **proof-oriented package**: every risk traced to evidence, every recommendation actionable, every decision auditable — obvious without a founder narrating it.
 
-**Category:** AI Architecture Intelligence — sits between traditional Enterprise Architecture Management (which catalogs but does not analyze) and ad-hoc AI assistance (which analyzes but lacks governance and traceability).
+**Category:** Architecture Proof Engine — sits between traditional Enterprise Architecture Management (which catalogs but does not analyze) and ad-hoc AI assistance (which analyzes but lacks governance and traceability). **Lead promise:** *Defensible architecture, on demand.*
 
 ---
 
@@ -143,7 +143,7 @@ These are factual claims grounded in what the repository ships today.
 
 ## 5. Category definition
 
-**AI Architecture Intelligence** is a new product category that combines:
+**Architecture Proof Engine** names a product category that combines:
 
 1. **AI-driven analysis** of system designs (topology, cost, compliance, quality)
 2. **Enterprise governance** (policy enforcement, approval workflows, compliance gates)
@@ -156,13 +156,13 @@ This category sits between traditional **Enterprise Architecture Management** (w
 │                    Enterprise Architecture                       │
 │                                                                  │
 │  ┌─────────────┐    ┌──────────────────────┐    ┌─────────────┐ │
-│  │ EA Mgmt     │    │ AI Architecture      │    │ Ad-hoc AI   │ │
-│  │ (LeanIX,    │    │ Intelligence         │    │ (ChatGPT,   │ │
-│  │  Ardoq)     │    │ (ArchLucid)          │    │  Copilot)   │ │
-│  │             │    │                      │    │             │ │
-│  │ Catalogs    │    │ Analyzes + Governs   │    │ Advises     │ │
-│  │ Models      │    │ Traces + Audits      │    │ (ephemeral) │ │
-│  │ Documents   │    │ Enforces + Exports   │    │             │ │
+│  │ EA Mgmt     │    │ Architecture Proof   │    │ Ad-hoc AI   │ │
+│  │ (LeanIX,    │    │ Engine (ArchLucid)   │    │ (ChatGPT,   │ │
+│  │  Ardoq)     │    │                      │    │  Copilot)   │ │
+│  │             │    │ Analyzes + Governs   │    │             │ │
+│  │ Catalogs    │    │ Traces + Audits      │    │ Advises     │ │
+│  │ Models      │    │ Enforces + Exports   │    │ (ephemeral) │ │
+│  │ Documents   │    │                      │    │             │ │
 │  │             │    │                      │    │             │ │
 │  │ No AI       │    │ AI + Governance      │    │ AI only     │ │
 │  │ Manual      │    │ Automated            │    │ No govern.  │ │
@@ -177,10 +177,11 @@ This category sits between traditional **Enterprise Architecture Management** (w
 
 | Tagline | Angle |
 |---------|-------|
+| *Defensible architecture, on demand.* | Lead promise (homepage H1) |
+| "Architecture proof engine — evidence, limits, and value without narration." | Proof-machine framing |
 | "Architecture decisions you can explain, govern, and audit." | Accountability focus |
 | "AI-driven architecture review. Enterprise-grade governance." | Capability + trust |
 | "From design to decision trail — in minutes, not weeks." | Speed + auditability |
-| "The architecture review board that never sleeps." | Automation |
 | "Every recommendation traced. Every decision governed." | Transparency + control |
 
 ---
@@ -191,7 +192,7 @@ This category sits between traditional **Enterprise Architecture Management** (w
 |----|-------|
 | Lead with the **buyer outcome**: "architecture risk review in minutes, findings your CTO can act on" | Lead with implementation: "multi-agent pipeline" or "10 finding engines" |
 | Use buyer vocabulary: **risk, finding, recommended action, evidence, confidence, readiness** | Use internal vocabulary as first-impression words: "manifest", "run", "commit", "coordinator" |
-| Say "AI Architecture Intelligence" when explaining the **category** | Say "AI-powered" as the headline — every tool says this now |
+| Say "**Architecture Proof Engine**" when explaining the **category** | Say "AI-powered" as the headline — every tool says this now |
 | Emphasize **evidence linkage**: every finding cites what it used | Claim "fully autonomous architecture design" — agents are orchestrated, not autonomous |
 | Lead with **architecture review** — AI is the engine, not the promise | Over-promise on AI accuracy — frame findings as decision support, not legal attestation |
 | Highlight the **executive summary export** — this is what gets budget approved | Position governance workflow as the first selling point (it is the second sale) |
