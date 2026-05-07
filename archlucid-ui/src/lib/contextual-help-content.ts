@@ -31,7 +31,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/CORE_PILOT.md#governance-gate",
   },
   "alerts-inbox": {
-    text: "Alerts inbox shows deduplicated architecture-risk alerts. Ack, filter by severity, or configure rules via the Rules tab.",
+    text: "Alerts inbox shows deduplicated architecture-risk alerts. Acknowledge or resolve items tied to findings in this workspace.",
     learnMoreUrl: "/docs/ALERTS.md",
   },
   "compare-runs": {
@@ -52,7 +52,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/KNOWLEDGE_GRAPH.md",
   },
   "audit-log": {
-    text: "Append-only audit trail. Use filters and keyset pagination to browse events. Export via API.",
+    text: "Append-only audit trail with filters. See who approved what, when, and why.",
     learnMoreUrl: "/docs/AUDIT_COVERAGE_MATRIX.md",
   },
   "policy-packs": {
@@ -68,7 +68,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/operator-shell.md",
   },
   "ask-archlucid": {
-    text: "Multi-turn conversations about an architecture review. Select a review for the first message; follow-ups continue the same conversation.",
+    text: "Multi-turn conversations about an architecture review. Golden path in this workspace: New review → Reviews table → Manifest → Key finding → Ask → Governance handoff.",
     learnMoreUrl: "/docs/operator-shell.md",
   },
   "operator-scope-switcher": {

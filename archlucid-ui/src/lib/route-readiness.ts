@@ -14,7 +14,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/search": "demo-ready",
   "/scorecard": "demo-ready",
   "/reviews": "demo-ready",
-  "/governance/findings": "demo-ready",
+  "/governance/findings": "advanced-only",
   "/workspace/security-trust": "demo-ready",
   "/value-report": "advanced-only",
   "/value-report/pilot": "advanced-only",
@@ -78,12 +78,7 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
  * Advanced routes that stay in the buyer demo nav (compare, graph, Q&A, findings queue).
  * All other `advanced-only` destinations are hidden when `NEXT_PUBLIC_DEMO_MODE` is on.
  */
-const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>([
-  "/compare",
-  "/graph",
-  "/ask",
-  "/governance/findings",
-]);
+const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>(["/graph", "/ask"]);
 
 /** Pilot-tier links that are hidden in buyer demo nav (reduce noise vs core review story). */
 const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>(["/scorecard", "/search"]);

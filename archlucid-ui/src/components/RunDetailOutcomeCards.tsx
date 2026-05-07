@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 type RunDetailOutcomeCardsProps = {
   readonly runId: string;
@@ -31,6 +32,7 @@ export function RunDetailOutcomeCards({
   unresolvedIssueCountDisplay,
   governanceGateLabel,
 }: RunDetailOutcomeCardsProps) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const findingsCardEl = (
         <Card className="h-full border-neutral-200 dark:border-neutral-800">
@@ -39,7 +41,11 @@ export function RunDetailOutcomeCards({
               Warnings &amp; findings
             </CardTitle>
             <CardDescription>
-              {manifestId ? "From architecture review — click to jump" : "From architecture review"}
+              {manifestId
+                ? buyerPolishedShell
+                  ? "From this architecture review — open the section below"
+                  : "From architecture review — click to jump"
+                : "From architecture review"}
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0 space-y-1">
@@ -67,7 +73,11 @@ export function RunDetailOutcomeCards({
               Artifacts
             </CardTitle>
             <CardDescription>
-              {manifestId ? "Generated outputs — click to jump" : "Generated outputs"}
+              {manifestId
+                ? buyerPolishedShell
+                  ? "Generated outputs — open the section below"
+                  : "Generated outputs — click to jump"
+                : "Generated outputs"}
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
@@ -112,7 +122,7 @@ export function RunDetailOutcomeCards({
         </CardContent>
       </Card>
 
-      {manifestId ? (
+      {manifestId && !buyerPolishedShell ? (
         <Link href="#run-explanation" className={samePageJumpClass}>
           {findingsCardEl}
         </Link>
@@ -120,7 +130,7 @@ export function RunDetailOutcomeCards({
         findingsCardEl
       )}
 
-      {manifestId ? (
+      {manifestId && !buyerPolishedShell ? (
         <Link href="#artifacts-exports" className={samePageJumpClass}>
           {artifactsCardEl}
         </Link>
@@ -140,7 +150,7 @@ export function RunDetailOutcomeCards({
             className="text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
             href="#authority-chain"
           >
-            Jump to review trail on this page
+            {buyerPolishedShell ? "Open review trail on this page" : "Jump to review trail on this page"}
           </Link>
           <Link
             className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
@@ -148,14 +158,18 @@ export function RunDetailOutcomeCards({
           >
             Full provenance view
           </Link>
+          {buyerPolishedShell ? null : (
           <Link
             className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
             href={`/showcase/${encodeURIComponent(runId)}`}
           >
             Completed output (public showcase)
           </Link>
+          )}
           <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-            Timeline and audit identifiers stay below — start here for the proof path.
+            {buyerPolishedShell
+              ? "Use the links above for the evidence trail on this review."
+              : "Timeline and audit identifiers stay below — start here for the proof path."}
           </p>
         </CardContent>
       </Card>
