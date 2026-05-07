@@ -21,6 +21,7 @@ import {
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { cn } from "@/lib/utils";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -81,6 +82,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
 
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
   const hasArtifactsLink = run.hasArtifactBundle === true || showcaseStory;
+  const showEvidenceGraphCta = showcaseStory || run.hasGraphSnapshot === true;
   const findingsQuickHref = showcaseStory
     ? showcaseWalkthroughHref
     : `/reviews/${encodeURIComponent(run.runId)}#run-explanation`;
@@ -174,9 +176,22 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
 
       {/* Primary exploration — buyer-safe demos lead with manifest + showcase so hydration failures on `/reviews/[id]` do not strand evaluators */}
       <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
-        <Button variant="primary" size="sm" className="w-full" asChild>
-          <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
-        </Button>
+        {buyerPolished ? (
+          <div className={cn("grid gap-2", showEvidenceGraphCta ? "sm:grid-cols-2" : "")}>
+            <Button variant="primary" size="sm" className="w-full" asChild>
+              <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
+            </Button>
+            {showEvidenceGraphCta ? (
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <Link href="/graph">View evidence graph</Link>
+              </Button>
+            ) : null}
+          </div>
+        ) : (
+          <Button variant="primary" size="sm" className="w-full" asChild>
+            <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
+          </Button>
+        )}
 
         {buyerPolished ? (
           <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
@@ -184,12 +199,6 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
               More ways to explore
             </summary>
             <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
-              {showcaseStory || run.hasGraphSnapshot === true ? (
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href="/graph">Review trail graph</Link>
-                </Button>
-              ) : null}
-
               {buyerSafePrimary ? (
                 <>
                   <Button variant="outline" size="sm" className="w-full" asChild>
