@@ -4,9 +4,12 @@ export type OperatorShellPresetId = "full" | "pilot_operator" | "governance_revi
 
 export const OPERATOR_SHELL_PRESET_STORAGE_KEY = "archlucid-nav-preset-id";
 
+/** Initial sidebar shaping when no explicit preset is stored yet (explicit `full` in storage still wins). */
+export const OPERATOR_SHELL_PRESET_DEFAULT_ID: OperatorShellPresetId = "pilot_operator";
+
 export const OPERATOR_SHELL_PRESET_ORDER: readonly OperatorShellPresetId[] = [
-  "full",
   "pilot_operator",
+  "full",
   "governance_reviewer",
   "analytics_investigator",
 ];

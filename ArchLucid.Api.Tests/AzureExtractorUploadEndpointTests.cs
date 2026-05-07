@@ -118,12 +118,11 @@ public sealed class AzureExtractorUploadEndpointTests : IClassFixture<Greenfield
 
     private async Task AssertPackageStoredAsync(Guid packageId)
     {
-
-        using SqlConnection conn = new(_fixture.SqlConnectionString);
+        await using SqlConnection conn = new(_fixture.SqlConnectionString);
 
         await conn.OpenAsync();
 
-        using SqlCommand cmd = conn.CreateCommand();
+        await using SqlCommand cmd = conn.CreateCommand();
 
         cmd.CommandText = """
 

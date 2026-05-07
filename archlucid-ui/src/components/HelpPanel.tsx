@@ -3,8 +3,9 @@
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useState } from "react";
 
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,8 @@ export type HelpPanelProps = {
 };
 
 type HelpTabId = "guides" | "shortcuts" | "troubleshooting";
+
+const HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY = "archlucid_help_core_pilot_pin_dismissed_session";
 
 const KEY_CONCEPTS: { label: string; text: string }[] = [
   { label: "Request", text: "The architecture intent you submit." },
@@ -54,8 +57,36 @@ function allShortcutRowsForSearch(): { key: string; description: string }[] {
  */
 export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
   const pathname = usePathname() ?? "/";
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<HelpTabId>("guides");
+  const [corePilotPinDismissedThisSession, setCorePilotPinDismissedThisSession] = useState(false);
+
+  useLayoutEffect(() => {
+    try {
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      if (sessionStorage.getItem(HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY) === "1") {
+        setCorePilotPinDismissedThisSession(true);
+      }
+    } catch {
+      /* private mode */
+    }
+  }, []);
+
+  const dismissCorePilotPinForSession = useCallback(() => {
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY, "1");
+      }
+    } catch {
+      /* private mode */
+    }
+
+    setCorePilotPinDismissedThisSession(true);
+  }, []);
 
   const allShortcutRows = useMemo(() => allShortcutRowsForSearch(), []);
 
@@ -112,6 +143,10 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
   }, [allShortcutRows, query]);
 
   const corePilotPinnedHelp = useMemo(() => {
+    if (hasCommittedArchitectureReview || corePilotPinDismissedThisSession) {
+      return null;
+    }
+
     if (query.trim().length > 0) {
       return null;
     }
@@ -133,21 +168,38 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
           Step {pilotCtx.stepIndex + 1} of {CORE_PILOT_STEPS.length}: {pilotCtx.step.title}
         </p>
         <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-300">{pilotCtx.step.shortBody}</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Button asChild size="sm" variant="primary">
-            <Link href={pilotCtx.step.primaryHref}>{pilotCtx.step.primaryLabel}</Link>
-          </Button>
-          {corePilotGuideHref ? (
-            <Button asChild size="sm" variant="outline">
-              <a href={corePilotGuideHref} target="_blank" rel="noreferrer">
-                Open Core Pilot guide
-              </a>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm" variant="primary">
+              <Link href={pilotCtx.step.primaryHref}>{pilotCtx.step.primaryLabel}</Link>
             </Button>
-          ) : null}
+            {corePilotGuideHref ? (
+              <Button asChild size="sm" variant="outline">
+                <a href={corePilotGuideHref} target="_blank" rel="noreferrer">
+                  Open Core Pilot guide
+                </a>
+              </Button>
+            ) : null}
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 shrink-0 text-xs text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+            onClick={dismissCorePilotPinForSession}
+          >
+            Dismiss for this session
+          </Button>
         </div>
       </div>
     );
-  }, [pathname, query]);
+  }, [
+    corePilotPinDismissedThisSession,
+    dismissCorePilotPinForSession,
+    hasCommittedArchitectureReview,
+    pathname,
+    query,
+  ]);
 
   function handleOpenChange(next: boolean): void {
     if (!next) {

@@ -27,6 +27,7 @@ import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import {
+  OPERATOR_SHELL_PRESET_DEFAULT_ID,
   OPERATOR_SHELL_PRESET_ORDER,
   OPERATOR_SHELL_PRESET_STORAGE_KEY,
   isOperatorShellPresetId,
@@ -156,7 +157,7 @@ export function SidebarNav() {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [adminSectionOpen, setAdminSectionOpen] = useState(false);
-  const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>("full");
+  const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>(OPERATOR_SHELL_PRESET_DEFAULT_ID);
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showProgressiveDisclosureChrome = !demoUi && !buyerPolishedShell;

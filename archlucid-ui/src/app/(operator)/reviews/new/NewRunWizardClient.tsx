@@ -14,8 +14,10 @@ import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity
 import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { createArchitectureRun, listRunsByProjectPaged } from "@/lib/api";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
@@ -106,6 +108,7 @@ export function NewRunWizardClient() {
   }, [searchParams]);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
   const [wizardMode, setWizardMode] = useState<"quick" | "full">(() => {
     if (typeof window === "undefined") {
@@ -195,6 +198,12 @@ export function NewRunWizardClient() {
     }
   }, [operatorHomeExampleKey, setValue, stepIndex]);
 
+  useEffect(() => {
+    if (stepIndex !== 4) {
+      setSubmitError(null);
+    }
+  }, [stepIndex]);
+
   const canProceed = !submitting;
 
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
@@ -267,6 +276,7 @@ export function NewRunWizardClient() {
     }
 
     setSubmitting(true);
+    setSubmitError(null);
 
     try {
       const body = wizardValuesToCreateRunPayload(getValues());
@@ -284,11 +294,15 @@ export function NewRunWizardClient() {
       recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
     } catch (error: unknown) {
-      const message =
-        error && typeof error === "object" && "message" in error
-          ? String((error as { message?: string }).message)
-          : "Request failed.";
-      showToast("err", message);
+      setSubmitError(error);
+
+      if (!isApiRequestError(error)) {
+        const message =
+          error && typeof error === "object" && "message" in error
+            ? String((error as { message?: string }).message)
+            : "Request failed.";
+        showToast("err", message);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -401,6 +415,28 @@ export function NewRunWizardClient() {
               className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-neutral-200/60 bg-neutral-50/98 px-4 py-3 shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.06)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/85 dark:border-neutral-800/60 dark:bg-neutral-950/98 dark:shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.25)] dark:supports-[backdrop-filter]:bg-neutral-950/85 lg:-mx-6 lg:px-6"
               data-testid="new-run-wizard-footer"
             >
+              {isReviewStep && submitError !== null ? (
+                <div className="mb-3" data-testid="new-run-wizard-submit-error">
+                  {isApiRequestError(submitError) ? (
+                    <OperatorApiProblem
+                      problem={submitError.problem}
+                      fallbackMessage={submitError.message}
+                      correlationId={submitError.correlationId}
+                      httpStatus={submitError.httpStatus}
+                      retryAfterSeconds={submitError.retryAfterSeconds}
+                    />
+                  ) : (
+                    <OperatorApiProblem
+                      problem={null}
+                      fallbackMessage={
+                        submitError && typeof submitError === "object" && "message" in submitError
+                          ? String((submitError as { message?: string }).message)
+                          : "Request failed."
+                      }
+                    />
+                  )}
+                </div>
+              ) : null}
               <WizardNavButtons
                 onBack={goBack}
                 onNext={isReviewStep ? undefined : goNext}

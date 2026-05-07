@@ -12,6 +12,15 @@ export const CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON = "Show first-review check
 export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
   "Create architecture review → Pipeline runs → Finalize → Review package";
 
-/** One-line cognitive-load hint for the operator shell (first session). */
-export const CORE_PILOT_FIRST_SESSION_GUIDANCE =
-  "If this feels like a lot: for your first session, create one architecture review, let the pipeline runs finish, finalize, then open the review package (manifest summary). You can ignore extras until that package exists. When you need sponsor-facing output, export the first-value report and read Proof sendability and the buyer-safe gate section before sharing outside your team.";
+/**
+ * Short first-session bullets (replaces the old paragraph wall). Keep wording aligned with
+ * {@link CORE_PILOT_WORKFLOW_SUMMARY_LINE}; deeper terms stay in step bodies.
+ */
+export const CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS: readonly string[] = [
+  "Create and submit one architecture review request from the new-request wizard, then watch the pipeline on review detail until it settles.",
+  "When the pipeline is ready, finalize to lock the governed manifest—you will get the manifest summary, findings, and artifacts as one review package.",
+  "Defer Compare, Replay, Graph, and exports until that package exists; when you export, read the gated sections in the output before circulating outside your team.",
+];
+
+/** @deprecated Prefer {@link CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS} in UI lists. */
+export const CORE_PILOT_FIRST_SESSION_GUIDANCE = CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.join(" ");

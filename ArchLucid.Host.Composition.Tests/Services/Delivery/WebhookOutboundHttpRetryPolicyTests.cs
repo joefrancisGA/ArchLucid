@@ -19,7 +19,7 @@ public sealed class WebhookOutboundHttpRetryPolicyTests
     {
         Sequential503ThenOkHandler primary = new();
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
 
         services.AddLogging(static b => b.SetMinimumLevel(LogLevel.None));
 
@@ -46,7 +46,10 @@ public sealed class WebhookOutboundHttpRetryPolicyTests
     /// <remarks>Mocks transport; Polly observes status codes returned by SendAsync.</remarks>
     private sealed class Sequential503ThenOkHandler : HttpMessageHandler
     {
-        public int SendCount { get; private set; }
+        public int SendCount
+        {
+            get; private set;
+        }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)

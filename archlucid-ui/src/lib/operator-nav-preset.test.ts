@@ -3,6 +3,8 @@ import { describe, expect, test } from "vitest";
 
 import {
 
+  OPERATOR_SHELL_PRESET_DEFAULT_ID,
+  OPERATOR_SHELL_PRESET_ORDER,
   OPERATOR_SHELL_PRESET_STORAGE_KEY,
   operatorShellPresetAllowsHref,
 
@@ -16,6 +18,15 @@ describe("operator-nav-preset", () => {
 
 
     expect(OPERATOR_SHELL_PRESET_STORAGE_KEY).toBe("archlucid-nav-preset-id");
+  });
+
+
+  test("pilot_operator is the default preset id and listed first in settings order", () => {
+
+
+    expect(OPERATOR_SHELL_PRESET_DEFAULT_ID).toBe("pilot_operator");
+
+    expect(OPERATOR_SHELL_PRESET_ORDER[0]).toBe("pilot_operator");
   });
 
 

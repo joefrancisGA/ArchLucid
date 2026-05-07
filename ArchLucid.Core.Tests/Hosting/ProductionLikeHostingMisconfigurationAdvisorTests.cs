@@ -14,7 +14,7 @@ public sealed class ProductionLikeHostingMisconfigurationAdvisorTests
     public void DescribeWarnings_pure_development_and_safe_archlucid_env_returns_empty()
     {
         IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(Array.Empty<KeyValuePair<string, string?>>())
+            .AddInMemoryCollection([])
             .Build();
 
         IReadOnlyList<string> warnings = ProductionLikeHostingMisconfigurationAdvisor.DescribeWarnings(

@@ -291,24 +291,11 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     /// <summary>True if <paramref name="node" /> is <typeparamref name="T" /> or holds it in any non-public <see cref="IAgentCompletionClient" /> field (e.g. _inner, _primary).</summary>
     private static bool DecoratorChainContains<T>(object? node) where T : class
     {
-        if (node is T)
-            return true;
+        if (node is T) return true;
 
-        if (node is null)
-            return false;
+        if (node is null) return false;
 
-        foreach (FieldInfo field in node.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
-        {
-            if (!typeof(IAgentCompletionClient).IsAssignableFrom(field.FieldType))
-                continue;
-
-            object? next = field.GetValue(node);
-
-            if (next is not null && DecoratorChainContains<T>(next))
-                return true;
-        }
-
-        return false;
+        return (from field in node.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic) where typeof(IAgentCompletionClient).IsAssignableFrom(field.FieldType) select field.GetValue(node)).OfType<object>().Any(next => DecoratorChainContains<T>(next));
     }
 
     private static Dictionary<string, string?> CreateSimulatorCompositionDictionary()

@@ -89,12 +89,7 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
                 {
                     int n = Interlocked.Increment(ref calls);
 
-                    if (n < 3)
-                    {
-                        return Task.FromException<float[]>(new HttpRequestException("429"));
-                    }
-
-                    return Task.FromResult(vector);
+                    return n < 3 ? Task.FromException<float[]>(new HttpRequestException("429")) : Task.FromResult(vector);
                 });
 
         CircuitBreakerOptions options = new()
@@ -102,6 +97,7 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
             FailureThreshold = 5,
             DurationOfBreakSeconds = 60
         };
+
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerGate gate = new("embed-retry", options, clock.ToFunc());
         ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
@@ -132,12 +128,7 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
                 {
                     int n = Interlocked.Increment(ref calls);
 
-                    if (n < 2)
-                    {
-                        return Task.FromException<IReadOnlyList<float[]>>(new HttpRequestException("503"));
-                    }
-
-                    return Task.FromResult(batch);
+                    return n < 2 ? Task.FromException<IReadOnlyList<float[]>>(new HttpRequestException("503")) : Task.FromResult(batch);
                 });
 
         CircuitBreakerOptions options = new()
