@@ -85,7 +85,7 @@ export function PostCommitAdvancedAnalysisHint({
           </Link>
         </li>
         <li>
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/graph">
+          <Link className="text-teal-800 underline dark:text-teal-300" href={`/graph?runId=${encoded}`}>
             Graph
           </Link>
         </li>

@@ -73,6 +73,7 @@ import {
   governanceWorkflowActivationsEmptyReaderHint,
   governanceWorkflowNoApprovalsOperatorHint,
   governanceWorkflowNoApprovalsReaderHint,
+  governanceWorkflowOutcomeBannerLine,
   governanceWorkflowPromoteButtonLabelReaderRank,
   governanceWorkflowPromotionsActivationsHeadingOperator,
   governanceWorkflowPromotionsActivationsHeadingReader,
@@ -543,6 +544,12 @@ function GovernanceWorkflowPageInner() {
         subtitle={canMutateWorkflow ? governanceWorkflowPageLeadOperator : governanceWorkflowPageLeadReader}
         helpKey="governance-workflow"
       />
+      <p
+        className="mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
+        data-testid="governance-workflow-outcome-banner"
+      >
+        {governanceWorkflowOutcomeBannerLine}
+      </p>
 
       {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) ? (
         <div className="mb-6 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 text-sm text-neutral-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-neutral-50">

@@ -587,7 +587,20 @@ function CompareForm() {
             </details>
           ) : null}
 
-        {aiExplanation !== null && <AiComparisonExplanationView explanation={aiExplanation} />}
+        {aiExplanation !== null ? (
+          <details
+            id="compare-ai"
+            className="mt-6 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
+            open
+          >
+            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-neutral-900 outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
+              Sponsor narrative (AI-generated) — optional; confirm against structured diff before sign-off
+            </summary>
+            <div className="border-t border-neutral-200 px-4 pb-2 dark:border-neutral-700">
+              <AiComparisonExplanationView explanation={aiExplanation} />
+            </div>
+          </details>
+        ) : null}
       </ClientErrorBoundary>
       </section>
       </div>

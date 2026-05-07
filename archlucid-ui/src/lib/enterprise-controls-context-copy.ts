@@ -268,7 +268,14 @@ export const alertsPageLeadOperator = "Filter, page, then triage per card.";
 /** Alerts inbox — lead under title (read tier); `AlertsInboxRankCue` carries write boundary. */
 export const alertsPageLeadReader = "Filter and page.";
 
-/** Alerts inbox — **Refresh** reloads the paged list (`GET`); triage remains Execute+ on the API. */
+/** Semantic search — subtitle under title (`search/page.tsx`). */
+export const semanticSearchPageSubtitleOperator =
+  "Search evidence text scoped to your workspace (same retrieval index as Ask ArchLucid).";
+
+/** semanticSearchPageSubtitleOperator — expanded note for engineers (optional collapse). Kept out of the default subtitle. */
+export const semanticSearchPageDeploymentNoteDev =
+  "Local/dev stacks may use in-memory indexing or synthetic embeddings; staging and production use your configured search backend.";
+
 export const alertsInboxRefreshButtonTitleOperator = "Reload alerts for the current status filter (GET).";
 
 export const alertsInboxRefreshButtonTitleReader =
@@ -345,6 +352,10 @@ export const governanceWorkflowPromotionsActivationsSectionLeadOperator =
 export const governanceWorkflowPromotionsActivationsSectionLeadReader =
   "Read-only timeline; Promote and Activate require approver rights (API).";
 
+/** Governance workflow — outcome banner under headers (`governance/page.tsx`): scope vs Policy packs / resolution. */
+export const governanceWorkflowOutcomeBannerLine =
+  "Submits and tracks approvals and promotions; rule content is edited in Policy packs. Effective merge is inspected on Governance resolution.";
+
 /** Policy packs — lead under title (Execute+); link to Governance resolution for stack semantics. */
 export const policyPacksPageLeadOperator =
   "Review inventory and effective policy first; publish or assign when your role allows.";
@@ -360,6 +371,10 @@ export const policyPacksPageLeadOperatorBuyerPolished =
 /** Policy packs — buyer demo shell: lead for read tier. */
 export const policyPacksPageLeadReaderBuyerPolished =
   "See which compliance rules apply to architecture reviews in this workspace. Changes require the appropriate role in your organization.";
+
+/** Policy packs — outcome banner under headers (`policy-packs/page.tsx`). */
+export const policyPacksOutcomeBannerLine =
+  "Versions and assigns packs for this scope; enforcement applies through governance resolution and review finalization—not from this page alone.";
 
 /** Policy packs — **Current policy packs** section heading (`policy-packs/page.tsx`). */
 export const policyPacksCurrentPacksHeadingOperator = "Current policy packs";

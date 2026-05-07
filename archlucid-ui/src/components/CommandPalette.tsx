@@ -2,7 +2,7 @@
 
 import { useCommandState } from "cmdk";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,14 +16,48 @@ import {
 } from "@/components/ui/command";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import { listNavGroupsVisibleInOperatorShell, visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function CommandPaletteCuratedTasks({
+  visibleHrefs,
+  onNavigate,
+}: {
+  visibleHrefs: ReadonlySet<string>;
+  onNavigate: (href: string) => void;
+}) {
+  const curated = useMemo(
+    () => COMMAND_PALETTE_CURATED_TASKS.filter((task) => visibleHrefs.has(task.href)),
+    [visibleHrefs],
+  );
+
+  if (curated.length === 0) {
+    return null;
+  }
+
+  return (
+    <CommandGroup heading="Quick tasks">
+      {curated.map((task) => (
+        <CommandItem
+          key={`curated-${task.href}`}
+          value={`quick ${task.label} ${task.searchValue}`}
+          onSelect={() => {
+            onNavigate(task.href);
+          }}
+        >
+          {task.label}
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  );
+}
 
 function CommandPaletteNavGroups({
   callerAuthorityRank,
@@ -152,6 +186,22 @@ export function CommandPalette() {
   const paletteExtended = buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
   const paletteAdvanced = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
 
+  const visibleHrefs = useMemo(
+    () =>
+      visibleOperatorShellHrefSet(
+        paletteExtended,
+        paletteAdvanced,
+        callerAuthorityRank,
+        hasCommittedArchitectureReview,
+      ),
+    [
+      paletteExtended,
+      paletteAdvanced,
+      callerAuthorityRank,
+      hasCommittedArchitectureReview,
+    ],
+  );
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
@@ -216,6 +266,7 @@ export function CommandPalette() {
         <CommandInput placeholder={polishedShell ? "Find a page…" : "Search pages or paste a review ID…"} />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!polishedShell} />
+          <CommandPaletteCuratedTasks visibleHrefs={visibleHrefs} onNavigate={navigate} />
           <CommandEmpty>
             {polishedShell
               ? "No matching page. Try another search."

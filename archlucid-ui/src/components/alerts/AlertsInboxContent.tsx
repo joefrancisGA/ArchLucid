@@ -160,6 +160,24 @@ export function AlertsInboxContent() {
     void load();
   }, [load]);
 
+  const pageMixSummary = useMemo(() => {
+    if (alerts.length === 0) {
+      return null;
+    }
+
+    const parts: string[] = [];
+
+    for (const label of ["Open", "Acknowledged", "Resolved", "Suppressed"]) {
+      const n = alerts.filter((a) => a.status === label).length;
+
+      if (n > 0) {
+        parts.push(`${n} ${label}`);
+      }
+    }
+
+    return parts.length > 0 ? parts.join(" · ") : null;
+  }, [alerts]);
+
   const emptyFilteredProps = useMemo(() => {
     const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
@@ -308,6 +326,37 @@ export function AlertsInboxContent() {
           {loading ? "Loading…" : "Refresh"}
         </Button>
       </div>
+
+      {failure === null ? (
+        <div
+          className="mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200"
+          data-testid="alerts-inbox-operational-summary"
+        >
+          {loading ? (
+            <p className="m-0 text-neutral-600 dark:text-neutral-400">Refreshing alert counts…</p>
+          ) : (
+            <>
+              <p className="m-0">
+                <strong>{totalCount}</strong> {totalCount === 1 ? "alert" : "alerts"}{" "}
+                {status === ALL_STATUSES_VALUE ? "for the current filter." : `with status “${status}”.`}
+              </p>
+              {pageMixSummary !== null && status === ALL_STATUSES_VALUE ? (
+                <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                  Page {page} of {totalPages}: {pageMixSummary}.
+                </p>
+              ) : null}
+              {totalCount === 0 && !isBuyerPolishedOperatorShellEnv() ? (
+                <p className="m-0 mt-1">
+                  <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/alerts?tab=rules">
+                    Configure alert rules
+                  </Link>{" "}
+                  when you expect traffic.
+                </p>
+              ) : null}
+            </>
+          )}
+        </div>
+      ) : null}
 
       {isBuyerPolishedOperatorShellEnv() ? null : (
         <span className="sr-only">

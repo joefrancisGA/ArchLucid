@@ -14,6 +14,10 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import {
+  semanticSearchPageDeploymentNoteDev,
+  semanticSearchPageSubtitleOperator,
+} from "@/lib/enterprise-controls-context-copy";
 import { SEARCH_EMPTY } from "@/lib/search-empty-preset";
 
 type RetrievalHit = {
@@ -71,8 +75,17 @@ export default function SearchPage() {
       <OperatorPageHeader
         title="Semantic Search"
         helpKey="semantic-search"
-        subtitle="Scoped to your workspace. Uses the same embedding + index as Ask ArchLucid (in-memory + fake vectors by default)."
+        subtitle={semanticSearchPageSubtitleOperator}
       />
+
+      {process.env.NODE_ENV === "development" ? (
+        <details className="mb-4 max-w-prose rounded-md border border-dashed border-neutral-300 bg-neutral-50/80 px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-900/40">
+          <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+            Deployment note (development only)
+          </summary>
+          <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">{semanticSearchPageDeploymentNoteDev}</p>
+        </details>
+      ) : null}
 
       <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">
         <CardContent className="grid gap-3 p-4">

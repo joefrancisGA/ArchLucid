@@ -28,6 +28,34 @@ Summarize **whether** the public health endpoints (`/health/live`, `/health/read
 - **Do not** publish **“99.x% availability”** to buyers from this probe alone: it is **not** production monitoring, not multi-region, and not user-traffic SLO-backed.
 - For buyer-facing language, pair with [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) posture and any **separate** production telemetry your organization approves.
 
-## Optional automation
+## Optional automation (markdown rollup)
 
-Use **`scripts/ops/summarize_hosted_probe_artifacts.py`** to merge multiple downloaded `probe-result.json` files into a printed summary (stdin list of paths or a directory).
+Use **`scripts/ops/summarize_hosted_probe_artifacts.py`** to merge multiple downloaded `probe-result.json` files (or a directory tree of them), an optional CSV export, or **stdin** (one JSON object per line) into a **markdown** or text summary.
+
+```bash
+# Markdown to stdout (default), staging rollup from a folder of downloaded artifacts
+python3 scripts/ops/summarize_hosted_probe_artifacts.py path/to/downloaded/run-a.json path/to/run-b.json
+
+# Same, write to a file for attaching to an internal note or release bundle
+python3 scripts/ops/summarize_hosted_probe_artifacts.py --format markdown -o /tmp/hosted-probe-rollup-30d.md path/to/json/dir
+
+# CSV input (header: probedAtUtc,skipped,live_ok,ready_ok[,baseUrl])
+python3 scripts/ops/summarize_hosted_probe_artifacts.py --csv path/to/probes.csv -o rollup.md
+
+# Legacy one-line metrics (no markdown)
+python3 scripts/ops/summarize_hosted_probe_artifacts.py --format text path/to/run-001.json
+```
+
+The script **does not** call GitHub or Azure APIs; it only reads local files. It labels **environment** (staging / production / unknown) from `baseUrl` heuristics, separates **published SLO target** (from `docs/library/API_SLOS.md` / `docs/library/SLA_TARGETS.md`) from **achieved probe uptime**, and includes standard **“not a contractual SLA”** wording.
+
+**Fixture examples** checked into the repo: `scripts/fixtures/hosted_probe_rollup/` (used by `scripts/ci/tests/test_summarize_hosted_probe_artifacts.py`).
+
+## Where to store the generated artifact
+
+| Store | Use |
+|-------|-----|
+| **Internal only** (default) | Release engineering notes, weekly platform check-ins, private procurement working folders. Prefer a dated filename, e.g. `hosted-probe-rollup-2026-05-01_2026-05-30-utc.md`, and keep alongside the **source** `probe-result.json` files. |
+| **Buyer / Trust Center–adjacent** | **Do not** paste staging rollup percentages into buyer-facing pages as “production availability.” If leadership approves **production** probe rollups backed by non-staging URLs and consistent methodology, cite the **method** and link to [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) + this runbook — still **not** a CPA or contract SLA claim unless the order form explicitly ties to measured minutes. |
+| **Version control** | Only commit rollups if the repo policy allows operational artifacts; otherwise keep in secure storage or the procurement **pack** attach area. Never commit **staging** rollup numbers as **production** evidence. |
+
+**CI / regression:** `python -m pytest scripts/ci/tests/test_summarize_hosted_probe_artifacts.py`

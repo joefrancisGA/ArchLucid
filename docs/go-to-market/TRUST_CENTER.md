@@ -77,7 +77,9 @@ This table lists **engagement metadata only** — not redacted findings, not cus
 
 ### Hosted staging probes (internal rollup)
 
-Scheduled **`hosted-saas-probe`** workflow results can be rolled into a **30-day internal summary** for reliability conversations. Do **not** treat staging curl probes as a buyer-facing production SLO without separate policy — see [`../runbooks/HOSTED_AVAILABILITY_ROLLUP.md`](../runbooks/HOSTED_AVAILABILITY_ROLLUP.md).
+Scheduled **`hosted-saas-probe`** workflow results can be rolled into a **30-day internal summary** with `scripts/ops/summarize_hosted_probe_artifacts.py`. Methodology, artifact **storage**, and **buyer-safe vs internal-only** rules: [`../runbooks/HOSTED_AVAILABILITY_ROLLUP.md`](../runbooks/HOSTED_AVAILABILITY_ROLLUP.md).
+
+Do **not** treat **staging** probes as **production** availability evidence. Rollup text **disclaims contractual SLA**. Published **99.9%** targets in [`../library/API_SLOS.md`](../library/API_SLOS.md) and [`SLA_TARGETS.md`](../library/SLA_TARGETS.md) are engineering **targets**, not an assertion that a specific probe window met a **negotiated production** commitment unless **production** `baseUrl` values and an owner-reviewed rollup support that claim.
 
 ---
 

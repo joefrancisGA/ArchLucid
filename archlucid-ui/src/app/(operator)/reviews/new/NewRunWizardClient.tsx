@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
@@ -145,7 +145,17 @@ export function NewRunWizardClient() {
     mode: "onBlur",
   });
 
-  const { trigger, getValues, setValue } = form;
+  const { trigger, getValues, setValue, control } = form;
+
+  const recapSystemName = useWatch({ control, name: "systemName" })?.trim() ?? "";
+  const recapEnvironment = useWatch({ control, name: "environment" })?.trim() ?? "";
+  const recapCloud = useWatch({ control, name: "cloudProvider" })?.trim() ?? "";
+  const recapDescription = useWatch({ control, name: "description" })?.trim() ?? "";
+  const recapConstraintsList = useWatch({ control, name: "constraints" });
+  const recapConstraints =
+    Array.isArray(recapConstraintsList) && recapConstraintsList.length > 0
+      ? recapConstraintsList.map((c) => String(c).trim()).filter((c) => c.length > 0).join(", ")
+      : "";
 
   const operatorHomeExampleKey = useMemo(() => {
     const raw = searchParams?.get("example")?.trim().toLowerCase() ?? "";
@@ -391,6 +401,46 @@ export function NewRunWizardClient() {
             currentStep={macroStep}
             completedSteps={completedMacroSteps}
           />
+
+          {stepIndex >= 1 && stepIndex <= 4 ? (
+            <div
+              className="rounded-lg border border-teal-200/80 bg-teal-50/50 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"
+              data-testid="new-run-wizard-step-recap"
+            >
+              <strong className="font-semibold">Request so far:</strong>{" "}
+              {recapSystemName.length > 0 ? (
+                <span>
+                  <span className="text-neutral-600 dark:text-neutral-400">System</span> {recapSystemName}
+                  {recapEnvironment.length > 0 ? (
+                    <>
+                      {" "}
+                      · <span className="text-neutral-600 dark:text-neutral-400">Env</span> {recapEnvironment}
+                    </>
+                  ) : null}
+                  {recapCloud.length > 0 ? (
+                    <>
+                      {" "}
+                      · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span> {recapCloud}
+                    </>
+                  ) : null}
+                </span>
+              ) : (
+                <span className="text-neutral-600 dark:text-neutral-400">Add identity on this step.</span>
+              )}
+              {stepIndex >= 2 && recapDescription.length > 0 ? (
+                <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
+                  <span className="text-neutral-600 dark:text-neutral-400">Brief:</span>{" "}
+                  {recapDescription.length > 180 ? `${recapDescription.slice(0, 177)}…` : recapDescription}
+                </span>
+              ) : null}
+              {stepIndex >= 3 && recapConstraints.length > 0 ? (
+                <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
+                  <span className="text-neutral-600 dark:text-neutral-400">Constraints noted:</span>{" "}
+                  {recapConstraints.length > 120 ? `${recapConstraints.slice(0, 117)}…` : recapConstraints}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
 
           {stepIndex === 0 ? (
             <WizardStepPreset
