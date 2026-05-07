@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-telemetry";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
@@ -34,11 +35,14 @@ export default function RunDetailSegmentError({
 
   if (isStaticFallback || isBuyerPolished) {
     return (
-      <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
+      <RunDetailMinimalChromeMount>
+        <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
         <OperatorErrorCallout>
           <strong className="text-base">Sample review unavailable</strong>
           <p className="mt-2 text-sm">
-            Open the sample manifest or the public walkthrough below to explore the Claims Intake review outputs.
+            {isBuyerPolished
+              ? "Open the sample review package or the guided preview below to explore the Claims Intake outputs."
+              : "Open the sample manifest or the public walkthrough below to explore the Claims Intake review outputs."}
           </p>
           {isDev ? (
             <pre
@@ -51,21 +55,25 @@ export default function RunDetailSegmentError({
         </OperatorErrorCallout>
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" variant="primary" asChild>
-            <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>Open sample manifest</Link>
+            <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
+              {isBuyerPolished ? "Open sample review package" : "Open sample manifest"}
+            </Link>
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href="/demo/preview">View sample walkthrough</Link>
+            <Link href="/demo/preview">{isBuyerPolished ? "Guided preview" : "View sample walkthrough"}</Link>
           </Button>
           <Button type="button" variant="outline" asChild>
             <Link href="/reviews?projectId=default">Back to reviews</Link>
           </Button>
         </div>
-      </main>
+        </main>
+      </RunDetailMinimalChromeMount>
     );
   }
 
   return (
-    <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
+    <RunDetailMinimalChromeMount>
+      <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
       <OperatorErrorCallout>
         <strong className="text-base">Review could not be loaded</strong>
         <p className="mt-2 text-sm">
@@ -108,6 +116,7 @@ export default function RunDetailSegmentError({
           <Link href="/help">Help</Link>
         </Button>
       </div>
-    </main>
+      </main>
+    </RunDetailMinimalChromeMount>
   );
 }
