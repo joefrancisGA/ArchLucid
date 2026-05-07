@@ -56,8 +56,7 @@ public static class PilotProofPackageCompletenessMapper
             PublishingTier = gate.PublishingTier.ToString(),
             ProofSendability = gate.ProofSendability.ToString(),
             EvidenceCompleteness = evidenceLevel.ToString(),
-            AgentOutputPilotStrictEvidenceSatisfied = !(deltas.AgentOutputPilotStrictSignalsResolved &&
-                                                        deltas.AgentOutputPilotStrictViolatesSponsorEvidence),
+            AgentOutputPilotStrictEvidenceSatisfied = !(deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true }),
         };
     }
 

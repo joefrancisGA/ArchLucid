@@ -13,14 +13,6 @@ namespace ArchLucid.Application.Advisory;
 /// <param name = "profileRepository">Stores and loads latest profile.</param>
 public sealed class RecommendationLearningService(IRecommendationRepository recommendationRepository, IRecommendationLearningAnalyzer analyzer, IRecommendationLearningProfileRepository profileRepository) : IRecommendationLearningService
 {
-    private static byte __ValidatePrimaryConstructorArguments(IRecommendationRepository recommendationRepository, IRecommendationLearningAnalyzer analyzer, IRecommendationLearningProfileRepository profileRepository)
-    {
-        ArgumentNullException.ThrowIfNull(recommendationRepository);
-        ArgumentNullException.ThrowIfNull(analyzer);
-        ArgumentNullException.ThrowIfNull(profileRepository);
-        return 0;
-    }
-
     /// <summary>
     ///     Maximum number of historical recommendation rows loaded per profile rebuild.
     ///     Caps the working set to keep analysis latency predictable even for high-volume projects.

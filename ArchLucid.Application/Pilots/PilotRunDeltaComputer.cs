@@ -119,7 +119,7 @@ public sealed class PilotRunDeltaComputer(
 
         bool pilotStrictFails = false;
 
-        if (tracesResolved && gateOpts.Enabled && gateOpts.Mode == AgentOutputQualityGateMode.PilotStrict)
+        if (tracesResolved && gateOpts is { Enabled: true, Mode: AgentOutputQualityGateMode.PilotStrict })
         {
             RunExplanationSummary? summary = null;
 

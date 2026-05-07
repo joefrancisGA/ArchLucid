@@ -52,7 +52,7 @@ public sealed class WeeklyDigestHealthReader(
         int enabledSchedules = schedules.Count(static s => s.IsEnabled);
         DateTimeOffset? nextRun = null;
 
-        foreach (AdvisoryScanSchedule schedule in schedules.Where(static s => s.IsEnabled && s.NextRunUtc.HasValue))
+        foreach (AdvisoryScanSchedule schedule in schedules.Where(static s => s is { IsEnabled: true, NextRunUtc: not null }))
         {
             DateTimeOffset candidate =
                 new(DateTime.SpecifyKind(schedule.NextRunUtc!.Value, DateTimeKind.Utc), TimeSpan.Zero);
@@ -75,7 +75,7 @@ public sealed class WeeklyDigestHealthReader(
         DateTimeOffset? maxDelivered = null;
 
         foreach (DigestSubscription subscription in subs.Where(static s =>
-                     s.IsEnabled && s.LastDeliveredUtc.HasValue))
+                     s is { IsEnabled: true, LastDeliveredUtc: not null }))
         {
             DateTimeOffset candidate =
                 new(DateTime.SpecifyKind(subscription.LastDeliveredUtc!.Value, DateTimeKind.Utc), TimeSpan.Zero);
@@ -114,7 +114,7 @@ public sealed class WeeklyDigestHealthReader(
                 : new DateTimeOffset(DateTime.SpecifyKind(latestDigest.GeneratedUtc, DateTimeKind.Utc),
                     TimeSpan.Zero),
             ExecutiveEmailDigestIsConfigured = execPrefs.IsConfigured,
-            ExecutiveEmailDigestEnabled = execPrefs.EmailEnabled && execPrefs.RecipientEmails.Count > 0,
+            ExecutiveEmailDigestEnabled = execPrefs is { EmailEnabled: true, RecipientEmails.Count: > 0 },
             ExecutiveDigestRecipientCount = execPrefs.RecipientEmails.Count,
             ExecutiveDigestIanaTimeZoneId = execPrefs.IanaTimeZoneId,
             ExecutiveDigestDayOfWeek = execPrefs.DayOfWeek,
