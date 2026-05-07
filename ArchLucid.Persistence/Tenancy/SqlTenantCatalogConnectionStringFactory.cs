@@ -13,10 +13,7 @@ public static class SqlTenantCatalogConnectionStringFactory
         ArgumentException.ThrowIfNullOrWhiteSpace(logicalDatabaseName);
 
         SqlConnectionStringBuilder builder =
-            new(SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(templateConnectionString.Trim()))
-            {
-                InitialCatalog = logicalDatabaseName.Trim(),
-            };
+            new(SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(templateConnectionString.Trim())) { InitialCatalog = logicalDatabaseName.Trim(), };
 
         return builder.ConnectionString;
     }

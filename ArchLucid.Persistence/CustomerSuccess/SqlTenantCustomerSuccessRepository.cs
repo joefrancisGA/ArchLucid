@@ -48,12 +48,7 @@ public sealed class SqlTenantCustomerSuccessRepository(ISqlConnectionFactory con
         TenantHealthScoreSqlRow? row = await connection.QuerySingleOrDefaultAsync<TenantHealthScoreSqlRow>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId
-                },
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
                 cancellationToken: ct));
 
         if (row is null)

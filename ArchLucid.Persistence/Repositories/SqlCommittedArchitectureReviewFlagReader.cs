@@ -38,10 +38,7 @@ public sealed class SqlCommittedArchitectureReviewFlagReader(IAuthorityRunListCo
                 HotPathRelationalQueryShapes.CommittedArchitectureReviewExistsNoLock,
                 new
                 {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    CommittedStatus = CommittedLegacyStatus,
+                    scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId, CommittedStatus = CommittedLegacyStatus,
                 },
                 cancellationToken: cancellationToken));
 

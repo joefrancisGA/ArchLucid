@@ -16,7 +16,9 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
     {
         _ = cancellationToken;
 
-        return _store.TryGetValue(tenantId, out ExecDigestPreferencesResponse? row) ? Task.FromResult<ExecDigestPreferencesResponse?>(row) : Task.FromResult<ExecDigestPreferencesResponse?>(null);
+        return _store.TryGetValue(tenantId, out ExecDigestPreferencesResponse? row)
+            ? Task.FromResult<ExecDigestPreferencesResponse?>(row)
+            : Task.FromResult<ExecDigestPreferencesResponse?>(null);
     }
 
     public Task<ExecDigestPreferencesResponse?> UpsertAsync(

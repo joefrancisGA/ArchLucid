@@ -159,7 +159,6 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
                     $"A RunExportRecord row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
 
-
             records.Add(record);
         }
 

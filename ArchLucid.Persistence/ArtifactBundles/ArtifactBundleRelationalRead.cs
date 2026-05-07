@@ -29,40 +29,28 @@ internal static class ArtifactBundleRelationalRead
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleArtifacts WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId
-            },
+            new { BundleId = bundleId },
             ct);
 
         int genCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceGenerators WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId
-            },
+            new { BundleId = bundleId },
             ct);
 
         int traceDecCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceDecisionLinks WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId
-            },
+            new { BundleId = bundleId },
             ct);
 
         int notesCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceNotes WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId
-            },
+            new { BundleId = bundleId },
             ct);
 
         List<SynthesizedArtifact> artifacts = artifactCount > 0
@@ -84,7 +72,6 @@ internal static class ArtifactBundleRelationalRead
                 bundleId,
                 ct);
 
-
         if (traceDecCount > 0)
 
             trace.SourceDecisionIds = await LoadOrderedStringsAsync(
@@ -98,7 +85,6 @@ internal static class ArtifactBundleRelationalRead
                 bundleId,
                 ct);
 
-
         if (notesCount > 0)
 
             trace.Notes = await LoadOrderedStringsAsync(
@@ -111,7 +97,6 @@ internal static class ArtifactBundleRelationalRead
                 """,
                 bundleId,
                 ct);
-
 
         return new ArtifactBundle
         {
@@ -163,14 +148,10 @@ internal static class ArtifactBundleRelationalRead
 
               """;
 
-
         List<ArtifactSliceRow> artifactRows = (await connection.QueryAsync<ArtifactSliceRow>(
             new CommandDefinition(
                 artifactsSql,
-                new
-                {
-                    BundleId = bundleId
-                },
+                new { BundleId = bundleId },
                 cancellationToken: ct))).ToList();
 
         if (artifactRows.Count == 0)
@@ -186,10 +167,7 @@ internal static class ArtifactBundleRelationalRead
         List<MetadataSliceRow> metaRows = (await connection.QueryAsync<MetadataSliceRow>(
             new CommandDefinition(
                 metaSql,
-                new
-                {
-                    BundleId = bundleId
-                },
+                new { BundleId = bundleId },
                 cancellationToken: ct))).ToList();
 
         const string decSql = """
@@ -202,10 +180,7 @@ internal static class ArtifactBundleRelationalRead
         List<ArtifactDecisionSliceRow> decisionRows = (await connection.QueryAsync<ArtifactDecisionSliceRow>(
             new CommandDefinition(
                 decSql,
-                new
-                {
-                    BundleId = bundleId
-                },
+                new { BundleId = bundleId },
                 cancellationToken: ct))).ToList();
 
         Dictionary<int, Dictionary<string, string>> metaByArtifact = new();
@@ -274,10 +249,7 @@ internal static class ArtifactBundleRelationalRead
         IEnumerable<string> rows = await connection.QueryAsync<string>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    BundleId = bundleId
-                },
+                new { BundleId = bundleId },
                 cancellationToken: ct));
 
         return rows.ToList();

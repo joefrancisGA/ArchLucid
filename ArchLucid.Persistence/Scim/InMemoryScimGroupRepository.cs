@@ -75,7 +75,6 @@ public sealed class InMemoryScimGroupRepository : IScimGroupRepository
         if (!_byId.TryGetValue(id, out ScimGroupRecord? e) || e.TenantId != tenantId)
             return Task.CompletedTask;
 
-
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
         _byId[id] = new ScimGroupRecord
         {

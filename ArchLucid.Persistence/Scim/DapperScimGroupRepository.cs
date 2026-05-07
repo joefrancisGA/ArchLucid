@@ -1,6 +1,5 @@
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
-
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -147,7 +146,6 @@ public sealed class DapperScimGroupRepository(ISqlConnectionFactory connectionFa
 
             await connection.ExecuteAsync(
                 new CommandDefinition(ins, new { TenantId = tenantId, GroupId = groupId, UserId = userId }, tran, cancellationToken: cancellationToken));
-
 
         await tran.CommitAsync(cancellationToken);
     }

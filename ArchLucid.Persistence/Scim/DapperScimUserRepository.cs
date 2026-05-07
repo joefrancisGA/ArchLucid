@@ -1,7 +1,6 @@
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Filtering;
 using ArchLucid.Core.Scim.Models;
-
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Utilities;
 
@@ -31,10 +30,10 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
         string whereExtra = SqlScimUserFilterTranslator.BuildWhere(filter, parameters, ref p);
 
         string countSql = $"""
-                             SELECT COUNT(1)
-                             FROM dbo.ScimUsers u
-                             WHERE u.TenantId = @TenantId AND u.DirectoryRemovedUtc IS NULL AND ({whereExtra});
-                             """;
+                           SELECT COUNT(1)
+                           FROM dbo.ScimUsers u
+                           WHERE u.TenantId = @TenantId AND u.DirectoryRemovedUtc IS NULL AND ({whereExtra});
+                           """;
 
         int total = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
@@ -47,13 +46,13 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
         parameters.Add("PageSize", count);
 
         string listSql = $"""
-                            SELECT u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
-                                   u.ResolvedRoleOrigin, u.DirectoryRemovedUtc, u.CreatedUtc, u.UpdatedUtc
-                            FROM dbo.ScimUsers u
-                            WHERE u.TenantId = @TenantId AND u.DirectoryRemovedUtc IS NULL AND ({whereExtra})
-                            ORDER BY u.CreatedUtc
-                            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
-                            """;
+                          SELECT u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
+                                 u.ResolvedRoleOrigin, u.DirectoryRemovedUtc, u.CreatedUtc, u.UpdatedUtc
+                          FROM dbo.ScimUsers u
+                          WHERE u.TenantId = @TenantId AND u.DirectoryRemovedUtc IS NULL AND ({whereExtra})
+                          ORDER BY u.CreatedUtc
+                          OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
+                          """;
 
         IEnumerable<UserRow> rows = await connection.QueryAsync<UserRow>(
             new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));

@@ -25,13 +25,11 @@ public sealed class MicrosoftMarketplaceJwtVerifier(IOptionsMonitor<BillingOptio
         if (string.IsNullOrWhiteSpace(bearerToken))
             return null;
 
-
         BillingOptions billing = _billingOptions.CurrentValue;
         string? metadataAddress = billing.AzureMarketplace.OpenIdMetadataAddress?.Trim();
 
         if (string.IsNullOrWhiteSpace(metadataAddress))
             return null;
-
 
         string metadataAddressRequired = metadataAddress;
 
@@ -39,7 +37,6 @@ public sealed class MicrosoftMarketplaceJwtVerifier(IOptionsMonitor<BillingOptio
 
         if (audiences.Length == 0)
             return null;
-
 
         JwtSecurityTokenHandler handler = new();
 

@@ -1,5 +1,4 @@
 using ArchLucid.Core.AdminNotifications;
-
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -28,12 +27,7 @@ public sealed class DapperAdminNotificationsRepository(ISqlConnectionFactory con
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    Kind = kind,
-                    Summary = summary,
-                    DataJson = dataJson
-                },
+                new { Kind = kind, Summary = summary, DataJson = dataJson },
                 cancellationToken: cancellationToken));
     }
 }

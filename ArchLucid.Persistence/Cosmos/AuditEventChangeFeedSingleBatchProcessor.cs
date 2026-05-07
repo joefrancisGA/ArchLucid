@@ -44,7 +44,6 @@ public sealed class AuditEventChangeFeedSingleBatchProcessor : IAuditEventChange
         if (!opts.AuditEventsEnabled)
             return;
 
-
         string instanceName = $"job-{Guid.NewGuid():N}";
 
         Container feed = await _clientFactory.GetContainerAsync("audit-events", cancellationToken)
@@ -63,7 +62,6 @@ public sealed class AuditEventChangeFeedSingleBatchProcessor : IAuditEventChange
 
                     if (changes.Count == 0)
                         return;
-
 
                     List<AuditEventDocument> batch = changes.ToList();
 

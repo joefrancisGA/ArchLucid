@@ -42,7 +42,6 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
         if (row is null)
             return null;
 
-
         return new TenantNotificationChannelPreferencesResponse
         {
             SchemaVersion = row.SchemaVersion,
@@ -78,7 +77,6 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
 
         if (tenantCount == 0)
             return null;
-
 
         const string mergeSql = """
                                 MERGE dbo.TenantNotificationChannelPreferences AS t

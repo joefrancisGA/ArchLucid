@@ -30,13 +30,11 @@ public sealed class InMemoryGovernanceEnvironmentActivationRepository : IGoverna
         if (string.IsNullOrWhiteSpace(item.ActivationId))
             throw new ArgumentException("ActivationId is required.", nameof(item));
 
-
         GovernanceEnvironmentActivation stored = Clone(item);
 
         lock (_gate)
 
             _byActivationId[stored.ActivationId] = stored;
-
 
         return Task.CompletedTask;
     }
@@ -56,7 +54,6 @@ public sealed class InMemoryGovernanceEnvironmentActivationRepository : IGoverna
             if (_byActivationId.TryGetValue(item.ActivationId, out GovernanceEnvironmentActivation? existing))
 
                 existing.IsActive = item.IsActive;
-
 
         return Task.CompletedTask;
     }

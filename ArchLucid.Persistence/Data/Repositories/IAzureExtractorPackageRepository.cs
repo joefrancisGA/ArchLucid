@@ -9,8 +9,6 @@ public interface IAzureExtractorPackageRepository
 
     Task<AzureExtractorPackageProvenance?> TryGetLatestProvenanceByRunIdAsync(
         ScopeContext scope,
-
         Guid runId,
-
         CancellationToken cancellationToken = default);
 }

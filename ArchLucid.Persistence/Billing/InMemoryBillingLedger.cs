@@ -112,16 +112,12 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task SuspendSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
-        
-        BillingSubRow next = row with
-        {
-            Status = "Suspended"
-        };
+
+        BillingSubRow next = row with { Status = "Suspended" };
 
         _subscriptions[tenantId] = next;
 
         RecordStateChange("Suspend", row, next);
-
 
         return Task.CompletedTask;
     }
@@ -129,18 +125,14 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task ReinstateSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
-        
+
         {
-            BillingSubRow next = row with
-            {
-                Status = "Active"
-            };
+            BillingSubRow next = row with { Status = "Active" };
 
             _subscriptions[tenantId] = next;
 
             RecordStateChange("Reinstate", row, next);
         }
-
 
         return Task.CompletedTask;
     }
@@ -148,16 +140,12 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task CancelSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
-        
-        BillingSubRow next = row with
-        {
-            Status = "Canceled"
-        };
+
+        BillingSubRow next = row with { Status = "Canceled" };
 
         _subscriptions[tenantId] = next;
 
         RecordStateChange("Cancel", row, next);
-
 
         return Task.CompletedTask;
     }
@@ -166,10 +154,7 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         CancellationToken cancellationToken)
     {
         if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
-        BillingSubRow next = row with
-        {
-            Tier = tierCode
-        };
+        BillingSubRow next = row with { Tier = tierCode };
 
         _subscriptions[tenantId] = next;
 
@@ -182,10 +167,7 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         CancellationToken cancellationToken)
     {
         if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
-        BillingSubRow next = row with
-        {
-            Seats = seatsPurchased
-        };
+        BillingSubRow next = row with { Seats = seatsPurchased };
 
         _subscriptions[tenantId] = next;
 
@@ -200,7 +182,6 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     {
         if (maxRows is <= 0 or > 500)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
-
 
         lock (_historyGate)
         {

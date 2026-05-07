@@ -48,12 +48,7 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
             if (_rows.ContainsKey(k))
                 return Task.FromResult(false);
 
-
-            _rows[k] = new ArchitectureRunIdempotencyLookup
-            {
-                RunId = runId,
-                RequestFingerprint = (byte[])requestFingerprint.Clone()
-            };
+            _rows[k] = new ArchitectureRunIdempotencyLookup { RunId = runId, RequestFingerprint = (byte[])requestFingerprint.Clone() };
 
             return Task.FromResult(true);
         }

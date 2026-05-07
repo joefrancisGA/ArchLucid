@@ -97,7 +97,6 @@ internal static class GraphSnapshotRelationalRead
                 graphSnapshotId,
                 ct);
 
-
         List<GraphEdge>? edgesOverride = null;
 
         GraphSnapshotStorageRow syntheticHeader = new()
@@ -301,7 +300,6 @@ internal static class GraphSnapshotRelationalRead
                         label = pr.PropertyValue;
                     else
                         props[pr.PropertyKey] = pr.PropertyValue;
-
 
             GraphEdge edge = new()
             {

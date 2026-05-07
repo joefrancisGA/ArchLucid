@@ -11,7 +11,9 @@ public sealed class InMemoryTenantItsmOutboundSettingsRepository : ITenantItsmOu
     {
         _ = ct;
 
-        return tenantId == Guid.Empty ? throw new ArgumentException("tenantId is required.", nameof(tenantId)) : Task.FromResult(_byTenant.GetValueOrDefault(tenantId));
+        return tenantId == Guid.Empty
+            ? throw new ArgumentException("tenantId is required.", nameof(tenantId))
+            : Task.FromResult(_byTenant.GetValueOrDefault(tenantId));
     }
 
     /// <summary>Test / dev helper — not used by production SQL hosts.</summary>

@@ -36,7 +36,6 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
                 $"Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(evaluations));
 
-
         string runId = evaluations.First().RunId;
 
         // Delete all existing evaluations for this run before inserting so that a retry
@@ -132,7 +131,6 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
                 throw new InvalidOperationException(
                     $"An AgentEvaluation row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
-
 
             evaluations.Add(evaluation);
         }

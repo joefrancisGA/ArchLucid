@@ -20,7 +20,6 @@ public sealed class
         if (_store.TryGetValue(tenantId, out TenantNotificationChannelPreferencesResponse? row) && row is not null)
             return Task.FromResult<TenantNotificationChannelPreferencesResponse?>(row);
 
-
         return Task.FromResult<TenantNotificationChannelPreferencesResponse?>(null);
     }
 

@@ -1,6 +1,5 @@
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
-
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Extensions.Caching.Memory;
@@ -55,12 +54,10 @@ public sealed class TenantDatabaseResolver : ITenantDatabaseResolver
             throw new InvalidOperationException(
                 "Tenant SQL catalog binding is missing or not active for tenant '" + tenantId.ToString("D") + "'.");
 
-
         if (string.IsNullOrWhiteSpace(snapshot.TenantCatalogConnectionStringTemplate))
 
             throw new InvalidOperationException(
                 "ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate is required when SqlTopology:Mode is SystemWithPerTenantCatalogs.");
-
 
         string resolved = SqlTenantCatalogConnectionStringFactory.FromTemplate(
             snapshot.TenantCatalogConnectionStringTemplate.Trim(),

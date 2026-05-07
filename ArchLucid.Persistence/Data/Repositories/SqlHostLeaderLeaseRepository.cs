@@ -25,7 +25,6 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
         if (leaseDurationSeconds < 1)
             throw new ArgumentOutOfRangeException(nameof(leaseDurationSeconds));
 
-
         const int maxAttempts = 4;
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
@@ -49,7 +48,6 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
     {
         if (string.IsNullOrWhiteSpace(leaseName) || string.IsNullOrWhiteSpace(instanceId))
             return;
-
 
         const string sql = """
                            DELETE FROM dbo.HostLeaderLeases
@@ -122,10 +120,7 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
                     await connection.ExecuteAsync(
                         new CommandDefinition(
                             insertSql,
-                            new
-                            {
-                                LeaseName = leaseName, HolderInstanceId = instanceId, LeaseExpiresUtc = newExpiryUtc
-                            },
+                            new { LeaseName = leaseName, HolderInstanceId = instanceId, LeaseExpiresUtc = newExpiryUtc },
                             transaction,
                             cancellationToken: cancellationToken));
 

@@ -59,10 +59,7 @@ public sealed class CosmosClientFactory : IDisposable
             _database ??= await _client.CreateDatabaseIfNotExistsAsync(opts.DatabaseName, cancellationToken: ct);
 
             int throughput = 400;
-            ContainerProperties properties = new(containerId, GetPartitionKeyPath(containerId))
-            {
-                DefaultTimeToLive = GetDefaultTtl(containerId, opts)
-            };
+            ContainerProperties properties = new(containerId, GetPartitionKeyPath(containerId)) { DefaultTimeToLive = GetDefaultTtl(containerId, opts) };
 
             ContainerResponse response = await _database.CreateContainerIfNotExistsAsync(
                 properties,
@@ -141,16 +138,16 @@ public sealed class CosmosClientFactory : IDisposable
         if (string.Equals(containerId, "agent-traces", StringComparison.Ordinal))
             return "/runId";
 
-        return string.Equals(containerId, "audit-events", StringComparison.Ordinal) ? "/tenantId" : throw new ArgumentOutOfRangeException(nameof(containerId), containerId, "Unknown Cosmos container id.");
+        return string.Equals(containerId, "audit-events", StringComparison.Ordinal)
+            ? "/tenantId"
+            : throw new ArgumentOutOfRangeException(nameof(containerId), containerId, "Unknown Cosmos container id.");
     }
 
     private CosmosClient CreateClient(CosmosDbOptions opts)
     {
         CosmosClientOptions clientOptions = new()
         {
-            ApplicationName = "ArchLucid",
-            ConnectionMode = ConnectionMode.Direct,
-            ConsistencyLevel = ParseConsistency(opts.DefaultConsistencyLevel)
+            ApplicationName = "ArchLucid", ConnectionMode = ConnectionMode.Direct, ConsistencyLevel = ParseConsistency(opts.DefaultConsistencyLevel)
         };
 
         if (IsEmulatorConnection(opts.ConnectionString))
@@ -158,14 +155,10 @@ public sealed class CosmosClientFactory : IDisposable
             // Emulator uses a self-signed certificate; safe only for localhost emulator endpoints.
             clientOptions.HttpClientFactory = () =>
             {
-                HttpClientHandler handler = new()
-                {
-                    ServerCertificateCustomValidationCallback = static (_, _, _, _) => true
-                };
+                HttpClientHandler handler = new() { ServerCertificateCustomValidationCallback = static (_, _, _, _) => true };
 
                 return new HttpClient(handler);
             };
-
 
         CosmosClient client = new(opts.ConnectionString, clientOptions);
 
@@ -176,7 +169,6 @@ public sealed class CosmosClientFactory : IDisposable
                 opts.DatabaseName,
                 clientOptions.ConsistencyLevel,
                 IsEmulatorConnection(opts.ConnectionString));
-
 
         return client;
     }

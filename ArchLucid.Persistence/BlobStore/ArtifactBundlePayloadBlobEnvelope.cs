@@ -10,10 +10,7 @@ public sealed class ArtifactBundlePayloadBlobEnvelope
 {
     public const int CurrentSchemaVersion = 1;
 
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private static readonly JsonSerializerOptions SerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     [JsonPropertyName("schemaVersion")]
     public int SchemaVersion
@@ -38,10 +35,7 @@ public sealed class ArtifactBundlePayloadBlobEnvelope
 
     public static ArtifactBundlePayloadBlobEnvelope FromJsonPair(string artifactsJson, string traceJson)
     {
-        return new ArtifactBundlePayloadBlobEnvelope
-        {
-            SchemaVersion = CurrentSchemaVersion, ArtifactsJson = artifactsJson, TraceJson = traceJson
-        };
+        return new ArtifactBundlePayloadBlobEnvelope { SchemaVersion = CurrentSchemaVersion, ArtifactsJson = artifactsJson, TraceJson = traceJson };
     }
 
     public static int SumUtf16Length(string artifactsJson, string traceJson)

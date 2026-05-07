@@ -1,5 +1,4 @@
 using ArchLucid.Core.Tenancy;
-
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -95,12 +94,7 @@ public sealed class DapperTenantDatabaseBindingRepository(ISystemSqlConnectionFa
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    DbName = sqlLogicalDatabaseName.Trim(),
-                    Pending = (byte)TenantDatabaseProvisioningState.Pending,
-                },
+                new { TenantId = tenantId, DbName = sqlLogicalDatabaseName.Trim(), Pending = (byte)TenantDatabaseProvisioningState.Pending, },
                 cancellationToken: cancellationToken));
     }
 
@@ -147,12 +141,7 @@ public sealed class DapperTenantDatabaseBindingRepository(ISystemSqlConnectionFa
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    Failed = (byte)TenantDatabaseProvisioningState.Failed,
-                    Err = trimmed,
-                },
+                new { TenantId = tenantId, Failed = (byte)TenantDatabaseProvisioningState.Failed, Err = trimmed, },
                 cancellationToken: cancellationToken));
     }
 

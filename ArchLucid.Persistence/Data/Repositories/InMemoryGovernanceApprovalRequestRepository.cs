@@ -28,13 +28,11 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         if (string.IsNullOrWhiteSpace(item.ApprovalRequestId))
             throw new ArgumentException("ApprovalRequestId is required.", nameof(item));
 
-
         GovernanceApprovalRequest stored = Clone(item);
 
         lock (_gate)
 
             _byId[stored.ApprovalRequestId] = stored;
-
 
         return Task.CompletedTask;
     }
@@ -59,14 +57,12 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
             if (!_byId.TryGetValue(approvalRequestId, out GovernanceApprovalRequest? row))
                 return Task.FromResult(false);
 
-
             bool reviewable = string.Equals(row.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
                               || string.Equals(row.Status, GovernanceApprovalStatus.Submitted,
                                   StringComparison.Ordinal);
 
             if (!reviewable)
                 return Task.FromResult(false);
-
 
             row.Status = newStatus;
             row.ReviewedBy = reviewedBy;
@@ -88,7 +84,6 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         {
             if (!_byId.ContainsKey(item.ApprovalRequestId))
                 return Task.CompletedTask;
-
 
             _byId[item.ApprovalRequestId] = Clone(item);
         }
@@ -137,7 +132,6 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
-
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
@@ -161,7 +155,6 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
     {
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
-
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -220,7 +213,6 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
             if (_byId.TryGetValue(approvalRequestId, out GovernanceApprovalRequest? row))
 
                 row.SlaBreachNotifiedUtc = slaBreachNotifiedUtc;
-
 
         return Task.CompletedTask;
     }

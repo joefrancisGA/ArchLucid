@@ -23,7 +23,6 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
 
             _items.Add(Clone(trace));
 
-
         return Task.CompletedTask;
     }
 
@@ -43,23 +42,19 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
             if (i < 0)
                 return Task.CompletedTask;
 
-
             AgentExecutionTrace t = Clone(_items[i]);
 
             if (fullSystemPromptBlobKey is not null)
 
                 t.FullSystemPromptBlobKey = fullSystemPromptBlobKey;
 
-
             if (fullUserPromptBlobKey is not null)
 
                 t.FullUserPromptBlobKey = fullUserPromptBlobKey;
 
-
             if (fullResponseBlobKey is not null)
 
                 t.FullResponseBlobKey = fullResponseBlobKey;
-
 
             _items[i] = t;
         }
@@ -110,23 +105,19 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
             if (i < 0)
                 return Task.CompletedTask;
 
-
             AgentExecutionTrace t = Clone(_items[i]);
 
             if (fullSystemPromptInline is not null)
 
                 t.FullSystemPromptInline = fullSystemPromptInline;
 
-
             if (fullUserPromptInline is not null)
 
                 t.FullUserPromptInline = fullUserPromptInline;
 
-
             if (fullResponseInline is not null)
 
                 t.FullResponseInline = fullResponseInline;
-
 
             _items[i] = t;
         }
@@ -175,7 +166,6 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
 
             if (i < 0)
                 return Task.CompletedTask;
-
 
             AgentExecutionTrace t = Clone(_items[i]);
             t.QualityWarning = qualityWarning;

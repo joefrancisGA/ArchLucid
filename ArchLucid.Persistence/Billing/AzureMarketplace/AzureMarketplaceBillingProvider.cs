@@ -56,7 +56,6 @@ public sealed class AzureMarketplaceBillingProvider(
         if (string.IsNullOrWhiteSpace(landing))
             throw new InvalidOperationException("Billing:AzureMarketplace:LandingPageUrl is not configured.");
 
-
         string sessionId = $"mkt_sess_{Guid.NewGuid():N}";
         string join = landing.Contains('?', StringComparison.Ordinal) ? "&" : "?";
         string url =
@@ -79,12 +78,7 @@ public sealed class AzureMarketplaceBillingProvider(
             Math.Max(1, request.Workspaces),
             cancellationToken);
 
-        return new BillingCheckoutResult
-        {
-            CheckoutUrl = url,
-            ProviderSessionId = sessionId,
-            ExpiresUtc = TimeProvider.System.GetUtcNow().AddDays(7)
-        };
+        return new BillingCheckoutResult { CheckoutUrl = url, ProviderSessionId = sessionId, ExpiresUtc = TimeProvider.System.GetUtcNow().AddDays(7) };
     }
 
     public async Task<BillingWebhookHandleResult> HandleWebhookAsync(
@@ -94,13 +88,11 @@ public sealed class AzureMarketplaceBillingProvider(
         if (string.IsNullOrWhiteSpace(inbound.MarketplaceAuthorizationBearer))
             return BillingWebhookHandleResult.Rejected("Missing Marketplace bearer token.");
 
-
         ClaimsPrincipal? principal =
             await _tokenVerifier.ValidateAsync(inbound.MarketplaceAuthorizationBearer, cancellationToken);
 
         if (principal is null)
             return BillingWebhookHandleResult.Rejected("Marketplace JWT validation failed.");
-
 
         using JsonDocument doc = JsonDocument.Parse(inbound.RawBody);
         JsonElement root = doc.RootElement;
@@ -162,7 +154,6 @@ public sealed class AzureMarketplaceBillingProvider(
 
             if (completion == MarketplaceDispatchCompletion.DeferredNoIntegration)
                 return BillingWebhookHandleResult.AcceptedDeferred();
-
 
             MarketplaceWebhookReceivedIntegrationPayload integrationPayload = new()
             {
@@ -309,7 +300,6 @@ public sealed class AzureMarketplaceBillingProvider(
     {
         if (!root.TryGetProperty(name, out JsonElement el))
             return fallback;
-
 
         string? s = el.GetString();
 

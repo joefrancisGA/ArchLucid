@@ -34,10 +34,7 @@ internal static class FindingsSnapshotRelationalRead
         List<FindingRecordRow> records = (await connection.QueryAsync<FindingRecordRow>(
             new CommandDefinition(
                 recordsSql,
-                new
-                {
-                    row.FindingsSnapshotId
-                },
+                new { row.FindingsSnapshotId },
                 cancellationToken: ct))).ToList();
 
         if (records.Count == 0)
@@ -255,10 +252,7 @@ internal static class FindingsSnapshotRelationalRead
         List<FindingChildSliceRow> rows = (await connection.QueryAsync<FindingChildSliceRow>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    Ids = recordIds
-                },
+                new { Ids = recordIds },
                 cancellationToken: ct))).ToList();
 
         return FoldChildRelationalSlices(rows);

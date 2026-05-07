@@ -113,7 +113,6 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
                     $"A DecisionNode row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
 
-
             nodes.Add(node);
         }
 

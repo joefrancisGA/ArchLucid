@@ -1,5 +1,4 @@
 using ArchLucid.Core.Scoping;
-
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Models;
 
@@ -15,19 +14,19 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
         ArgumentNullException.ThrowIfNull(record);
 
         const string sql = """
-            INSERT INTO dbo.AzureExtractorPackages
-            (
-                PackageId, TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc,
-                SchemaVersion, ScriptVersion, CollectionTimestampUtc, SubscriptionId,
-                OriginalFileName, ManifestJson, PackageBytes
-            )
-            VALUES
-            (
-                @PackageId, @TenantId, @WorkspaceId, @ProjectId, @RunId, @CreatedUtc,
-                @SchemaVersion, @ScriptVersion, @CollectionTimestampUtc, @SubscriptionId,
-                @OriginalFileName, @ManifestJson, @PackageBytes
-            );
-            """;
+                           INSERT INTO dbo.AzureExtractorPackages
+                           (
+                               PackageId, TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc,
+                               SchemaVersion, ScriptVersion, CollectionTimestampUtc, SubscriptionId,
+                               OriginalFileName, ManifestJson, PackageBytes
+                           )
+                           VALUES
+                           (
+                               @PackageId, @TenantId, @WorkspaceId, @ProjectId, @RunId, @CreatedUtc,
+                               @SchemaVersion, @ScriptVersion, @CollectionTimestampUtc, @SubscriptionId,
+                               @OriginalFileName, @ManifestJson, @PackageBytes
+                           );
+                           """;
 
         using System.Data.IDbConnection conn =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -56,12 +55,9 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
 
     public async Task<AzureExtractorPackageProvenance?> TryGetLatestProvenanceByRunIdAsync(
         ScopeContext scope,
-
         Guid runId,
-
         CancellationToken cancellationToken = default)
     {
-
         ArgumentNullException.ThrowIfNull(scope);
 
         const string sql = """
@@ -88,15 +84,7 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
                 sql,
                 new
                 {
-
-                    scope.TenantId,
-
-                    scope.WorkspaceId,
-
-                    scope.ProjectId,
-
-                    RunId = runId,
-
+                    scope.TenantId, scope.WorkspaceId, scope.ProjectId, RunId = runId,
                 },
                 cancellationToken: cancellationToken));
 
@@ -104,78 +92,64 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
 
             return null;
 
-
         DateTime effectiveCreated = row.CreatedUtc.Kind == DateTimeKind.Utc ? row.CreatedUtc : row.CreatedUtc.ToUniversalTime();
 
-
-        DateTime? collectionUtc = row.CollectionTimestampUtc is null ? null :
-
-            DateTime.SpecifyKind(row.CollectionTimestampUtc.Value, DateTimeKind.Utc);
-
+        DateTime? collectionUtc = row.CollectionTimestampUtc is null ? null : DateTime.SpecifyKind(row.CollectionTimestampUtc.Value, DateTimeKind.Utc);
 
         return new AzureExtractorPackageProvenance
-
         {
-
             PackageId = row.PackageId,
-
             SchemaVersion = row.SchemaVersion,
-
             CollectionTimestampUtc = collectionUtc,
-
             CreatedUtc = effectiveCreated,
-
             SubscriptionId = string.IsNullOrWhiteSpace(row.SubscriptionId) ? null : row.SubscriptionId,
-
             OriginalFileName = row.OriginalFileName ?? string.Empty,
-
         };
-
-
     }
 
 
     private sealed class Row
 
     {
-
         public Guid PackageId
         {
-            get; init;
+            get;
+            init;
         }
 
 
         public int SchemaVersion
         {
-            get; init;
+            get;
+            init;
         }
 
 
         public DateTime? CollectionTimestampUtc
         {
-            get; init;
+            get;
+            init;
         }
 
 
         public DateTime CreatedUtc
         {
-            get; init;
+            get;
+            init;
         }
 
 
         public string? SubscriptionId
         {
-            get; init;
+            get;
+            init;
         }
 
 
         public string? OriginalFileName
         {
-            get; init;
+            get;
+            init;
         }
-
-
     }
-
-
 }

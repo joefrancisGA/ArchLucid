@@ -271,13 +271,13 @@ Power Automate does not have built-in deduplication. To prevent duplicate Servic
 
 | Limitation | First-party V1 connector ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13) |
 |------------|--------------------------------------------------------------------------|
-| **One-way only** — this recipe creates incidents but does not sync status back to ArchLucid. | **Two-way** SNOW→ArchLucid status sync is **not** in committed V1 scope **unless** an owner decision adds it — do not assume parity with Jira bi-directional. |
+| **One-way only** — this recipe creates incidents but does not sync status back to ArchLucid. | First-party **V1 GA** commits **two-way** ServiceNow → ArchLucid **status-only** sync ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13; *Resolved 2026-05-06*). **This Power Automate flow does not** implement inbound sync — use the hosted connector + inbound webhook path when you need parity. |
 | **No native HMAC in Power Automate** — HMAC validation requires an Azure Function or API Management in front. | Managed connector handles authentication natively; no external HMAC layer for ArchLucid→ServiceNow traffic. |
 | **Manual severity mapping** — you maintain the severity-to-integer map in flow expressions. | Managed connector ships a configurable mapping with sensible defaults. |
 | **No deduplication** — you must build correlation_id-based dedup logic yourself. | Managed connector uses `deduplicationKey` / `runId` + `findingId` natively for idempotent incident creation. |
 | **Premium license required** — HTTP actions in Power Automate need a Premium plan. | Managed connector runs server-side in ArchLucid; no Power Automate license needed for the base flow. |
 | **No finding-level event** — `com.archlucid.authority.run.completed` signals run completion, not individual findings. You must call the API to get findings. | Managed connector has direct access to the finding projection; no extra API call. |
-| **No CMDB CI mapping** — this recipe does not populate `cmdb_ci`. | Same **open planning** topic as [`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md) and [`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13 (`cmdb_ci` same release vs fast-follow). |
+| **No CMDB CI mapping** — this recipe does not populate `cmdb_ci`. | First-party connector maps **`cmdb_ci`** via **`cmdb_ci_appl`** lookup on **`SystemName`** ([`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md) **Sequencing and CMDB**; [`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13). |
 
 When you enable the first-party connector, migrate by:
 1. Disabling the Power Automate flow (or leaving it as a redundant safety path only with clear owner approval).

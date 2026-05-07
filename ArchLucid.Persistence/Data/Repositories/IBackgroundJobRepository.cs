@@ -45,5 +45,4 @@ public interface IBackgroundJobRepository
     ///     Sets them back to <c>Pending</c>, increments retries, clears <see cref="BackgroundJobRow.StartedUtc"/>.
     /// </summary>
     Task<int> ResetStaleRunningJobsOlderThanAsync(TimeSpan maxRunningAge, CancellationToken cancellationToken = default);
-
 }

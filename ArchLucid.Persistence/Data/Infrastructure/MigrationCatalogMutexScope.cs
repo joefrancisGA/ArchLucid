@@ -26,7 +26,6 @@ internal sealed class MigrationCatalogMutexScope : IDisposable
         if (_released)
             return;
 
-
         _released = true;
 
         try

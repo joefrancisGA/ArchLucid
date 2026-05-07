@@ -407,9 +407,9 @@ public sealed class SqlContextSnapshotRepository(
             ct);
 
         bool needsRelationalSlices = (canonicalCount == 0 && snapshot.CanonicalObjects.Count > 0)
-            || (warningsCount == 0 && snapshot.Warnings.Count > 0)
-            || (errorsCount == 0 && snapshot.Errors.Count > 0)
-            || (hashesCount == 0 && snapshot.SourceHashes.Count > 0);
+                                     || (warningsCount == 0 && snapshot.Warnings.Count > 0)
+                                     || (errorsCount == 0 && snapshot.Errors.Count > 0)
+                                     || (hashesCount == 0 && snapshot.SourceHashes.Count > 0);
 
         if (!needsRelationalSlices)
             return;
@@ -435,9 +435,7 @@ public sealed class SqlContextSnapshotRepository(
 
         ScopeContext scopeFill = new()
         {
-            TenantId = scopeHdr.TenantId!.Value,
-            WorkspaceId = scopeHdr.WorkspaceId!.Value,
-            ProjectId = scopeHdr.ScopeProjectId!.Value
+            TenantId = scopeHdr.TenantId!.Value, WorkspaceId = scopeHdr.WorkspaceId!.Value, ProjectId = scopeHdr.ScopeProjectId!.Value
         };
 
         if (canonicalCount == 0 && snapshot.CanonicalObjects.Count > 0)

@@ -66,7 +66,6 @@ public sealed class AzureCommunicationEmailApi : IAzureCommunicationEmailApi
         if (idx < 0)
             return (key, null);
 
-
         string endpoint = key[..idx];
         string mi = key[(idx + 1)..];
 

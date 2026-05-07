@@ -23,60 +23,42 @@ internal static class GoldenManifestPhase1RelationalRead
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int decisionsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int provFindingCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int provNodeCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int provRuleCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId
-            },
+            new { ManifestId = manifestId },
             ct);
 
         List<string> assumptions = assumptionsCount > 0
@@ -149,17 +131,11 @@ internal static class GoldenManifestPhase1RelationalRead
                     ct)
                 : [];
 
-            provenance = new ManifestProvenance
-            {
-                SourceFindingIds = sourceFindings,
-                SourceGraphNodeIds = sourceNodes,
-                AppliedRuleIds = appliedRules
-            };
+            provenance = new ManifestProvenance { SourceFindingIds = sourceFindings, SourceGraphNodeIds = sourceNodes, AppliedRuleIds = appliedRules };
         }
         else
 
             provenance = FallbackDeserializeProvenance(row.ProvenanceJson);
-
 
         List<ResolvedArchitectureDecision> decisions = decisionsCount > 0
             ? await LoadDecisionsRelationalAsync(connection, manifestId, ct)
@@ -220,10 +196,7 @@ internal static class GoldenManifestPhase1RelationalRead
         List<ManifestDecisionRow> decisionRows = (await connection.QueryAsync<ManifestDecisionRow>(
             new CommandDefinition(
                 decisionsSql,
-                new
-                {
-                    ManifestId = manifestId
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: ct))).ToList();
 
         if (decisionRows.Count == 0)
@@ -239,10 +212,7 @@ internal static class GoldenManifestPhase1RelationalRead
         List<DecisionEvidenceRow> evidenceRows = (await connection.QueryAsync<DecisionEvidenceRow>(
             new CommandDefinition(
                 evidenceSql,
-                new
-                {
-                    ManifestId = manifestId
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: ct))).ToList();
 
         const string nodeSql = """
@@ -255,10 +225,7 @@ internal static class GoldenManifestPhase1RelationalRead
         List<DecisionNodeRow> nodeRows = (await connection.QueryAsync<DecisionNodeRow>(
             new CommandDefinition(
                 nodeSql,
-                new
-                {
-                    ManifestId = manifestId
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: ct))).ToList();
 
         Dictionary<string, List<string>> evidenceByDecision = new(StringComparer.Ordinal);
@@ -320,10 +287,7 @@ internal static class GoldenManifestPhase1RelationalRead
         IEnumerable<string> rows = await connection.QueryAsync<string>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    ManifestId = manifestId
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: ct));
 
         return rows.ToList();

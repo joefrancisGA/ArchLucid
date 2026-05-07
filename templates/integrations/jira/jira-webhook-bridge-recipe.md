@@ -35,7 +35,7 @@ Provide a **repeatable recipe** to open **Jira issues** from ArchLucid using:
 
 ## 3. Constraints
 
-- **One-way in this recipe:** ArchLucid → Jira create (no status sync). Two-way is **V1.1+** product scope.
+- **One-way in this recipe:** ArchLucid → Jira create only (no status sync back). First-party **V1 GA** commits bi-directional status sync separately ([`V1_SCOPE.md`](../../../docs/library/V1_SCOPE.md) §2.13) via the hosted connector — **this** bridge remains outbound-create-only.
 - **Do not** increase ArchLucid outbound rate: **batch, deduplicate, backoff** in your bridge.
 - **Do not** log raw secrets or full JWTs; redact PII in Jira `description` if your DLP requires it.
 - **Entra ID / API auth** to ArchLucid must follow least privilege (Reader role if read-only is enough for GET run).

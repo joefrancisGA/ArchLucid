@@ -94,13 +94,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         DecisionTraceRow? row = await connection.QuerySingleOrDefaultAsync<DecisionTraceRow>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    DecisionTraceId = decisionTraceId
-                },
+                new { scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId, DecisionTraceId = decisionTraceId },
                 cancellationToken: ct));
 
         if (row is null)

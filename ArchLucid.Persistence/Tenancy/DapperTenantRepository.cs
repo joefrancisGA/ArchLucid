@@ -2,7 +2,6 @@ using System.Data;
 
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
-
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -212,13 +211,7 @@ public sealed class DapperTenantRepository(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    ManualPrepHours = manualPrepHoursPerReview,
-                    PeoplePerReview = peoplePerReview,
-                    CapturedUtc = capturedUtc
-                },
+                new { TenantId = tenantId, ManualPrepHours = manualPrepHoursPerReview, PeoplePerReview = peoplePerReview, CapturedUtc = capturedUtc },
                 cancellationToken: ct));
     }
 
@@ -713,7 +706,6 @@ public sealed class DapperTenantRepository(
         if (row is null)
             return null;
 
-
         DateTimeOffset anchor = row.TrialStartUtc ?? row.CreatedUtc;
         double seconds = (committedUtc - anchor).TotalSeconds;
 
@@ -722,7 +714,6 @@ public sealed class DapperTenantRepository(
         if (row.TrialRunsLimit is { } lim and > 0)
 
             ratio = (double)row.TrialRunsUsed / lim;
-
 
         return new TrialFirstManifestCommitOutcome { SignupToCommitSeconds = seconds, TrialRunUsageRatio = ratio };
     }
@@ -810,20 +801,17 @@ public sealed class DapperTenantRepository(
             row.TrialRunsLimit is null)
             return;
 
-
         if (row.TrialExpiresUtc is { } exp && exp <= TimeProvider.System.GetUtcNow())
 
             throw new TrialLimitExceededException(
                 TrialLimitReason.Expired,
                 ComputeDaysRemaining(row.TrialExpiresUtc));
 
-
         if (row.TrialRunsUsed >= row.TrialRunsLimit.Value)
 
             throw new TrialLimitExceededException(
                 TrialLimitReason.RunsExceeded,
                 ComputeDaysRemaining(row.TrialExpiresUtc));
-
 
         int updated = await connection.ExecuteAsync(
             new CommandDefinition(

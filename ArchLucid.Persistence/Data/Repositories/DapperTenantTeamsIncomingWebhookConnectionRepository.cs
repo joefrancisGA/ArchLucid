@@ -36,10 +36,7 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         TeamsIncomingWebhookRow? row = await connection.QueryFirstOrDefaultAsync<TeamsIncomingWebhookRow>(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
         return row is null ? null : ToResponse(row, true);
     }
@@ -62,15 +59,11 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
         int tenantCount = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 tenantExistsSql,
-                new
-                {
-                    TenantId = tenantId
-                },
+                new { TenantId = tenantId },
                 cancellationToken: cancellationToken));
 
         if (tenantCount == 0)
             return null;
-
 
         // null EnabledTriggers means "leave existing JSON unchanged on UPDATE; use catalog default on INSERT".
         // Two-source MERGE keeps that semantic in a single round-trip without a SELECT-then-MERGE race.
@@ -123,10 +116,7 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         int affected = await connection.ExecuteAsync(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
         return affected > 0;
     }

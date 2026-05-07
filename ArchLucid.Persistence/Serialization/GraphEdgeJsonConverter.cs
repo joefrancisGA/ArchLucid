@@ -71,7 +71,6 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
             if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
                 return el.GetString();
 
-
         return null;
     }
 
@@ -87,7 +86,6 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
                 if (el.ValueKind == JsonValueKind.String && double.TryParse(el.GetString(), out double parsed))
                     return parsed;
             }
-
 
         return null;
     }

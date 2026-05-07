@@ -137,7 +137,6 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 throw new InvalidOperationException($"Entra tenant id '{entraTenantId.Value:D}' is already linked.");
             }
 
-
         _workspacesByTenant.TryAdd(tenantId, []);
 
         return Task.CompletedTask;
@@ -166,7 +165,6 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                     DefaultProjectId = defaultProjectId,
                     CreatedUtc = TimeProvider.System.GetUtcNow()
                 });
-
 
         return Task.CompletedTask;
     }
@@ -457,7 +455,6 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
                 return Task.CompletedTask;
 
-
             DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
             if (t.TrialExpiresUtc is { } exp && exp <= now)
@@ -466,13 +463,11 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                     TrialLimitReason.Expired,
                     ComputeDaysRemaining(t.TrialExpiresUtc));
 
-
             if (t.TrialRunsUsed >= t.TrialRunsLimit.Value)
 
                 throw new TrialLimitExceededException(
                     TrialLimitReason.RunsExceeded,
                     ComputeDaysRemaining(t.TrialExpiresUtc));
-
 
             _byId[tenantId] = CopyTenant(t, trialRunsUsed: t.TrialRunsUsed + 1);
         }
@@ -498,13 +493,11 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
                 return Task.CompletedTask;
 
-
             if (t.TrialExpiresUtc is { } exp && exp <= TimeProvider.System.GetUtcNow())
 
                 throw new TrialLimitExceededException(
                     TrialLimitReason.Expired,
                     ComputeDaysRemaining(t.TrialExpiresUtc));
-
 
             if (_trialSeatOccupants.ContainsKey((tenantId, key)))
                 return Task.CompletedTask;
@@ -514,7 +507,6 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 throw new TrialLimitExceededException(
                     TrialLimitReason.SeatsExceeded,
                     ComputeDaysRemaining(t.TrialExpiresUtc));
-
 
             _trialSeatOccupants[(tenantId, key)] = 1;
 
@@ -556,10 +548,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.FromResult(false);
 
-
             if (!string.Equals(existing.TrialStatus, expectedCurrentStatus, StringComparison.Ordinal))
                 return Task.FromResult(false);
-
 
             _byId[tenantId] = CopyTenant(existing, trialStatus: nextStatus);
 
@@ -580,10 +570,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
                 return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
 
-
             if (!_trialFirstManifestCommitted.TryAdd(tenantId, 0))
                 return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
-
 
             DateTimeOffset anchor = t.TrialStartUtc ?? t.CreatedUtc;
             double seconds = (committedUtc - anchor).TotalSeconds;
@@ -593,7 +581,6 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             if (t.TrialRunsLimit is { } lim and > 0)
 
                 ratio = (double)t.TrialRunsUsed / lim;
-
 
             _byId[tenantId] = CopyTenant(t, trialFirstManifestCommittedUtc: committedUtc);
 
@@ -612,7 +599,6 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
                 return Task.CompletedTask;
 
-
             _byId[tenantId] = CopyTenant(t, trialExpiresUtc: expiresUtc);
         }
 
@@ -629,10 +615,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
                 return Task.FromResult(false);
 
-
             if (t.EnterpriseSeatsLimit is int lim && t.EnterpriseSeatsUsed >= lim)
                 return Task.FromResult(false);
-
 
             _byId[tenantId] = CopyTenant(t, enterpriseSeatsUsedOverride: t.EnterpriseSeatsUsed + 1);
         }
@@ -649,7 +633,6 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         {
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
                 return Task.CompletedTask;
-
 
             int next = t.EnterpriseSeatsUsed > 0 ? t.EnterpriseSeatsUsed - 1 : 0;
             _byId[tenantId] = CopyTenant(t, enterpriseSeatsUsedOverride: next);
@@ -668,10 +651,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.CompletedTask;
 
-
             if (existing.TrialWelcomeRunId is not null || existing.TrialArchitecturePreseedEnqueuedUtc is not null)
                 return Task.CompletedTask;
-
 
             _byId[tenantId] = CopyTenant(existing, trialArchitecturePreseedEnqueuedUtc: TimeProvider.System.GetUtcNow());
         }
@@ -710,10 +691,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
                 return Task.CompletedTask;
 
-
             if (existing.TrialWelcomeRunId is not null)
                 return Task.CompletedTask;
-
 
             _byId[tenantId] = CopyTenant(existing, trialWelcomeRunId: welcomeRunId);
         }
@@ -733,7 +712,6 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         lock (list)
 
             row = list.OrderBy(static w => w.CreatedUtc).FirstOrDefault();
-
 
         if (row is null)
             return Task.FromResult<TenantWorkspaceLink?>(null);

@@ -46,14 +46,12 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
         if (results.Count == 0)
             return Task.CompletedTask;
 
-
         List<string> distinctRunIds = results.Select(r => r.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
 
             throw new ArgumentException(
                 $"All results in a batch must belong to the same run. Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(results));
-
 
         string runId = distinctRunIds[0];
         lock (_gate)

@@ -67,13 +67,7 @@ public sealed class SqlOperatorStickinessSnapshotReader(ISqlConnectionFactory co
         OperatorSignalsRow row = await connection.QuerySingleAsync<OperatorSignalsRow>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    Comparison = AuditEventTypes.ComparisonSummaryPersisted
-                },
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, Comparison = AuditEventTypes.ComparisonSummaryPersisted },
                 cancellationToken: cancellationToken));
 
         return new OperatorStickinessSignals(
@@ -189,23 +183,32 @@ public sealed class SqlOperatorStickinessSnapshotReader(ISqlConnectionFactory co
     {
         public long TotalRuns
         {
-            get; init;
+            get;
+            init;
         }
+
         public long CommittedRuns
         {
-            get; init;
+            get;
+            init;
         }
+
         public Guid? LatestRunId
         {
-            get; init;
+            get;
+            init;
         }
+
         public long Comparisons30D
         {
-            get; init;
+            get;
+            init;
         }
+
         public long GovPending
         {
-            get; init;
+            get;
+            init;
         }
     }
 
@@ -213,35 +216,50 @@ public sealed class SqlOperatorStickinessSnapshotReader(ISqlConnectionFactory co
     {
         public DateTime? FirstRunUtc
         {
-            get; init;
+            get;
+            init;
         }
+
         public DateTime? FirstManifestUtc
         {
-            get; init;
+            get;
+            init;
         }
+
         public DateTime? FirstComparisonUtc
         {
-            get; init;
+            get;
+            init;
         }
+
         public DateTime? FirstDownloadUtc
         {
-            get; init;
+            get;
+            init;
         }
+
         public DateTime? FirstReplayUtc
         {
-            get; init;
+            get;
+            init;
         }
+
         public long TotalRuns
         {
-            get; init;
+            get;
+            init;
         }
+
         public long CommittedRuns
         {
-            get; init;
+            get;
+            init;
         }
+
         public long PlSignals90D
         {
-            get; init;
+            get;
+            init;
         }
     }
 }

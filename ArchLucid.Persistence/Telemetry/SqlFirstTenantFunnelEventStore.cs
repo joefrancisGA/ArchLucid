@@ -49,12 +49,7 @@ public sealed class SqlFirstTenantFunnelEventStore(ISqlConnectionFactory connect
 
         CommandDefinition cmd = new(
             sql,
-            new
-            {
-                TenantId = tenantId,
-                EventName = eventName,
-                OccurredUtc = occurredUtc
-            },
+            new { TenantId = tenantId, EventName = eventName, OccurredUtc = occurredUtc },
             cancellationToken: ct);
 
         await connection.ExecuteAsync(cmd);
