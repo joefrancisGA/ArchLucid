@@ -76,8 +76,8 @@ public sealed class AdvisorySchedulingController(
         request.ProjectId = scope.ProjectId;
         if (string.IsNullOrWhiteSpace(request.RunProjectSlug))
             request.RunProjectSlug = AdvisoryScanSchedule.DefaultProjectSlug;
-        request.CreatedUtc = DateTime.UtcNow;
-        request.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(request.CronExpression, DateTime.UtcNow);
+        request.CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        request.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(request.CronExpression, TimeProvider.System.GetUtcNow().UtcDateTime);
 
         await scheduleRepository.CreateAsync(request, ct);
 

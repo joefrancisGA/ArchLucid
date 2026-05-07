@@ -40,7 +40,7 @@ public sealed class GraphSnapshotProjectionMemoryCacheTests
             GraphSnapshotId = graphSnapshotId,
             RunId = runId,
             ContextSnapshotId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         int loadCount = 0;

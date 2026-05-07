@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.Evolution;
@@ -98,7 +98,7 @@ public sealed class CandidateChangeSetServiceTests
                 new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "Y", Description = "d1" }
             ],
             PriorityScore = 9,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         IReadOnlyList<CandidateChangeSet> results = _sut.MapFromImprovementPlan(plan, theme);
@@ -140,7 +140,7 @@ public sealed class CandidateChangeSetServiceTests
                 new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "A", Description = "a" }
             ],
             PriorityScore = 1,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         ProductLearningImprovementPlanRecord sorted = new()

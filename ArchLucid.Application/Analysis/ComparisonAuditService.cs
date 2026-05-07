@@ -39,10 +39,10 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             SummaryMarkdown = summaryMarkdown,
             PayloadJson = JsonSerializer.Serialize(report, JsonOptions),
             Notes = "Persisted end-to-end replay comparison.",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
         await _repository.CreateAsync(record, cancellationToken);
-        DateTime occurredUtc = DateTime.UtcNow;
+        DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         await _auditService.LogAsync(new AuditEvent { OccurredUtc = occurredUtc, EventType = AuditEventTypes.EndToEndComparisonPersisted, RunId = TryParseRunGuid(record.LeftRunId) ?? TryParseRunGuid(record.RightRunId), DataJson = JsonSerializer.Serialize(new { comparisonRecordId = record.ComparisonRecordId, leftRunId = record.LeftRunId, rightRunId = record.RightRunId, comparisonType = record.ComparisonType }, AuditJsonSerializationOptions.Instance) }, cancellationToken);
         return record.ComparisonRecordId;
     }
@@ -64,7 +64,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             SummaryMarkdown = summaryMarkdown,
             PayloadJson = JsonSerializer.Serialize(diff, JsonOptions),
             Notes = "Persisted export record diff.",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
         await _repository.CreateAsync(record, cancellationToken);
         // Durable `ComparisonSummaryPersisted` is emitted by `ExportsController` after this call; avoid duplicate rows.
@@ -89,10 +89,10 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             SummaryMarkdown = sourceRecord.SummaryMarkdown,
             PayloadJson = sourceRecord.PayloadJson,
             Notes = notes ?? $"Replay of comparison record {sourceRecord.ComparisonRecordId}.",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
         await _repository.CreateAsync(record, cancellationToken);
-        DateTime occurredUtc = DateTime.UtcNow;
+        DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         await _auditService.LogAsync(new AuditEvent { OccurredUtc = occurredUtc, EventType = AuditEventTypes.ComparisonReplayPersisted, RunId = TryParseRunGuid(record.LeftRunId) ?? TryParseRunGuid(record.RightRunId), DataJson = JsonSerializer.Serialize(new { comparisonRecordId = record.ComparisonRecordId, sourceComparisonRecordId = sourceRecord.ComparisonRecordId, leftRunId = record.LeftRunId, rightRunId = record.RightRunId, comparisonType = record.ComparisonType }, AuditJsonSerializationOptions.Instance) }, cancellationToken);
         return record.ComparisonRecordId;
     }

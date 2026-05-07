@@ -28,7 +28,7 @@ public sealed class PilotInProductScorecardService(IScopeContextProvider scopeCo
             BaselineArchitectHourlyCost = row.BaselineArchitectHourlyCost,
             UpdatedUtc = row.UpdatedUtc
         };
-        int? daysSinceFirst = m.FirstCommitUtc is { } f ? (int)Math.Floor((DateTimeOffset.UtcNow - f).TotalDays) : null;
+        int? daysSinceFirst = m.FirstCommitUtc is { } f ? (int)Math.Floor((TimeProvider.System.GetUtcNow() - f).TotalDays) : null;
         PilotInProductRoiEstimate? roi = TryBuildRoi(row);
         PilotInProductScorecardResult result = new()
         {
@@ -70,7 +70,7 @@ public sealed class PilotInProductScorecardService(IScopeContextProvider scopeCo
     public async Task UpsertBaselinesAsync(decimal? baselineHoursPerReview, int? baselineReviewsPerQuarter, decimal? baselineArchitectHourlyCost, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
         PilotBaselineRecord record = new()
         {
             TenantId = scope.TenantId,

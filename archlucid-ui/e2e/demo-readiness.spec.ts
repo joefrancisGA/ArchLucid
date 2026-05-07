@@ -154,6 +154,13 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
     for (const path of routes) {
       await page.goto(path);
+
+      if (path === "/graph") {
+        await expect(
+          page.getByTestId("graph-canvas-ready").or(page.getByRole("button", { name: /^Load graph$/i })),
+        ).toBeVisible({ timeout: 25_000 });
+      }
+
       await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
     }
   });

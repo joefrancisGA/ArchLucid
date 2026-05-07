@@ -46,6 +46,9 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         payload.Manifest!.SystemName.Should().Be("EnterpriseRag");
         payload.DecisionTraces.Should().NotBeEmpty();
         payload.ExecutionFlavorBuyerSummary.Should().NotBeNullOrWhiteSpace();
+        payload.TrustEvidenceCard.Should().NotBeNull();
+        payload.TrustEvidenceCard!.SelfAttestationNotice.Should().NotBeNullOrWhiteSpace();
+        payload.TrustEvidenceCard.AuditTrail.Status.Should().NotBeNullOrWhiteSpace();
 
         Guid authorityRunKey = Guid.Parse(runId);
         HttpResponseMessage authorityDetailResponse =

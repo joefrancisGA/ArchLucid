@@ -50,7 +50,7 @@ public sealed class TrialLifecycleEmailDispatcher(ITenantRepository tenantReposi
             return;
         }
 
-        DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+        DateTimeOffset utcNow = TimeProvider.System.GetUtcNow();
         if (!PassesTriggerGate(envelope.Trigger, tenant, utcNow))
             return;
         string? to = await _contactLookup.TryResolveAdminEmailAsync(envelope.TenantId, cancellationToken);

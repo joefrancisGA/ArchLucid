@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -37,7 +37,7 @@ public abstract class AgentResultRepositoryContractTests
 
         await PrepareRunTaskChainAsync(requestId, runId, task, CancellationToken.None);
 
-        AgentResult result = NewResult(runId, task.TaskId, "r1", DateTime.UtcNow);
+        AgentResult result = NewResult(runId, task.TaskId, "r1", TimeProvider.System.GetUtcNow().UtcDateTime);
 
         await repo.CreateAsync(result, CancellationToken.None);
 
@@ -59,11 +59,11 @@ public abstract class AgentResultRepositoryContractTests
 
         await PrepareRunTaskChainAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewResult(runId, task.TaskId, "old", DateTime.UtcNow.AddMinutes(-1)),
+        await repo.CreateAsync(NewResult(runId, task.TaskId, "old", TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1)),
             CancellationToken.None);
 
         await repo.CreateManyAsync(
-            [NewResult(runId, task.TaskId, "new", DateTime.UtcNow)],
+            [NewResult(runId, task.TaskId, "new", TimeProvider.System.GetUtcNow().UtcDateTime)],
             CancellationToken.None);
 
         IReadOnlyList<AgentResult> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
@@ -81,7 +81,7 @@ public abstract class AgentResultRepositoryContractTests
             AgentType = AgentType.Topology,
             Objective = "o",
             Status = AgentTaskStatus.Created,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             EvidenceBundleRef = "eb-ar"
         };
     }

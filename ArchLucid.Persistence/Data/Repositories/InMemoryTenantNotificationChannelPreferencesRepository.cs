@@ -40,7 +40,7 @@ public sealed class
             EmailCustomerNotificationsEnabled = emailCustomerNotificationsEnabled,
             TeamsCustomerNotificationsEnabled = teamsCustomerNotificationsEnabled,
             OutboundWebhookCustomerNotificationsEnabled = outboundWebhookCustomerNotificationsEnabled,
-            UpdatedUtc = DateTimeOffset.UtcNow
+            UpdatedUtc = TimeProvider.System.GetUtcNow()
         };
 
         _store[tenantId] = row;

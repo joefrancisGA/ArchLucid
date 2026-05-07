@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Conversation;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Persistence.Conversation;
 
@@ -61,8 +61,8 @@ public sealed class ConversationServiceTests
             WorkspaceId = _workspace,
             ProjectId = _project,
             Title = "T",
-            CreatedUtc = DateTime.UtcNow,
-            LastUpdatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         Mock<IConversationThreadRepository> threads = new();
@@ -99,8 +99,8 @@ public sealed class ConversationServiceTests
             WorkspaceId = _workspace,
             ProjectId = _project,
             Title = "T",
-            CreatedUtc = DateTime.UtcNow,
-            LastUpdatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         Mock<IConversationThreadRepository> threads = new();

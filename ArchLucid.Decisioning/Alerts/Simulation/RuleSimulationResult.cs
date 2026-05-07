@@ -15,7 +15,7 @@ public class RuleSimulationResult
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>Number of evaluation contexts processed.</summary>
     public int EvaluatedRunCount

@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
@@ -126,7 +126,7 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
             new
             {
                 RunId = runId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 TenantId,
                 WorkspaceId,
                 ScopeProjectId
@@ -143,7 +143,7 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
             {
                 SnapshotId = snapshotId,
                 RunId = runId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 CanonicalObjectsJson = JsonEntitySerializer.Serialize(new List<CanonicalObject>
                 {
                     new()
@@ -172,7 +172,7 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
             SnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
             ProjectId = "proj-readiness-rel",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CanonicalObjects =
             [
                 new CanonicalObject

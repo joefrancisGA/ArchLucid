@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -46,7 +46,7 @@ public sealed class SqlRunRepositoryArchiveByIdsConcurrencyTests(SqlServerPersis
             ScopeProjectId = scope.ProjectId,
             ProjectId = slug,
             Description = "concurrency archive",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         await repo.SaveAsync(run, CancellationToken.None);

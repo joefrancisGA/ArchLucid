@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Jobs;
 
 using FluentAssertions;
@@ -219,8 +219,8 @@ public sealed class InMemoryBackgroundJobQueueTests
     private static async Task WaitForTerminalStateAsync(InMemoryBackgroundJobQueue queue, string jobId,
         TimeSpan timeout)
     {
-        DateTime deadline = DateTime.UtcNow + timeout;
-        while (DateTime.UtcNow < deadline)
+        DateTime deadline = TimeProvider.System.GetUtcNow().UtcDateTime + timeout;
+        while (TimeProvider.System.GetUtcNow().UtcDateTime < deadline)
         {
             BackgroundJobInfo? info = await queue.GetInfoAsync(jobId);
             if (info is { State: BackgroundJobState.Succeeded or BackgroundJobState.Failed })

@@ -45,7 +45,7 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
         await repo.CreateAsync(schedule, CancellationToken.None);
 
         schedule.Name = "Updated name";
-        schedule.NextRunUtc = DateTime.UtcNow.AddHours(6);
+        schedule.NextRunUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(6);
         await repo.UpdateAsync(schedule, CancellationToken.None);
 
         AdvisoryScanSchedule? loaded = await repo.GetByIdAsync(schedule.ScheduleId, CancellationToken.None);
@@ -134,8 +134,8 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
             Name = "Contract schedule",
             CronExpression = "0 7 * * *",
             IsEnabled = true,
-            NextRunUtc = DateTime.UtcNow.AddDays(1),
-            CreatedUtc = DateTime.UtcNow
+            NextRunUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(1),
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 }

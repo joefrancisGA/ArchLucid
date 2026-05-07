@@ -25,7 +25,7 @@ public sealed class TrialEmailScanArchLucidJob(
             TrialScheduledLifecycleEmailScanner scanner =
                 scope.ServiceProvider.GetRequiredService<TrialScheduledLifecycleEmailScanner>();
 
-            await scanner.PublishDueAsync(DateTimeOffset.UtcNow, cancellationToken).ConfigureAwait(false);
+            await scanner.PublishDueAsync(TimeProvider.System.GetUtcNow(), cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {

@@ -43,7 +43,7 @@ internal static class StripeCheckoutE2EWebhookTestSigning
 
         // Stripe.net EventUtility uses UTF-8 bytes of the full secret string (v48.x), not whsec_ base64 decode.
         byte[] key = Encoding.UTF8.GetBytes(whsecSecret);
-        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        long timestamp = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds();
         string signedPayload = $"{timestamp}.{payload}";
 
         using HMACSHA256 hmac = new(key);

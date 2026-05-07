@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
@@ -258,7 +258,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             ProjectId = scope.ProjectId,
             SubjectType = ProductLearningSubjectTypeValues.RunOutput,
             Disposition = ProductLearningDispositionValues.Trusted,
-            RecordedUtc = DateTime.UtcNow
+            RecordedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         await Assert.ThrowsAsync<ArgumentException>(() => svc.ExtractThemesAsync(

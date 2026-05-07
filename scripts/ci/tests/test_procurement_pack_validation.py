@@ -82,6 +82,19 @@ class TestProcurementPackValidation(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_procurement_pack_index_script_exits_zero_on_repo(self) -> None:
+
+        script = _REPO_ROOT / "scripts" / "ci" / "check_procurement_pack_index.py"
+        result = subprocess.run(
+            [sys.executable, str(script)],
+            cwd=str(_REPO_ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_manifest_preview_writes_two_files(self) -> None:
 
         with tempfile.TemporaryDirectory() as tmp_src, tempfile.TemporaryDirectory() as tmp_out:

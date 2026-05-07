@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Text.Json;
 
 using ArchLucid.Application.Governance;
@@ -280,7 +280,7 @@ public sealed class PolicyPackDryRunServiceTests
 
             _byId[runId] = new ArchitectureRunDetail
             {
-                Run = new ArchitectureRun { RunId = runId, RequestId = $"req-{runId}", CreatedUtc = DateTime.UtcNow },
+                Run = new ArchitectureRun { RunId = runId, RequestId = $"req-{runId}", CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime },
                 Results = [new AgentResult { Findings = findings }],
             };
         }

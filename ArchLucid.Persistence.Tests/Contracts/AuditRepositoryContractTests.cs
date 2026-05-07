@@ -54,7 +54,7 @@ public abstract class AuditRepositoryContractTests
         return new AuditEvent
         {
             EventId = eventId ?? Guid.NewGuid(),
-            OccurredUtc = occurredUtc ?? DateTime.UtcNow,
+            OccurredUtc = occurredUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime,
             EventType = eventType,
             ActorUserId = actorUserId ?? "actor",
             ActorUserName = "Actor Name",
@@ -109,8 +109,8 @@ public abstract class AuditRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
         Guid isolatedProjectId = Guid.NewGuid();
-        DateTime older = DateTime.UtcNow.AddMinutes(-10);
-        DateTime newer = DateTime.UtcNow.AddMinutes(-5);
+        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-10);
+        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5);
         AuditEvent first = NewEvent(occurredUtc: older, projectId: isolatedProjectId);
         AuditEvent second = NewEvent(occurredUtc: newer, projectId: isolatedProjectId);
 
@@ -149,7 +149,7 @@ public abstract class AuditRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
-        DateTime mid = DateTime.UtcNow.AddMinutes(-30);
+        DateTime mid = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-30);
         AuditEvent before = NewEvent(occurredUtc: mid.AddHours(-2));
         AuditEvent inside = NewEvent(occurredUtc: mid);
         AuditEvent after = NewEvent(occurredUtc: mid.AddHours(2));
@@ -240,7 +240,7 @@ public abstract class AuditRepositoryContractTests
 
         await EnsureAuditParentRunExistsAsync(run, TenantId, WorkspaceId, ProjectId, CancellationToken.None);
 
-        DateTime t = DateTime.UtcNow.AddMinutes(-5);
+        DateTime t = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5);
         AuditEvent match = NewEvent(
             "MultiFilter",
             t,
@@ -280,8 +280,8 @@ public abstract class AuditRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
         Guid isolatedProjectId = Guid.NewGuid();
-        DateTime older = DateTime.UtcNow.AddMinutes(-20);
-        DateTime newer = DateTime.UtcNow.AddMinutes(-10);
+        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-20);
+        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-10);
         AuditEvent first = NewEvent(occurredUtc: older, projectId: isolatedProjectId);
         AuditEvent second = NewEvent(occurredUtc: newer, projectId: isolatedProjectId);
 
@@ -333,11 +333,46 @@ public abstract class AuditRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task CountFilteredAsync_ignores_take_and_counts_all_matching_rows()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+        for (int i = 0; i < SeededAuditEventsAboveListingTakeCap; i++)
+            await repo.AppendAsync(NewEvent("Bulk"), CancellationToken.None);
+
+        AuditEventFilter filter = new() { EventType = "Bulk", Take = 10_000 };
+
+        IReadOnlyList<AuditEvent> listed =
+            await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
+        int counted =
+            await repo.CountFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
+
+        listed.Count.Should().Be(PaginationDefaults.MaxListingTake);
+        counted.Should().Be(SeededAuditEventsAboveListingTakeCap);
+    }
+
+    [SkippableFact]
+    public async Task CountFilteredAsync_null_filter_throws()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+
+        Func<Task> act = () => repo.CountFilteredAsync(
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            null!,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [SkippableFact]
     public async Task GetExportAsync_DateRange_IsHalfOpen_OnOccurredUtc()
     {
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
-        DateTime mid = DateTime.UtcNow.AddMinutes(-40);
+        DateTime mid = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-40);
         AuditEvent before = NewEvent(occurredUtc: mid.AddHours(-2));
         AuditEvent inside = NewEvent(occurredUtc: mid);
         AuditEvent after = NewEvent(occurredUtc: mid.AddHours(2));
@@ -362,8 +397,8 @@ public abstract class AuditRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
         Guid isolatedProjectId = Guid.NewGuid();
-        DateTime older = DateTime.UtcNow.AddMinutes(-25);
-        DateTime newer = DateTime.UtcNow.AddMinutes(-15);
+        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-25);
+        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-15);
         AuditEvent first = NewEvent(occurredUtc: older, projectId: isolatedProjectId);
         AuditEvent second = NewEvent(occurredUtc: newer, projectId: isolatedProjectId);
 
@@ -393,7 +428,7 @@ public abstract class AuditRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
         Guid isolatedProjectId = Guid.NewGuid();
-        DateTime t0 = DateTime.UtcNow.AddHours(-3);
+        DateTime t0 = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-3);
 
         for (int i = 0; i < SeededExportEventsForMaxRowsCapTest; i++)
         {
@@ -423,7 +458,7 @@ public abstract class AuditRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
         Guid isolatedProjectId = Guid.NewGuid();
-        DateTime t0 = DateTime.UtcNow.AddHours(-8);
+        DateTime t0 = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-8);
 
         for (int i = 0; i < SeededExportEventsForManyRowsTest; i++)
         {

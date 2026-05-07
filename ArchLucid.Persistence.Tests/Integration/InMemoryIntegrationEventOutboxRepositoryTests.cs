@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 
 using ArchLucid.Core.Integration;
 
@@ -93,7 +93,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         await sut.RecordPublishFailureAsync(
             idA,
             1,
-            DateTime.UtcNow.AddHours(1),
+            TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(1),
             null,
             "err",
             CancellationToken.None);
@@ -158,7 +158,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
             id,
             3,
             null,
-            DateTime.UtcNow,
+            TimeProvider.System.GetUtcNow().UtcDateTime,
             "boom",
             CancellationToken.None);
 

@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Tests.Support;
@@ -151,7 +151,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = "proj-legacy-json",
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     CanonicalObjectsJson = canonicalJson,
                     DeltaSummary = (string?)null,
                     WarningsJson = warningsJson,
@@ -411,7 +411,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
             SnapshotId = snapshotId,
             RunId = runId,
             ProjectId = "proj-tx",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CanonicalObjects = [],
             Warnings = ["tw"],
             Errors = [],

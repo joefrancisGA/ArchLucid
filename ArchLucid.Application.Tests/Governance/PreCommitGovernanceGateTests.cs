@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
@@ -51,7 +51,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -63,7 +63,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding
@@ -129,7 +129,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -141,7 +141,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding
@@ -239,7 +239,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = null,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -291,7 +291,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -303,7 +303,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding
@@ -368,7 +368,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -380,7 +380,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding
@@ -445,7 +445,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -497,7 +497,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -509,7 +509,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding
@@ -598,7 +598,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -610,7 +610,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding
@@ -693,7 +693,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -705,7 +705,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding
@@ -787,7 +787,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -799,7 +799,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding
@@ -868,7 +868,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -880,7 +880,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding
@@ -946,7 +946,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -958,7 +958,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding
@@ -1036,7 +1036,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
             CancellationToken.None);
 
@@ -1048,7 +1048,7 @@ public sealed class PreCommitGovernanceGateTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 Findings =
                 [
                     new Finding

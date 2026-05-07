@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
@@ -19,8 +19,8 @@ public sealed class ProductLearningOpportunityScoringTests
             RejectedCount = 1,
             NeedsFollowUpCount = 1,
             RevisedCount = 1,
-            FirstSignalRecordedUtc = DateTime.UtcNow,
-            LastSignalRecordedUtc = DateTime.UtcNow
+            FirstSignalRecordedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            LastSignalRecordedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         int score = ProductLearningOpportunityScoring.ComputeAggregateBadScore(agg);
@@ -49,8 +49,8 @@ public sealed class ProductLearningOpportunityScoringTests
             RevisionCount = 2,
             NeedsFollowUpCount = 1,
             DistinctRunCount = 2,
-            FirstSeenUtc = DateTime.UtcNow,
-            LastSeenUtc = DateTime.UtcNow
+            FirstSeenUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            LastSeenUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         ProductLearningOpportunityScoring.ComputeTrendNegativeMass(trend).Should().Be(4);

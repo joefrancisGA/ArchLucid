@@ -208,7 +208,7 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
                 WorkUnitJson = row.WorkUnitJson,
                 State = "Running",
                 CreatedUtc = row.CreatedUtc,
-                StartedUtc = DateTimeOffset.UtcNow,
+                StartedUtc = TimeProvider.System.GetUtcNow(),
                 CompletedUtc = row.CompletedUtc,
                 Error = row.Error,
                 FileName = row.FileName,
@@ -361,7 +361,7 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
                              AND RetryCount < MaxRetries;
                            """;
 
-        DateTime staleBeforeUtc = DateTime.UtcNow.Subtract(maxRunningAge);
+        DateTime staleBeforeUtc = TimeProvider.System.GetUtcNow().UtcDateTime.Subtract(maxRunningAge);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

@@ -1,4 +1,4 @@
-﻿using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Persistence.Queries;
 
@@ -17,7 +17,7 @@ public sealed class ArtifactDescriptorMapperTests
             ArtifactId = id,
             RunId = Guid.Parse("10000000-0000-0000-0000-000000000001"),
             ManifestId = Guid.Parse("20000000-0000-0000-0000-000000000001"),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ArtifactType = "Test",
             Name = name,
             Format = "json",

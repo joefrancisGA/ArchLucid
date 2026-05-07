@@ -46,7 +46,7 @@ public sealed class InMemoryScimGroupRepository : IScimGroupRepository
     {
         _ = cancellationToken;
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
         ScimGroupRecord g = new()
         {
             Id = Guid.NewGuid(),
@@ -76,7 +76,7 @@ public sealed class InMemoryScimGroupRepository : IScimGroupRepository
             return Task.CompletedTask;
 
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
         _byId[id] = new ScimGroupRecord
         {
             Id = id,

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Tests.Support;
@@ -36,7 +36,7 @@ public sealed class DapperAgentEvaluationRepositoryContractTests(SqlServerPersis
             AgentType = AgentType.Topology,
             Objective = "seed",
             Status = AgentTaskStatus.Created,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             EvidenceBundleRef = "eb-seed"
         };
 

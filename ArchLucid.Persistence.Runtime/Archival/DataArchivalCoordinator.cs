@@ -38,12 +38,12 @@ public sealed class DataArchivalCoordinator(
         ArgumentNullException.ThrowIfNull(options);
 
         using Activity? activity = ArchLucidInstrumentation.DataArchival.StartActivity("DataArchival.RunOnce");
-        string correlationId = FormattableString.Invariant($"data-archival:{DateTime.UtcNow:yyyyMMddHHmmss}");
+        string correlationId = FormattableString.Invariant($"data-archival:{TimeProvider.System.GetUtcNow().UtcDateTime:yyyyMMddHHmmss}");
         activity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, correlationId);
 
         using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
 
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
         if (options.RunsRetentionDays > 0)
         {

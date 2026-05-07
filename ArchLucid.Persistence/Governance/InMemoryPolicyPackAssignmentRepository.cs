@@ -107,7 +107,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
             if (row is null)
                 return Task.FromResult(false);
 
-            row.ArchivedUtc = DateTime.UtcNow;
+            row.ArchivedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
             return Task.FromResult(true);
         }
     }

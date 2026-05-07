@@ -47,7 +47,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
             Patterns = BuildPatterns(request),
             PriorManifest = BuildPriorManifest(request),
             Notes = BuildNotes(request),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         return Task.FromResult(package);

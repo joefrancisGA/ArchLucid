@@ -27,7 +27,7 @@ public sealed class DurableBackgroundJobQueue(
                 $"The background job queue is at capacity ({snapshot.MaxPendingJobs} non-terminal jobs). Try again later.");
 
         string jobId = Guid.NewGuid().ToString("N");
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
         string workJson = BackgroundJobWorkUnitJson.Serialize(workUnit);
 

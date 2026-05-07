@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Diagrams;
+using ArchLucid.Application.Diagrams;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -150,7 +150,7 @@ public sealed class DocxExportServiceGoldenTests
                 ArtifactId = Guid.NewGuid(),
                 RunId = runId,
                 ManifestId = manifestId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 ArtifactType = ArtifactType.MermaidDiagram,
                 Name = "architecture.mmd",
                 Format = "mermaid",
@@ -232,7 +232,7 @@ public sealed class DocxExportServiceGoldenTests
                 ArtifactId = Guid.NewGuid(),
                 RunId = runId,
                 ManifestId = manifestId,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 ArtifactType = ArtifactType.MermaidDiagram,
                 Name = "architecture.mmd",
                 Format = "mermaid",

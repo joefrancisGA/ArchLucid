@@ -87,6 +87,9 @@ test.describe("operator shell smoke — advanced surface path", () => {
 
     await page.goto("/graph");
     await expect(page.getByRole("heading", { name: /Review trail graph|Review evidence graph/i })).toBeVisible();
+    await expect(
+      page.getByTestId("graph-canvas-ready").or(page.getByRole("button", { name: /^Load graph$/i })),
+    ).toBeVisible({ timeout: 25_000 });
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/compare");

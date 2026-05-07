@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Decisioning.Alerts.Delivery;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -40,7 +40,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
-        DateTime newer = DateTime.UtcNow;
+        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime;
         DateTime older = newer.AddMinutes(-5);
 
         await EnsureDeliveryAttemptParentsExistAsync(
@@ -87,7 +87,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         IAlertDeliveryAttemptRepository repo = CreateRepository(tenantId, workspaceId, projectId);
 
         AlertDeliveryAttempt attempt =
-            NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, DateTime.UtcNow);
+            NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, TimeProvider.System.GetUtcNow().UtcDateTime);
         await repo.CreateAsync(attempt, CancellationToken.None);
 
         attempt.Status = AlertDeliveryAttemptStatus.Succeeded;
@@ -119,7 +119,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
 
         IAlertDeliveryAttemptRepository repo = CreateRepository(tenantId, workspaceId, projectId);
 
-        DateTime newestUtc = DateTime.UtcNow;
+        DateTime newestUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         AlertDeliveryAttempt c =
             NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, newestUtc);
         AlertDeliveryAttempt b =

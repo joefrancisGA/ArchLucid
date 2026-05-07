@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evolution;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -71,7 +71,7 @@ public sealed class ShadowExecutionServiceTests
             ChangeSetId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             SourcePlanId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             Description = "shadow",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ApprovalStatus = ApprovalStatus.PendingReview,
             ProposedActions =
             [
@@ -137,7 +137,7 @@ public sealed class ShadowExecutionServiceTests
             ChangeSetId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             SourcePlanId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             Description = "shadow",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ApprovalStatus = ApprovalStatus.PendingReview,
         };
     }

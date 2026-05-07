@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Conversation;
 using ArchLucid.Persistence.Conversation;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -30,8 +30,8 @@ public abstract class ConversationMessageRepositoryContractTests
             WorkspaceId = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
             Title = "msg-contract",
-            CreatedUtc = DateTime.UtcNow,
-            LastUpdatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 
@@ -49,7 +49,7 @@ public abstract class ConversationMessageRepositoryContractTests
             ThreadId = thread.ThreadId,
             Role = ConversationMessageRole.User,
             Content = "a",
-            CreatedUtc = DateTime.UtcNow.AddMinutes(-5)
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5)
         };
 
         ConversationMessage second = new()
@@ -58,7 +58,7 @@ public abstract class ConversationMessageRepositoryContractTests
             ThreadId = thread.ThreadId,
             Role = ConversationMessageRole.Assistant,
             Content = "b",
-            CreatedUtc = DateTime.UtcNow.AddMinutes(-4)
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-4)
         };
 
         await repo.AddAsync(first, CancellationToken.None);
@@ -89,7 +89,7 @@ public abstract class ConversationMessageRepositoryContractTests
                     ThreadId = thread.ThreadId,
                     Role = ConversationMessageRole.User,
                     Content = $"m{i}",
-                    CreatedUtc = DateTime.UtcNow.AddSeconds(-i)
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddSeconds(-i)
                 },
                 CancellationToken.None);
         }

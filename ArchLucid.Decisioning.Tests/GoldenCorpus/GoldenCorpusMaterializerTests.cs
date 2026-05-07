@@ -4,6 +4,8 @@ using ArchLucid.TestSupport.GoldenCorpus;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Time.Testing;
+
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 
 /// <summary>Regenerates on-disk golden files (local only). Excluded from default CI filters.</summary>
@@ -31,7 +33,8 @@ public sealed class GoldenCorpusMaterializerTests
 
         File.Exists(compliance).Should().BeTrue("compliance rule pack must be copied to test output.");
 
-        FrozenUtcTimeProvider clock = new(new DateTimeOffset(2026, 2, 1, 0, 0, 0, TimeSpan.Zero));
+        FakeTimeProvider clock = new();
+        clock.SetUtcNow(new DateTimeOffset(2026, 2, 1, 0, 0, 0, TimeSpan.Zero));
         GoldenCorpusHarness harness = new(compliance, clock);
         string root = GoldenCorpusRepoPaths.CorpusSourceDirectory;
         Directory.CreateDirectory(root);

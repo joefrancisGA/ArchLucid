@@ -81,5 +81,5 @@ public class RetrievalDocument
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

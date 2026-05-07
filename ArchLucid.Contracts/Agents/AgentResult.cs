@@ -117,5 +117,5 @@ public sealed class AgentResult
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

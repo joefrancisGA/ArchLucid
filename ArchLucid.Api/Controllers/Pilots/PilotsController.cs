@@ -189,7 +189,7 @@ public sealed class PilotsController(
 
         PilotRunDeltas deltas = await pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        DateTimeOffset end = DateTimeOffset.UtcNow;
+        DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         ValueReportSnapshot snapshot =
             await valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, start, end, cancellationToken);
@@ -246,7 +246,7 @@ public sealed class PilotsController(
         [FromBody] PilotScorecardPostRequest? body,
         CancellationToken cancellationToken)
     {
-        DateTimeOffset end = body?.PeriodEnd ?? DateTimeOffset.UtcNow;
+        DateTimeOffset end = body?.PeriodEnd ?? TimeProvider.System.GetUtcNow();
         DateTimeOffset start = body?.PeriodStart ?? end.AddDays(-30);
 
         if (end <= start)
@@ -323,7 +323,7 @@ public sealed class PilotsController(
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         string actor = actorContext.GetActor();
         Guid closeoutId = Guid.NewGuid();
-        DateTimeOffset created = DateTimeOffset.UtcNow;
+        DateTimeOffset created = TimeProvider.System.GetUtcNow();
 
         PilotCloseoutRecord record = new()
         {

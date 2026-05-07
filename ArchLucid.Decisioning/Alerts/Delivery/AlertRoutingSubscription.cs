@@ -77,7 +77,7 @@ public class AlertRoutingSubscription
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>Last successful delivery timestamp; updated by the dispatcher.</summary>
     public DateTime? LastDeliveredUtc

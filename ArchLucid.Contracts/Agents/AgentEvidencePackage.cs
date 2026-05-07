@@ -103,5 +103,5 @@ public sealed class AgentEvidencePackage
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

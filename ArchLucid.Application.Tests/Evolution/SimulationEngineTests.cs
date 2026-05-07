@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Evolution;
 using ArchLucid.Contracts.Evolution;
@@ -103,7 +103,7 @@ public sealed class SimulationEngineTests
             ChangeSetId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             SourcePlanId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
             Description = "test",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ApprovalStatus = ApprovalStatus.PendingReview,
         };
     }

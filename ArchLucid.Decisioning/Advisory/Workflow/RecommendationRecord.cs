@@ -99,13 +99,13 @@ public class RecommendationRecord
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     public DateTime LastUpdatedUtc
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     public string? ReviewedByUserId
     {

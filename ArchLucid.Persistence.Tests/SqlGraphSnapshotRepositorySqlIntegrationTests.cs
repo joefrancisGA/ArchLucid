@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Repositories;
@@ -113,7 +113,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
             GraphSnapshotId = graphSnapshotId,
             ContextSnapshotId = contextSnapshotId,
             RunId = runId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Edges =
             [
                 new GraphEdge
@@ -223,7 +223,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     NodesJson = nodesJson,
                     EdgesJson = edgesJson,
                     WarningsJson = warningsJson
@@ -333,7 +333,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     NodesJson = nodesJson,
                     EdgesJson = edgesJson,
                     WarningsJson = warningsJson
@@ -426,7 +426,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
             GraphSnapshotId = graphId,
             ContextSnapshotId = contextId,
             RunId = runId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Nodes = [],
             Edges = [],
             Warnings = ["tw"]
@@ -529,7 +529,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
             GraphSnapshotId = graphId,
             ContextSnapshotId = contextId,
             RunId = runId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Nodes =
             [
                 new GraphNode
@@ -603,7 +603,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
             GraphSnapshotId = graphId,
             ContextSnapshotId = contextId,
             RunId = runId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Nodes =
             [
                 new GraphNode { NodeId = "a", NodeType = "S", Label = "A", Properties = [] },

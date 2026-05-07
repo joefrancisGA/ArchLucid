@@ -44,5 +44,5 @@ public sealed class ManifestMetadata
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

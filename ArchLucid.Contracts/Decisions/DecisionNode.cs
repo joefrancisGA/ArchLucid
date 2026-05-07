@@ -81,5 +81,5 @@ public sealed class DecisionNode
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Persistence.ArtifactBundles;
+using ArchLucid.Persistence.ArtifactBundles;
 
 namespace ArchLucid.Persistence.Tests.BlobStore;
 
@@ -52,7 +52,7 @@ public sealed class ArtifactBundlePayloadBlobEnvelopeTests
             BundleId = Guid.NewGuid(),
             RunId = runId,
             ManifestId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ArtifactsJson = "old-a",
             TraceJson = "old-t",
             BundlePayloadBlobUri = "https://blob"

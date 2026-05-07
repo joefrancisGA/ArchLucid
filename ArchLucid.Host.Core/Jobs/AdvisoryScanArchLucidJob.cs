@@ -27,7 +27,7 @@ public sealed class AdvisoryScanArchLucidJob(
             AdvisoryDueScheduleProcessor processor =
                 scope.ServiceProvider.GetRequiredService<AdvisoryDueScheduleProcessor>();
 
-            await processor.ProcessDueAsync(DateTime.UtcNow, MaxSchedulesPerRun, cancellationToken).ConfigureAwait(false);
+            await processor.ProcessDueAsync(TimeProvider.System.GetUtcNow().UtcDateTime, MaxSchedulesPerRun, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {

@@ -22,9 +22,11 @@ internal static class ConfigLintCommand
 
         bool hostingAdvisor = args.Contains("--hosting-advisor", StringComparer.OrdinalIgnoreCase);
 
+        bool strictStaging = args.Contains("--strict-staging", StringComparer.OrdinalIgnoreCase);
+
         ArchLucidProjectScaffolder.ArchLucidCliConfig? cli = CliCommandShared.TryLoadConfigFromCwd();
 
-        IConfiguration local = BuildMergedConfiguration(cli, simulateProduction);
+        IConfiguration local = BuildMergedConfiguration(cli, simulateProduction, strictStaging);
 
         string envName =
             local["ASPNETCORE_ENVIRONMENT"]
@@ -35,6 +37,11 @@ internal static class ConfigLintCommand
         string trimmedEnv = envName.Trim();
 
         List<string> errors = EvaluateAuthMisconfigurations(local, trimmedEnv);
+
+        if (ProductionDangerousMisconfigurationLint.AppliesDangerousFailFast(trimmedEnv, local))
+            errors.AddRange(
+                ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(local, trimmedEnv)
+                    .Select(static w => $"[{w.RuleName}] {w.Message}"));
 
         if (hostingAdvisor)
         {
@@ -76,12 +83,15 @@ internal static class ConfigLintCommand
         string modeTrim =
             cfg["ArchLucidAuth:Mode"]?.Trim() ?? string.Empty;
 
-        if (nonDevelopmentHosting
+        bool lintFailFast = ProductionDangerousMisconfigurationLint.AppliesDangerousFailFast(hostingEnvironmentName, cfg);
+
+        if (!lintFailFast
+            && nonDevelopmentHosting
             && string.Equals(modeTrim, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
             errors.Add(
                 "ArchLucidAuth:Mode must not be DevelopmentBypass outside safe Development workstations (check ASPNETCORE_ENVIRONMENT / ARCHLUCID_ENVIRONMENT).");
 
-        if (nonDevelopmentHosting && cfg.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
+        if (!lintFailFast && nonDevelopmentHosting && cfg.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
             errors.Add(
                 "Authentication:ApiKey:DevelopmentBypassAll must be false outside intentional Development workstations.");
 
@@ -101,7 +111,8 @@ internal static class ConfigLintCommand
 
     private static IConfiguration BuildMergedConfiguration(
         ArchLucidProjectScaffolder.ArchLucidCliConfig? cli,
-        bool simulateProductionForLint)
+        bool simulateProductionForLint,
+        bool strictStagingForLint)
     {
         List<KeyValuePair<string, string?>> overlays = [];
 
@@ -113,6 +124,10 @@ internal static class ConfigLintCommand
         if (simulateProductionForLint)
 
             overlays.Add(new KeyValuePair<string, string?>("ASPNETCORE_ENVIRONMENT", Environments.Production));
+
+        if (strictStagingForLint)
+
+            overlays.Add(new KeyValuePair<string, string?>("ProductionValidation:Strict", "true"));
 
         return new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())

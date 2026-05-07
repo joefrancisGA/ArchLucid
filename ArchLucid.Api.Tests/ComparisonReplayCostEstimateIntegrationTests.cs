@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models;
@@ -36,7 +36,7 @@ public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchLucidApiFac
                     RightRunId = "R",
                     Format = "json+markdown",
                     PayloadJson = "{}",
-                    CreatedUtc = DateTime.UtcNow
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
                 },
                 CancellationToken.None);
         }

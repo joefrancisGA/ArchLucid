@@ -31,7 +31,7 @@ public sealed class InMemoryBackgroundJobQueue(
         ArgumentNullException.ThrowIfNull(workUnit);
 
         string id = Guid.NewGuid().ToString("n");
-        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
         int safeMaxRetries = Math.Clamp(maxRetries, 0, 10);
 
         _info[id] = new BackgroundJobInfo(
@@ -86,7 +86,7 @@ public sealed class InMemoryBackgroundJobQueue(
             if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? current))
                 continue;
 
-            _info[item.JobId] = current with { State = BackgroundJobState.Running, StartedUtc = current.StartedUtc ?? DateTimeOffset.UtcNow };
+            _info[item.JobId] = current with { State = BackgroundJobState.Running, StartedUtc = current.StartedUtc ?? TimeProvider.System.GetUtcNow() };
 
             try
             {
@@ -100,7 +100,7 @@ public sealed class InMemoryBackgroundJobQueue(
                 _info[item.JobId] = done with
                 {
                     State = BackgroundJobState.Succeeded,
-                    CompletedUtc = DateTimeOffset.UtcNow,
+                    CompletedUtc = TimeProvider.System.GetUtcNow(),
                     Error = null,
                     FileName = file.FileName,
                     ContentType = file.ContentType
@@ -134,7 +134,7 @@ public sealed class InMemoryBackgroundJobQueue(
                         _info[item.JobId] = failed with
                         {
                             State = BackgroundJobState.Failed,
-                            CompletedUtc = DateTimeOffset.UtcNow,
+                            CompletedUtc = TimeProvider.System.GetUtcNow(),
                             RetryCount = nextRetry,
                             Error = "Retry skipped: job queue at capacity."
                         };
@@ -148,7 +148,7 @@ public sealed class InMemoryBackgroundJobQueue(
                         _info[item.JobId] = failed with
                         {
                             State = BackgroundJobState.Failed,
-                            CompletedUtc = DateTimeOffset.UtcNow,
+                            CompletedUtc = TimeProvider.System.GetUtcNow(),
                             RetryCount = nextRetry,
                             Error = "Retry skipped: queue writer not accepting jobs."
                         };
@@ -164,7 +164,7 @@ public sealed class InMemoryBackgroundJobQueue(
 
                     _info[item.JobId] = failed with
                     {
-                        State = BackgroundJobState.Failed, CompletedUtc = DateTimeOffset.UtcNow, RetryCount = nextRetry, Error = ex.Message
+                        State = BackgroundJobState.Failed, CompletedUtc = TimeProvider.System.GetUtcNow(), RetryCount = nextRetry, Error = ex.Message
                     };
                 }
             }

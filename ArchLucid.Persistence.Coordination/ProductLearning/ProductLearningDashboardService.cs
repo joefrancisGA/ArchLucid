@@ -18,7 +18,7 @@ public sealed class ProductLearningDashboardService(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(options);
 
-        DateTime generatedUtc = DateTime.UtcNow;
+        DateTime generatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         DateTime? sinceUtc = options.SinceUtc;
 
         Task<int> totalSignalsTask = repository.CountSignalsInScopeAsync(

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
@@ -56,7 +56,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             ProjectId = "p",
             ArchitectureRequestId = "req-x",
             LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentManifestVersion = "v-missing",
         };
 
@@ -112,7 +112,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             ProjectId = "p",
             ArchitectureRequestId = "req-y",
             LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentManifestVersion = "v1",
             DecisionTraceId = traceId,
         };

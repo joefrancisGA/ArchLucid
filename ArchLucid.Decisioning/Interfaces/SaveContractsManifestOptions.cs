@@ -64,5 +64,5 @@ public sealed class SaveContractsManifestOptions
     {
         get;
         init;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

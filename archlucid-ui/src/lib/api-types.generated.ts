@@ -9816,6 +9816,80 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/azure-extractor/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    runId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        file?: components["schemas"]["IFormFile"];
+                    };
+                };
+            };
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/billing/webhooks/marketplace": {
         parameters: {
             query?: never;
@@ -22610,6 +22684,7 @@ export interface components {
             /** Format: int32 */
             totalRunsCommitted?: number;
         };
+        PilotRoiEvidenceConfidence: number;
         PilotRunDeltaSeverityCountResponse: {
             /** Format: int32 */
             count?: number;
@@ -22623,6 +22698,7 @@ export interface components {
             isDemoTenant?: boolean;
             /** Format: int32 */
             llmCallCount?: number;
+            llmCallCountResolved?: boolean;
             /** Format: date-time */
             manifestCommittedUtc?: null | string;
             proofPackageCompleteness?: null | components["schemas"]["ProofPackageCompletenessResponse"];
@@ -23033,6 +23109,7 @@ export interface components {
             title?: string;
         };
         ProofPackageCompletenessResponse: {
+            agentOutputPilotStrictEvidenceSatisfied?: boolean;
             /** Format: int32 */
             artifactDescriptorCount?: null | number;
             artifactDescriptorCountResolved?: boolean;
@@ -23043,10 +23120,13 @@ export interface components {
             findingsBySeverityPresent?: boolean;
             /** Format: int32 */
             llmCallCount?: number;
+            llmCallCountResolved?: boolean;
             proofSendability?: string;
             publishingTier?: string;
             roiConfidenceLabel?: string;
+            roiEvidenceConfidence?: components["schemas"]["PilotRoiEvidenceConfidence"];
             runInCommittedStatus?: boolean;
+            supportRunIdPresent?: boolean;
             timeToCommittedManifestResolved?: boolean;
             topFindingEvidenceChainPresentOrNotApplicable?: boolean;
         };
@@ -23470,6 +23550,7 @@ export interface components {
             results?: components["schemas"]["AgentResult"][];
             run?: components["schemas"]["ArchitectureRun"];
             tasks?: components["schemas"]["AgentTask"][];
+            trustEvidenceCard?: null | components["schemas"]["RunTrustEvidenceCard"];
         };
         RunExplanationSummary: {
             citations?: components["schemas"]["CitationReference"][];
@@ -23633,6 +23714,29 @@ export interface components {
             projectId?: string;
             /** Format: uuid */
             runId?: string;
+        };
+        RunTrustEvidenceCard: {
+            agentTraces?: components["schemas"]["TrustEvidenceFieldSnapshot"];
+            aiExplainability?: components["schemas"]["TrustEvidenceFieldSnapshot"];
+            artifactBundlePointer?: components["schemas"]["TrustEvidenceFieldSnapshot"];
+            auditTrail?: components["schemas"]["TrustEvidenceFieldSnapshot"];
+            executionMode?: components["schemas"]["TrustEvidenceFieldSnapshot"];
+            goldenManifest?: components["schemas"]["TrustEvidenceFieldSnapshot"];
+            links?: components["schemas"]["RunTrustEvidenceRouteRef"][];
+            selfAttestationNotice?: string;
+            topFinding?: null | components["schemas"]["RunTrustEvidenceTopFindingRow"];
+            traceabilityExport?: components["schemas"]["TrustEvidenceFieldSnapshot"];
+        };
+        RunTrustEvidenceRouteRef: {
+            label?: string;
+            path?: string;
+            rel?: string;
+        };
+        RunTrustEvidenceTopFindingRow: {
+            evidencePointersSummary?: string;
+            findingId?: string;
+            title?: null | string;
+            traceCompletenessLabel?: string;
         };
         RuntimePlatform: number;
         ScopeContext: {
@@ -24078,6 +24182,11 @@ export interface components {
         TrialLocalVerifyEmailRequest: {
             email?: null | string;
             token?: null | string;
+        };
+        TrustEvidenceFieldSnapshot: {
+            detail?: null | string;
+            status?: string;
+            title?: string;
         };
         UnresolvedIssuesSection: {
             items?: components["schemas"]["ManifestIssue"][];

@@ -52,7 +52,7 @@ public sealed class ComparisonReplayApiService(
 
             replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
             {
-                TimestampUtc = DateTime.UtcNow,
+                TimestampUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 ComparisonRecordId = request.ComparisonRecordId,
                 ComparisonType = result.ComparisonType,
                 Format = result.Format,
@@ -85,7 +85,7 @@ public sealed class ComparisonReplayApiService(
 
             replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
             {
-                TimestampUtc = DateTime.UtcNow,
+                TimestampUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 ComparisonRecordId = request.ComparisonRecordId,
                 ComparisonType = string.Empty,
                 Format = request.Format,

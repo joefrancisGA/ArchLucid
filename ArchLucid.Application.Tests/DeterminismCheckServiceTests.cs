@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -44,7 +44,7 @@ public sealed class DeterminismCheckServiceTests
                 AgentType = AgentType.Topology,
                 Confidence = 0.5,
                 ResultId = "res",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
         ];
 
@@ -125,7 +125,7 @@ public sealed class DeterminismCheckServiceTests
                 AgentType = AgentType.Topology,
                 Confidence = 0.5,
                 ResultId = "res",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
         ];
 
@@ -138,7 +138,7 @@ public sealed class DeterminismCheckServiceTests
                 AgentType = AgentType.Topology,
                 Confidence = 0.9,
                 ResultId = "res",
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
         ];
 

@@ -43,7 +43,7 @@ public class ConversationMessage
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>JSON sidecar (e.g. referenced decisions/findings for assistant turns).</summary>
     public string MetadataJson

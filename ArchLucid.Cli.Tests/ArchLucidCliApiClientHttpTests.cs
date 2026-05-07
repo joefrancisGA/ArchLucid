@@ -49,7 +49,7 @@ public sealed class ArchLucidApiClientHttpTests
                     runId,
                     requestId = "req-1",
                     status = 0,
-                    createdUtc = DateTime.UtcNow,
+                    createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     currentManifestVersion = (string?)null
                 },
                 tasks = Array.Empty<object>()
@@ -93,7 +93,7 @@ public sealed class ArchLucidApiClientHttpTests
                     runId,
                     requestId = "req-1",
                     status = 0,
-                    createdUtc = DateTime.UtcNow,
+                    createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     currentManifestVersion = (string?)null
                 },
                 tasks = Array.Empty<object>(),

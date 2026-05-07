@@ -57,7 +57,7 @@ public sealed class TrialTenantBootstrapService(IDemoSeedService demoSeedService
             try
             {
                 await _demoSeedService.SeedAsync(cancellationToken);
-                DateTimeOffset start = DateTimeOffset.UtcNow;
+                DateTimeOffset start = TimeProvider.System.GetUtcNow();
                 DateTimeOffset expires = start.AddDays(14);
                 await _tenantRepository.CommitSelfServiceTrialAsync(result.TenantId, start, expires, 10, 3, demoIds.AuthorityRunBaselineId, baselineReviewCycle?.Hours, baselineReviewCycle?.SourceNote, baselineReviewCycle?.CapturedUtc, companyProfile?.CompanySize, companyProfile?.ArchitectureTeamSize, companyProfile?.IndustryVertical, companyProfile?.IndustryVerticalOther, cancellationToken);
                 string actor = auditActorEmail.Trim();

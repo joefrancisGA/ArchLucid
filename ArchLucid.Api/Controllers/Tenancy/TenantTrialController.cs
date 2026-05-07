@@ -87,12 +87,12 @@ public sealed class TenantTrialController(
 
             daysRemaining = TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay(
                 tenant,
-                DateTimeOffset.UtcNow,
+                TimeProvider.System.GetUtcNow(),
                 _trialLifecycleSchedulerOptions.CurrentValue);
 
         else if (tenant.TrialExpiresUtc is { } expires)
         {
-            double totalDays = (expires - DateTimeOffset.UtcNow).TotalDays;
+            double totalDays = (expires - TimeProvider.System.GetUtcNow()).TotalDays;
             daysRemaining = (int)Math.Floor(totalDays);
 
             if (daysRemaining < 0)

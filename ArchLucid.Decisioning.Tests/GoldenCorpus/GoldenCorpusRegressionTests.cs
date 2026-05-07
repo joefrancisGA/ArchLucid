@@ -5,6 +5,8 @@ using ArchLucid.TestSupport.GoldenCorpus;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Time.Testing;
+
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 
 /// <summary>Hard gate: golden corpus must match current in-process authority decisioning + optional merge slice.</summary>
@@ -34,7 +36,8 @@ public sealed class GoldenCorpusRegressionTests
 
         File.Exists(compliance).Should().BeTrue();
 
-        FrozenUtcTimeProvider clock = new(new DateTimeOffset(2026, 2, 1, 0, 0, 0, TimeSpan.Zero));
+        FakeTimeProvider clock = new();
+        clock.SetUtcNow(new DateTimeOffset(2026, 2, 1, 0, 0, 0, TimeSpan.Zero));
         GoldenCorpusHarness harness = new(compliance, clock);
         string root = GoldenCorpusRepoPaths.CorpusOutputDirectory;
 

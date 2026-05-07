@@ -57,5 +57,5 @@ public sealed class AgentEvaluation
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

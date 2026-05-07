@@ -27,7 +27,7 @@ public sealed class PilotOutcomeSummaryService(PilotScorecardBuilder pilotScorec
         string cacheKey = $"pilot-outcome-summary:30d:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}";
         if (_memoryCache.TryGetValue(cacheKey, out PilotScorecardSummary? cached) && cached is not null)
             return cached;
-        DateTimeOffset end = DateTimeOffset.UtcNow;
+        DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         PilotScorecardSummary summary = await _pilotScorecardBuilder.BuildAsync(start, end, cancellationToken);
         _memoryCache.Set(cacheKey, summary, new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) });

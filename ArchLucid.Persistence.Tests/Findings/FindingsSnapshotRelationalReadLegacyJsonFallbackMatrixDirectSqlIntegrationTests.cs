@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Findings;
@@ -75,7 +75,7 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
                     WarningsJson = emptyGraphWarnings

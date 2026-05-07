@@ -18,7 +18,7 @@ internal sealed class DapperProductLearningPlanningThemeRepository(ISqlConnectio
         ProductLearningPlanningRepositoryValidation.EnsureTheme(theme);
 
         Guid themeId = theme.ThemeId == Guid.Empty ? Guid.NewGuid() : theme.ThemeId;
-        DateTime createdUtc = theme.CreatedUtc == default ? DateTime.UtcNow : theme.CreatedUtc;
+        DateTime createdUtc = theme.CreatedUtc == default ? TimeProvider.System.GetUtcNow().UtcDateTime : theme.CreatedUtc;
         string status = ProductLearningPlanningRepositoryValidation.NormalizeThemeStatus(theme.Status);
 
         const string sql = """

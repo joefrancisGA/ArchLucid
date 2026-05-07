@@ -71,7 +71,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
 
         PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        DateTimeOffset end = DateTimeOffset.UtcNow;
+        DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         ValueReportSnapshot valueWindowSnapshot = await _valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, start, end, cancellationToken);
         ArchitectureRun run = detail.Run;
@@ -253,7 +253,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommit(deltas)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
         sb.AppendLine($"| Findings (total) | {deltas.FindingsBySeverity.Sum(static p => p.Value)} | `ArchitectureRunDetail.Results[*].Findings` |");
         sb.AppendLine($"| LLM calls for this run | {deltas.LlmCallCount} | `archlucid_llm_calls_per_run` (per-run trace count) |");
-        sb.AppendLine($"| Audit rows for this run | {FormatAuditRowCount(deltas)} | `IAuditRepository.GetFilteredAsync(RunId)` |");
+        sb.AppendLine($"| Audit rows for this run | {FormatAuditRowCount(deltas)} | `IAuditRepository.CountFilteredAsync(RunId)` |");
         sb.AppendLine();
     }
 

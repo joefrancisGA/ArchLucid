@@ -18,7 +18,7 @@ public class AuditEvent
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>
     ///     A domain-specific event type string (e.g. <c>"RunCreated"</c>, <c>"ManifestPromoted"</c>).

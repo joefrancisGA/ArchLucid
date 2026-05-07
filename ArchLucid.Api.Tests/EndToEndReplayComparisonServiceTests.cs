@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -43,7 +43,7 @@ public sealed class EndToEndReplayComparisonServiceTests
             RunId = id,
             RequestId = "req",
             Status = ArchitectureRunStatus.Committed,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentManifestVersion = manifestVersion
         };
     }

@@ -136,7 +136,7 @@ public sealed class GraphValidatorTests
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         foreach (GraphNode n in nodes)

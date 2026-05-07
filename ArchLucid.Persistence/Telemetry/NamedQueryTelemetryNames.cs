@@ -26,6 +26,8 @@ internal static class NamedQueryTelemetryNames
 
     public const string ListAuditEventsFiltered = "ListAuditEventsFiltered";
 
+    public const string CountAuditEventsFiltered = "CountAuditEventsFiltered";
+
     public const string GetFindingsSnapshotById = "GetFindingsSnapshotById";
 
     public const string GetGoldenManifestById = "GetGoldenManifestById";

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
@@ -100,7 +100,7 @@ public sealed class SponsorEvidencePackServiceTests
             ],
         };
 
-        WhyArchLucidSnapshotResponse snap = new() { DemoRunId = "runid", GeneratedUtc = DateTimeOffset.UtcNow, };
+        WhyArchLucidSnapshotResponse snap = new() { DemoRunId = "runid", GeneratedUtc = TimeProvider.System.GetUtcNow(), };
 
         Mock<IWhyArchLucidSnapshotService> snapshot = new();
         snapshot.Setup(s => s.BuildAsync(It.IsAny<CancellationToken>())).ReturnsAsync(snap);
@@ -113,7 +113,7 @@ public sealed class SponsorEvidencePackServiceTests
             .ReturnsAsync(
                 new PilotRunDeltas
                 {
-                    RunCreatedUtc = DateTime.UtcNow, AuditRowCount = 1, LlmCallCount = 2, IsDemoTenant = true,
+                    RunCreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, AuditRowCount = 1, LlmCallCount = 2, IsDemoTenant = true,
                 });
 
         Mock<IFindingsSnapshotRepository> findingsRepo = new();

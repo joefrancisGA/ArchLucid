@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
@@ -131,7 +131,7 @@ public sealed class GovernanceWorkflowServiceTests
             RunId = runId,
             RequestId = "req-1",
             Status = ArchitectureRunStatus.Committed,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 

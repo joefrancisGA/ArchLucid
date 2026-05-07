@@ -46,6 +46,7 @@ describe("why-comparison (front-door table drift guards)", () => {
       for (const link of links) {
         expect(link.label.trim().length).toBeGreaterThan(0);
         expect(link.href.trim().length).toBeGreaterThan(0);
+        expect(link.label, `Verify link labels must be sponsor-readable prose, not raw routes`).not.toMatch(/^\//);
       }
     }
   });

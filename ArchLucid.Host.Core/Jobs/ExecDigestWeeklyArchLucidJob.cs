@@ -25,7 +25,7 @@ public sealed class ExecDigestWeeklyArchLucidJob(
             ExecDigestWeeklyDeliveryScanner scanner =
                 scope.ServiceProvider.GetRequiredService<ExecDigestWeeklyDeliveryScanner>();
 
-            await scanner.PublishDueAsync(DateTimeOffset.UtcNow, cancellationToken).ConfigureAwait(false);
+            await scanner.PublishDueAsync(TimeProvider.System.GetUtcNow(), cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {

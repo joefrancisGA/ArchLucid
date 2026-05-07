@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
@@ -45,7 +45,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                 {
                     RunId = runId,
                     ProjectId = "proj-bf",
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     TenantId,
                     WorkspaceId,
                     ScopeProjectId = ProjectId
@@ -88,7 +88,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = "proj-bf",
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     CanonicalObjectsJson = canonicalJson,
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyList,

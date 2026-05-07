@@ -41,7 +41,7 @@ public class PolicyPackVersion
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>False for the initial draft row created with the pack; true after publish.</summary>
     public bool IsPublished

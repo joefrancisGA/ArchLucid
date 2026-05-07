@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
@@ -34,7 +34,7 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
             WorkspaceId = scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
             ProjectId = "default",
-            CreatedUtc = DateTime.UtcNow.AddDays(-10)
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-10)
         };
 
         await inner.SaveAsync(run, CancellationToken.None);
@@ -44,7 +44,7 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
         beforeArchive.Should().NotBeNull();
 
         RunArchiveBatchResult batch =
-            await repo.ArchiveRunsCreatedBeforeAsync(DateTimeOffset.UtcNow.AddDays(-1), CancellationToken.None);
+            await repo.ArchiveRunsCreatedBeforeAsync(TimeProvider.System.GetUtcNow().AddDays(-1), CancellationToken.None);
 
         batch.UpdatedCount.Should().Be(1);
 

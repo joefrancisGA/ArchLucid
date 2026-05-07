@@ -27,7 +27,7 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
         ArgumentException.ThrowIfNullOrWhiteSpace(entry.ChangedBy);
         cancellationToken.ThrowIfCancellationRequested();
 
-        DateTime changedUtc = entry.ChangedUtc == default ? DateTime.UtcNow : entry.ChangedUtc;
+        DateTime changedUtc = entry.ChangedUtc == default ? TimeProvider.System.GetUtcNow().UtcDateTime : entry.ChangedUtc;
         Guid changeLogId = entry.ChangeLogId == Guid.Empty ? Guid.NewGuid() : entry.ChangeLogId;
 
         PolicyPackChangeLogEntry stored = new()

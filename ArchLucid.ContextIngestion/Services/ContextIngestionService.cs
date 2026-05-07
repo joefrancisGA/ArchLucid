@@ -28,7 +28,7 @@ public class ContextIngestionService(
             SnapshotId = Guid.NewGuid(),
             RunId = request.RunId,
             ProjectId = request.ProjectId,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
 
         ContextSnapshot? previous = await snapshotRepository.GetLatestAsync(request.ProjectId, ct).ConfigureAwait(false);

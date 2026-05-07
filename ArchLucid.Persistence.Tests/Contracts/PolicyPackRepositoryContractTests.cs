@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -25,7 +25,7 @@ public abstract class PolicyPackRepositoryContractTests
             Description = "desc",
             PackType = PolicyPackType.BuiltIn,
             Status = PolicyPackStatus.Draft,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentVersion = "1.0.0"
         };
     }

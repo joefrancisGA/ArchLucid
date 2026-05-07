@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -104,7 +104,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             ScopeProjectId = scope.ProjectId,
             RunId = runId,
             ProjectId = "default",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentManifestVersion = null
         };
 
@@ -164,7 +164,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             ScopeProjectId = scope.ProjectId,
             RunId = runId,
             ProjectId = "default",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentManifestVersion = "v2"
         };
 
@@ -205,7 +205,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             ScopeProjectId = scope.ProjectId,
             RunId = runId,
             ProjectId = "default",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CurrentManifestVersion = null,
             GoldenManifestId = manifestId,
             ArchitectureRequestId = "req-z"
@@ -271,7 +271,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "h",
             RuleSetId = "r",
             RuleSetVersion = "1",

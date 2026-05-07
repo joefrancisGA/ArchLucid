@@ -79,7 +79,7 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
             ["type"] = "com.archlucid.finding.created.sample",
             ["source"] = "https://api.archlucid.local/v1/webhooks/dry-run",
             ["id"] = Guid.NewGuid().ToString("D"),
-            ["time"] = DateTime.UtcNow.ToString("O"),
+            ["time"] = TimeProvider.System.GetUtcNow().UtcDateTime.ToString("O"),
             ["datacontenttype"] = "application/json",
             ["data"] = new Dictionary<string, object?>
             {

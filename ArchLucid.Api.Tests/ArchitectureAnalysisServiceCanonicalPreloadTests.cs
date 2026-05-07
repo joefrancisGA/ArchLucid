@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
@@ -69,7 +69,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
                 RequestId = "req-1",
                 Status = ArchitectureRunStatus.Committed,
                 CurrentManifestVersion = "v1",
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             },
             Manifest = manifest,
             Tasks = [],
@@ -113,7 +113,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
                 RequestId = "req-1",
                 Status = ArchitectureRunStatus.TasksGenerated,
                 CurrentManifestVersion = null,
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             },
             Manifest = manifest,
             Tasks = [],

@@ -73,7 +73,7 @@ public sealed class GovernanceWorkflowService(IGovernanceApprovalRequestReposito
             RequestedBy = requestedBy,
             RequestedByActorKey = requestedByActorKey,
             RequestComment = requestComment,
-            RequestedUtc = DateTime.UtcNow,
+            RequestedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             SlaDeadlineUtc = ComputeSlaDeadlineUtc()
         };
         StampGovernanceScope(request);
@@ -111,7 +111,7 @@ public sealed class GovernanceWorkflowService(IGovernanceApprovalRequestReposito
             throw new InvalidOperationException($"Approval request '{approvalRequestId}' cannot be approved from status '{request.Status}'. " + "Approve is only valid from Draft or Submitted.");
         }
 
-        DateTime reviewedUtc = DateTime.UtcNow;
+        DateTime reviewedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         bool transitioned = await approvalRepo.TryTransitionFromReviewableAsync(approvalRequestId, GovernanceApprovalStatus.Approved, reviewedBy, reviewedByActorKey, reviewComment, reviewedUtc, cancellationToken);
         if (!transitioned)
         {
@@ -154,7 +154,7 @@ public sealed class GovernanceWorkflowService(IGovernanceApprovalRequestReposito
             throw new InvalidOperationException($"Approval request '{approvalRequestId}' cannot be rejected from status '{request.Status}'. " + "Reject is only valid from Draft or Submitted.");
         }
 
-        DateTime reviewedUtc = DateTime.UtcNow;
+        DateTime reviewedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         bool transitioned = await approvalRepo.TryTransitionFromReviewableAsync(approvalRequestId, GovernanceApprovalStatus.Rejected, reviewedBy, reviewedByActorKey, reviewComment, reviewedUtc, cancellationToken);
         if (!transitioned)
         {
@@ -213,7 +213,7 @@ public sealed class GovernanceWorkflowService(IGovernanceApprovalRequestReposito
             SourceEnvironment = sourceEnvironment,
             TargetEnvironment = targetEnvironment,
             PromotedBy = promotedBy,
-            PromotedUtc = DateTime.UtcNow,
+            PromotedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ApprovalRequestId = approvalRequestId,
             Notes = notes
         };
@@ -258,7 +258,7 @@ public sealed class GovernanceWorkflowService(IGovernanceApprovalRequestReposito
             ManifestVersion = manifestVersion,
             Environment = environment,
             IsActive = true,
-            ActivatedUtc = DateTime.UtcNow
+            ActivatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
         StampGovernanceScope(activation);
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
@@ -435,7 +435,7 @@ public sealed class GovernanceWorkflowService(IGovernanceApprovalRequestReposito
         int? slaHours = governanceGateOptions.Value.ApprovalSlaHours;
         if (slaHours is null or <= 0)
             return null;
-        return DateTime.UtcNow.AddHours(slaHours.Value);
+        return TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(slaHours.Value);
     }
 
     private Task TryPublishGovernancePromotionActivatedAsync(GovernanceEnvironmentActivation activation, string activatedBy, IDbConnection? connection, IDbTransaction? transaction, CancellationToken cancellationToken)

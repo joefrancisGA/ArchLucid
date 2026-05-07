@@ -3,9 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   buildGoldenManifestMarkdownFilename,
   formatGoldenManifestMarkdown,
+  formatTrustEvidenceCardMarkdown,
   isUsableGoldenManifestExportJson,
 } from "./export-markdown";
-import type { ManifestSummary } from "@/types/authority";
+import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 describe("isUsableGoldenManifestExportJson", () => {
   it("rejects placeholders and empty objects", () => {
@@ -17,6 +18,36 @@ describe("isUsableGoldenManifestExportJson", () => {
 
   it("accepts manifest-like objects", () => {
     expect(isUsableGoldenManifestExportJson({ runId: "r1", manifestId: "m1" })).toBe(true);
+  });
+});
+
+describe("formatTrustEvidenceCardMarkdown", () => {
+  it("renders operational evidence section and routes", () => {
+    const card: RunTrustEvidenceCard = {
+      selfAttestationNotice: "Not a SOC 2 report.",
+      executionMode: { title: "Execution mode", status: "Demo-only", detail: "Simulator path." },
+      goldenManifest: { title: "Golden manifest snapshot", status: "Available", detail: "v1" },
+      auditTrail: { title: "Audit events (run-scoped)", status: "Available", detail: "3 events" },
+      agentTraces: { title: "Agent execution trace rows", status: "Missing", detail: "None" },
+      artifactBundlePointer: { title: "Persisted artifact bundle id", status: "Missing", detail: null },
+      traceabilityExport: { title: "Review-trail export (ZIP)", status: "Available", detail: "Capped" },
+      aiExplainability: { title: "AI explainability rollup", status: "Low confidence", detail: "Weak faithfulness" },
+      topFinding: {
+        findingId: "f1",
+        title: "Issue",
+        traceCompletenessLabel: "Medium",
+        evidencePointersSummary: "Manifest v1; graph nodes: 0; linked trace ids: 0.",
+      },
+      links: [{ rel: "traces", path: "/v1/architecture/run/r1/traces", label: "Traces" }],
+    };
+
+    const md = formatTrustEvidenceCardMarkdown(card);
+
+    expect(md).toContain("## Trust evidence (operational)");
+    expect(md).toContain("Not a SOC 2 report.");
+    expect(md).toContain("### Evidence routes");
+    expect(md).toContain("/v1/architecture/run/r1/traces");
+    expect(md).toContain("### Top finding");
   });
 });
 

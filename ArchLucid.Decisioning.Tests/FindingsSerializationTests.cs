@@ -22,7 +22,7 @@ public sealed class FindingsSerializationTests
             RunId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),
             GraphSnapshotId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Findings =
             {
                 FindingFactory.CreateRequirementFinding("req", "title", "rat", "Name", "Text", false)

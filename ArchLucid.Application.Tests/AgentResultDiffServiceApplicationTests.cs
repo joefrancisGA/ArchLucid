@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
@@ -85,7 +85,7 @@ public sealed class AgentResultDiffServiceApplicationTests
                 RunId = "R",
                 AgentType = AgentType.Cost,
                 Claims = ["c"],
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
         ];
 

@@ -71,5 +71,5 @@ public sealed class GovernanceEnvironmentActivation
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

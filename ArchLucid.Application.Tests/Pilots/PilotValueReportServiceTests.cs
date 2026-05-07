@@ -150,7 +150,7 @@ public sealed class PilotValueReportServiceTests
     {
         DateTime from = new(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc);
         DateTime to = new(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
-        TenantRecord tenant = Tenant(DateTimeOffset.UtcNow);
+        TenantRecord tenant = Tenant(TimeProvider.System.GetUtcNow());
 
         RunSummary old = Summary(RunOld, from.AddDays(-10), committed: true);
         RunSummary inside = Summary(RunIn, from.AddDays(1), committed: true);

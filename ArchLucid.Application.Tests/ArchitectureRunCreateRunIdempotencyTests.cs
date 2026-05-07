@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Common;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
@@ -69,7 +69,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
                 AgentType = AgentType.Topology,
                 Objective = "o",
                 Status = AgentTaskStatus.Created,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             },
         ];
 

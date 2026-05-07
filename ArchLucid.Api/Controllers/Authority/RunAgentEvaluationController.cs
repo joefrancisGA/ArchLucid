@@ -89,7 +89,7 @@ public sealed class RunAgentEvaluationController(
         AgentOutputEvaluationSummary summary = new()
         {
             RunId = runId,
-            EvaluatedAtUtc = DateTime.UtcNow,
+            EvaluatedAtUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Scores = scores,
             TracesSkippedCount = skipped,
             AverageStructuralCompletenessRatio = averageStructural,

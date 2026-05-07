@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 
@@ -24,7 +24,7 @@ public abstract class DecisionTraceRepositoryContractTests
             ProjectId = scope.ProjectId,
             DecisionTraceId = traceId,
             RunId = runId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             RuleSetId = "rs-dt",
             RuleSetVersion = "1",
             RuleSetHash = "h",

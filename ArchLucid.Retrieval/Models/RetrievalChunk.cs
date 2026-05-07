@@ -95,5 +95,5 @@ public class RetrievalChunk
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 }

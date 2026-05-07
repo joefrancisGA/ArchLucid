@@ -67,7 +67,7 @@ public sealed class TenantNotificationChannelPreferencesResponse
             EmailCustomerNotificationsEnabled = true,
             TeamsCustomerNotificationsEnabled = false,
             OutboundWebhookCustomerNotificationsEnabled = false,
-            UpdatedUtc = DateTimeOffset.UtcNow
+            UpdatedUtc = TimeProvider.System.GetUtcNow()
         };
     }
 }

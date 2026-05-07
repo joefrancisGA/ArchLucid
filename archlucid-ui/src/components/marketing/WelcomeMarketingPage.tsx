@@ -84,7 +84,7 @@ const PILLARS: readonly WelcomePillar[] = [
     ],
   },
 ];
-/** Public marketing landing: hero, pillars, pricing cards from `/pricing.json`, primary CTA to `/see-it`. */
+/** Public marketing landing: hero, pillars, pricing cards from `/pricing.json`, primary CTA to the quick demo (`/see-it`). */
 export function WelcomeMarketingPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">

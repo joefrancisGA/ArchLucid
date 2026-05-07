@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -90,7 +90,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
                     ScopeProjectId = sc.ProjectId,
                     RunId = Guid.NewGuid(),
                     ProjectId = "default",
-                    CreatedUtc = DateTime.UtcNow.AddDays(-1),
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-1),
                     CurrentManifestVersion = "v1",
                 },
             ]);

@@ -104,7 +104,7 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        DateTime createdUtc = DateTime.UtcNow;
+        DateTime createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         try
         {

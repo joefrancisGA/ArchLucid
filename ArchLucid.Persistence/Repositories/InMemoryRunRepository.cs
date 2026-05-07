@@ -223,7 +223,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
         DateTime cutoff = cutoffUtc.UtcDateTime;
-        DateTime stamp = DateTime.UtcNow;
+        DateTime stamp = TimeProvider.System.GetUtcNow().UtcDateTime;
         List<ArchivedRunScopeRow> archived = [];
 
         foreach (KeyValuePair<Guid, RunRecord> kv in _store.ToArray())
@@ -262,7 +262,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
         distinctOrdered.AddRange(runIds.Where(seen.Add));
 
-        DateTime stamp = DateTime.UtcNow;
+        DateTime stamp = TimeProvider.System.GetUtcNow().UtcDateTime;
         List<ArchivedRunScopeRow> archived = [];
         List<RunArchiveByIdFailure> failed = [];
 

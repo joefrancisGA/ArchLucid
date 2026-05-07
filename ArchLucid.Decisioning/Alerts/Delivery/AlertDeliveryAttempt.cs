@@ -52,7 +52,7 @@ public class AlertDeliveryAttempt
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary><see cref="AlertDeliveryAttemptStatus" /> value.</summary>
     public string Status

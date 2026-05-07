@@ -33,7 +33,7 @@ public sealed class TrialLifecycleEmailScanHostedService(
                 TrialScheduledLifecycleEmailScanner scanner =
                     scope.ServiceProvider.GetRequiredService<TrialScheduledLifecycleEmailScanner>();
 
-                await scanner.PublishDueAsync(DateTimeOffset.UtcNow, leaderToken).ConfigureAwait(false);
+                await scanner.PublishDueAsync(TimeProvider.System.GetUtcNow(), leaderToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {

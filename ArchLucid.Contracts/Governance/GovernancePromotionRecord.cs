@@ -74,7 +74,7 @@ public sealed class GovernancePromotionRecord
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>
     ///     The approval request that authorised this promotion, or <see langword="null" />

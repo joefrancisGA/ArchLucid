@@ -7,6 +7,7 @@
 | I want to... | Start here | Time |
 | --- | --- | --- |
 | Create and run an architecture analysis (request → run → commit) | [CORE_PILOT.md](CORE_PILOT.md) | 20 min |
+| Follow a persona workflow recipe (architect, governance, procurement, platform) | [library/WORKFLOW_RECIPES_BY_PERSONA.md](library/WORKFLOW_RECIPES_BY_PERSONA.md) | 15 min |
 | Configure governance (policies, approvals, pre-commit gate) | [library/GOVERNANCE.md](library/GOVERNANCE.md) | 15 min |
 | Set up authentication and authorization (JWT, API keys, modes) | [library/SECURITY.md](library/SECURITY.md) | 12 min |
 | Run tests (tiers, SQL, property tests, where to look) | [library/TEST_STRUCTURE.md](library/TEST_STRUCTURE.md) | 8 min |

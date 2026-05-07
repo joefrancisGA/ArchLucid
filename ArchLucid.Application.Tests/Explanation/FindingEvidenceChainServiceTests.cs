@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Scoping;
@@ -112,7 +112,7 @@ public sealed class FindingEvidenceChainServiceTests
             ScopeProjectId = Guid.NewGuid(),
             RunId = runGuid,
             ProjectId = "default",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
         return new RunDetailDto { Run = run, FindingsSnapshot = new FindingsSnapshot { Findings = findings.ToList() }, };

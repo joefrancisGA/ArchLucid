@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -56,7 +56,7 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
         string activationId = "act-upd-" + Guid.NewGuid().ToString("N");
 
         GovernanceEnvironmentActivation created =
-            NewActivation(activationId, runId, GovernanceEnvironment.Dev, DateTime.UtcNow, true);
+            NewActivation(activationId, runId, GovernanceEnvironment.Dev, TimeProvider.System.GetUtcNow().UtcDateTime, true);
         created.ManifestVersion = "v-before";
 
         await repo.CreateAsync(created, CancellationToken.None);

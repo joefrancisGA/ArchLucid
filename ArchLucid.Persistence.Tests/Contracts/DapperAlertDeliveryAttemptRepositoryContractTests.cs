@@ -27,7 +27,7 @@ public sealed class DapperAlertDeliveryAttemptRepositoryContractTests(SqlServerP
         CancellationToken ct)
     {
         Guid ruleId = Guid.NewGuid();
-        DateTime createdUtc = DateTime.UtcNow;
+        DateTime createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         string deduplicationKey = $"contract-alert-{alertId:N}";
 
         // Full RLS bypass for seeding: FK validation on dbo.AlertDeliveryAttempts consults dbo.AlertRecords under RLS.

@@ -55,7 +55,7 @@ public sealed class AlertSuppressionPolicyTests
             .ReturnsAsync(
                 new AlertRecord
                 {
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 });
 
         AlertSuppressionPolicy sut = new(repo.Object);
@@ -85,7 +85,7 @@ public sealed class AlertSuppressionPolicyTests
             .ReturnsAsync(
                 new AlertRecord
                 {
-                    CreatedUtc = DateTime.UtcNow.AddMinutes(-10),
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-10),
                 });
 
         AlertSuppressionPolicy sut = new(repo.Object);

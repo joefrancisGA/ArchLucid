@@ -34,7 +34,7 @@ import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChrome
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDetailSectionNav";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
-import { RunProgressTracker } from "@/components/RunProgressTracker";
+import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
@@ -345,6 +345,7 @@ export default async function RunDetailPage({
 
   const runDetailNavSections: RunDetailSection[] = [
     { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
+    { id: "trust-evidence", label: "Evidence card", available: Boolean(resolvedDetail.trustEvidenceCard) },
     { id: "run-metadata", label: "Review", available: true },
     { id: "pipeline-timeline", label: "Timeline", available: true },
     { id: "authority-chain", label: "Review trail", available: true },
@@ -424,6 +425,10 @@ export default async function RunDetailPage({
       ) : null}
 
       <RunDetailSectionNav sections={runDetailNavSections} />
+
+      {manifestId && resolvedDetail.trustEvidenceCard ? (
+        <RunTrustEvidenceCardSection card={resolvedDetail.trustEvidenceCard} />
+      ) : null}
 
       {manifestId && manifestSummary ? (
         <ManifestSummarySection
@@ -756,6 +761,7 @@ export default async function RunDetailPage({
                   manifestId={manifestId}
                   goldenManifestJson={goldenManifestJsonForExport}
                   manifestSummary={manifestSummary}
+                  trustEvidenceCard={resolvedDetail.trustEvidenceCard ?? null}
                 />
                 <Button variant="outline" size="sm" asChild>
                   <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>

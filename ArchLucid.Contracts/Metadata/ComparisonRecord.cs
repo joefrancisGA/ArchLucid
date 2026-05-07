@@ -95,7 +95,7 @@ public sealed class ComparisonRecord
     {
         get;
         set;
-    } = DateTime.UtcNow;
+    } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>Optional short label (e.g. release-1.2, incident-42).</summary>
     public string? Label

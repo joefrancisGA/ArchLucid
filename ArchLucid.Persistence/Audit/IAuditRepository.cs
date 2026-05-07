@@ -43,6 +43,17 @@ public interface IAuditRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Count-only variant of <see cref="GetFilteredAsync" /> using the same scope and filter predicates.
+    ///     Ignores <see cref="AuditEventFilter.Take" /> (no listing cap).
+    /// </summary>
+    Task<int> CountFilteredAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Bulk export for compliance reporting: events in <paramref name="tenantId" /> /
     ///     <paramref name="workspaceId" /> / <paramref name="projectId" /> with
     ///     <c>OccurredUtc</c> in the half-open range <c>[fromUtc, toUtc)</c> (i.e.

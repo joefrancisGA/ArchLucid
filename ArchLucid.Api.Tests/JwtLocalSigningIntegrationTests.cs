@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -74,8 +74,8 @@ public sealed class JwtLocalSigningIntegrationTests : IClassFixture<JwtLocalSign
             issuer,
             audience,
             claims,
-            DateTime.UtcNow.AddMinutes(-1),
-            DateTime.UtcNow.AddHours(1),
+            TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1),
+            TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(1),
             creds);
 
         return handler.WriteToken(token);

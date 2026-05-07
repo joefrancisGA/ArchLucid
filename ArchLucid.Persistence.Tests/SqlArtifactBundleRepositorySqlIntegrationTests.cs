@@ -1,4 +1,4 @@
-﻿using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Manifest.Sections;
@@ -183,7 +183,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             GraphSnapshotId = graphId,
             FindingsSnapshotId = findingsId,
             DecisionTraceId = traceId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "mh",
             RuleSetId = "rs",
             RuleSetVersion = "1",
@@ -207,7 +207,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         await manifestRepository.SaveAsync(manifest, CancellationToken.None);
 
         Guid bundleId = Guid.NewGuid();
-        DateTime created = DateTime.UtcNow;
+        DateTime created = TimeProvider.System.GetUtcNow().UtcDateTime;
         Guid expectedArtifactId = Guid.NewGuid();
 
         List<SynthesizedArtifact> artifacts =
@@ -330,7 +330,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             GraphSnapshotId = graphId,
             FindingsSnapshotId = findingsId,
             DecisionTraceId = traceId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "mh",
             RuleSetId = "rs",
             RuleSetVersion = "1",
@@ -502,7 +502,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             GraphSnapshotId = graphId,
             FindingsSnapshotId = findingsId,
             DecisionTraceId = traceId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "mh",
             RuleSetId = "rs",
             RuleSetVersion = "1",
@@ -618,7 +618,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             GraphSnapshotId = graphId,
             FindingsSnapshotId = findingsId,
             DecisionTraceId = traceId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "mh",
             RuleSetId = "rs",
             RuleSetVersion = "1",
@@ -713,7 +713,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 {
                     RunId = runId,
                     ProjectId = "proj-ab",
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     TenantId,
                     WorkspaceId,
                     ScopeProjectId = ProjectId
@@ -744,7 +744,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     SnapshotId = contextSnapshotId,
                     RunId = runId,
                     ProjectId = "proj-ab",
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     CanonicalObjectsJson = emptyCanonical,
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyList,
@@ -778,7 +778,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     GraphSnapshotId = graphSnapshotId,
                     ContextSnapshotId = contextSnapshotId,
                     RunId = runId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
                     WarningsJson = emptyGraphWarnings
@@ -807,7 +807,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     RunId = runId,
                     ContextSnapshotId = contextSnapshotId,
                     GraphSnapshotId = graphSnapshotId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     SchemaVersion = 1,
                     FindingsJson = JsonEntitySerializer.Serialize(new FindingsSnapshot
                     {
@@ -815,7 +815,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                         RunId = runId,
                         ContextSnapshotId = contextSnapshotId,
                         GraphSnapshotId = graphSnapshotId,
-                        CreatedUtc = DateTime.UtcNow,
+                        CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                         Findings = []
                     })
                 },
@@ -845,7 +845,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 {
                     DecisionTraceId = decisionTraceId,
                     RunId = runId,
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     RuleSetId = "rs",
                     RuleSetVersion = "1",
                     RuleSetHash = "h",

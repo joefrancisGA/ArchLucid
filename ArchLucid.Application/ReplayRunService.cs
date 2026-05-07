@@ -95,7 +95,7 @@ public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolve
         RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(replayGuid, scope, sourceAuthorityRun, request);
         await authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
-        List<AgentTask> replayTasks = tasks.Select(t => new AgentTask { TaskId = Guid.NewGuid().ToString("N"), RunId = replayRunId, AgentType = t.AgentType, Objective = t.Objective, Status = AgentTaskStatus.Created, CreatedUtc = DateTime.UtcNow, CompletedUtc = null, EvidenceBundleRef = t.EvidenceBundleRef, AllowedTools = t.AllowedTools.ToList(), AllowedSources = t.AllowedSources.ToList() }).ToList();
+        List<AgentTask> replayTasks = tasks.Select(t => new AgentTask { TaskId = Guid.NewGuid().ToString("N"), RunId = replayRunId, AgentType = t.AgentType, Objective = t.Objective, Status = AgentTaskStatus.Created, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, CompletedUtc = null, EvidenceBundleRef = t.EvidenceBundleRef, AllowedTools = t.AllowedTools.ToList(), AllowedSources = t.AllowedSources.ToList() }).ToList();
         AgentEvidencePackage replayEvidence = CloneEvidenceForReplay(evidence, replayRunId);
         IAgentExecutor executor = agentExecutorResolver.Resolve(executionMode);
         IReadOnlyList<AgentResult> results = await executor.ExecuteAsync(replayRunId, request, replayEvidence, replayTasks, cancellationToken);
@@ -138,9 +138,9 @@ public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolve
             // already persists the committed decision trace (chainKeying.DecisionTraceId → dbo.AuthorityDecisionTraces);
             // RunDetailQueryService now reads decision traces from the authority table only.
             if (uow.SupportsExternalTransaction)
-                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest, chainKeying, DateTime.UtcNow, true, cancellationToken, uow.Connection, uow.Transaction);
+                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest, chainKeying, TimeProvider.System.GetUtcNow().UtcDateTime, true, cancellationToken, uow.Connection, uow.Transaction);
             else
-                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest, chainKeying, DateTime.UtcNow, true, cancellationToken);
+                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest, chainKeying, TimeProvider.System.GetUtcNow().UtcDateTime, true, cancellationToken);
             await uow.CommitAsync(cancellationToken);
             await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, _logger, replayGuid, request.SystemName, chainPersisted, "replay-commit", true, cancellationToken);
         }
@@ -196,7 +196,7 @@ public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolve
                 ExistingRequiredControls = original.PriorManifest.ExistingRequiredControls.ToList()
             },
             Notes = original.Notes.Select(n => new EvidenceNote { NoteType = n.NoteType, Message = n.Message }).ToList(),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 

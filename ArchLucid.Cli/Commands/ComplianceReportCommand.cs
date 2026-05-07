@@ -91,7 +91,7 @@ internal static class ComplianceReportCommand
         string markdown = ComplianceReportMarkdownComposer.Compose(
             templateBody,
             repositoryRoot,
-            DateTime.UtcNow.ToString("O"),
+            TimeProvider.System.GetUtcNow().UtcDateTime.ToString("O"),
             Environment.MachineName,
             cwd,
             configurationTable,

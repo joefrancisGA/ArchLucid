@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
@@ -55,8 +55,8 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         Guid missing = Guid.NewGuid();
         await sut.CommitSelfServiceTrialAsync(
             missing,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(1),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(1),
             1,
             1,
             Guid.NewGuid(),
@@ -68,7 +68,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             null,
             null,
             CancellationToken.None);
-        await sut.UpdateBaselineAsync(missing, 1m, 1, DateTimeOffset.UtcNow, CancellationToken.None);
+        await sut.UpdateBaselineAsync(missing, 1m, 1, TimeProvider.System.GetUtcNow(), CancellationToken.None);
         (await sut.GetByIdAsync(missing, CancellationToken.None)).Should().BeNull();
     }
 
@@ -86,8 +86,8 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             id,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(2),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(2),
             3,
             2,
             Guid.NewGuid(),
@@ -210,8 +210,8 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             id,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(1),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(1),
             2,
             2,
             Guid.NewGuid(),
@@ -224,10 +224,10 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             null,
             CancellationToken.None);
 
-        (await sut.TryMarkFirstManifestCommittedAsync(id, DateTimeOffset.UtcNow, CancellationToken.None))
+        (await sut.TryMarkFirstManifestCommittedAsync(id, TimeProvider.System.GetUtcNow(), CancellationToken.None))
             .Should()
             .NotBeNull();
-        (await sut.TryMarkFirstManifestCommittedAsync(id, DateTimeOffset.UtcNow, CancellationToken.None))
+        (await sut.TryMarkFirstManifestCommittedAsync(id, TimeProvider.System.GetUtcNow(), CancellationToken.None))
             .Should()
             .BeNull();
     }
@@ -246,8 +246,8 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             id,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(1),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(1),
             1,
             2,
             Guid.NewGuid(),
@@ -283,8 +283,8 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             id,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(1),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(1),
             3,
             4,
             Guid.NewGuid(),
@@ -339,8 +339,8 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             CancellationToken.None);
         await sut.CommitSelfServiceTrialAsync(
             id,
-            DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddDays(1),
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(1),
             1,
             2,
             Guid.NewGuid(),

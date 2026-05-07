@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -37,7 +37,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
         ScopeContext scope = NewScope();
-        RunRecord run = NewRun(scope, DateTime.UtcNow);
+        RunRecord run = NewRun(scope, TimeProvider.System.GetUtcNow().UtcDateTime);
 
         Func<Task> act = async () => await repo.UpdateAsync(run, CancellationToken.None);
 
@@ -50,7 +50,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
         ScopeContext scope = NewScope();
-        RunRecord run = NewRun(scope, DateTime.UtcNow);
+        RunRecord run = NewRun(scope, TimeProvider.System.GetUtcNow().UtcDateTime);
 
         await repo.SaveAsync(run, CancellationToken.None);
 
@@ -92,7 +92,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
         ScopeContext scope = NewScope();
-        RunRecord run = NewRun(scope, DateTime.UtcNow);
+        RunRecord run = NewRun(scope, TimeProvider.System.GetUtcNow().UtcDateTime);
 
         await repo.SaveAsync(run, CancellationToken.None);
 

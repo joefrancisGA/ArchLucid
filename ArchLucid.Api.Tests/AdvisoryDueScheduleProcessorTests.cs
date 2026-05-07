@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
@@ -40,7 +40,7 @@ public sealed class AdvisoryDueScheduleProcessorTests
             runner.Object,
             NullLogger<AdvisoryDueScheduleProcessor>.Instance);
 
-        await sut.ProcessDueAsync(DateTime.UtcNow, 10, CancellationToken.None);
+        await sut.ProcessDueAsync(TimeProvider.System.GetUtcNow().UtcDateTime, 10, CancellationToken.None);
 
         order.Should().Equal(a.ScheduleId, b.ScheduleId);
         runner.Verify(x => x.RunScheduleAsync(a, It.IsAny<CancellationToken>()), Times.Once);
@@ -71,7 +71,7 @@ public sealed class AdvisoryDueScheduleProcessorTests
             runner.Object,
             NullLogger<AdvisoryDueScheduleProcessor>.Instance);
 
-        await sut.ProcessDueAsync(DateTime.UtcNow, 10, CancellationToken.None);
+        await sut.ProcessDueAsync(TimeProvider.System.GetUtcNow().UtcDateTime, 10, CancellationToken.None);
 
         runner.Verify(x => x.RunScheduleAsync(b, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -96,7 +96,7 @@ public sealed class AdvisoryDueScheduleProcessorTests
             runner.Object,
             NullLogger<AdvisoryDueScheduleProcessor>.Instance);
 
-        Func<Task> act = async () => await sut.ProcessDueAsync(DateTime.UtcNow, 10, CancellationToken.None);
+        Func<Task> act = async () => await sut.ProcessDueAsync(TimeProvider.System.GetUtcNow().UtcDateTime, 10, CancellationToken.None);
 
         await act.Should().ThrowAsync<OperationCanceledException>();
     }

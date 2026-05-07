@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
 using ArchLucid.Api.Filters;
 using ArchLucid.Core.Scoping;
@@ -66,7 +66,7 @@ public sealed class CommercialTenantTierFilterTests
                     Name = "t",
                     Slug = "t",
                     Tier = TenantTier.Free,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialRunsUsed = 0,
                     TrialSeatsUsed = 0
                 });
@@ -111,7 +111,7 @@ public sealed class CommercialTenantTierFilterTests
                     Name = "t",
                     Slug = "t",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialRunsUsed = 0,
                     TrialSeatsUsed = 0
                 });
@@ -156,7 +156,7 @@ public sealed class CommercialTenantTierFilterTests
                     Name = "t",
                     Slug = "t",
                     Tier = TenantTier.Standard,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
                     TrialRunsUsed = 0,
                     TrialSeatsUsed = 0
                 });

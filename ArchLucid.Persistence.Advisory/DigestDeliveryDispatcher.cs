@@ -60,7 +60,7 @@ public sealed class DigestDeliveryDispatcher(
             TenantId = digest.TenantId,
             WorkspaceId = digest.WorkspaceId,
             ProjectId = digest.ProjectId,
-            AttemptedUtc = DateTime.UtcNow,
+            AttemptedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Status = DigestDeliveryStatus.Started,
             ChannelType = subscription.ChannelType,
             Destination = subscription.Destination
@@ -83,7 +83,7 @@ public sealed class DigestDeliveryDispatcher(
                 ;
 
             attempt.Status = DigestDeliveryStatus.Succeeded;
-            subscription.LastDeliveredUtc = DateTime.UtcNow;
+            subscription.LastDeliveredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
             await attemptRepository.UpdateAsync(attempt, ct);
             await subscriptionRepository.UpdateAsync(subscription, ct);

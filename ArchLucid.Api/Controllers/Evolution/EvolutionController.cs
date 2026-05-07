@@ -212,7 +212,7 @@ public sealed class EvolutionController(
             await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);
 
         EvolutionSimulationReportDocument document =
-            EvolutionSimulationReportBuilder.Build(row, sims, DateTime.UtcNow);
+            EvolutionSimulationReportBuilder.Build(row, sims, TimeProvider.System.GetUtcNow().UtcDateTime);
 
         string fileStem = $"evolution-simulation-report-{candidateId:N}";
 

@@ -31,7 +31,7 @@ public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBu
             return;
 
         TenantDayState state = GetOrCreateState(tenantId);
-        DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
+        DateOnly today = DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().UtcDateTime);
         long max = opts.MaxTotalTokensPerTenantPerUtcDay;
         int assumed = Math.Clamp(opts.AssumedMaxTotalTokensPerRequest, 1, 2_000_000);
 
@@ -42,7 +42,7 @@ public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBu
             if (state.TotalTokens + assumed <= max)
                 return;
 
-            DateTimeOffset retryAfterUtc = new(DateTime.UtcNow.Date.AddDays(1), TimeSpan.Zero);
+            DateTimeOffset retryAfterUtc = new(TimeProvider.System.GetUtcNow().UtcDateTime.Date.AddDays(1), TimeSpan.Zero);
 
             throw new LlmTokenQuotaExceededException(
                 string.Format(
@@ -76,7 +76,7 @@ public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBu
 
         long added = (long)Math.Max(0, promptTokens) + Math.Max(0, completionTokens);
         TenantDayState state = GetOrCreateState(tenantId);
-        DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
+        DateOnly today = DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().UtcDateTime);
         long max = opts.MaxTotalTokensPerTenantPerUtcDay;
         long warnAt = (long)Math.Floor(max * (double)decimal.Clamp(opts.WarnFraction, 0.01m, 0.99m));
 

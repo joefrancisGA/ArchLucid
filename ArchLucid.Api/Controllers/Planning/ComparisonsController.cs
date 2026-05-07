@@ -536,7 +536,7 @@ public sealed class ComparisonsController(
 
             BatchReplayManifestDocument manifest = new()
             {
-                GeneratedUtc = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
+                GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.ToString("o", CultureInfo.InvariantCulture),
                 ProcessedComparisonRecordIds = processedIds,
                 Succeeded = succeededManifest,
                 Failed = failed

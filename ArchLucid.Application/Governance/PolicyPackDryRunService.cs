@@ -74,7 +74,7 @@ public sealed class PolicyPackDryRunService(IRunDetailQueryService runDetailQuer
         PolicyPackDryRunResponse response = new()
         {
             PolicyPackId = policyPackId,
-            EvaluatedUtc = DateTime.UtcNow,
+            EvaluatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Page = clampedPage,
             PageSize = clampedPageSize,
             TotalRequestedRuns = cleanedRunIds.Count,

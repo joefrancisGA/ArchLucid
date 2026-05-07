@@ -85,7 +85,7 @@ public sealed class RunRepositoryCommittedArchitectureReviewFlagReaderTests
             ProjectId = "p",
             LegacyRunStatus = legacyStatus,
             GoldenManifestId = goldenManifestId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
     }
 }

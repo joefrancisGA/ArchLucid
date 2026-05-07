@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Tenancy;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
@@ -31,7 +31,7 @@ public sealed class TrialLifecycleTransitionEngineTests
             Name = "n",
             Slug = "s",
             Tier = TenantTier.Standard,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             TrialStatus = TrialLifecycleStatus.Active,
             TrialExpiresUtc = anchor,
         };
@@ -79,7 +79,7 @@ public sealed class TrialLifecycleTransitionEngineTests
             Name = "n",
             Slug = "s",
             Tier = TenantTier.Standard,
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
             TrialStatus = TrialLifecycleStatus.Active,
             TrialExpiresUtc = anchor,
         };

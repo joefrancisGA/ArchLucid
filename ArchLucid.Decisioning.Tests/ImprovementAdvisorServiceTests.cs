@@ -206,7 +206,7 @@ public sealed class ImprovementAdvisorServiceTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "h",
             RuleSetId = "rs",
             RuleSetVersion = "1",
@@ -222,7 +222,7 @@ public sealed class ImprovementAdvisorServiceTests
             RunId = runId,
             ContextSnapshotId = Guid.NewGuid(),
             GraphSnapshotId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
     }
 }

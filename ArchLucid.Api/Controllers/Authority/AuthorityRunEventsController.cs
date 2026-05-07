@@ -48,13 +48,13 @@ public sealed class AuthorityRunEventsController(
         Response.Headers.Connection = "keep-alive";
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        DateTime startedUtc = DateTime.UtcNow;
+        DateTime startedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         TimeSpan maxDuration = TimeSpan.FromMinutes(5);
         TimeSpan pollInterval = TimeSpan.FromSeconds(2);
         string? lastPayloadFingerprint = null;
 
         while (!cancellationToken.IsCancellationRequested
-               && DateTime.UtcNow - startedUtc <= maxDuration)
+               && TimeProvider.System.GetUtcNow().UtcDateTime - startedUtc <= maxDuration)
         {
             RunSummaryDto? summaryDto = await queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
 

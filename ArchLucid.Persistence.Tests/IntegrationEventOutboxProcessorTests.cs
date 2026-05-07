@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Integration;
+using ArchLucid.Core.Integration;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -38,7 +38,7 @@ public sealed class IntegrationEventOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     RetryCount = 0
                 },
                 new IntegrationEventOutboxEntry
@@ -51,7 +51,7 @@ public sealed class IntegrationEventOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     RetryCount = 0
                 }
             ]);
@@ -94,7 +94,7 @@ public sealed class IntegrationEventOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     RetryCount = 0
                 }
             ]);
@@ -141,7 +141,7 @@ public sealed class IntegrationEventOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     RetryCount = 0
                 }
             ]);
@@ -194,7 +194,7 @@ public sealed class IntegrationEventOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     RetryCount = 5
                 }
             ]);
@@ -246,7 +246,7 @@ public sealed class IntegrationEventOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     RetryCount = 0
                 }
             ]);

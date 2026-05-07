@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -106,7 +106,7 @@ public sealed class FirstValueReportPdfBuilderTests
                     0,
                     8m,
                     "signup",
-                    DateTimeOffset.UtcNow,
+                    TimeProvider.System.GetUtcNow(),
                     6m,
                     3,
                     null,

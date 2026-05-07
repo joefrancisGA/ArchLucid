@@ -39,7 +39,7 @@ public sealed class ContractGoldenManifestPersistenceTests
             RuleSetId = "rs",
             RuleSetVersion = "1",
             RuleSetHash = "rh",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
         SaveContractsManifestOptions keying = new()

@@ -39,7 +39,7 @@ public sealed class RunExportAuditServiceTests
                 It.Is<AuditEvent>(e =>
                     e.EventType == AuditEventTypes.ArchitectureDocxExportGenerated &&
                     e.RunId == Guid.ParseExact(runId, "N") &&
-                    e.OccurredUtc <= DateTime.UtcNow &&
+                    e.OccurredUtc <= TimeProvider.System.GetUtcNow().UtcDateTime &&
                     e.DataJson.Contains(row.ExportRecordId, StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);

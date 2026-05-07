@@ -337,7 +337,7 @@ Describe the outcome you want (business + technical). Keep it short and runnable
                                                ]
                                            }
                                """;
-        return lockDoc.Replace("REPLACE_AT_RUNTIME", DateTime.UtcNow.ToString("O")) + Environment.NewLine;
+        return lockDoc.Replace("REPLACE_AT_RUNTIME", TimeProvider.System.GetUtcNow().UtcDateTime.ToString("O")) + Environment.NewLine;
     }
 
     private static string BuildTerraformMainTf()

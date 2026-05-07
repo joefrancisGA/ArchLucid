@@ -83,7 +83,7 @@ public sealed class AzureMarketplaceBillingProvider(
         {
             CheckoutUrl = url,
             ProviderSessionId = sessionId,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+            ExpiresUtc = TimeProvider.System.GetUtcNow().AddDays(7)
         };
     }
 

@@ -241,7 +241,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
         await EnsureDecisionEngineV2NodesMaterializedAsync(runId, request, cancellationToken);
         await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunCompleted, actor, runId, $"ManifestVersion={contract.Metadata.ManifestVersion}; SystemName={contract.SystemName}; WarningCount={persisted.Warnings.Count}; CommitPath=authority", cancellationToken);
         ScopeContext commitScope = _scopeContextProvider.GetCurrentScope();
-        DateTimeOffset committedUtc = DateTimeOffset.UtcNow;
+        DateTimeOffset committedUtc = TimeProvider.System.GetUtcNow();
         // Pins dbo.Tenants.TrialFirstManifestCommittedUtc for every tenant on first commit; trial-funnel audit/metrics stay inside the hook.
         await _trialFunnelCommitHook.OnTrialTenantManifestCommittedAsync(commitScope.TenantId, committedUtc, cancellationToken);
         await _firstSessionLifecycleHook.OnSuccessfulManifestCommitAsync(commitScope.TenantId, cancellationToken);
@@ -256,7 +256,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
             _logger.LogInformation("Architecture run committed (authority): RunId={RunId} ManifestVersion={Version} WarningCount={Wc}", LogSanitizer.Sanitize(runId), contract.Metadata.ManifestVersion, persisted.Warnings.Count);
         try
         {
-            DateTime telemetryCommitUtc = DateTime.UtcNow;
+            DateTime telemetryCommitUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
             CommitRunTelemetryMetrics telemetry = CommitRunTelemetryMetrics.FromCommitContext(runRecord, evidencePackageForTelemetry, agentResultsForTelemetry, telemetryCommitUtc, persisted);
             await TryInsertRunTelemetryAsync(runGuid, telemetry, cancellationToken);
         }

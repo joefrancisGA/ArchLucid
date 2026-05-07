@@ -16,9 +16,20 @@ Gradually escalate responses when coordinator rows reference **missing** `dbo.Ru
 
 ## Constraints
 
-- **No edits** to historical numbered migrations **001–028**; new behavior uses **`099_DataConsistencyQuarantine.sql`** + master DDL (`ArchLucid.sql`).
+- **No edits** to historical numbered migrations **001–028**; new behavior uses **`099_DataConsistencyQuarantine.sql`**, follow-on DbUp scripts (**134**, **147** for authority-chain FK parity), and master DDL (`ArchLucid.sql`).
 - **Tenant isolation:** quarantine inserts copy **`TenantId`** from **`dbo.GoldenManifests`** and **`dbo.FindingsSnapshots`** (unknown tenant id on legacy findings snapshots maps to the nil GUID — reconcile deliberately).
 - **SMB / 445:** unchanged — no file-share exposure for remediation.
+
+## Prevention vs detection (SQL authority chain)
+
+**Detection (unchanged):** Orphan probes and reconciliation queries count rows in `dbo.GoldenManifests`, `dbo.FindingsSnapshots`, `dbo.ContextSnapshots`, `dbo.GraphSnapshots`, and (reconciliation only) `dbo.ArtifactBundles` whose `RunId` has no matching `dbo.Runs` row. Legacy rows remain visible; operators reconcile via existing runbooks and optional quarantine.
+
+**Prevention (SQL path):** Foreign keys from the committed-run authority chain to `dbo.Runs` (`FK_*_Runs_RunId` and related chain FKs on manifests, snapshots, traces, artifact bundles) are defined in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** using **`ALTER TABLE … WITH NOCHECK ADD CONSTRAINT`** when the constraint is absent. That allows brownfield catalogs that already contain historical orphans to **install** constraints without a failing full-table validation pass, while **new** inserts and updates must still reference a real `dbo.Runs` row and the snapshot chain.
+
+- **DbUp 134** (`134_FK_Authority_Chain_Runs_DbUpParity.sql`) still adds the same constraint **names** when the catalog has **no** rows that would violate them (trusted add where supported).
+- **DbUp 147** (`147_AuthorityChain_RunForeignKeys_NotTrustedWhenMissing.sql`) adds **any constraints that remain missing** after 134—typically because legacy orphans blocked 134—using **`WITH NOCHECK`** so new orphan writes are rejected at the database.
+
+RLS / tenant isolation predicates on child tables are unchanged; this work does not widen admin APIs.
 
 ## Architecture overview
 

@@ -60,7 +60,7 @@ public sealed class AdvisoryScanRunnerTests
         Mock<IScanScheduleCalculator> calculator = new();
         calculator
             .Setup(x => x.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>()))
-            .Returns(DateTime.UtcNow.AddDays(1));
+            .Returns(TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(1));
 
         Mock<IAuditService> audit = new();
         audit
@@ -124,7 +124,7 @@ public sealed class AdvisoryScanRunnerTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ManifestHash = "h",
             RuleSetId = "rs",
             RuleSetVersion = "1",
@@ -138,14 +138,14 @@ public sealed class AdvisoryScanRunnerTests
             ScopeProjectId = projectId,
             RunId = runId,
             ProjectId = "default",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             GoldenManifestId = manifest.ManifestId,
         };
 
         Mock<IAuthorityQueryService> authority = new();
         authority
             .Setup(x => x.ListRunsByProjectAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), 2, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([new RunSummaryDto { RunId = runId, CreatedUtc = DateTime.UtcNow, ProjectId = "default" }]);
+            .ReturnsAsync([new RunSummaryDto { RunId = runId, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, ProjectId = "default" }]);
         authority
             .Setup(x => x.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
@@ -235,7 +235,7 @@ public sealed class AdvisoryScanRunnerTests
         Mock<IScanScheduleCalculator> calculator = new();
         calculator
             .Setup(x => x.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>()))
-            .Returns(DateTime.UtcNow.AddDays(1));
+            .Returns(TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(1));
 
         Mock<IAuditService> audit = new();
         audit

@@ -122,7 +122,7 @@ public sealed class ArchitectureRunAuthorityCoordination(IAuthorityRunOrchestrat
             RunId = authorityRun.RunId.ToString("N"),
             RequestId = request.RequestId,
             Status = deferred ? ArchitectureRunStatus.Created : ArchitectureRunStatus.TasksGenerated,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CompletedUtc = null,
             CurrentManifestVersion = null,
             ContextSnapshotId = authorityRun.ContextSnapshotId?.ToString("N"),

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Persistence.Governance;
 
@@ -30,8 +30,8 @@ public sealed class InMemoryPolicyPackAssignmentRepositoryTests
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = DateTime.UtcNow,
-                ArchivedUtc = DateTime.UtcNow
+                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                ArchivedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             },
             CancellationToken.None);
 
@@ -61,7 +61,7 @@ public sealed class InMemoryPolicyPackAssignmentRepositoryTests
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = DateTime.UtcNow
+                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             },
             CancellationToken.None);
 

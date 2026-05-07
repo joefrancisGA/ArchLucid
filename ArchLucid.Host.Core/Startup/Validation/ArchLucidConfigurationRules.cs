@@ -1,3 +1,5 @@
+using ArchLucid.Core.Hosting;
+
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Startup.Validation.Rules;
@@ -54,10 +56,19 @@ public static class ArchLucidConfigurationRules
         if (environment.IsStaging())
             ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
 
+        if (ProductionDangerousMisconfigurationLint.AppliesDangerousFailFast(environment.EnvironmentName, configuration))
+        {
+            foreach (HostingMisconfigurationWarning finding in ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(
+                         configuration,
+                         environment.EnvironmentName))
+            {
+                errors.Add($"[{finding.RuleName}] {finding.Message}");
+            }
+        }
+
         if (!environment.IsProduction())
             return errors;
 
-        AuthenticationRules.CollectProductionApiKeyBypass(configuration, errors);
         AuthenticationRules.CollectProductionApiKeyPlaceholders(configuration, errors);
 
         ArchLucidHostingRole hostingRole = HostingRoleResolver.Resolve(configuration);

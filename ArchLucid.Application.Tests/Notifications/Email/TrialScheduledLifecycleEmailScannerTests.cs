@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Tenancy;
@@ -35,7 +35,7 @@ public sealed class TrialScheduledLifecycleEmailScannerTests
             routing.Object,
             Mock.Of<ILogger<TrialScheduledLifecycleEmailScanner>>());
 
-        await sut.PublishDueAsync(DateTimeOffset.UtcNow, CancellationToken.None);
+        await sut.PublishDueAsync(TimeProvider.System.GetUtcNow(), CancellationToken.None);
 
         tenants.Verify(repository => repository.ListAsync(It.IsAny<CancellationToken>()), Times.Never);
     }

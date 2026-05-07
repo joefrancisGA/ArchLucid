@@ -112,7 +112,112 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
         parameters.Add("WorkspaceId", workspaceId);
         parameters.Add("ProjectId", projectId);
         parameters.Add("Take", take);
+        AppendSharedAuditFilterClauses(sql, parameters, filter);
 
+        // Raw-string prefix ends at @ProjectId with no trailing newline (delimiter newline is not content); separate ORDER BY.
+        sql.AppendLine();
+        sql.Append(HotPathRelationalQueryShapes.AuditEventsFilteredOrderByOccurredUtcEventIdDesc.Trim());
+
+        Stopwatch sw = Stopwatch.StartNew();
+
+        try
+        {
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
+                new CommandDefinition(sql.ToString(), parameters, cancellationToken: ct));
+
+            return rows.ToList();
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.ListAuditEventsFiltered,
+                sw.Elapsed.TotalMilliseconds);
+        }
+    }
+
+    public async Task<int> CountFilteredAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+
+        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredCountFromWhereScope);
+        DynamicParameters parameters = new();
+        parameters.Add("TenantId", tenantId);
+        parameters.Add("WorkspaceId", workspaceId);
+        parameters.Add("ProjectId", projectId);
+        AppendSharedAuditFilterClauses(sql, parameters, filter);
+
+        Stopwatch sw = Stopwatch.StartNew();
+
+        try
+        {
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            int count = await connection.ExecuteScalarAsync<int>(
+                new CommandDefinition(sql.ToString(), parameters, cancellationToken: ct));
+
+            return count;
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.CountAuditEventsFiltered,
+                sw.Elapsed.TotalMilliseconds);
+        }
+    }
+
+    public async Task<IReadOnlyList<AuditEvent>> GetExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        int maxRows,
+        CancellationToken ct)
+    {
+        int take = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
+
+        // Export uses the same committed-read semantics as list/filter (RCSI when enabled).
+        const string sql = """
+                           SELECT TOP (@MaxRows)
+                               EventId, OccurredUtc, EventType,
+                               ActorUserId, ActorUserName,
+                               TenantId, WorkspaceId, ProjectId,
+                               RunId, ManifestId, ArtifactId,
+                               DataJson, CorrelationId
+                           FROM dbo.AuditEvents
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND OccurredUtc >= @FromUtc
+                             AND OccurredUtc < @ToUtc
+                           ORDER BY OccurredUtc ASC;
+                           """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    FromUtc = fromUtc,
+                    ToUtc = toUtc,
+                    MaxRows = take
+                },
+                cancellationToken: ct));
+
+        return rows.ToList();
+    }
+
+    private static void AppendSharedAuditFilterClauses(StringBuilder sql, DynamicParameters parameters, AuditEventFilter filter)
+    {
         if (!string.IsNullOrWhiteSpace(filter.EventType))
         {
             sql.Append(" AND EventType = @EventType");
@@ -169,72 +274,5 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
                 parameters.Add("BeforeUtc", filter.BeforeUtc.Value);
             }
         }
-
-        // Raw-string prefix ends at @ProjectId with no trailing newline (delimiter newline is not content); separate ORDER BY.
-        sql.AppendLine();
-        sql.Append(HotPathRelationalQueryShapes.AuditEventsFilteredOrderByOccurredUtcEventIdDesc.Trim());
-
-        Stopwatch sw = Stopwatch.StartNew();
-
-        try
-        {
-            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-            IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
-                new CommandDefinition(sql.ToString(), parameters, cancellationToken: ct));
-
-            return rows.ToList();
-        }
-        finally
-        {
-            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
-                NamedQueryTelemetryNames.ListAuditEventsFiltered,
-                sw.Elapsed.TotalMilliseconds);
-        }
-    }
-
-    public async Task<IReadOnlyList<AuditEvent>> GetExportAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        DateTime fromUtc,
-        DateTime toUtc,
-        int maxRows,
-        CancellationToken ct)
-    {
-        int take = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
-
-        // Export uses the same committed-read semantics as list/filter (RCSI when enabled).
-        const string sql = """
-                           SELECT TOP (@MaxRows)
-                               EventId, OccurredUtc, EventType,
-                               ActorUserId, ActorUserName,
-                               TenantId, WorkspaceId, ProjectId,
-                               RunId, ManifestId, ArtifactId,
-                               DataJson, CorrelationId
-                           FROM dbo.AuditEvents
-                           WHERE TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ProjectId = @ProjectId
-                             AND OccurredUtc >= @FromUtc
-                             AND OccurredUtc < @ToUtc
-                           ORDER BY OccurredUtc ASC;
-                           """;
-
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    FromUtc = fromUtc,
-                    ToUtc = toUtc,
-                    MaxRows = take
-                },
-                cancellationToken: ct));
-
-        return rows.ToList();
     }
 }

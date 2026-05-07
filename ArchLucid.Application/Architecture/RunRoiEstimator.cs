@@ -38,7 +38,7 @@ public sealed class RunRoiEstimator(IOptions<RunRoiEstimatorOptions>? optionsMon
             ManifestModeledElementApproxCount = manifestElements,
             DecisionTraceCount = traceCount,
             EstimatedManualHoursSaved = hours,
-            EstimatedUtc = DateTime.UtcNow,
+            EstimatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             ComputationNotes = "Directional analyst-hour estimate from committed run aggregates; not financial advice. " + "Multipliers configured under Architecture:RunRoiEstimator."
         };
     }

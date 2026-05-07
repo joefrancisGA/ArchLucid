@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tests.Support;
@@ -43,7 +43,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         Guid traceId = Guid.NewGuid();
         string slug = "arch_cascade_" + Guid.NewGuid().ToString("N");
 
-        RunRecord run = NewRun(scope, runId, slug, DateTime.UtcNow.AddDays(-10));
+        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-10));
         await repo.SaveAsync(run, CancellationToken.None);
 
         await using SqlConnection seed = new(fixture.ConnectionString);
@@ -63,7 +63,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
             CancellationToken.None);
 
         RunArchiveBatchResult batch =
-            await repo.ArchiveRunsCreatedBeforeAsync(DateTimeOffset.UtcNow.AddDays(-1), CancellationToken.None);
+            await repo.ArchiveRunsCreatedBeforeAsync(TimeProvider.System.GetUtcNow().AddDays(-1), CancellationToken.None);
 
         batch.UpdatedCount.Should().BeGreaterThanOrEqualTo(1);
         batch.ChildCascade.ContextSnapshots.Should()
@@ -115,7 +115,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         Guid traceId = Guid.NewGuid();
         string slug = "arch_byids_" + Guid.NewGuid().ToString("N");
 
-        RunRecord run = NewRun(scope, runId, slug, DateTime.UtcNow);
+        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.GetUtcNow().UtcDateTime);
         await repo.SaveAsync(run, CancellationToken.None);
 
         await using SqlConnection seed = new(fixture.ConnectionString);
@@ -180,7 +180,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         Guid manifestId = Guid.NewGuid();
         string slug = "gm_cascade_" + Guid.NewGuid().ToString("N");
 
-        RunRecord run = NewRun(scope, runId, slug, DateTime.UtcNow);
+        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.GetUtcNow().UtcDateTime);
         await repo.SaveAsync(run, CancellationToken.None);
 
         await using SqlConnection seed = new(fixture.ConnectionString);

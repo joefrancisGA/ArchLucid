@@ -181,6 +181,10 @@ const REQUIRED_ROUTES = [
   "app/(operator)/ask/page.tsx",
   "app/(operator)/graph/page.tsx",
   // marketing / demo
+  "app/(marketing)/welcome/page.tsx",
+  "app/(marketing)/why/page.tsx",
+  "components/marketing/WelcomeMarketingPage.tsx",
+  "lib/why-comparison-verify-points.ts",
   "app/(marketing)/demo/preview/DemoPreviewMarketingBody.tsx",
 ];
 
@@ -201,8 +205,11 @@ section("4. Buyer-polished guard coverage");
 
 const BUYER_GUARD_FILES = [
   "lib/demo-ui-env.ts",
+  "lib/buyer-safe-review-navigation.ts",
   "components/HomeFirstRunWorkflowGate.tsx",
   "components/SampleFirstReviewPackageCard.tsx",
+  "components/WelcomeBanner.tsx",
+  "components/operator-home/RunsDashboardPanel.tsx",
   "components/ScopeSwitcher.tsx",
   "components/SidebarNav.tsx",
 ];
@@ -221,6 +228,36 @@ for (const rel of BUYER_GUARD_FILES) {
     pass(`isBuyerPolishedOperatorShellEnv used in: ${rel}`);
   } else {
     warn(`isBuyerPolishedOperatorShellEnv not found in: ${rel}`, "May be intentional — verify manually");
+  }
+}
+
+// ──────────────────────────────────────────────
+// 5. Marketing verify-link labels (no raw `/route` copy)
+// ──────────────────────────────────────────────
+section("5. Marketing verify label hygiene");
+
+const ROUTE_SHAPED_VERIFY_LABEL = /\{\s*label:\s*"\/[^"]+"/;
+
+for (const rel of [
+  "lib/why-comparison-verify-points.ts",
+  "components/marketing/WelcomeMarketingPage.tsx",
+]) {
+  const full = resolve(srcRoot, rel);
+
+  if (!existsSync(full)) {
+    fail(`Missing file for verify hygiene: ${rel}`);
+    continue;
+  }
+
+  const body = readFileSync(full, "utf8");
+
+  if (ROUTE_SHAPED_VERIFY_LABEL.test(body)) {
+    fail(
+      `Route-shaped verify label in ${rel}`,
+      'Prefer prose labels (e.g. "Demo preview"), not `{ label: "/demo/..." `',
+    );
+  } else {
+    pass(`No route-shaped verify labels in ${rel}`);
   }
 }
 

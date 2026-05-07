@@ -16,7 +16,7 @@ public interface IPilotValueReportService
     /// <summary>
     ///     Builds a pilot value report for the current scope. Returns null when the tenant record is missing.
     ///     When <paramref name = "fromUtc"/> is null, uses the tenant&apos;s <see cref = "TenantRecord.CreatedUtc"/> (UTC).
-    ///     When <paramref name = "toUtc"/> is null, uses <see cref = "DateTime.UtcNow"/> as the exclusive upper bound
+    ///     When <paramref name = "toUtc"/> is null, uses the current UTC instant from <see cref = "TimeProvider.System"/> as the exclusive upper bound
     ///     (aligned with <see cref = "IAuditRepository.GetExportAsync"/>).
     /// </summary>
     Task<PilotValueReport?> BuildAsync(DateTime? fromUtc, DateTime? toUtc, CancellationToken cancellationToken);
@@ -65,7 +65,7 @@ public sealed class PilotValueReportService(IRunDetailQueryService runDetailQuer
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
         if (tenant is null)
             return null;
-        DateTime toExclusive = toUtc ?? DateTime.UtcNow;
+        DateTime toExclusive = toUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime;
         DateTime from = fromUtc ?? tenant.CreatedUtc.UtcDateTime;
         if (toExclusive <= from)
             return EmptyReport(scope.TenantId, from, toExclusive, 0);

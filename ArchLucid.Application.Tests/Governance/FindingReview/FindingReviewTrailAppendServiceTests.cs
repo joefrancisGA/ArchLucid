@@ -29,7 +29,7 @@ public sealed class FindingReviewTrailAppendServiceTests
             FindingId = "finding-001",
             ReviewerUserId = "eve",
             Action = "Approved",
-            OccurredAtUtc = DateTime.UtcNow,
+            OccurredAtUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
         await sut.AppendAsync(record, CancellationToken.None);
@@ -61,7 +61,7 @@ public sealed class FindingReviewTrailAppendServiceTests
             FindingId = "x",
             ReviewerUserId = "eve",
             Action = "Mystery",
-            OccurredAtUtc = DateTime.UtcNow,
+            OccurredAtUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(Act);

@@ -25,7 +25,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
         kg.Setup(x => x.BuildSnapshotAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(built);
@@ -66,7 +66,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
                 GraphSnapshotId = Guid.NewGuid(),
                 ContextSnapshotId = c.SnapshotId,
                 RunId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             });
 
         InMemoryGraphSnapshotRepository graphs = new();
@@ -115,7 +115,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
                 GraphSnapshotId = Guid.NewGuid(),
                 ContextSnapshotId = c.SnapshotId,
                 RunId = Guid.NewGuid(),
-                CreatedUtc = DateTime.UtcNow
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             });
 
         List<CanonicalObject> objects =
@@ -169,7 +169,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = prior.SnapshotId,
             RunId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow.AddDays(-1),
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-1),
             Nodes =
             [
                 new GraphNode
@@ -210,7 +210,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
             SnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
             ProjectId = projectId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             CanonicalObjects = objects
         };
     }

@@ -52,7 +52,7 @@ public sealed class ComparisonReplayService(IComparisonRecordRepository comparis
         if (request.PersistReplay)
             // Intentionally persists a *new* comparison record rather than mutating the original.
             // This keeps comparison records immutable and yields an audit trail of replay activity.
-            result.PersistedReplayRecordId = await comparisonAuditService.RecordReplayOfAsync(record, $"Replay of comparison record {record.ComparisonRecordId} at {DateTime.UtcNow:O}.", cancellationToken);
+            result.PersistedReplayRecordId = await comparisonAuditService.RecordReplayOfAsync(record, $"Replay of comparison record {record.ComparisonRecordId} at {TimeProvider.System.GetUtcNow().UtcDateTime:O}.", cancellationToken);
         return result;
     }
 

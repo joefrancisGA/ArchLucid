@@ -5,7 +5,7 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
 {
     private readonly Func<DateTime> _utcNow;
 
-    public InMemoryAuthorityPipelineWorkRepository() : this(static () => DateTime.UtcNow)
+    public InMemoryAuthorityPipelineWorkRepository() : this(static () => TimeProvider.System.GetUtcNow().UtcDateTime)
     {
     }
 
