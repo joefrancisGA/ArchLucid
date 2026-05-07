@@ -22,7 +22,7 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("Manifest summary");
+    expect(link.label).toBe("Review package");
     expect(link.href).toContain("/manifests/");
   });
 
@@ -36,6 +36,17 @@ describe("buyer-safe-review-navigation", () => {
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
     expect(link.label).toBe("Manifest summary");
+    expect(link.href).toContain("/manifests/");
+  });
+
+  it("uses Review package label when static operator enables buyer-polished shell without DEMO_MODE", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true" };
+
+    const mod = await import("./buyer-safe-review-navigation");
+
+    const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
+
+    expect(link.label).toBe("Review package");
     expect(link.href).toContain("/manifests/");
   });
 

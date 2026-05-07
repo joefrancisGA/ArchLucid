@@ -68,27 +68,59 @@ function runRowNumericCountsLine(run: RunSummary): string | null {
   return tokens.join(" · ");
 }
 
-function runRowExplicitCountsLine(run: RunSummary): string | null {
+function runRowExplicitCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
   if (isNextPublicDemoMode() && run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID) {
     const c = SHOWCASE_STATIC_DEMO_SPINE_COUNTS;
+    const pkgWord = buyerPolished ? "Package" : "manifest";
 
-    return `${c.findingCount} findings · ${c.warningCount} warnings · manifest ${run.hasGoldenManifest ? "finalized" : "pending"}`;
+    return `${c.findingCount} findings · ${c.warningCount} warnings · ${pkgWord} ${run.hasGoldenManifest ? "finalized" : "pending"}`;
   }
 
   const numeric = runRowNumericCountsLine(run);
 
   if (numeric !== null) {
-    return `${numeric} · manifest ${run.hasGoldenManifest ? "finalized" : "pending"}`;
+    const pkgWord = buyerPolished ? "Package" : "manifest";
+
+    return `${numeric} · ${pkgWord} ${run.hasGoldenManifest ? "finalized" : "pending"}`;
   }
 
   return null;
 }
 
-function runRowAccessibleDescription(run: RunSummary, activeProjectId: string, countsLine: string | null): string {
+function runRowOutputReadinessLineBuyer(run: RunSummary): string {
+  const complete =
+    run.hasContextSnapshot === true &&
+    run.hasGraphSnapshot === true &&
+    run.hasFindingsSnapshot === true &&
+    run.hasGoldenManifest === true;
+
+  if (complete) {
+    return "All review steps complete";
+  }
+
+  const started =
+    run.hasContextSnapshot === true ||
+    run.hasGraphSnapshot === true ||
+    run.hasFindingsSnapshot === true ||
+    run.hasGoldenManifest === true;
+
+  if (started) {
+    return "Review underway";
+  }
+
+  return "Not started";
+}
+
+function runRowAccessibleDescription(
+  run: RunSummary,
+  activeProjectId: string,
+  countsLine: string | null,
+  buyerPolished: boolean,
+): string {
   const title = runListPrimaryTitle(run);
   const created = new Date(run.createdUtc).toLocaleString();
   const counts = countsLine !== null ? `${countsLine}. ` : "";
-  const readiness = runRowOutputReadinessLine(run);
+  const readiness = buyerPolished ? runRowOutputReadinessLineBuyer(run) : runRowOutputReadinessLine(run);
   const projectNote =
     run.projectId === activeProjectId
       ? ""
@@ -408,9 +440,9 @@ export function RunsListClient({
                           const createdLabel = new Date(run.createdUtc).toLocaleString();
                           const isSelected = selectedRun?.runId === run.runId;
                           const title = runListPrimaryTitle(run);
-                          const countsLine = runRowExplicitCountsLine(run);
+                          const countsLine = runRowExplicitCountsLine(run, buyerPolished);
                           const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
-                          const describeRow = runRowAccessibleDescription(run, projectId, countsLine);
+                          const describeRow = runRowAccessibleDescription(run, projectId, countsLine, buyerPolished);
 
                           return (
                             <RunTableRowErrorBoundary key={run.runId} runId={run.runId}>
@@ -460,7 +492,7 @@ export function RunsListClient({
                                     </p>
                                   ) : null}
                                   <div className="mt-1.5">
-                                    <RunProvenanceInline run={run} />
+                                    <RunProvenanceInline run={run} buyerPolished={buyerPolished} />
                                   </div>
                                   {countsLine !== null ? (
                                     <p
@@ -474,7 +506,7 @@ export function RunsListClient({
                                     className="m-0 mt-1 text-[11px] text-neutral-600 dark:text-neutral-400"
                                     data-testid={`runs-row-readiness-${run.runId}`}
                                   >
-                                    {runRowOutputReadinessLine(run)}
+                                    {buyerPolished ? runRowOutputReadinessLineBuyer(run) : runRowOutputReadinessLine(run)}
                                   </p>
                                 </td>
                                 <td

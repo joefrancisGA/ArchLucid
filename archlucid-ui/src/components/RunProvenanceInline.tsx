@@ -14,7 +14,23 @@ type StageDef = {
   tooltip: string;
 };
 
-function stageChipLabel(stage: StageDef): string {
+function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
+  if (buyerPolished && stage.key === "manifest") {
+    if (!stage.present) {
+      return "Package · …";
+    }
+
+    return "Package finalized";
+  }
+
+  if (buyerPolished && stage.key === "graph") {
+    if (!stage.present) {
+      return "Evidence map · …";
+    }
+
+    return "Evidence map ready";
+  }
+
   if (!stage.present) {
     return `${stage.label} · …`;
   }
@@ -76,12 +92,14 @@ function stagesForRun(run: RunSummary): StageDef[] {
 
 export type RunProvenanceInlineProps = {
   run: RunSummary;
+  /** Buyer walkthrough: shorter stage chips (e.g. package vs manifest). */
+  buyerPolished?: boolean;
 };
 
 /**
  * Compact pipeline-stage strip for dense run rows (context → graph → findings → manifest) as readable pill chips.
  */
-export function RunProvenanceInline({ run }: RunProvenanceInlineProps) {
+export function RunProvenanceInline({ run, buyerPolished = false }: RunProvenanceInlineProps) {
   const stages = stagesForRun(run);
   const presentCount = stages.filter((s) => s.present).length;
 
@@ -105,7 +123,7 @@ export function RunProvenanceInline({ run }: RunProvenanceInlineProps) {
                       : "border-neutral-300 bg-white text-neutral-500 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400",
                   )}
                 >
-                  {stageChipLabel(stage)}
+                  {stageChipLabel(stage, buyerPolished)}
                 </span>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs">
@@ -119,7 +137,9 @@ export function RunProvenanceInline({ run }: RunProvenanceInlineProps) {
         className="text-[11px] text-neutral-600 dark:text-neutral-400"
         data-testid="run-provenance-inline-summary"
       >
-        Review trail {presentCount}/{stages.length} complete
+        {buyerPolished
+          ? `Progress ${presentCount} of ${stages.length}`
+          : `Review trail ${presentCount}/${stages.length} complete`}
       </span>
     </div>
   );
