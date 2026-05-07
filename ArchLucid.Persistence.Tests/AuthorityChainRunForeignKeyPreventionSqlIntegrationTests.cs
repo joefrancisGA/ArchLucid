@@ -2,7 +2,6 @@ using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
-using FluentAssertions;
 using FluentAssertions.Specialized;
 
 using Microsoft.Data.SqlClient;

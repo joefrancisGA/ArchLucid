@@ -1,5 +1,4 @@
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;

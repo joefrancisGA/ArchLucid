@@ -1,5 +1,4 @@
 ﻿using ArchLucid.Persistence.Audit;
-using ArchLucid.Persistence.Tests;
 using ArchLucid.Persistence.Tests.Support;
 
 using Microsoft.Data.SqlClient;

@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 
 using ArchLucid.Application.Governance;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Llm.Redaction;
@@ -9,7 +8,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Repositories;
-using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;

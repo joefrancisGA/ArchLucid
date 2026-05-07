@@ -1,7 +1,5 @@
 ﻿using ArchLucid.Persistence.Tenancy;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Tenancy;
 
 public sealed class SqlTenantHardPurgeServiceTests

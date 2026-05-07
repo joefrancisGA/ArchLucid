@@ -1,10 +1,6 @@
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
-using FluentAssertions;
-
-using Xunit;
-
 namespace ArchLucid.Persistence.Tests.Data.Repositories;
 
 public sealed class ComparisonRecordRunIdSqlTests

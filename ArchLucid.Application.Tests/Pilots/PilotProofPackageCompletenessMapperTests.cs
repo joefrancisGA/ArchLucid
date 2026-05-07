@@ -1,6 +1,5 @@
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;

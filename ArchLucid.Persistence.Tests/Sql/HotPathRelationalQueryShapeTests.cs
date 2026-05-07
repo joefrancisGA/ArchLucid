@@ -1,7 +1,5 @@
 ﻿using ArchLucid.Persistence.Sql;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Sql;
 
 /// <summary>

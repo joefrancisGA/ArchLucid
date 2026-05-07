@@ -3,8 +3,6 @@ using System.Text.Json;
 
 using ArchLucid.Persistence.Telemetry;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Telemetry;
 
 /// <summary>TB-003: <see cref="NamedQueryTelemetryNames" /> string values stay 1:1 with <c>tests/performance/query-allowlist.json</c>.</summary>

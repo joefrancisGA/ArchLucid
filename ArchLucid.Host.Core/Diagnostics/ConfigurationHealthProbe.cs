@@ -8,7 +8,6 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Host.Core.Diagnostics;
 

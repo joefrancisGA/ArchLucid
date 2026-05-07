@@ -1,5 +1,4 @@
 using ArchLucid.Application.Integrations.Itsm.Outbound;
-using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
 

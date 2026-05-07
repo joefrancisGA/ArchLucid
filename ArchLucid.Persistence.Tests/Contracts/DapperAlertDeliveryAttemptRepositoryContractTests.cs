@@ -1,7 +1,5 @@
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Persistence.Connections;
-using ArchLucid.Persistence.Tests;
-using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 

@@ -1,9 +1,6 @@
 ﻿using System.Globalization;
 
 using ArchLucid.Core.Tenancy;
-
-using FluentAssertions;
-
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tenancy;
 

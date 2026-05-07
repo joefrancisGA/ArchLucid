@@ -1,6 +1,5 @@
 ﻿using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Host.Core.Hosted;
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;

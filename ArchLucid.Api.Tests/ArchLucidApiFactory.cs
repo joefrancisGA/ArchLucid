@@ -1,5 +1,3 @@
-using System.Net.Http;
-
 using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Hosting;
