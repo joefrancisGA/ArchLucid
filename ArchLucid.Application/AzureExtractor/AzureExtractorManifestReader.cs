@@ -1,6 +1,5 @@
 using System.IO.Compression;
 using System.Globalization;
-using System.Linq;
 using System.Text.Json;
 
 namespace ArchLucid.Application.AzureExtractor;

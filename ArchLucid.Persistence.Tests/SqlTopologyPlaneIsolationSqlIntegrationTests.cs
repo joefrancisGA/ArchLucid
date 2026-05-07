@@ -10,13 +10,9 @@ using ArchLucid.TestSupport;
 
 using Dapper;
 
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-
-using Xunit;
 
 namespace ArchLucid.Persistence.Tests;
 

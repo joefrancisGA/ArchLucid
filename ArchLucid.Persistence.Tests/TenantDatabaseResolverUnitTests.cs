@@ -4,13 +4,9 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Tenancy;
 
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-
-using Xunit;
 
 namespace ArchLucid.Persistence.Tests;
 

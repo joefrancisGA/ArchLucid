@@ -1,5 +1,4 @@
-﻿using ArchLucid.Persistence.Data.Infrastructure;
-using ArchLucid.Persistence.RelationalRead;
+﻿using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.TestSupport;
 
 using Microsoft.Data.SqlClient;

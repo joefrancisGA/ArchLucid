@@ -1,8 +1,8 @@
 using System.Text.Json;
+
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
-using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Agents;
@@ -11,7 +11,6 @@ using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
@@ -27,7 +26,9 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
+
 using Microsoft.Extensions.Logging;
+
 using Cm = ArchLucid.Contracts.Manifest;
 using DecisioningIdTraceRepository = ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository;
 using DecisioningIGoldenManifestRepository = ArchLucid.Decisioning.Interfaces.IGoldenManifestRepository;
@@ -112,7 +113,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
                 await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, "Run not found.", cancellationToken);
                 throw;
             }
-            catch (Exception ex)when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
+            catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
             {
                 CommitRunResult? reconciled = await TryReconcileAfterConcurrentCommitAsync(runId, cancellationToken);
                 if (reconciled is not null)
@@ -123,7 +124,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
                     throw new ConflictException($"Commit for run '{runId}' raced with another commit. The manifest could not be loaded yet; retry the request.");
                 await Task.Delay(TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt), cancellationToken);
             }
-            catch (Exception ex)when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)
+            catch (Exception ex) when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
                     _logger.LogWarning(ex, "CommitRunAsync (authority) transient database error (attempt {Attempt}/{Max}) for RunId={RunId}; retrying.", attempt, CommitRunTransientMaxAttempts, LogSanitizer.Sanitize(runId));
@@ -206,7 +207,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
             string contractWireJson = JsonSerializer.Serialize(contract, ContractJson.Default);
             await EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, contractWireJson, cancellationToken);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, ex.GetType().Name, cancellationToken);
             throw;
@@ -231,7 +232,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
                 return idempotentReplay;
             }
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, $"Persist failed: {ex.GetType().Name}", cancellationToken);
             throw;
@@ -260,7 +261,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
             CommitRunTelemetryMetrics telemetry = CommitRunTelemetryMetrics.FromCommitContext(runRecord, evidencePackageForTelemetry, agentResultsForTelemetry, telemetryCommitUtc, persisted);
             await TryInsertRunTelemetryAsync(runGuid, telemetry, cancellationToken);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Failed to insert RunTelemetry for RunId={RunId}", runId);
         }
@@ -269,7 +270,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
         {
             Manifest = contract,
             DecisionTraces = [trace],
-            Warnings = persisted.Warnings.Count == 0 ? [] : [..persisted.Warnings]
+            Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings]
         };
     }
 
@@ -322,7 +323,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
         {
             Manifest = contract,
             DecisionTraces = [trace],
-            Warnings = manifestModel.Warnings.Count == 0 ? [] : [..manifestModel.Warnings]
+            Warnings = manifestModel.Warnings.Count == 0 ? [] : [.. manifestModel.Warnings]
         };
     }
 
@@ -363,7 +364,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
                 IF NOT EXISTS (SELECT 1 FROM dbo.RunTelemetry WHERE RunId = @RunId)
                 INSERT INTO dbo.RunTelemetry (RunId, RequestDurationMs, AgentExecutionDurationMs, ManualReviewDurationMs, EstimatedHoursSaved)
                 VALUES (@RunId, @RequestDurationMs, @AgentExecutionDurationMs, @ManualReviewDurationMs, @EstimatedHoursSaved);";
-        await Dapper.SqlMapper.ExecuteAsync(connection, sql, new { RunId = runGuid, telemetry.RequestDurationMs, telemetry.AgentExecutionDurationMs, telemetry.ManualReviewDurationMs, telemetry.EstimatedHoursSaved });
+        await Dapper.SqlMapper.ExecuteAsync(connection, sql, new
+        {
+            RunId = runGuid,
+            telemetry.RequestDurationMs,
+            telemetry.AgentExecutionDurationMs,
+            telemetry.ManualReviewDurationMs,
+            telemetry.EstimatedHoursSaved
+        });
     }
 
     private static void EnforceCommitAllowedForStatus(ArchitectureRun run, string runId)
@@ -426,7 +434,13 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
             return;
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid? runGuid = Guid.TryParse(runId, out Guid rid) ? rid : null;
-        string dataJson = JsonSerializer.Serialize(new { reason = gateResult.Reason, blockingFindingIds = gateResult.BlockingFindingIds, policyPackId = gateResult.PolicyPackId, minimumBlockingSeverity = gateResult.MinimumBlockingSeverity?.ToString() });
+        string dataJson = JsonSerializer.Serialize(new
+        {
+            reason = gateResult.Reason,
+            blockingFindingIds = gateResult.BlockingFindingIds,
+            policyPackId = gateResult.PolicyPackId,
+            minimumBlockingSeverity = gateResult.MinimumBlockingSeverity?.ToString()
+        });
         await _auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.GovernancePreCommitBlocked, ActorUserId = actor, ActorUserName = actor, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId, RunId = runGuid, DataJson = dataJson }, cancellationToken);
         throw new PreCommitGovernanceBlockedException(gateResult);
     }
@@ -435,7 +449,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid? runGuid = Guid.TryParse(runId, out Guid rid) ? rid : null;
-        string dataJson = JsonSerializer.Serialize(new { reason = gateResult.Reason, warnings = gateResult.Warnings, blockingFindingIds = gateResult.BlockingFindingIds, policyPackId = gateResult.PolicyPackId, minimumBlockingSeverity = gateResult.MinimumBlockingSeverity?.ToString() });
+        string dataJson = JsonSerializer.Serialize(new
+        {
+            reason = gateResult.Reason,
+            warnings = gateResult.Warnings,
+            blockingFindingIds = gateResult.BlockingFindingIds,
+            policyPackId = gateResult.PolicyPackId,
+            minimumBlockingSeverity = gateResult.MinimumBlockingSeverity?.ToString()
+        });
         await _auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.GovernancePreCommitWarned, ActorUserId = actor, ActorUserName = actor, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId, RunId = runGuid, DataJson = dataJson }, cancellationToken);
         if (_logger.IsEnabled(LogLevel.Warning))
             _logger.LogWarning("Pre-commit governance gate warned (not blocked) — authority path: RunId={RunId}, Reason={Reason}", LogSanitizer.Sanitize(runId), LogSanitizer.Sanitize(gateResult.Reason ?? string.Empty));

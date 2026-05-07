@@ -4,8 +4,6 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tenancy;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Repositories;
 
 [Trait("Category", "Unit")]

@@ -1,4 +1,3 @@
-using ArchLucid.Api.Middleware;
 using ArchLucid.Api.Tests.Http;
 using ArchLucid.Host.Core.Middleware;
 

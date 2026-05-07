@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations.Itsm.Outbound;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;

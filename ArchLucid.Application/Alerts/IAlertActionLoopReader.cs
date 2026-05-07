@@ -1,6 +1,4 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Alerts;
-using ArchLucid.Decisioning.Alerts.Delivery;
 
 namespace ArchLucid.Application.Alerts;
 

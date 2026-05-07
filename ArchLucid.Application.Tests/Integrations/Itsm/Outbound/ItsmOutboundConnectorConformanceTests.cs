@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations.Itsm.Outbound;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -9,8 +8,6 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integrations;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.TestSupport.Connectors;
-
-using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;

@@ -1,5 +1,3 @@
-using ArchLucid.ContextIngestion.Models;
-
 namespace ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 public sealed class InfrastructureDeclarationsPayload

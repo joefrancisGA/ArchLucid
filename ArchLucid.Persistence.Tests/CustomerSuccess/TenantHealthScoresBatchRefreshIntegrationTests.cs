@@ -1,13 +1,10 @@
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.CustomerSuccess;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
-
-using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 

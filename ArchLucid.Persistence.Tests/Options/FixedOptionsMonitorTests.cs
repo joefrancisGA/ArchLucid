@@ -1,4 +1,3 @@
-using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Options;
 
 namespace ArchLucid.Persistence.Tests.Options;

@@ -3,7 +3,6 @@ using System.Data;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
-using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.TestSupport;
 
 using Dapper;
