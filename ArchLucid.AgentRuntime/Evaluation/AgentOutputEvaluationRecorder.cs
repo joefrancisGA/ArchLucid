@@ -2,7 +2,6 @@ using System.Diagnostics;
 
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
@@ -23,7 +22,7 @@ public sealed class AgentOutputEvaluationRecorder(
     IAgentOutputQualityGate qualityGate,
     IOptions<AgentOutputQualityGateOptions> gateOptions,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
-    IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
+    ArchLucid.Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
     private const double LowStructuralScoreThreshold = 0.5;
@@ -40,7 +39,7 @@ public sealed class AgentOutputEvaluationRecorder(
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
 
-    private readonly IAgentArchitectureFindingConfidenceEnricher _architectureFindingConfidenceEnricher =
+    private readonly ArchLucid.Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher _architectureFindingConfidenceEnricher =
         architectureFindingConfidenceEnricher ??
         throw new ArgumentNullException(nameof(architectureFindingConfidenceEnricher));
 

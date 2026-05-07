@@ -10,8 +10,8 @@ const UUID_RE =
  * Renders assistant markdown-free content with best-effort deep links for run-shaped UUIDs in plain text.
  * Structured citations from the API would be more precise; this avoids bare opaque ids in demo reviews.
  */
-export function AskAssistantMessageBody(props: { readonly content: string }) {
-  const { content } = props;
+export function AskAssistantMessageBody(props: { readonly content: string; readonly buyerPolishedLinks?: boolean }) {
+  const { content, buyerPolishedLinks = false } = props;
   const parts: ReactNode[] = [];
   let lastIndex = 0;
 
@@ -27,14 +27,22 @@ export function AskAssistantMessageBody(props: { readonly content: string }) {
     }
 
     const id = m[0];
+
+    const linkChildren = buyerPolishedLinks ? "Open linked review" : id;
+
     parts.push(
       <Link
         key={`id-${m.index}-${id}`}
         href={`/reviews/${encodeURIComponent(id)}`}
         className="font-medium text-teal-800 underline decoration-teal-300/60 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-700 dark:hover:text-teal-200"
-        title="Open as review detail (IDs may reference manifests in some answers — confirm in context)."
+        aria-label={buyerPolishedLinks ? `Open linked review ${id}` : undefined}
+        title={
+          buyerPolishedLinks
+            ? id
+            : "Open as review detail (IDs may reference manifests in some answers — confirm in context)."
+        }
       >
-        {id}
+        {linkChildren}
       </Link>,
     );
 
