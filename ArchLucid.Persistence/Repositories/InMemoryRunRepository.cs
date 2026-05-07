@@ -6,7 +6,8 @@ using ArchLucid.Contracts.Common;
 
 using ArchLucid.Core.Pagination;
 
-using ArchLucid.Core.Scoping;using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Tenancy;
@@ -112,7 +113,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
                 string.Equals(r.ProjectId, projectId, StringComparison.Ordinal))
             .Where(r =>
                 !cursorRunId.HasValue ||
-                (r.RunId != cursorRunId!.Value
+                (r.RunId != cursorRunId.Value
                  && (r.CreatedUtc < cursorCreatedUtc!.Value
                      || (r.CreatedUtc == cursorCreatedUtc.Value && r.RunId < cursorRunId.Value))))
             .OrderByDescending(r => r.CreatedUtc)
@@ -169,7 +170,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
                 !r.ArchivedUtc.HasValue)
             .Where(r =>
                 !cursorRunId.HasValue ||
-                (r.RunId != cursorRunId!.Value
+                (r.RunId != cursorRunId.Value
                  && (r.CreatedUtc < cursorCreatedUtc!.Value
                      || (r.CreatedUtc == cursorCreatedUtc.Value && r.RunId < cursorRunId.Value))))
             .OrderByDescending(r => r.CreatedUtc)
@@ -259,7 +260,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         List<Guid> distinctOrdered = [];
         HashSet<Guid> seen = [];
 
-        distinctOrdered.AddRange(runIds.Where(id => seen.Add(id)));
+        distinctOrdered.AddRange(runIds.Where(seen.Add));
 
         DateTime stamp = DateTime.UtcNow;
         List<ArchivedRunScopeRow> archived = [];
