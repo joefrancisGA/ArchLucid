@@ -127,6 +127,15 @@ public sealed class ProofPackageCompletenessResponse
     } = string.Empty;
 
     /// <summary>
+    ///     When PilotStrict mode is enabled server-side and trace queries resolve, false means sponsor-sendable posture failed.
+    /// </summary>
+    public bool AgentOutputPilotStrictEvidenceSatisfied
+    {
+        get;
+        init;
+    } = true;
+
+    /// <summary>
     ///     Sendability label: <c>Sendable</c>, <c>SendableWithCaveats</c>, or <c>NotSendable</c>.
     /// </summary>
     public string ProofSendability

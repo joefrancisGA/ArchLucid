@@ -466,7 +466,7 @@ export const auditSearchNoResultsReaderLine = "No audit events match your search
 
 /** Audit log — zero rows after search in buyer-polished shell (no “broken product” tone). */
 export const auditSearchNoResultsBuyerPolishedLine =
-  "No matching entries in this sample trail. Try widening the date range or choosing “Any” for event type.";
+  "No matching entries in this sample trail. Try widening the date range or choosing Any for event type.";
 
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 

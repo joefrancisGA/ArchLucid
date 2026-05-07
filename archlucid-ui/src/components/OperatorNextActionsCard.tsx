@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { fetchOperatorNextBestActions, type OperatorNextBestActionDto } from "@/lib/api";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,10 @@ import { cn } from "@/lib/utils";
  * GET /v1/tenant/customer-success/next-actions.
  */
 export function OperatorNextActionsCard() {
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return null;
+  }
+
   const demoUi = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
   const [items, setItems] = useState<OperatorNextBestActionDto[] | null>(null);
   const [phase, setPhase] = useState<"idle" | "loading" | "ready" | "error">("idle");

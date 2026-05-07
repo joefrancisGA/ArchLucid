@@ -17,7 +17,7 @@ public sealed class DeploymentEvidenceOptionsTests
 
         error.Should().BeNull();
         o.Should().NotBeNull();
-        o!.EnvironmentName.Should().Be("staging");
+        o.EnvironmentName.Should().Be("staging");
         o.ApiBaseUrl.Should().Be("https://api.example.com");
         o.SyntheticPath.Should().Be("/version");
         o.AllowMissingOpenApi.Should().BeFalse();

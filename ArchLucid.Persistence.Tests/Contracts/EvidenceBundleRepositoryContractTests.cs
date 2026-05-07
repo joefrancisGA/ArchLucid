@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -21,7 +21,8 @@ public abstract class EvidenceBundleRepositoryContractTests
         IEvidenceBundleRepository repo = CreateRepository();
         EvidenceBundle bundle = new()
         {
-            EvidenceBundleId = "eb-" + Guid.NewGuid().ToString("N"), RequestDescription = "rd"
+            EvidenceBundleId = "eb-" + Guid.NewGuid().ToString("N"),
+            RequestDescription = "rd"
         };
 
         await repo.CreateAsync(bundle, CancellationToken.None);
@@ -41,7 +42,8 @@ public abstract class EvidenceBundleRepositoryContractTests
         IEvidenceBundleRepository repo = CreateRepository();
         EvidenceBundle bundle = new()
         {
-            EvidenceBundleId = "eb-upd-" + Guid.NewGuid().ToString("N"), RequestDescription = "before"
+            EvidenceBundleId = "eb-upd-" + Guid.NewGuid().ToString("N"),
+            RequestDescription = "before"
         };
 
         await repo.CreateAsync(bundle, CancellationToken.None);
@@ -59,7 +61,7 @@ public abstract class EvidenceBundleRepositoryContractTests
 
         loaded.Should().NotBeNull();
 
-        loaded!.RequestDescription.Should().Be("after");
+        loaded.RequestDescription.Should().Be("after");
 
         loaded.Metadata["k"].Should().Be("v");
 
@@ -71,7 +73,10 @@ public abstract class EvidenceBundleRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IEvidenceBundleRepository repo = CreateRepository();
-        EvidenceBundle bundle = new() { EvidenceBundleId = "missing-" + Guid.NewGuid().ToString("N") };
+        EvidenceBundle bundle = new()
+        {
+            EvidenceBundleId = "missing-" + Guid.NewGuid().ToString("N")
+        };
 
 
         Func<Task> act = () => repo.UpdateAsync(bundle, CancellationToken.None);

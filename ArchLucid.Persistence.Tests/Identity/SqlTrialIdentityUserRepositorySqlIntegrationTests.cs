@@ -1,9 +1,6 @@
-﻿using ArchLucid.Application.Identity;
+using ArchLucid.Application.Identity;
 using ArchLucid.Core.Identity;
 using ArchLucid.Persistence.Identity;
-using ArchLucid.Persistence.Tests.Tenancy;
-
-using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Identity;
 
@@ -46,7 +43,7 @@ public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerP
         TrialIdentityUserRecord? row = await sut.GetByNormalizedEmailAsync(normalized, CancellationToken.None);
 
         row.Should().NotBeNull();
-        row!.LinkedEntraOid.Should().Be("oid-a1b2");
+        row.LinkedEntraOid.Should().Be("oid-a1b2");
         row.LinkedUtc.Should().NotBeNull();
     }
 

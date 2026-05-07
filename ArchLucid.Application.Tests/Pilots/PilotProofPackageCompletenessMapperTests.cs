@@ -33,6 +33,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.LlmCallCountResolved.Should().BeTrue();
         c.LlmCallCount.Should().Be(2);
         c.ProofSendability.Should().Be(nameof(ProofPackageSendability.Sendable));
+        c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeTrue();
     }
 
     [Fact]
@@ -72,6 +73,23 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.DemoTenantWarningRequired.Should().BeTrue();
         c.ProofSendability.Should().Be(nameof(ProofPackageSendability.NotSendable));
         c.PublishingTier.Should().Be(nameof(PilotBuyerSafeEvidencePublishingTier.DemoOnly));
+    }
+
+    [Fact]
+    public void Build_PilotStrictViolates_FlagsEvidenceUnsatisfied()
+    {
+        (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
+            StrongBaselineFixture();
+        deltas = deltas with
+        {
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+
+        ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
+
+        c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeFalse();
     }
 
     [Fact]

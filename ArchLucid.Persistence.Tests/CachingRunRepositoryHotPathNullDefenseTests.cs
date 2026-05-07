@@ -1,11 +1,7 @@
-﻿using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
-
-using FluentAssertions;
 
 using Moq;
 
@@ -33,7 +29,9 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
         CachingRunRepository sut = new(Mock.Of<IRunRepository>(), cache.Object);
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         Func<Task> act = async () =>
@@ -57,7 +55,9 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
         CachingRunRepository sut = new(Mock.Of<IRunRepository>(), cache.Object);
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         Func<Task> act = async () =>
@@ -85,7 +85,9 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
         CachingRunRepository sut = new(inner.Object, cache.Object);
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         DateTime cursorUtc = DateTime.UtcNow;
@@ -123,7 +125,9 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
         CachingRunRepository sut = new(inner.Object, cache.Object);
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         DateTime cursorUtc = DateTime.UtcNow;

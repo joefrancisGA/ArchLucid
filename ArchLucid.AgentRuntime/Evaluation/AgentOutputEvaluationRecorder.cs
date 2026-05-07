@@ -1,9 +1,5 @@
-using System.Diagnostics;
-using System.Text.Json;
-
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
@@ -56,104 +52,102 @@ public sealed class AgentOutputEvaluationRecorder(
 
         foreach (AgentExecutionTrace trace in traces)
         {
-            if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
-                continue;
-
             string agentLabel = trace.AgentType.ToString();
             TagList tags = new() { { "agent_type", agentLabel } };
 
-            AgentOutputEvaluationScore score =
-                evaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
+            AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
+                AgentOutputTraceQualityEvaluator.TryEvaluateTrace(
+                    trace,
+                    _gateOptions,
+                    evaluator,
+                    semanticEvaluator,
+                    qualityGate);
 
-            if (score.IsJsonParseFailure)
-            {
-                ArchLucidInstrumentation.AgentOutputParseFailuresTotal.Add(1, tags);
+            if (evaluated is null)
                 continue;
+
+            if (evaluated.IncrementParseFailureCounter)
+                ArchLucidInstrumentation.AgentOutputParseFailuresTotal.Add(1, tags);
+
+            if (evaluated.RecordStructuralHistogram)
+            {
+                ArchLucidInstrumentation.AgentOutputStructuralCompletenessRatio.Record(
+                    evaluated.Structural.StructuralCompletenessRatio,
+                    tags);
+
+                if (evaluated.Structural.StructuralCompletenessRatio < LowStructuralScoreThreshold)
+
+                    logger.LogWarningAgentOutputStructuralScoreBelowThreshold(
+                        evaluated.Structural.StructuralCompletenessRatio,
+                        runId,
+                        trace.TraceId,
+                        agentLabel,
+                        evaluated.Structural.MissingKeys.Count);
             }
 
-            ArchLucidInstrumentation.AgentOutputStructuralCompletenessRatio.Record(score.StructuralCompletenessRatio,
-                tags);
-
-            if (score.StructuralCompletenessRatio < LowStructuralScoreThreshold)
-
-                logger.LogWarningAgentOutputStructuralScoreBelowThreshold(
-                    score.StructuralCompletenessRatio,
-                    runId,
-                    trace.TraceId,
-                    agentLabel,
-                    score.MissingKeys.Count);
-
-            AgentOutputSemanticScore semanticScore =
-                semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
-
-            ArchLucidInstrumentation.AgentOutputSemanticScore.Record(semanticScore.OverallSemanticScore, tags);
-
-            AgentOutputQualityGateOutcome gateOutcome = qualityGate.Evaluate(score, semanticScore);
-
-            bool hasCitations = false;
-            try
+            if (evaluated.RecordSemanticHistogram)
             {
-                using JsonDocument doc = JsonDocument.Parse(trace.ParsedResultJson);
-                if (doc.RootElement.TryGetProperty("citations", out JsonElement citationsElement) &&
-                    citationsElement.ValueKind == JsonValueKind.Array &&
-                    citationsElement.GetArrayLength() > 0)
+                ArchLucidInstrumentation.AgentOutputSemanticScore.Record(
+                    evaluated.Semantic.OverallSemanticScore,
+                    tags);
+
+                if (evaluated.Semantic.OverallSemanticScore < LowSemanticScoreThreshold)
+
+                    logger.LogWarningAgentOutputSemanticScoreBelowThreshold(
+                        evaluated.Semantic.OverallSemanticScore,
+                        runId,
+                        trace.TraceId,
+                        agentLabel,
+                        evaluated.Semantic.EmptyClaimCount,
+                        evaluated.Semantic.IncompleteFindingCount);
+            }
+
+            if (evaluated.EmitQualityGateMetric)
+            {
+                string gateModeLabel = !_gateOptions.Enabled
+                    ? "disabled"
+                    : _gateOptions.Mode == AgentOutputQualityGateMode.PilotStrict
+                        ? "pilot_strict"
+                        : "warn_only";
+
+                TagList gateTags = new()
                 {
-                    hasCitations = true;
+                    { "agent_type", agentLabel },
+                    { "outcome", evaluated.GateOutcome.ToString().ToLowerInvariant() },
+                    { "gate_mode", gateModeLabel }
+                };
+
+                ArchLucidInstrumentation.AgentOutputQualityGateTotal.Add(1, gateTags);
+
+                if (evaluated.GateOutcome == AgentOutputQualityGateOutcome.Rejected)
+                {
+                    logger.LogWarningAgentOutputQualityGateRejected(
+                        runId,
+                        trace.TraceId,
+                        agentLabel,
+                        evaluated.Structural.StructuralCompletenessRatio,
+                        evaluated.Semantic.OverallSemanticScore);
+
+                    if (_gateOptions.EnforceOnReject)
+                        throw new AgentOutputQualityGateRejectedException(runId, trace.TraceId, agentLabel);
+                }
+
+                else if (evaluated.GateOutcome == AgentOutputQualityGateOutcome.Warned)
+                {
+                    logger.LogWarningAgentOutputQualityGateWarned(
+                        runId,
+                        trace.TraceId,
+                        agentLabel,
+                        evaluated.Structural.StructuralCompletenessRatio,
+                        evaluated.Semantic.OverallSemanticScore);
+
+                    await traceRepository.PatchQualityWarningAsync(trace.TraceId, true, cancellationToken);
                 }
             }
-            catch
-            {
-                // Ignore parse errors here, handled by evaluator
-            }
 
-            if (!hasCitations)
-            {
-                gateOutcome = AgentOutputQualityGateOutcome.Rejected;
-            }
+            if (evaluated.RecordStructuralHistogram)
 
-            TagList gateTags = new()
-            {
-                { "agent_type", agentLabel }, { "outcome", gateOutcome.ToString().ToLowerInvariant() }
-            };
-
-            ArchLucidInstrumentation.AgentOutputQualityGateTotal.Add(1, gateTags);
-
-            if (gateOutcome == AgentOutputQualityGateOutcome.Rejected)
-            {
-                logger.LogWarningAgentOutputQualityGateRejected(
-                    runId,
-                    trace.TraceId,
-                    agentLabel,
-                    score.StructuralCompletenessRatio,
-                    semanticScore.OverallSemanticScore);
-
-                if (_gateOptions.EnforceOnReject)
-                    throw new AgentOutputQualityGateRejectedException(runId, trace.TraceId, agentLabel);
-            }
-
-            else if (gateOutcome == AgentOutputQualityGateOutcome.Warned)
-            {
-                logger.LogWarningAgentOutputQualityGateWarned(
-                    runId,
-                    trace.TraceId,
-                    agentLabel,
-                    score.StructuralCompletenessRatio,
-                    semanticScore.OverallSemanticScore);
-
-                await traceRepository.PatchQualityWarningAsync(trace.TraceId, true, cancellationToken);
-            }
-
-            if (semanticScore.OverallSemanticScore < LowSemanticScoreThreshold)
-
-                logger.LogWarningAgentOutputSemanticScoreBelowThreshold(
-                    semanticScore.OverallSemanticScore,
-                    runId,
-                    trace.TraceId,
-                    agentLabel,
-                    semanticScore.EmptyClaimCount,
-                    semanticScore.IncompleteFindingCount);
-
-            await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken);
+                await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken);
         }
 
         try

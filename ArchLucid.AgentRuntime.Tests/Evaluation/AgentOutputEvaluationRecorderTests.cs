@@ -120,9 +120,10 @@ public sealed class AgentOutputEvaluationRecorderTests
             enforcingOpts);
 
         // Empty claims + empty findings → structural and semantic scores both below the reject floor.
+        // Citations present so WarnOnly mode surfaces score rejection instead of citation downgrade.
         const string hollowJson =
             """
-            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.1,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.1,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"stub"}]}
             """;
 
         await repo.CreateAsync(
@@ -164,7 +165,7 @@ public sealed class AgentOutputEvaluationRecorderTests
 
         const string hollowJson =
             """
-            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.1,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.1,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"stub"}]}
             """;
 
         await repo.CreateAsync(
@@ -186,6 +187,84 @@ public sealed class AgentOutputEvaluationRecorderTests
     }
 
     [SkippableFact]
+    public async Task EvaluateAndRecordMetricsAsync_warn_only_missing_citations_warns_and_sets_quality_flag()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+
+        AgentOutputQualityGateOptions gateOpts = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly
+        };
+
+        AgentOutputEvaluationRecorder sut = CreateRecorder(
+            repo,
+            NullLogger<AgentOutputEvaluationRecorder>.Instance,
+            gateOpts);
+
+        const string jsonMissingCitations =
+            """
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[],"confidence":0.5,"findings":[{"severity":"High","description":"Long enough description text","recommendation":"Fix it"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            """;
+
+        await repo.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "t-no-cites",
+                RunId = "run-no-cites",
+                TaskId = "task-1",
+                AgentType = AgentType.Topology,
+                ParseSucceeded = true,
+                ParsedResultJson = jsonMissingCitations
+            },
+            CancellationToken.None);
+
+        await sut.EvaluateAndRecordMetricsAsync("run-no-cites", CancellationToken.None);
+
+        AgentExecutionTrace? updated = await repo.GetByTraceIdAsync("t-no-cites", CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        updated!.QualityWarning.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAndRecordMetricsAsync_pilot_strict_missing_citations_throws_when_EnforceOnReject()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+
+        AgentOutputQualityGateOptions opts = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            EnforceOnReject = true
+        };
+
+        AgentOutputEvaluationRecorder sut = CreateRecorder(repo, NullLogger<AgentOutputEvaluationRecorder>.Instance, opts);
+
+        const string jsonGoodScoresNoCitations =
+            """
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[],"confidence":0.5,"findings":[{"severity":"High","description":"Long enough description text","recommendation":"Fix it"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            """;
+
+        await repo.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "t-pilot-no-cites",
+                RunId = "run-pilot-no-cites",
+                TaskId = "task-1",
+                AgentType = AgentType.Topology,
+                ParseSucceeded = true,
+                ParsedResultJson = jsonGoodScoresNoCitations
+            },
+            CancellationToken.None);
+
+        Func<Task> act = async () =>
+            await sut.EvaluateAndRecordMetricsAsync("run-pilot-no-cites", CancellationToken.None);
+
+        await act.Should().ThrowAsync<AgentOutputQualityGateRejectedException>();
+    }
+
+    [SkippableFact]
     public async Task EvaluateAndRecordMetricsAsync_sets_quality_warning_flag_when_gate_warns()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -200,7 +279,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             NullLogger<AgentOutputEvaluationRecorder>.Instance,
             gateOpts);
 
-        // Top-level citations array must be non-empty or the recorder upgrades the gate to Rejected and skips QualityWarning patching.
+        // Weak structural/semantic scores but valid citations keep the outcome in the warned band for default WarnOnly mode.
         const string hollowJson =
             """
             {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.1,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"stub"}]}

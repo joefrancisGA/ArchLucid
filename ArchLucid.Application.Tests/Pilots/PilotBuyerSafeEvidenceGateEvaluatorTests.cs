@@ -13,6 +13,29 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 {
     [Fact]
+    public void Evaluate_PilotStrictTraceFailures_IsHardGap()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotRunDeltas deltas = MinimalDeltas(run) with
+        {
+            AuditRowCount = 5,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            deltas,
+            TenantCapturedSnapshot());
+
+        gate.HardGaps.Should().Contain(g => g.Contains("PilotStrict", StringComparison.Ordinal));
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
+    }
+
+    [Fact]
     public void Evaluate_CommittedStrongBaseline_IsComplete()
     {
         ArchitectureRun run = CommittedRun();

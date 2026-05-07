@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -70,9 +70,9 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
     /// </summary>
     private static DateTime DistinctPromotionUtc(int millisecondDelta)
     {
-        const int BaseMillisecond = 100;
+        const int baseMillisecond = 100;
 
-        return new DateTime(2026, 6, 1, 12, 0, 0, BaseMillisecond + millisecondDelta, DateTimeKind.Utc);
+        return new DateTime(2026, 6, 1, 12, 0, 0, baseMillisecond + millisecondDelta, DateTimeKind.Utc);
     }
 
     private static GovernancePromotionRecord NewPromotion(string promotionId, string runId, DateTime promotedUtc)

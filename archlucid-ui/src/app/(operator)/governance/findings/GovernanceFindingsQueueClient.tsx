@@ -124,6 +124,7 @@ export default function GovernanceFindingsQueueClient() {
   const [rows, setRows] = useState<GovernanceFindingQueueRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   useEffect(() => {
     let cancelled = false;
@@ -215,7 +216,9 @@ export default function GovernanceFindingsQueueClient() {
 
       <div className="mt-4 space-y-4">
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-          Findings from architecture reviews — severity, category, and links to inspect each item in context.
+          {buyerPolishedShell
+            ? "Open items raised during architecture reviews, with severity and suggested next steps."
+            : "Findings from architecture reviews — severity, category, and links to inspect each item in context."}
         </p>
 
         {loading ? (
@@ -225,13 +228,19 @@ export default function GovernanceFindingsQueueClient() {
         {!loading && rows.length > 0 ? (
           <>
             <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
-              <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+              <table
+                className={
+                  buyerPolishedShell
+                    ? "w-full min-w-[600px] border-collapse text-left text-sm"
+                    : "w-full min-w-[720px] border-collapse text-left text-sm"
+                }
+              >
                 <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
                   <tr>
                     <th className="px-3 py-2">Severity</th>
                     <th className="px-3 py-2">Finding</th>
                     <th className="px-3 py-2">Review</th>
-                    <th className="px-3 py-2">Manifest</th>
+                    {buyerPolishedShell ? null : <th className="px-3 py-2">Manifest</th>}
                     <th className="px-3 py-2">Status</th>
                     <th className="px-3 py-2">Recommended action</th>
                     <th className="px-3 py-2">Actions</th>
@@ -251,7 +260,9 @@ export default function GovernanceFindingsQueueClient() {
                         >
                           {row.title}
                         </Link>
-                        <div className="mt-0.5 font-mono text-[11px] font-normal text-neutral-500">{row.findingId}</div>
+                        {buyerPolishedShell ? null : (
+                          <div className="mt-0.5 font-mono text-[11px] font-normal text-neutral-500">{row.findingId}</div>
+                        )}
                       </td>
                       <td className="px-3 py-2 align-top">
                         <Link
@@ -261,18 +272,20 @@ export default function GovernanceFindingsQueueClient() {
                           {row.runLabel}
                         </Link>
                       </td>
-                      <td className="px-3 py-2 align-top font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                        {row.manifestId !== "—" ? (
-                          <Link
-                            className="font-sans text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                            href={manifestHref(row.manifestId)}
-                          >
-                            Open manifest
-                          </Link>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
+                      {buyerPolishedShell ? null : (
+                        <td className="px-3 py-2 align-top font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                          {row.manifestId !== "—" ? (
+                            <Link
+                              className="font-sans text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                              href={manifestHref(row.manifestId)}
+                            >
+                              Open manifest
+                            </Link>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      )}
                       <td className="px-3 py-2 align-top">{row.status}</td>
                       <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">
                         {row.recommended}
@@ -304,25 +317,27 @@ export default function GovernanceFindingsQueueClient() {
                     </Link>
                   </CardTitle>
                   <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-                    {row.runLabel} · {row.findingId}
+                    {buyerPolishedShell ? row.runLabel : `${row.runLabel} · ${row.findingId}`}
                   </p>
                   <div className="mt-2 grid gap-3 border-t border-neutral-100 pt-2 text-xs sm:grid-cols-3 dark:border-neutral-800">
-                    <div>
-                      <div className="font-medium text-neutral-600 dark:text-neutral-400">Manifest</div>
-                      <div className="mt-0.5">
-                        {row.manifestId !== "—" ? (
-                          <Link
-                            className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                            href={manifestHref(row.manifestId)}
-                          >
-                            Open manifest
-                          </Link>
-                        ) : (
-                          <span className="text-neutral-500 dark:text-neutral-400">—</span>
-                        )}
+                    {buyerPolishedShell ? null : (
+                      <div>
+                        <div className="font-medium text-neutral-600 dark:text-neutral-400">Manifest</div>
+                        <div className="mt-0.5">
+                          {row.manifestId !== "—" ? (
+                            <Link
+                              className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                              href={manifestHref(row.manifestId)}
+                            >
+                              Open manifest
+                            </Link>
+                          ) : (
+                            <span className="text-neutral-500 dark:text-neutral-400">—</span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div>
+                    )}
+                    <div className={buyerPolishedShell ? "sm:col-span-1" : undefined}>
                       <div className="font-medium text-neutral-600 dark:text-neutral-400">Review</div>
                       <div className="mt-0.5">
                         <Link
@@ -344,10 +359,12 @@ export default function GovernanceFindingsQueueClient() {
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">Severity</span>
                     <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.severity}</p>
                   </div>
-                  <div>
-                    <span className="font-medium text-neutral-700 dark:text-neutral-300">Category</span>
-                    <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.category}</p>
-                  </div>
+                  {buyerPolishedShell ? null : (
+                    <div>
+                      <span className="font-medium text-neutral-700 dark:text-neutral-300">Category</span>
+                      <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.category}</p>
+                    </div>
+                  )}
                   <div>
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">Status</span>
                     <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.status}</p>
@@ -369,8 +386,12 @@ export default function GovernanceFindingsQueueClient() {
             title="No findings to display"
             description={
               loadFailed
-                ? "We could not load reviews for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
-                : "When reviews produce open findings, they appear here. Start from an architecture request, finalize a manifest, then return or open findings from review detail."
+                ? buyerPolishedShell
+                  ? "We could not load findings for this workspace. Check your connection, or return to reviews and try again."
+                  : "We could not load reviews for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
+                : buyerPolishedShell
+                  ? "When reviews surface items that need attention, they will appear here. Start from reviews or your sample package."
+                  : "When reviews produce open findings, they appear here. Start from an architecture request, finalize a manifest, then return or open findings from review detail."
             }
             actions={[
               { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
@@ -379,7 +400,7 @@ export default function GovernanceFindingsQueueClient() {
           />
         ) : null}
 
-        {!loading && rows.length === 0 ? (
+        {!loading && rows.length === 0 && !buyerPolishedShell ? (
           <details className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/60">
             <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-200">
               What findings look like

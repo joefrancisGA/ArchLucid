@@ -8,7 +8,10 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
@@ -17,6 +20,7 @@ using ArchLucid.Persistence.Queries;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -71,13 +75,8 @@ public sealed class PilotRunDeltaComputerTests
         evidence.Setup(e => e.BuildAsync(detail.Run.RunId, "top-finding", It.IsAny<CancellationToken>()))
             .ReturnsAsync(chain);
 
-        PilotRunDeltaComputer sut = new(
-            evidence.Object,
-            traces.Object,
-            audit.Object,
-            LooseArtifacts().Object,
-            scope.Object,
-            NullLogger<PilotRunDeltaComputer>.Instance);
+        PilotRunDeltaComputer sut =
+            CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
@@ -149,13 +148,8 @@ public sealed class PilotRunDeltaComputerTests
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(events);
 
-        PilotRunDeltaComputer sut = new(
-            evidence.Object,
-            traces.Object,
-            audit.Object,
-            LooseArtifacts().Object,
-            scope.Object,
-            NullLogger<PilotRunDeltaComputer>.Instance);
+        PilotRunDeltaComputer sut =
+            CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
@@ -180,13 +174,8 @@ public sealed class PilotRunDeltaComputerTests
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("audit store offline"));
 
-        PilotRunDeltaComputer sut = new(
-            evidence.Object,
-            traces.Object,
-            audit.Object,
-            LooseArtifacts().Object,
-            scope.Object,
-            NullLogger<PilotRunDeltaComputer>.Instance);
+        PilotRunDeltaComputer sut =
+            CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
@@ -212,13 +201,8 @@ public sealed class PilotRunDeltaComputerTests
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        PilotRunDeltaComputer sut = new(
-            evidence.Object,
-            traces.Object,
-            audit.Object,
-            LooseArtifacts().Object,
-            scope.Object,
-            NullLogger<PilotRunDeltaComputer>.Instance);
+        PilotRunDeltaComputer sut =
+            CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
@@ -291,7 +275,8 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
-        PilotRunDeltaComputer sut = new(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object, NullLogger<PilotRunDeltaComputer>.Instance);
+        PilotRunDeltaComputer sut =
+            CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
@@ -312,7 +297,8 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
-        PilotRunDeltaComputer sut = new(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object, NullLogger<PilotRunDeltaComputer>.Instance);
+        PilotRunDeltaComputer sut =
+            CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
@@ -369,18 +355,53 @@ public sealed class PilotRunDeltaComputerTests
         ];
         artifacts.Setup(a => a.ListArtifactsByManifestIdAsync(sc, manifestId, It.IsAny<CancellationToken>())).ReturnsAsync(two);
 
-        PilotRunDeltaComputer sut = new(
-            evidence.Object,
-            traces.Object,
-            audit.Object,
-            artifacts.Object,
-            scope.Object,
-            NullLogger<PilotRunDeltaComputer>.Instance);
+        PilotRunDeltaComputer sut =
+            CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, artifacts.Object, scope.Object);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
         result.SynthesizedArtifactDescriptorCountResolved.Should().BeTrue();
         result.SynthesizedArtifactDescriptorCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task ComputeAsync_WhenPilotStrictAndAggregatorFails_PosturesViolatesSponsorEvidence()
+    {
+        Guid runGuid = Guid.Parse("bbbbbbbb-1111-2222-3333-444444444444");
+        ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
+
+        Mock<IFindingEvidenceChainService> evidence = new();
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces.Setup(t => t.GetByRunIdAsync(detail.Run.RunId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        Mock<IAuditRepository> audit = new();
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+        audit.Setup(a => a.GetFilteredAsync(
+                It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IRunAgentOutputPilotEvidenceAggregator> agg = new();
+        agg.Setup(a => a.WouldPilotStrictBlockSponsorEvidence(It.IsAny<IReadOnlyList<AgentExecutionTrace>>(), It.IsAny<RunExplanationSummary?>()))
+            .Returns(true);
+
+        PilotRunDeltaComputer sut =
+            CreatePilotDeltaComputer(
+                evidence.Object,
+                traces.Object,
+                audit.Object,
+                LooseArtifacts().Object,
+                scope.Object,
+                gateOpts: new AgentOutputQualityGateOptions { Enabled = true, Mode = AgentOutputQualityGateMode.PilotStrict },
+                pilotAggregator: agg.Object);
+
+        PilotRunDeltas result = await sut.ComputeAsync(detail);
+
+        result.AgentOutputPilotStrictSignalsResolved.Should().BeTrue();
+        result.AgentOutputPilotStrictViolatesSponsorEvidence.Should().BeTrue();
+        agg.Verify(
+            a => a.WouldPilotStrictBlockSponsorEvidence(It.IsAny<IReadOnlyList<AgentExecutionTrace>>(), It.IsAny<RunExplanationSummary?>()),
+            Times.Once);
     }
 
     private static PilotRunDeltaComputer BuildSutWithEmptyDependencies(out Mock<IAgentExecutionTraceRepository> traces,
@@ -399,7 +420,37 @@ public sealed class PilotRunDeltaComputerTests
         evidence.Setup(e => e.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((FindingEvidenceChainResponse?)null);
 
-        return new PilotRunDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object, NullLogger<PilotRunDeltaComputer>.Instance);
+        return CreatePilotDeltaComputer(evidence.Object, traces.Object, audit.Object, LooseArtifacts().Object, scope.Object);
+    }
+
+    private static IRunAgentOutputPilotEvidenceAggregator DefaultStrictPilotAgg()
+    {
+        Mock<IRunAgentOutputPilotEvidenceAggregator> mock = new();
+        mock.Setup(a => a.WouldPilotStrictBlockSponsorEvidence(It.IsAny<IReadOnlyList<AgentExecutionTrace>>(), It.IsAny<RunExplanationSummary?>()))
+            .Returns(false);
+
+        return mock.Object;
+    }
+
+    private static PilotRunDeltaComputer CreatePilotDeltaComputer(
+        IFindingEvidenceChainService evidence,
+        IAgentExecutionTraceRepository traces,
+        IAuditRepository audit,
+        IArtifactQueryService artifacts,
+        IScopeContextProvider scope,
+        AgentOutputQualityGateOptions? gateOpts = null,
+        IRunAgentOutputPilotEvidenceAggregator? pilotAggregator = null)
+    {
+        return new PilotRunDeltaComputer(
+            evidence,
+            traces,
+            audit,
+            artifacts,
+            scope,
+            Mock.Of<IRunExplanationSummaryService>(),
+            pilotAggregator ?? DefaultStrictPilotAgg(),
+            Options.Create(gateOpts ?? new AgentOutputQualityGateOptions()),
+            NullLogger<PilotRunDeltaComputer>.Instance);
     }
 
     private static Mock<IArtifactQueryService> LooseArtifacts()

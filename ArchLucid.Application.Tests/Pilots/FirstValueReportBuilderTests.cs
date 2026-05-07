@@ -82,6 +82,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("**Proof sendability:** **Sendable**");
         md.Should().Contain("**Publishing posture:** **Complete**");
         md.Should().Contain("Buyer-safe proof package contract");
+        md.Should().Contain("| PilotStrict agent-output posture |");
         md.Should().Contain("| Support run id | Present |");
         md.Should().Contain("| Top finding evidence-chain pointer | Present |");
         md.Should().Contain("| ROI evidence confidence | **Strong**");

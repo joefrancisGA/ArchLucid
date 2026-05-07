@@ -1,10 +1,7 @@
 using ArchLucid.Core.CustomerSuccess;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.CustomerSuccess;
 using ArchLucid.Persistence.Tests.Support;
-
-using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 

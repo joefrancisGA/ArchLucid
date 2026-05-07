@@ -1,6 +1,4 @@
-﻿using ArchLucid.Decisioning.Alerts.Delivery;
-
-using ArchLucid.Persistence;
+using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tests.Support;
 
@@ -164,7 +162,7 @@ public sealed class DapperAlertDeliveryAttemptRepositoryContractTests(SqlServerP
         Guid projectId)
     {
         ISqlConnectionFactory connectionFactory =
-            new global::ArchLucid.Persistence.Tests.RlsTenantScopedTestSqlConnectionFactory(
+            new RlsTenantScopedTestSqlConnectionFactory(
                 fixture.ConnectionString,
                 tenantId,
                 workspaceId,

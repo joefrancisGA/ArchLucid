@@ -48,26 +48,32 @@ export function SampleFirstReviewPackageCard() {
         </div>
 
         <div className="shrink-0 space-y-3 lg:min-w-64">
-          <dl className="grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-lg border border-neutral-200 px-2 py-2 dark:border-neutral-800">
-              <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Findings</dt>
-              <dd className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-                {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount}
-              </dd>
-            </div>
-            <div className="rounded-lg border border-neutral-200 px-2 py-2 dark:border-neutral-800">
-              <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Decisions</dt>
-              <dd className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-                {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount}
-              </dd>
-            </div>
-            <div className="rounded-lg border border-neutral-200 px-2 py-2 dark:border-neutral-800">
-              <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Warnings</dt>
-              <dd className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-                {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount}
-              </dd>
-            </div>
-          </dl>
+          {buyerPolished ? (
+            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+              Sample spine includes findings, decisions, and review artifacts — counts are illustrative.
+            </p>
+          ) : (
+            <dl className="grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-lg border border-neutral-200 px-2 py-2 dark:border-neutral-800">
+                <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Findings</dt>
+                <dd className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+                  {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount}
+                </dd>
+              </div>
+              <div className="rounded-lg border border-neutral-200 px-2 py-2 dark:border-neutral-800">
+                <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Decisions</dt>
+                <dd className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+                  {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount}
+                </dd>
+              </div>
+              <div className="rounded-lg border border-neutral-200 px-2 py-2 dark:border-neutral-800">
+                <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Warnings</dt>
+                <dd className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+                  {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount}
+                </dd>
+              </div>
+            </dl>
+          )}
 
           <div className="flex flex-wrap gap-2">
             {buyerPolished ? (

@@ -6,7 +6,10 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 
+using ArchLucid.Core.Configuration;
+
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
@@ -18,6 +21,7 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
     IAgentOutputEvaluator structuralEvaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputQualityGate qualityGate,
+    IOptions<AgentOutputQualityGateOptions> gateOptions,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     FindingConfidenceCalculator confidenceCalculator,
     ILogger<FindingsSnapshotEvaluationConfidenceEnricher> logger)
@@ -34,6 +38,9 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
 
     private readonly IAgentOutputQualityGate _qualityGate =
         qualityGate ?? throw new ArgumentNullException(nameof(qualityGate));
+
+    private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions =
+        gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
 
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
@@ -67,8 +74,9 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
                 AgentExecutionTrace? trace = ResolveTraceForFinding(finding, traces, traceByAgentType);
 
                 bool schemaPassed = trace is not null &&
-                                    AgentOutputFindingConfidenceSignals.ComputeQualityGateAccepted(
+                                    AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidence(
                                         trace,
+                                        _gateOptions.Value,
                                         _structuralEvaluator,
                                         _semanticEvaluator,
                                         _qualityGate);

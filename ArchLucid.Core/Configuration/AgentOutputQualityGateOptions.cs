@@ -9,6 +9,57 @@ public sealed class AgentOutputQualityGateOptions
 {
     public const string SectionPath = "ArchLucid:AgentOutput:QualityGate";
 
+    /// <summary>
+    ///     Operational posture for citation/evidence handling and PilotStrict sponsor-facing gates.
+    ///     Defaults to <see cref="AgentOutputQualityGateMode.WarnOnly"/>.
+    /// </summary>
+    public AgentOutputQualityGateMode Mode
+    {
+        get;
+        set;
+    } = AgentOutputQualityGateMode.WarnOnly;
+
+    /// <summary>
+    ///     When <see cref="Mode"/> is <see cref="AgentOutputQualityGateMode.PilotStrict"/>, structural completeness ratios
+    ///     strictly below this yield reject outcomes (after base gate evaluation). Ignored in warn-only mode.
+    /// </summary>
+    public double PilotStrictMinStructuralCompleteness
+    {
+        get;
+        set;
+    } = 0.45;
+
+    /// <summary>
+    ///     When <see cref="Mode"/> is <see cref="AgentOutputQualityGateMode.PilotStrict"/>, semantic scores strictly below
+    ///     this yield reject outcomes. Ignored in warn-only mode.
+    /// </summary>
+    public double PilotStrictMinSemanticScore
+    {
+        get;
+        set;
+    } = 0.25;
+
+    /// <summary>
+    ///     When non-zero and mode is <see cref="AgentOutputQualityGateMode.PilotStrict"/>, the top-level JSON
+    ///     <c>evidenceRefs</c> array length must meet this minimum or the trace is rejected.
+    /// </summary>
+    public int PilotStrictMinEvidenceRefCount
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Optional aggregate explanation faithfulness floor for sponsor proof when mode is PilotStrict.
+    ///     When set, values strictly below this on <see cref="Explanation.RunExplanationSummary.FaithfulnessSupportRatio"/>
+    ///     block sponsor-sendable classification (trace evaluation already ran).
+    /// </summary>
+    public double? PilotStrictMinFaithfulnessSupportRatio
+    {
+        get;
+        set;
+    }
+
     /// <summary>When false, the gate always accepts and emits no gate metrics.</summary>
     public bool Enabled
     {

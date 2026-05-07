@@ -93,7 +93,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { cn } from "@/lib/utils";
-import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoGovernanceApprovalRequests,
@@ -155,6 +155,7 @@ function GovernanceWorkflowPageInner() {
   const isStaticDemoFallbackActiveForShowcase =
     isStaticDemoPayloadFallbackEnabled() ||
     tryStaticDemoGovernanceApprovalRequests(SHOWCASE_STATIC_DEMO_RUN_ID) !== null;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const [submitRunId, setSubmitRunId] = useState("");
   const [submitManifestVersion, setSubmitManifestVersion] = useState("");
@@ -744,7 +745,7 @@ function GovernanceWorkflowPageInner() {
                 ) : null}
               </div>
             </div>
-            {canMutateWorkflow ? (
+            {canMutateWorkflow && !buyerPolishedShell ? (
               <div className="grid gap-2">
                 <Label htmlFor="gov-workflow-actor">Your name for the audit trail (promote and activate)</Label>
                 <Input
@@ -927,28 +928,30 @@ function GovernanceWorkflowPageInner() {
                   </>
                 ) : null}
                 {row.status === "Approved" ? (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={canMutateWorkflow ? "default" : "outline"}
-                    className={
-                      canMutateWorkflow
-                        ? "bg-violet-600 text-white hover:bg-violet-600/90 dark:bg-violet-600 dark:hover:bg-violet-600/90"
-                        : undefined
-                    }
-                    disabled={pendingPromote !== null || !canMutateWorkflow}
-                    title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                    onClick={() => {
-                      pendingPromoteRequestRef.current = row;
-                      setPendingPromote({
-                        manifestId: row.manifestVersion,
-                        targetEnv: row.targetEnvironment,
-                      });
-                      setPendingReview(null);
-                    }}
-                  >
-                    {canMutateWorkflow ? "Promote" : governanceWorkflowPromoteButtonLabelReaderRank}
-                  </Button>
+                  buyerPolishedShell ? null : (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={canMutateWorkflow ? "default" : "outline"}
+                      className={
+                        canMutateWorkflow
+                          ? "bg-violet-600 text-white hover:bg-violet-600/90 dark:bg-violet-600 dark:hover:bg-violet-600/90"
+                          : undefined
+                      }
+                      disabled={pendingPromote !== null || !canMutateWorkflow}
+                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                      onClick={() => {
+                        pendingPromoteRequestRef.current = row;
+                        setPendingPromote({
+                          manifestId: row.manifestVersion,
+                          targetEnv: row.targetEnvironment,
+                        });
+                        setPendingReview(null);
+                      }}
+                    >
+                      {canMutateWorkflow ? "Promote" : governanceWorkflowPromoteButtonLabelReaderRank}
+                    </Button>
+                  )
                 ) : null}
               </CardFooter>
             </Card>
@@ -957,142 +960,146 @@ function GovernanceWorkflowPageInner() {
       </section>
       </div>
 
-      <Separator className="mb-10" />
+      {buyerPolishedShell ? null : (
+        <>
+          <Separator className="mb-10" />
 
-      <AdvancedOptionsAccordion className="mb-10">
-        <section className="mb-0">
-          <h3 className="mb-4 text-lg font-semibold">
-            {canMutateWorkflow
-              ? governanceWorkflowPromotionsActivationsHeadingOperator
-              : governanceWorkflowPromotionsActivationsHeadingReader}
-          </h3>
-        <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          {canMutateWorkflow
-            ? governanceWorkflowPromotionsActivationsSectionLeadOperator
-            : governanceWorkflowPromotionsActivationsSectionLeadReader}
-        </p>
-        <p className="mb-4 text-xs text-neutral-500 dark:text-neutral-500">
-          Selected review timeline · promotions newest first; activations follow.
-          {activeRunId ? <span className="sr-only"> Technical review id {activeRunId}</span> : null}
-        </p>
-
-        {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
-          <OperatorEmptyState title="No promotions recorded yet">
-            <div className="grid gap-3">
-              <p className="text-sm">
+          <AdvancedOptionsAccordion className="mb-10">
+            <section className="mb-0">
+              <h3 className="mb-4 text-lg font-semibold">
                 {canMutateWorkflow
-                  ? governanceWorkflowPromotionsEmptyOperatorHint
-                  : governanceWorkflowPromotionsEmptyReaderHint}
-              </p>
-              <GettingStartedSteps
-                {...(canMutateWorkflow
-                  ? governancePromotionsEmptyGettingStartedOperator
-                  : governancePromotionsEmptyGettingStartedReader)}
-              />
-            </div>
-          </OperatorEmptyState>
-        ) : null}
-
-        <div className="mb-8 grid gap-3">
-          {promotions.map((p) => (
-            <Card key={p.promotionRecordId} className="border-l-4 border-l-violet-500">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">Promotion · {formatGovernanceBusinessInstant(p.promotedUtc)}</CardTitle>
-                <p className="sr-only">Promotion record id {p.promotionRecordId}</p>
-              </CardHeader>
-              <CardContent className="grid gap-1 text-sm">
-                <div>
-                  {p.sourceEnvironment} → <strong>{p.targetEnvironment}</strong> · manifest{" "}
-                  <code className="text-xs">{p.manifestVersion}</code>
-                </div>
-                <div>By {p.promotedBy}</div>
-                {p.notes ? <div>Notes: {p.notes}</div> : null}
-              </CardContent>
-              <CardFooter>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="inline-block">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        disabled={
-                          pendingActivate !== null ||
-                          activateBusyId === p.promotionRecordId ||
-                          !workflowActor.trim() ||
-                          !canMutateWorkflow
-                        }
-                        title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                        onClick={() => {
-                          pendingActivatePromotionRef.current = p;
-                          setPendingActivate({
-                            activationId: p.promotionRecordId,
-                            env: p.targetEnvironment,
-                          });
-                        }}
-                      >
-                        {activateBusyId === p.promotionRecordId
-                          ? "Activating…"
-                          : canMutateWorkflow
-                            ? "Activate"
-                            : governanceWorkflowActivateButtonLabelReaderRank}
-                      </Button>
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs">
-                    {!canMutateWorkflow
-                      ? enterpriseMutationControlDisabledTitle
-                      : !workflowActor.trim()
-                        ? "Enter your name for the audit trail to enable activation."
-                        : "POST activation for this manifest on the promotion’s target environment."}
-                  </TooltipContent>
-                </Tooltip>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-
-        <h4 className="mb-3 text-base font-semibold">
-          {canMutateWorkflow
-            ? governanceWorkflowActivationsSubheadingOperator
-            : governanceWorkflowActivationsSubheadingReader}
-        </h4>
-
-        {!listsLoading && activeRunId !== null && activations.length === 0 && listFailure === null ? (
-          <OperatorEmptyState title="No activations recorded yet">
-            <div className="grid gap-3">
-              <p className="text-sm">
+                  ? governanceWorkflowPromotionsActivationsHeadingOperator
+                  : governanceWorkflowPromotionsActivationsHeadingReader}
+              </h3>
+              <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
                 {canMutateWorkflow
-                  ? governanceWorkflowActivationsEmptyOperatorHint
-                  : governanceWorkflowActivationsEmptyReaderHint}
+                  ? governanceWorkflowPromotionsActivationsSectionLeadOperator
+                  : governanceWorkflowPromotionsActivationsSectionLeadReader}
               </p>
-              <GettingStartedSteps
-                {...(canMutateWorkflow
-                  ? governanceActivationsEmptyGettingStartedOperator
-                  : governanceActivationsEmptyGettingStartedReader)}
-              />
-            </div>
-          </OperatorEmptyState>
-        ) : null}
+              <p className="mb-4 text-xs text-neutral-500 dark:text-neutral-500">
+                Selected review timeline · promotions newest first; activations follow.
+                {activeRunId ? <span className="sr-only"> Technical review id {activeRunId}</span> : null}
+              </p>
 
-        <div className="grid gap-3">
-          {activations.map((a) => (
-            <Card key={a.activationId} className="border-l-4 border-l-teal-500">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">Activation · {formatGovernanceBusinessInstant(a.activatedUtc)}</CardTitle>
-                <p className="sr-only">Activation id {a.activationId}</p>
-              </CardHeader>
-              <CardContent className="grid gap-1 text-sm">
-                <div>
-                  Environment <strong>{a.environment}</strong> · manifest <code className="text-xs">{a.manifestVersion}</code>
-                </div>
-                <div>Active: {a.isActive ? "yes" : "no"}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        </section>
-      </AdvancedOptionsAccordion>
+              {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
+                <OperatorEmptyState title="No promotions recorded yet">
+                  <div className="grid gap-3">
+                    <p className="text-sm">
+                      {canMutateWorkflow
+                        ? governanceWorkflowPromotionsEmptyOperatorHint
+                        : governanceWorkflowPromotionsEmptyReaderHint}
+                    </p>
+                    <GettingStartedSteps
+                      {...(canMutateWorkflow
+                        ? governancePromotionsEmptyGettingStartedOperator
+                        : governancePromotionsEmptyGettingStartedReader)}
+                    />
+                  </div>
+                </OperatorEmptyState>
+              ) : null}
+
+              <div className="mb-8 grid gap-3">
+                {promotions.map((p) => (
+                  <Card key={p.promotionRecordId} className="border-l-4 border-l-violet-500">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Promotion · {formatGovernanceBusinessInstant(p.promotedUtc)}</CardTitle>
+                      <p className="sr-only">Promotion record id {p.promotionRecordId}</p>
+                    </CardHeader>
+                    <CardContent className="grid gap-1 text-sm">
+                      <div>
+                        {p.sourceEnvironment} → <strong>{p.targetEnvironment}</strong> · manifest{" "}
+                        <code className="text-xs">{p.manifestVersion}</code>
+                      </div>
+                      <div>By {p.promotedBy}</div>
+                      {p.notes ? <div>Notes: {p.notes}</div> : null}
+                    </CardContent>
+                    <CardFooter>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-block">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              disabled={
+                                pendingActivate !== null ||
+                                activateBusyId === p.promotionRecordId ||
+                                !workflowActor.trim() ||
+                                !canMutateWorkflow
+                              }
+                              title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                              onClick={() => {
+                                pendingActivatePromotionRef.current = p;
+                                setPendingActivate({
+                                  activationId: p.promotionRecordId,
+                                  env: p.targetEnvironment,
+                                });
+                              }}
+                            >
+                              {activateBusyId === p.promotionRecordId
+                                ? "Activating…"
+                                : canMutateWorkflow
+                                  ? "Activate"
+                                  : governanceWorkflowActivateButtonLabelReaderRank}
+                            </Button>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          {!canMutateWorkflow
+                            ? enterpriseMutationControlDisabledTitle
+                            : !workflowActor.trim()
+                              ? "Enter your name for the audit trail to enable activation."
+                              : "POST activation for this manifest on the promotion’s target environment."}
+                        </TooltipContent>
+                      </Tooltip>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+
+              <h4 className="mb-3 text-base font-semibold">
+                {canMutateWorkflow
+                  ? governanceWorkflowActivationsSubheadingOperator
+                  : governanceWorkflowActivationsSubheadingReader}
+              </h4>
+
+              {!listsLoading && activeRunId !== null && activations.length === 0 && listFailure === null ? (
+                <OperatorEmptyState title="No activations recorded yet">
+                  <div className="grid gap-3">
+                    <p className="text-sm">
+                      {canMutateWorkflow
+                        ? governanceWorkflowActivationsEmptyOperatorHint
+                        : governanceWorkflowActivationsEmptyReaderHint}
+                    </p>
+                    <GettingStartedSteps
+                      {...(canMutateWorkflow
+                        ? governanceActivationsEmptyGettingStartedOperator
+                        : governanceActivationsEmptyGettingStartedReader)}
+                    />
+                  </div>
+                </OperatorEmptyState>
+              ) : null}
+
+              <div className="grid gap-3">
+                {activations.map((a) => (
+                  <Card key={a.activationId} className="border-l-4 border-l-teal-500">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Activation · {formatGovernanceBusinessInstant(a.activatedUtc)}</CardTitle>
+                      <p className="sr-only">Activation id {a.activationId}</p>
+                    </CardHeader>
+                    <CardContent className="grid gap-1 text-sm">
+                      <div>
+                        Environment <strong>{a.environment}</strong> · manifest <code className="text-xs">{a.manifestVersion}</code>
+                      </div>
+                      <div>Active: {a.isActive ? "yes" : "no"}</div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          </AdvancedOptionsAccordion>
+        </>
+      )}
 
       <ConfirmationDialog
         open={pendingPromote !== null}

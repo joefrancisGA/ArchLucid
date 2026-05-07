@@ -1,5 +1,3 @@
-using ArchLucid.Contracts.Common;
-
 namespace ArchLucid.Cli.Commands;
 
 internal sealed record RunSupportPacketPayload(

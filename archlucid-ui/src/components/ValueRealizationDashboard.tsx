@@ -91,9 +91,9 @@ export function ValueRealizationDashboard() {
     return null;
   }
 
-  const impliedUsd = safeHours > 0 && Number.isFinite(hourlyUsd) ? safeHours * hourlyUsd : 0;
+  const impliedUsd = safeHours > 0 && Number.isFinite(hourlyUsd) && !Number.isNaN(hourlyUsd) ? safeHours * hourlyUsd : 0;
   const showMeasuredRoiBlock =
-    safeHours > 0 && Number.isFinite(impliedUsd) && impliedUsd >= 1;
+    safeHours > 0 && Number.isFinite(impliedUsd) && !Number.isNaN(impliedUsd) && impliedUsd >= 1;
 
   return (
     <Card className="mb-6">

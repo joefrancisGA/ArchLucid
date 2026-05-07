@@ -8,19 +8,13 @@ public sealed class AzureTerraformExportCommandTests
 {
 
     [Fact]
-
     public async Task RunAsync_missing_arguments_returns_usage()
-
     {
-
-        int code = await AzureTerraformExportCommand.RunAsync(Array.Empty<string>());
-
+        int code = await AzureTerraformExportCommand.RunAsync([]);
         code.Should().Be(CliExitCode.UsageError);
-
     }
 
     [Fact]
-
     public async Task RunAsync_extra_token_returns_usage()
 
     {

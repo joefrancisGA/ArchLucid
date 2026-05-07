@@ -50,6 +50,8 @@ public static class PilotProofPackageCompletenessMapper
             BuyerSafeRedactionProfile = ResolveBuyerSafeRedactionProfile(deltas.IsDemoTenant),
             PublishingTier = gate.PublishingTier.ToString(),
             ProofSendability = gate.ProofSendability.ToString(),
+            AgentOutputPilotStrictEvidenceSatisfied = !(deltas.AgentOutputPilotStrictSignalsResolved &&
+                                                        deltas.AgentOutputPilotStrictViolatesSponsorEvidence),
         };
     }
 
