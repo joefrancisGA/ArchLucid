@@ -31,7 +31,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   const decisionLinesPreview = decisionLinesAll.slice(0, 3);
   const decisionRestCount = Math.max(0, decisionLinesAll.length - decisionLinesPreview.length);
   const warningLines = isCuratedDemo ? [...SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES] : [];
-  const detailOpenDefault = !(buyerPolishedLayout ?? false);
+  const detailOpenDefault = !(buyerPolishedLayout ?? false) || isCuratedDemo;
 
   const operatorSummary =
     summary.operatorSummary ? (

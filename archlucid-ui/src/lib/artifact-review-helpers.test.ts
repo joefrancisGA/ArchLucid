@@ -6,6 +6,7 @@ import {
   getArtifactTypeDescription,
   getArtifactTypeLabel,
   prepareArtifactBodyText,
+  sponsorArtifactSecondaryCaption,
 } from "./artifact-review-helpers";
 
 describe("classifyArtifactView", () => {
@@ -57,6 +58,27 @@ describe("getArtifactTypeLabel", () => {
 describe("getArtifactTypeDescription", () => {
   it("returns non-empty for known type", () => {
     expect(getArtifactTypeDescription("Inventory").length).toBeGreaterThan(20);
+  });
+});
+
+describe("sponsorArtifactSecondaryCaption", () => {
+  it("returns null when the filename stem extends the business label", () => {
+    expect(
+      sponsorArtifactSecondaryCaption(
+        "Sponsor briefing — Claims Intake Modernization.md",
+        "Sponsor briefing",
+      ),
+    ).toBeNull();
+  });
+
+  it("returns null when stem equals label case-insensitively", () => {
+    expect(sponsorArtifactSecondaryCaption("Sponsor briefing.pdf", "Sponsor briefing")).toBeNull();
+  });
+
+  it("returns stem when it adds distinct context", () => {
+    expect(sponsorArtifactSecondaryCaption("Intake modernization context diagram.mmd", "Intake context diagram")).toBe(
+      "Intake modernization context diagram",
+    );
   });
 });
 

@@ -174,53 +174,101 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         <Button variant="primary" size="sm" className="w-full" asChild>
           <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
         </Button>
-        {buyerPolished && (showcaseStory || run.hasGraphSnapshot === true) ? (
-          <Button variant="outline" size="sm" className="w-full" asChild>
-            <Link href="/graph">View evidence graph</Link>
-          </Button>
-        ) : null}
-        {buyerSafePrimary ? (
-          <div className="flex flex-col gap-2">
-            <Button variant="outline" size="sm" className="w-full" asChild>
-              <Link href={showcaseWalkthroughHref}>{buyerPolished ? "Guided preview" : "Public walkthrough"}</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="w-full" asChild>
-              <Link href={workspaceHref}>{buyerPolished ? "Full review detail" : "Technical workspace detail"}</Link>
-            </Button>
-          </div>
-        ) : null}
-      </div>
 
-      {/* Quick links — hidden for buyer-safe showcase spine (review package is the primary control). */}
-      {!(buyerSafePrimary && showcaseStory) ? (
-      <div>
-        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Quick links
-        </p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {!buyerSafePrimary ? (
-            <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>
-                {buyerPolished ? "Open manifest" : "Manifest"}
-              </Link>
-            </Button>
-          ) : null}
-          {hasFindingsLink ? (
-            <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={findingsQuickHref}>{showcaseStory ? "Findings (walkthrough)" : "Findings"}</Link>
-            </Button>
-          ) : null}
-          {hasArtifactsLink ? (
-            <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={artifactsQuickHref}>{buyerPolished ? "Deliverables" : "Artifacts"}</Link>
-            </Button>
-          ) : null}
-          <Button variant="outline" size="sm" className="h-8" asChild>
-            <Link href={timelineQuickHref}>{showcaseStory ? "Timeline (walkthrough)" : "Timeline"}</Link>
-          </Button>
-        </div>
+        {buyerPolished ? (
+          <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
+            <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              More ways to explore
+            </summary>
+            <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
+              {showcaseStory || run.hasGraphSnapshot === true ? (
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <Link href="/graph">Review trail graph</Link>
+                </Button>
+              ) : null}
+
+              {buyerSafePrimary ? (
+                <>
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link href={showcaseWalkthroughHref}>Guided preview</Link>
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link href={workspaceHref}>Full review detail</Link>
+                  </Button>
+                </>
+              ) : null}
+
+              {!(buyerSafePrimary && showcaseStory) ? (
+                <>
+                  {!buyerSafePrimary ? (
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Open manifest</Link>
+                    </Button>
+                  ) : null}
+                  {hasFindingsLink ? (
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={findingsQuickHref}>{showcaseStory ? "Findings (walkthrough)" : "Findings"}</Link>
+                    </Button>
+                  ) : null}
+                  {hasArtifactsLink ? (
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={artifactsQuickHref}>Deliverables</Link>
+                    </Button>
+                  ) : null}
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link href={timelineQuickHref}>{showcaseStory ? "Timeline (walkthrough)" : "Timeline"}</Link>
+                  </Button>
+                </>
+              ) : null}
+            </div>
+          </details>
+        ) : (
+          <>
+            {showcaseStory || run.hasGraphSnapshot === true ? (
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <Link href="/graph">View evidence graph</Link>
+              </Button>
+            ) : null}
+            {buyerSafePrimary ? (
+              <div className="flex flex-col gap-2">
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <Link href={showcaseWalkthroughHref}>Public walkthrough</Link>
+                </Button>
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <Link href={workspaceHref}>Technical workspace detail</Link>
+                </Button>
+              </div>
+            ) : null}
+            {!(buyerSafePrimary && showcaseStory) ? (
+              <div>
+                <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  Quick links
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {!buyerSafePrimary ? (
+                    <Button variant="outline" size="sm" className="h-8" asChild>
+                      <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Manifest</Link>
+                    </Button>
+                  ) : null}
+                  {hasFindingsLink ? (
+                    <Button variant="outline" size="sm" className="h-8" asChild>
+                      <Link href={findingsQuickHref}>{showcaseStory ? "Findings (walkthrough)" : "Findings"}</Link>
+                    </Button>
+                  ) : null}
+                  {hasArtifactsLink ? (
+                    <Button variant="outline" size="sm" className="h-8" asChild>
+                      <Link href={artifactsQuickHref}>Artifacts</Link>
+                    </Button>
+                  ) : null}
+                  <Button variant="outline" size="sm" className="h-8" asChild>
+                    <Link href={timelineQuickHref}>{showcaseStory ? "Timeline (walkthrough)" : "Timeline"}</Link>
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
-      ) : null}
 
       {!buyerPolished ? (
         <div>

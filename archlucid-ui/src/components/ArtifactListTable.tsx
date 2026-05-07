@@ -4,7 +4,11 @@ import { ProductLearningFeedbackControls } from "@/components/ProductLearningFee
 import type { ArtifactDescriptor } from "@/types/authority";
 import { getArtifactDownloadUrl } from "@/lib/api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { getArtifactBusinessLabel, getArtifactFormatLabel } from "@/lib/artifact-review-helpers";
+import {
+  getArtifactBusinessLabel,
+  getArtifactFormatLabel,
+  sponsorArtifactSecondaryCaption,
+} from "@/lib/artifact-review-helpers";
 
 /** Formats an ISO 8601 date string for display, falling back to the raw string on failure. */
 function formatDate(iso: string): string {
@@ -68,6 +72,9 @@ export function ArtifactListTable(props: {
         <tbody>
           {sorted.map((artifact) => {
             const reviewHref = reviewHrefForArtifact(manifestId, artifact.artifactId, runId);
+            const businessLabel = getArtifactBusinessLabel(artifact.artifactType);
+            const sponsorCaption =
+              sponsorMode === true ? sponsorArtifactSecondaryCaption(artifact.name, businessLabel) : null;
 
             const isCurrent =
               currentArtifactId !== undefined && currentArtifactId === artifact.artifactId;
@@ -79,10 +86,12 @@ export function ArtifactListTable(props: {
                 title={sponsorMode ? undefined : `Content hash: ${artifact.contentHash}`}
               >
                 <td className="max-w-[280px] px-2 py-2.5">
-                  <strong className="font-semibold">{getArtifactBusinessLabel(artifact.artifactType)}</strong>
+                  <strong className="font-semibold">{businessLabel}</strong>
                   {sponsorMode ? (
                     <>
-                      <p className="m-0 mt-1 text-[11px] text-neutral-600 dark:text-neutral-400">{artifact.name}</p>
+                      {sponsorCaption !== null ? (
+                        <p className="m-0 mt-1 text-[11px] text-neutral-600 dark:text-neutral-400">{sponsorCaption}</p>
+                      ) : null}
                       <details className="mt-2 rounded-md border border-neutral-200 bg-neutral-50/80 px-2 py-1.5 dark:border-neutral-700 dark:bg-neutral-900/40">
                         <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-700 dark:text-neutral-300">
                           Technical details

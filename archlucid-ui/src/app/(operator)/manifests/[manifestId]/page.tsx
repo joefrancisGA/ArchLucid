@@ -25,6 +25,7 @@ import {
   coerceArtifactDescriptorList,
   coerceManifestSummary,
 } from "@/lib/operator-response-guards";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
 import { isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 import {
@@ -39,13 +40,11 @@ import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
 
 function manifestScenarioSubtitle(m: ManifestSummary): string | null {
   if (m.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
-    return "Claims Intake Modernization";
+    return "Claims Intake Modernization Review";
   }
 
-  const runId = m.runId?.trim() ?? "";
-
-  if (runId === "claims-intake-modernization") {
-    return "Claims Intake Modernization";
+  if (canonicalizeDemoRunId(m.runId?.trim() ?? "") === SHOWCASE_STATIC_DEMO_RUN_ID) {
+    return "Claims Intake Modernization Review";
   }
 
   return null;
@@ -222,13 +221,36 @@ export default async function ManifestDetailPage({
   }
 
   const manifestSubtitle = manifestScenarioSubtitle(summary);
-
   const manifestFooterExecution = await tryLoadRunExecutionFootnote(summary.runId.trim());
 
-  const primaryFindingHref =
-    summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID || summary.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID
-      ? `/reviews/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
-      : null;
+  const showcasePackage =
+    summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID ||
+    canonicalizeDemoRunId(summary.runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID;
+
+  const primaryFindingHref = showcasePackage
+    ? `/reviews/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
+    : null;
+
+  const overviewSummaryCard = (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base font-semibold">{buyerPolishedLayout ? "Overview" : "Summary"}</CardTitle>
+        <CardDescription>
+          {buyerPolishedLayout
+            ? "Status, policy posture, and what is included in this package."
+            : "Status, rules, and counts for this manifest."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <ManifestDetailSummaryPanel summary={summary} buyerPolishedLayout={buyerPolishedLayout} />
+      </CardContent>
+    </Card>
+  );
+
+  const decisionsLeadCard =
+    !buyerPolishedLayout || !showcasePackage ? (
+      <ManifestTopDecisionsCard summary={summary} buyerPolishedLayout={buyerPolishedLayout} />
+    ) : null;
 
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
@@ -244,7 +266,7 @@ export default async function ManifestDetailPage({
         <Link className="text-teal-800 underline dark:text-teal-300" href={`/reviews/${summary.runId}`}>
           Open review
         </Link>
-        {summary.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID ? (
+        {showcasePackage ? (
           <>
             {" · "}
             <Link
@@ -293,21 +315,17 @@ export default async function ManifestDetailPage({
         )}
       </p>
 
-      <ManifestTopDecisionsCard summary={summary} buyerPolishedLayout={buyerPolishedLayout} />
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-semibold">{buyerPolishedLayout ? "Overview" : "Summary"}</CardTitle>
-          <CardDescription>
-            {buyerPolishedLayout
-              ? "Status, policy posture, and what is included in this package."
-              : "Status, rules, and counts for this manifest."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <ManifestDetailSummaryPanel summary={summary} buyerPolishedLayout={buyerPolishedLayout} />
-        </CardContent>
-      </Card>
+      {buyerPolishedLayout ? (
+        <>
+          {overviewSummaryCard}
+          {decisionsLeadCard}
+        </>
+      ) : (
+        <>
+          {decisionsLeadCard}
+          {overviewSummaryCard}
+        </>
+      )}
 
       {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? (
         <Card>
