@@ -13,15 +13,17 @@ import { cn } from "@/lib/utils";
  * GET /v1/tenant/customer-success/next-actions.
  */
 export function OperatorNextActionsCard() {
-  if (isBuyerPolishedOperatorShellEnv()) {
-    return null;
-  }
+  const hideForPolishedBuyerShell = isBuyerPolishedOperatorShellEnv();
 
   const demoUi = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
   const [items, setItems] = useState<OperatorNextBestActionDto[] | null>(null);
   const [phase, setPhase] = useState<"idle" | "loading" | "ready" | "error">("idle");
 
   useEffect(() => {
+    if (hideForPolishedBuyerShell) {
+      return;
+    }
+
     let cancelled = false;
 
     void (async () => {
@@ -44,7 +46,11 @@ export function OperatorNextActionsCard() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [hideForPolishedBuyerShell]);
+
+  if (hideForPolishedBuyerShell) {
+    return null;
+  }
 
   if (phase === "error") {
     return (

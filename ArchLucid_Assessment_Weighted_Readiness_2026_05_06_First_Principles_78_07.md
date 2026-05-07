@@ -720,7 +720,7 @@ Constraints:
 - Do not hardcode secrets or local connection strings.
 ```
 
-### 4. Connector Conformance Test Harness
+### COMPLETED 4. Connector Conformance Test Harness
 
 - **Why it matters:** Workflow embeddedness depends on integrations behaving consistently under tenant, audit, retry, and secret constraints.
 - **Expected impact:** Stronger enterprise adoption and fewer integration regressions.
@@ -810,13 +810,16 @@ Constraints:
 - Do not introduce a heavy SQL parser dependency unless already present.
 ```
 
-### 6. Real-Mode Agent Output Quality Profile
+### 6. Real-Mode Agent Output Quality Profile — COMPLETED 2026-05-06
 
 - **Why it matters:** The product's trust depends on AI output quality under real execution, not just simulator determinism.
 - **Expected impact:** Better correctness, explainability, and buyer trust in generated recommendations.
 - **Affected qualities:** Correctness, AI/Agent Readiness, Explainability, Trustworthiness, Observability.
-- **Actionability:** Fully actionable now.
+- **Actionability:** Fully actionable now (task completed 2026-05-06).
 - **Impact of running the prompt:** Directly improves Correctness (+3-5 pts), AI/Agent Readiness (+5-7 pts), Explainability (+3-4 pts), Trustworthiness (+2-4 pts). Weighted readiness impact: +0.5-0.8%.
+- **Status:** Completed 2026-05-06.
+- **Completion evidence:** **`ArchLucid:AgentOutput:QualityGate:Mode`** = **`WarnOnly`** (default) | **`PilotStrict`** via **`AgentOutputQualityGateOptions`** / **`ConfigurationKeyCatalog`**; evaluation path in **`AgentOutputEvaluationRecorder`** / **`AgentOutputTraceQualityEvaluator`**; **`PilotRunDeltaComputer`** exposes **`AgentOutputPilotStrict*`** signals; **`PilotBuyerSafeEvidenceGateEvaluator`** treats **`PilotStrict`** trace violations as hard gaps for sponsor-send; first-value / pilot completeness surfaces posture in reports (see **`FirstValueReportBuilderTests`**, **`PilotProofPackageCompletenessMapperTests`**). Unit coverage in **`ArchLucid.AgentRuntime.Tests/Evaluation/*`**, **`PilotRunDeltaComputerTests`**, **`PilotBuyerSafeEvidenceGateEvaluatorTests`**.
+- **Verification:** Run **`dotnet test`** on **`ArchLucid.AgentRuntime.Tests`** and **`ArchLucid.Application.Tests`** (or solution-wide) on a green branch; PilotStrict / quality-gate coverage lives under **`Evaluation/`** and **`Pilots/`** test folders.
 
 **Cursor prompt:**
 
@@ -1058,6 +1061,11 @@ Constraints:
 
 - Sponsor-send blocking vs caveats is encoded in `PilotBuyerSafeEvidenceGateEvaluator` (demo/hard gaps → not sendable; soft gaps → sendable with caveats) and mirrored in `ProofPackageCompletenessResponse` for `GET …/pilot-run-deltas` and the first-value report contract table.
 - ROI narrative confidence is tiered **Strong / Partial / Low** (`PilotRoiEvidenceConfidence`) with explicit Markdown copy and sponsor-banner caveats for Partial/Low; dollar claims remain conservative and baseline-attested per existing value-report behavior.
+
+### DONE Real-Mode Agent Output Quality Profile (2026-05-06)
+
+- **WarnOnly** vs **PilotStrict** is configured under **`ArchLucid:AgentOutput:QualityGate`**; PilotStrict tightens structural/semantic/evidence/faithfulness floors and feeds **`PilotRunDeltaComputer`** / sponsor gates so low-quality agent output does not silently read as sendable proof when strict mode is on.
+- See **`AgentOutputQualityGateOptions.cs`**, **`AgentOutputEvaluationRecorder`**, and Application pilot delta / first-value tests for behavior and regressions.
 
 ### DONE Live UI-SQL Parity Smoke Profile (2026-05-06)
 
