@@ -220,7 +220,7 @@ export function WelcomeBanner() {
     returningUser
       ? "Your review workspace"
       : buyerPolishedShell
-        ? "Create a governed architecture review package"
+        ? "Walk through one governed Claims Intake review package"
         : "Review an existing architecture—with evidence-backed outcomes.";
   const subheadingText = returningUser ? (
     <>
@@ -229,8 +229,8 @@ export function WelcomeBanner() {
     </>
   ) : buyerPolishedShell ? (
     <>
-      Walk through one structured review to produce a governed manifest, evidence trail, and actionable{" "}
-      <GlossaryTooltip termKey="findings">findings</GlossaryTooltip> your team can approve.
+      Explore the storyline end-to-end: manifest, audit trail, and prioritized{" "}
+      <GlossaryTooltip termKey="findings">findings</GlossaryTooltip> aligned to this sample intake scope.
     </>
   ) : (
     <>
