@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:147 -->
+<!-- audit-core-const-count:168 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -84,15 +84,20 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Governance policy-pack dry-run (what-if) | `PolicyPackDryRunService` (`POST /v1/governance/policy-packs/{id}/dry-run`) | `GovernanceDryRunRequested` | Tenant/Workspace/Project from ambient scope | `{ policyPackId, proposedThresholdsRedacted (string — proposedThresholds JSON after `LlmPromptRedaction`), evaluatedRunIds[], deltaCounts: { evaluated, wouldBlock, wouldAllow, runMissing } }` — payload **must** flow through the redaction pipeline (PENDING_QUESTIONS Q37); read-auth gated, no real commit. |
 | Pre-commit synthetic simulation (what-if) | `GovernancePreCommitSimulationController` (`POST /v1/governance/pre-commit/simulate`) | `GovernancePreCommitSimulationEvaluated` | RunId when parseable | `runId`, synthetic parameters, gate outcome summary (`blocked`, `warnOnly`, counts, sample blocking finding ids — no manifest commit) |
 | Outbound webhook URL probe (no persistence) | `OutboundWebhookDryRunController` (`POST /v1/webhooks/dry-run`) | `OutboundWebhookDryRunProbeExecuted` | — | Target authority/path and scheme only (no query string), `hasSharedSecret` flag, transport/status — **no** shared secret or response body in payload |
+| Alert-routing webhook subscription connectivity test | `WebhookConnectionsController` (`POST /v1/integrations/webhooks/{routingSubscriptionId}/test`) | `AlertRoutingWebhookPingExecuted` | — | Subscription id, transport outcome, HTTP status code — **no** destination URL or response body in payload |
 | Pre-commit governance warn | `ArchitectureRunCommitOrchestrator` | `GovernancePreCommitWarned` | RunId when parseable | `reason`, `warnings`, `blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity` |
 | Recommendation learning rebuild | `RecommendationLearningController` | `RecommendationLearningProfileRebuilt` | — | profile id |
+| Product learning pilot signal captured | `ProductLearningController` (`POST /v1/product-learning/signals`) | `ProductLearningPilotSignalRecorded` | Tenant/Workspace/Project from ambient scope | `{ subjectType, disposition, patternKey? }` — `ArtifactHint`, `CommentShort`, and `DetailJson` are **not** included to avoid logging free-form user text |
 | Artifact / bundle / run export download | `ArtifactExportController` | `ArtifactDownloaded`, `BundleDownloaded`, `RunExported` | RunId (+ artifact when applicable) | format, byte counts, etc. |
 | Architecture analysis report (primary JSON build) | `AnalysisReportsController` | `ArchitectureAnalysisReportGenerated` | RunId when parseable | section flags, `manifestVersion`, `warningCount` |
-| Architecture package DOCX download | `DocxExportController` | `ArchitectureDocxExportGenerated` | RunId, ManifestId | `runId`, `compareWithRunId`, `byteCount` |
+| Architecture DOCX exports (package download; consulting analysis metadata row; async DOCX jobs) | `DocxExportController`; `RunExportAuditService` (sync consulting path; not export-replay persist); `BackgroundJobWorkUnitExecutor` | `ArchitectureDocxExportGenerated` | RunId, ManifestId when known | `runId`, `compareWithRunId` / `exportRecordId` / `exportChannel`, `byteCount` |
 | Architecture request file import (TOML/JSON draft) | `ImportRequestFileService` (`POST …/architecture/request/import`, `ImportRequestFileController`) | `RequestFileImported` | Tenant/Workspace/Project from ambient scope | `importId`, `requestId`, `format`, `sourceFileName` (JSON payload); correlation id when HTTP trace present |
+| Azure extractor ZIP ingest | `AzureExtractorIngestService` (`POST …/azure-extractor/upload`, `AzureExtractorUploadController`) | `AzureExtractorPackageUploaded`, `AzureExtractorPackageParseFailed`, `AzureExtractorPackageSchemaRejected`, `AzureExtractorPackageIngestSucceeded` | Tenant/Workspace/Project; optional `RunId` on success event | `originalFileName`, `sizeBytes` on upload; `reason` on failures; `packageId` plus citation summary on success |
 | Tenant value report DOCX (sync or async completion) | `ValueReportController` | `ValueReportGenerated` | Tenant/Workspace/Project from ambient scope | `tenantId`, `from`, `to`, `byteCount`, `asyncJob` (JSON); async jobs also include `jobId` |
 | Replay export persisted as new row | `ExportsController` (replay POST + metadata POST when `RecordReplayExport`) | `ReplayExportRecorded` | RunId when parseable | `sourceExportRecordId`, `recordedReplayExportRecordId`, `runId` |
 | Comparison summary persisted (export diff) | `ExportsController` (`POST .../run/exports/compare/summary`, `persist: true`) | `ComparisonSummaryPersisted` | RunId when parseable | `comparisonId`, `sourceExportRecordId`, `leftExportRecordId`, `rightExportRecordId` |
+| End-to-end comparison persisted | `ComparisonAuditService` (`RunComparisonController` `POST .../run/compare/end-to-end/summary`, `persist: true`) | `EndToEndComparisonPersisted` | RunId when left/right parseable | `comparisonRecordId`, `leftRunId`, `rightRunId`, `comparisonType` |
+| Comparison replay persisted (new immutable row) | `ComparisonAuditService` (`ComparisonReplayService` when `PersistReplay`) | `ComparisonReplayPersisted` | RunId when left/right parseable | `comparisonRecordId`, `sourceComparisonRecordId`, `leftRunId`, `rightRunId`, `comparisonType` |
 | Data archival host failure | `DataArchivalHostIteration` | `DataArchivalHostLoopFailed` | — | exception summary |
 | OpenAI circuit breaker | `CircuitBreakerAuditBridge` (wired from `CircuitBreakerGate`) | `CircuitBreakerStateTransition`, `CircuitBreakerRejection`, `CircuitBreakerProbeOutcome` | Tenant/Workspace/Project from ambient scope | `{ gate, fromState, toState, probeOutcome? }` |
 | Security assessment published (trust center / procurement) | `SecurityTrustPublicationController` | `SecurityAssessmentPublished` | Tenant/Workspace/Project from ambient scope | `{ assessmentCode, summaryReference, assessorDisplayName? }` |
@@ -113,12 +118,14 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Public registration API failed (`POST /v1/register` — validation, duplicate org, or internal) | `RegistrationController` | `TrialRegistrationFailed` | Empty tenant scope (or after attempt) | `{ reason, code, message? }` — `reason` is `validation` / `conflict` / `internal` |
 | Trial signup rejected (local identity, email policy, bootstrap; not `POST /v1/register` body path) | `TrialLocalIdentityAuthController`, `TrialTenantBootstrapService` | `TrialSignupFailed` | Tenant scope when known | `{ stage, reason, message? }` |
 | Trial first golden manifest committed (signup → first-run funnel) | `SqlTrialFunnelCommitHook` | `TrialFirstRunCompleted` | Tenant + default workspace/project | `{ signupToCommitSeconds, trialRunUsageRatio }` |
+| Synthetic operator demo-pack markers (dev/demo UI validation) | `SyntheticOperatorDemoPackWriter` (`SyntheticOperatorDemoPackController`) | `SyntheticOperatorDemoPack.Marker` | Tenant/Workspace/Project from ambient scope | `POST /v1/diagnostics/synthetic-operator-demo-pack` (Development host or `Demo:Enabled`, Admin policy); filter durable audit by this event type or `DataJson.syntheticDemoPack=true`. |
 | Authority committed manifest FK chain (demo trusted-baseline seed) | `DemoSeedService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "demo-seed", projectSlug, richFindingsAndGraph, contextSnapshotId, graphSnapshotId, findingsSnapshotId, decisionTraceId, manifestId }` |
 | Authority committed manifest FK chain (replay commit) | `ReplayRunService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "replay-commit", projectSlug, richFindingsAndGraph: true, … }` — emitted only after `CommitAsync` succeeds. |
 | Billing checkout session (Noop / Stripe / Marketplace) | `BillingCheckoutController` | `BillingCheckoutInitiated`, `BillingCheckoutCompleted` | Tenant from ambient scope | `{ provider, tier, providerSessionId? }` |
 | Customer notification channel preferences upsert | `CustomerNotificationChannelPreferencesController` (`PUT …/customer-channel-preferences`) | `TenantNotificationChannelPreferencesUpdated` | Tenant + default workspace/project from scope | `{ email, teams, outboundWebhook }` booleans |
 | Microsoft Teams incoming-webhook connection upsert | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionUpserted` | Tenant + default workspace/project from scope | Key Vault reference metadata (no secret material) |
 | Microsoft Teams incoming-webhook connection remove | `TeamsIncomingWebhookConnectionsController` (`DELETE /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields |
+| ITSM outbound issue/incident create (Jira / ServiceNow) | `ItsmOutboundIssuesController` (`POST /v1/integrations/itsm/outbound/issues`) | `IntegrationJiraIssueCreateSucceeded`, `IntegrationJiraIssueCreateFailed`, `IntegrationJiraIssueCreateSkipped`, `IntegrationServiceNowIncidentCreateSucceeded`, `IntegrationServiceNowIncidentCreateFailed`, `IntegrationServiceNowIncidentCreateSkipped` | RunId / finding id when parseable | finding id, provider label, external key / skip reason — **no** secrets, tokens, or full external URLs with query strings |
 | Weekly executive digest preferences upsert | `TenantExecDigestPreferencesController` (`POST …/tenant/exec-digest-preferences`) | `ExecDigestPreferencesUpdated` | Tenant + default workspace/project from scope | digest cadence / channel booleans (JSON) |
 | Entra directory bound to tenant (commercial `tid` after paid conversion) | `TenantTrialController` (`POST …/tenant/link-entra`) | `TenantEntraDirectoryBound` | Tenant from ambient scope | `{ entraTenantId }` |
 | Trial local identity linked to Entra `oid` (optional; same request as directory bind when `LocalEmail` + `EntraOid` set) | `TenantTrialController` (`POST …/tenant/link-entra`) | `TrialLocalIdentityLinkedToEntra` | Tenant from ambient scope | `{ normalizedEmail }` |
@@ -195,7 +202,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` `public const string` rows** | 145 (see CI marker above; includes nested `Baseline` and nested `Run`) |
+| **Core `AuditEventTypes` `public const string` rows** | 154 (see CI marker above; includes nested `Baseline` and nested `Run`) |
 | **`await *auditService.LogAsync` production call sites** | ~44 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Known-gap catalogued-only items** | 2 — `ManifestSuperseded` (no supersession writer), `FindingsListAccessed` (no list route wiring) — see **Known gaps** |
@@ -235,10 +242,18 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `ArtifactDownloaded` | `ArtifactDownloaded` | `ArtifactExportController` |
 | `BundleDownloaded` | `BundleDownloaded` | `ArtifactExportController` |
 | `SupportBundleDownloaded` | `SupportBundleDownloaded` | `SupportBundleController` (`POST /v1/admin/support-bundle`) |
+| `SyntheticOperatorDemoPackMarker` | `SyntheticOperatorDemoPack.Marker` | `SyntheticOperatorDemoPackWriter` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
+| `SyntheticOperatorDemoPackInvoked` | `SyntheticOperatorDemoPack.Invoked` | `SyntheticOperatorDemoPackController` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `RunExported` | `RunExported` | `ArtifactExportController` |
 | `ArchitectureAnalysisReportGenerated` | `ArchitectureAnalysisReportGenerated` | `AnalysisReportsController` |
-| `ArchitectureDocxExportGenerated` | `ArchitectureDocxExportGenerated` | `DocxExportController` |
+| `ArchitectureDocxExportGenerated` | `ArchitectureDocxExportGenerated` | `DocxExportController`, `RunExportAuditService`, `BackgroundJobWorkUnitExecutor` |
+| `ComparisonReplayPersisted` | `ComparisonReplayPersisted` | `ComparisonAuditService` |
+| `EndToEndComparisonPersisted` | `EndToEndComparisonPersisted` | `ComparisonAuditService` |
 | `RequestFileImported` | `RequestFileImported` | `ImportRequestFileService` (`ImportRequestFileController`) |
+| `AzureExtractorPackageUploaded` | `AzureExtractorPackage.Uploaded` | `AzureExtractorIngestService` (`AzureExtractorUploadController`) |
+| `AzureExtractorPackageParseFailed` | `AzureExtractorPackage.ParseFailed` | `AzureExtractorIngestService` (`AzureExtractorUploadController`) |
+| `AzureExtractorPackageSchemaRejected` | `AzureExtractorPackage.SchemaRejected` | `AzureExtractorIngestService` (`AzureExtractorUploadController`) |
+| `AzureExtractorPackageIngestSucceeded` | `AzureExtractorPackage.IngestSucceeded` | `AzureExtractorIngestService` (`AzureExtractorUploadController`) |
 | `ValueReportGenerated` | `ValueReportGenerated` | `ValueReportController`, `InMemoryValueReportJobQueue` |
 | `ReplayExportRecorded` | `ReplayExportRecorded` | `ExportsController` |
 | `ComparisonSummaryPersisted` | `ComparisonSummaryPersisted` | `ExportsController` |
@@ -252,6 +267,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `RecommendationDeferred` | `RecommendationDeferred` | `AdvisoryController` |
 | `RecommendationImplemented` | `RecommendationImplemented` | `AdvisoryController` |
 | `RecommendationLearningProfileRebuilt` | `RecommendationLearningProfileRebuilt` | `RecommendationLearningController` |
+| `ProductLearningPilotSignalRecorded` | `ProductLearningPilotSignalRecorded` | `ProductLearningController` (`POST /v1/product-learning/signals`) |
 | `AdvisoryScanScheduled` | `AdvisoryScanScheduled` | `AdvisoryScanRunner`, `AdvisorySchedulingController`, `AdvisoryController` |
 | `AdvisoryScanExecuted` | `AdvisoryScanExecuted` | `AdvisoryScanRunner`, `AdvisoryController` |
 | `ArchitectureDigestGenerated` | `ArchitectureDigestGenerated` | `AdvisoryScanRunner`, `AdvisoryController` |
@@ -266,6 +282,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `AlertSuppressed` | `AlertSuppressed` | `AlertService` |
 | `AlertRoutingSubscriptionCreated` | `AlertRoutingSubscriptionCreated` | `AlertRoutingSubscriptionsController` |
 | `AlertRoutingSubscriptionToggled` | `AlertRoutingSubscriptionToggled` | `AlertRoutingSubscriptionsController` |
+| `AlertRoutingWebhookPingExecuted` | `AlertRoutingWebhookPingExecuted` | `WebhookConnectionsController` (`POST /v1/integrations/webhooks/{routingSubscriptionId}/test`) |
 | `AlertDeliverySucceeded` | `AlertDeliverySucceeded` | `AlertDeliveryDispatcher` |
 | `AlertDeliveryFailed` | `AlertDeliveryFailed` | `AlertDeliveryDispatcher` |
 | `CompositeAlertRuleCreated` | `CompositeAlertRuleCreated` | `CompositeAlertRulesController` |
@@ -285,6 +302,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `GovernanceApprovalSubmitted` | `GovernanceApprovalSubmitted` | `GovernanceWorkflowService` |
 | `GovernanceApprovalApproved` | `GovernanceApprovalApproved` | `GovernanceWorkflowService` |
 | `PilotScorecardBaselinesUpdated` | `PilotScorecardBaselinesUpdated` | `PilotInProductScorecardService` (`PUT /v1/pilots/scorecard/baselines`) |
+| `PilotCloseoutRecorded` | `PilotCloseoutRecorded` | `PilotsController` (`POST /v1/pilots/closeout`) |
 | `GovernanceApprovalRejected` | `GovernanceApprovalRejected` | `GovernanceWorkflowService` |
 | `GovernanceSelfApprovalBlocked` | `GovernanceSelfApprovalBlocked` | `GovernanceWorkflowService` |
 | `GovernanceManifestPromoted` | `GovernanceManifestPromoted` | `GovernanceWorkflowService` |
@@ -337,6 +355,16 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `FirstRealValueRunCompleted` | `FirstRealValueRunCompleted` | `RunsController` (pilot real execute success) |
 | `FirstRealValueRunFellBackToSimulator` | `FirstRealValueRunFellBackToSimulator` | `ArchitectureApplicationService` (pilot seed after real-mode fallback) |
 | `RunLegacyReadyForCommitPromoted` | `RunLegacyReadyForCommitPromoted` | `ArchitectureRunExecuteOrchestrator` (post-execute LegacyRunStatus promotion — ADR-0012) |
+| `IntegrationJiraIssueStatusSynced` | `Integration.JiraIssueStatusSynced` | `ItsmInboundWebhookSyncService` (Jira inbound webhook) |
+| `IntegrationServiceNowIncidentStatusSynced` | `Integration.ServiceNowIncidentStatusSynced` | `ItsmInboundWebhookSyncService` (ServiceNow inbound webhook) |
+| `IntegrationItsmFindingCorrelationRegistered` | `Integration.ItsmFindingCorrelationRegistered` | `ItsmCorrelationController` (`POST …/integrations/itsm/correlations`) |
+| `IntegrationJiraIssueCreateSucceeded` | `Integration.JiraIssueCreateSucceeded` | `ItsmOutboundIssuesController` (`POST …/integrations/itsm/outbound/issues`); `ItsmOutboundIssueCreationService` |
+| `IntegrationJiraIssueCreateFailed` | `Integration.JiraIssueCreateFailed` | same |
+| `IntegrationJiraIssueCreateSkipped` | `Integration.JiraIssueCreateSkipped` | same |
+| `IntegrationServiceNowIncidentCreateSucceeded` | `Integration.ServiceNowIncidentCreateSucceeded` | same |
+| `IntegrationServiceNowIncidentCreateFailed` | `Integration.ServiceNowIncidentCreateFailed` | same |
+| `IntegrationServiceNowIncidentCreateSkipped` | `Integration.ServiceNowIncidentCreateSkipped` | same |
+| `IntegrationConfluenceFirstValueReportPublished` | `Integration.ConfluenceFirstValueReportPublished` | `ConfluencePublishingAdminController` (`POST …/admin/integrations/confluence/first-value-report`) |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
 

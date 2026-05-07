@@ -1,0 +1,151 @@
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+_SCRIPTS_ROOT = _REPO_ROOT / "scripts"
+
+
+if str(_SCRIPTS_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_ROOT))
+
+import procurement_pack_validation as pp_val  # noqa: E402
+
+
+class TestProcurementPackValidation(unittest.TestCase):
+    def test_coherence_accepts_explicit_not_currently_issued(self) -> None:
+
+        probe = "**SOC 2 Type II**: not currently issued (see roadmap)."
+        err = pp_val.coherence_procurement_claims(probe)
+
+        self.assertIsNone(err)
+
+    def test_coherence_accepts_excluded_fast_lane_heading(self) -> None:
+
+        probe = (
+            "third-party SOC 2 Type II report\n\n"
+            "**Excluded from this skim** — roadmap only; deferral narratives apply."
+        )
+        err = pp_val.coherence_procurement_claims(probe)
+
+        self.assertIsNone(err)
+
+    def test_coherence_rejects_orphan_type_ii_sentence(self) -> None:
+
+        probe = "ArchLucid ships SOC 2 Type II attestation for enterprise buyers."
+        err = pp_val.coherence_procurement_claims(probe)
+
+        self.assertIsNotNone(err)
+
+    def test_coherence_flags_third_party_inflight_combo(self) -> None:
+
+        probe = "third-party audit is in-flight for our production stack."
+        err = pp_val.coherence_procurement_claims(probe)
+
+        self.assertIsNotNone(err)
+
+    def test_forbidden_scan_finds_soc2_report_available(self) -> None:
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            market = root / "docs" / "go-to-market"
+            market.mkdir(parents=True)
+
+            (
+                market / "TRUST_CENTER.md"
+            ).write_text(
+                "Our SOC 2 Type II audit report is available to prospects under NDA.\n",
+                encoding="utf-8",
+            )
+
+            violations = pp_val.forbidden_assurance_phrases(root, canonical_entries=[])
+
+        self.assertTrue(any("implies a SOC 2 Type II CPA report" in v for v in violations))
+        self.assertTrue(any("TRUST_CENTER.md" in v for v in violations))
+
+    def test_validate_script_exits_zero_on_repo(self) -> None:
+
+        script = _REPO_ROOT / "scripts" / "validate_procurement_pack.py"
+        result = subprocess.run(
+            [sys.executable, str(script)],
+            cwd=str(_REPO_ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_manifest_preview_writes_two_files(self) -> None:
+
+        with tempfile.TemporaryDirectory() as tmp_src, tempfile.TemporaryDirectory() as tmp_out:
+            root = Path(tmp_src)
+            scripts = root / "scripts"
+            scripts.mkdir(parents=True)
+
+            gtm = root / "docs" / "go-to-market"
+            gtm.mkdir(parents=True)
+
+            for rel, body in (
+                (
+                    "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
+                    "> **Scope:** test\n\n**Last reviewed:** 2099-01-01\n",
+                ),
+                (
+                    "docs/go-to-market/TRUST_CENTER.md",
+                    "> **Scope:** test\n\n**Last reviewed:** 2099-01-01\n",
+                ),
+                (
+                    "docs/go-to-market/DPA_TEMPLATE.md",
+                    "**Important — not legal advice:** x\nworking template y\n",
+                ),
+                (
+                    "docs/go-to-market/ORDER_FORM_TEMPLATE.md",
+                    "**Important — not legal advice:** x\nworking template y\n",
+                ),
+                ("foo.md", "# ok\n"),
+            ):
+                p = root / rel
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text(body, encoding="utf-8")
+
+            canonical = {
+                "canonical_entries": [
+                    {
+                        "pack_path": "foo.md",
+                        "source_repo_path": "foo.md",
+                        "description": "fixture",
+                        "artifact_status": "Evidence",
+                    },
+                ],
+                "excluded_from_canonical_pack": [{"path": "omit.md", "reason": "fixture omit"}],
+            }
+
+            (scripts / "procurement_pack_canonical.json").write_text(
+                json.dumps(canonical, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            out_dir = Path(tmp_out) / "preview"
+            errs = pp_val.procurement_pack_quick_checks(
+                root,
+                max_assurance_review_age_days=5000,
+                deal_ready_max_review_age_days=5000,
+                preview_dir=out_dir,
+                run_buyer_claim_scans=False,
+                deal_ready_bundle=False,
+            )
+
+            self.assertEqual(errs, [])
+            self.assertTrue((out_dir / "manifest.json").is_file())
+            self.assertTrue((out_dir / "redaction_report.md").is_file())
+
+
+if __name__ == "__main__":
+    unittest.main()

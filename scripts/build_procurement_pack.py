@@ -3,7 +3,9 @@
 Assemble dist/procurement-pack/ + dist/procurement-pack.zip for buyer / procurement teams.
 
 Canonical file list: scripts/procurement_pack_canonical.json (shared with CI:
-scripts/ci/assert_procurement_pack_buildable.py).
+scripts/ci/assert_procurement_pack_buildable.py → scripts/validate_procurement_pack.py).
+
+Dry-run validation helpers: scripts/procurement_pack_validation.py (see also `validate_procurement_pack.py`).
 
 Emits:
   - README.md — buyer-facing entry (artifact index pointers; assessment 76_76 §9)
@@ -27,6 +29,14 @@ import shutil
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
+
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+import procurement_pack_validation as pp_val  # noqa: E402
+
 
 TEXT_PACK_SUFFIXES = frozenset({".md", ".txt", ".json", ".yaml", ".yml", ".html", ".xml", ".csv"})
 
@@ -223,81 +233,18 @@ def write_redaction_report(stage: Path, excluded: list[dict]) -> None:
     (stage / "redaction_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def validate_sources(root: Path, entries: list[dict]) -> list[str]:
-    missing: list[str] = []
-    for e in entries:
-        src = root / e["source_repo_path"]
-        if not src.is_file():
-            missing.append(e["source_repo_path"])
-    return missing
-
-
-def _extract_last_reviewed_utc_date(text: str) -> datetime | None:
-    m = re.search(r"\*\*Last reviewed:\*\*\s*(\d{4}-\d{2}-\d{2})", text)
-    if m is None:
-        return None
-
-    try:
-        return datetime.strptime(m.group(1), "%Y-%m-%d").replace(tzinfo=timezone.utc)
-    except ValueError:
-        return None
-
-
-def deal_ready_repo_checks(root: Path, entries: list[dict], max_review_age_days: int) -> list[str]:
-    violations: list[str] = []
-    required_docs = (
-        root / "docs" / "go-to-market" / "ASSURANCE_STATUS_CANONICAL.md",
-        root / "docs" / "go-to-market" / "TRUST_CENTER.md",
-        root / "docs" / "go-to-market" / "SOC2_STATUS_PROCUREMENT.md",
-        root / "docs" / "go-to-market" / "CURRENT_ASSURANCE_POSTURE.md",
-        root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md",
-    )
-
-    for p in required_docs:
-        if not p.is_file():
-            violations.append(f"missing required deal-ready doc: {p.relative_to(root).as_posix()}")
-            continue
-
-        text = p.read_text(encoding="utf-8", errors="replace")
-        if "ASSURANCE_STATUS_CANONICAL.md" not in text and p.name != "ASSURANCE_STATUS_CANONICAL.md":
-            violations.append(f"{p.relative_to(root).as_posix()}: missing canonical assurance status reference")
-
-        last_reviewed = _extract_last_reviewed_utc_date(text)
-        if last_reviewed is None:
-            violations.append(f"{p.relative_to(root).as_posix()}: missing **Last reviewed:** YYYY-MM-DD marker")
-            continue
-
-        age_days = (datetime.now(timezone.utc) - last_reviewed).days
-        if age_days > max_review_age_days:
-            violations.append(
-                f"{p.relative_to(root).as_posix()}: Last reviewed is {age_days} days old "
-                f"(max {max_review_age_days})"
-            )
-
-    trust = root / "docs" / "go-to-market" / "TRUST_CENTER.md"
-    incident = root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md"
-    if trust.is_file() and "security@archlucid.net" not in trust.read_text(encoding="utf-8", errors="replace"):
-        violations.append("TRUST_CENTER.md: missing security contact mailbox")
-    if incident.is_file() and "security@archlucid.net" not in incident.read_text(encoding="utf-8", errors="replace"):
-        violations.append("INCIDENT_COMMUNICATIONS_POLICY.md: missing fallback security contact mailbox")
-
-    missing_status = [
-        e.get("pack_path", "")
-        for e in entries
-        if not e.get("artifact_status")
-    ]
-    if missing_status:
-        violations.append("canonical entries missing artifact_status: " + ", ".join(missing_status))
-
-    return violations
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build ArchLucid procurement pack ZIP.")
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Verify all canonical sources exist; do not write dist/ output.",
+        help="Run procurement_pack_validation guards (canonical + templates + wording); emit no staged ZIP.",
+    )
+    parser.add_argument(
+        "--dry-run-preview-dir",
+        type=Path,
+        default=None,
+        help="Optional; with --dry-run only: after passing checks emit manifest.json + redaction_report.md here.",
     )
     parser.add_argument(
         "--out",
@@ -323,26 +270,51 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    root = repo_root()
-    entries, excluded = load_canonical(root)
-
-    missing = validate_sources(root, entries)
-    if missing:
-        print("error: canonical procurement pack sources missing:", file=sys.stderr)
-        for m in missing:
-            print(f"  - {m}", file=sys.stderr)
-        return 1
-
     strict_env = os.environ.get("PROCUREMENT_PACK_STRICT", "").strip().lower() in ("1", "true", "yes")
     deal_ready_env = os.environ.get("PROCUREMENT_PACK_DEAL_READY", "").strip().lower() in ("1", "true", "yes")
     deal_ready = args.deal_ready or deal_ready_env
     strict = args.strict or strict_env or deal_ready
 
+    root = repo_root()
+
+    entries, excluded = load_canonical(root)
+
+    preview_dir = args.dry_run_preview_dir if args.dry_run else None
+
+    pre_checks = pp_val.procurement_pack_quick_checks(
+        root,
+        max_assurance_review_age_days=366,
+        deal_ready_max_review_age_days=args.max_review_age_days,
+        preview_dir=preview_dir,
+        run_buyer_claim_scans=True,
+        deal_ready_bundle=deal_ready,
+    )
+
+    if pre_checks:
+
+        scope = "procurement pack dry-run" if args.dry_run else "procurement pack precondition"
+
+        print(f"error: {scope} failed:", file=sys.stderr)
+
+        for err in pre_checks:
+            print(f"  - {err}", file=sys.stderr)
+
+        return 1
+
     if args.dry_run:
-        print("procurement pack dry-run: OK (all canonical sources present)")
+
+        suffix = ""
+
+        if args.dry_run_preview_dir is not None:
+
+            suffix = f" Preview manifest/redaction wrote to `{args.dry_run_preview_dir}`."
+
+        print(f"procurement pack dry-run: OK.{suffix}")
+
         return 0
 
     stage = root / "dist" / "procurement-pack"
+
     if stage.exists():
         shutil.rmtree(stage)
 
@@ -374,11 +346,13 @@ def main() -> int:
             _DEAL_READY_PATTERNS,
             allowed_statuses=("Evidence", "Self-assessment"),
         )
-        deal_violations.extend(deal_ready_repo_checks(root, entries, args.max_review_age_days))
+
         if deal_violations:
             print("error: procurement pack deal-ready checks failed:", file=sys.stderr)
+
             for v in deal_violations:
                 print(f"  - {v}", file=sys.stderr)
+
             return 1
 
     manifest_rows = build_manifest_rows(stage, entries)
