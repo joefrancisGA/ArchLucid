@@ -1,11 +1,24 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const recordCorePilotRailChecklistStep = vi.fn();
+
+const demoUiEnvMock = vi.hoisted(() => ({
+  buyerPolishedShell: false,
+}));
 
 vi.mock("@/lib/core-pilot-rail-telemetry", () => ({
   recordCorePilotRailChecklistStep: (stepIndex: number) => recordCorePilotRailChecklistStep(stepIndex),
 }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => demoUiEnvMock.buyerPolishedShell,
+  };
+});
 
 vi.mock("next/link", () => ({
   default: ({
@@ -44,6 +57,40 @@ describe("SampleFirstReviewPackageCard", () => {
     render(<SampleFirstReviewPackageCard />);
 
     fireEvent.click(screen.getByRole("link", { name: "Start with sample review" }));
+
+    expect(recordCorePilotRailChecklistStep).toHaveBeenCalledWith(3);
+  });
+});
+
+describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
+  beforeEach(() => {
+    demoUiEnvMock.buyerPolishedShell = true;
+  });
+
+  afterEach(() => {
+    demoUiEnvMock.buyerPolishedShell = false;
+    vi.clearAllMocks();
+  });
+
+  it("uses manifest-first primary CTA and a secondary workspace link", () => {
+    render(<SampleFirstReviewPackageCard />);
+
+    expect(screen.getByRole("heading", { name: "Claims Intake Modernization Review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open review package" })).toHaveAttribute(
+      "href",
+      "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+    );
+    expect(screen.getByRole("link", { name: "Open review workspace" })).toHaveAttribute(
+      "href",
+      "/reviews/claims-intake-modernization",
+    );
+    expect(screen.getByRole("link", { name: "Start your own review" })).toHaveAttribute("href", "/reviews/new");
+  });
+
+  it("records review-output telemetry when the review package is opened", () => {
+    render(<SampleFirstReviewPackageCard />);
+
+    fireEvent.click(screen.getByRole("link", { name: "Open review package" }));
 
     expect(recordCorePilotRailChecklistStep).toHaveBeenCalledWith(3);
   });

@@ -26,7 +26,8 @@ public sealed class StarterProofPackArchitectureRequestTests
     [
         Path.Combine("templates", "starter-proof-packs", "regulated-saas-soc-procurement", "architecture-request.json"),
         Path.Combine("templates", "starter-proof-packs", "healthcare-data-workflow", "architecture-request.json"),
-        Path.Combine("templates", "starter-proof-packs", "azure-cost-governance", "architecture-request.json")
+        Path.Combine("templates", "starter-proof-packs", "azure-cost-governance", "architecture-request.json"),
+        Path.Combine("templates", "starter-proof-packs", "ai-llm-workload", "architecture-request.json")
     ];
 
     [Theory]

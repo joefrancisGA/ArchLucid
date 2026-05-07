@@ -3,6 +3,10 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import {
+  getCanonicalReviewWorkspaceHref,
+  getShowcaseManifestHref,
+} from "@/lib/buyer-safe-review-navigation";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -79,8 +83,13 @@ export function SampleFirstReviewPackageCard() {
             {buyerPolished ? (
               <>
                 <Button asChild variant="primary" className="h-9">
-                  <Link href={sampleReviewHref} onClick={recordSampleOpened}>
-                    Open sample review
+                  <Link href={getShowcaseManifestHref()} onClick={recordSampleOpened}>
+                    Open review package
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="h-9">
+                  <Link href={getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID)}>
+                    Open review workspace
                   </Link>
                 </Button>
                 <Link

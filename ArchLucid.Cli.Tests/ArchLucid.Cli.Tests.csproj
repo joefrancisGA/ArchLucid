@@ -26,6 +26,7 @@
     <None Include="..\templates\starter-proof-packs\regulated-saas-soc-procurement\second-run.json" Link="templates\starter-proof-packs\regulated-saas-soc-procurement\second-run.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\starter-proof-packs\healthcare-data-workflow\second-run.json" Link="templates\starter-proof-packs\healthcare-data-workflow\second-run.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\templates\starter-proof-packs\azure-cost-governance\second-run.json" Link="templates\starter-proof-packs\azure-cost-governance\second-run.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\ai-llm-workload\second-run.json" Link="templates\starter-proof-packs\ai-llm-workload\second-run.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
