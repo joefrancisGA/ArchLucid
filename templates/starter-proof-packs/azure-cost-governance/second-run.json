@@ -1,0 +1,34 @@
+{
+  "name": "WideWorldImporters.FinOps.LandingZone",
+  "description": "Wide World Importers (fictional) runs multi-subscription Azure landing zones with shared hub networking, workload spokes, and a FinOps review ask: tag governance, budget alerts, reserved instance posture, and Azure Policy sets for encryption and public network restrictions.",
+  "request_id": "starter-wwi-finops-gov-001",
+  "environment": "prod",
+  "components": [
+    "hub-vnet-firewall",
+    "spoke-app-landing",
+    "spoke-data-landing",
+    "cost-export-automation-account"
+  ],
+  "data_stores": [
+    "Azure Cost Management exports (Blob)",
+    "Log Analytics workspace (central)",
+    "Azure Resource Graph queries (governance reporting)"
+  ],
+  "public_endpoints": [],
+  "compliance_posture": [
+    "Financial controls vocabulary — cost allocation and management attestation at **architecture** level only",
+    "Azure Policy initiatives discussed as design intent, not as live tenant scan results"
+  ],
+  "constraints": [
+    "Deny public IPs on sensitive PaaS via policy at landing zone scope (design intent)",
+    "Mandatory resource tags: cost-center, environment, workload-owner before production promotion",
+    "Hub egress through firewall; spoke-to-spoke via hub (illustrative)"
+  ],
+  "assumptions": [
+    "Single Entra ID tenant; management group hierarchy already exists for pilot story",
+    "No third-party FinOps tool in scope — Azure-native exports only in this starter"
+  ],
+  "inline_requirements": [
+    "Review should highlight **observability** for cost anomalies and **governance** drift (tags, location) without asserting measured savings"
+  ]
+}

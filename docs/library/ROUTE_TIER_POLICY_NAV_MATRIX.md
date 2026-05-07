@@ -24,7 +24,130 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 ## Single source of truth order
 
 1. **Code:** `ArchLucid.Api` controllers + **`CommercialTenantTierFilter`**.  
-2. **Nav:** `nav-config` builders + **`nav-shell-visibility`**.  
-3. **Narrative:** **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** — update this matrix when buyer-visible behavior changes.
+2. **Executable registry + CI:** `scripts/ci/data/route_tier_policy_nav_registry.json` + **`assert_route_tier_policy_nav.py`** (appendix table below).  
+3. **Nav:** `nav-config` builders + **`nav-shell-visibility`**.  
+4. **Narrative:** **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** — update the sample tables in this doc when buyer-visible behavior changes; refresh the appendix when controllers ship.
 
 **Related:** **[PROCUREMENT_FAST_LANE.md](../go-to-market/PROCUREMENT_FAST_LANE.md)** (procurement skim), **[NAV_CONFIG_CONTRACT.md](NAV_CONFIG_CONTRACT.md)** if present.
+
+## Appendix — per-controller registry (CI)
+
+Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after editing controllers, overrides, or this table.
+
+- **Registry JSON:** `scripts/ci/data/route_tier_policy_nav_registry.json` (regenerate: `python scripts/ci/assert_route_tier_policy_nav.py --materialize-registry`).
+- **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
+- **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
+
+<!-- route-tier-policy-nav-registry-count:109 -->
+
+| Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
+| --- | --- | --- | --- | --- | --- |
+| `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
+| `Admin/AuditController.cs` | `/v1/audit` | none | ReadAuthority | /audit |  |
+| `Admin/AuthDebugController.cs` | `/api/auth` | none | ReadAuthority |  | auth_debug_api |
+| `Admin/ClientErrorTelemetryController.cs` | `/v1/diagnostics` | none | ReadAuthority |  |  |
+| `Admin/ConfluencePublishingAdminController.cs` | `/v1/admin/integrations/confluence` | none | AdminAuthority |  |  |
+| `Admin/DemoController.cs` | `/v1/demo` | none | none |  | demo_tooling |
+| `Admin/DiagnosticsController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
+| `Admin/DocsController.cs` | `/docs` | none | ReadAuthority |  | static_operator_docs_html |
+| `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
+| `Admin/MeteringAdminController.cs` | `/v1/admin/metering` | none | AdminAuthority | /settings/tenant-cost |  |
+| `Admin/ReferenceEvidenceAdminController.cs` | `/v1/admin/tenants/{tenantId:guid}/reference-evidence` | none | AdminAuthority |  |  |
+| `Admin/RoiBulletinAdminController.cs` | `/v1/admin/roi-bulletin-preview` | none | AdminAuthority |  |  |
+| `Admin/ScimTokensAdminController.cs` | `/v1/admin/scim/tokens` | none | AdminAuthority |  |  |
+| `Admin/ScopeDebugController.cs` | `/v1/scope` | none | ReadAuthority |  |  |
+| `Admin/SecurityTrustPublicationController.cs` | `/v1/admin/security-trust` | none | AdminAuthority | /workspace/security-trust |  |
+| `Admin/SupportBundleController.cs` | `/v1/admin` | none | none | /admin/support |  |
+| `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /admin/users |  |
+| `Admin/VersionController.cs` | `/version` | none | AllowAnonymous |  | unversioned_version_probe |
+| `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /advisory |  |
+| `Advisory/AdvisorySchedulingController.cs` | `/v1/advisory-scheduling` | standard | ReadAuthority |  |  |
+| `Advisory/DigestSubscriptionsController.cs` | `/v1/digest-subscriptions` | standard | ReadAuthority | /digests |  |
+| `Advisory/LearningController.cs` | `/v1/learning` | standard | ReadAuthority |  |  |
+| `Advisory/ProductLearningController.cs` | `/v1/product-learning` | standard | ReadAuthority | /product-learning |  |
+| `Advisory/RecommendationLearningController.cs` | `/v1/recommendation-learning` | standard | ReadAuthority | /recommendation-learning |  |
+| `AgentExecution/AgentExecutionCostPreviewController.cs` | `/v1/agent-execution` | none | AllowAnonymous |  | anonymous_wizard_cost_preview |
+| `Alerts/AlertRoutingSubscriptionsController.cs` | `/v1/alert-routing-subscriptions` | standard | ReadAuthority | /alerts |  |
+| `Alerts/AlertRulesController.cs` | `/v1/alert-rules` | standard | ReadAuthority | /alerts |  |
+| `Alerts/AlertSimulationController.cs` | `/v1/alert-simulation` | standard | ReadAuthority | /alerts |  |
+| `Alerts/AlertTuningController.cs` | `/v1/alert-tuning` | standard | ReadAuthority | /alerts |  |
+| `Alerts/AlertsController.cs` | `/v1/alerts` | standard | ReadAuthority | /alerts |  |
+| `Alerts/CompositeAlertRulesController.cs` | `/v1/composite-alert-rules` | standard | ReadAuthority | /alerts |  |
+| `Analytics/RoiAnalyticsController.cs` | `/v1/analytics` | none | ReadAuthority |  |  |
+| `Auth/TrialLocalIdentityAuthController.cs` | `/v1/auth/trial/local` | none | AllowAnonymous |  | trial_local_identity_auth |
+| `Authority/AnalysisReportsController.cs` | `/v1/architecture` | standard | ExecuteAuthority |  |  |
+| `Authority/ArtifactExportController.cs` | `/v1/artifacts` | standard | ReadAuthority |  |  |
+| `Authority/AuthorityCompareController.cs` | `/v1/authority/compare` | standard | ReadAuthority |  |  |
+| `Authority/AuthorityQueryController.cs` | `/v1/authority` | none | ReadAuthority |  |  |
+| `Authority/AuthorityReplayController.cs` | `/v1/internal/authority/replay` | standard | RequireOperatorRole |  | internal_replay_diagnostics |
+| `Authority/AuthorityRunEventsController.cs` | `/v1/authority` | none | ReadAuthority |  |  |
+| `Authority/AzureExtractorUploadController.cs` | `/v1/azure-extractor` | none | ReadAuthority |  |  |
+| `Authority/DocxExportController.cs` | `/v1/docx` | standard | ReadAuthority |  |  |
+| `Authority/ExecutiveSummaryController.cs` | `/api/authority/executive-summary` | none | ReadAuthority |  | non_versioned_executive_api |
+| `Authority/ExportsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
+| `Authority/FastPathContextController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
+| `Authority/ImportRequestFileController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
+| `Authority/InternalArchitectureDiagnosticsController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  | internal_architecture_diagnostics |
+| `Authority/RunAgentEvaluationController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  | internal_architecture_diagnostics |
+| `Authority/RunComparisonController.cs` | `/v1/architecture` | standard | ReadAuthority | /compare |  |
+| `Authority/RunQueryController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
+| `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /reviews?projectId=default |  |
+| `Authority/TemplatesController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
+| `Billing/BillingCheckoutController.cs` | `/v1/tenant/billing` | none | Authorize | /settings/tenant |  |
+| `Billing/BillingMarketplaceWebhookController.cs` | `/v1/billing/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
+| `Billing/BillingStripeWebhookController.cs` | `/v1/billing/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
+| `Demo/DemoCommitPagePreviewController.cs` | `/v1/demo` | none | AllowAnonymous |  | demo_tooling |
+| `Demo/DemoExplainController.cs` | `/v1/demo` | none | AllowAnonymous |  | demo_tooling |
+| `Demo/DemoViewerController.cs` | `/v1/demo/viewer` | none | AllowAnonymous |  | demo_tooling |
+| `Demo/QuickStartController.cs` | `/v1/demo` | none | AllowAnonymous |  | demo_tooling |
+| `Diagnostics/ConfigurationHealthController.cs` | `/v1/diagnostics` | none | RequireAdmin | /admin/health |  |
+| `Diagnostics/OperatorTaskSuccessDiagnosticsController.cs` | `/v1/diagnostics` | standard | ReadAuthority |  |  |
+| `Diagnostics/SyntheticOperatorDemoPackController.cs` | `/v1/diagnostics` | none | RequireAdmin |  | synthetic_demo_admin_pack |
+| `E2e/E2eHarnessController.cs` | `/v1/e2e` | none | AllowAnonymous |  | e2e_nonprod_harness |
+| `Evolution/EvolutionController.cs` | `/v1/evolution` | standard | none | /evolution-review |  |
+| `Findings/FindingInspectController.cs` | `/v1/findings` | standard | ReadAuthority | /governance/findings |  |
+| `Governance/GovernanceController.cs` | `/v1/governance` | standard | ReadAuthority | /governance |  |
+| `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-commit` | standard | ReadAuthority |  |  |
+| `Governance/GovernancePreviewController.cs` | `/v1/governance-preview` | standard | ReadAuthority |  |  |
+| `Governance/GovernanceResolutionController.cs` | `/v1/governance-resolution` | standard | ReadAuthority | /governance-resolution |  |
+| `Governance/ManifestsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
+| `Governance/PolicyPacksController.cs` | `/v1/policy-packs` | standard | ReadAuthority | /policy-packs |  |
+| `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ExecuteAuthority |  |  |
+| `Integrations/ItsmInboundWebhooksController.cs` | `/v1/integrations/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
+| `Integrations/ItsmOutboundIssuesController.cs` | `/v1/integrations/itsm/outbound/issues` | none | ExecuteAuthority |  |  |
+| `Integrations/TeamsIncomingWebhookConnectionsController.cs` | `/v1/integrations/teams` | standard | Authorize | /integrations/teams |  |
+| `Integrations/WebhookConnectionsController.cs` | `/v1/integrations/webhooks` | standard | ExecuteAuthority |  |  |
+| `Marketing/EnterpriseComparisonMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
+| `Marketing/MarketingPricingQuoteRequestController.cs` | `/v1/marketing/pricing` | none | AllowAnonymous |  | marketing_public_api |
+| `Marketing/MarketingShowcaseController.cs` | `/v1/marketing/showcase` | none | AllowAnonymous |  | marketing_public_api |
+| `Marketing/SponsorBriefMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
+| `Marketing/TrustCenterEvidencePackController.cs` | `/v1/marketing/trust-center` | none | AllowAnonymous |  | marketing_public_api |
+| `Marketing/WhyArchlucidMarketingPackController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
+| `Notifications/CustomerNotificationChannelPreferencesController.cs` | `/v1/notifications` | standard | Authorize |  |  |
+| `Notifications/ExecDigestUnsubscribeController.cs` | `/v1/notifications/exec-digest` | none | AllowAnonymous |  | signed_token_unsubscribe |
+| `Pilots/PilotsBoardPackController.cs` | `/v1/pilots` | standard | ExecuteAuthority | /scorecard |  |
+| `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /reviews?projectId=default |  |
+| `Planning/AskController.cs` | `/v1/ask` | standard | ReadAuthority | /ask |  |
+| `Planning/ComparisonController.cs` | `/v1/compare` | standard | ReadAuthority | /compare |  |
+| `Planning/ComparisonsController.cs` | `/v1/architecture` | standard | ReadAuthority | /replay |  |
+| `Planning/ConversationController.cs` | `/v1/conversations` | standard | ReadAuthority |  |  |
+| `Planning/ExplanationController.cs` | `/v1/explain` | standard | ReadAuthority |  |  |
+| `Planning/FindingFeedbackController.cs` | `/v1/explain` | standard | ExecuteAuthority |  |  |
+| `Planning/GraphController.cs` | `/v1/graph` | standard | ReadAuthority | /graph |  |
+| `Planning/ProvenanceController.cs` | `/v1/provenance` | standard | ReadAuthority |  |  |
+| `Planning/ProvenanceQueryController.cs` | `/v1/authority` | standard | ReadAuthority |  |  |
+| `Planning/RetrievalController.cs` | `/v1/retrieval` | standard | ReadAuthority | /search |  |
+| `RegistrationController.cs` | `/v1/register` | none | AllowAnonymous |  | registration_public_flow |
+| `Scim/ScimDiscoveryController.cs` | `/scim/v2` | none | ScimWrite |  | scim_idp_automation |
+| `Scim/ScimGroupsController.cs` | `/scim/v2/Groups` | none | ScimWrite |  | scim_idp_automation |
+| `Scim/ScimUsersController.cs` | `/scim/v2/Users` | none | ScimWrite |  | scim_idp_automation |
+| `Tenancy/CorePilotTeamChecklistController.cs` | `/v1/tenant/core-pilot-checklist` | standard | Authorize | /onboarding |  |
+| `Tenancy/TenantBaselineController.cs` | `/v1/tenant/baseline` | none | Authorize | /settings/baseline |  |
+| `Tenancy/TenantCostEstimateController.cs` | `/v1/tenant/cost-estimate` | standard | Authorize | /settings/tenant-cost |  |
+| `Tenancy/TenantCustomerSuccessController.cs` | `/v1/tenant/customer-success` | standard | Authorize |  |  |
+| `Tenancy/TenantExecDigestPreferencesController.cs` | `/v1/tenant` | standard | Authorize |  |  |
+| `Tenancy/TenantMeasuredRoiController.cs` | `/v1/tenant/measured-roi` | standard | Authorize | /value-report/roi |  |
+| `Tenancy/TenantPilotValueReportController.cs` | `/v1/tenant` | none | Authorize | /value-report/pilot |  |
+| `Tenancy/TenantTrialController.cs` | `/v1/tenant` | none | Authorize | /settings/tenant |  |
+| `ValueReports/ValueReportController.cs` | `/v1/value-report` | standard | ExecuteAuthority | /value-report |  |
+| `Webhooks/OutboundWebhookDryRunController.cs` | `/v1/webhooks` | none | ExecuteAuthority |  |  |

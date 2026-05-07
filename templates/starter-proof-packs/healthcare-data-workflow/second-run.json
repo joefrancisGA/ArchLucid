@@ -1,0 +1,37 @@
+{
+  "name": "Contoso.Clinical.DataHub",
+  "description": "Contoso Clinical (fictional) ingests HL7v2 and FHIR messages into an Azure analytics hub: ingestion Function Apps, validation, de-identified analytics lake, and a restricted clinical reporting API — PHI must stay in a segmented VNet with audit trails.",
+  "request_id": "starter-contoso-health-workflow-001",
+  "environment": "prod",
+  "components": [
+    "ingestion-functions",
+    "validation-service",
+    "lake-writer",
+    "reporting-api",
+    "breakglass-support-console"
+  ],
+  "data_stores": [
+    "Azure Event Hubs (ingest)",
+    "Azure Data Lake Gen2 (bronze/silver zones)",
+    "Azure SQL (reporting projection — de-identified tier)"
+  ],
+  "public_endpoints": [
+    "https://reporting.contoso-clinical.example"
+  ],
+  "compliance_posture": [
+    "HIPAA-oriented **architecture vocabulary** for review sessions only — no compliance determination",
+    "Minimum necessary access for operational roles; PHI in dedicated subnet and private endpoints"
+  ],
+  "constraints": [
+    "No PHI in public internet paths; reporting API only over private link or front door with mTLS and IP allow lists for pilot narrative",
+    "Immutable audit logs for ingestion and configuration changes (design intent — verify in your environment)",
+    "Separate projects or subscriptions for dev/test vs prod-like data classes"
+  ],
+  "assumptions": [
+    "Synthetic messages only in this starter; production would use hardened key management and DLP",
+    "Identity: Entra ID with role separation for engineers vs clinical analysts"
+  ],
+  "inline_requirements": [
+    "Review artifacts should call out data lineage from ingest → lake → reporting and where de-identification is asserted (design-level only)"
+  ]
+}

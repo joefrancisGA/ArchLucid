@@ -1,0 +1,68 @@
+{
+  "codes": [
+    {
+      "code": "anonymous_wizard_cost_preview",
+      "summary": "Anonymous host-driven cost floor read for new-run wizard UI (rate-limited; not shell navigation)."
+    },
+    {
+      "code": "auth_debug_api",
+      "summary": "Authenticated auth introspection for dev/support; not an operator shell destination."
+    },
+    {
+      "code": "demo_tooling",
+      "summary": "Demo and quickstart HTTP helpers; marketing/static-adjacent, no shell nav parity requirement."
+    },
+    {
+      "code": "e2e_nonprod_harness",
+      "summary": "Non-production E2E secret harness; IgnoreApi; no operator navigation."
+    },
+    {
+      "code": "internal_architecture_diagnostics",
+      "summary": "Operator engineering / internal architecture diagnostics under /v1/internal/architecture."
+    },
+    {
+      "code": "internal_replay_diagnostics",
+      "summary": "Internal authority replay pipeline; not exposed as shell operator pages."
+    },
+    {
+      "code": "marketing_public_api",
+      "summary": "Buyer/marketing surfaces and trust pack downloads; public or lightly gated, not operator shell."
+    },
+    {
+      "code": "non_versioned_executive_api",
+      "summary": "Legacy-version executive summary JSON under /api/authority (packaging seam)."
+    },
+    {
+      "code": "partner_webhook_ingest",
+      "summary": "Inbound vendor/ITSM/billing webhook receivers; HMAC or vendor auth, not browser navigation."
+    },
+    {
+      "code": "registration_public_flow",
+      "summary": "Tenant registration / activation flows without operator shell mapping."
+    },
+    {
+      "code": "scim_idp_automation",
+      "summary": "SCIM 2.0 bearer-automated provisioning; IdP integration, not UI navigation."
+    },
+    {
+      "code": "signed_token_unsubscribe",
+      "summary": "Signed-token email unsubscribe; AllowAnonymous; no operator shell link."
+    },
+    {
+      "code": "static_operator_docs_html",
+      "summary": "Static HTML docs routes (IgnoreApi) for operator-readable recipes."
+    },
+    {
+      "code": "synthetic_demo_admin_pack",
+      "summary": "Synthetic demo pack generation for staffed demos; admin/staging utility."
+    },
+    {
+      "code": "trial_local_identity_auth",
+      "summary": "Trial/local identity bootstrap endpoints; authentication plumbing, not nav tiles."
+    },
+    {
+      "code": "unversioned_version_probe",
+      "summary": "Host /version availability probe without API versioning."
+    }
+  ]
+}

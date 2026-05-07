@@ -48058,6 +48058,9 @@ namespace ArchLucid.Api.Client.Generated
     public partial class ProofPackageCompletenessResponse
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("agentOutputPilotStrictEvidenceSatisfied")]
+        public bool? AgentOutputPilotStrictEvidenceSatisfied { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("artifactDescriptorCount")]
         public int? ArtifactDescriptorCount { get; set; } = default!;
 

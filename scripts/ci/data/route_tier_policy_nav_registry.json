@@ -1,0 +1,1095 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "controller_file": "Admin/AdminController.cs",
+      "class_name": "AdminController",
+      "route_template": "v{version:apiVersion}/admin",
+      "normalized_prefix": "/v1/admin",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/AuditController.cs",
+      "class_name": "AuditController",
+      "route_template": "v{version:apiVersion}/audit",
+      "normalized_prefix": "/v1/audit",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/audit"
+    },
+    {
+      "controller_file": "Admin/AuthDebugController.cs",
+      "class_name": "AuthDebugController",
+      "route_template": "api/auth",
+      "normalized_prefix": "/api/auth",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": "auth_debug_api",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/ClientErrorTelemetryController.cs",
+      "class_name": "ClientErrorTelemetryController",
+      "route_template": "v{version:apiVersion}/diagnostics",
+      "normalized_prefix": "/v1/diagnostics",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/ConfluencePublishingAdminController.cs",
+      "class_name": "ConfluencePublishingAdminController",
+      "route_template": "v{version:apiVersion}/admin/integrations/confluence",
+      "normalized_prefix": "/v1/admin/integrations/confluence",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/DemoController.cs",
+      "class_name": "DemoController",
+      "route_template": "v{version:apiVersion}/demo",
+      "normalized_prefix": "/v1/demo",
+      "commercial_tier": "none",
+      "class_policy": "none",
+      "exemption": "demo_tooling",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/DiagnosticsController.cs",
+      "class_name": "DiagnosticsController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/DocsController.cs",
+      "class_name": "DocsController",
+      "route_template": "[controller]",
+      "normalized_prefix": "/docs",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": "static_operator_docs_html",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/JobsController.cs",
+      "class_name": "JobsController",
+      "route_template": "v{version:apiVersion}/jobs",
+      "normalized_prefix": "/v1/jobs",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/MeteringAdminController.cs",
+      "class_name": "MeteringAdminController",
+      "route_template": "v{version:apiVersion}/admin/metering",
+      "normalized_prefix": "/v1/admin/metering",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": "/settings/tenant-cost"
+    },
+    {
+      "controller_file": "Admin/ReferenceEvidenceAdminController.cs",
+      "class_name": "ReferenceEvidenceAdminController",
+      "route_template": "v{version:apiVersion}/admin/tenants/{tenantId:guid}/reference-evidence",
+      "normalized_prefix": "/v1/admin/tenants/{tenantId:guid}/reference-evidence",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/RoiBulletinAdminController.cs",
+      "class_name": "RoiBulletinAdminController",
+      "route_template": "v{version:apiVersion}/admin/roi-bulletin-preview",
+      "normalized_prefix": "/v1/admin/roi-bulletin-preview",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/ScimTokensAdminController.cs",
+      "class_name": "ScimTokensAdminController",
+      "route_template": "v{version:apiVersion}/admin/scim/tokens",
+      "normalized_prefix": "/v1/admin/scim/tokens",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/ScopeDebugController.cs",
+      "class_name": "ScopeDebugController",
+      "route_template": "v{version:apiVersion}/scope",
+      "normalized_prefix": "/v1/scope",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/SecurityTrustPublicationController.cs",
+      "class_name": "SecurityTrustPublicationController",
+      "route_template": "v{version:apiVersion}/admin/security-trust",
+      "normalized_prefix": "/v1/admin/security-trust",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": "/workspace/security-trust"
+    },
+    {
+      "controller_file": "Admin/SupportBundleController.cs",
+      "class_name": "SupportBundleController",
+      "route_template": "v{version:apiVersion}/admin",
+      "normalized_prefix": "/v1/admin",
+      "commercial_tier": "none",
+      "class_policy": "none",
+      "exemption": null,
+      "nav_operator_href": "/admin/support"
+    },
+    {
+      "controller_file": "Admin/TenantsAdminController.cs",
+      "class_name": "TenantsAdminController",
+      "route_template": "v{version:apiVersion}/admin/tenants",
+      "normalized_prefix": "/v1/admin/tenants",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": "/admin/users"
+    },
+    {
+      "controller_file": "Admin/VersionController.cs",
+      "class_name": "VersionController",
+      "route_template": "version",
+      "normalized_prefix": "/version",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "unversioned_version_probe",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Advisory/AdvisoryController.cs",
+      "class_name": "AdvisoryController",
+      "route_template": "v{version:apiVersion}/advisory",
+      "normalized_prefix": "/v1/advisory",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/advisory"
+    },
+    {
+      "controller_file": "Advisory/AdvisorySchedulingController.cs",
+      "class_name": "AdvisorySchedulingController",
+      "route_template": "v{version:apiVersion}/advisory-scheduling",
+      "normalized_prefix": "/v1/advisory-scheduling",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Advisory/DigestSubscriptionsController.cs",
+      "class_name": "DigestSubscriptionsController",
+      "route_template": "v{version:apiVersion}/digest-subscriptions",
+      "normalized_prefix": "/v1/digest-subscriptions",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/digests"
+    },
+    {
+      "controller_file": "Advisory/LearningController.cs",
+      "class_name": "LearningController",
+      "route_template": "v{version:apiVersion}/learning",
+      "normalized_prefix": "/v1/learning",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Advisory/ProductLearningController.cs",
+      "class_name": "ProductLearningController",
+      "route_template": "v{version:apiVersion}/product-learning",
+      "normalized_prefix": "/v1/product-learning",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/product-learning"
+    },
+    {
+      "controller_file": "Advisory/RecommendationLearningController.cs",
+      "class_name": "RecommendationLearningController",
+      "route_template": "v{version:apiVersion}/recommendation-learning",
+      "normalized_prefix": "/v1/recommendation-learning",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/recommendation-learning"
+    },
+    {
+      "controller_file": "AgentExecution/AgentExecutionCostPreviewController.cs",
+      "class_name": "AgentExecutionCostPreviewController",
+      "route_template": "v{version:apiVersion}/agent-execution",
+      "normalized_prefix": "/v1/agent-execution",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "anonymous_wizard_cost_preview",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Alerts/AlertRoutingSubscriptionsController.cs",
+      "class_name": "AlertRoutingSubscriptionsController",
+      "route_template": "v{version:apiVersion}/alert-routing-subscriptions",
+      "normalized_prefix": "/v1/alert-routing-subscriptions",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/alerts"
+    },
+    {
+      "controller_file": "Alerts/AlertRulesController.cs",
+      "class_name": "AlertRulesController",
+      "route_template": "v{version:apiVersion}/alert-rules",
+      "normalized_prefix": "/v1/alert-rules",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/alerts"
+    },
+    {
+      "controller_file": "Alerts/AlertsController.cs",
+      "class_name": "AlertsController",
+      "route_template": "v{version:apiVersion}/alerts",
+      "normalized_prefix": "/v1/alerts",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/alerts"
+    },
+    {
+      "controller_file": "Alerts/AlertSimulationController.cs",
+      "class_name": "AlertSimulationController",
+      "route_template": "v{version:apiVersion}/alert-simulation",
+      "normalized_prefix": "/v1/alert-simulation",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/alerts"
+    },
+    {
+      "controller_file": "Alerts/AlertTuningController.cs",
+      "class_name": "AlertTuningController",
+      "route_template": "v{version:apiVersion}/alert-tuning",
+      "normalized_prefix": "/v1/alert-tuning",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/alerts"
+    },
+    {
+      "controller_file": "Alerts/CompositeAlertRulesController.cs",
+      "class_name": "CompositeAlertRulesController",
+      "route_template": "v{version:apiVersion}/composite-alert-rules",
+      "normalized_prefix": "/v1/composite-alert-rules",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/alerts"
+    },
+    {
+      "controller_file": "Analytics/RoiAnalyticsController.cs",
+      "class_name": "RoiAnalyticsController",
+      "route_template": "v{version:apiVersion}/analytics",
+      "normalized_prefix": "/v1/analytics",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Auth/TrialLocalIdentityAuthController.cs",
+      "class_name": "TrialLocalIdentityAuthController",
+      "route_template": "v{version:apiVersion}/auth/trial/local",
+      "normalized_prefix": "/v1/auth/trial/local",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "trial_local_identity_auth",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/AnalysisReportsController.cs",
+      "class_name": "AnalysisReportsController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/ArtifactExportController.cs",
+      "class_name": "ArtifactExportController",
+      "route_template": "v{version:apiVersion}/artifacts",
+      "normalized_prefix": "/v1/artifacts",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/AuthorityCompareController.cs",
+      "class_name": "AuthorityCompareController",
+      "route_template": "v{version:apiVersion}/authority/compare",
+      "normalized_prefix": "/v1/authority/compare",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/AuthorityQueryController.cs",
+      "class_name": "AuthorityQueryController",
+      "route_template": "v{version:apiVersion}/authority",
+      "normalized_prefix": "/v1/authority",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/AuthorityReplayController.cs",
+      "class_name": "AuthorityReplayController",
+      "route_template": "v{version:apiVersion}/internal/authority/replay",
+      "normalized_prefix": "/v1/internal/authority/replay",
+      "commercial_tier": "standard",
+      "class_policy": "RequireOperatorRole",
+      "exemption": "internal_replay_diagnostics",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/AuthorityRunEventsController.cs",
+      "class_name": "AuthorityRunEventsController",
+      "route_template": "v{version:apiVersion}/authority",
+      "normalized_prefix": "/v1/authority",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/AzureExtractorUploadController.cs",
+      "class_name": "AzureExtractorUploadController",
+      "route_template": "v{version:apiVersion}/azure-extractor",
+      "normalized_prefix": "/v1/azure-extractor",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/DocxExportController.cs",
+      "class_name": "DocxExportController",
+      "route_template": "v{version:apiVersion}/docx",
+      "normalized_prefix": "/v1/docx",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/ExecutiveSummaryController.cs",
+      "class_name": "ExecutiveSummaryController",
+      "route_template": "api/authority/executive-summary",
+      "normalized_prefix": "/api/authority/executive-summary",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": "non_versioned_executive_api",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/ExportsController.cs",
+      "class_name": "ExportsController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/FastPathContextController.cs",
+      "class_name": "FastPathContextController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/ImportRequestFileController.cs",
+      "class_name": "ImportRequestFileController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/InternalArchitectureDiagnosticsController.cs",
+      "class_name": "InternalArchitectureDiagnosticsController",
+      "route_template": "v{version:apiVersion}/internal/architecture",
+      "normalized_prefix": "/v1/internal/architecture",
+      "commercial_tier": "none",
+      "class_policy": "RequireOperatorRole",
+      "exemption": "internal_architecture_diagnostics",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/RunAgentEvaluationController.cs",
+      "class_name": "RunAgentEvaluationController",
+      "route_template": "v{version:apiVersion}/internal/architecture",
+      "normalized_prefix": "/v1/internal/architecture",
+      "commercial_tier": "none",
+      "class_policy": "RequireOperatorRole",
+      "exemption": "internal_architecture_diagnostics",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/RunComparisonController.cs",
+      "class_name": "RunComparisonController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/compare"
+    },
+    {
+      "controller_file": "Authority/RunQueryController.cs",
+      "class_name": "RunQueryController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Authority/RunsController.cs",
+      "class_name": "RunsController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/reviews?projectId=default"
+    },
+    {
+      "controller_file": "Authority/TemplatesController.cs",
+      "class_name": "TemplatesController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Billing/BillingCheckoutController.cs",
+      "class_name": "BillingCheckoutController",
+      "route_template": "v{version:apiVersion}/tenant/billing",
+      "normalized_prefix": "/v1/tenant/billing",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": "/settings/tenant"
+    },
+    {
+      "controller_file": "Billing/BillingMarketplaceWebhookController.cs",
+      "class_name": "BillingMarketplaceWebhookController",
+      "route_template": "v{version:apiVersion}/billing/webhooks",
+      "normalized_prefix": "/v1/billing/webhooks",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "partner_webhook_ingest",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Billing/BillingStripeWebhookController.cs",
+      "class_name": "BillingStripeWebhookController",
+      "route_template": "v{version:apiVersion}/billing/webhooks",
+      "normalized_prefix": "/v1/billing/webhooks",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "partner_webhook_ingest",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Demo/DemoCommitPagePreviewController.cs",
+      "class_name": "DemoCommitPagePreviewController",
+      "route_template": "v{version:apiVersion}/demo",
+      "normalized_prefix": "/v1/demo",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "demo_tooling",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Demo/DemoExplainController.cs",
+      "class_name": "DemoExplainController",
+      "route_template": "v{version:apiVersion}/demo",
+      "normalized_prefix": "/v1/demo",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "demo_tooling",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Demo/DemoViewerController.cs",
+      "class_name": "DemoViewerController",
+      "route_template": "v{version:apiVersion}/demo/viewer",
+      "normalized_prefix": "/v1/demo/viewer",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "demo_tooling",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Demo/QuickStartController.cs",
+      "class_name": "QuickStartController",
+      "route_template": "v{version:apiVersion}/demo",
+      "normalized_prefix": "/v1/demo",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "demo_tooling",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Diagnostics/ConfigurationHealthController.cs",
+      "class_name": "ConfigurationHealthController",
+      "route_template": "v{version:apiVersion}/diagnostics",
+      "normalized_prefix": "/v1/diagnostics",
+      "commercial_tier": "none",
+      "class_policy": "RequireAdmin",
+      "exemption": null,
+      "nav_operator_href": "/admin/health"
+    },
+    {
+      "controller_file": "Diagnostics/OperatorTaskSuccessDiagnosticsController.cs",
+      "class_name": "OperatorTaskSuccessDiagnosticsController",
+      "route_template": "v{version:apiVersion}/diagnostics",
+      "normalized_prefix": "/v1/diagnostics",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Diagnostics/SyntheticOperatorDemoPackController.cs",
+      "class_name": "SyntheticOperatorDemoPackController",
+      "route_template": "v{version:apiVersion}/diagnostics",
+      "normalized_prefix": "/v1/diagnostics",
+      "commercial_tier": "none",
+      "class_policy": "RequireAdmin",
+      "exemption": "synthetic_demo_admin_pack",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "E2e/E2eHarnessController.cs",
+      "class_name": "E2EHarnessController",
+      "route_template": "v{version:apiVersion}/e2e",
+      "normalized_prefix": "/v1/e2e",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "e2e_nonprod_harness",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Evolution/EvolutionController.cs",
+      "class_name": "EvolutionController",
+      "route_template": "v{version:apiVersion}/evolution",
+      "normalized_prefix": "/v1/evolution",
+      "commercial_tier": "standard",
+      "class_policy": "none",
+      "exemption": null,
+      "nav_operator_href": "/evolution-review"
+    },
+    {
+      "controller_file": "Findings/FindingInspectController.cs",
+      "class_name": "FindingInspectController",
+      "route_template": "v{version:apiVersion}/findings",
+      "normalized_prefix": "/v1/findings",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/governance/findings"
+    },
+    {
+      "controller_file": "Governance/GovernanceController.cs",
+      "class_name": "GovernanceController",
+      "route_template": "v{version:apiVersion}/governance",
+      "normalized_prefix": "/v1/governance",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/governance"
+    },
+    {
+      "controller_file": "Governance/GovernancePreCommitSimulationController.cs",
+      "class_name": "GovernancePreCommitSimulationController",
+      "route_template": "v{version:apiVersion}/governance/pre-commit",
+      "normalized_prefix": "/v1/governance/pre-commit",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Governance/GovernancePreviewController.cs",
+      "class_name": "GovernancePreviewController",
+      "route_template": "v{version:apiVersion}/governance-preview",
+      "normalized_prefix": "/v1/governance-preview",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Governance/GovernanceResolutionController.cs",
+      "class_name": "GovernanceResolutionController",
+      "route_template": "v{version:apiVersion}/governance-resolution",
+      "normalized_prefix": "/v1/governance-resolution",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/governance-resolution"
+    },
+    {
+      "controller_file": "Governance/ManifestsController.cs",
+      "class_name": "ManifestsController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Governance/PolicyPacksController.cs",
+      "class_name": "PolicyPacksController",
+      "route_template": "v{version:apiVersion}/policy-packs",
+      "normalized_prefix": "/v1/policy-packs",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/policy-packs"
+    },
+    {
+      "controller_file": "Integrations/ItsmCorrelationController.cs",
+      "class_name": "ItsmCorrelationController",
+      "route_template": "v{version:apiVersion}/integrations/itsm/correlations",
+      "normalized_prefix": "/v1/integrations/itsm/correlations",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Integrations/ItsmInboundWebhooksController.cs",
+      "class_name": "ItsmInboundWebhooksController",
+      "route_template": "v{version:apiVersion}/integrations/webhooks",
+      "normalized_prefix": "/v1/integrations/webhooks",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "partner_webhook_ingest",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Integrations/ItsmOutboundIssuesController.cs",
+      "class_name": "ItsmOutboundIssuesController",
+      "route_template": "v{version:apiVersion}/integrations/itsm/outbound/issues",
+      "normalized_prefix": "/v1/integrations/itsm/outbound/issues",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Integrations/TeamsIncomingWebhookConnectionsController.cs",
+      "class_name": "TeamsIncomingWebhookConnectionsController",
+      "route_template": "v{version:apiVersion}/integrations/teams",
+      "normalized_prefix": "/v1/integrations/teams",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": "/integrations/teams"
+    },
+    {
+      "controller_file": "Integrations/WebhookConnectionsController.cs",
+      "class_name": "WebhookConnectionsController",
+      "route_template": "v{version:apiVersion}/integrations/webhooks",
+      "normalized_prefix": "/v1/integrations/webhooks",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Marketing/EnterpriseComparisonMarketingController.cs",
+      "class_name": "EnterpriseComparisonMarketingController",
+      "route_template": "v{version:apiVersion}/marketing",
+      "normalized_prefix": "/v1/marketing",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "marketing_public_api",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Marketing/MarketingPricingQuoteRequestController.cs",
+      "class_name": "MarketingPricingQuoteRequestController",
+      "route_template": "v{version:apiVersion}/marketing/pricing",
+      "normalized_prefix": "/v1/marketing/pricing",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "marketing_public_api",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Marketing/MarketingShowcaseController.cs",
+      "class_name": "MarketingShowcaseController",
+      "route_template": "v{version:apiVersion}/marketing/showcase",
+      "normalized_prefix": "/v1/marketing/showcase",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "marketing_public_api",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Marketing/SponsorBriefMarketingController.cs",
+      "class_name": "SponsorBriefMarketingController",
+      "route_template": "v{version:apiVersion}/marketing",
+      "normalized_prefix": "/v1/marketing",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "marketing_public_api",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Marketing/TrustCenterEvidencePackController.cs",
+      "class_name": "TrustCenterEvidencePackController",
+      "route_template": "v{version:apiVersion}/marketing/trust-center",
+      "normalized_prefix": "/v1/marketing/trust-center",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "marketing_public_api",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Marketing/WhyArchlucidMarketingPackController.cs",
+      "class_name": "WhyArchlucidMarketingPackController",
+      "route_template": "v{version:apiVersion}/marketing",
+      "normalized_prefix": "/v1/marketing",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "marketing_public_api",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Notifications/CustomerNotificationChannelPreferencesController.cs",
+      "class_name": "CustomerNotificationChannelPreferencesController",
+      "route_template": "v{version:apiVersion}/notifications",
+      "normalized_prefix": "/v1/notifications",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Notifications/ExecDigestUnsubscribeController.cs",
+      "class_name": "ExecDigestUnsubscribeController",
+      "route_template": "v{version:apiVersion}/notifications/exec-digest",
+      "normalized_prefix": "/v1/notifications/exec-digest",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "signed_token_unsubscribe",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Pilots/PilotsBoardPackController.cs",
+      "class_name": "PilotsBoardPackController",
+      "route_template": "v{version:apiVersion}/pilots",
+      "normalized_prefix": "/v1/pilots",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": "/scorecard"
+    },
+    {
+      "controller_file": "Pilots/PilotsController.cs",
+      "class_name": "PilotsController",
+      "route_template": "v{version:apiVersion}/pilots",
+      "normalized_prefix": "/v1/pilots",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/reviews?projectId=default"
+    },
+    {
+      "controller_file": "Planning/AskController.cs",
+      "class_name": "AskController",
+      "route_template": "v{version:apiVersion}/ask",
+      "normalized_prefix": "/v1/ask",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/ask"
+    },
+    {
+      "controller_file": "Planning/ComparisonController.cs",
+      "class_name": "ComparisonController",
+      "route_template": "v{version:apiVersion}/compare",
+      "normalized_prefix": "/v1/compare",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/compare"
+    },
+    {
+      "controller_file": "Planning/ComparisonsController.cs",
+      "class_name": "ComparisonsController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/replay"
+    },
+    {
+      "controller_file": "Planning/ConversationController.cs",
+      "class_name": "ConversationController",
+      "route_template": "v{version:apiVersion}/conversations",
+      "normalized_prefix": "/v1/conversations",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Planning/ExplanationController.cs",
+      "class_name": "ExplanationController",
+      "route_template": "v{version:apiVersion}/explain",
+      "normalized_prefix": "/v1/explain",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Planning/FindingFeedbackController.cs",
+      "class_name": "FindingFeedbackController",
+      "route_template": "v{version:apiVersion}/explain",
+      "normalized_prefix": "/v1/explain",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Planning/GraphController.cs",
+      "class_name": "GraphController",
+      "route_template": "v{version:apiVersion}/graph",
+      "normalized_prefix": "/v1/graph",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/graph"
+    },
+    {
+      "controller_file": "Planning/ProvenanceController.cs",
+      "class_name": "ProvenanceController",
+      "route_template": "v{version:apiVersion}/provenance",
+      "normalized_prefix": "/v1/provenance",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Planning/ProvenanceQueryController.cs",
+      "class_name": "ProvenanceQueryController",
+      "route_template": "v{version:apiVersion}/authority",
+      "normalized_prefix": "/v1/authority",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Planning/RetrievalController.cs",
+      "class_name": "RetrievalController",
+      "route_template": "v{version:apiVersion}/retrieval",
+      "normalized_prefix": "/v1/retrieval",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": "/search"
+    },
+    {
+      "controller_file": "RegistrationController.cs",
+      "class_name": "RegistrationController",
+      "route_template": "v{version:apiVersion}/register",
+      "normalized_prefix": "/v1/register",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "registration_public_flow",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Scim/ScimDiscoveryController.cs",
+      "class_name": "ScimDiscoveryController",
+      "route_template": "scim/v2",
+      "normalized_prefix": "/scim/v2",
+      "commercial_tier": "none",
+      "class_policy": "ScimWrite",
+      "exemption": "scim_idp_automation",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Scim/ScimGroupsController.cs",
+      "class_name": "ScimGroupsController",
+      "route_template": "scim/v2/Groups",
+      "normalized_prefix": "/scim/v2/Groups",
+      "commercial_tier": "none",
+      "class_policy": "ScimWrite",
+      "exemption": "scim_idp_automation",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Scim/ScimUsersController.cs",
+      "class_name": "ScimUsersController",
+      "route_template": "scim/v2/Users",
+      "normalized_prefix": "/scim/v2/Users",
+      "commercial_tier": "none",
+      "class_policy": "ScimWrite",
+      "exemption": "scim_idp_automation",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Tenancy/CorePilotTeamChecklistController.cs",
+      "class_name": "CorePilotTeamChecklistController",
+      "route_template": "v{version:apiVersion}/tenant/core-pilot-checklist",
+      "normalized_prefix": "/v1/tenant/core-pilot-checklist",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": "/onboarding"
+    },
+    {
+      "controller_file": "Tenancy/TenantBaselineController.cs",
+      "class_name": "TenantBaselineController",
+      "route_template": "v{version:apiVersion}/tenant/baseline",
+      "normalized_prefix": "/v1/tenant/baseline",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": "/settings/baseline"
+    },
+    {
+      "controller_file": "Tenancy/TenantCostEstimateController.cs",
+      "class_name": "TenantCostEstimateController",
+      "route_template": "v{version:apiVersion}/tenant/cost-estimate",
+      "normalized_prefix": "/v1/tenant/cost-estimate",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": "/settings/tenant-cost"
+    },
+    {
+      "controller_file": "Tenancy/TenantCustomerSuccessController.cs",
+      "class_name": "TenantCustomerSuccessController",
+      "route_template": "v{version:apiVersion}/tenant/customer-success",
+      "normalized_prefix": "/v1/tenant/customer-success",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Tenancy/TenantExecDigestPreferencesController.cs",
+      "class_name": "TenantExecDigestPreferencesController",
+      "route_template": "v{version:apiVersion}/tenant",
+      "normalized_prefix": "/v1/tenant",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Tenancy/TenantMeasuredRoiController.cs",
+      "class_name": "TenantMeasuredRoiController",
+      "route_template": "v{version:apiVersion}/tenant/measured-roi",
+      "normalized_prefix": "/v1/tenant/measured-roi",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": "/value-report/roi"
+    },
+    {
+      "controller_file": "Tenancy/TenantPilotValueReportController.cs",
+      "class_name": "TenantPilotValueReportController",
+      "route_template": "v{version:apiVersion}/tenant",
+      "normalized_prefix": "/v1/tenant",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": "/value-report/pilot"
+    },
+    {
+      "controller_file": "Tenancy/TenantTrialController.cs",
+      "class_name": "TenantTrialController",
+      "route_template": "v{version:apiVersion}/tenant",
+      "normalized_prefix": "/v1/tenant",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": "/settings/tenant"
+    },
+    {
+      "controller_file": "ValueReports/ValueReportController.cs",
+      "class_name": "ValueReportController",
+      "route_template": "v{version:apiVersion}/value-report",
+      "normalized_prefix": "/v1/value-report",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": "/value-report"
+    },
+    {
+      "controller_file": "Webhooks/OutboundWebhookDryRunController.cs",
+      "class_name": "OutboundWebhookDryRunController",
+      "route_template": "v{version:apiVersion}/webhooks",
+      "normalized_prefix": "/v1/webhooks",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    }
+  ]
+}

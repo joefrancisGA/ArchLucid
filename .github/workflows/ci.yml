@@ -170,6 +170,12 @@ jobs:
       - name: Audit matrix guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_audit_const_count.py"
 
+      - name: Route tier policy nav registry vs controllers + matrix
+        run: python scripts/ci/assert_route_tier_policy_nav.py
+
+      - name: Route tier policy nav guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_route_tier_policy_nav.py"
+
       - name: Integration recipe CloudEvent types vs catalog
         run: python scripts/ci/check_integration_recipes_link_alignment.py
 
@@ -535,6 +541,9 @@ jobs:
 
       - name: Guard — audit coverage matrix vs AuditEventTypes (names + marker)
         run: python scripts/ci/assert_audit_const_count.py
+
+      - name: Guard — route tier policy nav registry vs controllers + matrix
+        run: python scripts/ci/assert_route_tier_policy_nav.py
 
       - name: coordinator parity probe (Python unit tests)
         run: python3 scripts/ci/test_coordinator_parity_probe.py

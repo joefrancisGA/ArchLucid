@@ -4,6 +4,7 @@ using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Persistence.Serialization;
 using Microsoft.Extensions.Logging;
@@ -131,7 +132,10 @@ public sealed class PolicyPackDryRunService(IRunDetailQueryService runDetailQuer
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(ex, "Dry-run: failed to load run {RunId}; treating as missing.", runId);
+            _logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "Dry-run: failed to load run {RunId}; treating as missing.",
+                runId);
             return null;
         }
     }

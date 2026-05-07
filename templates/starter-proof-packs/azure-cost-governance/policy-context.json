@@ -1,0 +1,5 @@
+{
+  "policyPackVerticalSlug": "financial-services",
+  "policyPackRelativePath": "templates/policy-packs/financial-services",
+  "intent": "Governance and financial-controls-oriented rule vocabulary for cost-and-policy architecture reviews; not a PCAOB or audit conclusion."
+}
