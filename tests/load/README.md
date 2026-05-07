@@ -115,7 +115,7 @@ All scripts accept **`ARCHLUCID_BASE_URL`** (preferred) or **`BASE_URL`** (alias
 
 ## `k6-api-smoke.js` — operator path (CI + local)
 
-Exercises: **`GET /health/ready`** (JSON **`status`** must be **`Healthy`**), **`GET /version`**, **`POST /v1/architecture/request`**, **`GET /v1/authority/projects/{project}/runs?take=10`** (default project slug **`default`**).
+Exercises a **Core Pilot-shaped** slice: **`GET /health/ready`**, **`GET /version`**, **`POST /v1/architecture/request`**, **`GET /v1/architecture/run/{id}`** (run snapshot), **`GET /v1/authority/projects/{project}/runs?take=10`**, then (unless **`ARCHLUCID_K6_OPERATOR_MINIMAL=1`**) **`POST /v1/internal/architecture/runs/{id}/seed-fake-results`**, **`POST /v1/architecture/run/{id}/commit`**, **`GET /v1/artifacts/manifests/{manifestId}`** (artifact descriptors). **CI/pilot smoke budgets** use **`k6api:*`** tags and **`ARCHLUCID_K6_P95_*`** env overrides — **not** contractual production SLOs (see **`docs/library/PERFORMANCE_TESTING.md`**).
 
 **Environment**
 
@@ -126,6 +126,13 @@ Exercises: **`GET /health/ready`** (JSON **`status`** must be **`Healthy`**), **
 | **`ARCHLUCID_AUTHORITY_PROJECT`** | `default` | Authority project slug for list runs |
 | **`K6_SCENARIO`** | *(unset = smoke)* | Set to **`load`** for ~3m / 20 VU ramping scenario |
 | **`K6_SUMMARY_PATH`** | `tests/load/results/k6-summary.json` | **`handleSummary`** output path |
+| **`ARCHLUCID_K6_OPERATOR_MINIMAL`** | *(unset)* | **`1`** / **`true`** = legacy four-call slice only (no internal seed/commit) |
+| **`ARCHLUCID_K6_P95_HEALTH_READY_MS`** | `1200` | Tier-style ceiling for **`/health/ready`** |
+| **`ARCHLUCID_K6_P95_TIER2_MS`** | `800` | List/detail/version/artifacts list |
+| **`ARCHLUCID_K6_P95_TIER3_MS`** | `8000` | Create run + seed + commit (unless overridden) |
+| **`ARCHLUCID_K6_P95_SEED_FAKE_MS`** | Tier 3 | Optional seed-only ceiling |
+| **`ARCHLUCID_K6_P95_COMMIT_MS`** | Tier 3 | Optional commit-only ceiling |
+| **`ARCHLUCID_K6_HTTP_FAIL_RATE_MAX`** | `0.02` | Merge gate noise allowance on Actions |
 
 **Local run**
 
@@ -135,6 +142,13 @@ Exercises: **`GET /health/ready`** (JSON **`status`** must be **`Healthy`**), **
 
 ```bash
 k6 run tests/load/k6-api-smoke.js
+```
+
+4. Duplicate CI gate (pass/fail + per-tag lines):
+
+```bash
+python3 scripts/ci/assert_k6_ci_smoke_summary.py tests/load/results/k6-summary.json --max-failed-rate 0.02 --max-p95-ms 2000 --per-tag-k6-api-smoke
+python3 scripts/ci/print_k6_summary_metrics.py tests/load/results/k6-summary.json
 ```
 
 Summary JSON is written to **`tests/load/results/k6-summary.json`** (gitignored). Override with **`K6_SUMMARY_PATH`**.
@@ -147,12 +161,12 @@ K6_SCENARIO=load k6 run tests/load/k6-api-smoke.js --summary-export /tmp/k6-load
 
 **Thresholds (built into script)**
 
-- **`http_req_failed`**: rate &lt; **1%**
-- **`http_req_duration`**: **p95** &lt; **2000** ms, **p99** &lt; **5000** ms
+- **`http_req_failed`**: rate &lt; **`ARCHLUCID_K6_HTTP_FAIL_RATE_MAX`** (default **2%**)
+- **`http_req_duration{k6api:…}`**: **p95** per step (defaults aligned with **`ci-smoke.js`** / **`API_SLOS.md`** tier hints)
 
 **CI**
 
-Job **`Performance: k6 API smoke (operator path)`** in **`.github/workflows/ci.yml`** runs after **`.NET: full regression (SQL)`**, installs native k6 on the runner, starts **`ArchLucid.Api`** against catalog **`ArchLucidK6Smoke`**, runs this script with **`K6_SCENARIO=smoke`**, then **`scripts/ci/assert_k6_ci_smoke_summary.py`** (same gate as k6 CI smoke: failed rate + p95). Artifact: **`k6-smoke-results`**.
+Job **`Performance: k6 API smoke (operator path)`** in **`.github/workflows/ci.yml`** runs after **`.NET: full regression (SQL)`**, installs native k6 on the runner, starts **`ArchLucid.Api`** against catalog **`ArchLucidK6Smoke`**, runs this script with **`K6_SCENARIO=smoke`**, then **`scripts/ci/assert_k6_ci_smoke_summary.py --per-tag-k6-api-smoke`** (failed rate + per-tag p95 duplicate gate). Artifact: **`k6-smoke-results`**.
 
 ## `ci-smoke.js` — read + write CI smoke
 

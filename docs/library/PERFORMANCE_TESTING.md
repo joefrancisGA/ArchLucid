@@ -71,9 +71,19 @@ Raise thresholds only when a change **intentionally** increases latency (for exa
 
 ## CI
 
-See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 API smoke (operator path)`** (**merge-blocking**). After **`dotnet-full-regression`**, the workflow creates catalog **`ArchLucidK6Smoke`**, starts **`ArchLucid.Api`** (DevelopmentBypass, simulator agents, **raised `RateLimiting:FixedWindow:PermitLimit`**), waits for **`/health/ready`**, installs **k6** on the runner, runs **`tests/load/k6-api-smoke.js`** with **`K6_SUMMARY_PATH`** pointing at the job temp dir, asserts via **`scripts/ci/assert_k6_ci_smoke_summary.py`**, prints **`scripts/ci/print_k6_summary_metrics.py`**, and uploads artifact **`k6-smoke-results`**.
+See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 API smoke (operator path)`** (**merge-blocking**). After **`dotnet-full-regression`**, the workflow creates catalog **`ArchLucidK6Smoke`**, starts **`ArchLucid.Api`** (DevelopmentBypass, simulator agents, **raised `RateLimiting:FixedWindow:PermitLimit`**), waits for **`/health/ready`**, installs **k6** on the runner, runs **`tests/load/k6-api-smoke.js`** with **`K6_SUMMARY_PATH`** pointing at the job temp dir, asserts via **`scripts/ci/assert_k6_ci_smoke_summary.py --per-tag-k6-api-smoke`** (duplicate gate on k6’s own thresholds), prints **`scripts/ci/print_k6_summary_metrics.py`**, and uploads artifact **`k6-smoke-results`**.
 
-The read-only **`tests/load/smoke.js`** profile remains documented for local / manual comparison; the **merge gate** uses **`k6-api-smoke.js`** (operator path including **`POST /v1/architecture/request`**).
+### Core Pilot operator-path smoke budget (merge gate)
+
+**`tests/load/k6-api-smoke.js`** enforces **per-request-tag** p(95) ceilings (via k6 **`thresholds`**) for the default **Core Pilot-shaped** HTTP slice: **`/health/ready`**, **`GET /version`**, **`POST /v1/architecture/request`**, **`GET /v1/architecture/run/{id}`** (run snapshot), **`GET /v1/authority/projects/…/runs`**, then **`POST …/seed-fake-results`** → **`POST …/commit`** → **`GET /v1/artifacts/manifests/{manifestId}`** (descriptor listing). Caps default to the same tier hints as **`ci-smoke.js`** (**`ARCHLUCID_K6_P95_HEALTH_READY_MS`**, **`ARCHLUCID_K6_P95_TIER2_MS`**, **`ARCHLUCID_K6_P95_TIER3_MS`**, optional **`ARCHLUCID_K6_P95_SEED_FAKE_MS`** / **`ARCHLUCID_K6_P95_COMMIT_MS`**, **`ARCHLUCID_K6_HTTP_FAIL_RATE_MAX`**).
+
+**What this budget proves:** on a **fresh SQL catalog** with **Simulator** agents and **DevelopmentBypass**, the **first-pilot-shaped API sequence** stays within **documented CI/pilot smoke ceilings** and does not regress sharply on latency or check failures versus recent baseline PRs.
+
+**What it does *not* prove:** production throughput, multi-tenant isolation under adversarial load, real LLM latency, or contractual SLO adherence — see **`docs/library/API_SLOS.md`** for product-facing targets and **`docs/library/LOAD_TEST_BASELINE.md`** for heavier manual Compose profiles.
+
+For environments **without** internal seed/commit (for example strict ApiKey-only targets), set **`ARCHLUCID_K6_OPERATOR_MINIMAL=1`** so the script stops after the authority runs list (legacy four-call operator slice).
+
+The read-only **`tests/load/smoke.js`** profile remains documented for local / manual comparison; the **merge gate** uses **`k6-api-smoke.js`** (operator path including **`POST /v1/architecture/request`** and the Core Pilot finish path above unless minimal mode is set).
 
 ### Docker k6 (local / soak)
 
