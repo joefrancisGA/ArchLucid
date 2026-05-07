@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 
 type RunDetailOutcomeCardsProps = {
   readonly runId: string;
@@ -33,6 +34,10 @@ export function RunDetailOutcomeCards({
   governanceGateLabel,
 }: RunDetailOutcomeCardsProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const unresolvedTrunc =
+    typeof unresolvedIssueCountDisplay === "number" && Number.isFinite(unresolvedIssueCountDisplay)
+      ? Math.trunc(unresolvedIssueCountDisplay)
+      : null;
 
   const findingsCardEl = (
         <Card className="h-full border-neutral-200 dark:border-neutral-800">
@@ -51,15 +56,15 @@ export function RunDetailOutcomeCards({
           <CardContent className="pt-0 space-y-1">
             <p className="m-0 text-sm tabular-nums text-neutral-900 dark:text-neutral-100">
               <span className="font-medium">Findings:</span>{" "}
-              <span className="text-lg font-semibold">{findingCountDisplay === null ? "—" : findingCountDisplay}</span>
+              <span className="text-lg font-semibold">{finiteIntegerCountDisplay(findingCountDisplay)}</span>
             </p>
             <p className="m-0 text-sm tabular-nums text-neutral-900 dark:text-neutral-100">
               <span className="font-medium">Warnings (manifest):</span>{" "}
-              <span className="text-lg font-semibold">{warningCountDisplay === null ? "—" : warningCountDisplay}</span>
+              <span className="text-lg font-semibold">{finiteIntegerCountDisplay(warningCountDisplay)}</span>
             </p>
-            {unresolvedIssueCountDisplay !== null && unresolvedIssueCountDisplay > 0 ? (
+            {unresolvedTrunc !== null && unresolvedTrunc > 0 ? (
               <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                {unresolvedIssueCountDisplay} unresolved on manifest
+                {unresolvedTrunc} unresolved on manifest
               </p>
             ) : null}
           </CardContent>
@@ -81,7 +86,9 @@ export function RunDetailOutcomeCards({
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="m-0 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">{artifactCount}</p>
+            <p className="m-0 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+              {finiteIntegerCountDisplay(artifactCount)}
+            </p>
             <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
               Attached to manifest when finalized
             </p>
@@ -156,7 +163,7 @@ export function RunDetailOutcomeCards({
             className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
             href={`/reviews/${encodeURIComponent(runId)}/provenance`}
           >
-            Full provenance view
+            {buyerPolishedShell ? "Evidence trail detail" : "Full provenance view"}
           </Link>
           {buyerPolishedShell ? null : (
           <Link
