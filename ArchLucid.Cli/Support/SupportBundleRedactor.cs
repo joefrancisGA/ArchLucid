@@ -35,8 +35,8 @@ public static class SupportBundleRedactor
         RegexOptions.Compiled);
 
     /// <summary>
-    ///     JWT emitted inside JSON string literals as <c>\\u0022...\u0022</c>; plain <see cref="JwtLikeToken" />
-    ///     cannot anchor when a digit precedes <c>e</c> (end of Unicode escape digits).
+    ///     JWT emitted inside JSON string literals as <c>\\u0022...\u0022</c> (the last digit of <c>0022</c> precedes
+    ///     <c>eyJ</c>, which breaks naive word-boundary detection).
     /// </summary>
     private static readonly Regex JwtEmbeddedInJsonEscapedUnicodeQuotes = new(
         @"\\u0022eyJ[^.\\]+\.[^.\\]+\.[^.\\]+\\u0022",
