@@ -60,4 +60,17 @@ describe("mapGraphToReactFlow", () => {
       type: "smoothstep",
     });
   });
+
+  it("uses humanized edge labels in buyerTrail presentation", () => {
+    const graph: GraphViewModel = {
+      nodes: [
+        { id: "a", label: "A", type: "FindingsSnapshot" },
+        { id: "b", label: "B", type: "Finding" },
+      ],
+      edges: [{ source: "a", target: "b", type: "raised" }],
+    };
+
+    const { edges } = mapGraphToReactFlow(graph, "buyerTrail");
+    expect(edges[0]?.label).toBe("raised");
+  });
 });

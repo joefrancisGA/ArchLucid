@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Api.Tests;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Scoping;
 using ArchLucid.TestSupport;
@@ -76,9 +77,7 @@ public sealed class TenantIsolationSmokeTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            // DbUp + first SQL queries can return 503 until the authority pipeline is warm; avoid relying on a single
-            // probe shape so CI stays stable.
-            await WarmListRunsPathAsync(primer);
+            await WarmSqlAuthorityPipelineAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -118,7 +117,7 @@ public sealed class TenantIsolationSmokeTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await WarmListRunsPathAsync(primer);
+            await WarmSqlAuthorityPipelineAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -150,7 +149,7 @@ public sealed class TenantIsolationSmokeTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await WarmListRunsPathAsync(primer);
+            await WarmSqlAuthorityPipelineAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -176,7 +175,7 @@ public sealed class TenantIsolationSmokeTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await WarmListRunsPathAsync(primer);
+            await WarmSqlAuthorityPipelineAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -286,20 +285,58 @@ public sealed class TenantIsolationSmokeTests
         _ = await cmd.ExecuteNonQueryAsync();
     }
 
+    /// <summary>
+    ///     DbUp + cold CI SQL can return 503 until migrations and first queries settle; combine readiness + list probes so
+    ///     POST create-run does not hit a colder write path alone.
+    /// </summary>
+    private static async Task WarmSqlAuthorityPipelineAsync(HttpClient client)
+    {
+        await WarmHealthReadyPathAsync(client);
+        await WarmListRunsPathAsync(client);
+    }
+
+    private static async Task WarmHealthReadyPathAsync(HttpClient client)
+    {
+        int delayMs = 500;
+
+        for (int attempt = 0; attempt < 60; attempt++)
+        {
+            using HttpResponseMessage response = await client.GetAsync("/health/ready");
+
+            if (response.StatusCode == HttpStatusCode.OK)
+                return;
+
+            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+            {
+                response.EnsureSuccessStatusCode();
+
+                return;
+            }
+
+            await Task.Delay(delayMs);
+            delayMs = Math.Min(delayMs * 2, 8000);
+        }
+
+        throw new InvalidOperationException(
+            "GET /health/ready stayed 503 (host still warming or SQL not reachable). See "
+            + nameof(WarmHealthReadyPathAsync) + ".");
+    }
+
     private static async Task WarmListRunsPathAsync(HttpClient client)
     {
-        // Greenfield DbUp + cold CI SQL can exceed short warm windows when the runner is busy.
         int delayMs = 1000;
 
         for (int attempt = 0; attempt < 60; attempt++)
         {
             using HttpResponseMessage response = await client.GetAsync("/v1/architecture/runs?limit=1");
+
             if (response.IsSuccessStatusCode)
                 return;
 
             if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
             {
                 response.EnsureSuccessStatusCode();
+
                 return;
             }
 
@@ -316,16 +353,21 @@ public sealed class TenantIsolationSmokeTests
         HttpClient client,
         object body)
     {
-        // POST can stay 503 after GET warm: heavier path (sp_getapplock, insert). Match
-        // ArchitectureRequestConcurrencyTestSupport: keep HttpClient.Timeout aligned with GreenfieldSqlApiFactory (long)
-        // so a single attempt can wait the distributed idempotency lock budget; retries cover fast 503 bursts on CI.
-        const int maxAttempts = 80;
+        // Stable key: retries must replay the same create semantically (distributed lock + idempotency row). Use the same
+        // transport pattern as ArchitectureRequestConcurrencyTestSupport for TestServer long responses.
+        string idempotencyKey = "tenant-iso-smoke-" + Guid.NewGuid().ToString("N");
+        const int maxAttempts = 100;
         int delayMs = 250;
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
-            HttpResponseMessage response = await client
-                .PostAsJsonAsync("/v1/architecture/request", body);
+            HttpResponseMessage response =
+                await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
+                    client,
+                    body,
+                    idempotencyKey,
+                    CancellationToken.None);
+
             if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
                 return response;
 
@@ -336,7 +378,8 @@ public sealed class TenantIsolationSmokeTests
 
         throw new InvalidOperationException(
             "POST /v1/architecture/request stayed 503 (host/SQL not ready). See "
-            + nameof(WarmListRunsPathAsync) + " and "
+            + nameof(WarmSqlAuthorityPipelineAsync) + ", "
+            + nameof(WarmListRunsPathAsync) + ", and "
             + nameof(PostArchitectureRequestWithTransientRetryAsync) + ".");
     }
 }

@@ -18,6 +18,8 @@ export type FirstTenantFunnelEvent =
   | "first_run_started"
   | "first_run_committed"
   | "first_finding_viewed"
+  | "first_finalization_attempted"
+  | "first_export_opened"
   | "thirty_minute_milestone";
 
 const ALLOWED_EVENTS: ReadonlySet<FirstTenantFunnelEvent> = new Set<FirstTenantFunnelEvent>([
@@ -26,11 +28,15 @@ const ALLOWED_EVENTS: ReadonlySet<FirstTenantFunnelEvent> = new Set<FirstTenantF
   "first_run_started",
   "first_run_committed",
   "first_finding_viewed",
+  "first_finalization_attempted",
+  "first_export_opened",
   "thirty_minute_milestone",
 ]);
 
 const SIGNUP_TIMESTAMP_KEY = "archlucid.firstTenantFunnel.signupUtc";
 const MILESTONE_FIRED_KEY = "archlucid.firstTenantFunnel.milestoneFired";
+const FINALIZATION_ATTEMPT_ONCE_KEY = "archlucid.firstTenantFunnel.finalizationAttemptOnce";
+const EXPORT_OPENED_ONCE_KEY = "archlucid.firstTenantFunnel.exportOpenedOnce";
 const THIRTY_MINUTES_MS = 30 * 60 * 1000;
 
 function isBrowser(): boolean {
@@ -117,6 +123,26 @@ function postFunnelEvent(eventName: FirstTenantFunnelEvent): void {
   ).catch(() => {
     /* intentional: telemetry must not surface secondary failures */
   });
+}
+
+/** First confirmed finalization dialog — once per browser; POST before commit resolves. */
+export function recordFirstFinalizationAttemptedOnce(): void {
+  if (!isBrowser()) return;
+
+  if (safeLocalStorageGet(FINALIZATION_ATTEMPT_ONCE_KEY) === "1") return;
+
+  safeLocalStorageSet(FINALIZATION_ATTEMPT_ONCE_KEY, "1");
+  postFunnelEvent("first_finalization_attempted");
+}
+
+/** First deliberate export / download ZIP or Markdown manifest — once per browser. */
+export function recordFirstExportOpenedOnce(): void {
+  if (!isBrowser()) return;
+
+  if (safeLocalStorageGet(EXPORT_OPENED_ONCE_KEY) === "1") return;
+
+  safeLocalStorageSet(EXPORT_OPENED_ONCE_KEY, "1");
+  postFunnelEvent("first_export_opened");
 }
 
 /**

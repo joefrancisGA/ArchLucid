@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -19,16 +20,6 @@ namespace ArchLucid.Persistence.Telemetry;
 public sealed class SqlFirstTenantFunnelEventStore(ISqlConnectionFactory connectionFactory)
     : IFirstTenantFunnelEventStore
 {
-    private static readonly HashSet<string> AllowedEvents = new(StringComparer.Ordinal)
-    {
-        "signup",
-        "tour_opt_in",
-        "first_run_started",
-        "first_run_committed",
-        "first_finding_viewed",
-        "thirty_minute_milestone"
-    };
-
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
@@ -36,7 +27,8 @@ public sealed class SqlFirstTenantFunnelEventStore(ISqlConnectionFactory connect
     public async Task AppendAsync(string eventName, Guid tenantId, DateTime occurredUtc, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(eventName)) throw new ArgumentException("eventName is required.", nameof(eventName));
-        if (!AllowedEvents.Contains(eventName))
+
+        if (!FirstTenantFunnelEventNames.IsValid(eventName))
             throw new ArgumentOutOfRangeException(nameof(eventName), eventName, "Unknown funnel event name.");
         if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
 

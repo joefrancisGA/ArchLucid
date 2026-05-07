@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { GraphIdleLegend, GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
 import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips";
+import { GraphReviewTrailLegendChips } from "@/components/GraphReviewTrailLegendChips";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
@@ -29,7 +30,9 @@ import {
 import { isApiRequestError } from "@/lib/api-request-error";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled, tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
+import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
+import { applyBuyerLabelsToProvenanceGraphViewModel } from "@/lib/provenance-graph-presentation";
 import type { GraphViewModel } from "@/types/graph";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -60,6 +63,32 @@ type GraphMode =
   | "decision-subgraph"
   | "node-neighborhood"
   | "architecture";
+
+function applyProvenanceDemoPresentationIfEligible(
+  model: GraphViewModel,
+  mode: GraphMode,
+  runIdTrimmed: string,
+): GraphViewModel {
+  if (mode !== "provenance-full") {
+    return model;
+  }
+
+  const demoUi =
+    isBuyerPolishedOperatorShellEnv() ||
+    isNextPublicDemoMode() ||
+    isStaticDemoPayloadFallbackEnabled() ||
+    isStaticDemoPayloadFallbackActiveForRun(runIdTrimmed);
+
+  if (!demoUi) {
+    return model;
+  }
+
+  if (!graphLooksLikeCoordinatorProvenanceTrail(model)) {
+    return model;
+  }
+
+  return applyBuyerLabelsToProvenanceGraphViewModel(model);
+}
 
 /** Interactive graph viewer page. Operator picks a review, graph mode, and optional filters. */
 export default function GraphPage() {
@@ -123,7 +152,13 @@ export default function GraphPage() {
 
       setLoadFailure(null);
       setMalformedMessage(null);
-      setGraph(provenanceLinkageToGraphViewModel(prov));
+      setGraph(
+        applyProvenanceDemoPresentationIfEligible(
+          provenanceLinkageToGraphViewModel(prov),
+          mode,
+          rid,
+        ),
+      );
       setTypeFilter("");
     };
 
@@ -195,7 +230,7 @@ export default function GraphPage() {
         }
       }
 
-      setGraph(nextGraph);
+      setGraph(applyProvenanceDemoPresentationIfEligible(nextGraph, mode, runId.trim()));
       setTypeFilter("");
       if (mode !== "architecture") {
         setArchitectureGraphNote(null);
@@ -250,7 +285,9 @@ export default function GraphPage() {
       return;
     }
 
-    setGraph(provenanceLinkageToGraphViewModel(prov));
+    setGraph(
+      applyProvenanceDemoPresentationIfEligible(provenanceLinkageToGraphViewModel(prov), mode, rid),
+    );
   }, [runId, mode]);
 
   const showIdleCard =
@@ -268,9 +305,9 @@ export default function GraphPage() {
     if (demoUi && showIdleCard) {
       return {
         ...GRAPH_IDLE,
-        title: "Claims Intake Evidence Graph",
+        title: "Review trail graph",
         description:
-          "The Claims Intake sample supplies a review-trail graph when static data is available. The graph loads automatically — if the canvas remains empty, use Load graph above.",
+          "The Claims Intake sample draws how the review advances from captured context through analysis, flagship risks, the finalized manifest, and bundled deliverables. The graph loads automatically — if the canvas stays empty, choose Load graph above.",
       };
     }
 
@@ -281,7 +318,7 @@ export default function GraphPage() {
     ? "Interactive review-trail graph for the selected architecture review. Controls below switch reviews or graph mode."
     : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
-  const pageTitle = buyerPolishedShell ? "Claims Intake evidence graph" : demoUi ? "Review trail graph" : "Review evidence graph";
+  const pageTitle = demoUi || buyerPolishedShell ? "Review trail graph" : "Review evidence graph";
 
   const loadButtonLabel = loading ? "Loading…" : "Load graph";
 
@@ -458,7 +495,12 @@ export default function GraphPage() {
         <>
           <ClientErrorBoundary title="Graph viewer failed to render">
             <div data-testid="graph-canvas-ready">
-              <GraphViewer graph={graph} typeFilter={typeFilter} runId={runId.trim()} />
+              <GraphViewer
+                graph={graph}
+                typeFilter={typeFilter}
+                runId={runId.trim()}
+                presentation={demoUi || buyerPolishedShell ? "buyerTrail" : "operator"}
+              />
             </div>
           </ClientErrorBoundary>
           <div className="mb-3 flex items-center gap-3">
@@ -485,7 +527,11 @@ export default function GraphPage() {
           </div>
           <div className="mb-3 max-w-4xl">
             <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Legend</p>
-            <GraphNodeKindLegendChips />
+            {graph !== null && graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
+              <GraphReviewTrailLegendChips />
+            ) : (
+              <GraphNodeKindLegendChips />
+            )}
           </div>
           {graphControls}
           {demoUi && buyerPolishedShell ? (

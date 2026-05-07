@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { recordFirstTenantFunnelEvent } from "./first-tenant-funnel-telemetry";
+import {
+  recordFirstExportOpenedOnce,
+  recordFirstFinalizationAttemptedOnce,
+  recordFirstTenantFunnelEvent,
+} from "./first-tenant-funnel-telemetry";
 
 describe("first-tenant-funnel-telemetry", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
@@ -99,5 +103,37 @@ describe("first-tenant-funnel-telemetry", () => {
       (c) => String((c[1] as RequestInit).body).includes("thirty_minute_milestone"),
     );
     expect(milestoneCalls).toHaveLength(1);
+  });
+
+  it("posts first_finalization_attempted once per browser", () => {
+    recordFirstFinalizationAttemptedOnce();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/proxy/v1/diagnostics/first-tenant-funnel",
+      expect.objectContaining({
+        body: JSON.stringify({ event: "first_finalization_attempted" }),
+      }),
+    );
+
+    fetchMock.mockClear();
+    recordFirstFinalizationAttemptedOnce();
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("posts first_export_opened once per browser", () => {
+    recordFirstExportOpenedOnce();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/proxy/v1/diagnostics/first-tenant-funnel",
+      expect.objectContaining({
+        body: JSON.stringify({ event: "first_export_opened" }),
+      }),
+    );
+
+    fetchMock.mockClear();
+    recordFirstExportOpenedOnce();
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

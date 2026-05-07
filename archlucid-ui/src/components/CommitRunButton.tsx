@@ -10,7 +10,10 @@ import { Label } from "@/components/ui/label";
 import { commitArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
-import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import {
+  recordFirstFinalizationAttemptedOnce,
+  recordFirstTenantFunnelEvent,
+} from "@/lib/first-tenant-funnel-telemetry";
 
 export type CommitRunButtonProps = {
   runId: string;
@@ -35,6 +38,8 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
   async function onConfirm(): Promise<void> {
     setBusy(true);
     setError(null);
+
+    recordFirstFinalizationAttemptedOnce();
 
     try {
       await commitArchitectureRun(runId, { notifySponsor });

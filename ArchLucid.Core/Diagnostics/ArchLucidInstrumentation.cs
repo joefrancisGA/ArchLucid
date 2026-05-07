@@ -431,7 +431,7 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archlucid_first_tenant_funnel_events_total",
             description:
-            "First-tenant onboarding funnel events (label: event=signup|tour_opt_in|first_run_started|first_run_committed|first_finding_viewed|thirty_minute_milestone). tenant_id label added ONLY when Telemetry:FirstTenantFunnel:PerTenantEmission is true.");
+            "First-tenant onboarding funnel events (label: event includes signup|tour_opt_in|first_run_started|first_run_committed|first_finding_viewed|first_finalization_attempted|first_export_opened|thirty_minute_milestone). tenant_id label added ONLY when Telemetry:FirstTenantFunnel:PerTenantEmission is true.");
 
     /// <summary>
     ///     Operator onboarding funnel successes (labels: <c>task</c> = <c>first_run_committed</c> |

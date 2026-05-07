@@ -210,6 +210,30 @@ public sealed class ClientErrorTelemetryControllerTests
     }
 
     [SkippableFact]
+    public async Task PostFirstTenantFunnelEvent_catalog_includes_finalization_and_export_events()
+    {
+        Guid scopeTenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        CapturingFirstTenantFunnelEmitter emitter = new();
+        ClientErrorTelemetryController controller = CreateController(funnelEmitterOverride: emitter);
+
+        IActionResult a = await controller.PostFirstTenantFunnelEvent(
+            new FirstTenantFunnelEventRequest { Event = FirstTenantFunnelEventNames.FirstFinalizationAttempted },
+            CancellationToken.None);
+
+        IActionResult b = await controller.PostFirstTenantFunnelEvent(
+            new FirstTenantFunnelEventRequest { Event = FirstTenantFunnelEventNames.FirstExportOpened },
+            CancellationToken.None);
+
+        a.Should().BeOfType<NoContentResult>();
+        b.Should().BeOfType<NoContentResult>();
+        emitter.Calls.Should().HaveCount(2);
+        emitter.Calls[0].EventName.Should().Be(FirstTenantFunnelEventNames.FirstFinalizationAttempted);
+        emitter.Calls[0].TenantId.Should().Be(scopeTenantId);
+        emitter.Calls[1].EventName.Should().Be(FirstTenantFunnelEventNames.FirstExportOpened);
+        emitter.Calls[1].TenantId.Should().Be(scopeTenantId);
+    }
+
+    [SkippableFact]
     public async Task PostFirstTenantFunnelEvent_unknown_event_name_returns_400()
     {
         ClientErrorTelemetryController controller = CreateController();

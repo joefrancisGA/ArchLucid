@@ -8,6 +8,7 @@ import {
   isUsableGoldenManifestExportJson,
   triggerGoldenManifestMarkdownDownload,
 } from "@/lib/export-markdown";
+import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import {
   Select,
   SelectContent,
@@ -56,6 +57,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         const filename: string = buildGoldenManifestMarkdownFilename(runId, manifestId);
 
         triggerGoldenManifestMarkdownDownload(markdown, filename);
+        recordFirstExportOpenedOnce();
         setExportMenuKey((k: number) => k + 1);
       }}
     >
