@@ -26,12 +26,11 @@ public sealed class HttpRequestLoggingMiddleware(RequestDelegate next, ILogger<H
 
     private static readonly EventId CompletedEvent = new(10_702, "Http.Request.Completed");
 
-    /// <inheritdoc />
     public Task InvokeAsync(HttpContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        string methodSanitized = LogSanitizer.Sanitize(context.Request.Method ?? string.Empty);
+        string methodSanitized = LogSanitizer.Sanitize(context.Request.Method);
 
         PathString logicalPath =
             context.Request.PathBase.HasValue ? context.Request.PathBase + context.Request.Path : context.Request.Path;
@@ -61,12 +60,9 @@ public sealed class HttpRequestLoggingMiddleware(RequestDelegate next, ILogger<H
                 return sanitized;
         }
 
-        string fallback = LogSanitizer.Sanitize(context.TraceIdentifier ?? string.Empty);
+        string fallback = LogSanitizer.Sanitize(context.TraceIdentifier);
 
-        if (string.IsNullOrEmpty(fallback))
-            return null;
-
-        return fallback;
+        return string.IsNullOrEmpty(fallback) ? null : fallback;
     }
 
     private static void LogStarted(

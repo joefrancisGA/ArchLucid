@@ -48,8 +48,8 @@ public static class AuditCefLineWriter
             $"eventId={EscapeCefExtensionValue(e.EventId.ToString("D", CultureInfo.InvariantCulture))}",
             $"rt={EscapeCefExtensionValue(FormatRt(e.OccurredUtc))}",
             $"correlationId={EscapeCefExtensionValue(e.CorrelationId ?? string.Empty)}",
-            $"actorUserId={EscapeCefExtensionValue(e.ActorUserId ?? string.Empty)}",
-            $"actorUserName={EscapeCefExtensionValue(e.ActorUserName ?? string.Empty)}",
+            $"actorUserId={EscapeCefExtensionValue(e.ActorUserId)}",
+            $"actorUserName={EscapeCefExtensionValue(e.ActorUserName)}",
             $"runId={EscapeCefExtensionValue(e.RunId?.ToString("D", CultureInfo.InvariantCulture) ?? string.Empty)}",
             $"manifestId={EscapeCefExtensionValue(e.ManifestId?.ToString("D", CultureInfo.InvariantCulture) ?? string.Empty)}",
             $"msg={EscapeCefExtensionValue(TruncateDataJson(e.DataJson))}"
@@ -84,10 +84,7 @@ public static class AuditCefLineWriter
 
     private static string EscapeCefHeaderField(string? value)
     {
-        if (string.IsNullOrEmpty(value))
-            return string.Empty;
-
-        return value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("|", "\\|", StringComparison.Ordinal);
+        return string.IsNullOrEmpty(value) ? string.Empty : value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("|", "\\|", StringComparison.Ordinal);
     }
 
     private static string EscapeCefExtensionValue(string? value)

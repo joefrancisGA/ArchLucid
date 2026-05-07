@@ -17,8 +17,7 @@ namespace ArchLucid.Api.Health;
 public sealed class AzureServiceBusNamespaceHealthCheck(IOptions<IntegrationEventsOptions> options) : IHealthCheck
 {
     private readonly IntegrationEventsOptions _options =
-        (options ?? throw new ArgumentNullException(nameof(options))).Value ??
-        new IntegrationEventsOptions();
+        (options ?? throw new ArgumentNullException(nameof(options))).Value;
 
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
@@ -94,17 +93,14 @@ public sealed class AzureServiceBusNamespaceHealthCheck(IOptions<IntegrationEven
         string? connectionString,
         string? managedIdentityClientId)
     {
-        if (!string.IsNullOrEmpty(fullyQualifiedNamespace))
-        {
-            TokenCredential credential = CreateCredential(managedIdentityClientId);
+        if (string.IsNullOrEmpty(fullyQualifiedNamespace))
+            return !string.IsNullOrEmpty(connectionString)
+                ? new ServiceBusClient(connectionString)
+                : throw new InvalidOperationException("Service Bus credentials are unexpectedly empty.");
 
-            return new ServiceBusClient(fullyQualifiedNamespace, credential);
-        }
+        TokenCredential credential = CreateCredential(managedIdentityClientId);
 
-        if (!string.IsNullOrEmpty(connectionString))
-            return new ServiceBusClient(connectionString);
-
-        throw new InvalidOperationException("Service Bus credentials are unexpectedly empty.");
+        return new ServiceBusClient(fullyQualifiedNamespace, credential);
     }
 
     private static TokenCredential CreateCredential(string? managedIdentityClientId)

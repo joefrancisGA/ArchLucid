@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagnostics;
@@ -21,8 +22,10 @@ using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using Serilog.Context;
 
 namespace ArchLucid.Application.Advisory;
@@ -57,31 +60,6 @@ namespace ArchLucid.Application.Advisory;
 /// <seealso cref = "IAdvisoryScanRunner"/>
 public sealed class AdvisoryScanRunner(IAuthorityQueryService authorityQueryService, IImprovementAdvisorService improvementAdvisorService, IComparisonService comparisonService, IArchitectureDigestBuilder digestBuilder, IArchitectureDigestRepository digestRepository, IDigestDeliveryDispatcher deliveryDispatcher, IAlertService alertService, ICompositeAlertService compositeAlertService, IEffectiveGovernanceLoader effectiveGovernanceLoader, IRecommendationRepository recommendationRepository, IRecommendationLearningService recommendationLearningService, IAdvisoryScanExecutionRepository executionRepository, IAdvisoryScanScheduleRepository scheduleRepository, IScanScheduleCalculator scheduleCalculator, IAuditService auditService, IIntegrationEventPublisher integrationEventPublisher, IIntegrationEventOutboxRepository integrationEventOutbox, IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions, ILogger<AdvisoryScanRunner> logger) : IAdvisoryScanRunner
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQueryService, improvementAdvisorService, comparisonService, digestBuilder, digestRepository, deliveryDispatcher, alertService, compositeAlertService, effectiveGovernanceLoader, recommendationRepository, recommendationLearningService, executionRepository, scheduleRepository, scheduleCalculator, auditService, integrationEventPublisher, integrationEventOutbox, integrationEventsOptions, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Queries.IAuthorityQueryService authorityQueryService, ArchLucid.Decisioning.Advisory.Services.IImprovementAdvisorService improvementAdvisorService, ArchLucid.Decisioning.Comparison.IComparisonService comparisonService, ArchLucid.Decisioning.Advisory.Scheduling.IArchitectureDigestBuilder digestBuilder, ArchLucid.Persistence.Advisory.IArchitectureDigestRepository digestRepository, ArchLucid.Decisioning.Advisory.Delivery.IDigestDeliveryDispatcher deliveryDispatcher, ArchLucid.Decisioning.Alerts.IAlertService alertService, ArchLucid.Decisioning.Alerts.Composite.ICompositeAlertService compositeAlertService, ArchLucid.Decisioning.Governance.PolicyPacks.IEffectiveGovernanceLoader effectiveGovernanceLoader, ArchLucid.Decisioning.Advisory.Workflow.IRecommendationRepository recommendationRepository, ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningService recommendationLearningService, ArchLucid.Persistence.Advisory.IAdvisoryScanExecutionRepository executionRepository, ArchLucid.Persistence.Advisory.IAdvisoryScanScheduleRepository scheduleRepository, ArchLucid.Decisioning.Advisory.Scheduling.IScanScheduleCalculator scheduleCalculator, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Core.Integration.IIntegrationEventPublisher integrationEventPublisher, ArchLucid.Persistence.IIntegrationEventOutboxRepository integrationEventOutbox, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Integration.IntegrationEventsOptions> integrationEventsOptions, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Advisory.AdvisoryScanRunner> logger)
-    {
-        ArgumentNullException.ThrowIfNull(authorityQueryService);
-        ArgumentNullException.ThrowIfNull(improvementAdvisorService);
-        ArgumentNullException.ThrowIfNull(comparisonService);
-        ArgumentNullException.ThrowIfNull(digestBuilder);
-        ArgumentNullException.ThrowIfNull(digestRepository);
-        ArgumentNullException.ThrowIfNull(deliveryDispatcher);
-        ArgumentNullException.ThrowIfNull(alertService);
-        ArgumentNullException.ThrowIfNull(compositeAlertService);
-        ArgumentNullException.ThrowIfNull(effectiveGovernanceLoader);
-        ArgumentNullException.ThrowIfNull(recommendationRepository);
-        ArgumentNullException.ThrowIfNull(recommendationLearningService);
-        ArgumentNullException.ThrowIfNull(executionRepository);
-        ArgumentNullException.ThrowIfNull(scheduleRepository);
-        ArgumentNullException.ThrowIfNull(scheduleCalculator);
-        ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(integrationEventPublisher);
-        ArgumentNullException.ThrowIfNull(integrationEventOutbox);
-        ArgumentNullException.ThrowIfNull(integrationEventsOptions);
-        ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
-    }
-
     private const string StatusStarted = "Started";
     private const string StatusCompleted = "Completed";
     private const string StatusFailed = "Failed";
@@ -203,7 +181,24 @@ public sealed class AdvisoryScanRunner(IAuthorityQueryService authorityQueryServ
         ArchLucidInstrumentation.ExplainabilityTraceCompleteness.Record(traceCompletenessSummary.OverallCompletenessRatio, new KeyValuePair<string, object?>("scan_type", "advisory"));
         execution.Status = StatusCompleted;
         execution.CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-        execution.ResultJson = JsonSerializer.Serialize(new { schemaVersion = 1, runId = latest.RunId, comparedToRunId, recommendationCount = plan.Recommendations.Count, digestId = digest.DigestId, alertsEvaluated = alertOutcome.Evaluated.Count, alertsNewlyPersisted = alertOutcome.NewlyPersisted.Count, compositeAlertsCreated = compositeOutcome.Created.Count, compositeAlertsSuppressed = compositeOutcome.SuppressedMatchCount, traceCompleteness = new { totalFindings = traceCompletenessSummary.TotalFindings, overallCompletenessRatio = traceCompletenessSummary.OverallCompletenessRatio, byEngine = traceCompletenessSummary.ByEngine.Select(e => new { engineType = e.EngineType, findingCount = e.FindingCount, completenessRatio = e.CompletenessRatio, graphNodeIdsPopulatedCount = e.GraphNodeIdsPopulatedCount, rulesAppliedPopulatedCount = e.RulesAppliedPopulatedCount, decisionsTakenPopulatedCount = e.DecisionsTakenPopulatedCount, alternativePathsPopulatedCount = e.AlternativePathsPopulatedCount, notesPopulatedCount = e.NotesPopulatedCount }).ToList() } }, AuditJsonSerializationOptions.Instance);
+        execution.ResultJson = JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            runId = latest.RunId,
+            comparedToRunId,
+            recommendationCount = plan.Recommendations.Count,
+            digestId = digest.DigestId,
+            alertsEvaluated = alertOutcome.Evaluated.Count,
+            alertsNewlyPersisted = alertOutcome.NewlyPersisted.Count,
+            compositeAlertsCreated = compositeOutcome.Created.Count,
+            compositeAlertsSuppressed = compositeOutcome.SuppressedMatchCount,
+            traceCompleteness = new
+            {
+                totalFindings = traceCompletenessSummary.TotalFindings,
+                overallCompletenessRatio = traceCompletenessSummary.OverallCompletenessRatio,
+                byEngine = traceCompletenessSummary.ByEngine.Select(e => new { engineType = e.EngineType, findingCount = e.FindingCount, completenessRatio = e.CompletenessRatio, graphNodeIdsPopulatedCount = e.GraphNodeIdsPopulatedCount, rulesAppliedPopulatedCount = e.RulesAppliedPopulatedCount, decisionsTakenPopulatedCount = e.DecisionsTakenPopulatedCount, alternativePathsPopulatedCount = e.AlternativePathsPopulatedCount, notesPopulatedCount = e.NotesPopulatedCount }).ToList()
+            }
+        }, AuditJsonSerializationOptions.Instance);
         await executionRepository.UpdateAsync(execution, ct);
         await auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.AdvisoryScanExecuted, RunId = latest.RunId, DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, executionId = execution.ExecutionId }, AuditJsonSerializationOptions.Instance) }, ct);
         await auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.ArchitectureDigestGenerated, RunId = latest.RunId, DataJson = JsonSerializer.Serialize(new { digestId = digest.DigestId, scheduleId = schedule.ScheduleId }) }, ct);

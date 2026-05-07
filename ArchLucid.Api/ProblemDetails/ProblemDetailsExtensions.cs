@@ -97,7 +97,7 @@ public static class ProblemDetailsExtensions
                     "; ",
                     result.Errors.Count <= 5
                         ? result.Errors
-                        : result.Errors.Take(5).Concat(new[] { $"(+{result.Errors.Count - 5} more)" })),
+                        : result.Errors.Take(5).Concat([$"(+{result.Errors.Count - 5} more)"])),
             Instance = controller.Request.Path.Value,
             Extensions =
             {
