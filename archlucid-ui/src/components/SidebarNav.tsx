@@ -685,9 +685,12 @@ export function SidebarNav() {
         </Button>
         {mounted && shellPresetId !== "full" && !buyerPolishedShell ? (
           <p className="m-0 mt-2 px-0.5 text-[10px] leading-snug text-neutral-600 dark:text-neutral-300">
-            Preset shaping is active ({OPERATOR_SHELL_PRESET_LABELS[shellPresetId]}): hidden links remain authorized — open
-            Sidebar layout → Preset → <strong className="font-semibold text-neutral-800 dark:text-neutral-100">
-              Full navigator</strong> to revert.
+            Navigation preset ({OPERATOR_SHELL_PRESET_LABELS[shellPresetId]}) hides some links — open{" "}
+            <strong className="font-semibold text-neutral-800 dark:text-neutral-100">Sidebar layout</strong>
+            {" → "}
+            <strong className="font-semibold text-neutral-800 dark:text-neutral-100">Preset</strong>
+            {" → "}
+            <strong className="font-semibold text-neutral-800 dark:text-neutral-100">Full navigator</strong> to show the full list.
           </p>
         ) : null}
 

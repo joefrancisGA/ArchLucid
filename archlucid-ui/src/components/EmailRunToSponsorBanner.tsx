@@ -69,6 +69,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
   const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
   const [proofGate, setProofGate] = useState<ProofGateState>({ status: "loading" });
   const telemetrySentRef = useRef(false);
+  const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
 
   const markdownHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`;
   const executiveBriefHref = `${DEFAULT_GITHUB_BLOB_BASE}/docs/EXECUTIVE_SPONSOR_BRIEF.md`;
@@ -146,6 +147,23 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
     };
   }, [runId]);
 
+  useEffect(() => {
+    if (proofGate.status !== "loading") {
+      setReadinessLoadingPhase("quick");
+
+      return;
+    }
+
+    setReadinessLoadingPhase("quick");
+    const timer = window.setTimeout(() => {
+      setReadinessLoadingPhase("slow");
+    }, 6000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [proofGate.status]);
+
   async function onDownloadPdf(): Promise<void> {
     setBusy(true);
     setError(null);
@@ -201,51 +219,27 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         Generate pilot scorecard package
       </h2>
 
-      {buyerPolishedShell ? (
-        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-100">
-          Sponsor narrative aligns with the{" "}
-          <a
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href={executiveBriefHref}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            executive sponsor brief
-          </a>
-          {" "}and conservative ROI framing in the{" "}
-          <a
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href={pilotRoiModelHref}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            pilot ROI reference model
-          </a>
-          . Use the exports below for sponsor-ready collateral.
-        </p>
-      ) : (
-        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-100">
-          Sponsor narrative aligns with{" "}
-          <a
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href={executiveBriefHref}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            EXECUTIVE_SPONSOR_BRIEF.md
-          </a>
-          ; headline timing and conservative ROI framing follow{" "}
-          <a
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href={pilotRoiModelHref}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            PILOT_ROI_MODEL.md
-          </a>
-          . Exports below reuse existing API routes — the hosted API remains authoritative for entitlements.
-        </p>
-      )}
+      <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-100">
+        Sponsor narrative aligns with the{" "}
+        <a
+          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          href={executiveBriefHref}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          executive sponsor brief
+        </a>
+        {" "}and conservative ROI framing in the{" "}
+        <a
+          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          href={pilotRoiModelHref}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          pilot ROI reference model
+        </a>
+        . Use the exports below for sponsor-ready collateral.
+      </p>
 
       {proofGate.status === "skipped" ? null : proofGate.status === "loading" ? (
         <p
@@ -253,7 +247,9 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
           data-testid="email-run-to-sponsor-readiness-loading"
           aria-busy
         >
-          Loading persisted proof gate…
+          {readinessLoadingPhase === "slow"
+            ? "Still checking sponsor readiness — you can use the exports below in the meantime."
+            : "Checking sponsor readiness…"}
         </p>
       ) : proofGate.status === "error" ? (
         <p
@@ -262,7 +258,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         >
           {buyerPolishedShell
             ? "Could not load every readiness signal — review outputs before sending to sponsors."
-            : "Could not load proof completeness — open the first-value report before sponsor send."}
+            : "Could not load every readiness signal — review the Markdown export above before sponsor send."}
         </p>
       ) : !readinessCopy ? (
         <p
@@ -271,7 +267,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         >
           {buyerPolishedShell
             ? "Readiness detail expands once pilot telemetry is fully connected."
-            : "Proof completeness block missing from API — use the first-value report as the source of truth."}
+            : "Readiness detail is unavailable — use the Markdown and ZIP exports on this page as the source of truth."}
         </p>
       ) : (
         <div
@@ -303,102 +299,56 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
           {busy ? "Preparing PDF…" : "Generate pilot scorecard package"}
         </Button>
         <span className="text-xs text-neutral-600 dark:text-neutral-400">
-          {buyerPolishedShell
-            ? "Step 1: generate the sponsor one‑pager PDF — same storyline as the Markdown narrative."
-            : (
-              <>
-                Step 1: sponsor one‑pager PDF (<code className="text-[0.7rem]">POST …/first-value-report.pdf</code>) — same
-                projection as the Markdown report.
-              </>
-            )}
+          Step 1: generate the sponsor one‑pager PDF — same storyline as the Markdown narrative.
         </span>
       </div>
 
-      {buyerPolishedShell ? (
-        <ul className="m-0 mt-3 list-none space-y-1.5 p-0 text-xs text-neutral-700 dark:text-neutral-300">
-          <li>
-            <a
-              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-              href={markdownHref}
-              download={`archlucid-first-value-report-${runId}.md`}
-            >
-              First-value report (Markdown)
-            </a>
-          </li>
-          <li>
-            <a
-              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-              href={getArchitecturePackageDocxUrl(runId)}
-            >
-              Architecture package (DOCX)
-            </a>
-          </li>
-          <li>
-            <a
-              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-              href={getBundleDownloadUrl(manifestId)}
-            >
-              Manifest bundle (ZIP)
-            </a>
-            {" · "}
-            <a
-              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-              href={getRunExportDownloadUrl(runId)}
-            >
-              Review export (ZIP)
-            </a>
-            {" · "}
-            <a className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="#artifacts-exports">
-              Artifacts &amp; exports on this page
-            </a>
-          </li>
-        </ul>
-      ) : (
-        <ul className="m-0 mt-3 list-none space-y-1.5 p-0 text-xs text-neutral-700 dark:text-neutral-300">
-          <li>
-            <a
-              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-              href={markdownHref}
-              download={`archlucid-first-value-report-${runId}.md`}
-            >
-              First-value report (Markdown)
-            </a>{" "}
-            — <code className="text-[0.7rem]">GET …/first-value-report</code>
-          </li>
-          <li>
-            <a
-              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-              href={getArchitecturePackageDocxUrl(runId)}
-            >
-              Architecture package (DOCX)
-            </a>{" "}
-            — <code className="text-[0.7rem]">GET …/docx/runs/{runId}/architecture-package</code>
-          </li>
-          <li>
-            <a
-              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-              href={getBundleDownloadUrl(manifestId)}
-            >
-              Manifest bundle (ZIP)
-            </a>
-            {" · "}
-            <a
-              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-              href={getRunExportDownloadUrl(runId)}
-            >
-              Run export (ZIP)
-            </a>
-            {" · "}
-            <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/scorecard">
-              In-product pilot scorecard
-            </Link>
-            {" · "}
-            <a className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="#artifacts-exports">
-              Artifacts &amp; exports section
-            </a>
-          </li>
-        </ul>
-      )}
+      <ul className="m-0 mt-3 list-none space-y-1.5 p-0 text-xs text-neutral-700 dark:text-neutral-300">
+        <li>
+          <a
+            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href={markdownHref}
+            download={`archlucid-first-value-report-${runId}.md`}
+          >
+            First-value report (Markdown)
+          </a>
+        </li>
+        <li>
+          <a
+            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href={getArchitecturePackageDocxUrl(runId)}
+          >
+            Architecture package (DOCX)
+          </a>
+        </li>
+        <li>
+          <a
+            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href={getBundleDownloadUrl(manifestId)}
+          >
+            Manifest bundle (ZIP)
+          </a>
+          {" · "}
+          <a
+            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href={getRunExportDownloadUrl(runId)}
+          >
+            {buyerPolishedShell ? "Review export (ZIP)" : "Run export (ZIP)"}
+          </a>
+          {" · "}
+          {buyerPolishedShell ? null : (
+            <>
+              <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/scorecard">
+                In-product pilot scorecard
+              </Link>
+              {" · "}
+            </>
+          )}
+          <a className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="#artifacts-exports">
+            Artifacts &amp; exports on this page
+          </a>
+        </li>
+      </ul>
 
       <div className="mt-3">
         {buyerPolishedShell ? null : (

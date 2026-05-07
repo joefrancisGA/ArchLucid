@@ -33,14 +33,20 @@ const LAYER_COPY: Record<LayerId, { label: string; question: string; strip: stri
 export type LayerContextStripProps = {
   layerId: LayerId;
   className?: string;
+  /** Buyer demo shell: softer label instead of “Advanced operations” on operate-analysis routes. */
+  polishedOperateAnalysisLabel?: string;
 };
 
 /**
  * Persistent one-line product-layer cue under the app header: layer label, guiding question, optional
  * return link on Operate routes. Styling stays subtle (orientation, not a second hero).
  */
-export function LayerContextStrip({ layerId, className }: LayerContextStripProps) {
-  const copy = LAYER_COPY[layerId];
+export function LayerContextStrip({ layerId, className, polishedOperateAnalysisLabel }: LayerContextStripProps) {
+  const baseCopy = LAYER_COPY[layerId];
+  const copy =
+    layerId === "operate-analysis" && polishedOperateAnalysisLabel !== undefined && polishedOperateAnalysisLabel.length > 0
+      ? { ...baseCopy, label: polishedOperateAnalysisLabel }
+      : baseCopy;
   const isOperate =
     layerId === "operate-analysis" || layerId === "operate-governance" || layerId === "operator-admin";
 

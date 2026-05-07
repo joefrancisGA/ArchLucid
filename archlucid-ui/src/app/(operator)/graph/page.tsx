@@ -39,7 +39,17 @@ const GraphViewer = dynamic(
   () => import("@/components/GraphViewer").then((m) => m.GraphViewer),
   {
     ssr: false,
-    loading: () => null,
+    loading: () => (
+      <div
+        data-testid="graph-viewer-chunk-loading"
+        className="flex min-h-[320px] w-full items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 dark:border-neutral-600 dark:bg-neutral-900/40"
+        role="status"
+        aria-live="polite"
+        aria-label="Loading graph viewer"
+      >
+        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Preparing interactive graph…</p>
+      </div>
+    ),
   },
 );
 

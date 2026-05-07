@@ -198,7 +198,7 @@ export function CommandPalette() {
             ⌘K
           </span>
         )}
-        <span>{polishedShell ? "Search" : "Jump…"}</span>
+        <span>Search</span>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder={polishedShell ? "Find a page…" : "Search pages or paste a review ID…"} />
