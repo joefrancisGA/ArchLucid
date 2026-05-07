@@ -23,6 +23,8 @@ import { hoursSurfaced, formatHours, HOURS_PER_PRECOMMIT_BLOCK } from "@/lib/roi
 import { formatExecutiveWorkspaceScopeDescription } from "@/lib/workspace-health-scope-banner";
 import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
 import { computeWorkspaceHealthSlaStats } from "@/lib/workspace-health-sla";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import type { ComplianceDriftTrendPoint, GovernanceDashboardSummary } from "@/types/governance-dashboard";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
@@ -55,6 +57,7 @@ const DEFAULT_SCOPE_FALLBACK =
  * Sponsor-oriented **Executive Workspace Health**: five KPI blocks composed from existing governance, audit, compliance-drift, and pilot-value APIs (current scope only).
  */
 export function ExecutiveWorkspaceHealthDashboard() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const callerRank = useNavCallerAuthorityRank();
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [scopeBanner, setScopeBanner] = useState<string>(DEFAULT_SCOPE_FALLBACK);
@@ -150,7 +153,9 @@ export function ExecutiveWorkspaceHealthDashboard() {
     return (
       <main className="mx-auto max-w-6xl space-y-4 p-4">
         <LayerHeader pageKey="governance-dashboard" />
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading executive workspace health…</p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          {buyerPolishedShell ? "Loading workspace overview…" : "Loading executive workspace health…"}
+        </p>
       </main>
     );
   }
@@ -164,6 +169,15 @@ export function ExecutiveWorkspaceHealthDashboard() {
           problem={state.problem}
           correlationId={state.correlationId}
         />
+        {buyerPolishedShell ? (
+          <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+            Evaluation workspaces may not expose full KPI telemetry yet. Continue from{" "}
+            <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/governance">
+              Governance workflow
+            </Link>{" "}
+            for approvals and promotions.
+          </p>
+        ) : null}
         <Button type="button" variant="secondary" onClick={() => void load()}>
           Retry
         </Button>
@@ -193,7 +207,11 @@ export function ExecutiveWorkspaceHealthDashboard() {
     precommitBlocks: blocked30d.count,
   });
 
-  const highCritical90 = report90d.findingsBySeverity.high + report90d.findingsBySeverity.critical;
+  const highRaw90 = report90d.findingsBySeverity.high;
+  const criticalRaw90 = report90d.findingsBySeverity.critical;
+  const highCritical90 =
+    (typeof highRaw90 === "number" && Number.isFinite(highRaw90) ? highRaw90 : 0) +
+    (typeof criticalRaw90 === "number" && Number.isFinite(criticalRaw90) ? criticalRaw90 : 0);
 
   const onTimePct =
     sla.onTimeDecisionRate === null ? "—" : `${Math.round(sla.onTimeDecisionRate * 100)}%`;
@@ -209,7 +227,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       <header className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-            Executive Workspace Health
+            {buyerPolishedShell ? "Workspace overview" : "Executive Workspace Health"}
           </h1>
           <ContextualHelp helpKey="governance-dashboard" />
           <HelpLink
@@ -218,8 +236,9 @@ export function ExecutiveWorkspaceHealthDashboard() {
           />
         </div>
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-          Single page for operators and sponsors: pre-commit posture, severity exposure, compliance drift, approval SLAs, and a
-          hours-first value proxy — all within your current workspace scope.
+          {buyerPolishedShell
+            ? "Governance posture at a glance for your current workspace scope — counts and trends only (no cross-tenant rollup)."
+            : "Single page for operators and sponsors: pre-commit posture, severity exposure, compliance drift, approval SLAs, and a hours-first value proxy — all within your current workspace scope."}
         </p>
       </header>
 
@@ -238,8 +257,14 @@ export function ExecutiveWorkspaceHealthDashboard() {
               1. Pre-commit outcomes (30 days)
             </h2>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              Audit-backed counts via <span className="font-mono">GovernancePreCommitBlocked</span> and{" "}
-              <span className="font-mono">GovernancePreCommitWarned</span> in the rolling window.
+              {buyerPolishedShell ? (
+                <>Rolling 30-day counts from audit-backed governance checkpoints (blocked vs warned).</>
+              ) : (
+                <>
+                  Audit-backed counts via <span className="font-mono">GovernancePreCommitBlocked</span> and{" "}
+                  <span className="font-mono">GovernancePreCommitWarned</span> in the rolling window.
+                </>
+              )}
             </p>
             <ul className="m-0 mt-2 list-none space-y-1 p-0 text-sm">
               <li>
@@ -267,7 +292,9 @@ export function ExecutiveWorkspaceHealthDashboard() {
               Pilot-value report severity totals in the window — exposure in the report period, not the same as an open-backlog
               aging inventory.
             </p>
-            <p className="m-0 mt-2 font-mono text-2xl font-semibold tabular-nums dark:text-neutral-100">{highCritical90}</p>
+            <p className={buyerPolishedShell ? "m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100" : "m-0 mt-2 font-mono text-2xl font-semibold tabular-nums dark:text-neutral-100"}>
+              {finiteIntegerCountDisplay(highCritical90)}
+            </p>
             <p className="m-0 text-sm">
               <Link href="/governance/findings" className="font-medium text-blue-700 underline dark:text-blue-400">
                 Governance findings queue
@@ -325,8 +352,17 @@ export function ExecutiveWorkspaceHealthDashboard() {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs text-left leading-snug">
-                  Estimated review-hours combine severity-weighted findings and {HOURS_PER_PRECOMMIT_BLOCK} h per blocked event (
-                  <span className="font-mono">roi-assumptions.ts</span>). This is a planning estimate, not measured wall-clock time.
+                  {buyerPolishedShell ? (
+                    <>
+                      Estimated review-hours blend severity-weighted findings with an allowance per blocked merge attempt (
+                      {HOURS_PER_PRECOMMIT_BLOCK} h each). Planning estimate — not measured wall-clock time.
+                    </>
+                  ) : (
+                    <>
+                      Estimated review-hours combine severity-weighted findings and {HOURS_PER_PRECOMMIT_BLOCK} h per blocked event (
+                      <span className="font-mono">roi-assumptions.ts</span>). This is a planning estimate, not measured wall-clock time.
+                    </>
+                  )}
                 </TooltipContent>
               </Tooltip>
             </div>

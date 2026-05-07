@@ -16,6 +16,7 @@ import {
   coerceRunDetail,
 } from "@/lib/operator-response-guards";
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect } from "@/lib/demo-run-canonical";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
@@ -90,16 +91,24 @@ const sectionHeadingClass =
 function ManifestSummarySection({
   manifestSummary,
   runExecution,
+  buyerPolishedShell,
 }: {
   readonly manifestSummary: ManifestSummary;
   readonly runExecution?: OperatorEvidenceLimitsExecutionProps | null;
+  readonly buyerPolishedShell: boolean;
 }): ReactElement {
   return (
     <section id="manifest-summary" className="scroll-mt-24 space-y-4">
       <Card>
         <CardHeader>
           <h3 className={sectionHeadingClass}>
-            Review package summary (<GlossaryTooltip termKey="architecture_manifest">manifest</GlossaryTooltip>)
+            {buyerPolishedShell ? (
+              <>Review package summary</>
+            ) : (
+              <>
+                Review package summary (<GlossaryTooltip termKey="architecture_manifest">manifest</GlossaryTooltip>)
+              </>
+            )}
           </h3>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -118,12 +127,16 @@ function ManifestSummarySection({
               {policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion)}
             </dd>
             <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Decisions</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{manifestSummary.decisionCount}</dd>
+            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100 tabular-nums">
+              {finiteIntegerCountDisplay(manifestSummary.decisionCount)}
+            </dd>
             <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Warnings</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{manifestSummary.warningCount}</dd>
+            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100 tabular-nums">
+              {finiteIntegerCountDisplay(manifestSummary.warningCount)}
+            </dd>
             <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Unresolved issues</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
-              {manifestSummary.unresolvedIssueCount}
+            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100 tabular-nums">
+              {finiteIntegerCountDisplay(manifestSummary.unresolvedIssueCount)}
             </dd>
           </dl>
         </CardContent>
@@ -438,6 +451,7 @@ export default async function RunDetailPage({
       {manifestId && manifestSummary ? (
         <ManifestSummarySection
           manifestSummary={manifestSummary}
+          buyerPolishedShell={buyerPolishedArtifactTable}
           runExecution={{
             realModeFellBackToSimulator: resolvedDetail.run.realModeFellBackToSimulator,
             pilotAoaiDeploymentSnapshot: resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
