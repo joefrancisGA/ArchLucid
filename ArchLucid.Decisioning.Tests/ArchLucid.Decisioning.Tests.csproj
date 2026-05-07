@@ -72,6 +72,9 @@
     <None Include="..\templates\policy-packs\public-sector\policy-pack.json" Link="Templates\PolicyPacks\public-sector\policy-pack.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\templates\starter-proof-packs\regulated-saas-soc-procurement\policy-context.json" Link="Templates\StarterProofPacks\regulated-saas-soc-procurement\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\healthcare-data-workflow\policy-context.json" Link="Templates\StarterProofPacks\healthcare-data-workflow\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\azure-cost-governance\policy-context.json" Link="Templates\StarterProofPacks\azure-cost-governance\policy-context.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

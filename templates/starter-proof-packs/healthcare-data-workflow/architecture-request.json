@@ -1,0 +1,47 @@
+{
+  "requestId": "starter-contoso-health-workflow-001",
+  "systemName": "Contoso.Clinical.DataHub",
+  "description": "Contoso Clinical (fictional) ingests HL7v2 and FHIR messages into an Azure analytics hub: ingestion Function Apps, validation, de-identified analytics lake, and a restricted clinical reporting API — PHI must stay in a segmented VNet with audit trails.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No PHI in public internet paths; reporting API only over private link or front door with mTLS and IP allow lists for pilot narrative",
+    "Immutable audit logs for ingestion and configuration changes (design intent — verify in your environment)",
+    "Separate projects or subscriptions for dev/test vs prod-like data classes"
+  ],
+  "requiredCapabilities": [
+    "ingestion-functions",
+    "validation-service",
+    "lake-writer",
+    "reporting-api",
+    "breakglass-support-console"
+  ],
+  "assumptions": [
+    "Synthetic messages only in this starter; production would use hardened key management and DLP",
+    "Identity: Entra ID with role separation for engineers vs clinical analysts"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Review artifacts should call out data lineage from ingest → lake → reporting and where de-identification is asserted (design-level only)"
+  ],
+  "documents": [
+    {
+      "name": "starter-disclaimer.txt",
+      "contentType": "text/plain",
+      "content": "Synthetic healthcare-style workflow for pilot evaluation. No PHI. No HIPAA determination."
+    }
+  ],
+  "policyReferences": [
+    "starter:healthcare-data-workflow",
+    "assign-vertical-pack:healthcare"
+  ],
+  "topologyHints": [
+    "Hub-spoke: ingest in landing zone spoke; analytics in restricted spoke",
+    "Private Link for SQL and storage; Event Hubs with network rules"
+  ],
+  "securityBaselineHints": [
+    "Encryption at rest default Azure; CMK called out only if required by pilot narrative",
+    "Audit: Azure Monitor + immutable storage for security logs (intent)"
+  ],
+  "infrastructureDeclarations": []
+}

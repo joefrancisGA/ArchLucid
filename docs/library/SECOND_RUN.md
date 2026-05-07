@@ -71,6 +71,12 @@ Same keys in **snake_case** or **camelCase** (the CLI uses case-insensitive JSON
 }
 ```
 
+## Vertical starter proof packs (sample second runs)
+
+The repo folder [`templates/starter-proof-packs/`](../../templates/starter-proof-packs/README.md) ships three **fictional** buyer-category starters (regulated SaaS with SOC-oriented procurement language, healthcare data workflow, Azure cost-and-governance). Each pack contains `second-run.json` (this file’s shape), a full `architecture-request.json` for API or automation, `policy-context.json` (which vertical policy-pack folder aligns), per-pack README (when to use, what not to claim), and a proof-package checklist.
+
+Use them **after** the first-session demo path only — copy or paste `second-run.json`, or merge fields into your own `SECOND_RUN.toml`. They are **not** substitutes for your real diligence data and do not establish SOC 2, HIPAA, or cost outcomes.
+
 ## Limits
 
 | Limit | Value |

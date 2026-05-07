@@ -23,6 +23,11 @@
     <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\templates\starter-proof-packs\regulated-saas-soc-procurement\second-run.json" Link="templates\starter-proof-packs\regulated-saas-soc-procurement\second-run.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\healthcare-data-workflow\second-run.json" Link="templates\starter-proof-packs\healthcare-data-workflow\second-run.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\azure-cost-governance\second-run.json" Link="templates\starter-proof-packs\azure-cost-governance\second-run.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 </Project>

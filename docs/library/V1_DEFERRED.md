@@ -158,6 +158,25 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ---
 
+## 6e. Platform scale-out — distributed cache reinforcement (V2 enhancement) (engineering note 2026-05-06)
+
+**V1 stance:** The host already supports optional **Redis** (`IDistributedCache` via StackExchange.Redis) for **hot-path read-through** (`IHotPathReadCache` → `DistributedHotPathReadCache`) when **`HotPathCache:Enabled=true`** and the effective provider resolves to **Redis** (`ArchLucid.Host.Composition/Configuration/ArchLucidStorageServiceCollectionExtensions.cs`). **`HotPathCache:Provider=Auto`** selects Redis when **`ExpectedApiReplicaCount` > 1** and **`RedisConnectionString`** is set. **LLM completion response reuse** can use **`LlmCompletionCache:Provider=Distributed`** with **`DistributedLlmCompletionResponseStore`**. **Knowledge graph** snapshot projections use **`GraphSnapshotProjectionMemoryCache` only** — there is no distributed implementation of **`IGraphSnapshotProjectionCache`** today.
+
+**V2 enhancement (not a V1 pilot gate):**
+
+| Platform item | V1 posture | V2 commitment (when promoted) |
+|----------------|----------|------------------------------|
+| **Redis as the default production substrate for scaled API fleets** | **Optional in V1.** Single-replica pilots and early production may use **Memory** providers; V1 GA does **not** require provisioning Azure Cache for Redis. | **Elevate** Redis (e.g. Azure Cache for Redis with **private** connectivity, Terraform parity, capacity and runbook guidance) as the **expected** baseline when horizontal scale (`max_replicas` > 1) and **cross-replica** cache coherence are required. |
+| **Distributed graph snapshot projection cache** | **Out of V1.** Only in-process projection cache exists. | **Candidate:** an **`IGraphSnapshotProjectionCache`** implementation over **`IDistributedCache`** (or equivalent) with TTL and invalidation aligned to run/snapshot lifecycle; serialization size and eviction review. |
+| **Operational hardening** | Relies on host configuration and existing validation rules (e.g. **`HotPathCacheRules`**, **`LlmCompletionCacheRules`**). | **Candidate:** Redis-oriented health probes, dashboards, and failover playbooks as fleet scale grows. |
+
+**Rules:**
+
+- Quality assessments **must not** treat absence of a provisioned Redis cluster as a **V1** defect when **single-replica** or **memory-only** configuration is documented and supported.
+- Promoting any row above to a **dated** release promise requires [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |
@@ -173,5 +192,6 @@ This file is **maintainer hygiene**. It is **not** a commitment to ship listed i
 - After a changelog entry marks something **“intentionally deferred”** or **“gap.”**
 - When **AUDIT_COVERAGE_MATRIX** gains or loses a **Known gaps** row.
 - When **Phase 7** rename items move (only with program approval).
+- When a **V2 platform enhancement** is recorded from engineering/architecture review (see §6e pattern — add §3 row in [V1_SCOPE.md](V1_SCOPE.md) in the same change).
 
 **Change control:** Prefer updating **this file** and [V1_SCOPE.md](V1_SCOPE.md) §3 together so external messaging stays aligned.

@@ -1,0 +1,47 @@
+{
+  "requestId": "starter-wwi-finops-gov-001",
+  "systemName": "WideWorldImporters.FinOps.LandingZone",
+  "description": "Wide World Importers (fictional) runs multi-subscription Azure landing zones with shared hub networking, workload spokes, and a FinOps review ask: tag governance, budget alerts, reserved instance posture, and Azure Policy sets for encryption and public network restrictions.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Deny public IPs on sensitive PaaS via policy at landing zone scope (design intent)",
+    "Mandatory resource tags: cost-center, environment, workload-owner before production promotion",
+    "Hub egress through firewall; spoke-to-spoke via hub (illustrative)"
+  ],
+  "requiredCapabilities": [
+    "hub-vnet-firewall",
+    "spoke-app-landing",
+    "spoke-data-landing",
+    "cost-export-automation-account"
+  ],
+  "assumptions": [
+    "Single Entra ID tenant; management group hierarchy already exists for pilot story",
+    "No third-party FinOps tool in scope — Azure-native exports only in this starter"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Review should highlight observability for cost anomalies and governance drift (tags, location) without asserting measured savings",
+    "Call out FinOps maturity as design hooks: budgets, anomaly detection, RI/SP posture — not dollar outcomes"
+  ],
+  "documents": [
+    {
+      "name": "starter-disclaimer.txt",
+      "contentType": "text/plain",
+      "content": "Synthetic landing zone / FinOps starter. No real costs or subscriptions. No ROI claims."
+    }
+  ],
+  "policyReferences": [
+    "starter:azure-cost-governance",
+    "assign-vertical-pack:financial-services"
+  ],
+  "topologyHints": [
+    "Management groups map to platform vs workload; policies inherited with override exceptions documented",
+    "Cost Management exports to storage with private endpoints"
+  ],
+  "securityBaselineHints": [
+    "Microsoft cloud security benchmark alignment as **review vocabulary**",
+    "Encryption defaults and key custody called out for data landing spoke"
+  ],
+  "infrastructureDeclarations": []
+}
