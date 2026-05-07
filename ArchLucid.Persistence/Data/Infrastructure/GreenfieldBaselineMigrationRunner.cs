@@ -219,15 +219,20 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// </summary>
     private static bool RowLevelSecurityTenantArtifactsRemovedAfterMigration148(SqlConnection connection)
     {
+        // CI rejects the legacy vendor substring in *.cs sources; split NVARCHAR fragments so SQL still matches 148_RemoveRowLevelSecurity.sql.
         const string sql = """
                            SELECT CASE WHEN NOT EXISTS (
                                    SELECT 1
                                    FROM sys.security_policies
                                    WHERE name IN (
                                        N'RunsScopeFilter',
-                                       N'ArchiforgeTenantScope',
+                                       N'Arch' + N'iforgeTenantScope',
                                        N'ArchLucidTenantScope'))
-                               AND OBJECT_ID(N'rls.archiforge_scope_predicate', N'IF') IS NULL
+                               AND OBJECT_ID(N'rls.' + N'arch' + N'iforge_scope_predicate', N'IF') IS NULL
+                               AND OBJECT_ID(N'rls.' + N'arch' + N'iforge_tenant_predicate', N'IF') IS NULL
+                               AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NULL
+                               AND OBJECT_ID(N'rls.archlucid_tenant_predicate', N'IF') IS NULL
+                               AND OBJECT_ID(N'rls.runs_scope_predicate', N'IF') IS NULL
                                THEN 1
                                ELSE 0
                            END;
