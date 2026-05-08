@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
@@ -7,7 +8,8 @@ namespace ArchLucid.ContextIngestion.Connectors;
 
 public sealed class PolicyReferenceConnector(
     IConnectorInput<PolicyReferencePayload> payloadInput,
-    IConnectorNormalizer<PolicyReferencePayload> payloadNormalizer) : IContextConnector
+    IConnectorNormalizer<PolicyReferencePayload> payloadNormalizer,
+    IConnectorDeltaComputer deltaComputer) : IContextConnector
 {
     public string ConnectorType => "policy-reference";
 
@@ -39,12 +41,18 @@ public sealed class PolicyReferenceConnector(
         ContextSnapshot? previous,
         CancellationToken ct)
     {
-        _ = current;
         _ = ct;
+        ArgumentNullException.ThrowIfNull(current);
 
-        return Task.FromResult(new ContextDelta
-        {
-            Summary = previous is null ? "Initial policy ingestion" : "Updated policy ingestion"
-        });
+        // Filter the previous snapshot to only this connector's objects (SourceType = "PolicyReference").
+        // Each PolicyControl has SourceId = the policy reference string, making it a stable per-object key.
+        IReadOnlyList<CanonicalObject> previousSlice = previous?.CanonicalObjects
+            .Where(static o => o.SourceType == "PolicyReference")
+            .ToList() ?? [];
+
+        return Task.FromResult(deltaComputer.Compute(
+            current.CanonicalObjects,
+            previousSlice,
+            static o => o.SourceId));
     }
 }

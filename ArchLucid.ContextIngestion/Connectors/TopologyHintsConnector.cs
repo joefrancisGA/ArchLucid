@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
@@ -7,7 +8,8 @@ namespace ArchLucid.ContextIngestion.Connectors;
 
 public sealed class TopologyHintsConnector(
     IConnectorInput<TopologyHintsPayload> payloadInput,
-    IConnectorNormalizer<TopologyHintsPayload> payloadNormalizer) : IContextConnector
+    IConnectorNormalizer<TopologyHintsPayload> payloadNormalizer,
+    IConnectorDeltaComputer deltaComputer) : IContextConnector
 {
     public string ConnectorType => "topology-hints";
 
@@ -39,12 +41,19 @@ public sealed class TopologyHintsConnector(
         ContextSnapshot? previous,
         CancellationToken ct)
     {
-        _ = current;
         _ = ct;
+        ArgumentNullException.ThrowIfNull(current);
 
-        return Task.FromResult(new ContextDelta
-        {
-            Summary = previous is null ? "Initial topology hint ingestion" : "Updated topology hint ingestion"
-        });
+        // Filter the previous snapshot to only this connector's objects (SourceType = "TopologyHint").
+        // All topology hints share SourceId = "topology-hint", so we use ObjectId as the stable key —
+        // TopologyHintsPayloadNormalizer derives ObjectId deterministically via TopologyHintStableObjectIds.
+        IReadOnlyList<CanonicalObject> previousSlice = previous?.CanonicalObjects
+            .Where(static o => o.SourceType == "TopologyHint")
+            .ToList() ?? [];
+
+        return Task.FromResult(deltaComputer.Compute(
+            current.CanonicalObjects,
+            previousSlice,
+            static o => o.ObjectId));
     }
 }

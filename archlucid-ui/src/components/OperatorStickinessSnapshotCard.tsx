@@ -14,7 +14,7 @@ import type { OperatorStickinessSnapshotDto } from "@/types/operate-rhythm";
 /**
  * Customer-success stickiness cockpit: funnel + habit metrics with links to next actions.
  */
-export function OperatorStickinessSnapshotCard(): ReactElement {
+export function OperatorStickinessSnapshotCard(): ReactElement | null {
   const [data, setData] = useState<OperatorStickinessSnapshotDto | null>(null);
   const [problem, setProblem] = useState<{
     problem: ApiProblemDetails | null;

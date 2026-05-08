@@ -1,5 +1,6 @@
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Models;
 
 using FluentAssertions;
@@ -17,7 +18,8 @@ public sealed class PolicyReferenceConnectorTopologyTests
     {
         PolicyReferenceConnector sut = new(
             new PolicyReferencePayloadExtractor(),
-            new PolicyReferencePayloadNormalizer());
+            new PolicyReferencePayloadNormalizer(),
+            new SetDiffConnectorDeltaComputer());
         RawContextPayload raw = new()
         {
             PolicyReferences = ["prod-vnet-policy"], TopologyHints = ["prod-vnet-policy-subnet"]
@@ -37,7 +39,8 @@ public sealed class PolicyReferenceConnectorTopologyTests
     {
         PolicyReferenceConnector sut = new(
             new PolicyReferencePayloadExtractor(),
-            new PolicyReferencePayloadNormalizer());
+            new PolicyReferencePayloadNormalizer(),
+            new SetDiffConnectorDeltaComputer());
         RawContextPayload raw = new() { PolicyReferences = ["SOC2"], TopologyHints = ["unrelated-vnet"] };
 
         NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);
