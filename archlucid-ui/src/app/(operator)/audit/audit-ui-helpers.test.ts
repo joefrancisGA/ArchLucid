@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { canExportAuditCsv, formatAuditSummaryHeading, principalRolesAllowAuditCsvExport } from "./audit-ui-helpers";
+import {
+  auditEventLifecycleSortKey,
+  canExportAuditCsv,
+  formatAuditSummaryHeading,
+  principalRolesAllowAuditCsvExport,
+} from "./audit-ui-helpers";
 
 describe("formatAuditSummaryHeading", () => {
   it("formats zero", () => {
@@ -24,6 +29,13 @@ describe("canExportAuditCsv", () => {
 
   it("is true when both bounds are non-empty", () => {
     expect(canExportAuditCsv("2024-01-01T00:00", "2024-01-02T00:00")).toBe(true);
+  });
+});
+
+describe("auditEventLifecycleSortKey", () => {
+  it("orders known pipeline codes before unknown types", () => {
+    expect(auditEventLifecycleSortKey("RunStarted")).toBeLessThan(auditEventLifecycleSortKey("context.snapshot.created"));
+    expect(auditEventLifecycleSortKey("finalize.run")).toBeLessThan(auditEventLifecycleSortKey("com.archlucid.alert.fired"));
   });
 });
 

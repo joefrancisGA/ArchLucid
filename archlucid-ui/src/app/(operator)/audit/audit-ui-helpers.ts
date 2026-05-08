@@ -33,3 +33,26 @@ export function principalRolesAllowAuditCsvExport(roleClaimValues: ReadonlyArray
 
   return false;
 }
+
+/**
+ * Stable lifecycle ordering for audit / pipeline milestone cards (buyer timeline + demo samples).
+ */
+export function auditEventLifecycleSortKey(eventType: string): number {
+  const table: Record<string, number> = {
+    RunStarted: 0,
+    "context.snapshot.created": 10,
+    "graph.snapshot.created": 20,
+    "findings.snapshot.created": 30,
+    "finalize.run": 40,
+    "artifact.bundle.created": 50,
+  };
+
+  const key = eventType.trim();
+  const rank = table[key];
+
+  if (rank !== undefined) {
+    return rank;
+  }
+
+  return 1000;
+}

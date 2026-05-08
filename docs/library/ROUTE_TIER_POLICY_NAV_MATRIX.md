@@ -88,7 +88,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/FastPathContextController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/ImportRequestFileController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/InternalArchitectureDiagnosticsController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  | internal_architecture_diagnostics |
-| `Authority/RunAgentEvaluationController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  | internal_architecture_diagnostics |
+| `Authority/RunAgentEvaluationController.cs` | `/v1/internal/architecture` | none | ReadAuthority |  | internal_architecture_diagnostics |
 | `Authority/RunComparisonController.cs` | `/v1/architecture` | standard | ReadAuthority | /compare |  |
 | `Authority/RunQueryController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /reviews?projectId=default |  |
