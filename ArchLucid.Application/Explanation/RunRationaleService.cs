@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
@@ -12,8 +13,8 @@ namespace ArchLucid.Application.Explanation;
 /// <inheritdoc/>
 public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, IRunDetailQueryService runDetailQuery) : IRunRationaleService
 {
-    private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
-    private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
+    private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery.ThrowIfNull();
+    private readonly IAuthorityQueryService _authorityQuery = authorityQuery.ThrowIfNull();
     private const string PipelineAuthority = "authority";
     private const string PipelineCoordinator = "coordinator";
     private const string KindRuleAudit = "ruleAudit";
@@ -23,7 +24,7 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
     public async Task<RunRationale?> GetRunRationaleAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, runId, ct);
+        RunDetailDto? detail = await _authorityQuery.GetRunDetailAsync(scope, runId, ct);
         if (detail is null)
             return null;
         bool explanationAvailable = detail.GoldenManifest is not null;
@@ -31,7 +32,7 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
                                    detail.AuthorityTrace is not null;
         if (detail.FindingsSnapshot is not null)
             return BuildAuthorityRationale(detail, provenanceAvailable, explanationAvailable);
-        ArchitectureRunDetail? coordinator = await runDetailQuery.GetRunDetailAsync(runId.ToString("N"), ct);
+        ArchitectureRunDetail? coordinator = await _runDetailQuery.GetRunDetailAsync(runId.ToString("N"), ct);
         return coordinator is not null
             ? BuildCoordinatorRationale(detail, coordinator, runId, provenanceAvailable, explanationAvailable)
             : BuildAuthorityRationaleWithoutFindings(detail, runId, provenanceAvailable, explanationAvailable);

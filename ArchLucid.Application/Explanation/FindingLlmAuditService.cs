@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Core;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
@@ -17,11 +18,11 @@ public sealed class FindingLlmAuditService(
     IPromptRedactor promptRedactor) : IFindingLlmAuditService
 {
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
-        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+        agentExecutionTraceRepository.ThrowIfNull();
 
-    private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
-    private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
-    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IAuthorityQueryService _authorityQuery = authorityQuery.ThrowIfNull();
+    private readonly IPromptRedactor _promptRedactor = promptRedactor.ThrowIfNull();
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider.ThrowIfNull();
 
     /// <inheritdoc/>
     public async Task<FindingLlmAuditResult?> BuildAsync(Guid runId, string findingId, CancellationToken cancellationToken = default)

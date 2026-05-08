@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
-/// <inheritdoc cref="IAgentResultEmbeddingFaithfulnessScorer"/>
+/// <inheritdoc cref="ArchLucid.Contracts.Agents.IAgentResultEmbeddingFaithfulnessScorer" />
 public sealed class AgentResultEmbeddingFaithfulnessScorer(
     IEmbeddingService embeddingService,
     ITextChunker textChunker,

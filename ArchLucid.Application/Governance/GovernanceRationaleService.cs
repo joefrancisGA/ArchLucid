@@ -1,11 +1,12 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core;
 
 namespace ArchLucid.Application.Governance;
 
 /// <inheritdoc cref = "IGovernanceRationaleService"/>
 public sealed class GovernanceRationaleService(IGovernanceLineageService lineageService) : IGovernanceRationaleService
 {
-    private readonly IGovernanceLineageService _lineageService = lineageService ?? throw new ArgumentNullException(nameof(lineageService));
+    private readonly IGovernanceLineageService _lineageService = lineageService.ThrowIfNull();
 
     /// <inheritdoc/>
     public async Task<GovernanceRationaleResult?> GetApprovalRequestRationaleAsync(string approvalRequestId, CancellationToken cancellationToken = default)
