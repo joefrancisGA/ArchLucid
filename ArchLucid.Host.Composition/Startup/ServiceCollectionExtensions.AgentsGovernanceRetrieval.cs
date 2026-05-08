@@ -15,6 +15,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Validation;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -191,7 +192,8 @@ public static partial class ServiceCollectionExtensions
             .Bind(configuration.GetSection(AgentOutputQualityGateOptions.SectionPath))
             .ValidateOnStart();
         services.AddSingleton<IAgentOutputQualityGate, AgentOutputQualityGate>();
-        services.AddSingleton<IRunAgentOutputPilotEvidenceAggregator, RunAgentOutputPilotEvidenceAggregator>();
+        // Scoped: depends on IAgentEvidencePackageRepository (scoped) and is consumed from scoped IPilotRunDeltaComputer.
+        services.AddScoped<IRunAgentOutputPilotEvidenceAggregator, RunAgentOutputPilotEvidenceAggregator>();
         services.Configure<AgentExecutionReferenceEvaluationOptions>(
             configuration.GetSection(AgentExecutionReferenceEvaluationOptions.SectionPath));
         services.AddSingleton<IAgentOutputReferenceCaseCatalog>(sp =>
@@ -210,6 +212,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentOutputTraceEvaluationHook, AgentOutputTraceEvaluationHook>();
         services.Configure<AgentResultSchemaValidationOptions>(
             configuration.GetSection(AgentResultSchemaValidationOptions.SectionPath));
+        services.AddSingleton<IPostConfigureOptions<AgentResultSchemaValidationOptions>,
+            AgentResultSchemaValidationProductionWarningPostConfigure>();
         services.Configure<AgentSchemaRemediationOptions>(
             configuration.GetSection(AgentSchemaRemediationOptions.SectionPath));
         services.PostConfigure<AgentSchemaRemediationOptions>(static o => o.Normalize());
@@ -296,11 +300,18 @@ public static partial class ServiceCollectionExtensions
                             maxTokens = AzureOpenAiCompletionClient.DefaultMaxCompletionTokens;
 
 
+                        AzureOpenAiOptions ao = sp.GetRequiredService<IOptions<AzureOpenAiOptions>>().Value;
+                        BinaryData? schema = ResolveStructuredOutputAgentResultSchema(cfg, ao);
+                        ILogger<AzureOpenAiCompletionClient> completionLogger =
+                            sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
+
                         AzureOpenAiCompletionClient client = new(
                             fo.Endpoint!,
                             fo.ApiKey!,
                             fo.DeploymentName!,
-                            maxTokens);
+                            maxTokens,
+                            schema,
+                            completionLogger);
 
                         return new FallbackAzureOpenAiInnerClientHolder(client);
                     });
@@ -322,7 +333,12 @@ public static partial class ServiceCollectionExtensions
                         maxTokens = AzureOpenAiCompletionClient.DefaultMaxCompletionTokens;
 
 
-                    return new AzureOpenAiCompletionClient(endpoint, apiKey, deploymentName, maxTokens);
+                    AzureOpenAiOptions ao = sp.GetRequiredService<IOptions<AzureOpenAiOptions>>().Value;
+                    BinaryData? schema = ResolveStructuredOutputAgentResultSchema(config, ao);
+                    ILogger<AzureOpenAiCompletionClient> completionLogger =
+                        sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
+
+                    return new AzureOpenAiCompletionClient(endpoint, apiKey, deploymentName, maxTokens, schema, completionLogger);
                 });
 
                 services.AddSingleton<LlmTokenQuotaWindowTracker>();
@@ -859,5 +875,34 @@ public static partial class ServiceCollectionExtensions
             gateName: gate.GateName);
 
         return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, llmRetry, logger);
+    }
+
+    private static BinaryData? ResolveStructuredOutputAgentResultSchema(
+        IConfiguration configuration,
+        AzureOpenAiOptions azureOpenAiOptions)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(azureOpenAiOptions);
+
+        if (!azureOpenAiOptions.UseJsonSchemaResponseFormat)
+            return null;
+
+        SchemaValidationOptions parsed =
+            configuration.GetSection(SchemaValidationOptions.SectionName).Get<SchemaValidationOptions>()
+            ?? new SchemaValidationOptions();
+
+        string relative = parsed.AgentResultSchemaPath?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(relative))
+            relative = new SchemaValidationOptions().AgentResultSchemaPath;
+
+        string fullPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, relative));
+
+        if (!File.Exists(fullPath))
+            throw new InvalidOperationException(
+                "AzureOpenAI:UseJsonSchemaResponseFormat is true but the agent result schema file was not found on disk at '"
+                + fullPath + "' (SchemaValidation:AgentResultSchemaPath is '" + relative + "').");
+
+        return BinaryData.FromString(File.ReadAllText(fullPath));
     }
 }

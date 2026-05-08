@@ -37,4 +37,15 @@ public sealed class AzureOpenAiOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     When <see langword="true" />, agent completions request Azure OpenAI structured outputs using
+    ///     <c>json_schema</c> derived from <see cref="ArchLucid.Decisioning.Validation.SchemaValidationOptions.AgentResultSchemaPath" />.
+    ///     When the service returns HTTP 400 (unsupported schema or deployment), the client falls back to JSON object mode.
+    /// </summary>
+    public bool UseJsonSchemaResponseFormat
+    {
+        get;
+        set;
+    }
 }

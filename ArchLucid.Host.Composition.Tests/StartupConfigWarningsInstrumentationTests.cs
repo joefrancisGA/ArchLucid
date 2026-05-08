@@ -1,5 +1,6 @@
 using System.Diagnostics.Metrics;
 
+using ArchLucid.AgentRuntime;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
@@ -73,6 +74,34 @@ public sealed class StartupConfigWarningsInstrumentationTests
                 && string.Equals(
                     t.Value as string,
                     StartupValidationWarningRuleNames.LlmPromptRedactionDisabledProductionLike,
+                    StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public void AgentResult_SchemaValidation_PostConfigure_when_enforce_off_on_production_like_increments_metric()
+    {
+        _ = ArchLucidInstrumentation.StartupConfigWarningsTotal;
+
+        using StartupConfigWarningsCapture capture = StartupConfigWarningsCapture.Start();
+
+        IHostEnvironment hostEnvironment = new StubHostEnvironment(Environments.Staging);
+        IConfiguration configuration = new ConfigurationBuilder().Build();
+
+        AgentResultSchemaValidationProductionWarningPostConfigure sut = new(
+            hostEnvironment,
+            configuration,
+            NullLogger<AgentResultSchemaValidationProductionWarningPostConfigure>.Instance);
+
+        sut.PostConfigure(null, new AgentResultSchemaValidationOptions { EnforceOnParse = false });
+
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_startup_config_warnings_total"
+            && m.Value == 1
+            && m.Tags.Any(t =>
+                t.Key == "rule_name"
+                && string.Equals(
+                    t.Value as string,
+                    StartupValidationWarningRuleNames.AgentResultSchemaEnforceOnParseDisabledProductionLike,
                     StringComparison.Ordinal)));
     }
 

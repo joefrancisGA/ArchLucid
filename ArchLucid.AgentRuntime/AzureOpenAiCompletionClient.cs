@@ -8,13 +8,15 @@ using ArchLucid.Core.Diagnostics;
 
 using Azure.AI.OpenAI;
 
+using Microsoft.Extensions.Logging;
+
 using OpenAI.Chat;
 
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 ///     Azure OpenAI chat client using JSON object response format and low temperature for deterministic structured
-///     outputs.
+///     outputs. Optionally requests <c>json_schema</c> structured outputs for the <c>AgentResult</c> wire shape.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification =
     "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
@@ -30,6 +32,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     private readonly ChatClient _chatClient;
     private readonly string _deploymentName;
     private readonly int _maxOutputTokens;
+    private readonly BinaryData? _structuredOutputAgentResultSchema;
+    private readonly ILogger<AzureOpenAiCompletionClient>? _logger;
 
     /// <summary>
     ///     Creates a client for the given deployment (model) on the Azure OpenAI resource.
@@ -38,11 +42,18 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     /// <param name="apiKey">API key credential.</param>
     /// <param name="deploymentName">Chat deployment name.</param>
     /// <param name="maxCompletionTokens">Positive cap on completion tokens (output).</param>
+    /// <param name="structuredOutputAgentResultSchema">
+    ///     When non-null, completions use <see cref="ChatResponseFormat.CreateJsonSchemaFormat" /> (strict) for this
+    ///     schema; HTTP 400 falls back to JSON object mode.
+    /// </param>
+    /// <param name="logger">Optional logger for structured-output fallback diagnostics.</param>
     public AzureOpenAiCompletionClient(
         string endpoint,
         string apiKey,
         string deploymentName,
-        int maxCompletionTokens)
+        int maxCompletionTokens,
+        BinaryData? structuredOutputAgentResultSchema = null,
+        ILogger<AzureOpenAiCompletionClient>? logger = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
@@ -60,6 +71,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         _deploymentName = deploymentName.Trim();
         _chatClient = azureClient.GetChatClient(deploymentName);
         _maxOutputTokens = maxCompletionTokens;
+        _structuredOutputAgentResultSchema = structuredOutputAgentResultSchema;
+        _logger = logger;
         Descriptor = LlmProviderDescriptor.ForAzureOpenAi(endpointUri, deploymentName);
     }
 
@@ -71,8 +84,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
     /// <inheritdoc />
     /// <remarks>
-    ///     Uses <c>Temperature = 0.1</c>, <c>MaxOutputTokenCount</c>, and
-    ///     <c>ChatResponseFormat.CreateJsonObjectFormat()</c>.
+    ///     Uses <c>Temperature = 0.1</c>, <c>MaxOutputTokenCount</c>, and either JSON schema structured output or
+    ///     <c>ChatResponseFormat.CreateJsonObjectFormat()</c> when schema mode is off or after fallback.
     /// </remarks>
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,
@@ -90,27 +103,17 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             new UserChatMessage(userPrompt)
         ];
 
-        ChatCompletionOptions options = new()
-        {
-            Temperature = 0.1f,
-            MaxOutputTokenCount = _maxOutputTokens,
-            ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
-        };
-
         using Activity? llmActivity = ArchLucidInstrumentation.AgentLlmCompletion.StartActivity(
             "gen_ai.chat.completion",
             ActivityKind.Client);
 
         llmActivity?.SetTag("gen_ai.system", "azure_openai");
 
-        ClientResult<ChatCompletion> response;
+        ChatCompletion completion;
 
         try
         {
-            response = await _chatClient.CompleteChatAsync(
-                messages,
-                options,
-                cancellationToken);
+            completion = await CompleteChatCoreAsync(messages, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -120,8 +123,6 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
             throw;
         }
-
-        ChatCompletion completion = response.Value;
 
         if (completion.Usage is { } usage)
         {
@@ -165,6 +166,62 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             AgentHandlerLlmReasoningTrace.AppendCompletionSnippet(reasoningSnippet);
 
         return text;
+    }
+
+    private async Task<ChatCompletion> CompleteChatCoreAsync(
+        List<ChatMessage> messages,
+        CancellationToken cancellationToken)
+    {
+        ChatCompletionOptions jsonObjectOptions = CreateCompletionOptions(ChatResponseFormat.CreateJsonObjectFormat());
+
+        if (_structuredOutputAgentResultSchema is null)
+            return await CompleteChatOnceAsync(messages, jsonObjectOptions, cancellationToken).ConfigureAwait(false);
+
+        ChatCompletionOptions schemaOptions = CreateCompletionOptions(
+            ChatResponseFormat.CreateJsonSchemaFormat(
+                "agent_result",
+                _structuredOutputAgentResultSchema,
+                "ArchLucid AgentResult wire JSON per schemas/agentresult.schema.json.",
+                jsonSchemaIsStrict: true));
+
+        try
+        {
+            return await CompleteChatOnceAsync(messages, schemaOptions, cancellationToken).ConfigureAwait(false);
+        }
+        catch (ClientResultException ex) when (ex.Status == 400)
+        {
+            ILogger<AzureOpenAiCompletionClient>? log = _logger;
+
+            if (log is not null && log.IsEnabled(LogLevel.Warning))
+                log.LogWarning(
+                    ex,
+                    "Azure OpenAI returned HTTP 400 for json_schema structured output; falling back to json_object response format.");
+
+            return await CompleteChatOnceAsync(messages, jsonObjectOptions, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private ChatCompletionOptions CreateCompletionOptions(ChatResponseFormat format)
+    {
+        return new ChatCompletionOptions
+        {
+            Temperature = 0.1f,
+            MaxOutputTokenCount = _maxOutputTokens,
+            ResponseFormat = format
+        };
+    }
+
+    private async Task<ChatCompletion> CompleteChatOnceAsync(
+        List<ChatMessage> messages,
+        ChatCompletionOptions options,
+        CancellationToken cancellationToken)
+    {
+        ClientResult<ChatCompletion> response = await _chatClient.CompleteChatAsync(
+            messages,
+            options,
+            cancellationToken).ConfigureAwait(false);
+
+        return response.Value;
     }
 
     private static string? BuildReasoningTraceSnippet(ChatCompletion completion)

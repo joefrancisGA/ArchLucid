@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
@@ -103,5 +104,39 @@ public sealed class AgentOutputQualityGateStagingAppsettingsTests
         options!.Mode.Should().Be(AgentOutputQualityGateMode.PilotStrict);
         options.EnforceOnReject.Should().BeFalse();
         options.BlockRunOnReject.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Staging_appsettings_pins_AgentResult_schema_enforcement_on_parse()
+    {
+        Skip.IfNot(File.Exists(StagingJsonPath), $"Expected {StagingJsonPath} (copy from ArchLucid.Api via csproj).");
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddJsonFile(StagingJsonPath, optional: false, reloadOnChange: false)
+            .Build();
+
+        AgentResultSchemaValidationOptions? schemaOpts = configuration
+            .GetSection(AgentResultSchemaValidationOptions.SectionPath)
+            .Get<AgentResultSchemaValidationOptions>();
+
+        schemaOpts.Should().NotBeNull();
+        schemaOpts!.EnforceOnParse.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Production_appsettings_pins_AgentResult_schema_enforcement_on_parse()
+    {
+        Skip.IfNot(File.Exists(ProductionJsonPath), $"Expected {ProductionJsonPath} (copy from ArchLucid.Api via csproj).");
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddJsonFile(ProductionJsonPath, optional: false, reloadOnChange: false)
+            .Build();
+
+        AgentResultSchemaValidationOptions? schemaOpts = configuration
+            .GetSection(AgentResultSchemaValidationOptions.SectionPath)
+            .Get<AgentResultSchemaValidationOptions>();
+
+        schemaOpts.Should().NotBeNull();
+        schemaOpts!.EnforceOnParse.Should().BeTrue();
     }
 }
