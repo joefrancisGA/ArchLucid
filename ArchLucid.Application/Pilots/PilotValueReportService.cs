@@ -47,7 +47,7 @@ public sealed class PilotValueReportService(IRunDetailQueryService runDetailQuer
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Application.Pilots.PilotValueReport?> BuildAsync(DateTime? fromUtc, DateTime? toUtc, CancellationToken cancellationToken)
+    public async Task<PilotValueReport?> BuildAsync(DateTime? fromUtc, DateTime? toUtc, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);

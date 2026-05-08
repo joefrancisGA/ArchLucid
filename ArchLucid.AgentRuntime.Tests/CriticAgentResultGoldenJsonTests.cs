@@ -209,7 +209,7 @@ public sealed class CriticAgentResultGoldenJsonTests
         AgentResultParser sut = CreateStrictSchemaParser();
         AgentResult viaParser = sut.ParseAndValidate(json, RunId, TaskId, AgentType.Critic);
 
-        viaParser.ResultId.Should().Be(viaOptions!.ResultId);
+        viaParser.ResultId.Should().Be(viaOptions.ResultId);
         viaParser.AgentType.Should().Be(viaOptions.AgentType);
         viaParser.Confidence.Should().Be(viaOptions.Confidence);
     }

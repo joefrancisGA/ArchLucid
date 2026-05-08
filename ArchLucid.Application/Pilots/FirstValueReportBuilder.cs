@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
@@ -11,6 +12,7 @@ using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -44,7 +46,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     ///     Returns Markdown, or <see langword="null"/> when the run does not exist.
     ///     When the run exists but is not committed, returns Markdown that states the gap explicitly.
     /// </summary>
-    public async System.Threading.Tasks.Task<System.String?> BuildMarkdownAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
+    public async Task<String?> BuildMarkdownAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(apiBaseForLinks);
@@ -55,7 +57,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     /// <summary>
     ///     Returns Markdown plus evidence classification for PDF watermarks, or <see langword="null"/> when the run does not exist.
     /// </summary>
-    public async System.Threading.Tasks.Task<ArchLucid.Application.Pilots.FirstValueReportBuildResult?> BuildReportAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
+    public async Task<FirstValueReportBuildResult?> BuildReportAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(apiBaseForLinks);

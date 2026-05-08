@@ -36,11 +36,15 @@ public sealed class AgentOutputEvaluationRecorderTests
         Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> refOpts = new();
         refOpts.Setup(o => o.CurrentValue).Returns(new AgentExecutionReferenceEvaluationOptions { Enabled = false });
 
+        HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
+        HeuristicOnlyAgentOutputSemanticEvaluator semanticFacade = new(heuristicSemantic);
+
         AgentOutputReferenceCaseRunEvaluator referenceEvaluator = new(
             refOpts.Object,
             new EmptyReferenceCatalog(),
             new AgentOutputEvaluator(),
-            new AgentOutputSemanticEvaluator(),
+            heuristicSemantic,
+            semanticFacade,
             new NoOpAgentOutputEvaluationResultRepository(),
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
 
@@ -52,7 +56,7 @@ public sealed class AgentOutputEvaluationRecorderTests
         return new AgentOutputEvaluationRecorder(
             traceRepository,
             new AgentOutputEvaluator(),
-            new AgentOutputSemanticEvaluator(),
+            semanticFacade,
             new AgentOutputQualityGate(Options.Create(opts)),
             Options.Create(opts),
             referenceEvaluator,

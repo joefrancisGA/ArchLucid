@@ -374,8 +374,12 @@ public sealed class PilotRunDeltaComputerTests
             .ReturnsAsync(0);
 
         Mock<IRunAgentOutputPilotEvidenceAggregator> agg = new();
-        agg.Setup(a => a.WouldPilotStrictBlockSponsorEvidence(It.IsAny<IReadOnlyList<AgentExecutionTrace>>(), It.IsAny<RunExplanationSummary?>()))
-            .Returns(true);
+        agg.Setup(a =>
+                a.WouldPilotStrictBlockSponsorEvidenceAsync(
+                    It.IsAny<IReadOnlyList<AgentExecutionTrace>>(),
+                    It.IsAny<RunExplanationSummary?>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         PilotRunDeltaComputer sut =
             CreatePilotDeltaComputer(
@@ -392,7 +396,10 @@ public sealed class PilotRunDeltaComputerTests
         result.AgentOutputPilotStrictSignalsResolved.Should().BeTrue();
         result.AgentOutputPilotStrictViolatesSponsorEvidence.Should().BeTrue();
         agg.Verify(
-            a => a.WouldPilotStrictBlockSponsorEvidence(It.IsAny<IReadOnlyList<AgentExecutionTrace>>(), It.IsAny<RunExplanationSummary?>()),
+            a => a.WouldPilotStrictBlockSponsorEvidenceAsync(
+                It.IsAny<IReadOnlyList<AgentExecutionTrace>>(),
+                It.IsAny<RunExplanationSummary?>(),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -418,8 +425,12 @@ public sealed class PilotRunDeltaComputerTests
     private static IRunAgentOutputPilotEvidenceAggregator DefaultStrictPilotAgg()
     {
         Mock<IRunAgentOutputPilotEvidenceAggregator> mock = new();
-        mock.Setup(a => a.WouldPilotStrictBlockSponsorEvidence(It.IsAny<IReadOnlyList<AgentExecutionTrace>>(), It.IsAny<RunExplanationSummary?>()))
-            .Returns(false);
+        mock.Setup(a =>
+                a.WouldPilotStrictBlockSponsorEvidenceAsync(
+                    It.IsAny<IReadOnlyList<AgentExecutionTrace>>(),
+                    It.IsAny<RunExplanationSummary?>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         return mock.Object;
     }

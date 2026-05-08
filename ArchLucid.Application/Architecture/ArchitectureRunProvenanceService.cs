@@ -1,4 +1,5 @@
 using System.Globalization;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
@@ -18,7 +19,7 @@ public sealed class ArchitectureRunProvenanceService(IRunDetailQueryService runD
     private readonly IEvidenceBundleRepository _evidenceBundleRepository = evidenceBundleRepository ?? throw new ArgumentNullException(nameof(evidenceBundleRepository));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Architecture.ArchitectureRunProvenanceGraph?> GetProvenanceAsync(string runId, CancellationToken cancellationToken = default)
+    public async Task<ArchitectureRunProvenanceGraph?> GetProvenanceAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
@@ -46,7 +47,7 @@ public sealed class ArchitectureRunProvenanceService(IRunDetailQueryService runD
         ArchitectureRunProvenanceGraph graph = new()
         {
             RunId = run.RunId,
-            TraceabilityGaps = [..CommittedManifestTraceabilityRules.GetLinkageGaps(detail)]
+            TraceabilityGaps = [.. CommittedManifestTraceabilityRules.GetLinkageGaps(detail)]
         };
         Dictionary<string, ArchitectureLinkageNode> nodes = new(StringComparer.Ordinal);
         List<ArchitectureLinkageEdge> edges = [];
@@ -131,9 +132,9 @@ public sealed class ArchitectureRunProvenanceService(IRunDetailQueryService runD
 
         if (run.CompletedUtc is { } doneUtc)
             timeline.Add(new ArchitectureTraceTimelineEntry { TimestampUtc = doneUtc, Kind = ArchitectureLinkageKinds.Timeline.RunCompleted, Label = $"Run completed ({run.Status})", ReferenceId = run.RunId, Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["status"] = run.Status.ToString() } });
-        graph.Nodes = [..nodes.Values];
+        graph.Nodes = [.. nodes.Values];
         graph.Edges = edges;
-        graph.Timeline = [..timeline.OrderBy(x => x.TimestampUtc).ThenBy(x => x.ReferenceId, StringComparer.Ordinal)];
+        graph.Timeline = [.. timeline.OrderBy(x => x.TimestampUtc).ThenBy(x => x.ReferenceId, StringComparer.Ordinal)];
         return graph;
         void AddEdge(string type, string fromId, string toId, Dictionary<string, string>? metadata = null)
         {

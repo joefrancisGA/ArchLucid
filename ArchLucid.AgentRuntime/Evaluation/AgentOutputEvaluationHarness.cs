@@ -8,7 +8,7 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 /// <inheritdoc cref="IAgentOutputEvaluationHarness" />
 public sealed class AgentOutputEvaluationHarness(
     IAgentOutputEvaluator structuralEvaluator,
-    IAgentOutputSemanticEvaluator semanticEvaluator) : IAgentOutputEvaluationHarness
+    IHeuristicAgentOutputSemanticEvaluator semanticEvaluator) : IAgentOutputEvaluationHarness
 {
     private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
 

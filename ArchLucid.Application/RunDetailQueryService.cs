@@ -12,6 +12,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application;
@@ -39,7 +40,7 @@ public sealed class RunDetailQueryService(IRunRepository runRepository, IScopeCo
     private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
     private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader = unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Architecture.ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default)
+    public async Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         if (!TryParseRunGuid(runId, out Guid runGuid))

@@ -15,6 +15,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -48,7 +49,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
     private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
     /// <summary>Run statuses that allow submitting agent results.</summary>
     private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses = [ArchitectureRunStatus.TasksGenerated, ArchitectureRunStatus.WaitingForResults];
-    public async System.Threading.Tasks.Task<ArchLucid.Application.GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
+    public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(runId);
         if (string.IsNullOrWhiteSpace(runId))
@@ -94,7 +95,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
             {
                 await architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
             }
-            catch (Exception ex)when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 if (logger.IsEnabled(LogLevel.Warning))
                     logger.LogWarningWithSanitizedUserArg(ex, "Architecture finding confidence enrichment failed after submit for RunId={RunId}; continuing.", runId);
@@ -111,7 +112,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         }
     }
 
-    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Manifest.GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
+    public async Task<Contracts.Manifest.GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(version);
         return await unifiedGoldenManifestReader.GetByVersionAsync(version, cancellationToken);
@@ -166,7 +167,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         {
             await architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarning(ex, "Architecture finding confidence enrichment failed after fake seed for RunId={RunId}; continuing.", runId);

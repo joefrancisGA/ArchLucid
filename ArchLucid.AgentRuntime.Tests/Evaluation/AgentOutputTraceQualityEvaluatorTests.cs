@@ -13,8 +13,11 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Category", "Unit")]
 public sealed class AgentOutputTraceQualityEvaluatorTests
 {
+    private static readonly HeuristicOnlyAgentOutputSemanticEvaluator SemanticShim =
+        new(new HeuristicAgentOutputSemanticEvaluator());
+
     [Fact]
-    public void TryEvaluateTrace_warn_only_missing_citations_warns_when_scores_accept()
+    public async Task TryEvaluateTrace_warn_only_missing_citations_warns_when_scores_accept()
     {
         AgentOutputQualityGateOptions options = new()
         {
@@ -38,19 +41,20 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         };
 
         AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
-            AgentOutputTraceQualityEvaluator.TryEvaluateTrace(
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
                 trace,
                 options,
                 new AgentOutputEvaluator(),
-                new AgentOutputSemanticEvaluator(),
-                new AgentOutputQualityGate(Options.Create(options)));
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None).ConfigureAwait(false);
 
         r.Should().NotBeNull();
-        r.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Warned);
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Warned);
     }
 
     [Fact]
-    public void TryEvaluateTrace_pilot_strict_missing_citations_rejects()
+    public async Task TryEvaluateTrace_pilot_strict_missing_citations_rejects()
     {
         AgentOutputQualityGateOptions options = new()
         {
@@ -72,19 +76,20 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         };
 
         AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
-            AgentOutputTraceQualityEvaluator.TryEvaluateTrace(
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
                 trace,
                 options,
                 new AgentOutputEvaluator(),
-                new AgentOutputSemanticEvaluator(),
-                new AgentOutputQualityGate(Options.Create(options)));
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None).ConfigureAwait(false);
 
         r.Should().NotBeNull();
-        r.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
     }
 
     [Fact]
-    public void TryEvaluateTrace_pilot_strict_rejects_when_evidence_ref_floor_not_met_even_with_citations()
+    public async Task TryEvaluateTrace_pilot_strict_rejects_when_evidence_ref_floor_not_met_even_with_citations()
     {
         AgentOutputQualityGateOptions options = new()
         {
@@ -111,19 +116,20 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         };
 
         AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
-            AgentOutputTraceQualityEvaluator.TryEvaluateTrace(
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
                 trace,
                 options,
                 new AgentOutputEvaluator(),
-                new AgentOutputSemanticEvaluator(),
-                new AgentOutputQualityGate(Options.Create(options)));
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None).ConfigureAwait(false);
 
         r.Should().NotBeNull();
-        r.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
     }
 
     [Fact]
-    public void TryEvaluateTrace_warn_only_unparsed_skips_entirely()
+    public async Task TryEvaluateTrace_warn_only_unparsed_skips_entirely()
     {
         AgentOutputQualityGateOptions options = new()
         {
@@ -142,18 +148,19 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         };
 
         AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
-            AgentOutputTraceQualityEvaluator.TryEvaluateTrace(
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
                 trace,
                 options,
                 new AgentOutputEvaluator(),
-                new AgentOutputSemanticEvaluator(),
-                new AgentOutputQualityGate(Options.Create(options)));
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None).ConfigureAwait(false);
 
         r.Should().BeNull();
     }
 
     [Fact]
-    public void TryEvaluateTrace_pilot_strict_unparsed_rejects()
+    public async Task TryEvaluateTrace_pilot_strict_unparsed_rejects()
     {
         AgentOutputQualityGateOptions options = new()
         {
@@ -172,15 +179,16 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         };
 
         AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
-            AgentOutputTraceQualityEvaluator.TryEvaluateTrace(
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
                 trace,
                 options,
                 new AgentOutputEvaluator(),
-                new AgentOutputSemanticEvaluator(),
-                new AgentOutputQualityGate(Options.Create(options)));
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None).ConfigureAwait(false);
 
         r.Should().NotBeNull();
-        r.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
         r.EmitQualityGateMetric.Should().BeTrue();
     }
 }

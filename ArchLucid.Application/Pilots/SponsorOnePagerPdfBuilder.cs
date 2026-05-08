@@ -1,15 +1,19 @@
 using System.Globalization;
+
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
+
+using Microsoft.Extensions.Options;
+
 using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+
 using QuestPdfDocument = QuestPDF.Fluent.Document;
-using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Pilots;
 /// <summary>
@@ -29,7 +33,7 @@ public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQu
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly PilotScorecardBuilder _scorecardBuilder = scorecardBuilder ?? throw new ArgumentNullException(nameof(scorecardBuilder));
     /// <summary>Returns PDF bytes, or <see langword="null"/> when the run is missing.</summary>
-    public async System.Threading.Tasks.Task<System.Byte[]?> BuildPdfAsync(string runId, string baseUrlForFooter, CancellationToken cancellationToken = default)
+    public async Task<Byte[]?> BuildPdfAsync(string runId, string baseUrlForFooter, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(baseUrlForFooter);

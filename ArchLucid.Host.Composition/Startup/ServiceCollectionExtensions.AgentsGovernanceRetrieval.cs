@@ -151,8 +151,16 @@ public static partial class ServiceCollectionExtensions
             return new LlmCompletionResponseCache(memoryCache, monitor);
         });
         services.AddSingleton<IPromptRedactor, PromptRedactor>();
-        services.AddSingleton<IAgentOutputEvaluator, AgentOutputEvaluator>();
-        services.AddSingleton<IAgentOutputSemanticEvaluator, AgentOutputSemanticEvaluator>();
+        services.Configure<AgentOutputLlmSemanticJudgeOptions>(
+            configuration.GetSection(AgentOutputLlmSemanticJudgeOptions.SectionPath));
+        services.AddSingleton<HeuristicAgentOutputSemanticEvaluator>();
+        services.AddSingleton<IHeuristicAgentOutputSemanticEvaluator>(static sp =>
+            sp.GetRequiredService<HeuristicAgentOutputSemanticEvaluator>());
+        services.AddSingleton<AgentOutputLlmSemanticJudge>();
+        services.AddSingleton<CompositeAgentOutputSemanticEvaluator>();
+        services.AddSingleton<IAgentOutputSemanticEvaluator>(static sp =>
+            sp.GetRequiredService<CompositeAgentOutputSemanticEvaluator>());
+        services.AddSingleton<HeuristicOnlyAgentOutputSemanticEvaluator>();
         services.AddSingleton<IAgentOutputEvaluationHarness, AgentOutputEvaluationHarness>();
         services.Configure<AgentOutputQualityGateOptions>(
             configuration.GetSection(AgentOutputQualityGateOptions.SectionPath));

@@ -1,10 +1,12 @@
 using System.Text.Json;
+
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Scim;
+
 public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService audit) : IScimGroupService
 {
     private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
@@ -16,7 +18,7 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
     }
 
     /// <inheritdoc/>
-    public System.Threading.Tasks.Task<ArchLucid.Core.Scim.Models.ScimGroupRecord?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+    public Task<ScimGroupRecord?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
     {
         return _groups.GetByIdAsync(tenantId, id, cancellationToken);
     }

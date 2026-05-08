@@ -7,7 +7,7 @@ public sealed class ScimBearerTokenAuthenticator(IScimTenantTokenRepository toke
 {
     private readonly IScimTenantTokenRepository _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Application.Scim.Tokens.ScimBearerAuthenticationResult?> TryAuthenticateAsync(string plaintextToken, CancellationToken cancellationToken)
+    public async Task<ScimBearerAuthenticationResult?> TryAuthenticateAsync(string plaintextToken, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(plaintextToken);
         if (string.IsNullOrWhiteSpace(plaintextToken))

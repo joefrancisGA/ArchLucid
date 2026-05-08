@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text.Json;
+
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;
@@ -18,7 +19,7 @@ public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQu
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<System.Byte[]?> BuildAsync(string runId, ScopeContext scope, long maxZipBytes, CancellationToken cancellationToken)
+    public async Task<Byte[]?> BuildAsync(string runId, ScopeContext scope, long maxZipBytes, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(scope);

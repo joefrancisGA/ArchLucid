@@ -16,7 +16,7 @@ public sealed class FindingLlmAuditService(IAuthorityQueryService authorityQuery
     private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Explanation.FindingLlmAuditResult?> BuildAsync(Guid runId, string findingId, CancellationToken cancellationToken = default)
+    public async Task<FindingLlmAuditResult?> BuildAsync(Guid runId, string findingId, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(findingId);
         if (string.IsNullOrWhiteSpace(findingId))

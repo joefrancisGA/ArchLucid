@@ -27,9 +27,10 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
         qualityGate ?? throw new ArgumentNullException(nameof(qualityGate));
 
     /// <inheritdoc />
-    public bool WouldPilotStrictBlockSponsorEvidence(
+    public async Task<bool> WouldPilotStrictBlockSponsorEvidenceAsync(
         IReadOnlyList<AgentExecutionTrace> traces,
-        RunExplanationSummary? explanationSummary)
+        RunExplanationSummary? explanationSummary,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(traces);
 
@@ -39,12 +40,14 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
         foreach (AgentExecutionTrace trace in traces)
         {
             AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
-                AgentOutputTraceQualityEvaluator.TryEvaluateTrace(
-                    trace,
-                    _options,
-                    _structuralEvaluator,
-                    _semanticEvaluator,
-                    _qualityGate);
+                await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                        trace,
+                        _options,
+                        _structuralEvaluator,
+                        _semanticEvaluator,
+                        _qualityGate,
+                        cancellationToken)
+                    .ConfigureAwait(false);
 
             if (evaluated is { GateOutcome: AgentOutputQualityGateOutcome.Rejected })
                 return true;

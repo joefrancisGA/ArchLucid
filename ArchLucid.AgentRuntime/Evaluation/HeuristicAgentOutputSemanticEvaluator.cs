@@ -6,13 +6,15 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <summary>
-///     Deterministic JSON inspection scoring claim evidence and finding completeness.
+///     Deterministic JSON inspection scoring claim evidence and finding completeness (no LLM).
 /// </summary>
-public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
+/// <inheritdoc cref="IHeuristicAgentOutputSemanticEvaluator" />
+public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutputSemanticEvaluator
 {
     private const int MinDescriptionLength = 10;
     private const int MinRecommendationLength = 5;
 
+    /// <inheritdoc />
     public AgentOutputSemanticScore Evaluate(string traceId, string? parsedResultJson, AgentType agentType)
     {
         ArgumentException.ThrowIfNullOrEmpty(traceId);
@@ -40,7 +42,8 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
                 FindingsQualityRatio = findingsRatio,
                 EmptyClaimCount = emptyClaims,
                 IncompleteFindingCount = incompleteFindings,
-                OverallSemanticScore = overall
+                OverallSemanticScore = overall,
+                HeuristicOverallScore = overall
             };
         }
         catch (JsonException)
@@ -149,7 +152,8 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
             FindingsQualityRatio = 0.0,
             EmptyClaimCount = 0,
             IncompleteFindingCount = 0,
-            OverallSemanticScore = 0.0
+            OverallSemanticScore = 0.0,
+            HeuristicOverallScore = 0.0
         };
     }
 }

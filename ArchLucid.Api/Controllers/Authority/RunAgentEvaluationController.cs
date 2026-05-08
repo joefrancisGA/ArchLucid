@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 ///     On-demand structural and semantic evaluation of agent traces for a run.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.RequireOperatorRole)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/internal/architecture")]
 [EnableRateLimiting("fixed")]
@@ -43,48 +43,41 @@ public sealed class RunAgentEvaluationController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken).ConfigureAwait(false))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         IReadOnlyList<AgentExecutionTrace> traces =
-            await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+            await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
 
-        List<AgentOutputEvaluationScore> scores = new(traces.Count);
-        int skipped = 0;
-        List<double> ratiosForAverage = [];
-        List<double> semanticForAverage = [];
+        int skipped = traces.Count(static t =>
+            !t.ParseSucceeded || string.IsNullOrEmpty(t.ParsedResultJson));
 
-        foreach (AgentExecutionTrace trace in traces)
-        {
-            if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
-            {
-                skipped++;
-                continue;
-            }
+        IEnumerable<AgentExecutionTrace> eligible = traces.Where(static t =>
+            t.ParseSucceeded && !string.IsNullOrEmpty(t.ParsedResultJson));
 
-            AgentOutputEvaluationScore score =
-                agentOutputEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
-            score.BlobUploadFailed = trace.BlobUploadFailed;
-            score.QualityWarning = trace.QualityWarning;
+        AgentOutputEvaluationScore[] evaluatedRows =
+            await Task.WhenAll(
+                    eligible.Select(
+                        trace => EvaluateTraceRowAsync(trace, cancellationToken)))
+                .ConfigureAwait(false);
 
-            if (!score.IsJsonParseFailure)
-            {
-                score.Semantic =
-                    agentOutputSemanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
-                ratiosForAverage.Add(score.StructuralCompletenessRatio);
-                semanticForAverage.Add(score.Semantic.OverallSemanticScore);
-            }
+        List<AgentOutputEvaluationScore> scores = [.. evaluatedRows];
 
-            scores.Add(score);
-        }
+        IEnumerable<double> ratiosForAverage =
+            scores.Where(static s => !s.IsJsonParseFailure).Select(static s => s.StructuralCompletenessRatio);
 
-        double? averageStructural = ratiosForAverage.Count == 0
-            ? null
-            : ratiosForAverage.Average();
+        IEnumerable<double> semanticForAverage =
+            scores.Where(static s => !s.IsJsonParseFailure && s.Semantic is not null)
+                .Select(static s => s.Semantic!.OverallSemanticScore);
 
-        double? averageSemantic = semanticForAverage.Count == 0
-            ? null
-            : semanticForAverage.Average();
+        double[] ratioArray = ratiosForAverage.ToArray();
+        double[] semanticArray = semanticForAverage.ToArray();
+
+        double? averageStructural =
+            ratioArray.Length == 0 ? null : ratioArray.Average();
+
+        double? averageSemantic =
+            semanticArray.Length == 0 ? null : semanticArray.Average();
 
         AgentOutputEvaluationSummary summary = new()
         {
@@ -99,6 +92,23 @@ public sealed class RunAgentEvaluationController(
         return Ok(summary);
     }
 
+    private async Task<AgentOutputEvaluationScore> EvaluateTraceRowAsync(
+        AgentExecutionTrace trace,
+        CancellationToken cancellationToken)
+    {
+        AgentOutputEvaluationScore score =
+            agentOutputEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson!, trace.AgentType);
+        score.BlobUploadFailed = trace.BlobUploadFailed;
+        score.QualityWarning = trace.QualityWarning;
+
+        if (!score.IsJsonParseFailure)
+            score.Semantic =
+                await agentOutputSemanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
+                    .ConfigureAwait(false);
+
+        return score;
+    }
+
     private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
     {
         if (!TryParseRunId(runId, out Guid runGuid))
@@ -106,7 +116,8 @@ public sealed class RunAgentEvaluationController(
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        return await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is not null;
+        return await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false)
+               is not null;
     }
 
     private static bool TryParseRunId(string runId, out Guid runGuid)

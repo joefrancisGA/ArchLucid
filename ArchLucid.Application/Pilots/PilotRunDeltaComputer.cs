@@ -58,7 +58,10 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
                 summary = await _runExplanationSummaryService.GetSummaryAsync(scope, runGuid, cancellationToken);
             }
 
-            pilotStrictFails = _pilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidence(traces, summary);
+            pilotStrictFails = await _pilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync(
+                traces,
+                summary,
+                cancellationToken).ConfigureAwait(false);
         }
 
         (int auditCount, bool auditTruncated) = await TryCountAuditRowsAsync(runId, cancellationToken);

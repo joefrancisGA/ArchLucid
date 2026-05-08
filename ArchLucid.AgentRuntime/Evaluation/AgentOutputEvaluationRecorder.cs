@@ -53,21 +53,22 @@ public sealed class AgentOutputEvaluationRecorder(
 
         IReadOnlyList<AgentExecutionTrace> traces = await traceRepository.GetByRunIdAsync(runId, cancellationToken);
 
-        foreach (AgentExecutionTrace trace in traces)
+        async Task EvaluateOneAsync(AgentExecutionTrace trace)
         {
             string agentLabel = trace.AgentType.ToString();
             TagList tags = new() { { "agent_type", agentLabel } };
 
             AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
-                AgentOutputTraceQualityEvaluator.TryEvaluateTrace(
+                await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
                     trace,
                     _gateOptions,
                     evaluator,
                     semanticEvaluator,
-                    qualityGate);
+                    qualityGate,
+                    cancellationToken).ConfigureAwait(false);
 
             if (evaluated is null)
-                continue;
+                return;
 
             if (evaluated.IncrementParseFailureCounter)
                 ArchLucidInstrumentation.AgentOutputParseFailuresTotal.Add(1, tags);
@@ -131,7 +132,8 @@ public sealed class AgentOutputEvaluationRecorder(
                         evaluated.Structural.StructuralCompletenessRatio,
                         evaluated.Semantic.OverallSemanticScore);
 
-                    await traceRepository.PatchQualityRejectedAsync(trace.TraceId, true, cancellationToken);
+                    await traceRepository.PatchQualityRejectedAsync(trace.TraceId, true, cancellationToken)
+                        .ConfigureAwait(false);
 
                     if (_gateOptions.EnforceOnReject)
                         throw new AgentOutputQualityGateRejectedException(runId, trace.TraceId, agentLabel);
@@ -146,14 +148,18 @@ public sealed class AgentOutputEvaluationRecorder(
                         evaluated.Structural.StructuralCompletenessRatio,
                         evaluated.Semantic.OverallSemanticScore);
 
-                    await traceRepository.PatchQualityWarningAsync(trace.TraceId, true, cancellationToken);
+                    await traceRepository.PatchQualityWarningAsync(trace.TraceId, true, cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
 
             if (evaluated.RecordStructuralHistogram)
 
-                await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken);
+                await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken)
+                    .ConfigureAwait(false);
         }
+
+        await Task.WhenAll(traces.Select(EvaluateOneAsync)).ConfigureAwait(false);
 
         try
         {

@@ -1,11 +1,12 @@
 using System.Text;
+
 using ArchLucid.Core.Scim.Filtering;
 
 namespace ArchLucid.Application.Scim.Filtering;
 /// <summary>Hand-rolled SCIM v2 filter parser (RFC 7644 §3.4.2.2) for flat user attributes only.</summary>
 public static class ScimFilterParser
 {
-    public static ArchLucid.Core.Scim.Filtering.ScimFilterNode? Parse(string? filter)
+    public static ScimFilterNode? Parse(string? filter)
     {
         if (string.IsNullOrWhiteSpace(filter))
             return null;
@@ -24,7 +25,10 @@ public static class ScimFilterParser
             Position = 0;
         }
 
-        public int Position { get; private set; }
+        public int Position
+        {
+            get; private set;
+        }
         public bool Eof => Position >= _s.Length;
 
         public ScimFilterNode ParseFilter()

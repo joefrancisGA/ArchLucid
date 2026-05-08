@@ -1,14 +1,16 @@
 using System.Text.Json;
+
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
+
 public static class ComparisonRecordPayloadRehydrator
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true
     };
-    public static ArchLucid.Application.Analysis.EndToEndReplayComparisonReport? RehydrateEndToEnd(ComparisonRecord record)
+    public static EndToEndReplayComparisonReport? RehydrateEndToEnd(ComparisonRecord record)
     {
         ArgumentNullException.ThrowIfNull(record);
         if (string.IsNullOrWhiteSpace(record.PayloadJson))
@@ -23,7 +25,7 @@ public static class ComparisonRecordPayloadRehydrator
         }
     }
 
-    public static ArchLucid.Application.Analysis.ExportRecordDiffResult? RehydrateExportDiff(ComparisonRecord record)
+    public static ExportRecordDiffResult? RehydrateExportDiff(ComparisonRecord record)
     {
         ArgumentNullException.ThrowIfNull(record);
         if (string.IsNullOrWhiteSpace(record.PayloadJson))
