@@ -61,6 +61,10 @@ public static class ProblemErrorCodes
 
     public const string UpstreamIntegrationFailed = "UPSTREAM_INTEGRATION_FAILED";
 
+    public const string QualityGateRejected = "QUALITY_GATE_REJECTED";
+
+    public const string ProvenanceNodeExplanationNotSupported = "PROVENANCE_NODE_EXPLANATION_NOT_SUPPORTED";
+
     /// <summary>Maps a <see cref="ProblemTypes"/> URI to <see cref="ProblemErrorCodes"/>; returns <see cref="Unspecified"/> when unknown.</summary>
     public static string ResolveFromProblemType(string? problemTypeUri)
     {
@@ -112,6 +116,9 @@ public static class ProblemErrorCodes
         if (problemTypeUri == ProblemTypes.Conflict)
             return Conflict;
 
+        if (problemTypeUri == ProblemTypes.QualityGateRejected)
+            return QualityGateRejected;
+
         if (problemTypeUri == ProblemTypes.PolicyPackVersionNotFound)
             return PolicyPackVersionNotFound;
 
@@ -144,6 +151,9 @@ public static class ProblemErrorCodes
 
         if (problemTypeUri == ProblemTypes.UpstreamIntegrationFailed)
             return UpstreamIntegrationFailed;
+
+        if (problemTypeUri == ProblemTypes.ProvenanceNodeExplanationNotSupported)
+            return ProvenanceNodeExplanationNotSupported;
 
         return problemTypeUri == ProblemTypes.TrialExpired ? TrialLimitExceeded : Unspecified;
     }

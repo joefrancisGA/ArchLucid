@@ -95,6 +95,9 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("| Committed manifest timestamp (UTC) | Present — `2026-04-01T00:10:00.0000000Z`");
         md.Should().Contain("| Top finding evidence-chain pointer | Present |");
         md.Should().Contain("| ROI evidence confidence | **Strong**");
+        md.Should().Contain("Sponsor-proof readiness:");
+        md.Should().Contain("| Sponsor-proof readiness (classification) |");
+        md.Should().Contain("**Sendable** — structural proof fields");
         md.Should().Contain("Computed deltas (from this run)");
         md.Should().Contain("Review-cycle delta (before vs measured)");
         md.Should().Contain("v2");
@@ -151,6 +154,8 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("| Non-demo / external-share discipline | **FAILED — non-negotiable demo warning.**");
         md.Should().Contain("**Classification:** **Incomplete**");
         md.Should().Contain("Watermark notice");
+        md.Should().Contain("Sponsor-proof readiness:");
+        md.Should().Contain("**DemoOnly**");
         md.Should().Contain("**Proof sendability:** **Not sendable externally**");
         md.Should().Contain("**Publishing posture:** **Demo-only**");
     }
@@ -193,6 +198,8 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("**Verdict:** **Needs operator review**");
         md.Should().Contain("**Proof sendability:** **Sendable with caveats**");
         md.Should().Contain("LLM-call count is unattested");
+        md.Should().Contain("Sponsor-proof readiness:");
+        md.Should().Contain("**Incomplete**");
     }
 
     [SkippableFact]
@@ -251,6 +258,8 @@ public sealed class FirstValueReportBuilderTests
         md.Should().NotBeNull();
         md.Should().Contain("**Verdict:** **Needs operator review**");
         md.Should().Contain("Tenant comparative baseline is incomplete");
+        md.Should().Contain("Sponsor-proof readiness:");
+        md.Should().Contain("**NeedsBaseline**");
     }
 
     private static ArchitectureRunDetail BuildCommittedDetail()

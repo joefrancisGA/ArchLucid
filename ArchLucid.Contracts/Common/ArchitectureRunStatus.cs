@@ -22,5 +22,11 @@ public enum ArchitectureRunStatus
     Failed = 6,
 
     /// <summary>User initiated retry; coordinator is rebuilding tasks for the same run id.</summary>
-    Retrying = 7
+    Retrying = 7,
+
+    /// <summary>
+    ///     Execute phase persisted agent outputs, but the post-execute quality gate blocked completion for this workspace;
+    ///     results may exist as an advisory draft. Re-run or adjust quality settings.
+    /// </summary>
+    ExecutionCompletedQualityRejected = 8
 }

@@ -13,14 +13,21 @@ export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
   "Create architecture review → Pipeline runs → Finalize → Review package";
 
 /**
- * Short first-session bullets (replaces the old paragraph wall). Keep wording aligned with
- * {@link CORE_PILOT_WORKFLOW_SUMMARY_LINE}; deeper terms stay in step bodies.
+ * Four plain steps for default first-session copy (no manifest / Operate jargon). Shown in collapsed diagnostics on Home
+ * and aligned with {@link CORE_PILOT_WORKFLOW_SUMMARY_LINE}.
  */
 export const CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS: readonly string[] = [
-  "Create and submit one architecture review request from the new-request wizard, then watch the pipeline on review detail until it settles.",
-  "When the pipeline is ready, finalize to lock the governed manifest—you will get the manifest summary, findings, and artifacts as one review package.",
-  "Defer Compare, Replay, Graph, and exports until that package exists; when you export, read the gated sections in the output before circulating outside your team.",
+  "Create an architecture review from New review (wizard) — capture goals, constraints, and what you want reviewed.",
+  "Let the pipeline finish — stay on review detail or the wizard until processing settles (no Graph, Compare, or Replay needed yet).",
+  "Finalize when the UI says the package is ready — this locks your review package and turns on exports and deeper tools.",
+  "Open your review package on review detail — read the summary and findings, then use downloads when you are ready to share internally.",
 ];
+
+/**
+ * Progressive disclosure: advanced surfaces stay available in the shell but are not part of the default four-step path.
+ */
+export const CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE =
+  "Compare, Replay, Graph, extended governance, alerts, and policy packs stay in the sidebar under Show more — use them after your first finalized review package, not as prerequisites.";
 
 /** @deprecated Prefer {@link CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS} in UI lists. */
 export const CORE_PILOT_FIRST_SESSION_GUIDANCE = CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.join(" ");

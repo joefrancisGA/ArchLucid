@@ -117,7 +117,8 @@ public sealed class RealAzureOpenAIEndToEndTests
             new MixedModePromptMonitor(new AgentPromptCatalogOptions()),
             new FixedScopeProviderForLiveAoai(),
             new AgentHandlerConcurrencyGate(resilience),
-            resilience);
+            resilience,
+            Options.Create(new StagedCriticAgentOptions()));
 
         ArchitectureRequest request = new()
         {

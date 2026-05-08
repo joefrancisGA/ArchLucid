@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Models;
@@ -36,7 +37,8 @@ public static class RunRecordToArchitectureRunMapper
             OtelTraceId = record.OtelTraceId,
             TaskIds = [.. taskIds],
             RealModeFellBackToSimulator = record.RealModeFellBackToSimulator,
-            PilotAoaiDeploymentSnapshot = record.PilotAoaiDeploymentSnapshot
+            PilotAoaiDeploymentSnapshot = record.PilotAoaiDeploymentSnapshot,
+            LastAgentExecutionFailure = AgentExecutionFailureSummaryJson.TryDeserialize(record.LastFailureReason)
         };
     }
 

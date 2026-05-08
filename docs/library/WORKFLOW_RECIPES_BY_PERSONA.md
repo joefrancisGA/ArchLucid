@@ -23,7 +23,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md). **[`NAVIGA
 
 **Expected outputs:** Committed run with golden manifest; Markdown/PDF-style sponsor artefacts when generated; shareable links into `/runs/{runId}` (or review routes under `/reviews/...` if your shell aliases them).
 
-**Failure hints:** `404` on first-value report → run not committed or wrong scope; commit blocked → see recipe 2 (governance gate) and [PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md).
+**Failure hints:** `404` on first-value report → run not committed or wrong scope; commit blocked → see recipe 2 (governance gate) and [PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md). If your automation mixes **`POST …/execute`**, **`…/result`**, and **`…/commit`** with the Authority pipeline, read [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) Flow A1 first.
 
 **Reference:** [CORE_PILOT.md](../CORE_PILOT.md), [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md), [API_CONTRACTS.md](API_CONTRACTS.md).
 

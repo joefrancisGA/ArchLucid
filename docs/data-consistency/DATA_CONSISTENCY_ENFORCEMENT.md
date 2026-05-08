@@ -13,6 +13,7 @@ Gradually escalate responses when coordinator rows reference **missing** `dbo.Ru
 
 - **SQL** is the authority store (`ArchLucid:StorageProvider=Sql`).
 - Probes run only when **`DataConsistency:OrphanProbeEnabled`** is **true** (default).
+- **Operator readiness report (repo + optional read-only SQL):** `python scripts/data_consistency_mode_readiness_report.py` — merges default API appsettings (including **Advanced** overlay), summarizes **Enforcement** posture and quarantine DDL/migrations, and optionally runs the same detection-only orphan **COUNT** queries when **`ARCHLUCID_DATA_CONSISTENCY_READINESS_SQL`** or **`--sql-odbc`** is set (**no** automatic remediation). See **`docs/library/RELEASE_EVIDENCE_SUMMARY.md`** and production preflight §B.
 
 ## Constraints
 

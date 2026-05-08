@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
@@ -9,6 +10,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
+using FluentAssertions.Specialized;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -41,7 +43,8 @@ public sealed class RealAgentExecutorTests
                     ProjectId = ScopeIds.DefaultProject
                 }),
             new AgentHandlerConcurrencyGate(ro),
-            ro);
+            ro,
+            Options.Create(new StagedCriticAgentOptions()));
     }
 
     [SkippableFact]
@@ -162,6 +165,85 @@ public sealed class RealAgentExecutorTests
         await act.Should().NotThrowAsync();
     }
 
+    [SkippableFact]
+    public async Task ExecuteAsync_when_one_parallel_handler_fails_fails_closed_surfaces_AgentHandlerExecutionException_with_rate_limit_inner()
+    {
+        using SemaphoreSlim topologyCompleted = new(0, 1);
+        HttpRequestException rateLimit = new("unit-test-quota", null, HttpStatusCode.TooManyRequests);
+        IAgentHandler compliance = new ThrowingAgentHandler(AgentType.Compliance, rateLimit);
+        IAgentHandler topology = new SignalingCompletionHandler(AgentType.Topology, topologyCompleted);
+
+        RealAgentExecutor sut = CreateSut(topology, compliance);
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1", Description = "1234567890ab", SystemName = "S", Environment = "prod"
+        };
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask taskTopology = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
+        AgentTask taskCompliance = new() { TaskId = "tc", RunId = runId, AgentType = AgentType.Compliance };
+
+        Func<Task> act = async () =>
+            await sut.ExecuteAsync(runId, request, evidence, [taskTopology, taskCompliance], CancellationToken.None);
+
+        ExceptionAssertions<AgentHandlerExecutionException> thrown =
+            await act.Should().ThrowAsync<AgentHandlerExecutionException>();
+
+        thrown.Which.AgentTypeKey.Should().Be(AgentTypeKeys.Compliance);
+        thrown.Which.AgentType.Should().Be(AgentType.Compliance);
+        thrown.Which.InnerException.Should().BeOfType<HttpRequestException>();
+        HttpRequestException httpEx = (HttpRequestException)thrown.Which.InnerException!;
+        httpEx.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+
+        bool topologySignaled = await topologyCompleted.WaitAsync(TimeSpan.FromSeconds(5));
+
+        topologySignaled.Should().BeTrue("parallel handlers can finish the successful path before WhenAll faults");
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_when_handler_throws_wraps_as_AgentHandlerExecutionException_with_fixed_outer_message()
+    {
+        InvalidOperationException inner = new("sensitive llm/provider body");
+        ThrowingAgentHandler failing = new(AgentType.Topology, inner);
+        RealAgentExecutor sut = CreateSut(failing);
+        ArchitectureRequest request = new() { RequestId = "r1", Description = "1234567890ab", SystemName = "S" };
+        AgentTask task = new() { TaskId = "t", RunId = "run1", AgentType = AgentType.Topology };
+
+        Func<Task> act = async () =>
+            await sut.ExecuteAsync("run1", request, new AgentEvidencePackage(), [task], CancellationToken.None);
+
+        ExceptionAssertions<AgentHandlerExecutionException> thrown =
+            await act.Should().ThrowAsync<AgentHandlerExecutionException>();
+
+        thrown.Which.Message.Should().Be("Agent handler execution failed.");
+        thrown.Which.AgentTypeKey.Should().Be(AgentTypeKeys.Topology);
+        thrown.Which.AgentType.Should().Be(AgentType.Topology);
+        thrown.Which.InnerException.Should().BeSameAs(inner);
+    }
+
+    private sealed class ThrowingAgentHandler(AgentType agentType, Exception toThrow) : IAgentHandler
+    {
+        public AgentType AgentType => agentType;
+
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(agentType);
+
+        public Task<AgentResult> ExecuteAsync(
+            string runId,
+            ArchitectureRequest request,
+            AgentEvidencePackage evidence,
+            AgentTask task,
+            CancellationToken cancellationToken = default)
+        {
+            _ = runId;
+            _ = request;
+            _ = evidence;
+            _ = task;
+            _ = cancellationToken;
+
+            throw toThrow;
+        }
+    }
+
     private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
     {
         public AgentPromptCatalogOptions CurrentValue
@@ -261,6 +343,36 @@ public sealed class RealAgentExecutorTests
                 Claims = [],
                 EvidenceRefs = []
             };
+        }
+    }
+
+    private sealed class SignalingCompletionHandler(AgentType agentType, SemaphoreSlim completed) : IAgentHandler
+    {
+        public AgentType AgentType => agentType;
+
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(agentType);
+
+        public Task<AgentResult> ExecuteAsync(
+            string runId,
+            ArchitectureRequest request,
+            AgentEvidencePackage evidence,
+            AgentTask task,
+            CancellationToken cancellationToken = default)
+        {
+            _ = request;
+            _ = evidence;
+
+            completed.Release();
+
+            return Task.FromResult(
+                new AgentResult
+                {
+                    RunId = runId,
+                    TaskId = task.TaskId,
+                    AgentType = agentType,
+                    Claims = [],
+                    EvidenceRefs = []
+                });
         }
     }
 

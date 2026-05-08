@@ -25,15 +25,24 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!string.Equals(task.RunId, runId, StringComparison.Ordinal))
+            try
+            {
+                if (!string.Equals(task.RunId, runId, StringComparison.Ordinal))
 
-                throw new InvalidOperationException(
-                    $"Task '{task.TaskId}' belongs to run '{task.RunId}', not '{runId}'. " +
-                    "Tasks from a different run must not be executed together.");
+                    throw new InvalidOperationException(
+                        $"Task '{task.TaskId}' belongs to run '{task.RunId}', not '{runId}'. " +
+                        "Tasks from a different run must not be executed together.");
 
-            string key = AgentTypeKeys.ResolveDispatchKey(task);
-            AgentResult result = CreateResultForKey(runId, task.TaskId, request, key);
-            results.Add(result);
+                string key = AgentTypeKeys.ResolveDispatchKey(task);
+                AgentResult result = CreateResultForKey(runId, task.TaskId, request, key);
+                results.Add(result);
+            }
+            catch (Exception ex)
+            {
+                string dispatchKey = AgentTypeKeys.ResolveDispatchKey(task);
+
+                throw new AgentHandlerExecutionException(dispatchKey, task.AgentType, ex);
+            }
         }
 
         return Task.FromResult<IReadOnlyList<AgentResult>>(results);

@@ -3,46 +3,27 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { parseProvenanceExplanationPayload } from "@/lib/provenance-explanation-payload";
+import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-node-explanation";
 
 type Props = {
   runId: string;
   nodeId: string;
 };
 
-/** Fetches the reserved explanation route (501 until backend implements LLM summaries). */
+/** Legacy per-node URL returns 501 Problem+JSON; UI surfaces detail and link to run-level aggregate explanation. */
 export function ProvenanceNodeExplainCell({ runId, nodeId }: Props) {
   const [statusLine, setStatusLine] = useState<string>("");
+  const [aggregateProxyHref, setAggregateProxyHref] = useState<string | null>(null);
 
   async function explain(): Promise<void> {
     setStatusLine("Requesting explanation…");
+    setAggregateProxyHref(null);
 
-    const url =
-      `/api/proxy/v1/architecture/runs/${encodeURIComponent(runId)}/provenance/${encodeURIComponent(nodeId)}/explanation`;
+    const result = await fetchProvenanceNodeExplanationViaProxy(runId, nodeId);
 
-    try {
-      const res = await fetch(url, {
-        method: "GET",
-        credentials: "include",
-        headers: { Accept: "application/problem+json, application/json" },
-      });
+    setStatusLine(result.message);
 
-      const raw: unknown = await res.json();
-
-      const parsed = parseProvenanceExplanationPayload(raw);
-      const line = parsed.message ?? parsed.detail ?? parsed.title ?? "";
-
-      if (res.status === 501) {
-        setStatusLine(line.length > 0 ? line : "Not implemented yet.");
-
-        return;
-      }
-
-      setStatusLine(line.length > 0 ? line : `HTTP ${String(res.status)}`);
-    }
-    catch {
-      setStatusLine("Could not reach the explanation endpoint.");
-    }
+    setAggregateProxyHref(result.aggregateProxyHref);
   }
 
   return (
@@ -53,6 +34,18 @@ export function ProvenanceNodeExplainCell({ runId, nodeId }: Props) {
       {statusLine ? (
         <p className="m-0 max-w-[280px] text-[11px] text-neutral-600 dark:text-neutral-400" aria-live="polite">
           {statusLine}
+        </p>
+      ) : null}
+      {aggregateProxyHref ? (
+        <p className="m-0 max-w-[280px] text-[11px]">
+          <a
+            className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            href={aggregateProxyHref}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open run-level summary
+          </a>
         </p>
       ) : null}
     </div>

@@ -33,7 +33,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   },
   {
     title: "Finalize the review package",
-    shortBody: "On review detail, finalize when the pipeline is ready — this locks the manifest and unlocks exports.",
+    shortBody: "On review detail, finalize when the pipeline is ready — this locks your review package and unlocks exports.",
     detail:
       "Commit/finalize produces the committed architecture manifest and artifacts. Until then, the manifest summary and artifact table are not available. See docs/OPERATOR_QUICKSTART.md for CLI/API.",
     primaryHref: "/reviews?projectId=default",
@@ -42,7 +42,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {
     title: "Review the review package",
     shortBody:
-      "After finalization, read the manifest summary and findings; download or share artifacts — that bundle is your review package.",
+      "After finalization, read the package summary and findings on review detail; download or share artifacts — that bundle is your review package.",
     detail:
       "Open the manifest link from review detail for the full page; use artifact actions for download and in-shell review.",
     primaryHref: "/reviews?projectId=default",

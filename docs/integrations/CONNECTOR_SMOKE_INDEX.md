@@ -4,7 +4,7 @@
 
 Each recipe under [smoke/](smoke/) is written so an operator can execute it **without reading source** — prerequisites, secret discipline, minimal API actions, and **expected durable audit types**. Recipes do **not** embed tenant ids, webhook URLs, or credentials.
 
-**Catalog entry point:** [go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md)
+**Catalog entry point:** [go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md) · **Readiness matrix (status, tests, code):** [library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md)
 
 **Scope contract (V1):** [library/V1_SCOPE.md](../library/V1_SCOPE.md) §2.13–§2.16 (ITSM, Slack, Confluence, Azure extractor).
 

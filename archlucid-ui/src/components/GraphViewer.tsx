@@ -22,30 +22,7 @@ import { useBasicAdvancedToggle } from "@/hooks/useBasicAdvancedToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { parseProvenanceExplanationPayload } from "@/lib/provenance-explanation-payload";
-
-async function fetchNodeExplanation(runId: string, nodeId: string): Promise<string> {
-  const url =
-    `/api/proxy/v1/architecture/runs/${encodeURIComponent(runId)}/provenance/${encodeURIComponent(nodeId)}/explanation`;
-
-  try {
-    const res = await fetch(url, {
-      method: "GET",
-      credentials: "include",
-      headers: { Accept: "application/problem+json, application/json" },
-    });
-
-    const raw: unknown = await res.json();
-    const parsed = parseProvenanceExplanationPayload(raw);
-    const line = parsed.message ?? parsed.detail ?? parsed.title ?? "";
-
-    if (res.status === 501) return line.length > 0 ? line : "Not implemented yet.";
-
-    return line.length > 0 ? line : `HTTP ${String(res.status)}`;
-  } catch {
-    return "Could not reach the explanation endpoint.";
-  }
-}
+import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-node-explanation";
 
 /** Filters a graph to only include nodes of the given type and edges between those nodes. */
 function filterGraphByType(graph: GraphViewModel, typeFilter: string): GraphViewModel {
@@ -115,6 +92,7 @@ export function GraphViewer({
 
   const [selectedNode, setSelectedNode] = useState<GraphNodeVm | null>(null);
   const [explainStatusLine, setExplainStatusLine] = useState("");
+  const [explainAggregateHref, setExplainAggregateHref] = useState<string | null>(null);
 
   const { isAdvanced, toggle } = useBasicAdvancedToggle("archlucid_graph_settings_advanced_toggle");
   const [edgeInferenceThreshold, setEdgeInferenceThreshold] = useState("0.75");
@@ -129,6 +107,7 @@ export function GraphViewer({
     const hero = pickHeroNodeId(filtered, defaultSelectedNodeId);
     setSelectedNode(hero);
     setExplainStatusLine("");
+    setExplainAggregateHref(null);
   }, [buyerTrailPanel, filtered, defaultSelectedNodeId]);
 
   if (filtered.nodes.length === 0) {
@@ -170,6 +149,7 @@ export function GraphViewer({
             proOptions={{ hideAttribution: true }}
             onNodeClick={(_, node) => {
               setExplainStatusLine("");
+              setExplainAggregateHref(null);
               setSelectedNode((node.data.raw as GraphNodeVm) ?? null);
             }}
           >
@@ -315,7 +295,8 @@ export function GraphViewer({
                 <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
                   <h4 className="mt-0">Explain this node</h4>
                   <p className="text-[11px] text-neutral-600 dark:text-neutral-400">
-                    Reserved LLM summary route (shows API status until the backend implements explanations).
+                    Per-node summaries are not supported. The API returns guidance and a link to the run-level aggregate
+                    explanation (Standard tier).
                   </p>
                   <Button
                     type="button"
@@ -323,8 +304,9 @@ export function GraphViewer({
                     size="sm"
                     className="h-8"
                     onClick={async () => {
-                      const line = await fetchNodeExplanation(runId.trim(), selectedNode.id);
-                      setExplainStatusLine(line);
+                      const result = await fetchProvenanceNodeExplanationViaProxy(runId.trim(), selectedNode.id);
+                      setExplainStatusLine(result.message);
+                      setExplainAggregateHref(result.aggregateProxyHref);
                     }}
                   >
                     Request explanation
@@ -332,6 +314,18 @@ export function GraphViewer({
                   {explainStatusLine ? (
                     <p className="mt-2 text-[11px] text-neutral-600 dark:text-neutral-400" aria-live="polite">
                       {explainStatusLine}
+                    </p>
+                  ) : null}
+                  {explainAggregateHref ? (
+                    <p className="mt-1 text-[11px]">
+                      <a
+                        className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        href={explainAggregateHref}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open run-level summary
+                      </a>
                     </p>
                   ) : null}
                 </div>

@@ -7,4 +7,14 @@ describe("core-pilot-steps", () => {
     expect(CORE_PILOT_STEPS).toHaveLength(CORE_PILOT_STEP_COUNT);
     expect(CORE_PILOT_STEP_COUNT).toBe(4);
   });
+
+  it("keeps default-visible shortBody lines free of manifest jargon (detail may stay technical)", () => {
+    for (const step of CORE_PILOT_STEPS) {
+      expect(step.shortBody.toLowerCase()).not.toContain("manifest");
+    }
+
+    expect(CORE_PILOT_STEPS.filter((s) => (s.detail ?? "").toLowerCase().includes("manifest")).length).toBeGreaterThan(
+      0,
+    );
+  });
 });

@@ -18,4 +18,10 @@ public static class EvidenceNoteTypes
 
     /// <summary>Provides a hint about which architecture pattern applies to the request.</summary>
     public const string PatternHint = "PatternHint";
+
+    /// <summary>
+    ///     Bounded, redacted text summary of prior agents' results when <c>ArchLucid:Agents:StagedCriticEnabled</c>
+    ///     is on (see <c>RealAgentExecutor</c>). Consumed by the Critic user prompt only.
+    /// </summary>
+    public const string StagedPriorAgentsSummary = "StagedPriorAgentsSummary";
 }

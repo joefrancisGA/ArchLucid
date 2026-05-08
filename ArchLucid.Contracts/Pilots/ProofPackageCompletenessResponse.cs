@@ -161,4 +161,14 @@ public sealed class ProofPackageCompletenessResponse
         get;
         init;
     } = string.Empty;
+
+    /// <summary>
+    ///     Sponsor circulation label: <c>Sendable</c>, <c>NeedsBaseline</c>, <c>DemoOnly</c>, or <c>Incomplete</c>
+    ///     (see <see cref="SponsorProofReadinessClassification" />).
+    /// </summary>
+    public string SponsorProofReadiness
+    {
+        get;
+        init;
+    } = string.Empty;
 }

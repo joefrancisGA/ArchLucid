@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """
-Emit a Markdown readiness report for data consistency enforcement modes (repo-local default: no DB).
+Emit a Markdown readiness report for data consistency enforcement modes (repo-local + optional read-only SQL).
 
 Source material:
   docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md
   docs/runbooks/DATA_CONSISTENCY_ENFORCEMENT.md
 
-No destructive reconciliation is performed — this script only reads files under the repo and writes Markdown.
+Default configuration merge: ArchLucid.Api/appsettings.json then appsettings.Advanced.json (use
+--no-merge-advanced-appsettings to skip the latter).
+
+Optional orphan census: pass --sql-odbc or set ARCHLUCID_DATA_CONSISTENCY_READINESS_SQL to an ODBC connection string.
+Census uses the same detection-only COUNT queries as the orphan probe / admin diagnostics — no writes.
+
+No destructive reconciliation is performed.
 """
 
 from __future__ import annotations
@@ -40,6 +46,145 @@ DOC_RUNBOOK = Path("docs/runbooks/DATA_CONSISTENCY_ENFORCEMENT.md")
 PATH_SQL_MASTER = Path("ArchLucid.Persistence/Scripts/ArchLucid.sql")
 PATH_GRAFANA = Path("infra/grafana/dashboard-archlucid-authority.json")
 PATH_PROM_RULES = Path("infra/prometheus/archlucid-alerts.yml")
+
+# Detection-only COUNTs — keep aligned with ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanProbeSql
+ORPHAN_COUNT_SQL: dict[str, str] = {
+    "golden_manifests_run_id": """
+SELECT COUNT_BIG(1)
+FROM dbo.GoldenManifests g
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo.Runs r
+    WHERE r.RunId = g.RunId);
+""",
+    "findings_snapshots_run_id": """
+SELECT COUNT_BIG(1)
+FROM dbo.FindingsSnapshots f
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo.Runs r
+    WHERE r.RunId = f.RunId);
+""",
+    "context_snapshots_run_id": """
+SELECT COUNT_BIG(1)
+FROM dbo.ContextSnapshots c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo.Runs r
+    WHERE r.RunId = c.RunId);
+""",
+    "graph_snapshots_run_id": """
+SELECT COUNT_BIG(1)
+FROM dbo.GraphSnapshots g
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo.Runs r
+    WHERE r.RunId = g.RunId);
+""",
+}
+
+DEFAULT_SQL_CENSUS_ENV = "ARCHLUCID_DATA_CONSISTENCY_READINESS_SQL"
+
+
+@dataclass(frozen=True)
+class SqlCensusOutcome:
+    """Read-only SQL probe result (never mutates data)."""
+
+    mode: str  # offline | captured | error | no_driver
+    counts: dict[str, int] | None = None
+    quarantine_rows: int | None = None
+    message: str | None = None
+
+
+def fetch_sql_orphan_census(odbc_conn_str: str) -> SqlCensusOutcome:
+    """Run detection-only SELECTs (+ optional quarantine row count). Does not DELETE/INSERT/UPDATE."""
+    try:
+        import pyodbc  # type: ignore[import-not-found]
+    except ImportError:
+        return SqlCensusOutcome(mode="no_driver", message="pyodbc not installed in this Python environment")
+
+    counts: dict[str, int] = {}
+
+    try:
+        conn = pyodbc.connect(odbc_conn_str, timeout=15)
+
+    except Exception as ex:
+
+        return SqlCensusOutcome(mode="error", message=f"connect/query failed: {ex}")
+
+    try:
+
+        cur = conn.cursor()
+
+        for name, sql in ORPHAN_COUNT_SQL.items():
+
+            cur.execute(sql)
+            row = cur.fetchone()
+
+            counts[name] = int(row[0]) if row is not None and row[0] is not None else 0
+
+        quarantine_n: int | None
+
+        try:
+
+            cur.execute("SELECT COUNT_BIG(1) FROM dbo.DataConsistencyQuarantine")
+            row_q = cur.fetchone()
+            quarantine_n = int(row_q[0]) if row_q is not None and row_q[0] is not None else 0
+
+        except Exception:
+
+            quarantine_n = None
+
+        return SqlCensusOutcome(mode="captured", counts=counts, quarantine_rows=quarantine_n)
+
+    except Exception as ex:
+
+        return SqlCensusOutcome(mode="error", message=f"query failed: {ex}")
+
+    finally:
+
+        conn.close()
+
+
+def resolve_sql_census_connection_string(explicit: str | None, env_var_name: str) -> tuple[str | None, str]:
+    """Returns (connection_string_or_None, provenance_label_for_report). Never log the secret value."""
+    if explicit is not None and explicit.strip():
+        return explicit.strip(), "`--sql-odbc` (value not printed)"
+
+    import os
+
+    from_env = os.environ.get(env_var_name, "").strip()
+
+    if from_env:
+
+        return from_env, f"process env `{env_var_name}` (value not printed)"
+
+    return None, "offline (no `--sql-odbc` and env unset)"
+
+
+def resolve_default_config_paths(
+    repo_root: Path,
+    *,
+    no_default: bool,
+    no_merge_advanced: bool,
+) -> list[Path]:
+    if no_default:
+        return []
+
+    paths: list[Path] = []
+    base = repo_root / "ArchLucid.Api" / "appsettings.json"
+
+    if base.is_file():
+        paths.append(base)
+
+    if not no_merge_advanced:
+
+        adv = repo_root / "ArchLucid.Api" / "appsettings.Advanced.json"
+
+        if adv.is_file():
+            paths.append(adv)
+
+    return paths
 
 
 @dataclass(frozen=True)
@@ -320,7 +465,8 @@ def quarantine_safe_to_enable_rows(
             status="Not captured",
             detail=(
                 "Schema and repo refs look present, but brownfield orphan volume and FK **trusted** vs **WITH NOCHECK** "
-                "state require DBA/SQL verification before treating production as \"clean\". No automated probe here."
+                "state require DBA/SQL verification before treating production as \"clean\". "
+                "Optional: run `scripts/data_consistency_mode_readiness_report.py` with read-only SQL for orphan COUNTs."
             ),
         )
 
@@ -362,11 +508,140 @@ def NotCaptured(name: str, detail: str) -> ReadinessRow:
     return ReadinessRow(name=name, status="Not captured", detail=detail)
 
 
+def repo_data_consistency_structure(repo_root: Path) -> tuple[bool, bool]:
+    """Returns (ddl_quarantine_marker_ok, all_expected_migrations_present)."""
+    sql_master = repo_root / PATH_SQL_MASTER
+
+    ddl_ok = sql_master.is_file() and "dbo.DataConsistencyQuarantine" in sql_master.read_text(encoding="utf-8")
+
+    mig_ok = all((repo_root / rel).is_file() for rel in EXPECTED_MIGRATIONS)
+
+    return ddl_ok, mig_ok
+
+
+def build_deployment_evidence_lines(
+    merged_root: dict[str, Any],
+    *,
+    ddl_quarantine_ok: bool,
+    migrations_all_present: bool,
+    census: SqlCensusOutcome,
+    census_connection_provenance: str,
+) -> list[str]:
+    """Short operator-facing snapshot linked from release / preflight workflows."""
+    lines: list[str] = [
+        "## Deployment evidence — data consistency enforcement",
+        "",
+        "| Question | Answer |",
+        "| --- | --- |",
+    ]
+
+    raw_dc = merged_root.get("DataConsistency") if isinstance(merged_root, dict) else None
+
+    dc_obj = raw_dc if isinstance(raw_dc, dict) else {}
+
+    op_raw = dc_obj.get("OrphanProbeEnabled")
+
+    if isinstance(op_raw, bool):
+
+        op_ans = f"**{str(op_raw).lower()}** (merged JSON)"
+
+    elif op_raw is None:
+
+        op_ans = "**(omitted)** — host template default **true** when using SQL storage; **false** semantics apply for InMemory-only dev hosts."
+
+    else:
+
+        op_ans = f"**invalid type** `{type(op_raw).__name__}` — fix JSON"
+
+    lines.append(f"| `DataConsistency:OrphanProbeEnabled` (merged appsettings) | {op_ans} |")
+
+    enf = dc_obj.get("Enforcement")
+
+    enf_obj = enf if isinstance(enf, dict) else {}
+
+    mode_norm, mode_err = validate_enforcement_mode(enf_obj.get("Mode"))
+
+    if mode_err:
+
+        mode_ans = f"**invalid** — {mode_err}"
+
+    elif mode_norm:
+
+        mode_ans = f"**{mode_norm.upper()}**"
+
+    else:
+
+        mode_ans = "**(omitted)** — binds **Warn** at `DataConsistencyEnforcementOptions` unless other layers override."
+
+    lines.append(f"| `DataConsistency:Enforcement:Mode` | {mode_ans} |")
+
+    at = enf_obj.get("AlertThreshold")
+
+    mx = enf_obj.get("MaxRowsPerBatch")
+
+    lines.append(f"| `AlertThreshold` / `MaxRowsPerBatch` | `{repr(at)}` / `{repr(mx)}` |")
+
+    aq = enf_obj.get("AutoQuarantine")
+
+    aq_d = repr(aq) if isinstance(aq, bool) else repr(aq)
+
+    lines.append(f"| `AutoQuarantine` | {aq_d} |")
+
+    lines.append(
+        "| Quarantine DDL + DbUp scripts (099, 134, 147) | "
+        + (
+            "**present** in repo"
+            if ddl_quarantine_ok and migrations_all_present
+            else "**incomplete** — fix structural rows in readiness table"
+        )
+        + " |",
+    )
+
+    if census.mode == "captured" and census.counts:
+
+        parts = ", ".join(f"{k}={v}" for k, v in sorted(census.counts.items()))
+
+        qn = census.quarantine_rows
+
+        q_frag = f"`dbo.DataConsistencyQuarantine` row count: {qn}" if qn is not None else "`dbo.DataConsistencyQuarantine`: not selectable (missing or permission)"
+
+        lines.append(f"| Live orphan / quarantine counts (read-only SQL) | **captured** — {parts}; {q_frag}. Connection: {census_connection_provenance}. |")
+
+    elif census.mode == "offline":
+
+        lines.append(
+            "| Live orphan / quarantine counts (read-only SQL) | **not captured** — offline; "
+            f"set `{DEFAULT_SQL_CENSUS_ENV}` or `--sql-odbc` (detection-only `SELECT`s; no writes). |"
+        )
+
+    elif census.mode == "no_driver":
+
+        lines.append("| Live orphan / quarantine counts (read-only SQL) | **skipped** — pyodbc not available in environment. |")
+
+    else:
+
+        lines.append(
+            f"| Live orphan / quarantine counts (read-only SQL) | **not captured"
+            f"** — {census.message or 'error'} (source: {census_connection_provenance}). |"
+        )
+
+    lines.append("")
+    lines.append(
+        "> **Safety:** Census queries are the same detection-only `COUNT` patterns as `GetDataConsistencyOrphanCountsAsync` / "
+        "`DataConsistencyOrphanProbeSql` — **no** auto-remediation, **no** quarantine INSERT from this script."
+    )
+    lines.append("")
+
+    return lines
+
+
 def build_readiness_rows(
     repo_root: Path,
     merged_app_settings: dict[str, Any] | None,
     config_errors: list[str],
     config_sources: list[str],
+    sql_census: SqlCensusOutcome,
+    sql_census_source: str,
 ) -> list[ReadinessRow]:
     rows: list[ReadinessRow] = []
 
@@ -484,12 +759,57 @@ def build_readiness_rows(
         )
     )
 
-    rows.append(
-        NotCaptured(
-            "Live orphan row counts / quarantine table cardinality",
-            "Requires authenticated SQL plane access — omit from repo-local gate.",
+    if sql_census.mode == "captured" and sql_census.counts:
+        c = sql_census.counts
+
+        summary = (
+            f"golden={c.get('golden_manifests_run_id', 0)}, findings={c.get('findings_snapshots_run_id', 0)}, "
+            f"context={c.get('context_snapshots_run_id', 0)}, graph={c.get('graph_snapshots_run_id', 0)}"
         )
-    )
+
+        if sql_census.quarantine_rows is not None:
+
+            summary += f"; quarantine_table_rows={sql_census.quarantine_rows}"
+
+        else:
+
+            summary += "; quarantine_table: not found or not selectable"
+
+        rows.append(
+            Passed(
+                "Live orphan census (read-only SQL)",
+                f"{summary}. Connection source: {sql_census_source}. Aligns with admin orphan diagnostics SQL.",
+            ),
+        )
+
+    elif sql_census.mode == "offline":
+
+        rows.append(
+            NotCaptured(
+                "Live orphan census (read-only SQL)",
+                "Offline — no ODBC connection configured. Set "
+                f"`{DEFAULT_SQL_CENSUS_ENV}` or pass `--sql-odbc` for detection-only SELECTs.",
+            ),
+        )
+
+    elif sql_census.mode == "no_driver":
+
+        rows.append(
+            Skipped_(
+                "Live orphan census (read-only SQL)",
+                sql_census.message or "pyodbc missing",
+            ),
+        )
+
+    else:
+
+        rows.append(
+            NotCaptured(
+                "Live orphan census (read-only SQL)",
+                (sql_census.message or "SQL error")
+                + f" — connection source: {sql_census_source}",
+            ),
+        )
 
     dc_raw = merged_app_settings.get("DataConsistency") if isinstance(merged_app_settings, dict) else None
 
@@ -612,15 +932,18 @@ def nocheck_explainer_markdown() -> list[str]:
 
 def format_report_markdown(
     rows: Iterable[ReadinessRow],
+    deployment_evidence: Iterable[str],
     posture_md: Iterable[str],
 ) -> str:
     lines: list[str] = [
         "# Data consistency enforcement — mode readiness report",
         "",
-        "Repo-local checks by default (**no SQL connectivity**). **Passed** / **Failed** / **Skipped** / **Not captured** — see table.",
+        "Primary checks are **repo-local**. Optional **read-only SQL** orphan census "
+        f"(`{DEFAULT_SQL_CENSUS_ENV}` or `--sql-odbc`) uses detection-only `COUNT` queries — **never** INSERT/UPDATE/DELETE.",
         "",
     ]
 
+    lines.extend(deployment_evidence)
     lines.extend(posture_md)
     lines.extend(
         [
@@ -657,7 +980,8 @@ def format_report_markdown(
 
     lines.append("")
     lines.append(
-        "> **Non-destruction guarantee:** This report generator performs read-only filesystem access and emits Markdown only."
+        "> **Non-destruction guarantee:** Read-only filesystem access, optional **read-only SQL SELECT** counts only, "
+        "and Markdown output — **no** data mutation or quarantine side effects from this tool."
     )
 
     lines.append("")
@@ -693,7 +1017,27 @@ def main() -> int:
     parser.add_argument(
         "--no-default-appsettings",
         action="store_true",
-        help="Do not load ArchLucid.Api/appsettings.json when --config is omitted.",
+        help="Do not load default ArchLucid.Api appsettings when --config is omitted.",
+    )
+
+    parser.add_argument(
+        "--no-merge-advanced-appsettings",
+        action="store_true",
+        help="With default appsettings only: do not append appsettings.Advanced.json after appsettings.json.",
+    )
+
+    parser.add_argument(
+        "--sql-odbc",
+        default=None,
+        metavar="DSN_OR_CONN",
+        help="ODBC connection string for read-only orphan COUNT queries (optional; value never printed).",
+    )
+
+    parser.add_argument(
+        "--sql-odbc-env",
+        default=DEFAULT_SQL_CENSUS_ENV,
+        metavar="NAME",
+        help=f"Environment variable holding ODBC string if --sql-odbc omitted (default: {DEFAULT_SQL_CENSUS_ENV}).",
     )
 
     parser.add_argument(
@@ -706,28 +1050,65 @@ def main() -> int:
     configs = list(args.configs) if args.configs else None
 
     if configs is None and not args.no_default_appsettings:
-        default_apps = REPO_ROOT / "ArchLucid.Api" / "appsettings.json"
-        configs = [default_apps] if default_apps.is_file() else []
+
+        configs = resolve_default_config_paths(
+            REPO_ROOT,
+            no_default=False,
+            no_merge_advanced=args.no_merge_advanced_appsettings,
+        )
 
     elif configs is None:
-        configs = []
 
-    merged: dict[str, Any]
+        configs = []
 
     merged, errs = load_merged_json_objects(configs)
 
     config_sources_norm = [c.as_posix() for c in configs]
 
-    posture_lines = []
+    conn_str, conn_src = resolve_sql_census_connection_string(args.sql_odbc, args.sql_odbc_env)
+
+    sql_census: SqlCensusOutcome
+
+    if conn_str is None:
+
+        sql_census = SqlCensusOutcome(mode="offline")
+
+    else:
+
+        sql_census = fetch_sql_orphan_census(conn_str)
+
+    ddl_ok, mig_ok = repo_data_consistency_structure(REPO_ROOT)
+
+    deployment_lines = build_deployment_evidence_lines(
+        merged,
+        ddl_quarantine_ok=ddl_ok,
+        migrations_all_present=mig_ok,
+        census=sql_census,
+        census_connection_provenance=conn_src,
+    )
+
+    posture_lines: list[str] = []
     posture_lines.extend(build_operator_posture_section(merged, config_sources_norm, errs))
 
-    rows = build_readiness_rows(REPO_ROOT, merged, errs, config_sources_norm)
+    rows = build_readiness_rows(
+        REPO_ROOT,
+        merged,
+        errs,
+        config_sources_norm,
+        sql_census,
+        conn_src,
+    )
+
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    markdown = format_report_markdown(rows, posture_lines)
+
+    markdown = format_report_markdown(rows, deployment_lines, posture_lines)
+
     args.out.write_text(markdown, encoding="utf-8")
+
     print(f"Wrote {args.out}")
 
     if args.strict_exit_code and any_failed(rows):
+
         return 1
 
     return 0

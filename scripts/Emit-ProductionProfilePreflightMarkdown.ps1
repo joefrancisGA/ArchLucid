@@ -201,6 +201,13 @@ function Add-ApiProductionProfileChecks {
     $Rows.Add((Add-Row "ArchLucid.Api/appsettings.Production.json present" "Passed" "file exists")) | Out-Null
 
     [object] $merged = Merge-PsObjectDeep -Base $base -Override $prodOverlay
+    [object] $advancedOverlay = Read-AppsettingsJsonObject "ArchLucid.Api/appsettings.Advanced.json"
+    [object] $mergedForOps = $merged
+
+    if ($null -ne $advancedOverlay) {
+        $mergedForOps = Merge-PsObjectDeep -Base $merged -Override $advancedOverlay
+    }
+
     $Rows.Add((Add-Row "API merged production view ($MergeLabel)" "Passed" "ArchLucid.Api/appsettings.json + appsettings.Production.json (values not printed)")) | Out-Null
 
     [string[]] $requiredPaths = @(
@@ -347,6 +354,47 @@ function Add-ApiProductionProfileChecks {
     else {
         $Rows.Add((Add-Row "Demo:Enabled (merged)" "Passed" "false")) | Out-Null
     }
+
+    [bool] $orphanProbeDc = Get-BoolFromConfig -Root $mergedForOps -Segments @("DataConsistency", "OrphanProbeEnabled") -Default $true
+
+    if ($orphanProbeDc) {
+        $Rows.Add((Add-Row "DataConsistency:OrphanProbeEnabled (merged Production + Advanced)" "Passed" "true — orphan probe may run when SQL storage is active (verify deploy-time overrides)")) | Out-Null
+    }
+    else {
+        $Rows.Add((Add-Row "DataConsistency:OrphanProbeEnabled (merged Production + Advanced)" "Warning" "false — background orphan detection disabled in merged JSON")) | Out-Null
+    }
+
+    [string] $dcModeRaw = Get-ResolvedString -Root $mergedForOps -Segments @("DataConsistency", "Enforcement", "Mode")
+    [string] $dcMode = if ($null -eq $dcModeRaw) { "" } else { $dcModeRaw.Trim() }
+
+    if ([string]::IsNullOrWhiteSpace($dcMode)) {
+        $Rows.Add((Add-Row "DataConsistency:Enforcement:Mode (merged Production + Advanced)" "Warning" "omitted — host default **Warn** unless deploy overlays set Alert/Quarantine/Off")) | Out-Null
+    }
+    else {
+        $Rows.Add((Add-Row "DataConsistency:Enforcement:Mode (merged Production + Advanced)" "Passed" $dcMode)) | Out-Null
+    }
+
+    [string] $atStr = "(omitted)"
+    [string] $mxStr = "(omitted)"
+    [object] $dcBlock = $mergedForOps.DataConsistency
+
+    if ($null -ne $dcBlock) {
+        [object] $e = $dcBlock.Enforcement
+
+        if ($null -ne $e) {
+            if ($null -ne $e.AlertThreshold) {
+                $atStr = "$($e.AlertThreshold)"
+            }
+
+            if ($null -ne $e.MaxRowsPerBatch) {
+                $mxStr = "$($e.MaxRowsPerBatch)"
+            }
+        }
+    }
+
+    $Rows.Add((Add-Row "DataConsistency:Enforcement thresholds (merged Production + Advanced)" "Passed" "AlertThreshold=$atStr; MaxRowsPerBatch=$mxStr")) | Out-Null
+
+    $Rows.Add((Add-Row "Data consistency enforcement report + optional SQL census" "Warning" "python scripts/data_consistency_mode_readiness_report.py — set ARCHLUCID_DATA_CONSISTENCY_READINESS_SQL for read-only orphan COUNTs (no writes); see docs/library/RELEASE_EVIDENCE_SUMMARY.md")) | Out-Null
 
     [string] $stripeKeyRaw = Get-ResolvedString -Root $merged -Segments @("Billing", "Stripe", "SecretKey")
     [string] $stripeWhRaw = Get-ResolvedString -Root $merged -Segments @("Billing", "Stripe", "WebhookSigningSecret")
@@ -738,7 +786,7 @@ $md += @"
 
 ## B) API merged production profile (appsettings chain)
 
-Evaluates merged **ArchLucid.Api/appsettings.json** plus **appsettings.Production.json** the same way the host overlays configuration (JSON only — deployment may override via environment variables).
+Evaluates merged **ArchLucid.Api/appsettings.json** plus **appsettings.Production.json** the same way the host overlays configuration (JSON only — deployment may override via environment variables). **Data consistency** rows below also merge **appsettings.Advanced.json** when present so `DataConsistency:*` knobs from the Advanced template appear in the table.
 
 | Check | Result | Detail |
 | --- | --- | --- |

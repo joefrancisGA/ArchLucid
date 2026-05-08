@@ -273,6 +273,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         <div
           data-testid="email-run-to-sponsor-readiness"
           data-readiness-variant={readinessCopy.variant}
+          data-readiness-classification={readinessCopy.classification ?? ""}
           className={
             readinessCopy.variant === "blocked"
               ? "mt-3 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-50"

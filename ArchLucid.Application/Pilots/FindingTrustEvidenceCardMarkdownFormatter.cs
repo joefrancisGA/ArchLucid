@@ -89,6 +89,10 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
             CultureInfo.InvariantCulture,
             $"| Buyer-safe proof sendability (API checklist) | `{proof.ProofSendability}` · `{proof.PublishingTier}` |");
 
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Sponsor-proof readiness | {(Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? $"**{readiness}**" : "**Incomplete**")} |");
+
         sb.AppendLine($"| Agent output quality (PilotStrict, when attested) | {DescribePilotStrict(deltas)} |");
         sb.AppendLine("| Human qualitative review | **Required** — automation does not replace sponsor judgment. |");
         sb.AppendLine();

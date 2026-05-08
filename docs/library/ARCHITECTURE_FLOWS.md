@@ -11,33 +11,52 @@ This doc describes the main runtime flows in “sequence narrative” form. It�
 
 ---
 
-### Flow A: Run lifecycle (request → tasks → results → commit → manifest)
+### Flow A: Run lifecycle (request → committed manifest)
 
-**Goal**: turn an `ArchitectureRequest` into a committed, versioned manifest.
+**Goal:** Turn an `ArchitectureRequest` into a committed, versioned golden manifest.
 
-1. **Create run**
-   - Client calls `POST /v1/architecture/request` with an `ArchitectureRequest`.
-   - API persists the request and run metadata.
+**Important:** There are **two ways** the product reaches that outcome. **`POST /v1/architecture/request`** always persists the run and, on **SQL storage**, enters **`IAuthorityRunOrchestrator`** (context ingestion → knowledge graph → findings → decisioning → artifact synthesis) via **`AuthorityPipelineStagesExecutor`**. Separately, a **legacy coordinator** path still supports **in-host agent execution** (`POST …/execute`), **external** per-task submission (`POST …/result`), and a **merge commit** (`POST …/commit`) when the run is driven by **AgentTask** / **AgentResult** rows. **Choose one mental model per run** after inspecting **`GET /v1/architecture/run/{runId}`** (see decision tree below).
 
-2. **Generate tasks**
-   - Coordinator generates `AgentTask` records for required agent types (topology/cost/compliance/critic).
-   - Run status transitions from `Created` → `TasksGenerated` → `WaitingForResults` (depending on implementation details).
+#### A0 — Authority pipeline (ingestion → graph → findings → artifacts)
 
-3. **Submit results**
-   - Client calls `POST /v1/architecture/run/{runId}/result` for each agent result.
-   - API validates the result and persists it.
-   - When all required types exist, run transitions to `ReadyForCommit`.
+1. **Create run** — `POST /v1/architecture/request` with an `ArchitectureRequest`; API persists the request and **`dbo.Runs`** row.
+2. **Pipeline stages (server-side)** — After the run row exists, **`AuthorityPipelineStagesExecutor`** runs (or is **queued** — see async flag below): context ingestion, graph, findings, decisioning, artifacts. OpenTelemetry spans: `authority.context_ingestion`, `authority.graph`, `authority.findings`, `authority.decisioning`, `authority.artifacts` (tag **`archlucid.stage.name`**). See [BACKGROUND_JOB_CORRELATION.md](BACKGROUND_JOB_CORRELATION.md) and [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md).
+3. **Transactional finalize** — **`AuthorityRunOrchestrator`** commits the unit of work with golden manifest, decision trace, and related snapshots (`FinalizeCommittedPipelineAsync`); retrieval indexing and integration-event outbox participate when configured.
+4. **Async / queued variant** — When **`FeatureManagement:FeatureFlags:AsyncAuthorityPipeline`** is **enabled** and an evidence-bundle id is present, the host may **enqueue** pipeline work first; the run can temporarily lack **`ContextSnapshotId`** until **`CompleteQueuedAuthorityPipelineAsync`** finishes. **InMemory** storage uses a resolver that does **not** enable this async mode.
+5. **Fetch artifacts** — Run detail, manifests, exports, explain, bundles.
 
-4. **Commit**
-   - Client calls `POST /v1/architecture/run/{runId}/commit`.
-   - Decision engine merges results into a `GoldenManifest`.
-   - Manifest is persisted under a new `ManifestVersion`.
-   - Run transitions to `Committed` and points at `CurrentManifestVersion`.
+#### A0b — Legacy coordinator path (`execute` / `result` / `commit`)
 
-5. **Fetch artifacts**
-   - Client can retrieve run status, tasks, results, manifest, summaries, exports, etc.
+Use when the run is intentionally driven by **coordinator agent tasks** and **`AgentResult`** persistence (simulator/real agent executor, trial preseed, QuickStart, custom integrations), **not** when authority has already finalized the run.
 
-**Authority (ingestion) path (parallel contract):** For runs driven by context ingestion + graph + findings + decisioning + artifact synthesis, the server executes **`AuthorityPipelineStagesExecutor`** after the run row exists. OpenTelemetry records **five child spans** under the orchestrator’s run activity (`authority.context_ingestion`, `authority.graph`, `authority.findings`, `authority.decisioning`, `authority.artifacts`), each tagged with **`archlucid.stage.name`** for cross-cutting queries; see [BACKGROUND_JOB_CORRELATION.md](BACKGROUND_JOB_CORRELATION.md) §10 and [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md).
+1. **Create run** — Same `POST /v1/architecture/request` (authority coordination still creates the run row; starter tasks may exist for non-deferred creates).
+2. **Tasks** — `AgentTask` rows for topology/cost/compliance/critic; statuses such as **`TasksGenerated`**, **`WaitingForResults`**.
+3. **Execute or submit results** — **`POST /v1/architecture/run/{runId}/execute`** (`IAgentExecutor`) and/or **`POST /v1/architecture/run/{runId}/result`** (external **`AgentResult`** per task).
+4. **Commit** — **`POST /v1/architecture/run/{runId}/commit`** when **ReadyForCommit**; merges coordinator results into a **`GoldenManifest`**.
+5. **Fetch artifacts** — Run detail, exports, etc.
+
+#### Flow A1: Decision tree (which path am I on?)
+
+```mermaid
+flowchart TD
+  A[Run exists after POST /v1/architecture/request] --> B{GET run: golden manifest / committed authority fields present?}
+  B -->|Yes| C[Authority-complete: do not drive execute/result unless you own legacy task semantics; commit may be idempotent.]
+  B -->|No| D{ContextSnapshotId null and async pipeline enabled?}
+  D -->|Yes| E[Defer to queued authority worker; avoid execute until contract matches.]
+  D -->|No| F{Tasks exist and status TasksGenerated or WaitingForResults?}
+  F -->|Yes| G[Legacy coordinator: execute and/or result then commit when ReadyForCommit.]
+  F -->|No| H[Re-check run detail and diagnostics; may be transitional or failed.]
+```
+
+**Linear checklist (same logic):**
+
+1. **GET** `/v1/architecture/run/{runId}`.
+2. If the response shows **committed golden manifest** / authority-final fields → **Authority-complete**; skip **`execute`/`result`** unless you have a defined **task-level** integration for an **unfinished** legacy phase.
+3. If **no context snapshot** yet and **`AsyncAuthorityPipeline`** applies → **wait** for pipeline or queue completion.
+4. If **tasks** exist and status allows **execute**/**result** → **coordinator path** through **`commit`**.
+
+> **Anti-pattern — mixing models without understanding commit semantics**  
+> Calling **`POST …/execute`** or **`POST …/result`** to “finish” a run that **already completed the Authority pipeline** (golden manifest and decision trace already persisted with the pipeline transaction) causes **409/400 confusion** or **idempotent commit** behavior that does **not** re-run decisioning. Authority **finalize** bundles ingestion through artifacts in **one** commit; coordinator **commit** expects **four `AgentResult` types** — **different preconditions**. **Always read run state first.**
 
 ---
 

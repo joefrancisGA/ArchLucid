@@ -123,6 +123,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
             contentSafety.Object,
+            Microsoft.Extensions.Options.Options.Create(new ArchLucid.Core.Configuration.AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);
@@ -227,6 +228,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
             contentSafety.Object,
+            Microsoft.Extensions.Options.Options.Create(new ArchLucid.Core.Configuration.AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);

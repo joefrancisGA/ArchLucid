@@ -7,7 +7,7 @@ namespace ArchLucid.Contracts.Agents;
 /// <summary>
 ///     Captures the full execution record for a single LLM call made by an agent during a run.
 ///     Traces are treated as immutable for prompts and model output after creation; optional fields such as blob keys
-///     and <see cref="QualityWarning" /> may be patched for persistence or post-execute quality signaling.
+///     and <see cref="QualityWarning" /> / <see cref="QualityRejected" /> may be patched for persistence or post-execute quality signaling.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -23,7 +23,8 @@ namespace ArchLucid.Contracts.Agents;
 ///     </para>
 ///     <para>
 ///         <see cref="QualityWarning" /> may be set after initial persistence by the post-execute output quality gate
-///         when the gate outcome is <c>warned</c> (merged into stored <c>TraceJson</c>).
+///         when the gate outcome is <c>warned</c> (merged into stored <c>TraceJson</c>). <see cref="QualityRejected" />
+///         is set when the gate outcome is <c>rejected</c>.
 ///     </para>
 /// </remarks>
 public sealed class AgentExecutionTrace
@@ -263,6 +264,17 @@ public sealed class AgentExecutionTrace
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool QualityWarning
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Set when the post-execute output quality gate classified this trace as <c>rejected</c> (persisted in
+    ///     <c>TraceJson</c>). Omitted from JSON when <see langword="false" />.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool QualityRejected
     {
         get;
         set;

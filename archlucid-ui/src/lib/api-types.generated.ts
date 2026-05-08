@@ -2708,6 +2708,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/alerts/{alertId}/action-loop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    alertId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AlertActionLoopResponse"];
+                        "text/json": components["schemas"]["AlertActionLoopResponse"];
+                        "text/plain": components["schemas"]["AlertActionLoopResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/analytics/roi": {
         parameters: {
             query?: never;
@@ -7091,90 +7141,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/architecture/run/{runId}/provenance/{nodeId}/explanation": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    runId: string;
-                    nodeId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Too Many Requests */
-                429: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Not Implemented */
-                501: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProvenanceNodeExplanationPendingResponse"];
-                        "text/json": components["schemas"]["ProvenanceNodeExplanationPendingResponse"];
-                        "text/plain": components["schemas"]["ProvenanceNodeExplanationPendingResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/architecture/run/{runId}/replay": {
         parameters: {
             query?: never;
@@ -7772,90 +7738,6 @@ export interface paths {
                         "application/json": components["schemas"]["ProblemDetails"];
                         "text/json": components["schemas"]["ProblemDetails"];
                         "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/architecture/runs/{runId}/provenance/{nodeId}/explanation": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    runId: string;
-                    nodeId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Too Many Requests */
-                429: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Not Implemented */
-                501: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProvenanceNodeExplanationPendingResponse"];
-                        "text/json": components["schemas"]["ProvenanceNodeExplanationPendingResponse"];
-                        "text/plain": components["schemas"]["ProvenanceNodeExplanationPendingResponse"];
                     };
                 };
             };
@@ -19384,6 +19266,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/tenant/customer-success/stickiness-snapshot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OperatorStickinessSnapshotResponse"];
+                        "text/json": components["schemas"]["OperatorStickinessSnapshotResponse"];
+                        "text/plain": components["schemas"]["OperatorStickinessSnapshotResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/tenant/exec-digest-preferences": {
         parameters: {
             query?: never;
@@ -19470,6 +19389,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/tenant/integrations/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantIntegrationsOperationsResponse"];
+                        "text/json": components["schemas"]["TenantIntegrationsOperationsResponse"];
+                        "text/plain": components["schemas"]["TenantIntegrationsOperationsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/tenant/link-entra": {
         parameters: {
             query?: never;
@@ -19534,6 +19490,43 @@ export interface paths {
                         "application/json": components["schemas"]["TenantMeasuredRoiResponse"];
                         "text/json": components["schemas"]["TenantMeasuredRoiResponse"];
                         "text/plain": components["schemas"]["TenantMeasuredRoiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/tenant/operate/weekly-digest-health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["WeeklyDigestHealthResponse"];
+                        "text/json": components["schemas"]["WeeklyDigestHealthResponse"];
+                        "text/plain": components["schemas"]["WeeklyDigestHealthResponse"];
                     };
                 };
             };
@@ -20067,6 +20060,7 @@ export interface components {
             promptReleaseLabel?: null | string;
             promptTemplateId?: null | string;
             promptTemplateVersion?: null | string;
+            qualityRejected?: boolean;
             qualityWarning?: boolean;
             rawResponse?: string;
             runId?: string;
@@ -20188,6 +20182,17 @@ export interface components {
         };
         AgentTaskStatus: number;
         AgentType: number;
+        AlertActionLoopResponse: {
+            /** Format: uuid */
+            alertId?: string;
+            deliveryAttempts?: components["schemas"]["AlertDeliveryAttemptResponse"][];
+            /** Format: date-time */
+            lastUpdatedUtc?: null | string;
+            resolutionComment?: null | string;
+            /** Format: uuid */
+            runId?: null | string;
+            status?: string;
+        };
         AlertActionRequest: {
             action?: string;
             comment?: null | string;
@@ -20213,6 +20218,14 @@ export interface components {
             tenantId?: string;
             /** Format: uuid */
             workspaceId?: string;
+        };
+        AlertDeliveryAttemptResponse: {
+            /** Format: date-time */
+            attemptedUtc?: string;
+            channelType?: string;
+            destinationRedacted?: string;
+            errorMessage?: null | string;
+            status?: string;
         };
         AlertRecord: {
             acknowledgedByUserId?: null | string;
@@ -20859,6 +20872,14 @@ export interface components {
         ConfluenceFirstValueReportPublishResponse: {
             pageId: null | string;
             pageUrl: null | string;
+        };
+        ConnectorSurfaceStatusResponse: {
+            configurationHref?: null | string;
+            connectorKey?: string;
+            displayName?: string;
+            isConfigured?: boolean;
+            smokeReadiness?: string;
+            summary?: string;
         };
         ConstraintSection: {
             mandatoryConstraints?: string[];
@@ -22136,6 +22157,15 @@ export interface components {
             format?: string;
             name?: string;
         };
+        IntegrationEventBusStatusResponse: {
+            consumerConfigured?: boolean;
+            fullyQualifiedNamespace?: null | string;
+            publisherConfigured?: boolean;
+            queueOrTopicName?: null | string;
+            smokeReadiness?: string;
+            transactionalOutboxEnabled?: boolean;
+            usesLegacyConnectionString?: boolean;
+        };
         IntegrationEventOutboxDeadLetterRow: {
             /** Format: date-time */
             deadLetteredUtc?: string;
@@ -22517,6 +22547,15 @@ export interface components {
             href?: string;
             reason?: string;
             title?: string;
+        };
+        OperatorStickinessSnapshotResponse: {
+            /** Format: int32 */
+            comparisonEventsLast30Days?: number;
+            /** Format: uuid */
+            latestRunId?: null | string;
+            /** Format: int32 */
+            pendingGovernanceApprovals?: number;
+            pilotFunnel?: components["schemas"]["PilotFunnelSnapshotResponse"];
         };
         OperatorTaskSuccessRatesResponse: {
             /** Format: double */
@@ -23116,7 +23155,9 @@ export interface components {
             auditRowsPresentOrLowerBound?: boolean;
             buyerSafeRedactionProfile?: string;
             committedManifestPresent?: boolean;
+            committedManifestTimestampResolved?: boolean;
             demoTenantWarningRequired?: boolean;
+            evidenceCompleteness?: string;
             findingsBySeverityPresent?: boolean;
             /** Format: int32 */
             llmCallCount?: number;
@@ -23126,6 +23167,7 @@ export interface components {
             roiConfidenceLabel?: string;
             roiEvidenceConfidence?: components["schemas"]["PilotRoiEvidenceConfidence"];
             runInCommittedStatus?: boolean;
+            sponsorProofReadiness?: string;
             supportRunIdPresent?: boolean;
             timeToCommittedManifestResolved?: boolean;
             topFindingEvidenceChainPresentOrNotApplicable?: boolean;
@@ -23149,9 +23191,6 @@ export interface components {
             name?: string;
             referenceId?: string;
             type?: components["schemas"]["ProvenanceNodeType"];
-        };
-        ProvenanceNodeExplanationPendingResponse: {
-            message: string;
         };
         ProvenanceNodeType: number;
         PublishPolicyPackVersionRequest: {
@@ -23936,6 +23975,10 @@ export interface components {
             /** Format: date-time */
             updatedUtc?: null | string;
         };
+        TenantIntegrationsOperationsResponse: {
+            connectors?: components["schemas"]["ConnectorSurfaceStatusResponse"][];
+            integrationEventBus?: components["schemas"]["IntegrationEventBusStatusResponse"];
+        };
         TenantLinkEntraRequest: {
             entraOid?: null | string;
             /** Format: uuid */
@@ -24196,6 +24239,38 @@ export interface components {
             tags?: null | string[];
         };
         UsageMeterKind: number;
+        WeeklyDigestHealthResponse: {
+            /** Format: int32 */
+            digestSubscriptionCount?: number;
+            /** Format: int32 */
+            digestSubscriptionsByEmailChannel?: number;
+            /** Format: int32 */
+            digestSubscriptionsBySlackChannel?: number;
+            /** Format: int32 */
+            digestSubscriptionsByTeamsChannel?: number;
+            /** Format: date-time */
+            earliestNextAdvisoryRunUtc?: null | string;
+            /** Format: int32 */
+            enabledAdvisoryScheduleCount?: number;
+            /** Format: int32 */
+            enabledDigestSubscriptionCount?: number;
+            /** Format: int32 */
+            executiveDigestDayOfWeek?: number;
+            /** Format: int32 */
+            executiveDigestHourOfDay?: number;
+            executiveDigestIanaTimeZoneId?: string;
+            /** Format: int32 */
+            executiveDigestRecipientCount?: number;
+            executiveEmailDigestEnabled?: boolean;
+            executiveEmailDigestIsConfigured?: boolean;
+            /** Format: date-time */
+            latestArchitectureDigestGeneratedUtc?: null | string;
+            /** Format: uuid */
+            latestArchitectureDigestId?: null | string;
+            /** Format: date-time */
+            latestDigestSubscriptionDeliveryUtc?: null | string;
+            setupGaps?: string[];
+        };
         WhyArchLucidSnapshotResponse: {
             /** Format: int32 */
             auditRowCount?: number;

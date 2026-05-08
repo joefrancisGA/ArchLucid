@@ -14,6 +14,13 @@ public sealed class FallbackAgentCompletionClient(
     IAgentCompletionClient secondary,
     ILogger<FallbackAgentCompletionClient> logger) : IAgentCompletionClient, IDisposable
 {
+    /// <summary>
+    ///     Set to <see langword="true" /> on the current async flow when the secondary client was used for the last
+    ///     call. Consumed by <see cref="AgentCompletionModelMetadata" /> so the persisted trace carries a
+    ///     <c>"fallback:"</c>-prefixed deployment name instead of silently showing the primary name.
+    /// </summary>
+    private static readonly AsyncLocal<bool> LastCallUsedFallback = new();
+
     private readonly ILogger<FallbackAgentCompletionClient> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -26,12 +33,25 @@ public sealed class FallbackAgentCompletionClient(
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor => _primary.Descriptor;
 
+    /// <summary>
+    ///     Consumes and returns whether the last <see cref="CompleteJsonAsync" /> call on this async flow used the
+    ///     secondary (fallback) client. Resets the flag after reading.
+    /// </summary>
+    public static bool TryConsumeLastFallbackUsed()
+    {
+        bool value = LastCallUsedFallback.Value;
+        LastCallUsedFallback.Value = false;
+
+        return value;
+    }
+
     /// <inheritdoc />
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
         CancellationToken cancellationToken = default)
     {
+        LastCallUsedFallback.Value = false;
         cancellationToken.ThrowIfCancellationRequested();
 
         try
@@ -57,7 +77,10 @@ public sealed class FallbackAgentCompletionClient(
                 primaryFailure,
                 "Primary LLM completion failed with a fallback-eligible HTTP status; using fallback completion client.");
 
-            return await _secondary.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+            string result = await _secondary.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+            LastCallUsedFallback.Value = true;
+
+            return result;
         }
     }
 

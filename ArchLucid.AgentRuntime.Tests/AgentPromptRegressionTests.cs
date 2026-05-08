@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Nodes;
 
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Capabilities.Cost;
@@ -117,7 +116,7 @@ public sealed class AgentPromptRegressionTests
     private static void AssertStructuralValidationPasses(AgentType type, AgentResult result)
     {
         string wire = JsonSerializer.Serialize(result, ContractJson.Default);
-        string forValidator = WithExplainabilityTracesHydratedForContract(wire);
+        string forValidator = AgentResultJsonRegressionHelpers.WithExplainabilityTracesHydratedForContract(wire);
         RealLlmStructuralValidationResult v =
             RealLlmOutputStructuralValidator.ValidateAgentResultStructure(type.ToString(), forValidator);
 
@@ -127,43 +126,6 @@ public sealed class AgentPromptRegressionTests
                 string.Join(
                     "; ",
                     v.Checks.Select(static c => $"{c.Name}={(c.Passed ? "ok" : c.Message)}")));
-    }
-
-    /// <summary>
-    ///     Inserts a minimal <c>trace</c> object on every finding, matching
-    ///     <see cref="RealLlmOutputStructuralValidator" /> and production wire JSON, without mutating
-    ///     <see cref="AgentResult" /> types.
-    /// </summary>
-    private static string WithExplainabilityTracesHydratedForContract(string agentResultJson)
-    {
-        JsonNode root = JsonNode.Parse(agentResultJson) ?? throw new InvalidOperationException("Result JSON is null.");
-        if (root is not JsonObject obj)
-            throw new InvalidOperationException("AgentResult JSON root must be an object.");
-
-        if (obj["findings"] is not JsonArray findings)
-            return agentResultJson;
-
-        foreach (JsonNode? f in findings)
-        {
-            if (f is not JsonObject row)
-                continue;
-
-            if (row["trace"] is not null)
-                continue;
-
-            JsonObject trace = new()
-            {
-                ["sourceAgentExecutionTraceId"] = JsonValue.Create((string?)null),
-                ["graphNodeIdsExamined"] = new JsonArray(),
-                ["rulesApplied"] = new JsonArray(),
-                ["decisionsTaken"] = new JsonArray(),
-                ["alternativePathsConsidered"] = new JsonArray(),
-                ["notes"] = new JsonArray()
-            };
-            row["trace"] = trace;
-        }
-
-        return root.ToJsonString(ContractJson.Default);
     }
 
     private static void AssertPromptHash(AgentType type, string baselineProperty)

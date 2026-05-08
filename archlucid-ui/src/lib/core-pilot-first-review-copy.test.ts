@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE,
   CORE_PILOT_FIRST_REVIEW_HEADING,
   CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
   CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON,
@@ -34,17 +35,23 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     expect(CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON.toLowerCase()).toContain("first");
   });
 
-  it("keeps first-session guidance as short bullets aligned with the checklist flow", () => {
-    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS).toHaveLength(3);
+  it("keeps first-session guidance as four plain steps without manifest or Operate jargon", () => {
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS).toHaveLength(4);
 
     for (const bullet of CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS) {
       expect(bullet.length).toBeGreaterThan(36);
       expect(bullet.length).toBeLessThan(400);
-      expect(bullet.toLowerCase()).toMatch(/(first session|defer|finalize|architecture review|wizard|manifest)/);
+      expect(bullet.toLowerCase()).not.toMatch(/\bmanifest\b/);
+      expect(bullet.toLowerCase()).not.toMatch(/\boperate\b/);
     }
 
-    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("manifest"))).toBe(true);
-
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("finalize"))).toBe(true);
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("pipeline"))).toBe(true);
     expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.includes("Proof sendability"))).toBe(false);
+  });
+
+  it("defers advanced tools in a separate disclosure line", () => {
+    expect(CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE.toLowerCase()).toMatch(/compare|replay|graph/);
+    expect(CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE.toLowerCase()).toMatch(/show more/);
   });
 });

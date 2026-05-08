@@ -129,7 +129,10 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine($"- Operator review UI: {ui}/reviews/{run.RunId}");
         sb.AppendLine($"- Pilot scorecard: {ui}/scorecard");
         sb.AppendLine($"- API anchor (authenticated): {baseUrl}/v1/architecture/run/{run.RunId}");
-        return new FirstValueReportBuildResult(sb.ToString(), evidenceCompleteness);
+        return new FirstValueReportBuildResult(
+            sb.ToString(),
+            evidenceCompleteness,
+            SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate));
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)
@@ -193,6 +196,9 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine($"| Buyer-safe redaction profile | {c.BuyerSafeRedactionProfile} |");
         sb.AppendLine($"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
         sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` · **{c.EvidenceCompleteness}** |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Sponsor-proof readiness (classification) | {(Enum.TryParse(c.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? SponsorProofReadinessClassifier.DescribeForMarkdownTable(readiness) : "**Incomplete** — classification unavailable.")} |");
         sb.AppendLine();
     }
 

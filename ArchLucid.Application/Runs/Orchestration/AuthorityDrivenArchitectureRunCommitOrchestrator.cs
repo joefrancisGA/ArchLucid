@@ -342,6 +342,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
             return;
         if (run.Status == ArchitectureRunStatus.Failed)
             throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
+        if (run.Status == ArchitectureRunStatus.ExecutionCompletedQualityRejected)
+            throw new ConflictException(
+                $"Run '{runId}' did not pass the output quality gate and cannot be committed. Re-execute with more context or adjust quality settings.");
         throw new ConflictException($"Run '{runId}' cannot be committed in status '{run.Status}'. Execute the run until it reaches ReadyForCommit.");
     }
 

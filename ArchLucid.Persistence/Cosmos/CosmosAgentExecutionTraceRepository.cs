@@ -132,6 +132,19 @@ public sealed class CosmosAgentExecutionTraceRepository(
     }
 
     /// <inheritdoc />
+    public async Task PatchQualityRejectedAsync(string traceId, bool qualityRejected,
+        CancellationToken cancellationToken = default)
+    {
+        AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
+
+        if (trace is null)
+            return;
+
+        trace.QualityRejected = qualityRejected;
+        await ReplaceTraceAsync(trace, cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId,
         CancellationToken cancellationToken = default)
     {

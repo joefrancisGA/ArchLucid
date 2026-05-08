@@ -73,6 +73,8 @@ All routes require **ReadAuthority** and use versioned paths under **`/v1/explai
 | `GET` | **`/v1/explain/runs/{runId}/aggregate`** | **`RunExplanationSummary`** | Same nested **`explanation`** as above, plus **`themeSummaries`**, **`overallAssessment`**, **`riskPosture`**, and manifest/findings **counts**. **404** if run/manifest missing in scope. |
 | `GET` | **`/v1/explain/compare/explain`** | **`ComparisonExplanationResult`** | Query: **`baseRunId`**, **`targetRunId`**. **404** if either run lacks a golden manifest in scope. |
 
+**Legacy per-node provenance explanation URL (compatibility only):** **`GET /v1/architecture/runs/{runId}/provenance/{nodeId}/explanation`** (and alias **`GET /v1/architecture/run/{runId}/provenance/{nodeId}/explanation`**) are **omitted from** **`GET /openapi/v1.json`** because there is no supported per-node explanation contract. **ReadAuthority** and tenant/run scope still apply (**404** when the run is missing). **501** returns RFC 9457 **Problem+JSON** with stable `type` **`https://archlucid.example.org/errors#provenance-node-explanation-not-supported`** (see **`API_ERROR_CONTRACT.md`**), **`errorCode`** **`PROVENANCE_NODE_EXPLANATION_NOT_SUPPORTED`**, **`title`**/**`detail`**, and extension keys **`aggregateExplanationPathTemplate`** (`/v1/explain/runs/{runId}/aggregate`) and **`granularExplanationPathTemplate`** (`/v1/explain/runs/{runId}/explain`). New clients should call **`GET /v1/explain/runs/{runId}/aggregate`** (and the same Standard-tier / licensing rules as other `/v1/explain` routes) instead of the legacy path.
+
 Schema and posture rules: **`docs/EXPLANATION_SCHEMA.md`**. Operator UI: run detail **Explanation** section calls **`getRunExplanationSummary`** (`archlucid-ui`).
 
 ## Demo anonymous surfaces (`/v1/demo`)
@@ -185,6 +187,22 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 ## End-to-end run compare — missing run
 
 `GET`/`POST` routes under `/v1/architecture/run/compare/end-to-end/...` that resolve runs by ID return **404** with problem type **`#run-not-found`** when a referenced run does not exist (not generic `#resource-not-found`).
+
+## Architecture run: Authority pipeline vs coordinator (`execute` / `result` / `commit`)
+
+**Create** always starts with **`POST /v1/architecture/request`**. On **SQL** hosts, **`IAuthorityRunOrchestrator`** then drives **ingestion → graph → findings → decisioning → artifacts** (`AuthorityPipelineStagesExecutor`). **Separately**, **`POST /v1/architecture/run/{runId}/execute`**, **`POST /v1/architecture/run/{runId}/result`**, and **`POST /v1/architecture/run/{runId}/commit`** implement the **legacy coordinator** loop (agent tasks + **`AgentResult`** rows + merge commit). Integrations must **not** assume every run needs **`execute`** after create.
+
+| Aspect | Authority pipeline | Legacy coordinator |
+|--------|-------------------|-------------------|
+| **Primary mechanics** | Server-side stages after run persist; **`FinalizeCommittedPipelineAsync`** commits manifest + traces in the pipeline unit of work | **`execute`** runs **`IAgentExecutor`**; **`result`** accepts external **`AgentResult`**; **`commit`** merges when **ReadyForCommit** |
+| **Typical `commit` expectation** | Run may **already** be committed when stages complete; **`POST …/commit`** can be **idempotent** (see below) | **`POST …/commit`** required after all required agent types have results |
+| **Async / queue** | **`FeatureManagement:FeatureFlags:AsyncAuthorityPipeline`** (and evidence-bundle id) may **enqueue** work; **`ContextSnapshotId`** may be **null** until **`CompleteQueuedAuthorityPipelineAsync`** | Independent of that flag; needs **tasks** and allowed statuses for **`result`** |
+| **Telemetry** | Spans `authority.*` / tag **`archlucid.stage.name`** | No `authority.*` stage spans for coordinator-only agent execution |
+
+**Decision tree (mermaid and checklist):** [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) — Flow A1.
+
+> **Anti-pattern — mixing models without understanding commit semantics**  
+> Calling **`execute`** or **`result`** “to finish” a run that **already** has authority-committed output causes **409/400** confusion or **no-op idempotent `commit`**. Authority **finalize** and coordinator **commit** have **different preconditions**. **GET `/v1/architecture/run/{runId}`** before choosing endpoints.
 
 ## Commit run — success, idempotency, and conflicts
 

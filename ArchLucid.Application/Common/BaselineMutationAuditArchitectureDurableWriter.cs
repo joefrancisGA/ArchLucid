@@ -156,6 +156,42 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
             return;
         }
 
+        if (string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunQualityGateRejected, StringComparison.Ordinal))
+        {
+            await DurableAuditLogRetry.TryLogAsync(
+                async ct =>
+                {
+                    ScopeContext scope = scopeContextProvider.GetCurrentScope();
+                    Guid? runGuid = Guid.TryParse(entityId, out Guid parsedRun) ? parsedRun : null;
+                    Dictionary<string, string> kv = ParseSemicolonKeyValues(details);
+
+                    AuditEvent rejected = new()
+                    {
+                        EventType = AuditEventTypes.Run.QualityGateRejected,
+                        ActorUserId = actor,
+                        ActorUserName = actor,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        ProjectId = scope.ProjectId,
+                        RunId = runGuid,
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                runId = entityId,
+                                traceId = GetDetail(kv, "TraceId"),
+                                agentLabel = GetDetail(kv, "AgentLabel"),
+                            })
+                    };
+
+                    await auditService.LogAsync(rejected, ct);
+                },
+                logger,
+                $"Run.QualityGateRejected:{LogSanitizer.Sanitize(entityId)}",
+                cancellationToken);
+
+            return;
+        }
+
         if (string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunCompleted, StringComparison.Ordinal))
         {
             await DurableAuditLogRetry.TryLogAsync(

@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
@@ -13,6 +15,30 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
 {
     private static ArchitectureRun NonSimulatorRun() =>
         new() { RunId = "r", RequestId = "q", Status = ArchitectureRunStatus.Committed, CreatedUtc = DateTime.UtcNow };
+
+    [Fact]
+    public void AppendMarkdownSection_includes_sponsor_proof_readiness_sendable()
+    {
+        StringBuilder sb = new();
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.Complete,
+            ProofPackageSendability.Sendable,
+            [],
+            [],
+            []);
+
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            SponsorSafeProofDisposition.Sendable,
+            gate,
+            StrongProof(),
+            CompleteDeltas(topFindingId: null),
+            NonSimulatorRun());
+
+        string md = sb.ToString();
+        md.Should().Contain("Sponsor-proof readiness:");
+        md.Should().Contain("**Sendable**");
+    }
 
     [Fact]
     public void ResolveDisposition_demo_only_is_not_sponsor_safe_yet()
@@ -142,6 +168,7 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             ProofSendability = "Sendable",
             EvidenceCompleteness = "Strong",
             AgentOutputPilotStrictEvidenceSatisfied = true,
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
         };
 
     private static PilotRunDeltas CompleteDeltas(string? topFindingId) =>

@@ -56,6 +56,8 @@ class TestProductionProfilePreflight(unittest.TestCase):
                 "Billing:Stripe",
                 "Observability:Otlp:Enabled",
                 "Billing:Stripe:SecretKey",
+                "DataConsistency:OrphanProbeEnabled",
+                "Data consistency enforcement report",
             ):
                 self.assertIn(title, text)
 

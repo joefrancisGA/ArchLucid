@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(115)
+        return new List<ConfigurationKeyEntry>(125)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -50,6 +50,11 @@ public static class ConfigurationKeyCatalog
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:SemanticRejectBelow", M("appsettings", "env"), "0",
                 "—",
                 "Quality gate reject (semantic); 0 disables reject for non-negative scores. Pair with EnforceOnReject.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:EnforceOnReject", M("appsettings", "env"), "false", "—",
+                "When true, AgentOutputEvaluationRecorder throws on gate reject after metrics/logs.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:BlockRunOnReject", M("appsettings", "env"), "false", "—",
+                "When true with EnforceOnReject, execute marks ExecutionCompletedQualityRejected and returns HTTP 409.",
                 ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PilotStrictMinStructuralCompleteness", M("appsettings", "env"),
                 "0.9", "—",
@@ -144,6 +149,21 @@ public static class ConfigurationKeyCatalog
                 "Prompt set: compliance pack.", ConfigKeyRequirementKind.None),
             E("AgentPrompts", "AgentPrompts:Versions:critic", M("appsettings", "env"), "v2026-04", "—",
                 "Prompt set: critic pack.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:StagedCriticEnabled", M("appsettings", "env"), "false", "—",
+                "When true, RealAgentExecutor runs non-Critic agents first, then Critic, injecting a bounded summary evidence note.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:SummaryMaxTotalChars", M("appsettings", "env"), "12000", "—",
+                "Upper bound on staged prior-agents summary body (normalized after bind).", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:SummaryPerAgentMaxChars", M("appsettings", "env"), "4000", "—",
+                "Upper bound per agent section inside the staged summary.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:MaxClaimsPerAgentIncluded", M("appsettings", "env"), "8", "—",
+                "Max claim lines excerpted per prior agent in the staged summary.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:MaxClaimLineChars", M("appsettings", "env"), "240", "—",
+                "Max characters per claim excerpt after redaction.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:MaxFindingTitlesPerAgent", M("appsettings", "env"), "5", "—",
+                "Max finding titles listed per prior agent in the staged summary.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:MaxFindingTitleChars", M("appsettings", "env"), "100", "—",
+                "Max characters per finding title excerpt.", ConfigKeyRequirementKind.None),
             E("SchemaValidation", "SchemaValidation:AgentResultSchemaPath", M("appsettings", "content"), "schemas/...",
                 "—", "On-disk path to the agent result JSON schema.", ConfigKeyRequirementKind.None),
             E("SchemaValidation", "SchemaValidation:GoldenManifestSchemaPath", M("appsettings", "content"),

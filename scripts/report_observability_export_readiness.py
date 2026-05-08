@@ -17,7 +17,7 @@ import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -41,6 +41,10 @@ AGENT_OUTPUT_METRICS: tuple[tuple[str, str], ...] = (
     (
         "archlucid_agent_output_parse_failures_total",
         "Counter - invalid JSON or non-object `ParsedResultJson` (`agent_type`).",
+),
+    (
+        "archlucid_agent_trace_blob_upload_failures_total",
+        "Counter - trace blob exhausted retries (`agent_type`, `blob_type`).",
 ),
 )
 
@@ -180,11 +184,14 @@ def _truthy_json(val: Any) -> bool:
 
 def analyze_export_paths(cfg: dict[str, Any]) -> tuple[list[str], list[str]]:
     """
-    Returns (active_path_labels, warnings).
+    Returns (active_path_labels, warnings_or_notes).
+
+    When at least one durable path is active, omit nag warnings for the other paths so release
+    operators get a clean pass signal. When none are active, return detailed remediation lines.
     Console exporter is ignored - not a durable backend for metric export readiness.
     """
     active: list[str] = []
-    warnings: list[str] = []
+    detail_lines: list[str] = []
 
     ai_raw = (
         get_colon(cfg, "APPLICATIONINSIGHTS_CONNECTION_STRING"),
@@ -195,7 +202,7 @@ def analyze_export_paths(cfg: dict[str, Any]) -> tuple[list[str], list[str]]:
     if any(_non_empty_str(x) for x in ai_raw):
         active.append("Application Insights (`APPLICATIONINSIGHTS_CONNECTION_STRING` / `ApplicationInsights:ConnectionString` / `Observability:AzureMonitor:ApplicationInsightsConnectionString`)")
     else:
-        warnings.append(
+        detail_lines.append(
             "No Application Insights connection string - set one of: `APPLICATIONINSIGHTS_CONNECTION_STRING`, "
             "`ApplicationInsights:ConnectionString`, `Observability:AzureMonitor:ApplicationInsightsConnectionString`."
         )
@@ -210,31 +217,33 @@ def analyze_export_paths(cfg: dict[str, Any]) -> tuple[list[str], list[str]]:
 
     if endpoint_ok and not otlp_kill_switch:
         active.append("OTLP (`Observability:Otlp:Endpoint` + `Observability:Otlp:Enabled` not false)")
-    else:
-        if not endpoint_ok:
-            warnings.append(
-                "OTLP not configured - set non-empty `Observability:Otlp:Endpoint` (absolute URI) and ensure "
-                "`Observability:Otlp:Enabled` is not `false`."
-            )
-        elif otlp_kill_switch:
-            warnings.append(
-                "OTLP endpoint is set but export is disabled - `Observability:Otlp:Enabled` is false (remove kill-switch or clear endpoint)."
-            )
+    elif not endpoint_ok:
+        detail_lines.append(
+            "OTLP not configured - set non-empty `Observability:Otlp:Endpoint` (absolute URI) and ensure "
+            "`Observability:Otlp:Enabled` is not `false`."
+        )
+    elif otlp_kill_switch:
+        detail_lines.append(
+            "OTLP endpoint is set but export is disabled - `Observability:Otlp:Enabled` is false (remove kill-switch or clear endpoint)."
+        )
 
     prom_enabled = _truthy_json(get_colon(cfg, "Observability:Prometheus:Enabled"))
 
     if prom_enabled:
         active.append("Prometheus scrape (`Observability:Prometheus:Enabled` = true)")
     else:
-        warnings.append(
-            "Prometheus scrape off - set `Observability:Prometheus:Enabled` true and expose scrape only on trusted networks."
+        detail_lines.append(
+            "Prometheus scrape off - set `Observability:Prometheus:Enabled` true and expose scrape only on "
+            "trusted networks (keep `RequireScrapeAuthentication` on for edge exposure — see `OBSERVABILITY.md`)."
         )
 
-    if not active:
-        warnings.insert(
-            0,
-            "**No durable metric export path is active** from merged configuration - agent-output metrics stay in-process.",
-        )
+    if active:
+        return active, []
+
+    warnings: list[str] = [
+        "**No durable metric export path is active** from merged configuration - agent-output metrics stay in-process.",
+    ]
+    warnings.extend(detail_lines)
 
     return active, warnings
 
@@ -268,6 +277,62 @@ class HostReport:
         return len(self.active_exports) > 0
 
 
+def compute_release_verdict(
+    *,
+    api: HostReport,
+    worker: HostReport,
+    include_process_environment: bool,
+) -> tuple[str, list[str]]:
+    """
+    PASS — Api and Worker both have ≥1 durable export path and no JSON merge errors.
+    WARN — partial coverage, merge noise, or JSON-only ambiguity.
+    FAIL — Api lacks a durable export with process environment overlay on (simulates deploy-like check).
+    """
+    reasons: list[str] = []
+
+    if api.load_errors:
+        reasons.append(f"ArchLucid.Api appsettings merge issues ({len(api.load_errors)}) — see Api section.")
+
+    if worker.load_errors:
+        reasons.append(f"ArchLucid.Worker appsettings merge issues ({len(worker.load_errors)}) — see Worker section.")
+
+    json_only = not include_process_environment
+
+    if not api.has_export:
+        if json_only:
+            reasons.append(
+                "ArchLucid.Api shows no exporter in **committed JSON layers only** — often a **false negative** "
+                "(operators inject `APPLICATIONINSIGHTS_CONNECTION_STRING` / OTLP via env). Re-run **without** "
+                "`--no-process-environment` on a shell that mirrors production env, or attach this report from CI as **WARN**."
+            )
+            if not worker.has_export:
+                reasons.append(
+                    "ArchLucid.Worker also shows no exporter in JSON-only mode — same caveat; Worker appsettings "
+                    "often omit `Observability` entirely in-repo."
+                )
+
+            return "WARN", reasons
+
+        reasons.append(
+            "ArchLucid.Api has **no** Application Insights connection string, OTLP endpoint, or Prometheus scrape — "
+            "**FAIL** for release: `archlucid_agent_output_*` metrics from `/execute` will not reach a backend."
+        )
+
+        return "FAIL", reasons
+
+    if not worker.has_export:
+        reasons.append(
+            "ArchLucid.Worker has no durable export in this merged view — worker-hosted meters (outbox depth, "
+            "integration events) may be missing from the same backend unless scraped separately. Treat as **WARN**."
+        )
+
+    if api.load_errors or worker.load_errors:
+        return "WARN", reasons
+
+    if reasons:
+        return "WARN", reasons
+
+    return "PASS", []
 def build_host_report(
     *,
     json_paths: list[Path],
@@ -299,8 +364,11 @@ def render_markdown(
     api: HostReport,
     worker: HostReport,
     include_process_environment: bool,
+    verdict: str,
+    verdict_reasons: list[str],
 ) -> str:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
+    v_upper = verdict.upper()
     lines: list[str] = [
         "# Observability export readiness (repo-local)",
         "",
@@ -308,25 +376,49 @@ def render_markdown(
         "",
         "## Summary",
         "",
-        "| Host | Durable export active | Paths detected |",
-        "|------|------------------------|----------------|",
-        f"| **ArchLucid.Api** | {'**yes**' if api.has_export else '**no**'} | {', '.join(api.active_exports) if api.active_exports else '*none*'} |",
-        f"| **ArchLucid.Worker** | {'**yes**' if worker.has_export else '**no**'} | {', '.join(worker.active_exports) if worker.active_exports else '*none*'} |",
-        "",
-        "**Durable export** means at least one of: Application Insights connection string, OTLP endpoint (not kill-switched), or Prometheus scrape enabled. "
-        "Console-only export in Development does not satisfy production trending.",
-        "",
-        f"Process environment overlay: **{'on' if include_process_environment else 'off'}** (values are never printed).",
-        "",
-        "### Configuration reference (keys to set)",
-        "",
-        CONFIG_KEYS_DOC,
-        "",
-        "## ArchLucid.Api",
-        "",
-        "### Merged JSON files",
+        f"**Telemetry export readiness verdict:** **{v_upper}**",
         "",
     ]
+
+    if verdict_reasons:
+        lines.append("**Why:**")
+        lines.append("")
+
+        for r in verdict_reasons:
+            lines.append(f"- {r}")
+
+        lines.append("")
+    elif v_upper == "PASS":
+        lines.extend(
+            [
+                "**Why:** ArchLucid.Api and ArchLucid.Worker each have at least one durable export path in the merged view, "
+                "and appsettings JSON layers merged without errors.",
+                "",
+            ]
+        )
+
+    lines.extend(
+        [
+            "| Host | Durable export active | Paths detected |",
+            "|------|------------------------|----------------|",
+            f"| **ArchLucid.Api** | {'**yes**' if api.has_export else '**no**'} | {', '.join(api.active_exports) if api.active_exports else '*none*'} |",
+            f"| **ArchLucid.Worker** | {'**yes**' if worker.has_export else '**no**'} | {', '.join(worker.active_exports) if worker.active_exports else '*none*'} |",
+            "",
+            "**Durable export** means at least one of: Application Insights connection string, OTLP endpoint (not kill-switched), or Prometheus scrape enabled. "
+            "Console-only export in Development does not satisfy production trending.",
+            "",
+            f"Process environment overlay: **{'on' if include_process_environment else 'off'}** (values are never printed).",
+            "",
+            "### Configuration reference (keys to set)",
+            "",
+            CONFIG_KEYS_DOC,
+            "",
+            "## ArchLucid.Api",
+            "",
+            "### Merged JSON files",
+            "",
+        ]
+    )
 
     if api.files_loaded:
         lines.extend(f"- `{p.relative_to(REPO_ROOT).as_posix()}`" for p in api.files_loaded)
@@ -430,15 +522,22 @@ def render_markdown(
             "   - `archlucid_agent_output_semantic_score`",
             "   - `archlucid_agent_output_quality_gate_total`",
             "   - `archlucid_agent_output_parse_failures_total`",
+            "   - `archlucid_agent_trace_blob_upload_failures_total`",
             "4. Azure Monitor may normalize names - filter by custom metric / `ArchLucid` meter if the UI groups by namespace. "
             "Prometheus and OTLP collectors usually preserve instrument names.",
             "",
+            "## Agent-output alert examples (Prometheus / Grafana)",
+            "",
+            "YAML group **`archlucid-agent-output-quality`** in `infra/prometheus/archlucid-alerts.yml` mirrors suggested PromQL "
+            "for **`archlucid_agent_output_quality_gate_total`**, **`archlucid_agent_output_semantic_score`**, "
+            "**`archlucid_agent_output_parse_failures_total`**, and **`archlucid_agent_trace_blob_upload_failures_total`**. "
+            "Tune windows and thresholds per environment; verify histogram `_bucket` names match your scrape (OTel vs native).",
+            "",
             "## Terraform and alert bundles (reference)",
             "",
-            "- **Monitoring stack (CPU alerts, optional Prometheus rule groups, Grafana):** `infra/terraform-monitoring/README.md`",
+            "- **Monitoring stack (CPU alerts, optional Azure Monitor managed Prometheus rules, Grafana):** `infra/terraform-monitoring/README.md`",
             "- **OTLP collector (tail sampling):** `infra/terraform-otel-collector/README.md`",
-            "- **Prometheus rule names (HTTP SLO, trial funnel, explainability):** `infra/prometheus/archlucid-alerts.yml` - "
-            "there is **no** dedicated `archlucid_agent_output_*` alert group yet; add rules mirroring those patterns when TB-004 alerts are ready.",
+            "- **Prometheus rule bundles:** `infra/prometheus/archlucid-alerts.yml` (includes **authority**, **data consistency**, **explainability**, **agent-output quality** groups) and `infra/prometheus/archlucid-slo-rules.yml` (HTTP SLOs).",
             "",
             "---",
             "",
@@ -472,7 +571,7 @@ def main() -> int:
     parser.add_argument(
         "--strict-exit-code",
         action="store_true",
-        help="Exit 1 if Api or Worker lacks any durable export path.",
+        help="Exit 1 unless telemetry verdict is PASS (see Summary — WARN includes JSON-only uncertainty or missing Worker export).",
     )
 
     args = parser.parse_args()
@@ -493,11 +592,19 @@ def main() -> int:
         include_process_environment=include_env,
     )
 
+    verdict, verdict_reasons = compute_release_verdict(
+        api=api_report,
+        worker=worker_report,
+        include_process_environment=include_env,
+    )
+
     body = render_markdown(
         env=env_name,
         api=api_report,
         worker=worker_report,
         include_process_environment=include_env,
+        verdict=verdict,
+        verdict_reasons=verdict_reasons,
     )
 
     if args.out is not None:
@@ -507,7 +614,7 @@ def main() -> int:
 
     print(body, end="")
 
-    if args.strict_exit_code and (not api_report.has_export or not worker_report.has_export):
+    if args.strict_exit_code and verdict != "PASS":
         return 1
 
     return 0

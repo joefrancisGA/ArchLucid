@@ -35,6 +35,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.ProofSendability.Should().Be(nameof(ProofPackageSendability.Sendable));
         c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Strong));
         c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeTrue();
+        c.SponsorProofReadiness.Should().Be(nameof(SponsorProofReadinessClassification.Sendable));
     }
 
     [Fact]
@@ -61,6 +62,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
 
         c.RoiEvidenceConfidence.Should().Be(PilotRoiEvidenceConfidence.Partial);
         c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Partial));
+        c.SponsorProofReadiness.Should().Be(nameof(SponsorProofReadinessClassification.NeedsBaseline));
     }
 
     [Fact]
@@ -74,6 +76,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
 
         c.RoiEvidenceConfidence.Should().Be(PilotRoiEvidenceConfidence.Low);
         c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Partial));
+        c.SponsorProofReadiness.Should().Be(nameof(SponsorProofReadinessClassification.NeedsBaseline));
     }
 
     [Fact]
@@ -90,6 +93,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.ProofSendability.Should().Be(nameof(ProofPackageSendability.NotSendable));
         c.PublishingTier.Should().Be(nameof(PilotBuyerSafeEvidencePublishingTier.DemoOnly));
         c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Incomplete));
+        c.SponsorProofReadiness.Should().Be(nameof(SponsorProofReadinessClassification.DemoOnly));
     }
 
     [Fact]
@@ -104,6 +108,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
 
         c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeFalse();
         c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Incomplete));
+        c.SponsorProofReadiness.Should().Be(nameof(SponsorProofReadinessClassification.Incomplete));
     }
 
     [Fact]
@@ -118,6 +123,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
 
         c.LlmCallCountResolved.Should().BeFalse();
         c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Partial));
+        c.SponsorProofReadiness.Should().Be(nameof(SponsorProofReadinessClassification.Incomplete));
     }
 
     private static (ArchitectureRun Run, GoldenManifest Manifest, PilotRunDeltas Deltas, PilotBuyerSafeEvidenceGateResult Gate, ValueReportSnapshot Snap)

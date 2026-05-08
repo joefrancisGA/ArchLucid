@@ -5,6 +5,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Persistence.Interfaces;
@@ -16,6 +17,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Tests;
 
@@ -112,6 +115,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
             precheck,
+            Options.Create(new AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

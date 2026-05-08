@@ -179,6 +179,38 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
     }
 
     [SkippableFact]
+    public async Task RunQualityGateRejected_emits_Run_QualityGateRejected_with_trace_payload()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+        Mock<IAuditService> auditService = new();
+
+        BaselineMutationAuditService sut = new(
+            NullLogger<BaselineMutationAuditService>.Instance,
+            auditService.Object,
+            scopeProvider.Object);
+
+        await sut.RecordAsync(
+            AuditEventTypes.Baseline.Architecture.RunQualityGateRejected,
+            "actor-qg",
+            runId,
+            "TraceId=tr-99;AgentLabel=Topology",
+            CancellationToken.None);
+
+        auditService.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.Run.QualityGateRejected
+                    && e.RunId == runGuid
+                    && JsonHasString(e.DataJson, "traceId", "tr-99")
+                    && JsonHasString(e.DataJson, "agentLabel", "Topology")),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task RecordAsync_when_LogAsync_throws_completes_without_propagating()
     {
         string runId = Guid.NewGuid().ToString("N");

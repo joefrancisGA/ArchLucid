@@ -7,8 +7,10 @@ Checks:
   - Required columns appear in order on the canonical table.
   - Evidence Type ∈ approved token set (matches procurement accelerator wording).
   - Source File markdown links resolve to existing repo paths.
-  - "Implemented" rows: Last reviewed UTC ≤ 90 days from today.
+  - "Implemented" and "Self-asserted" rows: Last reviewed UTC ≤ 90 days from reference date.
   - Status map: Status ∈ fixed buyer vocabulary; links resolve; "Deferred" rows cite V1_DEFERRED in Notes.
+  - No buyer-placeholder tokens (TBD/TODO/...) in the index body.
+  - No forbidden SOC 2 / ISO / third-party pen-test completion wording (honest procurement posture).
 
 Run from repo root: python scripts/ci/check_procurement_pack_index.py
 """
@@ -19,6 +21,13 @@ import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+
+_SCRIPTS_DIR = Path(__file__).resolve().parents[1]
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+import procurement_pack_validation as pp_val  # noqa: E402
 
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
@@ -47,7 +56,8 @@ STATUS_MAP_HEADER = [
     "Source File",
     "Notes",
 ]
-IMPLEMENTED_MAX_AGE = timedelta(days=90)
+CANONICAL_TYPES_REQUIRING_FRESHNESS = frozenset({"Implemented", "Self-asserted"})
+INDEX_CANONICAL_REVIEW_MAX_AGE = timedelta(days=90)
 
 
 def repo_root() -> Path:
@@ -204,21 +214,28 @@ def validate_status_map(
     return errors, warnings
 
 
-def main() -> int:
-    root = repo_root()
-    index_md = root / "docs" / "go-to-market" / "PROCUREMENT_PACK_INDEX.md"
+def validate_procurement_pack_index(
+    root: Path,
+    index_md: Path,
+    today: datetime.date,
+    text: str | None = None,
+) -> tuple[list[str], list[str]]:
+    """Return (errors, warnings). `today` is typically UTC date (freshness budgets)."""
+    errors: list[str] = []
+    warnings: list[str] = []
+    rel_label = index_md.relative_to(root).as_posix()
 
-    if not index_md.is_file():
-        print(f"ERROR: missing {index_md.relative_to(root)}", file=sys.stderr)
-        return 1
+    if text is None:
+        text = index_md.read_text(encoding="utf-8")
 
-    today = datetime.now(timezone.utc).date()
-    text = index_md.read_text(encoding="utf-8")
+    errors.extend(pp_val.buyer_index_placeholder_violations(text, rel_label))
+    errors.extend(pp_val.assurance_phrase_violations_for_text(text, rel_label))
+
     rows, _ = parse_table_paths(text)
 
     if len(rows) < 2:
-        print("ERROR: expected header + ≥1 procurement index row.", file=sys.stderr)
-        return 1
+        errors.append("expected header + ≥1 procurement index row in canonical table.")
+        return errors, warnings
 
     header = rows[0]
 
@@ -230,18 +247,15 @@ def main() -> int:
         "Buyer-safe Claim",
     ]
     if header[: len(expected)] != expected:
-        print("ERROR: table header mismatch — canonical columns:", file=sys.stderr)
-        print(f"  expected: {expected}", file=sys.stderr)
-        print(f"  observed: {header[: len(expected)]}", file=sys.stderr)
-        return 1
-
-    errors: list[str] = []
-    warnings: list[str] = []
+        errors.append(
+            "table header mismatch — canonical columns: "
+            + f"expected {expected!r}, observed {header[: len(expected)]!r}",
+        )
+        return errors, warnings
 
     for parts in rows[1:]:
         if len(parts) < 5:
             errors.append(f"Short row (<5 columns): {parts!r}")
-
             continue
 
         artifact, ev_type_cell, reviewed_cell = parts[0], parts[1], parts[2]
@@ -255,12 +269,14 @@ def main() -> int:
 
         if d is None:
             errors.append(f"{artifact!r}: Last Reviewed UTC not YYYY-MM-DD: {reviewed_cell!r}")
-        elif evidence_type == "Implemented":
+
+        elif evidence_type in CANONICAL_TYPES_REQUIRING_FRESHNESS:
             age = today - d
 
-            if age > IMPLEMENTED_MAX_AGE:
+            if age > INDEX_CANONICAL_REVIEW_MAX_AGE:
                 errors.append(
-                    f"{artifact!r}: Implemented row stale ({d.isoformat()} UTC > {IMPLEMENTED_MAX_AGE.days} days).",
+                    f"{artifact!r}: {evidence_type} row stale ({d.isoformat()} UTC > "
+                    f"{INDEX_CANONICAL_REVIEW_MAX_AGE.days} days).",
                 )
 
         found_link = False
@@ -270,12 +286,10 @@ def main() -> int:
             target = normalize_source_link(m.group(1), index_md, root)
 
             if target is None:
-
                 warnings.append(f"{artifact!r}: skipped non-repo link `{m.group(1)}`")
                 continue
 
             if not target.is_file():
-
                 errors.append(f"{artifact!r}: missing file `{m.group(1)}` -> {target.relative_to(root).as_posix()}")
 
         if not found_link:
@@ -287,6 +301,21 @@ def main() -> int:
     errors.extend(sm_errs)
     warnings.extend(sm_warns)
 
+    return errors, warnings
+
+
+def main() -> int:
+    root = repo_root()
+    index_md = root / "docs" / "go-to-market" / "PROCUREMENT_PACK_INDEX.md"
+
+    if not index_md.is_file():
+        print(f"ERROR: missing {index_md.relative_to(root)}", file=sys.stderr)
+        return 1
+
+    today = datetime.now(timezone.utc).date()
+    text = index_md.read_text(encoding="utf-8")
+    errors, warnings = validate_procurement_pack_index(root, index_md, today, text)
+
     if errors:
         print("Procurement pack index check FAILED:", file=sys.stderr)
 
@@ -294,13 +323,21 @@ def main() -> int:
             print(f"  {e}", file=sys.stderr)
 
     if warnings:
-
         print("Warnings (non-failing):", file=sys.stderr)
 
         for w in warnings:
             print(f"  {w}", file=sys.stderr)
 
     if errors:
+        return 1
+
+    rows, _ = parse_table_paths(text)
+    sm_rows, sm_heading_errors = parse_status_map_rows(text)
+
+    if sm_heading_errors:
+        # Defensive: success path should not happen if validate returned no errors.
+        for e in sm_heading_errors:
+            print(f"ERROR: {e}", file=sys.stderr)
         return 1
 
     print(

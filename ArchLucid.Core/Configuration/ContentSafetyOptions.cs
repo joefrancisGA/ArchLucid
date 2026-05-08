@@ -52,12 +52,12 @@ public sealed class ContentSafetyOptions
     } = 4;
 
     /// <summary>
-    ///     When true, SDK or network failures during analysis fail closed (block). When false, failures are logged and content
-    ///     is allowed.
+    ///     When true (default), SDK or network failures during analysis fail closed (block). When false, failures are
+    ///     logged and content is allowed.
     /// </summary>
     public bool FailClosedOnSdkError
     {
         get;
         set;
-    }
+    } = true;
 }

@@ -40,7 +40,11 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
             AgentOutputPilotStrictViolatesSponsorEvidence = false,
         };
 
-        ProofPackageCompletenessResponse proof = new() { ProofSendability = "Sendable", PublishingTier = "Complete", EvidenceCompleteness = "Strong", };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            ProofSendability = "Sendable", PublishingTier = "Complete", EvidenceCompleteness = "Strong",
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
+        };
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
 
@@ -50,6 +54,8 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         md.Should().Contain("v3");
         md.Should().Contain("**Not** a legal attestation");
         md.Should().Contain("No PilotStrict failures");
+        md.Should().Contain("Sponsor-proof readiness");
+        md.Should().Contain("Sendable");
     }
 
     [Fact]
@@ -66,5 +72,11 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
     }
 
     private static ProofPackageCompletenessResponse MinimalProof() =>
-        new() { ProofSendability = "SendableWithCaveats", PublishingTier = "Partial", EvidenceCompleteness = "Partial", };
+        new()
+        {
+            ProofSendability = "SendableWithCaveats",
+            PublishingTier = "Partial",
+            EvidenceCompleteness = "Partial",
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Incomplete),
+        };
 }

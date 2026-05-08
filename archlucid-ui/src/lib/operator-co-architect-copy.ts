@@ -15,7 +15,7 @@ export const OPERATOR_CO_ARCHITECT_HOME_STRIP_ARIA_LABEL =
 
 /** Review door is the V1 marketing lead on operator home; describe is an equal secondary route into the same wizard. */
 export const OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY =
-  "Recommended first path: an architecture review—your co-architect refines inputs with questions and feedback until you have coherent deliverables to review. Starting from loose notes or goals uses the same flow with different emphasis.";
+  "Follow four steps: create an architecture review, let the pipeline finish, finalize when ready, then open your review package. Your co-architect refines inputs with questions until that package is coherent; loose notes use the same wizard with different emphasis.";
 
 export const OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY = "Start architecture review";
 

@@ -46,4 +46,21 @@ describe("PricingPage brand category", () => {
     expect(text).toContain(BRAND_CATEGORY);
     expect(text).not.toContain(BRAND_CATEGORY_LEGACY);
   });
+
+  it("renders the quote request section before the tier pricing heading (sales-led layout)", async () => {
+    const element = await PricingPage({ searchParams: Promise.resolve({}) });
+    const { container, getByTestId } = render(element);
+
+    getByTestId("pricing-quote-request-section");
+
+    const quoteSection = container.querySelector('[data-testid="pricing-quote-request-section"]');
+    const pricingHeading = container.querySelector("#pricing-page-heading");
+
+    if (quoteSection === null || pricingHeading === null) {
+      throw new Error("expected quote section and pricing heading in DOM");
+    }
+
+    const position = quoteSection.compareDocumentPosition(pricingHeading);
+    expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
 });

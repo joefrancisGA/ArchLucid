@@ -4,7 +4,7 @@
 
 **Audience:** Procurement and security reviewers with a short clock.
 
-**How to use:** Open the canonical table for full buyer-safe wording and freshness columns: **`[PROCUREMENT_PACK_INDEX.md](PROCUREMENT_PACK_INDEX.md)`**. Use the **`Procurement artifact status map`** section there for spreadsheet-friendly **`Status`** tokens (`Implemented`, `Self-attested`, `Template`, `Deferred`, `Not applicable`, `External/NDA-gated`). Use **`[docs/trust-center.md](../trust-center.md)`** for web/posture summaries. Spreadsheet-aligned prompts remain in **`PROCUREMENT_RESPONSE_ACCELERATOR.md`** — still cite only paths grounded in those indexes.
+**How to use:** Open the canonical table for full buyer-safe wording and freshness columns: **`[PROCUREMENT_PACK_INDEX.md](PROCUREMENT_PACK_INDEX.md)`** — CI enforces link resolution, review-date budgets on **Implemented** / **Self-asserted** rows, and placeholder/assurance wording (see **`scripts/ci/check_procurement_pack_index.py`**). Use the **`Procurement artifact status map`** section there for spreadsheet-friendly **`Status`** tokens (`Implemented`, `Self-attested`, `Template`, `Deferred`, `Not applicable`, `External/NDA-gated`). Use **`[docs/trust-center.md](../trust-center.md)`** for web/posture summaries. Spreadsheet-aligned prompts remain in **`PROCUREMENT_RESPONSE_ACCELERATOR.md`** — still cite only paths grounded in those indexes.
 
 Every **Source File** cell below repeats an existing procurement-index path only (equivalent to **`[PROCUREMENT_PACK_INDEX.md](PROCUREMENT_PACK_INDEX.md)`** canonical rows).
 
