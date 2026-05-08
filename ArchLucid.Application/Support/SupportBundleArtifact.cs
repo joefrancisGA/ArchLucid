@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Support;
+
 /// <summary>
 ///     Server-side support-bundle artifact returned by <see cref = "ISupportBundleAssembler"/> —
 ///     ready-to-stream bytes plus the metadata the controller needs to set response headers.
@@ -11,6 +12,11 @@ namespace ArchLucid.Application.Support;
 ///     Suggested UTC instant after which operators should delete the bundle from
 ///     ticket/attachment storage.
 /// </param>
-public sealed record SupportBundleArtifact(byte[] Bytes, string FileName, string ContentType, DateTimeOffset GeneratedUtc, DateTimeOffset RetentionDiscardAfterUtc)
+public sealed record SupportBundleArtifact(
+    byte[] Bytes,
+    string FileName,
+    string ContentType,
+    DateTimeOffset GeneratedUtc,
+    DateTimeOffset RetentionDiscardAfterUtc)
 {
 }

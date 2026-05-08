@@ -2,12 +2,15 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Application.Governance;
+
 /// <inheritdoc/>
 public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository changeLogRepository) : IComplianceDriftTrendService
 {
     private readonly IPolicyPackChangeLogRepository _changeLogRepository = changeLogRepository ?? throw new ArgumentNullException(nameof(changeLogRepository));
+
     /// <inheritdoc/>
-    public async Task<IReadOnlyList<ComplianceDriftTrendPoint>> GetTrendAsync(Guid tenantId, DateTime fromUtc, DateTime toUtc, TimeSpan bucketSize, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ComplianceDriftTrendPoint>> GetTrendAsync(Guid tenantId, DateTime fromUtc, DateTime toUtc, TimeSpan bucketSize,
+        CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
@@ -42,7 +45,10 @@ public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository c
         {
             if (!buckets.TryGetValue(bucket, out Dictionary<string, int>? byType))
             {
-                points.Add(new ComplianceDriftTrendPoint { BucketUtc = bucket, ChangeCount = 0, ChangesByType = new Dictionary<string, int>(StringComparer.Ordinal) });
+                points.Add(new ComplianceDriftTrendPoint
+                {
+                    BucketUtc = bucket, ChangeCount = 0, ChangesByType = new Dictionary<string, int>(StringComparer.Ordinal)
+                });
                 continue;
             }
 

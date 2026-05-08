@@ -1,10 +1,13 @@
 using System.Security.Cryptography;
+
 using ArchLucid.Core.Scim;
 
 namespace ArchLucid.Application.Scim.Tokens;
+
 public sealed class ScimTokenIssuer(IScimTenantTokenRepository tokens) : IScimTokenIssuer
 {
     private readonly IScimTenantTokenRepository _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
+
     /// <inheritdoc/>
     public async Task<ScimTokenIssueResult> IssueTokenAsync(Guid tenantId, CancellationToken cancellationToken)
     {
@@ -16,12 +19,7 @@ public sealed class ScimTokenIssuer(IScimTenantTokenRepository tokens) : IScimTo
         byte[] hash = ScimArgonSecretHasher.HashSecret(secretBytes, tenantId);
         Guid id = await _tokens.InsertAsync(tenantId, publicKey, hash, cancellationToken);
         CryptographicOperations.ZeroMemory(secretBytes);
-        return new ScimTokenIssueResult
-        {
-            TokenId = id,
-            PlaintextToken = plaintext,
-            PublicLookupKey = publicKey
-        };
+        return new ScimTokenIssueResult { TokenId = id, PlaintextToken = plaintext, PublicLookupKey = publicKey };
     }
 
     private static string Base64UrlEncode(byte[] data)

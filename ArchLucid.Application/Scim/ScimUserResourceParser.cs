@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 namespace ArchLucid.Application.Scim;
+
 public static class ScimUserResourceParser
 {
     public static (string userName, string? displayName, bool active, string externalId) ParseUser(JsonElement resource)
@@ -40,7 +41,8 @@ public static class ScimUserResourceParser
             JsonValueKind.True => true,
             JsonValueKind.False => false,
             JsonValueKind.String => bool.TryParse(el.GetString(), out bool b) && b,
-            _ => throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean.")};
+            _ => throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean.")
+        };
     }
 }
 
@@ -53,5 +55,8 @@ public sealed class ScimUserResourceParseException : Exception
         ScimType = scimType;
     }
 
-    public string ScimType { get; }
+    public string ScimType
+    {
+        get;
+    }
 }

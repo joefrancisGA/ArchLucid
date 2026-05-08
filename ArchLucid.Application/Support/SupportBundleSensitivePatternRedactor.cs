@@ -2,6 +2,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 
 namespace ArchLucid.Application.Support;
+
 /// <summary>
 ///     Server-side port of the redaction patterns used by the CLI support-bundle stack
 ///     (<c>ArchLucid.Cli.Support.SupportBundleRedactor</c>) — kept in lock-step so a
@@ -19,10 +20,15 @@ public static class SupportBundleSensitivePatternRedactor
     private static readonly Regex ApiKeyHeader = new(@"(?i)(X-Api-Key\s*:\s*)[^\r\n]+", RegexOptions.Compiled);
     private static readonly Regex ConnectionSecret = new(@"(?i)(\b(?:Password|Pwd|AccountKey|SharedAccessKey)\s*=\s*)[^\s;""]+", RegexOptions.Compiled);
     private static readonly Regex EmailAddress = new(@"(?<![\w.+_-])([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?![\w.+_-])", RegexOptions.Compiled);
+
     /// <summary>JWT-looking three-part base64url segments (redacts entire token).</summary>
     private static readonly Regex LikelyJwt = new(@"\beyJ[a-zA-Z0-9_-]{5,}\.[a-zA-Z0-9_-]{5,}\.[a-zA-Z0-9_-]{5,}\b", RegexOptions.Compiled);
+
     private static readonly Regex SystemRoleBlock = new(@"(?im)(<\|\s*system\s*\|>|```\s*system|^\s*#+\s*system\s+prompt\s*:)", RegexOptions.Compiled);
-    private static readonly HashSet<string> SensitiveEnvironmentNameSubstrings = ["PASSWORD", "SECRET", "API_KEY", "APIKEY", "TOKEN", "CREDENTIAL", "PRIVATE_KEY", "CONN", "CONNECTIONSTRING"];
+
+    private static readonly HashSet<string> SensitiveEnvironmentNameSubstrings =
+        ["PASSWORD", "SECRET", "API_KEY", "APIKEY", "TOKEN", "CREDENTIAL", "PRIVATE_KEY", "CONN", "CONNECTIONSTRING"];
+
     /// <summary>Strips <c>user:pass@</c> userinfo segments from a URL string.</summary>
     public static string RedactHttpUrl(string? url)
     {
@@ -30,11 +36,7 @@ public static class SupportBundleSensitivePatternRedactor
             return string.Empty;
         if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out Uri? uri))
             return "(invalid url)";
-        UriBuilder builder = new(uri)
-        {
-            UserName = string.Empty,
-            Password = string.Empty
-        };
+        UriBuilder builder = new(uri) { UserName = string.Empty, Password = string.Empty };
         return builder.Uri.GetLeftPart(UriPartial.Path).TrimEnd('/');
     }
 

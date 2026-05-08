@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Support;
+
 /// <summary>
 ///     Per-request context handed to <see cref = "ISupportBundleAssembler"/>.
 /// </summary>

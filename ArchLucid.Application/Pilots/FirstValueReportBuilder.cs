@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>
 ///     Builds a sponsor-facing Markdown summary for a single architecture run (read-only projection).
 /// </summary>
@@ -30,18 +31,32 @@ namespace ArchLucid.Application.Pilots;
 ///     The review-cycle delta section uses the same <see cref = "ValueReportSnapshot"/> as the tenant value-report DOCX
 ///     (default 30-day UTC window ending now; see <c>ValueReportController</c>).
 /// </remarks>
-public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuery, IPilotRunDeltaComputer deltaComputer, ValueReportBuilder valueReportBuilder, IScopeContextProvider scopeProvider, IExecutionProvenanceFooterRenderer executionProvenanceFooter, IConfiguration configuration, IOptionsMonitor<PublicSiteOptions> publicSiteOptions, ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
+public sealed class FirstValueReportBuilder(
+    IRunDetailQueryService runDetailQuery,
+    IPilotRunDeltaComputer deltaComputer,
+    ValueReportBuilder valueReportBuilder,
+    IScopeContextProvider scopeProvider,
+    IExecutionProvenanceFooterRenderer executionProvenanceFooter,
+    IConfiguration configuration,
+    IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
+    ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
+
     /// <summary>Sponsor-facing banner appended above any computed line for runs that match the demo seed.</summary>
     private const string DemoTenantBanner = "_demo tenant — replace before publishing._";
+
     private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     private readonly IPilotRunDeltaComputer _deltaComputer = deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
-    private readonly IExecutionProvenanceFooterRenderer _executionProvenanceFooter = executionProvenanceFooter ?? throw new ArgumentNullException(nameof(executionProvenanceFooter));
+
+    private readonly IExecutionProvenanceFooterRenderer _executionProvenanceFooter =
+        executionProvenanceFooter ?? throw new ArgumentNullException(nameof(executionProvenanceFooter));
+
     private readonly ILogger<FirstValueReportBuilder> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
     private readonly ValueReportBuilder _valueReportBuilder = valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
+
     /// <summary>
     ///     Returns Markdown, or <see langword="null"/> when the run does not exist.
     ///     When the run exists but is not committed, returns Markdown that states the gap explicitly.
@@ -75,17 +90,20 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
-        ValueReportSnapshot valueWindowSnapshot = await _valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, start, end, cancellationToken);
+        ValueReportSnapshot valueWindowSnapshot =
+            await _valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, start, end, cancellationToken);
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
         PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
         FirstValueEvidenceCompletenessLevel evidenceCompleteness = FirstValueEvidenceCompletenessClassifier.Classify(buyerSafeGate);
         SponsorSafeProofDisposition sponsorSafeDisposition = SponsorSafeProofStatusMarkdownFormatter.ResolveDisposition(buyerSafeGate);
-        ProofPackageCompletenessResponse proofCompleteness = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot);
+        ProofPackageCompletenessResponse proofCompleteness =
+            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot);
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid — first value report (pilot)");
         sb.AppendLine();
-        sb.AppendLine("This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
+        sb.AppendLine(
+            "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
         sb.AppendLine();
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
         if (run.RealModeFellBackToSimulator)
@@ -96,7 +114,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
 
         if (deltas.IsDemoTenant)
         {
-            sb.AppendLine("> " + DemoTenantBanner + " The numbers below come from the seeded Contoso Retail Modernization dataset and MUST NOT be quoted as a real-customer outcome.");
+            sb.AppendLine("> " + DemoTenantBanner +
+                          " The numbers below come from the seeded Contoso Retail Modernization dataset and MUST NOT be quoted as a real-customer outcome.");
             sb.AppendLine();
         }
 
@@ -141,14 +160,16 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     {
         string hostMode = _configuration["AgentExecution:Mode"]?.Trim() ?? "Simulator";
         string? hostDeployment = _configuration["AzureOpenAI:DeploymentName"]?.Trim();
-        return new ExecutionProvenanceFooterInput(run.RealModeFellBackToSimulator, run.PilotAoaiDeploymentSnapshot, hostMode, hostDeployment, deltas.LlmCallCount);
+        return new ExecutionProvenanceFooterInput(run.RealModeFellBackToSimulator, run.PilotAoaiDeploymentSnapshot, hostMode, hostDeployment,
+            deltas.LlmCallCount);
     }
 
     private static void AppendRunSection(StringBuilder sb, ArchitectureRun run, GoldenManifest? manifest, string baseUrl)
     {
         sb.AppendLine("## Architecture review identity");
         sb.AppendLine();
-        sb.AppendLine("Each architecture review is tracked as one run for support, API access, and traceability. Use the review package language with sponsors; keep the run id in support notes.");
+        sb.AppendLine(
+            "Each architecture review is tracked as one run for support, API access, and traceability. Use the review package language with sponsors; keep the run id in support notes.");
         sb.AppendLine();
         sb.AppendLine("| Field | Value |");
         sb.AppendLine("| --- | --- |");
@@ -156,7 +177,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine($"| Status | `{run.Status}` |");
         sb.AppendLine($"| Request id | `{run.RequestId}` |");
         sb.AppendLine($"| Created (UTC) | `{run.CreatedUtc:O}` |");
-        sb.AppendLine($"| Completed (UTC) | `{(run.CompletedUtc is null ? "(pending)" : run.CompletedUtc.Value.ToString("O", CultureInfo.InvariantCulture))}` |");
+        sb.AppendLine(
+            $"| Completed (UTC) | `{(run.CompletedUtc is null ? "(pending)" : run.CompletedUtc.Value.ToString("O", CultureInfo.InvariantCulture))}` |");
         if (manifest is null)
         {
             sb.AppendLine("| Committed manifest | _(not available — run may not be committed yet)_ |");
@@ -172,7 +194,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine("### Evidence links");
         sb.AppendLine();
         sb.AppendLine($"- [Run detail JSON]({baseUrl}/v1/architecture/run/{run.RunId}) (`GET /v1/architecture/run/{{runId}}`)");
-        sb.AppendLine($"- [Decision nodes]({baseUrl}/v1/architecture/run/{run.RunId}/decisions) (`GET /v1/architecture/run/{{runId}}/decisions`) — after commit");
+        sb.AppendLine(
+            $"- [Decision nodes]({baseUrl}/v1/architecture/run/{run.RunId}/decisions) (`GET /v1/architecture/run/{{runId}}/decisions`) — after commit");
         sb.AppendLine();
     }
 
@@ -180,11 +203,13 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     {
         sb.AppendLine("## Buyer-safe proof package contract");
         sb.AppendLine();
-        sb.AppendLine("Use this section as the completeness check before sending the report to a sponsor. Persisted evidence is stronger than model narrative; missing rows should be called out rather than edited by hand.");
+        sb.AppendLine(
+            "Use this section as the completeness check before sending the report to a sponsor. Persisted evidence is stronger than model narrative; missing rows should be called out rather than edited by hand.");
         sb.AppendLine();
         sb.AppendLine("| Required proof field | Status in this report |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine($"| Non-demo / external-share discipline | {(c.DemoTenantWarningRequired ? "**FAILED — non-negotiable demo warning.** Replace seeded identifiers before any sponsor-facing circulation." : "Pass — operator identifiers only per loaded tenant scope.")} |");
+        sb.AppendLine(
+            $"| Non-demo / external-share discipline | {(c.DemoTenantWarningRequired ? "**FAILED — non-negotiable demo warning.** Replace seeded identifiers before any sponsor-facing circulation." : "Pass — operator identifiers only per loaded tenant scope.")} |");
         sb.AppendLine($"| Support run id | {FormatProofStatus(c.SupportRunIdPresent)} |");
         sb.AppendLine($"| Committed manifest + status | {FormatProofStatus(c.CommittedManifestPresent && c.RunInCommittedStatus)} |");
         sb.AppendLine($"| Committed manifest timestamp (UTC) | {FormatCommittedManifestTimestampProofCell(deltas, c, manifest)} |");
@@ -196,7 +221,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine($"| LLM-call count | {FormatLlmCallCountProofCell(deltas, c)} |");
         sb.AppendLine($"| ROI evidence confidence | **{c.RoiEvidenceConfidence}** — {c.RoiConfidenceLabel} |");
         sb.AppendLine($"| Buyer-safe redaction profile | {c.BuyerSafeRedactionProfile} |");
-        sb.AppendLine($"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
+        sb.AppendLine(
+            $"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
         sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` · **{c.EvidenceCompleteness}** |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
@@ -234,10 +260,12 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     {
         if (!c.LlmCallCountResolved)
             return "Missing — execution trace query failed; count is not attested.";
-        return $"`{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
+        return
+            $"`{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
     }
 
     private static string FormatProofStatus(bool present) => present ? "Present" : "Missing or not applicable; review before sponsor send";
+
     /// <summary>
     ///     Computed-deltas table — the single block sponsors should look at first. Every row is derived from persisted
     ///     run state via <see cref = "IPilotRunDeltaComputer"/>; see field-by-field docs on <see cref = "PilotRunDeltas"/>.
@@ -274,14 +302,18 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
 
     private static string FormatTimeToCommit(PilotRunDeltas deltas)
     {
-        return deltas.TimeToCommittedManifest is not { } wall ? "_(pending — no committed manifest yet)_" : $"**{wall:c}** (committed `{deltas.ManifestCommittedUtc:O}`)";
+        return deltas.TimeToCommittedManifest is not { } wall
+            ? "_(pending — no committed manifest yet)_"
+            : $"**{wall:c}** (committed `{deltas.ManifestCommittedUtc:O}`)";
     }
 
     private static string FormatAuditRowCount(PilotRunDeltas deltas)
     {
         if (deltas.AuditRowCount == 0)
             return "0";
-        return deltas.AuditRowCountTruncated ? $"{deltas.AuditRowCount}+ _(query cap reached — exact count is at least this many)_" : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
+        return deltas.AuditRowCountTruncated
+            ? $"{deltas.AuditRowCount}+ _(query cap reached — exact count is at least this many)_"
+            : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
     }
 
     private static void AppendFindingsSection(StringBuilder sb, PilotRunDeltas deltas)
@@ -336,7 +368,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
             if (trace is RuleAuditTrace rule)
             {
                 RuleAuditTracePayload p = rule.RuleAudit;
-                sb.AppendLine($"{index}. **Rule audit** — rule set `{p.RuleSetId}` v`{p.RuleSetVersion}`; applied rules: {p.AppliedRuleIds.Count}, accepted findings: {p.AcceptedFindingIds.Count}, rejected: {p.RejectedFindingIds.Count}.");
+                sb.AppendLine(
+                    $"{index}. **Rule audit** — rule set `{p.RuleSetId}` v`{p.RuleSetVersion}`; applied rules: {p.AppliedRuleIds.Count}, accepted findings: {p.AcceptedFindingIds.Count}, rejected: {p.RejectedFindingIds.Count}.");
             }
             else if (trace is RunEventTrace runEvent)
             {
@@ -376,7 +409,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
         if (chain is null)
         {
-            sb.AppendLine("_(Evidence chain unavailable — the top-severity finding is not present in the persisted FindingsSnapshot, or the chain service could not resolve it. Review the full run detail JSON for an alternate selection.)_");
+            sb.AppendLine(
+                "_(Evidence chain unavailable — the top-severity finding is not present in the persisted FindingsSnapshot, or the chain service could not resolve it. Review the full run detail JSON for an alternate selection.)_");
             sb.AppendLine();
             return;
         }
@@ -403,7 +437,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     {
         sb.AppendLine("## Qualitative baseline (operator-filled)");
         sb.AppendLine();
-        sb.AppendLine("Use this table for the qualitative metrics ArchLucid cannot derive on its own. The numeric metrics (time-to-commit, findings counts, audit rows, LLM calls) are now in the **Computed deltas** section above.");
+        sb.AppendLine(
+            "Use this table for the qualitative metrics ArchLucid cannot derive on its own. The numeric metrics (time-to-commit, findings counts, audit rows, LLM calls) are now in the **Computed deltas** section above.");
         sb.AppendLine();
         sb.AppendLine("| Pilot metric (see PILOT_ROI_MODEL.md) | Baseline (before) | During pilot | Notes |");
         sb.AppendLine("| --- | --- | --- | --- |");

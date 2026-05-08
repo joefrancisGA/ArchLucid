@@ -6,5 +6,4 @@ public static class AzureExtractorUploadLimits
     public const long MaxZipBytes = 52L * 1024 * 1024;
 
     public const long MultipartEnvelopeBudgetBytes = MaxZipBytes + 256L * 1024;
-
 }

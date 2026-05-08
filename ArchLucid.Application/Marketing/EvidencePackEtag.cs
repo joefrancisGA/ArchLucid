@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace ArchLucid.Application.Marketing;
+
 /// <summary>
 ///     Computes a content-driven SHA-256 ETag for the Trust Center evidence pack.
 /// </summary>

@@ -8,6 +8,7 @@ using ArchLucid.Core.Diagrams;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Diagrams;
+
 /// <summary>
 ///     Renders a Mermaid diagram to a PNG image by invoking the <c>mmdc</c> Mermaid CLI tool.
 ///     Writes the diagram to a temporary file, runs <c>mmdc</c>, reads the output PNG, and cleans up.
@@ -17,8 +18,10 @@ namespace ArchLucid.Application.Diagrams;
 public sealed class MermaidCliDiagramImageRenderer(ILogger<MermaidCliDiagramImageRenderer> logger) : IDiagramImageRenderer
 {
     private readonly ILogger<MermaidCliDiagramImageRenderer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
     /// <summary>Maximum time to wait for the <c>mmdc</c> process before cancelling and throwing.</summary>
     private static readonly TimeSpan ProcessTimeout = TimeSpan.FromSeconds(30);
+
     /// <inheritdoc/>
     public async Task<Byte[]?> RenderMermaidPngAsync(string mermaidDiagram, CancellationToken cancellationToken = default)
     {

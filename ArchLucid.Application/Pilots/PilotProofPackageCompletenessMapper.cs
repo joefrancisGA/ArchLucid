@@ -58,7 +58,8 @@ public static class PilotProofPackageCompletenessMapper
             PublishingTier = gate.PublishingTier.ToString(),
             ProofSendability = gate.ProofSendability.ToString(),
             EvidenceCompleteness = evidenceLevel.ToString(),
-            AgentOutputPilotStrictEvidenceSatisfied = !(deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true }),
+            AgentOutputPilotStrictEvidenceSatisfied =
+                !(deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true }),
             SponsorProofReadiness = sponsorReadiness.ToString(),
         };
     }
@@ -73,5 +74,4 @@ public static class PilotProofPackageCompletenessMapper
             ? "Demo seed identifiers — full-page illustration watermark required; do not circulate raw metrics externally."
             : "Tenant-scoped operator export — redact customer-identifying prose before sponsor circulation.";
     }
-
 }

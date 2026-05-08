@@ -1,18 +1,28 @@
 using System.Net;
+
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Notifications.Email;
-public sealed class TrialLocalIdentityAccountExistsEmailNotifier(IEmailProvider emailProvider, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor, ILogger<TrialLocalIdentityAccountExistsEmailNotifier> logger) : ITrialLocalIdentityAccountExistsNotifier
+
+public sealed class TrialLocalIdentityAccountExistsEmailNotifier(
+    IEmailProvider emailProvider,
+    IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
+    ILogger<TrialLocalIdentityAccountExistsEmailNotifier> logger) : ITrialLocalIdentityAccountExistsNotifier
 {
     private const string DefaultProductName = "ArchLucid";
     private const string TemplateId = "trial-local-identity-account-exists";
     private readonly IEmailProvider _emailProvider = emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
-    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor = emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+
+    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
+        emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+
     private readonly ILogger<TrialLocalIdentityAccountExistsEmailNotifier> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
     /// <inheritdoc/>
     public async Task NotifyAccountAlreadyExistsAsync(string toEmail, CancellationToken cancellationToken)
     {
@@ -29,8 +39,12 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifier(IEmailProvider 
         string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
         string safeProduct = WebUtility.HtmlEncode(productName);
         string subject = $"{productName}: sign-in request";
-        string html = $"<p>You already have a {safeProduct} account for this email address.</p>" + "<p>If you forgot your password, use the password reset or sign-in flow for your environment.</p>" + "<p>If you did not try to register again, you can ignore this message.</p>";
-        string text = $"You already have a {productName} account for this email address.\n" + "If you forgot your password, use the password reset or sign-in flow for your environment.\n" + "If you did not try to register again, you can ignore this message.\n";
+        string html = $"<p>You already have a {safeProduct} account for this email address.</p>" +
+                      "<p>If you forgot your password, use the password reset or sign-in flow for your environment.</p>" +
+                      "<p>If you did not try to register again, you can ignore this message.</p>";
+        string text = $"You already have a {productName} account for this email address.\n" +
+                      "If you forgot your password, use the password reset or sign-in flow for your environment.\n" +
+                      "If you did not try to register again, you can ignore this message.\n";
         EmailMessage message = new()
         {
             To = trimmed,
@@ -38,11 +52,7 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifier(IEmailProvider 
             HtmlBody = html,
             TextBody = text,
             IdempotencyKey = $"{TemplateId}:{TrialEmailNormalizer.Normalize(trimmed)}",
-            Tags = new EmailMessageTags
-            {
-                TenantId = Guid.Empty,
-                EventType = TemplateId
-            }
+            Tags = new EmailMessageTags { TenantId = Guid.Empty, EventType = TemplateId }
         };
         try
         {

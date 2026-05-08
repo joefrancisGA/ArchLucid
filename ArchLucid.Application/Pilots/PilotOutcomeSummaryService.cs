@@ -1,16 +1,22 @@
 using ArchLucid.Core.Scoping;
+
 using Microsoft.Extensions.Caching.Memory;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>
 ///     Cached trailing-30-day pilot aggregates for operator home (same RLS scope as
 ///     <see cref = "PilotScorecardBuilder"/>).
 /// </summary>
-public sealed class PilotOutcomeSummaryService(PilotScorecardBuilder pilotScorecardBuilder, IMemoryCache memoryCache, IScopeContextProvider scopeContextProvider)
+public sealed class PilotOutcomeSummaryService(
+    PilotScorecardBuilder pilotScorecardBuilder,
+    IMemoryCache memoryCache,
+    IScopeContextProvider scopeContextProvider)
 {
     private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
     private readonly PilotScorecardBuilder _pilotScorecardBuilder = pilotScorecardBuilder ?? throw new ArgumentNullException(nameof(pilotScorecardBuilder));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <summary>Trailing 30 days in UTC, ending at <c>UtcNow</c> (exclusive end semantics match scorecard builder).</summary>
     public async Task<PilotScorecardSummary> GetTrailing30DaysAsync(CancellationToken cancellationToken = default)
     {

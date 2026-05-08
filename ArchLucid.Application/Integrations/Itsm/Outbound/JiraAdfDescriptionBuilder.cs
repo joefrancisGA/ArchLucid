@@ -5,10 +5,7 @@ namespace ArchLucid.Application.Integrations.Itsm.Outbound;
 /// <summary>Minimal Atlassian Document Format for Jira Cloud REST v3 description fields.</summary>
 internal static class JiraAdfDescriptionBuilder
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private static readonly JsonSerializerOptions SerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     private static readonly string[] NewlineSeparators = ["\r\n", "\n"];
 
@@ -30,11 +27,7 @@ internal static class JiraAdfDescriptionBuilder
             }
 
             content.Add(
-                new
-                {
-                    type = "paragraph",
-                    content = new object[] { new { type = "text", text = t } }
-                });
+                new { type = "paragraph", content = new object[] { new { type = "text", text = t } } });
         }
 
         if (content.Count is 0)

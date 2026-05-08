@@ -1,30 +1,47 @@
 using System.Globalization;
+
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Notifications.Email;
+
 /// <summary>
 ///     Worker-only scan that enqueues trial lifecycle email integration events (idempotent sends happen in the
 ///     dispatcher).
 /// </summary>
-public sealed class TrialScheduledLifecycleEmailScanner(ITenantRepository tenantRepository, IIntegrationEventOutboxRepository outboxRepository, IIntegrationEventPublisher integrationEventPublisher, IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions, IOptionsMonitor<TrialLifecycleEmailRoutingOptions> trialLifecycleEmailRoutingOptions, ILogger<TrialScheduledLifecycleEmailScanner> logger)
+public sealed class TrialScheduledLifecycleEmailScanner(
+    ITenantRepository tenantRepository,
+    IIntegrationEventOutboxRepository outboxRepository,
+    IIntegrationEventPublisher integrationEventPublisher,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    IOptionsMonitor<TrialLifecycleEmailRoutingOptions> trialLifecycleEmailRoutingOptions,
+    ILogger<TrialScheduledLifecycleEmailScanner> logger)
 {
-    private readonly IIntegrationEventPublisher _integrationEventPublisher = integrationEventPublisher ?? throw new ArgumentNullException(nameof(integrationEventPublisher));
-    private readonly IOptionsMonitor<IntegrationEventsOptions> _integrationEventsOptions = integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
+    private readonly IIntegrationEventPublisher _integrationEventPublisher =
+        integrationEventPublisher ?? throw new ArgumentNullException(nameof(integrationEventPublisher));
+
+    private readonly IOptionsMonitor<IntegrationEventsOptions> _integrationEventsOptions =
+        integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
+
     private readonly ILogger<TrialScheduledLifecycleEmailScanner> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IIntegrationEventOutboxRepository _outboxRepository = outboxRepository ?? throw new ArgumentNullException(nameof(outboxRepository));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-    private readonly IOptionsMonitor<TrialLifecycleEmailRoutingOptions> _trialLifecycleEmailRoutingOptions = trialLifecycleEmailRoutingOptions ?? throw new ArgumentNullException(nameof(trialLifecycleEmailRoutingOptions));
+
+    private readonly IOptionsMonitor<TrialLifecycleEmailRoutingOptions> _trialLifecycleEmailRoutingOptions =
+        trialLifecycleEmailRoutingOptions ?? throw new ArgumentNullException(nameof(trialLifecycleEmailRoutingOptions));
+
     public async Task PublishDueAsync(DateTimeOffset utcNow, CancellationToken cancellationToken)
     {
         if (_trialLifecycleEmailRoutingOptions.CurrentValue.IsLogicAppOwned())
         {
             if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug("Trial scheduled lifecycle email scan skipped ({Owner}={LogicApp}).", nameof(TrialLifecycleEmailRoutingOptions.Owner), TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp);
+                _logger.LogDebug("Trial scheduled lifecycle email scan skipped ({Owner}={LogicApp}).", nameof(TrialLifecycleEmailRoutingOptions.Owner),
+                    TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp);
             return;
         }
 
@@ -44,7 +61,8 @@ public sealed class TrialScheduledLifecycleEmailScanner(ITenantRepository tenant
         }
     }
 
-    private async Task TryPublishMidTrialAsync(TenantRecord tenant, TenantWorkspaceLink workspaceLink, DateTimeOffset utcNow, IntegrationEventsOptions options, CancellationToken cancellationToken)
+    private async Task TryPublishMidTrialAsync(TenantRecord tenant, TenantWorkspaceLink workspaceLink, DateTimeOffset utcNow, IntegrationEventsOptions options,
+        CancellationToken cancellationToken)
     {
         if (tenant.TrialStartUtc is null)
             return;
@@ -63,10 +81,12 @@ public sealed class TrialScheduledLifecycleEmailScanner(ITenantRepository tenant
         };
         string dayBucket = utcNow.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
         string messageId = $"trial-email-scan|{tenant.Id:N}|{TrialLifecycleEmailTrigger.MidTrialDay7}|{dayBucket}";
-        await TrialLifecycleIntegrationEventPublisher.TryPublishAsync(_outboxRepository, _integrationEventPublisher, options, _logger, envelope, messageId, cancellationToken).ConfigureAwait(false);
+        await TrialLifecycleIntegrationEventPublisher
+            .TryPublishAsync(_outboxRepository, _integrationEventPublisher, options, _logger, envelope, messageId, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task TryPublishApproachingLimitAsync(TenantRecord tenant, TenantWorkspaceLink workspaceLink, DateTimeOffset utcNow, IntegrationEventsOptions options, CancellationToken cancellationToken)
+    private async Task TryPublishApproachingLimitAsync(TenantRecord tenant, TenantWorkspaceLink workspaceLink, DateTimeOffset utcNow,
+        IntegrationEventsOptions options, CancellationToken cancellationToken)
     {
         if (tenant.TrialRunsLimit is not ({ } limit and > 0))
             return;
@@ -84,10 +104,12 @@ public sealed class TrialScheduledLifecycleEmailScanner(ITenantRepository tenant
         };
         string dayBucket = utcNow.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
         string messageId = $"trial-email-scan|{tenant.Id:N}|{TrialLifecycleEmailTrigger.ApproachingRunLimit}|{dayBucket}";
-        await TrialLifecycleIntegrationEventPublisher.TryPublishAsync(_outboxRepository, _integrationEventPublisher, options, _logger, envelope, messageId, cancellationToken).ConfigureAwait(false);
+        await TrialLifecycleIntegrationEventPublisher
+            .TryPublishAsync(_outboxRepository, _integrationEventPublisher, options, _logger, envelope, messageId, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task TryPublishExpiringSoonAsync(TenantRecord tenant, TenantWorkspaceLink workspaceLink, DateTimeOffset utcNow, IntegrationEventsOptions options, CancellationToken cancellationToken)
+    private async Task TryPublishExpiringSoonAsync(TenantRecord tenant, TenantWorkspaceLink workspaceLink, DateTimeOffset utcNow,
+        IntegrationEventsOptions options, CancellationToken cancellationToken)
     {
         if (tenant.TrialExpiresUtc is not { } exp)
             return;
@@ -106,10 +128,12 @@ public sealed class TrialScheduledLifecycleEmailScanner(ITenantRepository tenant
         };
         string dayBucket = utcNow.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
         string messageId = $"trial-email-scan|{tenant.Id:N}|{TrialLifecycleEmailTrigger.ExpiringSoon}|{dayBucket}";
-        await TrialLifecycleIntegrationEventPublisher.TryPublishAsync(_outboxRepository, _integrationEventPublisher, options, _logger, envelope, messageId, cancellationToken).ConfigureAwait(false);
+        await TrialLifecycleIntegrationEventPublisher
+            .TryPublishAsync(_outboxRepository, _integrationEventPublisher, options, _logger, envelope, messageId, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task TryPublishExpiredAsync(TenantRecord tenant, TenantWorkspaceLink workspaceLink, DateTimeOffset utcNow, IntegrationEventsOptions options, CancellationToken cancellationToken)
+    private async Task TryPublishExpiredAsync(TenantRecord tenant, TenantWorkspaceLink workspaceLink, DateTimeOffset utcNow, IntegrationEventsOptions options,
+        CancellationToken cancellationToken)
     {
         if (tenant.TrialExpiresUtc is not { } exp)
             return;
@@ -126,6 +150,7 @@ public sealed class TrialScheduledLifecycleEmailScanner(ITenantRepository tenant
         };
         string dayBucket = utcNow.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
         string messageId = $"trial-email-scan|{tenant.Id:N}|{TrialLifecycleEmailTrigger.Expired}|{dayBucket}";
-        await TrialLifecycleIntegrationEventPublisher.TryPublishAsync(_outboxRepository, _integrationEventPublisher, options, _logger, envelope, messageId, cancellationToken).ConfigureAwait(false);
+        await TrialLifecycleIntegrationEventPublisher
+            .TryPublishAsync(_outboxRepository, _integrationEventPublisher, options, _logger, envelope, messageId, cancellationToken).ConfigureAwait(false);
     }
 }

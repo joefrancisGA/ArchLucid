@@ -1,4 +1,5 @@
 using System.Data;
+
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.DecisionTraces;
@@ -8,11 +9,19 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
+
 using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Authority;
+
 /// <inheritdoc cref = "IAuthorityCommittedManifestChainWriter"/>
-public sealed class AuthorityCommittedManifestChainWriter(IContextSnapshotRepository contextSnapshots, IGraphSnapshotRepository graphSnapshots, IFindingsSnapshotRepository findingsSnapshots, IDecisionTraceRepository decisionTraces, IGoldenManifestRepository goldenManifests, IManifestHashService manifestHash) : IAuthorityCommittedManifestChainWriter
+public sealed class AuthorityCommittedManifestChainWriter(
+    IContextSnapshotRepository contextSnapshots,
+    IGraphSnapshotRepository graphSnapshots,
+    IFindingsSnapshotRepository findingsSnapshots,
+    IDecisionTraceRepository decisionTraces,
+    IGoldenManifestRepository goldenManifests,
+    IManifestHashService manifestHash) : IAuthorityCommittedManifestChainWriter
 {
     private const string DemoRuleSetId = "archlucid.authority.demo-seed";
     private const string DemoRuleSetVersion = "1";
@@ -23,8 +32,11 @@ public sealed class AuthorityCommittedManifestChainWriter(IContextSnapshotReposi
     private readonly IGoldenManifestRepository _goldenManifests = goldenManifests ?? throw new ArgumentNullException(nameof(goldenManifests));
     private readonly IGraphSnapshotRepository _graphSnapshots = graphSnapshots ?? throw new ArgumentNullException(nameof(graphSnapshots));
     private readonly IManifestHashService _manifestHash = manifestHash ?? throw new ArgumentNullException(nameof(manifestHash));
+
     /// <inheritdoc/>
-    public async Task<AuthorityManifestPersistResult> PersistCommittedChainAsync(ScopeContext scope, Guid authorityRunId, string projectSlug, Cm.GoldenManifest contract, AuthorityChainKeying chainIds, DateTime createdUtc, bool richFindingsAndGraph, CancellationToken cancellationToken, IDbConnection? connection = null, IDbTransaction? transaction = null)
+    public async Task<AuthorityManifestPersistResult> PersistCommittedChainAsync(ScopeContext scope, Guid authorityRunId, string projectSlug,
+        Cm.GoldenManifest contract, AuthorityChainKeying chainIds, DateTime createdUtc, bool richFindingsAndGraph, CancellationToken cancellationToken,
+        IDbConnection? connection = null, IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(projectSlug);
@@ -38,7 +50,8 @@ public sealed class AuthorityCommittedManifestChainWriter(IContextSnapshotReposi
             throw new ArgumentNullException(nameof(contract));
         ContextSnapshot context = BuildContextSnapshot(chainIds.ContextSnapshotId, authorityRunId, projectSlug, createdUtc);
         GraphSnapshot graph = BuildGraphSnapshot(chainIds.GraphSnapshotId, chainIds.ContextSnapshotId, authorityRunId, createdUtc, richFindingsAndGraph);
-        (FindingsSnapshot findings, IReadOnlyList<string> acceptedFindingIds) = BuildFindingsSnapshot(chainIds.FindingsSnapshotId, authorityRunId, chainIds.ContextSnapshotId, chainIds.GraphSnapshotId, createdUtc, richFindingsAndGraph);
+        (FindingsSnapshot findings, IReadOnlyList<string> acceptedFindingIds) = BuildFindingsSnapshot(chainIds.FindingsSnapshotId, authorityRunId,
+            chainIds.ContextSnapshotId, chainIds.GraphSnapshotId, createdUtc, richFindingsAndGraph);
         RuleAuditTrace ruleAudit = BuildRuleAudit(scope, chainIds.DecisionTraceId, authorityRunId, createdUtc, acceptedFindingIds);
         await _contextSnapshots.SaveAsync(context, cancellationToken, connection, transaction);
         await _graphSnapshots.SaveAsync(graph, cancellationToken, connection, transaction);
@@ -58,7 +71,8 @@ public sealed class AuthorityCommittedManifestChainWriter(IContextSnapshotReposi
             CreatedUtc = createdUtc
         };
         await _goldenManifests.SaveAsync(contract, scope, keying, _manifestHash, cancellationToken, connection, transaction);
-        return new AuthorityManifestPersistResult(chainIds.ContextSnapshotId, chainIds.GraphSnapshotId, chainIds.FindingsSnapshotId, chainIds.DecisionTraceId, chainIds.ManifestId);
+        return new AuthorityManifestPersistResult(chainIds.ContextSnapshotId, chainIds.GraphSnapshotId, chainIds.FindingsSnapshotId, chainIds.DecisionTraceId,
+            chainIds.ManifestId);
     }
 
     private static ContextSnapshot BuildContextSnapshot(Guid snapshotId, Guid runId, string projectSlug, DateTime createdUtc)
@@ -69,21 +83,13 @@ public sealed class AuthorityCommittedManifestChainWriter(IContextSnapshotReposi
             RunId = runId,
             ProjectId = projectSlug,
             CreatedUtc = createdUtc,
-            CanonicalObjects = [new CanonicalObject
-            {
-                ObjectType = "system",
-                Name = projectSlug,
-                SourceType = "authority-seed",
-                SourceId = runId.ToString("N")
-            }
-
+            CanonicalObjects =
+            [
+                new CanonicalObject { ObjectType = "system", Name = projectSlug, SourceType = "authority-seed", SourceId = runId.ToString("N") }
             ],
             Warnings = [],
             Errors = [],
-            SourceHashes = new Dictionary<string, string>
-            {
-                ["demo"] = "1"
-            }
+            SourceHashes = new Dictionary<string, string> { ["demo"] = "1" }
         };
     }
 
@@ -99,13 +105,37 @@ public sealed class AuthorityCommittedManifestChainWriter(IContextSnapshotReposi
         };
         if (!rich)
             return graph;
-        graph.Nodes.Add(new GraphNode { NodeId = "node-checkout-api", NodeType = "service", Label = "Checkout API", Category = "compute", SourceType = "demo", SourceId = "seed" });
-        graph.Nodes.Add(new GraphNode { NodeId = "node-orders-db", NodeType = "datastore", Label = "Orders DB", Category = "data", SourceType = "demo", SourceId = "seed" });
-        graph.Edges.Add(new GraphEdge { EdgeId = "edge-checkout-to-db", FromNodeId = "node-checkout-api", ToNodeId = "node-orders-db", EdgeType = "dependsOn", Weight = 1d });
+        graph.Nodes.Add(new GraphNode
+        {
+            NodeId = "node-checkout-api",
+            NodeType = "service",
+            Label = "Checkout API",
+            Category = "compute",
+            SourceType = "demo",
+            SourceId = "seed"
+        });
+        graph.Nodes.Add(new GraphNode
+        {
+            NodeId = "node-orders-db",
+            NodeType = "datastore",
+            Label = "Orders DB",
+            Category = "data",
+            SourceType = "demo",
+            SourceId = "seed"
+        });
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-checkout-to-db",
+            FromNodeId = "node-checkout-api",
+            ToNodeId = "node-orders-db",
+            EdgeType = "dependsOn",
+            Weight = 1d
+        });
         return graph;
     }
 
-    private static (FindingsSnapshot Snapshot, IReadOnlyList<string> AcceptedIds) BuildFindingsSnapshot(Guid findingsSnapshotId, Guid runId, Guid contextSnapshotId, Guid graphSnapshotId, DateTime createdUtc, bool rich)
+    private static (FindingsSnapshot Snapshot, IReadOnlyList<string> AcceptedIds) BuildFindingsSnapshot(Guid findingsSnapshotId, Guid runId,
+        Guid contextSnapshotId, Guid graphSnapshotId, DateTime createdUtc, bool rich)
     {
         FindingsSnapshot snapshot = new()
         {
@@ -129,14 +159,24 @@ public sealed class AuthorityCommittedManifestChainWriter(IContextSnapshotReposi
         snapshot.Findings.Add(primary);
         if (rich)
         {
-            snapshot.Findings.Add(new Finding { FindingId = $"finding-demo-{runId:N}-secondary", FindingType = "ComplianceReview", Category = "Security", EngineType = "DemoSeed", Severity = FindingSeverity.Info, Title = "Demo finding — security control coverage", Rationale = "Secondary seeded finding for vertical-style demo density." });
+            snapshot.Findings.Add(new Finding
+            {
+                FindingId = $"finding-demo-{runId:N}-secondary",
+                FindingType = "ComplianceReview",
+                Category = "Security",
+                EngineType = "DemoSeed",
+                Severity = FindingSeverity.Info,
+                Title = "Demo finding — security control coverage",
+                Rationale = "Secondary seeded finding for vertical-style demo density."
+            });
         }
 
         List<string> accepted = snapshot.Findings.ConvertAll(f => f.FindingId);
         return (snapshot, accepted);
     }
 
-    private static RuleAuditTrace BuildRuleAudit(ScopeContext scope, Guid decisionTraceId, Guid runId, DateTime createdUtc, IReadOnlyList<string> acceptedFindingIds)
+    private static RuleAuditTrace BuildRuleAudit(ScopeContext scope, Guid decisionTraceId, Guid runId, DateTime createdUtc,
+        IReadOnlyList<string> acceptedFindingIds)
     {
         RuleAuditTracePayload payload = new()
         {

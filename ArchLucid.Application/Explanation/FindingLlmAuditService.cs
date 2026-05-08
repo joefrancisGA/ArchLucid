@@ -8,13 +8,21 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Explanation;
+
 /// <inheritdoc cref = "IFindingLlmAuditService"/>
-public sealed class FindingLlmAuditService(IAuthorityQueryService authorityQuery, IScopeContextProvider scopeContextProvider, IAgentExecutionTraceRepository agentExecutionTraceRepository, IPromptRedactor promptRedactor) : IFindingLlmAuditService
+public sealed class FindingLlmAuditService(
+    IAuthorityQueryService authorityQuery,
+    IScopeContextProvider scopeContextProvider,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IPromptRedactor promptRedactor) : IFindingLlmAuditService
 {
-    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository = agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
     private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
     private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <inheritdoc/>
     public async Task<FindingLlmAuditResult?> BuildAsync(Guid runId, string findingId, CancellationToken cancellationToken = default)
     {
@@ -83,13 +91,15 @@ public sealed class FindingLlmAuditService(IAuthorityQueryService authorityQuery
         return string.IsNullOrEmpty(trace.FullResponseInline) ? trace.RawResponse : trace.FullResponseInline;
     }
 
-    private static Dictionary<string, int> MergeCounts(IReadOnlyDictionary<string, int> a, IReadOnlyDictionary<string, int> b, IReadOnlyDictionary<string, int> c)
+    private static Dictionary<string, int> MergeCounts(IReadOnlyDictionary<string, int> a, IReadOnlyDictionary<string, int> b,
+        IReadOnlyDictionary<string, int> c)
     {
         Dictionary<string, int> merged = new(StringComparer.OrdinalIgnoreCase);
         Add(a);
         Add(b);
         Add(c);
         return merged;
+
         void Add(IReadOnlyDictionary<string, int> src)
         {
             foreach (KeyValuePair<string, int> kv in src)

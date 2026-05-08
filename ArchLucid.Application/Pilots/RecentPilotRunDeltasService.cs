@@ -1,9 +1,11 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <inheritdoc cref = "IRecentPilotRunDeltasService"/>
 /// <remarks>
 ///     Filters <see cref = "IRunDetailQueryService.ListRunSummariesAsync"/> to runs that already carry a
@@ -11,11 +13,15 @@ namespace ArchLucid.Application.Pilots;
 ///     in-flight and committed runs. Compute cost is bounded: <see cref = "IRecentPilotRunDeltasService.MaxCount"/>
 ///     × one <see cref = "IPilotRunDeltaComputer.ComputeAsync"/> per run.
 /// </remarks>
-public sealed class RecentPilotRunDeltasService(IRunDetailQueryService runDetailQueryService, IPilotRunDeltaComputer pilotRunDeltaComputer, ILogger<RecentPilotRunDeltasService> logger) : IRecentPilotRunDeltasService
+public sealed class RecentPilotRunDeltasService(
+    IRunDetailQueryService runDetailQueryService,
+    IPilotRunDeltaComputer pilotRunDeltaComputer,
+    ILogger<RecentPilotRunDeltasService> logger) : IRecentPilotRunDeltasService
 {
     private readonly ILogger<RecentPilotRunDeltasService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer = pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     /// <inheritdoc/>
     public async Task<RecentPilotRunDeltasResponse> GetRecentDeltasAsync(int count, CancellationToken cancellationToken = default)
     {
@@ -32,7 +38,8 @@ public sealed class RecentPilotRunDeltasService(IRunDetailQueryService runDetail
         }
 
         double? medianFindings = ComputeMedian(rows.Select(r => (double)r.TotalFindings));
-        double? medianSeconds = ComputeMedian(rows.Where(r => r.TimeToCommittedManifestTotalSeconds is { } s && double.IsFinite(s) && s >= 0).Select(r => r.TimeToCommittedManifestTotalSeconds!.Value));
+        double? medianSeconds = ComputeMedian(rows.Where(r => r.TimeToCommittedManifestTotalSeconds is { } s && double.IsFinite(s) && s >= 0)
+            .Select(r => r.TimeToCommittedManifestTotalSeconds!.Value));
         return new RecentPilotRunDeltasResponse
         {
             Items = rows,
@@ -57,7 +64,8 @@ public sealed class RecentPilotRunDeltasService(IRunDetailQueryService runDetail
                 return null;
             PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
             int totalFindings = deltas.FindingsBySeverity.Sum(p => p.Value);
-            bool isDemo = deltas.IsDemoTenant || ContosoRetailDemoIdentifiers.IsDemoRunId(summary.RunId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(summary.RequestId);
+            bool isDemo = deltas.IsDemoTenant || ContosoRetailDemoIdentifiers.IsDemoRunId(summary.RunId) ||
+                          ContosoRetailDemoIdentifiers.IsDemoRequestId(summary.RequestId);
             return new RecentPilotRunDeltaSummaryResponse
             {
                 RunId = summary.RunId,

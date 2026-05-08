@@ -3,11 +3,14 @@ using ArchLucid.Core.Tenancy;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Billing;
+
 /// <inheritdoc cref = "ITenantCostEstimateService"/>
-public sealed class TenantCostEstimateService(ITenantRepository tenantRepository, IOptionsMonitor<BillingUnitRatesOptions> ratesMonitor) : ITenantCostEstimateService
+public sealed class TenantCostEstimateService(ITenantRepository tenantRepository, IOptionsMonitor<BillingUnitRatesOptions> ratesMonitor)
+    : ITenantCostEstimateService
 {
     private readonly IOptionsMonitor<BillingUnitRatesOptions> _ratesMonitor = ratesMonitor ?? throw new ArgumentNullException(nameof(ratesMonitor));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <inheritdoc/>
     public async Task<TenantCostEstimate?> TryGetEstimateAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {

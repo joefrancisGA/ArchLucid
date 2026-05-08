@@ -20,6 +20,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application;
+
 /// <summary>
 ///     API-facing orchestration service that coordinates run retrieval, agent result submission,
 ///     manifest access, and fake-result seeding for the architecture run lifecycle.
@@ -29,26 +30,52 @@ namespace ArchLucid.Application;
 ///     data-loading path. Result and evidence writes execute inside <see cref = "IArchLucidUnitOfWork"/> for atomicity;
 ///     Authority <c>dbo.Runs</c> lifecycle is updated by dedicated orchestrators, not this application service.
 /// </remarks>
-public sealed class ArchitectureApplicationService(IRunDetailQueryService runDetailQueryService, IAgentResultRepository resultRepository, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IArchitectureRequestRepository requestRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IConfiguration configuration, IAuditService auditService, IActorContext actorContext, IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher, ILogger<ArchitectureApplicationService> logger) : IArchitectureApplicationService
+public sealed class ArchitectureApplicationService(
+    IRunDetailQueryService runDetailQueryService,
+    IAgentResultRepository resultRepository,
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
+    IArchitectureRequestRepository requestRepository,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IEvidenceBuilder evidenceBuilder,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
+    IConfiguration configuration,
+    IAuditService auditService,
+    IActorContext actorContext,
+    IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
+    ILogger<ArchitectureApplicationService> logger) : IArchitectureApplicationService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
-    private readonly IAgentArchitectureFindingConfidenceEnricher _architectureFindingConfidenceEnricher = architectureFindingConfidenceEnricher ?? throw new ArgumentNullException(nameof(architectureFindingConfidenceEnricher));
+
+    private readonly IAgentArchitectureFindingConfidenceEnricher _architectureFindingConfidenceEnricher =
+        architectureFindingConfidenceEnricher ?? throw new ArgumentNullException(nameof(architectureFindingConfidenceEnricher));
+
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
     private readonly ILogger<ArchitectureApplicationService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository = agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
+        agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
     private readonly IEvidenceBuilder _evidenceBuilder = evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-    private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader = unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
+
+    private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader =
+        unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
+
     /// <summary>Agent types that must each have exactly one result before a run can transition to ReadyForCommit.</summary>
     private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
+
     /// <summary>Run statuses that allow submitting agent results.</summary>
-    private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses = [ArchitectureRunStatus.TasksGenerated, ArchitectureRunStatus.WaitingForResults];
+    private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses =
+        [ArchitectureRunStatus.TasksGenerated, ArchitectureRunStatus.WaitingForResults];
+
     public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(runId))
@@ -72,18 +99,25 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
         {
             string allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
-            return new SubmitResultResult(false, null, $"Run is in status '{run.Status}' and does not accept agent results. Only {allowed} runs can receive results.", ApplicationServiceFailureKind.BadRequest);
+            return new SubmitResultResult(false, null,
+                $"Run is in status '{run.Status}' and does not accept agent results. Only {allowed} runs can receive results.",
+                ApplicationServiceFailureKind.BadRequest);
         }
 
         if (!string.Equals(result.RunId, runId, StringComparison.OrdinalIgnoreCase))
-            return new SubmitResultResult(false, null, $"Result RunId '{result.RunId}' does not match route runId '{runId}'.", ApplicationServiceFailureKind.BadRequest);
+            return new SubmitResultResult(false, null, $"Result RunId '{result.RunId}' does not match route runId '{runId}'.",
+                ApplicationServiceFailureKind.BadRequest);
         AgentTask? task = tasks.FirstOrDefault(t => string.Equals(t.TaskId, result.TaskId, StringComparison.Ordinal));
         if (task is null)
-            return new SubmitResultResult(false, null, $"Task '{result.TaskId}' was not found for run '{runId}'.", ApplicationServiceFailureKind.ResourceNotFound);
+            return new SubmitResultResult(false, null, $"Task '{result.TaskId}' was not found for run '{runId}'.",
+                ApplicationServiceFailureKind.ResourceNotFound);
         if (task.AgentType != result.AgentType)
-            return new SubmitResultResult(false, null, $"Result AgentType '{result.AgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.", ApplicationServiceFailureKind.BadRequest);
+            return new SubmitResultResult(false, null,
+                $"Result AgentType '{result.AgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.",
+                ApplicationServiceFailureKind.BadRequest);
         if (existingResults.Any(r => string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal)))
-            return new SubmitResultResult(false, null, $"A result for task '{result.TaskId}' has already been submitted for this run.", ApplicationServiceFailureKind.BadRequest);
+            return new SubmitResultResult(false, null, $"A result for task '{result.TaskId}' has already been submitted for this run.",
+                ApplicationServiceFailureKind.BadRequest);
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
         try
         {
@@ -96,7 +130,8 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 if (logger.IsEnabled(LogLevel.Warning))
-                    logger.LogWarningWithSanitizedUserArg(ex, "Architecture finding confidence enrichment failed after submit for RunId={RunId}; continuing.", runId);
+                    logger.LogWarningWithSanitizedUserArg(ex, "Architecture finding confidence enrichment failed after submit for RunId={RunId}; continuing.",
+                        runId);
             }
 
             if (logger.IsEnabled(LogLevel.Information))
@@ -116,7 +151,8 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         return await unifiedGoldenManifestReader.GetByVersionAsync(version, cancellationToken);
     }
 
-    public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, PilotSeedFakeResultsOptions? pilotOptions = null, CancellationToken cancellationToken = default)
+    public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, PilotSeedFakeResultsOptions? pilotOptions = null,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(runId))
             return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
@@ -129,12 +165,14 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
         {
             string allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
-            return new SeedFakeResultsResult(false, 0, $"Run is in status '{run.Status}' and does not accept results. Only {allowed} runs can be seeded.", ApplicationServiceFailureKind.BadRequest);
+            return new SeedFakeResultsResult(false, 0, $"Run is in status '{run.Status}' and does not accept results. Only {allowed} runs can be seeded.",
+                ApplicationServiceFailureKind.BadRequest);
         }
 
         ArchitectureRequest? architectureRequest = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
         if (architectureRequest is null)
-            return new SeedFakeResultsResult(false, 0, $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found.", ApplicationServiceFailureKind.ResourceNotFound);
+            return new SeedFakeResultsResult(false, 0, $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found.",
+                ApplicationServiceFailureKind.ResourceNotFound);
         List<AgentTask> tasks = detail.Tasks;
         if (tasks.Count == 0)
             return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
@@ -142,12 +180,14 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         if (existingResults.Count > 0)
         {
             if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", LogSanitizer.Sanitize(runId), existingResults.Count);
+                logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", LogSanitizer.Sanitize(runId),
+                    existingResults.Count);
             return new SeedFakeResultsResult(true, 0, null);
         }
 
         IReadOnlyList<AgentResult> fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
-        ArchitectureRunStatus newStatus = HasAllRequiredAgentTypes(fakeResults) ? ArchitectureRunStatus.ReadyForCommit : ArchitectureRunStatus.WaitingForResults;
+        ArchitectureRunStatus newStatus =
+            HasAllRequiredAgentTypes(fakeResults) ? ArchitectureRunStatus.ReadyForCommit : ArchitectureRunStatus.WaitingForResults;
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
         try
         {
@@ -171,7 +211,8 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         }
 
         if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", LogSanitizer.Sanitize(runId), fakeResults.Count, newStatus);
+            logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", LogSanitizer.Sanitize(runId),
+                fakeResults.Count, newStatus);
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
     }
 
@@ -188,7 +229,8 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         return true;
     }
 
-    private async Task<ArchitectureRunStatus> SubmitAgentResultPersistAsync(string runId, AgentResult result, IArchLucidUnitOfWork uow, CancellationToken cancellationToken)
+    private async Task<ArchitectureRunStatus> SubmitAgentResultPersistAsync(string runId, AgentResult result, IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
     {
         if (uow.SupportsExternalTransaction)
         {
@@ -207,7 +249,8 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         return newStatusMemory;
     }
 
-    private async Task SeedFakeResultsPersistAsync(string runId, IReadOnlyList<AgentResult> fakeResults, ArchitectureRequest request, IArchLucidUnitOfWork uow, CancellationToken cancellationToken)
+    private async Task SeedFakeResultsPersistAsync(string runId, IReadOnlyList<AgentResult> fakeResults, ArchitectureRequest request, IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
     {
         // CommitRunAsync requires a persisted evidence package (normally written during ExecuteRun). Dev-only seed
         // skips execute, so create the package here when missing.
@@ -240,7 +283,17 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         await runRepository.UpdateAsync(header, cancellationToken);
         ArchLucidInstrumentation.RecordTryRealModePilotFellBackToSimulator();
         string actor = actorContext.GetActor();
-        await auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.FirstRealValueRunFellBackToSimulator, ActorUserId = actor, ActorUserName = actor, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId, RunId = runGuid }, cancellationToken);
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.FirstRealValueRunFellBackToSimulator,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid
+            }, cancellationToken);
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)

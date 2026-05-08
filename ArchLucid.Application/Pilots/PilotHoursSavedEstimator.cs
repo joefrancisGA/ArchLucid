@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>
 ///     Rough planning-only estimate of manual architecture/diligence hours avoided from cumulative instrumentation +
 ///     audit samples (not payroll, not billing).
@@ -6,7 +7,9 @@ namespace ArchLucid.Application.Pilots;
 public static class PilotHoursSavedEstimator
 {
     /// <summary>Displayed next to <see cref="Estimate"/> on proof surfaces.</summary>
-    public const string Methodology = "Planning heuristic only: 2.0h per architecture run created + 0.05h per finding emitted + 0.02h per audited row sampled in the demo scope snapshot (process-life counters).";
+    public const string Methodology =
+        "Planning heuristic only: 2.0h per architecture run created + 0.05h per finding emitted + 0.02h per audited row sampled in the demo scope snapshot (process-life counters).";
+
     /// <summary>Returns a non-negative hours estimate.</summary>
     public static double Estimate(long runsCreatedTotal, IReadOnlyDictionary<string, long> findingsBySeverity, int auditRowCount)
     {

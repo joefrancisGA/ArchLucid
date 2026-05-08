@@ -1,24 +1,38 @@
 using System.Security.Cryptography;
+
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Identity;
-public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialOptions, ITrialIdentityUserRepository repository, PasswordHasher<TrialIdentityHasherUser> passwordHasher, TrialPasswordPolicyValidator passwordPolicy, PwnedPasswordRangeClient pwnedClient, ITrialLocalIdentityAccountExistsNotifier accountExistsNotifier, ILogger<TrialLocalIdentityService> logger) : ITrialLocalIdentityService
+
+public sealed class TrialLocalIdentityService(
+    IOptions<TrialAuthOptions>? trialOptions,
+    ITrialIdentityUserRepository repository,
+    PasswordHasher<TrialIdentityHasherUser> passwordHasher,
+    TrialPasswordPolicyValidator passwordPolicy,
+    PwnedPasswordRangeClient pwnedClient,
+    ITrialLocalIdentityAccountExistsNotifier accountExistsNotifier,
+    ILogger<TrialLocalIdentityService> logger) : ITrialLocalIdentityService
 {
     // Fixed payload so failed lookups perform password hashing work comparable to the success path's verifier cost.
     // Intentionally readable (low entropy in source) so secret scanners do not treat it as a credential; it is never a user password.
     private const string AuthenticationTimingDummyPassword = "archlucid-trial-local-identity-timing-mitigation-dummy-password";
-    private readonly ITrialLocalIdentityAccountExistsNotifier _accountExistsNotifier = accountExistsNotifier ?? throw new ArgumentNullException(nameof(accountExistsNotifier));
+
+    private readonly ITrialLocalIdentityAccountExistsNotifier _accountExistsNotifier =
+        accountExistsNotifier ?? throw new ArgumentNullException(nameof(accountExistsNotifier));
+
     private readonly ILogger<TrialLocalIdentityService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly PasswordHasher<TrialIdentityHasherUser> _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
     private readonly TrialPasswordPolicyValidator _passwordPolicy = passwordPolicy ?? throw new ArgumentNullException(nameof(passwordPolicy));
     private readonly PwnedPasswordRangeClient _pwnedClient = pwnedClient ?? throw new ArgumentNullException(nameof(pwnedClient));
     private readonly ITrialIdentityUserRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     private readonly TrialAuthOptions _trial = trialOptions?.Value ?? throw new ArgumentNullException(nameof(trialOptions));
+
     /// <inheritdoc/>
     public async Task<TrialLocalRegistrationResult> RegisterAsync(string email, string password, CancellationToken cancellationToken)
     {
@@ -44,12 +58,9 @@ public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialO
         string rawToken = CreateRawVerificationToken();
         string tokenHash = TrialEmailVerificationTokenHasher.Hash(rawToken);
         DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddDays(2);
-        Guid userId = await _repository.CreatePendingUserAsync(normalized, email.Trim(), hash, securityStamp, concurrencyStamp, tokenHash, expires, cancellationToken);
-        return new TrialLocalRegistrationResult
-        {
-            UserId = userId,
-            VerificationToken = rawToken
-        };
+        Guid userId = await _repository.CreatePendingUserAsync(normalized, email.Trim(), hash, securityStamp, concurrencyStamp, tokenHash, expires,
+            cancellationToken);
+        return new TrialLocalRegistrationResult { UserId = userId, VerificationToken = rawToken };
     }
 
     /// <inheritdoc/>
@@ -93,12 +104,7 @@ public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialO
         }
 
         await _repository.ResetAccessFailedAsync(normalized, cancellationToken);
-        return row.EmailVerifiedUtc is null ? null : new TrialLocalAuthResult
-        {
-            UserId = row.Id,
-            Email = row.Email,
-            Role = ArchLucidRoles.Reader
-        };
+        return row.EmailVerifiedUtc is null ? null : new TrialLocalAuthResult { UserId = row.Id, Email = row.Email, Role = ArchLucidRoles.Reader };
     }
 
     private void EnsureLocalIdentityEnabled()
@@ -114,11 +120,7 @@ public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialO
 
     private static TrialLocalRegistrationResult CreateOpaqueRegistrationResult()
     {
-        return new TrialLocalRegistrationResult
-        {
-            UserId = Guid.NewGuid(),
-            VerificationToken = CreateRawVerificationToken()
-        };
+        return new TrialLocalRegistrationResult { UserId = Guid.NewGuid(), VerificationToken = CreateRawVerificationToken() };
     }
 
     private void QueueAccountAlreadyExistsNotice(string displayEmail)

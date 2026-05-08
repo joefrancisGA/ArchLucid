@@ -175,12 +175,7 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         ProjectId = scope.ProjectId,
                         RunId = runGuid,
                         DataJson = JsonSerializer.Serialize(
-                            new
-                            {
-                                runId = entityId,
-                                traceId = GetDetail(kv, "TraceId"),
-                                agentLabel = GetDetail(kv, "AgentLabel"),
-                            })
+                            new { runId = entityId, traceId = GetDetail(kv, "TraceId"), agentLabel = GetDetail(kv, "AgentLabel"), })
                     };
 
                     await auditService.LogAsync(rejected, ct);

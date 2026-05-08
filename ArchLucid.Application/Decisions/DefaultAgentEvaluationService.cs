@@ -2,9 +2,11 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Decisions;
+
 /// <summary>
 ///     Minimal deterministic evaluator used in dev/test environments.
 ///     Returns no evaluations; decision scoring relies entirely on agent result confidence.
@@ -14,7 +16,9 @@ namespace ArchLucid.Application.Decisions;
 public sealed class DefaultAgentEvaluationService(ILogger<DefaultAgentEvaluationService> logger) : IAgentEvaluationService
 {
     private readonly ILogger<DefaultAgentEvaluationService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    public Task<IReadOnlyList<AgentEvaluation>> EvaluateAsync(string runId, ArchitectureRequest request, AgentEvidencePackage evidence, IReadOnlyCollection<AgentTask> tasks, IReadOnlyCollection<AgentResult> results, CancellationToken cancellationToken = default)
+
+    public Task<IReadOnlyList<AgentEvaluation>> EvaluateAsync(string runId, ArchitectureRequest request, AgentEvidencePackage evidence,
+        IReadOnlyCollection<AgentTask> tasks, IReadOnlyCollection<AgentResult> results, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
@@ -23,7 +27,9 @@ public sealed class DefaultAgentEvaluationService(ILogger<DefaultAgentEvaluation
         ArgumentNullException.ThrowIfNull(results);
         cancellationToken.ThrowIfCancellationRequested();
         if (logger.IsEnabled(LogLevel.Warning))
-            logger.LogWarning("DefaultAgentEvaluationService is active for run '{RunId}'. " + "No evaluations will be produced; critic-signal weighting is disabled. " + "Register a real IAgentEvaluationService for production use.", LogSanitizer.Sanitize(runId));
+            logger.LogWarning(
+                "DefaultAgentEvaluationService is active for run '{RunId}'. " + "No evaluations will be produced; critic-signal weighting is disabled. " +
+                "Register a real IAgentEvaluationService for production use.", LogSanitizer.Sanitize(runId));
         return Task.FromResult<IReadOnlyList<AgentEvaluation>>([]);
     }
 }

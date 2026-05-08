@@ -1,7 +1,9 @@
 using ArchLucid.Contracts.DecisionTraces;
+
 using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Architecture;
+
 /// <summary>
 ///     Integrity rules for runs committed on the <see cref = "Decisioning.Interfaces.IDecisionEngine"/> path:
 ///     the projected <see cref = "Cm.GoldenManifest"/> must reference the rule-audit trace in
@@ -16,7 +18,7 @@ public static class AuthorityCommitTraceabilityRules
     {
         ArgumentNullException.ThrowIfNull(traces);
         if (manifest is null)
-            return[];
+            return [];
         List<string> gaps = [];
         HashSet<string> onManifest = new(StringComparer.OrdinalIgnoreCase);
         foreach (string id in manifest.Metadata.DecisionTraceIds)

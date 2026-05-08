@@ -8,9 +8,11 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Audit;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Pilots;
+
 public interface IPilotValueReportService
 {
     /// <summary>
@@ -27,25 +29,47 @@ public interface IPilotValueReportService
 ///     Durable audit reads use <see cref = "IAuditRepository"/> (existing product pattern; <see cref = "IAuditService"/> is
 ///     append-only).
 /// </summary>
-public sealed class PilotValueReportService(IRunDetailQueryService runDetailQuery, IAuditRepository auditRepository, ITenantRepository tenantRepository, IScopeContextProvider scopeContextProvider, IGovernanceDashboardService governanceDashboardService, ILogger<PilotValueReportService> logger) : IPilotValueReportService
+public sealed class PilotValueReportService(
+    IRunDetailQueryService runDetailQuery,
+    IAuditRepository auditRepository,
+    ITenantRepository tenantRepository,
+    IScopeContextProvider scopeContextProvider,
+    IGovernanceDashboardService governanceDashboardService,
+    ILogger<PilotValueReportService> logger) : IPilotValueReportService
 {
     /// <summary>
     ///     Max committed runs fully loaded for finding/agent/timing aggregation per report (defense against huge
     ///     tenants).
     /// </summary>
     public const int DefaultRunDetailCap = 400;
+
     /// <summary>Audit export row cap (matches <see cref = "DapperAuditRepository.GetExportAsync"/> clamp).</summary>
     public const int AuditExportMaxRows = 10_000;
-    private static readonly HashSet<string> ApprovalEventTypes = [AuditEventTypes.GovernanceApprovalApproved, AuditEventTypes.Baseline.Governance.ApprovalRequestApproved];
-    private static readonly HashSet<string> RejectionEventTypes = [AuditEventTypes.GovernanceApprovalRejected, AuditEventTypes.Baseline.Governance.ApprovalRequestRejected];
+
+    private static readonly HashSet<string> ApprovalEventTypes =
+        [AuditEventTypes.GovernanceApprovalApproved, AuditEventTypes.Baseline.Governance.ApprovalRequestApproved];
+
+    private static readonly HashSet<string> RejectionEventTypes =
+        [AuditEventTypes.GovernanceApprovalRejected, AuditEventTypes.Baseline.Governance.ApprovalRequestRejected];
+
     private static readonly HashSet<string> PolicyPackAssignmentEventTypes = [AuditEventTypes.PolicyPackAssigned, AuditEventTypes.PolicyPackAssignmentCreated];
-    private static readonly HashSet<string> ComparisonDriftEventTypes = [AuditEventTypes.ComparisonSummaryPersisted, AuditEventTypes.AlertRuleCandidateComparisonExecuted, AuditEventTypes.GovernanceConflictDetected, AuditEventTypes.GovernancePreCommitSimulationEvaluated, AuditEventTypes.ReplayExecuted, AuditEventTypes.InternalArchitectureDeterminismCheckExecuted];
+
+    private static readonly HashSet<string> ComparisonDriftEventTypes =
+    [
+        AuditEventTypes.ComparisonSummaryPersisted, AuditEventTypes.AlertRuleCandidateComparisonExecuted, AuditEventTypes.GovernanceConflictDetected,
+        AuditEventTypes.GovernancePreCommitSimulationEvaluated, AuditEventTypes.ReplayExecuted, AuditEventTypes.InternalArchitectureDeterminismCheckExecuted
+    ];
+
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
-    private readonly IGovernanceDashboardService _governanceDashboardService = governanceDashboardService ?? throw new ArgumentNullException(nameof(governanceDashboardService));
+
+    private readonly IGovernanceDashboardService _governanceDashboardService =
+        governanceDashboardService ?? throw new ArgumentNullException(nameof(governanceDashboardService));
+
     private readonly ILogger<PilotValueReportService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <inheritdoc/>
     public async Task<PilotValueReport?> BuildAsync(DateTime? fromUtc, DateTime? toUtc, CancellationToken cancellationToken)
     {
@@ -59,8 +83,10 @@ public sealed class PilotValueReportService(IRunDetailQueryService runDetailQuer
             return EmptyReport(scope.TenantId, from, toExclusive, 0);
         List<CommittedRunRef> committedRuns = await CollectCommittedRunsAsync(from, toExclusive, cancellationToken).ConfigureAwait(false);
         committedRuns.Sort(static (a, b) => a.CreatedUtc.CompareTo(b.CreatedUtc));
-        GovernanceDashboardSummary dashboard = await _governanceDashboardService.GetDashboardAsync(scope.TenantId, 50, 50, 50, cancellationToken).ConfigureAwait(false);
-        IReadOnlyList<AuditEvent> auditRows = await _auditRepository.GetExportAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, from, toExclusive, AuditExportMaxRows, cancellationToken).ConfigureAwait(false);
+        GovernanceDashboardSummary dashboard =
+            await _governanceDashboardService.GetDashboardAsync(scope.TenantId, 50, 50, 50, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<AuditEvent> auditRows = await _auditRepository
+            .GetExportAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, from, toExclusive, AuditExportMaxRows, cancellationToken).ConfigureAwait(false);
         bool auditTruncated = auditRows.Count >= AuditExportMaxRows;
         if (auditTruncated && _logger.IsEnabled(LogLevel.Warning))
             _logger.LogWarning("Pilot value report: audit export capped at {Cap} for tenant {TenantId}.", AuditExportMaxRows, scope.TenantId);
@@ -76,7 +102,8 @@ public sealed class PilotValueReportService(IRunDetailQueryService runDetailQuer
             runsForDetails = committedRuns.Take(DefaultRunDetailCap).ToList();
             if (_logger.IsEnabled(LogLevel.Warning))
             {
-                _logger.LogWarning("Pilot value report: loading run details for {Loaded} of {Total} committed runs (cap {Cap}).", runsForDetails.Count, committedRuns.Count, DefaultRunDetailCap);
+                _logger.LogWarning("Pilot value report: loading run details for {Loaded} of {Total} committed runs (cap {Cap}).", runsForDetails.Count,
+                    committedRuns.Count, DefaultRunDetailCap);
             }
         }
 
@@ -100,7 +127,13 @@ public sealed class PilotValueReportService(IRunDetailQueryService runDetailQuer
                     completionSeconds.Add(wall.TotalSeconds);
             }
 
-            timeline.Add(new PilotValueReportRunTimelinePoint { RunId = runRef.RunId, CreatedUtc = detail.Run.CreatedUtc, CommittedUtc = committedUtc, SystemName = detail.Manifest?.SystemName ?? string.Empty });
+            timeline.Add(new PilotValueReportRunTimelinePoint
+            {
+                RunId = runRef.RunId,
+                CreatedUtc = detail.Run.CreatedUtc,
+                CommittedUtc = committedUtc,
+                SystemName = detail.Manifest?.SystemName ?? string.Empty
+            });
         }
 
         timeline.Sort(static (a, b) => a.CreatedUtc.CompareTo(b.CreatedUtc));
@@ -136,7 +169,8 @@ public sealed class PilotValueReportService(IRunDetailQueryService runDetailQuer
         const int take = 100;
         while (true)
         {
-            (IReadOnlyList<RunSummary> items, bool hasMore, string? next) = await _runDetailQuery.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
+            (IReadOnlyList<RunSummary> items, bool hasMore, string? next) =
+                await _runDetailQuery.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
             bool stopPaging = false;
             foreach (RunSummary s in items)
             {

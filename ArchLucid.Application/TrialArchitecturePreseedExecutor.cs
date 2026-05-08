@@ -3,17 +3,31 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application;
+
 /// <summary>Creates, executes (simulator), and commits one authority run for trial welcome UX.</summary>
-public sealed class TrialArchitecturePreseedExecutor(ITenantRepository tenantRepository, IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator, IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator, IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator, ILogger<TrialArchitecturePreseedExecutor> logger)
+public sealed class TrialArchitecturePreseedExecutor(
+    ITenantRepository tenantRepository,
+    IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator,
+    IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
+    IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
+    ILogger<TrialArchitecturePreseedExecutor> logger)
 {
-    private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator = architectureRunCommitOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
-    private readonly IArchitectureRunCreateOrchestrator _architectureRunCreateOrchestrator = architectureRunCreateOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCreateOrchestrator));
-    private readonly IArchitectureRunExecuteOrchestrator _architectureRunExecuteOrchestrator = architectureRunExecuteOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunExecuteOrchestrator));
+    private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator =
+        architectureRunCommitOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
+
+    private readonly IArchitectureRunCreateOrchestrator _architectureRunCreateOrchestrator =
+        architectureRunCreateOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCreateOrchestrator));
+
+    private readonly IArchitectureRunExecuteOrchestrator _architectureRunExecuteOrchestrator =
+        architectureRunExecuteOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunExecuteOrchestrator));
+
     private readonly ILogger<TrialArchitecturePreseedExecutor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     public async Task TryProcessTenantAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         TenantWorkspaceLink? link = await _tenantRepository.GetFirstWorkspaceAsync(tenantId, cancellationToken);
@@ -24,12 +38,7 @@ public sealed class TrialArchitecturePreseedExecutor(ITenantRepository tenantRep
             return;
         }
 
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = link.WorkspaceId,
-            ProjectId = link.DefaultProjectId
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = link.WorkspaceId, ProjectId = link.DefaultProjectId };
         using (AmbientScopeContext.Push(scope))
         {
             ArchitectureRequest request = BuildRequest(tenantId);
@@ -47,7 +56,8 @@ public sealed class TrialArchitecturePreseedExecutor(ITenantRepository tenantRep
             await _tenantRepository.MarkTrialArchitecturePreseedCompletedAsync(tenantId, welcomeRunId, cancellationToken);
             if (_logger.IsEnabled(LogLevel.Information))
             {
-                _logger.LogInformation("Trial architecture pre-seed completed for tenant {TenantId}: run {RunId}, manifest {Version}.", tenantId, runId, committed.Manifest.Metadata.ManifestVersion);
+                _logger.LogInformation("Trial architecture pre-seed completed for tenant {TenantId}: run {RunId}, manifest {Version}.", tenantId, runId,
+                    committed.Manifest.Metadata.ManifestVersion);
             }
         }
     }

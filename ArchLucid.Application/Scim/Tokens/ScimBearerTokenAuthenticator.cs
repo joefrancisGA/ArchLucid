@@ -1,11 +1,14 @@
 using System.Security.Cryptography;
+
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 
 namespace ArchLucid.Application.Scim.Tokens;
+
 public sealed class ScimBearerTokenAuthenticator(IScimTenantTokenRepository tokens) : IScimBearerTokenAuthenticator
 {
     private readonly IScimTenantTokenRepository _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
+
     /// <inheritdoc/>
     public async Task<ScimBearerAuthenticationResult?> TryAuthenticateAsync(string plaintextToken, CancellationToken cancellationToken)
     {
@@ -24,11 +27,7 @@ public sealed class ScimBearerTokenAuthenticator(IScimTenantTokenRepository toke
 
         bool ok = ScimArgonSecretHasher.VerifySecret(secretBytes!, row.TenantId, row.SecretHash);
         CryptographicOperations.ZeroMemory(secretBytes!);
-        return !ok ? null : new ScimBearerAuthenticationResult
-        {
-            TenantId = row.TenantId,
-            TokenRowId = row.Id
-        };
+        return !ok ? null : new ScimBearerAuthenticationResult { TenantId = row.TenantId, TokenRowId = row.Id };
     }
 
     private static bool TryParseToken(string token, out string publicKey, out byte[]? secretBytes)

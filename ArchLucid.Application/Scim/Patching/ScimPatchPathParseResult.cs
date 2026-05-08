@@ -1,10 +1,16 @@
 namespace ArchLucid.Application.Scim.Patching;
+
 /// <summary>Outcome of interpreting a PATCH <c>path</c> string (RFC 7644 §3.5.2 <c>valuePath</c> subset).</summary>
 public abstract record ScimPatchPathParseOutcome;
+
 /// <summary>Unfiltered attribute path (<c>userName</c>, <c>members</c>, etc.).</summary>
 public sealed record ScimPatchFlatAttributePathOutcome : ScimPatchPathParseOutcome
 {
-    public string AttributePath { get; init; }
+    public string AttributePath
+    {
+        get;
+        init;
+    }
 
     public ScimPatchFlatAttributePathOutcome(string attributePath)
     {
@@ -20,7 +26,11 @@ public sealed record ScimPatchMembersFilteredPathOutcome(Guid ReferenceUserId, s
 /// <summary>Bracketed attribute path ArchLucid does not implement (valid-looking SCIM grammar subset).</summary>
 public sealed record ScimPatchPathNotImplementedOutcome : ScimPatchPathParseOutcome
 {
-    public string Detail { get; init; }
+    public string Detail
+    {
+        get;
+        init;
+    }
 
     public ScimPatchPathNotImplementedOutcome(string detail)
     {
@@ -31,7 +41,11 @@ public sealed record ScimPatchPathNotImplementedOutcome : ScimPatchPathParseOutc
 /// <summary>Path is not valid for group membership PATCH (<c>invalidPath</c>).</summary>
 public sealed record ScimPatchPathInvalidOutcome : ScimPatchPathParseOutcome
 {
-    public string Detail { get; init; }
+    public string Detail
+    {
+        get;
+        init;
+    }
 
     public ScimPatchPathInvalidOutcome(string detail)
     {

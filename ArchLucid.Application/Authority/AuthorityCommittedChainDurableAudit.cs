@@ -1,19 +1,24 @@
 using System.Diagnostics;
 using System.Text.Json;
+
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Authority;
+
 /// <summary>
 ///     Appends <see cref="AuditEventTypes.AuthorityCommittedChainPersisted"/> after the authority snapshot chain
 ///     and golden manifest rows are committed (caller must invoke only after successful SQL persistence / UoW commit).
 /// </summary>
 public static class AuthorityCommittedChainDurableAudit
 {
-    public static async Task TryLogAsync(IAuditService auditService, IScopeContextProvider scopeProvider, IActorContext actorContext, ILogger logger, Guid authorityRunId, string projectSlug, AuthorityManifestPersistResult chainResult, string source, bool richFindingsAndGraph, CancellationToken cancellationToken)
+    public static async Task TryLogAsync(IAuditService auditService, IScopeContextProvider scopeProvider, IActorContext actorContext, ILogger logger,
+        Guid authorityRunId, string projectSlug, AuthorityManifestPersistResult chainResult, string source, bool richFindingsAndGraph,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(auditService);
         ArgumentNullException.ThrowIfNull(scopeProvider);
@@ -64,7 +69,8 @@ public static class AuthorityCommittedChainDurableAudit
         catch (Exception ex)
         {
             if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning(ex, "Durable audit for AuthorityCommittedChainPersisted failed for RunId={RunId}", LogSanitizer.Sanitize(authorityRunId.ToString("N")));
+                logger.LogWarning(ex, "Durable audit for AuthorityCommittedChainPersisted failed for RunId={RunId}",
+                    LogSanitizer.Sanitize(authorityRunId.ToString("N")));
         }
     }
 }

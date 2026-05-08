@@ -120,9 +120,6 @@ public static class AgentTopologyProposalGraphMerge
         string key2,
         Enum e2)
     {
-        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            [key1] = e1.ToString(), [key2] = e2.ToString()
-        };
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [key1] = e1.ToString(), [key2] = e2.ToString() };
     }
 }

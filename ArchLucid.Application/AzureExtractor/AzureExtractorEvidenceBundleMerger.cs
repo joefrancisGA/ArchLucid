@@ -1,7 +1,6 @@
 using System.Globalization;
 
 using ArchLucid.Contracts.Agents;
-
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.AzureExtractor;
@@ -35,7 +34,6 @@ public static class AzureExtractorEvidenceBundleMerger
     {
         ArgumentNullException.ThrowIfNull(evidenceBundle);
 
-
         return evidenceBundle.Metadata.ContainsKey(MetadataPackageIdKey);
     }
 
@@ -44,37 +42,26 @@ public static class AzureExtractorEvidenceBundleMerger
     {
         ArgumentNullException.ThrowIfNull(evidenceBundle);
 
-
         ArgumentNullException.ThrowIfNull(provenance);
 
-
         DateTime collectionUtc = provenance.EffectiveCollectionUtc;
-
 
         if (collectionUtc.Kind != DateTimeKind.Utc)
 
             collectionUtc = collectionUtc.ToUniversalTime();
 
-
         Dictionary<string, string> metadata = evidenceBundle.Metadata;
-
 
         metadata[MetadataPackageIdKey] = provenance.PackageId.ToString("N", CultureInfo.InvariantCulture);
 
-
         metadata[MetadataSchemaVersionKey] = provenance.SchemaVersion.ToString(CultureInfo.InvariantCulture);
-
 
         metadata[MetadataCollectionTimestampUtcKey] = collectionUtc.ToString("o", CultureInfo.InvariantCulture);
 
-
         metadata[MetadataCostCitationKey] = AzureExtractorCitationFormatter.FormatStoredPackageCitation(
             provenance.PackageId,
-
             provenance.SchemaVersion,
-
             collectionUtc);
-
 
         if (string.IsNullOrWhiteSpace(provenance.SubscriptionId))
 
@@ -82,9 +69,7 @@ public static class AzureExtractorEvidenceBundleMerger
 
         else
 
-
             metadata[MetadataSubscriptionIdKey] = provenance.SubscriptionId;
-
 
         if (string.IsNullOrWhiteSpace(provenance.OriginalFileName))
 
@@ -92,9 +77,6 @@ public static class AzureExtractorEvidenceBundleMerger
 
         else
 
-
             metadata[MetadataOriginalFileNameKey] = provenance.OriginalFileName;
-
     }
-
 }

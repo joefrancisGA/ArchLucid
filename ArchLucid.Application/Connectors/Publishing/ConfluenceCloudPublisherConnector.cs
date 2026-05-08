@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Connectors.Publishing;
+
 /// <summary>Minimal Confluence Cloud REST create-page publisher (storage HTML body).</summary>
 public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
 {
@@ -18,10 +19,13 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
+
     private readonly HttpClient _http;
     private readonly IOptionsMonitor<ConfluencePublishingOptions> _options;
     private readonly ILogger<ConfluenceCloudPublisherConnector> _logger;
-    public ConfluenceCloudPublisherConnector(HttpClient http, IOptionsMonitor<ConfluencePublishingOptions> options, ILogger<ConfluenceCloudPublisherConnector> logger)
+
+    public ConfluenceCloudPublisherConnector(HttpClient http, IOptionsMonitor<ConfluencePublishingOptions> options,
+        ILogger<ConfluenceCloudPublisherConnector> logger)
     {
         ArgumentNullException.ThrowIfNull(http);
         ArgumentNullException.ThrowIfNull(options);
@@ -60,10 +64,12 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
                 }
             }
         };
-        using HttpResponseMessage response = await _http.PostAsJsonAsync("wiki/rest/api/content", body, SerializerOptions, cancellationToken).ConfigureAwait(false);
+        using HttpResponseMessage response =
+            await _http.PostAsJsonAsync("wiki/rest/api/content", body, SerializerOptions, cancellationToken).ConfigureAwait(false);
         if (response.IsSuccessStatusCode)
         {
-            ConfluenceCreateResponse? created = await response.Content.ReadFromJsonAsync<ConfluenceCreateResponse>(SerializerOptions, cancellationToken).ConfigureAwait(false);
+            ConfluenceCreateResponse? created = await response.Content.ReadFromJsonAsync<ConfluenceCreateResponse>(SerializerOptions, cancellationToken)
+                .ConfigureAwait(false);
             string? id = created?.Id;
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -97,6 +103,7 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
         >= HttpStatusCode.InternalServerError => ConfluencePublishFailureReason.ServerError,
         _ => ConfluencePublishFailureReason.BadResponse
     };
+
     private static string Truncate(string s, int max)
     {
         if (string.IsNullOrEmpty(s) || s.Length <= max)

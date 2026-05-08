@@ -1,17 +1,22 @@
 using System.Net;
 using System.Text;
+
 using ArchLucid.Application.Diffs;
+
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+
 using QuestPdfDocument = QuestPDF.Fluent.Document;
 using Settings = QuestPDF.Settings;
 using WpDocument = DocumentFormat.OpenXml.Wordprocessing.Document;
 
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Generates exportable artifacts (Markdown, HTML, DOCX, PDF) from an
 ///     <see cref = "EndToEndReplayComparisonReport"/>. Output verbosity is controlled by the
@@ -19,7 +24,9 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayComparisonSummaryFormatter summaryFormatter) : IEndToEndReplayComparisonExportService
 {
-    private readonly IEndToEndReplayComparisonSummaryFormatter _summaryFormatter = summaryFormatter ?? throw new ArgumentNullException(nameof(summaryFormatter));
+    private readonly IEndToEndReplayComparisonSummaryFormatter
+        _summaryFormatter = summaryFormatter ?? throw new ArgumentNullException(nameof(summaryFormatter));
+
     static EndToEndReplayComparisonExportService()
     {
         Settings.License = LicenseType.Community;
@@ -239,15 +246,20 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                     else
                     {
                         column.Item().PaddingTop(5).Text("Key counts").Bold().FontSize(12);
-                        column.Item().Text($"Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
+                        column.Item().Text(
+                            $"Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
                         if (report.AgentResultDiff is not null)
                         {
-                            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d => d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
+                            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
+                                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
+                                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 ||
+                                d.RemovedWarnings.Count > 0);
                             column.Item().Text($"Agent deltas: {withChanges} agent(s) with material changes");
                         }
 
                         if (report.ManifestDiff is not null)
-                            column.Item().Text($"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+                            column.Item().Text(
+                                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
                         column.Item().Text($"Export diffs: {report.ExportDiffs.Count}");
                         column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                         column.Item().PaddingTop(5).Text("Interpretation Notes").Bold();
@@ -280,15 +292,19 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     {
         sb.AppendLine("## Key counts");
         sb.AppendLine();
-        sb.AppendLine($"- Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
+        sb.AppendLine(
+            $"- Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
         if (report.AgentResultDiff is not null)
         {
-            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d => d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
+            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
+                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
+                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
             sb.AppendLine($"- Agent deltas: {withChanges} agent(s) with material changes");
         }
 
         if (report.ManifestDiff is not null)
-            sb.AppendLine($"- Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+            sb.AppendLine(
+                $"- Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
         sb.AppendLine($"- Export diffs: {report.ExportDiffs.Count}");
         sb.AppendLine();
     }
@@ -409,15 +425,19 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     private void AppendHtmlExecutiveSummary(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
         sb.AppendLine("<h2>Key counts</h2><ul>");
-        sb.AppendLine("<li>Run metadata: " + report.RunDiff.ChangedFields.Count + " changed field(s); Request IDs differ: " + (report.RunDiff.RequestIdsDiffer ? "Yes" : "No") + "</li>");
+        sb.AppendLine("<li>Run metadata: " + report.RunDiff.ChangedFields.Count + " changed field(s); Request IDs differ: " +
+                      (report.RunDiff.RequestIdsDiffer ? "Yes" : "No") + "</li>");
         if (report.AgentResultDiff is not null)
         {
-            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d => d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
+            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
+                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
+                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
             sb.AppendLine("<li>Agent deltas: " + withChanges + " agent(s) with material changes</li>");
         }
 
         if (report.ManifestDiff is not null)
-            sb.AppendLine("<li>Manifest: +" + report.ManifestDiff.AddedServices.Count + " / -" + report.ManifestDiff.RemovedServices.Count + " services; +" + report.ManifestDiff.AddedDatastores.Count + " / -" + report.ManifestDiff.RemovedDatastores.Count + " datastores</li>");
+            sb.AppendLine("<li>Manifest: +" + report.ManifestDiff.AddedServices.Count + " / -" + report.ManifestDiff.RemovedServices.Count + " services; +" +
+                          report.ManifestDiff.AddedDatastores.Count + " / -" + report.ManifestDiff.RemovedDatastores.Count + " datastores</li>");
         sb.AppendLine("<li>Export diffs: " + report.ExportDiffs.Count + "</li></ul>");
     }
 
@@ -501,15 +521,19 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     private void AddDocxExecutiveSummary(Body body, EndToEndReplayComparisonReport report)
     {
         AddHeading(body, "Key counts", 2);
-        AddBullet(body, $"Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
+        AddBullet(body,
+            $"Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
         if (report.AgentResultDiff is not null)
         {
-            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d => d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
+            int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
+                d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
+                d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
             AddBullet(body, $"Agent deltas: {withChanges} agent(s) with material changes");
         }
 
         if (report.ManifestDiff is not null)
-            AddBullet(body, $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+            AddBullet(body,
+                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
         AddBullet(body, $"Export diffs: {report.ExportDiffs.Count}");
         AddSpacer(body);
     }

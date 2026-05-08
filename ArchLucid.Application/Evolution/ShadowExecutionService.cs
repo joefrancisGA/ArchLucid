@@ -1,21 +1,27 @@
 using System.Globalization;
 using System.Text;
+
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Evolution;
 
 namespace ArchLucid.Application.Evolution;
+
 /// <summary>
 ///     Shadow execution: single DB read (<see cref = "IRunDetailQueryService.GetRunDetailAsync"/>), then an in-memory-only
 ///     analysis pass.
 ///     Does not call replay, determinism, or repository writes; optional manifest compare/agent compare are disabled to
 ///     avoid extra DB reads.
 /// </summary>
-public sealed class ShadowExecutionService(IRunDetailQueryService runDetailQueryService, IArchitectureAnalysisService architectureAnalysisService) : IShadowExecutionService
+public sealed class ShadowExecutionService(IRunDetailQueryService runDetailQueryService, IArchitectureAnalysisService architectureAnalysisService)
+    : IShadowExecutionService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
-    private readonly IArchitectureAnalysisService _architectureAnalysisService = architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
+
+    private readonly IArchitectureAnalysisService _architectureAnalysisService =
+        architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
+
     /// <inheritdoc/>
     public async Task<ArchitectureAnalysisReport> ExecuteAsync(ShadowExecutionRequest request, CancellationToken cancellationToken = default)
     {
@@ -53,7 +59,8 @@ public sealed class ShadowExecutionService(IRunDetailQueryService runDetailQuery
             detail.Manifest.Metadata.ChangeDescription = string.IsNullOrEmpty(prior) ? annotation : string.Concat(prior, Environment.NewLine, annotation);
         }
 
-        IOrderedEnumerable<CandidateChangeSetStep> orderedSteps = changeSet.ProposedActions.OrderBy(static s => s.Ordinal).ThenBy(static s => s.ActionType, StringComparer.Ordinal).ThenBy(static s => s.Description, StringComparer.Ordinal);
+        IOrderedEnumerable<CandidateChangeSetStep> orderedSteps = changeSet.ProposedActions.OrderBy(static s => s.Ordinal)
+            .ThenBy(static s => s.ActionType, StringComparer.Ordinal).ThenBy(static s => s.Description, StringComparer.Ordinal);
         DateTime stamp = TimeProvider.System.GetUtcNow().UtcDateTime;
         foreach (CandidateChangeSetStep step in orderedSteps)
         {
@@ -64,11 +71,7 @@ public sealed class ShadowExecutionService(IRunDetailQueryService runDetailQuery
                 EventType = "Shadow.CandidateStep",
                 EventDescription = string.Format(CultureInfo.InvariantCulture, "[60R] {0}: {1}", step.ActionType, step.Description),
                 CreatedUtc = stamp,
-                Metadata =
-                {
-                    ["ChangeSetId"] = changeSet.ChangeSetId.ToString("D"),
-                    ["StepOrdinal"] = step.Ordinal.ToString(CultureInfo.InvariantCulture)
-                }
+                Metadata = { ["ChangeSetId"] = changeSet.ChangeSetId.ToString("D"), ["StepOrdinal"] = step.Ordinal.ToString(CultureInfo.InvariantCulture) }
             };
             if (!string.IsNullOrEmpty(step.AcceptanceCriteria))
                 payload.Metadata["AcceptanceCriteria"] = step.AcceptanceCriteria;

@@ -12,10 +12,12 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Bootstrap;
+
 /// <summary>
 ///     Idempotent seed for the Contoso Retail Modernization **trusted baseline** (two committed runs, governance workflow,
 ///     activations).
@@ -33,31 +35,61 @@ namespace ArchLucid.Application.Bootstrap;
 ///     The export row is optional metadata for export history — not required for consulting DOCX replay. See
 ///     <c>docs/TRUSTED_BASELINE.md</c>.
 /// </remarks>
-public sealed class DemoSeedService(IArchitectureRequestRepository requestRepository, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IAgentTaskRepository taskRepository, IAgentResultRepository resultRepository, IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter, IOptionsMonitor<DemoOptions> demoOptions, IGovernanceApprovalRequestRepository approvalRepository, IGovernancePromotionRecordRepository promotionRepository, IGovernanceEnvironmentActivationRepository activationRepository, IRunExportRecordRepository runExportRecordRepository, IAuditService auditService, IActorContext actorContext, ILogger<DemoSeedService> logger) : IDemoSeedService
+public sealed class DemoSeedService(
+    IArchitectureRequestRepository requestRepository,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
+    IAgentTaskRepository taskRepository,
+    IAgentResultRepository resultRepository,
+    IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter,
+    IOptionsMonitor<DemoOptions> demoOptions,
+    IGovernanceApprovalRequestRepository approvalRepository,
+    IGovernancePromotionRecordRepository promotionRepository,
+    IGovernanceEnvironmentActivationRepository activationRepository,
+    IRunExportRecordRepository runExportRecordRepository,
+    IAuditService auditService,
+    IActorContext actorContext,
+    ILogger<DemoSeedService> logger) : IDemoSeedService
 {
-    private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
+    private readonly IRunExportRecordRepository _runExportRecordRepository =
+        runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
+
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
-    private readonly IGovernancePromotionRecordRepository _promotionRepository = promotionRepository ?? throw new ArgumentNullException(nameof(promotionRepository));
-    private readonly IGovernanceEnvironmentActivationRepository _activationRepository = activationRepository ?? throw new ArgumentNullException(nameof(activationRepository));
+
+    private readonly IGovernancePromotionRecordRepository _promotionRepository =
+        promotionRepository ?? throw new ArgumentNullException(nameof(promotionRepository));
+
+    private readonly IGovernanceEnvironmentActivationRepository _activationRepository =
+        activationRepository ?? throw new ArgumentNullException(nameof(activationRepository));
+
     private readonly ILogger<DemoSeedService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-    private readonly IGovernanceApprovalRequestRepository _approvalRepository = approvalRepository ?? throw new ArgumentNullException(nameof(approvalRepository));
+
+    private readonly IGovernanceApprovalRequestRepository _approvalRepository =
+        approvalRepository ?? throw new ArgumentNullException(nameof(approvalRepository));
+
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
     private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
     private static readonly DateTime DemoUtc = new(2025, 3, 1, 12, 0, 0, DateTimeKind.Utc);
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-    private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter = authorityCommittedManifestChainWriter ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));
+
+    private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter =
+        authorityCommittedManifestChainWriter ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));
+
     private readonly IOptionsMonitor<DemoOptions> _demoOptions = demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
+
     /// <inheritdoc/>
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         ContosoRetailDemoIds demo = ContosoRetailDemoIds.ForTenant(scope.TenantId);
         await EnsureRequestAsync(demo, cancellationToken);
-        await EnsureCommittedRunAsync(demo, demo.AuthorityRunBaselineId, demo.TaskBaseline, demo.ResultBaseline, demo.ManifestBaseline, demo.TraceBaseline, false, cancellationToken);
-        await EnsureCommittedRunAsync(demo, demo.AuthorityRunHardenedId, demo.TaskHardened, demo.ResultHardened, demo.ManifestHardened, demo.TraceHardened, true, cancellationToken);
+        await EnsureCommittedRunAsync(demo, demo.AuthorityRunBaselineId, demo.TaskBaseline, demo.ResultBaseline, demo.ManifestBaseline, demo.TraceBaseline,
+            false, cancellationToken);
+        await EnsureCommittedRunAsync(demo, demo.AuthorityRunHardenedId, demo.TaskHardened, demo.ResultHardened, demo.ManifestHardened, demo.TraceHardened,
+            true, cancellationToken);
         await EnsureGovernanceAsync(demo, cancellationToken);
         await EnsureExportRecordAsync(demo, cancellationToken);
         if (logger.IsEnabled(LogLevel.Information))
@@ -66,7 +98,7 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
 
     private async Task EnsureRequestAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
-        if (await requestRepository.GetByIdAsync(demo.RequestId, cancellationToken)is not null)
+        if (await requestRepository.GetByIdAsync(demo.RequestId, cancellationToken) is not null)
             return;
         ArchitectureRequest request = new()
         {
@@ -80,10 +112,11 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
         await requestRepository.CreateAsync(request, cancellationToken);
     }
 
-    private async Task EnsureCommittedRunAsync(ContosoRetailDemoIds demo, Guid authorityRunId, string taskId, string resultId, string manifestVersion, string traceId, bool isHardened, CancellationToken cancellationToken)
+    private async Task EnsureCommittedRunAsync(ContosoRetailDemoIds demo, Guid authorityRunId, string taskId, string resultId, string manifestVersion,
+        string traceId, bool isHardened, CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        if (await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken)is not null)
+        if (await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is not null)
             return;
         string legacyRunId = authorityRunId.ToString("N");
         RunRecord authorityRow = new()
@@ -93,7 +126,10 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
             ScopeProjectId = scope.ProjectId,
             RunId = authorityRunId,
             ProjectId = "Contoso Retail Platform",
-            Description = isHardened ? "Demo — Contoso retail hardened manifest (trusted baseline seed)." : "Demo — Contoso retail baseline manifest (trusted baseline seed).",
+            Description =
+                isHardened
+                    ? "Demo — Contoso retail hardened manifest (trusted baseline seed)."
+                    : "Demo — Contoso retail baseline manifest (trusted baseline seed).",
             CreatedUtc = DemoUtc,
             ArchitectureRequestId = demo.RequestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created)
@@ -104,7 +140,10 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
             TaskId = taskId,
             RunId = legacyRunId,
             AgentType = AgentType.Topology,
-            Objective = isHardened ? "Hardened topology: add WAF, Key Vault references, and segmented subnets for retail APIs." : "Baseline topology: single App Service and SQL for retail checkout (minimal segmentation).",
+            Objective =
+                isHardened
+                    ? "Hardened topology: add WAF, Key Vault references, and segmented subnets for retail APIs."
+                    : "Baseline topology: single App Service and SQL for retail checkout (minimal segmentation).",
             Status = AgentTaskStatus.Completed,
             CreatedUtc = DemoUtc,
             CompletedUtc = DemoUtc,
@@ -119,7 +158,12 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
             TaskId = taskId,
             RunId = legacyRunId,
             AgentType = AgentType.Topology,
-            Claims = [isHardened ? "Proposed hardened retail edge with WAF and private connectivity to payment dependencies." : "Proposed consolidated App Service tier with direct SQL connectivity for faster initial rollout."],
+            Claims =
+            [
+                isHardened
+                    ? "Proposed hardened retail edge with WAF and private connectivity to payment dependencies."
+                    : "Proposed consolidated App Service tier with direct SQL connectivity for faster initial rollout."
+            ],
             EvidenceRefs = ["contoso-policy-retail-001"],
             Confidence = isHardened ? 0.88 : 0.72,
             Findings = [],
@@ -129,9 +173,13 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
         await resultRepository.CreateAsync(result, cancellationToken);
         bool richSeed = IsVerticalDemoSeedDepth(_demoOptions.CurrentValue.SeedDepth);
         GoldenManifest manifest = BuildManifest(legacyRunId, manifestVersion, isHardened, richSeed);
-        AuthorityChainKeying chainKeying = new(AuthorityDemoChainIds.Manifest(authorityRunId), AuthorityDemoChainIds.ContextSnapshot(authorityRunId), AuthorityDemoChainIds.GraphSnapshot(authorityRunId), AuthorityDemoChainIds.FindingsSnapshot(authorityRunId), AuthorityDemoChainIds.DecisionTrace(authorityRunId));
-        AuthorityManifestPersistResult authorityChain = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, authorityRunId, "Contoso Retail Platform", manifest, chainKeying, DemoUtc, richSeed, cancellationToken);
-        await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, logger, authorityRunId, "Contoso Retail Platform", authorityChain, "demo-seed", richSeed, cancellationToken);
+        AuthorityChainKeying chainKeying = new(AuthorityDemoChainIds.Manifest(authorityRunId), AuthorityDemoChainIds.ContextSnapshot(authorityRunId),
+            AuthorityDemoChainIds.GraphSnapshot(authorityRunId), AuthorityDemoChainIds.FindingsSnapshot(authorityRunId),
+            AuthorityDemoChainIds.DecisionTrace(authorityRunId));
+        AuthorityManifestPersistResult authorityChain = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, authorityRunId,
+            "Contoso Retail Platform", manifest, chainKeying, DemoUtc, richSeed, cancellationToken);
+        await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, logger, authorityRunId,
+            "Contoso Retail Platform", authorityChain, "demo-seed", richSeed, cancellationToken);
         // Decision-trace persistence happens inside PersistCommittedChainAsync above (AuthorityDecisionTrace
         // FK-chain row keyed by chainKeying.DecisionTraceId). The legacy second write to dbo.DecisionTraces
         // via ICoordinatorDecisionTraceRepository was removed in ADR 0030 PR A3 (2026-04-24) along with the
@@ -157,64 +205,69 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
     {
         if (string.IsNullOrWhiteSpace(seedDepth))
             return false;
-        return string.Equals(seedDepth.Trim(), "vertical", StringComparison.OrdinalIgnoreCase) || string.Equals(seedDepth.Trim(), "full", StringComparison.OrdinalIgnoreCase) || string.Equals(seedDepth.Trim(), "production-realistic", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(seedDepth.Trim(), "vertical", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(seedDepth.Trim(), "full", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(seedDepth.Trim(), "production-realistic", StringComparison.OrdinalIgnoreCase);
     }
 
     private static GoldenManifest BuildManifest(string runId, string manifestVersion, bool isHardened, bool richSeed)
     {
-        ManifestGovernance gov = isHardened ? new ManifestGovernance
-        {
-            ComplianceTags = ["PCI-DSS", "SOC2"],
-            PolicyConstraints = ["No public SQL endpoints", "Secrets in Key Vault only"],
-            RequiredControls = ["WAF", "PrivateLink", "DefenderForCloud"],
-            RiskClassification = "Moderate",
-            CostClassification = "Moderate"
-        }
-
-        : new ManifestGovernance
-        {
-            ComplianceTags = ["PCI-DSS"],
-            PolicyConstraints = ["HTTPS only"],
-            RequiredControls = ["TLS-1.2"],
-            RiskClassification = "High",
-            CostClassification = "Low"
-        };
+        ManifestGovernance gov = isHardened
+            ? new ManifestGovernance
+            {
+                ComplianceTags = ["PCI-DSS", "SOC2"],
+                PolicyConstraints = ["No public SQL endpoints", "Secrets in Key Vault only"],
+                RequiredControls = ["WAF", "PrivateLink", "DefenderForCloud"],
+                RiskClassification = "Moderate",
+                CostClassification = "Moderate"
+            }
+            : new ManifestGovernance
+            {
+                ComplianceTags = ["PCI-DSS"],
+                PolicyConstraints = ["HTTPS only"],
+                RequiredControls = ["TLS-1.2"],
+                RiskClassification = "High",
+                CostClassification = "Low"
+            };
         // ADR 0030 owner Decision B (2026-04-23): quickstart writes one-of-each minimum (single
         // service + datastore + relationship); vertical writes the production-realistic depth
         // (multiple services + datastore + relationships including a service-to-service edge).
         string checkoutServiceId = isHardened ? "svc-checkout-api-v2" : "svc-checkout-api-v1";
         string ordersDatastoreId = isHardened ? "ds-orders-v2" : "ds-orders-v1";
-        List<ManifestService> services = [new()
-        {
-            ServiceId = checkoutServiceId,
-            ServiceName = "Checkout API",
-            ServiceType = ServiceType.Api,
-            RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService,
-            Purpose = "Orchestrates cart and payment initiation.",
-            Tags = isHardened ? ["edge-hardened"] : ["legacy-monolith"],
-            RequiredControls = isHardened ? ["WAF", "ManagedIdentity"] : ["BasicAuthOff"]
-        }
-
+        List<ManifestService> services =
+        [
+            new()
+            {
+                ServiceId = checkoutServiceId,
+                ServiceName = "Checkout API",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService,
+                Purpose = "Orchestrates cart and payment initiation.",
+                Tags = isHardened ? ["edge-hardened"] : ["legacy-monolith"],
+                RequiredControls = isHardened ? ["WAF", "ManagedIdentity"] : ["BasicAuthOff"]
+            }
         ];
-        List<ManifestDatastore> datastores = [new()
-        {
-            DatastoreId = ordersDatastoreId,
-            DatastoreName = "Orders DB",
-            DatastoreType = DatastoreType.Sql,
-            RuntimePlatform = RuntimePlatform.SqlServer,
-            Purpose = "Order and payment state."
-        }
-
+        List<ManifestDatastore> datastores =
+        [
+            new()
+            {
+                DatastoreId = ordersDatastoreId,
+                DatastoreName = "Orders DB",
+                DatastoreType = DatastoreType.Sql,
+                RuntimePlatform = RuntimePlatform.SqlServer,
+                Purpose = "Order and payment state."
+            }
         ];
-        List<ManifestRelationship> relationships = [new()
-        {
-            RelationshipId = $"rel-{checkoutServiceId}-writes-{ordersDatastoreId}",
-            SourceId = checkoutServiceId,
-            TargetId = ordersDatastoreId,
-            RelationshipType = RelationshipType.WritesTo,
-            Description = "Checkout API persists order and payment state."
-        }
-
+        List<ManifestRelationship> relationships =
+        [
+            new()
+            {
+                RelationshipId = $"rel-{checkoutServiceId}-writes-{ordersDatastoreId}",
+                SourceId = checkoutServiceId,
+                TargetId = ordersDatastoreId,
+                RelationshipType = RelationshipType.WritesTo,
+                Description = "Checkout API persists order and payment state."
+            }
         ];
         if (!richSeed)
             return new GoldenManifest
@@ -235,9 +288,32 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
                 }
             };
         string paymentServiceId = isHardened ? "svc-payment-gateway-v2" : "svc-payment-gateway-v1";
-        services.Add(new ManifestService { ServiceId = paymentServiceId, ServiceName = "Payment Gateway", ServiceType = ServiceType.Api, RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService, Purpose = "Tokenizes card data and brokers payment provider calls.", Tags = isHardened ? ["edge-hardened", "pci-scope"] : ["pci-scope"], RequiredControls = isHardened ? ["WAF", "ManagedIdentity", "PrivateLink"] : ["TLS-1.2"] });
-        relationships.Add(new ManifestRelationship { RelationshipId = $"rel-{checkoutServiceId}-calls-{paymentServiceId}", SourceId = checkoutServiceId, TargetId = paymentServiceId, RelationshipType = RelationshipType.Calls, Description = "Checkout API invokes the Payment Gateway during order finalization." });
-        relationships.Add(new ManifestRelationship { RelationshipId = $"rel-{paymentServiceId}-reads-{ordersDatastoreId}", SourceId = paymentServiceId, TargetId = ordersDatastoreId, RelationshipType = RelationshipType.ReadsFrom, Description = "Payment Gateway reads order context for reconciliation." });
+        services.Add(new ManifestService
+        {
+            ServiceId = paymentServiceId,
+            ServiceName = "Payment Gateway",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService,
+            Purpose = "Tokenizes card data and brokers payment provider calls.",
+            Tags = isHardened ? ["edge-hardened", "pci-scope"] : ["pci-scope"],
+            RequiredControls = isHardened ? ["WAF", "ManagedIdentity", "PrivateLink"] : ["TLS-1.2"]
+        });
+        relationships.Add(new ManifestRelationship
+        {
+            RelationshipId = $"rel-{checkoutServiceId}-calls-{paymentServiceId}",
+            SourceId = checkoutServiceId,
+            TargetId = paymentServiceId,
+            RelationshipType = RelationshipType.Calls,
+            Description = "Checkout API invokes the Payment Gateway during order finalization."
+        });
+        relationships.Add(new ManifestRelationship
+        {
+            RelationshipId = $"rel-{paymentServiceId}-reads-{ordersDatastoreId}",
+            SourceId = paymentServiceId,
+            TargetId = ordersDatastoreId,
+            RelationshipType = RelationshipType.ReadsFrom,
+            Description = "Payment Gateway reads order context for reconciliation."
+        });
         return new GoldenManifest
         {
             RunId = runId,
@@ -260,7 +336,7 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
     private async Task EnsureGovernanceAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        if (await approvalRepository.GetByIdAsync(demo.ApprovalRequest, cancellationToken)is null)
+        if (await approvalRepository.GetByIdAsync(demo.ApprovalRequest, cancellationToken) is null)
         {
             GovernanceApprovalRequest approval = new()
             {
@@ -304,7 +380,8 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
         await EnsureActivationAsync(scope, demo.ActivationTest, demo.RunHardened, demo.ManifestHardened, GovernanceEnvironment.Test, cancellationToken);
     }
 
-    private async Task EnsureActivationAsync(ScopeContext scope, string activationId, string runId, string manifestVersion, string environment, CancellationToken cancellationToken)
+    private async Task EnsureActivationAsync(ScopeContext scope, string activationId, string runId, string manifestVersion, string environment,
+        CancellationToken cancellationToken)
     {
         IReadOnlyList<GovernanceEnvironmentActivation> rows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
         if (rows.Any(r => r.ActivationId == activationId))
@@ -355,7 +432,7 @@ public sealed class DemoSeedService(IArchitectureRequestRepository requestReposi
     /// </summary>
     private async Task EnsureExportRecordAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
-        if (await runExportRecordRepository.GetByIdAsync(demo.ExportRecord, cancellationToken)is not null)
+        if (await runExportRecordRepository.GetByIdAsync(demo.ExportRecord, cancellationToken) is not null)
             return;
         RunExportRecord record = new()
         {

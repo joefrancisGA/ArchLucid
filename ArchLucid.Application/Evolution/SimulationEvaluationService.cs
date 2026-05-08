@@ -1,29 +1,35 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.Manifest;
+
 using JetBrains.Annotations;
 
 namespace ArchLucid.Application.Evolution;
+
 /// <summary>
 ///     Deterministic scoring over architecture analysis reports: reuses <see cref = "IManifestDiffService"/> and optional
 ///     <see cref = "IDeterminismCheckService"/> (live path documented; may create replay run rows).
 /// </summary>
-public sealed class SimulationEvaluationService(IManifestDiffService manifestDiffService, IDeterminismCheckService determinismCheckService) : ISimulationEvaluationService
+public sealed class SimulationEvaluationService(IManifestDiffService manifestDiffService, IDeterminismCheckService determinismCheckService)
+    : ISimulationEvaluationService
 {
-    private readonly IDeterminismCheckService _determinismCheckService = determinismCheckService ?? throw new ArgumentNullException(nameof(determinismCheckService));
+    private readonly IDeterminismCheckService _determinismCheckService =
+        determinismCheckService ?? throw new ArgumentNullException(nameof(determinismCheckService));
+
     private readonly IManifestDiffService _manifestDiffService = manifestDiffService ?? throw new ArgumentNullException(nameof(manifestDiffService));
     private const string RuleVersion = "60R-eval-v1";
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = false
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false
     };
+
     /// <inheritdoc/>
     public async Task<SimulationEvaluationResult> EvaluateAsync(SimulationEvaluationRequest request, CancellationToken cancellationToken = default)
     {
@@ -32,7 +38,8 @@ public sealed class SimulationEvaluationService(IManifestDiffService manifestDif
         SimulationEvaluationOptions? options = request.Options;
         if (options?.InvokeLiveDeterminismCheck == true)
             if (string.IsNullOrWhiteSpace(options.BaselineArchitectureRunIdForDeterminism) && string.IsNullOrWhiteSpace(request.BaselineArchitectureRunId))
-                throw new InvalidOperationException("InvokeLiveDeterminismCheck requires BaselineArchitectureRunIdForDeterminism or BaselineArchitectureRunId.");
+                throw new InvalidOperationException(
+                    "InvokeLiveDeterminismCheck requires BaselineArchitectureRunIdForDeterminism or BaselineArchitectureRunId.");
         ArchitectureAnalysisReport baseline = request.BaselineReport;
         ArchitectureAnalysisReport? simulated = request.SimulatedReport;
         (ManifestDiffResult? diff, bool usedPrecomputedManifestDiff, bool usedComputedManifestDiff) = ResolveManifestDiff(baseline, simulated);
@@ -53,16 +60,14 @@ public sealed class SimulationEvaluationService(IManifestDiffService manifestDif
             RegressionSignals = regressionSignals,
             ConfidenceScore = confidenceScore
         };
-        EvaluationExplanationDto detail = new(RuleVersion, baseline.Warnings.Count, simulated?.Warnings.Count, usedPrecomputedManifestDiff, usedComputedManifestDiff, determinismResolution.Source, regressionSignals.Count);
+        EvaluationExplanationDto detail = new(RuleVersion, baseline.Warnings.Count, simulated?.Warnings.Count, usedPrecomputedManifestDiff,
+            usedComputedManifestDiff, determinismResolution.Source, regressionSignals.Count);
         string detailJson = JsonSerializer.Serialize(detail, JsonOptions);
         string regressionPart = regressionRisk.HasValue ? string.Format(CultureInfo.InvariantCulture, "{0:F3}", regressionRisk.Value) : "n/a";
-        string summary = string.Format(CultureInfo.InvariantCulture, "Rule={0}; ImprovementDelta={1:F3}; SimulationScore={2:F3}; Determinism={3}; RegressionRisk={4}; Confidence={5:F3}; Signals={6}", RuleVersion, improvementDelta, simulationScore, FormatDeterminism(determinismScore), regressionPart, confidenceScore, regressionSignals.Count);
-        return new SimulationEvaluationResult
-        {
-            Score = score,
-            ExplanationSummary = summary,
-            ExplanationDetailJson = detailJson
-        };
+        string summary = string.Format(CultureInfo.InvariantCulture,
+            "Rule={0}; ImprovementDelta={1:F3}; SimulationScore={2:F3}; Determinism={3}; RegressionRisk={4}; Confidence={5:F3}; Signals={6}", RuleVersion,
+            improvementDelta, simulationScore, FormatDeterminism(determinismScore), regressionPart, confidenceScore, regressionSignals.Count);
+        return new SimulationEvaluationResult { Score = score, ExplanationSummary = summary, ExplanationDetailJson = detailJson };
     }
 
     private static string FormatDeterminism(double? determinismScore)
@@ -70,7 +75,8 @@ public sealed class SimulationEvaluationService(IManifestDiffService manifestDif
         return determinismScore is null ? "n/a" : string.Format(CultureInfo.InvariantCulture, "{0:F3}", determinismScore.Value);
     }
 
-    private (ManifestDiffResult? Diff, bool UsedPrecomputed, bool UsedComputed) ResolveManifestDiff(ArchitectureAnalysisReport baseline, ArchitectureAnalysisReport? simulated)
+    private (ManifestDiffResult? Diff, bool UsedPrecomputed, bool UsedComputed) ResolveManifestDiff(ArchitectureAnalysisReport baseline,
+        ArchitectureAnalysisReport? simulated)
     {
         if (simulated is null)
             return (null, false, false);
@@ -84,7 +90,8 @@ public sealed class SimulationEvaluationService(IManifestDiffService manifestDif
         return (computed, false, true);
     }
 
-    private async Task<DeterminismResolution> ResolveDeterminismAsync(SimulationEvaluationRequest request, SimulationEvaluationOptions? options, CancellationToken cancellationToken)
+    private async Task<DeterminismResolution> ResolveDeterminismAsync(SimulationEvaluationRequest request, SimulationEvaluationOptions? options,
+        CancellationToken cancellationToken)
     {
         if (request.SuppliedDeterminism is not null)
             return new DeterminismResolution(request.SuppliedDeterminism, "Supplied");
@@ -92,9 +99,13 @@ public sealed class SimulationEvaluationService(IManifestDiffService manifestDif
             return new DeterminismResolution(request.BaselineReport.Determinism, "BaselineReport");
         if (options?.InvokeLiveDeterminismCheck != true)
             return new DeterminismResolution(null, "None");
-        string runId = !string.IsNullOrWhiteSpace(options.BaselineArchitectureRunIdForDeterminism) ? options.BaselineArchitectureRunIdForDeterminism.Trim() : request.BaselineArchitectureRunId!.Trim();
+        string runId = !string.IsNullOrWhiteSpace(options.BaselineArchitectureRunIdForDeterminism)
+            ? options.BaselineArchitectureRunIdForDeterminism.Trim()
+            : request.BaselineArchitectureRunId!.Trim();
         int iterations = Math.Max(2, options.DeterminismIterations);
-        DeterminismCheckResult live = await determinismCheckService.RunAsync(new DeterminismCheckRequest { RunId = runId, Iterations = iterations, CommitReplays = false }, cancellationToken);
+        DeterminismCheckResult live =
+            await determinismCheckService.RunAsync(new DeterminismCheckRequest { RunId = runId, Iterations = iterations, CommitReplays = false },
+                cancellationToken);
         return new DeterminismResolution(live, "Live");
     }
 
@@ -150,7 +161,8 @@ public sealed class SimulationEvaluationService(IManifestDiffService manifestDif
         return determinism.IsDeterministic ? 1 : 0;
     }
 
-    private static double ComputeConfidenceScore(ArchitectureAnalysisReport baseline, ArchitectureAnalysisReport? simulated, ManifestDiffResult? diff, DeterminismCheckResult? determinism, SimulationEvaluationOptions? options)
+    private static double ComputeConfidenceScore(ArchitectureAnalysisReport baseline, ArchitectureAnalysisReport? simulated, ManifestDiffResult? diff,
+        DeterminismCheckResult? determinism, SimulationEvaluationOptions? options)
     {
         double confidence = 1.0;
         if (baseline.Manifest is null)
@@ -173,5 +185,13 @@ public sealed class SimulationEvaluationService(IManifestDiffService manifestDif
     }
 
     private sealed record DeterminismResolution(DeterminismCheckResult? Result, string Source);
-    private sealed record EvaluationExplanationDto([UsedImplicitly] string RuleVersion, int BaselineWarningCount, int? SimulatedWarningCount, bool UsedPrecomputedManifestDiff, bool UsedComputedManifestDiff, string DeterminismSource, int RegressionSignalCount);
+
+    private sealed record EvaluationExplanationDto(
+        [UsedImplicitly] string RuleVersion,
+        int BaselineWarningCount,
+        int? SimulatedWarningCount,
+        bool UsedPrecomputedManifestDiff,
+        bool UsedComputedManifestDiff,
+        string DeterminismSource,
+        int RegressionSignalCount);
 }

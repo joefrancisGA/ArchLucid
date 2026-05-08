@@ -1,40 +1,39 @@
 using ArchLucid.Application.Diffs;
 
 namespace ArchLucid.Application.Determinism;
+
 /// <summary>
 ///     Checks the determinism of an architecture run by replaying it multiple times and comparing
 ///     agent results and manifest output across iterations. Returns a <see cref = "DeterminismCheckResult"/>
 ///     indicating whether the run produces consistent output.
 /// </summary>
-public sealed class DeterminismCheckService(IReplayRunService replayRunService, IAgentResultDiffService agentResultDiffService, IManifestDiffService manifestDiffService) : IDeterminismCheckService
+public sealed class DeterminismCheckService(
+    IReplayRunService replayRunService,
+    IAgentResultDiffService agentResultDiffService,
+    IManifestDiffService manifestDiffService) : IDeterminismCheckService
 {
     /// <inheritdoc/>
     public async Task<DeterminismCheckResult> RunAsync(DeterminismCheckRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
-        
+
         if (request.Iterations < 2)
             throw new ArgumentOutOfRangeException(nameof(request), "Iterations must be at least 2.");
-        
-        DeterminismCheckResult output = new()
-        {
-            SourceRunId = request.RunId,
-            Iterations = request.Iterations,
-            ExecutionMode = request.ExecutionMode
-        };
-        ReplayRunResult baseline = await replayRunService.ReplayAsync(request.RunId, request.ExecutionMode, request.CommitReplays, request.CommitReplays ? DeterminismVersionConstants.BaselineVersion : null, cancellationToken);
+
+        DeterminismCheckResult output = new() { SourceRunId = request.RunId, Iterations = request.Iterations, ExecutionMode = request.ExecutionMode };
+        ReplayRunResult baseline = await replayRunService.ReplayAsync(request.RunId, request.ExecutionMode, request.CommitReplays,
+            request.CommitReplays ? DeterminismVersionConstants.BaselineVersion : null, cancellationToken);
         output.BaselineReplayRunId = baseline.ReplayRunId;
         for (int i = 1; i <= request.Iterations; i++)
         {
-            ReplayRunResult replay = await replayRunService.ReplayAsync(request.RunId, request.ExecutionMode, request.CommitReplays, request.CommitReplays ? DeterminismVersionConstants.IterationVersion(i) : null, cancellationToken);
+            ReplayRunResult replay = await replayRunService.ReplayAsync(request.RunId, request.ExecutionMode, request.CommitReplays,
+                request.CommitReplays ? DeterminismVersionConstants.IterationVersion(i) : null, cancellationToken);
             AgentResultDiffResult agentDiff = agentResultDiffService.Compare(baseline.ReplayRunId, baseline.Results, replay.ReplayRunId, replay.Results);
             bool hasAgentDrift = HasAgentDrift(agentDiff);
             DeterminismIterationResult iteration = new()
             {
-                IterationNumber = i,
-                ReplayRunId = replay.ReplayRunId,
-                MatchesBaselineAgentResults = !hasAgentDrift
+                IterationNumber = i, ReplayRunId = replay.ReplayRunId, MatchesBaselineAgentResults = !hasAgentDrift
             };
             if (hasAgentDrift)
                 iteration.AgentDriftWarnings.Add("Agent results differ from baseline replay.");
@@ -71,8 +70,11 @@ public sealed class DeterminismCheckService(IReplayRunService replayRunService, 
     /// </summary>
     private static bool HasAgentDrift(AgentResultDiffResult diff)
     {
-        return diff.AgentDeltas.Any(d => d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedEvidenceRefs.Count > 0 || d.RemovedEvidenceRefs.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0 || // ReSharper disable once CompareOfFloatsByEqualityOperator
- d.LeftConfidence != d.RightConfidence);
+        return diff.AgentDeltas.Any(d => d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedEvidenceRefs.Count > 0 ||
+                                         d.RemovedEvidenceRefs.Count > 0 || d.AddedFindings.Count > 0 || d.RemovedFindings.Count > 0 ||
+                                         d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 || d.AddedWarnings.Count > 0 ||
+                                         d.RemovedWarnings.Count > 0 || // ReSharper disable once CompareOfFloatsByEqualityOperator
+                                         d.LeftConfidence != d.RightConfidence);
     }
 
     /// <summary>
@@ -81,6 +83,8 @@ public sealed class DeterminismCheckService(IReplayRunService replayRunService, 
     /// </summary>
     private static bool HasManifestDrift(ManifestDiffResult diff)
     {
-        return diff.AddedServices.Count > 0 || diff.RemovedServices.Count > 0 || diff.AddedDatastores.Count > 0 || diff.RemovedDatastores.Count > 0 || diff.AddedRequiredControls.Count > 0 || diff.RemovedRequiredControls.Count > 0 || diff.AddedRelationships.Count > 0 || diff.RemovedRelationships.Count > 0;
+        return diff.AddedServices.Count > 0 || diff.RemovedServices.Count > 0 || diff.AddedDatastores.Count > 0 || diff.RemovedDatastores.Count > 0 ||
+               diff.AddedRequiredControls.Count > 0 || diff.RemovedRequiredControls.Count > 0 || diff.AddedRelationships.Count > 0 ||
+               diff.RemovedRelationships.Count > 0;
     }
 }

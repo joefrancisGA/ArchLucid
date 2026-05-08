@@ -7,6 +7,7 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Runs;
+
 /// <summary>
 ///     Loads <see cref = "ArchitectureRun"/> from <see cref = "IRunRepository"/> within the current
 ///     <see cref = "ScopeContext"/>.
@@ -17,7 +18,8 @@ public static class ArchitectureRunAuthorityReader
     ///     Returns <see langword="null"/> when <paramref name = "runId"/> is not a GUID, the run is outside scope, or it is
     ///     archived.
     /// </summary>
-    public static async Task<ArchitectureRun?> TryGetArchitectureRunAsync(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IAgentTaskRepository taskRepository, string runId, CancellationToken cancellationToken)
+    public static async Task<ArchitectureRun?> TryGetArchitectureRunAsync(IRunRepository runRepository, IScopeContextProvider scopeContextProvider,
+        IAgentTaskRepository taskRepository, string runId, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(runRepository);
         ArgumentNullException.ThrowIfNull(scopeContextProvider);

@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Marketing;
+
 /// <summary>
 ///     The fully-built Trust Center evidence pack ZIP plus the metadata the controller
 ///     needs to send caching headers.

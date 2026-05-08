@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Identity;
+
 public static class TrialEmailNormalizer
 {
     public static string Normalize(string email)

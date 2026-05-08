@@ -16,6 +16,7 @@ using ArchLucid.Persistence.Models;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application;
+
 /// <summary>
 ///     Assembles the canonical <see cref = "ArchitectureRunDetail"/> from individual repositories.
 ///     This is the single, authoritative query path for run state — controllers, API application
@@ -30,15 +31,28 @@ namespace ArchLucid.Application;
 ///     chain populates that pointer at commit time (<see cref = "ReplayRunService"/> + demo seed both go
 ///     through <c>IAuthorityCommittedManifestChainWriter.PersistCommittedChainAsync</c>).
 /// </remarks>
-public sealed class RunDetailQueryService(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IAgentTaskRepository taskRepository, IAgentResultRepository resultRepository, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IDecisionTraceRepository authorityDecisionTraceRepository, ILogger<RunDetailQueryService> logger) : IRunDetailQueryService
+public sealed class RunDetailQueryService(
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
+    IAgentTaskRepository taskRepository,
+    IAgentResultRepository resultRepository,
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
+    IDecisionTraceRepository authorityDecisionTraceRepository,
+    ILogger<RunDetailQueryService> logger) : IRunDetailQueryService
 {
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
-    private readonly IDecisionTraceRepository _authorityDecisionTraceRepository = authorityDecisionTraceRepository ?? throw new ArgumentNullException(nameof(authorityDecisionTraceRepository));
+
+    private readonly IDecisionTraceRepository _authorityDecisionTraceRepository =
+        authorityDecisionTraceRepository ?? throw new ArgumentNullException(nameof(authorityDecisionTraceRepository));
+
     private readonly ILogger<RunDetailQueryService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
-    private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader = unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
+
+    private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader =
+        unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
+
     /// <inheritdoc/>
     public async Task<ArchitectureRunDetail?> GetRunDetailAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -67,7 +81,8 @@ public sealed class RunDetailQueryService(IRunRepository runRepository, IScopeCo
         if (manifest is null)
         {
             if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning("RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.", LogSanitizer.Sanitize(runId), LogSanitizer.Sanitize(run.CurrentManifestVersion));
+                logger.LogWarning("RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
+                    LogSanitizer.Sanitize(runId), LogSanitizer.Sanitize(run.CurrentManifestVersion));
         }
         else if (record.DecisionTraceId is { } authorityTraceId)
         {
@@ -92,11 +107,21 @@ public sealed class RunDetailQueryService(IRunRepository runRepository, IScopeCo
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         IReadOnlyList<RunRecord> records = await runRepository.ListRecentInScopeAsync(scope, 200, cancellationToken);
-        return records.Select(r => new RunSummary { RunId = r.RunId.ToString("N"), RequestId = r.ArchitectureRequestId ?? string.Empty, Status = r.LegacyRunStatus ?? nameof(ArchitectureRunStatus.Created), CreatedUtc = r.CreatedUtc, CompletedUtc = r.CompletedUtc, CurrentManifestVersion = r.CurrentManifestVersion, SystemName = r.ProjectId }).ToList();
+        return records.Select(r => new RunSummary
+        {
+            RunId = r.RunId.ToString("N"),
+            RequestId = r.ArchitectureRequestId ?? string.Empty,
+            Status = r.LegacyRunStatus ?? nameof(ArchitectureRunStatus.Created),
+            CreatedUtc = r.CreatedUtc,
+            CompletedUtc = r.CompletedUtc,
+            CurrentManifestVersion = r.CurrentManifestVersion,
+            SystemName = r.ProjectId
+        }).ToList();
     }
 
     /// <inheritdoc/>
-    public async Task<(IReadOnlyList<RunSummary> Items, bool HasMore, string? NextCursor)> ListRunSummariesKeysetAsync(string? cursor, int take, CancellationToken cancellationToken = default)
+    public async Task<(IReadOnlyList<RunSummary> Items, bool HasMore, string? NextCursor)> ListRunSummariesKeysetAsync(string? cursor, int take,
+        CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         DateTime? cursorUtc = null;
@@ -109,7 +134,16 @@ public sealed class RunDetailQueryService(IRunRepository runRepository, IScopeCo
         }
 
         RunListPage page = await runRepository.ListRecentInScopeKeysetAsync(scope, cursorUtc, cursorRunId, take, cancellationToken);
-        IReadOnlyList<RunSummary> items = page.Items.Select(r => new RunSummary { RunId = r.RunId.ToString("N"), RequestId = r.ArchitectureRequestId ?? string.Empty, Status = r.LegacyRunStatus ?? nameof(ArchitectureRunStatus.Created), CreatedUtc = r.CreatedUtc, CompletedUtc = r.CompletedUtc, CurrentManifestVersion = r.CurrentManifestVersion, SystemName = r.ProjectId }).ToList();
+        IReadOnlyList<RunSummary> items = page.Items.Select(r => new RunSummary
+        {
+            RunId = r.RunId.ToString("N"),
+            RequestId = r.ArchitectureRequestId ?? string.Empty,
+            Status = r.LegacyRunStatus ?? nameof(ArchitectureRunStatus.Created),
+            CreatedUtc = r.CreatedUtc,
+            CompletedUtc = r.CompletedUtc,
+            CurrentManifestVersion = r.CurrentManifestVersion,
+            SystemName = r.ProjectId
+        }).ToList();
         string? next = null;
         if (!page.HasMore || page.Items.Count <= 0)
             return (items, page.HasMore, next);

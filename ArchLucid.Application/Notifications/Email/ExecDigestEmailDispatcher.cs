@@ -3,22 +3,34 @@ using ArchLucid.Application.Notifications.Email.Models;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Notifications.Email;
+
 /// <inheritdoc cref = "IExecDigestEmailDispatcher"/>
-public sealed class ExecDigestEmailDispatcher(IEmailTemplateRenderer templateRenderer, IEmailProvider emailProvider, ISentEmailLedger sentEmailLedger, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor, ILogger<ExecDigestEmailDispatcher> logger) : IExecDigestEmailDispatcher
+public sealed class ExecDigestEmailDispatcher(
+    IEmailTemplateRenderer templateRenderer,
+    IEmailProvider emailProvider,
+    ISentEmailLedger sentEmailLedger,
+    IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
+    ILogger<ExecDigestEmailDispatcher> logger) : IExecDigestEmailDispatcher
 {
     public const string TemplateId = "ExecDigest";
     private const string DefaultProductName = "ArchLucid";
-    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor = emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+
+    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
+        emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+
     private readonly IEmailProvider _emailProvider = emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
     private readonly ILogger<ExecDigestEmailDispatcher> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ISentEmailLedger _sentEmailLedger = sentEmailLedger ?? throw new ArgumentNullException(nameof(sentEmailLedger));
     private readonly IEmailTemplateRenderer _templateRenderer = templateRenderer ?? throw new ArgumentNullException(nameof(templateRenderer));
+
     /// <inheritdoc/>
-    public async Task<bool> TryDispatchAsync(Guid tenantId, string isoWeekIdempotencyKey, ExecDigestComposition composition, IReadOnlyList<string> toMailboxes, string unsubscribeAbsoluteUrl, CancellationToken cancellationToken)
+    public async Task<bool> TryDispatchAsync(Guid tenantId, string isoWeekIdempotencyKey, ExecDigestComposition composition, IReadOnlyList<string> toMailboxes,
+        string unsubscribeAbsoluteUrl, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(isoWeekIdempotencyKey);
         ArgumentNullException.ThrowIfNull(toMailboxes);
@@ -67,11 +79,7 @@ public sealed class ExecDigestEmailDispatcher(IEmailTemplateRenderer templateRen
                 HtmlBody = html,
                 TextBody = text,
                 IdempotencyKey = idempotencyKey + ":" + mailbox.Trim(),
-                Tags = new EmailMessageTags
-                {
-                    TenantId = tenantId,
-                    EventType = "exec-digest-weekly"
-                }
+                Tags = new EmailMessageTags { TenantId = tenantId, EventType = "exec-digest-weekly" }
             };
             try
             {

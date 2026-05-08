@@ -3,16 +3,24 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Governance;
+
 /// <summary>
 ///     Default <see cref = "IGovernanceDashboardService"/> combining cross-run approval views and tenant-scoped policy
 ///     change log rows.
 /// </summary>
-public sealed class GovernanceDashboardService(IGovernanceApprovalRequestRepository approvalRequestRepository, IPolicyPackChangeLogRepository policyPackChangeLogRepository) : IGovernanceDashboardService
+public sealed class GovernanceDashboardService(
+    IGovernanceApprovalRequestRepository approvalRequestRepository,
+    IPolicyPackChangeLogRepository policyPackChangeLogRepository) : IGovernanceDashboardService
 {
-    private readonly IGovernanceApprovalRequestRepository _approvalRequestRepository = approvalRequestRepository ?? throw new ArgumentNullException(nameof(approvalRequestRepository));
-    private readonly IPolicyPackChangeLogRepository _policyPackChangeLogRepository = policyPackChangeLogRepository ?? throw new ArgumentNullException(nameof(policyPackChangeLogRepository));
+    private readonly IGovernanceApprovalRequestRepository _approvalRequestRepository =
+        approvalRequestRepository ?? throw new ArgumentNullException(nameof(approvalRequestRepository));
+
+    private readonly IPolicyPackChangeLogRepository _policyPackChangeLogRepository =
+        policyPackChangeLogRepository ?? throw new ArgumentNullException(nameof(policyPackChangeLogRepository));
+
     /// <inheritdoc/>
-    public async Task<GovernanceDashboardSummary> GetDashboardAsync(Guid tenantId, int maxPending = 20, int maxDecisions = 20, int maxChanges = 20, CancellationToken cancellationToken = default)
+    public async Task<GovernanceDashboardSummary> GetDashboardAsync(Guid tenantId, int maxPending = 20, int maxDecisions = 20, int maxChanges = 20,
+        CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
@@ -31,10 +39,7 @@ public sealed class GovernanceDashboardService(IGovernanceApprovalRequestReposit
         IReadOnlyList<PolicyPackChangeLogEntry> changes = await changesTask;
         return new GovernanceDashboardSummary
         {
-            PendingApprovals = pending,
-            RecentDecisions = decisions,
-            RecentChanges = changes,
-            PendingCount = pending.Count
+            PendingApprovals = pending, RecentDecisions = decisions, RecentChanges = changes, PendingCount = pending.Count
         };
     }
 }

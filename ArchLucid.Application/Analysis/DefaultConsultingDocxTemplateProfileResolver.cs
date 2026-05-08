@@ -19,27 +19,19 @@ public sealed class DefaultConsultingDocxTemplateProfileResolver : IConsultingDo
             [
                 new ConsultingDocxTemplateProfileInfo
                 {
-                    ProfileName = ConsultingDocxProfiles.Executive,
-                    ProfileDisplayName = "Executive Brief",
-                    DisplayOrder = 10
+                    ProfileName = ConsultingDocxProfiles.Executive, ProfileDisplayName = "Executive Brief", DisplayOrder = 10
                 },
                 new ConsultingDocxTemplateProfileInfo
                 {
-                    ProfileName = ConsultingDocxProfiles.Regulated,
-                    ProfileDisplayName = "Regulated / Compliance Review",
-                    DisplayOrder = 20
+                    ProfileName = ConsultingDocxProfiles.Regulated, ProfileDisplayName = "Regulated / Compliance Review", DisplayOrder = 20
                 },
                 new ConsultingDocxTemplateProfileInfo
                 {
-                    ProfileName = ConsultingDocxProfiles.Client,
-                    ProfileDisplayName = "Client Delivery Report",
-                    DisplayOrder = 30
+                    ProfileName = ConsultingDocxProfiles.Client, ProfileDisplayName = "Client Delivery Report", DisplayOrder = 30
                 },
                 new ConsultingDocxTemplateProfileInfo
                 {
-                    ProfileName = ConsultingDocxProfiles.Internal,
-                    ProfileDisplayName = "Internal Technical Review",
-                    DisplayOrder = 40
+                    ProfileName = ConsultingDocxProfiles.Internal, ProfileDisplayName = "Internal Technical Review", DisplayOrder = 40
                 }
             ]
         };

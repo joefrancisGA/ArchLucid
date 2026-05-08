@@ -18,9 +18,11 @@ using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application;
+
 /// <summary>
 ///     Replays an existing architecture run by cloning its tasks and evidence, re-executing agents,
 ///     and optionally committing the result as a new manifest version. Persists the replay run id to
@@ -34,22 +36,45 @@ namespace ArchLucid.Application;
 ///     <see cref = "IAgentEvaluationService.EvaluateAsync"/> then <see cref = "IDecisionEngineV2.ResolveAsync"/>,
 ///     then <see cref = "IDecisionEngineService.MergeResults"/>.
 /// </remarks>
-public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolver, IDecisionEngineService decisionEngineService, IAgentEvaluationService agentEvaluationService, IDecisionEngineV2 decisionEngineV2, IArchitectureRequestRepository requestRepository, IRunDetailQueryService runDetailQueryService, IRunRepository authorityRunRepository, IScopeContextProvider scopeContextProvider, IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter, IAgentEvidencePackageRepository agentEvidencePackageRepository, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IAuditService auditService, IActorContext actorContext, ILogger<ReplayRunService> logger) : IReplayRunService
+public sealed class ReplayRunService(
+    IAgentExecutorResolver agentExecutorResolver,
+    IDecisionEngineService decisionEngineService,
+    IAgentEvaluationService agentEvaluationService,
+    IDecisionEngineV2 decisionEngineV2,
+    IArchitectureRequestRepository requestRepository,
+    IRunDetailQueryService runDetailQueryService,
+    IRunRepository authorityRunRepository,
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IAuditService auditService,
+    IActorContext actorContext,
+    ILogger<ReplayRunService> logger) : IReplayRunService
 {
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
     private readonly IAgentExecutorResolver _agentExecutorResolver = agentExecutorResolver ?? throw new ArgumentNullException(nameof(agentExecutorResolver));
     private readonly IDecisionEngineService _decisionEngineService = decisionEngineService ?? throw new ArgumentNullException(nameof(decisionEngineService));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository = agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
+        agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+
     private readonly IRunRepository _authorityRunRepository = authorityRunRepository ?? throw new ArgumentNullException(nameof(authorityRunRepository));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-    private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter = authorityCommittedManifestChainWriter ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));
-    private readonly IAgentEvaluationService _agentEvaluationService = agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
+
+    private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter =
+        authorityCommittedManifestChainWriter ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));
+
+    private readonly IAgentEvaluationService
+        _agentEvaluationService = agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
+
     private readonly IDecisionEngineV2 _decisionEngineV2 = decisionEngineV2 ?? throw new ArgumentNullException(nameof(decisionEngineV2));
     private readonly ILogger<ReplayRunService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
     /// <summary>
     ///     Creates a new run record seeded from <paramref name = "originalRunId"/>, re-executes agents,
     ///     and (when <paramref name = "commitReplay"/> is <c>true</c>) commits a new manifest.
@@ -58,7 +83,8 @@ public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolve
     /// <exception cref = "InvalidOperationException">
     ///     Thrown when the original run has no tasks, no evidence package, or merge fails.
     /// </exception>
-    public async Task<ReplayRunResult> ReplayAsync(string originalRunId, string executionMode = ExecutionModes.Current, bool commitReplay = false, string? manifestVersionOverride = null, CancellationToken cancellationToken = default)
+    public async Task<ReplayRunResult> ReplayAsync(string originalRunId, string executionMode = ExecutionModes.Current, bool commitReplay = false,
+        string? manifestVersionOverride = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(originalRunId);
         ArgumentNullException.ThrowIfNull(executionMode);
@@ -66,14 +92,17 @@ public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolve
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
         ArgumentNullException.ThrowIfNull(authorityRunRepository);
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
-        ArchitectureRunDetail sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken) ?? throw new RunNotFoundException(originalRunId);
+        ArchitectureRunDetail sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken) ??
+                                             throw new RunNotFoundException(originalRunId);
         ArchitectureRun originalRun = sourceDetail.Run;
         List<AgentTask> tasks = sourceDetail.Tasks;
         cancellationToken.ThrowIfCancellationRequested();
         if (tasks.Count == 0)
             throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
-        ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
-        AgentEvidencePackage evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken) ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
+        ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ??
+                                      throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
+        AgentEvidencePackage evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken) ??
+                                        throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
         string replayRunId = Guid.NewGuid().ToString("N");
         Guid replayGuid = Guid.Parse(replayRunId);
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
@@ -83,7 +112,19 @@ public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolve
         RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(replayGuid, scope, sourceAuthorityRun, request);
         await authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
-        List<AgentTask> replayTasks = tasks.Select(t => new AgentTask { TaskId = Guid.NewGuid().ToString("N"), RunId = replayRunId, AgentType = t.AgentType, Objective = t.Objective, Status = AgentTaskStatus.Created, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, CompletedUtc = null, EvidenceBundleRef = t.EvidenceBundleRef, AllowedTools = t.AllowedTools.ToList(), AllowedSources = t.AllowedSources.ToList() }).ToList();
+        List<AgentTask> replayTasks = tasks.Select(t => new AgentTask
+        {
+            TaskId = Guid.NewGuid().ToString("N"),
+            RunId = replayRunId,
+            AgentType = t.AgentType,
+            Objective = t.Objective,
+            Status = AgentTaskStatus.Created,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CompletedUtc = null,
+            EvidenceBundleRef = t.EvidenceBundleRef,
+            AllowedTools = t.AllowedTools.ToList(),
+            AllowedSources = t.AllowedSources.ToList()
+        }).ToList();
         AgentEvidencePackage replayEvidence = CloneEvidenceForReplay(evidence, replayRunId);
         IAgentExecutor executor = agentExecutorResolver.Resolve(executionMode);
         IReadOnlyList<AgentResult> results = await executor.ExecuteAsync(replayRunId, request, replayEvidence, replayTasks, cancellationToken);
@@ -102,10 +143,15 @@ public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolve
                 DecisionTraces = decisionTraces,
                 Warnings = warnings
             };
-        string manifestVersion = string.IsNullOrWhiteSpace(manifestVersionOverride) ? BuildReplayManifestVersion(originalRun.CurrentManifestVersion) : manifestVersionOverride;
-        IReadOnlyList<AgentEvaluation> evaluations = await _agentEvaluationService.EvaluateAsync(replayRunId, request, replayEvidence, replayTasks, results, cancellationToken);
-        IReadOnlyList<DecisionNode> decisionNodes = await _decisionEngineV2.ResolveAsync(replayRunId, request, replayTasks, results, evaluations, cancellationToken);
-        DecisionMergeResult merge = decisionEngineService.MergeResults(replayRunId, request, manifestVersion, results, evaluations, decisionNodes, originalRun.CurrentManifestVersion);
+        string manifestVersion = string.IsNullOrWhiteSpace(manifestVersionOverride)
+            ? BuildReplayManifestVersion(originalRun.CurrentManifestVersion)
+            : manifestVersionOverride;
+        IReadOnlyList<AgentEvaluation> evaluations =
+            await _agentEvaluationService.EvaluateAsync(replayRunId, request, replayEvidence, replayTasks, results, cancellationToken);
+        IReadOnlyList<DecisionNode> decisionNodes =
+            await _decisionEngineV2.ResolveAsync(replayRunId, request, replayTasks, results, evaluations, cancellationToken);
+        DecisionMergeResult merge = decisionEngineService.MergeResults(replayRunId, request, manifestVersion, results, evaluations, decisionNodes,
+            originalRun.CurrentManifestVersion);
         if (!merge.Success)
             throw new InvalidOperationException($"Replay merge failed: {string.Join("; ", merge.Errors)}");
         manifest = merge.Manifest;
@@ -126,11 +172,14 @@ public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolve
             // already persists the committed decision trace (chainKeying.DecisionTraceId → dbo.AuthorityDecisionTraces);
             // RunDetailQueryService now reads decision traces from the authority table only.
             if (uow.SupportsExternalTransaction)
-                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest, chainKeying, TimeProvider.System.GetUtcNow().UtcDateTime, true, cancellationToken, uow.Connection, uow.Transaction);
+                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest,
+                    chainKeying, TimeProvider.System.GetUtcNow().UtcDateTime, true, cancellationToken, uow.Connection, uow.Transaction);
             else
-                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest, chainKeying, TimeProvider.System.GetUtcNow().UtcDateTime, true, cancellationToken);
+                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest,
+                    chainKeying, TimeProvider.System.GetUtcNow().UtcDateTime, true, cancellationToken);
             await uow.CommitAsync(cancellationToken);
-            await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, _logger, replayGuid, request.SystemName, chainPersisted, "replay-commit", true, cancellationToken);
+            await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, _logger, replayGuid, request.SystemName,
+                chainPersisted, "replay-commit", true, cancellationToken);
         }
         catch
         {
@@ -165,24 +214,52 @@ public sealed class ReplayRunService(IAgentExecutorResolver agentExecutorResolve
             SystemName = original.SystemName,
             Environment = original.Environment,
             CloudProvider = original.CloudProvider,
-            Request = new RequestEvidence
-            {
-                Description = original.Request.Description,
-                Constraints = original.Request.Constraints.ToList(),
-                RequiredCapabilities = original.Request.RequiredCapabilities.ToList(),
-                Assumptions = original.Request.Assumptions.ToList()
-            },
-            Policies = original.Policies.Select(p => new PolicyEvidence { PolicyId = p.PolicyId, Title = p.Title, Summary = p.Summary, RequiredControls = p.RequiredControls.ToList(), Tags = p.Tags.ToList() }).ToList(),
-            ServiceCatalog = original.ServiceCatalog.Select(s => new ServiceCatalogEvidence { ServiceId = s.ServiceId, ServiceName = s.ServiceName, Category = s.Category, Summary = s.Summary, Tags = s.Tags.ToList(), RecommendedUseCases = s.RecommendedUseCases.ToList() }).ToList(),
-            Patterns = original.Patterns.Select(p => new PatternEvidence { PatternId = p.PatternId, Name = p.Name, Summary = p.Summary, ApplicableCapabilities = p.ApplicableCapabilities.ToList(), SuggestedServices = p.SuggestedServices.ToList() }).ToList(),
-            PriorManifest = original.PriorManifest is null ? null : new PriorManifestEvidence
-            {
-                ManifestVersion = original.PriorManifest.ManifestVersion,
-                Summary = original.PriorManifest.Summary,
-                ExistingServices = original.PriorManifest.ExistingServices.ToList(),
-                ExistingDatastores = original.PriorManifest.ExistingDatastores.ToList(),
-                ExistingRequiredControls = original.PriorManifest.ExistingRequiredControls.ToList()
-            },
+            Request =
+                new RequestEvidence
+                {
+                    Description = original.Request.Description,
+                    Constraints = original.Request.Constraints.ToList(),
+                    RequiredCapabilities = original.Request.RequiredCapabilities.ToList(),
+                    Assumptions = original.Request.Assumptions.ToList()
+                },
+            Policies =
+                original.Policies.Select(p => new PolicyEvidence
+                {
+                    PolicyId = p.PolicyId,
+                    Title = p.Title,
+                    Summary = p.Summary,
+                    RequiredControls = p.RequiredControls.ToList(),
+                    Tags = p.Tags.ToList()
+                }).ToList(),
+            ServiceCatalog =
+                original.ServiceCatalog.Select(s => new ServiceCatalogEvidence
+                {
+                    ServiceId = s.ServiceId,
+                    ServiceName = s.ServiceName,
+                    Category = s.Category,
+                    Summary = s.Summary,
+                    Tags = s.Tags.ToList(),
+                    RecommendedUseCases = s.RecommendedUseCases.ToList()
+                }).ToList(),
+            Patterns =
+                original.Patterns.Select(p => new PatternEvidence
+                {
+                    PatternId = p.PatternId,
+                    Name = p.Name,
+                    Summary = p.Summary,
+                    ApplicableCapabilities = p.ApplicableCapabilities.ToList(),
+                    SuggestedServices = p.SuggestedServices.ToList()
+                }).ToList(),
+            PriorManifest = original.PriorManifest is null
+                ? null
+                : new PriorManifestEvidence
+                {
+                    ManifestVersion = original.PriorManifest.ManifestVersion,
+                    Summary = original.PriorManifest.Summary,
+                    ExistingServices = original.PriorManifest.ExistingServices.ToList(),
+                    ExistingDatastores = original.PriorManifest.ExistingDatastores.ToList(),
+                    ExistingRequiredControls = original.PriorManifest.ExistingRequiredControls.ToList()
+                },
             Notes = original.Notes.Select(n => new EvidenceNote { NoteType = n.NoteType, Message = n.Message }).ToList(),
             CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };

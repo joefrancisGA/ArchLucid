@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Application.Diffs;
+
 /// <summary>
 ///     Maps a <see cref = "ManifestDiffResult"/> to a three-state sponsor badge (ADR 0023).
 ///     Persisted labels are lowercase: unchanged / changed / breaking.
@@ -8,7 +9,9 @@ namespace ArchLucid.Application.Diffs;
 public static class ManifestDiffBadgeClassifier
 {
     /// <summary>Breaking removed relationships: semantic Hosts→ReadsFrom, Persists→WritesTo, AuthZ→AuthenticatesWith.</summary>
-    private static readonly HashSet<string> BreakingRelationshipTypeNames = [nameof(RelationshipType.ReadsFrom), nameof(RelationshipType.WritesTo), nameof(RelationshipType.AuthenticatesWith)];
+    private static readonly HashSet<string> BreakingRelationshipTypeNames =
+        [nameof(RelationshipType.ReadsFrom), nameof(RelationshipType.WritesTo), nameof(RelationshipType.AuthenticatesWith)];
+
     /// <inheritdoc cref = "Classify(ManifestDiffResult, bool)"/>
     public static ManifestDiffBadgeState Classify(ManifestDiffResult diff)
     {
@@ -39,7 +42,8 @@ public static class ManifestDiffBadgeClassifier
             ManifestDiffBadgeState.Unchanged => "unchanged",
             ManifestDiffBadgeState.Changed => "changed",
             ManifestDiffBadgeState.Breaking => "breaking",
-            _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)};
+            _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+        };
     }
 
     public static bool TryParsePersistedLabel(string? label, out ManifestDiffBadgeState state)
@@ -68,7 +72,9 @@ public static class ManifestDiffBadgeClassifier
 
     private static bool HasAnyStructuralChange(ManifestDiffResult diff)
     {
-        return diff.AddedServices.Count > 0 || diff.RemovedServices.Count > 0 || diff.AddedDatastores.Count > 0 || diff.RemovedDatastores.Count > 0 || diff.AddedRequiredControls.Count > 0 || diff.RemovedRequiredControls.Count > 0 || diff.AddedRelationships.Count > 0 || diff.RemovedRelationships.Count > 0;
+        return diff.AddedServices.Count > 0 || diff.RemovedServices.Count > 0 || diff.AddedDatastores.Count > 0 || diff.RemovedDatastores.Count > 0 ||
+               diff.AddedRequiredControls.Count > 0 || diff.RemovedRequiredControls.Count > 0 || diff.AddedRelationships.Count > 0 ||
+               diff.RemovedRelationships.Count > 0;
     }
 
     private static bool IsBreaking(ManifestDiffResult diff)

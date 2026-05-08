@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Tenancy;
+
 /// <summary>One scheduler-driven trial lifecycle step.</summary>
 public sealed class TrialLifecycleAdvancement
 {
@@ -12,7 +13,18 @@ public sealed class TrialLifecycleAdvancement
         Reason = reason;
     }
 
-    public string FromStatus { get; }
-    public string ToStatus { get; }
-    public string Reason { get; }
+    public string FromStatus
+    {
+        get;
+    }
+
+    public string ToStatus
+    {
+        get;
+    }
+
+    public string Reason
+    {
+        get;
+    }
 }

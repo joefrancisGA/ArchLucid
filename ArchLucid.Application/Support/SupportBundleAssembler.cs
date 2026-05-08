@@ -4,10 +4,13 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+
 using ArchLucid.Core.Support;
+
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Support;
+
 /// <summary>
 ///     Default <see cref = "ISupportBundleAssembler"/>. Assembles a small, self-contained ZIP
 ///     from the running host's perspective (host environment, runtime info, version stamps,
@@ -32,24 +35,32 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
 {
     /// <summary>File names mirror the CLI <c>SupportBundleArchiveWriter</c> constants.</summary>
     public const string ReadmeFileName = "README.txt";
+
     /// <summary>Manifest file inside the ZIP.</summary>
     public const string ManifestFileName = "manifest.json";
+
     /// <summary>Build identity file inside the ZIP.</summary>
     public const string BuildFileName = "build.json";
+
     /// <summary>Environment snapshot file inside the ZIP.</summary>
     public const string EnvironmentFileName = "environment.json";
+
     /// <summary>Static references file inside the ZIP.</summary>
     public const string ReferencesFileName = "references.json";
+
     /// <summary>Bundle format version — bumped only on breaking changes to the file shape.</summary>
     public const string BundleFormatVersion = "server-1.1";
+
     /// <summary>Content type returned to the controller.</summary>
     public const string ZipContentType = "application/zip";
-    private static readonly JsonSerializerOptions JsonWrite = new()
-    {
-        WriteIndented = true
-    };
-    private readonly IOptionsMonitor<SupportBundleOptions> _supportBundleOptions = supportBundleOptions ?? throw new ArgumentNullException(nameof(supportBundleOptions));
+
+    private static readonly JsonSerializerOptions JsonWrite = new() { WriteIndented = true };
+
+    private readonly IOptionsMonitor<SupportBundleOptions> _supportBundleOptions =
+        supportBundleOptions ?? throw new ArgumentNullException(nameof(supportBundleOptions));
+
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
     /// <inheritdoc/>
     public Task<SupportBundleArtifact> AssembleAsync(SupportBundleRequest request, CancellationToken cancellationToken = default)
     {
@@ -69,7 +80,13 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         string referencesJson = SerializeIndented(BuildReferencesSection());
         string nextStepsJson = SerializeIndented(nextSteps);
         string readmeText = BuildReadme(createdUtcIso, requesterDisplay, tenantDisplay, nextSteps);
-        byte[] zipBytes = WriteZip([new SupportBundleZipEntry(ReadmeFileName, RedactToBytes(readmeText)), new SupportBundleZipEntry(SupportBundleLayout.NextStepsFileName, RedactToBytes(nextStepsJson)), new SupportBundleZipEntry(ManifestFileName, RedactToBytes(manifestJson)), new SupportBundleZipEntry(BuildFileName, RedactToBytes(buildJson)), new SupportBundleZipEntry(EnvironmentFileName, RedactToBytes(environmentJson)), new SupportBundleZipEntry(ReferencesFileName, RedactToBytes(referencesJson))]);
+        byte[] zipBytes = WriteZip([
+            new SupportBundleZipEntry(ReadmeFileName, RedactToBytes(readmeText)),
+            new SupportBundleZipEntry(SupportBundleLayout.NextStepsFileName, RedactToBytes(nextStepsJson)),
+            new SupportBundleZipEntry(ManifestFileName, RedactToBytes(manifestJson)), new SupportBundleZipEntry(BuildFileName, RedactToBytes(buildJson)),
+            new SupportBundleZipEntry(EnvironmentFileName, RedactToBytes(environmentJson)),
+            new SupportBundleZipEntry(ReferencesFileName, RedactToBytes(referencesJson))
+        ]);
         string fileName = "archlucid-support-bundle-" + generatedUtc.UtcDateTime.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) + "Z.zip";
         int retentionDays = Math.Max(1, _supportBundleOptions.CurrentValue.BundleRetentionDays);
         DateTimeOffset retentionDiscardAfterUtc = generatedUtc.AddDays(retentionDays);
@@ -92,38 +109,15 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
             tenantDisplayName = tenantDisplay,
             triageReadOrder = new object[]
             {
-                new
-                {
-                    file = ReadmeFileName,
-                    why = "Plain-text overview — open first."
-                },
-                new
-                {
-                    file = SupportBundleLayout.NextStepsFileName,
-                    why = "Machine-generated triage summary (advisory only)."
-                },
-                new
-                {
-                    file = ManifestFileName,
-                    why = "Bundle metadata + read order in machine-readable form."
-                },
-                new
-                {
-                    file = BuildFileName,
-                    why = "Host build identity (assembly version, runtime)."
-                },
-                new
-                {
-                    file = EnvironmentFileName,
-                    why = "Redacted host environment snapshot."
-                },
-                new
-                {
-                    file = ReferencesFileName,
-                    why = "Doc links and correlation hints."
-                }
+                new { file = ReadmeFileName, why = "Plain-text overview — open first." },
+                new { file = SupportBundleLayout.NextStepsFileName, why = "Machine-generated triage summary (advisory only)." },
+                new { file = ManifestFileName, why = "Bundle metadata + read order in machine-readable form." },
+                new { file = BuildFileName, why = "Host build identity (assembly version, runtime)." },
+                new { file = EnvironmentFileName, why = "Redacted host environment snapshot." },
+                new { file = ReferencesFileName, why = "Doc links and correlation hints." }
             },
-            notes = "Server-assembled bundle. Sensitive env-var values appear only as (set)/(not set); " + "bearer tokens, X-Api-Key headers, and connection-string passwords are replaced with [REDACTED]."
+            notes = "Server-assembled bundle. Sensitive env-var values appear only as (set)/(not set); " +
+                    "bearer tokens, X-Api-Key headers, and connection-string passwords are replaced with [REDACTED]."
         };
     }
 
@@ -150,8 +144,7 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
     {
         return new
         {
-            archlucidAndDotnetEnvironment,
-            notes = "Only ARCHLUCID_* and DOTNET_* variables are included. Secret-shaped names show (set)/(not set) only."
+            archlucidAndDotnetEnvironment, notes = "Only ARCHLUCID_* and DOTNET_* variables are included. Secret-shaped names show (set)/(not set) only."
         };
     }
 
@@ -159,20 +152,16 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
     {
         return new
         {
-            apiEndpoints = new[]
-            {
-                "GET /version — build identity (no auth)",
-                "GET /health/live — liveness",
-                "GET /health/ready — readiness",
-                "GET /health — combined detailed checks (ReadAuthority)",
-                "GET /openapi/v1.json — OpenAPI document"
-            },
+            apiEndpoints =
+                new[]
+                {
+                    "GET /version — build identity (no auth)", "GET /health/live — liveness", "GET /health/ready — readiness",
+                    "GET /health — combined detailed checks (ReadAuthority)", "GET /openapi/v1.json — OpenAPI document"
+                },
             documentation = new[]
             {
-                SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — symptom-first pilot triage",
-                "docs/TROUBLESHOOTING.md",
-                "docs/OPERATOR_QUICKSTART.md",
-                "docs/library/OPERATOR_ATLAS.md",
+                SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — symptom-first pilot triage", "docs/TROUBLESHOOTING.md",
+                "docs/OPERATOR_QUICKSTART.md", "docs/library/OPERATOR_ATLAS.md",
                 "docs/PENDING_QUESTIONS.md item 37 (Resolved 2026-05-03 — manual review before external forward; ExecuteAuthority holders only for bundling tenant-identifying/contact PII to third parties)."
             },
             correlation = "Match X-Correlation-ID response header / problem JSON correlationId against API logs."

@@ -1,8 +1,10 @@
 using System.Globalization;
 using System.Text;
+
 using ArchLucid.Application.Value;
 
 namespace ArchLucid.Application.ExecDigest;
+
 /// <summary>
 ///     Markdown projection of <see cref="ExecDigestComposition"/> for board-pack PDF reuse (same fields as weekly
 ///     email model).
@@ -40,7 +42,8 @@ public static class ExecDigestCompositionMarkdownFormatter
             sb.AppendLine("## Highlighted runs");
             foreach (ExecDigestHighlightedRun run in runs)
             {
-                sb.AppendLine($"- `{run.RunIdHex}` — score {run.SignificanceScore.ToString(CultureInfo.InvariantCulture)}" + (string.IsNullOrWhiteSpace(run.Caption) ? string.Empty : $" — {run.Caption}"));
+                sb.AppendLine($"- `{run.RunIdHex}` — score {run.SignificanceScore.ToString(CultureInfo.InvariantCulture)}" +
+                              (string.IsNullOrWhiteSpace(run.Caption) ? string.Empty : $" — {run.Caption}"));
             }
         }
 

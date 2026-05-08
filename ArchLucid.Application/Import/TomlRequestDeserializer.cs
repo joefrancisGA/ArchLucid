@@ -1,10 +1,13 @@
 using System.Globalization;
 using System.Text.Json;
+
 using ArchLucid.Contracts.Requests;
+
 using Tomlyn;
 using Tomlyn.Model;
 
 namespace ArchLucid.Application.Import;
+
 /// <summary>
 ///     Strict TOML import: parse to <see cref="TomlTable"/>, convert to JSON, then
 ///     <see cref="JsonRequestDeserializer"/> (unknown fields rejected).
@@ -12,6 +15,7 @@ namespace ArchLucid.Application.Import;
 public static class TomlRequestDeserializer
 {
     private const int MaxDepth = 5;
+
     public static ArchitectureRequest Deserialize(string text)
     {
         ArgumentNullException.ThrowIfNull(text);
@@ -78,7 +82,8 @@ public static class TomlRequestDeserializer
                     items.Add(TomlValueToJson(item, depth));
                 return JsonSerializer.SerializeToElement(items, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
             default:
-                return JsonSerializer.SerializeToElement(Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+                return JsonSerializer.SerializeToElement(Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty,
+                    ImportArchitectureRequestSerializerOptions.StrictDeserialize);
         }
     }
 

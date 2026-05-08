@@ -1,6 +1,7 @@
 using System.Text;
 
 namespace ArchLucid.Application.Tenancy;
+
 /// <summary>Derives URL-safe tenant slugs from display names.</summary>
 public static class TenantSlugNormalizer
 {
@@ -30,6 +31,8 @@ public static class TenantSlugNormalizer
         string slug = sb.ToString();
         if (slug.Length > 100)
             slug = slug[..100].TrimEnd('-');
-        return string.IsNullOrEmpty(slug) ? throw new InvalidOperationException("Tenant name must contain at least one letter or digit for slug generation.") : slug;
+        return string.IsNullOrEmpty(slug)
+            ? throw new InvalidOperationException("Tenant name must contain at least one letter or digit for slug generation.")
+            : slug;
     }
 }

@@ -7,10 +7,7 @@ namespace ArchLucid.Application.Integrations.Itsm.Outbound;
 /// <summary>Maps persisted authority finding JSON to coarse ticket fields (no new projection schema).</summary>
 internal static class ItsmFindingAuthorityPayloadMapper
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonSerializerOptions SerializerOptions = new() { PropertyNameCaseInsensitive = true };
 
     public static FindingSeverity TryGetSeverity(JsonElement? typedPayload, FindingSeverity @default = FindingSeverity.Info)
     {

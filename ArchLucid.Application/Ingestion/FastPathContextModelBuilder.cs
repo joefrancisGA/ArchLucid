@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Ingestion;
 
 namespace ArchLucid.Application.Ingestion;
+
 /// <summary>
 ///     Builds a minimal C4-shaped preview from a repository URL without cloning or LLM work (time-to-value helper).
 /// </summary>
@@ -19,44 +20,55 @@ public static class FastPathContextModelBuilder
 
         string slug = ExtractRepositorySlug(uri);
         string systemTitle = SlugToTitle(slug);
-        List<FastPathContextElementDto> elements = [new FastPathContextElementDto
-        {
-            ElementId = "fast-system-1",
-            Name = systemTitle,
-            Kind = "SoftwareSystem",
-            ReasoningTrace = "Heuristic: software system name taken from the last non-empty path segment of the repository URL."
-        }, new FastPathContextElementDto
-        {
-            ElementId = "fast-container-app",
-            Name = $"{systemTitle} workload",
-            Kind = "Container",
-            ReasoningTrace = "Heuristic placeholder for compute / application tier. Run full context ingest for repository-accurate components."
-        }, new FastPathContextElementDto
-        {
-            ElementId = "fast-container-data",
-            Name = $"{systemTitle} data",
-            Kind = "Container",
-            ReasoningTrace = "Heuristic placeholder for persistence. Refine with connector inventory after deep ingest."
-        }
-
+        List<FastPathContextElementDto> elements =
+        [
+            new FastPathContextElementDto
+            {
+                ElementId = "fast-system-1",
+                Name = systemTitle,
+                Kind = "SoftwareSystem",
+                ReasoningTrace = "Heuristic: software system name taken from the last non-empty path segment of the repository URL."
+            },
+            new FastPathContextElementDto
+            {
+                ElementId = "fast-container-app",
+                Name = $"{systemTitle} workload",
+                Kind = "Container",
+                ReasoningTrace = "Heuristic placeholder for compute / application tier. Run full context ingest for repository-accurate components."
+            },
+            new FastPathContextElementDto
+            {
+                ElementId = "fast-container-data",
+                Name = $"{systemTitle} data",
+                Kind = "Container",
+                ReasoningTrace = "Heuristic placeholder for persistence. Refine with connector inventory after deep ingest."
+            }
         ];
         string combined = $"{uri.AbsoluteUri} {slug}".ToUpperInvariant();
         if (combined.Contains("API", StringComparison.Ordinal))
         {
-            elements.Add(new FastPathContextElementDto { ElementId = "fast-container-api", Name = "Public HTTP API", Kind = "Container", ReasoningTrace = "Heuristic: 'api' token detected in URL or slug — likely HTTP boundary." });
+            elements.Add(new FastPathContextElementDto
+            {
+                ElementId = "fast-container-api",
+                Name = "Public HTTP API",
+                Kind = "Container",
+                ReasoningTrace = "Heuristic: 'api' token detected in URL or slug — likely HTTP boundary."
+            });
         }
 
-        if (combined.Contains("UI", StringComparison.Ordinal) || combined.Contains("WEB", StringComparison.Ordinal) || combined.Contains("FRONT", StringComparison.Ordinal))
+        if (combined.Contains("UI", StringComparison.Ordinal) || combined.Contains("WEB", StringComparison.Ordinal) ||
+            combined.Contains("FRONT", StringComparison.Ordinal))
         {
-            elements.Add(new FastPathContextElementDto { ElementId = "fast-container-web", Name = "Web client", Kind = "Container", ReasoningTrace = "Heuristic: UI/web/front token detected in URL or slug — likely browser or SPA surface." });
+            elements.Add(new FastPathContextElementDto
+            {
+                ElementId = "fast-container-web",
+                Name = "Web client",
+                Kind = "Container",
+                ReasoningTrace = "Heuristic: UI/web/front token detected in URL or slug — likely browser or SPA surface."
+            });
         }
 
-        return new FastPathContextPreviewResponse
-        {
-            SourceUrl = trimmed,
-            Elements = elements,
-            Mode = "heuristic-v1"
-        };
+        return new FastPathContextPreviewResponse { SourceUrl = trimmed, Elements = elements, Mode = "heuristic-v1" };
     }
 
     private static string ExtractRepositorySlug(Uri uri)

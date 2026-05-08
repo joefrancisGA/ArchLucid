@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Rehydrates a <see cref = "PersistedAnalysisExportRequest"/> from the JSON stored on a <see cref = "RunExportRecord"/>
 ///     .
@@ -12,10 +13,8 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public static class AnalysisExportRequestRehydrator
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+
     public static PersistedAnalysisExportRequest? Rehydrate(RunExportRecord record)
     {
         ArgumentNullException.ThrowIfNull(record);
@@ -27,7 +26,9 @@ public static class AnalysisExportRequestRehydrator
         }
         catch (JsonException ex)
         {
-            throw new InvalidOperationException($"Export record '{record.ExportRecordId}' AnalysisRequestJson could not be deserialized. " + "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+            throw new InvalidOperationException(
+                $"Export record '{record.ExportRecordId}' AnalysisRequestJson could not be deserialized. " +
+                "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
         }
     }
 }

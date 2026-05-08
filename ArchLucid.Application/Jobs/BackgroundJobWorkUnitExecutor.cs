@@ -1,20 +1,35 @@
 using System.Text.Json;
+
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Application.Jobs;
+
 /// <summary>
 ///     Loads run detail from persistence and runs DOCX export pipelines for queued work units.
 /// </summary>
-public sealed class BackgroundJobWorkUnitExecutor(IRunDetailQueryService runDetailQuery, IArchitectureAnalysisService architectureAnalysisService, IArchitectureAnalysisDocxExportService docxExportService, IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService, IAuditService auditService) : IBackgroundJobWorkUnitExecutor
+public sealed class BackgroundJobWorkUnitExecutor(
+    IRunDetailQueryService runDetailQuery,
+    IArchitectureAnalysisService architectureAnalysisService,
+    IArchitectureAnalysisDocxExportService docxExportService,
+    IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService,
+    IAuditService auditService) : IBackgroundJobWorkUnitExecutor
 {
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
-    private readonly IArchitectureAnalysisService _architectureAnalysisService = architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
-    private readonly IArchitectureAnalysisDocxExportService _docxExportService = docxExportService ?? throw new ArgumentNullException(nameof(docxExportService));
-    private readonly IArchitectureAnalysisConsultingDocxExportService _consultingDocxExportService = consultingDocxExportService ?? throw new ArgumentNullException(nameof(consultingDocxExportService));
+
+    private readonly IArchitectureAnalysisService _architectureAnalysisService =
+        architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
+
+    private readonly IArchitectureAnalysisDocxExportService
+        _docxExportService = docxExportService ?? throw new ArgumentNullException(nameof(docxExportService));
+
+    private readonly IArchitectureAnalysisConsultingDocxExportService _consultingDocxExportService =
+        consultingDocxExportService ?? throw new ArgumentNullException(nameof(consultingDocxExportService));
+
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     public async Task<BackgroundJobFile> ExecuteAsync(BackgroundJobWorkUnit workUnit, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(workUnit);
@@ -22,7 +37,8 @@ public sealed class BackgroundJobWorkUnitExecutor(IRunDetailQueryService runDeta
         {
             AnalysisReportDocxWorkUnit w => await ExecuteAnalysisReportDocxAsync(w, cancellationToken),
             ConsultingDocxWorkUnit w => await ExecuteConsultingDocxAsync(w, cancellationToken),
-            _ => throw new InvalidOperationException($"Unsupported background job work unit: {workUnit.GetType().Name}.")};
+            _ => throw new InvalidOperationException($"Unsupported background job work unit: {workUnit.GetType().Name}.")
+        };
     }
 
     private async Task<BackgroundJobFile> ExecuteAnalysisReportDocxAsync(AnalysisReportDocxWorkUnit unit, CancellationToken cancellationToken)
@@ -67,12 +83,21 @@ public sealed class BackgroundJobWorkUnitExecutor(IRunDetailQueryService runDeta
         return new BackgroundJobFile(unit.FileName, unit.ContentType, bytes);
     }
 
-    private async Task LogArchitectureDocxExportGeneratedAsync(string runId, string exportChannel, int byteCount, string fileName, CancellationToken cancellationToken)
+    private async Task LogArchitectureDocxExportGeneratedAsync(string runId, string exportChannel, int byteCount, string fileName,
+        CancellationToken cancellationToken)
     {
         Guid correlationSuffix = Guid.NewGuid();
         DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         Guid? auditRunId = TryParseRunGuid(runId);
-        await _auditService.LogAsync(new AuditEvent { OccurredUtc = occurredUtc, EventType = AuditEventTypes.ArchitectureDocxExportGenerated, CorrelationId = $"{exportChannel}:{runId}:{correlationSuffix:N}", RunId = auditRunId, DataJson = JsonSerializer.Serialize(new { runId, exportChannel, byteCount, fileName }, AuditJsonSerializationOptions.Instance) }, cancellationToken);
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                OccurredUtc = occurredUtc,
+                EventType = AuditEventTypes.ArchitectureDocxExportGenerated,
+                CorrelationId = $"{exportChannel}:{runId}:{correlationSuffix:N}",
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(new { runId, exportChannel, byteCount, fileName }, AuditJsonSerializationOptions.Instance)
+            }, cancellationToken);
     }
 
     private static Guid? TryParseRunGuid(string runId)

@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Thrown when replay mode is <see cref = "ComparisonReplayMode.Verify"/> and the
 ///     regenerated comparison does not match the stored payload (engine or architecture drift).
@@ -17,5 +18,8 @@ public sealed class ComparisonVerificationFailedException : InvalidOperationExce
         ArgumentNullException.ThrowIfNull(innerException);
     }
 
-    public DriftAnalysisResult? Drift { get; }
+    public DriftAnalysisResult? Drift
+    {
+        get;
+    }
 }

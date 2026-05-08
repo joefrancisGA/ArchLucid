@@ -7,15 +7,19 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Identity;
+
 /// <summary>Have I Been Pwned k-anonymity range API (SHA-1 prefix).</summary>
 public sealed class PwnedPasswordRangeClient(HttpClient httpClient, IMemoryCache cache, IOptions<TrialAuthOptions>? trialOptions)
 {
     private const string CacheKeyPrefix = "pwned-range:";
+
     /// <summary>How long downloaded HIBP range lines stay in <see cref = "IMemoryCache"/> (per SHA-1 prefix).</summary>
     public static readonly TimeSpan RangeResponseCacheDuration = TimeSpan.FromHours(24);
+
     private readonly IMemoryCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
     private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     private readonly TrialAuthOptions _trial = trialOptions?.Value ?? throw new ArgumentNullException(nameof(trialOptions));
+
     /// <summary>True when the full SHA-1 hash of the password appears in the downloaded range set.</summary>
     public async Task<bool> IsPasswordPwnedAsync(string password, CancellationToken cancellationToken)
     {
@@ -31,7 +35,8 @@ public sealed class PwnedPasswordRangeClient(HttpClient httpClient, IMemoryCache
         string cacheKey = CacheKeyPrefix + prefix;
         if (_cache.TryGetValue(cacheKey, out IReadOnlySet<string>? suffixes) && suffixes is not null)
             return suffixes.Contains(suffix);
-        using HttpResponseMessage response = await _httpClient.GetAsync(new Uri($"https://api.pwnedpasswords.com/range/{prefix}", UriKind.Absolute), cancellationToken);
+        using HttpResponseMessage response =
+            await _httpClient.GetAsync(new Uri($"https://api.pwnedpasswords.com/range/{prefix}", UriKind.Absolute), cancellationToken);
         response.EnsureSuccessStatusCode();
         string body = await response.Content.ReadAsStringAsync(cancellationToken);
         HashSet<string> set = ParseRangeBody(body);

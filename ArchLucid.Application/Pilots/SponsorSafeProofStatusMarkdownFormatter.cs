@@ -131,7 +131,8 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return "**Tenant comparative baseline is incomplete or defaulted** — keep sponsor wording qualitative and avoid bespoke dollar narratives.";
 
         if (run.RealModeFellBackToSimulator)
-            yield return "**Simulator substitution is recorded on the run** — disclose before any sponsor conversation implies live-model spend or production agent execution.";
+            yield return
+                "**Simulator substitution is recorded on the run** — disclose before any sponsor conversation implies live-model spend or production agent execution.";
 
         if (disposition == SponsorSafeProofDisposition.Sendable)
             yield return "No remaining automated sponsor-blocking checks — structured gate detail is spelled out later; still reconcile qualitative baselines.";

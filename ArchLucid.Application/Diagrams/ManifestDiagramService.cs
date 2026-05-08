@@ -1,7 +1,9 @@
 using System.Text;
+
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Diagrams;
+
 /// <summary>
 ///     Generates a Mermaid flowchart from a <see cref = "GoldenManifest"/> with configurable layout,
 ///     relationship labels, and optional subgraph grouping via <see cref = "ManifestDiagramOptions"/>.
@@ -36,7 +38,9 @@ public sealed class ManifestDiagramService : IManifestDiagramService
                 }
             else
             {
-                IOrderedEnumerable<IGrouping<string, ManifestService>> groups = services.GroupBy(s => groupBy == ManifestDiagramConstants.GroupByRuntimePlatform ? s.RuntimePlatform.ToString() : s.ServiceType.ToString(), StringComparer.OrdinalIgnoreCase).OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
+                IOrderedEnumerable<IGrouping<string, ManifestService>> groups = services
+                    .GroupBy(s => groupBy == ManifestDiagramConstants.GroupByRuntimePlatform ? s.RuntimePlatform.ToString() : s.ServiceType.ToString(),
+                        StringComparer.OrdinalIgnoreCase).OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
                 foreach (IGrouping<string, ManifestService> g in groups)
                 {
                     sb.AppendLine($"    subgraph {SanitizeId(g.Key)}[\"{EscapeLabel(g.Key)}\"]");
@@ -78,6 +82,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         }
 
         return sb.ToString().TrimEnd();
+
         string GetOrCreateNodeId(string kind, string rawId, string fallbackName)
         {
             string key = $"{kind}:{rawId}";
@@ -124,7 +129,9 @@ public sealed class ManifestDiagramService : IManifestDiagramService
     {
         if (!includeRuntimePlatform)
             return datastore.DatastoreName;
-        return string.IsNullOrWhiteSpace(datastore.RuntimePlatform.ToString()) ? datastore.DatastoreName : $"{datastore.DatastoreName}\\n{datastore.RuntimePlatform}";
+        return string.IsNullOrWhiteSpace(datastore.RuntimePlatform.ToString())
+            ? datastore.DatastoreName
+            : $"{datastore.DatastoreName}\\n{datastore.RuntimePlatform}";
     }
 
     private static string EnsureUnique(string baseId, HashSet<string> used)

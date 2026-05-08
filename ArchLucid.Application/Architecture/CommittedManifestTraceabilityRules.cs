@@ -4,6 +4,7 @@ using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Architecture;
+
 /// <summary>
 ///     Integrity rules for committed coordinator runs: golden manifest metadata must list every persisted
 ///     <see cref = "DecisionTrace"/> id (populated by <c>AttachDecisionTraceIds</c> during merge).
@@ -27,7 +28,7 @@ public static class CommittedManifestTraceabilityRules
     {
         ArgumentNullException.ThrowIfNull(traces);
         if (manifest is null)
-            return[];
+            return [];
         List<string> gaps = [];
         HashSet<string> idsOnManifest = new(StringComparer.OrdinalIgnoreCase);
         foreach (string id in manifest.Metadata.DecisionTraceIds)

@@ -8,14 +8,21 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Governance;
+
 /// <inheritdoc cref = "IGovernanceLineageService"/>
-public sealed class GovernanceLineageService(IGovernanceApprovalRequestRepository approvalRepo, IGovernancePromotionRecordRepository promotionRepo, IRunDetailQueryService runDetailQuery, IAuthorityQueryService authorityQuery, IScopeContextProvider scopeProvider) : IGovernanceLineageService
+public sealed class GovernanceLineageService(
+    IGovernanceApprovalRequestRepository approvalRepo,
+    IGovernancePromotionRecordRepository promotionRepo,
+    IRunDetailQueryService runDetailQuery,
+    IAuthorityQueryService authorityQuery,
+    IScopeContextProvider scopeProvider) : IGovernanceLineageService
 {
     private readonly IGovernanceApprovalRequestRepository _approvalRepo = approvalRepo ?? throw new ArgumentNullException(nameof(approvalRepo));
     private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
     private readonly IGovernancePromotionRecordRepository _promotionRepo = promotionRepo ?? throw new ArgumentNullException(nameof(promotionRepo));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
     /// <inheritdoc/>
     public async Task<GovernanceLineageResult?> GetApprovalRequestLineageAsync(string approvalRequestId, CancellationToken cancellationToken = default)
     {
@@ -24,14 +31,16 @@ public sealed class GovernanceLineageService(IGovernanceApprovalRequestRepositor
         if (approval is null)
             return null;
         ArchitectureRunDetail? coordinatorDetail = await _runDetailQuery.GetRunDetailAsync(approval.RunId, cancellationToken);
-        GovernanceLineageRunSummary? runSummary = coordinatorDetail is null ? null : new GovernanceLineageRunSummary
-        {
-            RunId = coordinatorDetail.Run.RunId,
-            Status = coordinatorDetail.Run.Status.ToString(),
-            CreatedUtc = coordinatorDetail.Run.CreatedUtc,
-            CompletedUtc = coordinatorDetail.Run.CompletedUtc,
-            CurrentManifestVersion = coordinatorDetail.Run.CurrentManifestVersion
-        };
+        GovernanceLineageRunSummary? runSummary = coordinatorDetail is null
+            ? null
+            : new GovernanceLineageRunSummary
+            {
+                RunId = coordinatorDetail.Run.RunId,
+                Status = coordinatorDetail.Run.Status.ToString(),
+                CreatedUtc = coordinatorDetail.Run.CreatedUtc,
+                CompletedUtc = coordinatorDetail.Run.CompletedUtc,
+                CurrentManifestVersion = coordinatorDetail.Run.CurrentManifestVersion
+            };
         IReadOnlyList<GovernancePromotionRecord> promotions = await _promotionRepo.GetByRunIdAsync(approval.RunId, cancellationToken);
         GovernanceLineageManifestSummary? manifestSummary = null;
         List<GovernanceLineageFindingSummary> topFindings = [];
@@ -73,7 +82,17 @@ public sealed class GovernanceLineageService(IGovernanceApprovalRequestRepositor
             };
         IEnumerable<Finding> ordered = findings.OrderByDescending(f => (int)f.Severity).ThenBy(f => f.Title, StringComparer.OrdinalIgnoreCase);
         topFindings.AddRange(
-            from f in ordered.Take(10)let score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f)select new GovernanceLineageFindingSummary { FindingId = f.FindingId, Title = f.Title, EngineType = f.EngineType, Severity = f.Severity.ToString(), TraceCompletenessRatio = score.CompletenessRatio, SourceAgentExecutionTraceId = f.Trace?.SourceAgentExecutionTraceId });
+            from f in ordered.Take(10)
+            let score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f)
+            select new GovernanceLineageFindingSummary
+            {
+                FindingId = f.FindingId,
+                Title = f.Title,
+                EngineType = f.EngineType,
+                Severity = f.Severity.ToString(),
+                TraceCompletenessRatio = score.CompletenessRatio,
+                SourceAgentExecutionTraceId = f.Trace?.SourceAgentExecutionTraceId
+            });
         return new GovernanceLineageResult
         {
             ApprovalRequest = approval,

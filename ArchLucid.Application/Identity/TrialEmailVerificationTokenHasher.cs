@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace ArchLucid.Application.Identity;
+
 public static class TrialEmailVerificationTokenHasher
 {
     public static string Hash(string rawToken)

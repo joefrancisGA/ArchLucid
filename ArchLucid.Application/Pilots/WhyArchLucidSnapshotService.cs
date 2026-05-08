@@ -4,21 +4,28 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>
 ///     Default <see cref = "IWhyArchLucidSnapshotService"/> that combines cumulative
 ///     <see cref = "ArchLucidInstrumentation"/> counters (via an
 ///     <see cref = "IInstrumentationCounterSnapshotProvider"/>) with a default-scope audit row count and the
 ///     canonical Contoso Retail demo run id.
 /// </summary>
-public sealed class WhyArchLucidSnapshotService(IInstrumentationCounterSnapshotProvider counters, IAuditRepository auditRepository, TimeProvider timeProvider, ILogger<WhyArchLucidSnapshotService> logger) : IWhyArchLucidSnapshotService
+public sealed class WhyArchLucidSnapshotService(
+    IInstrumentationCounterSnapshotProvider counters,
+    IAuditRepository auditRepository,
+    TimeProvider timeProvider,
+    ILogger<WhyArchLucidSnapshotService> logger) : IWhyArchLucidSnapshotService
 {
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     private readonly ILogger<WhyArchLucidSnapshotService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IInstrumentationCounterSnapshotProvider _counters = counters ?? throw new ArgumentNullException(nameof(counters));
+
     /// <inheritdoc/>
     public async Task<WhyArchLucidSnapshotResponse> BuildAsync(CancellationToken cancellationToken)
     {
@@ -35,7 +42,8 @@ public sealed class WhyArchLucidSnapshotService(IInstrumentationCounterSnapshotP
         bool truncated = false;
         try
         {
-            IReadOnlyList<AuditEvent> events = await auditRepository.GetByScopeAsync(ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject, WhyArchLucidSnapshotResponse.AuditRowCountCap, cancellationToken);
+            IReadOnlyList<AuditEvent> events = await auditRepository.GetByScopeAsync(ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject,
+                WhyArchLucidSnapshotResponse.AuditRowCountCap, cancellationToken);
             auditCount = events.Count;
             truncated = events.Count >= WhyArchLucidSnapshotResponse.AuditRowCountCap;
         }

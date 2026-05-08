@@ -1,10 +1,12 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchLucid.Application.DataConsistency;
+
 /// <summary>Maps the last scheduled reconciliation outcome to ASP.NET health status.</summary>
 public sealed class DataConsistencyHealthCheck(DataConsistencyReconciliationHealthState healthState) : IHealthCheck
 {
     private readonly DataConsistencyReconciliationHealthState _healthState = healthState ?? throw new ArgumentNullException(nameof(healthState));
+
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -17,6 +19,8 @@ public sealed class DataConsistencyHealthCheck(DataConsistencyReconciliationHeal
             return Task.FromResult(HealthCheckResult.Unhealthy("Data consistency reconciliation state is inconsistent (no report)."));
         if (report.Findings.Any(f => f.Severity == DataConsistencyFindingSeverity.Critical))
             return Task.FromResult(HealthCheckResult.Unhealthy("Critical data consistency findings detected in the last reconciliation."));
-        return Task.FromResult(report.Findings.Any(f => f.Severity == DataConsistencyFindingSeverity.Warning) ? HealthCheckResult.Degraded("Warning-level data consistency findings detected in the last reconciliation.") : HealthCheckResult.Healthy("Last data consistency reconciliation reported no warnings or critical issues."));
+        return Task.FromResult(report.Findings.Any(f => f.Severity == DataConsistencyFindingSeverity.Warning)
+            ? HealthCheckResult.Degraded("Warning-level data consistency findings detected in the last reconciliation.")
+            : HealthCheckResult.Healthy("Last data consistency reconciliation reported no warnings or critical issues."));
     }
 }

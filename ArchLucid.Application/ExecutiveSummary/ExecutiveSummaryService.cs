@@ -5,28 +5,22 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.ExecutiveSummary;
+
 /// <inheritdoc cref = "IExecutiveSummaryService"/>
 public sealed class ExecutiveSummaryService(IRunRepository runRepository, IRunDetailQueryService runDetailQueryService) : IExecutiveSummaryService
 {
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     public async Task<ExecutiveSummaryResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.Empty,
-            ProjectId = Guid.Empty
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.Empty, ProjectId = Guid.Empty };
         IReadOnlyList<RunRecord> recentRuns = await _runRepository.ListRecentInScopeAsync(scope, 1, cancellationToken);
         if (recentRuns.Count == 0)
         {
             return new ExecutiveSummaryResponse
             {
-                TenantId = tenantId.ToString("N"),
-                SecurityPostureScore = 100,
-                TechDebtRiskScore = 100,
-                ComplianceAlignmentScore = 100
+                TenantId = tenantId.ToString("N"), SecurityPostureScore = 100, TechDebtRiskScore = 100, ComplianceAlignmentScore = 100
             };
         }
 

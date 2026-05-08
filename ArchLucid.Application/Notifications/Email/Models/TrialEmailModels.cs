@@ -1,9 +1,24 @@
 namespace ArchLucid.Application.Notifications.Email.Models;
+
 public sealed record TrialWelcomeEmailModel
 {
-    public string OrganizationHint { get; init; }
-    public string ProductName { get; init; }
-    public string? LogoImageUrl { get; init; }
+    public string OrganizationHint
+    {
+        get;
+        init;
+    }
+
+    public string ProductName
+    {
+        get;
+        init;
+    }
+
+    public string? LogoImageUrl
+    {
+        get;
+        init;
+    }
 
     public TrialWelcomeEmailModel(string organizationHint, string productName, string? logoImageUrl = null)
     {
@@ -15,9 +30,23 @@ public sealed record TrialWelcomeEmailModel
 
 public sealed record TrialFirstRunEmailModel
 {
-    public string ProductName { get; init; }
-    public string GettingStartedUrl { get; init; }
-    public string? LogoImageUrl { get; init; }
+    public string ProductName
+    {
+        get;
+        init;
+    }
+
+    public string GettingStartedUrl
+    {
+        get;
+        init;
+    }
+
+    public string? LogoImageUrl
+    {
+        get;
+        init;
+    }
 
     public TrialFirstRunEmailModel(string productName, string gettingStartedUrl, string? logoImageUrl = null)
     {
@@ -29,9 +58,23 @@ public sealed record TrialFirstRunEmailModel
 
 public sealed record TrialMidTrialEmailModel
 {
-    public string ProductName { get; init; }
-    public string DashboardUrl { get; init; }
-    public string? LogoImageUrl { get; init; }
+    public string ProductName
+    {
+        get;
+        init;
+    }
+
+    public string DashboardUrl
+    {
+        get;
+        init;
+    }
+
+    public string? LogoImageUrl
+    {
+        get;
+        init;
+    }
 
     public TrialMidTrialEmailModel(string productName, string dashboardUrl, string? logoImageUrl = null)
     {
@@ -51,9 +94,23 @@ public sealed record TrialExpiringSoonEmailModel(string ProductName, int DaysRem
 
 public sealed record TrialExpiredEmailModel
 {
-    public string ProductName { get; init; }
-    public string ExportHelpUrl { get; init; }
-    public string? LogoImageUrl { get; init; }
+    public string ProductName
+    {
+        get;
+        init;
+    }
+
+    public string ExportHelpUrl
+    {
+        get;
+        init;
+    }
+
+    public string? LogoImageUrl
+    {
+        get;
+        init;
+    }
 
     public TrialExpiredEmailModel(string productName, string exportHelpUrl, string? logoImageUrl = null)
     {
@@ -65,9 +122,23 @@ public sealed record TrialExpiredEmailModel
 
 public sealed record TrialConvertedEmailModel
 {
-    public string ProductName { get; init; }
-    public string Tier { get; init; }
-    public string? LogoImageUrl { get; init; }
+    public string ProductName
+    {
+        get;
+        init;
+    }
+
+    public string Tier
+    {
+        get;
+        init;
+    }
+
+    public string? LogoImageUrl
+    {
+        get;
+        init;
+    }
 
     public TrialConvertedEmailModel(string productName, string tier, string? logoImageUrl = null)
     {

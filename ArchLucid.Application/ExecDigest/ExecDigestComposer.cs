@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
@@ -7,22 +8,34 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.ExecDigest;
+
 /// <inheritdoc cref = "IExecDigestComposer"/>
-public sealed class ExecDigestComposer(IComplianceDriftTrendService complianceDriftTrendService, IAuthorityQueryService authorityQueryService, IRunDetailQueryService runDetailQueryService, IPilotRunDeltaComputer pilotRunDeltaComputer, ILogger<ExecDigestComposer> logger) : IExecDigestComposer
+public sealed class ExecDigestComposer(
+    IComplianceDriftTrendService complianceDriftTrendService,
+    IAuthorityQueryService authorityQueryService,
+    IRunDetailQueryService runDetailQueryService,
+    IPilotRunDeltaComputer pilotRunDeltaComputer,
+    ILogger<ExecDigestComposer> logger) : IExecDigestComposer
 {
     private const int MaxListRuns = 200;
     private const int MaxRunDetailLookups = 40;
     private const int TopRunCount = 3;
     private readonly IAuthorityQueryService _authorityQueryService = authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
-    private readonly IComplianceDriftTrendService _complianceDriftTrendService = complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
+
+    private readonly IComplianceDriftTrendService _complianceDriftTrendService =
+        complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
+
     private readonly ILogger<ExecDigestComposer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer = pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     /// <inheritdoc/>
-    public async Task<ExecDigestComposition> ComposeAsync(Guid tenantId, DateTime weekStartUtcInclusive, DateTime weekEndUtcExclusive, ScopeContext authorityScope, string operatorBaseUrl, CancellationToken cancellationToken)
+    public async Task<ExecDigestComposition> ComposeAsync(Guid tenantId, DateTime weekStartUtcInclusive, DateTime weekEndUtcExclusive,
+        ScopeContext authorityScope, string operatorBaseUrl, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(authorityScope);
         ArgumentNullException.ThrowIfNull(operatorBaseUrl);
@@ -36,7 +49,8 @@ public sealed class ExecDigestComposer(IComplianceDriftTrendService complianceDr
         string weekLabel = FormatWeekLabel(weekStartUtcInclusive, weekEndUtcExclusive);
         string? complianceMarkdown = await TryBuildComplianceMarkdownAsync(tenantId, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
         string dashboardUrl = $"{baseUrl}/runs";
-        (int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta) = await TryBuildManifestAndFindingSectionsAsync(authorityScope, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
+        (int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta) =
+            await TryBuildManifestAndFindingSectionsAsync(authorityScope, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
         string sponsorUrl = string.IsNullOrWhiteSpace(latestRunHex) ? dashboardUrl : $"{baseUrl}/runs/{latestRunHex}";
         return new ExecDigestComposition(weekLabel, complianceMarkdown, manifestCount, highlights, findingsDelta, dashboardUrl, sponsorUrl, latestRunHex);
     }
@@ -46,7 +60,8 @@ public sealed class ExecDigestComposer(IComplianceDriftTrendService complianceDr
         try
         {
             TimeSpan bucket = TimeSpan.FromHours(24);
-            IReadOnlyList<ComplianceDriftTrendPoint> points = await _complianceDriftTrendService.GetTrendAsync(tenantId, fromUtc, toUtc, bucket, cancellationToken);
+            IReadOnlyList<ComplianceDriftTrendPoint> points =
+                await _complianceDriftTrendService.GetTrendAsync(tenantId, fromUtc, toUtc, bucket, cancellationToken);
             if (points.Count == 0)
                 return null;
             StringBuilder sb = new();
@@ -54,7 +69,9 @@ public sealed class ExecDigestComposer(IComplianceDriftTrendService complianceDr
             sb.AppendLine("| --- | ---: | --- |");
             foreach (ComplianceDriftTrendPoint p in points)
             {
-                string topTypes = p.ChangesByType.Count == 0 ? "—" : string.Join(", ", p.ChangesByType.OrderByDescending(static kv => kv.Value).Take(3).Select(static kv => $"`{kv.Key}`: {kv.Value}"));
+                string topTypes = p.ChangesByType.Count == 0
+                    ? "—"
+                    : string.Join(", ", p.ChangesByType.OrderByDescending(static kv => kv.Value).Take(3).Select(static kv => $"`{kv.Key}`: {kv.Value}"));
                 sb.AppendLine($"| {p.BucketUtc:yyyy-MM-dd} | {p.ChangeCount} | {topTypes} |");
             }
 
@@ -68,12 +85,16 @@ public sealed class ExecDigestComposer(IComplianceDriftTrendService complianceDr
         }
     }
 
-    private async Task<(int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta)> TryBuildManifestAndFindingSectionsAsync(ScopeContext authorityScope, DateTime weekStartUtcInclusive, DateTime weekEndUtcExclusive, CancellationToken cancellationToken)
+    private async Task<(int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta)>
+        TryBuildManifestAndFindingSectionsAsync(ScopeContext authorityScope, DateTime weekStartUtcInclusive, DateTime weekEndUtcExclusive,
+            CancellationToken cancellationToken)
     {
         try
         {
-            IReadOnlyList<RunSummaryDto> summaries = await _authorityQueryService.ListRunsByProjectAsync(authorityScope, "default", MaxListRuns, cancellationToken);
-            List<Guid> candidateRunIds = summaries.Where(static s => s.HasGoldenManifest).Select(static s => s.RunId).Distinct().Take(MaxRunDetailLookups).ToList();
+            IReadOnlyList<RunSummaryDto> summaries =
+                await _authorityQueryService.ListRunsByProjectAsync(authorityScope, "default", MaxListRuns, cancellationToken);
+            List<Guid> candidateRunIds = summaries.Where(static s => s.HasGoldenManifest).Select(static s => s.RunId).Distinct().Take(MaxRunDetailLookups)
+                .ToList();
             List<(Guid RunId, DateTime? CommittedUtc, int Score)> scored = [];
             foreach (Guid runId in candidateRunIds)
             {
@@ -96,7 +117,9 @@ public sealed class ExecDigestComposer(IComplianceDriftTrendService complianceDr
             }
 
             int manifestCount = scored.Count;
-            List<ExecDigestHighlightedRun> highlights = scored.OrderByDescending(static x => x.Score).ThenByDescending(static x => x.CommittedUtc).Take(TopRunCount).Select(static x => new ExecDigestHighlightedRun(x.RunId.ToString("N"), x.Score, x.CommittedUtc is { } c ? $"Committed {c:yyyy-MM-dd} UTC" : null)).ToList();
+            List<ExecDigestHighlightedRun> highlights = scored.OrderByDescending(static x => x.Score).ThenByDescending(static x => x.CommittedUtc)
+                .Take(TopRunCount).Select(static x =>
+                    new ExecDigestHighlightedRun(x.RunId.ToString("N"), x.Score, x.CommittedUtc is { } c ? $"Committed {c:yyyy-MM-dd} UTC" : null)).ToList();
             string? latestHex = scored.OrderByDescending(static x => x.CommittedUtc).Select(static x => x.RunId.ToString("N")).FirstOrDefault();
             string? findingsDelta = await TryBuildFindingsDeltaAsync(scored, cancellationToken);
             return (manifestCount == 0 ? null : manifestCount, highlights, latestHex, findingsDelta);
@@ -109,7 +132,8 @@ public sealed class ExecDigestComposer(IComplianceDriftTrendService complianceDr
         }
     }
 
-    private async Task<string?> TryBuildFindingsDeltaAsync(IReadOnlyList<(Guid RunId, DateTime? CommittedUtc, int Score)> scored, CancellationToken cancellationToken)
+    private async Task<string?> TryBuildFindingsDeltaAsync(IReadOnlyList<(Guid RunId, DateTime? CommittedUtc, int Score)> scored,
+        CancellationToken cancellationToken)
     {
         if (scored.Count < 2)
             return null;

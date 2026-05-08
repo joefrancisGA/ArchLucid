@@ -4,20 +4,24 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Integrations.Itsm.Outbound;
+
 /// <summary>HTTP calls to Jira Cloud issue REST (no SDK).</summary>
 public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboundIssueClient> logger)
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
+
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
     private readonly ILogger<JiraOutboundIssueClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    public async Task<JiraOutboundIssueHttpResult> CreateIssueAsync(Uri issuePostUri, string serviceAccountEmail, string apiToken, string projectKey, string summary, JsonElement descriptionAdf, string issueTypeName, string priorityName, CancellationToken ct)
+
+    public async Task<JiraOutboundIssueHttpResult> CreateIssueAsync(Uri issuePostUri, string serviceAccountEmail, string apiToken, string projectKey,
+        string summary, JsonElement descriptionAdf, string issueTypeName, string priorityName, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(serviceAccountEmail);
         ArgumentNullException.ThrowIfNull(apiToken);
@@ -34,20 +38,11 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
         {
             fields = new
             {
-                project = new
-                {
-                    key = projectKey
-                },
+                project = new { key = projectKey },
                 summary,
                 description = descriptionAdf,
-                issuetype = new
-                {
-                    name = issueTypeName
-                },
-                priority = new
-                {
-                    name = priorityName
-                }
+                issuetype = new { name = issueTypeName },
+                priority = new { name = priorityName }
             }
         };
         using HttpRequestMessage request = new(HttpMethod.Post, issuePostUri);
@@ -63,7 +58,8 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Jira outbound create failed: transport error.");
-            return new JiraOutboundIssueHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable, "Jira request could not be completed (network error).");
+            return new JiraOutboundIssueHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable,
+                "Jira request could not be completed (network error).");
         }
 
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

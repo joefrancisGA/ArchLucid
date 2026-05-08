@@ -1,6 +1,7 @@
 using System.Text;
 
 namespace ArchLucid.Application.Scim.Patching;
+
 /// <summary>
 ///     RFC 7644 §3.5.2 — minimal <c>valuePath</c> support: <c>attrPath "[" valFilter "]" ["." subAttr]</c>.
 ///     Production interop focuses on Entra-style <c>members[value eq "{uuid}"]</c> (+ optional <c>.active</c>).
@@ -57,10 +58,12 @@ public static class ScimPatchValuePathParser
         ScimPatchPathParseOutcome complex = ParseMembersValuePath(trimmed, false);
         return complex switch
         {
-            ScimPatchMembersFilteredPathOutcome => throw new ScimPatchException("notImplemented", "Complex attribute selectors are not supported on User PATCH."),
+            ScimPatchMembersFilteredPathOutcome => throw new ScimPatchException("notImplemented",
+                "Complex attribute selectors are not supported on User PATCH."),
             ScimPatchPathNotImplementedOutcome n => throw new ScimPatchException("notImplemented", n.Detail),
             ScimPatchFlatAttributePathOutcome => throw new ScimPatchException("invalidPath", "Malformed path brackets."),
-            _ => throw new ScimPatchException("notImplemented", "Complex attribute path is not implemented.")};
+            _ => throw new ScimPatchException("notImplemented", "Complex attribute path is not implemented.")
+        };
     }
 
     private static ScimPatchPathParseOutcome ParseMembersValuePath(string path, bool requireMembersAttribute)
@@ -78,7 +81,8 @@ public static class ScimPatchValuePathParser
             throw new ScimPatchException("invalidPath", "Missing attribute path before '['.");
         if (requireMembersAttribute && !attrPath.Equals("members".AsSpan(), StringComparison.OrdinalIgnoreCase))
         {
-            return new ScimPatchPathNotImplementedOutcome($"Complex selectors on attribute '{attrPath.ToString()}' are not implemented (only 'members[value eq \"…\"]').");
+            return new ScimPatchPathNotImplementedOutcome(
+                $"Complex selectors on attribute '{attrPath.ToString()}' are not implemented (only 'members[value eq \"…\"]').");
         }
 
         if (!requireMembersAttribute && !attrPath.Equals("members".AsSpan(), StringComparison.OrdinalIgnoreCase))
@@ -187,7 +191,9 @@ public static class ScimPatchValuePathParser
             return true;
         if (ContainsI(f, " not "))
             return true;
-        return ContainsI(f, " ne ") || ContainsI(f, " co ") || ContainsI(f, " sw ") || ContainsI(f, " ew ") || ContainsI(f, " gt ") || ContainsI(f, " lt ") || ContainsI(f, " ge ") || ContainsI(f, " le ") || ContainsI(f, " pr");
+        return ContainsI(f, " ne ") || ContainsI(f, " co ") || ContainsI(f, " sw ") || ContainsI(f, " ew ") || ContainsI(f, " gt ") || ContainsI(f, " lt ") ||
+               ContainsI(f, " ge ") || ContainsI(f, " le ") || ContainsI(f, " pr");
+
         static bool ContainsI(string s, string needle)
         {
             return s.Contains(needle, StringComparison.OrdinalIgnoreCase);

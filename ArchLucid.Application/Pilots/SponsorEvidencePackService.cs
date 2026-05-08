@@ -6,20 +6,37 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <inheritdoc cref = "ISponsorEvidencePackService"/>
-public sealed class SponsorEvidencePackService(IWhyArchLucidSnapshotService whyArchLucidSnapshotService, IRunDetailQueryService runDetailQueryService, IPilotRunDeltaComputer pilotRunDeltaComputer, IFindingsSnapshotRepository findingsSnapshotRepository, IGovernanceDashboardService governanceDashboardService, IScopeContextProvider scopeContextProvider, ILogger<SponsorEvidencePackService> logger) : ISponsorEvidencePackService
+public sealed class SponsorEvidencePackService(
+    IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
+    IRunDetailQueryService runDetailQueryService,
+    IPilotRunDeltaComputer pilotRunDeltaComputer,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
+    IGovernanceDashboardService governanceDashboardService,
+    IScopeContextProvider scopeContextProvider,
+    ILogger<SponsorEvidencePackService> logger) : ISponsorEvidencePackService
 {
     private const int GovernanceListCap = 50;
-    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository = findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
-    private readonly IGovernanceDashboardService _governanceDashboardService = governanceDashboardService ?? throw new ArgumentNullException(nameof(governanceDashboardService));
+
+    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
+        findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+
+    private readonly IGovernanceDashboardService _governanceDashboardService =
+        governanceDashboardService ?? throw new ArgumentNullException(nameof(governanceDashboardService));
+
     private readonly ILogger<SponsorEvidencePackService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer = pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-    private readonly IWhyArchLucidSnapshotService _whyArchLucidSnapshotService = whyArchLucidSnapshotService ?? throw new ArgumentNullException(nameof(whyArchLucidSnapshotService));
+
+    private readonly IWhyArchLucidSnapshotService _whyArchLucidSnapshotService =
+        whyArchLucidSnapshotService ?? throw new ArgumentNullException(nameof(whyArchLucidSnapshotService));
+
     /// <inheritdoc/>
     public async Task<SponsorEvidencePackResponse> BuildAsync(CancellationToken cancellationToken)
     {
@@ -51,10 +68,7 @@ public sealed class SponsorEvidencePackService(IWhyArchLucidSnapshotService whyA
     private async Task<FindingsSnapshot> ResolveFindingsSnapshotAsync(ArchitectureRunDetail? detail, CancellationToken cancellationToken)
     {
         if (detail?.Run.FindingsSnapshotId is not { } snapshotId)
-            return new FindingsSnapshot
-            {
-                Findings = []
-            };
+            return new FindingsSnapshot { Findings = [] };
         try
         {
             FindingsSnapshot? loaded = await _findingsSnapshotRepository.GetByIdAsync(snapshotId, cancellationToken);
@@ -62,20 +76,13 @@ public sealed class SponsorEvidencePackService(IWhyArchLucidSnapshotService whyA
                 return loaded;
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning("Sponsor evidence pack: findings snapshot {SnapshotId} not found for demo run.", snapshotId);
-            return new FindingsSnapshot
-            {
-                Findings = [],
-                FindingsSnapshotId = snapshotId
-            };
+            return new FindingsSnapshot { Findings = [], FindingsSnapshotId = snapshotId };
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Sponsor evidence pack: findings snapshot load failed.");
-            return new FindingsSnapshot
-            {
-                Findings = []
-            };
+            return new FindingsSnapshot { Findings = [] };
         }
     }
 
@@ -84,7 +91,8 @@ public sealed class SponsorEvidencePackService(IWhyArchLucidSnapshotService whyA
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
         try
         {
-            GovernanceDashboardSummary dash = await _governanceDashboardService.GetDashboardAsync(tenantId, GovernanceListCap, GovernanceListCap, GovernanceListCap, cancellationToken);
+            GovernanceDashboardSummary dash =
+                await _governanceDashboardService.GetDashboardAsync(tenantId, GovernanceListCap, GovernanceListCap, GovernanceListCap, cancellationToken);
             return new SponsorEvidenceGovernanceOutcomes
             {
                 PendingApprovalCount = dash.PendingCount,
@@ -96,12 +104,7 @@ public sealed class SponsorEvidencePackService(IWhyArchLucidSnapshotService whyA
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Sponsor evidence pack: governance dashboard unavailable; returning zeros.");
-            return new SponsorEvidenceGovernanceOutcomes
-            {
-                PendingApprovalCount = 0,
-                RecentTerminalDecisionCount = 0,
-                RecentPolicyPackChangeCount = 0
-            };
+            return new SponsorEvidenceGovernanceOutcomes { PendingApprovalCount = 0, RecentTerminalDecisionCount = 0, RecentPolicyPackChangeCount = 0 };
         }
     }
 }

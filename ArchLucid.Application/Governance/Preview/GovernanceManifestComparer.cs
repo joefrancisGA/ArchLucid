@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Governance.Preview;
+
 /// <summary>
 ///     Compares governance-relevant fields from <see cref = "ManifestGovernance"/> (or objects that expose it).
 ///     Unchanged keys are omitted from the result for a compact preview.
@@ -30,7 +31,10 @@ public static class GovernanceManifestComparer
             null => null,
             ManifestGovernance mg => mg,
             GoldenManifest gm => gm.Governance,
-            _ => throw new ArgumentException($"Unsupported governance type '{o.GetType().FullName}'. " + $"Pass a {nameof(ManifestGovernance)}, a {nameof(GoldenManifest)}, or null.", nameof(o))};
+            _ => throw new ArgumentException(
+                $"Unsupported governance type '{o.GetType().FullName}'. " + $"Pass a {nameof(ManifestGovernance)}, a {nameof(GoldenManifest)}, or null.",
+                nameof(o))
+        };
     }
 
     /// <summary>
@@ -39,7 +43,7 @@ public static class GovernanceManifestComparer
     private static Dictionary<string, string?> ExtractGovernanceFields(ManifestGovernance? g)
     {
         if (g is null)
-            return[];
+            return [];
         return new Dictionary<string, string?>(StringComparer.Ordinal)
         {
             ["ComplianceTags"] = NormalizeList(g.ComplianceTags),
@@ -83,7 +87,13 @@ public static class GovernanceManifestComparer
                 changeType = GovernanceDiffChangeType.Removed;
             else
                 changeType = GovernanceDiffChangeType.Changed;
-            items.Add(new GovernanceDiffItem { Key = key, ChangeType = changeType, CurrentValue = string.IsNullOrEmpty(curN) ? null : cur, PreviewValue = string.IsNullOrEmpty(prevN) ? null : prev });
+            items.Add(new GovernanceDiffItem
+            {
+                Key = key,
+                ChangeType = changeType,
+                CurrentValue = string.IsNullOrEmpty(curN) ? null : cur,
+                PreviewValue = string.IsNullOrEmpty(prevN) ? null : prev
+            });
         }
 
         return items;

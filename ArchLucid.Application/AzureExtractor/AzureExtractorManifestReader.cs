@@ -23,8 +23,7 @@ public static class AzureExtractorManifestReader
             using ZipArchive archive = new(zipStream, ZipArchiveMode.Read, leaveOpen: true);
 
             ZipArchiveEntry? entry = archive.GetEntry(ManifestEntryName)
-                ?? archive.Entries.FirstOrDefault(
-                    static e => ManifestEntryName.Equals(e.Name, StringComparison.OrdinalIgnoreCase));
+                                     ?? archive.Entries.FirstOrDefault(static e => ManifestEntryName.Equals(e.Name, StringComparison.OrdinalIgnoreCase));
 
             if (entry is null)
 
@@ -65,40 +64,26 @@ public static class AzureExtractorManifestReader
             string scriptVersion = string.IsNullOrWhiteSpace(dto.ScriptVersion) ? "unknown" : dto.ScriptVersion.Trim();
 
             string scope = string.IsNullOrWhiteSpace(dto.Scope)
-
                 ? "subscription"
-
                 : dto.Scope.Trim();
 
             string azVersion = string.IsNullOrWhiteSpace(dto.AzModuleVersion)
-
                 ? "unknown"
-
                 : dto.AzModuleVersion.Trim();
 
             string[] switches = dto.SwitchesUsed is { Length: > 0 }
-
                 ? dto.SwitchesUsed.Where(static s => !string.IsNullOrWhiteSpace(s)).Select(static s => s.Trim())
-
                     .Distinct(StringComparer.OrdinalIgnoreCase).ToArray()
-
                 : [];
 
             AzureExtractorNormalizedManifest normalized = new(
                 dto.SchemaVersion,
-
                 scriptVersion,
-
                 collectionTs,
-
                 dto.SubscriptionId.Trim(),
-
                 scope,
-
                 switches,
-
                 azVersion,
-
                 json.Trim());
 
             return (normalized, null);
@@ -107,23 +92,18 @@ public static class AzureExtractorManifestReader
         catch (InvalidDataException)
 
         {
-
             return (null, "Uploaded payload is not a valid ZIP archive.");
-
         }
-
     }
 
     private static bool TryParseCollectionTimestamp(JsonElement collectionTimestamp, out DateTimeOffset result)
 
     {
-
         result = default;
 
         switch (collectionTimestamp.ValueKind)
 
         {
-
             case JsonValueKind.String:
 
                 return DateTimeOffset.TryParse(
@@ -141,29 +121,52 @@ public static class AzureExtractorManifestReader
             default:
 
                 return DateTimeOffset.TryParse(collectionTimestamp.GetRawText().Trim('"'), out result);
-
         }
-
     }
 
     private sealed record ManifestDto
 
     {
+        public int SchemaVersion
+        {
+            get;
+            init;
+        }
 
-        public int SchemaVersion { get; init; }
+        public string? ScriptVersion
+        {
+            get;
+            init;
+        }
 
-        public string? ScriptVersion { get; init; }
+        public JsonElement CollectionTimestamp
+        {
+            get;
+            init;
+        }
 
-        public JsonElement CollectionTimestamp { get; init; }
+        public string SubscriptionId
+        {
+            get;
+            init;
+        } = string.Empty;
 
-        public string SubscriptionId { get; init; } = string.Empty;
+        public string? Scope
+        {
+            get;
+            init;
+        }
 
-        public string? Scope { get; init; }
+        public string[]? SwitchesUsed
+        {
+            get;
+            init;
+        }
 
-        public string[]? SwitchesUsed { get; init; }
-
-        public string? AzModuleVersion { get; init; }
-
+        public string? AzModuleVersion
+        {
+            get;
+            init;
+        }
     }
-
 }

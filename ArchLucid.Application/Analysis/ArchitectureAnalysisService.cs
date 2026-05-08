@@ -10,13 +10,25 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Builds an <see cref = "ArchitectureAnalysisReport"/> by orchestrating manifest, evidence, trace,
 ///     diagram, summary, determinism, and diff sub-services for a given run.
 /// </summary>
-public sealed class ArchitectureAnalysisService(IRunDetailQueryService runDetailQueryService, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IAgentEvidencePackageRepository evidenceRepository, IAgentExecutionTraceRepository traceRepository, IAgentResultRepository resultRepository, IDiagramGenerator diagramGenerator, IManifestSummaryGenerator summaryGenerator, IDeterminismCheckService determinismCheckService, IManifestDiffService manifestDiffService, IAgentResultDiffService agentResultDiffService) : IArchitectureAnalysisService
+public sealed class ArchitectureAnalysisService(
+    IRunDetailQueryService runDetailQueryService,
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
+    IAgentEvidencePackageRepository evidenceRepository,
+    IAgentExecutionTraceRepository traceRepository,
+    IAgentResultRepository resultRepository,
+    IDiagramGenerator diagramGenerator,
+    IManifestSummaryGenerator summaryGenerator,
+    IDeterminismCheckService determinismCheckService,
+    IManifestDiffService manifestDiffService,
+    IAgentResultDiffService agentResultDiffService) : IArchitectureAnalysisService
 {
     private const string ExecutionModeCurrent = ExecutionModes.Current;
+
     /// <inheritdoc/>
     public async Task<ArchitectureAnalysisReport> BuildAsync(ArchitectureAnalysisRequest request, CancellationToken cancellationToken = default)
     {
@@ -39,10 +51,7 @@ public sealed class ArchitectureAnalysisService(IRunDetailQueryService runDetail
             run = primaryDetail.Run;
         }
 
-        ArchitectureAnalysisReport report = new()
-        {
-            Run = run
-        };
+        ArchitectureAnalysisReport report = new() { Run = run };
         if (request.IncludeEvidence)
         {
             report.Evidence = await evidenceRepository.GetByRunIdAsync(request.RunId, cancellationToken);
@@ -83,7 +92,11 @@ public sealed class ArchitectureAnalysisService(IRunDetailQueryService runDetail
             else
                 report.Warnings.Add("Summary was requested but the manifest is unavailable; summary was not generated.");
         if (request.IncludeDeterminismCheck)
-            report.Determinism = await determinismCheckService.RunAsync(new DeterminismCheckRequest { RunId = request.RunId, Iterations = request.DeterminismIterations, ExecutionMode = ExecutionModeCurrent, CommitReplays = false }, cancellationToken);
+            report.Determinism = await determinismCheckService.RunAsync(
+                new DeterminismCheckRequest
+                {
+                    RunId = request.RunId, Iterations = request.DeterminismIterations, ExecutionMode = ExecutionModeCurrent, CommitReplays = false
+                }, cancellationToken);
         if (request.IncludeManifestCompare)
             if (string.IsNullOrWhiteSpace(request.CompareManifestVersion))
                 report.Warnings.Add("Manifest comparison was requested but CompareManifestVersion was not provided.");

@@ -16,6 +16,7 @@ using QuestPDF.Infrastructure;
 using QuestPdfDocument = QuestPDF.Fluent.Document;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>
 ///     One-page QuestPDF sponsor summary keyed to a single run plus tenant pilot scorecard aggregates (read-only).
 /// </summary>
@@ -25,13 +26,18 @@ namespace ArchLucid.Application.Pilots;
 ///     computed deltas. Demo tenants stamp an illustration watermark (<c>ILLUSTRATION ONLY — not a commitment</c>) in
 ///     <c>page.Header()</c> on every page (Markdown banners elsewhere remain unchanged) so seeded numbers cannot be quoted as a real-customer outcome.
 /// </remarks>
-public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQuery, PilotScorecardBuilder scorecardBuilder, IPilotRunDeltaComputer deltaComputer, IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
+public sealed class SponsorOnePagerPdfBuilder(
+    IRunDetailQueryService runDetailQuery,
+    PilotScorecardBuilder scorecardBuilder,
+    IPilotRunDeltaComputer deltaComputer,
+    IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
     private const string IllustrationOnlyPerPageHeader = "ILLUSTRATION ONLY — not a commitment";
     private readonly IPilotRunDeltaComputer _deltaComputer = deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly PilotScorecardBuilder _scorecardBuilder = scorecardBuilder ?? throw new ArgumentNullException(nameof(scorecardBuilder));
+
     /// <summary>Returns PDF bytes, or <see langword="null"/> when the run is missing.</summary>
     public async Task<Byte[]?> BuildPdfAsync(string runId, string baseUrlForFooter, CancellationToken cancellationToken = default)
     {
@@ -63,7 +69,8 @@ public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQu
                 {
                     if (deltas.IsDemoTenant)
                     {
-                        header.Item().Background(Colors.Yellow.Lighten3).Padding(6).Text(IllustrationOnlyPerPageHeader).Bold().FontColor(Colors.Red.Darken2).FontSize(11);
+                        header.Item().Background(Colors.Yellow.Lighten3).Padding(6).Text(IllustrationOnlyPerPageHeader).Bold().FontColor(Colors.Red.Darken2)
+                            .FontSize(11);
                     }
 
                     header.Item().Text("ArchLucid — sponsor one-pager (pilot)").Bold().FontSize(14);
@@ -75,7 +82,9 @@ public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQu
                     column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
                     column.Item().Element(c => RenderComputedDeltasTable(c, deltas));
-                    column.Item().PaddingTop(4).Text($"Pilot window (last 30 days): {scorecard.RunsWithCommittedManifest} committed runs / {scorecard.RunsInPeriod} runs in scope ({committedRatio:P0}).");
+                    column.Item().PaddingTop(4)
+                        .Text(
+                            $"Pilot window (last 30 days): {scorecard.RunsWithCommittedManifest} committed runs / {scorecard.RunsInPeriod} runs in scope ({committedRatio:P0}).");
                     if (manifest is not null)
                     {
                         column.Item().PaddingTop(4).Text($"Committed manifest version: {manifest.Metadata.ManifestVersion}");
@@ -112,7 +121,8 @@ public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQu
                         });
                     });
                     column.Item().PaddingTop(12).Text("Canonical narrative").Bold();
-                    column.Item().Text("Repository docs/EXECUTIVE_SPONSOR_BRIEF.md and docs/go-to-market/ROI_MODEL.md — this PDF is a pointer, not a substitute for those documents.");
+                    column.Item().Text(
+                        "Repository docs/EXECUTIVE_SPONSOR_BRIEF.md and docs/go-to-market/ROI_MODEL.md — this PDF is a pointer, not a substitute for those documents.");
                     column.Item().PaddingTop(10).Text($"Deep link (API): {footer}/v1/architecture/run/{run.RunId}");
                     string ui = _publicSiteOptions.CurrentValue.BaseUrl.Trim().TrimEnd('/');
                     column.Item().PaddingTop(8).Text("Return to operator UI").Bold().FontSize(11);
