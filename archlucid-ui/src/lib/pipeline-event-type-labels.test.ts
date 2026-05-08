@@ -13,6 +13,11 @@ describe("pipelineEventTypeFriendlyLabel", () => {
     expect(pipelineEventTypeFriendlyLabel("context.snapshot.created")).toBe("Context captured");
   });
 
+  it("falls back to Contracts-aligned titles for durable spine codes not in the pipeline map", () => {
+    expect(pipelineEventTypeFriendlyLabel("ManifestViewed")).toBe("Manifest viewed");
+    expect(pipelineEventTypeFriendlyLabel("ReviewTrailAccessed")).toBe("Review trail accessed");
+  });
+
   it("title-cases unknown dotted codes without dumping raw namespaces", () => {
     expect(pipelineEventTypeFriendlyLabel("com.vendor.obscure.pipeline.step")).toBe("Step");
   });

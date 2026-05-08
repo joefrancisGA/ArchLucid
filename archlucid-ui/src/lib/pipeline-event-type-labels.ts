@@ -1,3 +1,5 @@
+import { auditEventFriendlyTitle } from "@/lib/audit-event-presentation";
+
 /**
  * Maps audit / pipeline timeline event codes to reviewer-facing labels.
  * Covers legacy short keys, dotted semantic keys, and canonical `com.archlucid.*` integration types.
@@ -38,27 +40,6 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   "com.archlucid.billing.marketplace.webhook.received.v1": "Marketplace webhook received",
 };
 
-/** Title-cases the last segment of a dotted event id for unknown types (never raw `com.archlucid.*`). */
-function humanizeUnknownPipelineEventType(raw: string): string {
-  const trimmed = raw.trim();
-
-  if (trimmed.length === 0) {
-    return "Event";
-  }
-
-  const parts = trimmed.split(".");
-
-  const last = parts[parts.length - 1] ?? trimmed;
-
-  const words = last.replace(/[-_]/g, " ").split(/\s+/).filter(Boolean);
-
-  if (words.length === 0) {
-    return trimmed;
-  }
-
-  return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
-}
-
 /** Maps API timeline event codes to reviewer-facing labels (falls back to humanized code). */
 export function pipelineEventTypeFriendlyLabel(eventType: string): string {
   const key = eventType.trim();
@@ -69,5 +50,5 @@ export function pipelineEventTypeFriendlyLabel(eventType: string): string {
     return mapped;
   }
 
-  return humanizeUnknownPipelineEventType(key);
+  return auditEventFriendlyTitle(key);
 }

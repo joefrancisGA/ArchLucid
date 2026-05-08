@@ -1,5 +1,11 @@
 /** Pure helpers for the operator audit page (Vitest-friendly). */
 
+import {
+  auditEventLifecycleStage,
+  ReviewAuditLifecycleStage,
+  type ReviewAuditLifecycleStageValue,
+} from "@/lib/audit-event-presentation";
+
 export function formatAuditSummaryHeading(count: number, hasMore: boolean): string {
   if (count === 0) {
     return "Showing 0 events";
@@ -65,23 +71,59 @@ export const AUDIT_EVENT_LIFECYCLE_STAGE_ORDER: ReadonlyArray<string> = [
   "Findings generated",
   "Manifest finalized",
   "Artifacts bundled",
+  "Governance handoff",
 ];
 
-/** Maps a pipeline audit event type to a lifecycle stage heading, or null when not part of the standard spine. */
+function lifecycleStageHeading(stage: ReviewAuditLifecycleStageValue): string | null {
+  switch (stage) {
+    case ReviewAuditLifecycleStage.ReviewStarted:
+      return "Review started";
+
+    case ReviewAuditLifecycleStage.ContextCaptured:
+      return "Context captured";
+
+    case ReviewAuditLifecycleStage.GraphCreated:
+      return "Graph created";
+
+    case ReviewAuditLifecycleStage.FindingsCaptured:
+      return "Findings generated";
+
+    case ReviewAuditLifecycleStage.ManifestFinalized:
+      return "Manifest finalized";
+
+    case ReviewAuditLifecycleStage.ArtifactsBundled:
+      return "Artifacts bundled";
+
+    case ReviewAuditLifecycleStage.GovernanceHandoff:
+      return "Governance handoff";
+
+    default:
+      return null;
+  }
+}
+
+/**
+ * Maps an event type to a lifecycle stage heading for buyer grouping — dotted pipeline keys first (API literals),
+ * then coarse buckets aligned with {@link ReviewAuditLifecycleStage}.
+ */
 export function auditEventLifecycleStageLabel(eventType: string): string | null {
   const t = eventType.trim();
 
   switch (t) {
     case "RunStarted":
+    case "RunSubmitted":
       return "Review started";
 
     case "context.snapshot.created":
+    case "context_snapshot":
       return "Context captured";
 
     case "graph.snapshot.created":
+    case "graph_snapshot":
       return "Graph created";
 
     case "findings.snapshot.created":
+    case "findings_snapshot":
       return "Findings generated";
 
     case "finalize.run":
@@ -91,7 +133,7 @@ export function auditEventLifecycleStageLabel(eventType: string): string | null 
       return "Artifacts bundled";
 
     default:
-      return null;
+      return lifecycleStageHeading(auditEventLifecycleStage(t));
   }
 }
 

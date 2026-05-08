@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   auditEventLifecycleSortKey,
+  auditEventLifecycleStageLabel,
   auditEventsAreLifecycleOnlyForGrouping,
   canExportAuditCsv,
   formatAuditSummaryHeading,
@@ -42,6 +43,12 @@ describe("auditEventLifecycleSortKey", () => {
 });
 
 describe("audit lifecycle grouping", () => {
+  it("maps PascalCase audit spine types into grouping headings via Contracts parity", () => {
+    expect(auditEventLifecycleStageLabel("ManifestGenerated")).toBe("Manifest finalized");
+    expect(auditEventLifecycleStageLabel("GovernanceApprovalRequested")).toBe("Governance handoff");
+    expect(auditEventLifecycleStageLabel("RunSubmitted")).toBe("Review started");
+  });
+
   it("detects eligibility only when every event maps to a lifecycle stage", () => {
     expect(auditEventsAreLifecycleOnlyForGrouping([{ eventType: "RunStarted" }, { eventType: "finalize.run" }])).toBe(
       true,
@@ -62,6 +69,20 @@ describe("audit lifecycle grouping", () => {
     expect(grouped.map((g) => g.stage)).toEqual(["Review started", "Context captured", "Artifacts bundled"]);
     expect(grouped[0]?.events).toHaveLength(1);
     expect(grouped[0]?.events[0]?.eventType).toBe("RunStarted");
+  });
+
+  it("places governance handoff after manifest artifacts in canonical order", () => {
+    const grouped = groupAuditEventsByLifecycleStage([
+      { eventType: "GovernanceApprovalRequested" },
+      { eventType: "RunStarted" },
+      { eventType: "ManifestGenerated" },
+    ]);
+
+    expect(grouped.map((g) => g.stage)).toEqual([
+      "Review started",
+      "Manifest finalized",
+      "Governance handoff",
+    ]);
   });
 });
 

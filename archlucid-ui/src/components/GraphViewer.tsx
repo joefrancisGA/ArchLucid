@@ -18,6 +18,7 @@ import {
   mapGraphToReactFlow,
   type MapGraphPresentation,
 } from "@/lib/graph-mapper";
+import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { useBasicAdvancedToggle } from "@/hooks/useBasicAdvancedToggle";
 import { Button } from "@/components/ui/button";
@@ -25,17 +26,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-node-explanation";
 import { graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
-
-/** Filters a graph to only include nodes of the given type and edges between those nodes. */
-function filterGraphByType(graph: GraphViewModel, typeFilter: string): GraphViewModel {
-  if (!typeFilter) return graph;
-
-  const nodes = graph.nodes.filter((n) => n.type === typeFilter);
-  const ids = new Set(nodes.map((n) => n.id));
-  const edges = graph.edges.filter((e) => ids.has(e.source) && ids.has(e.target));
-
-  return { nodes, edges };
-}
 
 function pickHeroNodeId(graph: GraphViewModel, preferredId: string | undefined): GraphNodeVm | null {
   const trimmed = preferredId?.trim() ?? "";
@@ -61,6 +51,7 @@ function pickHeroNodeId(graph: GraphViewModel, preferredId: string | undefined):
   }
 
   const manifest = graph.nodes.find((n) => n.type === "GoldenManifest");
+
   if (manifest !== undefined) {
     return manifest;
   }
@@ -87,7 +78,7 @@ export function GraphViewer({
   /** When presentation is buyerTrail, pre-select this node id when present on the graph. */
   defaultSelectedNodeId?: string;
 }) {
-  const filtered = useMemo(() => filterGraphByType(graph, typeFilter), [graph, typeFilter]);
+  const filtered = useMemo(() => graphViewModelFilteredByNodeType(graph, typeFilter), [graph, typeFilter]);
 
   const flowPresentation: MapGraphPresentation =
     presentation === "buyerTrail" && graphLooksLikeCoordinatorProvenanceTrail(filtered)
