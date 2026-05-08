@@ -8,7 +8,7 @@ public sealed class AlertActionLoopReader(IAlertRecordRepository alertRepository
     private readonly IAlertRecordRepository _alertRepository = alertRepository ?? throw new ArgumentNullException(nameof(alertRepository));
     private readonly IAlertDeliveryAttemptRepository _deliveryAttemptRepository = deliveryAttemptRepository ?? throw new ArgumentNullException(nameof(deliveryAttemptRepository));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Application.Alerts.AlertActionLoopSnapshot?> GetAsync(Guid alertId, ScopeContext scope, CancellationToken cancellationToken)
+    public async Task<AlertActionLoopSnapshot?> GetAsync(Guid alertId, ScopeContext scope, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
         AlertRecord? alert = await _alertRepository.GetByIdAsync(alertId, cancellationToken).ConfigureAwait(false);

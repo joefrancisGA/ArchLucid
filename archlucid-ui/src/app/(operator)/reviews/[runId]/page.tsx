@@ -577,7 +577,9 @@ export default async function RunDetailPage({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-              <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Reviewed manifest</p>
+              <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                <GlossaryTooltip termKey="golden_manifest">Reviewed manifest</GlossaryTooltip>
+              </p>
               <div className="mt-2 min-w-0">
                 {manifestId ? (
                   <>
@@ -898,8 +900,8 @@ export default async function RunDetailPage({
           <CardHeader>
             <h3 className={sectionHeadingClass}>Actions</h3>
             <CardDescription>
-              Pilot scorecard package (PDF, Markdown, DOCX, ZIP) appears above after finalization when your workspace
-              allows it. Generate the tenant sponsor report below when permitted.
+              Exports and sponsor-facing bundles sit in <strong>Deliverables & exports</strong> above. Use this card for
+              scorecard generation, traceability ZIP, and optional compare/replay shortcuts.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

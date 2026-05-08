@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -18,6 +18,8 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 
 const TAB_PARAM = "tab";
+
+const ALERTS_HUB_ORIENT_DISMISS_KEY = "archlucid-alerts-hub-orient-v1-dismissed";
 
 const TAB_LABEL: Record<AlertHubTabId, string> = {
   inbox: "Inbox",
@@ -40,6 +42,31 @@ export function AlertsHubClient() {
   const searchParams = useSearchParams();
   const rawTab = searchParams.get(TAB_PARAM);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const [hubOrientVisible, setHubOrientVisible] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      setHubOrientVisible(window.localStorage.getItem(ALERTS_HUB_ORIENT_DISMISS_KEY) !== "1");
+    } catch {
+      setHubOrientVisible(true);
+    }
+  }, []);
+
+  const dismissHubOrient = useCallback(() => {
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem(ALERTS_HUB_ORIENT_DISMISS_KEY, "1");
+      } catch {
+        /* ignore quota / private mode */
+      }
+    }
+
+    setHubOrientVisible(false);
+  }, []);
 
   const visibleTabIds = useMemo(
     () => (buyerPolishedShell ? ALERT_HUB_TAB_IDS.filter((id) => BUYER_DEMO_TAB_ALLOWLIST.has(id)) : ALERT_HUB_TAB_IDS),
@@ -68,6 +95,35 @@ export function AlertsHubClient() {
 
   return (
     <div className="px-0">
+      {hubOrientVisible && !buyerPolishedShell ? (
+        <div
+          className="mb-4 flex flex-col gap-2 rounded-lg border border-teal-200 bg-teal-50/70 p-3 text-sm text-neutral-800 dark:border-teal-900 dark:bg-teal-950/30 dark:text-neutral-100 sm:flex-row sm:items-start sm:justify-between"
+          role="region"
+          aria-label="Alerts hub quick start"
+        >
+          <div className="min-w-0 space-y-1">
+            <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-50">Alerts — where to start</p>
+            <ol className="m-0 list-decimal space-y-1 pl-5 text-neutral-700 dark:text-neutral-200">
+              <li>
+                Triage in <strong>Inbox</strong> (what is open now).
+              </li>
+              <li>
+                Adjust signal logic in <strong>Rules</strong>, then wire delivery in <strong>Routing</strong>.
+              </li>
+              <li>
+                Use <strong>Simulation & Tuning</strong> before turning loud rules on in production.
+              </li>
+            </ol>
+          </div>
+          <button
+            type="button"
+            className="shrink-0 rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            onClick={dismissHubOrient}
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
       {visibleTabIds.length > 1 ? (
       <nav
         className="mb-6 border-b border-neutral-200 dark:border-neutral-800"

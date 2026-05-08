@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -64,7 +65,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         ArchitectureRunDetail? detail = await _runDetailQuery.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
         {
-            _logger.LogInformation("First-value report: run {RunId} not found.", runId);
+            _logger.LogInformationFirstValueReportRunNotFound(runId);
             return null;
         }
 

@@ -238,4 +238,17 @@ public static partial class SanitizedLoggerInformationExtensions
             safeUser,
             safeCorrelationId);
     }
+
+    /// <summary>
+    ///     Logs that a first-value report was requested for a missing run id, with the user-derived run id sanitized before
+    ///     the sink.
+    /// </summary>
+    public static void LogInformationFirstValueReportRunNotFound(this ILogger logger, string userRunId)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+
+        EmitFirstValueReportRunNotFound(logger, safeRunId);
+    }
 }

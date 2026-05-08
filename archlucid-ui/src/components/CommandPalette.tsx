@@ -26,6 +26,16 @@ import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+function curatedPaletteVisibilityHref(href: string): string {
+  const i = href.indexOf("?");
+
+  if (i === -1) {
+    return href;
+  }
+
+  return href.slice(0, i);
+}
+
 function CommandPaletteCuratedTasks({
   visibleHrefs,
   onNavigate,
@@ -34,7 +44,8 @@ function CommandPaletteCuratedTasks({
   onNavigate: (href: string) => void;
 }) {
   const curated = useMemo(
-    () => COMMAND_PALETTE_CURATED_TASKS.filter((task) => visibleHrefs.has(task.href)),
+    () =>
+      COMMAND_PALETTE_CURATED_TASKS.filter((task) => visibleHrefs.has(curatedPaletteVisibilityHref(task.href))),
     [visibleHrefs],
   );
 

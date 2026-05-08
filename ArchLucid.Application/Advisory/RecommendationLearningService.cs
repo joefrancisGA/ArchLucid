@@ -28,7 +28,7 @@ public sealed class RecommendationLearningService(IRecommendationRepository reco
     }
 
     /// <inheritdoc/>
-    public System.Threading.Tasks.Task<ArchLucid.Decisioning.Advisory.Learning.RecommendationLearningProfile?> GetLatestProfileAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
+    public Task<RecommendationLearningProfile?> GetLatestProfileAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
     {
         return profileRepository.GetLatestAsync(tenantId, workspaceId, projectId, ct);
     }

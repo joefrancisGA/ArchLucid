@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
@@ -46,7 +47,17 @@ const ASK_FOLLOW_UP_CHIPS_BUYER: readonly string[] = [
   "Summarize the mitigation pattern in one paragraph.",
 ];
 
-export default function AskPage() {
+/** Shown when Ask opens with <code>?runId=…</code> deep link (review-scoped starters). */
+const ASK_DEEP_LINK_RUN_PROMPTS: readonly string[] = [
+  "What changed in this review that leadership must know?",
+  "List open issues blocking sign-off for this package.",
+  "What evidence supports the top finding in this review?",
+];
+
+function AskPageContent() {
+  const searchParams = useSearchParams();
+  const urlRunIdRaw = searchParams.get("runId")?.trim() ?? "";
+
   const workspaceRun = useWorkspaceActiveRun();
   const [threads, setThreads] = useState<ConversationThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState("");
@@ -65,7 +76,19 @@ export default function AskPage() {
     isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || buyerPolishedShell;
 
   useEffect(() => {
+    if (urlRunIdRaw.length === 0) {
+      return;
+    }
+
+    setRunId(canonicalizeDemoRunId(urlRunIdRaw));
+  }, [urlRunIdRaw]);
+
+  useEffect(() => {
     if (!buyerPolishedShell) {
+      return;
+    }
+
+    if (urlRunIdRaw.length > 0) {
       return;
     }
 
@@ -80,7 +103,7 @@ export default function AskPage() {
     }
 
     setRunId(canonicalizeDemoRunId(fromWs));
-  }, [buyerPolishedShell, workspaceRun?.activeRunId, selectedThreadId]);
+  }, [buyerPolishedShell, workspaceRun?.activeRunId, selectedThreadId, urlRunIdRaw]);
 
   const loadThreads = useCallback(async () => {
     setListFailure(null);
@@ -302,6 +325,13 @@ export default function AskPage() {
     buyerPolishedShell &&
     lastMessage !== null &&
     lastMessage.role.toLowerCase() === "assistant";
+  const showRunDeepLinkPrompts = useMemo(() => {
+    if (urlRunIdRaw.length === 0 || runId.trim().length === 0) {
+      return false;
+    }
+
+    return canonicalizeDemoRunId(urlRunIdRaw) === canonicalizeDemoRunId(runId.trim());
+  }, [urlRunIdRaw, runId]);
 
   return (
     <main className="max-w-5xl">
@@ -482,6 +512,21 @@ export default function AskPage() {
                   role="group"
                   aria-label={buyerPolishedShell ? "Suggested prompts" : "Example prompts"}
                 >
+                  {showRunDeepLinkPrompts
+                    ? ASK_DEEP_LINK_RUN_PROMPTS.map((line) => (
+                        <Button
+                          key={`deeplink-${line}`}
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                          disabled={runMissing}
+                          onClick={() => mergePromptLine(line)}
+                        >
+                          {line}
+                        </Button>
+                      ))
+                    : null}
                   {(buyerPolishedShell ? ASK_FOLLOW_UP_CHIPS_BUYER : ASK_EXAMPLE_PROMPTS).map((line) => (
                     <Button
                       key={line}
@@ -573,6 +618,20 @@ export default function AskPage() {
         </Card>
       </div>
     </main>
+  );
+}
+
+export default function AskPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="max-w-5xl p-4">
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading Ask…</p>
+        </main>
+      }
+    >
+      <AskPageContent />
+    </Suspense>
   );
 }
 

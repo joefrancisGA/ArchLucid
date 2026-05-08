@@ -5,6 +5,15 @@ import { describe, expect, it, vi } from "vitest";
 import AskPage from "@/app/(operator)/ask/page";
 import SearchPage from "@/app/(operator)/search/page";
 
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/ask",
+  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+  useRouter: (): { push: () => void; replace: () => void } => ({
+    push: () => {},
+    replace: () => {},
+  }),
+}));
+
 vi.mock("@/lib/api", () => ({
   apiGet: vi.fn().mockResolvedValue([]),
 }));
