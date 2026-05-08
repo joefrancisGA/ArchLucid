@@ -6,7 +6,7 @@ public sealed class GovernanceRationaleService(IGovernanceLineageService lineage
 {
     private readonly IGovernanceLineageService _lineageService = lineageService ?? throw new ArgumentNullException(nameof(lineageService));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Governance.GovernanceRationaleResult?> GetApprovalRequestRationaleAsync(string approvalRequestId, CancellationToken cancellationToken = default)
+    public async Task<GovernanceRationaleResult?> GetApprovalRequestRationaleAsync(string approvalRequestId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
         GovernanceLineageResult? lineage = await _lineageService.GetApprovalRequestLineageAsync(approvalRequestId, cancellationToken);

@@ -13,7 +13,7 @@ public sealed class FindingEvidenceChainService(IAuthorityQueryService authority
     private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Explanation.FindingEvidenceChainResponse?> BuildAsync(string runId, string findingId, CancellationToken cancellationToken = default)
+    public async Task<FindingEvidenceChainResponse?> BuildAsync(string runId, string findingId, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(findingId);

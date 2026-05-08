@@ -2,8 +2,10 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Connectors.Publishing;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -81,7 +83,7 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
     private static string BuildStorageHtml(string markdownOrPlain)
     {
         string trimmed = markdownOrPlain ?? string.Empty;
-        string escaped = System.Net.WebUtility.HtmlEncode(trimmed);
+        string escaped = WebUtility.HtmlEncode(trimmed);
         return "<pre style=\"white-space:pre-wrap;\">" + escaped + "</pre>";
     }
 

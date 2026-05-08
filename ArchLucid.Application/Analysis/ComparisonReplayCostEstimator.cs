@@ -7,7 +7,7 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
 {
     private readonly IComparisonRecordRepository _comparisonRecords = comparisonRecords ?? throw new ArgumentNullException(nameof(comparisonRecords));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Application.Analysis.ComparisonReplayCostEstimate?> TryEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool persistReplay, CancellationToken ct)
+    public async Task<ComparisonReplayCostEstimate?> TryEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool persistReplay, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
         ComparisonRecord? record = await _comparisonRecords.GetByIdAsync(comparisonRecordId, ct);

@@ -10,7 +10,7 @@ public sealed class RunPipelineAuditTimelineService(IAuthorityQueryService autho
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
     private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<ArchLucid.Application.Audit.RunPipelineTimelineItemDto>?> GetTimelineAsync(ScopeContext scope, Guid runId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<RunPipelineTimelineItemDto>?> GetTimelineAsync(ScopeContext scope, Guid runId, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
         RunSummaryDto? run = await _authorityQuery.GetRunSummaryAsync(scope, runId, cancellationToken);

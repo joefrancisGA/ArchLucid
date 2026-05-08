@@ -1,4 +1,5 @@
 using System.Text.Json;
+
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Llm.Redaction;
@@ -9,6 +10,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -39,7 +41,7 @@ public sealed class PolicyPackGovernanceDryRunService(IScopeContextProvider scop
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Governance.PolicyPackGovernanceDryRunResult?> EvaluateAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId, bool? blockCommitOnCritical, int? blockCommitMinimumSeverity, Guid? proposedPolicyPackId, CancellationToken cancellationToken = default)
+    public async Task<PolicyPackGovernanceDryRunResult?> EvaluateAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId, bool? blockCommitOnCritical, int? blockCommitMinimumSeverity, Guid? proposedPolicyPackId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(policyPackContentJson);
         PolicyPackContentDocument document = JsonSerializer.Deserialize<PolicyPackContentDocument>(policyPackContentJson, PolicyPackJsonSerializerOptions.Default) ?? new PolicyPackContentDocument();
@@ -89,7 +91,7 @@ public sealed class PolicyPackGovernanceDryRunService(IScopeContextProvider scop
         }
         else
             passed.Add("pre_commit_severity_gate: skipped (no enforcement flags in proposed pack or request overrides)");
-        List<string> warnings = [..gate.Warnings];
+        List<string> warnings = [.. gate.Warnings];
         PolicyPackGovernanceDryRunResult result = new()
         {
             ResolvedRunId = runKey.ToString("N"),
@@ -163,7 +165,22 @@ public sealed class PolicyPackGovernanceDryRunService(IScopeContextProvider scop
     private async Task TryLogProposedPackDryRunAuditAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId, Guid? proposedPolicyPackId, string packLabel, Guid runKey, Guid? usedManifestId, PreCommitGateResult gate, CancellationToken cancellationToken)
     {
         string redactedContentJson = RedactPolicyPackContentJsonForAudit(policyPackContentJson);
-        string dataJson = JsonSerializer.Serialize(new { workflow = "proposedPolicyPackContent", proposedPolicyPackId, policyPackContentRedacted = redactedContentJson, targetRunId = string.IsNullOrWhiteSpace(targetRunId) ? null : targetRunId.Trim(), targetManifestId, resolvedRunId = runKey.ToString("N"), gateSummary = new { blocked = gate.Blocked, warnOnly = gate.WarnOnly, packLabel, warningCount = gate.Warnings.Count } }, AuditJsonSerializationOptions.Instance);
+        string dataJson = JsonSerializer.Serialize(new
+        {
+            workflow = "proposedPolicyPackContent",
+            proposedPolicyPackId,
+            policyPackContentRedacted = redactedContentJson,
+            targetRunId = string.IsNullOrWhiteSpace(targetRunId) ? null : targetRunId.Trim(),
+            targetManifestId,
+            resolvedRunId = runKey.ToString("N"),
+            gateSummary = new
+            {
+                blocked = gate.Blocked,
+                warnOnly = gate.WarnOnly,
+                packLabel,
+                warningCount = gate.Warnings.Count
+            }
+        }, AuditJsonSerializationOptions.Instance);
         AuditEvent auditEvent = new()
         {
             EventType = AuditEventTypes.GovernanceDryRunRequested,

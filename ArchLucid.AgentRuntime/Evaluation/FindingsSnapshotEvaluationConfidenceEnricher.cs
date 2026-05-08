@@ -19,7 +19,7 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
     IAgentExecutionTraceRepository traceRepository,
     IAgentOutputEvaluator structuralEvaluator,
-    IAgentOutputSemanticEvaluator semanticEvaluator,
+    HeuristicOnlyAgentOutputSemanticEvaluator confidenceGateSemanticEvaluator,
     IAgentOutputQualityGate qualityGate,
     IOptions<AgentOutputQualityGateOptions> gateOptions,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
@@ -33,8 +33,8 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
     private readonly IAgentOutputEvaluator _structuralEvaluator =
         structuralEvaluator ?? throw new ArgumentNullException(nameof(structuralEvaluator));
 
-    private readonly IAgentOutputSemanticEvaluator _semanticEvaluator =
-        semanticEvaluator ?? throw new ArgumentNullException(nameof(semanticEvaluator));
+    private readonly HeuristicOnlyAgentOutputSemanticEvaluator _confidenceGateSemanticEvaluator =
+        confidenceGateSemanticEvaluator ?? throw new ArgumentNullException(nameof(confidenceGateSemanticEvaluator));
 
     private readonly IAgentOutputQualityGate _qualityGate =
         qualityGate ?? throw new ArgumentNullException(nameof(qualityGate));
@@ -74,12 +74,13 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
                 AgentExecutionTrace? trace = ResolveTraceForFinding(finding, traces, traceByAgentType);
 
                 bool schemaPassed = trace is not null &&
-                                    AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidence(
+                                    await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
                                         trace,
                                         _gateOptions.Value,
                                         _structuralEvaluator,
-                                        _semanticEvaluator,
-                                        _qualityGate);
+                                        _confidenceGateSemanticEvaluator,
+                                        _qualityGate,
+                                        cancellationToken).ConfigureAwait(false);
 
                 bool referenceMatched = trace is not null &&
                                         _referenceCaseRunEvaluator.ComputeAnyPassingReferenceCase(trace);

@@ -10,9 +10,10 @@ namespace ArchLucid.Core.Agents;
 public interface IRunAgentOutputPilotEvidenceAggregator
 {
     /// <summary>
-    ///     Returns <see langword="true"/> when quality gate options are enabled in PilotStrict mode and evaluation fails.
+    ///     Returns <see langword="true" /> when quality gate options are enabled in PilotStrict mode and evaluation fails.
     /// </summary>
-    bool WouldPilotStrictBlockSponsorEvidence(
+    Task<bool> WouldPilotStrictBlockSponsorEvidenceAsync(
         IReadOnlyList<AgentExecutionTrace> traces,
-        RunExplanationSummary? explanationSummary);
+        RunExplanationSummary? explanationSummary,
+        CancellationToken cancellationToken);
 }

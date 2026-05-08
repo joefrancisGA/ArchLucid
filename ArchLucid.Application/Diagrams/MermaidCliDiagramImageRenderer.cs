@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Diagrams;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Diagrams;
@@ -18,7 +20,7 @@ public sealed class MermaidCliDiagramImageRenderer(ILogger<MermaidCliDiagramImag
     /// <summary>Maximum time to wait for the <c>mmdc</c> process before cancelling and throwing.</summary>
     private static readonly TimeSpan ProcessTimeout = TimeSpan.FromSeconds(30);
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<System.Byte[]?> RenderMermaidPngAsync(string mermaidDiagram, CancellationToken cancellationToken = default)
+    public async Task<Byte[]?> RenderMermaidPngAsync(string mermaidDiagram, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(mermaidDiagram);
         if (string.IsNullOrWhiteSpace(mermaidDiagram))
@@ -60,7 +62,7 @@ public sealed class MermaidCliDiagramImageRenderer(ILogger<MermaidCliDiagramImag
                 logger.LogWarning("Mermaid CLI reported success but output PNG was missing at {OutputPath}.", LogSanitizer.Sanitize(outputPath));
             return null;
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             logger.LogWarning(ex, "Mermaid CLI diagram render failed; callers should fall back to Mermaid source text.");
             return null;

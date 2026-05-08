@@ -38,11 +38,15 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
             .Setup(r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultInsert>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
+        HeuristicOnlyAgentOutputSemanticEvaluator facade = new(heuristicSemantic);
+
         AgentOutputReferenceCaseRunEvaluator sut = new(
             options.Object,
             catalog,
             new AgentOutputEvaluator(),
-            new AgentOutputSemanticEvaluator(),
+            heuristicSemantic,
+            facade,
             results.Object,
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
 
@@ -80,11 +84,15 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
             new([new AgentOutputReferenceCaseDefinition { CaseId = "x", AgentType = AgentType.Topology }]);
         Mock<IAgentOutputEvaluationResultRepository> results = new();
 
+        HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
+        HeuristicOnlyAgentOutputSemanticEvaluator facade = new(heuristicSemantic);
+
         AgentOutputReferenceCaseRunEvaluator sut = new(
             options.Object,
             catalog,
             new AgentOutputEvaluator(),
-            new AgentOutputSemanticEvaluator(),
+            heuristicSemantic,
+            facade,
             results.Object,
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
 

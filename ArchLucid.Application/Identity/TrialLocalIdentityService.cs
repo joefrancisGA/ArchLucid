@@ -66,7 +66,7 @@ public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialO
     }
 
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Application.Identity.TrialLocalAuthResult?> AuthenticateAsync(string email, string password, CancellationToken cancellationToken)
+    public async Task<TrialLocalAuthResult?> AuthenticateAsync(string email, string password, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(email);
         ArgumentNullException.ThrowIfNull(password);

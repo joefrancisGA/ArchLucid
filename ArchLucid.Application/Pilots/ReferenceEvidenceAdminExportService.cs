@@ -1,11 +1,13 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
+
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Pilots;
@@ -25,14 +27,15 @@ public sealed class ReferenceEvidenceAdminExportService(IReferenceEvidenceRunLoo
     private readonly IReferenceEvidenceRunLookup _runLookup = runLookup ?? throw new ArgumentNullException(nameof(runLookup));
     private readonly SponsorOnePagerPdfBuilder _sponsorOnePagerPdfBuilder = sponsorOnePagerPdfBuilder ?? throw new ArgumentNullException(nameof(sponsorOnePagerPdfBuilder));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<System.Byte[]?> BuildZipAsync(Guid tenantId, bool includeDemo, string apiBaseForLinks, CancellationToken cancellationToken = default)
+    public async Task<Byte[]?> BuildZipAsync(Guid tenantId, bool includeDemo, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(apiBaseForLinks);
         IReadOnlyList<ReferenceEvidenceRunCandidate> candidates = await _runLookup.ListRecentCommittedRunsAsync(tenantId, 200, cancellationToken);
         ReferenceEvidenceRunCandidate? selected = (
             from row in candidates
             let runKey = row.RunId.ToString("N")
-            where includeDemo || (!ContosoRetailDemoIdentifiers.IsDemoRunId(runKey) && !ContosoRetailDemoIdentifiers.IsDemoRequestId(row.RequestId))select row).FirstOrDefault();
+            where includeDemo || (!ContosoRetailDemoIdentifiers.IsDemoRunId(runKey) && !ContosoRetailDemoIdentifiers.IsDemoRequestId(row.RequestId))
+            select row).FirstOrDefault();
         if (selected is null)
             return null;
         ScopeContext scope = new()
@@ -48,7 +51,7 @@ public sealed class ReferenceEvidenceAdminExportService(IReferenceEvidenceRunLoo
         {
             using (IDisposable _ = AmbientScopeContext.Push(scope))
             {
-                if (await _runDetailQuery.GetRunDetailAsync(runId, cancellationToken)is not { } detail)
+                if (await _runDetailQuery.GetRunDetailAsync(runId, cancellationToken) is not { } detail)
                     return null;
                 PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
                 PilotRunDeltasResponse deltaDto = PilotRunDeltasResponseMapper.ToResponse(deltas);
@@ -78,7 +81,7 @@ public sealed class ReferenceEvidenceAdminExportService(IReferenceEvidenceRunLoo
                         await s.WriteAsync(firstPdf, cancellationToken);
                     }
                 }
-                catch (Exception ex)when (ex is not OperationCanceledException)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     _logger.LogWarning(ex, "Reference evidence: first-value PDF omitted for run {RunId}.", runId);
                 }
@@ -93,7 +96,7 @@ public sealed class ReferenceEvidenceAdminExportService(IReferenceEvidenceRunLoo
                         await s.WriteAsync(sponsorPdf, cancellationToken);
                     }
                 }
-                catch (Exception ex)when (ex is not OperationCanceledException)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     _logger.LogWarning(ex, "Reference evidence: sponsor one-pager omitted for run {RunId}.", runId);
                 }

@@ -1,4 +1,5 @@
 using System.Text.Json;
+
 using ArchLucid.Application.Scim.Filtering;
 using ArchLucid.Application.Scim.Patching;
 using ArchLucid.Application.Scim.RoleMapping;
@@ -10,6 +11,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Application.Scim;
+
 public sealed class ScimUserService(IScimUserRepository users, ITenantRepository tenants, IGroupToRoleMapper roleMapper, IAuditService audit) : IScimUserService
 {
     internal const string ManualResolvedRoleFlatPath = "manualResolvedRole";
@@ -26,7 +28,7 @@ public sealed class ScimUserService(IScimUserRepository users, ITenantRepository
     }
 
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Core.Scim.Models.ScimUserRecord?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+    public async Task<ScimUserRecord?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
     {
         ScimUserRecord? u = await _users.GetByIdAsync(tenantId, id, cancellationToken);
         if (u is null || u.DirectoryRemovedUtc is not null)
@@ -38,7 +40,7 @@ public sealed class ScimUserService(IScimUserRepository users, ITenantRepository
     public async Task<ScimUserRecord> CreateAsync(Guid tenantId, JsonElement resource, CancellationToken cancellationToken)
     {
         (string userName, string? displayName, bool active, string externalId) = ScimUserResourceParser.ParseUser(resource);
-        if (await _users.GetByExternalIdAsync(tenantId, externalId, cancellationToken)is not null)
+        if (await _users.GetByExternalIdAsync(tenantId, externalId, cancellationToken) is not null)
             throw new ScimConflictException($"User with externalId '{externalId}' already exists.");
         if (active)
         {
@@ -134,7 +136,12 @@ public sealed class ScimUserService(IScimUserRepository users, ITenantRepository
 
     private Task EmitRoleOverriddenAuditAsync(Guid tenantId, ScimUserRecord existing, string? incomingGroupRole, CancellationToken ct)
     {
-        string payload = JsonSerializer.Serialize(new { userId = existing.Id, fromRole = existing.ResolvedRole ?? string.Empty, toRole = incomingGroupRole ?? string.Empty });
+        string payload = JsonSerializer.Serialize(new
+        {
+            userId = existing.Id,
+            fromRole = existing.ResolvedRole ?? string.Empty,
+            toRole = incomingGroupRole ?? string.Empty
+        });
         return LogAsync(tenantId, AuditEventTypes.RoleOverriddenByScim, payload, ct);
     }
 
@@ -215,7 +222,7 @@ public sealed class ScimUserService(IScimUserRepository users, ITenantRepository
         IReadOnlyList<(string DisplayName, string ExternalId)> groups = await _users.ListGroupKeysForUserAsync(tenantId, userId.Value, ct);
         int best = 0;
         string? chosen = null;
-        foreach ((string display, string external)in groups)
+        foreach ((string display, string external) in groups)
         {
             string? role = _roleMapper.TryMapGroupToRole(display, external);
             if (role is null)

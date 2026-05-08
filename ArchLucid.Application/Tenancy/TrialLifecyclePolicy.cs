@@ -5,7 +5,7 @@ namespace ArchLucid.Application.Tenancy;
 /// <summary>UTC trial lifecycle transitions (see <c>docs/go-to-market/TRIAL_AND_SIGNUP.md</c> §3).</summary>
 public static class TrialLifecyclePolicy
 {
-    public static ArchLucid.Application.Tenancy.TrialLifecycleAdvancement? TryGetNextAdvancement(TenantRecord tenant, DateTimeOffset utcNow, TrialLifecycleSchedulerOptions options)
+    public static TrialLifecycleAdvancement? TryGetNextAdvancement(TenantRecord tenant, DateTimeOffset utcNow, TrialLifecycleSchedulerOptions options)
     {
         ArgumentNullException.ThrowIfNull(tenant);
         ArgumentNullException.ThrowIfNull(options);

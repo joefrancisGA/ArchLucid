@@ -18,7 +18,7 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
     private const string NeedsBaselinePdfBanner = "NEEDS BASELINE — REVIEW ROI NARRATIVE BEFORE SPONSOR SEND";
     private readonly FirstValueReportBuilder _markdownBuilder = markdownBuilder ?? throw new ArgumentNullException(nameof(markdownBuilder));
     /// <summary>Returns PDF bytes, or <see langword="null"/> when the run is missing (mirrors the Markdown sibling).</summary>
-    public async System.Threading.Tasks.Task<System.Byte[]?> BuildPdfAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
+    public async Task<Byte[]?> BuildPdfAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(apiBaseForLinks);

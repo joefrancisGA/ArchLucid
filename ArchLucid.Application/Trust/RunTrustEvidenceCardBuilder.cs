@@ -22,7 +22,7 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
     private readonly IRunExplanationSummaryService _runExplanationSummaryService = runExplanationSummaryService ?? throw new ArgumentNullException(nameof(runExplanationSummaryService));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Trust.RunTrustEvidenceCard?> BuildAsync(ArchitectureRunDetail detail, string? hostAgentExecutionMode, CancellationToken cancellationToken)
+    public async Task<RunTrustEvidenceCard?> BuildAsync(ArchitectureRunDetail detail, string? hostAgentExecutionMode, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(detail);
         if (!detail.IsCommitted)
@@ -178,7 +178,7 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
                     Detail = FormattableString.Invariant($"{count} events"),
                 };
             }
-            catch (Exception ex)when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 audit = new TrustEvidenceFieldSnapshot
                 {
@@ -205,7 +205,7 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
                 Detail = FormattableString.Invariant($"{total} rows (prompt/response metadata; not raw transcripts in this view)."),
             };
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             traces = new TrustEvidenceFieldSnapshot
             {
@@ -225,7 +225,7 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
             return await _runExplanationSummaryService.GetSummaryAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return null;
         }
@@ -289,7 +289,7 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
         {
             return await _findingEvidenceChainService.BuildAsync(runId, findingId, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return null;
         }

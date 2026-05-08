@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Analysis;
 [ExcludeFromCodeCoverage(Justification = "Reads files from local filesystem; would require temp-file fixture with marginal value for simple guard-clause logic.")]
 public sealed class FileSystemDocumentLogoProvider : IDocumentLogoProvider
 {
-    public async System.Threading.Tasks.Task<System.Byte[]?> GetLogoBytesAsync(ConsultingDocxTemplateOptions options, CancellationToken cancellationToken = default)
+    public async Task<Byte[]?> GetLogoBytesAsync(ConsultingDocxTemplateOptions options, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(options);
         if (!options.IncludeLogo)

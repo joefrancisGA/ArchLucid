@@ -7,9 +7,9 @@ using FluentAssertions;
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
 [Trait("Suite", "Core")]
-public sealed class AgentOutputSemanticEvaluatorTests
+public sealed class HeuristicAgentOutputSemanticEvaluatorTests
 {
-    private readonly AgentOutputSemanticEvaluator _sut = new();
+    private readonly HeuristicAgentOutputSemanticEvaluator _sut = new();
 
     [SkippableFact]
     public void Evaluate_claims_with_mixed_evidence_returns_expected_ratio()

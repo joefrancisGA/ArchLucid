@@ -6,12 +6,12 @@ using ArchLucid.Core.Configuration;
 namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <summary>
-///     Shared structural/citation/PilotStrict rules for <see cref="AgentOutputEvaluationRecorder"/> and pilot sponsor gates.
+///     Shared structural/citation/PilotStrict rules for <see cref="AgentOutputEvaluationRecorder" /> and pilot sponsor gates.
 /// </summary>
 public static class AgentOutputTraceQualityEvaluator
 {
     /// <summary>
-    ///     Result of evaluating one trace; <see langword="null"/> means skip this trace entirely (legacy warn-only skips).
+    ///     Result of evaluating one trace; <see langword="null" /> means skip this trace entirely (legacy warn-only skips).
     /// </summary>
     public sealed record TraceQualityEvaluationResult(
         bool RecordStructuralHistogram,
@@ -25,13 +25,14 @@ public static class AgentOutputTraceQualityEvaluator
     /// <summary>
     ///     Computes histogram + gate outcome consistent with quality gate options.
     /// </summary>
-    /// <returns><see langword="null"/> when no metrics should be emitted for this trace.</returns>
-    public static TraceQualityEvaluationResult? TryEvaluateTrace(
+    /// <returns><see langword="null" /> when no metrics should be emitted for this trace.</returns>
+    public static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceAsync(
         AgentExecutionTrace trace,
         AgentOutputQualityGateOptions options,
         IAgentOutputEvaluator structuralEvaluator,
         IAgentOutputSemanticEvaluator semanticEvaluator,
-        IAgentOutputQualityGate qualityGate)
+        IAgentOutputQualityGate qualityGate,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(trace);
         ArgumentNullException.ThrowIfNull(options);
@@ -42,11 +43,17 @@ public static class AgentOutputTraceQualityEvaluator
         bool pilotStrict = options.Mode == AgentOutputQualityGateMode.PilotStrict;
 
         if (!options.Enabled)
-            return TryEvaluateTraceGateDisabled(trace, structuralEvaluator, semanticEvaluator, qualityGate);
+            return await TryEvaluateTraceGateDisabledAsync(
+                trace,
+                structuralEvaluator,
+                semanticEvaluator,
+                qualityGate,
+                cancellationToken).ConfigureAwait(false);
 
         if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
             return pilotStrict
-                ? BuildPilotStrictUnparsedResult(trace, structuralEvaluator, semanticEvaluator)
+                ? await BuildPilotStrictUnparsedResultAsync(trace, structuralEvaluator, semanticEvaluator, cancellationToken)
+                    .ConfigureAwait(false)
                 : null;
 
         AgentOutputEvaluationScore structuralScore =
@@ -54,13 +61,29 @@ public static class AgentOutputTraceQualityEvaluator
 
         if (structuralScore.IsJsonParseFailure)
             return pilotStrict
-                ? BuildPilotStrictEvaluatorParseFailureResult(trace, structuralEvaluator, semanticEvaluator)
-                : new TraceQualityEvaluationResult(false, false, true, false, structuralScore,
-                    semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType),
+                ? await BuildPilotStrictEvaluatorParseFailureResultAsync(
+                        trace,
+                        structuralEvaluator,
+                        semanticEvaluator,
+                        cancellationToken)
+                    .ConfigureAwait(false)
+                : new TraceQualityEvaluationResult(
+                    false,
+                    false,
+                    true,
+                    false,
+                    structuralScore,
+                    await semanticEvaluator.EvaluateAsync(
+                            trace.TraceId,
+                            trace.ParsedResultJson,
+                            trace.AgentType,
+                            cancellationToken)
+                        .ConfigureAwait(false),
                     AgentOutputQualityGateOutcome.Accepted);
 
         AgentOutputSemanticScore semanticScore =
-            semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
+            await semanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
+                .ConfigureAwait(false);
 
         AgentOutputQualityGateOutcome gateOutcome = qualityGate.Evaluate(structuralScore, semanticScore);
 
@@ -77,11 +100,12 @@ public static class AgentOutputTraceQualityEvaluator
         return new TraceQualityEvaluationResult(true, true, false, true, structuralScore, semanticScore, gateOutcome);
     }
 
-    private static TraceQualityEvaluationResult? TryEvaluateTraceGateDisabled(
+    private static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceGateDisabledAsync(
         AgentExecutionTrace trace,
         IAgentOutputEvaluator structuralEvaluator,
         IAgentOutputSemanticEvaluator semanticEvaluator,
-        IAgentOutputQualityGate qualityGate)
+        IAgentOutputQualityGate qualityGate,
+        CancellationToken cancellationToken)
     {
         if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
             return null;
@@ -90,44 +114,60 @@ public static class AgentOutputTraceQualityEvaluator
             structuralEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
 
         if (structuralScore.IsJsonParseFailure)
-            return new TraceQualityEvaluationResult(false, false, true, false, structuralScore,
-                semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType),
+            return new TraceQualityEvaluationResult(
+                false,
+                false,
+                true,
+                false,
+                structuralScore,
+                await semanticEvaluator.EvaluateAsync(
+                        trace.TraceId,
+                        trace.ParsedResultJson,
+                        trace.AgentType,
+                        cancellationToken)
+                    .ConfigureAwait(false),
                 AgentOutputQualityGateOutcome.Accepted);
 
         AgentOutputSemanticScore semanticScore =
-            semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
+            await semanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
+                .ConfigureAwait(false);
 
         AgentOutputQualityGateOutcome outcome = qualityGate.Evaluate(structuralScore, semanticScore);
 
         return new TraceQualityEvaluationResult(true, true, false, true, structuralScore, semanticScore, outcome);
     }
 
-    private static TraceQualityEvaluationResult BuildPilotStrictUnparsedResult(
+    private static async Task<TraceQualityEvaluationResult> BuildPilotStrictUnparsedResultAsync(
         AgentExecutionTrace trace,
         IAgentOutputEvaluator structuralEvaluator,
-        IAgentOutputSemanticEvaluator semanticEvaluator)
+        IAgentOutputSemanticEvaluator semanticEvaluator,
+        CancellationToken cancellationToken)
     {
         string rawJson = trace.ParsedResultJson ?? string.Empty;
 
         AgentOutputEvaluationScore structuralScore =
             structuralEvaluator.Evaluate(trace.TraceId, rawJson, trace.AgentType);
 
-        AgentOutputSemanticScore semanticScore = semanticEvaluator.Evaluate(trace.TraceId, rawJson, trace.AgentType);
+        AgentOutputSemanticScore semanticScore =
+            await semanticEvaluator.EvaluateAsync(trace.TraceId, rawJson, trace.AgentType, cancellationToken)
+                .ConfigureAwait(false);
 
         return new TraceQualityEvaluationResult(false, false, true, true, structuralScore, semanticScore,
             AgentOutputQualityGateOutcome.Rejected);
     }
 
-    private static TraceQualityEvaluationResult BuildPilotStrictEvaluatorParseFailureResult(
+    private static async Task<TraceQualityEvaluationResult> BuildPilotStrictEvaluatorParseFailureResultAsync(
         AgentExecutionTrace trace,
         IAgentOutputEvaluator structuralEvaluator,
-        IAgentOutputSemanticEvaluator semanticEvaluator)
+        IAgentOutputSemanticEvaluator semanticEvaluator,
+        CancellationToken cancellationToken)
     {
         AgentOutputEvaluationScore structuralScore =
             structuralEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
 
         AgentOutputSemanticScore semanticScore =
-            semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
+            await semanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
+                .ConfigureAwait(false);
 
         return new TraceQualityEvaluationResult(false, false, true, true, structuralScore, semanticScore,
             AgentOutputQualityGateOutcome.Rejected);
@@ -210,15 +250,22 @@ public static class AgentOutputTraceQualityEvaluator
     /// <summary>
     ///     Confidence enrichment signal — mirrors trace gate semantics without histogram emission.
     /// </summary>
-    public static bool ComputeQualityGateAcceptedForConfidence(
+    public static async Task<bool> ComputeQualityGateAcceptedForConfidenceAsync(
         AgentExecutionTrace trace,
         AgentOutputQualityGateOptions options,
         IAgentOutputEvaluator structuralEvaluator,
         IAgentOutputSemanticEvaluator semanticEvaluator,
-        IAgentOutputQualityGate qualityGate)
+        IAgentOutputQualityGate qualityGate,
+        CancellationToken cancellationToken)
     {
         TraceQualityEvaluationResult? result =
-            TryEvaluateTrace(trace, options, structuralEvaluator, semanticEvaluator, qualityGate);
+            await TryEvaluateTraceAsync(
+                trace,
+                options,
+                structuralEvaluator,
+                semanticEvaluator,
+                qualityGate,
+                cancellationToken).ConfigureAwait(false);
 
         return result is { GateOutcome: not AgentOutputQualityGateOutcome.Rejected };
     }

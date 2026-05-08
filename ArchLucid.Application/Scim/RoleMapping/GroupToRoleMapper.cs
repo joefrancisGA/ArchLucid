@@ -12,7 +12,7 @@ public sealed class GroupToRoleMapper(IOptions<ScimOptions> options) : IGroupToR
 {
     private readonly IOptions<ScimOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
     /// <inheritdoc/>
-    public System.String? TryMapGroupToRole(string displayName, string externalId)
+    public String? TryMapGroupToRole(string displayName, string externalId)
     {
         ArgumentNullException.ThrowIfNull(displayName);
         ArgumentNullException.ThrowIfNull(externalId);

@@ -18,7 +18,7 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
     private const string KindRuleAudit = "ruleAudit";
     private const string KindRunEvent = "runEvent";
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Core.Explanation.RunRationale?> GetRunRationaleAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    public async Task<RunRationale?> GetRunRationaleAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
         RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, runId, ct);
@@ -99,8 +99,8 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
     private static List<DecisionTraceEntry> MapAuthorityDecisionTraces(RunDetailDto detail)
     {
         if (detail.AuthorityTrace is not RuleAuditTrace ruleAudit)
-            return[];
-        return[MapRuleAudit(ruleAudit.RuleAudit)];
+            return [];
+        return [MapRuleAudit(ruleAudit.RuleAudit)];
     }
 
     private static DecisionTraceEntry? MapCoordinatorTrace(DecisionTrace trace)
@@ -192,7 +192,7 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
             HasNotes = s.HasNotes,
             PopulatedFieldCount = s.PopulatedFieldCount,
             CompletenessRatio = s.CompletenessRatio,
-            MissingTraceFields = [..s.MissingTraceFields]
+            MissingTraceFields = [.. s.MissingTraceFields]
         };
     }
 

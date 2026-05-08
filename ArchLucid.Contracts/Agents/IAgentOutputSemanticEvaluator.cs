@@ -2,8 +2,14 @@ using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Contracts.Agents;
 
-/// <summary>Evaluates semantic quality of agent output JSON (claim evidence + finding completeness); no LLM.</summary>
+/// <summary>
+///     Semantic scoring for persisted agent JSON — deterministic heuristic plus optional Azure OpenAI rubric judge.
+/// </summary>
 public interface IAgentOutputSemanticEvaluator
 {
-    AgentOutputSemanticScore Evaluate(string traceId, string? parsedResultJson, AgentType agentType);
+    Task<AgentOutputSemanticScore> EvaluateAsync(
+        string traceId,
+        string? parsedResultJson,
+        AgentType agentType,
+        CancellationToken cancellationToken = default);
 }

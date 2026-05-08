@@ -17,7 +17,7 @@ public sealed class GovernanceLineageService(IGovernanceApprovalRequestRepositor
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
     /// <inheritdoc/>
-    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Governance.GovernanceLineageResult?> GetApprovalRequestLineageAsync(string approvalRequestId, CancellationToken cancellationToken = default)
+    public async Task<GovernanceLineageResult?> GetApprovalRequestLineageAsync(string approvalRequestId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
         GovernanceApprovalRequest? approval = await _approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);

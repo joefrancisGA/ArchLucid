@@ -15,7 +15,7 @@ public sealed record AnalysisReportDocxWorkUnit : BackgroundJobWorkUnit
     public string FileName { get; init; }
     public string ContentType { get; init; }
 
-    [global::System.Text.Json.Serialization.JsonConstructor]
+    [JsonConstructor]
     public AnalysisReportDocxWorkUnit(AnalysisReportDocxJobPayload payload, string fileName, string contentType)
     {
         Payload = payload ?? throw new ArgumentNullException(nameof(payload));
@@ -31,7 +31,7 @@ public sealed record ConsultingDocxWorkUnit : BackgroundJobWorkUnit
     public string FileName { get; init; }
     public string ContentType { get; init; }
 
-    [global::System.Text.Json.Serialization.JsonConstructor]
+    [JsonConstructor]
     public ConsultingDocxWorkUnit(ConsultingDocxJobPayload payload, string fileName, string contentType)
     {
         Payload = payload ?? throw new ArgumentNullException(nameof(payload));

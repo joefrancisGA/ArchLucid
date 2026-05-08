@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Diagrams;
 public sealed class NullDiagramImageRenderer : IDiagramImageRenderer
 {
     /// <inheritdoc/>
-    public System.Threading.Tasks.Task<System.Byte[]?> RenderMermaidPngAsync(string mermaidDiagram, CancellationToken cancellationToken = default)
+    public Task<Byte[]?> RenderMermaidPngAsync(string mermaidDiagram, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(mermaidDiagram);
         return Task.FromResult<byte[]?>(null);
