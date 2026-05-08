@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(130)
+        return new List<ConfigurationKeyEntry>(133)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -75,6 +75,16 @@ public static class ConfigurationKeyCatalog
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PerAgentTypeFloors",
                 M("appsettings", "env"), "(see AgentTypeQualityFloors)", "—",
                 "Optional JSON dictionary of per-AgentType structural/semantic warn and reject floors.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:Faithfulness:EmbeddingEnabled", M("appsettings", "env"), "false", "—",
+                "When true, compute embedding-based AgentResult→evidence cosine alignment for API telemetry and OTEL (staging-first).",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:Faithfulness:EmbeddingMaxChunkUtf16Length", M("appsettings", "env"), "512",
+                "Optional tuning",
+                "UTF-16 chunk size for claim/evidence text passed to the embedding model (clamped by host post-configure).",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:Faithfulness:EmbeddingChunkOverlapUtf16", M("appsettings", "env"), "64",
+                "Optional tuning", "Chunk overlap for embedding faithfulness (clamped vs max chunk length).",
+                ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Explanation:Aggregate:FaithfulnessFallbackEnabled", M("appsettings", "env"),
                 "true", "—", "Allow fallback when faithfulness is low.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Explanation:Aggregate:MinSupportRatioToTrustLlmNarrative",

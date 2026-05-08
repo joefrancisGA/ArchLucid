@@ -53,6 +53,14 @@ public sealed class AgentOutputEvaluationRecorderTests
             .Setup(e => e.TryEnrichRunAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IAgentResultEmbeddingFaithfulnessScorer> embeddingFaithfulness = new();
+        embeddingFaithfulness
+            .Setup(s => s.TryComputeMeanCosineAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<AgentEvidencePackage>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync((double?)null);
+
         return new AgentOutputEvaluationRecorder(
             traceRepository,
             new InMemoryAgentEvidencePackageRepository(),
@@ -63,6 +71,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             referenceEvaluator,
             archFindingConfidence.Object,
             new AgentResultEvidenceFaithfulnessChecker(),
+            embeddingFaithfulness.Object,
             logger);
     }
 

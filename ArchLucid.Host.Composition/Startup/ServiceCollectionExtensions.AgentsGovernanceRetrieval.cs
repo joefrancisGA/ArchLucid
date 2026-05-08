@@ -166,6 +166,15 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<AgentOutputEvaluator>();
         services.AddSingleton<IAgentOutputEvaluator>(static sp => sp.GetRequiredService<AgentOutputEvaluator>());
         services.AddSingleton<IAgentResultEvidenceFaithfulnessChecker, AgentResultEvidenceFaithfulnessChecker>();
+        services.Configure<AgentFaithfulnessOptions>(
+            configuration.GetSection(AgentFaithfulnessOptions.SectionPath));
+        services.PostConfigure<AgentFaithfulnessOptions>(static o =>
+        {
+            o.EmbeddingMaxChunkUtf16Length = Math.Clamp(o.EmbeddingMaxChunkUtf16Length, 128, 8192);
+            int maxOverlap = Math.Max(0, o.EmbeddingMaxChunkUtf16Length - 1);
+            o.EmbeddingChunkOverlapUtf16 = Math.Clamp(o.EmbeddingChunkOverlapUtf16, 0, maxOverlap);
+        });
+        services.AddSingleton<IAgentResultEmbeddingFaithfulnessScorer, AgentResultEmbeddingFaithfulnessScorer>();
         services.AddSingleton<HeuristicAgentOutputSemanticEvaluator>();
         services.AddSingleton<IHeuristicAgentOutputSemanticEvaluator>(static sp =>
             sp.GetRequiredService<HeuristicAgentOutputSemanticEvaluator>());

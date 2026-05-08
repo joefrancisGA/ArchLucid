@@ -277,10 +277,10 @@ public sealed class ComparisonReplayService(
         if (string.IsNullOrWhiteSpace(record.LeftExportRecordId) || string.IsNullOrWhiteSpace(record.RightExportRecordId))
             throw new InvalidOperationException(
                 $"Comparison record '{record.ComparisonRecordId}' has no LeftExportRecordId/RightExportRecordId; cannot regenerate export-record diff.");
-        RunExportRecord left = await runExportRecordRepository.GetByIdAsync(record.LeftExportRecordId, cancellationToken) ??
+        RunExportRecord left = await _runExportRecordRepository.GetByIdAsync(record.LeftExportRecordId, cancellationToken) ??
                                throw new InvalidOperationException($"Export record '{record.LeftExportRecordId}' was not found.");
-        RunExportRecord right = await runExportRecordRepository.GetByIdAsync(record.RightExportRecordId, cancellationToken) ??
+        RunExportRecord right = await _runExportRecordRepository.GetByIdAsync(record.RightExportRecordId, cancellationToken) ??
                                 throw new InvalidOperationException($"Export record '{record.RightExportRecordId}' was not found.");
-        return exportRecordDiffService.Compare(left, right);
+        return _exportRecordDiffService.Compare(left, right);
     }
 }

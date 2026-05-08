@@ -38052,6 +38052,10 @@ namespace ArchLucid.Api.Client.Generated
     public partial class AgentOutputSemanticScore
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("agentResultEmbeddingFaithfulnessMeanCosine")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? AgentResultEmbeddingFaithfulnessMeanCosine { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("agentResultFaithfulnessSupportRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? AgentResultFaithfulnessSupportRatio { get; set; } = default!;

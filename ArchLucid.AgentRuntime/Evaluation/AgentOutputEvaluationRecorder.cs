@@ -26,6 +26,7 @@ public sealed class AgentOutputEvaluationRecorder(
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
+    IAgentResultEmbeddingFaithfulnessScorer embeddingFaithfulnessScorer,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
     private const double LowStructuralScoreThreshold = 0.5;
@@ -45,6 +46,9 @@ public sealed class AgentOutputEvaluationRecorder(
     private readonly Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher _architectureFindingConfidenceEnricher =
         architectureFindingConfidenceEnricher ??
         throw new ArgumentNullException(nameof(architectureFindingConfidenceEnricher));
+
+    private readonly IAgentResultEmbeddingFaithfulnessScorer _embeddingFaithfulnessScorer =
+        embeddingFaithfulnessScorer ?? throw new ArgumentNullException(nameof(embeddingFaithfulnessScorer));
 
     /// <summary>
     ///     Evaluates all traces with successful parses and records histogram/counter metrics.
@@ -72,7 +76,8 @@ public sealed class AgentOutputEvaluationRecorder(
                     qualityGate,
                     cancellationToken,
                     evidence,
-                    agentResultEvidenceFaithfulnessChecker).ConfigureAwait(false);
+                    agentResultEvidenceFaithfulnessChecker,
+                    _embeddingFaithfulnessScorer).ConfigureAwait(false);
 
             if (evaluated is null)
                 return;
@@ -104,6 +109,11 @@ public sealed class AgentOutputEvaluationRecorder(
 
                 if (evaluated.Semantic.LlmJudgeHeuristicDisagreement is double disagreement)
                     ArchLucidInstrumentation.AgentOutputJudgeDisagreement.Record(disagreement, tags);
+
+                if (evaluated.Semantic.AgentResultEmbeddingFaithfulnessMeanCosine is double embCos)
+                    ArchLucidInstrumentation.AgentOutputEmbeddingFaithfulnessMeanCosine.Record(
+                        EmbeddingFaithfulnessVectorMath.ToTelemetryUnitInterval(embCos),
+                        tags);
 
                 if (evaluated.Semantic.OverallSemanticScore < LowSemanticScoreThreshold)
 

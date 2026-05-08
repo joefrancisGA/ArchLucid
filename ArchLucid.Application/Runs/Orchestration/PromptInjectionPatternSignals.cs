@@ -85,6 +85,17 @@ public static class PromptInjectionPatternSignals
         "disregard your earlier rules"
     ];
 
+    private static bool MatchesAnyInjectionFamily(string normalized)
+    {
+        foreach (Regex pattern in InjectionFamilyPatterns)
+        {
+            if (pattern.IsMatch(normalized))
+                return true;
+        }
+
+        return false;
+    }
+
     /// <summary>Returns structured reasons when <paramref name="text" /> matches a blocked phrase or regex family.</summary>
     public static IReadOnlyList<string> Evaluate(string? text)
     {
@@ -98,8 +109,7 @@ public static class PromptInjectionPatternSignals
             where normalized.Contains(phrase, StringComparison.Ordinal)
             select string.Format(CultureInfo.InvariantCulture, "matches blocked phrase \"{0}\".", phrase));
 
-        if (InjectionFamilies.IsMatch(normalized))
-
+        if (MatchesAnyInjectionFamily(normalized))
             reasons.Add("matches a tuned injection-pattern family.");
 
         return reasons;

@@ -33,6 +33,7 @@ public sealed class RunAgentEvaluationController(
     IAgentOutputSemanticEvaluator agentOutputSemanticEvaluator,
     IAgentOutputQualityGate agentOutputQualityGate,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
+    IAgentResultEmbeddingFaithfulnessScorer embeddingFaithfulnessScorer,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>
@@ -122,6 +123,14 @@ public sealed class RunAgentEvaluationController(
                     agentResultEvidenceFaithfulnessChecker.Evaluate(trace.ParsedResultJson!, evidence);
 
                 score.Semantic.AgentResultFaithfulnessSupportRatio = faithReport.SupportRatio;
+
+                double? emb =
+                    await embeddingFaithfulnessScorer
+                        .TryComputeMeanCosineAsync(trace.ParsedResultJson!, evidence, cancellationToken)
+                        .ConfigureAwait(false);
+
+                if (emb is double e)
+                    score.Semantic.AgentResultEmbeddingFaithfulnessMeanCosine = e;
             }
         }
 
