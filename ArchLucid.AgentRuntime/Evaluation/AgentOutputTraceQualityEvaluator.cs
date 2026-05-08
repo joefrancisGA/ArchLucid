@@ -26,13 +26,34 @@ public static class AgentOutputTraceQualityEvaluator
     ///     Computes histogram + gate outcome consistent with quality gate options.
     /// </summary>
     /// <returns><see langword="null" /> when no metrics should be emitted for this trace.</returns>
-    public static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceAsync(
+    public static Task<TraceQualityEvaluationResult?> TryEvaluateTraceAsync(
         AgentExecutionTrace trace,
         AgentOutputQualityGateOptions options,
         IAgentOutputEvaluator structuralEvaluator,
         IAgentOutputSemanticEvaluator semanticEvaluator,
         IAgentOutputQualityGate qualityGate,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        AgentEvidencePackage? evidencePackage = null,
+        IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker = null) =>
+        TryEvaluateTraceAsyncCore(
+            trace,
+            options,
+            structuralEvaluator,
+            semanticEvaluator,
+            qualityGate,
+            cancellationToken,
+            evidencePackage,
+            agentResultFaithfulnessChecker);
+
+    private static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceAsyncCore(
+        AgentExecutionTrace trace,
+        AgentOutputQualityGateOptions options,
+        IAgentOutputEvaluator structuralEvaluator,
+        IAgentOutputSemanticEvaluator semanticEvaluator,
+        IAgentOutputQualityGate qualityGate,
+        CancellationToken cancellationToken,
+        AgentEvidencePackage? evidencePackage,
+        IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker)
     {
         ArgumentNullException.ThrowIfNull(trace);
         ArgumentNullException.ThrowIfNull(options);
@@ -97,7 +118,39 @@ public static class AgentOutputTraceQualityEvaluator
             !MeetsEvidenceRefFloor(trace.ParsedResultJson, options.PilotStrictMinEvidenceRefCount))
             gateOutcome = AgentOutputQualityGateOutcome.Rejected;
 
+        ApplyAgentResultEvidenceFaithfulness(
+            options,
+            pilotStrict,
+            trace.ParsedResultJson,
+            evidencePackage,
+            agentResultFaithfulnessChecker,
+            semanticScore,
+            ref gateOutcome);
+
         return new TraceQualityEvaluationResult(true, true, false, true, structuralScore, semanticScore, gateOutcome);
+    }
+
+    private static void ApplyAgentResultEvidenceFaithfulness(
+        AgentOutputQualityGateOptions options,
+        bool pilotStrict,
+        string parsedResultJson,
+        AgentEvidencePackage? evidencePackage,
+        IAgentResultEvidenceFaithfulnessChecker? checker,
+        AgentOutputSemanticScore semanticScore,
+        ref AgentOutputQualityGateOutcome gateOutcome)
+    {
+        if (checker is null || evidencePackage is null)
+            return;
+
+        AgentResultEvidenceFaithfulnessReport report = checker.Evaluate(parsedResultJson, evidencePackage);
+
+        semanticScore.AgentResultFaithfulnessSupportRatio = report.SupportRatio;
+
+        if (!pilotStrict || options.PilotStrictMinAgentResultFaithfulnessSupportRatio is not { } floor)
+            return;
+
+        if (report.SupportRatio < floor)
+            gateOutcome = AgentOutputQualityGateOutcome.Rejected;
     }
 
     private static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceGateDisabledAsync(

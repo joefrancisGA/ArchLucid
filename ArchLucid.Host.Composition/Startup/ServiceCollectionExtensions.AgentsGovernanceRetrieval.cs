@@ -155,6 +155,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AgentOutputLlmSemanticJudgeOptions.SectionPath));
         services.AddSingleton<AgentOutputEvaluator>();
         services.AddSingleton<IAgentOutputEvaluator>(static sp => sp.GetRequiredService<AgentOutputEvaluator>());
+        services.AddSingleton<IAgentResultEvidenceFaithfulnessChecker, AgentResultEvidenceFaithfulnessChecker>();
         services.AddSingleton<HeuristicAgentOutputSemanticEvaluator>();
         services.AddSingleton<IHeuristicAgentOutputSemanticEvaluator>(static sp =>
             sp.GetRequiredService<HeuristicAgentOutputSemanticEvaluator>());

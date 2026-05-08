@@ -55,12 +55,14 @@ public sealed class AgentOutputEvaluationRecorderTests
 
         return new AgentOutputEvaluationRecorder(
             traceRepository,
+            new InMemoryAgentEvidencePackageRepository(),
             new AgentOutputEvaluator(),
             semanticFacade,
             new AgentOutputQualityGate(Options.Create(opts)),
             Options.Create(opts),
             referenceEvaluator,
             archFindingConfidence.Object,
+            new AgentResultEvidenceFaithfulnessChecker(),
             logger);
     }
 

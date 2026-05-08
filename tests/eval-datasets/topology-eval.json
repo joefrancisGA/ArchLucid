@@ -1,7 +1,10 @@
 [
-  { "id": "topology-01", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "topology-02", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "topology-03", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "topology-04", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "topology-05", "expect": { "minFindings": 0, "maxFindings": 500 } }
+  {"id":"topology-01","architecturalContext":{"summary":"Public web tier behind Front Door","regions":["eastus"],"severityTarget":"Low"},"expect":{"minFindings":2,"maxFindings":10,"requiredCategories":["Topology"],"forbiddenCategories":["Critic"]}},
+  {"id":"topology-02","architecturalContext":{"summary":"Microservices with Service Bus fan-out","regions":["westeurope"],"severityTarget":"Medium"},"expect":{"minFindings":2,"maxFindings":12,"requiredCategories":["Topology"],"forbiddenCategories":["Cost"]}},
+  {"id":"topology-03","architecturalContext":{"summary":"AKS ingress plus internal APIs","regions":["centralus"],"severityTarget":"Medium"},"expect":{"minFindings":2,"maxFindings":11,"requiredCategories":["Topology"],"forbiddenCategories":["Critic"]}},
+  {"id":"topology-04","architecturalContext":{"summary":"Static SPA plus Functions APIs","regions":["eastus2"],"severityTarget":"Low"},"expect":{"minFindings":2,"maxFindings":10,"requiredCategories":["Topology"],"forbiddenCategories":["Cost"]}},
+  {"id":"topology-05","architecturalContext":{"summary":"Event-driven workers with Cosmos","regions":["uksouth"],"severityTarget":"High"},"expect":{"minFindings":3,"maxFindings":14,"requiredCategories":["Topology"],"forbiddenCategories":["Critic"]}},
+  {"id":"topology-06","architecturalContext":{"summary":"Hybrid connectivity via VPN gateway","regions":["northeurope"],"severityTarget":"Medium"},"expect":{"minFindings":2,"maxFindings":12,"requiredCategories":["Topology"],"forbiddenCategories":["Cost"]}},
+  {"id":"topology-07","architecturalContext":{"summary":"Edge caching plus blob origins","regions":["westus2"],"severityTarget":"Low"},"expect":{"minFindings":2,"maxFindings":10,"requiredCategories":["Topology"],"forbiddenCategories":["Critic"]}},
+  {"id":"topology-08","architecturalContext":{"summary":"Multi-region active-active pair","regions":["eastus","westus2"],"severityTarget":"High"},"expect":{"minFindings":3,"maxFindings":15,"requiredCategories":["Topology"],"forbiddenCategories":["Cost"]}}
 ]

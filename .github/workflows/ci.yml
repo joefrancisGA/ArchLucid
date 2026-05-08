@@ -250,6 +250,9 @@ jobs:
       - name: Golden cohort kill-switch shipped (Q15-conditional rule — warn 80% / kill 95%)
         run: python scripts/ci/assert_golden_cohort_kill_switch_present.py
 
+      - name: Golden cohort nightly job naming guard (preflight vs live)
+        run: python scripts/ci/assert_golden_cohort_job_names.py
+
       - name: Golden cohort kill-switch guard self-test
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_golden_cohort_kill_switch_present.py"
 
@@ -760,10 +763,10 @@ jobs:
         run: python3 scripts/ci/assert_rtm_test_filters_resolve.py
 
       - name: Agent eval dataset manifest (shape)
-        run: python3 scripts/ci/eval_agent_quality.py --manifest-only
+        run: python3 scripts/ci/eval_agent_quality.py --manifest-only --strict
 
       - name: Prompt injection eval datasets (shape)
-        run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only
+        run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only --strict
 
       - name: Agent eval corpus (offline recall + simulator quality evidence)
         run: |

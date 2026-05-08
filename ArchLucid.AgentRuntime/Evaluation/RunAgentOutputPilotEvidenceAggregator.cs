@@ -5,17 +5,28 @@ using ArchLucid.Core.Explanation;
 
 using Microsoft.Extensions.Options;
 
+using ArchLucid.Persistence.Data.Repositories;
+
 namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <inheritdoc cref="IRunAgentOutputPilotEvidenceAggregator" />
 public sealed class RunAgentOutputPilotEvidenceAggregator(
     IOptions<AgentOutputQualityGateOptions> options,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentOutputEvaluator structuralEvaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
-    IAgentOutputQualityGate qualityGate) : IRunAgentOutputPilotEvidenceAggregator
+    IAgentOutputQualityGate qualityGate,
+    IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker) : IRunAgentOutputPilotEvidenceAggregator
 {
     private readonly AgentOutputQualityGateOptions _options =
         (options ?? throw new ArgumentNullException(nameof(options))).Value;
+
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
+        agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+
+    private readonly IAgentResultEvidenceFaithfulnessChecker _agentResultEvidenceFaithfulnessChecker =
+        agentResultEvidenceFaithfulnessChecker ??
+        throw new ArgumentNullException(nameof(agentResultEvidenceFaithfulnessChecker));
 
     private readonly IAgentOutputEvaluator _structuralEvaluator =
         structuralEvaluator ?? throw new ArgumentNullException(nameof(structuralEvaluator));
@@ -37,6 +48,13 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
         if (!_options.Enabled || _options.Mode != AgentOutputQualityGateMode.PilotStrict)
             return false;
 
+        if (traces.Count == 0)
+            return false;
+
+        AgentEvidencePackage? evidence =
+            await _agentEvidencePackageRepository.GetByRunIdAsync(traces[0].RunId, cancellationToken)
+                .ConfigureAwait(false);
+
         foreach (AgentExecutionTrace trace in traces)
         {
             AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
@@ -46,7 +64,9 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
                         _structuralEvaluator,
                         _semanticEvaluator,
                         _qualityGate,
-                        cancellationToken)
+                        cancellationToken,
+                        evidence,
+                        _agentResultEvidenceFaithfulnessChecker)
                     .ConfigureAwait(false);
 
             if (evaluated is { GateOutcome: AgentOutputQualityGateOutcome.Rejected })

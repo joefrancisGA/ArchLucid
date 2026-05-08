@@ -1,7 +1,10 @@
 [
-  { "id": "cost-01", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "cost-02", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "cost-03", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "cost-04", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "cost-05", "expect": { "minFindings": 0, "maxFindings": 500 } }
+  {"id":"cost-01","architecturalContext":{"summary":"Burstable SQL with oversized tier","regions":["eastus"],"severityTarget":"Medium"},"expect":{"minFindings":1,"maxFindings":8,"requiredCategories":["Cost"],"forbiddenCategories":["Critic"]}},
+  {"id":"cost-02","architecturalContext":{"summary":"Always-on VMs without autoscale","regions":["westeurope"],"severityTarget":"High"},"expect":{"minFindings":2,"maxFindings":10,"requiredCategories":["Cost"],"forbiddenCategories":["Topology"]}},
+  {"id":"cost-03","architecturalContext":{"summary":"Premium Redis with tiny payload","regions":["centralus"],"severityTarget":"Low"},"expect":{"minFindings":1,"maxFindings":8,"requiredCategories":["Cost"],"forbiddenCategories":["Critic"]}},
+  {"id":"cost-04","architecturalContext":{"summary":"Multi-region observability duplication","regions":["eastus2"],"severityTarget":"Medium"},"expect":{"minFindings":2,"maxFindings":9,"requiredCategories":["Cost"],"forbiddenCategories":["Topology"]}},
+  {"id":"cost-05","architecturalContext":{"summary":"Kubernetes cluster without spot nodes","regions":["uksouth"],"severityTarget":"Medium"},"expect":{"minFindings":2,"maxFindings":10,"requiredCategories":["Cost"],"forbiddenCategories":["Critic"]}},
+  {"id":"cost-06","architecturalContext":{"summary":"Cold storage tier mismatch","regions":["northeurope"],"severityTarget":"Low"},"expect":{"minFindings":1,"maxFindings":8,"requiredCategories":["Cost"],"forbiddenCategories":["Topology"]}},
+  {"id":"cost-07","architecturalContext":{"summary":"Per-environment full clones","regions":["westus2"],"severityTarget":"High"},"expect":{"minFindings":2,"maxFindings":11,"requiredCategories":["Cost"],"forbiddenCategories":["Critic"]}},
+  {"id":"cost-08","architecturalContext":{"summary":"Orphaned disks after resize","regions":["eastus"],"severityTarget":"Medium"},"expect":{"minFindings":1,"maxFindings":9,"requiredCategories":["Cost"],"forbiddenCategories":["Topology"]}}
 ]

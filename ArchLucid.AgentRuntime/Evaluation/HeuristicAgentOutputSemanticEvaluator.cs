@@ -1,7 +1,11 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Configuration;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
@@ -11,8 +15,28 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 /// <inheritdoc cref="IHeuristicAgentOutputSemanticEvaluator" />
 public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutputSemanticEvaluator
 {
-    private const int MinDescriptionLength = 10;
-    private const int MinRecommendationLength = 5;
+    private const int MinDescriptionLengthLegacy = 10;
+    private const int MinRecommendationLengthLegacy = 5;
+
+    private readonly AgentOutputQualityGateOptions _gateOptions;
+
+    /// <summary>Tests / harnesses without DI wiring.</summary>
+    public HeuristicAgentOutputSemanticEvaluator()
+        : this(Options.Create(new AgentOutputQualityGateOptions()))
+    {
+    }
+
+    public HeuristicAgentOutputSemanticEvaluator(IOptions<AgentOutputQualityGateOptions> gateOptions)
+    {
+        ArgumentNullException.ThrowIfNull(gateOptions);
+        _gateOptions = gateOptions.Value;
+    }
+
+    private bool Tightened => _gateOptions.HeuristicEvaluatorTightenedThresholds;
+
+    private int MinDescriptionLength => Tightened ? 60 : MinDescriptionLengthLegacy;
+
+    private int MinRecommendationLength => Tightened ? 25 : MinRecommendationLengthLegacy;
 
     /// <inheritdoc />
     public AgentOutputSemanticScore Evaluate(string traceId, string? parsedResultJson, AgentType agentType)
@@ -53,7 +77,7 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
         }
     }
 
-    private static (double ratio, int emptyCount) EvaluateClaims(JsonElement root)
+    private (double ratio, int emptyCount) EvaluateClaims(JsonElement root)
     {
         if (!root.TryGetProperty("claims", out JsonElement claimsElement) ||
             claimsElement.ValueKind != JsonValueKind.Array)
@@ -73,11 +97,26 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
                                    && refs.ValueKind == JsonValueKind.Array
                                    && refs.GetArrayLength() > 0;
 
-            bool hasEvidence = claim.TryGetProperty("evidence", out JsonElement ev)
-                               && ev.ValueKind == JsonValueKind.String
-                               && ev.GetString()?.Length > 0;
+            int refLen = hasEvidenceRefs ? refs.GetArrayLength() : 0;
 
-            if (hasEvidenceRefs || hasEvidence)
+            bool hasEvidenceString = claim.TryGetProperty("evidence", out JsonElement ev)
+                                     && ev.ValueKind == JsonValueKind.String
+                                     && (ev.GetString()?.Length ?? 0) > 0;
+
+            bool backed;
+
+            if (Tightened)
+
+                backed = refLen >= 2 ||
+                         (claim.TryGetProperty("evidence", out JsonElement ev2) &&
+                          ev2.ValueKind == JsonValueKind.String &&
+                          (ev2.GetString()?.Length ?? 0) >= 30);
+
+            else
+
+                backed = hasEvidenceRefs || hasEvidenceString;
+
+            if (backed)
 
                 withEvidence++;
         }
@@ -85,14 +124,14 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
         return total == 0 ? (0.0, 0) : ((double)withEvidence / total, total - withEvidence);
     }
 
-    private static (double ratio, int incompleteCount) EvaluateFindings(JsonElement root)
+    private (double ratio, int incompleteCount) EvaluateFindings(JsonElement root)
     {
         if (!root.TryGetProperty("findings", out JsonElement findingsElement) ||
             findingsElement.ValueKind != JsonValueKind.Array)
             return (0.0, 0);
 
         int total = 0;
-        int complete = 0;
+        double weightedComplete = 0;
 
         foreach (JsonElement finding in findingsElement.EnumerateArray())
         {
@@ -110,22 +149,83 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
                                   && (desc.GetString()?.Length ?? 0) > MinDescriptionLength;
 
             bool hasRecommendation = finding.TryGetProperty("recommendation", out JsonElement rec)
-                                     && rec.ValueKind == JsonValueKind.String
-                                     && (rec.GetString()?.Length ?? 0) > MinRecommendationLength;
+                                       && rec.ValueKind == JsonValueKind.String
+                                       && (rec.GetString()?.Length ?? 0) > MinRecommendationLength;
 
-            if (hasSeverity && hasDescription && hasRecommendation)
+            if (!hasSeverity || !hasDescription || !hasRecommendation)
+                continue;
 
-                complete++;
+            string description = finding.GetProperty("description").GetString() ?? string.Empty;
+
+            string recommendation = finding.GetProperty("recommendation").GetString() ?? string.Empty;
+
+            double contribution = 1.0;
+
+            if (Tightened && !ShareSignificantToken(description, recommendation))
+
+                contribution = 0.5;
+
+            weightedComplete += contribution;
         }
 
-        return total == 0 ? (0.0, 0) : ((double)complete / total, total - complete);
+        int incompleteApprox = total == 0 ? 0 : (int)Math.Round(total - weightedComplete);
+
+        return total == 0 ? (0.0, 0) : (weightedComplete / total, incompleteApprox);
+    }
+
+    private static bool ShareSignificantToken(string a, string b)
+    {
+        HashSet<string> da = CollectSignificantTokens(a);
+        HashSet<string> db = CollectSignificantTokens(b);
+
+        foreach (string t in da)
+
+            if (db.Contains(t))
+
+                return true;
+
+        return false;
+    }
+
+    private static HashSet<string> CollectSignificantTokens(string text)
+    {
+        HashSet<string> set = new(StringComparer.OrdinalIgnoreCase);
+        ReadOnlySpan<char> span = text.AsSpan();
+        int i = 0;
+
+        while (i < span.Length)
+        {
+            while (i < span.Length && !char.IsLetterOrDigit(span[i]))
+
+                i++;
+
+            int start = i;
+
+            while (i < span.Length && (char.IsLetterOrDigit(span[i]) || span[i] == '-' || span[i] == '_'))
+
+                i++;
+
+            int len = i - start;
+
+            if (len < 4)
+                continue;
+
+            string token = span.Slice(start, len).ToString().ToLowerInvariant();
+
+            if (long.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+                continue;
+
+            _ = set.Add(token);
+        }
+
+        return set;
     }
 
     /// <summary>
     ///     Topology surfaces services/datastores/relationships in <c>proposedChanges</c>; score non-empty slices so
     ///     claim/finding-less topology rows are not forced to 0.
     /// </summary>
-    private static double EvaluateProposedChangesSurfaceRatio(JsonElement root)
+    private double EvaluateProposedChangesSurfaceRatio(JsonElement root)
     {
         if (!root.TryGetProperty("proposedChanges", out JsonElement pc) || pc.ValueKind != JsonValueKind.Object)
             return 0.0;
@@ -134,17 +234,86 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
 
         if (pc.TryGetProperty("addedServices", out JsonElement svc) && svc.ValueKind == JsonValueKind.Array &&
             svc.GetArrayLength() > 0)
-            hits++;
+
+            hits += Tightened ? CountWellFormedServices(svc) > 0 ? 1 : 0 : 1;
 
         if (pc.TryGetProperty("addedDatastores", out JsonElement ds) && ds.ValueKind == JsonValueKind.Array &&
             ds.GetArrayLength() > 0)
-            hits++;
+
+            hits += Tightened ? CountWellFormedDatastores(ds) > 0 ? 1 : 0 : 1;
 
         if (pc.TryGetProperty("addedRelationships", out JsonElement rel) && rel.ValueKind == JsonValueKind.Array &&
             rel.GetArrayLength() > 0)
-            hits++;
+
+            hits += Tightened ? CountWellFormedRelationships(rel) > 0 ? 1 : 0 : 1;
 
         return hits / 3.0;
+    }
+
+    private static int CountWellFormedServices(JsonElement array)
+    {
+        int n = 0;
+
+        foreach (JsonElement item in array.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object)
+
+                continue;
+
+            if (item.TryGetProperty("serviceName", out JsonElement name) &&
+                name.ValueKind == JsonValueKind.String &&
+                !string.IsNullOrWhiteSpace(name.GetString()))
+
+                n++;
+        }
+
+        return n;
+    }
+
+    private static int CountWellFormedDatastores(JsonElement array)
+    {
+        int n = 0;
+
+        foreach (JsonElement item in array.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object)
+
+                continue;
+
+            if (item.TryGetProperty("datastoreName", out JsonElement name) &&
+                name.ValueKind == JsonValueKind.String &&
+                !string.IsNullOrWhiteSpace(name.GetString()))
+
+                n++;
+        }
+
+        return n;
+    }
+
+    private static int CountWellFormedRelationships(JsonElement array)
+    {
+        int n = 0;
+
+        foreach (JsonElement item in array.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object)
+
+                continue;
+
+            bool src = item.TryGetProperty("sourceId", out JsonElement s) &&
+                       s.ValueKind == JsonValueKind.String &&
+                       !string.IsNullOrWhiteSpace(s.GetString());
+
+            bool tgt = item.TryGetProperty("targetId", out JsonElement t) &&
+                       t.ValueKind == JsonValueKind.String &&
+                       !string.IsNullOrWhiteSpace(t.GetString());
+
+            if (src && tgt)
+
+                n++;
+        }
+
+        return n;
     }
 
     private static double ComputeOverallScore(
@@ -182,10 +351,6 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
         return claimsRatio * claimsWeight + findingsRatio * findingsWeight;
     }
 
-    /// <summary>
-    ///     Claim-heavy profiles (Compliance) prioritize evidence-backed assertions; critique profiles emphasize actionable
-    ///     findings strings.
-    /// </summary>
     private static (double ClaimsWeight, double FindingsWeight) SemanticWeights(AgentType agentType)
     {
         return agentType switch

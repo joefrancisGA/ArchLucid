@@ -1,7 +1,10 @@
 [
-  { "id": "compliance-01", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "compliance-02", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "compliance-03", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "compliance-04", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "compliance-05", "expect": { "minFindings": 0, "maxFindings": 500 } }
+  {"id":"compliance-01","architecturalContext":{"summary":"PII API without private endpoints","regions":["eastus"],"severityTarget":"High"},"expect":{"minFindings":2,"maxFindings":12,"requiredCategories":["Compliance"],"forbiddenCategories":["Cost"]}},
+  {"id":"compliance-02","architecturalContext":{"summary":"Secrets in app settings","regions":["westeurope"],"severityTarget":"High"},"expect":{"minFindings":2,"maxFindings":11,"requiredCategories":["Compliance"],"forbiddenCategories":["Topology"]}},
+  {"id":"compliance-03","architecturalContext":{"summary":"Missing customer-managed keys","regions":["centralus"],"severityTarget":"Medium"},"expect":{"minFindings":1,"maxFindings":10,"requiredCategories":["Compliance"],"forbiddenCategories":["Critic"]}},
+  {"id":"compliance-04","architecturalContext":{"summary":"Open storage accounts","regions":["eastus2"],"severityTarget":"High"},"expect":{"minFindings":2,"maxFindings":12,"requiredCategories":["Compliance"],"forbiddenCategories":["Cost"]}},
+  {"id":"compliance-05","architecturalContext":{"summary":"Audit logging gaps","regions":["uksouth"],"severityTarget":"Medium"},"expect":{"minFindings":2,"maxFindings":11,"requiredCategories":["Compliance"],"forbiddenCategories":["Topology"]}},
+  {"id":"compliance-06","architecturalContext":{"summary":"Cross-border data residency risk","regions":["northeurope"],"severityTarget":"High"},"expect":{"minFindings":2,"maxFindings":12,"requiredCategories":["Compliance"],"forbiddenCategories":["Critic"]}},
+  {"id":"compliance-07","architecturalContext":{"summary":"IAM overly permissive roles","regions":["westus2"],"severityTarget":"Medium"},"expect":{"minFindings":1,"maxFindings":10,"requiredCategories":["Compliance"],"forbiddenCategories":["Cost"]}},
+  {"id":"compliance-08","architecturalContext":{"summary":"Third-party SaaS without DPA","regions":["eastus"],"severityTarget":"Medium"},"expect":{"minFindings":1,"maxFindings":9,"requiredCategories":["Compliance"],"forbiddenCategories":["Topology"]}}
 ]
