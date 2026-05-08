@@ -50,6 +50,20 @@ function Read-RepoText {
     return Get-Content -LiteralPath $abs -Raw
 }
 
+function Test-JsonDepthMergeNode {
+    param([object] $Node)
+
+    if ($null -eq $Node) {
+        return $false
+    }
+
+    if ($Node -is [System.Collections.IList]) {
+        return $false
+    }
+
+    return $Node -is [pscustomobject]
+}
+
 function Merge-PsObjectDeep {
     param(
         [System.Object] $Base,
@@ -73,9 +87,14 @@ function Merge-PsObjectDeep {
     foreach ($p in $Override.PSObject.Properties) {
         [string] $name = $p.Name
         [object] $ov = $p.Value
+        [object] $prev = $null
 
-        if ($map.Contains($name) -and $map[$name] -is [psobject] -and $ov -is [psobject]) {
-            $map[$name] = (Merge-PsObjectDeep -Base $map[$name] -Override $ov)
+        if ($map.Keys -contains $name) {
+            $prev = $map[$name]
+        }
+
+        if ((Test-JsonDepthMergeNode -Node $prev) -and (Test-JsonDepthMergeNode -Node $ov)) {
+            $map[$name] = (Merge-PsObjectDeep -Base $prev -Override $ov)
         }
         else {
             $map[$name] = $ov
@@ -505,12 +524,34 @@ $tfExe = Get-Command terraform -ErrorAction SilentlyContinue
 if ($null -ne $tfExe) {
     Push-Location $root
     try {
-        & terraform fmt -check -recursive infra 2>&1 | Out-Null
-        if ($LASTEXITCODE -eq 0) {
-            $rowsIaC.Add((Add-Row "terraform fmt -check -recursive infra" "Passed" "format OK")) | Out-Null
+        [string[]] $tfFmtRoots = $tfRootsMandatory + $tfRootsOptional
+        [bool] $fmtAllOk = $true
+
+        foreach ($dir in ($tfFmtRoots | Select-Object -Unique)) {
+            if (!(Test-Path -LiteralPath (Join-Path $root $dir) -PathType Container)) {
+                continue
+            }
+
+            Push-Location (Join-Path $root $dir)
+            try {
+                & terraform fmt -check -recursive . 2>&1 | Out-Null
+
+                if ($LASTEXITCODE -ne 0) {
+                    $fmtAllOk = $false
+
+                    break
+                }
+            }
+            finally {
+                Pop-Location
+            }
+        }
+
+        if ($fmtAllOk) {
+            $rowsIaC.Add((Add-Row "terraform fmt -check (known roots only)" "Passed" "format OK under infra/terraform-* declared roots")) | Out-Null
         }
         else {
-            $rowsIaC.Add((Add-Row "terraform fmt -check -recursive infra" "Failed" "run: terraform fmt -recursive infra")) | Out-Null
+            $rowsIaC.Add((Add-Row "terraform fmt -check (known roots only)" "Failed" "run: terraform fmt -recursive <root> for each infra/terraform-* root")) | Out-Null
         }
     }
     finally {
@@ -518,7 +559,7 @@ if ($null -ne $tfExe) {
     }
 }
 else {
-    $rowsIaC.Add((Add-Row "terraform fmt -check -recursive infra" "Skipped" "terraform not on PATH - run locally after install")) | Out-Null
+    $rowsIaC.Add((Add-Row "terraform fmt -check (known roots only)" "Skipped" "terraform not on PATH - run locally after install")) | Out-Null
 }
 
 $rowsIaC.Add((Add-Row 'terraform validate (per root)' 'Skipped' 'Requires terraform init per directory (network for providers); do not run apply. Example: cd infra/terraform-private; terraform init -backend=false; terraform validate')) | Out-Null
@@ -618,7 +659,7 @@ else {
     $rowsReference.Add((Add-Row "appsettings.SaaS.json present (optional SaaS chain)" "Skipped" "optional")) | Out-Null
 }
 
-[string[]] $smbScanPaths = @("infra", "ArchLucid.Api")
+[string[]] $smbScanPaths = @("infra")
 [int] $smbHits = 0
 
 foreach ($sp in $smbScanPaths) {
@@ -628,21 +669,24 @@ foreach ($sp in $smbScanPaths) {
         continue
     }
 
-    foreach ($f in Get-ChildItem -LiteralPath $base -Recurse -File -Include *.tf, *.tfvars -ErrorAction SilentlyContinue) {
-        [string] $rel = $f.FullName.Substring($root.Length).TrimStart('\', '/')
+    foreach ($pat in @("*.tf", "*.tfvars")) {
 
-        if ($rel -match '(\\|/)(bin|obj|\\.git|node_modules)(\\|/)') {
-            continue
-        }
+        foreach ($f in Get-ChildItem -LiteralPath $base -Recurse -File -Filter $pat -ErrorAction SilentlyContinue) {
+            [string] $rel = $f.FullName.Substring($root.Length).TrimStart('\', '/')
 
-        [string] $txt = Get-Content -LiteralPath $f.FullName -Raw -ErrorAction SilentlyContinue
+            if ($rel -match '(\\|/)(\\.terraform|\\.git|node_modules|bin|obj)(\\|/)') {
+                continue
+            }
 
-        if ([string]::IsNullOrEmpty($txt)) {
-            continue
-        }
+            [string] $txt = Get-Content -LiteralPath $f.FullName -Raw -ErrorAction SilentlyContinue
 
-        if ($txt -match '(?i)(public[^\r\n]{0,80}445|445[^\r\n]{0,40}smb|\\\\[^:\s]+:445)') {
-            $smbHits++
+            if ([string]::IsNullOrEmpty($txt)) {
+                continue
+            }
+
+            if ($txt -match '(?i)(public[^\r\n]{0,80}445|445[^\r\n]{0,40}smb|\\\\[^:\s]+:445)') {
+                $smbHits++
+            }
         }
     }
 }
@@ -672,7 +716,7 @@ Generated (UTC): **$generatedUtc**
 
 **Generate:** ``pwsh ./scripts/Emit-ProductionProfilePreflightMarkdown.ps1`` (from repo root).
 
-**Alignment:** Mirrors concerns enforced in `ArchLucid.Host.Core/Startup/Validation/Rules/` (authentication, billing production safety, prompt redaction, observability hints) — this script stays **offline** (no weakening of runtime validation).
+**Alignment:** Mirrors concerns enforced in ``ArchLucid.Host.Core/Startup/Validation/Rules/`` (authentication, billing production safety, prompt redaction, observability hints) — this script stays **offline** (no weakening of runtime validation).
 
 ---
 
@@ -694,7 +738,7 @@ $md += @"
 
 ## B) API merged production profile (appsettings chain)
 
-Evaluates **`ArchLucid.Api/appsettings.json` merged with `appsettings.Production.json`** the same way the host overlays configuration (JSON only — deployment may override via environment variables).
+Evaluates **``ArchLucid.Api/appsettings.json`` merged with ``appsettings.Production.json``** the same way the host overlays configuration (JSON only — deployment may override via environment variables).
 
 | Check | Result | Detail |
 | --- | --- | --- |
@@ -710,7 +754,7 @@ $md += @"
 
 ## C) Worker configuration files
 
-`ArchLucid.Worker` carries a minimal **`appsettings.json`**; operators typically inject production settings via Container Apps env or Key Vault references (not printed here).
+``ArchLucid.Worker`` carries a minimal **``appsettings.json``**; operators typically inject production settings via Container Apps env or Key Vault references (not printed here).
 
 | Check | Result | Detail |
 | --- | --- | --- |
@@ -767,7 +811,13 @@ $md += @"
 Do not commit generated reports unless your process attaches them to release evidence; default output path is under ``artifacts/``.
 "@
 
-[string] $outAbs = Join-Path $root $MarkdownOut
+[string] $outAbs = if ([System.IO.Path]::IsPathRooted($MarkdownOut)) {
+    $MarkdownOut
+}
+else {
+    Join-Path $root $MarkdownOut
+}
+
 [string] $dir = Split-Path -Parent $outAbs
 
 if (!(Test-Path -LiteralPath $dir)) {

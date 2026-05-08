@@ -34,7 +34,7 @@ Use this drill after a candidate release build to gather **signals** (not a subs
 
    **Generated report (attach to release artifacts; gitignored):** [`artifacts/release/real-llm-evidence-gate.md`](../../artifacts/release/real-llm-evidence-gate.md). With credentials, companion metrics may appear next to it as **`artifacts/release/real-llm-last-run-metrics.json`** (also gitignored).
 
-5. **Production profile preflight (repo-only, no Azure login)**
+5. **Production profile preflight (repo-only, no Azure login)** — auth mode, JWT posture, API key disablement, SQL connection shape, Key Vault sample, prompt redaction, observability export hints, billing safety, Worker `appsettings` presence, plus Terraform layout. **Generated report (attach to release artifacts; gitignored by default):** [`artifacts/deployment/production-profile-preflight.md`](../../artifacts/deployment/production-profile-preflight.md).
 
    ```powershell
    .\scripts\Emit-ProductionProfilePreflightMarkdown.ps1
@@ -46,7 +46,7 @@ Use this drill after a candidate release build to gather **signals** (not a subs
    .\scripts\Invoke-ReleaseEvidenceSummary.ps1 [-MarkdownOut artifacts\release\release-evidence-summary.md] [-FailOnError]
    ```
 
-7. **Fixture expectation (offline):** `scripts/fixtures/release-evidence/expected-status-labels.txt` lists the Result labels this script must emit (`Passed`, `Failed`, `Skipped`, `Not captured`).
+7. **Fixture expectation (offline):** `scripts/fixtures/release-evidence/expected-status-labels.txt` lists the Result labels the preflight report may emit (`Passed`, `Warning`, `Failed`, `Skipped`, `Not captured`). CI guards structure via `scripts/ci/tests/test_production_profile_preflight_md.py`.
 
 **Optional:** data consistency documentation readiness (no DB): `python scripts/data_consistency_mode_readiness_report.py` → `artifacts/deployment/data-consistency-mode-readiness.md`.
 

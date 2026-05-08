@@ -35,7 +35,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     title: "Finalize the review package",
     shortBody: "On review detail, finalize when the pipeline is ready — this locks the manifest and unlocks exports.",
     detail:
-      "Commit/finalize produces the golden manifest and artifacts. Until then, the manifest summary and artifact table are not available. See docs/OPERATOR_QUICKSTART.md for CLI/API.",
+      "Commit/finalize produces the committed architecture manifest and artifacts. Until then, the manifest summary and artifact table are not available. See docs/OPERATOR_QUICKSTART.md for CLI/API.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Choose review → open detail",
   },

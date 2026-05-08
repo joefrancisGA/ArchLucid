@@ -235,7 +235,7 @@ export function CorePilotNextStepsCard() {
           <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 3 pending">
             <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">3.</span>
             <span>
-              Commit a golden manifest from review detail when the pipeline completes (
+              Commit an architecture manifest from review detail when the pipeline completes (
               <HelpLink docPath="/docs/CORE_PILOT.md" label="Core Pilot — commit step (new tab)" />).
             </span>
           </li>
@@ -282,7 +282,7 @@ export function CorePilotNextStepsCard() {
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 3 pending">
           <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">3.</span>
-          <span>Commit the golden manifest from review detail.</span>
+          <span>Commit the architecture manifest from review detail.</span>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 4 pending">
           <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">4.</span>

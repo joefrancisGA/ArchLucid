@@ -7,7 +7,7 @@
 
 **Audience:** operators on call. **Scope:** Azure Container Apps + GitHub CD (see [DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md)). For schema and data rollback posture, use [runbooks/MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md).
 
-**Repo-local preflight (before first prod apply):** run `scripts/Emit-ProductionProfilePreflightMarkdown.ps1` from the repository root to emit `artifacts/deployment/production-profile-preflight.md` — Terraform presence + sample `appsettings.Production.json` heuristics **without** Azure login (see [AZURE_PRODUCTION_PROFILE.md](AZURE_PRODUCTION_PROFILE.md)).
+**Repo-local preflight (before first prod apply):** run `scripts/Emit-ProductionProfilePreflightMarkdown.ps1` from the repository root to emit `artifacts/deployment/production-profile-preflight.md` — Terraform roots + **merged** `ArchLucid.Api` production appsettings (auth/JWT, API key off, SQL + Key Vault sample, redaction, observability, billing rules), Worker `appsettings` notes, and SMB/445 heuristics **without** Azure login or printing secret values (see [AZURE_PRODUCTION_PROFILE.md](AZURE_PRODUCTION_PROFILE.md) and [RELEASE_EVIDENCE_SUMMARY.md](RELEASE_EVIDENCE_SUMMARY.md)).
 
 ---
 

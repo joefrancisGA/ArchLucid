@@ -71,7 +71,7 @@ function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): string {
   const title =
     normalizeInlineText(m.systemName) ??
     normalizeInlineText(m.manifestVersion) ??
-    "Golden manifest";
+    "Committed architecture manifest";
   const env = normalizeInlineText(m.environment);
   const cloud = normalizeInlineText(m.cloudProvider);
   const status = normalizeInlineText(m.status);

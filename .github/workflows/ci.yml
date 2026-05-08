@@ -212,6 +212,7 @@ jobs:
           python -m unittest discover -s scripts/ci/tests -p "test_data_consistency_mode_readiness_report.py"
           python -m unittest discover -s scripts/ci/tests -p "test_report_observability_export_readiness.py"
           python -m unittest discover -s scripts/ci/tests -p "test_invoke_real_llm_evidence_gate.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_production_profile_preflight_md.py"
 
       - name: Procurement doc freshness guard (warn-only)
         continue-on-error: true

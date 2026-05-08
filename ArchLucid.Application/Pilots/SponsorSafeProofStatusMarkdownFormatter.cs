@@ -90,7 +90,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return "Support run id missing — this export cannot be anchored to a persisted architecture review identity.";
 
         if (!proof.CommittedManifestPresent || !proof.RunInCommittedStatus)
-            yield return "No committed golden manifest or run is not Committed — there is nothing sponsor-complete to ship yet.";
+            yield return "No committed architecture manifest or run is not Committed — there is nothing sponsor-complete to ship yet.";
 
         if (proof is { CommittedManifestPresent: true, CommittedManifestTimestampResolved: false })
             yield return "Committed manifest timestamp is default/absent — commit-time proof cannot be audited from metadata.";

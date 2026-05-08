@@ -13,7 +13,7 @@ type PostCommitRetentionRailProps = {
 };
 
 /**
- * After a golden manifest exists, surface three concrete operating loops (second run, weekly habit, connectors).
+ * After a committed architecture manifest exists, surface three concrete operating loops (second run, weekly habit, connectors).
  */
 export function PostCommitRetentionRail({ runId }: PostCommitRetentionRailProps): ReactElement {
   const canMutate: boolean = useEnterpriseMutationCapability();

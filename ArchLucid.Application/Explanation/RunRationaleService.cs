@@ -202,7 +202,7 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
         if (!string.IsNullOrWhiteSpace(fromManifest))
             return fromManifest.Trim();
         string? desc = detail.Run.Description;
-        return !string.IsNullOrWhiteSpace(desc) ? desc.Trim() : $"Authority run with {findingCount} finding(s).";
+        return !string.IsNullOrWhiteSpace(desc) ? desc.Trim() : $"Architecture run with {findingCount} finding(s).";
     }
 
     private static string BuildCoordinatorSummary(RunDetailDto authorityDetail, ArchitectureRunDetail coordinator, int findingCount)
