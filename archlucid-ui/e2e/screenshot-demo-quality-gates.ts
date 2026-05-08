@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 /**
  * Fail the full-route screenshot crawl when evergreen demo pages still show empty states or internal placeholders.
@@ -42,9 +42,26 @@ async function waitOutLoadingGraphIfPresent(page: Page): Promise<void> {
   await loadingGraph.first().waitFor({ state: "detached", timeout: 120_000 });
 }
 
+/**
+ * Audit page briefly renders “Showing 0 events” until the client `useEffect` search resolves (initial state is an empty list).
+ * Mock API returns demo rows — wait so the screenshot gate does not observe that transient summary line.
+ */
+async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Promise<void> {
+  const pathOnly = href.split("?", 1)[0];
+
+  if (pathOnly !== "/audit") {
+    return;
+  }
+
+  const summary = page.locator('section[aria-labelledby="audit-results-heading"] p[role="status"]');
+
+  await expect(summary).toContainText(/Showing [1-9]/, { timeout: 120_000 });
+}
+
 export async function assertPageFreeOfScreenshotDemoFailures(page: Page, href: string): Promise<void> {
   await waitForGraphChunkIfNeeded(page, href);
   await waitOutLoadingGraphIfPresent(page);
+  await waitForAuditSearchSummaryNonEmpty(page, href);
 
   const bodyText = await page.locator("body").innerText();
 

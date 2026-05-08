@@ -8,6 +8,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -126,7 +127,7 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
         {
             if (_logger.IsEnabled(LogLevel.Warning))
 
-                _logger.LogWarning(
+                _logger.LogWarningWithSanitizedUserArg(
                     ex,
                     "Finding evaluation confidence enrichment failed for run {RunId}; continuing without enriched scores.",
                     runId.Trim());
