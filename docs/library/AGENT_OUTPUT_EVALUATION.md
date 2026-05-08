@@ -76,6 +76,7 @@ flowchart LR
 - **Authorization**: **`ReadAuthority`** on **`RunsController`** (same as **`GET …/traces`**).
 - **Data exposure**: Response includes **missing key names** and **scores** only—no raw prompts. Traces already scoped by **run repository** / **RLS** as elsewhere.
 - **Abuse**: Rate limiting inherits controller **`fixed`** window; evaluation is CPU-only over in-memory JSON strings.
+- **Ingress text**: **`DefaultRequestContentSafetyPrecheck`** (architecture **`POST …/runs`** path) and **`PromptFieldRedactor`** trim obvious injection / secret patterns before prompts reach agents; deterministic regression coverage includes **`tests/eval-datasets/prompt-injection/`** and **`PromptInjectionExecutableRegressionTests`**.
 
 ## Semantic evaluation
 
@@ -104,6 +105,16 @@ IAgentOutputSemanticEvaluator.Evaluate(traceId, parsedResultJson, agentType) →
 ```
 
 Registered as **singleton** (`IAgentOutputSemanticEvaluator → AgentOutputSemanticEvaluator`).
+
+### AgentResult versus persisted evidence (faithfulness ratio)
+
+When an **`AgentEvidencePackage`** exists for the run, **`AgentResultEvidenceFaithfulnessChecker`** (`ArchLucid.AgentRuntime`) computes **`AgentResultFaithfulnessSupportRatio`**: a deterministic overlap between claim tokens and flattened evidence text plus resolved evidence-reference hits (not LLM entailment). **`AgentOutputTraceQualityEvaluator`** and **`AgentOutputEvaluationRecorder`** attach this ratio to **`AgentOutputSemanticScore.AgentResultFaithfulnessSupportRatio`** when evaluating traces.
+
+- **`GET /v1/architecture/run/{runId}/agent-evaluation`** (**`RunAgentEvaluationController`**) loads evidence per trace and sets **`score.Semantic.AgentResultFaithfulnessSupportRatio`** for API responses (OpenAPI: **`agentResultFaithfulnessSupportRatio`** on the semantic score object).
+- **PilotStrict:** optional floor **`PilotStrictMinAgentResultFaithfulnessSupportRatio`** (`AgentOutputQualityGateOptions`) rejects traces strictly below the ratio when evidence is present (distinct from aggregate explanation **`PilotStrictMinFaithfulnessSupportRatio`**).
+- **`HeuristicEvaluatorTightenedThresholds`:** tightens **`HeuristicAgentOutputSemanticEvaluator`** thresholds without changing contract shapes.
+
+Schema reference: **`ArchLucid.Contracts.Agents.AgentOutputSemanticScore`**, **`IAgentResultEvidenceFaithfulnessChecker`**.
 
 ## Quality gate (enabled by default)
 

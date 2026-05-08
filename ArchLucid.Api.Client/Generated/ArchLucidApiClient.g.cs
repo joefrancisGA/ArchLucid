@@ -38014,6 +38014,9 @@ namespace ArchLucid.Api.Client.Generated
     public partial class AgentOutputEvaluationSummary
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("aggregateQualityGateOutcome")]
+        public int? AggregateQualityGateOutcome { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("averageSemanticScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? AverageSemanticScore { get; set; } = default!;
@@ -38048,6 +38051,10 @@ namespace ArchLucid.Api.Client.Generated
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AgentOutputSemanticScore
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentResultFaithfulnessSupportRatio")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? AgentResultFaithfulnessSupportRatio { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("agentType")]
         public int? AgentType { get; set; } = default!;

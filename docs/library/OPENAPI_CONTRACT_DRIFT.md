@@ -76,6 +76,14 @@ ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 bash scripts/ci/check_openapi_contract_snaps
 
 Then commit the updated `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
 
+**Downstream generated clients (same PR as intentional contract changes):**
+
+1. **.NET SDK:** `dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj` — NSwag regenerates `Generated/ArchLucidApiClient.g.cs` from the snapshot (`ArchLucid.Api.Client/README.md`).
+2. **TypeScript (operator UI):** from `archlucid-ui/`, run `npm run generate:api-types` — refreshes `src/lib/api-types.generated.ts` from the same snapshot (see `scripts/ci/assert_api_types_in_sync.sh`).
+3. **Docs:** update operator/integration docs when behavior or DTO semantics change (quality gate, agent evaluation, golden cohort, configuration tables linked from `ConfigurationKeyCatalog`).
+
+Commit snapshot + regenerated clients + doc edits together so CI (`openapi-contract-snapshot`, `assert_api_types_in_sync` where wired) stays green.
+
 **Optional git pre-push gate:** Run once from repo root: `.\scripts\git-hooks\Install-GitHooks.ps1` (Windows) or `bash scripts/git-hooks/install-git-hooks.sh` (Unix). That sets `core.hooksPath` to `scripts/git-hooks` so `pre-push` runs the same snapshot check as CI when your outgoing commits touch paths under the API dependency closure (for example `ArchLucid.Api/`, `ArchLucid.Application/`, `ArchLucid.Persistence/`, `schemas/`, or central MSBuild files). Skip one push: `ARCHLUCID_SKIP_OPENAPI_PRE_PUSH=1` (Bash) or `$env:ARCHLUCID_SKIP_OPENAPI_PRE_PUSH = "1"` (PowerShell). Always run the check on every push (ignore path filter): `ARCHLUCID_OPENAPI_PRE_PUSH=all`. If a legitimate change did not match the filter and CI still failed, extend the patterns in `scripts/git-hooks/pre-push`.
 
 **CI:** Job **openapi-contract-snapshot** runs parallel with Terraform validation and gates **dotnet-fast-core** — snapshot drift surfaces before the corset **`dotnet build` ArchLucid.sln** path. Job **“.NET: fast core (corset)”** still runs the snapshot test inside the broader Core suite so coverage stays contiguous. See `docs/library/TEST_EXECUTION_MODEL.md` for tier mapping.
@@ -94,6 +102,6 @@ When a **v2** OpenAPI document is introduced:
 
 ## 10. Related documentation
 
+- `docs/library/API_CONTRACTS.md` — canonical **`/openapi/v1.json`** posture and **Changing the HTTP contract (PR checklist)**.
 - `docs/TEST_EXECUTION_MODEL.md` — Core suite and CI mapping.
-- `docs/API_CONTRACTS.md` — Problem Details, auth schemes, and route-level behavior.
 - `docs/NEXT_REFACTORINGS.md` — Historical backlog context.

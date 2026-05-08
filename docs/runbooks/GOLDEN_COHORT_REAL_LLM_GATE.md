@@ -6,31 +6,29 @@
 
 ## 1. What this gate does
 
-The `cohort-real-llm-gate` job in [`.github/workflows/golden-cohort-nightly.yml`](../../.github/workflows/golden-cohort-nightly.yml) runs the 20-row golden cohort against the **dedicated Azure OpenAI deployment** so the Simulator-baselined SHAs in `tests/golden-cohort/cohort.json` are continuously validated against the real model. It is gated on **two** conditions, both of which must be true:
+[`golden-cohort-nightly.yml`](../../.github/workflows/golden-cohort-nightly.yml) includes:
 
-1. The repository variable `ARCHLUCID_GOLDEN_COHORT_REAL_LLM` is `"true"`.
-2. [`scripts/golden_cohort_budget_probe.py`](../../scripts/golden_cohort_budget_probe.py) returns an exit code that allows the job to proceed (see Â§ 3).
+| Job | Purpose |
+|-----|---------|
+| **`cohort-real-llm-preflight`** | When **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** is **`true`**, runs the budget probe / kill-switch (**[`scripts/golden_cohort_budget_probe.py`](../../scripts/golden_cohort_budget_probe.py)**), opens GitHub issues on WARN/KILL, then runs **`GoldenCohortRealLlmGateTests`** (fixture presence / structural checks). **No live Azure OpenAI invoke** happens inside this job. |
+| **`cohort-real-llm-live`** | **`workflow_dispatch` only**, when **`run_live_invoke`** is **`true`**. Requires secret **`ARCHLUCID_GOLDEN_COHORT_API_HOST`** (mapped to **`ARCHLUCID_API_URL`**) and runs **`dotnet run … golden-cohort drift --strict-real --structural-only`** against that API for owner-driven validation. |
+
+Both paths honor probe semantics (see section 3): exit **2** skips downstream steps without failing the workflow.
 
 The Q15 ($50/month) approval was **conditional on the kill-switch being shipped** ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) Q15). If the kill-switch is bypassed, real-LLM execution must revert to disabled until the kill-switch is restored.
 
 **Pilot / release session record:** [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) — use for ad-hoc real-mode validations outside the nightly cohort.
 
-## 2. Flip the gate from disabled â†’ required (one-line change)
+## 2. Flip preflight from optional to required (branch protection)
 
-After the dedicated Azure OpenAI deployment exists in the production subscription **and** the protected GitHub Environment has the secrets injected (both owner-only operational tasks per Q15), promotion is a single edit:
+After the dedicated Azure OpenAI deployment exists in the production subscription **and** the protected GitHub Environment has the secrets injected (both owner-only operational tasks per Q15), promotion is:
 
-```diff
-   cohort-real-llm-gate:
-     needs: cohort-contract
--    if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' }}
-+    if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' }}
-+    # Promote from optional â†’ required by removing the conditional once the
-+    # deployment + secrets exist. After promotion, mark this job as required
-+    # in the branch protection rule for `main`.
-     runs-on: ubuntu-latest
-```
+1. Ensure **`cohort-real-llm-preflight`** is **required** in the GitHub branch-protection rule for **`main`** (required status check name matches the job id).
+2. Optionally tighten the workflow later by removing or narrowing the **`if:`** on **`cohort-real-llm-preflight`** once you intend the job to run unconditionally whenever **`ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** is true — coordinate that edit with owners (see stop-and-ask boundaries below).
 
-Then, in the GitHub branch-protection rule for `main`, **add `cohort-real-llm-gate` to the required status checks**. That is the entire promotion. **Do not** flip it in the same PR that ships the deployment â€” separate the two so a single PR can be reverted.
+**Do not** flip branch protection in the same PR that ships the deployment — separate the two so a single PR can be reverted.
+
+Live **`cohort-real-llm-live`** remains **`workflow_dispatch`**-only by design; keep secrets scoped and avoid scheduling unattended invokes without owner approval.
 
 ## 3. Probe exit-code semantics (the kill-switch)
 
@@ -88,7 +86,7 @@ These are explicitly listed in `docs/archive/root-superseded-2026-05-01/CURSOR_P
 
 * **Provisioning the dedicated Azure OpenAI deployment** â€” Cognitive Services account, deployment name, model SKU, region quota.
 * **Injecting the Azure OpenAI secret** into the protected GitHub Environment.
-* **Flipping `cohort-real-llm-gate`** from `if:` (optional) to no-`if:` (required). That is the one-line change in Â§ 2 and must be a separate PR after the deployment exists.
+* **Removing the `if:` guard on `cohort-real-llm-preflight`** (optional → always scheduled when you intend unconditional probe runs). Coordinate with owners; keep **`cohort-real-llm-live`** dispatch-only. Documented in section 2.
 
 ## 7. Structural validation (real-LLM output)
 
@@ -125,12 +123,12 @@ Real models can paraphrase text while still being â€œcorrectâ€ for prod
 | `agentTypeMatch` | Mismatched or missing `agentType` on a result row | Check task/result mapping for the run; each result should match the taskâ€™s agent. |
 | `findingTrace` / `traceLists` | Missing `trace` or a Explainability list field is not a JSON array | Ensure persistence/serialization of ExplainabilityTrace (see decisioning models) is wired for real execution. |
 | `sourceAgentExecutionTraceId` with wrong type | Value is neither `null` nor a string | Fix serializer or model to emit a string or null. |
-| ` indingSeverity ` check failed | Finding has a missing or blank `severity` string | Real model returned a hollow or truncated finding; inspect the raw `AgentResult` JSON and check the agent prompt for severity field instructions. |
-| ` indingContent ` check failed | All content fields (`description`, `message`, `title`, `detail`) are absent or blank | Model produced a structurally valid but content-hollow finding; check token budget and prompt completeness for the agent type. |
-| Exit 4 with `code: "realModeFellBackToSimulator"` | The API recorded a real-LLM attempt that fell back to the simulator | Fix Azure OpenAI reachability, quota, or deployment name; the strict gate refuses to treat output as â€œreal-LLM validatedâ€ in that case. |
+| `findingSeverity` check failed | Finding has a missing or blank `severity` string | Real model returned a hollow or truncated finding; inspect the raw `AgentResult` JSON and check the agent prompt for severity field instructions. |
+| `findingContent` check failed | All content fields (`description`, `message`, `title`, `detail`) are absent or blank | Model produced a structurally valid but content-hollow finding; check token budget and prompt completeness for the agent type. |
+| Exit 4 with `code: "realModeFellBackToSimulator"` | The API recorded a real-LLM attempt that fell back to the simulator | Fix Azure OpenAI reachability, quota, or deployment name; the strict gate refuses to treat output as "real-LLM validated" in that case. |
 | `strict-real` refused before connect | Real-LLM env not set in the shell | Export `ARCHLUCID_GOLDEN_COHORT_REAL_LLM` or set agent execution mode to `Real` for the CLI process, as documented above. |
 
-**Example: truncated trace** (single finding with `graphNodeIdsExamined` as a string instead of an array) fails the `traceLists` check with a message pointing at the offending `findings[i].trace` path â€” fix the type in the result builder, not the text of graph node ids.
+**Example: truncated trace** (single finding with `graphNodeIdsExamined` as a string instead of an array) fails the `traceLists` check with a message pointing at the offending `findings[i].trace` path — fix the type in the result builder, not the text of graph node ids.
 
 ## 9. Related files
 
