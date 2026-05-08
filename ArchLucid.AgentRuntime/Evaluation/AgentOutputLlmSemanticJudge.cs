@@ -16,7 +16,7 @@ public sealed class AgentOutputLlmSemanticJudge(
     IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
     ILogger<AgentOutputLlmSemanticJudge> logger) : IAgentOutputLlmSemanticJudge
 {
-    private readonly object _clientLock = new();
+    private readonly Lock _clientLock = new();
     private readonly IOptionsMonitor<AzureOpenAiOptions> _azureOptions =
         azureOptions ?? throw new ArgumentNullException(nameof(azureOptions));
 
@@ -276,18 +276,17 @@ public sealed class AgentOutputLlmSemanticJudge(
 
     private static string? ReadRationale(JsonElement root)
     {
-        if (root.TryGetProperty("rationale", out JsonElement r) && r.ValueKind == JsonValueKind.String)
-        {
-            string? s = r.GetString();
+        if (!root.TryGetProperty("rationale", out JsonElement r) || r.ValueKind != JsonValueKind.String)
+            return null;
 
-            if (string.IsNullOrWhiteSpace(s))
-                return null;
+        string? s = r.GetString();
 
-            string t = s.Trim();
+        if (string.IsNullOrWhiteSpace(s))
+            return null;
 
-            return t.Length <= 400 ? t : t[..400];
-        }
+        string t = s.Trim();
 
-        return null;
+        return t.Length <= 400 ? t : t[..400];
+
     }
 }

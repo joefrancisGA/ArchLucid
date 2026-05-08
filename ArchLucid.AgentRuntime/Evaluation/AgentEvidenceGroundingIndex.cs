@@ -45,20 +45,10 @@ internal static class AgentEvidenceGroundingIndex
         Dictionary<string, string> map = new(StringComparer.OrdinalIgnoreCase);
         StringBuilder sb = new();
 
-        static void Append(StringBuilder b, string? s)
-        {
-            if (string.IsNullOrWhiteSpace(s))
-
-                return;
-
-            b.Append(' ');
-            b.Append(s);
-        }
-
         Append(sb, evidence.SystemName);
         Append(sb, evidence.Environment);
         Append(sb, evidence.CloudProvider);
-        Append(sb, evidence.Request?.Description);
+        Append(sb, evidence.Request.Description);
 
         foreach (string c in evidence.Request?.Constraints ?? [])
             Append(sb, c);
@@ -131,5 +121,15 @@ internal static class AgentEvidenceGroundingIndex
         string full = sb.ToString().ToLowerInvariant();
 
         return new Index(full, map);
+
+        static void Append(StringBuilder b, string? s)
+        {
+            if (string.IsNullOrWhiteSpace(s))
+
+                return;
+
+            b.Append(' ');
+            b.Append(s);
+        }
     }
 }
