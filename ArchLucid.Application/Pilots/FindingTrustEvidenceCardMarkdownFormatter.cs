@@ -107,12 +107,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
                 "PilotStrict posture **not fully attested** — execution-trace aggregation did not complete; do not infer pass/fail from silence.";
         }
 
-        if (deltas.AgentOutputPilotStrictViolatesSponsorEvidence)
-        {
-            return "**Failed** — PilotStrict sponsor-evidence checks reported failures for this run.";
-        }
-
-        return "**No PilotStrict failures** recorded for attested traces on this run.";
+        return deltas.AgentOutputPilotStrictViolatesSponsorEvidence ? "**Failed** — PilotStrict sponsor-evidence checks reported failures for this run." : "**No PilotStrict failures** recorded for attested traces on this run.";
     }
 
     private static string FormatGuid(Guid? id)
