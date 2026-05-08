@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 namespace ArchLucid.Application.Jobs;
+
 /// <summary>Shared JSON options for persisting <see cref = "BackgroundJobWorkUnit"/>.</summary>
 public static class BackgroundJobWorkUnitJson
 {

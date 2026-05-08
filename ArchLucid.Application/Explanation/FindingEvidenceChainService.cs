@@ -6,12 +6,19 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Explanation;
+
 /// <inheritdoc cref = "IFindingEvidenceChainService"/>
-public sealed class FindingEvidenceChainService(IAuthorityQueryService authorityQuery, IScopeContextProvider scopeContextProvider, IAgentExecutionTraceRepository agentExecutionTraceRepository) : IFindingEvidenceChainService
+public sealed class FindingEvidenceChainService(
+    IAuthorityQueryService authorityQuery,
+    IScopeContextProvider scopeContextProvider,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository) : IFindingEvidenceChainService
 {
-    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository = agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
     private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <inheritdoc/>
     public async Task<FindingEvidenceChainResponse?> BuildAsync(string runId, string findingId, CancellationToken cancellationToken = default)
     {

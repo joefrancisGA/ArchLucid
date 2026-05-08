@@ -81,10 +81,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
             runProps.Append(new Bold());
 
         style.Append(new StyleParagraphProperties(
-            new SpacingBetweenLines
-            {
-                Before = "120", After = "120", Line = "300", LineRule = LineSpacingRuleValues.Auto
-            }));
+            new SpacingBetweenLines { Before = "120", After = "120", Line = "300", LineRule = LineSpacingRuleValues.Auto }));
 
         style.Append(runProps);
 
@@ -133,10 +130,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
         WpParagraph paragraph = new(
             new WpParagraphProperties(
                 new WpShading { Val = ShadingPatternValues.Clear, Fill = options.AccentFillHex },
-                new WpSpacingBetweenLines
-                {
-                    Before = "120", After = "120", Line = "280", LineRule = LineSpacingRuleValues.Auto
-                }),
+                new WpSpacingBetweenLines { Before = "120", After = "120", Line = "280", LineRule = LineSpacingRuleValues.Auto }),
             new WpRun(
                 new WpRunProperties(new Bold(), new Color { Val = options.SecondaryColorHex }),
                 new WpText(text) { Space = SpaceProcessingModeValues.Preserve }));

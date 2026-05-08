@@ -6,10 +6,8 @@ namespace ArchLucid.Application.Analysis;
 
 public static class ComparisonRecordPayloadRehydrator
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+
     public static EndToEndReplayComparisonReport? RehydrateEndToEnd(ComparisonRecord record)
     {
         ArgumentNullException.ThrowIfNull(record);
@@ -21,7 +19,9 @@ public static class ComparisonRecordPayloadRehydrator
         }
         catch (JsonException ex)
         {
-            throw new InvalidOperationException($"Comparison record '{record.ComparisonRecordId}' PayloadJson could not be deserialized as EndToEndReplayComparisonReport. " + "The stored JSON may be corrupt.", ex);
+            throw new InvalidOperationException(
+                $"Comparison record '{record.ComparisonRecordId}' PayloadJson could not be deserialized as EndToEndReplayComparisonReport. " +
+                "The stored JSON may be corrupt.", ex);
         }
     }
 
@@ -36,7 +36,9 @@ public static class ComparisonRecordPayloadRehydrator
         }
         catch (JsonException ex)
         {
-            throw new InvalidOperationException($"Comparison record '{record.ComparisonRecordId}' PayloadJson could not be deserialized as ExportRecordDiffResult. " + "The stored JSON may be corrupt.", ex);
+            throw new InvalidOperationException(
+                $"Comparison record '{record.ComparisonRecordId}' PayloadJson could not be deserialized as ExportRecordDiffResult. " +
+                "The stored JSON may be corrupt.", ex);
         }
     }
 }

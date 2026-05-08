@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace ArchLucid.Application.Marketing;
+
 /// <summary>
 ///     Default <see cref = "IEvidencePackBuilder"/> — assembles the canonical Trust Center
 ///     evidence-pack ZIP from an <see cref = "IEvidencePackSourceProvider"/>, prepends an
@@ -27,8 +28,10 @@ public sealed class EvidencePackBuilder(IEvidencePackSourceProvider sourceProvid
 {
     /// <summary>Pinned last-write-time used for every ZIP entry so the bytes are reproducible.</summary>
     public static readonly DateTimeOffset DeterministicEntryTimestamp = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
     private readonly IEvidencePackSourceProvider _sourceProvider = sourceProvider ?? throw new ArgumentNullException(nameof(sourceProvider));
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
     /// <inheritdoc/>
     public async Task<EvidencePackArtifact> BuildAsync(CancellationToken cancellationToken = default)
     {
@@ -37,10 +40,7 @@ public sealed class EvidencePackBuilder(IEvidencePackSourceProvider sourceProvid
             throw new InvalidOperationException("Evidence-pack source provider returned no entries.");
         string etag = EvidencePackEtag.Compute(sourceEntries);
         EvidencePackEntry readmeEntry = new("README.md", BuildReadmeBytes(sourceEntries));
-        List<EvidencePackEntry> finalEntries = new(sourceEntries.Count + 1)
-        {
-            readmeEntry
-        };
+        List<EvidencePackEntry> finalEntries = new(sourceEntries.Count + 1) { readmeEntry };
         finalEntries.AddRange(sourceEntries);
         byte[] zipBytes = WriteDeterministicZip(finalEntries);
         return new EvidencePackArtifact(zipBytes, etag, "application/zip", _timeProvider.GetUtcNow());
@@ -75,7 +75,8 @@ public sealed class EvidencePackBuilder(IEvidencePackSourceProvider sourceProvid
         readme.AppendLine();
         readme.AppendLine("## What is intentionally NOT included");
         readme.AppendLine();
-        readme.AppendLine("- The **redacted** pen-test summary (`docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md`) — that artefact is V1.1-gated per `docs/PENDING_QUESTIONS.md` Q10. Only the SoW (`PEN_TEST_SOW_2026_Q2.md`) is in this pack.");
+        readme.AppendLine(
+            "- The **redacted** pen-test summary (`docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md`) — that artefact is V1.1-gated per `docs/PENDING_QUESTIONS.md` Q10. Only the SoW (`PEN_TEST_SOW_2026_Q2.md`) is in this pack.");
         readme.AppendLine("- The **PGP key** (`docs/security/PGP_KEY_GENERATION_RECIPE.md` is a recipe, not a key). Key publication is also V1.1.");
         readme.AppendLine();
         readme.AppendLine("## Verifying the pack content");

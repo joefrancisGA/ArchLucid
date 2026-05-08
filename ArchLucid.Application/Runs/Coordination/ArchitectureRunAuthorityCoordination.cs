@@ -10,21 +10,33 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Runs.Coordination;
+
 /// <summary>
 ///     Validates <see cref = "ArchitectureRequest"/> input, delegates persistence to
 ///     <see cref = "IAuthorityRunOrchestrator"/>, and assembles <see cref = "CoordinationResult"/> (run, evidence bundle,
 ///     starter tasks).
 /// </summary>
-public sealed class ArchitectureRunAuthorityCoordination(IAuthorityRunOrchestrator authorityRunOrchestrator, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IAzureExtractorPackageRepository azureExtractorPackageRepository, ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
+public sealed class ArchitectureRunAuthorityCoordination(
+    IAuthorityRunOrchestrator authorityRunOrchestrator,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
+    IAzureExtractorPackageRepository azureExtractorPackageRepository,
+    ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
-    private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator = authorityRunOrchestrator ?? throw new ArgumentNullException(nameof(authorityRunOrchestrator));
-    private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository = azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
+    private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator =
+        authorityRunOrchestrator ?? throw new ArgumentNullException(nameof(authorityRunOrchestrator));
+
+    private readonly IAzureExtractorPackageRepository _azureExtractorPackageRepository =
+        azureExtractorPackageRepository ?? throw new ArgumentNullException(nameof(azureExtractorPackageRepository));
+
     private readonly ILogger<ArchitectureRunAuthorityCoordination> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <inheritdoc/>
     public async Task<CoordinationResult> CreateRunAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
     {
@@ -35,14 +47,18 @@ public sealed class ArchitectureRunAuthorityCoordination(IAuthorityRunOrchestrat
         {
             output.Errors.AddRange(validationErrors);
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarningWithThreeSanitizedUserStrings("Coordination rejected (validation): RequestId={RequestId}, SystemName={SystemName}, Errors={Errors}", request.RequestId, request.SystemName, string.Join("; ", validationErrors));
+                _logger.LogWarningWithThreeSanitizedUserStrings(
+                    "Coordination rejected (validation): RequestId={RequestId}, SystemName={SystemName}, Errors={Errors}", request.RequestId,
+                    request.SystemName, string.Join("; ", validationErrors));
             return output;
         }
 
         EvidenceBundle evidenceBundle = RunStarterTaskFactory.BuildEvidenceBundle(request);
-        RunRecord authorityRun = await _authorityRunOrchestrator.ExecuteAsync(ContextIngestionRequestMapper.FromArchitectureRequest(request), cancellationToken, evidenceBundle.EvidenceBundleId);
+        RunRecord authorityRun = await _authorityRunOrchestrator.ExecuteAsync(ContextIngestionRequestMapper.FromArchitectureRequest(request), cancellationToken,
+            evidenceBundle.EvidenceBundleId);
         ScopeContext scopeForExtractor = _scopeContextProvider.GetCurrentScope();
-        AzureExtractorPackageProvenance? extractorProvenance = await _azureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(scopeForExtractor, authorityRun.RunId, cancellationToken);
+        AzureExtractorPackageProvenance? extractorProvenance =
+            await _azureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(scopeForExtractor, authorityRun.RunId, cancellationToken);
         if (extractorProvenance is not null)
             AzureExtractorEvidenceBundleMerger.Merge(evidenceBundle, extractorProvenance);
         bool deferred = authorityRun.ContextSnapshotId is null;
@@ -55,7 +71,9 @@ public sealed class ArchitectureRunAuthorityCoordination(IAuthorityRunOrchestrat
         output.Tasks = tasks;
         await PatchAuthorityRunHeaderAsync(authorityRun.RunId, request.RequestId, deferred, cancellationToken);
         if (_logger.IsEnabled(LogLevel.Information))
-            _logger.LogInformation("Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}, Deferred={Deferred}", run.RunId, LogSanitizer.Sanitize(request.RequestId), tasks.Count, evidenceBundle.EvidenceBundleId, deferred);
+            _logger.LogInformation(
+                "Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}, Deferred={Deferred}",
+                run.RunId, LogSanitizer.Sanitize(request.RequestId), tasks.Count, evidenceBundle.EvidenceBundleId, deferred);
         return output;
     }
 
@@ -66,7 +84,8 @@ public sealed class ArchitectureRunAuthorityCoordination(IAuthorityRunOrchestrat
         if (header is null)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning("Authority run header {RunId} not found for lifecycle patch (RequestId={RequestId}).", authorityRunId, LogSanitizer.Sanitize(requestId));
+                _logger.LogWarning("Authority run header {RunId} not found for lifecycle patch (RequestId={RequestId}).", authorityRunId,
+                    LogSanitizer.Sanitize(requestId));
             return;
         }
 

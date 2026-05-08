@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 
@@ -16,7 +17,8 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         (string headline, string body) = Describe(snapshot);
         sb.AppendLine("## ROI evidence completeness");
         sb.AppendLine();
-        sb.AppendLine("**Indicator:** Quantitative deltas use ArchLucid-persisted run facts; comparative dollar narratives inherit baseline posture captured for this tenant. Summarizes **confidence** — not a financial attestation.");
+        sb.AppendLine(
+            "**Indicator:** Quantitative deltas use ArchLucid-persisted run facts; comparative dollar narratives inherit baseline posture captured for this tenant. Summarizes **confidence** — not a financial attestation.");
         sb.AppendLine();
         sb.AppendLine($"**Status:** **{headline}**");
         sb.AppendLine();

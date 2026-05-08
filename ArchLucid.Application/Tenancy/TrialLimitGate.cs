@@ -2,6 +2,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Application.Tenancy;
+
 /// <summary>
 ///     Server-side trial gate: loads <c>dbo.Tenants</c> trial columns and rejects mutating work when the tenant is on a
 ///     self-service trial that has expired, exhausted limits, or entered a post-active lifecycle phase.
@@ -10,6 +11,7 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
 {
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
     /// <summary>
     ///     Throws <see cref = "TrialLimitExceededException"/> when the tenant must not accept mutating authority operations
     ///     (non-DELETE verbs).
@@ -56,7 +58,9 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
         if (string.IsNullOrWhiteSpace(tenant.TrialStatus) || string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
             return;
         DateTimeOffset now = _timeProvider.GetUtcNow();
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal) || string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal) || string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
+        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal) ||
+            string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal) ||
+            string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
         {
             int daysRemaining = ComputeDaysRemaining(tenant.TrialExpiresUtc, now);
             throw new TrialLimitExceededException(TrialLimitReason.LifecycleDeletesFrozen, daysRemaining);
@@ -65,7 +69,9 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
 
     private static bool IsPostActiveLifecycleWriteFrozen(string trialStatus)
     {
-        return string.Equals(trialStatus, TrialLifecycleStatus.Expired, StringComparison.Ordinal) || string.Equals(trialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal) || string.Equals(trialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal);
+        return string.Equals(trialStatus, TrialLifecycleStatus.Expired, StringComparison.Ordinal) ||
+               string.Equals(trialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal) ||
+               string.Equals(trialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal);
     }
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc, DateTimeOffset now)

@@ -20,11 +20,8 @@ public static class AzureExtractorCitationFormatter
     {
         return string.Format(
             CultureInfo.InvariantCulture,
-
             "AzureExtractorZIP schemaVersion={0}; collectionTimestampUtc={1:o}",
-
             schemaVersion,
-
             collectionTimestampUtc);
     }
 
@@ -38,13 +35,9 @@ public static class AzureExtractorCitationFormatter
 
         return string.Format(
             CultureInfo.InvariantCulture,
-
             "AzureExtractorZIP packageId={0:N}; schemaVersion={1}; collectionTimestampUtc={2:o}",
-
             packageId,
-
             schemaVersion,
-
             collectionTimestampUtc);
     }
 }

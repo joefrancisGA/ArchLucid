@@ -1,8 +1,10 @@
 using System.Text;
 using System.Text.Json;
+
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Application.Import;
+
 public static class JsonRequestDeserializer
 {
     public static ArchitectureRequest DeserializeUtf8(ReadOnlySpan<byte> utf8)

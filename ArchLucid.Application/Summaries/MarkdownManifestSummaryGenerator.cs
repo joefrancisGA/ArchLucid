@@ -1,10 +1,12 @@
 using System.Text;
+
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Summaries;
+
 /// <summary>
 ///     Generates a narrative Markdown summary of a <see cref = "GoldenManifest"/>, optionally followed
 ///     by an evidence context section when an <see cref = "AgentEvidencePackage"/> is supplied.
@@ -13,6 +15,7 @@ namespace ArchLucid.Application.Summaries;
 public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter evidenceFormatter) : IManifestSummaryGenerator
 {
     private readonly IEvidenceSummaryFormatter _evidenceFormatter = evidenceFormatter ?? throw new ArgumentNullException(nameof(evidenceFormatter));
+
     /// <inheritdoc/>
     public string GenerateMarkdown(GoldenManifest manifest, AgentEvidencePackage? evidence = null)
     {
@@ -37,13 +40,15 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         return sb.ToString();
     }
 
-    private static void AppendOverview(StringBuilder sb, GoldenManifest manifest, IReadOnlyList<ManifestService> services, IReadOnlyList<ManifestDatastore> datastores, IReadOnlyList<ManifestRelationship> relationships)
+    private static void AppendOverview(StringBuilder sb, GoldenManifest manifest, IReadOnlyList<ManifestService> services,
+        IReadOnlyList<ManifestDatastore> datastores, IReadOnlyList<ManifestRelationship> relationships)
     {
         sb.AppendLine($"# Architecture Summary: {manifest.SystemName}");
         sb.AppendLine();
         sb.AppendLine("## Overview");
         sb.AppendLine();
-        sb.AppendLine($"{manifest.SystemName} is represented by a GoldenManifest containing " + $"{services.Count} service(s), {datastores.Count} datastore(s), " + $"and {relationships.Count} relationship(s).");
+        sb.AppendLine($"{manifest.SystemName} is represented by a GoldenManifest containing " +
+                      $"{services.Count} service(s), {datastores.Count} datastore(s), " + $"and {relationships.Count} relationship(s).");
         sb.AppendLine();
     }
 
@@ -153,6 +158,7 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
             RelationshipType.PublishesTo => "publishes to",
             RelationshipType.SubscribesTo => "subscribes to",
             RelationshipType.AuthenticatesWith => "authenticates with",
-            _ => relationship.RelationshipType.ToString()};
+            _ => relationship.RelationshipType.ToString()
+        };
     }
 }

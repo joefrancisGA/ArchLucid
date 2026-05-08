@@ -2,9 +2,11 @@ using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+
 using QuestPdfDocument = QuestPDF.Fluent.Document;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>
 ///     PDF projection for <see cref="WhyArchLucidPackBuilder"/> Markdown — same QuestPDF +
 ///     <see cref="MarkdownPdfRenderer"/>

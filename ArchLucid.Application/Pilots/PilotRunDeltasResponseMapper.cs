@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>Maps <see cref="PilotRunDeltas"/> to the HTTP JSON contract <see cref="PilotRunDeltasResponse"/>.</summary>
 public static class PilotRunDeltasResponseMapper
 {

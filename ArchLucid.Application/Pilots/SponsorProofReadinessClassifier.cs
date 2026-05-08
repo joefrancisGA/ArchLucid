@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>
 ///     Maps <see cref="PilotBuyerSafeEvidenceGateEvaluator"/> results into a four-way sponsor label — no parallel gap rules.
 /// </summary>

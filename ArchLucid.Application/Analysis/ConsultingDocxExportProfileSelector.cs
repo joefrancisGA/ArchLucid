@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Default implementation of <see cref = "IConsultingDocxExportProfileSelector"/>.
 /// </summary>
@@ -8,10 +9,15 @@ namespace ArchLucid.Application.Analysis;
 ///     <see cref = "IConsultingDocxTemplateRecommendationService.Recommend"/> is called
 ///     to infer the best profile from context signals.
 /// </remarks>
-public sealed class ConsultingDocxExportProfileSelector(IConsultingDocxTemplateProfileResolver profileResolver, IConsultingDocxTemplateRecommendationService recommendationService) : IConsultingDocxExportProfileSelector
+public sealed class ConsultingDocxExportProfileSelector(
+    IConsultingDocxTemplateProfileResolver profileResolver,
+    IConsultingDocxTemplateRecommendationService recommendationService) : IConsultingDocxExportProfileSelector
 {
-    private readonly IConsultingDocxTemplateRecommendationService _recommendationService = recommendationService ?? throw new ArgumentNullException(nameof(recommendationService));
+    private readonly IConsultingDocxTemplateRecommendationService _recommendationService =
+        recommendationService ?? throw new ArgumentNullException(nameof(recommendationService));
+
     private readonly IConsultingDocxTemplateProfileResolver _profileResolver = profileResolver ?? throw new ArgumentNullException(nameof(profileResolver));
+
     /// <inheritdoc/>
     public ResolvedConsultingDocxExportProfile Resolve(string? templateProfile, ConsultingDocxProfileRecommendationRequest recommendationRequest)
     {
@@ -19,7 +25,8 @@ public sealed class ConsultingDocxExportProfileSelector(IConsultingDocxTemplateP
         if (!string.IsNullOrWhiteSpace(templateProfile))
         {
             ConsultingDocxTemplateProfileCatalog catalog = profileResolver.GetCatalog();
-            ConsultingDocxTemplateProfileInfo? summary = catalog.Profiles.FirstOrDefault(x => string.Equals(x.ProfileName, templateProfile, StringComparison.OrdinalIgnoreCase));
+            ConsultingDocxTemplateProfileInfo? summary =
+                catalog.Profiles.FirstOrDefault(x => string.Equals(x.ProfileName, templateProfile, StringComparison.OrdinalIgnoreCase));
             return new ResolvedConsultingDocxExportProfile
             {
                 SelectedProfileName = summary?.ProfileName ?? templateProfile.Trim(),

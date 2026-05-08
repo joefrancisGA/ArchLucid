@@ -1,13 +1,16 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Configuration;
+
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Architecture;
+
 /// <inheritdoc cref = "IRunRoiEstimator"/>
 public sealed class RunRoiEstimator(IOptions<RunRoiEstimatorOptions>? optionsMonitor) : IRunRoiEstimator
 {
     private readonly RunRoiEstimatorOptions _opts = optionsMonitor?.Value ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
     /// <inheritdoc/>
     public RunRoiScorecardDto Estimate(ArchitectureRunDetail detail)
     {
@@ -21,8 +24,10 @@ public sealed class RunRoiEstimator(IOptions<RunRoiEstimatorOptions>? optionsMon
         int resultCount = detail.Results.Count;
         int manifestElements = detail.Manifest is null ? 0 : ManifestElementCount(detail.Manifest);
         int traceCount = detail.DecisionTraces.Count;
-        double findingHours = criticalFindings * _opts.HoursPerCriticalFinding + errorFindings * _opts.HoursPerErrorFinding + warningFindings * _opts.HoursPerWarningFinding + infoFindings * _opts.HoursPerInfoFinding;
-        double hours = findingHours + manifestElements * _opts.HoursPerManifestModeledElement + traceCount * _opts.HoursPerDecisionTrace + resultCount * _opts.HoursPerCompletedAgentResult;
+        double findingHours = criticalFindings * _opts.HoursPerCriticalFinding + errorFindings * _opts.HoursPerErrorFinding +
+                              warningFindings * _opts.HoursPerWarningFinding + infoFindings * _opts.HoursPerInfoFinding;
+        double hours = findingHours + manifestElements * _opts.HoursPerManifestModeledElement + traceCount * _opts.HoursPerDecisionTrace +
+                       resultCount * _opts.HoursPerCompletedAgentResult;
         hours = Math.Round(hours, 2, MidpointRounding.AwayFromZero);
         return new RunRoiScorecardDto
         {
@@ -33,7 +38,8 @@ public sealed class RunRoiEstimator(IOptions<RunRoiEstimatorOptions>? optionsMon
             DecisionTraceCount = traceCount,
             EstimatedManualHoursSaved = hours,
             EstimatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-            ComputationNotes = "Directional analyst-hour estimate from committed run aggregates; not financial advice. " + "Multipliers configured under Architecture:RunRoiEstimator."
+            ComputationNotes = "Directional analyst-hour estimate from committed run aggregates; not financial advice. " +
+                               "Multipliers configured under Architecture:RunRoiEstimator."
         };
     }
 

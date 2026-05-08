@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Requests;
 
 namespace ArchLucid.Application.Runs.Coordination;
+
 /// <summary>
 ///     Shared evidence bundle and starter task construction for <see cref="ArchitectureRunAuthorityCoordination"/> and
 ///     deferred authority completion.
@@ -32,15 +33,14 @@ public static class RunStarterTaskFactory
     private const string SourcePriorManifest = "prior-manifest";
     private const string SourcePricingProfile = "pricing-profile";
     private const string SourceAzureExtractorZip = "azure-extractor-zip";
+
     /// <summary>Builds the evidence bundle injected into every starter agent task.</summary>
     public static EvidenceBundle BuildEvidenceBundle(ArchitectureRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
         Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase)
         {
-            ["systemName"] = request.SystemName,
-            ["environment"] = request.Environment,
-            ["cloudProvider"] = request.CloudProvider.ToString()
+            ["systemName"] = request.SystemName, ["environment"] = request.Environment, ["cloudProvider"] = request.CloudProvider.ToString()
         };
         if (!string.IsNullOrWhiteSpace(request.PriorManifestVersion))
             metadata["priorManifestVersion"] = request.PriorManifestVersion;
@@ -61,7 +61,11 @@ public static class RunStarterTaskFactory
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(evidenceBundle);
         ArgumentNullException.ThrowIfNull(request);
-        return[CreateTopologyTask(runId, evidenceBundle, request), CreateCostTask(runId, evidenceBundle, request), CreateComplianceTask(runId, evidenceBundle, request), CreateCriticTask(runId, evidenceBundle, request)];
+        return
+        [
+            CreateTopologyTask(runId, evidenceBundle, request), CreateCostTask(runId, evidenceBundle, request),
+            CreateComplianceTask(runId, evidenceBundle, request), CreateCriticTask(runId, evidenceBundle, request)
+        ];
     }
 
     private static List<string> BuildPolicyRefs(ArchitectureRequest request)
@@ -128,7 +132,6 @@ public static class RunStarterTaskFactory
 
             sources.Add(SourceAzureExtractorZip);
 
-
         return sources;
     }
 
@@ -168,7 +171,8 @@ public static class RunStarterTaskFactory
 
     private static string BuildTopologyObjective(ArchitectureRequest request)
     {
-        return $"Design an initial Azure topology for system '{request.SystemName}' " + $"in environment '{request.Environment}'. " + $"Description: {request.Description}";
+        return $"Design an initial Azure topology for system '{request.SystemName}' " + $"in environment '{request.Environment}'. " +
+               $"Description: {request.Description}";
     }
 
     private static string BuildCostObjective(ArchitectureRequest request, EvidenceBundle evidenceBundle)
@@ -181,23 +185,23 @@ public static class RunStarterTaskFactory
 
             return baseText;
 
-
         if (!evidenceBundle.Metadata.TryGetValue(AzureExtractorEvidenceBundleMerger.MetadataCostCitationKey, out string? cite) ||
             string.IsNullOrWhiteSpace(cite))
 
             return baseText;
-
 
         return baseText + " Inventory citation: " + cite;
     }
 
     private static string BuildComplianceObjective(ArchitectureRequest request)
     {
-        return $"Validate the proposed architecture for system '{request.SystemName}' " + $"against policy constraints: {string.Join(", ", request.Constraints)}";
+        return $"Validate the proposed architecture for system '{request.SystemName}' " +
+               $"against policy constraints: {string.Join(", ", request.Constraints)}";
     }
 
     private static string BuildCriticObjective(ArchitectureRequest request)
     {
-        return $"Critique the implied architecture for system '{request.SystemName}' " + $"and identify omissions, contradictions, or weak assumptions " + $"that may undermine enterprise readiness or governance.";
+        return $"Critique the implied architecture for system '{request.SystemName}' " + $"and identify omissions, contradictions, or weak assumptions " +
+               $"that may undermine enterprise readiness or governance.";
     }
 }

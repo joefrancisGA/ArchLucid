@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Governance;
+
 /// <inheritdoc cref = "IPolicyPackGovernanceDryRunService"/>
 /// <remarks>
 ///     <para>
@@ -28,23 +29,40 @@ namespace ArchLucid.Application.Governance;
 ///         same shape as <see cref = "PolicyPackDryRunService"/>).
 ///     </para>
 /// </remarks>
-public sealed class PolicyPackGovernanceDryRunService(IScopeContextProvider scopeContextProvider, IRunRepository runRepository, IFindingsSnapshotRepository findingsSnapshotRepository, IGoldenManifestRepository goldenManifestRepository, IOptions<PreCommitGovernanceGateOptions> preCommitOptions, IPromptRedactor promptRedactor, IAuditService auditService, ILogger<PolicyPackGovernanceDryRunService> logger) : IPolicyPackGovernanceDryRunService
+public sealed class PolicyPackGovernanceDryRunService(
+    IScopeContextProvider scopeContextProvider,
+    IRunRepository runRepository,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
+    IGoldenManifestRepository goldenManifestRepository,
+    IOptions<PreCommitGovernanceGateOptions> preCommitOptions,
+    IPromptRedactor promptRedactor,
+    IAuditService auditService,
+    ILogger<PolicyPackGovernanceDryRunService> logger) : IPolicyPackGovernanceDryRunService
 {
     private static readonly string[] BlockCommitOnCriticalMetadataKeys = ["governance.blockCommitOnCritical", "blockCommitOnCritical"];
     private static readonly string[] BlockCommitMinimumSeverityMetadataKeys = ["governance.blockCommitMinimumSeverity", "blockCommitMinimumSeverity"];
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository = findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
-    private readonly IGoldenManifestRepository _goldenManifestRepository = goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
+
+    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
+        findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+
+    private readonly IGoldenManifestRepository _goldenManifestRepository =
+        goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
+
     private readonly ILogger<PolicyPackGovernanceDryRunService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IOptions<PreCommitGovernanceGateOptions> _preCommitOptions = preCommitOptions ?? throw new ArgumentNullException(nameof(preCommitOptions));
     private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <inheritdoc/>
-    public async Task<PolicyPackGovernanceDryRunResult?> EvaluateAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId, bool? blockCommitOnCritical, int? blockCommitMinimumSeverity, Guid? proposedPolicyPackId, CancellationToken cancellationToken = default)
+    public async Task<PolicyPackGovernanceDryRunResult?> EvaluateAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId,
+        bool? blockCommitOnCritical, int? blockCommitMinimumSeverity, Guid? proposedPolicyPackId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(policyPackContentJson);
-        PolicyPackContentDocument document = JsonSerializer.Deserialize<PolicyPackContentDocument>(policyPackContentJson, PolicyPackJsonSerializerOptions.Default) ?? new PolicyPackContentDocument();
+        PolicyPackContentDocument document =
+            JsonSerializer.Deserialize<PolicyPackContentDocument>(policyPackContentJson, PolicyPackJsonSerializerOptions.Default) ??
+            new PolicyPackContentDocument();
         (bool mergedCritical, int? mergedMin) = MergeEnforcement(blockCommitOnCritical, blockCommitMinimumSeverity, document);
         bool gateActive = mergedCritical || mergedMin.HasValue;
         string packLabel = proposedPolicyPackId?.ToString("N") ?? "dry-run-proposed-pack";
@@ -66,6 +84,7 @@ public sealed class PolicyPackGovernanceDryRunService(IScopeContextProvider scop
         }
         else
             throw new InvalidOperationException("Target run or manifest is required.");
+
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
         if (run is null)
             return null;
@@ -77,7 +96,9 @@ public sealed class PolicyPackGovernanceDryRunService(IScopeContextProvider scop
                 findings = list.ToList();
         }
 
-        PreCommitGateResult gate = gateActive ? PreCommitGateEvaluator.Evaluate(findings, mergedCritical, mergedMin, packLabel, _preCommitOptions.Value.WarnOnlySeverities) : PreCommitGateResult.Allowed();
+        PreCommitGateResult gate = gateActive
+            ? PreCommitGateEvaluator.Evaluate(findings, mergedCritical, mergedMin, packLabel, _preCommitOptions.Value.WarnOnlySeverities)
+            : PreCommitGateResult.Allowed();
         List<string> passed = ["policy_pack_content_json: parsed", "target: resolved run under tenant/workspace/project scope"];
         List<string> failed = [];
         if (gateActive)
@@ -91,6 +112,7 @@ public sealed class PolicyPackGovernanceDryRunService(IScopeContextProvider scop
         }
         else
             passed.Add("pre_commit_severity_gate: skipped (no enforcement flags in proposed pack or request overrides)");
+
         List<string> warnings = [.. gate.Warnings];
         PolicyPackGovernanceDryRunResult result = new()
         {
@@ -101,11 +123,13 @@ public sealed class PolicyPackGovernanceDryRunService(IScopeContextProvider scop
             FailedChecks = failed,
             Warnings = warnings
         };
-        await TryLogProposedPackDryRunAuditAsync(policyPackContentJson, targetRunId, targetManifestId, proposedPolicyPackId, packLabel, runKey, usedManifestId, gate, cancellationToken);
+        await TryLogProposedPackDryRunAuditAsync(policyPackContentJson, targetRunId, targetManifestId, proposedPolicyPackId, packLabel, runKey, usedManifestId,
+            gate, cancellationToken);
         return result;
     }
 
-    private static (bool BlockCommitOnCritical, int? MinimumSeverity) MergeEnforcement(bool? requestCritical, int? requestMinSeverity, PolicyPackContentDocument document)
+    private static (bool BlockCommitOnCritical, int? MinimumSeverity) MergeEnforcement(bool? requestCritical, int? requestMinSeverity,
+        PolicyPackContentDocument document)
     {
         bool? fromMeta = TryReadNullableBool(document.Metadata, BlockCommitOnCriticalMetadataKeys);
         int? minFromMeta = TryReadNullableInt(document.Metadata, BlockCommitMinimumSeverityMetadataKeys);
@@ -162,31 +186,34 @@ public sealed class PolicyPackGovernanceDryRunService(IScopeContextProvider scop
         return outcome.Text;
     }
 
-    private async Task TryLogProposedPackDryRunAuditAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId, Guid? proposedPolicyPackId, string packLabel, Guid runKey, Guid? usedManifestId, PreCommitGateResult gate, CancellationToken cancellationToken)
+    private async Task TryLogProposedPackDryRunAuditAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId, Guid? proposedPolicyPackId,
+        string packLabel, Guid runKey, Guid? usedManifestId, PreCommitGateResult gate, CancellationToken cancellationToken)
     {
         string redactedContentJson = RedactPolicyPackContentJsonForAudit(policyPackContentJson);
-        string dataJson = JsonSerializer.Serialize(new
-        {
-            workflow = "proposedPolicyPackContent",
-            proposedPolicyPackId,
-            policyPackContentRedacted = redactedContentJson,
-            targetRunId = string.IsNullOrWhiteSpace(targetRunId) ? null : targetRunId.Trim(),
-            targetManifestId,
-            resolvedRunId = runKey.ToString("N"),
-            gateSummary = new
+        string dataJson = JsonSerializer.Serialize(
+            new
             {
-                blocked = gate.Blocked,
-                warnOnly = gate.WarnOnly,
-                packLabel,
-                warningCount = gate.Warnings.Count
-            }
-        }, AuditJsonSerializationOptions.Instance);
+                workflow = "proposedPolicyPackContent",
+                proposedPolicyPackId,
+                policyPackContentRedacted = redactedContentJson,
+                targetRunId = string.IsNullOrWhiteSpace(targetRunId) ? null : targetRunId.Trim(),
+                targetManifestId,
+                resolvedRunId = runKey.ToString("N"),
+                gateSummary = new
+                {
+                    blocked = gate.Blocked,
+                    warnOnly = gate.WarnOnly,
+                    packLabel,
+                    warningCount = gate.Warnings.Count
+                }
+            }, AuditJsonSerializationOptions.Instance);
         AuditEvent auditEvent = new()
         {
             EventType = AuditEventTypes.GovernanceDryRunRequested,
             DataJson = dataJson
         };
         string operationKey = proposedPolicyPackId is { } packId ? packId.ToString("D") : runKey.ToString("N");
-        await DurableAuditLogRetry.TryLogAsync(ct => _auditService.LogAsync(auditEvent, ct), _logger, $"GovernanceDryRunRequested:proposed:{operationKey}", cancellationToken);
+        await DurableAuditLogRetry.TryLogAsync(ct => _auditService.LogAsync(auditEvent, ct), _logger, $"GovernanceDryRunRequested:proposed:{operationKey}",
+            cancellationToken);
     }
 }

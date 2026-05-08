@@ -1,8 +1,10 @@
 using System.Text;
+
 using ArchLucid.Application.Manifests;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Summaries;
+
 /// <summary>
 ///     Options-driven Markdown summary of a <see cref = "GoldenManifest"/>.
 ///     Unlike <see cref = "MarkdownManifestSummaryGenerator"/>, this service is evidence-agnostic
@@ -83,7 +85,15 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine("## Relationships");
             sb.AppendLine();
             int max = options.MaxRelationships ?? int.MaxValue;
-            foreach (var relationship in relationships.Select(r => new { Relationship = r, SourceName = ManifestPresentation.ResolveComponentName(r.SourceId, manifest), TargetName = ManifestPresentation.ResolveComponentName(r.TargetId, manifest), TypeLabel = ManifestPresentation.RelationshipLabel(r.RelationshipType) }).OrderBy(x => x.SourceName, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.TargetName, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.TypeLabel, StringComparer.OrdinalIgnoreCase).Take(max))
+            foreach (var relationship in relationships
+                         .Select(r => new
+                         {
+                             Relationship = r,
+                             SourceName = ManifestPresentation.ResolveComponentName(r.SourceId, manifest),
+                             TargetName = ManifestPresentation.ResolveComponentName(r.TargetId, manifest),
+                             TypeLabel = ManifestPresentation.RelationshipLabel(r.RelationshipType)
+                         }).OrderBy(x => x.SourceName, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.TargetName, StringComparer.OrdinalIgnoreCase)
+                         .ThenBy(x => x.TypeLabel, StringComparer.OrdinalIgnoreCase).Take(max))
             {
                 sb.AppendLine($"- **{relationship.SourceName}** -> **{relationship.TargetName}** ({relationship.TypeLabel})");
                 if (!string.IsNullOrWhiteSpace(relationship.Relationship.Description))

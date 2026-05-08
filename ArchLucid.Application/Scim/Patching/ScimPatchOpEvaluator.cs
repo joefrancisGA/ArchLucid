@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 namespace ArchLucid.Application.Scim.Patching;
+
 /// <summary>
 ///     SCIM PATCH (RFC 7644 §3.5): flat paths for User resources; complex selectors on Users are <c>501 notImplemented</c>
 ///     upstream (parsed in <see cref="ScimPatchValuePathParser"/>).

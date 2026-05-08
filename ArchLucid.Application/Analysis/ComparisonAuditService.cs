@@ -6,17 +6,16 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Persists comparison results as immutable <see cref = "ComparisonRecord"/> entries for audit and replay.
 /// </summary>
 public sealed class ComparisonAuditService(IComparisonRecordRepository repository, IAuditService auditService) : IComparisonAuditService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        WriteIndented = true
-    };
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web) { WriteIndented = true };
     private readonly IComparisonRecordRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     /// <inheritdoc/>
     public async Task<string> RecordEndToEndAsync(EndToEndReplayComparisonReport report, string summaryMarkdown, CancellationToken cancellationToken = default)
     {
@@ -36,7 +35,21 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         };
         await _repository.CreateAsync(record, cancellationToken);
         DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-        await _auditService.LogAsync(new AuditEvent { OccurredUtc = occurredUtc, EventType = AuditEventTypes.EndToEndComparisonPersisted, RunId = TryParseRunGuid(record.LeftRunId) ?? TryParseRunGuid(record.RightRunId), DataJson = JsonSerializer.Serialize(new { comparisonRecordId = record.ComparisonRecordId, leftRunId = record.LeftRunId, rightRunId = record.RightRunId, comparisonType = record.ComparisonType }, AuditJsonSerializationOptions.Instance) }, cancellationToken);
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                OccurredUtc = occurredUtc,
+                EventType = AuditEventTypes.EndToEndComparisonPersisted,
+                RunId = TryParseRunGuid(record.LeftRunId) ?? TryParseRunGuid(record.RightRunId),
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        comparisonRecordId = record.ComparisonRecordId,
+                        leftRunId = record.LeftRunId,
+                        rightRunId = record.RightRunId,
+                        comparisonType = record.ComparisonType
+                    }, AuditJsonSerializationOptions.Instance)
+            }, cancellationToken);
         return record.ComparisonRecordId;
     }
 
@@ -86,7 +99,22 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         };
         await _repository.CreateAsync(record, cancellationToken);
         DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-        await _auditService.LogAsync(new AuditEvent { OccurredUtc = occurredUtc, EventType = AuditEventTypes.ComparisonReplayPersisted, RunId = TryParseRunGuid(record.LeftRunId) ?? TryParseRunGuid(record.RightRunId), DataJson = JsonSerializer.Serialize(new { comparisonRecordId = record.ComparisonRecordId, sourceComparisonRecordId = sourceRecord.ComparisonRecordId, leftRunId = record.LeftRunId, rightRunId = record.RightRunId, comparisonType = record.ComparisonType }, AuditJsonSerializationOptions.Instance) }, cancellationToken);
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                OccurredUtc = occurredUtc,
+                EventType = AuditEventTypes.ComparisonReplayPersisted,
+                RunId = TryParseRunGuid(record.LeftRunId) ?? TryParseRunGuid(record.RightRunId),
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        comparisonRecordId = record.ComparisonRecordId,
+                        sourceComparisonRecordId = sourceRecord.ComparisonRecordId,
+                        leftRunId = record.LeftRunId,
+                        rightRunId = record.RightRunId,
+                        comparisonType = record.ComparisonType
+                    }, AuditJsonSerializationOptions.Instance)
+            }, cancellationToken);
         return record.ComparisonRecordId;
     }
 

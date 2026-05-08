@@ -3,20 +3,24 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Integrations.Itsm.Outbound;
+
 /// <summary>HTTP calls to ServiceNow Table API for <c>incident</c> and optional <c>cmdb_ci_appl</c> lookup.</summary>
 public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<ServiceNowOutboundIncidentClient> logger)
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
+
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
     private readonly ILogger<ServiceNowOutboundIncidentClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    public async Task<ServiceNowCmdbCiResolveResult> TryResolveCmdbCiApplSysIdAsync(Uri instanceRoot, string username, string password, string systemName, bool autoCreateWhenMissing, CancellationToken ct)
+
+    public async Task<ServiceNowCmdbCiResolveResult> TryResolveCmdbCiApplSysIdAsync(Uri instanceRoot, string username, string password, string systemName,
+        bool autoCreateWhenMissing, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(instanceRoot);
         ArgumentNullException.ThrowIfNull(username);
@@ -57,7 +61,8 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         return await TryCreateCmdbCiApplAsync(instanceRoot, username, password, systemName.Trim(), ct).ConfigureAwait(false);
     }
 
-    public async Task<ServiceNowIncidentHttpResult> CreateIncidentAsync(Uri incidentTableUri, string username, string password, string shortDescription, string description, string urgency, string impact, string? cmdbCiSysId, CancellationToken ct)
+    public async Task<ServiceNowIncidentHttpResult> CreateIncidentAsync(Uri incidentTableUri, string username, string password, string shortDescription,
+        string description, string urgency, string impact, string? cmdbCiSysId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(incidentTableUri);
         ArgumentNullException.ThrowIfNull(username);
@@ -87,7 +92,8 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "ServiceNow incident create failed: transport error.");
-            return new ServiceNowIncidentHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable, "ServiceNow request could not be completed (network error).");
+            return new ServiceNowIncidentHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable,
+                "ServiceNow request could not be completed (network error).");
         }
 
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -105,21 +111,20 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
             }
             catch (JsonException)
             {
-                return new ServiceNowIncidentHttpResult(false, null, null, response.StatusCode, "ServiceNow returned success but the response could not be parsed.");
+                return new ServiceNowIncidentHttpResult(false, null, null, response.StatusCode,
+                    "ServiceNow returned success but the response could not be parsed.");
             }
         }
 
         return new ServiceNowIncidentHttpResult(false, null, null, response.StatusCode, TruncateForUser(raw));
     }
 
-    private async Task<ServiceNowCmdbCiResolveResult> TryCreateCmdbCiApplAsync(Uri instanceRoot, string username, string password, string name, CancellationToken ct)
+    private async Task<ServiceNowCmdbCiResolveResult> TryCreateCmdbCiApplAsync(Uri instanceRoot, string username, string password, string name,
+        CancellationToken ct)
     {
         string root = instanceRoot.GetLeftPart(UriPartial.Authority).TrimEnd('/');
         Uri uri = new($"{root}/api/now/table/cmdb_ci_appl");
-        object body = new
-        {
-            name
-        };
+        object body = new { name };
         using HttpRequestMessage request = new(HttpMethod.Post, uri);
         ApplyBasicAuth(request, username, password);
         string cmJson = JsonSerializer.Serialize(body, SerializerOptions);
@@ -197,36 +202,69 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
     private sealed class IncidentCreatePayload
     {
         [JsonPropertyName("short_description")]
-        public string ShortDescription { get; init; } = "";
+        public string ShortDescription
+        {
+            get;
+            init;
+        } = "";
 
         [JsonPropertyName("description")]
-        public string Description { get; init; } = "";
+        public string Description
+        {
+            get;
+            init;
+        } = "";
 
         [JsonPropertyName("urgency")]
-        public string Urgency { get; init; } = "";
+        public string Urgency
+        {
+            get;
+            init;
+        } = "";
 
         [JsonPropertyName("impact")]
-        public string Impact { get; init; } = "";
+        public string Impact
+        {
+            get;
+            init;
+        } = "";
 
         [JsonPropertyName("cmdb_ci")]
-        public string? CmdbCi { get; init; }
+        public string? CmdbCi
+        {
+            get;
+            init;
+        }
     }
 
     private sealed class ServiceNowIncidentResult
     {
         [JsonPropertyName("sys_id")]
-        public string? SysId { get; set; }
+        public string? SysId
+        {
+            get;
+            set;
+        }
 
         [JsonPropertyName("number")]
-        public string? Number { get; set; }
+        public string? Number
+        {
+            get;
+            set;
+        }
     }
 
     private sealed class ServiceNowSingleResultEnvelope
     {
         [JsonPropertyName("result")]
-        public ServiceNowIncidentResult? Result { get; set; }
+        public ServiceNowIncidentResult? Result
+        {
+            get;
+            set;
+        }
     }
 }
 
 public sealed record ServiceNowCmdbCiResolveResult(bool Fatal, string? SysId, HttpStatusCode? StatusCode, string? ErrorDetail);
+
 public sealed record ServiceNowIncidentHttpResult(bool Ok, string? SysId, string? Number, HttpStatusCode StatusCode, string? ErrorDetail);

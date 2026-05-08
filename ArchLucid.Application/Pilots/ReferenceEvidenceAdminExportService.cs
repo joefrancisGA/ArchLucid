@@ -11,21 +11,33 @@ using ArchLucid.Persistence.Models;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <inheritdoc cref = "IReferenceEvidenceAdminExportService"/>
-public sealed class ReferenceEvidenceAdminExportService(IReferenceEvidenceRunLookup runLookup, IRunDetailQueryService runDetailQuery, IPilotRunDeltaComputer deltaComputer, FirstValueReportBuilder firstValueReportBuilder, FirstValueReportPdfBuilder firstValueReportPdfBuilder, SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder, ILogger<ReferenceEvidenceAdminExportService> logger) : IReferenceEvidenceAdminExportService
+public sealed class ReferenceEvidenceAdminExportService(
+    IReferenceEvidenceRunLookup runLookup,
+    IRunDetailQueryService runDetailQuery,
+    IPilotRunDeltaComputer deltaComputer,
+    FirstValueReportBuilder firstValueReportBuilder,
+    FirstValueReportPdfBuilder firstValueReportPdfBuilder,
+    SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
+    ILogger<ReferenceEvidenceAdminExportService> logger) : IReferenceEvidenceAdminExportService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true
-    };
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
     private readonly IPilotRunDeltaComputer _deltaComputer = deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
-    private readonly FirstValueReportBuilder _firstValueReportBuilder = firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
-    private readonly FirstValueReportPdfBuilder _firstValueReportPdfBuilder = firstValueReportPdfBuilder ?? throw new ArgumentNullException(nameof(firstValueReportPdfBuilder));
+
+    private readonly FirstValueReportBuilder _firstValueReportBuilder =
+        firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
+
+    private readonly FirstValueReportPdfBuilder _firstValueReportPdfBuilder =
+        firstValueReportPdfBuilder ?? throw new ArgumentNullException(nameof(firstValueReportPdfBuilder));
+
     private readonly ILogger<ReferenceEvidenceAdminExportService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly IReferenceEvidenceRunLookup _runLookup = runLookup ?? throw new ArgumentNullException(nameof(runLookup));
-    private readonly SponsorOnePagerPdfBuilder _sponsorOnePagerPdfBuilder = sponsorOnePagerPdfBuilder ?? throw new ArgumentNullException(nameof(sponsorOnePagerPdfBuilder));
+
+    private readonly SponsorOnePagerPdfBuilder _sponsorOnePagerPdfBuilder =
+        sponsorOnePagerPdfBuilder ?? throw new ArgumentNullException(nameof(sponsorOnePagerPdfBuilder));
+
     /// <inheritdoc/>
     public async Task<Byte[]?> BuildZipAsync(Guid tenantId, bool includeDemo, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
@@ -102,21 +114,21 @@ public sealed class ReferenceEvidenceAdminExportService(IReferenceEvidenceRunLoo
                 }
 
                 string readme = $"""
-                     ArchLucid reference-evidence bundle
-                     TenantId: {tenantId:D}
-                     RunId: {runId}
-                     IncludeDemo: {includeDemo}
-                     GeneratedUtc: {TimeProvider.System.GetUtcNow().UtcDateTime:O}
+                                 ArchLucid reference-evidence bundle
+                                 TenantId: {tenantId:D}
+                                 RunId: {runId}
+                                 IncludeDemo: {includeDemo}
+                                 GeneratedUtc: {TimeProvider.System.GetUtcNow().UtcDateTime:O}
 
-                     Files:
-                     - pilot-run-deltas.json — proof-of-ROI numbers (see PILOT_ROI_MODEL.md).
-                     - first-value-report.md — sponsor Markdown when available.
-                     - first-value-report.pdf — when PDF build succeeded.
-                     - sponsor-one-pager.pdf — when Standard-tier scorecard path succeeded (may be absent on Team tier).
-                     - proof-pack-readme.md — buyer-oriented Markdown overview (redaction + file table).
+                                 Files:
+                                 - pilot-run-deltas.json — proof-of-ROI numbers (see PILOT_ROI_MODEL.md).
+                                 - first-value-report.md — sponsor Markdown when available.
+                                 - first-value-report.pdf — when PDF build succeeded.
+                                 - sponsor-one-pager.pdf — when Standard-tier scorecard path succeeded (may be absent on Team tier).
+                                 - proof-pack-readme.md — buyer-oriented Markdown overview (redaction + file table).
 
-                     Legal: obtain a signed reference agreement before publishing externally.
-                     """;
+                                 Legal: obtain a signed reference agreement before publishing externally.
+                                 """;
                 ZipArchiveEntry readmeEntry = zip.CreateEntry("README.txt");
                 await using (Stream s = await readmeEntry.OpenAsync(cancellationToken))
                 {

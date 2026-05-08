@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Selects the most appropriate consulting Docx template profile based on delivery
 ///     context signals present in a <see cref = "ConsultingDocxProfileRecommendationRequest"/>.
@@ -8,16 +9,19 @@ namespace ArchLucid.Application.Analysis;
 ///     technical depth &gt; audience keyword inference &gt; safe default. The default is
 ///     <see cref = "ConsultingDocxProfiles.Client"/> when no strong signal is detected.
 /// </remarks>
-public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxTemplateProfileResolver profileResolver) : IConsultingDocxTemplateRecommendationService
+public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxTemplateProfileResolver profileResolver)
+    : IConsultingDocxTemplateRecommendationService
 {
     private readonly IConsultingDocxTemplateProfileResolver _profileResolver = profileResolver ?? throw new ArgumentNullException(nameof(profileResolver));
+
     /// <inheritdoc/>
     public ConsultingDocxProfileRecommendation Recommend(ConsultingDocxProfileRecommendationRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
         ConsultingDocxTemplateProfileCatalog catalog = profileResolver.GetCatalog();
         if (catalog.Profiles.Count == 0)
-            throw new InvalidOperationException("No consulting Docx template profiles are registered. " + "Ensure the profile resolver returns at least one profile.");
+            throw new InvalidOperationException("No consulting Docx template profiles are registered. " +
+                                                "Ensure the profile resolver returns at least one profile.");
         HashSet<string> available = catalog.Profiles.Select(p => p.ProfileName).ToHashSet(StringComparer.OrdinalIgnoreCase);
         string profile;
         string reason;
@@ -46,12 +50,15 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
             profile = Prefer(ConsultingDocxProfiles.Executive, available);
             reason = "The audience indicates executives or sponsors, so the executive brief is the best fit.";
         }
-        else if (!string.IsNullOrWhiteSpace(request.Audience) && (request.Audience.Contains("audit", StringComparison.OrdinalIgnoreCase) || request.Audience.Contains("compliance", StringComparison.OrdinalIgnoreCase) || request.Audience.Contains("regulator", StringComparison.OrdinalIgnoreCase)))
+        else if (!string.IsNullOrWhiteSpace(request.Audience) && (request.Audience.Contains("audit", StringComparison.OrdinalIgnoreCase) ||
+                                                                  request.Audience.Contains("compliance", StringComparison.OrdinalIgnoreCase) ||
+                                                                  request.Audience.Contains("regulator", StringComparison.OrdinalIgnoreCase)))
         {
             profile = Prefer(ConsultingDocxProfiles.Regulated, available);
             reason = "The audience indicates compliance, audit, or regulated review, so the regulated profile is the best fit.";
         }
-        else if (!string.IsNullOrWhiteSpace(request.Audience) && (request.Audience.Contains("client", StringComparison.OrdinalIgnoreCase) || request.Audience.Contains("external", StringComparison.OrdinalIgnoreCase)))
+        else if (!string.IsNullOrWhiteSpace(request.Audience) && (request.Audience.Contains("client", StringComparison.OrdinalIgnoreCase) ||
+                                                                  request.Audience.Contains("external", StringComparison.OrdinalIgnoreCase)))
         {
             profile = Prefer(ConsultingDocxProfiles.Client, available);
             reason = "The audience indicates an external or client-facing reader, so the client delivery profile is the best fit.";
@@ -63,7 +70,8 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
         }
 
         ConsultingDocxTemplateProfileInfo selected = catalog.Profiles.First(x => string.Equals(x.ProfileName, profile, StringComparison.OrdinalIgnoreCase));
-        List<string> alternatives = catalog.Profiles.Where(x => !string.Equals(x.ProfileName, profile, StringComparison.OrdinalIgnoreCase)).OrderBy(x => x.DisplayOrder).Select(x => x.ProfileName).Take(3).ToList();
+        List<string> alternatives = catalog.Profiles.Where(x => !string.Equals(x.ProfileName, profile, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(x => x.DisplayOrder).Select(x => x.ProfileName).Take(3).ToList();
         return new ConsultingDocxProfileRecommendation
         {
             RecommendedProfileName = selected.ProfileName,

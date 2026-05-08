@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Marketing;
+
 /// <summary>
 ///     A single file inside the Trust Center evidence pack.
 /// </summary>
@@ -6,8 +7,17 @@ namespace ArchLucid.Application.Marketing;
 /// <param name = "Content">Raw bytes of the file.</param>
 public sealed record EvidencePackEntry
 {
-    public string ZipName { get; init; }
-    public byte[] Content { get; init; }
+    public string ZipName
+    {
+        get;
+        init;
+    }
+
+    public byte[] Content
+    {
+        get;
+        init;
+    }
 
     public EvidencePackEntry(string zipName, byte[] content)
     {

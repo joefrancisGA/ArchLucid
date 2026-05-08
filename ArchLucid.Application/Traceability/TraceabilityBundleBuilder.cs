@@ -8,16 +8,14 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 
 namespace ArchLucid.Application.Traceability;
+
 /// <inheritdoc/>
 public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQueryService, IAuditRepository auditRepository) : ITraceabilityBundleBuilder
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     /// <inheritdoc/>
     public async Task<Byte[]?> BuildAsync(string runId, ScopeContext scope, long maxZipBytes, CancellationToken cancellationToken)
     {
@@ -33,7 +31,10 @@ public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQu
         if (detail is null)
             return null;
         Guid runGuid = Guid.TryParseExact(runId, "N", out Guid g1) ? g1 : Guid.TryParse(runId, out Guid g2) ? g2 : Guid.Empty;
-        IReadOnlyList<AuditEvent> audits = runGuid == Guid.Empty ? [] : await _auditRepository.GetFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, new AuditEventFilter { RunId = runGuid, Take = 1000 }, cancellationToken);
+        IReadOnlyList<AuditEvent> audits = runGuid == Guid.Empty
+            ? []
+            : await _auditRepository.GetFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, new AuditEventFilter { RunId = runGuid, Take = 1000 },
+                cancellationToken);
         object summary = new
         {
             detail.Run.RunId,

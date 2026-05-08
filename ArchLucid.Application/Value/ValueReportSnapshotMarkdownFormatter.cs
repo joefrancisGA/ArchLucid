@@ -1,8 +1,10 @@
 using System.Globalization;
 using System.Text;
+
 using ArchLucid.Contracts.ValueReports;
 
 namespace ArchLucid.Application.Value;
+
 /// <summary>Markdown table for <see cref="ValueReportSnapshot"/> — reuses DOCX numbers without new financial claims.</summary>
 public static class ValueReportSnapshotMarkdownFormatter
 {
@@ -25,7 +27,8 @@ public static class ValueReportSnapshotMarkdownFormatter
         sb.AppendLine($"| Estimated architect hours saved (total) | {snapshot.EstimatedTotalArchitectHoursSaved.ToString(CultureInfo.InvariantCulture)} |");
         sb.AppendLine($"| Annualized hours value (USD) | {snapshot.AnnualizedHoursValueUsd.ToString(CultureInfo.InvariantCulture)} |");
         sb.AppendLine($"| Annualized LLM cost (USD) | {snapshot.AnnualizedLlmCostUsd.ToString(CultureInfo.InvariantCulture)} |");
-        sb.AppendLine($"| Baseline annual subscription + ops (USD, ROI model) | {snapshot.BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel.ToString(CultureInfo.InvariantCulture)} |");
+        sb.AppendLine(
+            $"| Baseline annual subscription + ops (USD, ROI model) | {snapshot.BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel.ToString(CultureInfo.InvariantCulture)} |");
         sb.AppendLine($"| Net annualized vs baseline (USD) | {snapshot.NetAnnualizedValueVersusRoiBaselineUsd.ToString(CultureInfo.InvariantCulture)} |");
         sb.AppendLine($"| ROI vs baseline (%) | {snapshot.RoiAnnualizedPercentVersusRoiBaseline.ToString(CultureInfo.InvariantCulture)} |");
         sb.AppendLine();

@@ -3,6 +3,7 @@ using System.Text;
 using ArchLucid.Core.Scim.Filtering;
 
 namespace ArchLucid.Application.Scim.Filtering;
+
 /// <summary>Hand-rolled SCIM v2 filter parser (RFC 7644 §3.4.2.2) for flat user attributes only.</summary>
 public static class ScimFilterParser
 {
@@ -19,6 +20,7 @@ public static class ScimFilterParser
     private ref struct ScimFilterCursor
     {
         private readonly ReadOnlySpan<char> _s;
+
         public ScimFilterCursor(ReadOnlySpan<char> s)
         {
             _s = s;
@@ -27,8 +29,10 @@ public static class ScimFilterParser
 
         public int Position
         {
-            get; private set;
+            get;
+            private set;
         }
+
         public bool Eof => Position >= _s.Length;
 
         public ScimFilterNode ParseFilter()
@@ -251,7 +255,8 @@ public static class ScimFilterParser
             SkipWs();
             if (Position + word.Length > _s.Length)
                 return false;
-            return _s.Slice(Position, word.Length).Equals(word.AsSpan(), StringComparison.OrdinalIgnoreCase) && (Position + word.Length == _s.Length || !char.IsLetterOrDigit(_s[Position + word.Length]));
+            return _s.Slice(Position, word.Length).Equals(word.AsSpan(), StringComparison.OrdinalIgnoreCase) &&
+                   (Position + word.Length == _s.Length || !char.IsLetterOrDigit(_s[Position + word.Length]));
         }
 
         private void ConsumeKeyword(string word)

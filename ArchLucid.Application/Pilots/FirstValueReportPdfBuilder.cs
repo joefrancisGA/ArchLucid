@@ -1,11 +1,14 @@
 using ArchLucid.Contracts.Pilots;
+
 using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+
 using QuestPdfDocument = QuestPDF.Fluent.Document;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>
 ///     PDF projection of the canonical first-value-report Markdown produced by <see cref = "FirstValueReportBuilder"/>.
 ///     One sponsor-shareable PDF per committed run; the Markdown body remains the source of truth so PDF output
@@ -17,6 +20,7 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
     private const string DemoOnlyPdfBanner = "DEMO ONLY — NOT CUSTOMER ROI PROOF";
     private const string NeedsBaselinePdfBanner = "NEEDS BASELINE — REVIEW ROI NARRATIVE BEFORE SPONSOR SEND";
     private readonly FirstValueReportBuilder _markdownBuilder = markdownBuilder ?? throw new ArgumentNullException(nameof(markdownBuilder));
+
     /// <summary>Returns PDF bytes, or <see langword="null"/> when the run is missing (mirrors the Markdown sibling).</summary>
     public async Task<Byte[]?> BuildPdfAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {

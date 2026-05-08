@@ -2,25 +2,43 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Replays a persisted <see cref = "RunExportRecord"/> by rehydrating the original analysis request and
 ///     regenerating the export artifact (consulting or standard analysis DOCX), optionally recording the replay as a new
 ///     export record.
 /// </summary>
-public sealed class ExportReplayService(IRunExportRecordRepository runExportRecordRepository, IArchitectureAnalysisService architectureAnalysisService, IArchitectureAnalysisDocxExportService analysisDocxExportService, IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService, IRunExportAuditService runExportAuditService) : IExportReplayService
+public sealed class ExportReplayService(
+    IRunExportRecordRepository runExportRecordRepository,
+    IArchitectureAnalysisService architectureAnalysisService,
+    IArchitectureAnalysisDocxExportService analysisDocxExportService,
+    IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService,
+    IRunExportAuditService runExportAuditService) : IExportReplayService
 {
-    private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
-    private readonly IArchitectureAnalysisConsultingDocxExportService _consultingDocxExportService = consultingDocxExportService ?? throw new ArgumentNullException(nameof(consultingDocxExportService));
+    private readonly IRunExportRecordRepository _runExportRecordRepository =
+        runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
+
+    private readonly IArchitectureAnalysisConsultingDocxExportService _consultingDocxExportService =
+        consultingDocxExportService ?? throw new ArgumentNullException(nameof(consultingDocxExportService));
+
     private readonly IRunExportAuditService _runExportAuditService = runExportAuditService ?? throw new ArgumentNullException(nameof(runExportAuditService));
-    private readonly IArchitectureAnalysisDocxExportService _analysisDocxExportService = analysisDocxExportService ?? throw new ArgumentNullException(nameof(analysisDocxExportService));
-    private readonly IArchitectureAnalysisService _architectureAnalysisService = architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
+
+    private readonly IArchitectureAnalysisDocxExportService _analysisDocxExportService =
+        analysisDocxExportService ?? throw new ArgumentNullException(nameof(analysisDocxExportService));
+
+    private readonly IArchitectureAnalysisService _architectureAnalysisService =
+        architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
+
     private const string ExportTypeConsultingDocx = "analysis-report-consulting-docx";
+
     /// <summary>
     ///     Standard (non-consulting) analysis DOCX exports; must match the <see cref = "RunExportRecord.ExportType"/>
     ///     stored when those exports are audited.
     /// </summary>
     private const string ExportTypeAnalysisDocx = "analysis-report-docx";
+
     private const string FallbackReplayFileName = "replayed_export.docx";
+
     /// <summary>
     ///     Replays the export identified by <see cref = "ReplayExportRequest.ExportRecordId"/>.
     /// </summary>
@@ -35,7 +53,9 @@ public sealed class ExportReplayService(IRunExportRecordRepository runExportReco
         RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(request.ExportRecordId, cancellationToken);
         if (record is null)
             throw new InvalidOperationException($"Export record '{request.ExportRecordId}' was not found.");
-        PersistedAnalysisExportRequest persistedRequest = AnalysisExportRequestRehydrator.Rehydrate(record) ?? throw new InvalidOperationException($"Export record '{request.ExportRecordId}' does not contain a persisted analysis request.");
+        PersistedAnalysisExportRequest persistedRequest = AnalysisExportRequestRehydrator.Rehydrate(record) ??
+                                                          throw new InvalidOperationException(
+                                                              $"Export record '{request.ExportRecordId}' does not contain a persisted analysis request.");
         ArchitectureAnalysisRequest analysisRequest = new()
         {
             RunId = record.RunId,
@@ -54,12 +74,17 @@ public sealed class ExportReplayService(IRunExportRecordRepository runExportReco
         ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(analysisRequest, cancellationToken);
         return record.ExportType switch
         {
-            ExportTypeConsultingDocx => await ReplayDocxAsync(record, persistedRequest, report, request.RecordReplayExport, consultingDocxExportService.GenerateDocxAsync, cancellationToken),
-            ExportTypeAnalysisDocx => await ReplayDocxAsync(record, persistedRequest, report, request.RecordReplayExport, analysisDocxExportService.GenerateDocxAsync, cancellationToken),
-            _ => throw new InvalidOperationException($"Replay is not supported for export type '{record.ExportType}'.")};
+            ExportTypeConsultingDocx => await ReplayDocxAsync(record, persistedRequest, report, request.RecordReplayExport,
+                consultingDocxExportService.GenerateDocxAsync, cancellationToken),
+            ExportTypeAnalysisDocx => await ReplayDocxAsync(record, persistedRequest, report, request.RecordReplayExport,
+                analysisDocxExportService.GenerateDocxAsync, cancellationToken),
+            _ => throw new InvalidOperationException($"Replay is not supported for export type '{record.ExportType}'.")
+        };
     }
 
-    private async Task<ReplayExportResult> ReplayDocxAsync(RunExportRecord record, PersistedAnalysisExportRequest persistedRequest, ArchitectureAnalysisReport report, bool recordReplayExport, Func<ArchitectureAnalysisReport, CancellationToken, Task<byte[]>> generateDocxAsync, CancellationToken cancellationToken)
+    private async Task<ReplayExportResult> ReplayDocxAsync(RunExportRecord record, PersistedAnalysisExportRequest persistedRequest,
+        ArchitectureAnalysisReport report, bool recordReplayExport, Func<ArchitectureAnalysisReport, CancellationToken, Task<byte[]>> generateDocxAsync,
+        CancellationToken cancellationToken)
     {
         byte[] bytes = await generateDocxAsync(report, cancellationToken);
         string replayFileName = BuildReplayFileName(record.FileName);
@@ -79,7 +104,10 @@ public sealed class ExportReplayService(IRunExportRecordRepository runExportReco
                 WasAutoSelected = record.WasAutoSelected,
                 ResolutionReason = record.ResolutionReason
             };
-        RunExportRecord persisted = await runExportAuditService.RecordAsync(record.RunId, record.ExportType, record.Format, replayFileName, record.TemplateProfile, record.TemplateProfileDisplayName, record.WasAutoSelected, record.ResolutionReason, report.Manifest?.Metadata.ManifestVersion, persistedRequest, $"Replay generated from export record {record.ExportRecordId}.", emitArchitectureDocxExportGeneratedAudit: false, cancellationToken);
+        RunExportRecord persisted = await runExportAuditService.RecordAsync(record.RunId, record.ExportType, record.Format, replayFileName,
+            record.TemplateProfile, record.TemplateProfileDisplayName, record.WasAutoSelected, record.ResolutionReason,
+            report.Manifest?.Metadata.ManifestVersion, persistedRequest, $"Replay generated from export record {record.ExportRecordId}.",
+            emitArchitectureDocxExportGeneratedAudit: false, cancellationToken);
         recordedReplayExportRecordId = persisted.ExportRecordId;
         return new ReplayExportResult
         {

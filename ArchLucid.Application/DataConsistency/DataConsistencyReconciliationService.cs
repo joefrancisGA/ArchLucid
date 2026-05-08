@@ -1,29 +1,41 @@
 using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
+
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+
 using JetBrains.Annotations;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.DataConsistency;
-public sealed class DataConsistencyReconciliationService(IDbConnectionFactory connectionFactory, IRunRepository runRepository, IArchLucidStorageMode storageMode, ILogger<DataConsistencyReconciliationService> logger) : IDataConsistencyReconciliationService
+
+public sealed class DataConsistencyReconciliationService(
+    IDbConnectionFactory connectionFactory,
+    IRunRepository runRepository,
+    IArchLucidStorageMode storageMode,
+    ILogger<DataConsistencyReconciliationService> logger) : IDataConsistencyReconciliationService
 {
     private readonly IDbConnectionFactory _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
     private readonly ILogger<DataConsistencyReconciliationService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
     private readonly IArchLucidStorageMode _storageMode = storageMode ?? throw new ArgumentNullException(nameof(storageMode));
+
     public async Task<DataConsistencyReport> RunReconciliationAsync(CancellationToken cancellationToken)
     {
         DateTime checkedAt = TimeProvider.System.GetUtcNow().UtcDateTime;
         Stopwatch sw = Stopwatch.StartNew();
         if (_storageMode.IsInMemory)
         {
-            IReadOnlyList<DataConsistencyFinding> findings = [new("reconciliation_skipped_in_memory", DataConsistencyFindingSeverity.Info, "Relational reconciliation skipped: host storage is InMemory.", [])];
+            IReadOnlyList<DataConsistencyFinding> findings =
+            [
+                new("reconciliation_skipped_in_memory", DataConsistencyFindingSeverity.Info, "Relational reconciliation skipped: host storage is InMemory.", [])
+            ];
             DataConsistencyReport skipped = new(checkedAt, findings, IsHealthy(findings));
             RecordInstrumentation(sw.Elapsed.TotalMilliseconds, findings);
             return skipped;
@@ -33,12 +45,25 @@ public sealed class DataConsistencyReconciliationService(IDbConnectionFactory co
         await using (DbConnection connection = OpenConnection())
         {
             await connection.OpenAsync(cancellationToken);
-            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.RunsMissingArchitectureRequest, "runs_missing_architecture_request", "Non-archived Runs reference an ArchitectureRequestId missing from dbo.ArchitectureRequests.", DataConsistencyReconciliationSql.SampleRunsMissingArchitectureRequest, list, cancellationToken).ConfigureAwait(false);
-            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.GoldenManifestsRunId, "orphan_golden_manifests_run", "GoldenManifests reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleGoldenManifestOrphans, list, cancellationToken).ConfigureAwait(false);
-            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.FindingsSnapshotsRunId, "orphan_findings_snapshots_run", "FindingsSnapshots reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleFindingsSnapshotOrphans, list, cancellationToken).ConfigureAwait(false);
-            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.ContextSnapshotsRunId, "orphan_context_snapshots_run", "ContextSnapshots reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleContextSnapshotOrphans, list, cancellationToken).ConfigureAwait(false);
-            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.GraphSnapshotsRunId, "orphan_graph_snapshots_run", "GraphSnapshots reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleGraphSnapshotOrphans, list, cancellationToken).ConfigureAwait(false);
-            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.ArtifactBundlesRunId, "orphan_artifact_bundles_run", "ArtifactBundles reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleArtifactBundleOrphans, list, cancellationToken).ConfigureAwait(false);
+            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.RunsMissingArchitectureRequest, "runs_missing_architecture_request",
+                "Non-archived Runs reference an ArchitectureRequestId missing from dbo.ArchitectureRequests.",
+                DataConsistencyReconciliationSql.SampleRunsMissingArchitectureRequest, list, cancellationToken).ConfigureAwait(false);
+            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.GoldenManifestsRunId, "orphan_golden_manifests_run",
+                "GoldenManifests reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleGoldenManifestOrphans, list,
+                cancellationToken).ConfigureAwait(false);
+            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.FindingsSnapshotsRunId, "orphan_findings_snapshots_run",
+                "FindingsSnapshots reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleFindingsSnapshotOrphans, list,
+                cancellationToken).ConfigureAwait(false);
+            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.ContextSnapshotsRunId, "orphan_context_snapshots_run",
+                "ContextSnapshots reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleContextSnapshotOrphans, list,
+                cancellationToken).ConfigureAwait(false);
+            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.GraphSnapshotsRunId, "orphan_graph_snapshots_run",
+                    "GraphSnapshots reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleGraphSnapshotOrphans, list,
+                    cancellationToken)
+                .ConfigureAwait(false);
+            await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.ArtifactBundlesRunId, "orphan_artifact_bundles_run",
+                "ArtifactBundles reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleArtifactBundleOrphans, list,
+                cancellationToken).ConfigureAwait(false);
             await AddStaleRunFindingsAsync(connection, list, cancellationToken).ConfigureAwait(false);
             await AddCacheVersusDatabaseFindingsAsync(connection, list, cancellationToken).ConfigureAwait(false);
         }
@@ -46,7 +71,8 @@ public sealed class DataConsistencyReconciliationService(IDbConnectionFactory co
         DataConsistencyReport report = new(checkedAt, list, IsHealthy(list));
         RecordInstrumentation(sw.Elapsed.TotalMilliseconds, list);
         if (_logger.IsEnabled(LogLevel.Information))
-            _logger.LogInformation("Data consistency reconciliation finished in {ElapsedMs} ms; healthy={IsHealthy}; findings={FindingCount}.", sw.ElapsedMilliseconds, report.IsHealthy, list.Count);
+            _logger.LogInformation("Data consistency reconciliation finished in {ElapsedMs} ms; healthy={IsHealthy}; findings={FindingCount}.",
+                sw.ElapsedMilliseconds, report.IsHealthy, list.Count);
         return report;
     }
 
@@ -70,7 +96,8 @@ public sealed class DataConsistencyReconciliationService(IDbConnectionFactory co
         }
     }
 
-    private async Task AddCountAndFindingsAsync(DbConnection connection, string countSql, string checkName, string description, string sampleSql, List<DataConsistencyFinding> findings, CancellationToken ct)
+    private async Task AddCountAndFindingsAsync(DbConnection connection, string countSql, string checkName, string description, string sampleSql,
+        List<DataConsistencyFinding> findings, CancellationToken ct)
     {
         long count = await ExecuteCountAsync(connection, countSql, ct).ConfigureAwait(false);
         if (count <= 0)
@@ -87,7 +114,9 @@ public sealed class DataConsistencyReconciliationService(IDbConnectionFactory co
         if (count <= 0)
             return;
         IReadOnlyList<string> ids = await ReadStringColumnAsync(connection, DataConsistencyReconciliationSql.SampleStaleRunIds, ct).ConfigureAwait(false);
-        findings.Add(new DataConsistencyFinding("stale_in_flight_runs", DataConsistencyFindingSeverity.Warning, "Runs stayed in Created/TasksGenerated/WaitingForResults/Retrying for more than 1 hour. " + "Treated as operational risk (not exactly 'Pending/Executing' legacy labels).", ids));
+        findings.Add(new DataConsistencyFinding("stale_in_flight_runs", DataConsistencyFindingSeverity.Warning,
+            "Runs stayed in Created/TasksGenerated/WaitingForResults/Retrying for more than 1 hour. " +
+            "Treated as operational risk (not exactly 'Pending/Executing' legacy labels).", ids));
         if (_logger.IsEnabled(LogLevel.Warning))
             _logger.LogWarning("Data consistency [stale_in_flight_runs]: count={Count}.", count);
     }
@@ -101,19 +130,16 @@ public sealed class DataConsistencyReconciliationService(IDbConnectionFactory co
             await using DbDataReader reader = await cmd.ExecuteReaderAsync(ct).ConfigureAwait(false);
             while (await reader.ReadAsync(ct).ConfigureAwait(false))
             {
-                rows.Add(new RecentRunRow(reader.GetGuid(0), reader.GetGuid(1), reader.GetGuid(2), reader.GetGuid(3), reader.IsDBNull(4) ? null : reader.GetString(4), reader.IsDBNull(5) ? null : reader.GetString(5), reader.IsDBNull(6) ? null : reader.GetDateTime(6), reader.GetDateTime(7)));
+                rows.Add(new RecentRunRow(reader.GetGuid(0), reader.GetGuid(1), reader.GetGuid(2), reader.GetGuid(3),
+                    reader.IsDBNull(4) ? null : reader.GetString(4), reader.IsDBNull(5) ? null : reader.GetString(5),
+                    reader.IsDBNull(6) ? null : reader.GetDateTime(6), reader.GetDateTime(7)));
             }
         }
 
         List<string> mismatched = [];
         foreach (RecentRunRow row in rows)
         {
-            ScopeContext scope = new()
-            {
-                TenantId = row.TenantId,
-                WorkspaceId = row.WorkspaceId,
-                ProjectId = row.ScopeProjectId
-            };
+            ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
             RunRecord? cached = await _runRepository.GetByIdAsync(scope, row.RunId, ct).ConfigureAwait(false);
             if (cached is null)
             {
@@ -131,7 +157,8 @@ public sealed class DataConsistencyReconciliationService(IDbConnectionFactory co
 
         if (mismatched.Count <= 0)
             return;
-        findings.Add(new DataConsistencyFinding("run_cache_database_divergence", DataConsistencyFindingSeverity.Critical, "Hot-path run cache diverged from dbo.Runs on a sample of the 10 most recently created non-archived runs.", mismatched));
+        findings.Add(new DataConsistencyFinding("run_cache_database_divergence", DataConsistencyFindingSeverity.Critical,
+            "Hot-path run cache diverged from dbo.Runs on a sample of the 10 most recently created non-archived runs.", mismatched));
         if (_logger.IsEnabled(LogLevel.Error))
             _logger.LogError("Data consistency [run_cache_database_divergence]: mismatches={MismatchCount} on sampled rows.", mismatched.Count);
     }
@@ -174,5 +201,13 @@ public sealed class DataConsistencyReconciliationService(IDbConnectionFactory co
         return ids;
     }
 
-    private readonly record struct RecentRunRow(Guid TenantId, Guid WorkspaceId, Guid ScopeProjectId, Guid RunId, string? LegacyRunStatus, string? CurrentManifestVersion, DateTime? CompletedUtc, [UsedImplicitly] DateTime CreatedUtc);
+    private readonly record struct RecentRunRow(
+        Guid TenantId,
+        Guid WorkspaceId,
+        Guid ScopeProjectId,
+        Guid RunId,
+        string? LegacyRunStatus,
+        string? CurrentManifestVersion,
+        DateTime? CompletedUtc,
+        [UsedImplicitly] DateTime CreatedUtc);
 }

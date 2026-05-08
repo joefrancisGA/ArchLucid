@@ -45,9 +45,8 @@ internal static class ConsultingDocxSupplementalSections
 
         foreach (string item in new[]
                  {
-                     "1. Executive Summary", "2. Architecture Overview", "3. Evidence and Constraints",
-                     "4. Architecture Details", "5. Governance and Controls",
-                     "6. Explainability and Execution Review", "7. Conclusions", "Appendix A. Mermaid Source",
+                     "1. Executive Summary", "2. Architecture Overview", "3. Evidence and Constraints", "4. Architecture Details",
+                     "5. Governance and Controls", "6. Explainability and Execution Review", "7. Conclusions", "Appendix A. Mermaid Source",
                      "Appendix B. Execution Trace Index", "Appendix C. Determinism and Comparison"
                  })
 

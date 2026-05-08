@@ -2,23 +2,34 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Pilots;
 
 namespace ArchLucid.Application.Pilots;
-public sealed class PilotInProductScorecardService(IScopeContextProvider scopeContextProvider, IPilotScorecardMetricsReader scorecardMetricsReader, IPilotBaselineRepository pilotBaselineRepository) : IPilotInProductScorecardService
+
+public sealed class PilotInProductScorecardService(
+    IScopeContextProvider scopeContextProvider,
+    IPilotScorecardMetricsReader scorecardMetricsReader,
+    IPilotBaselineRepository pilotBaselineRepository) : IPilotInProductScorecardService
 {
-    private readonly IPilotBaselineRepository _pilotBaselineRepository = pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
+    private readonly IPilotBaselineRepository _pilotBaselineRepository =
+        pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
+
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-    private readonly IPilotScorecardMetricsReader _scorecardMetricsReader = scorecardMetricsReader ?? throw new ArgumentNullException(nameof(scorecardMetricsReader));
+
+    private readonly IPilotScorecardMetricsReader _scorecardMetricsReader =
+        scorecardMetricsReader ?? throw new ArgumentNullException(nameof(scorecardMetricsReader));
+
     public async Task<PilotInProductScorecardResult> GetAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         PilotScorecardTenantMetrics m = await _scorecardMetricsReader.GetAsync(scope.TenantId, cancellationToken);
         PilotBaselineRecord? row = await _pilotBaselineRepository.GetAsync(scope.TenantId, cancellationToken);
-        PilotInProductBaselinesView? baselines = row is null ? null : new PilotInProductBaselinesView
-        {
-            BaselineHoursPerReview = row.BaselineHoursPerReview,
-            BaselineReviewsPerQuarter = row.BaselineReviewsPerQuarter,
-            BaselineArchitectHourlyCost = row.BaselineArchitectHourlyCost,
-            UpdatedUtc = row.UpdatedUtc
-        };
+        PilotInProductBaselinesView? baselines = row is null
+            ? null
+            : new PilotInProductBaselinesView
+            {
+                BaselineHoursPerReview = row.BaselineHoursPerReview,
+                BaselineReviewsPerQuarter = row.BaselineReviewsPerQuarter,
+                BaselineArchitectHourlyCost = row.BaselineArchitectHourlyCost,
+                UpdatedUtc = row.UpdatedUtc
+            };
         int? daysSinceFirst = m.FirstCommitUtc is { } f ? (int)Math.Floor((TimeProvider.System.GetUtcNow() - f).TotalDays) : null;
         PilotInProductRoiEstimate? roi = TryBuildRoi(row);
         PilotInProductScorecardResult result = new()
@@ -58,7 +69,8 @@ public sealed class PilotInProductScorecardService(IScopeContextProvider scopeCo
         return d;
     }
 
-    public async Task UpsertBaselinesAsync(decimal? baselineHoursPerReview, int? baselineReviewsPerQuarter, decimal? baselineArchitectHourlyCost, CancellationToken cancellationToken)
+    public async Task UpsertBaselinesAsync(decimal? baselineHoursPerReview, int? baselineReviewsPerQuarter, decimal? baselineArchitectHourlyCost,
+        CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
@@ -84,10 +96,6 @@ public sealed class PilotInProductScorecardService(IScopeContextProvider scopeCo
         decimal rQ = q;
         decimal statusQuo = PilotReviewRoiFormulas.AnnualReviewCostStatusQuo(rQ, h, c);
         decimal savings = PilotReviewRoiFormulas.AnnualReviewSavings(rQ, h, c);
-        return new PilotInProductRoiEstimate
-        {
-            AnnualReviewCostStatusQuoUsd = statusQuo,
-            AnnualReviewSavingsFromReviewTimeLeverUsd = savings
-        };
+        return new PilotInProductRoiEstimate { AnnualReviewCostStatusQuoUsd = statusQuo, AnnualReviewSavingsFromReviewTimeLeverUsd = savings };
     }
 }

@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Formats a <see cref = "DriftAnalysisResult"/> as either a GitHub-flavoured Markdown
 ///     document or an HTML page.
@@ -56,7 +57,8 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
         ArgumentNullException.ThrowIfNull(drift);
         StringBuilder sb = new();
         sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>ArchLucid Drift Report</title>");
-        sb.AppendLine("<style>body{font-family:sans-serif;margin:1rem;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ccc;padding:0.5rem;text-align:left;} th{background:#eee;}</style>");
+        sb.AppendLine(
+            "<style>body{font-family:sans-serif;margin:1rem;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ccc;padding:0.5rem;text-align:left;} th{background:#eee;}</style>");
         sb.AppendLine("</head><body>");
         sb.AppendLine("<h1>ArchLucid Comparison Drift Report</h1>");
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))
@@ -66,9 +68,13 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
             sb.AppendLine($"<p>{WebUtility.HtmlEncode(drift.Summary)}</p>");
         if (drift.Items.Count > 0)
         {
-            sb.AppendLine("<h2>Differences</h2><table><thead><tr><th>Category</th><th>Path</th><th>Stored</th><th>Regenerated</th><th>Description</th></tr></thead><tbody>");
+            sb.AppendLine(
+                "<h2>Differences</h2><table><thead><tr><th>Category</th><th>Path</th><th>Stored</th><th>Regenerated</th><th>Description</th></tr></thead><tbody>");
             foreach (DriftItem item in drift.Items)
-                sb.Append("<tr><td>").Append(WebUtility.HtmlEncode(item.Category)).Append("</td><td>").Append(WebUtility.HtmlEncode(item.Path)).Append("</td><td>").Append(WebUtility.HtmlEncode(item.StoredValue ?? "")).Append("</td><td>").Append(WebUtility.HtmlEncode(item.RegeneratedValue ?? "")).Append("</td><td>").Append(WebUtility.HtmlEncode(item.Description)).AppendLine("</td></tr>");
+                sb.Append("<tr><td>").Append(WebUtility.HtmlEncode(item.Category)).Append("</td><td>").Append(WebUtility.HtmlEncode(item.Path))
+                    .Append("</td><td>").Append(WebUtility.HtmlEncode(item.StoredValue ?? "")).Append("</td><td>")
+                    .Append(WebUtility.HtmlEncode(item.RegeneratedValue ?? "")).Append("</td><td>").Append(WebUtility.HtmlEncode(item.Description))
+                    .AppendLine("</td></tr>");
             sb.AppendLine("</tbody></table>");
         }
 

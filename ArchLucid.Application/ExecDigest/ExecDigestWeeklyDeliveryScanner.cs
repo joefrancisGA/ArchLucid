@@ -1,25 +1,48 @@
 using System.Globalization;
+
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.ExecDigest;
+
 /// <summary>Worker/CLI entry that evaluates per-tenant schedules and sends at most one digest per tenant per ISO week.</summary>
-public sealed class ExecDigestWeeklyDeliveryScanner(ITenantExecDigestPreferencesRepository digestPreferencesRepository, ITenantRepository tenantRepository, IExecDigestComposer execDigestComposer, IExecDigestEmailDispatcher execDigestEmailDispatcher, ITenantTrialEmailContactLookup tenantTrialEmailContactLookup, IExecDigestUnsubscribeTokenFactory unsubscribeTokenFactory, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor, ILogger<ExecDigestWeeklyDeliveryScanner> logger)
+public sealed class ExecDigestWeeklyDeliveryScanner(
+    ITenantExecDigestPreferencesRepository digestPreferencesRepository,
+    ITenantRepository tenantRepository,
+    IExecDigestComposer execDigestComposer,
+    IExecDigestEmailDispatcher execDigestEmailDispatcher,
+    ITenantTrialEmailContactLookup tenantTrialEmailContactLookup,
+    IExecDigestUnsubscribeTokenFactory unsubscribeTokenFactory,
+    IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
+    ILogger<ExecDigestWeeklyDeliveryScanner> logger)
 {
-    private readonly ITenantExecDigestPreferencesRepository _digestPreferencesRepository = digestPreferencesRepository ?? throw new ArgumentNullException(nameof(digestPreferencesRepository));
-    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor = emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+    private readonly ITenantExecDigestPreferencesRepository _digestPreferencesRepository =
+        digestPreferencesRepository ?? throw new ArgumentNullException(nameof(digestPreferencesRepository));
+
+    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
+        emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+
     private readonly IExecDigestComposer _execDigestComposer = execDigestComposer ?? throw new ArgumentNullException(nameof(execDigestComposer));
-    private readonly IExecDigestEmailDispatcher _execDigestEmailDispatcher = execDigestEmailDispatcher ?? throw new ArgumentNullException(nameof(execDigestEmailDispatcher));
+
+    private readonly IExecDigestEmailDispatcher _execDigestEmailDispatcher =
+        execDigestEmailDispatcher ?? throw new ArgumentNullException(nameof(execDigestEmailDispatcher));
+
     private readonly ILogger<ExecDigestWeeklyDeliveryScanner> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-    private readonly ITenantTrialEmailContactLookup _tenantTrialEmailContactLookup = tenantTrialEmailContactLookup ?? throw new ArgumentNullException(nameof(tenantTrialEmailContactLookup));
-    private readonly IExecDigestUnsubscribeTokenFactory _unsubscribeTokenFactory = unsubscribeTokenFactory ?? throw new ArgumentNullException(nameof(unsubscribeTokenFactory));
+
+    private readonly ITenantTrialEmailContactLookup _tenantTrialEmailContactLookup =
+        tenantTrialEmailContactLookup ?? throw new ArgumentNullException(nameof(tenantTrialEmailContactLookup));
+
+    private readonly IExecDigestUnsubscribeTokenFactory _unsubscribeTokenFactory =
+        unsubscribeTokenFactory ?? throw new ArgumentNullException(nameof(unsubscribeTokenFactory));
+
     public async Task PublishDueAsync(DateTimeOffset utcNow, CancellationToken cancellationToken)
     {
         IReadOnlyList<Guid> tenantIds = await _digestPreferencesRepository.ListEmailEnabledTenantIdsAsync(cancellationToken).ConfigureAwait(false);
@@ -68,12 +91,7 @@ public sealed class ExecDigestWeeklyDeliveryScanner(ITenantExecDigestPreferences
         TenantWorkspaceLink? workspace = await _tenantRepository.GetFirstWorkspaceAsync(tenantId, cancellationToken).ConfigureAwait(false);
         if (workspace is null)
             return;
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = workspace.WorkspaceId,
-            ProjectId = workspace.DefaultProjectId
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspace.WorkspaceId, ProjectId = workspace.DefaultProjectId };
         DateTime refDay = DateTime.SpecifyKind(utcNow.UtcDateTime.Date, DateTimeKind.Utc);
         int isoYear = ISOWeek.GetYear(refDay);
         int isoWeek = ISOWeek.GetWeekOfYear(refDay);
@@ -105,7 +123,8 @@ public sealed class ExecDigestWeeklyDeliveryScanner(ITenantExecDigestPreferences
         ExecDigestComposition composition;
         using (AmbientScopeContext.Push(scope))
         {
-            composition = await _execDigestComposer.ComposeAsync(tenantId, weekStartUtc, weekEndUtc, scope, operatorBase, cancellationToken).ConfigureAwait(false);
+            composition = await _execDigestComposer.ComposeAsync(tenantId, weekStartUtc, weekEndUtc, scope, operatorBase, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         await _execDigestEmailDispatcher.TryDispatchAsync(tenantId, isoKey, composition, recipients, unsubscribeUrl, cancellationToken).ConfigureAwait(false);

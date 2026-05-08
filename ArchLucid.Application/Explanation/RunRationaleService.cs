@@ -8,6 +8,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Explanation;
+
 /// <inheritdoc/>
 public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, IRunDetailQueryService runDetailQuery) : IRunRationaleService
 {
@@ -17,6 +18,7 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
     private const string PipelineCoordinator = "coordinator";
     private const string KindRuleAudit = "ruleAudit";
     private const string KindRunEvent = "runEvent";
+
     /// <inheritdoc/>
     public async Task<RunRationale?> GetRunRationaleAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
@@ -25,11 +27,14 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
         if (detail is null)
             return null;
         bool explanationAvailable = detail.GoldenManifest is not null;
-        bool provenanceAvailable = detail.GoldenManifest is not null && detail.GraphSnapshot is not null && detail.FindingsSnapshot is not null && detail.AuthorityTrace is not null;
+        bool provenanceAvailable = detail.GoldenManifest is not null && detail.GraphSnapshot is not null && detail.FindingsSnapshot is not null &&
+                                   detail.AuthorityTrace is not null;
         if (detail.FindingsSnapshot is not null)
             return BuildAuthorityRationale(detail, provenanceAvailable, explanationAvailable);
         ArchitectureRunDetail? coordinator = await runDetailQuery.GetRunDetailAsync(runId.ToString("N"), ct);
-        return coordinator is not null ? BuildCoordinatorRationale(detail, coordinator, runId, provenanceAvailable, explanationAvailable) : BuildAuthorityRationaleWithoutFindings(detail, runId, provenanceAvailable, explanationAvailable);
+        return coordinator is not null
+            ? BuildCoordinatorRationale(detail, coordinator, runId, provenanceAvailable, explanationAvailable)
+            : BuildAuthorityRationaleWithoutFindings(detail, runId, provenanceAvailable, explanationAvailable);
     }
 
     private static RunRationale BuildAuthorityRationale(RunDetailDto detail, bool provenanceAvailable, bool explanationAvailable)
@@ -80,10 +85,12 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
         };
     }
 
-    private static RunRationale BuildCoordinatorRationale(RunDetailDto authorityDetail, ArchitectureRunDetail coordinator, Guid runId, bool provenanceAvailable, bool explanationAvailable)
+    private static RunRationale BuildCoordinatorRationale(RunDetailDto authorityDetail, ArchitectureRunDetail coordinator, Guid runId, bool provenanceAvailable,
+        bool explanationAvailable)
     {
         List<FindingRationale> findings = coordinator.Results.SelectMany(r => r.Findings).Select(MapArchitectureFinding).ToList();
-        List<DecisionTraceEntry> traces = coordinator.DecisionTraces.Select(MapCoordinatorTrace).Where(static e => e is not null).Cast<DecisionTraceEntry>().ToList();
+        List<DecisionTraceEntry> traces = coordinator.DecisionTraces.Select(MapCoordinatorTrace).Where(static e => e is not null).Cast<DecisionTraceEntry>()
+            .ToList();
         return new RunRationale
         {
             RunId = runId,
@@ -212,7 +219,9 @@ public sealed class RunRationaleService(IAuthorityQueryService authorityQuery, I
             return authorityManifestSummary.Trim();
         if (coordinator.Manifest is { } manifest)
         {
-            return !string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription) ? manifest.Metadata.ChangeDescription.Trim() : $"{manifest.SystemName}: coordinator run ({coordinator.Run.Status}), {findingCount} agent finding(s).";
+            return !string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription)
+                ? manifest.Metadata.ChangeDescription.Trim()
+                : $"{manifest.SystemName}: coordinator run ({coordinator.Run.Status}), {findingCount} agent finding(s).";
         }
 
         return $"Coordinator run ({coordinator.Run.Status}) with {findingCount} agent finding(s).";

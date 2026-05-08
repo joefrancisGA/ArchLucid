@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Scim.Patching;
+
 public sealed class ScimPatchException : Exception
 {
     public ScimPatchException(string scimType, string detail) : base(detail)
@@ -8,5 +9,8 @@ public sealed class ScimPatchException : Exception
         ScimType = scimType;
     }
 
-    public string ScimType { get; }
+    public string ScimType
+    {
+        get;
+    }
 }

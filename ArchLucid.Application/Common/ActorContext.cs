@@ -1,7 +1,9 @@
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Http;
 
 namespace ArchLucid.Application.Common;
+
 /// <summary>
 ///     HTTP-scoped actor resolution from <see cref = "HttpContext.User"/> (display name + JWT object id for SoD).
 /// </summary>
@@ -13,6 +15,7 @@ public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IAc
     private const string TidClaimType = "tid";
     private const string OidShortClaimType = "oid";
     private const string OidLongClaimType = "http://schemas.microsoft.com/identity/claims/objectidentifier";
+
     /// <inheritdoc/>
     public string GetActor()
     {

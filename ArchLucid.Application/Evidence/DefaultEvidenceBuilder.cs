@@ -203,11 +203,7 @@ public sealed class DefaultEvidenceBuilder(IUnifiedGoldenManifestReader goldenMa
     {
         List<EvidenceNote> notes =
         [
-            new()
-            {
-                NoteType = EvidenceNoteTypes.ExecutionMode,
-                Message = "Evidence package was built using the default deterministic builder."
-            }
+            new() { NoteType = EvidenceNoteTypes.ExecutionMode, Message = "Evidence package was built using the default deterministic builder." }
         ];
 
         if (priorManifestMissingInScope)
@@ -224,8 +220,7 @@ public sealed class DefaultEvidenceBuilder(IUnifiedGoldenManifestReader goldenMa
 
             notes.Add(new EvidenceNote
             {
-                NoteType = EvidenceNoteTypes.PatternHint,
-                Message = "Search-oriented architecture requested; enterprise RAG pattern is applicable."
+                NoteType = EvidenceNoteTypes.PatternHint, Message = "Search-oriented architecture requested; enterprise RAG pattern is applicable."
             });
 
         return notes;

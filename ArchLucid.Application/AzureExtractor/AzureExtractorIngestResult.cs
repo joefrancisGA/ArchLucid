@@ -30,5 +30,4 @@ public sealed class AzureExtractorIngestResult
 
         init;
     }
-
 }

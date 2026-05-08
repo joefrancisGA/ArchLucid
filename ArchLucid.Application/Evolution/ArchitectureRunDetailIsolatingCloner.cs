@@ -13,9 +13,7 @@ internal static class ArchitectureRunDetailIsolatingCloner
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        ReferenceHandler = ReferenceHandler.IgnoreCycles,
-        WriteIndented = false,
-        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+        ReferenceHandler = ReferenceHandler.IgnoreCycles, WriteIndented = false, Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
     internal static ArchitectureRunDetail Clone(ArchitectureRunDetail source)

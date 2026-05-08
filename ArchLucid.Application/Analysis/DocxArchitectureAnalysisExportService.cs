@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Diagrams;
 
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Generates a structured DOCX analysis report from an <see cref = "ArchitectureAnalysisReport"/>,
 ///     rendering the Mermaid diagram as an embedded PNG image where possible.
@@ -12,6 +13,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 {
     private readonly IDiagramImageRenderer _diagramImageRenderer = diagramImageRenderer ?? throw new ArgumentNullException(nameof(diagramImageRenderer));
     private const string MermaidLanguage = "mermaid";
+
     public async Task<byte[]> GenerateDocxAsync(ArchitectureAnalysisReport report, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(report);

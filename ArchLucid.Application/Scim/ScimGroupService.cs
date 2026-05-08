@@ -11,8 +11,10 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
 {
     private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
     private readonly IScimGroupRepository _groups = groups ?? throw new ArgumentNullException(nameof(groups));
+
     /// <inheritdoc/>
-    public Task<(IReadOnlyList<ScimGroupRecord> items, int totalResults)> ListAsync(Guid tenantId, int startIndex, int count, CancellationToken cancellationToken)
+    public Task<(IReadOnlyList<ScimGroupRecord> items, int totalResults)> ListAsync(Guid tenantId, int startIndex, int count,
+        CancellationToken cancellationToken)
     {
         return _groups.ListAsync(tenantId, startIndex, Math.Clamp(count, 0, 200), cancellationToken);
     }
@@ -28,7 +30,8 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
     {
         (string displayName, string externalId) = ScimGroupResourceParser.ParseGroup(resource);
         ScimGroupRecord g = await _groups.InsertAsync(tenantId, externalId, displayName, cancellationToken);
-        await LogAsync(tenantId, AuditEventTypes.ScimGroupProvisioned, $"{{\"groupId\":\"{g.Id:D}\",\"externalId\":\"{JsonSerializer.Serialize(externalId).Trim('"')}\"}}", cancellationToken);
+        await LogAsync(tenantId, AuditEventTypes.ScimGroupProvisioned,
+            $"{{\"groupId\":\"{g.Id:D}\",\"externalId\":\"{JsonSerializer.Serialize(externalId).Trim('"')}\"}}", cancellationToken);
         return g;
     }
 
@@ -57,6 +60,15 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
 
     private async Task LogAsync(Guid tenantId, string eventType, string dataJson, CancellationToken ct)
     {
-        await _audit.LogAsync(new AuditEvent { EventType = eventType, ActorUserId = "scim", ActorUserName = "SCIM provisioning", TenantId = tenantId, WorkspaceId = ScopeIds.DefaultWorkspace, ProjectId = ScopeIds.DefaultProject, DataJson = dataJson }, ct);
+        await _audit.LogAsync(new AuditEvent
+        {
+            EventType = eventType,
+            ActorUserId = "scim",
+            ActorUserName = "SCIM provisioning",
+            TenantId = tenantId,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+            DataJson = dataJson
+        }, ct);
     }
 }

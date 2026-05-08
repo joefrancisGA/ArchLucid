@@ -1,8 +1,10 @@
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
+
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Scim.RoleMapping;
+
 /// <summary>
 ///     Maps SCIM enterprise group identifiers to ArchLucid application role names.
 ///     Provenance for the persisted resolved role (<c>ResolvedRoleOrigin</c> manual vs SCIM groups) is handled in
@@ -11,6 +13,7 @@ namespace ArchLucid.Application.Scim.RoleMapping;
 public sealed class GroupToRoleMapper(IOptions<ScimOptions> options) : IGroupToRoleMapper
 {
     private readonly IOptions<ScimOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
+
     /// <inheritdoc/>
     public String? TryMapGroupToRole(string displayName, string externalId)
     {
@@ -25,13 +28,17 @@ public sealed class GroupToRoleMapper(IOptions<ScimOptions> options) : IGroupToR
                 return mapped.Trim();
         }
 
-        if (string.Equals(externalId, "archlucid:admins", StringComparison.OrdinalIgnoreCase) || string.Equals(displayName, "archlucid:admins", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(externalId, "archlucid:admins", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(displayName, "archlucid:admins", StringComparison.OrdinalIgnoreCase))
             return ArchLucidRoles.Admin;
-        if (string.Equals(externalId, "archlucid:operators", StringComparison.OrdinalIgnoreCase) || string.Equals(displayName, "archlucid:operators", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(externalId, "archlucid:operators", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(displayName, "archlucid:operators", StringComparison.OrdinalIgnoreCase))
             return ArchLucidRoles.Operator;
-        if (string.Equals(externalId, "archlucid:auditors", StringComparison.OrdinalIgnoreCase) || string.Equals(displayName, "archlucid:auditors", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(externalId, "archlucid:auditors", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(displayName, "archlucid:auditors", StringComparison.OrdinalIgnoreCase))
             return ArchLucidRoles.Auditor;
-        if (string.Equals(externalId, "archlucid:readers", StringComparison.OrdinalIgnoreCase) || string.Equals(displayName, "archlucid:readers", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(externalId, "archlucid:readers", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(displayName, "archlucid:readers", StringComparison.OrdinalIgnoreCase))
             return ArchLucidRoles.Reader;
         return null;
     }

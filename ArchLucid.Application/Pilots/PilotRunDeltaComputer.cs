@@ -14,10 +14,12 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <inheritdoc cref = "IPilotRunDeltaComputer"/>
 /// <remarks>
 ///     Read-only by construction: makes one filtered audit query, one trace query, one artifact-descriptor list (when a
@@ -25,17 +27,34 @@ namespace ArchLucid.Application.Pilots;
 ///     artifact / evidence queries are swallowed (warning-logged) so a sponsor report still renders for runs whose
 ///     ancillary stores are temporarily unavailable.
 /// </remarks>
-public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceChainService, IAgentExecutionTraceRepository agentExecutionTraceRepository, IAuditRepository auditRepository, IArtifactQueryService artifactQueryService, IScopeContextProvider scopeContextProvider, IRunExplanationSummaryService runExplanationSummaryService, IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator, IOptions<AgentOutputQualityGateOptions> gateOptions, ILogger<PilotRunDeltaComputer> logger) : IPilotRunDeltaComputer
+public sealed class PilotRunDeltaComputer(
+    IFindingEvidenceChainService evidenceChainService,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IAuditRepository auditRepository,
+    IArtifactQueryService artifactQueryService,
+    IScopeContextProvider scopeContextProvider,
+    IRunExplanationSummaryService runExplanationSummaryService,
+    IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator,
+    IOptions<AgentOutputQualityGateOptions> gateOptions,
+    ILogger<PilotRunDeltaComputer> logger) : IPilotRunDeltaComputer
 {
-    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository = agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
     private readonly IArtifactQueryService _artifactQueryService = artifactQueryService ?? throw new ArgumentNullException(nameof(artifactQueryService));
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
     private readonly IFindingEvidenceChainService _evidenceChainService = evidenceChainService ?? throw new ArgumentNullException(nameof(evidenceChainService));
     private readonly ILogger<PilotRunDeltaComputer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-    private readonly IRunExplanationSummaryService _runExplanationSummaryService = runExplanationSummaryService ?? throw new ArgumentNullException(nameof(runExplanationSummaryService));
-    private readonly IRunAgentOutputPilotEvidenceAggregator _pilotEvidenceAggregator = pilotEvidenceAggregator ?? throw new ArgumentNullException(nameof(pilotEvidenceAggregator));
+
+    private readonly IRunExplanationSummaryService _runExplanationSummaryService =
+        runExplanationSummaryService ?? throw new ArgumentNullException(nameof(runExplanationSummaryService));
+
+    private readonly IRunAgentOutputPilotEvidenceAggregator _pilotEvidenceAggregator =
+        pilotEvidenceAggregator ?? throw new ArgumentNullException(nameof(pilotEvidenceAggregator));
+
     private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions = gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
+
     /// <inheritdoc/>
     public async Task<PilotRunDeltas> ComputeAsync(ArchitectureRunDetail detail, CancellationToken cancellationToken = default)
     {
@@ -89,7 +108,8 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
         };
     }
 
-    private async Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryListExecutionTracesAsync(string runId, CancellationToken cancellationToken)
+    private async Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryListExecutionTracesAsync(string runId,
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -110,7 +130,8 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            IReadOnlyList<ArtifactDescriptor> list = await _artifactQueryService.ListArtifactsByManifestIdAsync(scope, goldenManifestId.Value, cancellationToken);
+            IReadOnlyList<ArtifactDescriptor> list =
+                await _artifactQueryService.ListArtifactsByManifestIdAsync(scope, goldenManifestId.Value, cancellationToken);
             return (list.Count, true);
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
@@ -123,13 +144,16 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
     /// <summary>Returns severity counts in descending order (highest count first), grouped case-insensitively.</summary>
     private static IReadOnlyList<KeyValuePair<string, int>> AggregateFindingsBySeverity(ArchitectureRunDetail detail)
     {
-        return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true).GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase).Select(g => new KeyValuePair<string, int>(g.Key, g.Count())).OrderByDescending(static p => p.Value).ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase).ToList();
+        return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true)
+            .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase).Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
+            .OrderByDescending(static p => p.Value).ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     /// <summary>Picks the single highest-severity finding; ties broken by first-seen order to keep output deterministic.</summary>
     private static ArchitectureFinding? SelectTopSeverityFinding(ArchitectureRunDetail detail)
     {
-        return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true).OrderByDescending(static f => (int)f.Severity).FirstOrDefault();
+        return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true).OrderByDescending(static f => (int)f.Severity)
+            .FirstOrDefault();
     }
 
     private async Task<(int Count, bool Truncated)> TryCountAuditRowsAsync(string runId, CancellationToken cancellationToken)
@@ -139,11 +163,7 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            AuditEventFilter filter = new()
-            {
-                RunId = runGuid,
-                Take = 1,
-            };
+            AuditEventFilter filter = new() { RunId = runGuid, Take = 1, };
             int count = await _auditRepository.CountFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken);
             return (count, false);
         }

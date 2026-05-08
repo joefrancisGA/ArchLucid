@@ -4,18 +4,29 @@ using ArchLucid.Core.Connectors.Publishing;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Integrations.Confluence;
+
 /// <inheritdoc cref = "IConfluenceFirstValueReportPublisher"/>
-public sealed class ConfluenceFirstValueReportPublisher(IRunRepository runRepository, IFirstValueReportBuilder firstValueReportBuilder, IPublisherConnector publisherConnector, IOptionsMonitor<ConfluencePublishingOptions> options, ILogger<ConfluenceFirstValueReportPublisher> logger) : IConfluenceFirstValueReportPublisher
+public sealed class ConfluenceFirstValueReportPublisher(
+    IRunRepository runRepository,
+    IFirstValueReportBuilder firstValueReportBuilder,
+    IPublisherConnector publisherConnector,
+    IOptionsMonitor<ConfluencePublishingOptions> options,
+    ILogger<ConfluenceFirstValueReportPublisher> logger) : IConfluenceFirstValueReportPublisher
 {
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
-    private readonly IFirstValueReportBuilder _firstValueReportBuilder = firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
+
+    private readonly IFirstValueReportBuilder _firstValueReportBuilder =
+        firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
+
     private readonly IPublisherConnector _publisherConnector = publisherConnector ?? throw new ArgumentNullException(nameof(publisherConnector));
     private readonly IOptionsMonitor<ConfluencePublishingOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
     private readonly ILogger<ConfluenceFirstValueReportPublisher> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
     public async Task<PublishOutcome> PublishFirstValueReportAsync(string runId, string apiBaseForLinks, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(apiBaseForLinks);
@@ -39,12 +50,7 @@ public sealed class ConfluenceFirstValueReportPublisher(IRunRepository runReposi
             return new PublishOutcome(false, null, ConfluencePublishFailureReason.NotFound, "Run was not found (or is archived).");
         }
 
-        ScopeContext scope = new()
-        {
-            TenantId = record.TenantId,
-            WorkspaceId = record.WorkspaceId,
-            ProjectId = record.ScopeProjectId
-        };
+        ScopeContext scope = new() { TenantId = record.TenantId, WorkspaceId = record.WorkspaceId, ProjectId = record.ScopeProjectId };
         string normalizedRunId = runGuid.ToString("N");
         string baseUrl = apiBaseForLinks.Trim().TrimEnd('/');
         string? markdown;
@@ -59,7 +65,9 @@ public sealed class ConfluenceFirstValueReportPublisher(IRunRepository runReposi
         }
 
         string title = $"ArchLucid first value — {normalizedRunId}";
-        PublishRequest request = new(record.TenantId, record.WorkspaceId, record.ScopeProjectId, TargetId: runGuid, runGuid, ManifestVersion: record.CurrentManifestVersion ?? string.Empty, DiffBadgeStateLabel: string.Empty, PayloadJson: markdown, PageTitle: title, ExistingConfluencePageId: null);
+        PublishRequest request = new(record.TenantId, record.WorkspaceId, record.ScopeProjectId, TargetId: runGuid, runGuid,
+            ManifestVersion: record.CurrentManifestVersion ?? string.Empty, DiffBadgeStateLabel: string.Empty, PayloadJson: markdown, PageTitle: title,
+            ExistingConfluencePageId: null);
         PublishOutcome outcome = await _publisherConnector.PublishDocumentAsync(request, cancellationToken).ConfigureAwait(false);
         if (outcome.Succeeded && _logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Published first-value report for run {RunId} to Confluence page {PageId}.", normalizedRunId, outcome.ExternalPageId);

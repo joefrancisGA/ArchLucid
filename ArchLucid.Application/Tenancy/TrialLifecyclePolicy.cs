@@ -2,6 +2,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Application.Tenancy;
+
 /// <summary>UTC trial lifecycle transitions (see <c>docs/go-to-market/TRIAL_AND_SIGNUP.md</c> §3).</summary>
 public static class TrialLifecyclePolicy
 {
@@ -54,7 +55,8 @@ public static class TrialLifecyclePolicy
         ArgumentNullException.ThrowIfNull(options);
         if (tenant.TrialExpiresUtc is null || string.IsNullOrWhiteSpace(tenant.TrialStatus))
             return null;
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal) || string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
+        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal) ||
+            string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
             return null;
         DateTimeOffset T = tenant.TrialExpiresUtc.Value;
         DateTimeOffset readOnlyNotBefore = T.AddDays(options.ReadOnlyAfterExpireDays);

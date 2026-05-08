@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     <see cref = "IDocumentLogoProvider"/> that reads a logo image from the local file system.
 ///     Returns <see langword="null"/> when logo inclusion is disabled, the path is blank, or the file does not exist.
@@ -10,7 +11,8 @@ namespace ArchLucid.Application.Analysis;
 ///     <see cref = "System.AppContext.BaseDirectory"/> so assets copied with <c>CopyToOutputDirectory</c> load next to the
 ///     host assembly.
 /// </remarks>
-[ExcludeFromCodeCoverage(Justification = "Reads files from local filesystem; would require temp-file fixture with marginal value for simple guard-clause logic.")]
+[ExcludeFromCodeCoverage(Justification =
+    "Reads files from local filesystem; would require temp-file fixture with marginal value for simple guard-clause logic.")]
 public sealed class FileSystemDocumentLogoProvider : IDocumentLogoProvider
 {
     public async Task<Byte[]?> GetLogoBytesAsync(ConsultingDocxTemplateOptions options, CancellationToken cancellationToken = default)

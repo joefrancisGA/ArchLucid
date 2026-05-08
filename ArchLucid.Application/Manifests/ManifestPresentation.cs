@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Manifests;
+
 /// <summary>
 ///     Presentation-layer helpers for resolving human-readable names and labels from manifest data.
 /// </summary>
@@ -38,6 +39,7 @@ public static class ManifestPresentation
             RelationshipType.PublishesTo => "publishes",
             RelationshipType.SubscribesTo => "subscribes",
             RelationshipType.AuthenticatesWith => "auth",
-            _ => relationshipType.ToString()};
+            _ => relationshipType.ToString()
+        };
     }
 }

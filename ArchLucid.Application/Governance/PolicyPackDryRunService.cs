@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
@@ -7,9 +8,11 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Persistence.Serialization;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Governance;
+
 /// <inheritdoc cref = "IPolicyPackDryRunService"/>
 /// <remarks>
 ///     <para>
@@ -28,15 +31,22 @@ namespace ArchLucid.Application.Governance;
 ///         later fails to land.
 ///     </para>
 /// </remarks>
-public sealed class PolicyPackDryRunService(IRunDetailQueryService runDetailQueryService, IPilotRunDeltaComputer pilotRunDeltaComputer, IPromptRedactor promptRedactor, IAuditService auditService, ILogger<PolicyPackDryRunService> logger) : IPolicyPackDryRunService
+public sealed class PolicyPackDryRunService(
+    IRunDetailQueryService runDetailQueryService,
+    IPilotRunDeltaComputer pilotRunDeltaComputer,
+    IPromptRedactor promptRedactor,
+    IAuditService auditService,
+    ILogger<PolicyPackDryRunService> logger) : IPolicyPackDryRunService
 {
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly ILogger<PolicyPackDryRunService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer = pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
     private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
     private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     /// <inheritdoc/>
-    public async Task<PolicyPackDryRunResponse> EvaluateAsync(Guid policyPackId, IReadOnlyDictionary<string, string> proposedThresholds, IReadOnlyList<string> evaluateAgainstRunIds, int? pageSize, int? page, CancellationToken cancellationToken = default)
+    public async Task<PolicyPackDryRunResponse> EvaluateAsync(Guid policyPackId, IReadOnlyDictionary<string, string> proposedThresholds,
+        IReadOnlyList<string> evaluateAgainstRunIds, int? pageSize, int? page, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(proposedThresholds);
         ArgumentNullException.ThrowIfNull(evaluateAgainstRunIds);
@@ -45,7 +55,8 @@ public sealed class PolicyPackDryRunService(IRunDetailQueryService runDetailQuer
         if (evaluateAgainstRunIds is null)
             throw new ArgumentNullException(nameof(evaluateAgainstRunIds));
         int clampedPageSize = ClampPageSize(pageSize);
-        List<string> cleanedRunIds = evaluateAgainstRunIds.Where(id => !string.IsNullOrWhiteSpace(id)).Select(id => id.Trim()).Take(IPolicyPackDryRunService.MaxEvaluatedRuns).ToList();
+        List<string> cleanedRunIds = evaluateAgainstRunIds.Where(id => !string.IsNullOrWhiteSpace(id)).Select(id => id.Trim())
+            .Take(IPolicyPackDryRunService.MaxEvaluatedRuns).ToList();
         Dictionary<string, double> parsedThresholds = ParseThresholds(proposedThresholds);
         string redactedThresholdsJson = RedactProposedThresholdsJson(proposedThresholds);
         List<PolicyPackDryRunRunItem> allItems = [];
@@ -90,15 +101,12 @@ public sealed class PolicyPackDryRunService(IRunDetailQueryService runDetailQuer
         return Math.Clamp(requested, 1, Math.Max(1, maxPage));
     }
 
-    private async Task<PolicyPackDryRunRunItem> EvaluateSingleRunAsync(string runId, IReadOnlyDictionary<string, double> parsedThresholds, CancellationToken cancellationToken)
+    private async Task<PolicyPackDryRunRunItem> EvaluateSingleRunAsync(string runId, IReadOnlyDictionary<string, double> parsedThresholds,
+        CancellationToken cancellationToken)
     {
         ArchitectureRunDetail? detail = await TryLoadRunDetailAsync(runId, cancellationToken);
         if (detail is null)
-            return new PolicyPackDryRunRunItem
-            {
-                RunId = runId,
-                RunMissing = true
-            };
+            return new PolicyPackDryRunRunItem { RunId = runId, RunMissing = true };
         PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
         IReadOnlyList<PolicyPackDryRunSeverityCount> findingsBySeverity = ProjectSeverityCounts(deltas);
         IReadOnlyList<PolicyPackDryRunThresholdOutcome> outcomes = ComputeThresholdOutcomes(parsedThresholds, deltas);
@@ -136,7 +144,8 @@ public sealed class PolicyPackDryRunService(IRunDetailQueryService runDetailQuer
     ///     <paramref name = "parsedThresholds"/> are skipped — the caller is opting out of evaluating that
     ///     metric, not setting it to "infinity".
     /// </summary>
-    internal static IReadOnlyList<PolicyPackDryRunThresholdOutcome> ComputeThresholdOutcomes(IReadOnlyDictionary<string, double> parsedThresholds, PilotRunDeltas deltas)
+    internal static IReadOnlyList<PolicyPackDryRunThresholdOutcome> ComputeThresholdOutcomes(IReadOnlyDictionary<string, double> parsedThresholds,
+        PilotRunDeltas deltas)
     {
         List<PolicyPackDryRunThresholdOutcome> outcomes = [];
         foreach (string key in PolicyPackDryRunSupportedThresholdKeys.All)
@@ -215,14 +224,25 @@ public sealed class PolicyPackDryRunService(IRunDetailQueryService runDetailQuer
         return outcome.Text;
     }
 
-    private async Task TryLogAuditAsync(Guid policyPackId, string proposedThresholdsRedactedJson, IReadOnlyList<string> evaluatedRunIds, PolicyPackDryRunDeltaCounts deltaCounts, CancellationToken cancellationToken)
+    private async Task TryLogAuditAsync(Guid policyPackId, string proposedThresholdsRedactedJson, IReadOnlyList<string> evaluatedRunIds,
+        PolicyPackDryRunDeltaCounts deltaCounts, CancellationToken cancellationToken)
     {
-        string dataJson = JsonSerializer.Serialize(new { policyPackId, proposedThresholdsRedacted = proposedThresholdsRedactedJson, evaluatedRunIds, deltaCounts = new { evaluated = deltaCounts.Evaluated, wouldBlock = deltaCounts.WouldBlock, wouldAllow = deltaCounts.WouldAllow, runMissing = deltaCounts.RunMissing } }, AuditJsonSerializationOptions.Instance);
-        AuditEvent auditEvent = new()
-        {
-            EventType = AuditEventTypes.GovernanceDryRunRequested,
-            DataJson = dataJson
-        };
-        await DurableAuditLogRetry.TryLogAsync(ct => _auditService.LogAsync(auditEvent, ct), _logger, $"GovernanceDryRunRequested:{policyPackId:D}", cancellationToken);
+        string dataJson = JsonSerializer.Serialize(
+            new
+            {
+                policyPackId,
+                proposedThresholdsRedacted = proposedThresholdsRedactedJson,
+                evaluatedRunIds,
+                deltaCounts = new
+                {
+                    evaluated = deltaCounts.Evaluated,
+                    wouldBlock = deltaCounts.WouldBlock,
+                    wouldAllow = deltaCounts.WouldAllow,
+                    runMissing = deltaCounts.RunMissing
+                }
+            }, AuditJsonSerializationOptions.Instance);
+        AuditEvent auditEvent = new() { EventType = AuditEventTypes.GovernanceDryRunRequested, DataJson = dataJson };
+        await DurableAuditLogRetry.TryLogAsync(ct => _auditService.LogAsync(auditEvent, ct), _logger, $"GovernanceDryRunRequested:{policyPackId:D}",
+            cancellationToken);
     }
 }

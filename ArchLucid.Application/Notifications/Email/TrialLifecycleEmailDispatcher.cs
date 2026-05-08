@@ -4,20 +4,33 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Tenancy;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Notifications.Email;
-public sealed class TrialLifecycleEmailDispatcher(ITenantRepository tenantRepository, ITenantTrialEmailContactLookup contactLookup, IEmailTemplateRenderer templateRenderer, IEmailProvider emailProvider, ISentEmailLedger sentEmailLedger, IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor, ILogger<TrialLifecycleEmailDispatcher> logger) : ITrialLifecycleEmailDispatcher
+
+public sealed class TrialLifecycleEmailDispatcher(
+    ITenantRepository tenantRepository,
+    ITenantTrialEmailContactLookup contactLookup,
+    IEmailTemplateRenderer templateRenderer,
+    IEmailProvider emailProvider,
+    ISentEmailLedger sentEmailLedger,
+    IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
+    ILogger<TrialLifecycleEmailDispatcher> logger) : ITrialLifecycleEmailDispatcher
 {
     private const string DefaultProductName = "ArchLucid";
     private readonly ITenantTrialEmailContactLookup _contactLookup = contactLookup ?? throw new ArgumentNullException(nameof(contactLookup));
-    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor = emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+
+    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
+        emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+
     private readonly IEmailProvider _emailProvider = emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
     private readonly ILogger<TrialLifecycleEmailDispatcher> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ISentEmailLedger _sentEmailLedger = sentEmailLedger ?? throw new ArgumentNullException(nameof(sentEmailLedger));
     private readonly IEmailTemplateRenderer _templateRenderer = templateRenderer ?? throw new ArgumentNullException(nameof(templateRenderer));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <inheritdoc/>
     public async Task DispatchAsync(TrialLifecycleEmailIntegrationEnvelope envelope, CancellationToken cancellationToken)
     {
@@ -67,10 +80,7 @@ public sealed class TrialLifecycleEmailDispatcher(ITenantRepository tenantReposi
             HtmlBody = html,
             TextBody = text,
             IdempotencyKey = plan.IdempotencyKey,
-            Tags = new EmailMessageTags
-            {
-                TenantId = envelope.TenantId,
-                EventType = $"{IntegrationEventTypes.TrialLifecycleEmailV1}:{envelope.Trigger}"}
+            Tags = new EmailMessageTags { TenantId = envelope.TenantId, EventType = $"{IntegrationEventTypes.TrialLifecycleEmailV1}:{envelope.Trigger}" }
         };
         try
         {
@@ -79,7 +89,8 @@ public sealed class TrialLifecycleEmailDispatcher(ITenantRepository tenantReposi
         catch (Exception ex)when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Error))
-                _logger.LogError(ex, "Trial lifecycle email send failed after idempotency reservation for tenant {TenantId}, template {TemplateId}.", envelope.TenantId, plan.TemplateId);
+                _logger.LogError(ex, "Trial lifecycle email send failed after idempotency reservation for tenant {TenantId}, template {TemplateId}.",
+                    envelope.TenantId, plan.TemplateId);
             throw;
         }
     }
@@ -127,7 +138,8 @@ public sealed class TrialLifecycleEmailDispatcher(ITenantRepository tenantReposi
         return expEnd <= utcNow;
     }
 
-    private TrialDispatchPlan? TryBuildPlan(TrialLifecycleEmailIntegrationEnvelope envelope, TenantRecord tenant, string productName, string? baseUrl, DateTimeOffset utcNow)
+    private TrialDispatchPlan? TryBuildPlan(TrialLifecycleEmailIntegrationEnvelope envelope, TenantRecord tenant, string productName, string? baseUrl,
+        DateTimeOffset utcNow)
     {
         string idempotencyKey = TrialEmailIdempotencyKeys.ForTrigger(envelope.Trigger, envelope.TenantId);
         string? logoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(baseUrl);

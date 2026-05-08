@@ -1,9 +1,11 @@
 using System.Text;
 
 namespace ArchLucid.Application.Analysis;
+
 public sealed class ComparisonDriftReportExportService : IComparisonDriftReportExportService
 {
     private readonly DriftReportDocxExport _docx = new();
+
     public string GenerateMarkdown(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
         ArgumentNullException.ThrowIfNull(drift);

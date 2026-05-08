@@ -12,15 +12,32 @@ using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Trust;
+
 /// <inheritdoc cref = "IRunTrustEvidenceCardBuilder"/>
-public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository, IAgentExecutionTraceRepository agentExecutionTraceRepository, IFindingEvidenceChainService findingEvidenceChainService, IRunExplanationSummaryService runExplanationSummaryService, IScopeContextProvider scopeContextProvider) : IRunTrustEvidenceCardBuilder
+public sealed class RunTrustEvidenceCardBuilder(
+    IAuditRepository auditRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IFindingEvidenceChainService findingEvidenceChainService,
+    IRunExplanationSummaryService runExplanationSummaryService,
+    IScopeContextProvider scopeContextProvider) : IRunTrustEvidenceCardBuilder
 {
-    private static readonly string SelfNotice = "This card summarizes operational evidence ArchLucid stores for this review (audit events, trace metadata, " + "exports). It is not a SOC 2 report, independent penetration test, or legal attestation—see your trust center " + "for assurance boundaries.";
+    private static readonly string SelfNotice = "This card summarizes operational evidence ArchLucid stores for this review (audit events, trace metadata, " +
+                                                "exports). It is not a SOC 2 report, independent penetration test, or legal attestation—see your trust center " +
+                                                "for assurance boundaries.";
+
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
-    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository = agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
-    private readonly IFindingEvidenceChainService _findingEvidenceChainService = findingEvidenceChainService ?? throw new ArgumentNullException(nameof(findingEvidenceChainService));
-    private readonly IRunExplanationSummaryService _runExplanationSummaryService = runExplanationSummaryService ?? throw new ArgumentNullException(nameof(runExplanationSummaryService));
+
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IFindingEvidenceChainService _findingEvidenceChainService =
+        findingEvidenceChainService ?? throw new ArgumentNullException(nameof(findingEvidenceChainService));
+
+    private readonly IRunExplanationSummaryService _runExplanationSummaryService =
+        runExplanationSummaryService ?? throw new ArgumentNullException(nameof(runExplanationSummaryService));
+
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <inheritdoc/>
     public async Task<RunTrustEvidenceCard?> BuildAsync(ArchitectureRunDetail detail, string? hostAgentExecutionMode, CancellationToken cancellationToken)
     {
@@ -36,14 +53,19 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
         {
             Title = "Golden manifest snapshot",
             Status = run.GoldenManifestId is { } gmId && gmId != Guid.Empty ? TrustEvidenceStatusValue.Available : TrustEvidenceStatusValue.Missing,
-            Detail = detail.Manifest is { } m ? FormattableString.Invariant($"Version {m.Metadata.ManifestVersion}; committed {m.Metadata.CreatedUtc:O}") : null,
+            Detail = detail.Manifest is { } m
+                ? FormattableString.Invariant($"Version {m.Metadata.ManifestVersion}; committed {m.Metadata.CreatedUtc:O}")
+                : null,
         };
-        (TrustEvidenceFieldSnapshot auditField, TrustEvidenceFieldSnapshot traceField) = await BuildAuditAndTraceFieldsAsync(runId, runGuid, cancellationToken).ConfigureAwait(false);
+        (TrustEvidenceFieldSnapshot auditField, TrustEvidenceFieldSnapshot traceField) =
+            await BuildAuditAndTraceFieldsAsync(runId, runGuid, cancellationToken).ConfigureAwait(false);
         TrustEvidenceFieldSnapshot bundlePointer = new()
         {
             Title = "Persisted artifact bundle id",
             Status = run.ArtifactBundleId is { } b && b != Guid.Empty ? TrustEvidenceStatusValue.Available : TrustEvidenceStatusValue.Missing,
-            Detail = run.ArtifactBundleId is { } id && id != Guid.Empty ? FormattableString.Invariant($"Bundle id {id:D}") : "No artifact bundle pointer on the run record.",
+            Detail = run.ArtifactBundleId is { } id && id != Guid.Empty
+                ? FormattableString.Invariant($"Bundle id {id:D}")
+                : "No artifact bundle pointer on the run record.",
         };
         TrustEvidenceFieldSnapshot zipField = new()
         {
@@ -87,25 +109,31 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
     private static List<RunTrustEvidenceRouteRef> BuildLinks(string runId, string? topFindingId)
     {
         string enc = Uri.EscapeDataString(runId);
-        List<RunTrustEvidenceRouteRef> links = [new RunTrustEvidenceRouteRef
-        {
-            Rel = "traceabilityZip",
-            Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/traceability-bundle.zip"),
-            Label = "Review-trail ZIP",
-        }, new RunTrustEvidenceRouteRef
-        {
-            Rel = "traces",
-            Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/traces"),
-            Label = "Agent execution traces",
-        }, new RunTrustEvidenceRouteRef
-        {
-            Rel = "evidence",
-            Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/evidence"),
-            Label = "Evidence package",
-        }, ];
+        List<RunTrustEvidenceRouteRef> links =
+        [
+            new RunTrustEvidenceRouteRef
+            {
+                Rel = "traceabilityZip",
+                Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/traceability-bundle.zip"),
+                Label = "Review-trail ZIP",
+            },
+            new RunTrustEvidenceRouteRef
+            {
+                Rel = "traces", Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/traces"), Label = "Agent execution traces",
+            },
+            new RunTrustEvidenceRouteRef
+            {
+                Rel = "evidence", Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/evidence"), Label = "Evidence package",
+            },
+        ];
         if (!string.IsNullOrWhiteSpace(topFindingId))
         {
-            links.Add(new RunTrustEvidenceRouteRef { Rel = "topFindingEvidenceChain", Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/findings/{Uri.EscapeDataString(topFindingId)}/evidence-chain"), Label = "Top finding evidence chain", });
+            links.Add(new RunTrustEvidenceRouteRef
+            {
+                Rel = "topFindingEvidenceChain",
+                Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/findings/{Uri.EscapeDataString(topFindingId)}/evidence-chain"),
+                Label = "Top finding evidence chain",
+            });
         }
 
         return links;
@@ -139,11 +167,14 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
         {
             Title = "Execution mode",
             Status = TrustEvidenceStatusValue.Available,
-            Detail = simulator ? "Simulator / deterministic agent path (no live model for agent work on this host configuration)." : "Live model path for agent work (subject to current host execution settings).",
+            Detail = simulator
+                ? "Simulator / deterministic agent path (no live model for agent work on this host configuration)."
+                : "Live model path for agent work (subject to current host execution settings).",
         };
     }
 
-    private async Task<(TrustEvidenceFieldSnapshot Audit, TrustEvidenceFieldSnapshot Traces)> BuildAuditAndTraceFieldsAsync(string runId, Guid? runGuid, CancellationToken cancellationToken)
+    private async Task<(TrustEvidenceFieldSnapshot Audit, TrustEvidenceFieldSnapshot Traces)> BuildAuditAndTraceFieldsAsync(string runId, Guid? runGuid,
+        CancellationToken cancellationToken)
     {
         TrustEvidenceFieldSnapshot audit = new()
         {
@@ -170,7 +201,8 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
                     RunId = runGuid,
                     Take = 1
                 };
-                int count = await _auditRepository.CountFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken).ConfigureAwait(false);
+                int count = await _auditRepository.CountFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken)
+                    .ConfigureAwait(false);
                 audit = new TrustEvidenceFieldSnapshot
                 {
                     Title = "Audit events (run-scoped)",
@@ -279,7 +311,9 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
         {
             Title = "AI explainability rollup",
             Status = TrustEvidenceStatusValue.Available,
-            Detail = ratio is { } r ? FormattableString.Invariant($"Faithfulness support ratio {r:0.##}; per-finding trace completeness in explainability views.") : "No faithfulness ratio for this rollup (findings may be empty).",
+            Detail = ratio is { } r
+                ? FormattableString.Invariant($"Faithfulness support ratio {r:0.##}; per-finding trace completeness in explainability views.")
+                : "No faithfulness ratio for this rollup (findings may be empty).",
         };
     }
 
@@ -306,7 +340,8 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
 
     private static ArchitectureFinding? SelectTopSeverityFinding(ArchitectureRunDetail detail)
     {
-        return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true).OrderByDescending(static f => (int)f.Severity).FirstOrDefault();
+        return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true).OrderByDescending(static f => (int)f.Severity)
+            .FirstOrDefault();
     }
 
     private static string? TruncateTitle(string? message)
@@ -324,10 +359,13 @@ public sealed class RunTrustEvidenceCardBuilder(IAuditRepository auditRepository
         string mode = string.IsNullOrWhiteSpace(hostAgentExecutionMode) ? "Simulator" : hostAgentExecutionMode.Trim();
         if (run.RealModeFellBackToSimulator)
         {
-            return "Part of this architecture review used deterministic output after a live-model path failed. Treat numeric highlights cautiously; open the first-value report for the full execution provenance table.";
+            return
+                "Part of this architecture review used deterministic output after a live-model path failed. Treat numeric highlights cautiously; open the first-value report for the full execution provenance table.";
         }
 
-        return string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase) ? "Agent steps for this review used the live model path, subject to this API host's execution configuration when you loaded this page." : "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).";
+        return string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase)
+            ? "Agent steps for this review used the live model path, subject to this API host's execution configuration when you loaded this page."
+            : "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).";
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)

@@ -3,6 +3,7 @@ using ArchLucid.Decisioning.Advisory.Workflow;
 using ArchLucid.Persistence.Advisory;
 
 namespace ArchLucid.Application.Advisory;
+
 /// <summary>
 ///     Default <see cref = "IRecommendationLearningService"/>: pulls recommendation history, builds a profile via
 ///     <see cref = "IRecommendationLearningAnalyzer"/>, and persists via
@@ -11,17 +12,22 @@ namespace ArchLucid.Application.Advisory;
 /// <param name = "recommendationRepository">Historical rows for the scope (capped batch).</param>
 /// <param name = "analyzer">Pure aggregation into <see cref = "RecommendationLearningProfile"/>.</param>
 /// <param name = "profileRepository">Stores and loads latest profile.</param>
-public sealed class RecommendationLearningService(IRecommendationRepository recommendationRepository, IRecommendationLearningAnalyzer analyzer, IRecommendationLearningProfileRepository profileRepository) : IRecommendationLearningService
+public sealed class RecommendationLearningService(
+    IRecommendationRepository recommendationRepository,
+    IRecommendationLearningAnalyzer analyzer,
+    IRecommendationLearningProfileRepository profileRepository) : IRecommendationLearningService
 {
     /// <summary>
     ///     Maximum number of historical recommendation rows loaded per profile rebuild.
     ///     Caps the working set to keep analysis latency predictable even for high-volume projects.
     /// </summary>
     private const int ProfileRebuildBatchCap = 5000;
+
     /// <inheritdoc/>
     public async Task<RecommendationLearningProfile> RebuildProfileAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
     {
-        IReadOnlyList<RecommendationRecord> items = await recommendationRepository.ListByScopeAsync(tenantId, workspaceId, projectId, null, ProfileRebuildBatchCap, ct);
+        IReadOnlyList<RecommendationRecord> items =
+            await recommendationRepository.ListByScopeAsync(tenantId, workspaceId, projectId, null, ProfileRebuildBatchCap, ct);
         RecommendationLearningProfile profile = analyzer.BuildProfile(tenantId, workspaceId, projectId, items);
         await profileRepository.SaveAsync(profile, ct);
         return profile;

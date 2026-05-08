@@ -1,4 +1,5 @@
 namespace ArchLucid.Application.Analysis;
+
 /// <summary>
 ///     Shared parsing for replay query parameters (<see cref = "ReplayComparisonRequest"/>) used by
 ///     <see cref = "ComparisonReplayService"/> and <see cref = "ComparisonReplayCostEstimator"/>.
@@ -23,7 +24,8 @@ public static class ComparisonReplayRequestParsing
             "artifact" => ComparisonReplayMode.ArtifactReplay,
             "regenerate" => ComparisonReplayMode.Regenerate,
             "verify" => ComparisonReplayMode.Verify,
-            _ => throw new ArgumentException($"Unknown replay mode '{replayMode}'. Supported modes: artifact, regenerate, verify.", nameof(replayMode))};
+            _ => throw new ArgumentException($"Unknown replay mode '{replayMode}'. Supported modes: artifact, regenerate, verify.", nameof(replayMode))
+        };
     }
 
     /// <summary>Inverse of <see cref = "ParseReplayMode"/> for API responses.</summary>

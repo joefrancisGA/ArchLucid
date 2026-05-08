@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Requests;
@@ -7,21 +8,39 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Import;
-public sealed class ImportRequestFileService(IScopeContextProvider scopeContextProvider, IActorContext actorContext, IAuditService auditService, IImportedArchitectureRequestRepository importedRequestRepository, IArchitectureRequestImportValidator architectureRequestImportValidator, IRequestContentSafetyPrecheck requestContentSafetyPrecheck, ILogger<ImportRequestFileService> logger) : IImportRequestFileService
+
+public sealed class ImportRequestFileService(
+    IScopeContextProvider scopeContextProvider,
+    IActorContext actorContext,
+    IAuditService auditService,
+    IImportedArchitectureRequestRepository importedRequestRepository,
+    IArchitectureRequestImportValidator architectureRequestImportValidator,
+    IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
+    ILogger<ImportRequestFileService> logger) : IImportRequestFileService
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-    private readonly IImportedArchitectureRequestRepository _importedRequestRepository = importedRequestRepository ?? throw new ArgumentNullException(nameof(importedRequestRepository));
+
+    private readonly IImportedArchitectureRequestRepository _importedRequestRepository =
+        importedRequestRepository ?? throw new ArgumentNullException(nameof(importedRequestRepository));
+
     private readonly ILogger<ImportRequestFileService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-    private readonly IArchitectureRequestImportValidator _architectureRequestImportValidator = architectureRequestImportValidator ?? throw new ArgumentNullException(nameof(architectureRequestImportValidator));
-    private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck = requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
+
+    private readonly IArchitectureRequestImportValidator _architectureRequestImportValidator =
+        architectureRequestImportValidator ?? throw new ArgumentNullException(nameof(architectureRequestImportValidator));
+
+    private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
+        requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
+
     private const int MaxFileBytes = 512 * 1024;
     private const int MaxSourceFileNameLength = 400;
+
     public async Task<ImportRequestFileResult> ImportAsync(IFormFile? file, CancellationToken ct, string? correlationId = null)
     {
         ct.ThrowIfCancellationRequested();
@@ -62,9 +81,7 @@ public sealed class ImportRequestFileService(IScopeContextProvider scopeContextP
         {
             return new ImportRequestFileResult
             {
-                Succeeded = false,
-                FailureDetail = "Request content failed safety precheck.",
-                ContentSafetyReasons = safety.Reasons
+                Succeeded = false, FailureDetail = "Request content failed safety precheck.", ContentSafetyReasons = safety.Reasons
             };
         }
 
@@ -73,9 +90,7 @@ public sealed class ImportRequestFileService(IScopeContextProvider scopeContextP
         {
             return new ImportRequestFileResult
             {
-                Succeeded = false,
-                FailureDetail = "Imported request failed validation.",
-                ValidationErrors = validation.Errors
+                Succeeded = false, FailureDetail = "Imported request failed validation.", ValidationErrors = validation.Errors
             };
         }
 
@@ -99,31 +114,26 @@ public sealed class ImportRequestFileService(IScopeContextProvider scopeContextP
             RequestJson = requestJson
         };
         await importedRequestRepository.InsertAsync(record, ct);
-        object payload = new
-        {
-            importId,
-            requestId = request.RequestId,
-            format,
-            sourceFileName = safeName
-        };
+        object payload = new { importId, requestId = request.RequestId, format, sourceFileName = safeName };
         string dataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        await auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.RequestFileImported, ActorUserId = actor, ActorUserName = actor, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId, DataJson = dataJson, CorrelationId = correlationId }, ct);
-        return new ImportRequestFileResult
-        {
-            Succeeded = true,
-            ImportedRequestId = importId,
-            Status = "Draft",
-            Warnings = []
-        };
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.RequestFileImported,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = dataJson,
+                CorrelationId = correlationId
+            }, ct);
+        return new ImportRequestFileResult { Succeeded = true, ImportedRequestId = importId, Status = "Draft", Warnings = [] };
     }
 
     private static ImportRequestFileResult Fail(string detail)
     {
-        return new ImportRequestFileResult
-        {
-            Succeeded = false,
-            FailureDetail = detail
-        };
+        return new ImportRequestFileResult { Succeeded = false, FailureDetail = detail };
     }
 
     private static bool TryGetFormat(string fileName, out string format, out string? error)
@@ -149,7 +159,9 @@ public sealed class ImportRequestFileService(IScopeContextProvider scopeContextP
 
     private static ArchitectureRequest DeserializeForImport(string text, string format)
     {
-        return string.Equals(format, "json", StringComparison.OrdinalIgnoreCase) ? JsonRequestDeserializer.DeserializeText(text) : TomlRequestDeserializer.Deserialize(text);
+        return string.Equals(format, "json", StringComparison.OrdinalIgnoreCase)
+            ? JsonRequestDeserializer.DeserializeText(text)
+            : TomlRequestDeserializer.Deserialize(text);
     }
 
     private static async Task<string> ReadUtf8CappedAsync(IFormFile file, CancellationToken ct)

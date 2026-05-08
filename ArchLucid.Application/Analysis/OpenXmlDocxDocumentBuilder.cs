@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+
 using DrBlip = DocumentFormat.OpenXml.Drawing.Blip;
 using DrBlipFill = DocumentFormat.OpenXml.Drawing.BlipFill;
 using DrFillRectangle = DocumentFormat.OpenXml.Drawing.FillRectangle;
@@ -22,10 +23,12 @@ using WpRunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
 using WpText = DocumentFormat.OpenXml.Wordprocessing.Text;
 
 namespace ArchLucid.Application.Analysis;
+
 public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposable
 {
     private readonly WordprocessingDocument _document;
     private readonly MemoryStream _stream;
+
     public OpenXmlDocxDocumentBuilder()
     {
         _stream = new MemoryStream();
@@ -41,13 +44,21 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         _stream.Dispose();
     }
 
-    public Body Body { get; }
-    public MainDocumentPart MainPart { get; }
+    public Body Body
+    {
+        get;
+    }
+
+    public MainDocumentPart MainPart
+    {
+        get;
+    }
 
     public void AddHeading(string text, int level)
     {
         ArgumentNullException.ThrowIfNull(text);
-        Body.AppendChild(new WpParagraph(new WpParagraphProperties(new ParagraphStyleId { Val = $"Heading{level}" }), new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve })));
+        Body.AppendChild(new WpParagraph(new WpParagraphProperties(new ParagraphStyleId { Val = $"Heading{level}" }),
+            new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve })));
     }
 
     public void AddParagraph(string text, bool bold = false)
@@ -117,7 +128,17 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         using (MemoryStream stream = new(imageBytes))
             imagePart.FeedData(stream);
         string relationshipId = MainPart.GetIdOfPart(imagePart);
-        Drawing drawing = new(new Inline(new Extent { Cx = widthEmus, Cy = heightEmus }, new EffectExtent { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L }, new DocProperties { Id = 1U, Name = imageName }, new WpNonVisualGraphicFrameDrawingProperties(new DrGraphicFrameLocks { NoChangeAspect = true }), new Graphic(new GraphicData(new DrPicture(new DrNonVisualPictureProperties(new DrNonVisualDrawingProperties { Id = 0U, Name = imageName }, new DrNonVisualPictureDrawingProperties()), new DrBlipFill(new DrBlip { Embed = relationshipId }, new DrStretch(new DrFillRectangle())), new DrShapeProperties(new Transform2D(new Offset { X = 0L, Y = 0L }, new Extents { Cx = widthEmus, Cy = heightEmus }), new PresetGeometry(new AdjustValueList()) { Preset = ShapeTypeValues.Rectangle }))) { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" })) { DistanceFromTop = 0U, DistanceFromBottom = 0U, DistanceFromLeft = 0U, DistanceFromRight = 0U });
+        Drawing drawing = new(new Inline(new Extent { Cx = widthEmus, Cy = heightEmus },
+            new EffectExtent { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L }, new DocProperties { Id = 1U, Name = imageName },
+            new WpNonVisualGraphicFrameDrawingProperties(new DrGraphicFrameLocks { NoChangeAspect = true }),
+            new Graphic(new GraphicData(new DrPicture(
+                new DrNonVisualPictureProperties(new DrNonVisualDrawingProperties { Id = 0U, Name = imageName }, new DrNonVisualPictureDrawingProperties()),
+                new DrBlipFill(new DrBlip { Embed = relationshipId }, new DrStretch(new DrFillRectangle())),
+                new DrShapeProperties(new Transform2D(new Offset { X = 0L, Y = 0L }, new Extents { Cx = widthEmus, Cy = heightEmus }),
+                    new PresetGeometry(new AdjustValueList()) { Preset = ShapeTypeValues.Rectangle })))
+            {
+                Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture"
+            })) { DistanceFromTop = 0U, DistanceFromBottom = 0U, DistanceFromLeft = 0U, DistanceFromRight = 0U });
         Body.AppendChild(new WpParagraph(new DrRun(drawing)));
     }
 

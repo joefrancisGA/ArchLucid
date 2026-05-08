@@ -25,7 +25,7 @@ public sealed class ConnectorOperationsSummaryReader(
     IAlertRoutingSubscriptionRepository alertRoutingRepository) : IConnectorOperationsSummaryReader
 {
     private readonly IntegrationEventsOptions _bus = integrationEventsOptions?.Value ??
-                                                       throw new ArgumentNullException(nameof(integrationEventsOptions));
+                                                     throw new ArgumentNullException(nameof(integrationEventsOptions));
 
     private readonly IntegrationsItsmOutboundOptions _itsm = itsmOutboundOptions?.Value ??
                                                              throw new ArgumentNullException(nameof(itsmOutboundOptions));

@@ -78,13 +78,7 @@ public sealed class ItsmInboundWebhookSyncService(
             WorkspaceId = row.WorkspaceId,
             ProjectId = row.ProjectId,
             DataJson = JsonSerializer.Serialize(
-                new
-                {
-                    issueKey,
-                    statusName,
-                    humanReviewStatus = humanReview,
-                    rowsUpdated = updated
-                })
+                new { issueKey, statusName, humanReviewStatus = humanReview, rowsUpdated = updated })
         };
 
         return new ItsmInboundWebhookProcessResult(true, auditEvent);
@@ -136,13 +130,7 @@ public sealed class ItsmInboundWebhookSyncService(
             WorkspaceId = row.WorkspaceId,
             ProjectId = row.ProjectId,
             DataJson = JsonSerializer.Serialize(
-                new
-                {
-                    externalKey,
-                    state = stateRaw,
-                    humanReviewStatus = humanReview,
-                    rowsUpdated = updated
-                })
+                new { externalKey, state = stateRaw, humanReviewStatus = humanReview, rowsUpdated = updated })
         };
 
         return new ItsmInboundWebhookProcessResult(true, auditEvent);
@@ -215,7 +203,8 @@ public sealed class ItsmInboundWebhookSyncService(
     private static bool TryConfiguredHumanReview(
         Dictionary<string, string> rawMap,
         string incomingKey,
-        [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? humanReview)
+        [System.Diagnostics.CodeAnalysis.NotNullWhen(true)]
+        out string? humanReview)
     {
         humanReview = null;
 
