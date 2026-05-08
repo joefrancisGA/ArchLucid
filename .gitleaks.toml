@@ -13,6 +13,8 @@ description = "Documented non-production literals (SQL dev passwords, one retire
 paths = [
   # TB-003 named-query perf thresholds only; generic-api-key false-positive on *Keyset* in metric names (*key* keyword).
   '''(?:^|/)tests/performance/query-allowlist\.json$''',
+  # Prompt-injection / exfiltration eval fixtures: deliberately JWT-, connection-string-, and credential-shaped strings — not production secrets (see README in folder if added).
+  '''(?:^|/)tests/eval-datasets/prompt-injection/.*\.json$''',
 ]
 regexes = [
   "ArchiForge_Dev_Pass123!",
