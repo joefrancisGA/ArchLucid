@@ -1,4 +1,4 @@
-﻿using ArchLucid.AgentRuntime.Evaluation;
+using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
@@ -62,6 +62,7 @@ public sealed class HeuristicAgentOutputSemanticEvaluatorTests
         score.EmptyClaimCount.Should().Be(0);
         score.IncompleteFindingCount.Should().Be(0);
         score.OverallSemanticScore.Should().Be(0.0);
+        score.HeuristicOverallScore.Should().Be(0.0);
     }
 
     [SkippableFact]
@@ -111,6 +112,7 @@ public sealed class HeuristicAgentOutputSemanticEvaluatorTests
         score.ClaimsQualityRatio.Should().BeApproximately(expectedClaims, 0.001);
         score.FindingsQualityRatio.Should().BeApproximately(expectedFindings, 0.001);
         score.OverallSemanticScore.Should().BeApproximately(expectedOverall, 0.001);
+        score.HeuristicOverallScore.Should().BeApproximately(score.OverallSemanticScore, 0.001);
     }
 
     [SkippableFact]
@@ -128,6 +130,7 @@ public sealed class HeuristicAgentOutputSemanticEvaluatorTests
 
         score.ClaimsQualityRatio.Should().Be(1.0);
         score.OverallSemanticScore.Should().Be(1.0);
+        score.HeuristicOverallScore.Should().Be(1.0);
     }
 
     [SkippableFact]
@@ -145,6 +148,7 @@ public sealed class HeuristicAgentOutputSemanticEvaluatorTests
 
         score.FindingsQualityRatio.Should().Be(1.0);
         score.OverallSemanticScore.Should().Be(1.0);
+        score.HeuristicOverallScore.Should().Be(1.0);
     }
 
     [SkippableFact]

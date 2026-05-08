@@ -32,6 +32,27 @@ function scoreForTrace(
   return scores?.find((s) => s.traceId === traceId);
 }
 
+function ratioText(value: number | null | undefined): string {
+  if (value === null || value === undefined || Number.isNaN(value))
+    return "—";
+
+  return value.toFixed(2);
+}
+
+const notesPreviewMax = 72;
+
+function notesPreview(full: string | null | undefined): { text: string; title?: string } {
+  const s = full?.trim() ?? "";
+
+  if (s.length === 0)
+    return { text: "—" };
+
+  if (s.length <= notesPreviewMax)
+    return { text: s };
+
+  return { text: `${s.slice(0, notesPreviewMax)}…`, title: s };
+}
+
 /** Server fragment: architecture-run LLM traces, blob-upload warnings, and on-demand structural evaluation scores. */
 export async function RunAgentForensicsSection(props: { runId: string }) {
   const { runId } = props;
@@ -60,8 +81,9 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
     <section id="agent-forensics" className="scroll-mt-24 mb-6" aria-label="Diagnostics — agent traces">
       <CollapsibleSection title="Advanced — agent traces and structural evaluation (diagnostics)" defaultOpen={false}>
       <p className="mt-0 max-w-3xl text-sm text-neutral-500 dark:text-neutral-400">
-        Prompt/response audit rows and a structural JSON completeness pass over persisted agent outputs (no LLM). Requires
-        architecture API access; empty results are normal when tracing is disabled or the run has no agent steps yet.
+        Prompt/response audit rows plus on-demand structural and semantic scoring of persisted agent JSON (deterministic heuristic;
+        optional Azure OpenAI judge when enabled server-side). Requires architecture API access; empty results are normal when tracing
+        is disabled or the run has no agent steps yet.
       </p>
 
       {blobPersistFailed ? (
@@ -118,12 +140,18 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                 <th className="px-1.5 py-2">Trace ID</th>
                 <th className="px-1.5 py-2">Parse OK</th>
                 <th className="px-1.5 py-2">Blob upload</th>
-                <th className="px-1.5 py-2">Structural ratio</th>
+                <th className="px-1.5 py-2">Structural</th>
+                <th className="px-1.5 py-2">Semantic overall</th>
+                <th className="px-1.5 py-2">Heuristic</th>
+                <th className="px-1.5 py-2">LLM rubric</th>
+                <th className="px-1.5 py-2 min-w-[11rem]">Judge notes</th>
               </tr>
             </thead>
             <tbody>
               {traces.map((t) => {
                 const sc = scoreForTrace(evaluationPayload?.scores, t.traceId);
+                const sem = sc?.semantic;
+                const rawNotes = notesPreview(sem?.llmJudgeNotes);
 
                 return (
                   <tr key={t.traceId} className="border-b border-neutral-100 dark:border-neutral-800">
@@ -142,6 +170,36 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                           ? "—"
                           : "n/a"}
                     </td>
+                    <td className="whitespace-nowrap px-1.5 py-2">
+                      {!sc || evaluationFailure
+                        ? "—"
+                        : sc.isJsonParseFailure
+                          ? "—"
+                          : sem
+                            ? ratioText(sem.overallSemanticScore)
+                            : "n/a"}
+                    </td>
+                    <td className="whitespace-nowrap px-1.5 py-2">
+                      {!sc || evaluationFailure || sc.isJsonParseFailure || !sem
+                        ? "—"
+                        : ratioText(sem.heuristicOverallScore)}
+                    </td>
+                    <td className="whitespace-nowrap px-1.5 py-2">
+                      {!sc || evaluationFailure || sc.isJsonParseFailure || !sem
+                        ? "—"
+                        : ratioText(
+                            sem.llmJudgeOverallQuality !== null &&
+                              sem.llmJudgeOverallQuality !== undefined
+                              ? sem.llmJudgeOverallQuality
+                              : null,
+                          )}
+                    </td>
+                    <td
+                      className="max-w-[14rem] truncate px-1.5 py-2 text-xs text-neutral-600 dark:text-neutral-400"
+                      title={rawNotes.title ?? (rawNotes.text === "—" ? undefined : rawNotes.text)}
+                    >
+                      {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? "—" : rawNotes.text}
+                    </td>
                   </tr>
                 );
               })}
@@ -157,6 +215,10 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
           {evaluationPayload.averageStructuralCompletenessRatio !== null &&
           evaluationPayload.averageStructuralCompletenessRatio !== undefined
             ? ` · avg structural: ${evaluationPayload.averageStructuralCompletenessRatio.toFixed(2)}`
+            : ""}
+          {evaluationPayload.averageSemanticScore !== null &&
+          evaluationPayload.averageSemanticScore !== undefined
+            ? ` · avg semantic: ${evaluationPayload.averageSemanticScore.toFixed(2)}`
             : ""}
         </p>
       ) : null}
