@@ -51,7 +51,6 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
     private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses = [ArchitectureRunStatus.TasksGenerated, ArchitectureRunStatus.WaitingForResults];
     public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(runId);
         if (string.IsNullOrWhiteSpace(runId))
             return null;
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
@@ -60,7 +59,6 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
 
     public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult? result, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(runId);
         if (result is null)
             return new SubmitResultResult(false, null, "Agent result is required.", ApplicationServiceFailureKind.BadRequest);
         if (string.IsNullOrWhiteSpace(runId))
@@ -120,7 +118,6 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
 
     public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, PilotSeedFakeResultsOptions? pilotOptions = null, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(runId);
         if (string.IsNullOrWhiteSpace(runId))
             return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
         if (pilotOptions?.MarkRealModeFellBackToSimulator == true)
