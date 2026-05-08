@@ -123,6 +123,9 @@ export function RunExplanationSection({
     }
 
     const expl = explanationBody(summary);
+    const confRaw = expl.confidence;
+    const showModelConfidenceBlock =
+      confRaw !== null && confRaw !== undefined && Number.isFinite(confRaw);
     const items: DocumentTocItem[] = [{ id: "doc-explanation-assessment", label: "Assessment" }];
     const traces = summary.findingTraceConfidences;
 
@@ -130,8 +133,11 @@ export function RunExplanationSection({
       items.push({ id: "doc-explanation-traces", label: "Finding trace confidence" });
     }
 
+    if (showModelConfidenceBlock) {
+      items.push({ id: "doc-explanation-confidence", label: "Model confidence" });
+    }
+
     items.push(
-      { id: "doc-explanation-confidence", label: "Model confidence" },
       { id: "doc-explanation-themes", label: "Themes" },
       { id: "doc-explanation-drivers", label: "Key drivers" },
       { id: "doc-explanation-risks", label: "Risk implications" },
@@ -268,27 +274,21 @@ export function RunExplanationSection({
         </div>
       ) : null}
 
-      <div id="doc-explanation-confidence" className="mb-4">
-        <p id="doc-explanation-confidence-label" className="m-0 mb-1.5 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-          Model confidence
-        </p>
-        {pct === null ? (
-          <p role="status" className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-            Not available
+      {pct !== null ? (
+        <div id="doc-explanation-confidence" className="mb-4">
+          <p id="doc-explanation-confidence-label" className="m-0 mb-1.5 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            Model confidence
           </p>
-        ) : (
-          <>
-            <Progress
-              value={pct}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={pct}
-              aria-labelledby="doc-explanation-confidence-label"
-            />
-            <p className="m-0 mt-1.5 text-[13px] text-neutral-500 dark:text-neutral-400">{pct}%</p>
-          </>
-        )}
-      </div>
+          <Progress
+            value={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={pct}
+            aria-labelledby="doc-explanation-confidence-label"
+          />
+          <p className="m-0 mt-1.5 text-[13px] text-neutral-500 dark:text-neutral-400">{pct}%</p>
+        </div>
+      ) : null}
 
       <div className="mb-4">
         <h3 id="doc-explanation-themes" className="m-0 mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">

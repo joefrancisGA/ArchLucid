@@ -46,15 +46,14 @@ export function GovernanceInteractiveQuickstartCard() {
           <li>
             Load that review in the approval section on this page, then submit for approval when your role allows.
           </li>
-          <li className="text-neutral-600 dark:text-neutral-400">
-            Optional deep dive:{" "}
-            <Link href="/governance/first-30-days" className="font-medium text-teal-800 underline dark:text-teal-300">
-              First 30 days
-            </Link>
-            .
-          </li>
         </ol>
       </CardContent>
+      <p className="m-0 px-6 pb-2 text-xs text-neutral-600 dark:text-neutral-400">
+        Onboarding preset (optional):{" "}
+        <Link href="/governance/first-30-days" className="font-medium text-teal-800 underline dark:text-teal-300">
+          First 30 days — governance rhythm
+        </Link>
+      </p>
       <CardFooter className="flex flex-wrap gap-2 border-t border-teal-200/60 pt-3 dark:border-teal-900/50">
         <Button asChild size="sm" variant="secondary">
           <Link href="/policy-packs">Policy packs</Link>

@@ -43,7 +43,8 @@ export const enterpriseNavHintOperatorRank =
  */
 export const layerHeaderEnterpriseReaderRankLine = "Governance controls — inspect view.";
 
-export const layerHeaderEnterpriseOperatorRankLine = "Governance controls — write actions are permission-gated.";
+export const layerHeaderEnterpriseOperatorRankLine =
+  "Governance controls — production approvers submit, review, and promote on behalf of your organization.";
 
 /** Deep execute tooling: only when resolved rank is below Execute (e.g. Reader deep-linked) */
 export const enterpriseExecutePageHintReaderRank = "Writes need operator-level permission in this workspace.";

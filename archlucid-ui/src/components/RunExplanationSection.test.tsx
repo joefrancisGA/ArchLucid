@@ -83,12 +83,13 @@ describe("RunExplanationSection", () => {
     expect(screen.getByText("Overall OK.")).toBeInTheDocument();
   });
 
-  it("shows Not available when confidence is null", () => {
+  it("omits model confidence block when confidence is null", () => {
     const s = mockSummary({ explanation: { confidence: null } });
 
     render(<RunExplanationSection summary={s} loading={false} error={null} runId="r1" />);
 
-    expect(screen.getByText("Not available")).toBeInTheDocument();
+    expect(screen.queryByText("Model confidence")).not.toBeInTheDocument();
+    expect(screen.queryByText("Not available")).not.toBeInTheDocument();
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 

@@ -67,6 +67,7 @@ import {
   getRunPipelineTimeline,
   getRunSummary,
   listArtifacts,
+  listRunsByProject,
 } from "@/lib/api";
 import {
   tryStaticDemoArtifacts,
@@ -251,6 +252,17 @@ export default async function RunDetailPage({
   }
 
   const resolvedDetail = envelope.value;
+
+  let atLeastTwoReviewsInProject = true;
+
+  try {
+    const projectRuns = await listRunsByProject(resolvedDetail.run.projectId, 2);
+
+    atLeastTwoReviewsInProject = projectRuns.length >= 2;
+  } catch {
+    atLeastTwoReviewsInProject = true;
+  }
+
   const buyerPolishedArtifactTable = isBuyerPolishedOperatorShellEnv();
   const manifestId = resolvedDetail.run.goldenManifestId;
   let goldenManifestJsonForExport: unknown | null = null;
@@ -539,6 +551,18 @@ export default async function RunDetailPage({
         }
       />
 
+      {buyerPolishedArtifactTable && manifestId ? (
+        <div className="flex flex-col gap-3 rounded-lg border border-teal-200/80 bg-teal-50/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-teal-900/55 dark:bg-teal-950/30">
+          <p className="m-0 max-w-prose text-sm text-neutral-800 dark:text-neutral-200">
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Executive readout:</span> Concise
+            outcomes and risk framing for sponsors—without operator scaffolding below.
+          </p>
+          <Button type="button" variant="primary" size="sm" className="shrink-0" asChild>
+            <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>Open executive view</Link>
+          </Button>
+        </div>
+      ) : null}
+
       {showProgressTracker ? (
         <RunProgressTracker runId={runId} initialSummary={progressForPipelineUi} />
       ) : null}
@@ -566,30 +590,59 @@ export default async function RunDetailPage({
 
       {buyerPolishedArtifactTable ? explanationSection : null}
 
-      <section id="run-metadata" className="scroll-mt-24">
-        <Card>
-          <CardHeader>
-            <h3 className={sectionHeadingClass}>Review</h3>
-            <CardDescription>
-              Manifest summary and artifacts appear below when <GlossaryTooltip termKey="run">this review</GlossaryTooltip>{" "}
-              has a <GlossaryTooltip termKey="golden_manifest">reviewed manifest</GlossaryTooltip> (after finalization).
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
-            <RunTraceViewerLink traceId={runDetailTraceId} />
-            {resolvedDetail.run.otelTraceId ? (
+      {buyerPolishedArtifactTable ? (
+        <section id="run-metadata" className="scroll-mt-24">
+          <CollapsibleSection title="Review details" defaultOpen={false}>
+            <Card className="border-0 shadow-none">
+              <CardHeader className="px-0 pt-0">
+                <h3 className={sectionHeadingClass}>Review</h3>
+                <CardDescription>
+                  Manifest summary and artifacts appear below when <GlossaryTooltip termKey="run">this review</GlossaryTooltip>{" "}
+                  has a <GlossaryTooltip termKey="golden_manifest">reviewed manifest</GlossaryTooltip> (after finalization).
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 px-0 text-sm text-neutral-700 dark:text-neutral-300">
+                <RunTraceViewerLink traceId={runDetailTraceId} />
+                {resolvedDetail.run.otelTraceId ? (
+                  <p className="m-0">
+                    <span className="font-medium text-neutral-800 dark:text-neutral-200">Creation trace:</span>{" "}
+                    <RunTraceViewerLink traceId={resolvedDetail.run.otelTraceId} />
+                  </p>
+                ) : null}
+                <p className="m-0">
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">Description:</span>{" "}
+                  {resolvedDetail.run.description ?? ""}
+                </p>
+              </CardContent>
+            </Card>
+          </CollapsibleSection>
+        </section>
+      ) : (
+        <section id="run-metadata" className="scroll-mt-24">
+          <Card>
+            <CardHeader>
+              <h3 className={sectionHeadingClass}>Review</h3>
+              <CardDescription>
+                Manifest summary and artifacts appear below when <GlossaryTooltip termKey="run">this review</GlossaryTooltip>{" "}
+                has a <GlossaryTooltip termKey="golden_manifest">reviewed manifest</GlossaryTooltip> (after finalization).
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
+              <RunTraceViewerLink traceId={runDetailTraceId} />
+              {resolvedDetail.run.otelTraceId ? (
+                <p className="m-0">
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">Creation trace:</span>{" "}
+                  <RunTraceViewerLink traceId={resolvedDetail.run.otelTraceId} />
+                </p>
+              ) : null}
               <p className="m-0">
-                <span className="font-medium text-neutral-800 dark:text-neutral-200">Creation trace:</span>{" "}
-                <RunTraceViewerLink traceId={resolvedDetail.run.otelTraceId} />
+                <span className="font-medium text-neutral-800 dark:text-neutral-200">Description:</span>{" "}
+                {resolvedDetail.run.description ?? ""}
               </p>
-            ) : null}
-            <p className="m-0">
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Description:</span>{" "}
-              {resolvedDetail.run.description ?? ""}
-            </p>
-          </CardContent>
-        </Card>
-      </section>
+            </CardContent>
+          </Card>
+        </section>
+      )}
 
       <section id="pipeline-timeline" className="scroll-mt-24" aria-labelledby="pipeline-timeline-title">
         <Card>
@@ -651,23 +704,6 @@ export default async function RunDetailPage({
                 )}
               </div>
             </div>
-
-            <section aria-labelledby="review-trail-timeline-heading" className="space-y-2">
-              <h4 id="review-trail-timeline-heading" className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                Recorded milestone trail
-              </h4>
-              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                Same audit events as Pipeline timeline above; scroll here without leaving the reviewed manifest context.
-              </p>
-              {pipelineTimelineFailure ? (
-                <>
-                  <AuthorityPipelineTimeline items={null} loadErrorMessage={pipelineTimelineFailure.message} />
-                  <OperatorSectionRetryButton label="Retry loading review trail timeline" />
-                </>
-              ) : (
-                <AuthorityPipelineTimeline items={pipelineTimeline} />
-              )}
-            </section>
 
             <CollapsibleSection title="Audit identifiers" defaultOpen={false}>
               <ol className="m-0 list-none space-y-0 divide-y divide-neutral-200 p-0 dark:divide-neutral-800">
@@ -790,7 +826,9 @@ export default async function RunDetailPage({
         </OperatorMalformedCallout>
       )}
 
-      {manifestId ? <PostCommitRetentionRail runId={runId} /> : null}
+      {manifestId ? (
+        <PostCommitRetentionRail runId={runId} showCompareCta={atLeastTwoReviewsInProject} />
+      ) : null}
 
       {manifestId && (
         <section id="artifacts-exports" className="scroll-mt-24">
@@ -805,7 +843,7 @@ export default async function RunDetailPage({
               {buyerPolishedArtifactTable ? (
                 <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
                   Start here for packages and downloads sponsors typically receive. Technical diff and replay live under{" "}
-                  <strong>Advanced analysis</strong> below.
+                  <strong>Technical analysis</strong> below.
                 </p>
               ) : null}
               {artifactsFailure && (
@@ -896,14 +934,16 @@ export default async function RunDetailPage({
                           Download review export (ZIP)
                         </FunnelTelemetryExportAnchor>
                       </Button>
-                      <Button variant="outline" size="sm" asChild>
-                        <Link
-                          href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
-                          className="no-underline"
-                        >
-                          Compare with another review
-                        </Link>
-                      </Button>
+                      {atLeastTwoReviewsInProject ? (
+                        <Button variant="outline" size="sm" asChild>
+                          <Link
+                            href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
+                            className="no-underline"
+                          >
+                            Compare with another review
+                          </Link>
+                        </Button>
+                      ) : null}
                       <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
                         <Link href={`/ask?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
                           Ask about this review
@@ -945,7 +985,7 @@ export default async function RunDetailPage({
 
       {manifestId ? (
         <section id="advanced-analysis" className="scroll-mt-24">
-          <CollapsibleSection title="Advanced analysis (optional)" defaultOpen={false}>
+          <CollapsibleSection title="Technical analysis" defaultOpen={false}>
             <PostCommitAdvancedAnalysisHint runId={runId} embeddedInCollapsible />
           </CollapsibleSection>
         </section>
@@ -958,42 +998,52 @@ export default async function RunDetailPage({
           <CardHeader>
             <h3 className={sectionHeadingClass}>Actions</h3>
             <CardDescription>
-              Exports and sponsor-facing bundles sit in <strong>Deliverables & exports</strong> above. Use this card for
-              scorecard generation, traceability ZIP, and optional compare/replay shortcuts.
+              {buyerPolishedArtifactTable ? (
+                <>
+                  Sponsor scorecard generation and a packaged audit download. Primary sponsor downloads are in{" "}
+                  <strong>Deliverables &amp; exports</strong> above.
+                </>
+              ) : (
+                <>
+                  Exports and sponsor-facing bundles sit in <strong>Deliverables & exports</strong> above. Use this card
+                  for scorecard generation, traceability ZIP, and optional compare/replay shortcuts.
+                </>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {manifestId ? <GenerateSponsorValueReportButton /> : null}
             <div className="flex flex-wrap gap-3">
-              {manifestId && buyerPolishedArtifactTable ? (
-                <Button variant="primary" size="sm" asChild>
-                  <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>
-                    Open executive view
-                  </Link>
+              {buyerPolishedArtifactTable ? (
+                <Button variant="secondary" size="sm" asChild>
+                  <FunnelTelemetryExportAnchor href={getTraceabilityBundleDownloadUrl(resolvedDetail.run.runId)}>
+                    Download audit package (ZIP)
+                  </FunnelTelemetryExportAnchor>
                 </Button>
-              ) : null}
-              <Button variant="secondary" size="sm" asChild>
-                <FunnelTelemetryExportAnchor href={getTraceabilityBundleDownloadUrl(resolvedDetail.run.runId)}>
-                  Download traceability bundle (ZIP)
-                </FunnelTelemetryExportAnchor>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
-                  Compare two reviews (baseline = this review)
-                </Link>
-              </Button>
-              {!buyerPolishedArtifactTable ? (
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this review</Link>
-                </Button>
-              ) : null}
-              {manifestId && !buyerPolishedArtifactTable ? (
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>
-                    Open executive view
-                  </Link>
-                </Button>
-              ) : null}
+              ) : (
+                <>
+                  <Button variant="secondary" size="sm" asChild>
+                    <FunnelTelemetryExportAnchor href={getTraceabilityBundleDownloadUrl(resolvedDetail.run.runId)}>
+                      Download traceability bundle (ZIP)
+                    </FunnelTelemetryExportAnchor>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
+                      Compare two reviews (baseline = this review)
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this review</Link>
+                  </Button>
+                  {manifestId ? (
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>
+                        Open executive view
+                      </Link>
+                    </Button>
+                  ) : null}
+                </>
+              )}
             </div>
             {!buyerPolishedArtifactTable ? (
               <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
