@@ -78,7 +78,7 @@ public sealed class RunExplanationSummaryService(
                 usedDeterministicFallback = true;
                 ArchLucidInstrumentation.ExplanationAggregateFaithfulnessFallbacksTotal.Add(1);
 
-                logger.LogInformation(
+                logger.LogWarning(
                     "Aggregate explanation for run {RunId} used deterministic narrative (faithfulness support ratio {Ratio:F2} below threshold {Threshold:F2}).",
                     runId,
                     faithReport.SupportRatio,

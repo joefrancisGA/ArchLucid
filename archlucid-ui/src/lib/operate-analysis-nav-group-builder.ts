@@ -24,7 +24,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "operate-analysis",
-      label: "Advanced operations",
+      label: "Analysis",
       surface: "review-workflow",
       caption:
         "Graphs, comparisons, replay, advisory, Ask, reporting, and digests once you leave the baseline review lane.",

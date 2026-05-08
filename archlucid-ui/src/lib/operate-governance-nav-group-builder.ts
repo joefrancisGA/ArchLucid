@@ -18,7 +18,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "operate-governance",
-      label: "Compliance & oversight",
+      label: "Governance",
       surface: "review-workflow",
       caption: "Policy, audit, alerts, and trust controls.",
       links: [

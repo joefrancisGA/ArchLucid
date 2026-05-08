@@ -359,10 +359,10 @@ function Add-ApiProductionProfileChecks {
     if ([string]::Equals($billingProvider, "Stripe", [System.StringComparison]::OrdinalIgnoreCase)) {
         if ($stripeKey.TrimStart().StartsWith("sk_live_", [System.StringComparison]::Ordinal) -and
             [string]::IsNullOrWhiteSpace($stripeWh)) {
-            $Rows.Add((Add-Row "Billing:Stripe live key vs WebhookSigningSecret (merged JSON)" "Failed" "sk_live_* requires Billing:Stripe:WebhookSigningSecret (values not printed)")) | Out-Null
+            $Rows.Add((Add-Row "Billing:Stripe live secret vs WebhookSigningSecret (merged JSON)" "Failed" "live Stripe billing secret requires Billing:Stripe:WebhookSigningSecret (values not printed)")) | Out-Null
         }
         else {
-            $Rows.Add((Add-Row "Billing:Stripe live key vs WebhookSigningSecret (merged JSON)" "Passed" "no unsafe sk_live_* without webhook secret in merged JSON")) | Out-Null
+            $Rows.Add((Add-Row "Billing:Stripe live secret vs WebhookSigningSecret (merged JSON)" "Passed" "no unsafe live Stripe billing secret without webhook signing secret in merged JSON")) | Out-Null
         }
 
         if ([string]::IsNullOrWhiteSpace($stripeKey)) {
@@ -716,7 +716,7 @@ Generated (UTC): **$generatedUtc**
 
 **Generate:** ``pwsh ./scripts/Emit-ProductionProfilePreflightMarkdown.ps1`` (from repo root).
 
-**Alignment:** Mirrors concerns enforced in ``ArchLucid.Host.Core/Startup/Validation/Rules/`` (authentication, billing production safety, prompt redaction, observability hints) — this script stays **offline** (no weakening of runtime validation).
+**Alignment:** Mirrors concerns enforced in **ArchLucid.Host.Core/Startup/Validation/Rules/** (authentication, billing production safety, prompt redaction, observability hints) — this script stays **offline** (no weakening of runtime validation).
 
 ---
 
@@ -738,7 +738,7 @@ $md += @"
 
 ## B) API merged production profile (appsettings chain)
 
-Evaluates **``ArchLucid.Api/appsettings.json`` merged with ``appsettings.Production.json``** the same way the host overlays configuration (JSON only — deployment may override via environment variables).
+Evaluates merged **ArchLucid.Api/appsettings.json** plus **appsettings.Production.json** the same way the host overlays configuration (JSON only — deployment may override via environment variables).
 
 | Check | Result | Detail |
 | --- | --- | --- |
@@ -754,7 +754,7 @@ $md += @"
 
 ## C) Worker configuration files
 
-``ArchLucid.Worker`` carries a minimal **``appsettings.json``**; operators typically inject production settings via Container Apps env or Key Vault references (not printed here).
+**ArchLucid.Worker** carries a minimal **appsettings.json**; operators typically inject production settings via Container Apps env or Key Vault references (not printed here).
 
 | Check | Result | Detail |
 | --- | --- | --- |
