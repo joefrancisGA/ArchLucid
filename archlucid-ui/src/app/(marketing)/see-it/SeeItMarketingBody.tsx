@@ -44,6 +44,11 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         ? String(payload.run?.description)
         : "Architecture review";
 
+  const previewDisclosure =
+    source === "snapshot"
+      ? "Public read-only sample (finalized January 2026). Tenant-accurate manifests and full artifact bytes use a signed-in workspace — this page stays a stable evaluation slice."
+      : "Public read-only marketing preview. Tenant-accurate manifests and full artifact bytes use a signed-in workspace.";
+
   return (
     <div className="space-y-6">
       <div
@@ -52,12 +57,8 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         className="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
       >
         <p className="font-semibold">Healthcare claims sample — public evaluation preview</p>
-        <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-          {source === "snapshot" ? (
-            <span data-testid="see-it-snapshot-notice">Stable read-only sample (finalized January 2026).</span>
-          ) : (
-            <span>Read-only marketing preview — tenant-accurate manifests need a signed-in workspace.</span>
-          )}
+        <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400" data-testid="see-it-preview-disclosure">
+          {source === "snapshot" ? <span data-testid="see-it-snapshot-notice">{previewDisclosure}</span> : previewDisclosure}
         </p>
       </div>
 
@@ -68,9 +69,6 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
           Finalized sample architecture review (read-only)
         </h2>
-        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-          Full artifact bytes for your tenant require a signed-in workspace (this page stays public read-only).
-        </p>
         <dl className="mt-3 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Review</dt>

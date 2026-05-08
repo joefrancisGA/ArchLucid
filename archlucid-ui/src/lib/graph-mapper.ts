@@ -1,6 +1,7 @@
 import type { Edge, Node } from "reactflow";
-import type { GraphViewModel } from "@/types/graph";
+import type { GraphNodeVm, GraphViewModel } from "@/types/graph";
 import { isProvenanceTrailCoordinatorType } from "@/lib/provenance-graph-presentation";
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 
 /** Maps a graph node type to a background color for visual differentiation in React Flow. */
 function pickColor(type: string): string {
@@ -67,6 +68,7 @@ function buyerTrailEdgeDisplayPhrase(edgeType: string): string {
     next: "Next step",
     raised: "Flagged risk",
     recorded: "Recorded in",
+    "recorded in": "Anchored in manifest",
     packaged: "Packaged as",
     precedes: "Comes before",
   };
@@ -80,6 +82,55 @@ function buyerTrailEdgeDisplayPhrase(edgeType: string): string {
   return humanizeEdgeLabel(edgeType);
 }
 
+/** True when this reviewer-trail finding is the showcase PHI minimization hero (layout + panel emphasis). */
+export function isBuyerTrailPhiHeroNode(node: GraphNodeVm): boolean {
+  if (node.type !== "Finding") {
+    return false;
+  }
+
+  const ref = node.metadata?.referenceId?.trim() ?? "";
+
+  if (ref === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID) {
+    return true;
+  }
+
+  const label = node.label.toLowerCase();
+
+  if (label.includes("phi") && (label.includes("minimization") || label.includes("minimisation"))) {
+    return true;
+  }
+
+  const id = node.id.toLowerCase();
+
+  return id.includes("phi");
+}
+
+function orderBuyerTrailNodesPhiCentral(nodes: GraphNodeVm[]): GraphNodeVm[] {
+  const idx = nodes.findIndex((n) => isBuyerTrailPhiHeroNode(n));
+
+  if (idx < 0) {
+    return nodes;
+  }
+
+  const hero = nodes[idx]!;
+  const rest = [...nodes.slice(0, idx), ...nodes.slice(idx + 1)];
+  const n = nodes.length;
+  const center = Math.floor(n / 2);
+  const ordered: GraphNodeVm[] = [];
+  let restIdx = 0;
+
+  for (let i = 0; i < n; i++) {
+    if (i === center) {
+      ordered.push(hero);
+    } else {
+      ordered.push(rest[restIdx]!);
+      restIdx++;
+    }
+  }
+
+  return ordered;
+}
+
 /**
  * Converts ArchLucid graph nodes/edges into React Flow format.
  * Nodes are laid out in a grid (4 columns for larger buyer nodes) for a simple initial view.
@@ -91,38 +142,57 @@ export function mapGraphToReactFlow(
   nodes: Node[];
   edges: Edge[];
 } {
-  const columnCount = presentation === "buyerTrail" ? 4 : 5;
-  const cellW = presentation === "buyerTrail" ? 300 : 240;
-  const cellH = presentation === "buyerTrail" ? 176 : 140;
-  const nodeWidth = presentation === "buyerTrail" ? 268 : 180;
-  const fontSize = presentation === "buyerTrail" ? 14 : 12;
+  const isBuyerTrail = presentation === "buyerTrail";
+  const layoutNodes = isBuyerTrail ? orderBuyerTrailNodesPhiCentral(graph.nodes) : graph.nodes;
+  const heroId = isBuyerTrail ? layoutNodes.find((n) => isBuyerTrailPhiHeroNode(n))?.id : undefined;
 
-  const nodes: Node[] = graph.nodes.map((node, index) => ({
-    id: node.id,
-    position: {
-      x: (index % columnCount) * cellW,
-      y: Math.floor(index / columnCount) * cellH,
-    },
-    data: {
-      label: nodeLabelForPresentation(node, presentation),
-      raw: node,
-    },
-    style: {
-      border: presentation === "buyerTrail" ? "2px solid #64748b" : "1px solid #999",
-      borderRadius: 10,
-      padding: presentation === "buyerTrail" ? 12 : 8,
-      background: pickColor(node.type),
-      width: nodeWidth,
-      whiteSpace: "pre-wrap",
-      fontSize,
-      fontWeight: presentation === "buyerTrail" ? 500 : 400,
-      color: "#0f172a",
-    },
-    type: "default",
-  }));
+  const columnCount = isBuyerTrail ? 4 : 5;
+  const cellW = isBuyerTrail ? 300 : 240;
+  const cellH = isBuyerTrail ? 182 : 140;
+  const nodeWidth = isBuyerTrail ? 272 : 180;
+  const heroNodeWidth = isBuyerTrail ? 304 : nodeWidth;
+  const fontSize = isBuyerTrail ? 15 : 12;
+  const heroFontSize = isBuyerTrail ? 16 : fontSize;
+
+  const nodes: Node[] = layoutNodes.map((node, index) => {
+    const hero = isBuyerTrail && isBuyerTrailPhiHeroNode(node);
+    const width = hero ? heroNodeWidth : nodeWidth;
+    const fs = hero ? heroFontSize : fontSize;
+
+    return {
+      id: node.id,
+      position: {
+        x: (index % columnCount) * cellW,
+        y: Math.floor(index / columnCount) * cellH,
+      },
+      data: {
+        label: nodeLabelForPresentation(node, presentation),
+        raw: node,
+      },
+      style: {
+        border: hero
+          ? "3px solid #b45309"
+          : isBuyerTrail
+            ? "2px solid #64748b"
+            : "1px solid #999",
+        borderRadius: 10,
+        padding: isBuyerTrail ? (hero ? 14 : 12) : 8,
+        background: hero ? "#fde68a" : pickColor(node.type),
+        width,
+        whiteSpace: "pre-wrap",
+        fontSize: fs,
+        fontWeight: isBuyerTrail ? (hero ? 600 : 500) : 400,
+        color: "#0f172a",
+        boxShadow: hero ? "0 8px 22px rgba(180, 83, 9, 0.18)" : undefined,
+      },
+      type: "default",
+    };
+  });
 
   const edges: Edge[] = graph.edges.map((edge, index) => {
-    const showHumanLabel = presentation === "buyerTrail";
+    const showHumanLabel = isBuyerTrail;
+    const touchesHero =
+      heroId !== undefined && (edge.source === heroId || edge.target === heroId);
 
     return {
       id: `${edge.source}-${edge.target}-${edge.type}-${index}`,
@@ -130,17 +200,18 @@ export function mapGraphToReactFlow(
       target: edge.target,
       label: showHumanLabel ? buyerTrailEdgeDisplayPhrase(edge.type) : edge.type,
       type: "smoothstep",
-      animated: presentation === "buyerTrail" && edge.type === "raised",
-      style:
-        presentation === "buyerTrail"
-          ? { stroke: "#475569", strokeWidth: 2.25 }
-          : { stroke: "#94a3b8", strokeWidth: 1.25 },
-      labelStyle:
-        presentation === "buyerTrail"
-          ? { fill: "#0f172a", fontWeight: 700, fontSize: 13 }
-          : { fill: "#64748b", fontSize: 11 },
+      animated: isBuyerTrail && (edge.type === "raised" || touchesHero),
+      style: isBuyerTrail
+        ? {
+            stroke: touchesHero ? "#b45309" : "#475569",
+            strokeWidth: touchesHero ? 3 : 2.25,
+          }
+        : { stroke: "#94a3b8", strokeWidth: 1.25 },
+      labelStyle: isBuyerTrail
+        ? { fill: touchesHero ? "#9a3412" : "#0f172a", fontWeight: 700, fontSize: touchesHero ? 14 : 13 }
+        : { fill: "#64748b", fontSize: 11 },
       labelBgStyle:
-        presentation === "buyerTrail"
+        isBuyerTrail
           ? { fill: "#ffffff", fillOpacity: 0.95 }
           : { fill: "#f8fafc", fillOpacity: 0.9 },
       labelBgPadding: [4, 2] as [number, number],

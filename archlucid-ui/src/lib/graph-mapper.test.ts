@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import type { GraphViewModel } from "@/types/graph";
 
-import { mapGraphToReactFlow } from "./graph-mapper";
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
+
+import { isBuyerTrailPhiHeroNode, mapGraphToReactFlow } from "./graph-mapper";
 
 describe("mapGraphToReactFlow", () => {
   it("returns empty arrays for an empty graph", () => {
@@ -72,5 +74,56 @@ describe("mapGraphToReactFlow", () => {
 
     const { edges } = mapGraphToReactFlow(graph, "buyerTrail");
     expect(edges[0]?.label).toBe("Flagged risk");
+  });
+
+  it("humanizes recorded-in edges for buyerTrail", () => {
+    const graph: GraphViewModel = {
+      nodes: [
+        { id: "phi", label: "Risk", type: "Finding" },
+        { id: "m", label: "Manifest", type: "GoldenManifest" },
+      ],
+      edges: [{ source: "phi", target: "m", type: "recorded in" }],
+    };
+
+    const { edges } = mapGraphToReactFlow(graph, "buyerTrail");
+    expect(edges[0]?.label).toBe("Anchored in manifest");
+  });
+
+  it("places the PHI showcase finding near the visual center in buyerTrail layout", () => {
+    const graph: GraphViewModel = {
+      nodes: [
+        { id: "n-run", label: "Run", type: "ArchitectureRun" },
+        { id: "n-ctx", label: "Context", type: "ContextSnapshot" },
+        { id: "n-graph", label: "Graph", type: "GraphSnapshot" },
+        { id: "n-find", label: "Findings snap", type: "FindingsSnapshot" },
+        {
+          id: "n-phi",
+          label: "PHI minimization risk",
+          type: "Finding",
+          metadata: { referenceId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID },
+        },
+        { id: "n-manifest", label: "Manifest", type: "GoldenManifest" },
+        { id: "n-bundle", label: "Bundle", type: "ArtifactBundle" },
+      ],
+      edges: [],
+    };
+
+    const hero = graph.nodes.find((n) => isBuyerTrailPhiHeroNode(n));
+    expect(hero?.id).toBe("n-phi");
+
+    const { nodes } = mapGraphToReactFlow(graph, "buyerTrail");
+    const phiPos = nodes.find((n) => n.id === "n-phi")?.position;
+    const centerIdx = Math.floor(graph.nodes.length / 2);
+    const columnCount = 4;
+    const cellW = 300;
+    const cellH = 182;
+
+    expect(phiPos).toEqual({
+      x: (centerIdx % columnCount) * cellW,
+      y: Math.floor(centerIdx / columnCount) * cellH,
+    });
+
+    const phiNode = nodes.find((n) => n.id === "n-phi");
+    expect(phiNode?.style?.border).toContain("3px");
   });
 });
