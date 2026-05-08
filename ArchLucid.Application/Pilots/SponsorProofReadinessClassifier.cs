@@ -27,15 +27,14 @@ public static class SponsorProofReadinessClassifier
         if (gate.ProofSendability is ProofPackageSendability.Sendable)
             return SponsorProofReadinessClassification.Sendable;
 
-        if (gate.ProofSendability is ProofPackageSendability.SendableWithCaveats)
-        {
-            if (gate.SoftGaps.Count > 0 && gate.SoftGaps.All(IsComparativeBaselineSoftGap))
-                return SponsorProofReadinessClassification.NeedsBaseline;
+        if (gate.ProofSendability is not ProofPackageSendability.SendableWithCaveats)
+            throw new ArgumentOutOfRangeException(nameof(gate), gate.ProofSendability, "Unexpected proof sendability.");
 
-            return SponsorProofReadinessClassification.Incomplete;
-        }
+        if (gate.SoftGaps.Count > 0 && gate.SoftGaps.All(IsComparativeBaselineSoftGap))
+            return SponsorProofReadinessClassification.NeedsBaseline;
 
-        throw new ArgumentOutOfRangeException(nameof(gate), gate.ProofSendability, "Unexpected proof sendability.");
+        return SponsorProofReadinessClassification.Incomplete;
+
     }
 
     private static bool IsComparativeBaselineSoftGap(string message) =>

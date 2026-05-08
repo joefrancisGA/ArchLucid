@@ -170,9 +170,7 @@ public sealed class SponsorOnePagerPdfBuilder(
 
     private static string FormatFindingsBySeverity(PilotRunDeltas deltas)
     {
-        if (deltas.FindingsBySeverity.Count == 0)
-            return "(none)";
-        return string.Join(", ", deltas.FindingsBySeverity.Select(static p => $"{p.Key}: {p.Value}"));
+        return deltas.FindingsBySeverity.Count == 0 ? "(none)" : string.Join(", ", deltas.FindingsBySeverity.Select(static p => $"{p.Key}: {p.Value}"));
     }
 
     private static string FormatAuditRows(PilotRunDeltas deltas)

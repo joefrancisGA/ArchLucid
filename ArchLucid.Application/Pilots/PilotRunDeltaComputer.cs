@@ -7,8 +7,8 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Agents;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
@@ -116,10 +116,10 @@ public sealed class PilotRunDeltaComputer(
             IReadOnlyList<AgentExecutionTrace> list = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
             return (list, list.Count, true);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Pilot delta: execution traces unavailable for run {RunId}; LLM counts and PilotStrict gates not attested.", runId);
-            return (Array.Empty<AgentExecutionTrace>(), 0, false);
+            return ([], 0, false);
         }
     }
 
@@ -134,7 +134,7 @@ public sealed class PilotRunDeltaComputer(
                 await _artifactQueryService.ListArtifactsByManifestIdAsync(scope, goldenManifestId.Value, cancellationToken);
             return (list.Count, true);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Pilot delta: artifact descriptor count unavailable for manifest {ManifestId}; omitting count.", goldenManifestId);
             return (null, false);
@@ -163,11 +163,15 @@ public sealed class PilotRunDeltaComputer(
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            AuditEventFilter filter = new() { RunId = runGuid, Take = 1, };
+            AuditEventFilter filter = new()
+            {
+                RunId = runGuid,
+                Take = 1,
+            };
             int count = await _auditRepository.CountFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken);
             return (count, false);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Pilot delta: audit row count unavailable for run {RunId}; reporting 0.", runId);
             return (0, false);
@@ -180,7 +184,7 @@ public sealed class PilotRunDeltaComputer(
         {
             return await _evidenceChainService.BuildAsync(runId, findingId, cancellationToken);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Pilot delta: evidence chain unavailable for run {RunId} finding {FindingId}; omitting chain pointers.", runId, findingId);
             return null;
