@@ -32,6 +32,10 @@ public static class Program
         WebApplication app = builder.Build();
 
         ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent(app.Configuration, app.Logger);
+        ContentSafetyConfigurationWarnings.LogIfProductionLikeFailOpenSdkSettingIsIgnored(
+            app.Configuration,
+            app.Environment,
+            app.Logger);
 
         IReadOnlyList<string> configurationErrors = ArchLucidConfigurationRules.CollectErrors(
             app.Configuration,

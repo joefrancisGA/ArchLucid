@@ -78,10 +78,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             gate.ProofSendability is ProofPackageSendability.NotSendable)
             return SponsorSafeProofDisposition.NotSponsorSafeYet;
 
-        if (gate.ProofSendability is ProofPackageSendability.SendableWithCaveats)
-            return SponsorSafeProofDisposition.NeedsOperatorReview;
-
-        return SponsorSafeProofDisposition.Sendable;
+        return gate.ProofSendability is ProofPackageSendability.SendableWithCaveats ? SponsorSafeProofDisposition.NeedsOperatorReview : SponsorSafeProofDisposition.Sendable;
     }
 
     internal static IEnumerable<string> EnumerateConcreteGapsEnumerable(

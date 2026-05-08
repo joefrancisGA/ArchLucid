@@ -8,7 +8,7 @@ export const STATUS_PILL_BASE = "rounded-full px-2.5 py-0.5 text-[0.65rem] font-
 function pipelineSemanticClass(status: string): string {
   switch (status) {
     case "Finalized":
-      return "border-transparent bg-emerald-600 text-white shadow-sm hover:bg-emerald-600/90 dark:bg-emerald-600 dark:text-white dark:hover:bg-emerald-600/90";
+      return "border-transparent bg-emerald-700 text-white shadow-sm hover:bg-emerald-700/90 dark:bg-emerald-700 dark:text-white dark:hover:bg-emerald-700/90";
     case "Ready to finalize":
       return "border-amber-500/70 bg-amber-50 text-amber-950 shadow-sm dark:border-amber-600/60 dark:bg-amber-950/50 dark:text-amber-50";
     case "In pipeline":
@@ -26,13 +26,13 @@ export function governanceDomainBadgeClass(status: string): string {
     case "Submitted":
       return "border-transparent bg-blue-600 text-white hover:bg-blue-600/90 dark:bg-blue-600 dark:hover:bg-blue-600/90";
     case "Approved":
-      return "border-transparent bg-emerald-600 text-white hover:bg-emerald-600/90 dark:bg-emerald-600 dark:hover:bg-emerald-600/90";
+      return "border-transparent bg-emerald-700 text-white hover:bg-emerald-700/90 dark:bg-emerald-700 dark:hover:bg-emerald-700/90";
     case "Rejected":
       return "border-transparent bg-red-600 text-white hover:bg-red-600/90 dark:bg-red-600 dark:hover:bg-red-600/90";
     case "Promoted":
       return "border-transparent bg-violet-600 text-white hover:bg-violet-600/90 dark:bg-violet-600 dark:hover:bg-violet-600/90";
     case "Activated":
-      return "border-transparent bg-teal-600 text-white hover:bg-teal-600/90 dark:bg-teal-600 dark:hover:bg-teal-600/90";
+      return "border-transparent bg-teal-700 text-white hover:bg-teal-700/90 dark:bg-teal-700 dark:hover:bg-teal-700/90";
     case "Draft":
     default:
       return "border-oklch(0.922 0 0) bg-oklch(0.97 0 0) text-oklch(0.205 0 0) dark:border-oklch(1 0 0 / 10%) dark:bg-oklch(0.269 0 0) dark:text-oklch(0.985 0 0)";

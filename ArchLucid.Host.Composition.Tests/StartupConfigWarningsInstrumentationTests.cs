@@ -101,8 +101,104 @@ public sealed class StartupConfigWarningsInstrumentationTests
                 t.Key == "rule_name"
                 && string.Equals(
                     t.Value as string,
-                    StartupValidationWarningRuleNames.AgentResultSchemaEnforceOnParseDisabledProductionLike,
+                StartupValidationWarningRuleNames.AgentResultSchemaEnforceOnParseDisabledProductionLike,
+                StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public void ContentSafetyConfigurationWarnings_when_fail_open_in_staging_emits_metric_and_log()
+    {
+        _ = ArchLucidInstrumentation.StartupConfigWarningsTotal;
+
+        using StartupConfigWarningsCapture capture = StartupConfigWarningsCapture.Start();
+
+        List<string> warnings = [];
+        ILogger logger = new WarningCaptureLogger(warnings);
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucid:ContentSafety:FailClosedOnSdkError"] = "false",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Staging);
+
+        ContentSafetyConfigurationWarnings.LogIfProductionLikeFailOpenSdkSettingIsIgnored(
+            configuration,
+            environment,
+            logger);
+
+        warnings.Should().ContainSingle()
+            .Which.Should()
+            .Contain("ArchLucid:ContentSafety:FailClosedOnSdkError");
+
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_startup_config_warnings_total"
+            && m.Value == 1
+            && m.Tags.Any(t =>
+                t.Key == "rule_name"
+                && string.Equals(
+                    t.Value as string,
+                    ContentSafetyStartupWarningRuleNames.ProductionLikeFailClosedOnSdkSettingOverridden,
                     StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public void ContentSafetyConfigurationWarnings_when_archlucid_environment_staging_emits_metric()
+    {
+        _ = ArchLucidInstrumentation.StartupConfigWarningsTotal;
+
+        using StartupConfigWarningsCapture capture = StartupConfigWarningsCapture.Start();
+
+        List<string> warnings = [];
+        ILogger logger = new WarningCaptureLogger(warnings);
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ARCHLUCID_ENVIRONMENT"] = "Staging",
+                ["ArchLucid:ContentSafety:FailClosedOnSdkError"] = "false",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
+
+        ContentSafetyConfigurationWarnings.LogIfProductionLikeFailOpenSdkSettingIsIgnored(
+            configuration,
+            environment,
+            logger);
+
+        warnings.Should().ContainSingle();
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_startup_config_warnings_total"
+            && m.Value == 1
+            && m.Tags.Any(t =>
+                t.Key == "rule_name"
+                && string.Equals(
+                    t.Value as string,
+                    ContentSafetyStartupWarningRuleNames.ProductionLikeFailClosedOnSdkSettingOverridden,
+                    StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public void ContentSafetyConfigurationWarnings_development_no_warning_when_fail_open_in_config()
+    {
+        using StartupConfigWarningsCapture capture = StartupConfigWarningsCapture.Start();
+
+        List<string> warnings = [];
+        ILogger logger = new WarningCaptureLogger(warnings);
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucid:ContentSafety:FailClosedOnSdkError"] = "false",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
+
+        ContentSafetyConfigurationWarnings.LogIfProductionLikeFailOpenSdkSettingIsIgnored(
+            configuration,
+            environment,
+            logger);
+
+        warnings.Should().BeEmpty();
+        capture.LongMeasures.Should().BeEmpty();
     }
 
     private sealed class StartupConfigWarningsCapture : IDisposable

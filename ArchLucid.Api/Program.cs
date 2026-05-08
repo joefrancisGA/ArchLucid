@@ -105,6 +105,10 @@ public partial class Program
         WebApplication app = builder.Build();
 
         ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent(app.Configuration, app.Logger);
+        ContentSafetyConfigurationWarnings.LogIfProductionLikeFailOpenSdkSettingIsIgnored(
+            app.Configuration,
+            app.Environment,
+            app.Logger);
 
         // ADR 0030 PR A3 (2026-04-24): Coordinator:LegacyRunCommitPath was retired together with the
         // legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector + LegacyRunCommitPathOptions.

@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(133)
+        return new List<ConfigurationKeyEntry>(140)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -144,6 +144,30 @@ public static class ConfigurationKeyCatalog
             E("AgentExecution", "AgentExecution:SchemaValidation:EnforceOnParse", M("appsettings", "env"), "true",
                 "—",
                 "When true, invalid AgentResult JSON fails fast in AgentResultParser; Staging/Production ship true.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:ContentSafety:Enabled", M("appsettings", "env"), "false", "—",
+                "When false on non-production-like hosts, NullContentSafetyGuard applies; Production/Staging always register Azure guard.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:ContentSafety:Endpoint", M("appsettings", "env", "KeyVault"), "empty",
+                "Production or Staging host",
+                "Azure AI Content Safety HTTPS endpoint (required for production-like hosts; see ContentSafetyRules).",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:ContentSafety:ApiKey", M("appsettings", "env", "KeyVault"), "empty",
+                "Production or Staging host",
+                "Content Safety API key (secret; required for production-like hosts).",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:ContentSafety:BlockSeverityThreshold", M("appsettings", "env"), "4", "—",
+                "Minimum Azure text severity (0/2/4/6) that blocks; default 4 blocks high and highest.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:ContentSafety:FailClosedOnSdkError", M("appsettings", "env"), "true", "—",
+                "When true, SDK/network failures block analysis; Staging/Production templates and host post-configure enforce fail-closed.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:ContentSafety:AllowNullGuardInDevelopment", M("appsettings", "env"), "true", "—",
+                "Non-production-like only: allow NullContentSafetyGuard when Enabled is false.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:ContentSafety:EvaluateCompletionPromptAndResponse", M("appsettings", "env"),
+                "true", "—",
+                "When true, ContentSafetyEnforcingAgentCompletionClient runs input/output checks on LLM traffic.",
                 ConfigKeyRequirementKind.None),
             E("AzureOpenAI", "AzureOpenAI:Endpoint", M("appsettings", "env", "KeyVault", "AZURE_OPENAI__Endpoint"),
                 "empty", "When Real and not Echo", "Azure OpenAI resource endpoint (HTTPS).",
