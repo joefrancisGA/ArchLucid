@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import importlib.util
+import sys
 from pathlib import Path
 
 import pytest
 
 # Import module under test via importlib (not a package).
-import importlib.util
 
 
 def _load_eval_agent_corpus():
@@ -124,3 +125,62 @@ def test_real_mode_quality_rollup_counts_rows():
     assert r["evaluated"] == 1
     assert r["errors"] == 0
     assert r["evidence_captured"] is True
+
+
+def test_main_default_no_real_require_exits_zero_when_real_skipped(monkeypatch):
+    """PR-style run: optional real-mode row skips without --require-real-mode-evidence."""
+
+    mod = _load_eval_agent_corpus()
+    repo = Path(__file__).resolve().parents[3]
+    corpus = repo / "tests" / "eval-corpus"
+
+    monkeypatch.delenv("ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT", raising=False)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["eval_agent_corpus.py", "--corpus", str(corpus)],
+    )
+
+    assert mod.main() == 0
+
+
+def test_main_require_real_mode_fails_when_env_missing(monkeypatch):
+    mod = _load_eval_agent_corpus()
+    repo = Path(__file__).resolve().parents[3]
+    corpus = repo / "tests" / "eval-corpus"
+
+    monkeypatch.delenv("ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT", raising=False)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "eval_agent_corpus.py",
+            "--corpus",
+            str(corpus),
+            "--require-real-mode-evidence",
+        ],
+    )
+
+    assert mod.main() == 1
+
+
+def test_main_require_real_mode_passes_when_smoke_env_points_at_valid_json(monkeypatch):
+    mod = _load_eval_agent_corpus()
+    repo = Path(__file__).resolve().parents[3]
+    corpus = repo / "tests" / "eval-corpus"
+    golden = _golden_valid_path(repo)
+    assert golden.is_file()
+
+    monkeypatch.setenv("ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT", str(golden))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "eval_agent_corpus.py",
+            "--corpus",
+            str(corpus),
+            "--require-real-mode-evidence",
+        ],
+    )
+
+    assert mod.main() == 0

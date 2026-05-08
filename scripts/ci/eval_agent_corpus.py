@@ -9,7 +9,8 @@ Real-mode rows (``qualityEvidence.mode: "real"``) reuse the same scorer over a
 filesystem path from ``qualityEvidence.agentResultPathEnv`` (PR CI leaves the
 variable unset so those rows **skip** without failing the build). Use
 ``--require-real-mode-evidence`` in release jobs when all real-mode rows must
-evaluate (env set to an exported AgentResult path).
+evaluate (env set to an exported AgentResult path). For a combined RC invocation,
+see ``scripts/ci/run_eval_agent_corpus_rc.sh``.
 
 Default: informational only (exit 0). Use ``--enforce`` when you want recall /
 unexpected probes to block; use ``--enforce-quality-gate`` when rejected gate
@@ -421,6 +422,32 @@ def _quality_remediation(quality: Mapping[str, Any]) -> str:
     return "None (gate accepted)."
 
 
+def _quality_evidence_row_counts(rows: Sequence[Mapping[str, Any]]) -> dict[str, int]:
+    """Counts scenarios with a ``qualityEvidence`` block by mode (findings slice unchanged)."""
+
+    simulator = 0
+    real_n = 0
+    no_quality = 0
+
+    for row in rows:
+        q = row.get("quality")
+
+        if not isinstance(q, dict):
+            no_quality += 1
+            continue
+
+        mode = str(q.get("mode") or "")
+
+        if mode == "simulator":
+            simulator += 1
+        elif mode == "real":
+            real_n += 1
+        else:
+            no_quality += 1
+
+    return {"simulator": simulator, "real": real_n, "no_quality_evidence": no_quality}
+
+
 def _real_mode_quality_rollup(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     """Counts qualityEvidence rows where mode is ``real`` (findings slice is unchanged)."""
 
@@ -464,9 +491,12 @@ def render_markdown_report(
     corpus_root: Path,
     min_recall: float,
     worst_recall: float,
+    *,
+    gate_snapshot: Mapping[str, Any] | None = None,
 ) -> str:
     now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     rollup = _real_mode_quality_rollup(rows)
+    qc = _quality_evidence_row_counts(rows)
     captured = "yes" if rollup["evidence_captured"] else "no"
 
     lines: list[str] = [
@@ -474,12 +504,70 @@ def render_markdown_report(
         "",
         f"_Generated {now} (UTC). Corpus root: `{corpus_root.as_posix()}`._",
         "",
+    ]
+
+    if gate_snapshot is not None:
+        wf = bool(gate_snapshot.get("would_fail_exit"))
+        exit_word = "**FAIL (non-zero exit)**" if wf else "**PASS (exit 0)**"
+
+        def _tri(enforced: bool, failed: bool) -> str:
+            if not enforced:
+                return "— (not enforced)"
+
+            return "**FAIL**" if failed else "PASS"
+
+        lines.extend(
+            [
+                "### Offline gate outcome",
+                "",
+                f"_Combined CLI posture for this run: {exit_word}._",
+                "",
+                "| Gate | Requested | Result | Notes |",
+                "|------|-----------|--------|-------|",
+                (
+                    "| Recall / unexpected probes | "
+                    f"{'yes (`--enforce`)' if gate_snapshot.get('enforce_recall') else 'no'} | "
+                    f"{_tri(bool(gate_snapshot.get('enforce_recall')), bool(gate_snapshot.get('recall_failed')))} | "
+                    f"Worst recall {float(gate_snapshot.get('worst_recall') or 0):.2f} vs floor "
+                    f"{float(gate_snapshot.get('min_recall') or min_recall):.2f}. |"
+                ),
+                (
+                    "| Simulator `AgentResult` quality gate | "
+                    f"{'yes (`--enforce-quality-gate`)' if gate_snapshot.get('enforce_quality_gate') else 'no'} | "
+                    f"{_tri(bool(gate_snapshot.get('enforce_quality_gate')), bool(gate_snapshot.get('simulator_gate_failed')))} | "
+                    "Rejected simulator rows only; real-mode rows never use this flag. |"
+                ),
+                (
+                    "| Real-mode AgentResult evidence | "
+                    f"{'yes (`--require-real-mode-evidence`)' if gate_snapshot.get('require_real_mode_evidence') else 'no'} | "
+                    f"{_tri(bool(gate_snapshot.get('require_real_mode_evidence')), bool(gate_snapshot.get('real_evidence_failed')))} | "
+                    "Fails when every real-mode row is skipped (env unset) or none evaluate successfully. |"
+                ),
+                (
+                    "| Quality manifest / JSON errors | always | "
+                    f"{'**FAIL**' if gate_snapshot.get('quality_manifest_failed') else 'PASS'} | "
+                    "Broken `qualityEvidence` or missing committed simulator files always fail the process. |"
+                ),
+                "",
+            ]
+        )
+
+    lines.extend(
+        [
         "### Evidence paths",
         "",
         "| Path | Meaning |",
         "|------|---------|",
         "| **Simulator** | Committed `agent-results/*.simulator.json` — **no Azure OpenAI**; deterministic scoring only. |",
         "| **Real (optional)** | Not committed. Set the scenario's `qualityEvidence.agentResultPathEnv` to an absolute path of exported **AgentResult** JSON (same shape as simulator files). |",
+        "",
+        "### Quality evidence rows (manifest scenarios)",
+        "",
+        "| Mode | Scenario count |",
+        "|------|-----------------|",
+        f"| `simulator` | {qc['simulator']} |",
+        f"| `real` | {qc['real']} |",
+        f"| No `qualityEvidence` block | {qc['no_quality_evidence']} |",
         "",
         "### Real-mode AgentResult slice (optional)",
         "",
@@ -506,7 +594,8 @@ def render_markdown_report(
         "",
         "| Scenario | Recall | Unexpected hits |",
         "|----------|--------|-----------------|",
-    ]
+        ]
+    )
 
     for row in rows:
         uh = row.get("unexpectedHits") or []
@@ -718,6 +807,8 @@ def main() -> int:
     print("scenario\trecall\tunexpected")
     failed = False
     quality_failed = False
+    quality_manifest_failed = False
+    simulator_gate_failed = False
 
     for row in rows:
         print(
@@ -735,6 +826,7 @@ def main() -> int:
         q = row.get("quality")
         if isinstance(q, dict):
             if q.get("error"):
+                quality_manifest_failed = True
                 quality_failed = True
                 print(f"::error::qualityEvidence error for {row['id']}: {q['error']}", file=sys.stderr)
 
@@ -743,6 +835,7 @@ def main() -> int:
                 and q.get("mode") == "simulator"
                 and q.get("gate_outcome") == "rejected"
             ):
+                simulator_gate_failed = True
                 quality_failed = True
                 print(
                     f"::error::quality gate rejected for {row['id']} (structural="
@@ -763,15 +856,43 @@ def main() -> int:
         f"evidence_captured={'yes' if rrollup['evidence_captured'] else 'no'}",
     )
 
-    if bool(args.require_real_mode_evidence) and int(rrollup["total"]) > 0 and not bool(rrollup["evidence_captured"]):
+    real_evidence_failed = (
+        bool(args.require_real_mode_evidence)
+        and int(rrollup["total"]) > 0
+        and not bool(rrollup["evidence_captured"])
+    )
+
+    if real_evidence_failed:
         print(
             "::error::real-mode quality scenarios require captured evidence when using --require-real-mode-evidence "
             "(set each scenario's agentResultPathEnv to a path, or remove the flag).",
             file=sys.stderr,
         )
-        return 1
 
-    md = render_markdown_report(rows, corpus_root, float(args.min_recall), worst_recall)
+    would_fail_exit = (
+        quality_failed or real_evidence_failed or (bool(args.enforce) and failed)
+    )
+
+    gate_snapshot: dict[str, Any] = {
+        "enforce_recall": bool(args.enforce),
+        "recall_failed": failed,
+        "enforce_quality_gate": bool(args.enforce_quality_gate),
+        "simulator_gate_failed": simulator_gate_failed,
+        "quality_manifest_failed": quality_manifest_failed,
+        "require_real_mode_evidence": bool(args.require_real_mode_evidence),
+        "real_evidence_failed": real_evidence_failed,
+        "would_fail_exit": would_fail_exit,
+        "worst_recall": worst_recall,
+        "min_recall": float(args.min_recall),
+    }
+
+    md = render_markdown_report(
+        rows,
+        corpus_root,
+        float(args.min_recall),
+        worst_recall,
+        gate_snapshot=gate_snapshot,
+    )
     if args.markdown_report is not None:
         args.markdown_report.parent.mkdir(parents=True, exist_ok=True)
         args.markdown_report.write_text(md, encoding="utf-8")
@@ -781,6 +902,9 @@ def main() -> int:
         return 1
 
     if quality_failed:
+        return 1
+
+    if real_evidence_failed:
         return 1
 
     return 0

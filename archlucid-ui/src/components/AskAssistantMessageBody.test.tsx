@@ -51,4 +51,22 @@ describe("AskAssistantMessageBody", () => {
     expect(links[0]).toHaveAttribute("href", `/reviews/${encodeURIComponent(sampleId)}`);
     expect(links[0]).toHaveAttribute("aria-label", `Open linked review ${sampleId}`);
   });
+
+  it("renders labeled sections when the assistant uses Risk:/Evidence:/Mitigation:/Validation: headers", () => {
+    const structured =
+      "Risk:\n\nFirst line.\n\nEvidence:\n\nSecond line with " +
+      "22222222-2222-4222-8222-222222222222.\n\nMitigation:\n\nThird.\n\nValidation:\n\nFourth.";
+
+    render(<AskAssistantMessageBody buyerPolishedLinks content={structured} />);
+
+    expect(screen.getByRole("heading", { name: "Risk" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Evidence" })).toBeInTheDocument();
+    expect(screen.getByText("First line.", { exact: false })).toBeInTheDocument();
+
+    const evidenceLink = screen.getByRole("link", {
+      name: `Open linked review 22222222-2222-4222-8222-222222222222`,
+    });
+
+    expect(evidenceLink).toHaveAttribute("href", "/reviews/22222222-2222-4222-8222-222222222222");
+  });
 });

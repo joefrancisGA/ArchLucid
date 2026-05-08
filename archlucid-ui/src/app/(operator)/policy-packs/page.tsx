@@ -404,7 +404,7 @@ export default function PolicyPacksPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-              {buyerPolishedShell ? "Active governance rules" : "Effective layers"}
+              {buyerPolishedShell ? "Rules applied to this review" : "Effective layers"}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
@@ -412,7 +412,9 @@ export default function PolicyPacksPage() {
               {effective?.packs.length ?? 0}
             </p>
             <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-              {buyerPolishedShell ? "Layers applied for your current scope" : "Resolved for current scope"}
+              {buyerPolishedShell
+                ? "Checks enforced for your scope (merged policy layers)"
+                : "Resolved for current scope"}
             </p>
           </CardContent>
         </Card>
@@ -497,7 +499,7 @@ export default function PolicyPacksPage() {
         <h3 id="policy-packs-content-heading">
           {canMutatePacks ? policyPacksPackContentHeadingOperator : policyPacksPackContentHeadingReader}
         </h3>
-        <h4 className="mt-2 mb-2">{buyerPolishedShell ? "Policy layers merged for this scope" : "Effective resolved packs"}</h4>
+        <h4 className="mt-2 mb-2">Effective resolved packs</h4>
         {effective ? (
           <div className="mb-5">
             {isStaticDemoPayloadFallbackEnabled() ? (
@@ -512,7 +514,7 @@ export default function PolicyPacksPage() {
           <p className="text-sm text-neutral-500 dark:text-neutral-400">—</p>
         )}
 
-        <h4 className="mt-0 mb-2">{buyerPolishedShell ? "Applied policy (technical detail)" : "Resolved effective content"}</h4>
+        <h4 className="mt-0 mb-2">Resolved effective content</h4>
         {effectiveContent ? (
           <div className="mb-6">
             {isStaticDemoPayloadFallbackEnabled() ? (

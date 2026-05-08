@@ -56,9 +56,12 @@ public sealed class AskService(
         "If something is unknown from the supplied data, say so. " +
         "Prefer retrieved evidence when answering specifics that are not in the structured context. " +
         "Use prior conversation only when it helps interpret follow-up questions (e.g. \"that decision\", \"the storage choice\"). " +
+        "When the answer is more than a brief sentence, structure the answer field as plain text: use section headers " +
+        "Risk:, Evidence:, Mitigation:, and Validation: each on its own line; after each header add a blank line, then " +
+        "the section body. Omit any header whose body would be empty. " +
         "Respond with a single JSON object only (no markdown fences), keys: " +
         "answer (string), referencedDecisions (array of strings), referencedFindings (array of strings), " +
-        "referencedArtifacts (array of strings � use provenance graph node labels where Type suggests an artifact, or empty array).";
+        "referencedArtifacts (array of strings; use provenance graph node labels where Type suggests an artifact, or empty array).";
 
     /// <inheritdoc />
     /// <remarks>
