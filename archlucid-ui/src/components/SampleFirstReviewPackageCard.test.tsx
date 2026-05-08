@@ -76,21 +76,21 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     render(<SampleFirstReviewPackageCard />);
 
     expect(screen.getByRole("heading", { name: "Sample review package" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open sample review package" })).toHaveAttribute(
-      "href",
-      "/reviews/claims-intake-modernization",
-    );
-    expect(screen.getByRole("link", { name: "Start your own review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
       "href",
       "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
     );
+    expect(screen.getByRole("link", { name: "Open full review detail" })).toHaveAttribute(
+      "href",
+      "/reviews/claims-intake-modernization",
+    );
+    expect(screen.getByRole("link", { name: "Start your own review" })).toHaveAttribute("href", "/reviews/new");
   });
 
   it("records review-output telemetry when the sample review package is opened", () => {
     render(<SampleFirstReviewPackageCard />);
 
-    fireEvent.click(screen.getByRole("link", { name: "Open sample review package" }));
+    fireEvent.click(screen.getByRole("link", { name: "View manifest summary" }));
 
     expect(recordCorePilotRailChecklistStep).toHaveBeenCalledWith(3);
   });

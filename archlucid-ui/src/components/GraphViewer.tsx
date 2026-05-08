@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-node-explanation";
+import { graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
 
 /** Filters a graph to only include nodes of the given type and edges between those nodes. */
 function filterGraphByType(graph: GraphViewModel, typeFilter: string): GraphViewModel {
@@ -142,7 +143,7 @@ export function GraphViewer({
             nodes={nodes as Node[]}
             edges={edges as Edge[]}
             fitView
-            fitViewOptions={{ padding: buyerTrailPanel ? 0.18 : 0.1, maxZoom: 1.35 }}
+            fitViewOptions={{ padding: buyerTrailPanel ? 0.14 : 0.1, maxZoom: buyerTrailPanel ? 1.52 : 1.35 }}
             minZoom={0.2}
             maxZoom={1.65}
             onlyRenderVisibleElements
@@ -222,10 +223,9 @@ export function GraphViewer({
           </div>
         ) : (
           <div className="rounded-md border border-slate-200 bg-slate-50/90 p-3 text-sm dark:border-slate-700 dark:bg-slate-900/40">
-            <p className="m-0 font-semibold text-slate-900 dark:text-slate-100">How to read this graph</p>
-            <p className="m-0 mt-2 leading-relaxed text-slate-700 dark:text-slate-300">
-              Each box is a step in the review trail. Follow arrows left-to-right: capture → analysis → flagship risks →
-              finalized manifest → bundled deliverables. Select any step for identifiers useful to your audit team.
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Legend</p>
+            <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">
+              Boxes follow the review from captured context through risks to the finalized package and deliverables.
             </p>
           </div>
         )}
@@ -278,17 +278,42 @@ export function GraphViewer({
                   )}
                 </>
               ) : selectedNode.metadata && Object.keys(selectedNode.metadata).length > 0 ? (
-                <>
-                  <h4 className="text-sm font-semibold">Linked references</h4>
-                  <ul className="m-0 list-none space-y-1 p-0 text-sm">
-                    {Object.entries(selectedNode.metadata).map(([key, value]) => (
-                      <li key={key}>
-                        <span className="font-medium text-neutral-800 dark:text-neutral-200">{key}:</span>{" "}
-                        <span className="break-all text-neutral-700 dark:text-neutral-300">{String(value)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </>
+                (() => {
+                  const { summaryLines, technicalLines } = graphBuyerTrailMetadataLines(selectedNode.metadata);
+
+                  return (
+                    <>
+                      {summaryLines.length > 0 ? (
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold">At a glance</h4>
+                          <ul className="m-0 list-none space-y-2 p-0 text-sm">
+                            {summaryLines.map((row) => (
+                              <li key={`${row.label}-${row.value}`}>
+                                <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.label}:</span>{" "}
+                                <span className="text-neutral-700 dark:text-neutral-300">{row.value}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                      {technicalLines.length > 0 ? (
+                        <details className="mt-2 rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/50">
+                          <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                            Technical references
+                          </summary>
+                          <ul className="m-0 list-none space-y-1 px-3 pb-3 pt-0 text-xs">
+                            {technicalLines.map((row) => (
+                              <li key={`${row.label}-${row.value}`}>
+                                <span className="font-medium text-neutral-700 dark:text-neutral-300">{row.label}:</span>{" "}
+                                <span className="break-all text-neutral-600 dark:text-neutral-400">{row.value}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      ) : null}
+                    </>
+                  );
+                })()
               ) : null}
 
               {runId.trim().length > 0 && selectedNode !== null && !buyerTrailPanel ? (

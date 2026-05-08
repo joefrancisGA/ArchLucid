@@ -213,6 +213,10 @@ export const policyPacksShowDiffButtonLabelReaderRank = "Show diff (inspect)";
 export const governanceWorkflowPendingReviewReaderNote =
   "Review actions need operator-level access on the server — this form is preview only at your current role.";
 
+/** Buyer shell: avoids “operator-level” jargon where possible. */
+export const governanceWorkflowPendingReviewReaderNoteBuyerPolished =
+  "Approving or rejecting from here requires the right role in production; this form shows how the workflow looks.";
+
 /**
  * Alert rules / routing / simulation / tuning / composite — rank-aware cue (`AlertOperatorToolingRankCue`) for tests
  * or routes that mount a second strip below **`LayerHeader`**.
@@ -318,6 +322,10 @@ export const governanceDashboardPendingClearReaderSupplement =
 /** Governance workflow — “Approval requests for a review” card description by rank. */
 export const governanceWorkflowQueryCardDescriptionReader =
   "Load a review to see its approval requests. Approving, promoting, and activating require approver rights on your account.";
+
+/** Buyer-polished shell: avoids “approver rights” jargon; sample-first framing. */
+export const governanceWorkflowQueryCardDescriptionBuyerPolished =
+  "The sample below shows a completed approval trail for the Claims Intake review. In production, choose a review to load its workflow history; approving and activating follow your organization’s role policy.";
 
 export const governanceWorkflowQueryCardDescriptionOperator =
   "Pick a review, then load its approval requests. Approve or reject submitted requests, promote approved manifests, and activate in the target environment when ready.";

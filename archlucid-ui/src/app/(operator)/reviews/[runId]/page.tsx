@@ -543,12 +543,14 @@ export default async function RunDetailPage({
           <CardHeader>
             <div className="mb-1 flex flex-wrap items-center gap-2">
               <h3 id="pipeline-timeline-title" className={sectionHeadingClass}>
-                Pipeline timeline
+                {buyerPolishedArtifactTable ? "Review activity timeline" : "Pipeline timeline"}
               </h3>
               <ContextualHelp helpKey="run-pipeline-status" placement="right" />
             </div>
             <CardDescription>
-              Audit events for this review, oldest first.
+              {buyerPolishedArtifactTable
+                ? "How this review progressed from intake through evidence, findings, manifest finalization, and exported deliverables."
+                : "Audit events for this review, oldest first."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -567,6 +569,7 @@ export default async function RunDetailPage({
         </Card>
       </section>
 
+      {!buyerPolishedArtifactTable ? (
       <section id="authority-chain" className="scroll-mt-24">
         <Card>
           <CardHeader>
@@ -698,6 +701,7 @@ export default async function RunDetailPage({
           </CardContent>
         </Card>
       </section>
+      ) : null}
 
       {!manifestId && (
         <OperatorEmptyState title="Review package not ready yet">
@@ -828,7 +832,7 @@ export default async function RunDetailPage({
                     href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
                     className={buyerPolishedArtifactTable ? "no-underline" : undefined}
                   >
-                    {buyerPolishedArtifactTable ? "Compare to another finalization…" : "Compare with another review"}
+                    Compare with another review
                   </Link>
                 </Button>
                 <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
@@ -864,7 +868,13 @@ export default async function RunDetailPage({
             )}
             {!explanationFailure && (
               <>
-                <RunExplanationSection summary={explanationSummary} loading={false} error={null} runId={runId} />
+                <RunExplanationSection
+                  summary={explanationSummary}
+                  loading={false}
+                  error={null}
+                  runId={runId}
+                  displayFindingCount={findingCountDisplay}
+                />
                 {(() => {
                   const traceRows =
                     explanationSummary?.findingTraceConfidences ??

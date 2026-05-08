@@ -3,6 +3,7 @@
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { HelpLink } from "@/components/HelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import type { RunSummary } from "@/types/authority";
 
@@ -25,6 +26,9 @@ export function RunDetailPageHeader({
   hasGoldenManifest,
   executionFlavorBuyerSummary,
 }: RunDetailPageHeaderProps) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const showExecutionFlavor = Boolean(executionFlavorBuyerSummary) && !buyerPolishedShell;
+
   return (
     <header className="mb-6 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -38,7 +42,7 @@ export function RunDetailPageHeader({
               label="Architecture review steps — Core Pilot guide on GitHub (new tab)"
             />
           </div>
-          {executionFlavorBuyerSummary ? (
+          {showExecutionFlavor ? (
             <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
               {executionFlavorBuyerSummary}
             </p>

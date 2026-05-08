@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HelpLink } from "@/components/HelpLink";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -21,6 +21,7 @@ import type { AuditEvent, CursorPagedResponse } from "@/lib/api";
 import { downloadAuditExportCsv, getAuditEventTypes, searchAuditEvents } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
+  auditEventLifecycleSortKey,
   canExportAuditCsv,
   formatAuditSummaryHeading,
   principalRolesAllowAuditCsvExport,
@@ -57,7 +58,9 @@ import {
   shouldPreferCuratedAuditTrailForBuyerShell,
 } from "@/lib/demo-audit-sample-events";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
+import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 function formatUtc(iso: string): string {
@@ -413,6 +416,23 @@ export default function AuditPage() {
       ? auditSearchNoResultsReaderLine
       : auditSearchNoResultsOperatorLine;
 
+  const displayEvents = useMemo(() => {
+    if (!buyerPolishedShell) {
+      return events;
+    }
+
+    return [...events].sort((eventA, eventB) => {
+      const rankDiff =
+        auditEventLifecycleSortKey(eventA.eventType) - auditEventLifecycleSortKey(eventB.eventType);
+
+      if (rankDiff !== 0) {
+        return rankDiff;
+      }
+
+      return eventA.occurredUtc.localeCompare(eventB.occurredUtc);
+    });
+  }, [buyerPolishedShell, events]);
+
   return (
     <main className="max-w-4xl">
       <LayerHeader pageKey="audit" />
@@ -709,19 +729,23 @@ export default function AuditPage() {
           Each card is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
           {" — "}
           who acted, what changed, when it happened
-          {buyerPolishedShell ? ", and which review it belongs to when one is recorded" : ", and review context when present"}.
-          Expand for technical payloads.
+          {buyerPolishedShell
+            ? ", and which review it belongs to when one is recorded. Open Technical details only when you need raw identifiers."
+            : ", and review context when present"}.
+          {buyerPolishedShell ? "" : " Expand for technical payloads."}
         </p>
         <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
-          {formatAuditSummaryHeading(events.length, hasMoreResults)}. Newest first
-          {buyerPolishedShell ? "." : "; use Load more for older entries."}
+          {formatAuditSummaryHeading(events.length, hasMoreResults)}.
+          {buyerPolishedShell
+            ? " Oldest-first lifecycle order for this view."
+            : " Newest first; use Load more for older entries."}
         </p>
 
         <div className="grid gap-3 mt-3">
         {events.length === 0 ? (
           <p className="text-neutral-500 dark:text-neutral-400">{auditSearchEmptyLine}</p>
         ) : (
-          events.map((ev) => (
+          displayEvents.map((ev) => (
             <div
               key={ev.eventId}
               className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 bg-white dark:bg-neutral-950"
@@ -731,35 +755,56 @@ export default function AuditPage() {
                 <span
                   className="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900 dark:bg-indigo-900/50 dark:text-indigo-300"
                 >
-                  {ev.eventType}
+                  {pipelineEventTypeFriendlyLabel(ev.eventType)}
                 </span>
               </div>
               <div className="mt-1.5 text-sm">
                 Actor: {buyerPolishedShell ? ev.actorUserName : `${ev.actorUserName} (${ev.actorUserId})`}
               </div>
               {buyerPolishedShell ? (
-                <details className="mt-1.5 text-sm">
-                  <summary className="cursor-pointer font-medium text-neutral-700 dark:text-neutral-300">
-                    Technical identifiers
+                <>
+                  <div className="text-sm">
+                    Review:{" "}
+                    {ev.runId ? (
+                      <Link href={`/reviews/${ev.runId}`} title="Open review">
+                        {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
+                      </Link>
+                    ) : (
+                      "—"
+                    )}
+                  </div>
+                  <details className="mt-2.5">
+                  <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    Technical details
                   </summary>
-                  <div className="mt-2 space-y-1 text-neutral-700 dark:text-neutral-300">
-                    <div className="text-sm">
-                      User id: <span className="font-mono text-xs">{ev.actorUserId}</span>
+                  <div className="mt-2 space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
+                    <div>
+                      <span className="font-medium text-neutral-600 dark:text-neutral-400">User id</span>{" "}
+                      <span className="font-mono text-xs">{ev.actorUserId}</span>
                     </div>
-                    <div className="text-sm">
-                      Correlation ID:{" "}
-                      <span className="font-mono text-xs">{(ev.correlationId ?? "").trim().length > 0 ? ev.correlationId : "—"}</span>
+                    <div>
+                      <span className="font-medium text-neutral-600 dark:text-neutral-400">Correlation ID</span>{" "}
+                      <span className="font-mono text-xs">
+                        {(ev.correlationId ?? "").trim().length > 0 ? ev.correlationId : "—"}
+                      </span>
                     </div>
                     {ev.otelTraceId ? (
-                      <div className="text-sm">
-                        Trace:{" "}
+                      <div>
+                        <span className="font-medium text-neutral-600 dark:text-neutral-400">Trace</span>{" "}
                         <code title={ev.otelTraceId} className="text-xs">
                           {ev.otelTraceId.slice(0, 16)}…
                         </code>
                       </div>
                     ) : null}
+                    <div>
+                      <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Payload</p>
+                      <pre className="mt-1 max-h-48 overflow-auto rounded-md bg-neutral-50/90 p-2 text-xs dark:bg-neutral-900/50">
+                        {tryFormatDataJson(ev.dataJson)}
+                      </pre>
+                    </div>
                   </div>
                 </details>
+                </>
               ) : (
                 <>
                   <div className="text-sm">Correlation: {ev.correlationId ?? "—"}</div>
@@ -771,18 +816,18 @@ export default function AuditPage() {
                       </code>
                     </div>
                   ) : null}
+                  <div className="text-sm">
+                    Review:{" "}
+                    {ev.runId ? (
+                      <Link href={`/reviews/${ev.runId}`} title="Open review">
+                        {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
+                      </Link>
+                    ) : (
+                      "—"
+                    )}
+                  </div>
                 </>
               )}
-              <div className="text-sm">
-                Review:{" "}
-                {ev.runId ? (
-                  <Link href={`/reviews/${ev.runId}`} title="Open review">
-                    {ev.runId}
-                  </Link>
-                ) : (
-                  "—"
-                )}
-              </div>
               {ev.runId ? (
                 buyerPolishedShell ? null : (
                 <div className="text-[13px] mt-0.5">
@@ -792,14 +837,16 @@ export default function AuditPage() {
                 </div>
                 )
               ) : null}
+              {!buyerPolishedShell ? (
               <details className="mt-2.5">
-                <summary className="cursor-pointer">{buyerPolishedShell ? "Technical payload" : "Data JSON"}</summary>
+                <summary className="cursor-pointer">Data JSON</summary>
                 <pre
                   className="mt-2 p-2 bg-neutral-50/90 dark:bg-neutral-900/50 rounded-md overflow-auto text-xs"
                 >
                   {tryFormatDataJson(ev.dataJson)}
                 </pre>
               </details>
+              ) : null}
             </div>
           ))
         )}

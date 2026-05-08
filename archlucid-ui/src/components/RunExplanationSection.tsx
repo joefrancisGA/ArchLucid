@@ -14,6 +14,8 @@ export type RunExplanationSectionProps = {
   loading: boolean;
   error: string | null;
   runId: string;
+  /** When set, overrides `summary.findingCount` in the headline stats line (spine-aligned demo counts). */
+  displayFindingCount?: number | null;
 };
 
 const badgeShell = "inline-block rounded-md border px-2.5 py-1 text-[13px] font-semibold";
@@ -106,7 +108,13 @@ function explanationBody(summary: RunExplanationSummary): ExplanationResult {
 /**
  * Run-level aggregate explanation: assessment, posture, confidence, themes, drivers/risks, provenance.
  */
-export function RunExplanationSection({ summary, loading, error, runId }: RunExplanationSectionProps) {
+export function RunExplanationSection({
+  summary,
+  loading,
+  error,
+  runId,
+  displayFindingCount,
+}: RunExplanationSectionProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const tocItems = useMemo((): DocumentTocItem[] => {
@@ -155,6 +163,11 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
     return null;
   }
 
+  const findingCountForStats =
+    displayFindingCount !== undefined && displayFindingCount !== null && Number.isFinite(displayFindingCount)
+      ? Math.trunc(displayFindingCount)
+      : summary.findingCount;
+
   const expl = explanationBody(summary);
   const themeSummaries = summary.themeSummaries ?? [];
   const overallAssessment = summary.overallAssessment?.trim() ?? "Assessment details are not available for this review.";
@@ -189,7 +202,7 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
           {riskPostureLabel}
         </span>
         <span className="ml-3 text-[13px] text-neutral-500 dark:text-neutral-400">
-          {summary.decisionCount} decisions · {summary.findingCount} findings · {summary.unresolvedIssueCount}{" "}
+          {summary.decisionCount} decisions · {findingCountForStats} findings · {summary.unresolvedIssueCount}{" "}
           unresolved · {summary.complianceGapCount} compliance gaps
         </span>
       </p>

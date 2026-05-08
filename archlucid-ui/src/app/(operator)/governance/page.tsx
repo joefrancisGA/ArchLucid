@@ -85,7 +85,9 @@ import {
   governanceWorkflowPromotionsEmptyReaderHint,
   governanceWorkflowQueryCardDescriptionOperator,
   governanceWorkflowQueryCardDescriptionReader,
+  governanceWorkflowQueryCardDescriptionBuyerPolished,
   governanceWorkflowPendingReviewReaderNote,
+  governanceWorkflowPendingReviewReaderNoteBuyerPolished,
   governanceWorkflowRejectButtonLabelReaderRank,
   governanceWorkflowReviewSubmitButtonLabelReaderRank,
   governanceWorkflowRefreshRunDataButtonLabel,
@@ -104,6 +106,7 @@ import {
   tryStaticDemoGovernancePromotions,
 } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import type {
   GovernanceApprovalRequest,
   GovernanceEnvironmentActivation,
@@ -185,6 +188,8 @@ function GovernanceWorkflowPageInner() {
   const [activations, setActivations] = useState<GovernanceEnvironmentActivation[]>([]);
   const [listsLoading, setListsLoading] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
+  const hideGovernanceQueryLoadCard =
+    buyerPolishedShell && approvals.length > 0 && !listsLoading;
 
   const [pendingReview, setPendingReview] = useState<PendingReview | null>(null);
   const [reviewedBy, setReviewedBy] = useState("");
@@ -615,7 +620,9 @@ function GovernanceWorkflowPageInner() {
             </CardHeader>
             <CardContent className="pt-0">
               <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-                Load a review in the approval section below to inspect approvals, promotions, and environment activity.
+                {hideGovernanceQueryLoadCard
+                  ? "Approval activity for this review appears below."
+                  : "Load a review in the approval section below to inspect approvals, promotions, and environment activity."}
               </p>
             </CardContent>
           </Card>
@@ -757,6 +764,14 @@ function GovernanceWorkflowPageInner() {
       <Separator className="mb-10" />
 
       <section className="mb-10">
+        {hideGovernanceQueryLoadCard && activeRunId !== null ? (
+          <p className="mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+            Showing governance workflow for{" "}
+            <strong>{buyerFacingReviewLinkLabelFromRunId(activeRunId)}</strong>.
+          </p>
+        ) : null}
+
+        {!hideGovernanceQueryLoadCard ? (
         <Card>
           <CardHeader>
             <CardTitle>
@@ -765,9 +780,11 @@ function GovernanceWorkflowPageInner() {
                 : governanceWorkflowApprovalRequestsCardTitleReader}
             </CardTitle>
             <CardDescription>
-              {canMutateWorkflow
-                ? governanceWorkflowQueryCardDescriptionOperator
-                : governanceWorkflowQueryCardDescriptionReader}
+              {buyerPolishedShell
+                ? governanceWorkflowQueryCardDescriptionBuyerPolished
+                : canMutateWorkflow
+                  ? governanceWorkflowQueryCardDescriptionOperator
+                  : governanceWorkflowQueryCardDescriptionReader}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
@@ -778,6 +795,7 @@ function GovernanceWorkflowPageInner() {
                   label="Review"
                   placeholder="Select a review from the list"
                   value={queryRunId}
+                  useBuyerFacingRunLabels={buyerPolishedShell}
                   onChange={setQueryRunId}
                   onSelect={(id) => {
                     setQueryRunId(id);
@@ -825,6 +843,7 @@ function GovernanceWorkflowPageInner() {
             ) : null}
           </CardContent>
         </Card>
+        ) : null}
 
         <div className="mt-6 grid gap-4">
           {listsLoading && activeRunId !== null && approvals.length === 0 ? (
@@ -895,7 +914,9 @@ function GovernanceWorkflowPageInner() {
                     </p>
                     {!canMutateWorkflow ? (
                       <p className="mb-3 text-xs text-neutral-600 dark:text-neutral-400" role="note">
-                        {governanceWorkflowPendingReviewReaderNote}
+                        {buyerPolishedShell
+                          ? governanceWorkflowPendingReviewReaderNoteBuyerPolished
+                          : governanceWorkflowPendingReviewReaderNote}
                       </p>
                     ) : null}
                     <div className="grid gap-3">

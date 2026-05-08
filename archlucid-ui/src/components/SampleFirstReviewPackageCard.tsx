@@ -39,7 +39,7 @@ export function SampleFirstReviewPackageCard() {
           </h2>
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {buyerPolished
-              ? "Finalized manifest, evidence trail, PHI-oriented findings, and exportable artifacts — illustrative counts for the intake storyline."
+              ? "The sample is a completed, read-only package that mirrors a live review. Your own reviews use the same outputs once you connect a workspace and run the wizard."
               : "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."}
           </p>
           {buyerPolished ? null : (
@@ -82,11 +82,16 @@ export function SampleFirstReviewPackageCard() {
             {buyerPolished ? (
               <>
                 <Button asChild variant="primary" className="h-9">
+                  <Link href={getShowcaseManifestHref()} onClick={recordSampleOpened}>
+                    View manifest summary
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="h-9">
                   <Link
                     href={getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID)}
                     onClick={recordSampleOpened}
                   >
-                    Open sample review package
+                    Open full review detail
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="h-9">
@@ -106,15 +111,6 @@ export function SampleFirstReviewPackageCard() {
               </>
             )}
             </div>
-            {buyerPolished ? (
-              <Link
-                href={getShowcaseManifestHref()}
-                className="text-xs font-medium text-teal-800 underline underline-offset-4 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                onClick={recordSampleOpened}
-              >
-                View manifest summary
-              </Link>
-            ) : null}
           </div>
         </div>
       </div>

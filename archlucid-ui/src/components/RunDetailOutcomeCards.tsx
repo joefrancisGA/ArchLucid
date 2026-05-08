@@ -162,9 +162,9 @@ export function RunDetailOutcomeCards({
         <CardContent className="pt-0">
           <Link
             className="text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-            href="#authority-chain"
+            href={buyerPolishedShell ? "#pipeline-timeline" : "#authority-chain"}
           >
-            {buyerPolishedShell ? "Open review trail on this page" : "Jump to review trail on this page"}
+            {buyerPolishedShell ? "Open activity timeline on this page" : "Jump to review trail on this page"}
           </Link>
           <Link
             className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"

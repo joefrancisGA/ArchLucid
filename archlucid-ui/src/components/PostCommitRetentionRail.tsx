@@ -24,13 +24,13 @@ export function PostCommitRetentionRail({ runId }: PostCommitRetentionRailProps)
       <CardHeader className="pb-2">
         <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Keep the momentum</h2>
         <CardDescription className="text-neutral-700 dark:text-neutral-300">
-          You have a committed review package. Pick the next loop that fits your team—each link stays in the operator shell.
+          You have a committed review package. Pick the next loop that fits your team—navigation stays inside this workspace.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
           <Link href="/reviews/new" title="Start another architecture review with your repository inputs">
-            {buyerPolishedShell ? "Start new review" : "Run again"}
+            {buyerPolishedShell ? "Create revised review" : "Run again"}
           </Link>
         </Button>
         {!buyerPolishedShell ? (
@@ -51,8 +51,8 @@ export function PostCommitRetentionRail({ runId }: PostCommitRetentionRailProps)
           </>
         ) : null}
         <Button type="button" asChild variant="outline" size="sm" className="justify-center sm:justify-start">
-          <Link href={`/compare?leftRunId=${encodeURIComponent(runId)}`} title="Compare this review to a follow-up run">
-            Compare to next review
+          <Link href={`/compare?leftRunId=${encodeURIComponent(runId)}`} title="Compare this review to another finalized review">
+            Compare with another review
           </Link>
         </Button>
       </CardContent>
