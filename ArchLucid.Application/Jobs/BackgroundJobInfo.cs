@@ -10,6 +10,4 @@ public sealed record BackgroundJobInfo(
     string? FileName,
     string? ContentType,
     int RetryCount = 0,
-    int MaxRetries = 0)
-{
-}
+    int MaxRetries = 0);

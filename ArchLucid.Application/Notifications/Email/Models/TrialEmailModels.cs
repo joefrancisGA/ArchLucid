@@ -84,13 +84,9 @@ public sealed record TrialMidTrialEmailModel
     }
 }
 
-public sealed record TrialApproachingRunLimitEmailModel(string ProductName, int RunsUsed, int RunsLimit, string? LogoImageUrl = null)
-{
-}
+public sealed record TrialApproachingRunLimitEmailModel(string ProductName, int RunsUsed, int RunsLimit, string? LogoImageUrl = null);
 
-public sealed record TrialExpiringSoonEmailModel(string ProductName, int DaysRemaining, string? LogoImageUrl = null)
-{
-}
+public sealed record TrialExpiringSoonEmailModel(string ProductName, int DaysRemaining, string? LogoImageUrl = null);
 
 public sealed record TrialExpiredEmailModel
 {

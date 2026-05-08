@@ -4,6 +4,10 @@
 Shape-only checks (no live LLM or simulator runs). CI uses selective flags to keep
 failures localized to the dataset family under test.
 
+Optional ``--enforce-prompt-injection-block-layer`` runs
+``PromptInjectionExecutableRegressionTests`` in ``ArchLucid.AgentRuntime.Tests``
+after shape validation (requires a prior ``dotnet build -c Release``).
+
 See also: ``scripts/ci/eval_agent_corpus.py`` for the synthetic **tests/eval-corpus**
 slice (recall + optional committed simulator AgentResult JSON).
 """
@@ -12,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -147,13 +152,22 @@ def validate_manifest(*, strict: bool = False) -> int:
 
 def validate_prompt_injection_datasets(*, strict: bool = False) -> int:
     root = _repo_root()
-    folder = root / "tests" / "eval-datasets" / "prompt-injection"
+    base = root / "tests" / "eval-datasets"
+    folder = base / "prompt-injection"
 
     if not folder.is_dir():
         print(f"::error::Missing directory {folder}")
         return 1
 
-    allowed_categories = {"direct_override", "exfiltration", "tool_abuse"}
+    allowed_categories = {
+        "direct_override",
+        "exfiltration",
+        "tool_abuse",
+        # OWASP LLM Top 10–aligned labels (offline deterministic gates; original fixture phrasing).
+        "indirect_injection",
+        "obfuscated_encoding",
+        "sensitive_information_disclosure",
+    }
     allowed_blocked = {"precheck", "redactor", "evaluator", "judge"}
     paths = sorted(folder.glob("*.json"))
 
@@ -161,12 +175,66 @@ def validate_prompt_injection_datasets(*, strict: bool = False) -> int:
         print(f"::error::No JSON files under {folder}")
         return 1
 
+    manifest_paths: list[str] | None = None
+    min_total_cases: int | None = None
+
+    if strict:
+        manifest_path = base / "manifest.json"
+
+        if not manifest_path.is_file():
+            print(f"::error::Missing {manifest_path} (required for --strict prompt-injection)")
+            return 1
+
+        manifest = _load_json(manifest_path)
+
+        if not isinstance(manifest, dict):
+            print("::error::manifest.json must be an object for prompt-injection registry checks")
+            return 1
+
+        pir = manifest.get("promptInjectionRegression")
+
+        if not isinstance(pir, dict):
+            print(
+                "::error::manifest.promptInjectionRegression object required (--strict prompt-injection)"
+            )
+            return 1
+
+        raw_paths = pir.get("relativePaths")
+
+        if not isinstance(raw_paths, list) or not raw_paths or not all(
+            isinstance(p, str) and p.strip() for p in raw_paths
+        ):
+            print(
+                "::error::manifest.promptInjectionRegression.relativePaths must be a non-empty string array"
+            )
+            return 1
+
+        manifest_paths = sorted(str(Path(p).as_posix()) for p in raw_paths)
+        actual_paths = sorted(str(p.relative_to(base)).replace("\\", "/") for p in paths)
+
+        if manifest_paths != actual_paths:
+            print(
+                "::error::prompt-injection JSON set must match manifest.promptInjectionRegression.relativePaths exactly.\n"
+                f"  manifest: {manifest_paths}\n"
+                f"  on disk: {actual_paths}"
+            )
+            return 1
+
+        mtc = pir.get("minTotalCases")
+
+        if isinstance(mtc, int) and mtc >= 1:
+            min_total_cases = mtc
+
+    total_cases = 0
+
     for path in paths:
         data = _load_json(path)
 
         if not isinstance(data, list) or not data:
             print(f"::error::{path.name} must be a non-empty JSON array")
             return 1
+
+        total_cases += len(data)
 
         for i, case in enumerate(data):
             if not isinstance(case, dict):
@@ -200,7 +268,47 @@ def validate_prompt_injection_datasets(*, strict: bool = False) -> int:
                 print(f"::error::{path.name}[{i}].userPrompt must be a substantive string")
                 return 1
 
+    if strict and min_total_cases is not None and total_cases < min_total_cases:
+        print(
+            f"::error::prompt-injection regression has {total_cases} cases; "
+            f"manifest.promptInjectionRegression.minTotalCases={min_total_cases}"
+        )
+        return 1
+
     print(f"Prompt injection eval datasets OK: {len(paths)} file(s).")
+    return 0
+
+
+def enforce_prompt_injection_executable_regression(*, root: Path) -> int:
+    """Runs PromptInjectionExecutableRegressionTests (requires a prior Release build)."""
+    test_proj = root / "ArchLucid.AgentRuntime.Tests" / "ArchLucid.AgentRuntime.Tests.csproj"
+
+    if not test_proj.is_file():
+        print(f"::error::Missing test project {test_proj}")
+        return 1
+
+    cmd = [
+        "dotnet",
+        "test",
+        str(test_proj),
+        "--no-build",
+        "-c",
+        "Release",
+        "--filter",
+        "FullyQualifiedName~PromptInjectionExecutableRegressionTests",
+    ]
+
+    print(f"Running {' '.join(cmd)}")
+
+    proc = subprocess.run(cmd, cwd=str(root), check=False)
+
+    if proc.returncode != 0:
+        print(
+            "::error::Prompt injection executable regression failed "
+            "(run `dotnet build ArchLucid.sln -c Release` then retry)."
+        )
+        return proc.returncode or 1
+
     return 0
 
 
@@ -221,14 +329,40 @@ def main() -> int:
         action="store_true",
         help="Require manifest schema v2 architecturalContext / category gates and prompt-injection expectedBlockedAt.",
     )
+    parser.add_argument(
+        "--enforce-prompt-injection-block-layer",
+        action="store_true",
+        help=(
+            "After validating prompt-injection fixtures, run dotnet test on "
+            "PromptInjectionExecutableRegressionTests (needs Release build + --no-build)."
+        ),
+    )
     args = parser.parse_args()
 
     if args.manifest_only and args.prompt_injection_only:
         print("::error::Choose at most one of --manifest-only and --prompt-injection-only")
         return 1
 
+    if args.enforce_prompt_injection_block_layer and not args.strict:
+        print("::error::--enforce-prompt-injection-block-layer requires --strict")
+        return 1
+
+    if args.enforce_prompt_injection_block_layer and args.manifest_only:
+        print("::error::--enforce-prompt-injection-block-layer is only valid with prompt-injection validation")
+        return 1
+
+    root = _repo_root()
+
     if args.prompt_injection_only:
-        return validate_prompt_injection_datasets(strict=args.strict)
+        p = validate_prompt_injection_datasets(strict=args.strict)
+
+        if p != 0:
+            return p
+
+        if args.enforce_prompt_injection_block_layer:
+            return enforce_prompt_injection_executable_regression(root=root)
+
+        return 0
 
     if args.manifest_only:
         return validate_manifest(strict=args.strict)
@@ -240,6 +374,9 @@ def main() -> int:
     p = validate_prompt_injection_datasets(strict=args.strict)
     if p != 0:
         return p
+
+    if args.enforce_prompt_injection_block_layer:
+        return enforce_prompt_injection_executable_regression(root=root)
 
     return 0
 

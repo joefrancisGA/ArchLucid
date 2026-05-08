@@ -75,5 +75,49 @@ public sealed class AgentEvalDatasetShapeTests
                 forbCat.ValueKind.Should().Be(JsonValueKind.Array);
             }
         }
+
+        rootEl.TryGetProperty("promptInjectionRegression", out JsonElement pir).Should().BeTrue();
+        pir.ValueKind.Should().Be(JsonValueKind.Object);
+
+        pir.TryGetProperty("relativePaths", out JsonElement piPaths).Should().BeTrue();
+        piPaths.ValueKind.Should().Be(JsonValueKind.Array);
+        piPaths.GetArrayLength().Should().BeGreaterThan(0);
+
+        pir.TryGetProperty("minTotalCases", out JsonElement minPi).Should().BeTrue();
+        int minTotalPi = minPi.GetInt32();
+        minTotalPi.Should().BeGreaterThan(0);
+
+        int countedPi = 0;
+
+        foreach (JsonElement relEl in piPaths.EnumerateArray())
+        {
+            string rel = relEl.GetString()!;
+            string piPath = Path.Combine(root, rel.Replace('/', Path.DirectorySeparatorChar));
+            File.Exists(piPath).Should().BeTrue();
+
+            JsonDocument piDoc = JsonDocument.Parse(File.ReadAllText(piPath));
+            piDoc.RootElement.ValueKind.Should().Be(JsonValueKind.Array);
+
+            foreach (JsonElement row in piDoc.RootElement.EnumerateArray())
+            {
+                row.TryGetProperty("id", out _).Should().BeTrue();
+                row.TryGetProperty("category", out _).Should().BeTrue();
+                row.TryGetProperty("userPrompt", out _).Should().BeTrue();
+                row.TryGetProperty("expectedBlockedAt", out _).Should().BeTrue();
+            }
+
+            countedPi += piDoc.RootElement.GetArrayLength();
+        }
+
+        countedPi.Should().BeGreaterThanOrEqualTo(minTotalPi);
+
+        string piDir = Path.Combine(root, "prompt-injection");
+        string[] extraOnDisk = Directory.GetFiles(piDir, "*.json").Select(f => Path.GetFileName(f)!).ToArray();
+        string[] fromManifest = piPaths
+            .EnumerateArray()
+            .Select(e => Path.GetFileName(e.GetString()!.Replace('/', Path.DirectorySeparatorChar))!)
+            .ToArray();
+
+        extraOnDisk.OrderBy(x => x).Should().Equal(fromManifest.OrderBy(x => x));
     }
 }

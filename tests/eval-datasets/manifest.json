@@ -6,5 +6,14 @@
     { "agentKind": "cost", "relativePath": "cost-eval.json", "minCases": 8 },
     { "agentKind": "compliance", "relativePath": "compliance-eval.json", "minCases": 8 },
     { "agentKind": "critic", "relativePath": "critic-eval.json", "minCases": 8 }
-  ]
+  ],
+  "promptInjectionRegression": {
+    "minTotalCases": 23,
+    "relativePaths": [
+      "prompt-injection/direct-override.json",
+      "prompt-injection/exfiltration.json",
+      "prompt-injection/tool-abuse.json",
+      "prompt-injection/owasp-llm-regression.json"
+    ]
+  }
 }
