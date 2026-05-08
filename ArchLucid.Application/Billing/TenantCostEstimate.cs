@@ -9,6 +9,4 @@ public sealed record TenantCostEstimate(
     decimal EstimatedMonthlyUsdLow,
     decimal EstimatedMonthlyUsdHigh,
     IReadOnlyList<string> Factors,
-    string MethodologyNote)
-{
-}
+    string MethodologyNote);

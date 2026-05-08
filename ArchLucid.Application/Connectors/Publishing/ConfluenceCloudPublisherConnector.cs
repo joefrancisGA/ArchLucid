@@ -64,29 +64,28 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
                 }
             }
         };
+
         using HttpResponseMessage response =
             await _http.PostAsJsonAsync("wiki/rest/api/content", body, SerializerOptions, cancellationToken).ConfigureAwait(false);
+
         if (response.IsSuccessStatusCode)
         {
             ConfluenceCreateResponse? created = await response.Content.ReadFromJsonAsync<ConfluenceCreateResponse>(SerializerOptions, cancellationToken)
                 .ConfigureAwait(false);
             string? id = created?.Id;
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                return new PublishOutcome(false, null, ConfluencePublishFailureReason.BadResponse, "Confluence returned success but no page id.");
-            }
-
-            return new PublishOutcome(true, id, null, null);
+            return string.IsNullOrWhiteSpace(id) ? new PublishOutcome(false, null, ConfluencePublishFailureReason.BadResponse, "Confluence returned success but no page id.") : new PublishOutcome(true, id, null, null);
         }
 
         ConfluencePublishFailureReason reason = MapFailure(response.StatusCode);
         string detail = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+
         if (_logger.IsEnabled(LogLevel.Warning))
             _logger.LogWarning("Confluence publish failed: {Status} {Body}", response.StatusCode, detail);
+
         return new PublishOutcome(false, null, reason, Truncate(detail, 2048));
     }
 
-    private static string BuildStorageHtml(string markdownOrPlain)
+    private static string BuildStorageHtml(string? markdownOrPlain)
     {
         string trimmed = markdownOrPlain ?? string.Empty;
         string escaped = WebUtility.HtmlEncode(trimmed);

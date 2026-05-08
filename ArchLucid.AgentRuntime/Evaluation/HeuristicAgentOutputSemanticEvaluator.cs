@@ -297,7 +297,6 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
                        !string.IsNullOrWhiteSpace(t.GetString());
 
             if (src && tgt)
-
                 n++;
         }
 

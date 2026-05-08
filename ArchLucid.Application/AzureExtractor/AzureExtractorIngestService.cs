@@ -39,7 +39,6 @@ public sealed class AzureExtractorIngestService(
         string actor = actorContext.GetActor();
 
         if (file is null)
-
             return await FailAsync(
                 AuditEventTypes.AzureExtractorPackageParseFailed,
                 "No file uploaded (expected form field 'file').",
@@ -56,11 +55,9 @@ public sealed class AzureExtractorIngestService(
             : Path.GetFileName(file.FileName.Trim());
 
         if (safeName.Length > 400)
-
             safeName = safeName[..400];
 
         if (!string.Equals(Path.GetExtension(safeName), ".zip", StringComparison.OrdinalIgnoreCase))
-
             safeName += ".zip";
 
         if (file.Length > MaxUploadedZipBytes)
@@ -79,13 +76,10 @@ public sealed class AzureExtractorIngestService(
         byte[] zipBytes;
 
         try
-
         {
             zipBytes = await ReadCappedZipAsync(file, ct);
         }
-
         catch (InvalidOperationException ex)
-
         {
             logger.LogWarning(ex, "Azure extractor upload read failed.");
 
@@ -127,7 +121,6 @@ public sealed class AzureExtractorIngestService(
             AzureExtractorManifestReader.TryReadNormalizedFromZip(zipStream);
 
         if (manifestError is not null)
-
         {
             bool schemaReject = manifestError.StartsWith(
                 "Unsupported manifest schemaVersion",
@@ -150,7 +143,6 @@ public sealed class AzureExtractorIngestService(
         }
 
         if (manifest is null)
-
             return await FailAsync(
                 AuditEventTypes.AzureExtractorPackageParseFailed,
                 "manifest.json could not be loaded.",
@@ -162,10 +154,7 @@ public sealed class AzureExtractorIngestService(
                 zipBytes.LongLength,
                 ct);
 
-        Guid? persistedRunKey = runId;
-
-        if (persistedRunKey is { } runGuid)
-
+        if (runId is { } runGuid)
         {
             RunRecord? existing = await runRepository.GetByIdAsync(scope, runGuid, ct);
 
@@ -191,7 +180,7 @@ public sealed class AzureExtractorIngestService(
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
-            RunId = persistedRunKey,
+            RunId = runId,
             CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             SchemaVersion = manifest.SchemaVersion,
             ScriptVersion = manifest.ScriptVersion,
@@ -204,16 +193,14 @@ public sealed class AzureExtractorIngestService(
 
         await packageRepository.InsertAsync(record, ct);
 
-        if (persistedRunKey is Guid mergedRunGuid)
+        if (runId is { } mergedRunGuid)
         {
             try
-
             {
                 await TryAttachEvidenceBundleAsync(mergedRunGuid, record, ct);
             }
 
             catch (Exception ex) when (ex is not OperationCanceledException)
-
             {
                 logger.LogWarning(
                     ex,
@@ -231,14 +218,14 @@ public sealed class AzureExtractorIngestService(
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
-                RunId = persistedRunKey,
+                RunId = runId,
                 DataJson = JsonSerializer.Serialize(
                     new
                     {
                         packageId,
                         citation = AzureExtractorCitationFormatter.FormatCostProofPoint(manifest),
                         manifest.SchemaVersion,
-                        SubscriptionId = manifest.SubscriptionId,
+                        manifest.SubscriptionId,
                     },
                     AuditJsonSerializationOptions.Instance),
                 CorrelationId = correlationId,
