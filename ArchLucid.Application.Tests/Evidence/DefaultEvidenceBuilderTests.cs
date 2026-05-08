@@ -52,21 +52,21 @@ public sealed class DefaultEvidenceBuilderTests
     public async Task Prior_version_found_hydrates_PriorManifest_and_omits_unavailable_note()
     {
         const string priorVersionKey = "v-prior-integration";
-        GoldenManifest prior = SamplePriorManifest(PriorVersionKey);
+        GoldenManifest prior = SamplePriorManifest(priorVersionKey);
 
         Mock<IUnifiedGoldenManifestReader> reader = new();
         reader
-            .Setup(r => r.GetByVersionAsync(PriorVersionKey, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByVersionAsync(priorVersionKey, It.IsAny<CancellationToken>()))
             .ReturnsAsync(prior);
 
         DefaultEvidenceBuilder sut = new(reader.Object);
-        ArchitectureRequest request = MinimalRequest(r => r.PriorManifestVersion = PriorVersionKey);
+        ArchitectureRequest request = MinimalRequest(r => r.PriorManifestVersion = priorVersionKey);
 
         AgentEvidencePackage package = await sut.BuildAsync(Guid.NewGuid().ToString("N"), request);
 
-        reader.Verify(r => r.GetByVersionAsync(PriorVersionKey, It.IsAny<CancellationToken>()), Times.Once);
+        reader.Verify(r => r.GetByVersionAsync(priorVersionKey, It.IsAny<CancellationToken>()), Times.Once);
         package.PriorManifest.Should().NotBeNull();
-        package.PriorManifest!.ManifestVersion.Should().Be(PriorVersionKey);
+        package.PriorManifest!.ManifestVersion.Should().Be(priorVersionKey);
         package.PriorManifest.Summary.Should().Contain("AcctDb");
 
         package.PriorManifest.ExistingServices.Should().Equal("B", "C Service");
