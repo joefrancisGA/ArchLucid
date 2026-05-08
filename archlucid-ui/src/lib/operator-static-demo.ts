@@ -742,9 +742,9 @@ export function tryStaticDemoAlertInboxRow(): AlertRecord {
   };
 }
 
-/** Merge PHI sample alert into an empty inbox without inventing rows for live tenants (gates caller-side). */
+/** Merge PHI sample alert into an empty inbox only in demo / buyer-polished builds — not for arbitrary local dev. */
 export function shouldMergeOperatorDemoAlertSample(): boolean {
-  return isBuyerPolishedOperatorShellEnv() || isStaticDemoPayloadFallbackEnabled() || process.env.NODE_ENV === "development";
+  return isBuyerPolishedOperatorShellEnv() || isStaticDemoPayloadFallbackEnabled();
 }
 
 export function tryStaticDemoGovernanceApprovalRequests(runId: string): GovernanceApprovalRequest[] | null {

@@ -103,6 +103,11 @@ public static class AgentExecutionFailureSummaryFactory
             return AgentExecutionFailureClasses.Quota;
         }
 
+        if (root is CostLimitExceededException)
+        {
+            return AgentExecutionFailureClasses.CostBudget;
+        }
+
         if (root is HttpRequestException or IOException)
         {
             return AgentExecutionFailureClasses.Dependency;
@@ -126,6 +131,11 @@ public static class AgentExecutionFailureSummaryFactory
         if (root is LlmTokenQuotaExceededException)
         {
             return AgentExecutionTraceFailureReasonCodes.LlmTokenQuotaExceeded;
+        }
+
+        if (root is CostLimitExceededException)
+        {
+            return AgentExecutionTraceFailureReasonCodes.RunCostLimitExceeded;
         }
 
         return null;

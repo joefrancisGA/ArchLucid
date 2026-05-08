@@ -135,6 +135,22 @@ public static class ApplicationProblemMapper
             return true;
         }
 
+        if (ex is RunCostBudgetExceededPartialPersistRecordedException partialBudget)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status402PaymentRequired,
+                "Cost Limit Exceeded",
+                partialBudget.Message,
+                ProblemTypes.CostLimitExceeded,
+                instance,
+                httpContext,
+                details =>
+                {
+                    details.Extensions["persistedAgentOutputs"] = partialBudget.PersistedAgentOutputCount;
+                });
+            return true;
+        }
+
         if (ex is CostLimitExceededException cle)
         {
             result = CreateProblemResult(

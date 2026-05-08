@@ -1,0 +1,18 @@
+{
+  "resultId": "result-golden-short-reco-01",
+  "taskId": "task-golden-short-reco-01",
+  "runId": "run-golden-short-reco-01",
+  "agentType": 3,
+  "claims": [],
+  "evidenceRefs": [],
+  "confidence": 0.88,
+  "findings": [
+    {
+      "severity": "Medium",
+      "description": "This description is intentionally longer than the heuristic minimum threshold for completeness evaluation.",
+      "recommendation": "fix"
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-04-14T12:00:00Z"
+}

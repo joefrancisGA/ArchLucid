@@ -106,29 +106,28 @@ public sealed class AgentResultParser : IAgentResultParser
             ArchLucidInstrumentation.RecordAgentResultSchemaValidation(agentTypeLabel, "valid");
 
         if (!string.Equals(result.RunId, expectedRunId, StringComparison.OrdinalIgnoreCase))
-
-            throw new InvalidOperationException(
+            throw new AgentResultValidationException(
                 $"AgentResult.RunId '{result.RunId}' does not match expected runId '{expectedRunId}'.");
 
         if (!string.Equals(result.TaskId, expectedTaskId, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException(
+            throw new AgentResultValidationException(
                 $"AgentResult.TaskId '{result.TaskId}' does not match expected taskId '{expectedTaskId}'.");
 
         if (result.AgentType != expectedAgentType)
-            throw new InvalidOperationException(
+            throw new AgentResultValidationException(
                 $"AgentResult.AgentType '{result.AgentType}' does not match expected type '{expectedAgentType}'.");
 
         if (string.IsNullOrWhiteSpace(result.ResultId))
-            throw new InvalidOperationException("AgentResult.ResultId is required.");
+            throw new AgentResultValidationException("AgentResult.ResultId is required.");
 
         if (result.Claims is null)
-            throw new InvalidOperationException("AgentResult.Claims is required.");
+            throw new AgentResultValidationException("AgentResult.Claims is required.");
 
         if (result.EvidenceRefs is null)
-            throw new InvalidOperationException("AgentResult.EvidenceRefs is required.");
+            throw new AgentResultValidationException("AgentResult.EvidenceRefs is required.");
 
         return result.Confidence is < 0.0 or > 1.0
-            ? throw new InvalidOperationException("AgentResult.Confidence must be between 0 and 1.")
+            ? throw new AgentResultValidationException("AgentResult.Confidence must be between 0 and 1.")
             : result;
     }
 

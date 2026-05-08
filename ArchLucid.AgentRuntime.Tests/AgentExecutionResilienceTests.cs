@@ -48,7 +48,8 @@ public sealed class AgentExecutionResilienceTests
             new FixedScopeProvider(),
             new AgentHandlerConcurrencyGate(ro),
             ro,
-            Options.Create(new StagedCriticAgentOptions()));
+            Options.Create(new StagedCriticAgentOptions()),
+            Options.Create(new AgentOutputQualityGateOptions()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -79,7 +80,8 @@ public sealed class AgentExecutionResilienceTests
             new FixedScopeProvider(),
             new AgentHandlerConcurrencyGate(ro),
             ro,
-            Options.Create(new StagedCriticAgentOptions()));
+            Options.Create(new StagedCriticAgentOptions()),
+            Options.Create(new AgentOutputQualityGateOptions()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -108,7 +110,8 @@ public sealed class AgentExecutionResilienceTests
             new FixedScopeProvider(),
             new AgentHandlerConcurrencyGate(ro),
             ro,
-            Options.Create(new StagedCriticAgentOptions()));
+            Options.Create(new StagedCriticAgentOptions()),
+            Options.Create(new AgentOutputQualityGateOptions()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();

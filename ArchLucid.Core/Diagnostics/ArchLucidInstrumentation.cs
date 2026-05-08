@@ -252,11 +252,11 @@ public static class ArchLucidInstrumentation
             "archlucid_llm_cache_hits_total",
             description: "LLM completion response cache hits (label: agent_type).");
 
-    /// <summary>LLM completion response cache misses (<c>CachingLlmCompletionClient</c>, label <c>agent_type</c>).</summary>
-    public static readonly Counter<long> LlmCompletionCacheMissesTotal =
+    /// <summary>LLM completions that used the fallback client after primary throttling or server errors (labels: deployment).</summary>
+    public static readonly Counter<long> LlmCompletionFallbackEngagementsTotal =
         AppMeter.CreateCounter<long>(
-            "archlucid_llm_cache_misses_total",
-            description: "LLM completion response cache misses (label: agent_type).");
+            "archlucid_llm_completion_fallback_engagements_total",
+            description: "LLM completion calls fulfilled via FallbackAgentCompletionClient (label: deployment).");
 
 
     /// <summary>In-process cache hits for <c>GET /v1/demo/preview</c> (marketing commit-page bundle).</summary>
@@ -877,6 +877,20 @@ public static class ArchLucidInstrumentation
         tags.Add("agent_type", label);
 
         LlmCompletionCacheMissesTotal.Add(1, tags);
+    }
+
+    /// <summary>
+    ///     Records a successful completion that used the secondary fallback client (label <c>deployment</c> from primary
+    ///     descriptor).
+    /// </summary>
+    public static void RecordLlmCompletionFallbackEngaged(string deploymentLabel)
+    {
+        string label = string.IsNullOrWhiteSpace(deploymentLabel) ? "unknown" : deploymentLabel.Trim();
+
+        TagList tags = [];
+        tags.Add("deployment", label);
+
+        LlmCompletionFallbackEngagementsTotal.Add(1, tags);
     }
 
     /// <summary>Increments <c>archlucid.try.real_mode.attempted_total</c>.</summary>

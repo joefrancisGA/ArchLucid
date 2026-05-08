@@ -71,6 +71,6 @@ describe("mapGraphToReactFlow", () => {
     };
 
     const { edges } = mapGraphToReactFlow(graph, "buyerTrail");
-    expect(edges[0]?.label).toBe("raised");
+    expect(edges[0]?.label).toBe("Flagged risk");
   });
 });

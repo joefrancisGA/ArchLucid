@@ -99,4 +99,31 @@ public sealed class AgentExecutionFailureSummaryFactoryTests
         summary.FailureClass.Should().Be(AgentExecutionFailureClasses.Dependency);
         summary.AgentTypeKey.Should().BeNull();
     }
+
+    [Fact]
+    public void FromException_when_cost_limit_CLASSIFIES_cost_budget_and_reason_code()
+    {
+        CostLimitExceededException inner = new("budget");
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner);
+
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.CostBudget);
+        summary.ReasonCode.Should().Be(AgentExecutionTraceFailureReasonCodes.RunCostLimitExceeded);
+        summary.AgentTypeKey.Should().BeNull();
+    }
+
+    [Fact]
+    public void FromException_when_agent_wrapped_cost_limit_preserves_agent()
+    {
+        CostLimitExceededException inner = new("budget");
+        AgentHandlerExecutionException wrapped = new(
+            AgentTypeKeys.Compliance,
+            AgentType.Compliance,
+            inner);
+
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(wrapped);
+
+        summary.AgentTypeKey.Should().Be(AgentTypeKeys.Compliance);
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.CostBudget);
+        summary.ReasonCode.Should().Be(AgentExecutionTraceFailureReasonCodes.RunCostLimitExceeded);
+    }
 }

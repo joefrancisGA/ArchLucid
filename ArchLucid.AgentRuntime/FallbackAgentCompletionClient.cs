@@ -1,5 +1,9 @@
 using System.ClientModel;
 
+using System.Diagnostics;
+
+using ArchLucid.Core.Diagnostics;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.AgentRuntime;
@@ -79,6 +83,16 @@ public sealed class FallbackAgentCompletionClient(
 
             string result = await _secondary.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
             LastCallUsedFallback.Value = true;
+
+            string deployment =
+                string.IsNullOrWhiteSpace(_primary.Descriptor.ModelId)
+                    ? "unknown"
+                    : _primary.Descriptor.ModelId.Trim();
+
+            ArchLucidInstrumentation.RecordLlmCompletionFallbackEngaged(deployment);
+
+            Activity.Current?.SetTag("archlucid.llm.completion.fallback_engaged", true);
+            Activity.Current?.SetTag("archlucid.llm.completion.fallback_primary_model_id", deployment);
 
             return result;
         }

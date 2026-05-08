@@ -42,7 +42,8 @@ public sealed class RealAgentExecutorStagedCriticTests
             new FixedScopeProvider(),
             new AgentHandlerConcurrencyGate(ro),
             ro,
-            stagedOptions);
+            stagedOptions,
+            Options.Create(new AgentOutputQualityGateOptions()));
     }
 
     [SkippableFact]

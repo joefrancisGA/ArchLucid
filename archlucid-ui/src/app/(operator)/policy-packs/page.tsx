@@ -156,7 +156,7 @@ export default function PolicyPacksPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [buyerPolishedShell]);
 
   useEffect(() => {
     void load();

@@ -28,8 +28,8 @@ describe("operator-co-architect-copy", () => {
     expect(bundle.toLowerCase()).not.toMatch(/\bassistant\b/);
   });
 
-  it("names review as the recommended first path on the home strip body", () => {
-    expect(OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY.toLowerCase()).toMatch(/recommended first path/i);
+  it("explains the four steps and co-architect refinement on the home strip body", () => {
+    expect(OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY.toLowerCase()).toMatch(/four steps/i);
     expect(OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY.toLowerCase()).toMatch(/architecture review/i);
   });
 

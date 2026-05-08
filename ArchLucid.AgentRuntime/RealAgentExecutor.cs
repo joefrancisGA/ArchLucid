@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -36,6 +37,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
     private static readonly ConcurrentDictionary<int, ResiliencePipeline<AgentResult>> TimeoutPipelines = new();
 
     private readonly IAgentHandlerConcurrencyGate _concurrencyGate;
+    private readonly IOptions<AgentOutputQualityGateOptions> _agentOutputBudgetGate;
     private readonly IReadOnlyDictionary<string, IAgentHandler> _handlers;
     private readonly ILogger<RealAgentExecutor> _logger;
     private readonly IOptionsMonitor<AgentPromptCatalogOptions> _promptCatalog;
@@ -51,7 +53,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
         IScopeContextProvider scopeContextProvider,
         IAgentHandlerConcurrencyGate concurrencyGate,
         IOptions<AgentExecutionResilienceOptions> resilienceOptions,
-        IOptions<StagedCriticAgentOptions> stagedCriticOptions)
+        IOptions<StagedCriticAgentOptions> stagedCriticOptions,
+        IOptions<AgentOutputQualityGateOptions> agentOutputBudgetGate)
     {
         ArgumentNullException.ThrowIfNull(handlers);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -60,6 +63,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         _concurrencyGate = concurrencyGate ?? throw new ArgumentNullException(nameof(concurrencyGate));
         _resilienceOptions = resilienceOptions ?? throw new ArgumentNullException(nameof(resilienceOptions));
         _stagedCriticOptions = stagedCriticOptions ?? throw new ArgumentNullException(nameof(stagedCriticOptions));
+        _agentOutputBudgetGate = agentOutputBudgetGate ?? throw new ArgumentNullException(nameof(agentOutputBudgetGate));
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
@@ -135,7 +139,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                             request,
                             evidence,
                             phase1,
-                            linked.Token)
+                            linked)
                         .ConfigureAwait(false);
 
                     ReplaceStagedPriorSummaryNotes(evidence);
@@ -147,7 +151,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                             request,
                             evidence,
                             phase2,
-                            linked.Token)
+                            linked)
                         .ConfigureAwait(false);
 
                     Dictionary<string, AgentResult> byTaskId = new(StringComparer.Ordinal);
@@ -171,7 +175,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                             request,
                             evidence,
                             orderedTasks,
-                            linked.Token)
+                            linked)
                         .ConfigureAwait(false);
                 }
 
@@ -200,13 +204,136 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
         IReadOnlyList<AgentTask> phaseTasks,
-        CancellationToken cancellationToken)
+        CancellationTokenSource linkedCancellation)
     {
-        Task<AgentResult>[] work = phaseTasks
-            .Select(task => ExecuteSingleAsync(runId, request, evidence, task, cancellationToken))
-            .ToArray();
+        if (phaseTasks.Count == 0)
+            return [];
 
-        return await Task.WhenAll(work).ConfigureAwait(false);
+        Task<AgentResult>[] tasks = new Task<AgentResult>[phaseTasks.Count];
+
+        for (int i = 0; i < phaseTasks.Count; i++)
+        {
+            AgentTask phaseTaskItem = phaseTasks[i];
+            tasks[i] =
+                ExecuteSingleAsync(runId, request, evidence, phaseTaskItem, linkedCancellation.Token);
+        }
+
+        if (!_agentOutputBudgetGate.Value.PersistPartialOutputsOnBudgetExceeded)
+            return await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        return await DrainParallelHandlersWithBudgetSupportAsync(tasks, phaseTasks, linkedCancellation)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Drains concurrently running handler tasks until all complete. When run-level token/USD ceilings trip, cancels peer
+    ///     tasks and either throws <see cref="AgentRunPartialBudgetException"/> (successful peers first) or
+    ///     <see cref="CostLimitExceededException"/>.
+    /// </summary>
+    private async Task<AgentResult[]> DrainParallelHandlersWithBudgetSupportAsync(
+        Task<AgentResult>[] tasks,
+        IReadOnlyList<AgentTask> phaseTasks,
+        CancellationTokenSource linkedCancellation)
+    {
+        HashSet<Task<AgentResult>> pending = new(tasks);
+        CostLimitExceededException? budgetCause = null;
+
+        while (pending.Count > 0)
+        {
+            Task<AgentResult> finishedTask = await Task.WhenAny(pending).ConfigureAwait(false);
+
+            _ = pending.Remove(finishedTask);
+
+            if (finishedTask.IsCompletedSuccessfully)
+                continue;
+
+            if (finishedTask.IsCanceled)
+                continue;
+
+            if (finishedTask.IsFaulted)
+            {
+                Exception flattened = ExtractFailureRoot(finishedTask);
+
+                CostLimitExceededException? candidate = ExtractCostLimitCause(flattened);
+
+                if (candidate is not null)
+                {
+                    budgetCause ??= candidate;
+
+                    if (!linkedCancellation.IsCancellationRequested)
+                        linkedCancellation.Cancel();
+
+                    continue;
+                }
+
+                throw flattened;
+            }
+        }
+
+        AgentResult[] orderedSuccesses =
+            SnapshotSuccessfulResultsPreservePhaseTaskOrder(tasks, phaseTasks.Count);
+
+        if (budgetCause is not null && orderedSuccesses.Length > 0)
+            throw new AgentRunPartialBudgetException(budgetCause, orderedSuccesses);
+
+        if (budgetCause is not null)
+            throw budgetCause;
+
+        if (orderedSuccesses.Length != phaseTasks.Count)
+            throw new InvalidOperationException("Parallel agent scheduling finished without aligning task outcomes.");
+
+        return orderedSuccesses;
+    }
+
+    private static Exception ExtractFailureRoot(Task<AgentResult> faultedTask)
+    {
+        Exception ex = faultedTask.Exception!;
+        AggregateException flattened = ex.Flatten();
+
+        if (flattened.InnerExceptions.Count == 1)
+            return flattened.InnerExceptions[0];
+
+        throw flattened;
+    }
+
+    private static CostLimitExceededException? ExtractCostLimitCause(Exception ex)
+    {
+        for (Exception? walker = ex; walker is not null; walker = walker.InnerException)
+        {
+            if (walker is CostLimitExceededException matched)
+                return matched;
+        }
+
+        if (ex is AggregateException ae)
+        {
+            foreach (Exception innerEx in ae.Flatten().InnerExceptions)
+            {
+                CostLimitExceededException? hit = ExtractCostLimitCause(innerEx);
+
+                if (hit is not null)
+                    return hit;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Collects successes in ascending <paramref name="phaseTasks" /> order for stable parity with callers.</summary>
+    private static AgentResult[] SnapshotSuccessfulResultsPreservePhaseTaskOrder(Task<AgentResult>[] tasks, int phaseLen)
+    {
+        List<AgentResult> successes = [];
+
+        for (int i = 0; i < phaseLen; i++)
+        {
+            Task<AgentResult> task = tasks[i];
+
+            if (task.Status != TaskStatus.RanToCompletion)
+                continue;
+
+            successes.Add(task.Result);
+        }
+
+        return successes.Count == 0 ? [] : successes.ToArray();
     }
 
     private static void ReplaceStagedPriorSummaryNotes(AgentEvidencePackage evidence)

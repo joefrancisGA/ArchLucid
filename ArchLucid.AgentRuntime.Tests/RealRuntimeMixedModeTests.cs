@@ -249,7 +249,8 @@ public sealed class RealRuntimeMixedModeTests
             new FixedScopeProviderForMixedMode(),
             new AgentHandlerConcurrencyGate(resilience),
             resilience,
-            Options.Create(new StagedCriticAgentOptions()));
+            Options.Create(new StagedCriticAgentOptions()),
+            Options.Create(new AgentOutputQualityGateOptions()));
 
         ArchitectureRequest request = new()
         {
