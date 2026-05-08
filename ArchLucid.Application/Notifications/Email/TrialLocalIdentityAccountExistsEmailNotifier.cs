@@ -2,6 +2,7 @@ using System.Net;
 
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Notifications.Email;
 
 using Microsoft.Extensions.Logging;
@@ -61,7 +62,7 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifier(
         catch (Exception ex)when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning(ex, "Trial local account-exists email send failed for {Email}.", trimmed);
+                _logger.LogWarningWithSanitizedUserArg(ex, "Trial local account-exists email send failed for {Email}.", trimmed);
         }
     }
 }

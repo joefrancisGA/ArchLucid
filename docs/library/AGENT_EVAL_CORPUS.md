@@ -35,6 +35,14 @@ Five additional scenarios (Azure web app, regulated data workflow, cost-constrai
 - **`qualityEvidence.agentType`** — short label for the report (Topology / Cost / Compliance / Critic); not used for scoring keys today.
 - **`qualityEvidence.agentResultPath`** — repo-relative path under **`tests/eval-corpus/`**.
 
+**Adversarial probes (2026-05):** three scenarios strengthen regression coverage for common agent failure modes without live models:
+
+- **`scenario-hallucinated-service.json`** — fabricated components absent from manifests/inventory (`recordings/corpus-hallucinated-service.findings.json`, **`agent-results/corpus-hallucinated-service.simulator.json`**).
+- **`scenario-citation-forgery.json`** — non-resolving ADR/repo citations and checksum expectations (`recordings/corpus-citation-forgery.findings.json`, **`agent-results/corpus-citation-forgery.simulator.json`**).
+- **`scenario-contradictory-manifest.json`** — manifest vs diagram vs encryption-story contradictions (`recordings/corpus-contradictory-manifest.findings.json`, **`agent-results/corpus-contradictory-manifest.simulator.json`**).
+
+Each follows the authoring checklist (≥3 expected probes, ≥2 unexpected probes, committed simulator **AgentResult** JSON).
+
 **Real Azure OpenAI** traces are **not** committed as prompts. Two complementary paths:
 
 1. **HTTP / tenant evidence:** After **`POST …/execute`**, call **`GET /v1/architecture/run/{runId}/agent-evaluation`** and archive exports outside the repo (or consume metrics backends). Name the **reference deployment** alongside **`AGENT_OUTPUT_EVALUATION.md`** quality-gate floors.

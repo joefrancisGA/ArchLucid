@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "corp-contra-1",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Manifest drift versus diagrams",
+      "detail": "The workload manifest describes consumption-plan Functions while diagrams illustrate redundant IIS VMs; this contradiction blocks trustworthy blast-radius scoring until editors merge a single story."
+    },
+    {
+      "findingId": "corp-contra-2",
+      "category": "Critic",
+      "severity": "High",
+      "title": "Narrative versus graphical SLA cues",
+      "detail": "Stakeholders advertise ninety-nine nine availability wording yet diagrams omit redundant zones; reconcile the discrepancy before executive review consumes the packet."
+    },
+    {
+      "findingId": "corp-contra-3",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Encryption posture mismatch",
+      "detail": "Manifest asserts AES-256 at rest everywhere yet datastore glyphs omit KMS anchors; enforce alignment across every collateral drop."
+    },
+    {
+      "findingId": "corp-contra-4",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "Rightsizing signal",
+      "detail": "Reserved instances remain cheaper once sustained utilization exceeds sixty percent for three consecutive weekly averages."
+    }
+  ]
+}
