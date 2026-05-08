@@ -28,6 +28,7 @@ START_HERE.md (you are here)
 ├─ Contributor / developer — local toolchain and repo orientation
 │   ├─ INSTALL_ORDER.md            → canonical body: engineering/INSTALL_ORDER.md
 │   ├─ FIRST_30_MINUTES.md         → canonical body: engineering/FIRST_30_MINUTES.md
+│   ├─ library/CONTRIBUTOR_CODE_MAP.md (1-page decision tree for where to change code)
 │   └─ ARCHITECTURE_INDEX.md       (maps after first run)
 │
 └─ Security / GRC — trust pack (hosted UI /trust mirrors narrative)
