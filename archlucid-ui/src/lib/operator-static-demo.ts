@@ -167,7 +167,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "This sample review uses a fixed pipeline replay for consistent demonstration (no live model calls for agent steps).",
+      "Sample walkthrough — fixed inputs and reproducible analysis so sponsors see the same package every time. No external model calls in this environment; production tenants follow your configured execution mode (see Trust / Evidence).",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,
@@ -737,6 +737,7 @@ export function tryStaticDemoAlertInboxRow(): AlertRecord {
     createdUtc: "2026-01-14T22:01:00.000Z",
     lastUpdatedUtc: null,
     runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+    primaryFindingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
     comparedToRunId: null,
     recommendationId: null,
   };

@@ -27,6 +27,8 @@ export type AlertRecord = {
   createdUtc: string;
   lastUpdatedUtc?: string | null;
   runId?: string | null;
+  /** When set, inbox surfaces can deep-link to structured finding detail (demo PHI alert). */
+  primaryFindingId?: string | null;
   comparedToRunId?: string | null;
   recommendationId?: string | null;
 };

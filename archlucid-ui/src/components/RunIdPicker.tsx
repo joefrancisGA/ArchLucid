@@ -9,6 +9,7 @@ import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
 import { cn } from "@/lib/utils";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
@@ -32,6 +33,8 @@ type RunIdPickerProps = {
   preferAutoPick?: boolean;
   /** When true, primary line is a buyer-facing title; technical run id is shown underneath. */
   useBuyerFacingRunLabels?: boolean;
+  /** Invoked when the user picks a row from the list (not on every keystroke). */
+  onRunPicked?: (run: RunSummary) => void;
 };
 
 function truncate(text: string, max: number): string {
@@ -59,6 +62,7 @@ export function RunIdPicker({
   forCompare = false,
   preferAutoPick = true,
   useBuyerFacingRunLabels = false,
+  onRunPicked,
 }: RunIdPickerProps) {
   const generatedId = useId();
   const controlId = inputId ?? `run-id-picker-${generatedId}`;
@@ -186,6 +190,7 @@ export function RunIdPicker({
       .filter(
         (r) =>
           r.runId.toLowerCase().includes(q) ||
+          (r.displayName ?? "").toLowerCase().includes(q) ||
           (r.description ?? "").toLowerCase().includes(q) ||
           (r.projectId ?? "").toLowerCase().includes(q),
       )
@@ -243,10 +248,10 @@ export function RunIdPicker({
             filtered.map((r) => {
               const primaryText = useBuyerFacingRunLabels
                 ? buyerFacingReviewTitleFromSummary(r)
-                : truncate(r.runId, 40);
+                : truncate(runSummaryDisplayLabel(r), 52);
               const secondaryText = useBuyerFacingRunLabels
                 ? truncate(r.runId, 48)
-                : truncate(r.description ?? r.projectId ?? "—", 60);
+                : truncate(r.runId, 48);
 
               return (
               <li key={r.runId} role="presentation">
@@ -265,25 +270,12 @@ export function RunIdPicker({
                     setQuery(r.runId);
                     onChange(r.runId);
                     onSelect?.(r.runId);
+                    onRunPicked?.(r);
                     setOpen(false);
                   }}
                 >
-                  <span
-                    className={cn(
-                      "text-neutral-900 dark:text-neutral-100",
-                      useBuyerFacingRunLabels ? "text-sm font-medium" : "font-mono text-xs",
-                    )}
-                  >
-                    {primaryText}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-xs text-neutral-600 dark:text-neutral-400",
-                      useBuyerFacingRunLabels ? "font-mono" : null,
-                    )}
-                  >
-                    {secondaryText}
-                  </span>
+                  <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{primaryText}</span>
+                  <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400">{secondaryText}</span>
                 </button>
               </li>
               );

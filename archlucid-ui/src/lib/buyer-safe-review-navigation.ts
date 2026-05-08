@@ -39,11 +39,11 @@ export function isBuyerSafePrimaryReviewNavigationPreferred(runId: string): bool
 export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(runId.trim());
 
-  /** Manifest-first for the curated Claims Intake spine — avoids `/reviews/[id]` when detail hydration is brittle. */
+  /** Walkthrough-first for the curated Claims Intake spine — sponsor-safe before sealed manifest drill-down. */
   if (isDemoRunIdEligibleForStaticFallback(id)) {
     return {
-      href: getShowcaseManifestHref(),
-      label: "Manifest summary",
+      href: getShowcaseWalkthroughHref(),
+      label: "Read-only walkthrough",
     };
   }
 

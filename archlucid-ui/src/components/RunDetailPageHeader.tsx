@@ -1,8 +1,11 @@
 "use client";
 
+import Link from "next/link";
+
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { HelpLink } from "@/components/HelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { Badge } from "@/components/ui/badge";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import type { RunSummary } from "@/types/authority";
@@ -27,7 +30,8 @@ export function RunDetailPageHeader({
   executionFlavorBuyerSummary,
 }: RunDetailPageHeaderProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const showExecutionFlavor = Boolean(executionFlavorBuyerSummary) && !buyerPolishedShell;
+  const showExecutionFlavorOperator =
+    Boolean(executionFlavorBuyerSummary) && !buyerPolishedShell;
 
   return (
     <header className="mb-6 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
@@ -42,7 +46,21 @@ export function RunDetailPageHeader({
               label="Architecture review steps — Core Pilot guide on GitHub (new tab)"
             />
           </div>
-          {showExecutionFlavor ? (
+          {buyerPolishedShell && executionFlavorBuyerSummary ? (
+            <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              <Badge variant="secondary" className="me-2 align-middle font-normal">
+                Analysis mode
+              </Badge>
+              {executionFlavorBuyerSummary}{" "}
+              <Link
+                href={`/reviews/${encodeURIComponent(runId)}#trust-evidence`}
+                className="font-medium text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600"
+              >
+                Trust / Evidence details
+              </Link>
+            </p>
+          ) : null}
+          {showExecutionFlavorOperator ? (
             <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
               {executionFlavorBuyerSummary}
             </p>

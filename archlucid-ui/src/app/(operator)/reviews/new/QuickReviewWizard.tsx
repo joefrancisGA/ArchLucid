@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-stora
 import { showError, showSuccess } from "@/lib/toast";
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
+import { NewReviewIntentCallout } from "./NewReviewIntentCallout";
 
 /** Persisted when the operator switches paths; missing key defaults to Quick review (onboarding-friendly). */
 const REVIEWS_NEW_PATH_STORAGE_KEY = "archlucid_reviews_new_path_v1";
@@ -330,6 +331,9 @@ export function ReviewsNewPathSwitcher() {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4">
+      <Suspense fallback={null}>
+        <NewReviewIntentCallout />
+      </Suspense>
       {ready ? (
         <div
           className="flex flex-wrap gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"

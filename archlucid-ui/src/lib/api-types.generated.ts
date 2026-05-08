@@ -20126,9 +20126,16 @@ export interface components {
             heuristicOverallScore?: number | string;
             /** Format: int32 */
             incompleteFindingCount?: number;
+            judgeHeuristicDisagreementElevatesWarn?: boolean;
+            /** Format: double */
+            llmJudgeHeuristicDisagreement?: null | number | string;
+            /** Format: int32 */
+            llmJudgeInvocationCount?: null | number;
             llmJudgeNotes?: null | string;
             /** Format: double */
             llmJudgeOverallQuality?: null | number | string;
+            /** Format: double */
+            llmJudgeQualityDispersion?: null | number | string;
             /** Format: double */
             overallSemanticScore?: number | string;
             traceId?: string;
@@ -23762,6 +23769,7 @@ export interface components {
             /** Format: date-time */
             createdUtc?: string;
             description?: null | string;
+            displayName?: null | string;
             hasArtifactBundle?: boolean;
             hasContextSnapshot?: boolean;
             hasDecisionTrace?: boolean;

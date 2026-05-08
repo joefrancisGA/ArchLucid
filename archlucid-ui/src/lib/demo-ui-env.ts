@@ -50,3 +50,14 @@ export function isBuyerPolishedOperatorShellEnv(): boolean {
 
   return true;
 }
+
+/**
+ * Next.js client-only redirect gate for packaged demos — active when static-operator or explicit demo mode builds ship.
+ */
+export function isDemoStrictNavigationRedirectsActive(): boolean {
+  return (
+    isNextPublicDemoMode() ||
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true" ||
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1"
+  );
+}

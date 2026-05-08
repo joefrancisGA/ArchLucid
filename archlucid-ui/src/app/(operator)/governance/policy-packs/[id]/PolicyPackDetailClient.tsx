@@ -2,18 +2,33 @@
 
 import Link from "next/link";
 
+import { HealthcareClaimsPolicyPackDetail } from "@/app/(operator)/governance/policy-packs/[id]/HealthcareClaimsPolicyPackDetail";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
+function isHealthcareClaimsDemonstrationPack(policyPackId: string): boolean {
+  const normalized = policyPackId.trim().toLowerCase();
+
+  return (
+    normalized === "demo-healthcare-claims-pack" ||
+    normalized.includes("healthcare-claims") ||
+    normalized.includes("healthcare_claims")
+  );
+}
+
 /**
- * Detail shell for `/governance/policy-packs/[id]` — distinct from `/policy-packs` (registry + lifecycle).
- * Scoped pack inspection and dry-run tooling can extend this route; the default view keeps navigation useful.
+ * Detail shell for `/governance/policy-packs/[id]` — renders sponsor-grade Healthcare Claims narrative for demo ids,
+ * otherwise a lightweight registry hand-off.
  */
 export function PolicyPackDetailClient(props: { readonly policyPackId: string }) {
   const { policyPackId } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  if (isHealthcareClaimsDemonstrationPack(policyPackId)) {
+    return <HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} />;
+  }
 
   return (
     <main className="mx-auto max-w-4xl p-6">

@@ -113,6 +113,7 @@ public sealed class AuthorityRunEventsController(
             RunId = x.RunId,
             ProjectId = x.ProjectId,
             Description = x.Description,
+            DisplayName = string.IsNullOrWhiteSpace(x.Description) ? null : x.Description.Trim(),
             CreatedUtc = x.CreatedUtc,
             HasContextSnapshot = x.HasContextSnapshot,
             HasGraphSnapshot = x.HasGraphSnapshot,

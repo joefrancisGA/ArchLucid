@@ -111,7 +111,7 @@ export function FindingExplainabilityDialog({
           <DialogDescription id="finding-explainability-dialog-desc">
             {buyerPolishedShell
               ? "Structured reasoning captured when this finding was produced."
-              : "Deterministic trace from the run pipeline (no live LLM call in this dialog)."}
+              : "Deterministic pipeline trace loaded here — external cloud completions appear only when the workspace routes execution through live endpoints."}
           </DialogDescription>
         </DialogHeader>
 

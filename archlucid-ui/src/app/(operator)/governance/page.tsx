@@ -191,6 +191,8 @@ function GovernanceWorkflowPageInner() {
   const hideGovernanceQueryLoadCard =
     buyerPolishedShell && approvals.length > 0 && !listsLoading;
 
+  const listsLoadingShowsBusyChrome = listsLoading && !(buyerPolishedShell && approvals.length > 0);
+
   const [pendingReview, setPendingReview] = useState<PendingReview | null>(null);
   const [reviewedBy, setReviewedBy] = useState("");
   const [reviewComment, setReviewComment] = useState("");
@@ -806,7 +808,7 @@ function GovernanceWorkflowPageInner() {
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="secondary" onClick={onLoadRun} disabled={listsLoading}>
-                  {listsLoading ? "Loading…" : buyerPolishedShell ? "Load review" : "Load"}
+                  {listsLoadingShowsBusyChrome ? "Loading…" : buyerPolishedShell ? "Load review" : "Load"}
                 </Button>
                 {activeRunId !== null ? (
                   <Button
@@ -816,7 +818,7 @@ function GovernanceWorkflowPageInner() {
                     disabled={listsLoading}
                     title={governanceWorkflowRefreshRunDataTitle}
                   >
-                    {listsLoading
+                    {listsLoadingShowsBusyChrome
                       ? "Refreshing…"
                       : buyerPolishedShell
                         ? "Refresh review data"

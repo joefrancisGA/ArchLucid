@@ -16,6 +16,7 @@ import { HelpPanel } from "@/components/HelpPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { CorePilotWizardLauncher } from "@/components/CorePilotWizard";
+import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import {
   OperatorChromeModeProvider,
@@ -164,6 +165,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                     className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                   >
                     <SyncActiveRunFromPathname />
+                    <DemoStrictNavigationGate />
                     {children}
                   </main>
                 </KeyboardShortcutProvider>
@@ -240,8 +242,9 @@ function AppShellInner({ children }: AppShellClientProps) {
                   tabIndex={-1}
                   className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                 >
-                  <SyncActiveRunFromPathname />
-                  {children}
+                    <SyncActiveRunFromPathname />
+                    <DemoStrictNavigationGate />
+                    {children}
                 </main>
               </KeyboardShortcutProvider>
             </div>

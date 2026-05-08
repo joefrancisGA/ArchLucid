@@ -38077,12 +38077,26 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("incompleteFindingCount")]
         public int? IncompleteFindingCount { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("judgeHeuristicDisagreementElevatesWarn")]
+        public bool? JudgeHeuristicDisagreementElevatesWarn { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("llmJudgeHeuristicDisagreement")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? LlmJudgeHeuristicDisagreement { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("llmJudgeInvocationCount")]
+        public int? LlmJudgeInvocationCount { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("llmJudgeNotes")]
         public string? LlmJudgeNotes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("llmJudgeOverallQuality")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? LlmJudgeOverallQuality { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("llmJudgeQualityDispersion")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? LlmJudgeQualityDispersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("overallSemanticScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
@@ -50288,6 +50302,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string? Description { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("displayName")]
+        public string? DisplayName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasArtifactBundle")]
         public bool? HasArtifactBundle { get; set; } = default!;
