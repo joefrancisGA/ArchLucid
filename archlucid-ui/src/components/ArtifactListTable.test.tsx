@@ -78,7 +78,7 @@ describe("ArtifactListTable", () => {
     expect(screen.getByRole("link", { name: "View" })).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: "Format" })).toBeNull();
 
-    expect(screen.getByText("Technical details")).toBeInTheDocument();
+    expect(screen.getByText(/Technical appendix/)).toBeInTheDocument();
     expect(screen.getByText("text/markdown")).toBeInTheDocument();
     expect(screen.getByText(/Presentation:/)).toBeInTheDocument();
   });

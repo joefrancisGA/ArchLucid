@@ -389,10 +389,10 @@ export default async function RunDetailPage({
     ? [
         { id: "manifest-summary", label: "Package", available: Boolean(manifestSummary) },
         { id: "trust-evidence", label: "Evidence", available: Boolean(resolvedDetail.trustEvidenceCard) },
+        { id: "run-explanation", label: "Findings", available: Boolean(manifestId) },
         { id: "run-metadata", label: "Review", available: true },
         { id: "pipeline-timeline", label: "Activity", available: true },
         { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
-        { id: "run-explanation", label: "Findings", available: Boolean(manifestId) },
         { id: "run-actions", label: "Next steps", available: true },
       ]
     : [
@@ -439,6 +439,57 @@ export default async function RunDetailPage({
     Boolean(manifestId) &&
     manifestSummary !== null &&
     isManifestCommittedForPilotScorecardPackage(manifestSummary);
+
+  const explanationSection =
+    manifestId !== null ? (
+      <section id="run-explanation" className="scroll-mt-24">
+        <CollapsibleSection
+          title={buyerPolishedArtifactTable ? "Findings & review narrative" : "Architecture review summary"}
+          defaultOpen={buyerPolishedArtifactTable}
+        >
+          {explanationFailure && (
+            <>
+              <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                Aggregate explanation could not be loaded.
+              </p>
+              <OperatorApiProblem
+                problem={explanationFailure.problem}
+                fallbackMessage={explanationFailure.message}
+                correlationId={explanationFailure.correlationId}
+                variant="warning"
+              />
+              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                The review and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
+              </p>
+              <OperatorSectionRetryButton label="Retry loading explanation" />
+            </>
+          )}
+          {!explanationFailure && (
+            <>
+              <RunExplanationSection
+                summary={explanationSummary}
+                loading={false}
+                error={null}
+                runId={runId}
+                displayFindingCount={findingCountDisplay}
+              />
+              {(() => {
+                const traceRows =
+                  explanationSummary?.findingTraceConfidences ??
+                  explanationSummary?.explanation?.findingTraceConfidences ??
+                  [];
+
+                if (traceRows.length === 0) {
+                  return null;
+                }
+
+                return <RunFindingExplainabilityTable runId={runId} rows={traceRows} />;
+              })()}
+            </>
+          )}
+        </CollapsibleSection>
+      </section>
+    ) : null;
 
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
@@ -512,6 +563,8 @@ export default async function RunDetailPage({
           }}
         />
       ) : null}
+
+      {buyerPolishedArtifactTable ? explanationSection : null}
 
       <section id="run-metadata" className="scroll-mt-24">
         <Card>
@@ -800,98 +853,93 @@ export default async function RunDetailPage({
                 />
               )}
 
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <GoldenManifestExportMenu
-                  runId={resolvedDetail.run.runId}
-                  manifestId={manifestId}
-                  goldenManifestJson={goldenManifestJsonForExport}
-                  manifestSummary={manifestSummaryForUi ?? manifestSummary}
-                  trustEvidenceCard={resolvedDetail.trustEvidenceCard ?? null}
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={
-                    buyerPolishedArtifactTable
-                      ? "border-teal-200 bg-teal-50/60 text-teal-900 hover:bg-teal-50 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100 dark:hover:bg-teal-950/55"
-                      : undefined
-                  }
-                  asChild
-                >
-                  <FunnelTelemetryExportAnchor href={getBundleDownloadUrl(manifestId)}>
-                    Download bundle (ZIP)
-                  </FunnelTelemetryExportAnchor>
-                </Button>
-                <Button variant="outline" size="sm" asChild>
-                  <FunnelTelemetryExportAnchor href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>
-                    Download review export (ZIP)
-                  </FunnelTelemetryExportAnchor>
-                </Button>
-                <Button variant="outline" size="sm" asChild>
-                  <Link
-                    href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
-                    className={buyerPolishedArtifactTable ? "no-underline" : undefined}
-                  >
-                    Compare with another review
-                  </Link>
-                </Button>
-                <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
-                  <Link href={`/ask?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
-                    Ask about this review
-                  </Link>
-                </Button>
+              <div className="mt-4 flex flex-col gap-3">
+                {buyerPolishedArtifactTable ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button variant="primary" size="sm" asChild>
+                      <FunnelTelemetryExportAnchor href={getBundleDownloadUrl(manifestId)}>
+                        Download package (ZIP)
+                      </FunnelTelemetryExportAnchor>
+                    </Button>
+                    <GoldenManifestExportMenu
+                      runId={resolvedDetail.run.runId}
+                      manifestId={manifestId}
+                      goldenManifestJson={goldenManifestJsonForExport}
+                      manifestSummary={manifestSummaryForUi ?? manifestSummary}
+                      trustEvidenceCard={resolvedDetail.trustEvidenceCard ?? null}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <GoldenManifestExportMenu
+                      runId={resolvedDetail.run.runId}
+                      manifestId={manifestId}
+                      goldenManifestJson={goldenManifestJsonForExport}
+                      manifestSummary={manifestSummaryForUi ?? manifestSummary}
+                      trustEvidenceCard={resolvedDetail.trustEvidenceCard ?? null}
+                    />
+                    <Button variant="outline" size="sm" asChild>
+                      <FunnelTelemetryExportAnchor href={getBundleDownloadUrl(manifestId)}>
+                        Download bundle (ZIP)
+                      </FunnelTelemetryExportAnchor>
+                    </Button>
+                  </div>
+                )}
+                {buyerPolishedArtifactTable ? (
+                  <details className="rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
+                    <summary className="cursor-pointer select-none text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                      More export options
+                    </summary>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <Button variant="outline" size="sm" asChild>
+                        <FunnelTelemetryExportAnchor href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>
+                          Download review export (ZIP)
+                        </FunnelTelemetryExportAnchor>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link
+                          href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
+                          className="no-underline"
+                        >
+                          Compare with another review
+                        </Link>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
+                        <Link href={`/ask?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
+                          Ask about this review
+                        </Link>
+                      </Button>
+                    </div>
+                  </details>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button variant="outline" size="sm" asChild>
+                      <FunnelTelemetryExportAnchor href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>
+                        Download review export (ZIP)
+                      </FunnelTelemetryExportAnchor>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link
+                        href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
+                        className={buyerPolishedArtifactTable ? "no-underline" : undefined}
+                      >
+                        Compare with another review
+                      </Link>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
+                      <Link href={`/ask?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
+                        Ask about this review
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </div>
             </CollapsibleSection>
           </div>
         </section>
       )}
 
-      {manifestId && (
-        <section id="run-explanation" className="scroll-mt-24">
-          <CollapsibleSection title="Architecture review summary" defaultOpen={false}>
-            {explanationFailure && (
-              <>
-                <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-                  Aggregate explanation could not be loaded.
-                </p>
-                <OperatorApiProblem
-                  problem={explanationFailure.problem}
-                  fallbackMessage={explanationFailure.message}
-                  correlationId={explanationFailure.correlationId}
-                  variant="warning"
-                />
-                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                  The review and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
-                </p>
-                <OperatorSectionRetryButton label="Retry loading explanation" />
-              </>
-            )}
-            {!explanationFailure && (
-              <>
-                <RunExplanationSection
-                  summary={explanationSummary}
-                  loading={false}
-                  error={null}
-                  runId={runId}
-                  displayFindingCount={findingCountDisplay}
-                />
-                {(() => {
-                  const traceRows =
-                    explanationSummary?.findingTraceConfidences ??
-                    explanationSummary?.explanation?.findingTraceConfidences ??
-                    [];
-
-                  if (traceRows.length === 0) {
-                    return null;
-                  }
-
-                  return <RunFindingExplainabilityTable runId={runId} rows={traceRows} />;
-                })()}
-              </>
-            )}
-          </CollapsibleSection>
-        </section>
-      )}
+      {!buyerPolishedArtifactTable ? explanationSection : null}
 
       {manifestId && <BeforeAfterDeltaPanel variant="inline" runId={runId} />}
 

@@ -7,6 +7,7 @@ import {
 } from "@/components/OperatorEvidenceLimitsFooter";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
@@ -38,6 +39,8 @@ export function FindingInspectView({
   failure,
   runExecutionFootnote = null,
 }: FindingInspectViewProps) {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   if (failure || !payload) {
     return (
       <main className="mx-auto max-w-3xl space-y-4 p-6">
@@ -95,16 +98,18 @@ export function FindingInspectView({
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}`}
           className="text-base font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
         >
-          ← Finding detail
+          ← {buyerPolishedShell ? "Back to finding overview" : "Finding detail"}
         </Link>
       </div>
 
       <header className="space-y-3">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Technical inspection</h1>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+          {buyerPolishedShell ? "Traceability view" : "Technical inspection"}
+        </h1>
         <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          This view shows audit and explainability details for the finding: decision-rule linkage, citations, typed
-          payload, and audit correlation. Use Finding detail (link above) for the product summary; come here when you
-          need full traceability.
+          {buyerPolishedShell
+            ? "Rules, typed payloads, citations, and audit correlation for this finding. Use the finding overview when you need the sponsor summary first."
+            : "This view shows audit and explainability details for the finding: decision-rule linkage, citations, typed payload, and audit correlation. Use Finding detail (link above) for the product summary; come here when you need full traceability."}
         </p>
         <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Finding <span className="font-mono text-xs">{decodedFindingId}</span> — manifest{" "}

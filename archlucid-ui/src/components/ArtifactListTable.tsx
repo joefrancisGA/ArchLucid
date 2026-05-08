@@ -89,35 +89,9 @@ export function ArtifactListTable(props: {
                 <td className="max-w-[280px] px-2 py-2.5">
                   <strong className="font-semibold">{businessLabel}</strong>
                   {sponsorMode ? (
-                    <>
-                      {sponsorCaption !== null ? (
-                        <p className="m-0 mt-1 text-[11px] text-neutral-600 dark:text-neutral-400">{sponsorCaption}</p>
-                      ) : null}
-                      <details className="mt-2 rounded-md border border-neutral-200 bg-neutral-50/80 px-2 py-1.5 dark:border-neutral-700 dark:bg-neutral-900/40">
-                        <summary className="cursor-pointer select-none text-[11px] font-medium text-neutral-700 dark:text-neutral-300">
-                          Technical details
-                        </summary>
-                        <dl className="m-0 mt-2 grid gap-2 text-[11px] text-neutral-600 dark:text-neutral-400">
-                          <div>
-                            <dt className="m-0 font-medium text-neutral-700 dark:text-neutral-300">Media type / format</dt>
-                            <dd className="m-0 mt-0.5">
-                              <code className="break-all font-mono text-[10px] text-neutral-800 dark:text-neutral-200">
-                                {artifact.format}
-                              </code>
-                              <span className="mt-1 block text-[10px] text-neutral-500 dark:text-neutral-500">
-                                Presentation: {getArtifactFormatLabel(artifact.format)}
-                              </span>
-                            </dd>
-                          </div>
-                          <div>
-                            <dt className="m-0 font-medium text-neutral-700 dark:text-neutral-300">Content fingerprint</dt>
-                            <dd className="m-0 mt-0.5 break-all font-mono text-[10px] text-neutral-800 dark:text-neutral-200">
-                              {artifact.contentHash}
-                            </dd>
-                          </div>
-                        </dl>
-                      </details>
-                    </>
+                    sponsorCaption !== null ? (
+                      <p className="m-0 mt-1 text-[11px] text-neutral-600 dark:text-neutral-400">{sponsorCaption}</p>
+                    ) : null
                   ) : null}
                 </td>
                 {sponsorMode ? null : (
@@ -159,6 +133,44 @@ export function ArtifactListTable(props: {
           })}
         </tbody>
       </table>
+      {sponsorMode && sorted.length > 0 ? (
+        <details className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
+          <summary className="cursor-pointer select-none text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            Technical appendix — format and fingerprints for all outputs
+          </summary>
+          <div className="mt-3 space-y-4">
+            {sorted.map((artifact) => (
+              <div
+                key={`${artifact.artifactId}-tech`}
+                className="border-t border-neutral-200 pt-3 first:border-t-0 first:pt-0 dark:border-neutral-700"
+              >
+                <p className="m-0 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                  {getArtifactBusinessLabel(artifact.artifactType)}
+                </p>
+                <dl className="m-0 mt-2 grid gap-2 text-[11px] text-neutral-600 dark:text-neutral-400">
+                  <div>
+                    <dt className="m-0 font-medium text-neutral-700 dark:text-neutral-300">Media type / format</dt>
+                    <dd className="m-0 mt-0.5">
+                      <code className="break-all font-mono text-[10px] text-neutral-800 dark:text-neutral-200">
+                        {artifact.format}
+                      </code>
+                      <span className="mt-1 block text-[10px] text-neutral-500 dark:text-neutral-500">
+                        Presentation: {getArtifactFormatLabel(artifact.format)}
+                      </span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="m-0 font-medium text-neutral-700 dark:text-neutral-300">Content fingerprint</dt>
+                    <dd className="m-0 mt-0.5 break-all font-mono text-[10px] text-neutral-800 dark:text-neutral-200">
+                      {artifact.contentHash}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            ))}
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 }

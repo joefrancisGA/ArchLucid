@@ -37802,6 +37802,36 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class AgentExecutionFailureSummary
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentType")]
+        public string? AgentType { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentTypeKey")]
+        public string? AgentTypeKey { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("failureClass")]
+        public string? FailureClass { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("reasonCode")]
+        public string? ReasonCode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("schemaVersion")]
+        public int? SchemaVersion { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AgentExecutionTrace
     {
 
@@ -38033,8 +38063,19 @@ namespace ArchLucid.Api.Client.Generated
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? FindingsQualityRatio { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("heuristicOverallScore")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? HeuristicOverallScore { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("incompleteFindingCount")]
         public int? IncompleteFindingCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("llmJudgeNotes")]
+        public string? LlmJudgeNotes { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("llmJudgeOverallQuality")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? LlmJudgeOverallQuality { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("overallSemanticScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
@@ -39154,6 +39195,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
         public System.Guid? GraphSnapshotId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("lastAgentExecutionFailure")]
+        public AgentExecutionFailureSummary? LastAgentExecutionFailure { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("otelTraceId")]
         public string? OtelTraceId { get; set; } = default!;
