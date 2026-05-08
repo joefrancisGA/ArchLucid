@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rmc-real-exemplar-01",
+  "taskId": "corpus-rmc-task-exemplar",
+  "runId": "corpus-rmc-run-exemplar",
+  "agentType": 2,
+  "claims": [
+    {
+      "evidenceRefs": ["finops-tagging-standard"],
+      "detail": "Committed exemplar: migration waves sequenced by savings potential with dependency-aware cutovers."
+    }
+  ],
+  "evidenceRefs": ["finops-tagging-standard"],
+  "confidence": 0.74,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Cost",
+      "description": "Rightsizing reduces annual compute estimates after consolidating burstable VMs post utilization study.",
+      "recommendation": "Pair rightsizing with shutdown schedules for non-production tiers."
+    },
+    {
+      "severity": "Low",
+      "category": "Cost",
+      "description": "Reserved instances cover baseline SQL pools once thirty-day peak variance stays narrow.",
+      "recommendation": "Revisit reservation coverage quarterly when workloads shift to serverless tiers."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-08T12:00:00Z"
+}

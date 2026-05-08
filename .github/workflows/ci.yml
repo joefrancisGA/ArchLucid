@@ -1728,7 +1728,45 @@ jobs:
       - dotnet-full-regression-slow
     runs-on: ubuntu-latest
     timeout-minutes: 120
-      # while dotnet + SQL are already up (reduces OOM risk and API process being killed).
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      # Build Next.js before starting the API reduces peak memory on the runner.
       - name: Install UI deps & build Next (standalone)
         working-directory: archlucid-ui
         env:

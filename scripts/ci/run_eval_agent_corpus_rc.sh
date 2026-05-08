@@ -4,16 +4,21 @@
 # Pull-request CI should keep Azure OpenAI credentials unset and call eval_agent_corpus.py
 # without --require-real-mode-evidence (real-mode rows skip when env vars are unset).
 #
-# This script turns on strict recall, simulator quality-gate enforcement, and mandatory
-# real-mode AgentResult evidence so RC automation fails fast when evidence is missing.
+# This script turns on strict recall, simulator + real-mode quality-gate enforcement, and
+# mandatory real-mode AgentResult evidence so RC automation fails fast when evidence is
+# missing or reference paths are rejected by the default gate.
 #
 # Environment variables:
 #   ARCHLUCID_EVAL_CORPUS_ROOT          — corpus directory (default: <repo>/tests/eval-corpus)
 #   ARCHLUCID_EVAL_CORPUS_MIN_RECALL    — --min-recall (default: 0.75)
 #   ARCHLUCID_EVAL_CORPUS_MARKDOWN_REPORT — if set, passes --markdown-report <path>
-#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT — absolute path to exported Web AgentResult JSON
-#       for scenario-real-mode-smoke (see tests/eval-corpus/scenario-real-mode-smoke.json /
-#       docs/library/AGENT_EVAL_CORPUS.md).
+# Real-mode quality rows (set each to an absolute path of Web-serialized AgentResult JSON; RC workflow
+# points them at committed exemplars under tests/eval-corpus/agent-results/*.real.json):
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT       — scenario-real-mode-smoke (Topology)
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT        — scenario-real-mode-cost
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT  — scenario-real-mode-compliance
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT      — scenario-real-mode-critic
+# See docs/library/AGENT_EVAL_CORPUS.md.
 #
 set -euo pipefail
 
@@ -34,6 +39,7 @@ CMD=(
   "--enforce"
   "--min-recall" "${MIN_RECALL}"
   "--enforce-quality-gate"
+  "--enforce-real-quality-gate"
   "--require-real-mode-evidence"
 )
 

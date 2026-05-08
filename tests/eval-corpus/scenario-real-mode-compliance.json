@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-compliance",
+  "metadata": {
+    "title": "Real-mode Compliance AgentResult exemplar (offline scorer)",
+    "complexity": "high",
+    "primaryAgents": ["Compliance"]
+  },
+  "inputSummary": "Mirrors the regulated data workflow brief for finding probes; committed exemplar scores Compliance-shaped AgentResult JSON in RC automation.",
+  "recording": "recordings/corpus-regulated-data-workflow.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Compliance",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT",
+    "notes": "Synthetic brief only; exemplar is non-production narrative."
+  },
+  "expectedFindings": [
+    {
+      "id": "e residency",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["region", "storage"]
+    },
+    {
+      "id": "e private endpoints",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["private endpoint", "ingress"]
+    },
+    {
+      "id": "e audit logging",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["diagnostic", "log analytics"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Critic", "ifContainsAny": ["bypass encryption", "disable audit logging"] },
+    { "category": "Topology", "ifContainsAny": ["expose database on public internet"] }
+  ]
+}

@@ -89,16 +89,16 @@ public sealed class EvidencePackageInjectionMitigator(
 
             changed += SanitizeScalar(note.Message, v => note.Message = v, marker);
 
-        if (changed > 0)
-        {
-            ArchLucidInstrumentation.EvidenceInjectionFieldsRedactedTotal.Add(changed);
+        if (changed <= 0)
+            return Task.FromResult(changed);
 
-            if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning(
-                    "Redacted {FieldCount} evidence field(s) for RunId={RunId} after injection-pattern match.",
-                    changed,
-                    evidence.RunId);
-        }
+        ArchLucidInstrumentation.EvidenceInjectionFieldsRedactedTotal.Add(changed);
+
+        if (_logger.IsEnabled(LogLevel.Warning))
+            _logger.LogWarning(
+                "Redacted {FieldCount} evidence field(s) for RunId={RunId} after injection-pattern match.",
+                changed,
+                evidence.RunId);
 
         return Task.FromResult(changed);
     }
@@ -151,9 +151,6 @@ public sealed class EvidencePackageInjectionMitigator(
 
     private string ApplySecretRedaction(string text)
     {
-        if (!_redactionOptions.CurrentValue.Enabled)
-            return text;
-
-        return _promptRedactor.Redact(text).Text;
+        return !_redactionOptions.CurrentValue.Enabled ? text : _promptRedactor.Redact(text).Text;
     }
 }

@@ -73,10 +73,7 @@ public sealed class DefaultEvidenceBuilder(IUnifiedGoldenManifestReader goldenMa
                 .GetByVersionAsync(request.PriorManifestVersion!, cancellationToken)
                 .ConfigureAwait(false);
 
-        if (prior is null)
-            return (null, true);
-
-        return (PriorManifestEvidenceMapper.Map(prior), false);
+        return prior is null ? (null, true) : (PriorManifestEvidenceMapper.Map(prior), false);
     }
 
     private static List<PolicyEvidence> BuildPolicies(ArchitectureRequest request)
@@ -220,7 +217,8 @@ public sealed class DefaultEvidenceBuilder(IUnifiedGoldenManifestReader goldenMa
 
             notes.Add(new EvidenceNote
             {
-                NoteType = EvidenceNoteTypes.PatternHint, Message = "Search-oriented architecture requested; enterprise RAG pattern is applicable."
+                NoteType = EvidenceNoteTypes.PatternHint,
+                Message = "Search-oriented architecture requested; enterprise RAG pattern is applicable."
             });
 
         return notes;

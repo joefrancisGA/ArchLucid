@@ -29,31 +29,20 @@ public static class PriorManifestEvidenceMapper
             ? "Unknown system"
             : manifest.SystemName.Trim();
 
-        IReadOnlyList<ManifestService> services = manifest.Services ?? [];
-        IReadOnlyList<ManifestDatastore> datastores = manifest.Datastores ?? [];
+        IReadOnlyList<ManifestService> services = manifest.Services;
+        IReadOnlyList<ManifestDatastore> datastores = manifest.Datastores;
 
         string summary = BuildSummary(systemLabel, manifestVersion, services, datastores, manifest.Metadata);
 
         HashSet<string> requiredControls = new(StringComparer.Ordinal);
 
-        foreach (string? c in manifest.Governance.RequiredControls)
-        {
-            if (string.IsNullOrWhiteSpace(c))
-                continue;
-
+        foreach (string c in manifest.Governance.RequiredControls.Where(c => !string.IsNullOrWhiteSpace(c)))
             requiredControls.Add(c.Trim());
-        }
 
-        foreach (ManifestService? service in services)
+        foreach (ManifestService service in services)
         {
-            if (service is null)
-                continue;
-
-            foreach (string? c in service.RequiredControls)
+            foreach (string c in service.RequiredControls.Where(c => !string.IsNullOrWhiteSpace(c)))
             {
-                if (string.IsNullOrWhiteSpace(c))
-                    continue;
-
                 requiredControls.Add(c.Trim());
             }
         }
@@ -63,11 +52,11 @@ public static class PriorManifestEvidenceMapper
             ManifestVersion = manifestVersion,
             Summary = summary,
             ExistingServices = DistinctSortedNames(
-                services.Where(s => s is not null && !string.IsNullOrWhiteSpace(s.ServiceName))
-                    .Select(s => s!.ServiceName)),
+                services.Where(s => !string.IsNullOrWhiteSpace(s.ServiceName))
+                    .Select(s => s.ServiceName)),
             ExistingDatastores = DistinctSortedNames(
-                datastores.Where(d => d is not null && !string.IsNullOrWhiteSpace(d.DatastoreName))
-                    .Select(d => d!.DatastoreName)),
+                datastores.Where(d => !string.IsNullOrWhiteSpace(d.DatastoreName))
+                    .Select(d => d.DatastoreName)),
             ExistingRequiredControls = requiredControls.OrderBy(x => x, StringComparer.Ordinal).ToList()
         };
     }
