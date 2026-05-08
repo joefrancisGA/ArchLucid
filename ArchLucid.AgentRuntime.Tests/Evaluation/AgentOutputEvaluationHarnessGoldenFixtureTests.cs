@@ -28,7 +28,7 @@ public sealed class AgentOutputEvaluationHarnessGoldenFixtureTests
 
     private readonly IAgentOutputEvaluationHarness _harness = new AgentOutputEvaluationHarness(
         new AgentOutputEvaluator(),
-        new AgentOutputSemanticEvaluator());
+        new HeuristicAgentOutputSemanticEvaluator());
 
     [SkippableFact]
     public void Harness_topology_fixture_meets_full_structural_completeness()

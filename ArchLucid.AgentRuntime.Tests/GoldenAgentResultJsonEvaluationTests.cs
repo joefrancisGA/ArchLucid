@@ -8,7 +8,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
 ///     Golden <see cref="AgentResult" />-shaped JSON for <see cref="AgentOutputEvaluator" /> /
-///     <see cref="AgentOutputSemanticEvaluator" /> regression (see <c>docs/AGENT_OUTPUT_EVALUATION.md</c>).
+///     <see cref="HeuristicAgentOutputSemanticEvaluator" /> regression (see <c>docs/AGENT_OUTPUT_EVALUATION.md</c>).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -17,7 +17,7 @@ public sealed class GoldenAgentResultJsonEvaluationTests
     private const string TraceId = "trace-golden-eval";
 
     private static readonly AgentOutputEvaluator Structural = new();
-    private static readonly AgentOutputSemanticEvaluator Semantic = new();
+    private static readonly HeuristicAgentOutputSemanticEvaluator Semantic = new();
 
     [SkippableFact]
     public void Golden_valid_fixture_scores_full_structural_completeness()

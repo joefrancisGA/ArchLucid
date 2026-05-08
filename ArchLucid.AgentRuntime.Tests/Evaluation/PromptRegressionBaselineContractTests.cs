@@ -22,7 +22,7 @@ public sealed class PromptRegressionBaselineContractTests
     private const string TraceId = "trace-prompt-regression-baseline";
 
     private static readonly AgentOutputEvaluator Structural = new();
-    private static readonly AgentOutputSemanticEvaluator Semantic = new();
+    private static readonly HeuristicAgentOutputSemanticEvaluator Semantic = new();
 
     [SkippableFact]
     public void Golden_valid_fixture_meets_committed_prompt_regression_baseline_all_agent_types()

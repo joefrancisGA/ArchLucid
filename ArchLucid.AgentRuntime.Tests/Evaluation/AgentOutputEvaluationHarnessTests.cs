@@ -11,7 +11,7 @@ public sealed class AgentOutputEvaluationHarnessTests
 {
     private readonly IAgentOutputEvaluationHarness _harness = new AgentOutputEvaluationHarness(
         new AgentOutputEvaluator(),
-        new AgentOutputSemanticEvaluator());
+        new HeuristicAgentOutputSemanticEvaluator());
 
     [SkippableFact]
     [Trait("Suite", "Core")]

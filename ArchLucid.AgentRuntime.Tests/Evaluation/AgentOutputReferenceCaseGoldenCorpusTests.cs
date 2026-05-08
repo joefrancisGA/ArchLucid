@@ -103,11 +103,15 @@ public sealed class AgentOutputReferenceCaseGoldenCorpusTests
             .Setup(r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultInsert>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        HeuristicAgentOutputSemanticEvaluator heuristicSemantic = new();
+        HeuristicOnlyAgentOutputSemanticEvaluator semanticFacade = new(heuristicSemantic);
+
         AgentOutputReferenceCaseRunEvaluator sut = new(
             evaluatorOpts.Object,
             catalog,
             new AgentOutputEvaluator(),
-            new AgentOutputSemanticEvaluator(),
+            heuristicSemantic,
+            semanticFacade,
             results.Object,
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
 
