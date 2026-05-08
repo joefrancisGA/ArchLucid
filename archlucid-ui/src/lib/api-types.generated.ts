@@ -20032,6 +20032,14 @@ export interface components {
             mode: string;
             pricingUsesIllustrativeUsdRates?: boolean;
         };
+        AgentExecutionFailureSummary: {
+            agentType?: null | string;
+            agentTypeKey?: null | string;
+            failureClass?: string;
+            reasonCode?: null | string;
+            /** Format: int32 */
+            schemaVersion?: number;
+        };
         AgentExecutionTrace: {
             agentType?: components["schemas"]["AgentType"];
             blobUploadFailed?: null | boolean;
@@ -20110,8 +20118,13 @@ export interface components {
             emptyClaimCount?: number;
             /** Format: double */
             findingsQualityRatio?: number | string;
+            /** Format: double */
+            heuristicOverallScore?: number | string;
             /** Format: int32 */
             incompleteFindingCount?: number;
+            llmJudgeNotes?: null | string;
+            /** Format: double */
+            llmJudgeOverallQuality?: null | number | string;
             /** Format: double */
             overallSemanticScore?: number | string;
             traceId?: string;
@@ -20455,6 +20468,7 @@ export interface components {
             goldenManifestId?: null | string;
             /** Format: uuid */
             graphSnapshotId?: null | string;
+            lastAgentExecutionFailure?: null | components["schemas"]["AgentExecutionFailureSummary"];
             otelTraceId?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
             realModeFellBackToSimulator?: boolean;

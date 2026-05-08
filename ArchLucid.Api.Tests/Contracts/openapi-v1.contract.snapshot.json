@@ -655,9 +655,32 @@
               "string"
             ]
           },
+          "heuristicOverallScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
           "incompleteFindingCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "llmJudgeNotes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "llmJudgeOverallQuality": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
           },
           "overallSemanticScore": {
             "format": "double",
