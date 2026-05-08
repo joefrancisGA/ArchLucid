@@ -10,10 +10,10 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
 /// <summary>
 ///     Binds <c>scripts/ci/prompt_regression_baseline.json</c> (copied to output) to golden evaluator scores so CI fails
-///     when prompt/handler changes regress committed floors. All agent types share the same <see cref="AgentResult" />
-///     JSON contract;
-///     the golden file uses <c>agentType: 1</c> (Topology) while evaluation passes each <see cref="AgentType" />
-///     separately.
+///     when outputs drift across types. Fixtures: Topology <c>golden-agent-result-valid.json</c>, Cost
+///     <c>golden-agent-result-cost.json</c>, Compliance <c>golden-agent-result-compliance.json</c>, Critic
+///     <c>golden-agent-result-critic.json</c> (<see cref="AgentResult" /> contract; numeric <c>agentType</c> matches each
+///     <see cref="AgentType" /> under evaluation).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

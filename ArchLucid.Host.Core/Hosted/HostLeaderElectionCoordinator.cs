@@ -71,10 +71,8 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
                 {
-                    SanitizedLoggerHostLeaderElectionExtensions.LogDebugHostLeaderLeaseNotHeldFollowerWait(
-                        _logger,
-                        leaseName,
-                        followerMs);
+                    // codeql[cs/exposure-of-sensitive-information]: coordinator passes operational lease strings (e.g. HostElectionLeaseNames); sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
+                    SanitizedLoggerHostLeaderElectionExtensions.LogDebugHostLeaderLeaseNotHeldFollowerWait(_logger, leaseName, followerMs);
                 }
 
                 try
@@ -91,10 +89,8 @@ public sealed class HostLeaderElectionCoordinator(
 
             if (_logger.IsEnabled(LogLevel.Information))
             {
-                SanitizedLoggerHostLeaderElectionExtensions.LogInformationHostLeaderLeaseAcquired(
-                    _logger,
-                    leaseName,
-                    id);
+                // codeql[cs/exposure-of-sensitive-information]: operational lease and instance identifiers; sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
+                SanitizedLoggerHostLeaderElectionExtensions.LogInformationHostLeaderLeaseAcquired(_logger, leaseName, id);
             }
 
             using CancellationTokenSource leaderCts = CancellationTokenSource.CreateLinkedTokenSource(applicationStoppingToken);
@@ -112,9 +108,8 @@ public sealed class HostLeaderElectionCoordinator(
 
                 if (!applicationStoppingToken.IsCancellationRequested && _logger.IsEnabled(LogLevel.Information))
                 {
-                    SanitizedLoggerHostLeaderElectionExtensions.LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff(
-                        _logger,
-                        leaseName);
+                    // codeql[cs/exposure-of-sensitive-information]: operational lease key; sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
+                    SanitizedLoggerHostLeaderElectionExtensions.LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff(_logger, leaseName);
                 }
             }
             finally
@@ -167,10 +162,8 @@ public sealed class HostLeaderElectionCoordinator(
 
                 if (_logger.IsEnabled(LogLevel.Warning))
                 {
-                    SanitizedLoggerHostLeaderElectionExtensions.LogWarningHostLeaderLeaseRenewalFailedStopping(
-                        _logger,
-                        leaseName,
-                        id);
+                    // codeql[cs/exposure-of-sensitive-information]: operational lease and instance identifiers; sanitized inside Core helper (docs/library/CODEQL_TRIAGE.md).
+                    SanitizedLoggerHostLeaderElectionExtensions.LogWarningHostLeaderLeaseRenewalFailedStopping(_logger, leaseName, id);
                 }
 
                 await leaderCts.CancelAsync();
