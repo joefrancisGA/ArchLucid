@@ -10,14 +10,18 @@ export type CuratedPaletteTask = {
 };
 
 export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
-  { label: "Operator home", href: "/", searchValue: "task home start" },
-  { label: "Onboarding checklist", href: "/onboarding", searchValue: "task onboarding first run checklist" },
-  { label: "New architecture review", href: "/reviews/new", searchValue: "task new review wizard" },
-  { label: "Reviews list", href: "/reviews?projectId=default", searchValue: "task reviews list projects" },
-  { label: "Compare reviews", href: "/compare", searchValue: "task compare diff two runs" },
-  { label: "Provenance graph", href: "/graph", searchValue: "task graph visualization" },
-  { label: "Ask ArchLucid", href: "/ask", searchValue: "task ask question chat" },
-  { label: "Alerts inbox", href: "/alerts", searchValue: "task alerts triage" },
-  { label: "Policy packs", href: "/policy-packs", searchValue: "task policy governance rules" },
-  { label: "Governance workflow", href: "/governance", searchValue: "task governance approval promotion" },
+  { label: "Operator home", href: "/", searchValue: "task I want home start" },
+  { label: "Onboarding checklist", href: "/onboarding", searchValue: "task I want onboarding first run checklist" },
+  { label: "New architecture review", href: "/reviews/new", searchValue: "task I want new review wizard" },
+  { label: "Reviews list", href: "/reviews?projectId=default", searchValue: "task I want reviews list projects" },
+  { label: "Compare two reviews", href: "/compare", searchValue: "task I want compare diff N N+1 delta" },
+  { label: "Provenance graph", href: "/graph", searchValue: "task I want graph visualization trail" },
+  { label: "Ask ArchLucid", href: "/ask", searchValue: "task I want ask question chat" },
+  { label: "Semantic search", href: "/search", searchValue: "task I want search find architecture" },
+  { label: "Alerts inbox", href: "/alerts", searchValue: "task I want alerts triage inbox" },
+  { label: "Alert rules (configure)", href: "/alerts?tab=rules", searchValue: "task I want alert rules configure" },
+  { label: "Audit log", href: "/audit", searchValue: "task I want audit compliance csv export evidence" },
+  { label: "Digests & subscriptions", href: "/digests", searchValue: "task I want digest email subscriptions" },
+  { label: "Policy packs", href: "/policy-packs", searchValue: "task I want policy governance rules" },
+  { label: "Governance workflow", href: "/governance", searchValue: "task I want governance approval promotion" },
 ];
