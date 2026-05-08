@@ -139,4 +139,10 @@ public static partial class SanitizedLoggerInformationExtensions
         string executionMode,
         string user,
         string correlationId);
+
+    [LoggerMessage(
+        EventId = 3011,
+        Level = LogLevel.Information,
+        Message = "First-value report: run {RunId} not found.")]
+    private static partial void EmitFirstValueReportRunNotFound(ILogger logger, string runId);
 }

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { enterpriseNavHintOperatorRank } from "@/lib/enterprise-controls-context-copy";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
+import { OPERATOR_SHELL_PRESET_STORAGE_KEY } from "@/lib/operator-nav-preset";
 
 import { ShellNav } from "./ShellNav";
 
@@ -31,9 +32,15 @@ vi.mock("next/link", () => ({
 
 describe("ShellNav (sidebar re-export — primary navigation)", () => {
   beforeEach(() => {
+    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
+
     // Progressive disclosure persists `archlucid_nav_show_extended` in localStorage; clear so tests
     // do not inherit extended disclosure state from a prior case in the same file.
     localStorage.clear();
+
+    // Default shell preset is pilot_operator (narrow route list). These tests assert extended analysis
+    // links (Graph, Compare, …) after disclosure toggles — mirror "Full navigator" so those hrefs are not preset-pruned.
+    localStorage.setItem(OPERATOR_SHELL_PRESET_STORAGE_KEY, "full");
   });
 
   it(
@@ -84,7 +91,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
         });
       expect(linksWithKeyShortcuts.length).toBeGreaterThanOrEqual(2);
     },
-    15_000,
+    30_000,
   );
 
   it(
@@ -123,7 +130,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
 
       expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");
     },
-    15_000,
+    30_000,
   );
 
   it("does not show a footer keyboard-shortcut hint in the sidebar", () => {

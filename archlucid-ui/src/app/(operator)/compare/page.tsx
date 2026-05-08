@@ -294,6 +294,18 @@ function CompareForm() {
   const hasResultsToNavigate =
     pairAligned && !loading && (golden !== null || result !== null || aiExplanation !== null);
 
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const leftPickerLabel = isDemoClaimsIntakeComparePair
+    ? "Claims Intake baseline review"
+    : buyerPolished
+      ? "Prior architecture review (same request)"
+      : "Baseline review";
+  const rightPickerLabel = isDemoClaimsIntakeComparePair
+    ? "Claims Intake updated review"
+    : buyerPolished
+      ? "Later architecture review (same request)"
+      : "Updated review";
+
   return (
     <main>
       <LayerHeader pageKey="compare" />
@@ -307,10 +319,20 @@ function CompareForm() {
         }
       />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Compare finalized manifests to understand what changed between two reviews—useful for sponsors, security review,
-        and release checkpoints. <strong>Baseline</strong> is the reference; <strong>updated</strong> is what you are
-        evaluating. After you compare, review the structured summary first; optional{" "}
-        <strong>Summarize for sponsor</strong> adds a short narrative.
+        {buyerPolished ? (
+          <>
+            Most teams compare the <strong>prior</strong> and <strong>later</strong> finalization for the{" "}
+            <strong>same architecture request</strong> (N vs N+1). The structured summary below is the authoritative
+            delta; open <strong>Summarize for sponsor</strong> only when you want a short narrative on top.
+          </>
+        ) : (
+          <>
+            Compare finalized manifests to understand what changed between two reviews—useful for sponsors, security review,
+            and release checkpoints. <strong>Baseline</strong> is the reference; <strong>updated</strong> is what you are
+            evaluating. After you compare, review the structured summary first; optional{" "}
+            <strong>Summarize for sponsor</strong> adds a short narrative.
+          </>
+        )}
       </p>
       <p className="mb-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
         The primary table is the <GlossaryTooltip termKey="manifest_diff">manifest diff</GlossaryTooltip> over finalized
@@ -368,7 +390,7 @@ function CompareForm() {
       <div className="grid max-w-3xl gap-3">
         <RunIdPicker
           preferAutoPick={false}
-          label={isDemoClaimsIntakeComparePair ? "Claims Intake baseline review" : "Baseline review"}
+          label={leftPickerLabel}
           placeholder="Choose a baseline review"
           value={leftRunId}
           onChange={setLeftRunId}
@@ -383,7 +405,7 @@ function CompareForm() {
         ) : null}
         <RunIdPicker
           preferAutoPick={false}
-          label={isDemoClaimsIntakeComparePair ? "Claims Intake updated review" : "Updated review"}
+          label={rightPickerLabel}
           placeholder="Choose an updated review"
           value={rightRunId}
           onChange={setRightRunId}
@@ -591,7 +613,6 @@ function CompareForm() {
           <details
             id="compare-ai"
             className="mt-6 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
-            open
           >
             <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-neutral-900 outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
               Sponsor narrative (AI-generated) — optional; confirm against structured diff before sign-off

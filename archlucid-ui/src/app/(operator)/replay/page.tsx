@@ -20,17 +20,17 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { coerceReplayResponse } from "@/lib/operator-response-guards";
 import { replayRun } from "@/lib/api";
-import { replayModeLabel, sortReplayNotes } from "@/lib/replay-display";
+import { replayModeLabel, REPLAY_MODE_PLAIN_OPTIONS, sortReplayNotes } from "@/lib/replay-display";
 import type { ReplayResponse } from "@/types/authority";
 
-/** Matches ArchLucid.Persistence.Replay.ReplayMode */
-const replayModes = ["ReconstructOnly", "RebuildManifest", "RebuildArtifacts"] as const;
+/** Matches ArchLucid.Persistence.Replay.ReplayMode — default to lightest mode. */
+const defaultReplayMode = REPLAY_MODE_PLAIN_OPTIONS[0]!.mode;
 
 /** Replay form: operator enters a review ID, selects a mode, and triggers an authority chain replay. */
 function ReplayForm() {
   const searchParams = useSearchParams();
   const [runId, setRunId] = useState("");
-  const [mode, setMode] = useState<string>(replayModes[0]);
+  const [mode, setMode] = useState<string>(defaultReplayMode);
   const [result, setResult] = useState<ReplayResponse | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [malformedMessage, setMalformedMessage] = useState<string | null>(null);
@@ -94,18 +94,31 @@ function ReplayForm() {
           inputId="replay-run-id"
         />
 
+        <fieldset className="max-w-3xl space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
+          <legend className="px-1 text-sm font-medium text-neutral-800 dark:text-neutral-200">Replay mode</legend>
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            Pick the lightest mode that answers your question—heavier modes regenerate more server-side output.
+          </p>
+          <ul className="m-0 list-none space-y-1 p-0 text-xs text-neutral-600 dark:text-neutral-400">
+            {REPLAY_MODE_PLAIN_OPTIONS.map((row) => (
+              <li key={row.mode}>
+                <strong className="font-medium text-neutral-800 dark:text-neutral-200">{row.mode}:</strong> {row.label}
+              </li>
+            ))}
+          </ul>
         <select
           className="max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
           value={mode}
           onChange={(e) => setMode(e.target.value)}
           aria-label="Replay mode"
         >
-          {replayModes.map((item) => (
-            <option key={item} value={item} title={replayModeLabel(item)}>
-              {item}
+          {REPLAY_MODE_PLAIN_OPTIONS.map((row) => (
+            <option key={row.mode} value={row.mode} title={replayModeLabel(row.mode)}>
+              {row.label}
             </option>
           ))}
         </select>
+        </fieldset>
         <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">{replayModeLabel(mode)}</p>
 
         <button

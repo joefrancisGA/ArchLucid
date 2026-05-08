@@ -38,8 +38,9 @@ export function PostCommitAdvancedAnalysisHint({
 
   const encoded = encodeURIComponent(runId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   const sidebarHint = buyerPolishedShell ? (
-    <>Use the links below when you need a deeper technical pass.</>
+    <>Deeper passes below are optional—most sponsors consume exported deliverables first.</>
   ) : (
     <>
       Use the links below; enable <em>{NAV_DISCLOSURE.extended.show}</em> in the sidebar if needed.
@@ -54,19 +55,37 @@ export function PostCommitAdvancedAnalysisHint({
         </p>
       ) : null}
       <p className="m-0 mt-1 text-sm text-neutral-800 dark:text-neutral-200">
-        This run has a finalized manifest. None of this is required to judge first-pilot value—only when you have a
-        concrete question the first-review path does not answer (diff two runs, re-validate the provenance chain, or explore a
-        graph). {sidebarHint}
+        {buyerPolishedShell ? (
+          <>
+            If sponsors already have the exported package from <strong>Deliverables & exports</strong>, use this section
+            only for technical diffs, chain replay, or graph inspection. {sidebarHint}
+          </>
+        ) : (
+          <>
+            This run has a finalized manifest. None of this is required to judge first-pilot value—only when you have a
+            concrete question the first-review path does not answer (diff two runs, re-validate the provenance chain, or
+            explore a graph). {sidebarHint}
+          </>
+        )}
       </p>
       {compareWithPriorHref !== null ? (
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <Button asChild size="sm" className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600">
+          <Button
+            asChild
+            variant={buyerPolishedShell ? "outline" : "default"}
+            size="sm"
+            className={
+              buyerPolishedShell
+                ? undefined
+                : "bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600"
+            }
+          >
             <Link href={compareWithPriorHref} data-testid="post-commit-compare-prior-cta">
-              Compare to prior architecture review
+              Compare to prior finalization (same request)
             </Link>
           </Button>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">
-            Prior review is the most recent other finalization for the same request (recent activity window).
+            Prior item is the most recent other finalization for the same request (recent activity window).
           </span>
         </div>
       ) : null}
@@ -87,6 +106,11 @@ export function PostCommitAdvancedAnalysisHint({
         <li>
           <Link className="text-teal-800 underline dark:text-teal-300" href={`/graph?runId=${encoded}`}>
             Graph
+          </Link>
+        </li>
+        <li>
+          <Link className="text-teal-800 underline dark:text-teal-300" href={`/ask?runId=${encoded}`}>
+            Ask
           </Link>
         </li>
       </ul>
