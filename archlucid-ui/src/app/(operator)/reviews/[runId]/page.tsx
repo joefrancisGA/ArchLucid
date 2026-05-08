@@ -391,8 +391,8 @@ export default async function RunDetailPage({
         { id: "trust-evidence", label: "Evidence", available: Boolean(resolvedDetail.trustEvidenceCard) },
         { id: "run-metadata", label: "Review", available: true },
         { id: "pipeline-timeline", label: "Activity", available: true },
-        { id: "run-explanation", label: "Findings", available: Boolean(manifestId) },
         { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
+        { id: "run-explanation", label: "Findings", available: Boolean(manifestId) },
         { id: "run-actions", label: "Next steps", available: true },
       ]
     : [
@@ -401,8 +401,8 @@ export default async function RunDetailPage({
         { id: "run-metadata", label: "Review", available: true },
         { id: "pipeline-timeline", label: "Timeline", available: true },
         { id: "authority-chain", label: "Review trail", available: true },
-        { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
         { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
+        { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
         { id: "agent-forensics", label: "Diagnostics", available: true },
         { id: "run-actions", label: "Actions", available: true },
       ];
@@ -732,56 +732,6 @@ export default async function RunDetailPage({
       )}
 
       {manifestId ? <PostCommitRetentionRail runId={runId} /> : null}
-      {manifestId ? (
-        <section id="advanced-analysis" className="scroll-mt-24">
-          <CollapsibleSection title="Advanced analysis (optional)" defaultOpen={false}>
-            <PostCommitAdvancedAnalysisHint runId={runId} embeddedInCollapsible />
-          </CollapsibleSection>
-        </section>
-      ) : null}
-
-      {manifestId && (
-        <section id="run-explanation" className="scroll-mt-24">
-          <CollapsibleSection title="Architecture review summary" defaultOpen={false}>
-            {explanationFailure && (
-              <>
-                <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-                  Aggregate explanation could not be loaded.
-                </p>
-                <OperatorApiProblem
-                  problem={explanationFailure.problem}
-                  fallbackMessage={explanationFailure.message}
-                  correlationId={explanationFailure.correlationId}
-                  variant="warning"
-                />
-                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                  The review and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
-                </p>
-                <OperatorSectionRetryButton label="Retry loading explanation" />
-              </>
-            )}
-            {!explanationFailure && (
-              <>
-                <RunExplanationSection summary={explanationSummary} loading={false} error={null} runId={runId} />
-                {(() => {
-                  const traceRows =
-                    explanationSummary?.findingTraceConfidences ??
-                    explanationSummary?.explanation?.findingTraceConfidences ??
-                    [];
-
-                  if (traceRows.length === 0) {
-                    return null;
-                  }
-
-                  return <RunFindingExplainabilityTable runId={runId} rows={traceRows} />;
-                })()}
-              </>
-            )}
-          </CollapsibleSection>
-        </section>
-      )}
-
-      {manifestId && <BeforeAfterDeltaPanel variant="inline" runId={runId} />}
 
       {manifestId && (
         <section id="artifacts-exports" className="scroll-mt-24">
@@ -789,7 +739,16 @@ export default async function RunDetailPage({
             <div className="absolute end-0 top-0 z-10 sm:end-1 sm:top-1">
               <ContextualHelp helpKey="manifest-review" placement="left" />
             </div>
-            <CollapsibleSection title="Artifacts & exports" defaultOpen>
+            <CollapsibleSection
+              title={buyerPolishedArtifactTable ? "Deliverables & exports (sponsor-ready)" : "Artifacts & exports"}
+              defaultOpen
+            >
+              {buyerPolishedArtifactTable ? (
+                <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
+                  Start here for packages and downloads sponsors typically receive. Technical diff and replay live under{" "}
+                  <strong>Advanced analysis</strong> below.
+                </p>
+              ) : null}
               {artifactsFailure && (
                 <>
                   <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
@@ -843,14 +802,6 @@ export default async function RunDetailPage({
                   manifestSummary={manifestSummaryForUi ?? manifestSummary}
                   trustEvidenceCard={resolvedDetail.trustEvidenceCard ?? null}
                 />
-                <Button variant="outline" size="sm" asChild>
-                  <Link
-                    href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
-                    className={buyerPolishedArtifactTable ? "no-underline" : undefined}
-                  >
-                    Compare with another review
-                  </Link>
-                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -870,11 +821,75 @@ export default async function RunDetailPage({
                     Download review export (ZIP)
                   </FunnelTelemetryExportAnchor>
                 </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link
+                    href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
+                    className={buyerPolishedArtifactTable ? "no-underline" : undefined}
+                  >
+                    {buyerPolishedArtifactTable ? "Compare to another finalization…" : "Compare with another review"}
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
+                  <Link href={`/ask?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
+                    Ask about this review
+                  </Link>
+                </Button>
               </div>
             </CollapsibleSection>
           </div>
         </section>
       )}
+
+      {manifestId && (
+        <section id="run-explanation" className="scroll-mt-24">
+          <CollapsibleSection title="Architecture review summary" defaultOpen={false}>
+            {explanationFailure && (
+              <>
+                <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                  Aggregate explanation could not be loaded.
+                </p>
+                <OperatorApiProblem
+                  problem={explanationFailure.problem}
+                  fallbackMessage={explanationFailure.message}
+                  correlationId={explanationFailure.correlationId}
+                  variant="warning"
+                />
+                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                  The review and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
+                </p>
+                <OperatorSectionRetryButton label="Retry loading explanation" />
+              </>
+            )}
+            {!explanationFailure && (
+              <>
+                <RunExplanationSection summary={explanationSummary} loading={false} error={null} runId={runId} />
+                {(() => {
+                  const traceRows =
+                    explanationSummary?.findingTraceConfidences ??
+                    explanationSummary?.explanation?.findingTraceConfidences ??
+                    [];
+
+                  if (traceRows.length === 0) {
+                    return null;
+                  }
+
+                  return <RunFindingExplainabilityTable runId={runId} rows={traceRows} />;
+                })()}
+              </>
+            )}
+          </CollapsibleSection>
+        </section>
+      )}
+
+      {manifestId && <BeforeAfterDeltaPanel variant="inline" runId={runId} />}
+
+      {manifestId ? (
+        <section id="advanced-analysis" className="scroll-mt-24">
+          <CollapsibleSection title="Advanced analysis (optional)" defaultOpen={false}>
+            <PostCommitAdvancedAnalysisHint runId={runId} embeddedInCollapsible />
+          </CollapsibleSection>
+        </section>
+      ) : null}
 
       {!buyerPolishedArtifactTable ? <RunAgentForensicsSection runId={runId} /> : null}
 
