@@ -20114,6 +20114,8 @@ export interface components {
         AgentOutputQualityGateOutcome: number;
         AgentOutputSemanticScore: {
             /** Format: double */
+            agentResultEmbeddingFaithfulnessMeanCosine?: null | number | string;
+            /** Format: double */
             agentResultFaithfulnessSupportRatio?: null | number | string;
             agentType?: components["schemas"]["AgentType"];
             /** Format: double */

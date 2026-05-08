@@ -85,7 +85,7 @@ Locked values reflect **Owner decisions captured** above. Items are ordered **mo
 
 ### Grounding & faithfulness
 
-**1. Embedding-based faithfulness (Staging on, Production off)**  
+**1. COMPLETED:  Embedding-based faithfulness (Staging on, Production off)**  
 Implement optional embedding scorer vs evidence; `ArchLucid:Agents:Faithfulness:EmbeddingEnabled=true` in **staging** appsettings only; **false** in production. Record histogram; do not remove token overlap. Wire behind existing completion/embed client patterns; PII review in doc.
 
 *Cursor prompt:* In `ArchLucid.AgentRuntime/Evaluation/`, add an embedding-based faithfulness path behind `ArchLucid:Agents:Faithfulness:EmbeddingEnabled`, **default true in `appsettings.Staging.json`, false in `appsettings.Production.json`**. Use existing or new `IOpenAiEmbeddingClient`; chunk claims and evidence; cosine similarity; new nullable field on semantic score DTO; OTel histogram; tests with fake embedder; update `docs/library/AGENT_OUTPUT_EVALUATION.md`. Regenerate OpenAPI + Api.Client + `npm run generate:api-types` if wire contract changes.

@@ -30,6 +30,8 @@ export type AgentOutputSemanticScoreRow = {
   heuristicOverallScore: number;
   llmJudgeOverallQuality?: number | null;
   llmJudgeNotes?: string | null;
+  /** Mean embedding cosine vs evidence when `ArchLucid:Agents:Faithfulness:EmbeddingEnabled` is on. */
+  agentResultEmbeddingFaithfulnessMeanCosine?: number | null;
 };
 
 export type AgentOutputEvaluationScoreRow = {
