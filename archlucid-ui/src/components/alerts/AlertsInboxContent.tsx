@@ -361,7 +361,7 @@ export function AlertsInboxContent() {
       {isBuyerPolishedOperatorShellEnv() ? null : (
         <span className="sr-only">
           {canMutateAlertInbox
-            ? "Keyboard shortcuts: Alt+J and Alt+K move between alert cards; Alt+1 acknowledge; Alt+2 resolve; Alt+3 suppress."
+            ? "Keyboard shortcuts: Alt+J and Alt+K move between alert cards; Alt+1 acknowledge; Alt+2 resolve; Alt+3 opens suppress from More triage actions."
             : "Keyboard shortcuts: Alt+J and Alt+K move between alert cards; triage shortcuts apply only at Execute rank."}
         </span>
       )}
@@ -473,19 +473,26 @@ export function AlertsInboxContent() {
                     >
                       {canMutateAlertInbox ? "Resolve" : alertsTriageResolveButtonLabelReaderInbox}
                     </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
-                      title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
-                      onClick={() => {
-                        setPendingAction({ alertId: alert.alertId, action: "Suppress" });
-                        setActionComment("");
-                      }}
-                    >
-                      {canMutateAlertInbox ? "Suppress" : alertsTriageSuppressButtonLabelReaderInbox}
-                    </Button>
+                    <details className="group relative">
+                      <summary className="cursor-pointer list-none rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800 [&::-webkit-details-marker]:hidden">
+                        More triage actions
+                      </summary>
+                      <div className="absolute end-0 z-20 mt-1 min-w-[11rem] rounded-md border border-neutral-200 bg-white p-2 shadow-md dark:border-neutral-700 dark:bg-neutral-950">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="w-full border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
+                          title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
+                          onClick={() => {
+                            setPendingAction({ alertId: alert.alertId, action: "Suppress" });
+                            setActionComment("");
+                          }}
+                        >
+                          {canMutateAlertInbox ? "Suppress alert…" : alertsTriageSuppressButtonLabelReaderInbox}
+                        </Button>
+                      </div>
+                    </details>
                   </div>
                 </section>
               </article>

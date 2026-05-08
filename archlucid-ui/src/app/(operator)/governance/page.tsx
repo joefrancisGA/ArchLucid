@@ -558,6 +558,10 @@ function GovernanceWorkflowPageInner() {
         {governanceWorkflowOutcomeBannerLine}
       </p>
 
+      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
+        <GovernanceApprovalStoryCard row={approvals[0]!} />
+      ) : null}
+
       <GovernanceInteractiveQuickstartCard />
 
       {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) ? (
@@ -597,10 +601,6 @@ function GovernanceWorkflowPageInner() {
         <div className="mb-6">
           <EmptyState {...(canMutateWorkflow ? GOVERNANCE_WORKFLOW_IDLE : GOVERNANCE_WORKFLOW_IDLE_READER)} />
         </div>
-      ) : null}
-
-      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
-        <GovernanceApprovalStoryCard row={approvals[0]!} />
       ) : null}
 
       <div

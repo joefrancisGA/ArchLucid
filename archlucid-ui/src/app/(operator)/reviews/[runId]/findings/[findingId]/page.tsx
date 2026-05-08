@@ -87,43 +87,85 @@ export default async function RunFindingExplainPage({
         </Link>
       </nav>
 
-      <header className="space-y-3">
-        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          {buyerPolishedShell ? "Finding overview" : "Finding detail"}
-        </p>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{pageTitle}</h1>
+      {buyerPolishedShell ? (
+        <div className="rounded-xl border-2 border-teal-300/70 bg-gradient-to-b from-teal-50/90 to-white p-5 shadow-sm dark:border-teal-800/70 dark:from-teal-950/40 dark:to-neutral-950">
+          <header className="space-y-3 border-b border-teal-200/60 pb-4 dark:border-teal-900/50">
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              Finding detail (sponsor summary)
+            </p>
+            <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{pageTitle}</h1>
 
-        {labels !== null ? (
-          <div className="flex flex-wrap items-center gap-2">
-            {labels.severityLabel ? (
-              <Badge variant="secondary" className="font-normal">
-                {labels.severityLabel}
-              </Badge>
+            {labels !== null ? (
+              <div className="flex flex-wrap items-center gap-2">
+                {labels.severityLabel ? (
+                  <Badge variant="secondary" className="font-normal">
+                    {labels.severityLabel}
+                  </Badge>
+                ) : null}
+                {labels.categoryLabel ? (
+                  <Badge variant="outline" className="font-normal">
+                    {labels.categoryLabel}
+                  </Badge>
+                ) : null}
+                {labels.statusLabel ? (
+                  <Badge variant="outline" className="font-normal">
+                    {labels.statusLabel}
+                  </Badge>
+                ) : null}
+                {labels.impactedAreaLabel ? (
+                  <Badge variant="outline" className="max-w-full whitespace-normal text-left font-normal">
+                    Business impact: {labels.impactedAreaLabel}
+                  </Badge>
+                ) : null}
+              </div>
             ) : null}
-            {labels.categoryLabel ? (
-              <Badge variant="outline" className="font-normal">
-                {labels.categoryLabel}
-              </Badge>
-            ) : null}
-            {labels.statusLabel ? (
-              <Badge variant="outline" className="font-normal">
-                {labels.statusLabel}
-              </Badge>
-            ) : null}
-            {labels.impactedAreaLabel ? (
-              <Badge variant="outline" className="max-w-full whitespace-normal text-left font-normal">
-                Business impact: {labels.impactedAreaLabel}
-              </Badge>
-            ) : null}
-          </div>
-        ) : null}
 
-        {inspectPayload !== null ? (
-          <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            {findingDetailLeadSentence(inspectPayload)}
+            {inspectPayload !== null ? (
+              <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                {findingDetailLeadSentence(inspectPayload)}
+              </p>
+            ) : null}
+          </header>
+        </div>
+      ) : (
+        <header className="space-y-3">
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            Finding detail
           </p>
-        ) : null}
-      </header>
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{pageTitle}</h1>
+
+          {labels !== null ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {labels.severityLabel ? (
+                <Badge variant="secondary" className="font-normal">
+                  {labels.severityLabel}
+                </Badge>
+              ) : null}
+              {labels.categoryLabel ? (
+                <Badge variant="outline" className="font-normal">
+                  {labels.categoryLabel}
+                </Badge>
+              ) : null}
+              {labels.statusLabel ? (
+                <Badge variant="outline" className="font-normal">
+                  {labels.statusLabel}
+                </Badge>
+              ) : null}
+              {labels.impactedAreaLabel ? (
+                <Badge variant="outline" className="max-w-full whitespace-normal text-left font-normal">
+                  Business impact: {labels.impactedAreaLabel}
+                </Badge>
+              ) : null}
+            </div>
+          ) : null}
+
+          {inspectPayload !== null ? (
+            <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              {findingDetailLeadSentence(inspectPayload)}
+            </p>
+          ) : null}
+        </header>
+      )}
 
       {inspectFailure !== null ? (
         <OperatorApiProblem

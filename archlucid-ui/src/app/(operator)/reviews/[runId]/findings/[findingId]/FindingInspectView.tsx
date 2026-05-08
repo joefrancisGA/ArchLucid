@@ -102,9 +102,15 @@ export function FindingInspectView({
         </Link>
       </div>
 
-      <header className="space-y-3">
+      <header
+        className={
+          buyerPolishedShell
+            ? "space-y-3 rounded-xl border-2 border-violet-300/60 bg-violet-50/50 p-5 dark:border-violet-900/50 dark:bg-violet-950/30"
+            : "space-y-3"
+        }
+      >
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-          {buyerPolishedShell ? "Traceability view" : "Technical inspection"}
+          {buyerPolishedShell ? "Traceability & inspection" : "Technical inspection"}
         </h1>
         <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           {buyerPolishedShell
