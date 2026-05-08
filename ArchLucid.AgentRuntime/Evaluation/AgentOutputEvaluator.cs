@@ -29,6 +29,15 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
         "createdUtc"
     ];
 
+    private static readonly string[] TopologyStructuralKeys = SharedAgentResultKeys;
+
+    private static readonly string[] ComplianceStructuralKeys =
+        SharedAgentResultKeys.Where(static k => k != "proposedChanges").ToArray();
+
+    private static readonly string[] CostStructuralKeys = ComplianceStructuralKeys;
+
+    private static readonly string[] CriticStructuralKeys = ComplianceStructuralKeys;
+
     /// <inheritdoc />
     public AgentOutputEvaluationScore Evaluate(string traceId, string? parsedResultJson, AgentType agentType)
     {
@@ -104,9 +113,12 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
 
     private static string[] GetExpectedKeys(AgentType agentType)
     {
-        // Shared Web JSON contract for AgentResult; proposedChanges is structurally required for all roles that emit it.
         return agentType switch
         {
+            AgentType.Topology => TopologyStructuralKeys,
+            AgentType.Compliance => ComplianceStructuralKeys,
+            AgentType.Cost => CostStructuralKeys,
+            AgentType.Critic => CriticStructuralKeys,
             _ => SharedAgentResultKeys
         };
     }

@@ -18,6 +18,7 @@ public sealed class NoOpTraceRecorder : IAgentExecutionTraceRecorder
         AgentPromptReproMetadata? promptRepro = null,
         int? inputTokenCount = null,
         int? outputTokenCount = null,
+        int? reasoningTokenCount = null,
         string? modelDeploymentName = null,
         string? modelVersion = null,
         bool isSimulatorExecution = false,

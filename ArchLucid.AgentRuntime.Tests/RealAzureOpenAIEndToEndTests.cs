@@ -298,6 +298,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             AgentPromptReproMetadata? promptRepro = null,
             int? inputTokenCount = null,
             int? outputTokenCount = null,
+            int? reasoningTokenCount = null,
             string? modelDeploymentName = null,
             string? modelVersion = null,
             bool isSimulatorExecution = false,

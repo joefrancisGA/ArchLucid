@@ -167,6 +167,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             auditService.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
+            new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
             Microsoft.Extensions.Options.Options.Create(new ArchLucid.Core.Configuration.AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);

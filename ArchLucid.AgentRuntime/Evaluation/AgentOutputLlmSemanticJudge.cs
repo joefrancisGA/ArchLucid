@@ -10,30 +10,30 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <summary>Rubric-based semantic judge using Azure OpenAI JSON completions (distinct deployment supported).</summary>
-public sealed class AgentOutputLlmSemanticJudge
+public sealed class AgentOutputLlmSemanticJudge(
+    IOptionsMonitor<AzureOpenAiOptions> azureOptions,
+    IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> judgeOptions,
+    IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
+    ILogger<AgentOutputLlmSemanticJudge> logger) : IAgentOutputLlmSemanticJudge
 {
     private readonly object _clientLock = new();
-    private readonly IOptionsMonitor<AzureOpenAiOptions> _azureOptions;
-    private readonly IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> _judgeOptions;
-    private readonly IOptionsMonitor<AgentExecutionOptions> _agentExecutionOptions;
-    private readonly ILogger<AgentOutputLlmSemanticJudge> _logger;
+    private readonly IOptionsMonitor<AzureOpenAiOptions> _azureOptions =
+        azureOptions ?? throw new ArgumentNullException(nameof(azureOptions));
+
+    private readonly IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> _judgeOptions =
+        judgeOptions ?? throw new ArgumentNullException(nameof(judgeOptions));
+
+    private readonly IOptionsMonitor<AgentExecutionOptions> _agentExecutionOptions =
+        agentExecutionOptions ?? throw new ArgumentNullException(nameof(agentExecutionOptions));
+
+    private readonly ILogger<AgentOutputLlmSemanticJudge> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     private AzureOpenAiCompletionClient? _cachedClient;
     private string _clientFingerprint = string.Empty;
 
-    public AgentOutputLlmSemanticJudge(
-        IOptionsMonitor<AzureOpenAiOptions> azureOptions,
-        IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> judgeOptions,
-        IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
-        ILogger<AgentOutputLlmSemanticJudge> logger)
-    {
-        _azureOptions = azureOptions ?? throw new ArgumentNullException(nameof(azureOptions));
-        _judgeOptions = judgeOptions ?? throw new ArgumentNullException(nameof(judgeOptions));
-        _agentExecutionOptions = agentExecutionOptions ?? throw new ArgumentNullException(nameof(agentExecutionOptions));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
     /// <summary>
-    ///     Null when the judge is disabled, the run is in Simulator mode (optional), credentials are missing, or the call
+    ///     Null when the judge is disabled, the run is in Simulator mode (optional), credentials are missing, or every sample
     ///     failed (caller falls back to heuristic).
     /// </summary>
     public async Task<AgentOutputLlmJudgeParsedResult?> TryJudgeAsync(
@@ -65,6 +65,52 @@ public sealed class AgentOutputLlmSemanticJudge
         string systemPrompt = BuildSystemPrompt(agentType);
         string userPrompt = "traceId:" + traceId + "\nagentJson:\n" + userPayload;
 
+        int sampleCount = Math.Clamp(judgeOpts.JudgeInvocationCount, 1, 8);
+
+        if (sampleCount == 1)
+
+            return await InvokeJudgeSampleAsync(client, judgeOpts, traceId, systemPrompt, userPrompt, cancellationToken)
+                .ConfigureAwait(false);
+
+        Task<AgentOutputLlmJudgeParsedResult?>[] tasks = new Task<AgentOutputLlmJudgeParsedResult?>[sampleCount];
+
+        for (int i = 0; i < sampleCount; i++)
+
+            tasks[i] =
+                InvokeJudgeSampleAsync(client, judgeOpts, traceId, systemPrompt, userPrompt, cancellationToken);
+
+        AgentOutputLlmJudgeParsedResult?[] samples = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        List<double> qualities = [];
+        string? firstRationale = null;
+
+        foreach (AgentOutputLlmJudgeParsedResult? sample in samples)
+        {
+            if (sample is null)
+                continue;
+
+            qualities.Add(sample.OverallQuality);
+            firstRationale ??= sample.Rationale;
+        }
+
+        if (qualities.Count == 0)
+            return null;
+
+        double median = MedianOfDoubles(qualities);
+
+        double dispersion = PopulationStdDev(qualities);
+
+        return new AgentOutputLlmJudgeParsedResult(median, firstRationale, dispersion, qualities.Count);
+    }
+
+    private async Task<AgentOutputLlmJudgeParsedResult?> InvokeJudgeSampleAsync(
+        AzureOpenAiCompletionClient client,
+        AgentOutputLlmSemanticJudgeOptions judgeOpts,
+        string traceId,
+        string systemPrompt,
+        string userPrompt,
+        CancellationToken cancellationToken)
+    {
         using CancellationTokenSource linked =
             CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
@@ -72,8 +118,7 @@ public sealed class AgentOutputLlmSemanticJudge
 
         try
         {
-            string raw = await client.CompleteJsonAsync(systemPrompt, userPrompt, linked.Token)
-                .ConfigureAwait(false);
+            string raw = await client.CompleteJsonAsync(systemPrompt, userPrompt, linked.Token).ConfigureAwait(false);
 
             return TryParseJudgeResponse(raw);
         }
@@ -91,6 +136,31 @@ public sealed class AgentOutputLlmSemanticJudge
 
             return null;
         }
+    }
+
+    private static double MedianOfDoubles(IReadOnlyList<double> values)
+    {
+        List<double> sorted = values.OrderBy(static x => x).ToList();
+
+        int mid = sorted.Count / 2;
+
+        return sorted.Count % 2 == 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2.0;
+    }
+
+    private static double PopulationStdDev(List<double> values)
+    {
+        if (values.Count < 2)
+            return 0.0;
+
+        double mean = values.Average();
+        double sq = values.Sum(v =>
+        {
+            double d = v - mean;
+
+            return d * d;
+        });
+
+        return Math.Sqrt(sq / values.Count);
     }
 
     private AzureOpenAiCompletionClient? AcquireClientLocked(AgentOutputLlmSemanticJudgeOptions judgeOpts)

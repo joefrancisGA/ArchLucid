@@ -147,6 +147,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<IManifestFinalizationService, ManifestFinalizationService>();
         services.AddSingleton<IRequestContentSafetyPrecheck, DefaultRequestContentSafetyPrecheck>();
+        services.Configure<EvidenceInjectionMitigationOptions>(
+            configuration.GetSection(EvidenceInjectionMitigationOptions.SectionPath));
+        services.AddSingleton<IEvidencePackageInjectionMitigator, EvidencePackageInjectionMitigator>();
         services.Configure<SupportBundleOptions>(configuration.GetSection(SupportBundleOptions.SectionPath));
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();

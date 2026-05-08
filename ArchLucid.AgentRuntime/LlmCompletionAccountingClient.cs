@@ -137,8 +137,11 @@ public sealed class LlmCompletionAccountingClient(
         finally
         {
             if (AzureOpenAiCompletionClient.TryConsumeLastCompletionTokenUsage(out int promptTok,
-                    out int completionTok))
+                    out int completionTok,
+                    out int reasoningTok))
             {
+                _ = reasoningTok;
+
                 _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
 
                 _dailyTenantBudgetTracker.RecordUsageAndMaybeWarn(

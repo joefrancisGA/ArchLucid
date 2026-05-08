@@ -70,6 +70,37 @@ public sealed class AgentOutputSemanticScore
         set;
     }
 
+    /// <summary>Population standard deviation across judge invocation samples when &gt;1 call was attempted.</summary>
+    public double? LlmJudgeQualityDispersion
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Observed judge invocation count contributing to <see cref="LlmJudgeOverallQuality" />.</summary>
+    public int? LlmJudgeInvocationCount
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Absolute delta between judge median score and heuristic score when the judge ran successfully.</summary>
+    public double? LlmJudgeHeuristicDisagreement
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When true, trace evaluation should elevate an otherwise accepted gate outcome to
+    ///     <see cref="AgentOutputQualityGateOutcome.Warned" /> because judge/heuristic disagree materially while scores are low.
+    /// </summary>
+    public bool JudgeHeuristicDisagreementElevatesWarn
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     Deterministic AgentResult→evidence grounding ratio when computed (token overlap + resolved evidence refs); absent when not evaluated.
     /// </summary>

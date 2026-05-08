@@ -73,6 +73,7 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
                 promptRepro,
                 null,
                 null,
+                null,
                 AgentExecutionTraceModelMetadata.SimulatorDeploymentName,
                 AgentExecutionTraceModelMetadata.SimulatorModelVersion,
                 true,

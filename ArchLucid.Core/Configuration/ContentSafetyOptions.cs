@@ -60,4 +60,14 @@ public sealed class ContentSafetyOptions
         get;
         set;
     } = true;
+
+    /// <summary>
+    ///     When true (default), <see cref="ArchLucid.AgentRuntime.Safety.ContentSafetyEnforcingAgentCompletionClient" />
+    ///     invokes Azure AI Content Safety on outbound prompts (after accounting-layer redaction) and completions.
+    /// </summary>
+    public bool EvaluateCompletionPromptAndResponse
+    {
+        get;
+        set;
+    } = true;
 }

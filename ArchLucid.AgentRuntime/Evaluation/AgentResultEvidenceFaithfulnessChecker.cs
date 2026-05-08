@@ -24,9 +24,7 @@ public sealed class AgentResultEvidenceFaithfulnessChecker : IAgentResultEvidenc
         "more", "most", "some", "very", "when", "what", "which", "while", "where", "who", "how", "why",
         "your", "our", "its", "can", "did", "does", "done", "being", "over", "under", "after", "before",
         "between", "through", "during", "about", "against", "within", "without", "using", "based", "including",
-        "included", "related", "overall", "several", "another", "other", "same", "well", "high", "low",
-        "risk", "cost", "security", "compliance", "system", "design", "architecture", "manifest", "decision",
-        "finding", "findings", "issue", "issues", "need", "needs", "recommend", "summary"
+        "included", "related", "overall", "several", "another", "other", "same", "well", "high", "low"
     };
 
     /// <inheritdoc />

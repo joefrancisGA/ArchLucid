@@ -146,6 +146,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
             auditService.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
+            new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
             Options.Create(new AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);

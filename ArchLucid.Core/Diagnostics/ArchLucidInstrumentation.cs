@@ -481,6 +481,18 @@ public static class ArchLucidInstrumentation
             "archlucid_llm_prompt_redaction_skipped_total",
             description: "LLM completions observed while prompt redaction is disabled.");
 
+    /// <summary>Azure AI Content Safety blocks on LLM envelope prompts/responses (labels <c>stage</c>, <c>category</c>).</summary>
+    public static readonly Counter<long> LlmContentSafetyBlockedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_content_safety_blocked_total",
+            description: "Content safety blocked outbound prompts or completions (labels stage, category).");
+
+    /// <summary>Evidence-package scalar fields rewritten after deterministic injection-pattern match.</summary>
+    public static readonly Counter<long> EvidenceInjectionFieldsRedactedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_evidence_prompt_injection_fields_redacted_total",
+            description: "Evidence scalar fields redacted after prompt-injection heuristics matched.");
+
     /// <summary>Billing checkout attempts (labels: <c>provider</c>, <c>tier</c>, <c>outcome</c>).</summary>
     public static readonly Counter<long> BillingCheckoutsTotal =
         AppMeter.CreateCounter<long>(
@@ -538,6 +550,12 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateHistogram<double>(
             "archlucid_agent_output_semantic_score",
             description: "Agent output semantic quality score (0-1).");
+
+    /// <summary>Absolute delta between LLM judge median score and heuristic semantic score (label <c>agent_type</c>).</summary>
+    public static readonly Histogram<double> AgentOutputJudgeDisagreement =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_agent_output_judge_disagreement",
+            description: "LLM judge vs heuristic semantic disagreement magnitude (0-1).");
 
     /// <summary>
     ///     Quality gate outcomes after structural + semantic evaluation (labels: <c>agent_type</c>, <c>outcome</c>

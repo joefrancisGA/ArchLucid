@@ -127,6 +127,8 @@ public static class AgentOutputTraceQualityEvaluator
             semanticScore,
             ref gateOutcome);
 
+        ApplyJudgeHeuristicDisagreementElevation(semanticScore, ref gateOutcome);
+
         return new TraceQualityEvaluationResult(true, true, false, true, structuralScore, semanticScore, gateOutcome);
     }
 
@@ -187,6 +189,8 @@ public static class AgentOutputTraceQualityEvaluator
 
         AgentOutputQualityGateOutcome outcome = qualityGate.Evaluate(structuralScore, semanticScore);
 
+        ApplyJudgeHeuristicDisagreementElevation(semanticScore, ref outcome);
+
         return new TraceQualityEvaluationResult(true, true, false, true, structuralScore, semanticScore, outcome);
     }
 
@@ -239,6 +243,19 @@ public static class AgentOutputTraceQualityEvaluator
         if (structuralScore.StructuralCompletenessRatio < options.PilotStrictMinStructuralCompleteness ||
             semanticScore.OverallSemanticScore < options.PilotStrictMinSemanticScore)
             gateOutcome = AgentOutputQualityGateOutcome.Rejected;
+    }
+
+    private static void ApplyJudgeHeuristicDisagreementElevation(
+        AgentOutputSemanticScore semanticScore,
+        ref AgentOutputQualityGateOutcome gateOutcome)
+    {
+        if (gateOutcome != AgentOutputQualityGateOutcome.Accepted)
+            return;
+
+        if (!semanticScore.JudgeHeuristicDisagreementElevatesWarn)
+            return;
+
+        gateOutcome = AgentOutputQualityGateOutcome.Warned;
     }
 
     private static void ApplyCitationOutcome(bool pilotStrict,
