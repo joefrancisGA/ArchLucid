@@ -48,6 +48,10 @@ CI appends the same report to the GitHub Actions job summary (no secrets).
 |------|-----|
 | `--enforce` | Non-zero exit when expected-rule **recall** is below **`--min-recall`** or **unexpected** probes fire. |
 | `--enforce-quality-gate` | Non-zero exit when any **simulator** row is **rejected** by the default gate (for release automation). Real-mode rows are **never** gated by this flag. |
+| `--require-real-mode-evidence` | Non-zero exit when the manifest includes **`qualityEvidence.mode: "real"`** rows but **none** evaluate (env unset / empty path). Use in RC jobs that must attach exported **AgentResult** JSON; omit in PR CI. |
+
+**Release-candidate wrapper (strict + real evidence):** `scripts/ci/run_eval_agent_corpus_rc.sh` — same as  
+`--enforce --min-recall 0.75 --enforce-quality-gate --require-real-mode-evidence` plus optional env overrides (see script header).
 
 Synth briefs are **not** legal, compliance, or customer truth: do not assert regulatory correctness from model output.
 
@@ -69,7 +73,7 @@ Reported **`recall`** = **hits ÷ rules** per scenario — not classical IR reca
 
 - **Default:** informational — script exits **0** even when recalls dip (aligns with assessment “do not block CI initially”).
 - **Pull requests:** `eval_agent_corpus.py` runs in **`ci.yml`** with `--markdown-report` (appended to the job summary); **no** Azure OpenAI.
-- **Strict:** `python scripts/ci/eval_agent_corpus.py --enforce --min-recall 0.75` for release branches; add `--enforce-quality-gate` when simulator JSON must clear rejection floors before tagging an RC.
+- **Strict / RC:** `bash scripts/ci/run_eval_agent_corpus_rc.sh` after exporting **`ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT`** (absolute path to Web-serialized **AgentResult** JSON), or invoke `eval_agent_corpus.py` with `--enforce --min-recall 0.75 --enforce-quality-gate --require-real-mode-evidence` manually.
 
 ---
 

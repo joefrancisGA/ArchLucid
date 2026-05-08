@@ -28,10 +28,15 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
         threadId: tid,
         role: "Assistant",
         content:
-          "This review highlights PHI minimization at the intake boundary: legacy connectors may retain more patient " +
-          "identifiers than the target architecture allows. The finalized manifest records the mitigation pattern and " +
-          "links supporting evidence so governance can trace the decision. Open the manifest summary for decision IDs " +
-          "and the findings panel for severity context.",
+          "Risk:\n\n" +
+          "PHI minimization at the intake boundary: legacy connectors may retain more patient identifiers than the " +
+          "target architecture allows.\n\n" +
+          "Evidence:\n\n" +
+          "The finalized manifest records the mitigation pattern and links supporting evidence for governance traceability.\n\n" +
+          "Mitigation:\n\n" +
+          "Align adapters to the minimization posture documented in the review package before sign-off.\n\n" +
+          "Validation:\n\n" +
+          "Confirm checklist completion on the findings panel and manifest summary before go-live.",
         createdUtc: "2026-01-12T10:06:12.000Z",
         metadataJson: "{}",
       },
@@ -53,8 +58,14 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
         threadId: tid,
         role: "Assistant",
         content:
-          "Prioritize documented data flows across the boundary, retention of identifiers, subprocessors touching PHI, " +
-          "and how monitoring proves the control story. The review package ties each point to evidence in the trail graph.",
+          "Risk:\n\n" +
+          "Undocumented data flows or retention gaps across the HIPAA boundary could block sign-off.\n\n" +
+          "Evidence:\n\n" +
+          "Use the review package to tie each control point to evidence in the trail graph.\n\n" +
+          "Mitigation:\n\n" +
+          "Document flows, subprocessors touching PHI, and monitoring proof before legal review completes.\n\n" +
+          "Validation:\n\n" +
+          "Check that each legal question maps to an artifact or finding with a clear owner.",
         createdUtc: "2026-01-10T14:25:18.000Z",
         metadataJson: "{}",
       },
