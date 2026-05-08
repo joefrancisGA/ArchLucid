@@ -73,7 +73,7 @@ public sealed class CompositeAgentOutputSemanticEvaluator(
 
         double semanticWarn =
             gateOpts.PerAgentTypeFloors.TryGetValue(agentType.ToString(), out AgentTypeQualityFloors? floors)
-            && floors?.SemanticWarnBelow.HasValue == true
+            && floors.SemanticWarnBelow.HasValue == true
                 ? floors.SemanticWarnBelow!.Value
                 : gateOpts.SemanticWarnBelow;
 

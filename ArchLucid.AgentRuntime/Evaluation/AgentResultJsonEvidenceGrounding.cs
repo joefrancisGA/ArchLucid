@@ -20,27 +20,25 @@ internal static class AgentResultJsonEvidenceGrounding
             case JsonValueKind.Object:
                 foreach (string prop in new[] { "detail", "text", "evidence", "statement", "claim" })
                 {
-                    if (!claim.TryGetProperty(prop, out JsonElement p) || p.ValueKind != JsonValueKind.String)
-
-                        continue;
+                    if (!claim.TryGetProperty(prop, out JsonElement p) || p.ValueKind != JsonValueKind.String) continue;
 
                     string? s = p.GetString();
 
                     if (!string.IsNullOrWhiteSpace(s))
-                        claimText = string.IsNullOrEmpty(claimText) ? s! : $"{claimText} {s}";
+                        claimText = string.IsNullOrEmpty(claimText) ? s : $"{claimText} {s}";
                 }
 
-                if (claim.TryGetProperty("evidenceRefs", out JsonElement r) && r.ValueKind == JsonValueKind.Array)
+                if (!claim.TryGetProperty("evidenceRefs", out JsonElement r) || r.ValueKind != JsonValueKind.Array)
+                    return !string.IsNullOrWhiteSpace(claimText) || refs.Count > 0;
+
                 {
                     foreach (JsonElement id in r.EnumerateArray())
                     {
-                        if (id.ValueKind == JsonValueKind.String)
-                        {
-                            string? s = id.GetString();
+                        if (id.ValueKind != JsonValueKind.String) continue;
+                        string? s = id.GetString();
 
-                            if (!string.IsNullOrWhiteSpace(s))
-                                refs.Add(s.Trim());
-                        }
+                        if (!string.IsNullOrWhiteSpace(s))
+                            refs.Add(s.Trim());
                     }
                 }
 
@@ -61,8 +59,7 @@ internal static class AgentResultJsonEvidenceGrounding
         description = string.Empty;
         recommendation = string.Empty;
 
-        if (finding.ValueKind != JsonValueKind.Object)
-            return false;
+        if (finding.ValueKind != JsonValueKind.Object) return false;
 
         category =
             finding.TryGetProperty("category", out JsonElement cat) && cat.ValueKind == JsonValueKind.String

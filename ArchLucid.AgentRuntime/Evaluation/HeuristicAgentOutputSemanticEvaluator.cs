@@ -254,12 +254,8 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
     {
         int n = 0;
 
-        foreach (JsonElement item in array.EnumerateArray())
+        foreach (JsonElement item in array.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object))
         {
-            if (item.ValueKind != JsonValueKind.Object)
-
-                continue;
-
             if (item.TryGetProperty("serviceName", out JsonElement name) &&
                 name.ValueKind == JsonValueKind.String &&
                 !string.IsNullOrWhiteSpace(name.GetString()))
@@ -274,12 +270,8 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
     {
         int n = 0;
 
-        foreach (JsonElement item in array.EnumerateArray())
+        foreach (JsonElement item in array.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object))
         {
-            if (item.ValueKind != JsonValueKind.Object)
-
-                continue;
-
             if (item.TryGetProperty("datastoreName", out JsonElement name) &&
                 name.ValueKind == JsonValueKind.String &&
                 !string.IsNullOrWhiteSpace(name.GetString()))
@@ -294,12 +286,8 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
     {
         int n = 0;
 
-        foreach (JsonElement item in array.EnumerateArray())
+        foreach (JsonElement item in array.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.Object))
         {
-            if (item.ValueKind != JsonValueKind.Object)
-
-                continue;
-
             bool src = item.TryGetProperty("sourceId", out JsonElement s) &&
                        s.ValueKind == JsonValueKind.String &&
                        !string.IsNullOrWhiteSpace(s.GetString());
