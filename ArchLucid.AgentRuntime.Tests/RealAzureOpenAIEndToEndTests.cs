@@ -118,7 +118,8 @@ public sealed class RealAzureOpenAIEndToEndTests
             new FixedScopeProviderForLiveAoai(),
             new AgentHandlerConcurrencyGate(resilience),
             resilience,
-            Options.Create(new StagedCriticAgentOptions()));
+            Options.Create(new StagedCriticAgentOptions()),
+            Options.Create(new AgentOutputQualityGateOptions()));
 
         ArchitectureRequest request = new()
         {

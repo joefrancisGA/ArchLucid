@@ -6,6 +6,7 @@
     "ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/golden-agent-result-compliance.json",
     "ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/golden-agent-result-critic.json",
     "ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/golden-agent-result-partial-keys.json",
-    "ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/golden-agent-result-claim-without-evidence.json"
+    "ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/golden-agent-result-claim-without-evidence.json",
+    "ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/golden-agent-result-short-recommendation.json"
   ]
 }

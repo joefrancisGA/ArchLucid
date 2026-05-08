@@ -118,8 +118,46 @@ public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runReposit
             if (tasks.Count == 0)
                 throw new InvalidOperationException($"No tasks found for run '{runId}'.");
             AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
-            IReadOnlyList<AgentResult> results = await agentExecutor.ExecuteAsync(runId, request, evidence, tasks, cancellationToken);
-            IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);
+            IReadOnlyList<AgentResult> results;
+
+            try
+            {
+                results = await agentExecutor.ExecuteAsync(runId, request, evidence, tasks, cancellationToken);
+            }
+            catch (AgentRunPartialBudgetException partial)
+                when (_agentOutputQualityGateOptions.Value.PersistPartialOutputsOnBudgetExceeded &&
+                      partial.CompletedResults.Count > 0)
+            {
+                IReadOnlyList<AgentEvaluation> partialEvaluations =
+                    await agentEvaluationService.EvaluateAsync(
+                        runId,
+                        request,
+                        evidence,
+                        tasks,
+                        partial.CompletedResults,
+                        cancellationToken);
+
+                await PersistPartialExecutePhaseAsync(evidence, partial.CompletedResults, partialEvaluations, cancellationToken);
+
+                AgentExecutionFailureSummary partialFailure =
+                    AgentExecutionFailureSummaryFactory.FromException(partial.BudgetCause);
+
+                await TryMarkRunExecuteFailedAsync(runId, partialFailure, cancellationToken);
+
+                await baselineMutationAudit.RecordAsync(
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
+                    actor,
+                    runId,
+                    FormatExecuteRunFailureAuditDetails(partialFailure),
+                    cancellationToken);
+
+                throw new RunCostBudgetExceededPartialPersistRecordedException(
+                    partial.BudgetCause,
+                    partial.CompletedResults.Count);
+            }
+
+            IReadOnlyList<AgentEvaluation> evaluations =
+                await agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);
             await PersistExecutePhaseAsync(evidence, results, evaluations, cancellationToken);
             try
             {
@@ -150,6 +188,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runReposit
                 RunId = runId,
                 Results = results.ToList()
             };
+        }
+        catch (RunCostBudgetExceededPartialPersistRecordedException)
+        {
+            throw;
         }
         catch (Exception ex)when (ex is not OperationCanceledException and not AgentOutputQualityGateRejectedException)
         {
@@ -195,6 +237,22 @@ public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runReposit
         // Authority LegacyRunStatus may still read TasksGenerated while execute results already exist; idempotency uses stored results.
         if (run.Status != ArchitectureRunStatus.TasksGenerated || existingResults.Count <= 0)
             return null;
+
+        IReadOnlyList<AgentTask> scheduledTasks =
+            await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        if (!ArePersistedResultsCompleteForTasks(scheduledTasks, existingResults))
+        {
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformation(
+                    "ExecuteRunAsync skipping idempotent early return: stored results are incomplete versus scheduled tasks for RunId={RunId}, StoredCount={StoredCount}, TaskCount={TaskCount}",
+                    LogSanitizer.Sanitize(runId),
+                    existingResults.Count,
+                    scheduledTasks.Count);
+
+            return null;
+        }
+
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount} (legacy status may lag)", LogSanitizer.Sanitize(runId), run.Status, existingResults.Count);
         await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, existingResults, cancellationToken);
@@ -358,5 +416,84 @@ public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runReposit
         ArgumentNullException.ThrowIfNull(summary);
 
         return AgentExecutionFailureSummaryJson.Serialize(summary);
+    }
+
+    internal static bool ArePersistedResultsCompleteForTasks(
+        IReadOnlyList<AgentTask> tasks,
+        IReadOnlyList<AgentResult> existingResults)
+    {
+        ArgumentNullException.ThrowIfNull(tasks);
+        ArgumentNullException.ThrowIfNull(existingResults);
+
+        if (tasks.Count == 0 || existingResults.Count != tasks.Count)
+            return false;
+
+        HashSet<string> outstanding = tasks.Select(t => t.TaskId).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (outstanding.Count != tasks.Count)
+            return false;
+
+        foreach (AgentResult result in existingResults)
+        {
+            if (!outstanding.Remove(result.TaskId))
+                return false;
+        }
+
+        return outstanding.Count == 0;
+    }
+
+    private async Task PersistPartialExecutePhaseAsync(
+        AgentEvidencePackage evidence,
+        IReadOnlyList<AgentResult> results,
+        IReadOnlyList<AgentEvaluation> evaluations,
+        CancellationToken cancellationToken)
+    {
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+
+        try
+        {
+            await PersistPartialExecutePhaseRowsAsync(evidence, results, evaluations, uow, cancellationToken);
+
+            await uow.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken);
+
+            throw;
+        }
+    }
+
+    private async Task PersistPartialExecutePhaseRowsAsync(
+        AgentEvidencePackage evidence,
+        IReadOnlyList<AgentResult> results,
+        IReadOnlyList<AgentEvaluation> evaluations,
+        IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(evidence);
+        ArgumentNullException.ThrowIfNull(results);
+        ArgumentNullException.ThrowIfNull(evaluations);
+
+        if (uow.SupportsExternalTransaction)
+        {
+            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
+
+            foreach (AgentResult result in results)
+                await resultRepository.CreateAsync(result, cancellationToken, uow.Connection, uow.Transaction);
+
+            if (evaluations.Count > 0)
+                await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken, uow.Connection, uow.Transaction);
+
+            return;
+        }
+
+        await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
+
+        foreach (AgentResult result in results)
+            await resultRepository.CreateAsync(result, cancellationToken);
+
+        if (evaluations.Count > 0)
+            await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
     }
 }

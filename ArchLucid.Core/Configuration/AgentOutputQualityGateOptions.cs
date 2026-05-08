@@ -137,6 +137,17 @@ public sealed class AgentOutputQualityGateOptions
     }
 
     /// <summary>
+    ///     When a per-run token or USD cap (<see cref="MaxTokensPerRun" />, <see cref="MaxCostPerRun" />) is exceeded
+    ///     after at least one agent handler returns, persist completed <see cref="ArchLucid.Contracts.Agents.AgentResult" />
+    ///     rows plus evidence (orchestrator path). When false, the executor fails the batch without partial persistence.
+    /// </summary>
+    public bool PersistPartialOutputsOnBudgetExceeded
+    {
+        get;
+        set;
+    } = true;
+
+    /// <summary>
     ///     Maximum allowed tokens per run. If exceeded, a CostLimitExceededException is thrown.
     ///     Null means no limit.
     /// </summary>

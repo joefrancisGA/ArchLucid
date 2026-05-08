@@ -45,7 +45,7 @@ describe("FindingExplainabilityDialog", () => {
       expect(screen.getByText("Test finding")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Narrative body.")).toBeInTheDocument();
+    expect(screen.getAllByText(/Narrative body\./)[0]).toBeInTheDocument();
     expect(screen.getByText("Structured evidence (deterministic)")).toBeInTheDocument();
     expect(screen.getByText("Policy breach on node n1.")).toBeInTheDocument();
     expect(spy).toHaveBeenCalledWith("run-a", "f-1");

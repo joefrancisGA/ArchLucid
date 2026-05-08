@@ -84,6 +84,17 @@ public sealed class GoldenAgentResultJsonEvaluationTests
         strippedSemantic.OverallSemanticScore.Should().BeLessThan(validSemantic.OverallSemanticScore);
     }
 
+    [SkippableFact]
+    public void Golden_short_recommendation_fixture_has_zero_semantic_score()
+    {
+        string json = LoadFixtureText("golden-agent-result-short-recommendation.json");
+
+        AgentOutputSemanticScore semantic = Semantic.Evaluate(TraceId, json, AgentType.Compliance);
+
+        semantic.FindingsQualityRatio.Should().Be(0.0);
+        semantic.OverallSemanticScore.Should().Be(0.0);
+    }
+
     private static string LoadFixtureText(string fileName)
     {
         string dir = Path.Combine(AppContext.BaseDirectory, "Fixtures", "GoldenAgentResults");

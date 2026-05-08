@@ -43,7 +43,7 @@ public sealed class AgentResultParserTests
 
         Action act = () => _sut.ParseAndValidate(json, "run", "task", AgentType.Topology);
 
-        act.Should().Throw<InvalidOperationException>().WithMessage("*RunId*");
+        act.Should().Throw<AgentResultValidationException>().WithMessage("*RunId*");
     }
 
     [SkippableFact]
@@ -62,7 +62,7 @@ public sealed class AgentResultParserTests
     }
 
     [SkippableFact]
-    public void ParseAndValidate_when_confidence_out_of_range_throws_InvalidOperationException()
+    public void ParseAndValidate_when_confidence_out_of_range_throws_AgentResultValidationException()
     {
         string json =
             """
@@ -71,7 +71,7 @@ public sealed class AgentResultParserTests
 
         Action act = () => _sut.ParseAndValidate(json, "r", "t", AgentType.Compliance);
 
-        act.Should().Throw<InvalidOperationException>().WithMessage("*between 0 and 1*");
+        act.Should().Throw<AgentResultValidationException>().WithMessage("*between 0 and 1*");
     }
 
     [SkippableFact]

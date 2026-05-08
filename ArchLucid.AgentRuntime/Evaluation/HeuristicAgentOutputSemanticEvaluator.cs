@@ -1,4 +1,3 @@
-using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -177,7 +176,25 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
         if (!hasClaims && hasFindings)
             return findingsRatio;
 
-        return claimsRatio * 0.4 + findingsRatio * 0.6;
+        (double claimsWeight, double findingsWeight) = SemanticWeights(agentType);
+
+        return claimsRatio * claimsWeight + findingsRatio * findingsWeight;
+    }
+
+    /// <summary>
+    ///     Claim-heavy profiles (Compliance) prioritize evidence-backed assertions; critique profiles emphasize actionable
+    ///     findings strings.
+    /// </summary>
+    private static (double ClaimsWeight, double FindingsWeight) SemanticWeights(AgentType agentType)
+    {
+        return agentType switch
+        {
+            AgentType.Compliance => (0.7, 0.3),
+            AgentType.Topology => (0.4, 0.6),
+            AgentType.Critic => (0.25, 0.75),
+            AgentType.Cost => (0.55, 0.45),
+            _ => throw new ArgumentOutOfRangeException(nameof(agentType), agentType, null)
+        };
     }
 
     private static AgentOutputSemanticScore BuildZeroScore(string traceId, AgentType agentType)

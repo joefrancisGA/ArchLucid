@@ -72,6 +72,8 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
         string promptHash = LlmCompletionCacheFingerprint.ComputePromptHash(systemPrompt, userPrompt);
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        EnsureScopePartitionAllowsCache(cacheOpts.PartitionByScope, scope, _simulator);
+
         string scopePartition = cacheOpts.PartitionByScope
             ? LlmCompletionCacheFingerprint.FormatScopePartition(scope)
             : string.Empty;
@@ -103,5 +105,24 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
         await _cache.SetAsync(cacheKey, new LlmCompletionResult(result), cancellationToken);
 
         return result;
+    }
+
+    /// <summary>
+    ///     Production runs must not shard cache keys with an empty tenant when partition semantics are requested; simulator
+    ///     hosts remain exempt because they deliberately lack tenant scope plumbing.
+    /// </summary>
+    private static void EnsureScopePartitionAllowsCache(bool partitionByScope, ScopeContext scope, bool simulatorMode)
+    {
+        if (simulatorMode || !partitionByScope)
+            return;
+
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (scope.TenantId != Guid.Empty)
+            return;
+
+        throw new InvalidOperationException(
+            "AgentRuntime CompletionCache.PartitionByScope is enabled but the ambient tenant scope id is empty. " +
+            "Refusing completion cache lookups to prevent cross-scope cache bleed when prompts collide.");
     }
 }

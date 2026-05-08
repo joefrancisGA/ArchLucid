@@ -14,4 +14,7 @@ public static class AgentExecutionTraceFailureReasonCodes
     ///     exceeded.
     /// </summary>
     public const string LlmTokenQuotaExceeded = nameof(LlmTokenQuotaExceeded);
+
+    /// <summary>Run-level token or USD cap (per-execute batch) was exceeded after one or more completions.</summary>
+    public const string RunCostLimitExceeded = nameof(RunCostLimitExceeded);
 }

@@ -18,6 +18,9 @@ public static class AgentExecutionFailureClasses
 
     public const string Quota = "quota";
 
+    /// <summary>Per-run estimated token/USD cap breached (CostGuardrail / run budget).</summary>
+    public const string CostBudget = "costBudget";
+
     public const string InvalidOperation = "invalidOperation";
 
     public const string Dependency = "dependency";

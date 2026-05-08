@@ -77,10 +77,17 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
 }
 
 /**
- * Advanced routes that stay in the buyer demo nav (compare, graph, Q&A, findings queue).
- * All other `advanced-only` destinations are hidden when `NEXT_PUBLIC_DEMO_MODE` is on.
+ * Advanced routes that stay visible in `NEXT_PUBLIC_DEMO_MODE` nav (sidebar + mobile), alongside core pilot links.
+ * Curated static samples exist for policy packs and alerts so evaluators can open them without a seeded API.
  */
-const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>(["/graph", "/ask", "/governance", "/audit"]);
+const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>([
+  "/graph",
+  "/ask",
+  "/governance",
+  "/audit",
+  "/policy-packs",
+  "/alerts",
+]);
 
 /** Pilot-tier links that are hidden in buyer demo nav (reduce noise vs core review story). */
 const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>(["/scorecard", "/search"]);

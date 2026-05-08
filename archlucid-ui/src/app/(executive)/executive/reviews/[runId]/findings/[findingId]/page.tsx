@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { FindingInspectFindingBody } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectFindingBody";
 import { sameAuthorityRunId } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectView";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
 import {
   findingIdsAlignForInspectRoute,

@@ -192,7 +192,7 @@ function AuditTimelineEventCard(props: { ev: AuditEvent; buyerPolishedShell: boo
             Review:{" "}
             {ev.runId ? (
               <Link href={`/reviews/${ev.runId}`} title="Open review">
-                {buyerFacingReviewLinkFromRunId(ev.runId)}
+                {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
               </Link>
             ) : (
               "—"
