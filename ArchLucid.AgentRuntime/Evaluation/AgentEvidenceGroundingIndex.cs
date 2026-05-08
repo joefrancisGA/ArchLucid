@@ -50,7 +50,7 @@ internal static class AgentEvidenceGroundingIndex
         Append(sb, evidence.CloudProvider);
         Append(sb, evidence.Request.Description);
 
-        foreach (string c in evidence.Request?.Constraints ?? [])
+        foreach (string c in evidence.Request.Constraints ?? [])
             Append(sb, c);
 
         foreach (PolicyEvidence p in evidence.Policies)

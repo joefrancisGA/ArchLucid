@@ -30,6 +30,18 @@ def _golden_valid_path(repo_root: Path) -> Path:
     )
 
 
+def _del_eval_corpus_real_mode_agent_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Clear env vars referenced by tests/eval-corpus real-mode qualityEvidence rows."""
+
+    for name in (
+        "ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT",
+        "ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT",
+        "ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT",
+        "ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+
 def test_score_committed_agent_result_matches_golden_valid_shape():
     mod = _load_eval_agent_corpus()
     repo = Path(__file__).resolve().parents[3]
@@ -134,7 +146,7 @@ def test_main_default_no_real_require_exits_zero_when_real_skipped(monkeypatch):
     repo = Path(__file__).resolve().parents[3]
     corpus = repo / "tests" / "eval-corpus"
 
-    monkeypatch.delenv("ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT", raising=False)
+    _del_eval_corpus_real_mode_agent_env(monkeypatch)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -149,7 +161,7 @@ def test_main_require_real_mode_fails_when_env_missing(monkeypatch):
     repo = Path(__file__).resolve().parents[3]
     corpus = repo / "tests" / "eval-corpus"
 
-    monkeypatch.delenv("ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT", raising=False)
+    _del_eval_corpus_real_mode_agent_env(monkeypatch)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -171,6 +183,7 @@ def test_main_require_real_mode_passes_when_smoke_env_points_at_valid_json(monke
     golden = _golden_valid_path(repo)
     assert golden.is_file()
 
+    _del_eval_corpus_real_mode_agent_env(monkeypatch)
     monkeypatch.setenv("ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT", str(golden))
     monkeypatch.setattr(
         sys,
@@ -180,6 +193,78 @@ def test_main_require_real_mode_passes_when_smoke_env_points_at_valid_json(monke
             "--corpus",
             str(corpus),
             "--require-real-mode-evidence",
+        ],
+    )
+
+    assert mod.main() == 0
+
+
+def test_main_enforce_real_quality_gate_fails_when_evaluated_real_row_rejected(monkeypatch):
+    mod = _load_eval_agent_corpus()
+    repo = Path(__file__).resolve().parents[3]
+    corpus = repo / "tests" / "eval-corpus"
+    golden = _golden_valid_path(repo)
+    assert golden.is_file()
+
+    # Any finite structural score is below this floor, so the gate rejects deterministically.
+    monkeypatch.setitem(mod._DEFAULT_GATE, "structural_reject_below", 10.0)
+
+    _del_eval_corpus_real_mode_agent_env(monkeypatch)
+    monkeypatch.setenv("ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT", str(golden))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "eval_agent_corpus.py",
+            "--corpus",
+            str(corpus),
+            "--enforce-real-quality-gate",
+        ],
+    )
+
+    assert mod.main() == 1
+
+
+def test_main_enforce_real_quality_gate_ignored_when_real_rows_skip(monkeypatch):
+    """Skipped real rows (env unset) do not satisfy 'evaluated' for real gate enforcement."""
+
+    mod = _load_eval_agent_corpus()
+    repo = Path(__file__).resolve().parents[3]
+    corpus = repo / "tests" / "eval-corpus"
+
+    _del_eval_corpus_real_mode_agent_env(monkeypatch)
+    monkeypatch.setitem(mod._DEFAULT_GATE, "structural_reject_below", 10.0)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "eval_agent_corpus.py",
+            "--corpus",
+            str(corpus),
+            "--enforce-real-quality-gate",
+        ],
+    )
+
+    assert mod.main() == 0
+
+
+def test_main_enforce_real_quality_gate_passes_when_real_accepted(monkeypatch):
+    mod = _load_eval_agent_corpus()
+    repo = Path(__file__).resolve().parents[3]
+    corpus = repo / "tests" / "eval-corpus"
+    golden = _golden_valid_path(repo)
+    assert golden.is_file()
+
+    _del_eval_corpus_real_mode_agent_env(monkeypatch)
+    monkeypatch.setenv("ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT", str(golden))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "eval_agent_corpus.py",
+            "--corpus",
+            str(corpus),
+            "--enforce-real-quality-gate",
         ],
     )
 

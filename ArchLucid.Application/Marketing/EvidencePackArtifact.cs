@@ -11,6 +11,4 @@ namespace ArchLucid.Application.Marketing;
 /// </param>
 /// <param name = "ContentType">MIME type — always <c>application/zip</c>.</param>
 /// <param name = "BuiltAtUtc">When this artifact was assembled (used for diagnostics, NOT for the ETag).</param>
-public sealed record EvidencePackArtifact(byte[] Bytes, string ETag, string ContentType, DateTimeOffset BuiltAtUtc)
-{
-}
+public sealed record EvidencePackArtifact(byte[] Bytes, string ETag, string ContentType, DateTimeOffset BuiltAtUtc);

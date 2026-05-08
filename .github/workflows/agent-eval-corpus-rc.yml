@@ -1,4 +1,4 @@
-# Release-candidate eval corpus: strict recall + simulator quality gate + mandatory real-mode evidence path.
+# Release-candidate eval corpus: strict recall + simulator/real quality gates + mandatory real-mode evidence path.
 # Does not run on ordinary PRs; owners supply OPENAI/AOAI evidence via env on dispatch or RC tags.
 
 name: agent-eval-corpus-rc
@@ -28,10 +28,13 @@ jobs:
       - name: Assert committed real-mode exemplar exists
         run: python3 scripts/ci/assert_eval_corpus_rc_has_real_exemplar.py
 
-      - name: Run RC eval corpus wrapper (strict + real-mode evidence required)
+      - name: Run RC eval corpus wrapper (strict + simulator/real gates + real-mode evidence required)
         env:
           ARCHLUCID_EVAL_CORPUS_MARKDOWN_REPORT: ${{ runner.temp }}/eval-corpus-rc.md
           ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-smoke.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-cost.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-compliance.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-critic.real.json
         run: bash scripts/ci/run_eval_agent_corpus_rc.sh
 
       - uses: actions/upload-artifact@v4

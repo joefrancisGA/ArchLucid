@@ -11,7 +11,7 @@ Companion scripts:
 
 Release-candidate automation:
 
-- **`.github/workflows/agent-eval-corpus-rc.yml`** — runs on **`workflow_dispatch`**, tags **`v*-rc*`**, and branches **`release/**`**; asserts a committed real-mode exemplar (**`tests/eval-corpus/agent-results/corpus-real-mode-smoke.real.json`**) and **`scripts/ci/run_eval_agent_corpus_rc.sh`** (strict recall + quality gate + required real-mode evidence path); uploads Markdown artifact **`eval-corpus-rc`**.
+- **`.github/workflows/agent-eval-corpus-rc.yml`** — runs on **`workflow_dispatch`**, tags **`v*-rc*`**, and branches **`release/**`**; asserts committed **`tests/eval-corpus/agent-results/*.real.json`** exemplars (Topology via **`corpus-real-mode-smoke.real.json`**, plus Cost / Compliance / Critic) and **`scripts/ci/run_eval_agent_corpus_rc.sh`** (strict recall + simulator/real quality-gate enforcement + required real-mode evidence paths); uploads Markdown artifact **`eval-corpus-rc`**.
 
 ---
 
@@ -23,7 +23,7 @@ Release-candidate automation:
 | **`scenario-*.json`** | Expected / unexpected probes + pointer to **`recordings/*`** JSON; optional **`qualityEvidence`** for offline **AgentResult** scoring |
 | **`recordings/*.findings.json`** | Authoritative simplified “finding list” (category, severity, title + detail text) |
 | **`agent-results/*.simulator.json`** | Optional offline **AgentResult** JSON for structural / semantic / gate metrics (PR-safe, no AOAI) |
-| **`qualityEvidence.mode: "real"`** | Optional offline scoring of **exported** **AgentResult** JSON from a local path named by **`qualityEvidence.agentResultPathEnv`** (no committed blobs; unset env in PR CI) |
+| **`qualityEvidence.mode: "real"`** | Offline scoring of **AgentResult** JSON from a path named by **`qualityEvidence.agentResultPathEnv`** — PR CI leaves vars unset (rows skip); RC pins vars to **synthetic** committed **`agent-results/*.real.json`** exemplars |
 
 Scenarios deliberately avoid shipping full **`ArchitectureRequest`** bodies: only **`inputSummary`** text is retained for readability. Extend with additional fields when simulator exports stabilize.
 
@@ -46,7 +46,7 @@ Each follows the authoring checklist (≥3 expected probes, ≥2 unexpected prob
 **Real Azure OpenAI** traces are **not** committed as prompts. Two complementary paths:
 
 1. **HTTP / tenant evidence:** After **`POST …/execute`**, call **`GET /v1/architecture/run/{runId}/agent-evaluation`** and archive exports outside the repo (or consume metrics backends). Name the **reference deployment** alongside **`AGENT_OUTPUT_EVALUATION.md`** quality-gate floors.
-2. **Corpus hook (deterministic scorer on exported JSON):** **`scenario-real-mode-smoke`** sets **`qualityEvidence.mode: "real"`** and **`agentResultPathEnv`: `ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT`**. Paste or save **`ParsedResultJson`** (**Web-serialized `AgentResult`**) from a trusted run into a temp file and point the env var at that absolute path **only** when you want the corpus report to distinguish **simulator fixture quality** from **one reference-model JSON snapshot**. Omit the variable everywhere default PR gates must stay AOAI-free.
+2. **Corpus hook (deterministic scorer on AgentResult JSON):** Four scenarios commit **`qualityEvidence.mode: "real"`** with distinct env vars — **`scenario-real-mode-smoke`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT`, Topology), **`scenario-real-mode-cost`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT`), **`scenario-real-mode-compliance`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT`), **`scenario-real-mode-critic`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT`). RC automation sets each to the matching **`tests/eval-corpus/agent-results/*.real.json`** (synthetic Web-serialized shape). Locally, point any var at **`ParsedResultJson`** from a trusted run when comparing simulator fixtures to a live export; omit all vars in PR CI so rows skip without failing.
 
 ### Markdown report (structural, semantic, gate)
 
@@ -62,11 +62,12 @@ CI appends the same report to the GitHub Actions job summary (no secrets).
 | Flag | Use |
 |------|-----|
 | `--enforce` | Non-zero exit when expected-rule **recall** is below **`--min-recall`** or **unexpected** probes fire. |
-| `--enforce-quality-gate` | Non-zero exit when any **simulator** row is **rejected** by the default gate (for release automation). Real-mode rows are **never** gated by this flag. |
+| `--enforce-quality-gate` | Non-zero exit when any **simulator** row is **rejected** by the default gate. Does not apply to real-mode rows (use **`--enforce-real-quality-gate`**). |
+| `--enforce-real-quality-gate` | Non-zero exit when any **evaluated** real-mode row is **rejected** by the default gate (skipped rows when env is unset do not trigger). Owner-approved RC strictness. |
 | `--require-real-mode-evidence` | Non-zero exit when the manifest includes **`qualityEvidence.mode: "real"`** rows but **none** evaluate (env unset / empty path). Use in RC jobs that must attach exported **AgentResult** JSON; omit in PR CI. |
 
 **Release-candidate wrapper (strict + real evidence):** `scripts/ci/run_eval_agent_corpus_rc.sh` — same as  
-`--enforce --min-recall 0.75 --enforce-quality-gate --require-real-mode-evidence` plus optional env overrides (see script header).
+`--enforce --min-recall 0.75 --enforce-quality-gate --enforce-real-quality-gate --require-real-mode-evidence` plus optional env overrides (see script header).
 
 Synth briefs are **not** legal, compliance, or customer truth: do not assert regulatory correctness from model output.
 
@@ -88,7 +89,7 @@ Reported **`recall`** = **hits ÷ rules** per scenario — not classical IR reca
 
 - **Default:** informational — script exits **0** even when recalls dip (aligns with assessment “do not block CI initially”).
 - **Pull requests:** `eval_agent_corpus.py` runs in **`ci.yml`** with `--markdown-report` (appended to the job summary); **no** Azure OpenAI.
-- **Strict / RC:** `bash scripts/ci/run_eval_agent_corpus_rc.sh` after exporting **`ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT`** (absolute path to Web-serialized **AgentResult** JSON), or invoke `eval_agent_corpus.py` with `--enforce --min-recall 0.75 --enforce-quality-gate --require-real-mode-evidence` manually.
+- **Strict / RC:** `bash scripts/ci/run_eval_agent_corpus_rc.sh` with all four **`ARCHLUCID_EVAL_CORPUS_REAL_MODE_*_AGENT_RESULT`** vars set (workflow uses repo **`*.real.json`** paths), or invoke `eval_agent_corpus.py` with `--enforce --min-recall 0.75 --enforce-quality-gate --enforce-real-quality-gate --require-real-mode-evidence` manually.
 
 ---
 
@@ -98,7 +99,7 @@ Reported **`recall`** = **hits ÷ rules** per scenario — not classical IR reca
 2. Keep **≥3** expected rules and **≥2** unexpected rules (assessment minimum).
 3. Append the filename to **`manifest.json`**.
 4. (Optional) Add **`qualityEvidence`** with **`mode: "simulator"`** and **`agent-results/<case>.simulator.json`** — see the “V1 customer-like brief slice” section above.
-5. (Optional **real-mode quality row**) Prefer cloning **`scenario-real-mode-smoke.json`**: **`mode: "real"`**, a unique **`agentResultPathEnv`** name, **`agentType`** label, **`recordings/*.findings.json`**, and probes that use **substring** matches (avoid brittle verbatim model quotes). Do **not** commit AOAI exports.
+5. (Optional **real-mode quality row**) Clone **`scenario-real-mode-smoke.json`** or the **`scenario-real-mode-{cost,compliance,critic}.json`** trio: **`mode: "real"`**, a unique **`agentResultPathEnv`** name, **`agentType`** label, **`recordings/*.findings.json`**, substring probes. RC may commit **synthetic** **`agent-results/*.real.json`** exemplars (same shape as Web **`AgentResult`**); do **not** commit customer or production AOAI prompts/responses.
 6. Run `python scripts/ci/eval_agent_corpus.py` locally before pushing; use `--markdown-report` for the RC artifact.
 
 ---

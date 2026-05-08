@@ -9,12 +9,16 @@ Real-mode rows (``qualityEvidence.mode: "real"``) reuse the same scorer over a
 filesystem path from ``qualityEvidence.agentResultPathEnv`` (PR CI leaves the
 variable unset so those rows **skip** without failing the build). Use
 ``--require-real-mode-evidence`` in release jobs when all real-mode rows must
-evaluate (env set to an exported AgentResult path). For a combined RC invocation,
-see ``scripts/ci/run_eval_agent_corpus_rc.sh``.
+evaluate (env set to an exported AgentResult path). Use
+``--enforce-real-quality-gate`` in RC jobs when evaluated real-mode rows must
+not be **rejected** by the default gate (``--enforce-quality-gate`` still
+applies only to simulator rows). For a combined RC invocation, see
+``scripts/ci/run_eval_agent_corpus_rc.sh``.
 
 Default: informational only (exit 0). Use ``--enforce`` when you want recall /
 unexpected probes to block; use ``--enforce-quality-gate`` when rejected gate
-outcomes must fail the process (release automation).
+outcomes must fail the process for **simulator** rows; use
+``--enforce-real-quality-gate`` for evaluated **real-mode** rows.
 """
 
 from __future__ import annotations
@@ -535,7 +539,13 @@ def render_markdown_report(
                     "| Simulator `AgentResult` quality gate | "
                     f"{'yes (`--enforce-quality-gate`)' if gate_snapshot.get('enforce_quality_gate') else 'no'} | "
                     f"{_tri(bool(gate_snapshot.get('enforce_quality_gate')), bool(gate_snapshot.get('simulator_gate_failed')))} | "
-                    "Rejected simulator rows only; real-mode rows never use this flag. |"
+                    "Rejected simulator rows only; does not gate real-mode rows. |"
+                ),
+                (
+                    "| Real-mode `AgentResult` quality gate | "
+                    f"{'yes (`--enforce-real-quality-gate`)' if gate_snapshot.get('enforce_real_quality_gate') else 'no'} | "
+                    f"{_tri(bool(gate_snapshot.get('enforce_real_quality_gate')), bool(gate_snapshot.get('real_gate_failed')))} | "
+                    "Evaluated real rows only; skipped (env unset) rows do not trigger this flag. |"
                 ),
                 (
                     "| Real-mode AgentResult evidence | "
@@ -559,7 +569,7 @@ def render_markdown_report(
         "| Path | Meaning |",
         "|------|---------|",
         "| **Simulator** | Committed `agent-results/*.simulator.json` — **no Azure OpenAI**; deterministic scoring only. |",
-        "| **Real (optional)** | Not committed. Set the scenario's `qualityEvidence.agentResultPathEnv` to an absolute path of exported **AgentResult** JSON (same shape as simulator files). |",
+        "| **Real (optional)** | PR CI: unset env so rows skip. RC/local: set each scenario's `qualityEvidence.agentResultPathEnv` to an absolute path of **AgentResult** JSON (same shape as simulator files). Committed **`agent-results/*.real.json`** synthetic exemplars back the RC workflow. |",
         "",
         "### Quality evidence rows (manifest scenarios)",
         "",
@@ -571,7 +581,7 @@ def render_markdown_report(
         "",
         "### Real-mode AgentResult slice (optional)",
         "",
-        "_Scenarios with `qualityEvidence.mode: \"real\"`. PR CI leaves the env var unset so these rows **skip** unless you opt in locally or in a release job._",
+        "_Scenarios with `qualityEvidence.mode: \"real\"`. PR CI leaves env vars unset so these rows **skip** unless you opt in locally or in a release job (which pins paths to committed exemplars)._",
         "",
         "| Metric | Value |",
         "|--------|-------|",
@@ -758,6 +768,15 @@ def main() -> int:
         help="Exit non-zero when any simulator-mode quality row gate_outcome is rejected (real mode excluded).",
     )
     parser.add_argument(
+        "--enforce-real-quality-gate",
+        action="store_true",
+        help=(
+            "Exit non-zero when any evaluated real-mode quality row gate_outcome is rejected "
+            "(skipped real rows when env is unset do not trigger). RC strictness; independent of "
+            "`--enforce-quality-gate`."
+        ),
+    )
+    parser.add_argument(
         "--require-real-mode-evidence",
         action="store_true",
         help=(
@@ -809,6 +828,7 @@ def main() -> int:
     quality_failed = False
     quality_manifest_failed = False
     simulator_gate_failed = False
+    real_gate_failed = False
 
     for row in rows:
         print(
@@ -839,6 +859,21 @@ def main() -> int:
                 quality_failed = True
                 print(
                     f"::error::quality gate rejected for {row['id']} (structural="
+                    f"{q.get('structural_ratio')}, semantic={q.get('overall_semantic')})",
+                    file=sys.stderr,
+                )
+
+            if (
+                args.enforce_real_quality_gate
+                and q.get("mode") == "real"
+                and not q.get("skipped")
+                and not q.get("error")
+                and q.get("gate_outcome") == "rejected"
+            ):
+                real_gate_failed = True
+                quality_failed = True
+                print(
+                    f"::error::real-mode quality gate rejected for {row['id']} (structural="
                     f"{q.get('structural_ratio')}, semantic={q.get('overall_semantic')})",
                     file=sys.stderr,
                 )
@@ -878,6 +913,8 @@ def main() -> int:
         "recall_failed": failed,
         "enforce_quality_gate": bool(args.enforce_quality_gate),
         "simulator_gate_failed": simulator_gate_failed,
+        "enforce_real_quality_gate": bool(args.enforce_real_quality_gate),
+        "real_gate_failed": real_gate_failed,
         "quality_manifest_failed": quality_manifest_failed,
         "require_real_mode_evidence": bool(args.require_real_mode_evidence),
         "real_evidence_failed": real_evidence_failed,

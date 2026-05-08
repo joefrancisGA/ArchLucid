@@ -14,6 +14,9 @@
     "scenario-hallucinated-service.json",
     "scenario-citation-forgery.json",
     "scenario-contradictory-manifest.json",
-    "scenario-real-mode-smoke.json"
+    "scenario-real-mode-smoke.json",
+    "scenario-real-mode-cost.json",
+    "scenario-real-mode-compliance.json",
+    "scenario-real-mode-critic.json"
   ]
 }

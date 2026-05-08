@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rmcr-real-exemplar-01",
+  "taskId": "corpus-rmcr-task-exemplar",
+  "runId": "corpus-rmcr-run-exemplar",
+  "agentType": 4,
+  "claims": [
+    {
+      "evidenceRefs": ["peer-review-rubric-v3"],
+      "detail": "Committed exemplar: privileged paths require documented mitigations and secondary sign-off."
+    }
+  ],
+  "evidenceRefs": ["peer-review-rubric-v3"],
+  "confidence": 0.7,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Critic",
+      "description": "Long-lived service principals for CI remain in two pipelines; workload identity federation is only partially adopted.",
+      "recommendation": "Migrate remaining connections and enforce expiration alerts on legacy secrets."
+    },
+    {
+      "severity": "Low",
+      "category": "Critic",
+      "description": "Evidence packs are thorough but omit explicit recovery-time validation for the integration hub failover drill.",
+      "recommendation": "Attach last DR exercise results or schedule a tabletop before CAB closure."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-08T12:00:00Z"
+}

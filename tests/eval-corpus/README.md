@@ -9,7 +9,7 @@ Constraints from product policy:
 - No real customer payloads.
 - **Inform-only in CI by default** — use **`eval_agent_corpus.py --enforce`** when you intentionally want a failing exit code on recall / unexpected probes; use **`--enforce-quality-gate`** for simulator **AgentResult** rejections.
 
-**V1 slice:** five customer-*like* synthetic briefs include **`agent-results/*.simulator.json`** plus **`qualityEvidence`** in the scenario file — see **`docs/library/AGENT_EVAL_CORPUS.md`**. **`scenario-real-mode-smoke`** adds **`qualityEvidence.mode: "real"`** (AgentResult JSON path via env); CI leaves that env unset so it **skips** while still exercising finding probes.
+**V1 slice:** five customer-*like* synthetic briefs include **`agent-results/*.simulator.json`** plus **`qualityEvidence`** in the scenario file — see **`docs/library/AGENT_EVAL_CORPUS.md`**. **`scenario-real-mode-smoke`** plus **`scenario-real-mode-{cost,compliance,critic}`** add **`qualityEvidence.mode: "real"`** (AgentResult path via env); PR CI leaves those env vars unset so rows **skip** while finding probes still run.
 
 CI runs **`eval_agent_corpus.py`** with **`--markdown-report`** (GitHub job summary).
 

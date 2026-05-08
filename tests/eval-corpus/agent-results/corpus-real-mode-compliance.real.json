@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rmco-real-exemplar-01",
+  "taskId": "corpus-rmco-task-exemplar",
+  "runId": "corpus-rmco-run-exemplar",
+  "agentType": 3,
+  "claims": [
+    {
+      "evidenceRefs": ["policy-regulatory-isolation"],
+      "detail": "Committed exemplar: regulated data paths avoid public endpoints and honor regional boundaries."
+    }
+  ],
+  "evidenceRefs": ["policy-regulatory-isolation"],
+  "confidence": 0.78,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Compliance",
+      "description": "Encryption uses customer-managed keys in Key Vault; primary regulated indexes avoid cross-region replication.",
+      "recommendation": "Document key rotation duties and test restore with CMK-disabled failure drills."
+    },
+    {
+      "severity": "Medium",
+      "category": "Compliance",
+      "description": "Diagnostic settings capture administrative actions on data stores into immutable retention storage.",
+      "recommendation": "Align retention with records policy and gate analyst access through PIM."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-08T12:00:00Z"
+}

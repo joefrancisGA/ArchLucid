@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-cost",
+  "metadata": {
+    "title": "Real-mode Cost AgentResult exemplar (offline scorer)",
+    "complexity": "medium",
+    "primaryAgents": ["Cost"]
+  },
+  "inputSummary": "Mirrors the cost-constrained modernization brief for finding probes; committed Web-serialized AgentResult JSON exercises the Cost agent type in RC jobs.",
+  "recording": "recordings/corpus-cost-modernization.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Cost",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT",
+    "notes": "Synthetic exemplar JSON under agent-results/ for RC; replace path via env only when comparing against a fresh export."
+  },
+  "expectedFindings": [
+    {
+      "id": "e right-sizing",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["right-size", "SKU"]
+    },
+    {
+      "id": "e reserved",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["reserved", "baselines"]
+    },
+    {
+      "id": "e idle resources",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["sandbox", "automation"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Cost", "ifContainsAny": ["ignore budgets", "unlimited spend"] },
+    { "category": "Critic", "ifContainsAny": ["halt modernization", "zero cloud adoption"] }
+  ]
+}
