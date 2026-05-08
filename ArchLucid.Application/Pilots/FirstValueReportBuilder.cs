@@ -211,7 +211,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine(
             $"| Non-demo / external-share discipline | {(c.DemoTenantWarningRequired ? "**FAILED — non-negotiable demo warning.** Replace seeded identifiers before any sponsor-facing circulation." : "Pass — operator identifiers only per loaded tenant scope.")} |");
         sb.AppendLine($"| Support run id | {FormatProofStatus(c.SupportRunIdPresent)} |");
-        sb.AppendLine($"| Committed manifest + status | {FormatProofStatus(c.CommittedManifestPresent && c.RunInCommittedStatus)} |");
+        sb.AppendLine($"| Committed manifest + status | {FormatProofStatus(c is { CommittedManifestPresent: true, RunInCommittedStatus: true })} |");
         sb.AppendLine($"| Committed manifest timestamp (UTC) | {FormatCommittedManifestTimestampProofCell(deltas, c, manifest)} |");
         sb.AppendLine($"| Artifact descriptor count | {FormatArtifactDescriptorsProofCell(c)} |");
         sb.AppendLine($"| Time to committed manifest | {FormatProofStatus(c.TimeToCommittedManifestResolved)} |");
@@ -232,9 +232,7 @@ public sealed class FirstValueReportBuilder(
 
     private static string FormatArtifactDescriptorsProofCell(ProofPackageCompletenessResponse c)
     {
-        if (!c.ArtifactDescriptorCountResolved)
-            return "Missing — committed architecture manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing).";
-        return $"Present — `{c.ArtifactDescriptorCount}` descriptor(s) for this committed architecture manifest.";
+        return !c.ArtifactDescriptorCountResolved ? "Missing — committed architecture manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing)." : $"Present — `{c.ArtifactDescriptorCount}` descriptor(s) for this committed architecture manifest.";
     }
 
     private static string FormatCommittedManifestTimestampProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c, GoldenManifest? manifest)
@@ -251,17 +249,12 @@ public sealed class FirstValueReportBuilder(
     {
         if (deltas.TopFindingId is null)
             return "Not applicable — no findings on this run.";
-        if (deltas.TopFindingEvidenceChain is not null)
-            return "Present";
-        return "Explicitly unavailable — persisted finding without resolvable evidence-chain pointers (see buyer-safe gate).";
+        return deltas.TopFindingEvidenceChain is not null ? "Present" : "Explicitly unavailable — persisted finding without resolvable evidence-chain pointers (see buyer-safe gate).";
     }
 
     private static string FormatLlmCallCountProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
     {
-        if (!c.LlmCallCountResolved)
-            return "Missing — execution trace query failed; count is not attested.";
-        return
-            $"`{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
+        return !c.LlmCallCountResolved ? "Missing — execution trace query failed; count is not attested." : $"`{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
     }
 
     private static string FormatProofStatus(bool present) => present ? "Present" : "Missing or not applicable; review before sponsor send";
