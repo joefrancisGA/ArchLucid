@@ -20099,6 +20099,7 @@ export interface components {
             traceId?: string;
         };
         AgentOutputEvaluationSummary: {
+            aggregateQualityGateOutcome?: null | components["schemas"]["AgentOutputQualityGateOutcome"];
             /** Format: double */
             averageSemanticScore?: null | number | string;
             /** Format: double */
@@ -20110,7 +20111,10 @@ export interface components {
             /** Format: int32 */
             tracesSkippedCount?: number;
         };
+        AgentOutputQualityGateOutcome: number;
         AgentOutputSemanticScore: {
+            /** Format: double */
+            agentResultFaithfulnessSupportRatio?: null | number | string;
             agentType?: components["schemas"]["AgentType"];
             /** Format: double */
             claimsQualityRatio?: number | string;

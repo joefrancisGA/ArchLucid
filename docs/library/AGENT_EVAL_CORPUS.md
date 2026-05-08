@@ -4,7 +4,14 @@
 
 This document describes **`tests/eval-corpus/`** — a deliberately **small, synthetic** set of scenarios used to regress **finding-quality expectations** offline without Azure OpenAI or customer payloads.
 
-Companion script: **`scripts/ci/eval_agent_corpus.py`**.
+Companion scripts:
+
+- **`scripts/ci/eval_agent_corpus.py`** — synthetic scenarios under **`tests/eval-corpus/`** (finding recall vs recordings).
+- **`scripts/ci/eval_agent_quality.py`** — validates **`tests/eval-datasets/`** (manifest **`schemaVersion` 2**): topology/cost/compliance/critic eval JSON **must** include per-case **`architecturalContext`**, **`expect.requiredCategories`**, and **`expect.forbiddenCategories`**. Prompt-injection fixtures declare **`expectedBlockedAt`** as **`precheck`**, **`redactor`**, **`evaluator`**, or **`judge`**. CI passes **`--strict`** on PR and nightly workflows so schema drift fails the build.
+
+Release-candidate automation:
+
+- **`.github/workflows/agent-eval-corpus-rc.yml`** — runs on **`workflow_dispatch`**, tags **`v*-rc*`**, and branches **`release/**`**; asserts a committed real-mode exemplar (**`tests/eval-corpus/agent-results/corpus-real-mode-smoke.real.json`**) and **`scripts/ci/run_eval_agent_corpus_rc.sh`** (strict recall + quality gate + required real-mode evidence path); uploads Markdown artifact **`eval-corpus-rc`**.
 
 ---
 

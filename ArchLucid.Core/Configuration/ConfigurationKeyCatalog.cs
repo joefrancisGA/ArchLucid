@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(125)
+        return new List<ConfigurationKeyEntry>(130)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -66,6 +66,15 @@ public static class ConfigurationKeyCatalog
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PilotStrictMinFaithfulnessSupportRatio",
                 M("appsettings", "env"), "(unset)", "—",
                 "Optional PilotStrict minimum aggregate explanation faithfulness ratio.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PilotStrictMinAgentResultFaithfulnessSupportRatio",
+                M("appsettings", "env"), "(unset)", "—",
+                "Optional PilotStrict minimum AgentResult→evidence grounding ratio when evidence package present.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:HeuristicEvaluatorTightenedThresholds",
+                M("appsettings", "env"), "false", "—",
+                "When true, heuristic semantic evaluator applies stricter length/overlap checks.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PerAgentTypeFloors",
+                M("appsettings", "env"), "(see AgentTypeQualityFloors)", "—",
+                "Optional JSON dictionary of per-AgentType structural/semantic warn and reject floors.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Explanation:Aggregate:FaithfulnessFallbackEnabled", M("appsettings", "env"),
                 "true", "—", "Allow fallback when faithfulness is low.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Explanation:Aggregate:MinSupportRatioToTrustLlmNarrative",

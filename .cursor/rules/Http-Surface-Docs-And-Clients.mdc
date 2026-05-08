@@ -1,0 +1,22 @@
+---
+description: When changing HTTP/OpenAPI surface, regenerate snapshots & clients and update docs.
+alwaysApply: true
+---
+
+# HTTP surface — OpenAPI snapshot, generated clients, and docs
+
+## When this applies
+
+Whenever a change affects **`GET /openapi/v1.json`**: new or altered **`v1`** routes, Problem Details shapes, auth metadata, or JSON DTOs/types used on the wire (including **`ArchLucid.Contracts`** models returned by controllers).
+
+## Required follow-through (same PR when feasible)
+
+1. **Canonical snapshot:** Regenerate and commit **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** using **`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1`** and **`OpenApiContractSnapshotTests`** (see **`docs/library/OPENAPI_CONTRACT_DRIFT.md`**).
+2. **.NET client:** Run **`dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj`** so **`Generated/ArchLucidApiClient.g.cs`** matches the snapshot (**`ArchLucid.Api.Client/README.md`**).
+3. **TypeScript types:** From **`archlucid-ui/`**, run **`npm run generate:api-types`** ( **`src/lib/api-types.generated.ts`** ).
+4. **Documentation:** Update relevant **`docs/library/`** pages, runbooks, and **`docs/library/CONFIGURATION_REFERENCE.md`** when **`ConfigurationKeyCatalog`** entries change. Keep **`docs/library/API_CONTRACTS.md`** PR checklist accurate.
+
+## Do not
+
+- Treat **`/swagger/v1/swagger.json`** as the contract of record for codegen or APIM (canonical is **`/openapi/v1.json`** per **`API_CONTRACTS.md`**).
+- Merge snapshot-only changes without rebuilding **`ArchLucid.Api.Client`** and **`api-types.generated.ts`** when schemas exposed to clients changed.
