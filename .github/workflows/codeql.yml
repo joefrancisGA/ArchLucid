@@ -55,8 +55,14 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore ArchLucid.sln
 
+      # Emit workspace SARIF for a strict CI gate (complements GitHub "code scanning" PR policies).
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
+        with:
+          output: csharp-sarif
+
+      - name: Fail on unresolved CodeQL C# SARIF findings
+        run: python3 scripts/ci/assert_codeql_sarif_clean.py csharp-sarif
 
   javascript:
     name: "CodeQL (javascript)"
@@ -98,3 +104,8 @@ jobs:
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
+        with:
+          output: javascript-sarif
+
+      - name: Fail on unresolved CodeQL JavaScript SARIF findings
+        run: python3 scripts/ci/assert_codeql_sarif_clean.py javascript-sarif

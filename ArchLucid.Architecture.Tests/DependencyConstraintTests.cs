@@ -13,6 +13,7 @@ using ArchLucid.Decisioning.Alerts;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.Notifications;
 using ArchLucid.Persistence;
+using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Retrieval.Queries;
@@ -91,85 +92,9 @@ public sealed class DependencyConstraintTests
             because: "Contracts stays a shared DTO leaf; outbound HTTP posting is not a Contracts concern.");
     }
 
-    // ── Tier 2 — Persistence sub-module boundaries (assembly refs; shared RootNamespace) ──
-
-    [Fact]
-    [Trait("Suite", "Core")]
-    [Trait("Category", "Unit")]
-    public void Coordination_must_not_reference_Runtime()
-    {
-        Assembly coordination = typeof(ReplayRequest).Assembly;
-        AssemblyName[] references = coordination.GetReferencedAssemblies();
-
-        references.Should().NotContain(
-            a => a.Name == "ArchLucid.Persistence.Runtime",
-            because: "Persistence.Coordination is a lower-level module; referencing Runtime invites circular orchestration coupling.");
-    }
-
-    [Fact]
-    [Trait("Suite", "Core")]
-    [Trait("Category", "Unit")]
-    public void Coordination_must_not_reference_Advisory()
-    {
-        Assembly coordination = typeof(ReplayRequest).Assembly;
-        AssemblyName[] references = coordination.GetReferencedAssemblies();
-
-        references.Should().NotContain(
-            a => a.Name == "ArchLucid.Persistence.Advisory",
-            because: "Coordination must stay independent of advisory persistence to avoid upward feature coupling.");
-    }
-
-    [Fact]
-    [Trait("Suite", "Core")]
-    [Trait("Category", "Unit")]
-    public void Coordination_must_not_reference_Alerts()
-    {
-        Assembly coordination = typeof(ReplayRequest).Assembly;
-        AssemblyName[] references = coordination.GetReferencedAssemblies();
-
-        references.Should().NotContain(
-            a => a.Name == "ArchLucid.Persistence.Alerts",
-            because: "Coordination must not depend on alert persistence; keep cross-cutting alerts at higher layers.");
-    }
-
-    [Fact]
-    [Trait("Suite", "Core")]
-    [Trait("Category", "Unit")]
-    public void Integration_must_not_reference_Runtime()
-    {
-        Assembly integration = typeof(IIntegrationEventOutboxRepository).Assembly;
-        AssemblyName[] references = integration.GetReferencedAssemblies();
-
-        references.Should().NotContain(
-            a => a.Name == "ArchLucid.Persistence.Runtime",
-            because: "Persistence.Integration (outbox, integration events) must not depend on Runtime orchestration to prevent cycles.");
-    }
-
-    [Fact]
-    [Trait("Suite", "Core")]
-    [Trait("Category", "Unit")]
-    public void Integration_must_not_reference_Advisory()
-    {
-        Assembly integration = typeof(IIntegrationEventOutboxRepository).Assembly;
-        AssemblyName[] references = integration.GetReferencedAssemblies();
-
-        references.Should().NotContain(
-            a => a.Name == "ArchLucid.Persistence.Advisory",
-            because: "Integration outbox must remain independent of advisory scans.");
-    }
-
-    [Fact]
-    [Trait("Suite", "Core")]
-    [Trait("Category", "Unit")]
-    public void Integration_must_not_reference_Alerts()
-    {
-        Assembly integration = typeof(IIntegrationEventOutboxRepository).Assembly;
-        AssemblyName[] references = integration.GetReferencedAssemblies();
-
-        references.Should().NotContain(
-            a => a.Name == "ArchLucid.Persistence.Alerts",
-            because: "Integration outbox must not depend on alert persistence.");
-    }
+    // ── Tier 2 — Persistence physical consolidation (2026-05) ─────────────────
+    // Former ArchLucid.Persistence.{Coordination,Advisory,Alerts,Integration,Runtime} assemblies were merged into
+    // ArchLucid.Persistence; cross-assembly dependency rules for those slices are retired.
 
     // ── Tier 3 — Domain hexagonal boundary ───────────────────────────────────
 
@@ -514,29 +439,16 @@ public sealed class DependencyConstraintTests
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
-    public void Application_must_not_reference_Persistence_Advisory_assembly()
+    public void Persistence_must_not_host_advisory_orchestration_services_in_exported_artifacts()
     {
-        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
-        AssemblyName[] references = application.GetReferencedAssemblies();
+        Assembly persistence = typeof(DapperAdvisoryScanScheduleRepository).Assembly;
 
-        references.Should().NotContain(
-            a => a.Name == "ArchLucid.Persistence.Advisory",
-            because: "Advisory repository ports are declared on ArchLucid.Persistence; Persistence.Advisory hosts adapters only.");
-    }
-
-    [Fact]
-    [Trait("Suite", "Core")]
-    [Trait("Category", "Unit")]
-    public void Persistence_Advisory_must_not_host_advisory_orchestration_services()
-    {
-        Assembly advisory = typeof(DapperAdvisoryScanScheduleRepository).Assembly;
-
-        advisory.GetExportedTypes()
+        persistence.GetExportedTypes()
             .Select(t => t.Name)
             .Should()
             .NotContain(
                 ["AdvisoryScanRunner", "RecommendationLearningService"],
-                "orchestration lives in ArchLucid.Application.Advisory");
+                because: "orchestration lives in ArchLucid.Application.Advisory; ArchLucid.Persistence hosts SQL adapters only.");
     }
 
     // ── Tier 6 — New gap coverage ─────────────────────────────────────────────

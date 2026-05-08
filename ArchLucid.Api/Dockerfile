@@ -49,11 +49,6 @@ COPY ArchLucid.Integrations.AzureDevOps/*.csproj ArchLucid.Integrations.AzureDev
 COPY ArchLucid.KnowledgeGraph/*.csproj     ArchLucid.KnowledgeGraph/
 COPY ArchLucid.Notifications/*.csproj      ArchLucid.Notifications/
 COPY ArchLucid.Persistence/*.csproj        ArchLucid.Persistence/
-COPY ArchLucid.Persistence.Coordination/*.csproj ArchLucid.Persistence.Coordination/
-COPY ArchLucid.Persistence.Runtime/*.csproj ArchLucid.Persistence.Runtime/
-COPY ArchLucid.Persistence.Advisory/*.csproj ArchLucid.Persistence.Advisory/
-COPY ArchLucid.Persistence.Alerts/*.csproj ArchLucid.Persistence.Alerts/
-COPY ArchLucid.Persistence.Integration/*.csproj ArchLucid.Persistence.Integration/
 COPY ArchLucid.Provenance/*.csproj         ArchLucid.Provenance/
 COPY ArchLucid.Retrieval/*.csproj          ArchLucid.Retrieval/
 

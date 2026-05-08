@@ -1,7 +1,8 @@
 {
   "stryker-config": {
-    "project": "ArchLucid.Persistence.Coordination/ArchLucid.Persistence.Coordination.csproj",
+    "project": "ArchLucid.Persistence/ArchLucid.Persistence.csproj",
     "test-projects": ["ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj"],
+    "mutate": ["**/Coordination/**/*.cs"],
     "reporters": ["progress", "html", "json"],
     "thresholds": {
       "high": 80,
