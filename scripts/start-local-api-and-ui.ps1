@@ -10,15 +10,17 @@
 # Usage (from anywhere):
 #   .\scripts\start-local-api-and-ui.ps1
 # Optional:
-#   .\scripts\start-local-api-and-ui.ps1 -OpenPath "/" -ApiReadyTimeoutSec 180 -UiReadyTimeoutSec 240 -NoBrowser
+#   .\scripts\start-local-api-and-ui.ps1 -OpenPath "/" -ApiReadyTimeoutSec 120 -UiReadyTimeoutSec 240 -NoBrowser   # faster machine / warm starts
+#
+# Default API wait is intentionally long: cold `dotnet run` commonly exceeds a few minutes (restore/build, DbUp, JIT).
 
 [CmdletBinding()]
 param(
     [string] $OpenPath = "/",
     [int] $ApiPort = 5128,
     [int] $UiPort = 3000,
-    [int] $ApiReadyTimeoutSec = 120,
-    [int] $UiReadyTimeoutSec = 180,
+    [int] $ApiReadyTimeoutSec = 720,
+    [int] $UiReadyTimeoutSec = 360,
     [switch] $NoBrowser
 )
 

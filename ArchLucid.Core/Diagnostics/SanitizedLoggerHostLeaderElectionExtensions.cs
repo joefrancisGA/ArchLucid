@@ -25,10 +25,7 @@ public static class SanitizedLoggerHostLeaderElectionExtensions
 
         // codeql[cs/log-forging]: lease name sanitized immediately above; followerWaitMilliseconds is value-typed.
         // codeql[cs/exposure-of-sensitive-information]: operational lease keys only; sanitized; not credentials (docs/library/CODEQL_TRIAGE.md).
-        logger.LogDebug(
-            "Host leader lease not held for {LeaseName}; follower wait {Ms} ms.",
-            safeLease,
-            followerWaitMilliseconds);
+        logger.LogDebug("Host leader lease not held for {LeaseName}; follower wait {Ms} ms.", safeLease, followerWaitMilliseconds);
     }
 
     /// <summary>Lease acquired for this instance; operational telemetry only.</summary>
@@ -44,10 +41,7 @@ public static class SanitizedLoggerHostLeaderElectionExtensions
 
         // codeql[cs/log-forging]: both placeholders sanitized immediately above.
         // codeql[cs/exposure-of-sensitive-information]: operational lease and instance telemetry; sanitized; non-credential.
-        logger.LogInformation(
-            "Acquired host leader lease {LeaseName} for instance {InstanceId}.",
-            safeLease,
-            safeInstance);
+        logger.LogInformation("Acquired host leader lease {LeaseName} for instance {InstanceId}.", safeLease, safeInstance);
     }
 
     /// <summary>Leader work ended because lease was lost or handed off.</summary>
@@ -61,9 +55,7 @@ public static class SanitizedLoggerHostLeaderElectionExtensions
 
         // codeql[cs/log-forging]: lease name sanitized immediately above.
         // codeql[cs/exposure-of-sensitive-information]: operational lease key only; sanitized; not credentials.
-        logger.LogInformation(
-            "Leader work for {LeaseName} stopped after lease loss or handoff.",
-            safeLease);
+        logger.LogInformation("Leader work for {LeaseName} stopped after lease loss or handoff.", safeLease);
     }
 
     /// <summary>Renewal loop failed to extend the lease; leader work should stop.</summary>
@@ -79,9 +71,6 @@ public static class SanitizedLoggerHostLeaderElectionExtensions
 
         // codeql[cs/log-forging]: both placeholders sanitized immediately above.
         // codeql[cs/exposure-of-sensitive-information]: operational lease and instance telemetry; sanitized; non-credential.
-        logger.LogWarning(
-            "Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.",
-            safeLease,
-            safeInstance);
+        logger.LogWarning("Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.", safeLease, safeInstance);
     }
 }
