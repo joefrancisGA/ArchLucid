@@ -32,7 +32,10 @@ public sealed class AgentOutputLlmSemanticJudge
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    /// <summary>Null when judge is skipped or the call failed (caller falls back to heuristic).</summary>
+    /// <summary>
+    ///     Null when the judge is disabled, the run is in Simulator mode (optional), credentials are missing, or the call
+    ///     failed (caller falls back to heuristic).
+    /// </summary>
     public async Task<AgentOutputLlmJudgeParsedResult?> TryJudgeAsync(
         string traceId,
         string parsedResultJson,
@@ -74,7 +77,7 @@ public sealed class AgentOutputLlmSemanticJudge
 
             return TryParseJudgeResponse(raw);
         }
-        catch (OperationCanceledException ex)when (!cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "LLM semantic judge timed out for TraceId={TraceId}", traceId);

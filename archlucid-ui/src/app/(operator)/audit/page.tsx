@@ -22,8 +22,10 @@ import { downloadAuditExportCsv, getAuditEventTypes, searchAuditEvents } from "@
 import { cn } from "@/lib/utils";
 import {
   auditEventLifecycleSortKey,
+  auditEventsAreLifecycleOnlyForGrouping,
   canExportAuditCsv,
   formatAuditSummaryHeading,
+  groupAuditEventsByLifecycleStage,
   principalRolesAllowAuditCsvExport,
 } from "@/app/(operator)/audit/audit-ui-helpers";
 import {
@@ -98,6 +100,125 @@ interface AuditFilterFields {
   correlationId: string;
   actorUserId: string;
   runId: string;
+}
+
+function BuyerAuditEventsTechnicalAppendix(props: { events: AuditEvent[] }) {
+  const { events } = props;
+
+  return (
+    <details className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
+      <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+        Technical appendix — identifiers and payloads for all events above
+      </summary>
+      <div className="mt-3 space-y-4">
+        {events.map((ev) => (
+          <div
+            key={ev.eventId}
+            className="border-t border-neutral-200 pt-4 first:border-t-0 first:pt-0 dark:border-neutral-700"
+          >
+            <p className="m-0 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+              {formatUtc(ev.occurredUtc)} · {pipelineEventTypeFriendlyLabel(ev.eventType)}
+            </p>
+            <div className="mt-2 space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
+              <div>
+                <span className="font-medium text-neutral-600 dark:text-neutral-400">User id</span>{" "}
+                <span className="font-mono text-xs">{ev.actorUserId}</span>
+              </div>
+              <div>
+                <span className="font-medium text-neutral-600 dark:text-neutral-400">Correlation ID</span>{" "}
+                <span className="font-mono text-xs">
+                  {(ev.correlationId ?? "").trim().length > 0 ? ev.correlationId : "—"}
+                </span>
+              </div>
+              {ev.otelTraceId ? (
+                <div>
+                  <span className="font-medium text-neutral-600 dark:text-neutral-400">Trace</span>{" "}
+                  <code title={ev.otelTraceId} className="text-xs">
+                    {ev.otelTraceId.slice(0, 16)}…
+                  </code>
+                </div>
+              ) : null}
+              <div>
+                <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Payload</p>
+                <pre className="mt-1 max-h-48 overflow-auto rounded-md bg-neutral-50/90 p-2 text-xs dark:bg-neutral-900/50">
+                  {tryFormatDataJson(ev.dataJson)}
+                </pre>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </details>
+  );
+}
+
+function AuditTimelineEventCard(props: { ev: AuditEvent; buyerPolishedShell: boolean }) {
+  const { ev, buyerPolishedShell } = props;
+
+  return (
+    <div className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950">
+      <div className="flex flex-wrap items-center gap-2">
+        <strong>{formatUtc(ev.occurredUtc)}</strong>
+        <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-900 dark:bg-indigo-900/50 dark:text-indigo-300">
+          {pipelineEventTypeFriendlyLabel(ev.eventType)}
+        </span>
+      </div>
+      <div className="mt-1.5 text-sm">
+        Actor: {buyerPolishedShell ? ev.actorUserName : `${ev.actorUserName} (${ev.actorUserId})`}
+      </div>
+      {buyerPolishedShell ? (
+        <div className="text-sm">
+          Review:{" "}
+          {ev.runId ? (
+            <Link href={`/reviews/${ev.runId}`} title="Open review">
+              {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
+            </Link>
+          ) : (
+            "—"
+          )}
+        </div>
+      ) : (
+        <>
+          <div className="text-sm">Correlation: {ev.correlationId ?? "—"}</div>
+          {ev.otelTraceId ? (
+            <div className="text-sm">
+              Trace:{" "}
+              <code title={ev.otelTraceId} className="text-xs">
+                {ev.otelTraceId.slice(0, 16)}…
+              </code>
+            </div>
+          ) : null}
+          <div className="text-sm">
+            Review:{" "}
+            {ev.runId ? (
+              <Link href={`/reviews/${ev.runId}`} title="Open review">
+                {buyerFacingReviewLinkFromRunId(ev.runId)}
+              </Link>
+            ) : (
+              "—"
+            )}
+          </div>
+        </>
+      )}
+      {ev.runId ? (
+        buyerPolishedShell ? null : (
+          <div className="mt-0.5 text-[13px]">
+            <Link href={`/reviews/${ev.runId}#agent-traces`} className="text-xs">
+              View agent traces →
+            </Link>
+          </div>
+        )
+      ) : null}
+      {!buyerPolishedShell ? (
+        <details className="mt-2.5">
+          <summary className="cursor-pointer">Data JSON</summary>
+          <pre className="mt-2 overflow-auto rounded-md bg-neutral-50/90 p-2 text-xs dark:bg-neutral-900/50">
+            {tryFormatDataJson(ev.dataJson)}
+          </pre>
+        </details>
+      ) : null}
+    </div>
+  );
 }
 
 export default function AuditPage() {
@@ -433,6 +554,18 @@ export default function AuditPage() {
     });
   }, [buyerPolishedShell, events]);
 
+  const displayEventGroups = useMemo(() => {
+    const eligible =
+      (buyerPolishedShell || isNextPublicDemoMode()) &&
+      auditEventsAreLifecycleOnlyForGrouping(displayEvents);
+
+    if (!eligible) {
+      return null;
+    }
+
+    return groupAuditEventsByLifecycleStage(displayEvents);
+  }, [buyerPolishedShell, displayEvents]);
+
   return (
     <main className="max-w-4xl">
       <LayerHeader pageKey="audit" />
@@ -730,126 +863,57 @@ export default function AuditPage() {
           {" — "}
           who acted, what changed, when it happened
           {buyerPolishedShell
-            ? ", and which review it belongs to when one is recorded. Open Technical details only when you need raw identifiers."
+            ? ", and which review it belongs to when one is recorded. Raw identifiers and payloads are in the technical appendix below."
             : ", and review context when present"}.
           {buyerPolishedShell ? "" : " Expand for technical payloads."}
         </p>
         <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
           {formatAuditSummaryHeading(events.length, hasMoreResults)}.
           {buyerPolishedShell
-            ? " Oldest-first lifecycle order for this view."
+            ? displayEventGroups !== null
+              ? " Oldest-first pipeline order; grouped by lifecycle stage."
+              : " Oldest-first lifecycle order for this view."
             : " Newest first; use Load more for older entries."}
         </p>
 
-        <div className="grid gap-3 mt-3">
-        {events.length === 0 ? (
-          <p className="text-neutral-500 dark:text-neutral-400">{auditSearchEmptyLine}</p>
-        ) : (
-          displayEvents.map((ev) => (
-            <div
-              key={ev.eventId}
-              className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 bg-white dark:bg-neutral-950"
-            >
-              <div className="flex flex-wrap gap-2 items-center">
-                <strong>{formatUtc(ev.occurredUtc)}</strong>
-                <span
-                  className="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900 dark:bg-indigo-900/50 dark:text-indigo-300"
-                >
-                  {pipelineEventTypeFriendlyLabel(ev.eventType)}
-                </span>
-              </div>
-              <div className="mt-1.5 text-sm">
-                Actor: {buyerPolishedShell ? ev.actorUserName : `${ev.actorUserName} (${ev.actorUserId})`}
-              </div>
-              {buyerPolishedShell ? (
-                <>
-                  <div className="text-sm">
-                    Review:{" "}
-                    {ev.runId ? (
-                      <Link href={`/reviews/${ev.runId}`} title="Open review">
-                        {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
-                      </Link>
-                    ) : (
-                      "—"
-                    )}
-                  </div>
-                  <details className="mt-2.5">
-                  <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                    Technical details
-                  </summary>
-                  <div className="mt-2 space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
-                    <div>
-                      <span className="font-medium text-neutral-600 dark:text-neutral-400">User id</span>{" "}
-                      <span className="font-mono text-xs">{ev.actorUserId}</span>
-                    </div>
-                    <div>
-                      <span className="font-medium text-neutral-600 dark:text-neutral-400">Correlation ID</span>{" "}
-                      <span className="font-mono text-xs">
-                        {(ev.correlationId ?? "").trim().length > 0 ? ev.correlationId : "—"}
-                      </span>
-                    </div>
-                    {ev.otelTraceId ? (
-                      <div>
-                        <span className="font-medium text-neutral-600 dark:text-neutral-400">Trace</span>{" "}
-                        <code title={ev.otelTraceId} className="text-xs">
-                          {ev.otelTraceId.slice(0, 16)}…
-                        </code>
+        <div className="mt-3">
+          {events.length === 0 ? (
+            <p className="text-neutral-500 dark:text-neutral-400">{auditSearchEmptyLine}</p>
+          ) : (
+            <>
+              {displayEventGroups !== null ? (
+                <div className="space-y-8">
+                  {displayEventGroups.map((group) => (
+                    <div key={group.stage} className="space-y-3">
+                      <h4 className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                        {group.stage}
+                      </h4>
+                      <div className="grid gap-3">
+                        {group.events.map((ev) => (
+                          <AuditTimelineEventCard
+                            key={ev.eventId}
+                            ev={ev}
+                            buyerPolishedShell={buyerPolishedShell}
+                          />
+                        ))}
                       </div>
-                    ) : null}
-                    <div>
-                      <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Payload</p>
-                      <pre className="mt-1 max-h-48 overflow-auto rounded-md bg-neutral-50/90 p-2 text-xs dark:bg-neutral-900/50">
-                        {tryFormatDataJson(ev.dataJson)}
-                      </pre>
                     </div>
-                  </div>
-                </details>
-                </>
-              ) : (
-                <>
-                  <div className="text-sm">Correlation: {ev.correlationId ?? "—"}</div>
-                  {ev.otelTraceId ? (
-                    <div className="text-sm">
-                      Trace:{" "}
-                      <code title={ev.otelTraceId} className="text-xs">
-                        {ev.otelTraceId.slice(0, 16)}…
-                      </code>
-                    </div>
-                  ) : null}
-                  <div className="text-sm">
-                    Review:{" "}
-                    {ev.runId ? (
-                      <Link href={`/reviews/${ev.runId}`} title="Open review">
-                        {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
-                      </Link>
-                    ) : (
-                      "—"
-                    )}
-                  </div>
-                </>
-              )}
-              {ev.runId ? (
-                buyerPolishedShell ? null : (
-                <div className="text-[13px] mt-0.5">
-                  <Link href={`/reviews/${ev.runId}#agent-traces`} className="text-xs">
-                    View agent traces →
-                  </Link>
+                  ))}
                 </div>
-                )
-              ) : null}
-              {!buyerPolishedShell ? (
-              <details className="mt-2.5">
-                <summary className="cursor-pointer">Data JSON</summary>
-                <pre
-                  className="mt-2 p-2 bg-neutral-50/90 dark:bg-neutral-900/50 rounded-md overflow-auto text-xs"
-                >
-                  {tryFormatDataJson(ev.dataJson)}
-                </pre>
-              </details>
-              ) : null}
-            </div>
-          ))
-        )}
+              ) : (
+                <div className="grid gap-3">
+                  {displayEvents.map((ev) => (
+                    <AuditTimelineEventCard
+                      key={ev.eventId}
+                      ev={ev}
+                      buyerPolishedShell={buyerPolishedShell}
+                    />
+                  ))}
+                </div>
+              )}
+              {buyerPolishedShell ? <BuyerAuditEventsTechnicalAppendix events={displayEvents} /> : null}
+            </>
+          )}
         </div>
 
         {events.length > 0 && hasMoreResults ? (

@@ -104,7 +104,7 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
 
     private static string[] GetExpectedKeys(AgentType agentType)
     {
-        // Same contract shape for every agent; kept as a switch for future per-type expectations.
+        // Shared Web JSON contract for AgentResult; proposedChanges is structurally required for all roles that emit it.
         return agentType switch
         {
             _ => SharedAgentResultKeys

@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   auditEventLifecycleSortKey,
+  auditEventsAreLifecycleOnlyForGrouping,
   canExportAuditCsv,
   formatAuditSummaryHeading,
+  groupAuditEventsByLifecycleStage,
   principalRolesAllowAuditCsvExport,
 } from "./audit-ui-helpers";
 
@@ -36,6 +38,30 @@ describe("auditEventLifecycleSortKey", () => {
   it("orders known pipeline codes before unknown types", () => {
     expect(auditEventLifecycleSortKey("RunStarted")).toBeLessThan(auditEventLifecycleSortKey("context.snapshot.created"));
     expect(auditEventLifecycleSortKey("finalize.run")).toBeLessThan(auditEventLifecycleSortKey("com.archlucid.alert.fired"));
+  });
+});
+
+describe("audit lifecycle grouping", () => {
+  it("detects eligibility only when every event maps to a lifecycle stage", () => {
+    expect(auditEventsAreLifecycleOnlyForGrouping([{ eventType: "RunStarted" }, { eventType: "finalize.run" }])).toBe(
+      true,
+    );
+    expect(auditEventsAreLifecycleOnlyForGrouping([])).toBe(false);
+    expect(auditEventsAreLifecycleOnlyForGrouping([{ eventType: "RunStarted" }, { eventType: "unknown.thing" }])).toBe(
+      false,
+    );
+  });
+
+  it("groups events in pipeline order", () => {
+    const grouped = groupAuditEventsByLifecycleStage([
+      { eventType: "artifact.bundle.created" },
+      { eventType: "RunStarted" },
+      { eventType: "context.snapshot.created" },
+    ]);
+
+    expect(grouped.map((g) => g.stage)).toEqual(["Review started", "Context captured", "Artifacts bundled"]);
+    expect(grouped[0]?.events).toHaveLength(1);
+    expect(grouped[0]?.events[0]?.eventType).toBe("RunStarted");
   });
 });
 

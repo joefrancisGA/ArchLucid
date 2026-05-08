@@ -2,7 +2,8 @@ namespace ArchLucid.Core.Configuration;
 
 /// <summary>
 ///     Optional post-evaluation gate on persisted agent JSON (structural + semantic scores). On by default with
-///     conservative warn thresholds and reject floors at <c>0</c> (warn-only V1); set <see cref="Enabled" /> to false
+///     calibrated default warn/reject floors (reject floors classify traces; <see cref="EnforceOnReject" /> remains off
+///     for V1); set <see cref="Enabled" /> to false
 ///     to disable.
 /// </summary>
 public sealed class AgentOutputQualityGateOptions
@@ -72,34 +73,42 @@ public sealed class AgentOutputQualityGateOptions
     {
         get;
         set;
-    } = 0.3;
+    } = 0.85;
 
     /// <summary>Semantic score below this yields <c>warned</c> unless <see cref="SemanticRejectBelow" /> triggers first.</summary>
     public double SemanticWarnBelow
     {
         get;
         set;
-    } = 0.2;
+    } = 0.65;
 
     /// <summary>
-    ///     Structural ratio strictly below this yields <c>rejected</c>. Default <c>0</c> disables structural reject
-    ///     (no positive score is strictly below zero).
+    ///     Structural ratio strictly below this yields <c>rejected</c>. Calibrated above zero; see <see cref="EnforceOnReject" />.
     /// </summary>
     public double StructuralRejectBelow
     {
         get;
         set;
-    }
+    } = 0.7;
 
     /// <summary>
-    ///     Semantic score strictly below this yields <c>rejected</c>. Default <c>0</c> disables semantic reject for
-    ///     non-negative scores.
+    ///     Semantic score strictly below this yields <c>rejected</c>. Calibrated above zero; see <see cref="EnforceOnReject" />.
     /// </summary>
     public double SemanticRejectBelow
     {
         get;
         set;
-    }
+    } = 0.5;
+
+    /// <summary>
+    ///     Optional per-agent overrides for warn/reject floors. Dictionary keys match
+    ///     <see cref="ArchLucid.Contracts.Common.AgentType" /> string names (case-insensitive bind).
+    /// </summary>
+    public Dictionary<string, AgentTypeQualityFloors> PerAgentTypeFloors
+    {
+        get;
+        set;
+    } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///     When <c>true</c>, a <c>Rejected</c> outcome causes

@@ -146,107 +146,14 @@ public sealed class CriticAgentHandler(
         sb.AppendLine("Generate a critic AgentResult.");
         sb.AppendLine();
 
-        sb.AppendLine($"RunId: {runId}");
-        sb.AppendLine($"TaskId: {task.TaskId}");
-        sb.AppendLine("AgentType: Critic");
-        sb.AppendLine();
-
-        sb.AppendLine("Architecture Request");
-        sb.AppendLine($"RequestId: {request.RequestId}");
-        sb.AppendLine($"SystemName: {request.SystemName}");
-        sb.AppendLine($"Environment: {request.Environment}");
-        sb.AppendLine($"CloudProvider: {request.CloudProvider}");
-        sb.AppendLine($"Description: {request.Description}");
-        sb.AppendLine();
-
-        if (request.Constraints.Count > 0)
-        {
-            sb.AppendLine("Constraints:");
-            foreach (string constraint in request.Constraints)
-
-                sb.AppendLine($"- {constraint}");
-
-            sb.AppendLine();
-        }
-
-        if (request.RequiredCapabilities.Count > 0)
-        {
-            sb.AppendLine("Required Capabilities:");
-            foreach (string capability in request.RequiredCapabilities)
-
-                sb.AppendLine($"- {capability}");
-
-            sb.AppendLine();
-        }
-
-        if (request.Assumptions.Count > 0)
-        {
-            sb.AppendLine("Assumptions:");
-            foreach (string assumption in request.Assumptions)
-
-                sb.AppendLine($"- {assumption}");
-
-            sb.AppendLine();
-        }
-
-        sb.AppendLine("Evidence Package");
-        sb.AppendLine($"EvidencePackageId: {evidence.EvidencePackageId}");
-        sb.AppendLine();
-
-        if (evidence.Policies.Count > 0)
-        {
-            sb.AppendLine("Policies:");
-            foreach (PolicyEvidence policy in evidence.Policies)
-            {
-                sb.AppendLine($"- {policy.Title}: {policy.Summary}");
-                if (policy.RequiredControls.Count > 0)
-
-                    sb.AppendLine($"  RequiredControls: {string.Join(", ", policy.RequiredControls)}");
-            }
-
-            sb.AppendLine();
-        }
-
-        if (evidence.ServiceCatalog.Count > 0)
-        {
-            sb.AppendLine("Service Catalog Hints:");
-            foreach (ServiceCatalogEvidence service in evidence.ServiceCatalog)
-            {
-                sb.AppendLine($"- {service.ServiceName}: {service.Summary}");
-                if (service.RecommendedUseCases.Count > 0)
-
-                    sb.AppendLine($"  UseCases: {string.Join(", ", service.RecommendedUseCases)}");
-            }
-
-            sb.AppendLine();
-        }
-
-        if (evidence.Patterns.Count > 0)
-        {
-            sb.AppendLine("Pattern Hints:");
-            foreach (PatternEvidence pattern in evidence.Patterns)
-            {
-                sb.AppendLine($"- {pattern.Name}: {pattern.Summary}");
-                sb.AppendLine($"  SuggestedServices: {string.Join(", ", pattern.SuggestedServices)}");
-            }
-
-            sb.AppendLine();
-        }
-
-        if (evidence.PriorManifest is not null)
-        {
-            sb.AppendLine("Prior Manifest:");
-            sb.AppendLine($"  Version: {evidence.PriorManifest.ManifestVersion}");
-            sb.AppendLine($"  Summary: {evidence.PriorManifest.Summary}");
-            sb.AppendLine();
-        }
+        AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Critic");
+        AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
 
         List<EvidenceNote> stagedNotes = evidence.Notes
             .Where(static n => EvidenceNoteTypes.StagedPriorAgentsSummary.Equals(
                 n.NoteType,
                 StringComparison.Ordinal))
             .ToList();
-
 
         if (stagedNotes.Count > 0)
         {
@@ -264,23 +171,8 @@ public sealed class CriticAgentHandler(
             }
         }
 
-        sb.AppendLine("Task Objective:");
-        sb.AppendLine(task.Objective);
-        sb.AppendLine();
+        AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
 
-        sb.AppendLine("Allowed Tools:");
-        foreach (string tool in task.AllowedTools)
-
-            sb.AppendLine($"- {tool}");
-
-        sb.AppendLine();
-
-        sb.AppendLine("Allowed Sources:");
-        foreach (string source in task.AllowedSources)
-
-            sb.AppendLine($"- {source}");
-
-        sb.AppendLine();
         sb.AppendLine("Important guidance:");
         sb.AppendLine("- Be skeptical but constructive.");
         sb.AppendLine("- Identify omissions that could materially weaken a secure Azure architecture.");

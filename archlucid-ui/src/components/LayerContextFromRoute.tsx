@@ -21,7 +21,7 @@ export function LayerContextFromRoute() {
   return (
     <LayerContextStrip
       layerId={getLayerForRoute(pathname)}
-      polishedOperateAnalysisLabel={buyerPolishedShell ? "Analysis & exploration" : undefined}
+      polishedOperateAnalysisLabel={buyerPolishedShell ? "Analysis" : undefined}
     />
   );
 }

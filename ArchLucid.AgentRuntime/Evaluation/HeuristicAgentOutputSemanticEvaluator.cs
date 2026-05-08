@@ -32,7 +32,8 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
             (double claimsRatio, int emptyClaims) = EvaluateClaims(doc.RootElement);
             (double findingsRatio, int incompleteFindings) = EvaluateFindings(doc.RootElement);
 
-            double overall = ComputeOverallScore(claimsRatio, findingsRatio, doc.RootElement);
+            double proposedSurfaceRatio = EvaluateProposedChangesSurfaceRatio(doc.RootElement);
+            double overall = ComputeOverallScore(claimsRatio, findingsRatio, proposedSurfaceRatio, agentType, doc.RootElement);
 
             return new AgentOutputSemanticScore
             {
@@ -120,7 +121,38 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
         return total == 0 ? (0.0, 0) : ((double)complete / total, total - complete);
     }
 
-    private static double ComputeOverallScore(double claimsRatio, double findingsRatio, JsonElement root)
+    /// <summary>
+    ///     Topology surfaces services/datastores/relationships in <c>proposedChanges</c>; score non-empty slices so
+    ///     claim/finding-less topology rows are not forced to 0.
+    /// </summary>
+    private static double EvaluateProposedChangesSurfaceRatio(JsonElement root)
+    {
+        if (!root.TryGetProperty("proposedChanges", out JsonElement pc) || pc.ValueKind != JsonValueKind.Object)
+            return 0.0;
+
+        int hits = 0;
+
+        if (pc.TryGetProperty("addedServices", out JsonElement svc) && svc.ValueKind == JsonValueKind.Array &&
+            svc.GetArrayLength() > 0)
+            hits++;
+
+        if (pc.TryGetProperty("addedDatastores", out JsonElement ds) && ds.ValueKind == JsonValueKind.Array &&
+            ds.GetArrayLength() > 0)
+            hits++;
+
+        if (pc.TryGetProperty("addedRelationships", out JsonElement rel) && rel.ValueKind == JsonValueKind.Array &&
+            rel.GetArrayLength() > 0)
+            hits++;
+
+        return hits / 3.0;
+    }
+
+    private static double ComputeOverallScore(
+        double claimsRatio,
+        double findingsRatio,
+        double proposedSurfaceRatio,
+        AgentType agentType,
+        JsonElement root)
     {
         bool hasClaims = root.TryGetProperty("claims", out JsonElement c)
                          && c.ValueKind == JsonValueKind.Array
@@ -130,8 +162,14 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
                            && f.ValueKind == JsonValueKind.Array
                            && f.GetArrayLength() > 0;
 
-        if (!hasClaims && !hasFindings)
+        bool topologyProposedOnly =
+            agentType == AgentType.Topology && !hasClaims && !hasFindings && proposedSurfaceRatio > 0;
+
+        if (!hasClaims && !hasFindings && !topologyProposedOnly)
             return 0.0;
+
+        if (topologyProposedOnly)
+            return proposedSurfaceRatio;
 
         if (hasClaims && !hasFindings)
             return claimsRatio;

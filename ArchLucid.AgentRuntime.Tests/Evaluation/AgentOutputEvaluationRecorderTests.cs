@@ -276,7 +276,11 @@ public sealed class AgentOutputEvaluationRecorderTests
 
         AgentOutputQualityGateOptions gateOpts = new()
         {
-            Enabled = true
+            Enabled = true,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 0.5,
+            SemanticWarnBelow = 0.5
         };
 
         AgentOutputEvaluationRecorder sut = CreateRecorder(

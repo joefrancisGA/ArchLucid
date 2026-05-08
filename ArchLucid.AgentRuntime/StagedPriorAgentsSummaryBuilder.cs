@@ -1,13 +1,12 @@
 using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
 
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Diagnostics;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -16,16 +15,6 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 public static class StagedPriorAgentsSummaryBuilder
 {
-    private static readonly Regex EmailLike = new(
-        @"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}",
-        RegexOptions.CultureInvariant | RegexOptions.Compiled,
-        TimeSpan.FromMilliseconds(250));
-
-    private static readonly Regex SkOrBearerLike = new(
-        @"(?i)\b(sk-[a-zA-Z0-9]{16,}|Bearer\s+[a-zA-Z0-9\-._~+/]{20,})\b",
-        RegexOptions.CultureInvariant | RegexOptions.Compiled,
-        TimeSpan.FromMilliseconds(250));
-
     /// <summary>Creates an <see cref="EvidenceNote" /> suitable for <see cref="EvidenceNoteTypes.StagedPriorAgentsSummary"/>.</summary>
     public static EvidenceNote CreateNote(IReadOnlyList<AgentResult> priorResults, StagedCriticAgentOptions options)
     {
@@ -200,13 +189,6 @@ public static class StagedPriorAgentsSummaryBuilder
 
     private static string RedactPotentiallySensitive(string text)
     {
-        if (string.IsNullOrEmpty(text))
-            return string.Empty;
-
-        string s = LogSanitizer.Sanitize(text);
-        s = EmailLike.Replace(s, "[redacted-email]");
-        s = SkOrBearerLike.Replace(s, "[redacted-secret]");
-
-        return s;
+        return PromptFieldRedactor.RedactForPrompt(text);
     }
 }
