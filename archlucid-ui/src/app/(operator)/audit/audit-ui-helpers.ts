@@ -56,3 +56,85 @@ export function auditEventLifecycleSortKey(eventType: string): number {
 
   return 1000;
 }
+
+/** Ordered stage titles for the review pipeline (demo / buyer lifecycle grouping). */
+export const AUDIT_EVENT_LIFECYCLE_STAGE_ORDER: ReadonlyArray<string> = [
+  "Review started",
+  "Context captured",
+  "Graph created",
+  "Findings generated",
+  "Manifest finalized",
+  "Artifacts bundled",
+];
+
+/** Maps a pipeline audit event type to a lifecycle stage heading, or null when not part of the standard spine. */
+export function auditEventLifecycleStageLabel(eventType: string): string | null {
+  const t = eventType.trim();
+
+  switch (t) {
+    case "RunStarted":
+      return "Review started";
+
+    case "context.snapshot.created":
+      return "Context captured";
+
+    case "graph.snapshot.created":
+      return "Graph created";
+
+    case "findings.snapshot.created":
+      return "Findings generated";
+
+    case "finalize.run":
+      return "Manifest finalized";
+
+    case "artifact.bundle.created":
+      return "Artifacts bundled";
+
+    default:
+      return null;
+  }
+}
+
+/** True when every event belongs to a known lifecycle stage (use before grouping). */
+export function auditEventsAreLifecycleOnlyForGrouping(events: ReadonlyArray<{ eventType: string }>): boolean {
+  if (events.length === 0) {
+    return false;
+  }
+
+  return events.every((eventItem) => auditEventLifecycleStageLabel(eventItem.eventType) !== null);
+}
+
+/** Groups events by lifecycle stage in canonical pipeline order. */
+export function groupAuditEventsByLifecycleStage<T extends { eventType: string }>(
+  events: ReadonlyArray<T>,
+): { stage: string; events: T[] }[] {
+  const byStage = new Map<string, T[]>();
+
+  for (const eventItem of events) {
+    const stageLabel = auditEventLifecycleStageLabel(eventItem.eventType);
+
+    if (stageLabel === null) {
+      continue;
+    }
+
+    const bucket = byStage.get(stageLabel);
+
+    if (bucket === undefined) {
+      byStage.set(stageLabel, [eventItem]);
+    } else {
+      bucket.push(eventItem);
+    }
+  }
+
+  const result: { stage: string; events: T[] }[] = [];
+
+  for (const stage of AUDIT_EVENT_LIFECYCLE_STAGE_ORDER) {
+    const row = byStage.get(stage);
+
+    if (row !== undefined && row.length > 0) {
+      result.push({ stage, events: row });
+    }
+  }
+
+  return result;
+}

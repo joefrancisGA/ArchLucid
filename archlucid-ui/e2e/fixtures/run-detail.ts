@@ -16,7 +16,7 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 
   return {
     executionFlavorBuyerSummary:
-      "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).",
+      "This sample review uses a fixed pipeline replay for consistent demonstration (no live model calls for agent steps).",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,
@@ -42,7 +42,7 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 export function fixtureRunDetail(): RunDetail {
   return {
     executionFlavorBuyerSummary:
-      "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).",
+      "This sample review uses a fixed pipeline replay for consistent demonstration (no live model calls for agent steps).",
     run: {
       runId: FIXTURE_RUN_ID,
       projectId: FIXTURE_PROJECT_ID,

@@ -10,12 +10,12 @@ public sealed class AgentOutputLlmSemanticJudgeOptions
 {
     public const string SectionPath = "ArchLucid:AgentOutput:LlmSemanticJudge";
 
-    /// <summary>When false, only deterministic heuristic scoring is used (default for CI / no-credential hosts).</summary>
+    /// <summary>When false, only deterministic heuristic scoring is used. Defaults to <c>true</c>; skipped when credentials are missing.</summary>
     public bool Enabled
     {
         get;
         set;
-    }
+    } = true;
 
     /// <summary>
     ///     Deployment name on the configured Azure OpenAI resource. Empty uses <see cref="AzureOpenAiOptions.DeploymentName" />.

@@ -12,6 +12,47 @@ public sealed class HeuristicAgentOutputSemanticEvaluatorTests
     private readonly HeuristicAgentOutputSemanticEvaluator _sut = new();
 
     [SkippableFact]
+    public void Evaluate_topology_with_only_proposed_changes_uses_surface_ratio()
+    {
+        const string json = """
+                            {
+                                "claims": [],
+                                "findings": [],
+                                "proposedChanges": {
+                                    "addedServices": [{ "id": "s1" }],
+                                    "addedDatastores": [{ "id": "d1" }],
+                                    "addedRelationships": []
+                                }
+                            }
+                            """;
+
+        AgentOutputSemanticScore score = _sut.Evaluate("t1", json, AgentType.Topology);
+
+        score.OverallSemanticScore.Should().BeApproximately(2.0 / 3.0, 0.001);
+        score.HeuristicOverallScore.Should().BeApproximately(score.OverallSemanticScore, 0.001);
+    }
+
+    [SkippableFact]
+    public void Evaluate_non_topology_does_not_use_proposed_changes_when_claims_and_findings_empty()
+    {
+        const string json = """
+                            {
+                                "claims": [],
+                                "findings": [],
+                                "proposedChanges": {
+                                    "addedServices": [{ "id": "s1" }],
+                                    "addedDatastores": [],
+                                    "addedRelationships": []
+                                }
+                            }
+                            """;
+
+        AgentOutputSemanticScore score = _sut.Evaluate("t1", json, AgentType.Critic);
+
+        score.OverallSemanticScore.Should().Be(0.0);
+    }
+
+    [SkippableFact]
     public void Evaluate_claims_with_mixed_evidence_returns_expected_ratio()
     {
         const string json = """

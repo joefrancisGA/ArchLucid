@@ -13,22 +13,24 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Category", "Unit")]
 public sealed class AgentOutputQualityGateTests
 {
-    private static AgentOutputEvaluationScore Structural(double ratio)
+    private static AgentOutputEvaluationScore Structural(AgentType agentType, double ratio)
     {
         return new AgentOutputEvaluationScore
         {
             TraceId = "t",
-            AgentType = AgentType.Topology,
+            AgentType = agentType,
             StructuralCompletenessRatio = ratio,
             IsJsonParseFailure = false
         };
     }
 
-    private static AgentOutputSemanticScore Semantic(double overall)
+    private static AgentOutputSemanticScore Semantic(AgentType agentType, double overall)
     {
         return new AgentOutputSemanticScore
         {
-            TraceId = "t", AgentType = AgentType.Topology, OverallSemanticScore = overall
+            TraceId = "t",
+            AgentType = agentType,
+            OverallSemanticScore = overall
         };
     }
 
@@ -37,9 +39,60 @@ public sealed class AgentOutputQualityGateTests
     {
         AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions { Enabled = false }));
 
-        AgentOutputQualityGateOutcome o = sut.Evaluate(Structural(0.1), Semantic(0.1));
+        AgentOutputQualityGateOutcome o = sut.Evaluate(Structural(AgentType.Topology, 0.1), Semantic(AgentType.Topology, 0.1));
 
         o.Should().Be(AgentOutputQualityGateOutcome.Accepted);
+    }
+
+    [SkippableFact]
+    public void Evaluate_rejects_when_structural_below_default_reject_floor()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
+
+        sut.Evaluate(Structural(AgentType.Topology, 0.69), Semantic(AgentType.Topology, 0.9))
+            .Should().Be(AgentOutputQualityGateOutcome.Rejected);
+    }
+
+    [SkippableFact]
+    public void Evaluate_rejects_when_semantic_below_default_reject_floor()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
+
+        sut.Evaluate(Structural(AgentType.Topology, 0.95), Semantic(AgentType.Topology, 0.49))
+            .Should().Be(AgentOutputQualityGateOutcome.Rejected);
+    }
+
+    [SkippableFact]
+    public void Evaluate_warns_when_above_reject_but_below_warn_on_either_score()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
+
+        sut.Evaluate(Structural(AgentType.Topology, 0.75), Semantic(AgentType.Topology, 0.55))
+            .Should().Be(AgentOutputQualityGateOutcome.Warned);
+    }
+
+    [SkippableFact]
+    public void Evaluate_accepts_when_at_or_above_default_warn_thresholds()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
+
+        sut.Evaluate(Structural(AgentType.Topology, 0.85), Semantic(AgentType.Topology, 0.65))
+            .Should().Be(AgentOutputQualityGateOutcome.Accepted);
+    }
+
+    [SkippableFact]
+    public void Evaluate_uses_per_agent_type_reject_floor_override()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions
+        {
+            PerAgentTypeFloors =
+            {
+                ["Topology"] = new AgentTypeQualityFloors { StructuralRejectBelow = 0.05 }
+            }
+        }));
+
+        sut.Evaluate(Structural(AgentType.Topology, 0.1), Semantic(AgentType.Topology, 0.8))
+            .Should().Be(AgentOutputQualityGateOutcome.Warned);
     }
 
     [SkippableFact]
@@ -54,7 +107,8 @@ public sealed class AgentOutputQualityGateTests
             SemanticWarnBelow = 0.55
         }));
 
-        sut.Evaluate(Structural(0.34), Semantic(0.9)).Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        sut.Evaluate(Structural(AgentType.Topology, 0.34), Semantic(AgentType.Topology, 0.9))
+            .Should().Be(AgentOutputQualityGateOutcome.Rejected);
     }
 
     [SkippableFact]
@@ -69,7 +123,8 @@ public sealed class AgentOutputQualityGateTests
             SemanticWarnBelow = 0.55
         }));
 
-        sut.Evaluate(Structural(0.5), Semantic(0.5)).Should().Be(AgentOutputQualityGateOutcome.Warned);
+        sut.Evaluate(Structural(AgentType.Topology, 0.5), Semantic(AgentType.Topology, 0.5))
+            .Should().Be(AgentOutputQualityGateOutcome.Warned);
     }
 
     [SkippableFact]
@@ -84,31 +139,8 @@ public sealed class AgentOutputQualityGateTests
             SemanticWarnBelow = 0.55
         }));
 
-        sut.Evaluate(Structural(0.56), Semantic(0.56)).Should().Be(AgentOutputQualityGateOutcome.Accepted);
-    }
-
-    [SkippableFact]
-    public void Evaluate_shipped_defaults_warn_on_critical_semantic_gap()
-    {
-        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
-
-        sut.Evaluate(Structural(1.0), Semantic(0.0)).Should().Be(AgentOutputQualityGateOutcome.Warned);
-    }
-
-    [SkippableFact]
-    public void Evaluate_shipped_defaults_accept_at_or_above_warn_floors()
-    {
-        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
-
-        sut.Evaluate(Structural(0.31), Semantic(0.21)).Should().Be(AgentOutputQualityGateOutcome.Accepted);
-    }
-
-    [SkippableFact]
-    public void Evaluate_shipped_defaults_does_not_reject_when_reject_floors_are_zero()
-    {
-        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
-
-        sut.Evaluate(Structural(0.01), Semantic(0.01)).Should().Be(AgentOutputQualityGateOutcome.Warned);
+        sut.Evaluate(Structural(AgentType.Topology, 0.56), Semantic(AgentType.Topology, 0.56))
+            .Should().Be(AgentOutputQualityGateOutcome.Accepted);
     }
 
     [SkippableFact]

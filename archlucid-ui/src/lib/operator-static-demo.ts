@@ -167,7 +167,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).",
+      "This sample review uses a fixed pipeline replay for consistent demonstration (no live model calls for agent steps).",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,

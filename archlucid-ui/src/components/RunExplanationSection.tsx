@@ -219,7 +219,7 @@ export function RunExplanationSection({
         </p>
       ) : null}
 
-      {summary.usedDeterministicFallback === true ? (
+      {summary.usedDeterministicFallback === true && !buyerPolishedShell ? (
         <p
           role="status"
           className="m-0 rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm leading-relaxed text-yellow-950 dark:border-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-50"
