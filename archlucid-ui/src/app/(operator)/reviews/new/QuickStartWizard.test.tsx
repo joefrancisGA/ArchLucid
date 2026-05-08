@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 
+import { ApiRequestError } from "@/lib/api-request-error";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 
 const createRun = vi.fn();
@@ -114,5 +115,46 @@ describe("QuickStartWizard", () => {
     const body = createRun.mock.calls[0][0] as { systemName: string; description: string };
     expect(body.systemName).toBe("CloudMigrationAssessment");
     expect(body.description).toContain("brownfield .NET monolith");
+  });
+
+  it("shows OperatorApiProblem on submit when API returns structured failure", async () => {
+    createRun.mockRejectedValue(
+      new ApiRequestError("Not permitted", {
+        problem: {
+          title: "Forbidden",
+          detail: "Role cannot create runs",
+          errorCode: "VALIDATION_FAILED",
+        },
+        correlationId: "corr-quick-1",
+        httpStatus: 403,
+      }),
+    );
+
+    render(<Harness />);
+
+    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "MyRetailApp" } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 2 of 3/i);
+    });
+
+    fireEvent.change(screen.getByLabelText("Description"), {
+      target: { value: "Ten char min: long enough brief for validation." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 3 of 3/i);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Create request" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-submit-error")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Role cannot create runs")).toBeInTheDocument();
+    expect(screen.getByText(/corr-quick-1/)).toBeInTheDocument();
   });
 });

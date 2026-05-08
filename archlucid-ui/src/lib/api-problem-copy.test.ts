@@ -84,13 +84,28 @@ describe("operatorCopyForProblem", () => {
     expect(copy.hint).toContain("30 seconds");
   });
 
-  it("detects 429 from problem status when context omits httpStatus", () => {
-    const copy = operatorCopyForProblem(
-      { title: "T", detail: "D", status: 429 },
-      "f",
-      { retryAfterSeconds: null },
-    );
+  it("uses auth headings when problem is null and httpStatus is 401 or 403", () => {
+    const unauthorized = operatorCopyForProblem(null, "Bearer rejected", { httpStatus: 401 });
 
-    expect(copy.heading).toBe("Too many requests");
+    expect(unauthorized.heading).toBe("Sign-in required");
+    expect(unauthorized.hint).toContain("Sign in again");
+
+    const forbidden = operatorCopyForProblem(null, "Not allowed", { httpStatus: 403 });
+
+    expect(forbidden.heading).toBe("Not permitted");
+    expect(forbidden.hint).toContain("administrator");
+  });
+
+  it("includes remediation for graph resolution failures by errorCode", () => {
+    const problem: ApiProblemDetails = {
+      errorCode: "GRAPH_RESOLUTION_FAILED",
+      title: "Graph error",
+      detail: "Could not load edges",
+    };
+
+    const copy = operatorCopyForProblem(problem, "fallback");
+
+    expect(copy.heading).toBe("Graph could not be built");
+    expect(copy.hint).toContain("ingestion");
   });
 });

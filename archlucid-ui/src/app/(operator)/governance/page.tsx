@@ -33,8 +33,10 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { GovernanceInteractiveQuickstartCard } from "@/components/GovernanceInteractiveQuickstartCard";
 import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -551,6 +553,8 @@ function GovernanceWorkflowPageInner() {
         {governanceWorkflowOutcomeBannerLine}
       </p>
 
+      <GovernanceInteractiveQuickstartCard />
+
       {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) ? (
         <div className="mb-6 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 text-sm text-neutral-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-neutral-50">
           <strong>Evaluation sample</strong>
@@ -645,7 +649,13 @@ function GovernanceWorkflowPageInner() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="gov-submit-version">Manifest version</Label>
+              <Label htmlFor="gov-submit-version">
+                Manifest version (the{" "}
+                <GlossaryTooltip termKey="golden_manifest" pulseOnFirstSession={false}>
+                  reviewed manifest
+                </GlossaryTooltip>{" "}
+                label)
+              </Label>
               <Input
                 id="gov-submit-version"
                 value={submitManifestVersion}

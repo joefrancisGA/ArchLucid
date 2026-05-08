@@ -28,6 +28,15 @@ const ERROR_CODE_HEADINGS: Record<string, string> = {
   COMMIT_FAILED: "Finalization failed",
   INVALID_RUN_STATE: "Invalid review state",
   POLICY_PACK_VERSION_NOT_FOUND: "Policy pack version not found",
+  GRAPH_TOO_LARGE_FOR_FULL_RESPONSE: "Graph too large for one response",
+  GRAPH_RESOLUTION_FAILED: "Graph could not be built",
+  LLM_TOKEN_QUOTA_EXCEEDED: "AI usage limit reached",
+  COST_LIMIT_EXCEEDED: "Cost guardrail triggered",
+  TRIAL_LIMIT_EXCEEDED: "Trial limit reached",
+  REQUEST_PAYLOAD_TOO_LARGE: "Request too large",
+  EXPORT_FAILED: "Export failed",
+  UNAVAILABLE_IN_PRODUCTION: "Not available in this environment",
+  BATCH_REPLAY_ALL_FAILED: "Batch replay failed",
 };
 
 /**
@@ -44,6 +53,24 @@ const ERROR_CODE_REMEDIATION: Record<string, string> = {
   INVALID_RUN_STATE: "This review is not in a valid state for this action. Refresh the page to check its current progress.",
   POLICY_PACK_VERSION_NOT_FOUND: "The requested policy pack version is missing. It may have been deleted or archived.",
   INTERNAL_ERROR: "An unexpected server error occurred. Try your action again in a few moments.",
+  GRAPH_TOO_LARGE_FOR_FULL_RESPONSE:
+    "The graph for this review exceeds the single-response size limit. Use a narrower mode (decision focus or node neighborhood), reduce depth, or ask support about paging options.",
+  GRAPH_RESOLUTION_FAILED:
+    "The server could not resolve graph data for this run. Confirm the review finished ingestion, then retry. If it persists, check admin health and correlation id with support.",
+  LLM_TOKEN_QUOTA_EXCEEDED:
+    "This workspace hit an AI token budget. Wait for the next billing window or ask an administrator to raise the cap.",
+  COST_LIMIT_EXCEEDED:
+    "A configured cost guardrail blocked this action. Review tenant usage settings and retry with a smaller scope or after limits reset.",
+  TRIAL_LIMIT_EXCEEDED:
+    "This trial tenant exceeded a published limit (runs, seats, or similar). Upgrade or contact sales to continue.",
+  REQUEST_PAYLOAD_TOO_LARGE:
+    "The request body is too large. Shorten free-text fields, drop heavy attachments from the brief, or split the work across reviews.",
+  EXPORT_FAILED:
+    "Packaging or download failed on the server. Retry once; if it repeats, note the correlation id and check storage health in admin.",
+  UNAVAILABLE_IN_PRODUCTION:
+    "This operation is disabled in production for this deployment (often a safety gate). Use a non-production environment or an allowed API surface.",
+  BATCH_REPLAY_ALL_FAILED:
+    "None of the replay jobs in the batch succeeded. Open individual replay results for error detail, then retry failed items.",
 };
 
 function mergeRateLimitCopy(
@@ -81,6 +108,32 @@ export function operatorCopyForProblem(
   const trimmedFallback = fallbackMessage.trim() || "Request failed.";
 
   if (problem == null) {
+    const status = context.httpStatus ?? null;
+
+    if (status === 401) {
+      return mergeRateLimitCopy(
+        {
+          heading: "Sign-in required",
+          body: trimmedFallback,
+          hint: "Your session may have expired. Sign in again, or confirm the API key or bearer token in use for this browser session.",
+        },
+        context,
+        null,
+      );
+    }
+
+    if (status === 403) {
+      return mergeRateLimitCopy(
+        {
+          heading: "Not permitted",
+          body: trimmedFallback,
+          hint: "Your role may not allow this action. Ask an administrator to grant the right capability, or open a workspace where you have operator permissions.",
+        },
+        context,
+        null,
+      );
+    }
+
     return mergeRateLimitCopy({ heading: "Request failed", body: trimmedFallback }, context, null);
   }
 

@@ -9,6 +9,7 @@ import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { GraphIdleLegend, GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
 import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips";
 import { GraphReviewTrailLegendChips } from "@/components/GraphReviewTrailLegendChips";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
@@ -410,7 +411,14 @@ function GraphPageContent() {
       <LayerHeader pageKey="graph" />
       <OperatorPageHeader title={pageTitle} helpKey="architecture-graph" />
       {graph === null ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{leadIntro}</p>
+        <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          {leadIntro}{" "}
+          <span className="text-neutral-600 dark:text-neutral-400">
+            Review trail mode emphasizes <GlossaryTooltip termKey="provenance">provenance</GlossaryTooltip> and how the
+            package advances; architecture mode centers the{" "}
+            <GlossaryTooltip termKey="knowledge_graph">knowledge graph</GlossaryTooltip> built from the captured context.
+          </span>
+        </p>
       ) : null}
 
       {graph === null ? graphControls : null}
