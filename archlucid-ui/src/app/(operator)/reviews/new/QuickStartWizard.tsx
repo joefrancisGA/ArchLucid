@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
 import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
@@ -11,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { architectureReviewTemplates, suggestedSystemNameFromTemplateId } from "@/data/review-templates";
 import { createArchitectureRun } from "@/lib/api";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
@@ -37,6 +39,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   const { onRunCreated } = props;
   const [quickStep, setQuickStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [presetId, setPresetId] = useState<string>("greenfield-web-app");
 
   const { trigger, getValues, reset, setValue, clearErrors } = useFormContext<WizardFormValues>();
@@ -56,6 +59,12 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     const merged = applyWizardPreset(buildDefaultWizardValues(), preset.values);
     reset(merged);
   }, [presetId, reset]);
+
+  useEffect(() => {
+    if (quickStep !== 2) {
+      setSubmitError(null);
+    }
+  }, [quickStep]);
 
   const canProceed = !submitting;
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
@@ -111,6 +120,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     }
 
     setSubmitting(true);
+    setSubmitError(null);
 
     try {
       const body = wizardValuesToCreateRunPayload(getValues());
@@ -127,11 +137,15 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
       onRunCreated(id);
     } catch (error: unknown) {
-      const message =
-        error && typeof error === "object" && "message" in error
-          ? String((error as { message?: string }).message)
-          : "Request failed.";
-      showToast("err", message);
+      setSubmitError(error);
+
+      if (!isApiRequestError(error)) {
+        const message =
+          error && typeof error === "object" && "message" in error
+            ? String((error as { message?: string }).message)
+            : "Request failed.";
+        showToast("err", message);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -220,6 +234,28 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
         className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-neutral-200/60 bg-neutral-50/98 px-4 py-3 shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.06)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/85 dark:border-neutral-800/60 dark:bg-neutral-950/98 dark:shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.25)] dark:supports-[backdrop-filter]:bg-neutral-950/85 lg:-mx-6 lg:px-6"
         data-testid="quick-start-footer"
       >
+        {isReviewStep && submitError !== null ? (
+          <div className="mb-3" data-testid="quick-start-submit-error">
+            {isApiRequestError(submitError) ? (
+              <OperatorApiProblem
+                problem={submitError.problem}
+                fallbackMessage={submitError.message}
+                correlationId={submitError.correlationId}
+                httpStatus={submitError.httpStatus}
+                retryAfterSeconds={submitError.retryAfterSeconds}
+              />
+            ) : (
+              <OperatorApiProblem
+                problem={null}
+                fallbackMessage={
+                  submitError && typeof submitError === "object" && "message" in submitError
+                    ? String((submitError as { message?: string }).message)
+                    : "Request failed."
+                }
+              />
+            )}
+          </div>
+        ) : null}
         <WizardNavButtons
           onBack={goBack}
           onNext={isReviewStep ? undefined : goNext}
