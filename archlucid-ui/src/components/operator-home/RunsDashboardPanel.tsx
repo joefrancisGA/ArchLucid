@@ -260,7 +260,7 @@ export function RunsDashboardPanel() {
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     {buyerSafeHighlight ? (
                       <>
-                        Start with the manifest summary and evidence graph. Optional guided preview and full workspace
+                        Start with the manifest summary and evidence graph. Optional read-only walkthrough and full workspace
                         detail stay available for stakeholders who want deeper navigation.
                       </>
                     ) : (
@@ -284,7 +284,7 @@ export function RunsDashboardPanel() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Button asChild variant="outline" size="sm" className="h-8">
-                        <Link href={getShowcaseWalkthroughHref()}>Guided preview</Link>
+                        <Link href={getShowcaseWalkthroughHref()}>Read-only walkthrough</Link>
                       </Button>
                       <Button asChild variant="outline" size="sm" className="h-8">
                         <Link href={getCanonicalReviewWorkspaceHref(showcaseDemoRun.runId)}>Full review detail</Link>

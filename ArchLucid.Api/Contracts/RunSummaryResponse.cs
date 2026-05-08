@@ -30,6 +30,16 @@ public class RunSummaryResponse
         set;
     }
 
+    /// <summary>
+    ///     Buyer-facing title mirrored from <see cref="Description" /> today — additive JSON field so Compare/run pickers
+    ///     can bind stable labels without inferring from slug identifiers alone.
+    /// </summary>
+    public string? DisplayName
+    {
+        get;
+        set;
+    }
+
     public DateTime CreatedUtc
     {
         get;

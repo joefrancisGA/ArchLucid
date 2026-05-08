@@ -56,6 +56,7 @@ import { useNavSurface } from "@/lib/use-nav-surface";
 import { applyAlertAction, fetchAlertActionLoop, listAlertsPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
 import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
@@ -103,7 +104,7 @@ export function AlertsInboxContent() {
   const [pendingAction, setPendingAction] = useState<PendingActionState | null>(null);
   const [actionComment, setActionComment] = useState("");
   const [actionBusy, setActionBusy] = useState(false);
-  const [actionLoopAlertId, setActionLoopAlertId] = useState<string | null>(null);
+  const [actionLoopFindingHref, setActionLoopFindingHref] = useState<string | null>(null);
   const [actionLoopData, setActionLoopData] = useState<AlertActionLoopDto | null>(null);
   const [actionLoopLoading, setActionLoopLoading] = useState(false);
   const [actionLoopError, setActionLoopError] = useState<string | null>(null);
@@ -274,6 +275,16 @@ export function AlertsInboxContent() {
       </p>
       {!canMutateAlertInbox ? <AlertsInboxRankCue /> : null}
 
+      {isBuyerPolishedOperatorShellEnv() && shouldMergeOperatorDemoAlertSample() ? (
+        <div
+          className="mb-4 max-w-prose rounded-md border border-teal-200 bg-teal-50/90 px-3 py-2 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100"
+          role="status"
+        >
+          <strong className="font-semibold">Sample inbox.</strong> This alert ties drift detection to the PHI minimization
+          finding — controls below stay read-only in this walkthrough.
+        </div>
+      ) : null}
+
       {failure !== null ? (
         <div className="mb-4" role="alert">
           <OperatorApiProblem
@@ -381,7 +392,12 @@ export function AlertsInboxContent() {
         {!loading && failure === null && alerts.length === 0 ? <EmptyState {...emptyFilteredProps} /> : null}
 
         {alerts.length > 0
-          ? alerts.map((alert) => (
+          ? alerts.map((alert) => {
+              const findingDetailHref = alertPrimaryFindingDetailHref(alert);
+              const hideDemoTriageActions =
+                isBuyerPolishedOperatorShellEnv() && alert.alertId === "demo-alert-phi-intake";
+
+              return (
               <article
                 key={alert.alertId}
                 role="article"
@@ -406,6 +422,13 @@ export function AlertsInboxContent() {
                     <span className="text-neutral-500 dark:text-neutral-500">Trigger:</span> {alert.triggerValue}
                   </div>
                   <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{alert.description}</p>
+                  {findingDetailHref !== null ? (
+                    <div className="mt-3">
+                      <Button asChild variant="default" size="sm" className="h-9">
+                        <Link href={findingDetailHref}>Open linked finding</Link>
+                      </Button>
+                    </div>
+                  ) : null}
                   <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
                     <Button
                       type="button"
@@ -413,6 +436,7 @@ export function AlertsInboxContent() {
                       size="sm"
                       onClick={() => {
                         setActionLoopAlertId(alert.alertId);
+                        setActionLoopFindingHref(findingDetailHref);
                         setActionLoopData(null);
                         setActionLoopError(null);
                         setActionLoopLoading(true);
@@ -433,70 +457,81 @@ export function AlertsInboxContent() {
                   </div>
                 </div>
 
-                <section
-                  className={cn(
-                    "mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-700",
-                    !canMutateAlertInbox && "opacity-90",
-                  )}
-                  aria-label="Triage actions"
-                >
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
-                    Triage actions
-                  </h3>
-                  {canMutateAlertInbox ? (
-                    <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-                      Use triage actions when this signal needs follow-up.
-                    </p>
-                  ) : null}
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={canMutateAlertInbox ? "secondary" : "outline"}
-                      title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
-                      onClick={() => {
-                        setPendingAction({ alertId: alert.alertId, action: "Acknowledge" });
-                        setActionComment("");
-                      }}
-                    >
-                      {canMutateAlertInbox ? "Acknowledge" : alertsTriageAcknowledgeButtonLabelReaderInbox}
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={canMutateAlertInbox ? "secondary" : "outline"}
-                      title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
-                      onClick={() => {
-                        setPendingAction({ alertId: alert.alertId, action: "Resolve" });
-                        setActionComment("");
-                      }}
-                    >
-                      {canMutateAlertInbox ? "Resolve" : alertsTriageResolveButtonLabelReaderInbox}
-                    </Button>
-                    <details className="group relative">
-                      <summary className="cursor-pointer list-none rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800 [&::-webkit-details-marker]:hidden">
-                        More triage actions
-                      </summary>
-                      <div className="absolute end-0 z-20 mt-1 min-w-[11rem] rounded-md border border-neutral-200 bg-white p-2 shadow-md dark:border-neutral-700 dark:bg-neutral-950">
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          className="w-full border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
-                          title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
-                          onClick={() => {
-                            setPendingAction({ alertId: alert.alertId, action: "Suppress" });
-                            setActionComment("");
-                          }}
-                        >
-                          {canMutateAlertInbox ? "Suppress alert…" : alertsTriageSuppressButtonLabelReaderInbox}
-                        </Button>
-                      </div>
-                    </details>
-                  </div>
-                </section>
+                {hideDemoTriageActions ? (
+                  <section
+                    className="mt-4 border-t border-neutral-200 pt-3 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
+                    aria-label="Sample alert"
+                  >
+                    Triage, suppress, and routing rules stay available in live tenants — not exercised in this read-only
+                    sample.
+                  </section>
+                ) : (
+                  <section
+                    className={cn(
+                      "mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-700",
+                      !canMutateAlertInbox && "opacity-90",
+                    )}
+                    aria-label="Triage actions"
+                  >
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                      Triage actions
+                    </h3>
+                    {canMutateAlertInbox ? (
+                      <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                        Use triage actions when this signal needs follow-up.
+                      </p>
+                    ) : null}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={canMutateAlertInbox ? "secondary" : "outline"}
+                        title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
+                        onClick={() => {
+                          setPendingAction({ alertId: alert.alertId, action: "Acknowledge" });
+                          setActionComment("");
+                        }}
+                      >
+                        {canMutateAlertInbox ? "Acknowledge" : alertsTriageAcknowledgeButtonLabelReaderInbox}
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={canMutateAlertInbox ? "secondary" : "outline"}
+                        title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
+                        onClick={() => {
+                          setPendingAction({ alertId: alert.alertId, action: "Resolve" });
+                          setActionComment("");
+                        }}
+                      >
+                        {canMutateAlertInbox ? "Resolve" : alertsTriageResolveButtonLabelReaderInbox}
+                      </Button>
+                      <details className="group relative">
+                        <summary className="cursor-pointer list-none rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800 [&::-webkit-details-marker]:hidden">
+                          More triage actions
+                        </summary>
+                        <div className="absolute end-0 z-20 mt-1 min-w-[11rem] rounded-md border border-neutral-200 bg-white p-2 shadow-md dark:border-neutral-700 dark:bg-neutral-950">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="w-full border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
+                            title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
+                            onClick={() => {
+                              setPendingAction({ alertId: alert.alertId, action: "Suppress" });
+                              setActionComment("");
+                            }}
+                          >
+                            {canMutateAlertInbox ? "Suppress alert…" : alertsTriageSuppressButtonLabelReaderInbox}
+                          </Button>
+                        </div>
+                      </details>
+                    </div>
+                  </section>
+                )}
               </article>
-            ))
+              );
+            })
           : null}
 
         {!loading && failure === null && totalCount > 0 ? (
@@ -604,6 +639,7 @@ export function AlertsInboxContent() {
         onOpenChange={(open) => {
           if (!open) {
             setActionLoopAlertId(null);
+            setActionLoopFindingHref(null);
             setActionLoopData(null);
             setActionLoopError(null);
           }
@@ -632,8 +668,14 @@ export function AlertsInboxContent() {
                   <>
                     {" "}
                     · Run:{" "}
-                    <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/reviews/${actionLoopData.runId}`}>
-                      {actionLoopData.runId}
+                    <Link
+                      className="font-medium text-teal-800 underline dark:text-teal-300"
+                      href={
+                        actionLoopFindingHref ??
+                        `/reviews/${encodeURIComponent(actionLoopData.runId)}`
+                      }
+                    >
+                      {actionLoopFindingHref !== null ? "Open linked finding" : actionLoopData.runId}
                     </Link>
                   </>
                 ) : null}

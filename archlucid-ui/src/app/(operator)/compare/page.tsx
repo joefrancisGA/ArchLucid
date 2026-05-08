@@ -35,11 +35,44 @@ import { StructuredComparisonView } from "@/components/compare/StructuredCompari
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
-import type { RunComparison } from "@/types/authority";
+import type { RunComparison, RunSummary } from "@/types/authority";
 
 type ComparedPair = { left: string; right: string };
+
+/** Secondary hint under Compare pickers — demo slugs or API-backed label when the row was picked from the list. */
+function comparePickerFootnote(runId: string, picked: RunSummary | null): string | null {
+  const trimmed = runId.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  const demoLabel = compareRunBuyerDisplayLabel(trimmed);
+
+  if (demoLabel !== null) {
+    return demoLabel;
+  }
+
+  if (picked !== null) {
+    const pickedId = picked.runId.trim();
+
+    if (
+      canonicalizeDemoRunId(pickedId).toLowerCase() === canonicalizeDemoRunId(trimmed).toLowerCase()
+    ) {
+      const label = runSummaryDisplayLabel(picked);
+
+      if (label.toLowerCase() !== trimmed.toLowerCase()) {
+        return label;
+      }
+    }
+  }
+
+  return null;
+}
 
 function outcomeLabel(params: {
   hasValue: boolean;
@@ -84,6 +117,8 @@ function CompareForm() {
   const [aiMalformed, setAiMalformed] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [lastComparedPair, setLastComparedPair] = useState<ComparedPair | null>(null);
+  const [leftPickedSummary, setLeftPickedSummary] = useState<RunSummary | null>(null);
+  const [rightPickedSummary, setRightPickedSummary] = useState<RunSummary | null>(null);
 
   const runCompareForPair = useCallback(async (leftAtStart: string, rightAtStart: string) => {
     const gen = ++compareGenerationRef.current;
@@ -210,8 +245,42 @@ function CompareForm() {
     void runCompareForPair(left, right);
   }, [searchParams, runCompareForPair]);
 
+  useEffect(() => {
+    setLeftPickedSummary((prev) => {
+      if (prev === null) {
+        return null;
+      }
+
+      if (
+        canonicalizeDemoRunId(prev.runId).toLowerCase() !== canonicalizeDemoRunId(leftRunId.trim()).toLowerCase()
+      ) {
+        return null;
+      }
+
+      return prev;
+    });
+  }, [leftRunId]);
+
+  useEffect(() => {
+    setRightPickedSummary((prev) => {
+      if (prev === null) {
+        return null;
+      }
+
+      if (
+        canonicalizeDemoRunId(prev.runId).toLowerCase() !== canonicalizeDemoRunId(rightRunId.trim()).toLowerCase()
+      ) {
+        return null;
+      }
+
+      return prev;
+    });
+  }, [rightRunId]);
+
   const leftTrim = leftRunId.trim();
   const rightTrim = rightRunId.trim();
+  const leftFootnote = comparePickerFootnote(leftTrim, leftPickedSummary);
+  const rightFootnote = comparePickerFootnote(rightTrim, rightPickedSummary);
   const isDemoClaimsIntakeComparePair =
     isStaticDemoPayloadFallbackEnabled() &&
     leftTrim === "claims-intake-run-v1" &&
@@ -396,11 +465,11 @@ function CompareForm() {
           onChange={setLeftRunId}
           inputId="compare-left-run-id"
           forCompare
+          onRunPicked={setLeftPickedSummary}
         />
-        {compareRunBuyerDisplayLabel(leftRunId) ? (
+        {leftFootnote !== null ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">Showing:</span>{" "}
-            {compareRunBuyerDisplayLabel(leftRunId)}
+            <span className="font-medium text-neutral-800 dark:text-neutral-200">Showing:</span> {leftFootnote}
           </p>
         ) : null}
         <RunIdPicker
@@ -411,11 +480,11 @@ function CompareForm() {
           onChange={setRightRunId}
           inputId="compare-right-run-id"
           forCompare
+          onRunPicked={setRightPickedSummary}
         />
-        {compareRunBuyerDisplayLabel(rightRunId) ? (
+        {rightFootnote !== null ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">Showing:</span>{" "}
-            {compareRunBuyerDisplayLabel(rightRunId)}
+            <span className="font-medium text-neutral-800 dark:text-neutral-200">Showing:</span> {rightFootnote}
           </p>
         ) : null}
         <div className="flex flex-wrap items-center gap-3">
@@ -451,8 +520,14 @@ function CompareForm() {
           <strong>Selections no longer match the comparison shown here.</strong>
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
             The comparison shown reflects{" "}
-            <strong>{lastComparedPair ? compareRunHeadingLabel(lastComparedPair.left) : ""}</strong> →{" "}
-            <strong>{lastComparedPair ? compareRunHeadingLabel(lastComparedPair.right) : ""}</strong>. Click{" "}
+            <strong>
+              {lastComparedPair ? compareRunHeadingLabel(lastComparedPair.left, leftPickedSummary) : ""}
+            </strong>{" "}
+            →{" "}
+            <strong>
+              {lastComparedPair ? compareRunHeadingLabel(lastComparedPair.right, rightPickedSummary) : ""}
+            </strong>
+            . Click{" "}
             <strong>Compare</strong> or <strong>Summarize for sponsor</strong> again after fixing selections, or restore
             the previous values.
           </p>
@@ -593,7 +668,13 @@ function CompareForm() {
       )}
 
       <ClientErrorBoundary title="Comparison results failed to render">
-        {golden !== null && <StructuredComparisonView golden={golden} />}
+        {golden !== null && (
+          <StructuredComparisonView
+            golden={golden}
+            baselinePickedSummary={leftPickedSummary}
+            updatedPickedSummary={rightPickedSummary}
+          />
+        )}
 
         {result !== null ? (
             <details
@@ -638,11 +719,11 @@ function CompareForm() {
           <div className="mt-3">
             <p className="mb-2.5 text-sm text-neutral-600 dark:text-neutral-400">
               <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                {compareRunHeadingLabel(lastComparedPair.left)}
+                {compareRunHeadingLabel(lastComparedPair.left, leftPickedSummary)}
               </span>
               <span className="mx-1.5 text-neutral-400 dark:text-neutral-500">→</span>
               <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                {compareRunHeadingLabel(lastComparedPair.right)}
+                {compareRunHeadingLabel(lastComparedPair.right, rightPickedSummary)}
               </span>
               <span className="sr-only">
                 (technical IDs: {lastComparedPair.left} → {lastComparedPair.right})

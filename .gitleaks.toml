@@ -8,13 +8,21 @@ title = "ArchLucid"
 useDefault = true
 
 # v8.25+ requires [[allowlists]]; legacy [allowlist] is ignored (unlike rules.allowlist migration).
+# Path-only: gitleaks global allowlists default to condition AND; mixing these paths with
+# regexes below would require BOTH path and a regex match per finding — so eval fixtures
+# with deliberate JWT / connection-string shapes never cleared. Separate tables so whole-file
+# skip applies (see detect.checkCommitOrPathAllowed when regexes are empty).
+[[allowlists]]
+description = "Prompt-injection eval fixtures: deliberate credential-shaped strings, not production secrets"
+paths = [
+  '''(?:^|/)tests/eval-datasets/prompt-injection/.*\.json$''',
+]
+
 [[allowlists]]
 description = "Documented non-production literals (SQL dev passwords, one retired Stripe-shaped test fixture in git history) — rotate SQL passwords if you reuse outside this repo"
 paths = [
   # TB-003 named-query perf thresholds only; generic-api-key false-positive on *Keyset* in metric names (*key* keyword).
   '''(?:^|/)tests/performance/query-allowlist\.json$''',
-  # Prompt-injection / exfiltration eval fixtures: deliberately JWT-, connection-string-, and credential-shaped strings — not production secrets (see README in folder if added).
-  '''(?:^|/)tests/eval-datasets/prompt-injection/.*\.json$''',
 ]
 regexes = [
   "ArchiForge_Dev_Pass123!",

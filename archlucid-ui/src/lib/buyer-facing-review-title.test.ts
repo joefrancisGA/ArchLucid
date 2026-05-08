@@ -46,4 +46,24 @@ describe("buyerFacingReviewTitleFromSummary", () => {
 
     expect(buyerFacingReviewTitleFromSummary(summary({ runId: "My-Run", description: "my-run" }))).toBe("Untitled review");
   });
+
+  it("prefers API displayName when it is not redundant with the run id", () => {
+    expect(
+      buyerFacingReviewTitleFromSummary(
+        summary({
+          runId: "other-run",
+          displayName: "  Sponsor-facing title  ",
+          description: "Secondary description",
+        }),
+      ),
+    ).toBe("Sponsor-facing title");
+  });
+
+  it("falls through to description when displayName only echoes the slug", () => {
+    expect(
+      buyerFacingReviewTitleFromSummary(
+        summary({ runId: "my-run", displayName: "my-run", description: "Actual human title" }),
+      ),
+    ).toBe("Actual human title");
+  });
 });

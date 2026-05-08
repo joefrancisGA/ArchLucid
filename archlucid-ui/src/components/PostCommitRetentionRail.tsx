@@ -1,12 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type PostCommitRetentionRailProps = {
   readonly runId: string;
@@ -23,6 +31,7 @@ export function PostCommitRetentionRail({
 }: PostCommitRetentionRailProps): ReactElement {
   const canMutate: boolean = useEnterpriseMutationCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const [revisedChooserOpen, setRevisedChooserOpen] = useState(false);
 
   return (
     <Card className="border-teal-200 bg-teal-50/50 dark:border-teal-900 dark:bg-teal-950/20" data-testid="post-commit-retention-rail">
@@ -35,11 +44,71 @@ export function PostCommitRetentionRail({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
-          <Link href="/reviews/new" title="Start another architecture review with your repository inputs">
-            {buyerPolishedShell ? "Create revised review" : "Run again"}
-          </Link>
-        </Button>
+        {buyerPolishedShell ? (
+          <>
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              className="justify-center sm:justify-start"
+              onClick={() => {
+                setRevisedChooserOpen(true);
+              }}
+            >
+              Create revised review
+            </Button>
+            <Dialog open={revisedChooserOpen} onOpenChange={setRevisedChooserOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Create a revised review</DialogTitle>
+                  <DialogDescription>
+                    Pick how prior context carries forward. Both paths use the same wizard; backend lineage attachment is
+                    tenant-dependent.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-3 py-2">
+                  <Button asChild variant="default" className="w-full">
+                    <Link
+                      href={`/reviews/new?intent=revised-clone&cloneFromRunId=${encodeURIComponent(runId)}`}
+                      onClick={() => {
+                        setRevisedChooserOpen(false);
+                      }}
+                    >
+                      Clone from this review
+                    </Link>
+                  </Button>
+                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                    Prefer when scope shifts but regulators expect continuity with this manifest package.
+                  </p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link
+                      href="/reviews/new?intent=revised-fresh"
+                      onClick={() => {
+                        setRevisedChooserOpen(false);
+                      }}
+                    >
+                      Start fresh
+                    </Link>
+                  </Button>
+                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                    Prefer when the next cycle should not inherit this review&apos;s attachments by default.
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="ghost" onClick={() => setRevisedChooserOpen(false)}>
+                    Cancel
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
+        ) : (
+          <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
+            <Link href="/reviews/new" title="Start another architecture review with your repository inputs">
+              Run again
+            </Link>
+          </Button>
+        )}
         {!buyerPolishedShell ? (
           <>
             <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">

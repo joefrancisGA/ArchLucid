@@ -6,6 +6,7 @@ import { getArchitecturePackageDocxUrl } from "@/lib/api";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
 import type { DecisionDelta, GoldenManifestComparison } from "@/types/comparison";
+import type { RunSummary } from "@/types/authority";
 
 const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
@@ -107,7 +108,11 @@ function ComparisonFoldSection(props: {
 /**
  * Golden-manifest structured comparison: tables and stable column order for operator review.
  */
-export function StructuredComparisonView(props: { golden: GoldenManifestComparison }) {
+export function StructuredComparisonView(props: {
+  golden: GoldenManifestComparison;
+  baselinePickedSummary?: RunSummary | null;
+  updatedPickedSummary?: RunSummary | null;
+}) {
   const golden = sortGoldenManifestComparison(props.golden);
   const total =
     golden.totalDeltaCount !== undefined
@@ -134,13 +139,13 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
       </p>
       <div className="mb-3 flex flex-wrap items-baseline gap-3 text-sm text-neutral-700 dark:text-neutral-300">
         <span>
-          <strong>Baseline review:</strong> {compareRunHeadingLabel(golden.baseRunId)}
+          <strong>Baseline review:</strong> {compareRunHeadingLabel(golden.baseRunId, props.baselinePickedSummary)}
         </span>
         <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-600">
           →
         </span>
         <span>
-          <strong>Updated review:</strong> {compareRunHeadingLabel(golden.targetRunId)}
+          <strong>Updated review:</strong> {compareRunHeadingLabel(golden.targetRunId, props.updatedPickedSummary)}
         </span>
         <span className="text-neutral-500 dark:text-neutral-400">
           · <strong>Total changes:</strong> {total}

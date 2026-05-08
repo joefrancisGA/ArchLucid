@@ -60,7 +60,7 @@ export default function RunDetailSegmentError({
             </Link>
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href="/demo/preview">{isBuyerPolished ? "Guided preview" : "View sample walkthrough"}</Link>
+            <Link href="/demo/preview">{isBuyerPolished ? "Read-only walkthrough" : "View sample walkthrough"}</Link>
           </Button>
           <Button type="button" variant="outline" asChild>
             <Link href="/reviews?projectId=default">Back to reviews</Link>

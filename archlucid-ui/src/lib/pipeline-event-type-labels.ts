@@ -5,6 +5,12 @@
 const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   RunStarted: "Review started",
   RunCompleted: "Review completed",
+  RunSubmitted: "Review submitted",
+  ManifestGenerated: "Manifest generated",
+  ManifestFinalized: "Manifest finalized",
+  FindingsSnapshotSealed: "Findings captured",
+  ArtifactsGenerated: "Artifacts bundled",
+  GovernanceApprovalRequested: "Governance approval requested",
   "finalize.run": "Manifest finalized",
   "run.finalized": "Review finalized",
   "context.snapshot.created": "Context captured",

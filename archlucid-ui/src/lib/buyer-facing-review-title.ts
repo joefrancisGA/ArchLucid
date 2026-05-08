@@ -25,8 +25,19 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
     return "Claims Intake Modernization Review";
   }
 
-  const description = run.description?.trim() ?? "";
+  const displayName = run.displayName?.trim() ?? "";
   const runIdTrim = run.runId.trim();
+
+  // Prefer explicit API display label when it is not just the technical run id echoed back.
+  if (
+    displayName.length > 0 &&
+    displayName !== runIdTrim &&
+    displayName.toLowerCase() !== runIdTrim.toLowerCase()
+  ) {
+    return displayName;
+  }
+
+  const description = run.description?.trim() ?? "";
 
   // Some APIs echo the run id as `description`; never show that slug as a human title.
   if (

@@ -2,6 +2,8 @@
 export type RunSummary = {
   runId: string;
   projectId: string;
+  /** Canonical buyer-facing label (`displayName` from API); UI prefers over slug identifiers when populated. */
+  displayName?: string | null;
   description?: string | null;
   createdUtc: string;
   contextSnapshotId?: string | null;

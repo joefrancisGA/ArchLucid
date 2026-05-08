@@ -689,6 +689,25 @@
             "format": "int32",
             "type": "integer"
           },
+          "judgeHeuristicDisagreementElevatesWarn": {
+            "type": "boolean"
+          },
+          "llmJudgeHeuristicDisagreement": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "llmJudgeInvocationCount": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
           "llmJudgeNotes": {
             "type": [
               "null",
@@ -696,6 +715,15 @@
             ]
           },
           "llmJudgeOverallQuality": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "llmJudgeQualityDispersion": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
             "type": [
@@ -12886,6 +12914,12 @@
             "type": "string"
           },
           "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
             "type": [
               "null",
               "string"
