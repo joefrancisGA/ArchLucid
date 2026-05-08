@@ -1,6 +1,4 @@
-using ArchLucid.Contracts.Agents;
-
-namespace ArchLucid.AgentRuntime.Evaluation;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 ///     Classifies structural + semantic evaluation scores for operator metrics. Does not throw and does not mutate stored

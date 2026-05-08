@@ -13,8 +13,12 @@ public sealed class DefaultRequestContentSafetyPrecheck : IRequestContentSafetyP
     private static readonly string[] BlockedPhrases =
     [
         "ignore previous instructions",
+        "ignore all previous",
         "ignore all prior",
+        "ignore all instructions",
         "disregard previous",
+        "disregard all previous",
+        "new instructions:",
         "you are now",
         "new system prompt",
         "override safety",

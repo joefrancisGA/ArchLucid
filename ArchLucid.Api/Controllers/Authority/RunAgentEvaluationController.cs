@@ -1,3 +1,4 @@
+using ArchLucid.Api.Evaluation;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Authorization;
@@ -29,6 +30,7 @@ public sealed class RunAgentEvaluationController(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IAgentOutputEvaluator agentOutputEvaluator,
     IAgentOutputSemanticEvaluator agentOutputSemanticEvaluator,
+    IAgentOutputQualityGate agentOutputQualityGate,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>
@@ -86,7 +88,8 @@ public sealed class RunAgentEvaluationController(
             Scores = scores,
             TracesSkippedCount = skipped,
             AverageStructuralCompletenessRatio = averageStructural,
-            AverageSemanticScore = averageSemantic
+            AverageSemanticScore = averageSemantic,
+            AggregateQualityGateOutcome = AgentOutputEvaluationWorstGateAggregator.WorstOutcome(scores, agentOutputQualityGate),
         };
 
         return Ok(summary);

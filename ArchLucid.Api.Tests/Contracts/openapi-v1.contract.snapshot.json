@@ -592,6 +592,16 @@
       },
       "AgentOutputEvaluationSummary": {
         "properties": {
+          "aggregateQualityGateOutcome": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AgentOutputQualityGateOutcome"
+              }
+            ]
+          },
           "averageSemanticScore": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
@@ -629,6 +639,9 @@
           }
         },
         "type": "object"
+      },
+      "AgentOutputQualityGateOutcome": {
+        "type": "integer"
       },
       "AgentOutputSemanticScore": {
         "properties": {

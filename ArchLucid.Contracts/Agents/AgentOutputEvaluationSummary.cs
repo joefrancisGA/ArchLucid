@@ -51,4 +51,15 @@ public sealed class AgentOutputEvaluationSummary
         get;
         set;
     }
+
+    /// <summary>
+    ///     Worst <see cref="AgentOutputQualityGateOutcome" /> across <see cref="Scores" /> rows that had both structural
+    ///     and semantic scores, using the host's configured <c>ArchLucid:AgentOutput:QualityGate</c> thresholds. Null when
+    ///     none were evaluable (for example all parse failures or no semantic rows).
+    /// </summary>
+    public AgentOutputQualityGateOutcome? AggregateQualityGateOutcome
+    {
+        get;
+        set;
+    }
 }

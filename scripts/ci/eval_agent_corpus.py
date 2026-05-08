@@ -7,7 +7,9 @@ Optional V1 quality slice: deterministic structural + semantic scores on committ
 
 Real-mode rows (``qualityEvidence.mode: "real"``) reuse the same scorer over a
 filesystem path from ``qualityEvidence.agentResultPathEnv`` (PR CI leaves the
-variable unset so those rows **skip** without failing the build).
+variable unset so those rows **skip** without failing the build). Use
+``--require-real-mode-evidence`` in release jobs when all real-mode rows must
+evaluate (env set to an exported AgentResult path).
 
 Default: informational only (exit 0). Use ``--enforce`` when you want recall /
 unexpected probes to block; use ``--enforce-quality-gate`` when rejected gate
@@ -666,6 +668,14 @@ def main() -> int:
         action="store_true",
         help="Exit non-zero when any simulator-mode quality row gate_outcome is rejected (real mode excluded).",
     )
+    parser.add_argument(
+        "--require-real-mode-evidence",
+        action="store_true",
+        help=(
+            "Exit non-zero when manifest has real-mode quality rows but none were evaluated "
+            "(env var unset or empty). For release / RC jobs that must capture real AgentResult paths."
+        ),
+    )
     args = parser.parse_args()
 
     corpus_root: Path = args.corpus.resolve()
@@ -752,6 +762,14 @@ def main() -> int:
         f"errors={rrollup['errors']}\t"
         f"evidence_captured={'yes' if rrollup['evidence_captured'] else 'no'}",
     )
+
+    if bool(args.require_real_mode_evidence) and int(rrollup["total"]) > 0 and not bool(rrollup["evidence_captured"]):
+        print(
+            "::error::real-mode quality scenarios require captured evidence when using --require-real-mode-evidence "
+            "(set each scenario's agentResultPathEnv to a path, or remove the flag).",
+            file=sys.stderr,
+        )
+        return 1
 
     md = render_markdown_report(rows, corpus_root, float(args.min_recall), worst_recall)
     if args.markdown_report is not None:
