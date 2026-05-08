@@ -43,6 +43,59 @@ export function graphBuyerTrailMetadataLines(
 
     const lower = key.toLowerCase();
 
+    if (lower === "referenceid") {
+      if (value === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID) {
+        summaryLines.push({
+          label: "Risk area",
+          value: "PHI minimization at intake — classification, lineage, and retention posture.",
+        });
+        summaryLines.push({
+          label: "Why it matters",
+          value:
+            "Mis-handled PHI creates compliance exposure and sponsor distrust; this finding ties evidence to the signed manifest.",
+        });
+      }
+
+      technicalLines.push({ label: "Reference ID", value: value.length > 0 ? value : "—" });
+
+      continue;
+    }
+
+    if (lower === "riskarea" || lower === "risk_domain" || lower === "riskdomain") {
+      summaryLines.push({ label: "Risk area", value: value.length > 0 ? value : "—" });
+
+      continue;
+    }
+
+    if (
+      lower === "whyitmatters" ||
+      lower === "whymatters" ||
+      lower === "businessmeaning" ||
+      lower === "sponsorimpact"
+    ) {
+      summaryLines.push({ label: "Why it matters", value: value.length > 0 ? value : "—" });
+
+      continue;
+    }
+
+    if (lower === "evidence" || lower === "citations" || lower === "evidencecitations") {
+      summaryLines.push({ label: "Evidence citations", value: value.length > 0 ? value : "—" });
+
+      continue;
+    }
+
+    if (lower === "mitigation" || lower === "remediation") {
+      summaryLines.push({ label: "Mitigation", value: value.length > 0 ? value : "—" });
+
+      continue;
+    }
+
+    if (lower === "relateddecisions" || lower === "manifestdecisions") {
+      summaryLines.push({ label: "Related decisions", value: value.length > 0 ? value : "—" });
+
+      continue;
+    }
+
     if (lower === "referenced" || lower === "findingref" || lower === "primaryrisk") {
       const friendly = KNOWN_REFERENCE_SLUGS[value] ?? titleCaseSlug(value);
 

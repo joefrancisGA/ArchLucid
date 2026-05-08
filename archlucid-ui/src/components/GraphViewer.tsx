@@ -14,6 +14,7 @@ import "reactflow/dist/style.css";
 import type { GraphNodeVm, GraphViewModel } from "@/types/graph";
 import {
   graphLooksLikeCoordinatorProvenanceTrail,
+  isBuyerTrailPhiHeroNode,
   mapGraphToReactFlow,
   type MapGraphPresentation,
 } from "@/lib/graph-mapper";
@@ -47,7 +48,14 @@ function pickHeroNodeId(graph: GraphViewModel, preferredId: string | undefined):
     }
   }
 
+  const phiHero = graph.nodes.find((n) => isBuyerTrailPhiHeroNode(n));
+
+  if (phiHero !== undefined) {
+    return phiHero;
+  }
+
   const finding = graph.nodes.find((n) => n.type === "Finding");
+
   if (finding !== undefined) {
     return finding;
   }
@@ -143,7 +151,7 @@ export function GraphViewer({
             nodes={nodes as Node[]}
             edges={edges as Edge[]}
             fitView
-            fitViewOptions={{ padding: buyerTrailPanel ? 0.14 : 0.1, maxZoom: buyerTrailPanel ? 1.52 : 1.35 }}
+            fitViewOptions={{ padding: buyerTrailPanel ? 0.16 : 0.1, maxZoom: buyerTrailPanel ? 1.58 : 1.35 }}
             minZoom={0.2}
             maxZoom={1.65}
             onlyRenderVisibleElements
@@ -225,7 +233,8 @@ export function GraphViewer({
           <div className="rounded-md border border-slate-200 bg-slate-50/90 p-3 text-sm dark:border-slate-700 dark:bg-slate-900/40">
             <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Legend</p>
             <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">
-              Boxes follow the review from captured context through risks to the finalized package and deliverables.
+              This is an evidence-to-decision trail: context and analysis nodes feed flagship risks (highlighted) that
+              anchor the finalized manifest and bundled deliverables.
             </p>
           </div>
         )}

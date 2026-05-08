@@ -54,9 +54,36 @@ describe("Compare / review views (55R smoke)", () => {
 
     // Decision column shows `decisionKeyDisplay(key)` and the raw key in the same cell when no display label.
     expect(screen.getAllByText("deploy-region")).toHaveLength(2);
+    expect(screen.getByText("Material architecture deltas")).toBeInTheDocument();
     expect(screen.getByText("Sponsor recommendation:")).toBeInTheDocument();
     expect(screen.getByText("Modified")).toBeInTheDocument();
     expect(screen.getAllByText("Region changed").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("StructuredComparisonView splits metadata-only decision keys under a bookkeeping subsection", () => {
+    const golden: GoldenManifestComparison = {
+      ...emptyGolden,
+      decisionChanges: [
+        {
+          decisionKey: "manifest.manifestHash",
+          baseValue: "a",
+          targetValue: "b",
+          changeType: "Changed",
+        },
+        {
+          decisionKey: "phi.minimization.intake",
+          baseValue: "warn",
+          targetValue: "fail",
+          changeType: "Escalated",
+        },
+      ],
+    };
+
+    render(<StructuredComparisonView golden={golden} />);
+
+    expect(screen.getByText("Metadata / bookkeeping")).toBeInTheDocument();
+    expect(screen.getByText("Material architecture deltas")).toBeInTheDocument();
+    expect(screen.getByText("Escalated")).toBeInTheDocument();
   });
 
   it("LegacyRunComparisonView shows empty review-level diff message when there are no diffs", () => {

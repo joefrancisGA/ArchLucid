@@ -355,7 +355,6 @@ function GraphPageContent() {
     <div
       className={cn(
         "mb-6 flex max-w-4xl flex-nowrap items-end gap-3 overflow-x-auto rounded-lg border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/40",
-        graph !== null ? "mt-6" : null,
       )}
     >
       <div className="min-w-[12rem] flex-1 lg:max-w-sm">
@@ -531,17 +530,8 @@ function GraphPageContent() {
 
       {graph ? (
         <>
-          <ClientErrorBoundary title="Graph viewer failed to render">
-            <div data-testid="graph-canvas-ready">
-              <GraphViewer
-                graph={graph}
-                typeFilter={typeFilter}
-                runId={runId.trim()}
-                presentation={demoUi || buyerPolishedShell ? "buyerTrail" : "operator"}
-              />
-            </div>
-          </ClientErrorBoundary>
-          <div className="mb-3 flex items-center gap-3">
+          {graphControls}
+          <div className="mb-3 flex flex-wrap items-center gap-3">
             <label>
               Filter by type{" "}
               <select
@@ -571,7 +561,16 @@ function GraphPageContent() {
               <GraphNodeKindLegendChips />
             )}
           </div>
-          {graphControls}
+          <ClientErrorBoundary title="Graph viewer failed to render">
+            <div data-testid="graph-canvas-ready">
+              <GraphViewer
+                graph={graph}
+                typeFilter={typeFilter}
+                runId={runId.trim()}
+                presentation={demoUi || buyerPolishedShell ? "buyerTrail" : "operator"}
+              />
+            </div>
+          </ClientErrorBoundary>
           {demoUi && buyerPolishedShell ? (
             <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
               Use the review control above to open another finalized package. This view stays on the review-trail graph; the

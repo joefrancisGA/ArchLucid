@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
+import { partitionDecisionDeltas } from "@/lib/compare-decision-delta-material";
 import { getArchitecturePackageDocxUrl } from "@/lib/api";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
-import type { GoldenManifestComparison } from "@/types/comparison";
+import type { DecisionDelta, GoldenManifestComparison } from "@/types/comparison";
 
 const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
@@ -38,6 +39,49 @@ function formatCostEstimateCell(value: unknown): string {
   }
 
   return s;
+}
+
+function DecisionDeltasTable(props: { rows: DecisionDelta[] }) {
+  if (props.rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <table className="mt-2 w-full border-collapse text-sm">
+      <thead>
+        <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+          <th className={cellCls}>Decision</th>
+          <th className={cellCls}>Baseline</th>
+          <th className={cellCls}>Updated</th>
+          <th className={cellCls}>Change</th>
+        </tr>
+      </thead>
+      <tbody>
+        {props.rows.map((d, i) => (
+          <tr key={`${d.decisionKey}-${i}`}>
+            <td className={cellCls}>
+              <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                {d.displayLabel?.trim() ? d.displayLabel.trim() : decisionKeyDisplay(d.decisionKey)}
+              </div>
+              {d.displayLabel?.trim() ? (
+                <details className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                  <summary className="cursor-pointer select-none">Technical key</summary>
+                  <code className="mt-0.5 block font-mono text-[11px]">{d.decisionKey}</code>
+                </details>
+              ) : (
+                <div className="mt-0.5 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
+                  {d.decisionKey}
+                </div>
+              )}
+            </td>
+            <td className={cellCls}>{d.baseValue ?? "—"}</td>
+            <td className={cellCls}>{d.targetValue ?? "—"}</td>
+            <td className={cellCls}>{d.changeType}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 }
 
 /** Card-style collapsible bucket for structured compare output. */
@@ -150,40 +194,33 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
         <>
           {golden.decisionChanges.length > 0 ? (
             <ComparisonFoldSection title="Decision changes" countBadge={golden.decisionChanges.length} defaultOpen>
-              <table className="mt-2 w-full border-collapse text-sm">
-                <thead>
-                  <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                    <th className={cellCls}>Decision</th>
-                    <th className={cellCls}>Baseline</th>
-                    <th className={cellCls}>Updated</th>
-                    <th className={cellCls}>Change</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {golden.decisionChanges.map((d, i) => (
-                    <tr key={i}>
-                      <td className={cellCls}>
-                        <div className="font-medium text-neutral-900 dark:text-neutral-100">
-                          {d.displayLabel?.trim() ? d.displayLabel.trim() : decisionKeyDisplay(d.decisionKey)}
-                        </div>
-                        {d.displayLabel?.trim() ? (
-                          <details className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
-                            <summary className="cursor-pointer select-none">Technical key</summary>
-                            <code className="mt-0.5 block font-mono text-[11px]">{d.decisionKey}</code>
-                          </details>
-                        ) : (
-                          <div className="mt-0.5 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
-                            {d.decisionKey}
-                          </div>
-                        )}
-                      </td>
-                      <td className={cellCls}>{d.baseValue ?? "—"}</td>
-                      <td className={cellCls}>{d.targetValue ?? "—"}</td>
-                      <td className={cellCls}>{d.changeType}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {(() => {
+                const { material, metadata } = partitionDecisionDeltas(golden.decisionChanges);
+
+                return (
+                  <>
+                    {material.length > 0 ? (
+                      <div className="space-y-2">
+                        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                          Material architecture deltas
+                        </p>
+                        <DecisionDeltasTable rows={material} />
+                      </div>
+                    ) : null}
+                    {metadata.length > 0 ? (
+                      <div className={material.length > 0 ? "mt-5 space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-700" : "space-y-2"}>
+                        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                          Metadata / bookkeeping
+                        </p>
+                        <p className="m-0 max-w-prose text-[11px] text-neutral-600 dark:text-neutral-400">
+                          Identifier, hash, and timestamp fields may move without changing sponsor-facing posture.
+                        </p>
+                        <DecisionDeltasTable rows={metadata} />
+                      </div>
+                    ) : null}
+                  </>
+                );
+              })()}
             </ComparisonFoldSection>
           ) : null}
 
