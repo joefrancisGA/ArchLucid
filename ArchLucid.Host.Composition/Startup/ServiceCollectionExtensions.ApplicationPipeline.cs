@@ -26,9 +26,11 @@ using ArchLucid.Application.Traceability;
 using ArchLucid.Application.Trust;
 using ArchLucid.Application.Value;
 using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
@@ -279,6 +281,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<ICanonicalEnricher, CanonicalInfrastructureEnricher>();
         services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();
         services.AddSingleton<IContextDeltaSummaryBuilder, DefaultContextDeltaSummaryBuilder>();
+        services.AddSingleton<IConnectorDeltaComputer, SetDiffConnectorDeltaComputer>();
 
         services.AddScoped<ContextIngestionService, ArchLucid.ContextIngestion.Services.ContextIngestionService>();
         services.AddScoped<IGraphNodeFactory, GraphNodeFactory>();
