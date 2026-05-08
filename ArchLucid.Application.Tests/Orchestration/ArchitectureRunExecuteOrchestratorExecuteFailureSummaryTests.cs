@@ -6,7 +6,6 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -63,7 +62,12 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
             SystemName = "ExecFail",
         };
 
-        AgentTask task = new() { TaskId = "t1", RunId = runId, AgentType = AgentType.Compliance };
+        AgentTask task = new()
+        {
+            TaskId = "t1",
+            RunId = runId,
+            AgentType = AgentType.Compliance
+        };
 
         Mock<IRunRepository> runRepo = new();
         runRepo
@@ -157,7 +161,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
 
         AgentExecutionFailureSummary? persisted = AgentExecutionFailureSummaryJson.TryDeserialize(header.LastFailureReason);
         persisted.Should().NotBeNull();
-        persisted!.AgentTypeKey.Should().Be(AgentTypeKeys.Compliance);
+        persisted.AgentTypeKey.Should().Be(AgentTypeKeys.Compliance);
         persisted.FailureClass.Should().Be(AgentExecutionFailureClasses.InvalidOperation);
 
         capturedRunFailedDetails.Should().NotBeNullOrEmpty();

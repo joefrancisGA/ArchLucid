@@ -17,8 +17,6 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
     private sealed class StatusSequenceHandler(HttpStatusCode status, int successAfterAttemptInclusive)
         : HttpMessageHandler
     {
-        private readonly HttpStatusCode _status = status;
-
         private int _attemptOrdinal;
 
         public int SendInvocationCount;
@@ -32,7 +30,7 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
 
             return Task.FromResult(_attemptOrdinal == successAfterAttemptInclusive
                 ? new HttpResponseMessage(HttpStatusCode.OK)
-                : new HttpResponseMessage(_status));
+                : new HttpResponseMessage(status));
         }
     }
 
@@ -90,10 +88,8 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
     public async Task ExecuteAsync_On400_does_not_retry()
     {
         StatusSequenceHandler capturing = new(HttpStatusCode.BadRequest, successAfterAttemptInclusive: 999);
-        using HttpClient httpClient = new(capturing)
-        {
-            Timeout = TimeSpan.FromSeconds(30)
-        };
+        using HttpClient httpClient = new(capturing);
+        httpClient.Timeout = TimeSpan.FromSeconds(30);
 
         ResiliencePipeline<HttpResponseMessage> pipeline =
             GovernanceSlaEscalationWebhookRetryPipeline.Create(NullLogger.Instance, "bad", static _ => TimeSpan.Zero);

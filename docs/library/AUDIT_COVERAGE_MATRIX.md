@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:168 -->
+<!-- audit-core-const-count:170 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -107,6 +107,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Coordinator run execution succeeded (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunExecuteOrchestrator` → `Architecture.RunExecuteSucceeded`) | `AuditEventTypes.Run.ExecuteSucceeded` | RunId | `{ runId, resultCount }` |
 | Coordinator run commit completed (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunCommitOrchestrator` / `AuthorityDrivenArchitectureRunCommitOrchestrator` → `Architecture.RunCompleted`) | `AuditEventTypes.Run.CommitCompleted` | RunId | Coordinator path: `{ runId, manifestVersion, systemName }`; authority path adds `warningCount`, `commitPath` |
 | Coordinator run failed (baseline → durable) | `BaselineMutationAuditService` (orchestrators → `Architecture.RunFailed`) via `BaselineMutationAuditArchitectureDurableWriter` | `AuditEventTypes.Run.Failed` | RunId when parseable | `{ runId, reason }` (after baseline `Architecture.RunFailed`) |
+| Coordinator run quality gate rejected (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunExecuteOrchestrator` → `Architecture.RunQualityGateRejected`) via `BaselineMutationAuditArchitectureDurableWriter` | `AuditEventTypes.Run.QualityGateRejected` | RunId when parseable | `{ runId, traceId, agentLabel }` (after baseline `Architecture.RunQualityGateRejected`; agent-output quality gate) |
 | Coordinator run execute retry (`LegacyRunStatus` / contract status **Failed**) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.Run.RetryRequested` | RunId when `runId` parses as GUID | `{ runId, previousStatus: "Failed" }` — direct `IAuditService` before baseline `Architecture.RunStarted`; clarifies durable trail when operators re-invoke execute after a failed run |
 | Agent trace blob persistence failed or timed out | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceBlobPersistenceFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, failedBlobTypes? }` — emitted when inline blob writes after trace insert exhaust retries, time out, or throw unexpectedly; execute outcome elsewhere is unchanged. |
 | Agent trace mandatory inline fallback failed or forensic verification failed | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceInlineFallbackFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, exceptionDetail? }` — SQL inline patch threw, trace row missing on read, or blob+inline still missing non-empty prompt/response after patch; **`dbo.AgentExecutionTraces.InlineFallbackFailed`** set; execute outcome elsewhere is unchanged. |
@@ -379,6 +380,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.ExecuteSucceeded` | `Run.ExecuteSucceeded` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunExecuteSucceeded`) |
 | `Run.CommitCompleted` | `Run.CommitCompleted` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunCompleted`) |
 | `Run.Failed` | `Run.Failed` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunFailed`) |
+| `Run.QualityGateRejected` | `Run.QualityGateRejected` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunQualityGateRejected`) |
 | `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
@@ -394,6 +396,7 @@ When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 | `Baseline.Architecture.RunExecuteSucceeded` | `Architecture.RunExecuteSucceeded` | `ArchitectureRunExecuteOrchestrator` |
 | `Baseline.Architecture.RunCompleted` | `Architecture.RunCompleted` | `ArchitectureRunCommitOrchestrator` |
 | `Baseline.Architecture.RunFailed` | `Architecture.RunFailed` | Architecture run orchestrators, `ArchitectureRunService` |
+| `Baseline.Architecture.RunQualityGateRejected` | `Architecture.RunQualityGateRejected` | `ArchitectureRunExecuteOrchestrator` (agent-output quality gate blocks execute completion) |
 | `Baseline.Governance.ApprovalRequestSubmitted` | `Governance.ApprovalRequestSubmitted` | `GovernanceWorkflowService` |
 | `Baseline.Governance.ApprovalRequestApproved` | `Governance.ApprovalRequestApproved` | `GovernanceWorkflowService` |
 | `Baseline.Governance.ApprovalRequestRejected` | `Governance.ApprovalRequestRejected` | `GovernanceWorkflowService` |

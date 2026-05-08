@@ -1,5 +1,6 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Integrations.Itsm;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Integrations;
@@ -10,8 +11,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
-
-using System.Text.Json;
 
 namespace ArchLucid.Application.Tests.Integrations.Itsm;
 
@@ -180,7 +179,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         r.DurableAuditEvent.Should().NotBeNull();
         r.DurableAuditEvent!.EventType.Should().Be(AuditEventTypes.IntegrationJiraIssueStatusSynced);
         r.DurableAuditEvent.TenantId.Should().Be(TenantA);
-        JsonDocument payload = JsonDocument.Parse(r.DurableAuditEvent.DataJson ?? "{}");
+        JsonDocument payload = JsonDocument.Parse(r.DurableAuditEvent.DataJson);
         payload.RootElement.GetProperty("humanReviewStatus").GetString().Should().Be(expectedHumanReview);
         payload.RootElement.GetProperty("issueKey").GetString().Should().Be("KK-42");
         payload.RootElement.GetProperty("statusName").GetString().Should().Be(jiraStatus);
@@ -237,7 +236,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         r.DurableAuditEvent.Should().NotBeNull();
         r.DurableAuditEvent!.EventType.Should().Be(AuditEventTypes.IntegrationServiceNowIncidentStatusSynced);
         r.DurableAuditEvent.TenantId.Should().Be(TenantA);
-        JsonDocument auditPayload = JsonDocument.Parse(r.DurableAuditEvent.DataJson ?? "{}");
+        JsonDocument auditPayload = JsonDocument.Parse(r.DurableAuditEvent.DataJson);
         auditPayload.RootElement.GetProperty("humanReviewStatus").GetString().Should().Be(expectedHumanReview);
         auditPayload.RootElement.GetProperty("externalKey").GetString().Should().Be(externalKey);
         auditPayload.RootElement.GetProperty("rowsUpdated").GetInt32().Should().Be(1);
@@ -454,7 +453,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
 
         r.Accepted.Should().BeTrue();
         r.DurableAuditEvent.Should().NotBeNull();
-        JsonDocument payload = JsonDocument.Parse(r.DurableAuditEvent!.DataJson ?? "{}");
+        JsonDocument payload = JsonDocument.Parse(r.DurableAuditEvent!.DataJson);
         payload.RootElement.GetProperty("rowsUpdated").GetInt32().Should().Be(0);
         payload.RootElement.GetProperty("humanReviewStatus").GetString().Should().Be(nameof(FindingHumanReviewStatus.Pending));
     }
