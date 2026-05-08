@@ -10,7 +10,7 @@ namespace ArchLucid.Retrieval.Indexing;
 /// </summary>
 /// <remarks>
 ///     Implementation: <see cref="RetrievalRunCompletionIndexer" />. Production hosts enqueue work via the persistence
-///     retrieval indexing outbox; a background processor calls this interface after the authority unit of work commits.
+///     retrieval indexing outbox; <c>ArchLucid.Host.Core</c> drains the outbox and calls this interface after the authority unit of work commits.
 /// </remarks>
 public interface IRetrievalRunCompletionIndexer
 {

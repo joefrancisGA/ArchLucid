@@ -14,11 +14,21 @@ describe("parseProvenanceExplanationPayload", () => {
       message: "Explanation feature pending",
       detail: "",
       title: "",
+      aggregateExplanationPathTemplate: null,
+      granularExplanationPathTemplate: null,
+      errorCode: null,
     });
 
     expect(
       parseProvenanceExplanationPayload({ detail: "x", title: "y" }),
-    ).toEqual({ message: null, detail: "x", title: "y" });
+    ).toEqual({
+      message: null,
+      detail: "x",
+      title: "y",
+      aggregateExplanationPathTemplate: null,
+      granularExplanationPathTemplate: null,
+      errorCode: null,
+    });
   });
 
   it("returns nulls for non-objects", () => {
@@ -26,12 +36,18 @@ describe("parseProvenanceExplanationPayload", () => {
       message: null,
       detail: null,
       title: null,
+      aggregateExplanationPathTemplate: null,
+      granularExplanationPathTemplate: null,
+      errorCode: null,
     });
 
     expect(parseProvenanceExplanationPayload("x")).toEqual({
       message: null,
       detail: null,
       title: null,
+      aggregateExplanationPathTemplate: null,
+      granularExplanationPathTemplate: null,
+      errorCode: null,
     });
   });
 });

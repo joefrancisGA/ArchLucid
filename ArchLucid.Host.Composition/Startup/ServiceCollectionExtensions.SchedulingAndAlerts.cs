@@ -11,6 +11,7 @@ using ArchLucid.Decisioning.Alerts.Tuning;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Coordination.Retrieval;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Contracts.Abstractions.Integrations;

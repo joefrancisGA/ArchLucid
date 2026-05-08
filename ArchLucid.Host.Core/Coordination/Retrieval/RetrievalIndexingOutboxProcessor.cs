@@ -5,6 +5,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Indexing;
@@ -14,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 using Serilog.Context;
 
-namespace ArchLucid.Persistence.Coordination.Retrieval;
+namespace ArchLucid.Host.Core.Coordination.Retrieval;
 
 /// <inheritdoc cref="IRetrievalIndexingOutboxProcessor" />
 public sealed class RetrievalIndexingOutboxProcessor(

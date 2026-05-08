@@ -2,20 +2,24 @@ using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using FluentAssertions;
+using ArchLucid.Host.Core.Coordination.Retrieval;
+using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
+using ArchLucid.Retrieval.Indexing;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchLucid.Persistence.Tests;
+namespace ArchLucid.Host.Composition.Tests.Coordination;
 
 [Trait("Suite", "Core")]
 public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 {
-    [SkippableFact]
+    [Fact]
     public async Task ProcessPendingBatchAsync_starts_activity_with_correlation_tags()
     {
         List<Activity> stopped = [];

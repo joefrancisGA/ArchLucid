@@ -13,6 +13,11 @@ vi.mock("@/components/OperatorEvidenceLimitsFooter", () => ({
   OperatorEvidenceLimitsFooter: () => <div data-testid="operator-evidence-limits-footer-stub" />,
 }));
 
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => false,
+  isNextPublicDemoMode: () => false,
+}));
+
 describe("FindingInspectView", () => {
   it("renders all four labeled sections when payload matches route run", () => {
     const { container } = render(

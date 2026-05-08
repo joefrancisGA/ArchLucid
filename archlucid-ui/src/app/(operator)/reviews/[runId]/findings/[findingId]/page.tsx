@@ -24,6 +24,7 @@ import {
 
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 
@@ -59,6 +60,8 @@ export default async function RunFindingExplainPage({
 
   const runExecutionFootnote = await tryLoadRunExecutionFootnote(runId);
 
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   const labels = inspectPayload !== null ? findingInspectPrimaryLabels(inspectPayload) : null;
 
   const pageTitle =
@@ -66,16 +69,28 @@ export default async function RunFindingExplainPage({
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 p-6">
-      <nav className="flex flex-wrap items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
+      <nav className="flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+        <Link
+          href={`/reviews/${encodeURIComponent(runId)}`}
+          className="font-medium text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600 dark:hover:text-teal-200"
+        >
+          ← Back to review
+        </Link>
+        <span aria-hidden className="text-neutral-300 dark:text-neutral-600">
+          ·
+        </span>
         <Link
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
           className="text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600 dark:hover:text-teal-200"
         >
-          Technical inspection trail
+          {buyerPolishedShell ? "Traceability view (rules, citations, payload)" : "Technical inspection trail"}
         </Link>
       </nav>
 
       <header className="space-y-3">
+        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          {buyerPolishedShell ? "Finding overview" : "Finding detail"}
+        </p>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{pageTitle}</h1>
 
         {labels !== null ? (
@@ -164,7 +179,10 @@ export default async function RunFindingExplainPage({
         </CollapsibleSection>
       ) : null}
 
-      <CollapsibleSection title="Technical audit trail" defaultOpen={false}>
+      <CollapsibleSection
+        title={buyerPolishedShell ? "Technical audit trail (optional)" : "Technical audit trail"}
+        defaultOpen={false}
+      >
         <FindingExplainPanel
           runId={runId}
           findingId={findingId}
