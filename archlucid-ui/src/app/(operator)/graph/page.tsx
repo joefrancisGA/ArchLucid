@@ -32,6 +32,13 @@ import {
 import { isApiRequestError } from "@/lib/api-request-error";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled, tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
+import {
+  downloadBrowserTextFile,
+  graphViewModelToJsonSnapshot,
+  graphViewModelToMermaidFlowchart,
+  safeGraphExportFilenameSegment,
+} from "@/lib/graph-view-model-export";
+import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
 import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import { applyBuyerLabelsToProvenanceGraphViewModel } from "@/lib/provenance-graph-presentation";
@@ -552,6 +559,61 @@ function GraphPageContent() {
                 ? `${graph.nodes.length} nodes in this view`
                 : `${graph.nodes.length} nodes, ${graph.edges.length} edges (before filter)`}
             </span>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                aria-label="Download the visible graph as JSON"
+                onClick={() => {
+                  if (graph === null) {
+                    return;
+                  }
+
+                  const slug = safeGraphExportFilenameSegment(runId.trim());
+                  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+                  const metaUtc = new Date().toISOString();
+                  const snapshot = graphViewModelFilteredByNodeType(graph, typeFilter);
+                  const tf = typeFilter.trim();
+
+                  downloadBrowserTextFile(
+                    `graph-${slug}-${mode}-${stamp}.json`,
+                    graphViewModelToJsonSnapshot(snapshot, {
+                      runId: runId.trim(),
+                      mode,
+                      generatedAtUtc: metaUtc,
+                      typeFilterApplied: tf.length > 0 ? tf : null,
+                    }),
+                    "application/json;charset=utf-8",
+                  );
+                }}
+              >
+                Export JSON
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                aria-label="Download a Mermaid flowchart for the visible graph"
+                onClick={() => {
+                  if (graph === null) {
+                    return;
+                  }
+
+                  const slug = safeGraphExportFilenameSegment(runId.trim());
+                  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+                  const snapshot = graphViewModelFilteredByNodeType(graph, typeFilter);
+
+                  downloadBrowserTextFile(
+                    `graph-${slug}-${mode}-${stamp}.mmd`,
+                    graphViewModelToMermaidFlowchart(snapshot),
+                    "text/plain;charset=utf-8",
+                  );
+                }}
+              >
+                Export Mermaid
+              </Button>
+            </div>
           </div>
           <div className="mb-3 max-w-4xl">
             <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Legend</p>
