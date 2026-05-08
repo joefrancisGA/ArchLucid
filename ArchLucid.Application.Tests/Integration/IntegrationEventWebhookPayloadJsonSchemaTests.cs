@@ -29,7 +29,7 @@ public sealed class IntegrationEventWebhookPayloadJsonSchemaTests
 
         using JsonDocument catalogDoc = JsonDocument.Parse(catalogJson);
 
-        foreach (var schemaFile in catalogDoc.RootElement.GetProperty("events").EnumerateArray().Select(entry => entry.GetProperty("schemaFile").GetString()!))
+        foreach (string schemaFile in catalogDoc.RootElement.GetProperty("events").EnumerateArray().Select(entry => entry.GetProperty("schemaFile").GetString()!))
         {
             yield return [schemaFile];
         }
