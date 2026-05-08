@@ -16,7 +16,11 @@ public sealed class RunCostBudgetExceededPartialPersistRecordedException : Excep
     }
 
     /// <inheritdoc cref="Exception.InnerException" />
-    public CostLimitExceededException BudgetCause => (CostLimitExceededException)InnerException;
+    public CostLimitExceededException BudgetCause =>
+        InnerException is CostLimitExceededException cause
+            ? cause
+            : throw new InvalidOperationException(
+                "Expected inner CostLimitExceededException (constructor always sets budgetCause as inner).");
 
     /// <summary>Stored <c>AgentResult</c> rows prior to emitting this fault.</summary>
     public int PersistedAgentOutputCount

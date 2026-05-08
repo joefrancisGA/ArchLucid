@@ -17,7 +17,6 @@ function titleCaseSlug(slug: string): string {
 
 const KNOWN_REFERENCE_SLUGS: Record<string, string> = {
   [SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID]: "PHI Minimization Risk",
-  "phi-minimization-risk": "PHI Minimization Risk",
 };
 
 /** Splits graph node metadata into sponsor-facing lines vs. technical key–value pairs (buyer trail panel). */

@@ -252,6 +252,12 @@ public static class ArchLucidInstrumentation
             "archlucid_llm_cache_hits_total",
             description: "LLM completion response cache hits (label: agent_type).");
 
+    /// <summary>LLM completion response cache misses (<c>CachingLlmCompletionClient</c>, label <c>agent_type</c>).</summary>
+    public static readonly Counter<long> LlmCompletionCacheMissesTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_cache_misses_total",
+            description: "LLM completion response cache misses (label: agent_type).");
+
     /// <summary>LLM completions that used the fallback client after primary throttling or server errors (labels: deployment).</summary>
     public static readonly Counter<long> LlmCompletionFallbackEngagementsTotal =
         AppMeter.CreateCounter<long>(
