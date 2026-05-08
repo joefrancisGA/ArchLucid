@@ -33,6 +33,36 @@ export function isUsableTeamStripeCheckoutUrl(raw: string | null | undefined): b
 }
 
 /**
+ * True when the URL matches Stripe-hosted **test-mode** checkout patterns aligned with CI
+ * (`looks_stripe_hosted_test_checkout` in `scripts/ci/pricing_json_checkout_guard.py`).
+ *
+ * Labels buyer-visible Subscribe CTAs as test-only without implying production self-serve.
+ */
+export function looksStripeHostedTestCheckoutUrl(raw: string | null | undefined): boolean {
+  if (raw === null || raw === undefined) {
+    return false;
+  }
+
+  const lower = raw.trim().toLowerCase();
+
+  if (lower.includes("cs_test_")) {
+    return true;
+  }
+
+  const hostKey = "buy.stripe.com/";
+
+  if (!lower.includes(hostKey)) {
+    return false;
+  }
+
+  const idx = lower.indexOf(hostKey);
+  const tail = lower.slice(idx + hostKey.length);
+  const firstSegment = tail.split("/")[0]?.split("?")[0] ?? "";
+
+  return firstSegment.startsWith("test_");
+}
+
+/**
  * Resolves the effective Team Stripe checkout URL for marketing/pricing surfaces.
  *
  * - When `NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED` is explicitly `"0"`/`"false"`, returns `null` (sales-led suppression).

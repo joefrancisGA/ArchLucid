@@ -755,7 +755,7 @@ public sealed class SqlRunRepository(
                              AND ArchivedUtc IS NULL
                              AND (
                                  LegacyRunStatus IS NULL
-                                 OR LegacyRunStatus NOT IN (@CommittedStatus, @FailedStatus));
+                                 OR LegacyRunStatus NOT IN (@CommittedStatus, @FailedStatus, @QualityRejectedStatus));
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -771,6 +771,7 @@ public sealed class SqlRunRepository(
                     ArchitectureRequestId = architectureRequestId.Trim(),
                     CommittedStatus = nameof(ArchitectureRunStatus.Committed),
                     FailedStatus = nameof(ArchitectureRunStatus.Failed),
+                    QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
                 },
                 cancellationToken: ct));
 

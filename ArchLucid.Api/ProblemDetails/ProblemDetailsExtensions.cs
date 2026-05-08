@@ -2,6 +2,8 @@ using ArchLucid.Application;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Validation;
 
+using System.Collections.Generic;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.ProblemDetails;
@@ -73,6 +75,39 @@ public static class ProblemDetailsExtensions
             Detail = detail,
             Instance = instance ?? controller.Request.Path
         };
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+        ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+    }
+
+    /// <summary>Returns 501 Not Implemented with RFC 9457 Problem Details (optional extension fields for client hints).</summary>
+    public static IActionResult NotImplementedProblem(
+        this ControllerBase controller,
+        string detail,
+        string? type = null,
+        string? title = null,
+        IReadOnlyDictionary<string, object?>? extensions = null)
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = type ?? ProblemTypes.FeatureNotYetAvailable,
+            Title = title ?? "Not Implemented",
+            Status = StatusCodes.Status501NotImplemented,
+            Detail = detail,
+            Instance = controller.Request.Path.Value
+        };
+
+        if (extensions is not null)
+        {
+            foreach (KeyValuePair<string, object?> kv in extensions)
+            {
+
+                if (!string.IsNullOrEmpty(kv.Key) && kv.Value is not null)
+                    problem.Extensions[kv.Key] = kv.Value;
+            }
+        }
+
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);

@@ -70,7 +70,7 @@ jobs:
         run: python scripts/ci/assert_docs_root_size.py
 
   docs-navigator-links:
-    name: "Docs: NAVIGATOR.md link targets exist"
+    name: "Docs: NAVIGATOR + connector matrix link targets exist"
     needs:
       - gitleaks
       - docs-root-size
@@ -84,6 +84,12 @@ jobs:
 
       - name: Assert docs/NAVIGATOR.md links resolve
         run: python scripts/ci/assert_navigator_links_valid.py
+
+      - name: Assert CONNECTOR_READINESS_MATRIX.md links and code paths resolve
+        run: python scripts/ci/assert_connector_readiness_matrix_paths.py
+
+      - name: Connector readiness matrix path guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_connector_readiness_matrix_paths.py"
 
   two-layer-naming-lint:
     name: "Docs: Pilot/Operate buyer naming lint"
@@ -279,6 +285,9 @@ jobs:
 
       - name: Procurement pack validation unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_procurement_pack_validation.py"
+
+      - name: Procurement pack index guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_procurement_pack_index.py"
 
       - name: "Advisory — game-day closing report vs calendar (strict after second logged run)"
         continue-on-error: true

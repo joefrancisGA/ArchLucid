@@ -37,6 +37,7 @@ function stubFetchForBannerMocks(init?: {
       isDemoTenant: false,
       proofPackageCompleteness: {
         demoTenantWarningRequired: false,
+        sponsorProofReadiness: "Sendable",
         proofSendability: "Sendable",
         publishingTier: "Complete",
         roiEvidenceConfidence: "Strong",
@@ -86,6 +87,10 @@ describe("EmailRunToSponsorBanner", () => {
     });
 
     expect(screen.getByTestId("email-run-to-sponsor-readiness")).toHaveAttribute("data-readiness-variant", "ready");
+    expect(screen.getByTestId("email-run-to-sponsor-readiness")).toHaveAttribute(
+      "data-readiness-classification",
+      "Sendable",
+    );
   });
 
   it("renders blocked readiness for demo-flagged completeness", async () => {
@@ -94,6 +99,7 @@ describe("EmailRunToSponsorBanner", () => {
         isDemoTenant: false,
         proofPackageCompleteness: {
           demoTenantWarningRequired: true,
+          sponsorProofReadiness: "DemoOnly",
           proofSendability: "Sendable",
           roiEvidenceConfidence: "Strong",
         },
@@ -107,6 +113,10 @@ describe("EmailRunToSponsorBanner", () => {
     });
 
     expect(screen.getByTestId("email-run-to-sponsor-readiness")).toHaveAttribute("data-readiness-variant", "blocked");
+    expect(screen.getByTestId("email-run-to-sponsor-readiness")).toHaveAttribute(
+      "data-readiness-classification",
+      "DemoOnly",
+    );
   });
 
   it("renders the time-to-value heading and primary pilot scorecard CTA", async () => {

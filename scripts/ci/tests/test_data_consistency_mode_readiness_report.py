@@ -47,7 +47,9 @@ class TestDataConsistencyModeReadinessReport(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             text = out.read_text(encoding="utf-8")
 
-            self.assertIn("mode readiness report", text.lower())
+            self.assertIn("Deployment evidence", text)
+
+            self.assertIn("OrphanProbeEnabled", text)
 
             self.assertIn("WITH NOCHECK", text)
 
@@ -130,7 +132,7 @@ class TestDataConsistencyReadinessUnit(unittest.TestCase):
         rows = [
             self.mod.ReadinessRow(name="Sample", status="Passed", detail="ok"),
         ]
-        md = self.mod.format_report_markdown(rows, ["## Posture", ""])
+        md = self.mod.format_report_markdown(rows, [], ["## Posture", ""])
 
         self.assertIn("Operator checklist", md)
 

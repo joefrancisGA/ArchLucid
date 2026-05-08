@@ -8,6 +8,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
+using FluentAssertions.Specialized;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -46,7 +47,8 @@ public sealed class AgentExecutionResilienceTests
             new StubPromptMonitor(new AgentPromptCatalogOptions()),
             new FixedScopeProvider(),
             new AgentHandlerConcurrencyGate(ro),
-            ro);
+            ro,
+            Options.Create(new StagedCriticAgentOptions()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -76,7 +78,8 @@ public sealed class AgentExecutionResilienceTests
             new StubPromptMonitor(new AgentPromptCatalogOptions()),
             new FixedScopeProvider(),
             new AgentHandlerConcurrencyGate(ro),
-            ro);
+            ro,
+            Options.Create(new StagedCriticAgentOptions()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -104,7 +107,8 @@ public sealed class AgentExecutionResilienceTests
             new StubPromptMonitor(new AgentPromptCatalogOptions()),
             new FixedScopeProvider(),
             new AgentHandlerConcurrencyGate(ro),
-            ro);
+            ro,
+            Options.Create(new StagedCriticAgentOptions()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -114,7 +118,10 @@ public sealed class AgentExecutionResilienceTests
         Func<Task> act = async () =>
             await sut.ExecuteAsync(runId, request, evidence, [task], CancellationToken.None);
 
-        await act.Should().ThrowAsync<TimeoutRejectedException>();
+        ExceptionAssertions<AgentHandlerExecutionException> thrown =
+            await act.Should().ThrowAsync<AgentHandlerExecutionException>();
+
+        thrown.Which.InnerException.Should().BeOfType<TimeoutRejectedException>();
     }
 
     private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>

@@ -28,13 +28,29 @@ If **none** of the above are active (typical bare **local** `dotnet run` without
 
 ```bash
 python scripts/report_observability_export_readiness.py --environment Production --out artifacts/observability-export-readiness.md
-# committed JSON only (CI / clean tree; ignores your shell env)
+# committed JSON only (CI / clean tree; ignores your shell env) — expect **WARN** verdict unless JSON layers include an exporter
 python scripts/report_observability_export_readiness.py --environment Production --no-process-environment --out artifacts/observability-export-readiness.json-files.md
+# release gate: fail when verdict is not PASS (e.g. missing Worker export, or Api still absent with env overlay)
+python scripts/report_observability_export_readiness.py --environment Production --strict-exit-code --out artifacts/observability-export-readiness.md
 ```
 
 `appsettings.Advanced.json` can override environment-specific `Observability` (for example it ships `Observability:Prometheus:Enabled` **false**), so the JSON-only report may show **no** durable exporter until deployment sets `APPLICATIONINSIGHTS_CONNECTION_STRING`, `Observability__Otlp__Endpoint`, or flips Prometheus via env. That matches runtime layering in **`ArchLucid.Api/Program.cs`**.
 
-**Post-deploy smoke (agent-output metrics):** run one successful **`POST` … `/execute`**, then confirm the backend lists **`archlucid_agent_output_structural_completeness_ratio`**, **`archlucid_agent_output_semantic_score`**, **`archlucid_agent_output_quality_gate_total`**, and **`archlucid_agent_output_parse_failures_total`** (see generated report and **`docs/library/TECH_BACKLOG.md`** TB-004).
+**Post-deploy smoke (agent-output metrics):** run one successful **`POST` … `/execute`**, then confirm the backend lists **`archlucid_agent_output_structural_completeness_ratio`**, **`archlucid_agent_output_semantic_score`**, **`archlucid_agent_output_quality_gate_total`**, **`archlucid_agent_output_parse_failures_total`**, and **`archlucid_agent_trace_blob_upload_failures_total`** (see generated report and **`docs/library/TECH_BACKLOG.md`** TB-004).
+
+### Agent-output quality alerts (Prometheus / Grafana)
+
+Example **Prometheus** alert rules (tune thresholds and `for` windows per environment) live in **`infra/prometheus/archlucid-alerts.yml`**, group **`archlucid-agent-output-quality`**:
+
+| Alert (name) | Intent |
+|----------------|--------|
+| `ArchLucidAgentOutputQualityGateRejected` | Non-zero rate of **`outcome="rejected"`** on **`archlucid_agent_output_quality_gate_total`**. |
+| `ArchLucidAgentOutputSemanticScoreP10Low` | **`histogram_quantile(0.1, …)`** on **`archlucid_agent_output_semantic_score_bucket`** below baseline. |
+| `ArchLucidAgentOutputSemanticScoreP50Low` | Median semantic score below baseline. |
+| `ArchLucidAgentOutputParseFailures` | **`archlucid_agent_output_parse_failures_total`** rate above zero. |
+| `ArchLucidAgentTraceBlobUploadFailures` | **`archlucid_agent_trace_blob_upload_failures_total`** rate above zero. |
+
+**Grafana:** create panels from the same histogram (`heatmap` / **percentiles** by **`agent_type`**) and wire dashboards to your managed Prometheus or Mimir workspace. **Azure Monitor:** if you ingest the same series via **managed Prometheus** or **custom metrics**, translate PromQL using workspace query tools — do not treat scrape endpoints as public; keep **`Observability:Prometheus:RequireScrapeAuthentication`** on for any edge-adjacent deployment (see export table above).
 
 Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-otel-collector/README.md`**.
 

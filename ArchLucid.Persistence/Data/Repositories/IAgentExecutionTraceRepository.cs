@@ -62,6 +62,15 @@ public interface IAgentExecutionTraceRepository
         bool qualityWarning,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    ///     Sets <see cref="AgentExecutionTrace.QualityRejected" /> after a quality-gate <c>rejected</c> outcome (merges into
+    ///     <c>TraceJson</c> for SQL and Cosmos).
+    /// </summary>
+    Task PatchQualityRejectedAsync(
+        string traceId,
+        bool qualityRejected,
+        CancellationToken cancellationToken = default);
+
     /// <summary>Returns a single trace by id, or <see langword="null" /> when the row is missing.</summary>
     Task<AgentExecutionTrace?> GetByTraceIdAsync(
         string traceId,

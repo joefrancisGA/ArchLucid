@@ -2,7 +2,7 @@
 
 # Data consistency enforcement (operator snippet)
 
-Use this card when Grafana fires **ArchLucidDataConsistencyOrphansDetected**, **ArchLucidDataConsistencyAlertsRaised**, or **ArchLucidDataConsistencyOrphansQuarantinedActivity** (`infra/prometheus/archlucid-alerts.yml`). **Dashboard:** import or sync **`infra/grafana/dashboard-archlucid-authority.json`** — data-consistency panel plots **`archlucid_data_consistency_orphans_detected_total`**, **`archlucid_data_consistency_alerts_total`**, and **`archlucid_data_consistency_orphans_quarantined_total`** (rates). Design detail lives in **[../data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md](../data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md)**.
+Use this card when Grafana fires **ArchLucidDataConsistencyOrphansDetected**, **ArchLucidDataConsistencyAlertsRaised**, or **ArchLucidDataConsistencyOrphansQuarantinedActivity** (`infra/prometheus/archlucid-alerts.yml`). **Dashboard:** import or sync **`infra/grafana/dashboard-archlucid-authority.json`** — data-consistency panel plots **`archlucid_data_consistency_orphans_detected_total`**, **`archlucid_data_consistency_alerts_total`**, and **`archlucid_data_consistency_orphans_quarantined_total`** (rates). **Release / handoff:** run **`python scripts/data_consistency_mode_readiness_report.py`** (optional **`ARCHLUCID_DATA_CONSISTENCY_READINESS_SQL`** for read-only orphan **COUNT**s) — see **`docs/library/RELEASE_EVIDENCE_SUMMARY.md`**. Design detail lives in **[../data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md](../data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md)**.
 
 ## Modes (`DataConsistency:Enforcement:Mode`)
 

@@ -50,6 +50,18 @@ Add-Row "Merge-blocking full regression (SQL)" "Not captured" "Confirm in CI —
 Add-Row "Merged Cobertura coverage gates" "Not captured" "See docs/library/CODE_COVERAGE.md + CI artifacts" $null
 Add-Row "Playwright live UI smoke" "Skipped" "Optional — needs SQL-backed API (LIVE_E2E_HAPPY_PATH.md)" $null
 
+Write-Host "[Procurement pack index (buyer materials readiness)]" -ForegroundColor Yellow
+python scripts/ci/check_procurement_pack_index.py 2>&1 | Out-Null
+$code = $LASTEXITCODE
+if ($code -eq 0) { Add-Row "Procurement pack index (PROCUREMENT_PACK_INDEX.md)" "Passed" "paths + freshness + placeholder + assurance wording" $code }
+else { Add-Row "Procurement pack index (PROCUREMENT_PACK_INDEX.md)" "Failed" "exit $code — see scripts/ci/check_procurement_pack_index.py" $code }
+
+Write-Host "[Procurement pack validator (canonical + claims)]" -ForegroundColor Yellow
+python scripts/validate_procurement_pack.py 2>&1 | Out-Null
+$code = $LASTEXITCODE
+if ($code -eq 0) { Add-Row "Procurement pack validator" "Passed" "exit 0" $code }
+else { Add-Row "Procurement pack validator" "Failed" "exit $code" $code }
+
 $rows | Format-Table -AutoSize
 
 $md = "# Release evidence summary (generated)`n`nGenerated (UTC): **$([DateTime]::UtcNow.ToString('o'))**`nRepo: ``$root```n`n| Check | Result | Detail |`n| --- | --- | --- |`n"

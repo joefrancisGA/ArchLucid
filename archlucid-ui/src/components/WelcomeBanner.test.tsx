@@ -69,7 +69,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
 
     expect(
       within(banner).getByRole("heading", {
-        name: "Review an existing architecture—with evidence-backed outcomes.",
+        name: "Your first architecture review — four steps",
       }),
     ).toBeInTheDocument();
 
@@ -80,9 +80,10 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
 
         return (
           el?.tagName === "P" &&
-          text.includes("architecture manifest") &&
-          text.includes("findings") &&
-          text.includes("structured architecture review")
+          text.toLowerCase().includes("finalize") &&
+          text.toLowerCase().includes("review package") &&
+          text.toLowerCase().includes("pipeline") &&
+          !text.toLowerCase().includes("manifest")
         );
       }),
     ).toBeInTheDocument();

@@ -33,6 +33,20 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             CultureInfo.InvariantCulture,
             $"**Verdict:** **{DescribeDisposition(disposition)}** — derived only from persisted run proofs, tenant value-window posture, and the buyer-safe gate.");
         sb.AppendLine();
+
+        if (Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification sponsorReadiness))
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"**Sponsor-proof readiness:** {SponsorProofReadinessClassifier.DescribeForMarkdownTable(sponsorReadiness)}");
+        }
+        else
+        {
+            sb.AppendLine(
+                "**Sponsor-proof readiness:** **Incomplete** — classification was not resolved server-side; treat this export as not sponsor-complete.");
+        }
+
+        sb.AppendLine();
         sb.AppendLine(
             "**Operator posture:** This block is machine-read of stored facts — you still owe qualitative baseline rows, attachments, and redaction before sponsor send.");
         sb.AppendLine();

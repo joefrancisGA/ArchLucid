@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """CI guard: spot-check that critical audit wiring strings remain in source.
 
-Layer 1 planned durable-audit touch points are spread across Application, Api, and Persistence.Runtime.
+Layer 1 planned durable-audit touch points are spread across Application, Api, and Persistence.
 This script is a cheap regression tripwire when a refactor drops an ``AuditEventTypes.*`` constant reference
 by accident (it does not replace behavioral tests or the Application pairing test).
 """
@@ -39,7 +39,7 @@ FILES_AND_MARKERS: list[tuple[str, tuple[str, ...]]] = [
         ("AuditEventTypes.ManifestArchived",),
     ),
     (
-        "ArchLucid.Persistence.Runtime/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs",
+        "ArchLucid.Persistence/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs",
         (
             "AuditEventTypes.FindingsSnapshotSealed",
             "AuditEventTypes.ArtifactSynthesisFailed",

@@ -256,3 +256,74 @@ groups:
             Gauge `archlucid_circuit_breaker_state` (label `gate`) reports HalfOpen(1) or Open(2). LLM completions or
             embeddings may be degraded; see also authenticated GET `/health` circuit breaker check and audit events
             `CircuitBreakerStateTransition`.
+
+  - name: archlucid-agent-output-quality
+    rules:
+      # Histogram names must match your Prometheus/OTel scrape (typically `*_bucket` with `le` label).
+      # If series are absent after deploy, fix export path first (`scripts/report_observability_export_readiness.py`).
+      - alert: ArchLucidAgentOutputQualityGateRejected
+        expr: |
+          sum(rate(archlucid_agent_output_quality_gate_total{outcome="rejected"}[15m])) > 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: Agent output quality gate is rejecting results
+          description: >-
+            `archlucid_agent_output_quality_gate_total{outcome="rejected"}` rate is non-zero — requires reject floors
+            enabled under `ArchLucid:AgentOutput:QualityGate`. Tune thresholds or prompts; see
+            `docs/library/AGENT_OUTPUT_EVALUATION.md`.
+
+      - alert: ArchLucidAgentOutputSemanticScoreP10Low
+        expr: |
+          histogram_quantile(
+            0.1,
+            sum(rate(archlucid_agent_output_semantic_score_bucket[30m])) by (le, agent_type)
+          ) < 0.35
+        for: 2h
+        labels:
+          severity: warning
+        annotations:
+          summary: Agent semantic score p10 is low (per agent_type)
+          description: >-
+            10th percentile of `archlucid_agent_output_semantic_score` below 0.35 over 30m rate window. Tune threshold
+            after baseline; correlate with prompt/model changes. See `docs/library/OBSERVABILITY.md`.
+
+      - alert: ArchLucidAgentOutputSemanticScoreP50Low
+        expr: |
+          histogram_quantile(
+            0.5,
+            sum(rate(archlucid_agent_output_semantic_score_bucket[30m])) by (le, agent_type)
+          ) < 0.45
+        for: 2h
+        labels:
+          severity: warning
+        annotations:
+          summary: Agent semantic score p50 is low (per agent_type)
+          description: >-
+            Median semantic score below 0.45 — broader regression than p10 alone. Verify exporter mapping if histogram
+            is missing from Prometheus.
+
+      - alert: ArchLucidAgentOutputParseFailures
+        expr: |
+          sum(rate(archlucid_agent_output_parse_failures_total[15m])) > 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: Agent output JSON parse failures for metrics path
+          description: >-
+            Non-zero rate on `archlucid_agent_output_parse_failures_total` — `ParsedResultJson` failed JSON parse or
+            non-object root when recording evaluation metrics. See `docs/library/AGENT_OUTPUT_EVALUATION.md`.
+
+      - alert: ArchLucidAgentTraceBlobUploadFailures
+        expr: |
+          sum(rate(archlucid_agent_trace_blob_upload_failures_total[15m])) > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Agent trace blob uploads exhausted retries
+          description: >-
+            `archlucid_agent_trace_blob_upload_failures_total` — blob persistence for full prompts/responses failed after
+            retries. Check blob storage ACLs and `docs/library/AGENT_TRACE_FORENSICS.md`.

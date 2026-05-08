@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import type { PricingDoc } from "@/lib/pricing-types";
-import { resolveTeamStripeCheckoutHref } from "@/lib/team-stripe-checkout-url";
+import { looksStripeHostedTestCheckoutUrl, resolveTeamStripeCheckoutHref } from "@/lib/team-stripe-checkout-url";
 
 function formatMoney(amount: number, currency: string): string {
   return new Intl.NumberFormat(undefined, {
@@ -78,6 +78,11 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
       ? resolveTeamStripeCheckoutHref(pricing.teamStripeCheckoutUrl)
       : null;
 
+  const teamStripeSubscribeLabel =
+    teamStripeCheckoutHref !== null && looksStripeHostedTestCheckoutUrl(teamStripeCheckoutHref)
+      ? "Subscribe (Stripe test)"
+      : "Subscribe with Stripe";
+
   return (
     <section aria-labelledby={props.sectionHeadingId} className="mb-10">
       <h2 id={props.sectionHeadingId} className="mb-2 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -135,7 +140,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                             rel="noopener noreferrer"
                             target="_blank"
                           >
-                            Subscribe with Stripe
+                            {teamStripeSubscribeLabel}
                           </a>
                         </Button>
                       ) : (

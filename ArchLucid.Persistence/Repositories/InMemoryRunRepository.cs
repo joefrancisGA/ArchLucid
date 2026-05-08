@@ -315,7 +315,13 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return !string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Failed), StringComparison.OrdinalIgnoreCase);
+        if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Failed), StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected), StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return true;
     }
 
     private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)

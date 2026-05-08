@@ -515,6 +515,9 @@ public static class AuditEventTypes
 
         public const string Failed = "Run.Failed";
 
+        /// <summary>Post-execute agent output quality gate blocked run completion for the workspace.</summary>
+        public const string QualityGateRejected = "Run.QualityGateRejected";
+
         /// <summary>Operator or API requested retry of a failed run (same <c>RunId</c>).</summary>
         public const string RetryRequested = "Run.RetryRequested";
     }
@@ -547,6 +550,8 @@ public static class AuditEventTypes
             public const string RunCompleted = "Architecture.RunCompleted";
 
             public const string RunFailed = "Architecture.RunFailed";
+
+            public const string RunQualityGateRejected = "Architecture.RunQualityGateRejected";
         }
 
         /// <summary>Governance workflow mutations when integrated with the trusted baseline (baseline log channel).</summary>

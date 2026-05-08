@@ -115,6 +115,19 @@ public sealed class AgentOutputQualityGateOptions
     } = false;
 
     /// <summary>
+    ///     When <c>true</c> with <see cref="EnforceOnReject" />, <c>AgentOutputQualityGateRejectedException</c> is not
+    ///     swallowed by the architecture run execute orchestrator: the run is marked
+    ///     <c>ExecutionCompletedQualityRejected</c> and the exception propagates (HTTP 409 from the API filter).
+    ///     Defaults to <c>false</c>; <see cref="EnforceOnReject" /> alone only fails the trace-evaluation hook without
+    ///     changing run completion.
+    /// </summary>
+    public bool BlockRunOnReject
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     ///     Maximum allowed tokens per run. If exceeded, a CostLimitExceededException is thrown.
     ///     Null means no limit.
     /// </summary>

@@ -55,6 +55,8 @@ All other keys are optional unless **When required** in the detailed table says 
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:SemanticWarnBelow` | appsettings, env | 0.2 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate warn threshold (semantic). |
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:StructuralRejectBelow` | appsettings, env | 0 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate reject (structural); `0` = warn-only for non-negative scores. |
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:SemanticRejectBelow` | appsettings, env | 0 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate reject (semantic); `0` = warn-only unless `EnforceOnReject` + positive floors. |
+| ArchLucid | `ArchLucid:AgentOutput:QualityGate:EnforceOnReject` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | When true, AgentOutputEvaluationRecorder throws on gate reject after metrics/logs. |
+| ArchLucid | `ArchLucid:AgentOutput:QualityGate:BlockRunOnReject` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | When true with EnforceOnReject, execute marks ExecutionCompletedQualityRejected and returns HTTP 409. |
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:PilotStrictMinStructuralCompleteness` | appsettings, env | 0.45 | Optional (not mode-gated) | All (Api, Worker, Combined) | PilotStrict: reject traces strictly below this structural completeness ratio. |
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:PilotStrictMinSemanticScore` | appsettings, env | 0.25 | Optional (not mode-gated) | All (Api, Worker, Combined) | PilotStrict: reject traces strictly below this semantic score. |
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:PilotStrictMinEvidenceRefCount` | appsettings, env | 0 | Optional (not mode-gated) | All (Api, Worker, Combined) | PilotStrict: require at least this many top-level evidenceRefs when value > 0. |
@@ -103,6 +105,13 @@ All other keys are optional unless **When required** in the detailed table says 
 | AgentPrompts | `AgentPrompts:Versions:cost` | appsettings, env | v2026-04 | Optional (not mode-gated) | All (Api, Worker, Combined) | Prompt set version: cost pack. |
 | AgentPrompts | `AgentPrompts:Versions:compliance` | appsettings, env | v2026-04 | Optional (not mode-gated) | All (Api, Worker, Combined) | Prompt set: compliance pack. |
 | AgentPrompts | `AgentPrompts:Versions:critic` | appsettings, env | v2026-04 | Optional (not mode-gated) | All (Api, Worker, Combined) | Prompt set: critic pack. |
+| ArchLucid | `ArchLucid:Agents:StagedCriticEnabled` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | When true, RealAgentExecutor runs non-Critic agents first, then Critic, injecting a bounded summary evidence note (Real execution path only). |
+| ArchLucid | `ArchLucid:Agents:SummaryMaxTotalChars` | appsettings, env | 12000 | Optional (not mode-gated) | All (Api, Worker, Combined) | Upper bound on staged prior-agents summary body (clamped after bind). |
+| ArchLucid | `ArchLucid:Agents:SummaryPerAgentMaxChars` | appsettings, env | 4000 | Optional (not mode-gated) | All (Api, Worker, Combined) | Upper bound per agent section inside the staged summary. |
+| ArchLucid | `ArchLucid:Agents:MaxClaimsPerAgentIncluded` | appsettings, env | 8 | Optional (not mode-gated) | All (Api, Worker, Combined) | Max claim lines excerpted per prior agent in the staged summary. |
+| ArchLucid | `ArchLucid:Agents:MaxClaimLineChars` | appsettings, env | 240 | Optional (not mode-gated) | All (Api, Worker, Combined) | Max characters per claim excerpt after redaction. |
+| ArchLucid | `ArchLucid:Agents:MaxFindingTitlesPerAgent` | appsettings, env | 5 | Optional (not mode-gated) | All (Api, Worker, Combined) | Max finding titles listed per prior agent in the staged summary. |
+| ArchLucid | `ArchLucid:Agents:MaxFindingTitleChars` | appsettings, env | 100 | Optional (not mode-gated) | All (Api, Worker, Combined) | Max characters per finding title excerpt. |
 | SchemaValidation | `SchemaValidation:AgentResultSchemaPath` | appsettings, content | schemas/... | Optional (not mode-gated) | All (Api, Worker, Combined) | On-disk path to the agent result JSON schema. |
 | SchemaValidation | `SchemaValidation:GoldenManifestSchemaPath` | appsettings, content | schemas/... | Optional (not mode-gated) | All (Api, Worker, Combined) | Golden manifest JSON schema file. |
 | SchemaValidation | `SchemaValidation:EnableDetailedErrors` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Verbose schema errors in early validation (dev). |
@@ -166,3 +175,9 @@ All other keys are optional unless **When required** in the detailed table says 
 | Environment | `ASPNETCORE_ENVIRONMENT` | env, launchSettings, Service | (unset) | Optional (not mode-gated) | All | ASPNETCORE_ / DOTNET_ENVIRONMENT — cluster role for startup validation. Checked via environment variable, not appsettings path. |
 | CLI | `ARCHLUCID_API_URL` | env, archlucid.json | http://localhost:5128 (default) | Optional (When using the CLI) | CLI | Resolves the API base URL; not consumed by the API process. |
 | CLI | `ARCHLUCID_API_KEY` | env, archlucid.json (optional) | empty | Optional (If calling protected admin routes from CLI) | CLI | Maps to `X-Api-Key` for admin routes; `config check` never prints the value. |
+
+### Staged Critic (`ArchLucid:Agents:StagedCriticEnabled`)
+
+**Scope:** `RealAgentExecutor` when `AgentExecution:Mode=Real` (deterministic simulator is unchanged).
+
+**Trade-off:** Turning this on adds batch wall-clock time because the Critic handler starts only after the other agents in the same `ExecuteAsync` batch complete. The benefit is a richer Critic prompt: a capped, redacted digest of those agents' structured `AgentResult` fields is appended under `EvidenceNoteTypes.StagedPriorAgentsSummary` and surfaced in the Critic user prompt. This is **execution sequencing and evidence-note injection** only; it does not add autonomous planning beyond the commitments in `docs/library/V1_SCOPE.md`.

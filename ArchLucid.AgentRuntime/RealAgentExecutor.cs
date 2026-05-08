@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
+using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -22,8 +23,10 @@ namespace ArchLucid.AgentRuntime;
 ///     runs independent tasks concurrently, and returns <see cref="AgentResult" /> rows in stable dispatch-key order.
 /// </summary>
 /// <remarks>
-///     Handlers share the same <see cref="AgentEvidencePackage" /> and do not consume each other&apos;s outputs in
-///     prompts;
+///     Handlers share the same <see cref="AgentEvidencePackage" /> and normally do not consume each other&apos;s outputs in
+///     prompts. When <c>ArchLucid:Agents:StagedCriticEnabled</c> is true and the batch includes Critic plus other agents,
+///     non-Critic tasks run first, then a bounded summary of their <see cref="AgentResult" /> payloads is appended to
+///     evidence notes before Critic runs (Real executor path only; not autonomous planning beyond product scope).
 ///     <see cref="AmbientScopeContext" /> is pushed for the batch so scoped services (e.g. LLM accounting) resolve tenant
 ///     scope on thread-pool continuations.
 ///     On any failure, linked cancellation is signaled so in-flight completions can abort promptly.
@@ -37,6 +40,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
     private readonly ILogger<RealAgentExecutor> _logger;
     private readonly IOptionsMonitor<AgentPromptCatalogOptions> _promptCatalog;
     private readonly IOptions<AgentExecutionResilienceOptions> _resilienceOptions;
+    private readonly IOptions<StagedCriticAgentOptions> _stagedCriticOptions;
     private readonly IScopeContextProvider _scopeContextProvider;
 
     /// <summary>Builds a lookup of handlers keyed by <see cref="IAgentHandler.AgentTypeKey" /> (duplicates throw).</summary>
@@ -46,7 +50,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
         IOptionsMonitor<AgentPromptCatalogOptions> promptCatalog,
         IScopeContextProvider scopeContextProvider,
         IAgentHandlerConcurrencyGate concurrencyGate,
-        IOptions<AgentExecutionResilienceOptions> resilienceOptions)
+        IOptions<AgentExecutionResilienceOptions> resilienceOptions,
+        IOptions<StagedCriticAgentOptions> stagedCriticOptions)
     {
         ArgumentNullException.ThrowIfNull(handlers);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -54,6 +59,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
         _concurrencyGate = concurrencyGate ?? throw new ArgumentNullException(nameof(concurrencyGate));
         _resilienceOptions = resilienceOptions ?? throw new ArgumentNullException(nameof(resilienceOptions));
+        _stagedCriticOptions = stagedCriticOptions ?? throw new ArgumentNullException(nameof(stagedCriticOptions));
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
@@ -108,13 +114,66 @@ public sealed class RealAgentExecutor : IAgentExecutor
         using (AmbientScopeContext.Push(batchScope))
         using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
         {
-            Task<AgentResult>[] work = orderedTasks
-                .Select(task => ExecuteSingleAsync(runId, request, evidence, task, linked.Token))
-                .ToArray();
-
             try
             {
-                AgentResult[] finished = await Task.WhenAll(work).ConfigureAwait(false);
+                StagedCriticAgentOptions stagedOpts = _stagedCriticOptions.Value;
+                stagedOpts.Normalize();
+
+                bool useStagedCritic = stagedOpts.StagedCriticEnabled
+                    && orderedTasks.Any(static t => t.AgentType == AgentType.Critic)
+                    && orderedTasks.Any(static t => t.AgentType != AgentType.Critic);
+
+                AgentResult[] finished;
+
+                if (useStagedCritic)
+                {
+                    AgentTask[] phase1 = orderedTasks.Where(static t => t.AgentType != AgentType.Critic).ToArray();
+                    AgentTask[] phase2 = orderedTasks.Where(static t => t.AgentType == AgentType.Critic).ToArray();
+
+                    AgentResult[] phase1Results = await ExecutePhaseWhenAllAsync(
+                            runId,
+                            request,
+                            evidence,
+                            phase1,
+                            linked.Token)
+                        .ConfigureAwait(false);
+
+                    ReplaceStagedPriorSummaryNotes(evidence);
+                    EvidenceNote note = StagedPriorAgentsSummaryBuilder.CreateNote(phase1Results, stagedOpts);
+                    evidence.Notes.Add(note);
+
+                    AgentResult[] phase2Results = await ExecutePhaseWhenAllAsync(
+                            runId,
+                            request,
+                            evidence,
+                            phase2,
+                            linked.Token)
+                        .ConfigureAwait(false);
+
+                    Dictionary<string, AgentResult> byTaskId = new(StringComparer.Ordinal);
+
+                    foreach (AgentResult r in phase1Results)
+                    {
+                        byTaskId[r.TaskId] = r;
+                    }
+
+                    foreach (AgentResult r in phase2Results)
+                    {
+                        byTaskId[r.TaskId] = r;
+                    }
+
+                    finished = orderedTasks.Select(t => byTaskId[t.TaskId]).ToArray();
+                }
+                else
+                {
+                    finished = await ExecutePhaseWhenAllAsync(
+                            runId,
+                            request,
+                            evidence,
+                            orderedTasks,
+                            linked.Token)
+                        .ConfigureAwait(false);
+                }
 
                 if (_logger.IsEnabled(LogLevel.Information))
 
@@ -134,6 +193,28 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 ArchLucidInstrumentation.LlmCallsPerRun.Record(n);
             }
         }
+    }
+
+    private async Task<AgentResult[]> ExecutePhaseWhenAllAsync(
+        string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        IReadOnlyList<AgentTask> phaseTasks,
+        CancellationToken cancellationToken)
+    {
+        Task<AgentResult>[] work = phaseTasks
+            .Select(task => ExecuteSingleAsync(runId, request, evidence, task, cancellationToken))
+            .ToArray();
+
+        return await Task.WhenAll(work).ConfigureAwait(false);
+    }
+
+    private static void ReplaceStagedPriorSummaryNotes(AgentEvidencePackage evidence)
+    {
+        ArgumentNullException.ThrowIfNull(evidence);
+
+        evidence.Notes.RemoveAll(static n =>
+            EvidenceNoteTypes.StagedPriorAgentsSummary.Equals(n.NoteType, StringComparison.Ordinal));
     }
 
     private async Task<AgentResult> ExecuteSingleAsync(
@@ -191,7 +272,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 }
                 catch (Exception ex)
                 {
-                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    activity?.SetStatus(ActivityStatusCode.Error, "Agent handler failed.");
                     activity?.AddException(ex);
 
                     ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
@@ -199,7 +280,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                         new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
                         new KeyValuePair<string, object?>("outcome", "error"));
 
-                    throw;
+                    throw new AgentHandlerExecutionException(dispatchKey, task.AgentType, ex);
                 }
 
                 activity?.SetTag("archlucid.agent.confidence", result.Confidence);

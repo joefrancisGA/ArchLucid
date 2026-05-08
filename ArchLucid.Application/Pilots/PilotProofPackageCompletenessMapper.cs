@@ -32,6 +32,8 @@ public static class PilotProofPackageCompletenessMapper
         bool committedTimestampResolved =
             manifest is not null && manifest.Metadata.CreatedUtc != default;
 
+        SponsorProofReadinessClassification sponsorReadiness = SponsorProofReadinessClassifier.Classify(deltas, gate);
+
         return new ProofPackageCompletenessResponse
         {
             DemoTenantWarningRequired = deltas.IsDemoTenant,
@@ -57,6 +59,7 @@ public static class PilotProofPackageCompletenessMapper
             ProofSendability = gate.ProofSendability.ToString(),
             EvidenceCompleteness = evidenceLevel.ToString(),
             AgentOutputPilotStrictEvidenceSatisfied = !(deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true }),
+            SponsorProofReadiness = sponsorReadiness.ToString(),
         };
     }
 

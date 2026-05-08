@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Contracts.Metadata;
@@ -140,6 +141,17 @@ public sealed class ArchitectureRun
 
     /// <summary>Azure OpenAI deployment name captured when simulator fallback was recorded (nullable).</summary>
     public string? PilotAoaiDeploymentSnapshot
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When <see cref="Status"/> is <see cref="ArchitectureRunStatus.Failed"/> after coordinator execute failure,
+    ///     a stable summary (no raw LLM body). Populated when <c>dbo.Runs.LastFailureReason</c> contains
+    ///     schema-versioned JSON (<see cref="AgentExecutionFailureSummary"/>).
+    /// </summary>
+    public AgentExecutionFailureSummary? LastAgentExecutionFailure
     {
         get;
         set;

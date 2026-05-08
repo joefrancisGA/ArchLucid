@@ -18,7 +18,7 @@ Use that file when you need the original write-ups for items already marked done
 ## Active items (prioritized top 10)
 
 1. **Unify Data and Persistence:** Merge overlapping `ArchLucid.Persistence.*` projects to simplify dependency graphs. (See `PERSISTENCE_CONSOLIDATION_PLAN.md`).
-2. **Connection factory alignment:** Standardize `ISqlConnectionFactory` vs sync `IDbConnectionFactory`.
+2. **Connection factory alignment:** Standardize `ISqlConnectionFactory` vs `IDbConnectionFactory`. (2026-05-08: removed unused `ArchLucid.Persistence.Data.Infrastructure.SqlConnectionFactory` that read `IConfiguration` directly; SQL hosts remain `SqlScopedResolutionDbConnectionFactory` → scoped `ISqlConnectionFactory`.)
 3. **Magic numbers / named bounds (MN-1 phase 2):** Complete NSwag-generated client style (`is null` / templates or post-process), optional `IOptions` for commit backoff.
 4. **Error Message Sanitization:** Ensure internal pipeline nomenclature (e.g. "Authority") does not leak in HTTP 400/500 responses.
 5. **Configuration Boilerplate Reduction:** Strip `appsettings.json` boilerplate so pilots only see the absolute minimum connection strings.

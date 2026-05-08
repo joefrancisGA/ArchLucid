@@ -1,6 +1,9 @@
 ﻿{
   "recommendations": [
+    "GitHub.vscode-codeql",
+    "GitHub.vscode-pull-request-github",
     "hashicorp.terraform",
-    "GitHub.vscode-codeql"
+    "ms-azure-devops.azure-pipelines",
+    "ms-vscode.azure-repos"
   ]
 }

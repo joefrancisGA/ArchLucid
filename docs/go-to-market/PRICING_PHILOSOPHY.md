@@ -15,6 +15,8 @@
 
 **Quote path vs live checkout (2026-04-22):** When Stripe / Marketplace checkout is not yet enabled for a segment, buyers can submit **`POST /v1/marketing/pricing/quote-request`** from the public **`/pricing`** page (rate-limited, honeypot). Requests append to **`dbo.MarketingPricingQuoteRequests`** for sales follow-up — they **do not** auto-provision tenants. After SQL persist, **`Email:PricingQuoteSalesInbox`** receives a transactional notification when mail is configured ([`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](../runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md)). Owner CRM routing beyond inbox mail remains in **`docs/PENDING_QUESTIONS.md`** item **13**.
 
+**Public `/pricing` UX (sales-led default):** The quote panel is placed **above** the tier grid so the primary buyer path is obvious. **Team** shows **Request quote** unless **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED`** is explicitly enabled at Next.js build time **and** `teamStripeCheckoutUrl` resolves to a non-placeholder URL (`archlucid-ui/src/lib/team-stripe-checkout-url.ts`, `archlucid-ui/src/lib/marketing/is-public-stripe-team-checkout-enabled.ts`). Hosted **test-mode** Stripe URLs (`cs_test_*`, `buy.stripe.com/test_*`) render the primary button as **Subscribe (Stripe test)** so buyers are not misled into thinking production self-serve is live. Placeholder checkout strings never become clickable links. CI guards: `scripts/ci/pricing_json_checkout_guard.py`, `scripts/ci/assert_public_pricing_placeholder_guard.py`.
+
 ---
 
 ## 1. Pricing principles

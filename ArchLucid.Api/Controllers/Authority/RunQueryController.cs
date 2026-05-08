@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Collections.Generic;
 
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
@@ -181,12 +182,14 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
-    ///     Reserved route for future LLM-backed provenance node explanations. Returns <c>501 Not Implemented</c> until the
-    ///     feature ships. Requires the run to exist in the caller&apos;s scoped tenant/workspace (RLS-backed lookup).
+    ///     Per-node provenance explanations are not a supported surface (no stable per-node LLM contract). This route is
+    ///     omitted from OpenAPI; callers should use <c>GET /v1/explain/runs/{{runId}}/aggregate</c>. Tenant scope is enforced
+    ///     before the response.
     /// </summary>
+    [ApiExplorerSettings(IgnoreApi = true)]
     [HttpGet("runs/{runId}/provenance/{nodeId}/explanation")]
     [HttpGet("run/{runId}/provenance/{nodeId}/explanation")]
-    [ProducesResponseType(typeof(ProvenanceNodeExplanationPendingResponse), StatusCodes.Status501NotImplemented)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status501NotImplemented)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProvenanceNodeExplanation(
         [FromRoute] string runId,
@@ -199,8 +202,24 @@ public sealed class RunQueryController(
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        return StatusCode(StatusCodes.Status501NotImplemented,
-            new ProvenanceNodeExplanationPendingResponse("Explanation feature pending"));
+        const string detail =
+            "ArchLucid does not provide per-node provenance explanations. "
+            + "Use GET /v1/explain/runs/{runId}/aggregate for the supported run-level RunExplanationSummary "
+            + "(Standard commercial tier and ReadAuthority scope, same as other routes under /v1/explain). "
+            + "Alternatively, GET /v1/explain/runs/{runId}/explain returns the granular ExplanationResult when licensed.";
+
+        IReadOnlyDictionary<string, object?> hints = new Dictionary<string, object?>(
+            StringComparer.Ordinal)
+        {
+            ["aggregateExplanationPathTemplate"] = "/v1/explain/runs/{runId}/aggregate",
+            ["granularExplanationPathTemplate"] = "/v1/explain/runs/{runId}/explain",
+        };
+
+        return this.NotImplementedProblem(
+            detail,
+            ProblemTypes.ProvenanceNodeExplanationNotSupported,
+            "Provenance node explanation not supported",
+            hints);
     }
 
     /// <summary>

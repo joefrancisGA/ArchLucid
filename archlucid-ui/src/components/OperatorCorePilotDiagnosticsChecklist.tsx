@@ -11,7 +11,10 @@ import {
 } from "@/lib/core-pilot-checklist-storage";
 import type { OperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
 import { fetchOperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
-import { CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS } from "@/lib/core-pilot-first-review-copy";
+import {
+  CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE,
+  CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
+} from "@/lib/core-pilot-first-review-copy";
 
 /**
  * Progressive-disclosure checklist summary: aligns Core Pilot titles with `/v1/diagnostics/operator-task-success-rates`
@@ -98,6 +101,12 @@ export function OperatorCorePilotDiagnosticsChecklist() {
             <li key={line}>{line}</li>
           ))}
         </ul>
+        <p
+          className="m-0 text-xs leading-snug text-neutral-600 dark:text-neutral-400"
+          data-testid="core-pilot-advanced-deferral-note"
+        >
+          {CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE}
+        </p>
         <section aria-labelledby="core-pilot-signals-heading">
           <h3 id="core-pilot-signals-heading" className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
             Server-tracked onboarding signals (this deployment)

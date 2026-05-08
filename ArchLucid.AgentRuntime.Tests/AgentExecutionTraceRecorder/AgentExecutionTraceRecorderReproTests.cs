@@ -532,6 +532,12 @@ public sealed class AgentExecutionTraceRecorderReproTests
             return _inner.PatchQualityWarningAsync(traceId, qualityWarning, cancellationToken);
         }
 
+        public Task PatchQualityRejectedAsync(string traceId, bool qualityRejected,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.PatchQualityRejectedAsync(traceId, qualityRejected, cancellationToken);
+        }
+
         public Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId,
             CancellationToken cancellationToken = default)
         {

@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -238,6 +239,29 @@ public sealed class CriticAgentHandler(
             sb.AppendLine($"  Version: {evidence.PriorManifest.ManifestVersion}");
             sb.AppendLine($"  Summary: {evidence.PriorManifest.Summary}");
             sb.AppendLine();
+        }
+
+        List<EvidenceNote> stagedNotes = evidence.Notes
+            .Where(static n => EvidenceNoteTypes.StagedPriorAgentsSummary.Equals(
+                n.NoteType,
+                StringComparison.Ordinal))
+            .ToList();
+
+
+        if (stagedNotes.Count > 0)
+        {
+            sb.AppendLine(
+                "Prior agent batch summary (bounded, redacted; execution sequencing only — not autonomous planning "
+                + "beyond product scope; see docs/library/V1_SCOPE.md):");
+            sb.AppendLine();
+
+            foreach (EvidenceNote staged in stagedNotes)
+            {
+                if (!string.IsNullOrWhiteSpace(staged.Message))
+                    sb.AppendLine(staged.Message);
+
+                sb.AppendLine();
+            }
         }
 
         sb.AppendLine("Task Objective:");

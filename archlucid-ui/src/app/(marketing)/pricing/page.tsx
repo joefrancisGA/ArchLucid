@@ -28,14 +28,23 @@ export default async function PricingPage(props: PricingPageProps) {
         className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="pricing-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} offering. Compare{" "}
+        ArchLucid is an {BRAND_CATEGORY} offering. For V1, the default path is{" "}
+        <a
+          className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
+          href="#pricing-quote-request"
+        >
+          request a quote
+        </a>{" "}
+        (sales-led); then compare{" "}
         <strong className="font-semibold text-neutral-800 dark:text-neutral-200">
           Standard, Professional, and Enterprise
         </strong>{" "}
-        below, then{" "}
-        <strong className="font-semibold text-neutral-800 dark:text-neutral-200">request a quote</strong>{" "}
-        (V1 sales-led path) or <strong className="font-semibold text-neutral-800 dark:text-neutral-200">start a trial</strong>.
+        below. You can also <strong className="font-semibold text-neutral-800 dark:text-neutral-200">start a trial</strong>.
+        A Team “Subscribe” link to Stripe appears only when hosted checkout is deliberately enabled at build time — otherwise
+        the quote form remains primary.
       </p>
+      <MarketingPricingPublicCutoverNotice />
+      <MarketingPricingQuotePanel />
       <MarketingTierPricingSection
         sectionHeadingId="pricing-page-heading"
         sectionTitle="Pricing"
@@ -43,8 +52,6 @@ export default async function PricingPage(props: PricingPageProps) {
         signupHref={signupHref}
         signupCallToActionLabel="Start trial"
       />
-      <MarketingPricingPublicCutoverNotice />
-      <MarketingPricingQuotePanel />
     </main>
   );
 }

@@ -118,7 +118,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
-          Finalization commits the reviewed manifest and materializes artifacts — it is required before sponsors can consume the package from review detail.
+          Finalization locks the reviewed package and materializes artifacts — it is required before sponsors can rely on exports from review detail.
         </p>
         <p className="m-0">
           <Link
@@ -137,7 +137,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
-          After finalization, review the manifest summary and artifact previews, then export bundle ZIP from review detail when you need a portable package — CORE_PILOT.md calls this step the pilot deliverable.
+          After finalization, review the package summary and artifact previews, then export bundle ZIP from review detail when you need a portable package — CORE_PILOT.md calls this step the pilot deliverable.
         </p>
       </div>
     ),

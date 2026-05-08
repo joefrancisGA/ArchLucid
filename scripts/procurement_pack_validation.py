@@ -26,6 +26,17 @@ _TEMPLATE_REQUIRED_SUBSTRINGS: tuple[tuple[Path, tuple[str, ...]], ...] = (
 )
 
 # False-attestation wording on Evidence/Self-assessment sources and selected buyer narratives.
+# Buyer-visible procurement index must not ship TODO/TBD-style stubs (stricter than Template-pack paths).
+BUYER_INDEX_PLACEHOLDER_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\bTBD\b", re.IGNORECASE), "TBD placeholder"),
+    (re.compile(r"\bTODO\b", re.IGNORECASE), "TODO placeholder"),
+    (
+        re.compile(r"placeholder-replace-before-launch", re.IGNORECASE),
+        "placeholder-replace-before-launch marker",
+    ),
+)
+
+
 _ASSURANCE_FORBIDDEN_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (
         re.compile(
@@ -185,6 +196,7 @@ def forbidden_assurance_phrases(
         Path("docs/go-to-market/SOC2_STATUS_PROCUREMENT.md"),
         Path("docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md"),
         Path("docs/go-to-market/PROCUREMENT_FAST_LANE.md"),
+        Path("docs/go-to-market/PROCUREMENT_PACK_INDEX.md"),
     )
 
     for rel in extra_buyer_docs:
@@ -199,20 +211,45 @@ def forbidden_assurance_phrases(
             continue
 
         text = fs_path.read_text(encoding="utf-8", errors="replace")
-        coherence = coherence_procurement_claims(text)
+        violations.extend(assurance_phrase_violations_for_text(text, posix))
 
-        if coherence is not None:
-            violations.append(f"{posix}: {coherence}")
+    return violations
 
-        for pat, reason in _ASSURANCE_FORBIDDEN_PATTERNS:
-            matched = pat.search(text)
 
-            if matched is None:
-                continue
+def buyer_index_placeholder_violations(text: str, posix_label: str) -> list[str]:
+    """Fail loud on stub tokens in the canonical procurement index (buyer-facing)."""
+    violations: list[str] = []
 
-            excerpt = matched.group(0)
+    for pat, label in BUYER_INDEX_PLACEHOLDER_PATTERNS:
+        matched = pat.search(text)
 
-            violations.append(f"{posix}: {reason}; matched `{excerpt!s}`")
+        if matched is None:
+
+            continue
+
+        violations.append(f"{posix_label}: buyer index must not contain {label}; matched `{matched.group(0)!s}`")
+
+    return violations
+
+
+def assurance_phrase_violations_for_text(text: str, posix_label: str) -> list[str]:
+    """Coherence + forbidden attestation regexes for a single markdown body (no file IO)."""
+    violations: list[str] = []
+
+    coherence = coherence_procurement_claims(text)
+
+    if coherence is not None:
+
+        violations.append(f"{posix_label}: {coherence}")
+
+    for pat, reason in _ASSURANCE_FORBIDDEN_PATTERNS:
+        matched = pat.search(text)
+
+        if matched is None:
+
+            continue
+
+        violations.append(f"{posix_label}: {reason}; matched `{matched.group(0)!s}`")
 
     return violations
 

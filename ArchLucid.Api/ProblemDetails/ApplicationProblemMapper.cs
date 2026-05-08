@@ -54,6 +54,24 @@ public static class ApplicationProblemMapper
             return true;
         }
 
+        if (ex is AgentOutputQualityGateRejectedException qgx)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status409Conflict,
+                "Architecture review needs another pass",
+                AgentOutputQualityGateRejectedException.UserFacingDetail,
+                ProblemTypes.QualityGateRejected,
+                instance,
+                httpContext,
+                d =>
+                {
+                    d.Extensions["runId"] = qgx.RunId;
+                    d.Extensions["traceId"] = qgx.TraceId;
+                    d.Extensions["agentLabel"] = qgx.AgentLabel;
+                });
+            return true;
+        }
+
         if (ex is RunNotFoundException rnf)
         {
             result = CreateProblemResult(

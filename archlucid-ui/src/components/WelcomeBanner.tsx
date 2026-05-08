@@ -221,7 +221,7 @@ export function WelcomeBanner() {
       ? "Your review workspace"
       : buyerPolishedShell
         ? "Walk through one governed Claims Intake review package"
-        : "Review an existing architecture—with evidence-backed outcomes.";
+        : "Your first architecture review — four steps";
   const subheadingText = returningUser ? (
     <>
       Open in-progress architecture reviews, finish packages that still need attention, and review prioritized{" "}
@@ -234,10 +234,9 @@ export function WelcomeBanner() {
     </>
   ) : (
     <>
-      Start with a structured architecture review with clear goals. Prefer loose goals and notes? Use the same
-      flow—your AI co-architect asks questions until you have a coherent package to review. After finalization you get a
-      governed <GlossaryTooltip termKey="golden_manifest">architecture manifest</GlossaryTooltip>, supporting artifacts, and
-      actionable <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
+      <strong>Create a review</strong>, <strong>let the pipeline finish</strong>, <strong>finalize</strong> when the
+      UI is ready, then <strong>open your review package</strong> (summary, findings, downloads). Your AI co-architect
+      asks questions until that package is coherent — loose goals and notes use the same flow.
     </>
   );
 

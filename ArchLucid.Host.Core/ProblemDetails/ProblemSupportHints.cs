@@ -40,6 +40,10 @@ public static class ProblemSupportHints
             return
                 "Read the detail for state or idempotency context. You may need a new run, a different idempotency key, or to complete prior steps (execute before commit).";
 
+        if (typeUri == ProblemTypes.QualityGateRejected)
+            return
+                "Re-execute with richer architecture context or ask a workspace owner to review ArchLucid:AgentOutput:QualityGate (EnforceOnReject / BlockRunOnReject / PilotStrict thresholds).";
+
         if (typeUri is ProblemTypes.ValidationFailed or ProblemTypes.BadRequest or ProblemTypes.RequestBodyRequired)
             return "Correct the request using the detail and validation entries above. Swagger (/swagger) lists required fields for each endpoint.";
 
@@ -94,6 +98,10 @@ public static class ProblemSupportHints
 
         if (typeUri == ProblemTypes.UpstreamIntegrationFailed)
             return "Verify third-party credentials, network path, and rate limits; retry after a short wait. Check integration configuration (space key, base URL, token scopes).";
+
+        if (typeUri == ProblemTypes.ProvenanceNodeExplanationNotSupported)
+            return
+                "Use GET /v1/explain/runs/{runId}/aggregate for the supported run-level summary (Standard tier + ReadAuthority, same as other /v1/explain routes).";
 
         return typeUri == ProblemTypes.InternalError
             ? "Retry once. If it persists, provide traceId (and X-Correlation-ID if available) to support; do not paste secrets."

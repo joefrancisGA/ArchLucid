@@ -36,8 +36,6 @@ export default function HomePage() {
       {buyerPolishedShell ? null : <OperatorCoArchitectHomeStrip />}
       <WelcomeBanner />
       
-      {buyerPolishedShell ? null : <ValueRealizationDashboard />}
-
       {buyerPolishedShell ? null : (
         <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
           Get started
@@ -47,10 +45,6 @@ export default function HomePage() {
       {buyerPolishedShell ? null : <CorePilotNextStepsCard />}
 
       <SampleFirstReviewPackageCard />
-
-      <OperatorNextActionsCard />
-
-      {buyerPolishedShell ? null : <OperatorStickinessSnapshotCard />}
 
       {buyerPolishedShell ? null : (
         <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
@@ -71,6 +65,14 @@ export default function HomePage() {
           {buyerPolishedShell ? null : <AfterCorePilotChecklistHint />}
 
           <OperationalMetricsGate>
+            {buyerPolishedShell ? null : (
+              <div className="space-y-6" data-testid="operator-home-post-commit-surfaces">
+                <ValueRealizationDashboard />
+                <OperatorNextActionsCard />
+                <OperatorStickinessSnapshotCard />
+              </div>
+            )}
+
             {buyerPolishedShell ? null : (
             <section aria-labelledby="operational-metrics-heading">
               <div className="mb-3 flex flex-wrap items-center gap-2">

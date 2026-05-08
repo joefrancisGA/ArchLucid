@@ -231,6 +231,27 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         t.QualityWarning.Should().BeTrue();
     }
 
+    [SkippableFact]
+    public async Task PatchQualityRejectedAsync_merges_into_trace_json_on_read()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-qr-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-qr");
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "qr-trace", TimeProvider.System.GetUtcNow().UtcDateTime), CancellationToken.None);
+
+        await repo.PatchQualityRejectedAsync("qr-trace", true, CancellationToken.None);
+
+        AgentExecutionTrace? t = await repo.GetByTraceIdAsync("qr-trace", CancellationToken.None);
+
+        t.Should().NotBeNull();
+        t.QualityRejected.Should().BeTrue();
+    }
+
     private static AgentTask NewTask(string runId, string taskId)
     {
         return new AgentTask

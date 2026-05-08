@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { isUsableTeamStripeCheckoutUrl, resolveTeamStripeCheckoutHref } from "./team-stripe-checkout-url";
+import { isUsableTeamStripeCheckoutUrl, looksStripeHostedTestCheckoutUrl, resolveTeamStripeCheckoutHref } from "./team-stripe-checkout-url";
 
 describe("isUsableTeamStripeCheckoutUrl", () => {
   it("returns false for nullish, whitespace, repo placeholder token, or generic checkout-placeholder", () => {
@@ -14,6 +14,21 @@ describe("isUsableTeamStripeCheckoutUrl", () => {
   it("returns true for trimmed real Stripe URLs (including test checkout)", () => {
     expect(isUsableTeamStripeCheckoutUrl("https://checkout.stripe.com/c/pay/cs_test_xyz")).toBe(true);
     expect(isUsableTeamStripeCheckoutUrl("https://pay.example.test/checkout")).toBe(true);
+  });
+});
+
+describe("looksStripeHostedTestCheckoutUrl", () => {
+  it("returns true for cs_test_ session paths and buy.stripe.com/test_* payment links", () => {
+    expect(looksStripeHostedTestCheckoutUrl("https://checkout.stripe.com/c/pay/cs_test_xyz")).toBe(true);
+    expect(looksStripeHostedTestCheckoutUrl("https://BUY.STRIPE.COM/test_abc")).toBe(true);
+    expect(looksStripeHostedTestCheckoutUrl("https://buy.stripe.com/test_abc/extra")).toBe(true);
+  });
+
+  it("returns false for nullish, live cs_live_, and non-test buy.stripe.com segments", () => {
+    expect(looksStripeHostedTestCheckoutUrl(null)).toBe(false);
+    expect(looksStripeHostedTestCheckoutUrl(undefined)).toBe(false);
+    expect(looksStripeHostedTestCheckoutUrl("https://checkout.stripe.com/c/pay/cs_live_xyz")).toBe(false);
+    expect(looksStripeHostedTestCheckoutUrl("https://buy.stripe.com/live_pkg_123")).toBe(false);
   });
 });
 

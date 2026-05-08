@@ -44,6 +44,9 @@ public static class ProblemTypes
     /// <summary>Request cannot be applied due to a resource state conflict.</summary>
     public const string Conflict = Base + "#conflict";
 
+    /// <summary>Agent output quality gate rejected persisted traces for this workspace (RFC 9457; HTTP 409).</summary>
+    public const string QualityGateRejected = Base + "#quality-gate-rejected";
+
     public const string PolicyPackVersionNotFound = Base + "#policy-pack-version-not-found";
 
     /// <summary>A SQL or database timeout occurred; the request may succeed on retry.</summary>
@@ -81,6 +84,9 @@ public static class ProblemTypes
 
     /// <summary>Authenticated tenant is below the commercial tier required for this tenant-facing route (RFC 9457 Problem Details; HTTP 403).</summary>
     public const string PackagingTierInsufficient = Base + "#packaging-tier-insufficient";
+
+    /// <summary>Per-node coordinator provenance explanations are not a supported product surface (no stable LLM contract).</summary>
+    public const string ProvenanceNodeExplanationNotSupported = Base + "#provenance-node-explanation-not-supported";
 
     /// <summary>Optional or roadmap capability invoked before implementation (RFC 9457; HTTP 501).</summary>
     public const string FeatureNotYetAvailable = Base + "#feature-not-yet-available";
