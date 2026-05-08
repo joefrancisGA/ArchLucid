@@ -31,8 +31,7 @@ public sealed class LlmCostEstimator(IOptions<LlmCostEstimationOptions> options)
             o.ReasoningUsdPerMillionTokens > 0m ? o.ReasoningUsdPerMillionTokens : outputRate;
 
         if (!string.IsNullOrWhiteSpace(deploymentLabel)
-            && o.Deployments.TryGetValue(deploymentLabel.Trim(), out LlmDeploymentUsdRates? dep)
-            && dep is not null)
+            && o.Deployments.TryGetValue(deploymentLabel.Trim(), out LlmDeploymentUsdRates? dep))
         {
             if (dep.InputUsdPerMillionTokens > 0m)
                 inputRate = dep.InputUsdPerMillionTokens;

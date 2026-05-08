@@ -250,24 +250,17 @@ public sealed class RealAgentExecutor : IAgentExecutor
             if (finishedTask.IsCanceled)
                 continue;
 
-            if (finishedTask.IsFaulted)
-            {
-                Exception flattened = ExtractFailureRoot(finishedTask);
+            if (!finishedTask.IsFaulted)
+                continue;
 
-                CostLimitExceededException? candidate = ExtractCostLimitCause(flattened);
+            Exception flattened = ExtractFailureRoot(finishedTask);
 
-                if (candidate is not null)
-                {
-                    budgetCause ??= candidate;
+            CostLimitExceededException? candidate = ExtractCostLimitCause(flattened);
 
-                    if (!linkedCancellation.IsCancellationRequested)
-                        linkedCancellation.Cancel();
+            budgetCause ??= candidate ?? throw flattened;
 
-                    continue;
-                }
-
-                throw flattened;
-            }
+            if (!linkedCancellation.IsCancellationRequested)
+                await linkedCancellation.CancelAsync();
         }
 
         AgentResult[] orderedSuccesses =
@@ -279,10 +272,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         if (budgetCause is not null)
             throw budgetCause;
 
-        if (orderedSuccesses.Length != phaseTasks.Count)
-            throw new InvalidOperationException("Parallel agent scheduling finished without aligning task outcomes.");
-
-        return orderedSuccesses;
+        return orderedSuccesses.Length != phaseTasks.Count ? throw new InvalidOperationException("Parallel agent scheduling finished without aligning task outcomes.") : orderedSuccesses;
     }
 
     private static Exception ExtractFailureRoot(Task<AgentResult> faultedTask)
@@ -294,10 +284,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
         AggregateException flattened = aggregate.Flatten();
 
-        if (flattened.InnerExceptions.Count == 1)
-            return flattened.InnerExceptions[0];
-
-        throw flattened;
+        return flattened.InnerExceptions.Count == 1 ? flattened.InnerExceptions[0] : throw flattened;
     }
 
     private static CostLimitExceededException? ExtractCostLimitCause(Exception ex)
@@ -308,18 +295,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 return matched;
         }
 
-        if (ex is AggregateException ae)
-        {
-            foreach (Exception innerEx in ae.Flatten().InnerExceptions)
-            {
-                CostLimitExceededException? hit = ExtractCostLimitCause(innerEx);
-
-                if (hit is not null)
-                    return hit;
-            }
-        }
-
-        return null;
+        return ex is not AggregateException ae ? null : ae.Flatten().InnerExceptions.Select(ExtractCostLimitCause).OfType<CostLimitExceededException>().FirstOrDefault();
     }
 
     /// <summary>Collects successes in ascending <paramref name="phaseTasks" /> order for stable parity with callers.</summary>

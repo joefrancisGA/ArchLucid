@@ -1,6 +1,5 @@
 using System.Text;
 
-using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 
@@ -113,13 +112,13 @@ public static class AgentUserPromptBuilder
             sb.AppendLine();
         }
 
-        if (evidence.PriorManifest is not null)
-        {
-            sb.AppendLine("Prior Manifest:");
-            sb.AppendLine($"  Version: {evidence.PriorManifest.ManifestVersion}");
-            sb.AppendLine($"  Summary: {PromptFieldRedactor.RedactForPrompt(evidence.PriorManifest.Summary)}");
-            sb.AppendLine();
-        }
+        if (evidence.PriorManifest is null)
+            return;
+
+        sb.AppendLine("Prior Manifest:");
+        sb.AppendLine($"  Version: {evidence.PriorManifest.ManifestVersion}");
+        sb.AppendLine($"  Summary: {PromptFieldRedactor.RedactForPrompt(evidence.PriorManifest.Summary)}");
+        sb.AppendLine();
     }
 
     /// <summary>Task objective, allowed tools, and allowed sources.</summary>
