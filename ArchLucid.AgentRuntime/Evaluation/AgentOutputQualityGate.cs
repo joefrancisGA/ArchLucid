@@ -7,7 +7,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <inheritdoc cref="IAgentOutputQualityGate" />
-public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOptions> options) : IAgentOutputQualityGate
+public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOptions> options)
+    : IAgentOutputQualityGate
 {
     private readonly AgentOutputQualityGateOptions _options =
         (options ?? throw new ArgumentNullException(nameof(options))).Value;

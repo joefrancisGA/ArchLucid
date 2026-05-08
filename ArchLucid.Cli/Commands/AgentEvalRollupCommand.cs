@@ -149,6 +149,12 @@ internal static class AgentEvalRollupCommand
             : "- Mean semantic score (payload averages): —";
 
         sb.AppendLine(semanticLine);
+
+        if (summary.AggregateQualityGateOutcome is { } aggregateGate)
+        {
+            sb.AppendLine(FormattableString.Invariant($"- Aggregate quality gate (worst trace): **`{aggregateGate}`**"));
+        }
+
         sb.AppendLine();
 
         if (rollup.CountByAgentType.Count > 0)

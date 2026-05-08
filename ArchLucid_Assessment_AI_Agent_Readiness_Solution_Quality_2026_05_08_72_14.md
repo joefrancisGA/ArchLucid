@@ -1,4 +1,4 @@
-# ArchLucid AI Agent / Readiness Solution Quality Assessment — 72.14%
+# ArchLucid AI Agent / Readiness Solution Quality Assessment - 72.14%
 
 **Scope:** Independent assessment of the AI Agent / Readiness solution quality only. This score excludes intentionally deferred scope: MCP membrane work is V1.1, outbound MCP client and Durable Task / Azure Container Apps Jobs orchestration changes are V2, and SOC/commercial/design-partner milestones are not part of this AI-agent solution-quality score.
 
@@ -16,7 +16,7 @@ The categories are ordered by weighted improvement need, not by implementation s
 | Orchestration, resilience, and failure semantics | 16% | 84 | 13.44 | Strong for V1: stable task ordering, staged critic option, cancellation on peer failure, partial-output budget handling, circuit breaker, retry path, and explicit quality-rejected run status. The main issue is operational posture, not core architecture. |
 | Safety, tenant isolation, and cache boundaries | 10% | 80 | 8.00 | Cache keys include simulator isolation and optional tenant/workspace/project partitioning, and content safety has fail-closed semantics by default. The weaker part is deploy-time assurance that real production-like environments cannot accidentally run with null or fail-open safety. |
 | Observability and explainability | 8% | 80 | 6.40 | Trace recording, quality metrics, parse failure counters, gate outcome metrics, fallback markers, and real-mode evidence templates exist. The gap is buyer-facing rollup: a busy operator still has to piece together real/simulator/fallback mode and quality confidence from several places. |
-| Operator readiness and commercial demo usability | 7% | 76 | 5.32 | The system can tell a credible pilot story, especially with strict production config. It is not yet as commercially defensible as it should be for a buyer asking, “Show me that real AI answers are consistently good and blocked when bad.” |
+| Operator readiness and commercial demo usability | 7% | 76 | 5.32 | The system can tell a credible pilot story, especially with strict production config. It is not yet as commercially defensible as it should be for a buyer asking, "Show me that real AI answers are consistently good and blocked when bad." |
 
 **Total weighted score: 72.14 / 100.**
 
@@ -35,7 +35,7 @@ What is not good enough:
 
 - Staging config is still `PilotStrict` but has `EnforceOnReject: false` and `BlockRunOnReject: false`. That is a commercial credibility problem because staging is where the first serious buyer demo usually gets validated.
 - The offline corpus run passed, but its real-mode evidence row was skipped: `real_mode_quality total=1 skipped_no_env=1 evaluated=0 evidence_captured=no`.
-- The GitHub `cohort-real-llm-gate` job is conditional on a repo variable and the test step explicitly says “no live OpenAI invoke in CI.” That is honest, but it means the repo does not yet prove live model quality continuously.
+- The GitHub `cohort-real-llm-gate` job is conditional on a repo variable and the test step explicitly says "no live OpenAI invoke in CI." That is honest, but it means the repo does not yet prove live model quality continuously.
 
 Tradeoff:
 
@@ -51,7 +51,7 @@ The blunt issue: this still does not fully prove truth. A model can cite somethi
 Tradeoff:
 
 - Heuristics are cheap, deterministic, and good CI material.
-- They are not enough to claim “AI quality” in a commercial setting unless paired with a manifest-grounded faithfulness pass and real-mode sample evidence.
+- They are not enough to claim "AI quality" in a commercial setting unless paired with a manifest-grounded faithfulness pass and real-mode sample evidence.
 
 ## 3. Eval Corpus And CI Are Credible But Under-Enforced
 
@@ -69,7 +69,7 @@ Both passed. Current evidence:
 - Worst recall was 1.00 against the strict local 0.75 floor.
 - Real-mode quality evidence was present as a scenario hook but skipped because no exported real result path was supplied.
 
-The problem is posture. CI appends the report but does not pass `--enforce` or `--enforce-quality-gate`. `eval_agent_quality.py` validates dataset shape and prompt-injection fixture shape, not the runtime’s behavioral resistance to those injections.
+The problem is posture. CI appends the report but does not pass `--enforce` or `--enforce-quality-gate`. `eval_agent_quality.py` validates dataset shape and prompt-injection fixture shape, not the runtime's behavioral resistance to those injections.
 
 Tradeoff:
 
@@ -117,21 +117,21 @@ The system can support a controlled pilot. It should not yet be represented as h
 
 Commercially realistic phrasing:
 
-- Good claim: “We have deterministic simulator regression, strict production quality gates, traceability, and optional real-model validation hooks.”
-- Bad claim: “The AI is validated continuously in production-like real mode.” The repo does not prove that yet.
+- Good claim: "We have deterministic simulator regression, strict production quality gates, traceability, and optional real-model validation hooks."
+- Bad claim: "The AI is validated continuously in production-like real mode." The repo does not prove that yet.
 
 ## Exclusions I Did Not Penalize
 
-- **DEFERRED: Inbound MCP membrane** — V1.1. Not scored as a V1 defect.
-- **DEFERRED: Outbound MCP client to arbitrary external tool servers** — V2 unless promoted. Not scored.
-- **DEFERRED: Durable Task Framework / Azure Container Apps Jobs orchestration migration** — V2 situational backlog. Not scored.
+- **DEFERRED: Inbound MCP membrane** - V1.1. Not scored as a V1 defect.
+- **DEFERRED: Outbound MCP client to arbitrary external tool servers** - V2 unless promoted. Not scored.
+- **DEFERRED: Durable Task Framework / Azure Container Apps Jobs orchestration migration** - V2 situational backlog. Not scored.
 - SOC 2 CPA report, design partner, marketplace publication, and other commercial/procurement items are outside this AI Agent / Readiness solution-quality score.
 
 ## The Eight Best Improvements
 
 ### 1. Make PilotStrict Blocking Real In Staging Or Add A Dedicated PilotStrict Release Profile
 
-Why it matters: staging currently looks strict but does not block rejected output. That creates exactly the kind of “green demo, bad AI answer” risk buyers punish.
+Why it matters: staging currently looks strict but does not block rejected output. That creates exactly the kind of "green demo, bad AI answer" risk buyers punish.
 
 Can be started without your input: yes. Final branch-protection or environment adoption may require owner action.
 
@@ -222,7 +222,7 @@ Validation:
 - Wire the executable check into CI only if it remains fast and credential-free.
 ```
 
-### 5. Add A Single Operator-Facing “Run AI Quality Verdict” Rollup
+### 5. Add A Single Operator-Facing "Run AI Quality Verdict" Rollup
 
 Why it matters: buyers and operators need one answer, not five telemetry breadcrumbs.
 
@@ -290,7 +290,7 @@ Validation:
 
 ### 8. Make The Golden Cohort Real-LLM Gate Honest In Naming And Capabilities
 
-Why it matters: the workflow currently contains a “real LLM gate” job, but its test step says it does not invoke live OpenAI. That is honest in the comment but misleading as a release signal.
+Why it matters: the workflow currently contains a "real LLM gate" job, but its test step says it does not invoke live OpenAI. That is honest in the comment but misleading as a release signal.
 
 Can be started without your input: yes for naming, documentation, and preflight checks. Actual live invocation requires owner-provided Azure deployment, secrets, and branch-protection decision.
 
