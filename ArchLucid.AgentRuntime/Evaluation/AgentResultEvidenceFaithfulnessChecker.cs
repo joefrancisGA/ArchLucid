@@ -106,7 +106,7 @@ public sealed class AgentResultEvidenceFaithfulnessChecker : IAgentResultEvidenc
                     bool categoryOk =
                         !string.IsNullOrWhiteSpace(category) &&
                         (fullBlob.Contains(category, StringComparison.OrdinalIgnoreCase) ||
-                         Enum.TryParse(category, ignoreCase: true, out ArchLucid.Contracts.Common.AgentType _));
+                         Enum.TryParse(category, ignoreCase: true, out Contracts.Common.AgentType _));
 
                     bool textOk =
                         HasTokenOverlap(description, fullBlob) || HasTokenOverlap(recommendation, fullBlob);

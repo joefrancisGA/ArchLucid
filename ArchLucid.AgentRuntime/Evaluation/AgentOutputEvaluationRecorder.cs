@@ -62,6 +62,22 @@ public sealed class AgentOutputEvaluationRecorder(
 
         IReadOnlyList<AgentExecutionTrace> traces = await traceRepository.GetByRunIdAsync(runId, cancellationToken);
 
+        await Task.WhenAll(traces.Select(EvaluateOneAsync)).ConfigureAwait(false);
+
+        try
+        {
+            await _architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "Architecture finding confidence enrichment failed after evaluation for RunId={RunId}; continuing.",
+                runId);
+        }
+
+        return;
+
         async Task EvaluateOneAsync(AgentExecutionTrace trace)
         {
             string agentLabel = trace.AgentType.ToString();
@@ -103,20 +119,17 @@ public sealed class AgentOutputEvaluationRecorder(
 
             if (evaluated.RecordSemanticHistogram)
             {
-                ArchLucidInstrumentation.AgentOutputSemanticScore.Record(
-                    evaluated.Semantic.OverallSemanticScore,
-                    tags);
+                ArchLucidInstrumentation.AgentOutputSemanticScore.Record(evaluated.Semantic.OverallSemanticScore, tags);
 
-                if (evaluated.Semantic.LlmJudgeHeuristicDisagreement is double disagreement)
+                if (evaluated.Semantic.LlmJudgeHeuristicDisagreement is { } disagreement)
                     ArchLucidInstrumentation.AgentOutputJudgeDisagreement.Record(disagreement, tags);
 
-                if (evaluated.Semantic.AgentResultEmbeddingFaithfulnessMeanCosine is double embCos)
+                if (evaluated.Semantic.AgentResultEmbeddingFaithfulnessMeanCosine is { } embCos)
                     ArchLucidInstrumentation.AgentOutputEmbeddingFaithfulnessMeanCosine.Record(
                         EmbeddingFaithfulnessVectorMath.ToTelemetryUnitInterval(embCos),
                         tags);
 
                 if (evaluated.Semantic.OverallSemanticScore < LowSemanticScoreThreshold)
-
                     logger.LogWarningAgentOutputSemanticScoreBelowThreshold(
                         evaluated.Semantic.OverallSemanticScore,
                         runId,
@@ -177,20 +190,6 @@ public sealed class AgentOutputEvaluationRecorder(
 
                 await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken)
                     .ConfigureAwait(false);
-        }
-
-        await Task.WhenAll(traces.Select(EvaluateOneAsync)).ConfigureAwait(false);
-
-        try
-        {
-            await _architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            logger.LogWarningWithSanitizedUserArg(
-                ex,
-                "Architecture finding confidence enrichment failed after evaluation for RunId={RunId}; continuing.",
-                runId);
         }
     }
 }

@@ -183,16 +183,7 @@ public sealed class AgentResultEmbeddingFaithfulnessScorer(
             foreach (string hc in hypChunks)
             {
                 float[] hv = vectorByChunk[hc];
-                double best = double.NegativeInfinity;
-
-                foreach (string ec in evChunks)
-                {
-                    float[] ev = vectorByChunk[ec];
-                    double cos = EmbeddingFaithfulnessVectorMath.CosineSimilarity(hv, ev);
-
-                    if (cos > best)
-                        best = cos;
-                }
+                double best = evChunks.Select(ec => vectorByChunk[ec]).Select(ev => EmbeddingFaithfulnessVectorMath.CosineSimilarity(hv, ev)).Prepend(double.NegativeInfinity).Max();
 
                 chunkAccum += best;
             }

@@ -50,8 +50,7 @@ public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOption
         structuralReject = _options.StructuralRejectBelow;
         semanticReject = _options.SemanticRejectBelow;
 
-        if (!_options.PerAgentTypeFloors.TryGetValue(agentType.ToString(), out AgentTypeQualityFloors? floors) ||
-            floors is null)
+        if (!_options.PerAgentTypeFloors.TryGetValue(agentType.ToString(), out AgentTypeQualityFloors? floors))
             return;
 
         if (floors.StructuralWarnBelow.HasValue)

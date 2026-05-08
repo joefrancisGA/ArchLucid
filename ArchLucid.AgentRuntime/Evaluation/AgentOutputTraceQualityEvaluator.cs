@@ -179,7 +179,7 @@ public static class AgentOutputTraceQualityEvaluator
             await embeddingFaithfulnessScorer.TryComputeMeanCosineAsync(parsedResultJson, evidencePackage, cancellationToken)
                 .ConfigureAwait(false);
 
-        if (cosine is double d)
+        if (cosine is { } d)
             semanticScore.AgentResultEmbeddingFaithfulnessMeanCosine = d;
     }
 
