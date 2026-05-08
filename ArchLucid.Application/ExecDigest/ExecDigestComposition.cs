@@ -9,6 +9,4 @@ public sealed record ExecDigestComposition(
     string? FindingsDeltaSummary,
     string DashboardUrl,
     string SponsorValueReportUrl,
-    string? LatestCommittedRunIdHex)
-{
-}
+    string? LatestCommittedRunIdHex);

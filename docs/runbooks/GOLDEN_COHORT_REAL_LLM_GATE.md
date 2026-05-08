@@ -11,9 +11,9 @@
 | Job | Purpose |
 |-----|---------|
 | **`cohort-real-llm-preflight`** | When **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** is **`true`**, runs the budget probe / kill-switch (**[`scripts/golden_cohort_budget_probe.py`](../../scripts/golden_cohort_budget_probe.py)**), opens GitHub issues on WARN/KILL, then runs **`GoldenCohortRealLlmGateTests`** (fixture presence / structural checks). **No live Azure OpenAI invoke** happens inside this job. |
-| **`cohort-real-llm-live`** | **`workflow_dispatch` only**, when **`run_live_invoke`** is **`true`**. Requires secret **`ARCHLUCID_GOLDEN_COHORT_API_HOST`** (mapped to **`ARCHLUCID_API_URL`**) and runs **`dotnet run … golden-cohort drift --strict-real --structural-only`** against that API for owner-driven validation. |
+| **`cohort-real-llm-live`** | After **preflight** records budget exit **`0`** (under warn) **`1`** (warn band: still below kill), invokes live drift when (**a**) **`workflow_dispatch`** with **`run_live_invoke=true`**, or (**b**) **`schedule`** cron **`0 6 * * 0`** (Sunday 06:00 UTC) **and** repository variable **`ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED`** is **`true`**. Requires **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** and secret **`ARCHLUCID_GOLDEN_COHORT_API_HOST`** (mapped to **`ARCHLUCID_API_URL`**). Runs **`dotnet run … golden-cohort drift --strict-real --structural-only`**. Prefer protected environments for secrets — see §2. |
 
-Both paths honor probe semantics (see section 3): exit **2** skips downstream steps without failing the workflow.
+Both paths honor probe semantics (see section 3): exit **2** skips downstream cohort steps **including live** without failing the workflow.
 
 The Q15 ($50/month) approval was **conditional on the kill-switch being shipped** ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) Q15). If the kill-switch is bypassed, real-LLM execution must revert to disabled until the kill-switch is restored.
 
@@ -28,7 +28,14 @@ After the dedicated Azure OpenAI deployment exists in the production subscriptio
 
 **Do not** flip branch protection in the same PR that ships the deployment — separate the two so a single PR can be reverted.
 
-Live **`cohort-real-llm-live`** remains **`workflow_dispatch`**-only by design; keep secrets scoped and avoid scheduling unattended invokes without owner approval.
+**`cohort-real-llm-live`** (invoke against **`ARCHLUCID_GOLDEN_COHORT_API_HOST`**) ships with two entry points:
+
+* **Manual (`workflow_dispatch`)** — workflow input **`run_live_invoke=true`**; still requires **`ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** and **`ARCHLUCID_GOLDEN_COHORT_API_HOST`** (and preflight budget exit **`0`** or **`1`** in the same run).
+* **Weekly schedule** — **`golden-cohort-nightly.yml`** cron **`0 6 * * 0`** (Sunday 06:00 UTC). Requires **`ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** **and** repository variable **`ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED=true`**; leave that variable **`false`** (or unset) so scheduled unattended invokes cannot run unless the owner opted in.
+
+The weekday schedule uses **`0 6 * * 1-6`** and Sunday uses **`0 6 * * 0`** so the same calendar minute does **not** start two duplicate workflow runs.
+
+Keep secrets (**`ARCHLUCID_GOLDEN_COHORT_API_HOST`**, Azure OpenAI IDs/keys/federation used by preflight) in a protected environment once you enable unattended schedule.
 
 ## 3. Probe exit-code semantics (the kill-switch)
 
@@ -86,7 +93,7 @@ These are explicitly listed in `docs/archive/root-superseded-2026-05-01/CURSOR_P
 
 * **Provisioning the dedicated Azure OpenAI deployment** â€” Cognitive Services account, deployment name, model SKU, region quota.
 * **Injecting the Azure OpenAI secret** into the protected GitHub Environment.
-* **Removing the `if:` guard on `cohort-real-llm-preflight`** (optional → always scheduled when you intend unconditional probe runs). Coordinate with owners; keep **`cohort-real-llm-live`** dispatch-only. Documented in section 2.
+* **Removing the `if:` guard on `cohort-real-llm-preflight`** (optional → always scheduled when you intend unconditional probe runs). Coordinate with owners; unattended **`cohort-real-llm-live`** is opt-in (**`ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED`**) plus budget exit **`0`**/**`1`**. Documented in section 2.
 
 ## 7. Structural validation (real-LLM output)
 

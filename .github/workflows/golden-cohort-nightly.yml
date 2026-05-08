@@ -2,9 +2,10 @@
 # ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is "true".
 #
 # Optional real-LLM **preflight** (cohort-real-llm-preflight job): budget probe + fixture presence check only —
-# no live OpenAI invoke in CI. Optional owner-driven live drift is cohort-real-llm-live (workflow_dispatch).
-# Preflight remains gated on:
-#   2. scripts/golden_cohort_budget_probe.py exit code in {0, 1}:
+# no live OpenAI invoke in CI. **`cohort-real-llm-live`** runs (**a**) **workflow_dispatch** with
+# **run_live_invoke=true**, or (**b**) the **Sunday 06:00 UTC** schedule when **vars** below enable it —
+# gated on **preflight budget exit** 0/1 only (warn/kill-skip suppresses live the same as preflight dotnet steps).
+# Budget probe (**scripts/golden_cohort_budget_probe.py**) exit codes:
 #        0 → continue normally (MTD < 80% of $50 cap)
 #        1 → WARN: continue but post a GitHub issue (MTD ≥ 80% < 95%)
 #        2 → SKIP: post issue, do NOT count as workflow failure (MTD ≥ 95%)
@@ -21,7 +22,9 @@ name: golden-cohort-nightly
 
 on:
   schedule:
-    - cron: "0 6 * * *"
+    # Mon–Sat-only so Sunday does not double-fire alongside the Sunday cron below.
+    - cron: "0 6 * * 1-6"
+    - cron: "0 6 * * 0"
   workflow_dispatch:
     inputs:
       run_live_invoke:
@@ -112,6 +115,8 @@ jobs:
   cohort-real-llm-preflight:
     needs: cohort-contract
     if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' }}
+    outputs:
+      budget_exit_code: ${{ steps.budget.outputs.exit_code }}
     runs-on: ubuntu-latest
     # Improvement 11 (2026-04-24) — issues:write needed by the warn/kill auto-issue step.
     permissions:
@@ -272,11 +277,21 @@ jobs:
           if-no-files-found: warn
 
   cohort-real-llm-live:
-    needs: cohort-contract
+    needs:
+      - cohort-contract
+      - cohort-real-llm-preflight
     if: >-
-      ${{ github.event_name == 'workflow_dispatch'
-      && inputs.run_live_invoke == true
-      && vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' }}
+      ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
+      && (needs['cohort-real-llm-preflight'].outputs.budget_exit_code == '0'
+        || needs['cohort-real-llm-preflight'].outputs.budget_exit_code == '1')
+      && (
+        (github.event_name == 'workflow_dispatch' && inputs.run_live_invoke == true)
+        || (
+          github.event_name == 'schedule'
+          && github.event.schedule == '0 6 * * 0'
+          && vars.ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED == 'true'
+        )
+      ) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

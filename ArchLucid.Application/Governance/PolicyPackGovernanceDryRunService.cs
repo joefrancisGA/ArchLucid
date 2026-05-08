@@ -123,7 +123,7 @@ public sealed class PolicyPackGovernanceDryRunService(
             FailedChecks = failed,
             Warnings = warnings
         };
-        await TryLogProposedPackDryRunAuditAsync(policyPackContentJson, targetRunId, targetManifestId, proposedPolicyPackId, packLabel, runKey, usedManifestId,
+        await TryLogProposedPackDryRunAuditAsync(policyPackContentJson, targetRunId, targetManifestId, proposedPolicyPackId, packLabel, runKey,
             gate, cancellationToken);
         return result;
     }
@@ -187,7 +187,7 @@ public sealed class PolicyPackGovernanceDryRunService(
     }
 
     private async Task TryLogProposedPackDryRunAuditAsync(string policyPackContentJson, string? targetRunId, Guid? targetManifestId, Guid? proposedPolicyPackId,
-        string packLabel, Guid runKey, Guid? usedManifestId, PreCommitGateResult gate, CancellationToken cancellationToken)
+        string packLabel, Guid runKey, PreCommitGateResult gate, CancellationToken cancellationToken)
     {
         string redactedContentJson = RedactPolicyPackContentJsonForAudit(policyPackContentJson);
         string dataJson = JsonSerializer.Serialize(

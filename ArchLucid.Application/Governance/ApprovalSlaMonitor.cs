@@ -125,14 +125,15 @@ public sealed class ApprovalSlaMonitor
     {
         HttpRequestMessage msg = new(HttpMethod.Post, webhookUrl);
         msg.Content = new StringContent(payload, Encoding.UTF8, "application/json");
-        if (!string.IsNullOrWhiteSpace(secret))
-        {
-            byte[] keyBytes = Encoding.UTF8.GetBytes(secret);
-            byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
-            byte[] hash = HMACSHA256.HashData(keyBytes, payloadBytes);
-            string signature = Convert.ToHexStringLower(hash);
-            msg.Headers.Add("X-ArchLucid-Signature", $"sha256={signature}");
-        }
+
+        if (string.IsNullOrWhiteSpace(secret))
+            return msg;
+
+        byte[] keyBytes = Encoding.UTF8.GetBytes(secret);
+        byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
+        byte[] hash = HMACSHA256.HashData(keyBytes, payloadBytes);
+        string signature = Convert.ToHexStringLower(hash);
+        msg.Headers.Add("X-ArchLucid-Signature", $"sha256={signature}");
 
         return msg;
     }
