@@ -153,6 +153,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IPromptRedactor, PromptRedactor>();
         services.Configure<AgentOutputLlmSemanticJudgeOptions>(
             configuration.GetSection(AgentOutputLlmSemanticJudgeOptions.SectionPath));
+        services.AddSingleton<AgentOutputEvaluator>();
+        services.AddSingleton<IAgentOutputEvaluator>(static sp => sp.GetRequiredService<AgentOutputEvaluator>());
         services.AddSingleton<HeuristicAgentOutputSemanticEvaluator>();
         services.AddSingleton<IHeuristicAgentOutputSemanticEvaluator>(static sp =>
             sp.GetRequiredService<HeuristicAgentOutputSemanticEvaluator>());

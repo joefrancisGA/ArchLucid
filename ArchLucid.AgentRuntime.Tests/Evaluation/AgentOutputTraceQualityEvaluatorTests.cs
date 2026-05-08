@@ -47,7 +47,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
                 new AgentOutputEvaluator(),
                 SemanticShim,
                 new AgentOutputQualityGate(Options.Create(options)),
-                CancellationToken.None).ConfigureAwait(false);
+                CancellationToken.None);
 
         r.Should().NotBeNull();
         r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Warned);
@@ -82,7 +82,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
                 new AgentOutputEvaluator(),
                 SemanticShim,
                 new AgentOutputQualityGate(Options.Create(options)),
-                CancellationToken.None).ConfigureAwait(false);
+                CancellationToken.None);
 
         r.Should().NotBeNull();
         r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
@@ -122,7 +122,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
                 new AgentOutputEvaluator(),
                 SemanticShim,
                 new AgentOutputQualityGate(Options.Create(options)),
-                CancellationToken.None).ConfigureAwait(false);
+                CancellationToken.None);
 
         r.Should().NotBeNull();
         r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
@@ -154,7 +154,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
                 new AgentOutputEvaluator(),
                 SemanticShim,
                 new AgentOutputQualityGate(Options.Create(options)),
-                CancellationToken.None).ConfigureAwait(false);
+                CancellationToken.None);
 
         r.Should().BeNull();
     }
@@ -185,7 +185,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
                 new AgentOutputEvaluator(),
                 SemanticShim,
                 new AgentOutputQualityGate(Options.Create(options)),
-                CancellationToken.None).ConfigureAwait(false);
+                CancellationToken.None);
 
         r.Should().NotBeNull();
         r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
