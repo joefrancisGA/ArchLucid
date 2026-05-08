@@ -24,7 +24,7 @@ def _load_json(path: Path) -> object:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def validate_manifest() -> int:
+def validate_manifest(*, strict: bool = False) -> int:
     root = _repo_root()
     base = root / "tests" / "eval-datasets"
     manifest_path = base / "manifest.json"
@@ -38,9 +38,20 @@ def validate_manifest() -> int:
         print("::error::manifest.json must be an object")
         return 1
 
-    if manifest.get("schemaVersion") != 1:
-        print("::error::manifest.schemaVersion must be 1")
+    schema_version = manifest.get("schemaVersion")
+    if schema_version not in (1, 2):
+        print("::error::manifest.schemaVersion must be 1 or 2")
         return 1
+
+    if strict and schema_version != 2:
+        print("::error::--strict requires manifest.schemaVersion == 2")
+        return 1
+
+    min_required_categories = manifest.get("minRequiredCategories")
+    if schema_version == 2:
+        if not isinstance(min_required_categories, int) or min_required_categories < 1:
+            print("::error::manifest.minRequiredCategories must be a positive int for schemaVersion 2")
+            return 1
 
     datasets = manifest.get("datasets")
     if not isinstance(datasets, list) or not datasets:
@@ -91,6 +102,12 @@ def validate_manifest() -> int:
                 print(f"::error::{rel}[{i}].id must be a string")
                 return 1
 
+            ctx = case.get("architecturalContext")
+            if strict:
+                if not isinstance(ctx, dict) or not ctx:
+                    print(f"::error::{rel}[{i}].architecturalContext must be a non-empty object (--strict)")
+                    return 1
+
             expect = case.get("expect")
             if not isinstance(expect, dict):
                 print(f"::error::{rel}[{i}].expect must be an object")
@@ -105,11 +122,30 @@ def validate_manifest() -> int:
                 print(f"::error::{rel}[{i}].expect minFindings > maxFindings")
                 return 1
 
+            if strict:
+                req = expect.get("requiredCategories")
+                forb = expect.get("forbiddenCategories")
+                if not isinstance(req, list) or not req or not all(isinstance(x, str) and x.strip() for x in req):
+                    print(f"::error::{rel}[{i}].expect.requiredCategories must be a non-empty string array (--strict)")
+                    return 1
+
+                if not isinstance(forb, list) or not all(isinstance(x, str) for x in forb):
+                    print(
+                        f"::error::{rel}[{i}].expect.forbiddenCategories must be a string array (--strict)"
+                    )
+                    return 1
+
+                if len(req) < min_required_categories:
+                    print(
+                        f"::error::{rel}[{i}] must list at least manifest.minRequiredCategories requiredCategories"
+                    )
+                    return 1
+
     print(f"Eval dataset manifest OK: {len(datasets)} dataset(s).")
     return 0
 
 
-def validate_prompt_injection_datasets() -> int:
+def validate_prompt_injection_datasets(*, strict: bool = False) -> int:
     root = _repo_root()
     folder = root / "tests" / "eval-datasets" / "prompt-injection"
 
@@ -118,6 +154,7 @@ def validate_prompt_injection_datasets() -> int:
         return 1
 
     allowed_categories = {"direct_override", "exfiltration", "tool_abuse"}
+    allowed_blocked = {"precheck", "redactor", "evaluator", "judge"}
     paths = sorted(folder.glob("*.json"))
 
     if not paths:
@@ -149,6 +186,15 @@ def validate_prompt_injection_datasets() -> int:
                 )
                 return 1
 
+            if strict:
+                blocked_at = case.get("expectedBlockedAt")
+                if not isinstance(blocked_at, str) or blocked_at.strip() not in allowed_blocked:
+                    print(
+                        f"::error::{path.name}[{i}].expectedBlockedAt must be one of "
+                        f"{sorted(allowed_blocked)} (--strict)"
+                    )
+                    return 1
+
             prompt = case.get("userPrompt")
             if not isinstance(prompt, str) or len(prompt.strip()) < 8:
                 print(f"::error::{path.name}[{i}].userPrompt must be a substantive string")
@@ -170,6 +216,11 @@ def main() -> int:
         action="store_true",
         help="Validate only tests/eval-datasets/prompt-injection/*.json fixtures.",
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Require manifest schema v2 architecturalContext / category gates and prompt-injection expectedBlockedAt.",
+    )
     args = parser.parse_args()
 
     if args.manifest_only and args.prompt_injection_only:
@@ -177,16 +228,16 @@ def main() -> int:
         return 1
 
     if args.prompt_injection_only:
-        return validate_prompt_injection_datasets()
+        return validate_prompt_injection_datasets(strict=args.strict)
 
     if args.manifest_only:
-        return validate_manifest()
+        return validate_manifest(strict=args.strict)
 
-    m = validate_manifest()
+    m = validate_manifest(strict=args.strict)
     if m != 0:
         return m
 
-    p = validate_prompt_injection_datasets()
+    p = validate_prompt_injection_datasets(strict=args.strict)
     if p != 0:
         return p
 

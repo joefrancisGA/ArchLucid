@@ -18,12 +18,14 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 /// </summary>
 public sealed class AgentOutputEvaluationRecorder(
     IAgentExecutionTraceRepository traceRepository,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentOutputEvaluator evaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputQualityGate qualityGate,
     IOptions<AgentOutputQualityGateOptions> gateOptions,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
+    IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
     private const double LowStructuralScoreThreshold = 0.5;
@@ -51,6 +53,9 @@ public sealed class AgentOutputEvaluationRecorder(
     {
         ArgumentException.ThrowIfNullOrEmpty(runId);
 
+        AgentEvidencePackage? evidence =
+            await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+
         IReadOnlyList<AgentExecutionTrace> traces = await traceRepository.GetByRunIdAsync(runId, cancellationToken);
 
         async Task EvaluateOneAsync(AgentExecutionTrace trace)
@@ -65,7 +70,9 @@ public sealed class AgentOutputEvaluationRecorder(
                     evaluator,
                     semanticEvaluator,
                     qualityGate,
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken,
+                    evidence,
+                    agentResultEvidenceFaithfulnessChecker).ConfigureAwait(false);
 
             if (evaluated is null)
                 return;

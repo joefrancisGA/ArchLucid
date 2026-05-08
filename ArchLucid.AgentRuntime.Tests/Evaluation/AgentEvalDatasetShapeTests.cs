@@ -43,7 +43,10 @@ public sealed class AgentEvalDatasetShapeTests
 
         JsonDocument manifest = JsonDocument.Parse(File.ReadAllText(manifestPath));
         JsonElement rootEl = manifest.RootElement;
-        rootEl.GetProperty("schemaVersion").GetInt32().Should().Be(1);
+        rootEl.GetProperty("schemaVersion").GetInt32().Should().Be(2);
+
+        rootEl.TryGetProperty("minRequiredCategories", out JsonElement minReq).Should().BeTrue();
+        minReq.GetInt32().Should().BeGreaterThanOrEqualTo(1);
 
         JsonElement datasets = rootEl.GetProperty("datasets");
         datasets.GetArrayLength().Should().BeGreaterThan(0);
@@ -58,6 +61,19 @@ public sealed class AgentEvalDatasetShapeTests
             JsonDocument data = JsonDocument.Parse(File.ReadAllText(dataPath));
             data.RootElement.ValueKind.Should().Be(JsonValueKind.Array);
             data.RootElement.GetArrayLength().Should().BeGreaterThanOrEqualTo(minCases);
+
+            foreach (JsonElement caseEl in data.RootElement.EnumerateArray())
+            {
+                caseEl.TryGetProperty("architecturalContext", out JsonElement ctx).Should().BeTrue();
+                ctx.ValueKind.Should().Be(JsonValueKind.Object);
+
+                JsonElement expect = caseEl.GetProperty("expect");
+                expect.TryGetProperty("requiredCategories", out JsonElement reqCat).Should().BeTrue();
+                reqCat.ValueKind.Should().Be(JsonValueKind.Array);
+                reqCat.GetArrayLength().Should().BeGreaterThan(0);
+                expect.TryGetProperty("forbiddenCategories", out JsonElement forbCat).Should().BeTrue();
+                forbCat.ValueKind.Should().Be(JsonValueKind.Array);
+            }
         }
     }
 }

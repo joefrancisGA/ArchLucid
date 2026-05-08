@@ -1,8 +1,9 @@
 # Nightly golden cohort: JSON contract (always) + simulator drift when repository variable
 # ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is "true".
 #
-# Optional real-LLM gate (cohort-real-llm-gate job) is gated on:
-#   1. ARCHLUCID_GOLDEN_COHORT_REAL_LLM repo variable == "true"
+# Optional real-LLM **preflight** (cohort-real-llm-preflight job): budget probe + fixture presence check only —
+# no live OpenAI invoke in CI. Optional owner-driven live drift is cohort-real-llm-live (workflow_dispatch).
+# Preflight remains gated on:
 #   2. scripts/golden_cohort_budget_probe.py exit code in {0, 1}:
 #        0 → continue normally (MTD < 80% of $50 cap)
 #        1 → WARN: continue but post a GitHub issue (MTD ≥ 80% < 95%)
@@ -21,7 +22,12 @@ name: golden-cohort-nightly
 on:
   schedule:
     - cron: "0 6 * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      run_live_invoke:
+        description: "Run golden-cohort drift against ARCHLUCID_API_URL with --strict-real (requires secrets + budget gate)."
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -103,7 +109,7 @@ jobs:
             docs/quality/archive/*.md
           if-no-files-found: warn
 
-  cohort-real-llm-gate:
+  cohort-real-llm-preflight:
     needs: cohort-contract
     if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' }}
     runs-on: ubuntu-latest
@@ -235,7 +241,7 @@ jobs:
           dotnet-version: "10.0.x"
 
       # Improvement 11 (2026-04-24) — runs on exit 0 (green) AND exit 1 (warn — still under kill).
-      - name: Run golden cohort real-LLM gate tests (no live OpenAI invoke in CI)
+      - name: Cohort fixture presence check (no live LLM invocation in this job)
         if: ${{ steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1' }}
         env:
           ARCHLUCID_GOLDEN_COHORT_REAL_LLM: "true"
@@ -264,3 +270,40 @@ jobs:
           name: golden-cohort-usage-mtd-ledger
           path: tests/golden-cohort/usage-mtd.json
           if-no-files-found: warn
+
+  cohort-real-llm-live:
+    needs: cohort-contract
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch'
+      && inputs.run_live_invoke == true
+      && vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Require golden cohort API host secret
+        env:
+          ARCHLUCID_API_URL: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_API_HOST }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ARCHLUCID_API_URL:-}" ]; then
+            echo "::error::ARCHLUCID_GOLDEN_COHORT_API_HOST repository secret must be set to the ArchLucid API base URL (https://…); the CLI maps it to ARCHLUCID_API_URL."
+            exit 1
+          fi
+
+      - name: dotnet restore CLI
+        run: dotnet restore ArchLucid.Cli/ArchLucid.Cli.csproj
+
+      - name: Golden cohort drift (strict real + structural-only)
+        env:
+          ARCHLUCID_API_URL: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_API_HOST }}
+          ARCHLUCID_GOLDEN_COHORT_REAL_LLM: "true"
+          ARCHLUCID_AGENT_EXECUTION_MODE: "Real"
+        run: >
+          dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --configuration Release --
+          golden-cohort drift --strict-real --structural-only

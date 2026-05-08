@@ -1,7 +1,10 @@
 [
-  { "id": "critic-01", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "critic-02", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "critic-03", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "critic-04", "expect": { "minFindings": 0, "maxFindings": 500 } },
-  { "id": "critic-05", "expect": { "minFindings": 0, "maxFindings": 500 } }
+  {"id":"critic-01","architecturalContext":{"summary":"Single AZ deployment for payments","regions":["eastus"],"severityTarget":"High"},"expect":{"minFindings":2,"maxFindings":12,"requiredCategories":["Critic"],"forbiddenCategories":["Cost"]}},
+  {"id":"critic-02","architecturalContext":{"summary":"No chaos testing story","regions":["westeurope"],"severityTarget":"Medium"},"expect":{"minFindings":1,"maxFindings":10,"requiredCategories":["Critic"],"forbiddenCategories":["Topology"]}},
+  {"id":"critic-03","architecturalContext":{"summary":"Tight coupling across bounded contexts","regions":["centralus"],"severityTarget":"Medium"},"expect":{"minFindings":2,"maxFindings":11,"requiredCategories":["Critic"],"forbiddenCategories":["Compliance"]}},
+  {"id":"critic-04","architecturalContext":{"summary":"Missing graceful degradation","regions":["eastus2"],"severityTarget":"High"},"expect":{"minFindings":2,"maxFindings":12,"requiredCategories":["Critic"],"forbiddenCategories":["Cost"]}},
+  {"id":"critic-05","architecturalContext":{"summary":"Operational blind spots on queues","regions":["uksouth"],"severityTarget":"Medium"},"expect":{"minFindings":1,"maxFindings":10,"requiredCategories":["Critic"],"forbiddenCategories":["Topology"]}},
+  {"id":"critic-06","architecturalContext":{"summary":"Cold-start sensitive user journey","regions":["northeurope"],"severityTarget":"Low"},"expect":{"minFindings":1,"maxFindings":9,"requiredCategories":["Critic"],"forbiddenCategories":["Compliance"]}},
+  {"id":"critic-07","architecturalContext":{"summary":"Retry storms without backoff policy","regions":["westus2"],"severityTarget":"High"},"expect":{"minFindings":2,"maxFindings":11,"requiredCategories":["Critic"],"forbiddenCategories":["Cost"]}},
+  {"id":"critic-08","architecturalContext":{"summary":"Shared schema anti-pattern","regions":["eastus"],"severityTarget":"Medium"},"expect":{"minFindings":1,"maxFindings":10,"requiredCategories":["Critic"],"forbiddenCategories":["Topology"]}}
 ]

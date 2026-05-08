@@ -61,6 +61,25 @@ public sealed class AgentOutputQualityGateOptions
         set;
     }
 
+    /// <summary>
+    ///     Optional PilotStrict floor on deterministic AgentResult→evidence grounding (token overlap + resolved refs).
+    ///     When set with evidence available, values strictly below AgentResultFaithfulnessSupportRatio on the semantic score reject the trace.
+    /// </summary>
+    public double? PilotStrictMinAgentResultFaithfulnessSupportRatio
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When true, the heuristic semantic evaluator applies stricter length / overlap / proposed-change checks (production-like posture).
+    /// </summary>
+    public bool HeuristicEvaluatorTightenedThresholds
+    {
+        get;
+        set;
+    }
+
     /// <summary>When false, the gate always accepts and emits no gate metrics.</summary>
     public bool Enabled
     {

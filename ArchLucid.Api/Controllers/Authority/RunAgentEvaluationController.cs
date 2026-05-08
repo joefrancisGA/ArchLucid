@@ -28,9 +28,11 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed class RunAgentEvaluationController(
     IRunRepository authorityRunRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentOutputEvaluator agentOutputEvaluator,
     IAgentOutputSemanticEvaluator agentOutputSemanticEvaluator,
     IAgentOutputQualityGate agentOutputQualityGate,
+    IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>
@@ -54,13 +56,16 @@ public sealed class RunAgentEvaluationController(
         int skipped = traces.Count(static t =>
             !t.ParseSucceeded || string.IsNullOrEmpty(t.ParsedResultJson));
 
+        AgentEvidencePackage? evidence =
+            await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+
         IEnumerable<AgentExecutionTrace> eligible = traces.Where(static t =>
             t.ParseSucceeded && !string.IsNullOrEmpty(t.ParsedResultJson));
 
         AgentOutputEvaluationScore[] evaluatedRows =
             await Task.WhenAll(
                     eligible.Select(
-                        trace => EvaluateTraceRowAsync(trace, cancellationToken)))
+                        trace => EvaluateTraceRowAsync(trace, evidence, cancellationToken)))
                 .ConfigureAwait(false);
 
         List<AgentOutputEvaluationScore> scores = [.. evaluatedRows];
@@ -97,6 +102,7 @@ public sealed class RunAgentEvaluationController(
 
     private async Task<AgentOutputEvaluationScore> EvaluateTraceRowAsync(
         AgentExecutionTrace trace,
+        AgentEvidencePackage? evidence,
         CancellationToken cancellationToken)
     {
         AgentOutputEvaluationScore score =
@@ -105,9 +111,19 @@ public sealed class RunAgentEvaluationController(
         score.QualityWarning = trace.QualityWarning;
 
         if (!score.IsJsonParseFailure)
+        {
             score.Semantic =
                 await agentOutputSemanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
                     .ConfigureAwait(false);
+
+            if (evidence is not null)
+            {
+                AgentResultEvidenceFaithfulnessReport faithReport =
+                    agentResultEvidenceFaithfulnessChecker.Evaluate(trace.ParsedResultJson!, evidence);
+
+                score.Semantic.AgentResultFaithfulnessSupportRatio = faithReport.SupportRatio;
+            }
+        }
 
         return score;
     }

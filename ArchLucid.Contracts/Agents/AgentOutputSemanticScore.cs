@@ -70,6 +70,15 @@ public sealed class AgentOutputSemanticScore
         set;
     }
 
+    /// <summary>
+    ///     Deterministic AgentResult→evidence grounding ratio when computed (token overlap + resolved evidence refs); absent when not evaluated.
+    /// </summary>
+    public double? AgentResultFaithfulnessSupportRatio
+    {
+        get;
+        set;
+    }
+
     /// <summary>Optional short rationale from LLM judge (or skip reason).</summary>
     public string? LlmJudgeNotes
     {
