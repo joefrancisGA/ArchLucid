@@ -90,7 +90,7 @@ Implement optional embedding scorer vs evidence; `ArchLucid:Agents:Faithfulness:
 
 *Cursor prompt:* In `ArchLucid.AgentRuntime/Evaluation/`, add an embedding-based faithfulness path behind `ArchLucid:Agents:Faithfulness:EmbeddingEnabled`, **default true in `appsettings.Staging.json`, false in `appsettings.Production.json`**. Use existing or new `IOpenAiEmbeddingClient`; chunk claims and evidence; cosine similarity; new nullable field on semantic score DTO; OTel histogram; tests with fake embedder; update `docs/library/AGENT_OUTPUT_EVALUATION.md`. Regenerate OpenAPI + Api.Client + `npm run generate:api-types` if wire contract changes.
 
-**2. Adversarial eval-corpus scenarios**  
+**2. COMPLETED:  Adversarial eval-corpus scenarios**  
 Add hallucination, citation forgery, contradictory-manifest scenarios with `--enforce` rules as previously specified.
 
 *Cursor prompt:* Add `scenario-hallucinated-service.json`, `scenario-citation-forgery.json`, `scenario-contradictory-manifest.json` under `tests/eval-corpus/` with recordings, optional simulator `agent-results`, manifest entries, ≥3 expected / ≥2 unexpected rules each; run `eval_agent_corpus.py` locally; update `docs/library/AGENT_EVAL_CORPUS.md`.

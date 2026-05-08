@@ -1,0 +1,30 @@
+{
+  "resultId": "corp-contra-sim-01",
+  "taskId": "corp-contra-task-01",
+  "runId": "corp-contra-run-01",
+  "agentType": 4,
+  "claims": [
+    {
+      "evidenceRefs": ["manifest-diagram-reconciliation-pattern"],
+      "detail": "Simulator critic claim: contradictory manifests and diagrams must be reconciled before blast-radius estimates ship."
+    }
+  ],
+  "evidenceRefs": ["manifest-diagram-reconciliation-pattern"],
+  "confidence": 0.82,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Critic",
+      "description": "Executive summaries cannot cite triple-nine availability while diagrams omit redundant zones without explicit discrepancy notes.",
+      "recommendation": "Hold a reconciliation workshop that merges manifest facts with diagram symbols before release gates lift."
+    },
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Topology automation should flag when declared serverless tiers contradict illustrated VM footprints inside the same revision.",
+      "recommendation": "Regenerate topology artifacts from the reconciled manifest YAML once editors collapse contradictory statements."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-08T12:00:00Z"
+}

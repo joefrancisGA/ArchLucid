@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-citation-forgery",
+  "metadata": {
+    "title": "Forged ADR citations and dead repository links",
+    "complexity": "medium",
+    "primaryAgents": ["Critic", "Compliance", "Topology"]
+  },
+  "inputSummary": "Architecture notes cite ADR-9999 and deep links into a repository path that never existed. Tables embed screenshot snippets instead of checksum-backed artifacts, inviting reviewers to trust narrative prose.",
+  "recording": "recordings/corpus-citation-forgery.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Critic",
+    "agentResultPath": "agent-results/corpus-citation-forgery.simulator.json",
+    "notes": "Adversarial probe: regress citation integrity expectations offline."
+  },
+  "expectedFindings": [
+    {
+      "id": "e citation repository",
+      "category": "Critic",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["citation", "repository"]
+    },
+    {
+      "id": "e adr verify compliance",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["ADR", "verify"]
+    },
+    {
+      "id": "e traceability source topology",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["traceability", "source"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Compliance",
+      "ifContainsAny": ["accept unverified citations", "trust screenshots only"]
+    },
+    {
+      "category": "Critic",
+      "ifContainsAny": ["ignore provenance", "skip peer review"]
+    }
+  ]
+}
