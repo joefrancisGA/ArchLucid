@@ -111,7 +111,9 @@ public sealed class GovernancePreviewService(
             notes.Add($"Could not load GoldenManifest for target manifest version '{targetActive.ManifestVersion}'.");
         if (sourceActive is not null && targetActive is not null && sourceManifest is not null && targetManifest is not null)
             notes.Add($"Compared active governance states for environments '{source}' and '{target}'.");
+
         List<GovernanceDiffItem> differences = GovernanceManifestComparer.Compare(sourceManifest?.Governance, targetManifest?.Governance);
+
         return new GovernanceEnvironmentComparisonResult { SourceEnvironment = source, TargetEnvironment = target, Differences = differences, Notes = notes };
     }
 
@@ -119,9 +121,8 @@ public sealed class GovernancePreviewService(
     {
         if (string.IsNullOrWhiteSpace(environment))
             throw new ArgumentException("Environment is required.", paramName);
-        if (!IsKnownEnvironment(environment))
-            throw new ArgumentException("Environment must be one of: dev, test, prod.", paramName);
-        return environment.Trim().ToLowerInvariant();
+
+        return !IsKnownEnvironment(environment) ? throw new ArgumentException("Environment must be one of: dev, test, prod.", paramName) : environment.Trim().ToLowerInvariant();
     }
 
     private static bool IsKnownEnvironment(string value)
