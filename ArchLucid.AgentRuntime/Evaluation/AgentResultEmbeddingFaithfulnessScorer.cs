@@ -178,15 +178,7 @@ public sealed class AgentResultEmbeddingFaithfulnessScorer(
             if (hypChunks.Count == 0 || evChunks.Count == 0)
                 continue;
 
-            double chunkAccum = 0;
-
-            foreach (string hc in hypChunks)
-            {
-                float[] hv = vectorByChunk[hc];
-                double best = evChunks.Select(ec => vectorByChunk[ec]).Select(ev => EmbeddingFaithfulnessVectorMath.CosineSimilarity(hv, ev)).Prepend(double.NegativeInfinity).Max();
-
-                chunkAccum += best;
-            }
+            double chunkAccum = hypChunks.Select(hc => vectorByChunk[hc]).Select(hv => evChunks.Select(ec => vectorByChunk[ec]).Select(ev => EmbeddingFaithfulnessVectorMath.CosineSimilarity(hv, ev)).Prepend(double.NegativeInfinity).Max()).Sum();
 
             hypothesisMeans.Add(chunkAccum / hypChunks.Count);
         }
