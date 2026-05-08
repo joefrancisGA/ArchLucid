@@ -230,7 +230,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(ex, "Failed to insert RunTelemetry for RunId={RunId}", runId);
+            _logger.LogWarningWithSanitizedUserArg(ex, "Failed to insert RunTelemetry for RunId={RunId}", runId);
         }
 
         return new CommitRunResult
