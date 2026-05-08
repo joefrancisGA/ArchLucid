@@ -17,6 +17,7 @@ import {
   OperatorErrorCallout,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -343,6 +344,22 @@ export default async function ManifestDetailPage({
                 ? "Use the review summary to open each finding with full context and trace detail when available."
                 : "Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence rows are available."}
             </p>
+            {buyerPolishedLayout && primaryFindingHref ? (
+              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                    PHI minimization risk
+                  </span>
+                  <Badge variant="destructive" className="text-[11px]">
+                    High severity
+                  </Badge>
+                </div>
+                <p className="m-0 mt-2 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
+                  Over-retaining identifiable health context expands audit scope and downstream processing obligations —
+                  this finding tracks how intake minimizes PHI exposure for the design under review.
+                </p>
+              </div>
+            ) : null}
             <div className="mt-4">
               <Button variant="secondary" size="sm" asChild>
                 <Link

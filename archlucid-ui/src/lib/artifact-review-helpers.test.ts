@@ -6,8 +6,23 @@ import {
   getArtifactTypeDescription,
   getArtifactTypeLabel,
   prepareArtifactBodyText,
+  sponsorArtifactAudienceLine,
   sponsorArtifactSecondaryCaption,
 } from "./artifact-review-helpers";
+
+describe("sponsorArtifactAudienceLine", () => {
+  it("returns sponsor-oriented line for MarkdownReport", () => {
+    expect(sponsorArtifactAudienceLine("MarkdownReport")).toContain("sponsor");
+  });
+
+  it("returns audit-oriented line for EvidenceBundle", () => {
+    expect(sponsorArtifactAudienceLine("EvidenceBundle")).toContain("audit");
+  });
+
+  it("returns null for unknown artifact types", () => {
+    expect(sponsorArtifactAudienceLine("UnknownSyntheticType")).toBeNull();
+  });
+});
 
 describe("classifyArtifactView", () => {
   it("classifies markdown", () => {

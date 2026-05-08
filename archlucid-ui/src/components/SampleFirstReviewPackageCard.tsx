@@ -42,6 +42,13 @@ export function SampleFirstReviewPackageCard() {
               ? "The sample is a completed, read-only package that mirrors a live review. Your own reviews use the same outputs once you connect a workspace and run the wizard."
               : "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."}
           </p>
+          {buyerPolished ? (
+            <p className="m-0 mt-2 max-w-2xl text-sm font-medium leading-snug text-neutral-800 dark:text-neutral-200">
+              Includes a finalized manifest, a PHI finding with traceability, the evidence graph, an audit-ready event
+              trail, and governance handoff deliverables — open the manifest summary first for the shortest path through
+              the package.
+            </p>
+          ) : null}
           {buyerPolished ? null : (
             <p className="m-0 mt-2 text-xs text-amber-800 dark:text-amber-300">
               Illustrative sample review — use it to understand output shape, not as customer ROI evidence.

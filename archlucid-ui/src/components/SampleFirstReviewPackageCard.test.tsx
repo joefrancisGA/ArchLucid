@@ -76,6 +76,9 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     render(<SampleFirstReviewPackageCard />);
 
     expect(screen.getByRole("heading", { name: "Sample review package" })).toBeInTheDocument();
+    expect(
+      screen.getByText(/Includes a finalized manifest, a PHI finding with traceability/i),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
       "href",
       "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",

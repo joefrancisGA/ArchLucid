@@ -38,4 +38,12 @@ describe("buyerFacingReviewTitleFromSummary", () => {
 
     expect(buyerFacingReviewTitleFromSummary(summary({ runId: "other", description: "" }))).toBe("Untitled review");
   });
+
+  it("does not use a description that only repeats the run id", () => {
+    expect(buyerFacingReviewTitleFromSummary(summary({ runId: "my-run-slug", description: "my-run-slug" }))).toBe(
+      "Untitled review",
+    );
+
+    expect(buyerFacingReviewTitleFromSummary(summary({ runId: "My-Run", description: "my-run" }))).toBe("Untitled review");
+  });
 });
