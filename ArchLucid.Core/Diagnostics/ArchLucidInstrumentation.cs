@@ -551,6 +551,15 @@ public static class ArchLucidInstrumentation
             "archlucid_agent_output_semantic_score",
             description: "Agent output semantic quality score (0-1).");
 
+    /// <summary>
+    ///     AgentResult embedding faithfulness mean cosine vs evidence (clamped 0–1 for telemetry; label <c>agent_type</c>) when
+    ///     embedding scorer runs.
+    /// </summary>
+    public static readonly Histogram<double> AgentOutputEmbeddingFaithfulnessMeanCosine =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_agent_output_embedding_faithfulness_mean_cosine",
+            description: "Mean cosine similarity between claims/findings and evidence chunks (0-1 clamp).");
+
     /// <summary>Absolute delta between LLM judge median score and heuristic semantic score (label <c>agent_type</c>).</summary>
     public static readonly Histogram<double> AgentOutputJudgeDisagreement =
         AppMeter.CreateHistogram<double>(

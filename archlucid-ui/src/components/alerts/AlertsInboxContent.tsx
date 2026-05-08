@@ -104,6 +104,7 @@ export function AlertsInboxContent() {
   const [pendingAction, setPendingAction] = useState<PendingActionState | null>(null);
   const [actionComment, setActionComment] = useState("");
   const [actionBusy, setActionBusy] = useState(false);
+  const [actionLoopAlertId, setActionLoopAlertId] = useState<string | null>(null);
   const [actionLoopFindingHref, setActionLoopFindingHref] = useState<string | null>(null);
   const [actionLoopData, setActionLoopData] = useState<AlertActionLoopDto | null>(null);
   const [actionLoopLoading, setActionLoopLoading] = useState(false);

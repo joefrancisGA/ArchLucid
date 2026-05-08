@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Analysis;
@@ -24,31 +25,15 @@ public sealed class ComparisonReplayService(
     IExportRecordDiffExportService exportRecordDiffExportService,
     IRunExportRecordRepository runExportRecordRepository) : IComparisonReplayService
 {
-    private readonly IRunExportRecordRepository _runExportRecordRepository =
-        runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
-
-    private readonly IExportRecordDiffService _exportRecordDiffService =
-        exportRecordDiffService ?? throw new ArgumentNullException(nameof(exportRecordDiffService));
-
-    private readonly IExportRecordDiffExportService _exportRecordDiffExportService =
-        exportRecordDiffExportService ?? throw new ArgumentNullException(nameof(exportRecordDiffExportService));
-
-    private readonly IComparisonRecordRepository _comparisonRecordRepository =
-        comparisonRecordRepository ?? throw new ArgumentNullException(nameof(comparisonRecordRepository));
-
-    private readonly IEndToEndReplayComparisonService _endToEndReplayComparisonService =
-        endToEndReplayComparisonService ?? throw new ArgumentNullException(nameof(endToEndReplayComparisonService));
-
-    private readonly IExportRecordDiffSummaryFormatter _exportRecordDiffSummaryFormatter =
-        exportRecordDiffSummaryFormatter ?? throw new ArgumentNullException(nameof(exportRecordDiffSummaryFormatter));
-
-    private readonly IComparisonDriftAnalyzer _driftAnalyzer = driftAnalyzer ?? throw new ArgumentNullException(nameof(driftAnalyzer));
-
-    private readonly IComparisonAuditService
-        _comparisonAuditService = comparisonAuditService ?? throw new ArgumentNullException(nameof(comparisonAuditService));
-
-    private readonly IEndToEndReplayComparisonExportService _endToEndExportService =
-        endToEndExportService ?? throw new ArgumentNullException(nameof(endToEndExportService));
+    private readonly IRunExportRecordRepository _runExportRecordRepository = runExportRecordRepository.ThrowIfNull();
+    private readonly IExportRecordDiffService _exportRecordDiffService = exportRecordDiffService.ThrowIfNull();
+    private readonly IExportRecordDiffExportService _exportRecordDiffExportService = exportRecordDiffExportService.ThrowIfNull();
+    private readonly IComparisonRecordRepository _comparisonRecordRepository = comparisonRecordRepository.ThrowIfNull();
+    private readonly IEndToEndReplayComparisonService _endToEndReplayComparisonService = endToEndReplayComparisonService.ThrowIfNull();
+    private readonly IExportRecordDiffSummaryFormatter _exportRecordDiffSummaryFormatter = exportRecordDiffSummaryFormatter.ThrowIfNull();
+    private readonly IComparisonDriftAnalyzer _driftAnalyzer = driftAnalyzer.ThrowIfNull();
+    private readonly IComparisonAuditService _comparisonAuditService = comparisonAuditService.ThrowIfNull();
+    private readonly IEndToEndReplayComparisonExportService _endToEndExportService = endToEndExportService.ThrowIfNull();
 
     /// <summary>
     ///     Replay a comparison record by ID and return an export payload (text or binary).
@@ -61,7 +46,7 @@ public sealed class ComparisonReplayService(
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.ComparisonRecordId);
-        ComparisonRecord record = await comparisonRecordRepository.GetByIdAsync(request.ComparisonRecordId, cancellationToken) ??
+        ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(request.ComparisonRecordId, cancellationToken) ??
                                   throw new InvalidOperationException($"Comparison record '{request.ComparisonRecordId}' was not found.");
         string format = ComparisonReplayRequestParsing.NormalizeFormat(request.Format);
         string profile = EndToEndComparisonExportProfile.Normalize(request.Profile);
@@ -75,7 +60,7 @@ public sealed class ComparisonReplayService(
         if (request.PersistReplay)
             // Intentionally persists a *new* comparison record rather than mutating the original.
             // This keeps comparison records immutable and yields an audit trail of replay activity.
-            result.PersistedReplayRecordId = await comparisonAuditService.RecordReplayOfAsync(record,
+            result.PersistedReplayRecordId = await _comparisonAuditService.RecordReplayOfAsync(record,
                 $"Replay of comparison record {record.ComparisonRecordId} at {TimeProvider.System.GetUtcNow().UtcDateTime:O}.", cancellationToken);
         return result;
     }
@@ -83,7 +68,7 @@ public sealed class ComparisonReplayService(
     public async Task<DriftAnalysisResult> AnalyzeDriftAsync(string comparisonRecordId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
-        ComparisonRecord record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ??
+        ComparisonRecord record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ??
                                   throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
         return record.ComparisonType switch
         {
@@ -99,7 +84,7 @@ public sealed class ComparisonReplayService(
                                                 throw new InvalidOperationException(
                                                     $"Comparison record '{record.ComparisonRecordId}' did not contain a valid end-to-end payload.");
         EndToEndReplayComparisonReport regenerated = await RegenerateEndToEndAsync(record, cancellationToken);
-        return driftAnalyzer.Analyze(stored, regenerated);
+        return _driftAnalyzer.Analyze(stored, regenerated);
     }
 
     private async Task<DriftAnalysisResult> AnalyzeDriftExportDiffAsync(ComparisonRecord record, CancellationToken cancellationToken)
@@ -108,7 +93,7 @@ public sealed class ComparisonReplayService(
                                         throw new InvalidOperationException(
                                             $"Comparison record '{record.ComparisonRecordId}' did not contain a valid export-diff payload.");
         ExportRecordDiffResult regenerated = await RegenerateExportDiffAsync(record, cancellationToken);
-        return driftAnalyzer.Analyze(stored, regenerated);
+        return _driftAnalyzer.Analyze(stored, regenerated);
     }
 
     private async Task<ReplayComparisonResult> ReplayEndToEndAsync(ComparisonRecord record, string format, string profile, ComparisonReplayMode mode,
@@ -129,7 +114,7 @@ public sealed class ComparisonReplayService(
                                                            throw new InvalidOperationException(
                                                                $"Comparison record '{record.ComparisonRecordId}' did not contain a valid end-to-end payload.");
                 report = await RegenerateEndToEndAsync(record, cancellationToken);
-                DriftAnalysisResult driftE2E = driftAnalyzer.Analyze(storedE2E, report);
+                DriftAnalysisResult driftE2E = _driftAnalyzer.Analyze(storedE2E, report);
                 if (driftE2E.DriftDetected)
                     throw new ComparisonVerificationFailedException(driftE2E.Summary, driftE2E);
                 break;
@@ -151,7 +136,7 @@ public sealed class ComparisonReplayService(
         if (string.IsNullOrWhiteSpace(record.LeftRunId) || string.IsNullOrWhiteSpace(record.RightRunId))
             throw new InvalidOperationException(
                 $"Comparison record '{record.ComparisonRecordId}' has no LeftRunId/RightRunId; cannot regenerate end-to-end comparison.");
-        return await endToEndReplayComparisonService.BuildAsync(record.LeftRunId, record.RightRunId, cancellationToken);
+        return await _endToEndReplayComparisonService.BuildAsync(record.LeftRunId, record.RightRunId, cancellationToken);
     }
 
     private async Task<ReplayComparisonResult> BuildEndToEndResultAsync(ComparisonRecord record, EndToEndReplayComparisonReport report, string format,
@@ -159,25 +144,25 @@ public sealed class ComparisonReplayService(
     {
         if (string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
         {
-            string content = endToEndExportService.GenerateMarkdown(report, profile);
+            string content = _endToEndExportService.GenerateMarkdown(report, profile);
             return BuildTextResult(record, "markdown", $"comparison_{record.ComparisonRecordId}.md", content, profile);
         }
 
         if (string.Equals(format, "html", StringComparison.OrdinalIgnoreCase))
         {
-            string content = endToEndExportService.GenerateHtml(report, profile);
+            string content = _endToEndExportService.GenerateHtml(report, profile);
             return BuildTextResult(record, "html", $"comparison_{record.ComparisonRecordId}.html", content, profile);
         }
 
         if (string.Equals(format, "docx", StringComparison.OrdinalIgnoreCase))
         {
-            byte[] bytes = await endToEndExportService.GenerateDocxAsync(report, cancellationToken, profile);
+            byte[] bytes = await _endToEndExportService.GenerateDocxAsync(report, cancellationToken, profile);
             return BuildBinaryResult(record, "docx", $"comparison_{record.ComparisonRecordId}.docx", bytes, profile);
         }
 
         if (!string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException($"Unsupported replay format '{format}'.");
-        byte[] pdfBytes = await endToEndExportService.GeneratePdfAsync(report, cancellationToken, profile);
+        byte[] pdfBytes = await _endToEndExportService.GeneratePdfAsync(report, cancellationToken, profile);
         return BuildBinaryResult(record, "pdf", $"comparison_{record.ComparisonRecordId}.pdf", pdfBytes, profile);
     }
 
@@ -227,7 +212,7 @@ public sealed class ComparisonReplayService(
                                                     throw new InvalidOperationException(
                                                         $"Comparison record '{record.ComparisonRecordId}' did not contain a valid export-diff payload.");
                 diff = await RegenerateExportDiffAsync(record, cancellationToken);
-                DriftAnalysisResult driftExport = driftAnalyzer.Analyze(storedDiff, diff);
+                DriftAnalysisResult driftExport = _driftAnalyzer.Analyze(storedDiff, diff);
                 if (driftExport.DriftDetected)
                     throw new ComparisonVerificationFailedException(driftExport.Summary, driftExport);
                 break;
@@ -239,7 +224,7 @@ public sealed class ComparisonReplayService(
         {
             if (!string.Equals(format, "docx", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException($"Unsupported replay format '{format}' for export-record diff.");
-            byte[] bytes = await exportRecordDiffExportService.GenerateDocxAsync(diff, cancellationToken);
+            byte[] bytes = await _exportRecordDiffExportService.GenerateDocxAsync(diff, cancellationToken);
             ReplayComparisonResult resultDocx = new()
             {
                 ComparisonRecordId = record.ComparisonRecordId,
@@ -259,7 +244,7 @@ public sealed class ComparisonReplayService(
             return resultDocx;
         }
 
-        string markdown = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
+        string markdown = _exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
         ReplayComparisonResult result = new()
         {
             ComparisonRecordId = record.ComparisonRecordId,

@@ -110,6 +110,17 @@ public sealed class AgentOutputSemanticScore
         set;
     }
 
+    /// <summary>
+    ///     Mean embedding cosine alignment between chunked claims/findings text and chunked evidence text when
+    ///     <c>ArchLucid:Agents:Faithfulness:EmbeddingEnabled</c> is on; absent when disabled, skipped, or failed. Does not replace
+    ///     <see cref="AgentResultFaithfulnessSupportRatio"/>.
+    /// </summary>
+    public double? AgentResultEmbeddingFaithfulnessMeanCosine
+    {
+        get;
+        set;
+    }
+
     /// <summary>Optional short rationale from LLM judge (or skip reason).</summary>
     public string? LlmJudgeNotes
     {
