@@ -1,3 +1,4 @@
+using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
@@ -8,8 +9,8 @@ namespace ArchLucid.Application.Audit;
 /// <inheritdoc cref = "IRunPipelineAuditTimelineService"/>
 public sealed class RunPipelineAuditTimelineService(IAuthorityQueryService authorityQuery, IAuditRepository auditRepository) : IRunPipelineAuditTimelineService
 {
-    private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
-    private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
+    private readonly IAuditRepository _auditRepository = auditRepository.ThrowIfNull();
+    private readonly IAuthorityQueryService _authorityQuery = authorityQuery.ThrowIfNull();
 
     /// <inheritdoc/>
     public async Task<IReadOnlyList<RunPipelineTimelineItemDto>?> GetTimelineAsync(ScopeContext scope, Guid runId, CancellationToken cancellationToken)

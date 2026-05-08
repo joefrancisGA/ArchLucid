@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Analysis;
@@ -6,7 +7,7 @@ namespace ArchLucid.Application.Analysis;
 /// <inheritdoc cref = "IComparisonReplayCostEstimator"/>
 public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository comparisonRecords) : IComparisonReplayCostEstimator
 {
-    private readonly IComparisonRecordRepository _comparisonRecords = comparisonRecords ?? throw new ArgumentNullException(nameof(comparisonRecords));
+    private readonly IComparisonRecordRepository _comparisonRecords = comparisonRecords.ThrowIfNull();
 
     /// <inheritdoc/>
     public async Task<ComparisonReplayCostEstimate?> TryEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool persistReplay,

@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Core;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
@@ -14,10 +15,10 @@ public sealed class FindingEvidenceChainService(
     IAgentExecutionTraceRepository agentExecutionTraceRepository) : IFindingEvidenceChainService
 {
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
-        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+        agentExecutionTraceRepository.ThrowIfNull();
 
-    private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
-    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IAuthorityQueryService _authorityQuery = authorityQuery.ThrowIfNull();
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider.ThrowIfNull();
 
     /// <inheritdoc/>
     public async Task<FindingEvidenceChainResponse?> BuildAsync(string runId, string findingId, CancellationToken cancellationToken = default)

@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Architecture;
@@ -19,28 +20,28 @@ public sealed class ArchitectureRunProvenanceService(
     IEvidenceBundleRepository evidenceBundleRepository,
     IDecisionNodeRepository decisionNodeRepository) : IArchitectureRunProvenanceService
 {
-    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService.ThrowIfNull();
 
     private readonly IDecisionNodeRepository
-        _decisionNodeRepository = decisionNodeRepository ?? throw new ArgumentNullException(nameof(decisionNodeRepository));
+        _decisionNodeRepository = decisionNodeRepository.ThrowIfNull();
 
     private readonly IEvidenceBundleRepository _evidenceBundleRepository =
-        evidenceBundleRepository ?? throw new ArgumentNullException(nameof(evidenceBundleRepository));
+        evidenceBundleRepository.ThrowIfNull();
 
-    private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
+    private readonly IArchitectureRequestRepository _requestRepository = requestRepository.ThrowIfNull();
 
     /// <inheritdoc/>
     public async Task<ArchitectureRunProvenanceGraph?> GetProvenanceAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
             return null;
         if (detail.HasBrokenManifestReference)
             return null;
-        ArchitectureRequest? request = await requestRepository.GetByIdAsync(detail.Run.RequestId, cancellationToken);
-        EvidenceBundle? bundle = await TryResolveEvidenceBundleAsync(detail, evidenceBundleRepository, cancellationToken);
-        IReadOnlyList<DecisionNode> decisionNodes = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
+        ArchitectureRequest? request = await _requestRepository.GetByIdAsync(detail.Run.RequestId, cancellationToken);
+        EvidenceBundle? bundle = await TryResolveEvidenceBundleAsync(detail, _evidenceBundleRepository, cancellationToken);
+        IReadOnlyList<DecisionNode> decisionNodes = await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
         return BuildGraph(detail, request, bundle, decisionNodes);
     }
 
