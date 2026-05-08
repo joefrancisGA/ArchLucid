@@ -14,7 +14,7 @@ public sealed class PublisherIntegrationPayloadAndRecipeDocumentationGuardTests
     public void AuthorityRunCompleted_publisher_payload_property_names_match_expected_contract()
     {
         string root = TestRepositoryPaths.ResolveRepositoryRoot();
-        string path = Path.Combine(root, "ArchLucid.Persistence.Runtime", "Orchestration", "AuthorityRunOrchestrator.cs");
+        string path = Path.Combine(root, "ArchLucid.Persistence", "Orchestration", "AuthorityRunOrchestrator.cs");
         string source = File.ReadAllText(path);
 
         IReadOnlyList<string> names = CSharpAnonymousObjectInitializerPropertyExtractor.ExtractPropertyNames(
@@ -40,7 +40,7 @@ public sealed class PublisherIntegrationPayloadAndRecipeDocumentationGuardTests
     public void AlertFired_publisher_payload_property_names_match_expected_contract()
     {
         string root = TestRepositoryPaths.ResolveRepositoryRoot();
-        string path = Path.Combine(root, "ArchLucid.Persistence.Alerts", "AlertIntegrationEventPublishing.cs");
+        string path = Path.Combine(root, "ArchLucid.Persistence", "Alerts", "AlertIntegrationEventPublishing.cs");
         string text = File.ReadAllText(path);
 
         int firedStart = text.IndexOf("TryPublishFiredAsync", StringComparison.Ordinal);
