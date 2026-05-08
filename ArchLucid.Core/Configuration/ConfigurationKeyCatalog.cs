@@ -68,7 +68,7 @@ public static class ConfigurationKeyCatalog
                 "Optional PilotStrict minimum aggregate explanation faithfulness ratio.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PilotStrictMinAgentResultFaithfulnessSupportRatio",
                 M("appsettings", "env"), "(unset)", "—",
-                "Optional PilotStrict minimum AgentResult→evidence grounding ratio when evidence package present.", ConfigKeyRequirementKind.None),
+        "PilotStrict: minimum AgentResult→evidence grounding ratio when an evidence package exists; required when Mode is PilotStrict (options validation).", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:HeuristicEvaluatorTightenedThresholds",
                 M("appsettings", "env"), "false", "—",
                 "When true, heuristic semantic evaluator applies stricter length/overlap checks.", ConfigKeyRequirementKind.None),

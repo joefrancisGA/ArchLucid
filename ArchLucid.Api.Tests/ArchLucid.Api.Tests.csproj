@@ -33,6 +33,8 @@
   <ItemGroup>
     <None Include="..\ArchLucid.Api\appsettings.Staging.json" Link="appsettings.Staging.json"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\ArchLucid.Api\appsettings.Production.json" Link="appsettings.Production.json"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

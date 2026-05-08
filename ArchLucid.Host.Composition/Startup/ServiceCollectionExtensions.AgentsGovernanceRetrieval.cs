@@ -186,8 +186,10 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<CompositeAgentOutputSemanticEvaluator>());
         services.AddSingleton<HeuristicOnlyAgentOutputSemanticEvaluator>();
         services.AddSingleton<IAgentOutputEvaluationHarness, AgentOutputEvaluationHarness>();
-        services.Configure<AgentOutputQualityGateOptions>(
-            configuration.GetSection(AgentOutputQualityGateOptions.SectionPath));
+        services.AddSingleton<IValidateOptions<AgentOutputQualityGateOptions>, AgentOutputQualityGateOptionsValidator>();
+        services.AddOptions<AgentOutputQualityGateOptions>()
+            .Bind(configuration.GetSection(AgentOutputQualityGateOptions.SectionPath))
+            .ValidateOnStart();
         services.AddSingleton<IAgentOutputQualityGate, AgentOutputQualityGate>();
         services.AddSingleton<IRunAgentOutputPilotEvidenceAggregator, RunAgentOutputPilotEvidenceAggregator>();
         services.Configure<AgentExecutionReferenceEvaluationOptions>(

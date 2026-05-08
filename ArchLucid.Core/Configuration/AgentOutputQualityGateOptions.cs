@@ -62,7 +62,8 @@ public sealed class AgentOutputQualityGateOptions
     }
 
     /// <summary>
-    ///     Optional PilotStrict floor on deterministic AgentResult→evidence grounding (token overlap + resolved refs).
+    ///     PilotStrict floor on deterministic AgentResult→evidence grounding (token overlap + resolved refs).
+    ///     Required when <see cref="Mode"/> is <see cref="AgentOutputQualityGateMode.PilotStrict"/> (startup validation).
     ///     When set with evidence available, values strictly below AgentResultFaithfulnessSupportRatio on the semantic score reject the trace.
     /// </summary>
     public double? PilotStrictMinAgentResultFaithfulnessSupportRatio

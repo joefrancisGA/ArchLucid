@@ -95,14 +95,14 @@ Add hallucination, citation forgery, contradictory-manifest scenarios with `--en
 
 *Cursor prompt:* Add `scenario-hallucinated-service.json`, `scenario-citation-forgery.json`, `scenario-contradictory-manifest.json` under `tests/eval-corpus/` with recordings, optional simulator `agent-results`, manifest entries, ≥3 expected / ≥2 unexpected rules each; run `eval_agent_corpus.py` locally; update `docs/library/AGENT_EVAL_CORPUS.md`.
 
-**3. Mandatory faithfulness floor 0.7 (Staging + Production)**  
+**3. COMPLETED:  Mandatory faithfulness floor 0.7 (Staging + Production)**  
 Set `PilotStrictMinAgentResultFaithfulnessSupportRatio` to **0.7** in `appsettings.Staging.json` and `appsettings.Production.json`; validate `PilotStrict` requires non-null floor.
 
 *Cursor prompt:* Set `ArchLucid:AgentOutput:QualityGate:PilotStrictMinAgentResultFaithfulnessSupportRatio` to **0.7** in Staging and Production JSON. Add options validation throwing when `Mode=PilotStrict` and floor null. Tests + `AGENT_OUTPUT_EVALUATION.md`.
 
 ### Output correctness & gating
 
-**4. Per-agent quality gate overrides (locked numbers)**  
+**4. COMPLETED: Per-agent quality gate overrides (locked numbers)**  
 Topology **0.85/0.65**, Compliance **0.80/0.60**, Cost **0.75/0.55**, Critic **0.65/0.50**.
 
 *Cursor prompt:* Extend `AgentOutputQualityGateOptions` with per-agent-type override map (separate override class file). Apply in `AgentOutputQualityGate`. Production JSON entries for all four. Unit tests per agent + fallback. Update `docs/library/AGENT_OUTPUT_EVALUATION.md`.
