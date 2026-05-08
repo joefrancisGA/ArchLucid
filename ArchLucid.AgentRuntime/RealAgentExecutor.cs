@@ -287,8 +287,12 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
     private static Exception ExtractFailureRoot(Task<AgentResult> faultedTask)
     {
-        Exception ex = faultedTask.Exception!;
-        AggregateException flattened = ex.Flatten();
+        Exception ex = faultedTask.Exception ?? throw new InvalidOperationException("Expected faulted task exception.");
+
+        if (ex is not AggregateException aggregate)
+            return ex;
+
+        AggregateException flattened = aggregate.Flatten();
 
         if (flattened.InnerExceptions.Count == 1)
             return flattened.InnerExceptions[0];
