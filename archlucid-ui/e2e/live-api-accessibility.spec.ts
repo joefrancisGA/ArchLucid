@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import { formatViolations, runAxe } from "./helpers/axe-helper";
 import {
@@ -127,6 +127,22 @@ const PAGES = [
 ] as const;
 
 /**
+ * PRs run the first slice (tag {@link liveA11yPrTag}) plus all non-accessibility live specs.
+ * Remaining routes run under {@link liveA11yFullMatrixTag} (nightly / manual full matrix; omitted on PR via `--grep-invert`).
+ */
+const LIVE_A11Y_PR_SLICE_LEN = 28;
+
+/** PR-visible subset — must stay smaller than the full matrix to keep `ui-e2e-live` bounded. */
+const PAGES_LIVE_A11Y_PR = PAGES.slice(0, LIVE_A11Y_PR_SLICE_LEN);
+const liveA11yPrPathSet = new Set<string>(PAGES_LIVE_A11Y_PR.map((p) => p.path));
+
+/** Extended routes (everything after the PR slice). */
+const PAGES_LIVE_A11Y_EXTENDED = PAGES.filter((p) => !liveA11yPrPathSet.has(p.path));
+
+export const liveA11yPrTag = "@live-a11y-pr";
+export const liveA11yFullMatrixTag = "@live-a11y-full-matrix";
+
+/**
  * Routes intentionally excluded from the axe matrix: require state or OAuth handshakes that are not stable in CI.
  */
 export const PAGES_DEFERRED = [
@@ -150,16 +166,36 @@ export const PAGES_DEFERRED = [
   },
 ] as const;
 
-test.describe("accessibility baseline — WCAG 2.2 AA (axe wcag22aa + inherited 2.x tags)", () => {
-  for (const { name, path } of PAGES) {
-    test(`${name} (${path}) has no critical or serious axe violations`, async ({ page }) => {
-      await page.goto(path, { waitUntil: "load" });
-      await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+async function expectNoCriticalOrSeriousAxeViolations(page: Page, path: string) {
+  await page.goto(path, { waitUntil: "load" });
+  await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
-      const results = await runAxe(page);
-      const critical = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
+  const results = await runAxe(page);
+  const critical = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
 
-      expect(critical, formatViolations(critical)).toHaveLength(0);
-    });
-  }
-});
+  expect(critical, formatViolations(critical)).toHaveLength(0);
+}
+
+test.describe(
+  "accessibility baseline — WCAG 2.2 AA (PR route subset)",
+  { tag: [liveA11yPrTag] },
+  () => {
+    for (const { name, path } of PAGES_LIVE_A11Y_PR) {
+      test(`${name} (${path}) has no critical or serious axe violations`, async ({ page }) => {
+        await expectNoCriticalOrSeriousAxeViolations(page, path);
+      });
+    }
+  },
+);
+
+test.describe(
+  "accessibility baseline — WCAG 2.2 AA (extended route matrix)",
+  { tag: [liveA11yFullMatrixTag] },
+  () => {
+    for (const { name, path } of PAGES_LIVE_A11Y_EXTENDED) {
+      test(`${name} (${path}) has no critical or serious axe violations`, async ({ page }) => {
+        await expectNoCriticalOrSeriousAxeViolations(page, path);
+      });
+    }
+  },
+);

@@ -16,7 +16,7 @@ jobs:
     if: github.event.repository.fork == false
     name: "Nightly: live-api full (DevelopmentBypass)"
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -108,6 +108,27 @@ jobs:
           npx playwright test
 
       - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-developmentbypass-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-developmentbypass-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-developmentbypass-blob-report
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: nightly-live-e2e-developmentbypass-log
@@ -118,7 +139,7 @@ jobs:
     if: github.event.repository.fork == false
     name: "Nightly: live-api full (ApiKey)"
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -215,6 +236,27 @@ jobs:
           npx playwright test
 
       - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-apikey-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-apikey-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-apikey-blob-report
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: nightly-live-e2e-apikey-log
@@ -225,7 +267,7 @@ jobs:
     if: github.event.repository.fork == false
     name: "Nightly: live-api full (JwtBearer + local PEM)"
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -341,6 +383,27 @@ jobs:
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
           npx playwright install --with-deps chromium
           npx playwright test
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-jwt-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-jwt-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-jwt-blob-report
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
         if: failure()
