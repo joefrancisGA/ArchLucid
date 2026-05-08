@@ -59,6 +59,27 @@ function humanizeEdgeLabel(edgeType: string): string {
   return t.replace(/[._]/g, " ");
 }
 
+/** Readable relationship verbs for buyer-trail edges (avoid faint technical verbs). */
+function buyerTrailEdgeDisplayPhrase(edgeType: string): string {
+  const key = edgeType.trim().toLowerCase();
+  const phrases: Record<string, string> = {
+    produced: "Led to output",
+    next: "Next step",
+    raised: "Flagged risk",
+    recorded: "Recorded in",
+    packaged: "Packaged as",
+    precedes: "Comes before",
+  };
+
+  const mapped = phrases[key];
+
+  if (mapped !== undefined) {
+    return mapped;
+  }
+
+  return humanizeEdgeLabel(edgeType);
+}
+
 /**
  * Converts ArchLucid graph nodes/edges into React Flow format.
  * Nodes are laid out in a grid (4 columns for larger buyer nodes) for a simple initial view.
@@ -71,10 +92,10 @@ export function mapGraphToReactFlow(
   edges: Edge[];
 } {
   const columnCount = presentation === "buyerTrail" ? 4 : 5;
-  const cellW = presentation === "buyerTrail" ? 280 : 240;
-  const cellH = presentation === "buyerTrail" ? 160 : 140;
-  const nodeWidth = presentation === "buyerTrail" ? 240 : 180;
-  const fontSize = presentation === "buyerTrail" ? 13 : 12;
+  const cellW = presentation === "buyerTrail" ? 300 : 240;
+  const cellH = presentation === "buyerTrail" ? 176 : 140;
+  const nodeWidth = presentation === "buyerTrail" ? 268 : 180;
+  const fontSize = presentation === "buyerTrail" ? 14 : 12;
 
   const nodes: Node[] = graph.nodes.map((node, index) => ({
     id: node.id,
@@ -107,7 +128,7 @@ export function mapGraphToReactFlow(
       id: `${edge.source}-${edge.target}-${edge.type}-${index}`,
       source: edge.source,
       target: edge.target,
-      label: showHumanLabel ? humanizeEdgeLabel(edge.type) : edge.type,
+      label: showHumanLabel ? buyerTrailEdgeDisplayPhrase(edge.type) : edge.type,
       type: "smoothstep",
       animated: presentation === "buyerTrail" && edge.type === "raised",
       style:
@@ -116,7 +137,7 @@ export function mapGraphToReactFlow(
           : { stroke: "#94a3b8", strokeWidth: 1.25 },
       labelStyle:
         presentation === "buyerTrail"
-          ? { fill: "#0f172a", fontWeight: 600, fontSize: 12 }
+          ? { fill: "#0f172a", fontWeight: 700, fontSize: 13 }
           : { fill: "#64748b", fontSize: 11 },
       labelBgStyle:
         presentation === "buyerTrail"

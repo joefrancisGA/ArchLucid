@@ -177,8 +177,8 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
                           </div>
                         )}
                       </td>
-                      <td className={cellCls}>{d.baseValue ?? "?"}</td>
-                      <td className={cellCls}>{d.targetValue ?? "?"}</td>
+                      <td className={cellCls}>{d.baseValue ?? "—"}</td>
+                      <td className={cellCls}>{d.targetValue ?? "—"}</td>
                       <td className={cellCls}>{d.changeType}</td>
                     </tr>
                   ))}
@@ -226,8 +226,8 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
                   {golden.securityChanges.map((s, i) => (
                     <tr key={i}>
                       <td className={cellCls}>{s.controlName}</td>
-                      <td className={cellCls}>{s.baseStatus ?? "?"}</td>
-                      <td className={cellCls}>{s.targetStatus ?? "?"}</td>
+                      <td className={cellCls}>{s.baseStatus ?? "—"}</td>
+                      <td className={cellCls}>{s.targetStatus ?? "—"}</td>
                     </tr>
                   ))}
                 </tbody>

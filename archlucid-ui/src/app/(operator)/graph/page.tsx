@@ -319,6 +319,14 @@ function GraphPageContent() {
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
+  useEffect(() => {
+    if (!demoUi && !buyerPolishedShell) {
+      return;
+    }
+
+    setMode("provenance-full");
+  }, [buyerPolishedShell, demoUi]);
+
   const graphIdlePreset = useMemo(() => {
     if (demoUi && showIdleCard) {
       return {
@@ -332,9 +340,10 @@ function GraphPageContent() {
     return GRAPH_IDLE;
   }, [demoUi, showIdleCard]);
 
-  const leadIntro = demoUi
-    ? "Interactive review-trail graph for the selected architecture review. Controls below switch reviews or graph mode."
-    : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
+  const leadIntro =
+    demoUi || buyerPolishedShell
+      ? "Interactive review-trail graph for the selected architecture review. Use the review control to open another finalized package when available."
+      : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
   const pageTitle = demoUi || buyerPolishedShell ? "Review trail graph" : "Review evidence graph";
 
@@ -359,6 +368,7 @@ function GraphPageContent() {
         />
       </div>
 
+      {!(demoUi || buyerPolishedShell) ? (
       <div className="min-w-[10rem] lg:w-auto">
         <Label htmlFor="graph-mode-select" className="text-[13px] font-semibold">
           Graph mode
@@ -386,6 +396,7 @@ function GraphPageContent() {
           </option>
         </select>
       </div>
+      ) : null}
 
       {showLoadButton ? (
         <Button
@@ -413,11 +424,13 @@ function GraphPageContent() {
       {graph === null ? (
         <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
           {leadIntro}{" "}
+          {!(demoUi || buyerPolishedShell) ? (
           <span className="text-neutral-600 dark:text-neutral-400">
             Review trail mode emphasizes <GlossaryTooltip termKey="provenance">provenance</GlossaryTooltip> and how the
             package advances; architecture mode centers the{" "}
             <GlossaryTooltip termKey="knowledge_graph">knowledge graph</GlossaryTooltip> built from the captured context.
           </span>
+          ) : null}
         </p>
       ) : null}
 
@@ -561,8 +574,8 @@ function GraphPageContent() {
           {graphControls}
           {demoUi && buyerPolishedShell ? (
             <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-              Use the controls above to switch reviews or views. The sample review loads this graph automatically when data
-              is available.
+              Use the review control above to open another finalized package. This view stays on the review-trail graph; the
+              sample loads automatically when data is available.
             </p>
           ) : null}
           {demoUi && !buyerPolishedShell ? (

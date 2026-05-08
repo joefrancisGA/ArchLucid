@@ -8,6 +8,7 @@ import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { cn } from "@/lib/utils";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
@@ -29,6 +30,8 @@ type RunIdPickerProps = {
    * use `false` for paired Compare pickers when the parent prefills both sides.
    */
   preferAutoPick?: boolean;
+  /** When true, primary line is a buyer-facing title; technical run id is shown underneath. */
+  useBuyerFacingRunLabels?: boolean;
 };
 
 function truncate(text: string, max: number): string {
@@ -55,6 +58,7 @@ export function RunIdPicker({
   inputId,
   forCompare = false,
   preferAutoPick = true,
+  useBuyerFacingRunLabels = false,
 }: RunIdPickerProps) {
   const generatedId = useId();
   const controlId = inputId ?? `run-id-picker-${generatedId}`;
@@ -236,7 +240,15 @@ export function RunIdPicker({
             </li>
           ) : null}
           {!loading &&
-            filtered.map((r) => (
+            filtered.map((r) => {
+              const primaryText = useBuyerFacingRunLabels
+                ? buyerFacingReviewTitleFromSummary(r)
+                : truncate(r.runId, 40);
+              const secondaryText = useBuyerFacingRunLabels
+                ? truncate(r.runId, 48)
+                : truncate(r.description ?? r.projectId ?? "—", 60);
+
+              return (
               <li key={r.runId} role="presentation">
                 <button
                   type="button"
@@ -256,13 +268,26 @@ export function RunIdPicker({
                     setOpen(false);
                   }}
                 >
-                  <span className="font-mono text-xs text-neutral-900 dark:text-neutral-100">{truncate(r.runId, 40)}</span>
-                  <span className="text-xs text-neutral-600 dark:text-neutral-400">
-                    {truncate(r.description ?? r.projectId ?? "—", 60)}
+                  <span
+                    className={cn(
+                      "text-neutral-900 dark:text-neutral-100",
+                      useBuyerFacingRunLabels ? "text-sm font-medium" : "font-mono text-xs",
+                    )}
+                  >
+                    {primaryText}
+                  </span>
+                  <span
+                    className={cn(
+                      "text-xs text-neutral-600 dark:text-neutral-400",
+                      useBuyerFacingRunLabels ? "font-mono" : null,
+                    )}
+                  >
+                    {secondaryText}
                   </span>
                 </button>
               </li>
-            ))}
+              );
+            })}
         </ul>
       ) : null}
     </div>
