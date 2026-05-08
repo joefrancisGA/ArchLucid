@@ -40,7 +40,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         if (manifest is null || run.Status != ArchitectureRunStatus.Committed)
         {
             hardGapMessages.Add(
-                "Committed golden manifest absent or run not in Committed status — finalize before external sponsor distribution.");
+                "Committed architecture manifest absent or run not in Committed status — finalize before external sponsor distribution.");
         }
 
         if (deltas.AuditRowCount == 0)

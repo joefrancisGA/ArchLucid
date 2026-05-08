@@ -17,7 +17,7 @@ type PostCommitAdvancedAnalysisHintProps = {
 const LOOKBACK = 25;
 
 /**
- * Shown on run detail only after a golden manifest exists. Suggests Advanced
+ * Shown on run detail only after a committed architecture manifest exists. Suggests Advanced
  * Analysis surfaces without pulling operators off the first-review path before finalization.
  * When a prior committed run exists for the same request (recent window), surfaces a primary compare CTA.
  */

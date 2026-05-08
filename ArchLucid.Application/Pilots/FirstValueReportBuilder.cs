@@ -199,14 +199,14 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
     private static string FormatArtifactDescriptorsProofCell(ProofPackageCompletenessResponse c)
     {
         if (!c.ArtifactDescriptorCountResolved)
-            return "Missing — golden manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing).";
-        return $"Present — `{c.ArtifactDescriptorCount}` descriptor(s) for this golden manifest.";
+            return "Missing — committed architecture manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing).";
+        return $"Present — `{c.ArtifactDescriptorCount}` descriptor(s) for this committed architecture manifest.";
     }
 
     private static string FormatCommittedManifestTimestampProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c, GoldenManifest? manifest)
     {
         if (!c.CommittedManifestPresent)
-            return "Missing — no golden manifest on this run detail.";
+            return "Missing — no committed architecture manifest on this run detail.";
         if (!c.CommittedManifestTimestampResolved)
             return "Missing — `GoldenManifest.Metadata.CreatedUtc` is default / not a real commit timestamp.";
         DateTime committedUtc = deltas.ManifestCommittedUtc ?? manifest!.Metadata.CreatedUtc;

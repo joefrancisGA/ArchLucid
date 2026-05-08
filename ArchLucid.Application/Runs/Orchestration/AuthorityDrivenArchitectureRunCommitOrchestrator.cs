@@ -128,10 +128,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
         if (run.Status is ArchitectureRunStatus.Committed)
         {
             if (run.GoldenManifestId is not null)
-                throw new InvalidOperationException($"Run '{runId}' is already Committed but the authority idempotent re-load failed. Check data integrity for GoldenManifest and DecisionTrace.");
+                throw new InvalidOperationException($"Run '{runId}' is already Committed but the architecture run idempotent re-load failed. Check data integrity for GoldenManifest and DecisionTrace.");
             if (!string.IsNullOrEmpty(run.CurrentManifestVersion))
-                throw new InvalidOperationException("This run was committed on the legacy coordinator path. " + "Re-commit idempotency and reads require a consistent authority run record (GoldenManifestId / DecisionTraceId populated).");
-            throw new ConflictException($"Run '{runId}' is already Committed but the run record has no committed manifest version or authority identifiers.");
+                throw new InvalidOperationException("This run was committed on the legacy coordinator path. " + "Re-commit idempotency and reads require a consistent architecture run record (GoldenManifestId / DecisionTraceId populated).");
+            throw new ConflictException($"Run '{runId}' is already Committed but the run record has no committed manifest version or architecture run identifiers.");
         }
 
         try
@@ -154,7 +154,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
         {
             evidencePackageForTelemetry = await GetEvidencePackageForCommitOrThrowAsync(runId, cancellationToken);
             if (runRecord.ContextSnapshotId is not { } contextSnapshotId || runRecord.GraphSnapshotId is not { } graphId || runRecord.FindingsSnapshotId is not { } findingsId)
-                throw new InvalidOperationException($"Run '{runId}' is missing authority pipeline snapshot ids (ContextSnapshotId, GraphSnapshotId, and FindingsSnapshotId are all required for authority commit).");
+                throw new InvalidOperationException($"Run '{runId}' is missing architecture run pipeline snapshot ids (ContextSnapshotId, GraphSnapshotId, and FindingsSnapshotId are all required for architecture run commit).");
             GraphSnapshot? graph = await _graphSnapshotRepository.GetByIdAsync(graphId, cancellationToken);
             if (graph is null)
                 throw new InvalidOperationException($"Graph snapshot '{graphId:D}' for run '{runId}' was not found.");
@@ -266,7 +266,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(IRunReposit
         if (run.GoldenManifestId is not { } goldenId)
             return null;
         if (run.DecisionTraceId is not { } traceId)
-            throw new ConflictException($"Run '{runId}' is already committed (authority) but DecisionTraceId is missing on the run record.");
+            throw new ConflictException($"Run '{runId}' is already committed (architecture run) but DecisionTraceId is missing on the run record.");
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Dm.ManifestDocument? manifestModel = await _goldenManifestRepository.GetByIdAsync(scope, goldenId, cancellationToken);
         if (manifestModel is null)
