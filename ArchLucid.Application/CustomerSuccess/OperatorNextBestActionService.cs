@@ -3,9 +3,7 @@ using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.CustomerSuccess;
 
-public sealed record OperatorNextBestActionItem(string ActionId, string Title, string Reason, string Href, int SortOrder)
-{
-}
+public sealed record OperatorNextBestActionItem(string ActionId, string Title, string Reason, string Href, int SortOrder);
 
 public interface IOperatorNextBestActionService
 {

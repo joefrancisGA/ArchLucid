@@ -59,29 +59,28 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository,
             CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
         };
         await _repository.CreateAsync(record, cancellationToken);
-        if (emitArchitectureDocxExportGeneratedAudit)
-        {
-            Guid? auditRunId = TryParseRunGuid(runId);
-            DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    OccurredUtc = occurredUtc,
-                    EventType = AuditEventTypes.ArchitectureDocxExportGenerated,
-                    RunId = auditRunId,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            runId,
-                            exportRecordId = record.ExportRecordId,
-                            exportType = record.ExportType,
-                            fileName = record.FileName,
-                            templateProfile = record.TemplateProfile,
-                            manifestVersion = record.ManifestVersion,
-                            compareWithRunId = analysisRequest?.CompareRunId
-                        }, AuditJsonSerializationOptions.Instance)
-                }, cancellationToken);
-        }
+        if (!emitArchitectureDocxExportGeneratedAudit)
+            return record;
+        Guid? auditRunId = TryParseRunGuid(runId);
+        DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                OccurredUtc = occurredUtc,
+                EventType = AuditEventTypes.ArchitectureDocxExportGenerated,
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        runId,
+                        exportRecordId = record.ExportRecordId,
+                        exportType = record.ExportType,
+                        fileName = record.FileName,
+                        templateProfile = record.TemplateProfile,
+                        manifestVersion = record.ManifestVersion,
+                        compareWithRunId = analysisRequest?.CompareRunId
+                    }, AuditJsonSerializationOptions.Instance)
+            }, cancellationToken);
 
         return record;
     }
