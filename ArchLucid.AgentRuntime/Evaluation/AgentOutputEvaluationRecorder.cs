@@ -102,6 +102,9 @@ public sealed class AgentOutputEvaluationRecorder(
                     evaluated.Semantic.OverallSemanticScore,
                     tags);
 
+                if (evaluated.Semantic.LlmJudgeHeuristicDisagreement is double disagreement)
+                    ArchLucidInstrumentation.AgentOutputJudgeDisagreement.Record(disagreement, tags);
+
                 if (evaluated.Semantic.OverallSemanticScore < LowSemanticScoreThreshold)
 
                     logger.LogWarningAgentOutputSemanticScoreBelowThreshold(

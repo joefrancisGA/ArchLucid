@@ -75,7 +75,7 @@ public sealed class CriticAgentHandler(
 
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
 
-            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok);
+            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
             AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
 
             await traceRecorder.RecordAsync(
@@ -91,6 +91,7 @@ public sealed class CriticAgentHandler(
                 promptRepro,
                 inTok,
                 outTok,
+                reasoningTok,
                 modelDeploy,
                 modelVer,
                 cancellationToken: cancellationToken);
@@ -99,7 +100,7 @@ public sealed class CriticAgentHandler(
         }
         catch (Exception ex)
         {
-            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok);
+            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
             AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
 
             if (ex is AgentResultSchemaViolationException sv)
@@ -126,6 +127,7 @@ public sealed class CriticAgentHandler(
                 promptRepro,
                 inTok,
                 outTok,
+                reasoningTok,
                 modelDeploy,
                 modelVer,
                 failureReasonCode: AgentHandlerExecutionFailureReason.ResolveFailureReasonCode(ex),

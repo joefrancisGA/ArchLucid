@@ -24,7 +24,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 /// <inheritdoc cref = "IArchitectureRunExecuteOrchestrator"/>
-public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IArchitectureRequestRepository requestRepository, IAgentTaskRepository taskRepository, IAgentExecutor agentExecutor, IAgentEvaluationService agentEvaluationService, IAgentResultRepository resultRepository, IAgentEvaluationRepository agentEvaluationRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IActorContext actorContext, IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IRequestContentSafetyPrecheck requestContentSafetyPrecheck, IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions, ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
+public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IArchitectureRequestRepository requestRepository, IAgentTaskRepository taskRepository, IAgentExecutor agentExecutor, IAgentEvaluationService agentEvaluationService, IAgentResultRepository resultRepository, IAgentEvaluationRepository agentEvaluationRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IActorContext actorContext, IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator, IRequestContentSafetyPrecheck requestContentSafetyPrecheck, IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions, ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -32,6 +32,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runReposit
         agentOutputQualityGateOptions ?? throw new ArgumentNullException(nameof(agentOutputQualityGateOptions));
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
     private readonly IAgentOutputTraceEvaluationHook _outputTraceEvaluationHook = outputTraceEvaluationHook ?? throw new ArgumentNullException(nameof(outputTraceEvaluationHook));
+    private readonly IEvidencePackageInjectionMitigator _evidencePackageInjectionMitigator = evidencePackageInjectionMitigator ?? throw new ArgumentNullException(nameof(evidencePackageInjectionMitigator));
     private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly IAgentEvaluationService _agentEvaluationService = agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
@@ -51,7 +52,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runReposit
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-        ValidateDependencies(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository, agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, auditService, unitOfWorkFactory, outputTraceEvaluationHook, requestContentSafetyPrecheck, agentOutputQualityGateOptions, logger);
+        ValidateDependencies(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository, agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, auditService, unitOfWorkFactory, outputTraceEvaluationHook, evidencePackageInjectionMitigator, requestContentSafetyPrecheck, agentOutputQualityGateOptions, logger);
         string actor = actorContext.GetActor();
         try
         {
@@ -64,7 +65,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runReposit
         }
     }
 
-    private static void ValidateDependencies(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IArchitectureRequestRepository requestRepository, IAgentTaskRepository taskRepository, IAgentExecutor agentExecutor, IAgentEvaluationService agentEvaluationService, IAgentResultRepository resultRepository, IAgentEvaluationRepository agentEvaluationRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IActorContext actorContext, IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IRequestContentSafetyPrecheck requestContentSafetyPrecheck, IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions, ILogger<ArchitectureRunExecuteOrchestrator> logger)
+    private static void ValidateDependencies(IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IArchitectureRequestRepository requestRepository, IAgentTaskRepository taskRepository, IAgentExecutor agentExecutor, IAgentEvaluationService agentEvaluationService, IAgentResultRepository resultRepository, IAgentEvaluationRepository agentEvaluationRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IActorContext actorContext, IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator, IRequestContentSafetyPrecheck requestContentSafetyPrecheck, IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions, ILogger<ArchitectureRunExecuteOrchestrator> logger)
     {
         ArgumentNullException.ThrowIfNull(runRepository);
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
@@ -81,6 +82,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runReposit
         ArgumentNullException.ThrowIfNull(auditService);
         ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
         ArgumentNullException.ThrowIfNull(outputTraceEvaluationHook);
+        ArgumentNullException.ThrowIfNull(evidencePackageInjectionMitigator);
         ArgumentNullException.ThrowIfNull(requestContentSafetyPrecheck);
         ArgumentNullException.ThrowIfNull(agentOutputQualityGateOptions);
         ArgumentNullException.ThrowIfNull(logger);
@@ -118,6 +120,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(IRunRepository runReposit
             if (tasks.Count == 0)
                 throw new InvalidOperationException($"No tasks found for run '{runId}'.");
             AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
+
+            await _evidencePackageInjectionMitigator.RedactKnownInjectionPatternsAsync(evidence, cancellationToken);
+
             IReadOnlyList<AgentResult> results;
 
             try

@@ -20,6 +20,7 @@ public sealed class CostGuardrailInterceptor(
 
     private int _totalInputTokens;
     private int _totalOutputTokens;
+    private int _totalReasoningTokens;
 
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor => _inner.Descriptor;
@@ -32,20 +33,27 @@ public sealed class CostGuardrailInterceptor(
     {
         string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
 
-        AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok);
+        AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
 
         _totalInputTokens += inTok ?? 0;
         _totalOutputTokens += outTok ?? 0;
+        _totalReasoningTokens += reasoningTok ?? 0;
 
         AgentOutputQualityGateOptions opts = _options.Value;
 
-        if (opts.MaxTokensPerRun.HasValue && (_totalInputTokens + _totalOutputTokens) > opts.MaxTokensPerRun.Value)
+        if (opts.MaxTokensPerRun.HasValue
+            && (_totalInputTokens + _totalOutputTokens + _totalReasoningTokens) > opts.MaxTokensPerRun.Value)
             throw new CostLimitExceededException($"Run exceeded maximum allowed tokens ({opts.MaxTokensPerRun.Value}).");
 
         if (!opts.MaxCostPerRun.HasValue)
             return result;
 
-        decimal cost = _costEstimator.EstimateUsd(_totalInputTokens, _totalOutputTokens) ?? 0m;
+        decimal cost = _costEstimator.EstimateUsd(
+                           _totalInputTokens,
+                           _totalOutputTokens,
+                           _totalReasoningTokens,
+                           deploymentLabel: null)
+                       ?? 0m;
 
         return cost > opts.MaxCostPerRun.Value ? throw new CostLimitExceededException($"Run exceeded maximum allowed cost (${opts.MaxCostPerRun.Value}).") : result;
     }

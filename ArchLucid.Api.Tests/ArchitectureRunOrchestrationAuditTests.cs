@@ -114,6 +114,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             auditService,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
+            new NoOpEvidencePackageInjectionMitigator(),
             precheck,
             Options.Create(new AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);

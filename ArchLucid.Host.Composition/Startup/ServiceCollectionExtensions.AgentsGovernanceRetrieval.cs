@@ -153,6 +153,16 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IPromptRedactor, PromptRedactor>();
         services.Configure<AgentOutputLlmSemanticJudgeOptions>(
             configuration.GetSection(AgentOutputLlmSemanticJudgeOptions.SectionPath));
+        services.PostConfigure<AgentOutputLlmSemanticJudgeOptions>(static o =>
+        {
+            o.BlendWeight = Math.Clamp(o.BlendWeight, 0.0, 1.0);
+            o.WarnGateWhenJudgeHeuristicDisagreementAbove =
+                Math.Clamp(o.WarnGateWhenJudgeHeuristicDisagreementAbove, 0.0, 1.0);
+            o.JudgeInvocationCount = Math.Clamp(o.JudgeInvocationCount, 1, 8);
+            o.MaxInputCharacters = Math.Clamp(o.MaxInputCharacters, 1024, 500_000);
+            o.MaxCompletionTokens = Math.Clamp(o.MaxCompletionTokens, 64, 4096);
+            o.TimeoutSeconds = Math.Clamp(o.TimeoutSeconds, 5, 120);
+        });
         services.AddSingleton<AgentOutputEvaluator>();
         services.AddSingleton<IAgentOutputEvaluator>(static sp => sp.GetRequiredService<AgentOutputEvaluator>());
         services.AddSingleton<IAgentResultEvidenceFaithfulnessChecker, AgentResultEvidenceFaithfulnessChecker>();
@@ -160,6 +170,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IHeuristicAgentOutputSemanticEvaluator>(static sp =>
             sp.GetRequiredService<HeuristicAgentOutputSemanticEvaluator>());
         services.AddSingleton<AgentOutputLlmSemanticJudge>();
+        services.AddSingleton<IAgentOutputLlmSemanticJudge>(static sp =>
+            sp.GetRequiredService<AgentOutputLlmSemanticJudge>());
         services.AddSingleton<CompositeAgentOutputSemanticEvaluator>();
         services.AddSingleton<IAgentOutputSemanticEvaluator>(static sp =>
             sp.GetRequiredService<CompositeAgentOutputSemanticEvaluator>());
@@ -766,8 +778,20 @@ public static partial class ServiceCollectionExtensions
         ILogger<LlmCompletionAccountingClient> accountingLogger =
             sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
 
-        IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
+        IContentSafetyGuard contentSafetyGuard = sp.GetRequiredService<IContentSafetyGuard>();
+        IOptionsMonitor<ContentSafetyOptions> contentSafetyOpts =
+            sp.GetRequiredService<IOptionsMonitor<ContentSafetyOptions>>();
+        ILogger<ContentSafetyEnforcingAgentCompletionClient> contentSafetyCompletionLogger =
+            sp.GetRequiredService<ILogger<ContentSafetyEnforcingAgentCompletionClient>>();
+
+        IAgentCompletionClient azureCompletionEnvelope = new ContentSafetyEnforcingAgentCompletionClient(
             azureInner,
+            contentSafetyGuard,
+            contentSafetyOpts,
+            contentSafetyCompletionLogger);
+
+        IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
+            azureCompletionEnvelope,
             quotaTracker,
             scopeProvider,
             quotaOpts,

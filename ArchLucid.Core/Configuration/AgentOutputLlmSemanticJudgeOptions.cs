@@ -47,6 +47,33 @@ public sealed class AgentOutputLlmSemanticJudgeOptions
         set;
     } = 25;
 
+    /// <summary>
+    ///     Blend weight for combining heuristic and judge scores: overall semantic score =
+    ///     BlendWeight × judge quality + (1 − BlendWeight) × heuristic score (clamped to 0..1 at runtime).
+    /// </summary>
+    public double BlendWeight
+    {
+        get;
+        set;
+    } = 0.5;
+
+    /// <summary>
+    ///     When judge vs heuristic disagreement exceeds this threshold and either score is below the semantic warn floor,
+    ///     trace evaluation elevates accepted gates to warned.
+    /// </summary>
+    public double WarnGateWhenJudgeHeuristicDisagreementAbove
+    {
+        get;
+        set;
+    } = 0.4;
+
+    /// <summary>Parallel judge completion attempts (median quality + dispersion when &gt;1).</summary>
+    public int JudgeInvocationCount
+    {
+        get;
+        set;
+    } = 1;
+
     /// <summary>When true and <c>AgentExecution:Mode</c> is Simulator, the judge is skipped (saves quota).</summary>
     public bool SkipWhenSimulator
     {

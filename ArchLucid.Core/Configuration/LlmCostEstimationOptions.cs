@@ -34,4 +34,21 @@ public sealed class LlmCostEstimationOptions
         get;
         set;
     } = 1.5m;
+
+    /// <summary>
+    ///     USD per 1M reasoning tokens when the provider reports them separately. Zero defaults to
+    ///     <see cref="OutputUsdPerMillionTokens" /> for estimation.
+    /// </summary>
+    public decimal ReasoningUsdPerMillionTokens
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional per-deployment USD rates (keys match deployment names case-insensitively).</summary>
+    public Dictionary<string, LlmDeploymentUsdRates> Deployments
+    {
+        get;
+        set;
+    } = new(StringComparer.OrdinalIgnoreCase);
 }

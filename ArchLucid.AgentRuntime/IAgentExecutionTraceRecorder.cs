@@ -30,6 +30,7 @@ public interface IAgentExecutionTraceRecorder
     /// </param>
     /// <param name="inputTokenCount">Provider-reported prompt tokens, when known.</param>
     /// <param name="outputTokenCount">Provider-reported completion tokens, when known.</param>
+    /// <param name="reasoningTokenCount">Provider-reported reasoning tokens when separated by the model SDK.</param>
     /// <param name="modelDeploymentName">Provider deployment name when known (stored on the trace row).</param>
     /// <param name="modelVersion">Provider model version string when known.</param>
     /// <param name="isSimulatorExecution">
@@ -57,6 +58,7 @@ public interface IAgentExecutionTraceRecorder
         AgentPromptReproMetadata? promptRepro = null,
         int? inputTokenCount = null,
         int? outputTokenCount = null,
+        int? reasoningTokenCount = null,
         string? modelDeploymentName = null,
         string? modelVersion = null,
         bool isSimulatorExecution = false,

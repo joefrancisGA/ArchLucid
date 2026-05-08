@@ -89,6 +89,7 @@ public sealed class AgentExecutionTraceRecorder(
         AgentPromptReproMetadata? promptRepro = null,
         int? inputTokenCount = null,
         int? outputTokenCount = null,
+        int? reasoningTokenCount = null,
         string? modelDeploymentName = null,
         string? modelVersion = null,
         bool isSimulatorExecution = false,
@@ -100,11 +101,19 @@ public sealed class AgentExecutionTraceRecorder(
 
         int inTok = inputTokenCount ?? 0;
         int outTok = outputTokenCount ?? 0;
+        string resolvedDeployment = string.IsNullOrWhiteSpace(modelDeploymentName)
+            ? AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName
+            : modelDeploymentName.Trim();
+
+        int reasoningTok = reasoningTokenCount ?? 0;
+        string? deploymentForCost =
+            resolvedDeployment == AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName ? null : resolvedDeployment;
+
         decimal? estimated = null;
 
-        if (_costOptions.Value.Enabled && (inTok > 0 || outTok > 0))
+        if (_costOptions.Value.Enabled && (inTok > 0 || outTok > 0 || reasoningTok > 0))
 
-            estimated = _costEstimator.EstimateUsd(inTok, outTok);
+            estimated = _costEstimator.EstimateUsd(inTok, outTok, reasoningTok, deploymentForCost);
 
         if (estimated is { } estUsd and > 0m)
         {
@@ -116,10 +125,6 @@ public sealed class AgentExecutionTraceRecorder(
 
             ArchLucidInstrumentation.RecordLlmCostUsd(estUsd, tenantLabel);
         }
-
-        string resolvedDeployment = string.IsNullOrWhiteSpace(modelDeploymentName)
-            ? AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName
-            : modelDeploymentName.Trim();
 
         string resolvedVersion = string.IsNullOrWhiteSpace(modelVersion)
             ? AgentExecutionTraceModelMetadata.UnspecifiedModelVersion

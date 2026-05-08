@@ -23,7 +23,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
     public const int DefaultMaxCompletionTokens = AzureOpenAiOptions.DefaultMaxCompletionTokens;
 
-    private static readonly AsyncLocal<(int Prompt, int Completion)?> LastCompletionTokenUsage = new();
+    private static readonly AsyncLocal<(int Prompt, int Completion, int Reasoning)?> LastCompletionTokenUsage = new();
 
     private static readonly AsyncLocal<(string DeploymentName, string? ModelId)?> LastModelMetadata = new();
 
@@ -127,16 +127,20 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         {
             int inTok = usage.InputTokenCount is var ip ? ip : 0;
             int outTok = usage.OutputTokenCount is var op ? op : 0;
+            int reasoningTok = usage.OutputTokenDetails?.ReasoningTokenCount ?? 0;
 
-            if (inTok > 0 || outTok > 0)
+            if (inTok > 0 || outTok > 0 || reasoningTok > 0)
 
-                LastCompletionTokenUsage.Value = (inTok, outTok);
+                LastCompletionTokenUsage.Value = (inTok, outTok, reasoningTok);
 
             if (llmActivity is not null)
             {
                 llmActivity.SetTag("gen_ai.usage.input_tokens", usage.InputTokenCount);
                 llmActivity.SetTag("gen_ai.usage.output_tokens", usage.OutputTokenCount);
                 llmActivity.SetTag("gen_ai.usage.total_tokens", usage.TotalTokenCount);
+
+                if (reasoningTok > 0)
+                    llmActivity.SetTag("gen_ai.usage.reasoning_tokens", reasoningTok);
             }
         }
 
@@ -199,40 +203,50 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     }
 
     /// <summary>Consumes token usage from the last successful <see cref="CompleteJsonAsync" /> on this async flow, if any.</summary>
-    public static bool TryConsumeLastCompletionTokenUsage(out int promptTokens, out int completionTokens)
+    public static bool TryConsumeLastCompletionTokenUsage(
+        out int promptTokens,
+        out int completionTokens,
+        out int reasoningTokens)
     {
-        (int Prompt, int Completion)? raw = LastCompletionTokenUsage.Value;
+        (int Prompt, int Completion, int Reasoning)? raw = LastCompletionTokenUsage.Value;
         LastCompletionTokenUsage.Value = null;
 
         if (raw is { } v)
         {
             promptTokens = v.Prompt;
             completionTokens = v.Completion;
+            reasoningTokens = v.Reasoning;
 
             return true;
         }
 
         promptTokens = 0;
         completionTokens = 0;
+        reasoningTokens = 0;
 
         return false;
     }
 
     /// <summary>Peeks token usage from the last successful <see cref="CompleteJsonAsync" /> on this async flow without consuming it.</summary>
-    public static bool TryPeekLastCompletionTokenUsage(out int promptTokens, out int completionTokens)
+    public static bool TryPeekLastCompletionTokenUsage(
+        out int promptTokens,
+        out int completionTokens,
+        out int reasoningTokens)
     {
-        (int Prompt, int Completion)? raw = LastCompletionTokenUsage.Value;
+        (int Prompt, int Completion, int Reasoning)? raw = LastCompletionTokenUsage.Value;
 
         if (raw is { } v)
         {
             promptTokens = v.Prompt;
             completionTokens = v.Completion;
+            reasoningTokens = v.Reasoning;
 
             return true;
         }
 
         promptTokens = 0;
         completionTokens = 0;
+        reasoningTokens = 0;
 
         return false;
     }
