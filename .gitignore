@@ -410,3 +410,8 @@ FodyWeavers.xsd
 
 # Terraform local provider cache (never commit; stacks also use infra/terraform-*/.gitignore)
 infra/**/.terraform/
+
+# CodeQL: workspace SARIF dirs from .github/workflows/codeql.yml and local `codeql-out/`
+/csharp-sarif/
+/javascript-sarif/
+/codeql-out/

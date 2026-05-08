@@ -90,4 +90,5 @@ If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the exten
 ## Related documents
 
 - [`SECURITY.md`](SECURITY.md) — CWE-117 policy and **`LogSanitizer`** usage  
-- [`.github/workflows/codeql.yml`(../../.github/workflows/codeql.yml) — CodeQL workflow configuration  
+- [`.github/workflows/codeql.yml`](../../.github/workflows/codeql.yml) — CodeQL workflow configuration  
+- [`CODEQL_MERGE_AND_LOCAL.md`](CODEQL_MERGE_AND_LOCAL.md) — Branch protection, SARIF merge gate, local CLI parity  
