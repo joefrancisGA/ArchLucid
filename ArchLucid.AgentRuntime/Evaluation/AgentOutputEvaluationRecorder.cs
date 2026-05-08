@@ -177,7 +177,7 @@ public sealed class AgentOutputEvaluationRecorder(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            logger.LogWarning(
+            logger.LogWarningWithSanitizedUserArg(
                 ex,
                 "Architecture finding confidence enrichment failed after evaluation for RunId={RunId}; continuing.",
                 runId);

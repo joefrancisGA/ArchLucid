@@ -12,28 +12,62 @@ public static class PromptInjectionPatternSignals
 {
     private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(250);
 
-    private static readonly Regex InjectionFamilies =
-        new(
-            @"ignore\s+(the\s+)?(prior|earlier|preceding)\s+(instructions|rules|prompts)"
-            + @"|(disregard|forget)\s+(your|all)\s+(prior|earlier|previous|system)\s+(instructions|rules|prompt)"
-            + @"|reveal\s+(your|the)\s+(system|hidden)\s+(prompt|instructions)"
-            + @"|act\s+as\s+(a\s+|an\s+)?(unrestricted|unfiltered|jailbroken)"
-            + @"|developer\s+mode"
-            + @"|\bdan\s+mode\b"
-            + @"|pretend\s+you\s+(have\s+no|are\s+without)\s+(rules|restrictions|guidelines)"
-            + @"|\bexecute\s+shell\s*:"
-            + @"|\bignore\s+all\s+prior\b"
-            + @"|\bignore\s+all\s+previous\b"
-            + @"|developer\s*[\-\u2013]\s*mode"
-            + @"|\brm\s+-rf\b"
-            + @"|\bkubectl\s+drain\b"
-            + @"|(?:call|invoke)\s+delete_database\b"
-            + @"|\bdelete_database\s+tool\b"
-            + @"|<tool\s+name\s*="
-            + @"|\bkeys?\s+from\s+env\s+vars\s+to\s+https?://"
-            + @"|\buse\s+curl\s+to\s+post\b.{0,120}\b(keys?|secrets?|credentials)\b",
+    /// <summary>
+    ///     One regex per injection family (same alternation as a single pattern, but isolated) so matching stays linear in
+    ///     practice and avoids cross-branch backtracking that can hit <see cref="Regex.MatchTimeoutException" /> on
+    ///     routine text under a short match timeout.
+    /// </summary>
+    private static readonly Regex[] InjectionFamilyPatterns =
+    [
+        new Regex(
+            @"ignore\s+(the\s+)?(prior|earlier|preceding)\s+(instructions|rules|prompts)",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
-            RegexTimeout);
+            RegexTimeout),
+        new Regex(
+            @"(disregard|forget)\s+(your|all)\s+(prior|earlier|previous|system)\s+(instructions|rules|prompt)",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(
+            @"reveal\s+(your|the)\s+(system|hidden)\s+(prompt|instructions)",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(
+            @"act\s+as\s+(a\s+|an\s+)?(unrestricted|unfiltered|jailbroken)",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(
+            @"developer\s+mode",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(@"\bdan\s+mode\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(
+            @"pretend\s+you\s+(have\s+no|are\s+without)\s+(rules|restrictions|guidelines)",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(@"\bexecute\s+shell\s*:", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(@"\bignore\s+all\s+prior\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(@"\bignore\s+all\s+previous\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled, RegexTimeout),
+        new Regex(@"developer\s*[\-\u2013]\s*mode", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(@"\brm\s+-rf\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(@"\bkubectl\s+drain\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(@"(?:call|invoke)\s+delete_database\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled, RegexTimeout),
+        new Regex(@"\bdelete_database\s+tool\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(@"<tool\s+name\s*=", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            RegexTimeout),
+        new Regex(@"\bkeys?\s+from\s+env\s+vars\s+to\s+https?://",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled, RegexTimeout),
+        new Regex(@"\buse\s+curl\s+to\s+post\b.{0,120}\b(keys?|secrets?|credentials)\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled, RegexTimeout),
+    ];
 
     private static readonly string[] BlockedPhrases =
     [

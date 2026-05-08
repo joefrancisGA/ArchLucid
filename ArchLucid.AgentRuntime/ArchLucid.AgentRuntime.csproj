@@ -32,6 +32,7 @@
     <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
+    <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
   </ItemGroup>
 
 </Project>
