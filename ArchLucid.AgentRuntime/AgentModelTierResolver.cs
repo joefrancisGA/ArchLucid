@@ -37,10 +37,7 @@ public sealed class AgentModelTierResolver(IConfiguration configuration, IOption
     {
         AgentModelTierOptions opts = _tierOptions.CurrentValue;
 
-        if (TryParseTier(opts.DefaultTier, out LlmModelTier t))
-            return t;
-
-        return LlmModelTier.Standard;
+        return TryParseTier(opts.DefaultTier, out LlmModelTier t) ? t : LlmModelTier.Standard;
     }
 
     /// <inheritdoc />
@@ -61,19 +58,13 @@ public sealed class AgentModelTierResolver(IConfiguration configuration, IOption
 
         string? baseDeploy = _configuration["AzureOpenAI:DeploymentName"]?.Trim();
 
-        if (string.IsNullOrWhiteSpace(baseDeploy))
-            throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
-
-        return baseDeploy;
+        return string.IsNullOrWhiteSpace(baseDeploy) ? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.") : baseDeploy;
     }
 
     private static bool TryParseTier(string? value, out LlmModelTier tier)
     {
         tier = LlmModelTier.Standard;
 
-        if (string.IsNullOrWhiteSpace(value))
-            return false;
-
-        return Enum.TryParse(value.Trim(), ignoreCase: true, out tier);
+        return !string.IsNullOrWhiteSpace(value) && Enum.TryParse(value.Trim(), ignoreCase: true, out tier);
     }
 }

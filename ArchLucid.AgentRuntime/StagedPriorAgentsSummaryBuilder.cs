@@ -102,10 +102,8 @@ public static class StagedPriorAgentsSummaryBuilder
         {
             Dictionary<string, int> sev = [];
 
-            foreach (ArchitectureFinding f in r.Findings)
+            foreach (string key in r.Findings.Select(f => f.Severity.ToString()))
             {
-                string key = f.Severity.ToString();
-
                 if (!sev.TryGetValue(key, out int n))
                     n = 0;
 
@@ -135,19 +133,18 @@ public static class StagedPriorAgentsSummaryBuilder
             }
         }
 
-        if (options.MaxClaimsPerAgentIncluded > 0 && r.Claims.Count > 0)
+        if (options.MaxClaimsPerAgentIncluded <= 0 || r.Claims.Count <= 0)
+            return sb.ToString();
+        _ = sb.AppendLine("- claimExcerpts (truncated, redacted):");
+
+        foreach (string c in r.Claims.Take(options.MaxClaimsPerAgentIncluded))
         {
-            _ = sb.AppendLine("- claimExcerpts (truncated, redacted):");
+            string line = RedactAndClip(c, options.MaxClaimLineChars);
 
-            foreach (string c in r.Claims.Take(options.MaxClaimsPerAgentIncluded))
-            {
-                string line = RedactAndClip(c ?? string.Empty, options.MaxClaimLineChars);
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
 
-                if (string.IsNullOrWhiteSpace(line))
-                    continue;
-
-                _ = sb.Append("  - ").AppendLine(line);
-            }
+            _ = sb.Append("  - ").AppendLine(line);
         }
 
         return sb.ToString();
@@ -158,10 +155,7 @@ public static class StagedPriorAgentsSummaryBuilder
         if (!string.IsNullOrWhiteSpace(f.Message))
             return f.Message.Trim();
 
-        if (!string.IsNullOrWhiteSpace(f.Category))
-            return f.Category.Trim();
-
-        return f.FindingId;
+        return !string.IsNullOrWhiteSpace(f.Category) ? f.Category.Trim() : f.FindingId;
     }
 
     private static string RedactAndTruncateSection(string section, int maxChars)
@@ -177,7 +171,7 @@ public static class StagedPriorAgentsSummaryBuilder
         return redacted[..maxChars].TrimEnd() + "…";
     }
 
-    private static string RedactAndClip(string text, int maxChars)
+    private static string RedactAndClip(string? text, int maxChars)
     {
         string s = RedactPotentiallySensitive(text ?? string.Empty).Trim();
 

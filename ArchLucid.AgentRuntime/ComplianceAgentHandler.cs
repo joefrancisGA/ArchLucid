@@ -2,7 +2,6 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
-using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;

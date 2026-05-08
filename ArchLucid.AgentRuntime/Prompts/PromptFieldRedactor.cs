@@ -54,7 +54,7 @@ public static class PromptFieldRedactor
 
     /// <summary>PEM private key header.</summary>
     private static readonly Regex PemPrivateKeyHeader = new(
-        @"-----BEGIN [^-]+PRIVATE KEY-----",
+        "-----BEGIN [^-]+PRIVATE KEY-----",
         RegexOptions.CultureInvariant | RegexOptions.Compiled,
         MatchTimeout);
 
@@ -123,7 +123,6 @@ public static class PromptFieldRedactor
     private static bool PassesLuhn(string digitsOnly)
     {
         if (digitsOnly.Length is < 13 or > 19 || !digitsOnly.All(char.IsDigit))
-
             return false;
 
         int sum = 0;
