@@ -155,7 +155,11 @@ public sealed class AzureExtractorIngestService(
                 ProjectId = scope.ProjectId,
 
                 DataJson = JsonSerializer.Serialize(
-                    new { originalFileName = safeName, sizeBytes = zipBytes.LongLength },
+                    new
+                    {
+                        originalFileName = safeName,
+                        sizeBytes = zipBytes.LongLength
+                    },
 
                     AuditJsonSerializationOptions.Instance),
 
@@ -302,7 +306,7 @@ public sealed class AzureExtractorIngestService(
 
             }
 
-            catch (Exception ex)when (ex is not OperationCanceledException)
+            catch (Exception ex) when (ex is not OperationCanceledException)
 
             {
 
@@ -368,28 +372,14 @@ public sealed class AzureExtractorIngestService(
 
         IReadOnlyList<AgentTask> tasks = await agentTaskRepository.GetByRunIdAsync(runGuid.ToString("N"), ct);
 
-        string? bundleRef = null;
-
-        foreach (AgentTask task in tasks)
-
-            if (!string.IsNullOrWhiteSpace(task.EvidenceBundleRef))
-
-            {
-
-                bundleRef = task.EvidenceBundleRef!.Trim();
-
-                break;
-
-            }
+        string? bundleRef = (from task in tasks where !string.IsNullOrWhiteSpace(task.EvidenceBundleRef) select task.EvidenceBundleRef!.Trim()).FirstOrDefault();
 
         if (string.IsNullOrWhiteSpace(bundleRef))
-
             return;
 
         EvidenceBundle? bundle = await evidenceBundleRepository.GetByIdAsync(bundleRef, ct);
 
         if (bundle is null)
-
             return;
 
         AzureExtractorPackageProvenance provenance = AzureExtractorPackageProvenance.FromRecord(record);
@@ -436,7 +426,12 @@ public sealed class AzureExtractorIngestService(
                 ProjectId = scope.ProjectId,
 
                 DataJson = JsonSerializer.Serialize(
-                    new { reason = detail, uploadedFileName, uploadedBytes },
+                    new
+                    {
+                        reason = detail,
+                        uploadedFileName,
+                        uploadedBytes
+                    },
 
                     AuditJsonSerializationOptions.Instance),
 
