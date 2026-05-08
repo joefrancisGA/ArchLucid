@@ -84,21 +84,27 @@ public sealed class PreCommitGovernanceGate(
             return PreCommitGateResult.Allowed();
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken);
+
         if (run is null || !run.FindingsSnapshotId.HasValue)
             return PreCommitGateResult.Allowed();
+
         IReadOnlyList<PolicyPackAssignment> assignments =
             await _policyPackAssignmentRepository.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
+
         PolicyPackAssignment? enforcing = assignments.Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
             .OrderByDescending(static a => a.AssignedUtc).FirstOrDefault();
+
         if (enforcing is null)
             return PreCommitGateResult.Allowed();
+
         FindingsSnapshot? snapshot = await _findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, cancellationToken);
         List<Finding> findings = snapshot?.Findings is { Count: > 0 } ? snapshot.Findings.ToList() : [];
-        if (syntheticSeverity is { } sev && syntheticCount > 0)
-        {
-            for (int i = 0; i < syntheticCount; i++)
-                findings.Add(CreateSyntheticFinding(runId, i, sev));
-        }
+
+        if (syntheticSeverity is not { } sev || syntheticCount <= 0)
+            return PreCommitGateEvaluator.EvaluateForAssignment(findings, enforcing, _options.Value);
+
+        for (int i = 0; i < syntheticCount; i++)
+            findings.Add(CreateSyntheticFinding(runId, i, sev));
 
         return PreCommitGateEvaluator.EvaluateForAssignment(findings, enforcing, _options.Value);
     }

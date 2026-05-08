@@ -782,8 +782,8 @@ jobs:
       - name: Agent eval dataset manifest (shape)
         run: python3 scripts/ci/eval_agent_quality.py --manifest-only --strict
 
-      - name: Prompt injection eval datasets (shape)
-        run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only --strict
+      - name: Prompt injection eval datasets (shape + executable regression)
+        run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only --strict --enforce-prompt-injection-block-layer
 
       - name: Agent eval corpus (offline recall + simulator quality evidence)
         run: |

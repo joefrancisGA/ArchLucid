@@ -22,21 +22,21 @@ public static class FastPathContextModelBuilder
         string systemTitle = SlugToTitle(slug);
         List<FastPathContextElementDto> elements =
         [
-            new FastPathContextElementDto
+            new()
             {
                 ElementId = "fast-system-1",
                 Name = systemTitle,
                 Kind = "SoftwareSystem",
                 ReasoningTrace = "Heuristic: software system name taken from the last non-empty path segment of the repository URL."
             },
-            new FastPathContextElementDto
+            new()
             {
                 ElementId = "fast-container-app",
                 Name = $"{systemTitle} workload",
                 Kind = "Container",
                 ReasoningTrace = "Heuristic placeholder for compute / application tier. Run full context ingest for repository-accurate components."
             },
-            new FastPathContextElementDto
+            new()
             {
                 ElementId = "fast-container-data",
                 Name = $"{systemTitle} data",

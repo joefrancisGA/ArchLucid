@@ -17,9 +17,7 @@ public sealed class TrialPasswordPolicyValidator(IOptions<TrialAuthOptions> tria
         TrialLocalIdentityOptions local = _trial.LocalIdentity;
         if (password.Length < local.MinimumPasswordLength)
             return TrialPasswordValidationResult.Fail($"Password must be at least {local.MinimumPasswordLength} characters.");
-        if (password.Length > local.MaximumPasswordLength)
-            return TrialPasswordValidationResult.Fail($"Password must be at most {local.MaximumPasswordLength} characters.");
-        return TrialPasswordValidationResult.Valid();
+        return password.Length > local.MaximumPasswordLength ? TrialPasswordValidationResult.Fail($"Password must be at most {local.MaximumPasswordLength} characters.") : TrialPasswordValidationResult.Valid();
     }
 }
 
