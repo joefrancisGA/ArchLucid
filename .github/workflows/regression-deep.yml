@@ -1,0 +1,100 @@
+# Optional long-running regression: full mock route / screenshot crawl (see `archlucid-ui` `screenshots:all`).
+# PR path stays in `ci.yml`; merge-blocking live routes + axe PR subset run there; nightly live suite in `live-e2e-nightly.yml`.
+
+name: Deep regression (optional)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_mock_route_screenshots:
+        description: "Run mock capture-all route screenshot crawl (long; can exceed 1h)"
+        type: boolean
+        default: true
+  schedule:
+    - cron: "15 4 * * *"
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  mock-full-route-screenshots:
+    if: >
+      github.event.repository.fork == false &&
+      (github.event_name == 'schedule' ||
+       (github.event_name == 'workflow_dispatch' && inputs.run_mock_route_screenshots == true))
+    name: "Operator UI: mock — full route screenshot crawl"
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Mock screenshots (capture-all)
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+          MOCK_E2E_SKIP_NEXT_BUILD: "0"
+        run: |
+          npm ci
+          npm run build
+          npx playwright install --with-deps chromium
+          MOCK_E2E_SKIP_NEXT_BUILD=1 npm run screenshots:all
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: deep-reg-mock-screenshots-all-routes
+          path: archlucid-ui/public/screenshots/all-routes
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: deep-reg-mock-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: deep-reg-mock-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: deep-reg-mock-blob-report
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+  deep-regression-summary:
+    name: Deep regression summary
+    if: always()
+    needs:
+      - mock-full-route-screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Summary
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          python3 << 'PY'
+          import json, os
+          needs = json.loads(os.environ["NEEDS_JSON"])
+          lines = ["## Deep regression", "", "| Job | Result |", "| --- | --- |"]
+          for k, v in sorted(needs.items()):
+              lines.append(f"| {k} | {v.get('result', '')} |")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write("\n".join(lines) + "\n")
+          PY
