@@ -8,6 +8,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   getArtifactBusinessLabel,
   getArtifactFormatLabel,
+  sponsorArtifactAudienceLine,
   sponsorArtifactSecondaryCaption,
 } from "@/lib/artifact-review-helpers";
 
@@ -74,6 +75,8 @@ export function ArtifactListTable(props: {
           {sorted.map((artifact) => {
             const reviewHref = reviewHrefForArtifact(manifestId, artifact.artifactId, runId);
             const businessLabel = getArtifactBusinessLabel(artifact.artifactType);
+            const sponsorAudience =
+              sponsorMode === true ? sponsorArtifactAudienceLine(artifact.artifactType) : null;
             const sponsorCaption =
               sponsorMode === true ? sponsorArtifactSecondaryCaption(artifact.name, businessLabel) : null;
 
@@ -88,6 +91,11 @@ export function ArtifactListTable(props: {
               >
                 <td className="max-w-[280px] px-2 py-2.5">
                   <strong className="font-semibold">{businessLabel}</strong>
+                  {sponsorMode ? (
+                    sponsorAudience !== null ? (
+                      <p className="m-0 mt-1 text-[11px] text-neutral-700 dark:text-neutral-300">{sponsorAudience}</p>
+                    ) : null
+                  ) : null}
                   {sponsorMode ? (
                     sponsorCaption !== null ? (
                       <p className="m-0 mt-1 text-[11px] text-neutral-600 dark:text-neutral-400">{sponsorCaption}</p>

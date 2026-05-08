@@ -152,8 +152,18 @@ function BuyerAuditEventsTechnicalAppendix(props: { events: AuditEvent[] }) {
   );
 }
 
-function AuditTimelineEventCard(props: { ev: AuditEvent; buyerPolishedShell: boolean }) {
-  const { ev, buyerPolishedShell } = props;
+function AuditTimelineEventCard(props: {
+  ev: AuditEvent;
+  buyerPolishedShell: boolean;
+  uniformRunId: string | null;
+}) {
+  const { ev, buyerPolishedShell, uniformRunId } = props;
+  const runKey = ev.runId?.trim() ?? "";
+  const hideBuyerReviewLine =
+    buyerPolishedShell &&
+    uniformRunId !== null &&
+    runKey.length > 0 &&
+    uniformRunId === runKey;
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950">
@@ -166,7 +176,7 @@ function AuditTimelineEventCard(props: { ev: AuditEvent; buyerPolishedShell: boo
       <div className="mt-1.5 text-sm">
         Actor: {buyerPolishedShell ? ev.actorUserName : `${ev.actorUserName} (${ev.actorUserId})`}
       </div>
-      {buyerPolishedShell ? (
+      {buyerPolishedShell && !hideBuyerReviewLine ? (
         <div className="text-sm">
           Review:{" "}
           {ev.runId ? (
@@ -177,7 +187,8 @@ function AuditTimelineEventCard(props: { ev: AuditEvent; buyerPolishedShell: boo
             "—"
           )}
         </div>
-      ) : (
+      ) : null}
+      {!buyerPolishedShell ? (
         <>
           <div className="text-sm">Correlation: {ev.correlationId ?? "—"}</div>
           {ev.otelTraceId ? (
@@ -199,7 +210,7 @@ function AuditTimelineEventCard(props: { ev: AuditEvent; buyerPolishedShell: boo
             )}
           </div>
         </>
-      )}
+      ) : null}
       {ev.runId ? (
         buyerPolishedShell ? null : (
           <div className="mt-0.5 text-[13px]">
@@ -566,6 +577,24 @@ export default function AuditPage() {
     return groupAuditEventsByLifecycleStage(displayEvents);
   }, [buyerPolishedShell, displayEvents]);
 
+  const uniformRunIdForDisplay = useMemo(() => {
+    if (displayEvents.length === 0) {
+      return null;
+    }
+
+    const firstId = displayEvents[0].runId?.trim() ?? "";
+
+    if (firstId.length === 0) {
+      return null;
+    }
+
+    const allSame = displayEvents.every((ev) => (ev.runId?.trim() ?? "") === firstId);
+
+    return allSame ? firstId : null;
+  }, [displayEvents]);
+
+  const demoAuditSampleTimelineUi = shouldMergeOperatorDemoAlertSample();
+
   return (
     <main className="max-w-4xl">
       <LayerHeader pageKey="audit" />
@@ -603,6 +632,8 @@ export default function AuditPage() {
         </div>
       ) : null}
 
+      <div className={cn(buyerPolishedShell && "flex flex-col")}>
+        <div className={cn(buyerPolishedShell && "order-3")}>
       <section
         aria-labelledby="audit-search-heading"
         className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-4 bg-white dark:bg-neutral-950"
@@ -620,51 +651,83 @@ export default function AuditPage() {
           </p>
         ) : null}
         <div className="mb-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            className={cn(
-              "rounded border px-2 py-1 text-xs font-medium transition-colors",
-              auditDatePreset === "24h"
-                ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
-                : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
-            )}
-            disabled={searching || loadingTypes}
-            onClick={() => {
-              void applyAuditDatePreset("24h");
-            }}
-          >
-            Last 24 hours
-          </button>
-          <button
-            type="button"
-            className={cn(
-              "rounded border px-2 py-1 text-xs font-medium transition-colors",
-              auditDatePreset === "7d"
-                ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
-                : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
-            )}
-            disabled={searching || loadingTypes}
-            onClick={() => {
-              void applyAuditDatePreset("7d");
-            }}
-          >
-            Last 7 days
-          </button>
-          {auditDatePreset !== null || fromUtc.length > 0 || toUtc.length > 0 ? (
-            <button
-              type="button"
-              className="rounded border border-neutral-300 bg-neutral-50 px-2 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900"
-              disabled={searching}
-              onClick={() => {
-                void clearDateRangeAndSearch();
-              }}
-            >
-              Clear date range
-            </button>
-          ) : null}
+          {buyerPolishedShell && demoAuditSampleTimelineUi ? (
+            <>
+              <button
+                type="button"
+                className={cn(
+                  "rounded border px-2 py-1 text-xs font-medium transition-colors",
+                  auditDatePreset === null && fromUtc.length === 0 && toUtc.length === 0
+                    ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
+                    : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
+                )}
+                disabled={searching || loadingTypes}
+                onClick={() => {
+                  void clearDateRangeAndSearch();
+                }}
+              >
+                Sample review timeline
+              </button>
+              {auditDatePreset !== null || fromUtc.length > 0 || toUtc.length > 0 ? (
+                <button
+                  type="button"
+                  className="rounded border border-neutral-300 bg-neutral-50 px-2 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900"
+                  disabled={searching}
+                  onClick={() => {
+                    void clearDateRangeAndSearch();
+                  }}
+                >
+                  Reset to sample timeline
+                </button>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className={cn(
+                  "rounded border px-2 py-1 text-xs font-medium transition-colors",
+                  auditDatePreset === "24h"
+                    ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
+                    : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
+                )}
+                disabled={searching || loadingTypes}
+                onClick={() => {
+                  void applyAuditDatePreset("24h");
+                }}
+              >
+                Last 24 hours
+              </button>
+              <button
+                type="button"
+                className={cn(
+                  "rounded border px-2 py-1 text-xs font-medium transition-colors",
+                  auditDatePreset === "7d"
+                    ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
+                    : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
+                )}
+                disabled={searching || loadingTypes}
+                onClick={() => {
+                  void applyAuditDatePreset("7d");
+                }}
+              >
+                Last 7 days
+              </button>
+              {auditDatePreset !== null || fromUtc.length > 0 || toUtc.length > 0 ? (
+                <button
+                  type="button"
+                  className="rounded border border-neutral-300 bg-neutral-50 px-2 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900"
+                  disabled={searching}
+                  onClick={() => {
+                    void clearDateRangeAndSearch();
+                  }}
+                >
+                  Clear date range
+                </button>
+              ) : null}
+            </>
+          )}
         </div>
-        {buyerPolishedShell ? (
-          <>
             <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
               <label>
                 Event type{" "}
@@ -701,12 +764,17 @@ export default function AuditPage() {
                 />
               </label>
               <label>
-                Linked review{" "}
+                {buyerPolishedShell ? "Linked review" : "Review ID"}{" "}
                 <input
                   value={runId}
                   onChange={(e) => setRunId(e.target.value)}
                   className="w-full mt-1"
                 />
+                {buyerPolishedShell && runId.trim().length > 0 ? (
+                  <span className="mt-1 block text-xs text-neutral-600 dark:text-neutral-400">
+                    Showing events for <strong>{buyerFacingReviewLinkLabelFromRunId(runId)}</strong>.
+                  </span>
+                ) : null}
               </label>
             </div>
             <Collapsible open={advancedAuditFiltersOpen} onOpenChange={setAdvancedAuditFiltersOpen} className="mt-2">
@@ -741,87 +809,6 @@ export default function AuditPage() {
                 </div>
               </CollapsibleContent>
             </Collapsible>
-          </>
-        ) : (
-          <>
-            <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-              <label>
-                Event type{" "}
-                <select
-                  value={eventType}
-                  onChange={(e) => setEventType(e.target.value)}
-                  disabled={loadingTypes}
-                  className="w-full mt-1"
-                >
-                  <option value="">Any</option>
-                  {eventTypes.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                From (local){" "}
-                <input
-                  type="datetime-local"
-                  value={fromUtc}
-                  onChange={(e) => setFromUtc(e.target.value)}
-                  className="w-full mt-1"
-                />
-              </label>
-              <label>
-                To (local){" "}
-                <input
-                  type="datetime-local"
-                  value={toUtc}
-                  onChange={(e) => setToUtc(e.target.value)}
-                  className="w-full mt-1"
-                />
-              </label>
-              <label>
-                Review ID{" "}
-                <input
-                  value={runId}
-                  onChange={(e) => setRunId(e.target.value)}
-                  className="w-full mt-1"
-                />
-              </label>
-            </div>
-            <Collapsible open={advancedAuditFiltersOpen} onOpenChange={setAdvancedAuditFiltersOpen} className="mt-2">
-              <CollapsibleTrigger
-                type="button"
-                className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left text-xs font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
-              >
-                Advanced filters
-                <ChevronDown
-                  className={cn("h-4 w-4 shrink-0 transition-transform", advancedAuditFiltersOpen ? "rotate-0" : "-rotate-90")}
-                  aria-hidden
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-2">
-                <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-                  <label>
-                    Correlation ID{" "}
-                    <input
-                      value={correlationId}
-                      onChange={(e) => setCorrelationId(e.target.value)}
-                      className="w-full mt-1"
-                    />
-                  </label>
-                  <label>
-                    Actor user id{" "}
-                    <input
-                      value={actorUserId}
-                      onChange={(e) => setActorUserId(e.target.value)}
-                      className="w-full mt-1"
-                    />
-                  </label>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </>
-        )}
         <div className="mt-3 flex gap-2 flex-wrap">
           <button
             type="button"
@@ -849,7 +836,9 @@ export default function AuditPage() {
           </button>
         </div>
       </section>
+        </div>
 
+        <div className={cn(buyerPolishedShell && "order-1")}>
       <section aria-labelledby="audit-results-heading">
         <h3 id="audit-results-heading" className="mt-0 mb-2 text-base">
           {buyerPolishedShell
@@ -875,6 +864,18 @@ export default function AuditPage() {
               : " Oldest-first lifecycle order for this view."
             : " Newest first; use Load more for older entries."}
         </p>
+        {buyerPolishedShell && uniformRunIdForDisplay !== null ? (
+          <p className="mb-2 mt-1 max-w-2xl text-sm text-neutral-700 dark:text-neutral-300">
+            All events in this view belong to{" "}
+            <Link
+              className="font-medium text-teal-800 underline dark:text-teal-300"
+              href={`/reviews/${encodeURIComponent(uniformRunIdForDisplay)}`}
+            >
+              {buyerFacingReviewLinkLabelFromRunId(uniformRunIdForDisplay)}
+            </Link>
+            .
+          </p>
+        ) : null}
 
         <div className="mt-3">
           {events.length === 0 ? (
@@ -894,6 +895,7 @@ export default function AuditPage() {
                             key={ev.eventId}
                             ev={ev}
                             buyerPolishedShell={buyerPolishedShell}
+                            uniformRunId={uniformRunIdForDisplay}
                           />
                         ))}
                       </div>
@@ -907,6 +909,7 @@ export default function AuditPage() {
                       key={ev.eventId}
                       ev={ev}
                       buyerPolishedShell={buyerPolishedShell}
+                      uniformRunId={uniformRunIdForDisplay}
                     />
                   ))}
                 </div>
@@ -933,7 +936,9 @@ export default function AuditPage() {
           </div>
         ) : null}
       </section>
+        </div>
 
+        <div className={cn(buyerPolishedShell && "order-2")}>
       {events.length > 0 && (!buyerPolishedShell || events.length > 0) ? (
       <section
         aria-labelledby="audit-export-heading"
@@ -972,6 +977,8 @@ export default function AuditPage() {
         </button>
       </section>
       ) : null}
+        </div>
+      </div>
     </main>
   );
 }

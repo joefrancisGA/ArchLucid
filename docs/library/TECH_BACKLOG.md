@@ -189,9 +189,9 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
 
 ### Gap B — Enable EnforceOnReject after product decision
 
-**Status:** The AgentOutputQualityGateOptions.EnforceOnReject flag was added (2026-05-01) and defaults to alse. Enabling it causes AgentOutputEvaluationRecorder to throw AgentOutputQualityGateRejectedException when an agent trace scores below the reject thresholds, which propagates through AgentOutputTraceEvaluationHook.AfterSuccessfulExecuteAsync and will abort the post-execute step for the run.
+**Status (2026-05-08):** **Closed for production-like hosts.** **`ArchLucid.Api/appsettings.Staging.json`** and **`appsettings.Production.json`** set **`ArchLucid:AgentOutput:QualityGate`** to **`Mode: PilotStrict`**, **`EnforceOnReject: true`**, **`BlockRunOnReject: true`**. **`AgentOutputEvaluationRecorder`** throws **`AgentOutputQualityGateRejectedException`** on reject; **`ArchitectureRunExecuteOrchestrator`** catches it when both flags are true, marks **`LegacyRunStatus`** **`ExecutionCompletedQualityRejected`**, emits baseline audit **`RunQualityGateRejected`**, and rethrows (**HTTP 409** from API problem-details handling). **`appsettings.Development.json`** keeps **`EnforceOnReject` / `BlockRunOnReject`** **`false`** for local usability. Coverage: **`ArchitectureRunExecuteOrchestratorQualityGateBlockingTests`**, **`AgentOutputQualityGateStagingAppsettingsTests`** (effective options from committed Staging JSON).
 
-**Decision needed:** Does a quality gate rejection block the pilot user's run from completing, or is it operator-only telemetry? If blocking: enable the flag in ppsettings.SaaS.json under ArchLucid:AgentOutput:QualityGate:EnforceOnReject: true and define the user-facing error contract. If telemetry-only: document the decision and close this item.
+**Follow-up (optional):** If a **`appsettings.SaaS.json`** (or tenant-specific) profile needs a different posture, duplicate or slice the Staging block explicitly rather than relying on base **`appsettings.json`** (which omits the section and uses CLR defaults).
 
 ### Gap C — Eval corpus has no real-mode scenarios
 
@@ -204,7 +204,7 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
 
 **Affected areas:** 	ests/eval-corpus/, scripts/ci/eval_agent_corpus.py, .github/workflows/golden-cohort-nightly.yml.
 
-**Size estimate:** Gap A ~1 h (operational, no code). Gap B ~2 h (decision + config + error contract). Gap C ~4 h (scenario authoring + workflow wiring).
+**Size estimate:** Gap A ~1 h (operational, no code). Gap B — closed (see Gap B status above). Gap C ~4 h (scenario authoring + workflow wiring).
 
 ---
 

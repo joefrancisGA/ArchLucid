@@ -19,7 +19,7 @@
 ## Context (from internal readiness assessment)
 
 - Simulator and structural/semantic evaluation give **deterministic** offline signal; **buyer risk** is **real-mode** LLM correctness, explainability, and whether **quality gates** are **warn-only** vs **blocking**.
-- Open product decisions still include: whether `EnforceOnReject` should **abort** user-visible runs, what **user-facing** errors look like, and what **release-grade** real-mode evidence must contain.
+- **`EnforceOnReject` + `BlockRunOnReject`** on **Staging/Production** API profiles **do** abort execute with **`ExecutionCompletedQualityRejected`** and **HTTP 409**; refine **problem-details / support hints** and **release-grade real-mode evidence** expectations as needed.
 
 ---
 
@@ -79,7 +79,7 @@
 
 ## Known doc anchors (verify in code)
 
-Structural evaluation checks **AgentResult-shaped JSON**. Semantic evaluation is **deterministic** (no embedding LLM in the documented path): e.g., claims scored partly on **`evidenceRefs` / `evidence`**, findings on **severity/description/recommendation** length — see **`docs/library/AGENT_OUTPUT_EVALUATION.md`**. Defaults may ship **`EnforceOnReject: false`** with reject floors set so routine scores do not hit **rejected**; confirm **`appsettings.json`** vs Advanced/Release docs.
+Structural evaluation checks **AgentResult-shaped JSON**. Semantic evaluation is **deterministic** (no embedding LLM in the documented path): e.g., claims scored partly on **`evidenceRefs` / `evidence`**, findings on **severity/description/recommendation** length — see **`docs/library/AGENT_OUTPUT_EVALUATION.md`**. **Base `appsettings.json`** omits **`ArchLucid:AgentOutput:QualityGate`** (CLR defaults: **`EnforceOnReject` / `BlockRunOnReject` false**, **`Mode` WarnOnly**). **`appsettings.Staging.json` / `appsettings.Production.json`** use **`PilotStrict`** with **`EnforceOnReject` / `BlockRunOnReject` true**; **`appsettings.Development.json`** keeps blocking off.
 
 ---
 

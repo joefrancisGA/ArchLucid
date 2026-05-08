@@ -401,7 +401,7 @@ export default async function RunDetailPage({
     ? [
         { id: "manifest-summary", label: "Package", available: Boolean(manifestSummary) },
         { id: "trust-evidence", label: "Evidence", available: Boolean(resolvedDetail.trustEvidenceCard) },
-        { id: "run-explanation", label: "Findings", available: Boolean(manifestId) },
+        { id: "run-explanation", label: "Review narrative", available: Boolean(manifestId) },
         { id: "run-metadata", label: "Review", available: true },
         { id: "pipeline-timeline", label: "Activity", available: true },
         { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },

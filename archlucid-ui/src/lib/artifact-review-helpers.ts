@@ -163,9 +163,37 @@ const SPONSOR_FILENAME_STEM_LABELS: Record<string, string> = {
 };
 
 /**
+ * One-line audience hint for sponsor-mode tables (who uses the file and why).
+ * Returns null when the artifact type is unknown to keep the table scannable.
+ */
+export function sponsorArtifactAudienceLine(artifactType: string): string | null {
+  const normalizedType = artifactType.trim();
+
+  const lineByType: Record<string, string> = {
+    MarkdownReport: "Used by sponsor — executive readout and sign-off context.",
+    ArchitectureNarrative: "Used by sponsor — plain-language summary for stakeholders.",
+    JsonBundle: "Used by architects — decision record, traceability, and handoffs.",
+    DiagramAst: "Used by architects — machine-readable structure for diagrams and tooling.",
+    MermaidDiagram:
+      "Used by architects — diagram source reviewers can paste into standard diagram viewers.",
+    Diagram: "Used by architects — visual context for the reviewed architecture.",
+    Inventory: "Used by architects — component and dependency inventory for delivery planning.",
+    CostSummary: "Used by sponsor and architects — cost posture sanity check for the design.",
+    ComplianceMatrix: "Used for audit — control coverage versus the manifest posture.",
+    CoverageSummary: "Used for audit — coverage signals tied to requirements or controls.",
+    EvidenceBundle: "Used for audit — traceability and evidence exports.",
+    UnresolvedIssuesReport: "Used by sponsor — open checklist items before finalize.",
+    ReferenceArchitectureMarkdown: "Used by architects — narrative reference for build-out and review.",
+  };
+
+  return lineByType[normalizedType] ?? null;
+}
+
+/**
  * Optional second line under the business label in sponsor artifact tables.
  * Omits redundant filenames when the stem matches or extends the curated label.
  */
+
 export function sponsorArtifactSecondaryCaption(filename: string, businessLabel: string): string | null {
   const stripped = stripArtifactFilenameExtension(filename).trim();
 

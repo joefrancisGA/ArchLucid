@@ -31,6 +31,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\ArchLucid.Api\appsettings.Staging.json" Link="appsettings.Staging.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="fixtures\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

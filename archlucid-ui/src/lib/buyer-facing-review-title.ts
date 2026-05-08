@@ -26,8 +26,14 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
   }
 
   const description = run.description?.trim() ?? "";
+  const runIdTrim = run.runId.trim();
 
-  if (description.length > 0) {
+  // Some APIs echo the run id as `description`; never show that slug as a human title.
+  if (
+    description.length > 0 &&
+    description !== runIdTrim &&
+    description.toLowerCase() !== runIdTrim.toLowerCase()
+  ) {
     return description;
   }
 

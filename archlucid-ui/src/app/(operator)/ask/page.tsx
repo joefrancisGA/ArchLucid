@@ -47,6 +47,36 @@ const ASK_FOLLOW_UP_CHIPS_BUYER: readonly string[] = [
   "Summarize the mitigation pattern in one paragraph.",
 ];
 
+type AskBuyerPromptGroup = {
+  readonly heading: string;
+  readonly prompts: readonly string[];
+};
+
+/** Buyer shell: suggested prompts grouped by intent (flat list remains for operator shell). */
+const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
+  {
+    heading: "Executive summary",
+    prompts: [
+      "Summarize this for an executive sponsor.",
+      "What are the top three risks I should brief leadership on?",
+    ],
+  },
+  {
+    heading: "Go-live readiness",
+    prompts: [
+      "What should the sponsor review before sign-off?",
+      "What should we validate before go-live?",
+    ],
+  },
+  {
+    heading: "Mitigation",
+    prompts: [
+      "Summarize the PHI risk for this review.",
+      "Summarize the mitigation pattern in one paragraph.",
+    ],
+  },
+];
+
 /** Shown when Ask opens with <code>?runId=…</code> deep link (review-scoped starters). */
 const ASK_DEEP_LINK_RUN_PROMPTS: readonly string[] = [
   "What changed in this review that leadership must know?",
@@ -508,16 +538,60 @@ function AskPageContent() {
                   rows={4}
                 />
                 <div
-                  className="flex flex-wrap gap-2"
+                  className={cn(
+                    buyerPolishedShell ? "flex flex-col gap-3" : "flex flex-wrap gap-2",
+                  )}
                   role="group"
                   aria-label={buyerPolishedShell ? "Suggested prompts" : "Example prompts"}
                 >
-                  {showRunDeepLinkPrompts
-                    ? ASK_DEEP_LINK_RUN_PROMPTS.map((line) => (
+                  {showRunDeepLinkPrompts ? (
+                    <div className="space-y-1.5">
+                      <p className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">Review context</p>
+                      <div className="flex flex-wrap gap-2">
+                        {ASK_DEEP_LINK_RUN_PROMPTS.map((line) => (
+                          <Button
+                            key={`deeplink-${line}`}
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                            disabled={runMissing}
+                            onClick={() => mergePromptLine(line)}
+                          >
+                            {line}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {buyerPolishedShell
+                    ? ASK_BUYER_PROMPT_GROUPS.map((group) => (
+                        <div key={group.heading} className="space-y-1.5">
+                          <p className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+                            {group.heading}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {group.prompts.map((line) => (
+                              <Button
+                                key={`${group.heading}-${line}`}
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                                disabled={runMissing}
+                                onClick={() => mergePromptLine(line)}
+                              >
+                                {line}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    : ASK_EXAMPLE_PROMPTS.map((line) => (
                         <Button
-                          key={`deeplink-${line}`}
+                          key={line}
                           type="button"
-                          variant="secondary"
+                          variant="outline"
                           size="sm"
                           className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
                           disabled={runMissing}
@@ -525,21 +599,7 @@ function AskPageContent() {
                         >
                           {line}
                         </Button>
-                      ))
-                    : null}
-                  {(buyerPolishedShell ? ASK_FOLLOW_UP_CHIPS_BUYER : ASK_EXAMPLE_PROMPTS).map((line) => (
-                    <Button
-                      key={line}
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
-                      disabled={runMissing}
-                      onClick={() => mergePromptLine(line)}
-                    >
-                      {line}
-                    </Button>
-                  ))}
+                      ))}
                 </div>
               </div>
 

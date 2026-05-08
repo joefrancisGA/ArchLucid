@@ -214,6 +214,12 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+
+        auditService.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.RunLegacyReadyForCommitPromoted),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private static List<AgentResult> BuildFourResults(string runId)
