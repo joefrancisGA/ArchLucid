@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace ArchLucid.Persistence.Integrations;
 
@@ -74,6 +75,22 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
             :
             // In-memory hosts do not model FindingRecords; webhook path still emits audit when correlation exists.
             Task.FromResult(0);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> FindingRecordExistsAsync(Guid tenantId, string findingId, CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+
+        string trimmed = findingId.Trim();
+
+        bool any = _byKey.Values.Any(r =>
+            r.TenantId == tenantId &&
+            string.Equals(r.FindingId, trimmed, StringComparison.Ordinal));
+
+        return Task.FromResult(any);
     }
 
     private static string Key(string provider, string externalKey) =>

@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "./fixtures";
 import {
+  comparePageLeftRunInput,
   expectComparisonRequestOutcomeVisible,
   gotoComparePageWithFixturePair,
 } from "./helpers/operator-journey";
@@ -17,7 +18,7 @@ test.describe("operator journey — compare stale input warning", () => {
     await page.getByRole("button", { name: "Compare" }).click();
     await expectComparisonRequestOutcomeVisible(page);
 
-    const leftInput = page.getByPlaceholder("Base run ID (left)");
+    const leftInput = comparePageLeftRunInput(page);
     await leftInput.fill(`${FIXTURE_LEFT_RUN_ID}-edited`);
 
     const staleCallout = page.getByRole("status").filter({

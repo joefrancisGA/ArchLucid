@@ -23,4 +23,7 @@ public interface IItsmFindingCorrelationRepository
         string findingId,
         string humanReviewStatus,
         CancellationToken ct);
+
+    /// <summary>Returns whether a <c>dbo.FindingRecords</c> row exists for the tenant and logical finding id.</summary>
+    Task<bool> FindingRecordExistsAsync(Guid tenantId, string findingId, CancellationToken ct);
 }

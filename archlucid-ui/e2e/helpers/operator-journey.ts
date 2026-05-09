@@ -26,6 +26,16 @@ export async function gotoComparePageWithFixturePair(
   await page.goto(`/compare?${comparePairSearchParams(leftRunId, rightRunId)}`);
 }
 
+/** Stable combobox inputs on `/compare` (`inputId` on the left `RunIdPicker`). */
+export function comparePageLeftRunInput(page: Page) {
+  return page.locator("#compare-left-run-id");
+}
+
+/** Right-hand run combobox on `/compare`. */
+export function comparePageRightRunInput(page: Page) {
+  return page.locator("#compare-right-run-id");
+}
+
 /** Run detail for the standard mock-api run fixture (`e2e/mock-archlucid-api-server`). */
 export async function gotoRunDetailForMockFixtureRun(page: Page): Promise<void> {
   await page.goto(`/runs/${encodeURIComponent(FIXTURE_RUN_ID)}`);

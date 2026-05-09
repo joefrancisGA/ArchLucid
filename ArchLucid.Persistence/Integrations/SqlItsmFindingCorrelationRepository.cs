@@ -123,4 +123,27 @@ public sealed class SqlItsmFindingCorrelationRepository(SqlConnectionFactory con
 
         return await connection.ExecuteAsync(cmd);
     }
+
+    /// <inheritdoc />
+    public async Task<bool> FindingRecordExistsAsync(Guid tenantId, string findingId, CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
+        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+
+        const string sql = """
+                           SELECT CASE WHEN EXISTS (
+                               SELECT 1
+                               FROM dbo.FindingRecords
+                               WHERE TenantId = @TenantId AND FindingId = @FindingId
+                           ) THEN 1 ELSE 0 END;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        CommandDefinition cmd = new(sql, new { TenantId = tenantId, FindingId = findingId.Trim() }, cancellationToken: ct);
+
+        int exists = await connection.ExecuteScalarAsync<int>(cmd);
+
+        return exists != 0;
+    }
 }

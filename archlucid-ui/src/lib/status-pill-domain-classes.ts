@@ -3,12 +3,12 @@ import { cn } from "@/lib/utils";
 export type StatusPillDomain = "pipeline" | "governance" | "health" | "general";
 
 /** Shared shell: pill shape, compact type (add `uppercase` in {@link import("@/components/StatusPill")} by default). */
-export const STATUS_PILL_BASE = "rounded-full px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-wide";
+export const STATUS_PILL_BASE = "rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide";
 
 function pipelineSemanticClass(status: string): string {
   switch (status) {
     case "Finalized":
-      return "border-transparent bg-emerald-700 text-white shadow-sm hover:bg-emerald-700/90 dark:bg-emerald-700 dark:text-white dark:hover:bg-emerald-700/90";
+      return "border-transparent bg-emerald-800 text-white shadow-sm hover:bg-emerald-800/90 dark:bg-emerald-800 dark:text-white dark:hover:bg-emerald-800/90";
     case "Ready to finalize":
       return "border-amber-500/70 bg-amber-50 text-amber-950 shadow-sm dark:border-amber-600/60 dark:bg-amber-950/50 dark:text-amber-50";
     case "In pipeline":
@@ -26,7 +26,7 @@ export function governanceDomainBadgeClass(status: string): string {
     case "Submitted":
       return "border-transparent bg-blue-600 text-white hover:bg-blue-600/90 dark:bg-blue-600 dark:hover:bg-blue-600/90";
     case "Approved":
-      return "border-transparent bg-emerald-700 text-white hover:bg-emerald-700/90 dark:bg-emerald-700 dark:hover:bg-emerald-700/90";
+      return "border-transparent bg-emerald-800 text-white hover:bg-emerald-800/90 dark:bg-emerald-800 dark:hover:bg-emerald-800/90";
     case "Rejected":
       return "border-transparent bg-red-600 text-white hover:bg-red-600/90 dark:bg-red-600 dark:hover:bg-red-600/90";
     case "Promoted":

@@ -50,6 +50,18 @@ public sealed class ItsmInboundWebhooksController(
             return Unauthorized();
 
         string rawBody = await ReadRequestBodyUtf8Async(ct).ConfigureAwait(false);
+
+        int payloadUtf8Bytes = Encoding.UTF8.GetByteCount(rawBody);
+
+        if (payloadUtf8Bytes > ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes)
+        {
+            await _auditService
+                .LogAsync(ItsmInboundWebhookSyncService.CreatePayloadTooLargeAudit(true, payloadUtf8Bytes), ct)
+                .ConfigureAwait(false);
+
+            return this.BadRequestProblem("ITSM webhook payload exceeds maximum size.", ProblemTypes.ValidationFailed);
+        }
+
         string? token = Request.Headers["X-Jira-Token"].FirstOrDefault();
 
         if (!TryVerifyWebhookSecurity(o, o.JiraWebhookSecret, rawBody, token, out IActionResult? reject))
@@ -59,15 +71,15 @@ public sealed class ItsmInboundWebhooksController(
         using JsonDocument doc = JsonDocument.Parse(rawBody);
 
         ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct).ConfigureAwait(false);
-
-        if (!r.Accepted)
-
-            return this.BadRequestProblem("Unrecognized Jira webhook payload.", ProblemTypes.ValidationFailed);
+            await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes).ConfigureAwait(false);
 
         if (r.DurableAuditEvent is not null)
 
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
+
+        if (!r.Accepted)
+
+            return this.BadRequestProblem("Unrecognized Jira webhook payload.", ProblemTypes.ValidationFailed);
 
         return Ok();
     }
@@ -85,6 +97,18 @@ public sealed class ItsmInboundWebhooksController(
             return Unauthorized();
 
         string rawBody = await ReadRequestBodyUtf8Async(ct).ConfigureAwait(false);
+
+        int payloadUtf8Bytes = Encoding.UTF8.GetByteCount(rawBody);
+
+        if (payloadUtf8Bytes > ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes)
+        {
+            await _auditService
+                .LogAsync(ItsmInboundWebhookSyncService.CreatePayloadTooLargeAudit(false, payloadUtf8Bytes), ct)
+                .ConfigureAwait(false);
+
+            return this.BadRequestProblem("ITSM webhook payload exceeds maximum size.", ProblemTypes.ValidationFailed);
+        }
+
         string? token = Request.Headers["X-ServiceNow-Token"].FirstOrDefault();
 
         if (!TryVerifyWebhookSecurity(o, o.ServiceNowWebhookSecret, rawBody, token, out IActionResult? reject))
@@ -94,15 +118,15 @@ public sealed class ItsmInboundWebhooksController(
         using JsonDocument doc = JsonDocument.Parse(rawBody);
 
         ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct).ConfigureAwait(false);
-
-        if (!r.Accepted)
-
-            return this.BadRequestProblem("Unrecognized ServiceNow webhook payload.", ProblemTypes.ValidationFailed);
+            await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes).ConfigureAwait(false);
 
         if (r.DurableAuditEvent is not null)
 
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
+
+        if (!r.Accepted)
+
+            return this.BadRequestProblem("Unrecognized ServiceNow webhook payload.", ProblemTypes.ValidationFailed);
 
         return Ok();
     }
