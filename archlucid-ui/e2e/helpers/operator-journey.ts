@@ -36,6 +36,14 @@ export function comparePageRightRunInput(page: Page) {
   return page.locator("#compare-right-run-id");
 }
 
+/**
+ * Primary **Compare** control on `/compare`, scoped to the picker section so it never collides with the
+ * contextual-help button (`aria-label` contains "compare-runs"), which plain `name: "Compare"` can match in Playwright.
+ */
+export function comparePageSubmitButton(page: Page) {
+  return page.locator("section:has(#compare-select-heading)").getByRole("button", { name: "Compare", exact: true });
+}
+
 /** Run detail for the standard mock-api run fixture (`e2e/mock-archlucid-api-server`). */
 export async function gotoRunDetailForMockFixtureRun(page: Page): Promise<void> {
   await page.goto(`/runs/${encodeURIComponent(FIXTURE_RUN_ID)}`);
@@ -53,7 +61,12 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 // --- Assertions (only where duplicated across specs) ---
 
-/** After Compare succeeds, the summary strip for structured + legacy outcomes. */
+/** `<details aria-label="Comparison request outcome">` after a successful compare (not always role=region in browsers). */
+export function comparisonRequestOutcomePanel(page: Page) {
+  return page.locator('details[aria-label="Comparison request outcome"]');
+}
+
+/** After Compare succeeds, the collapsed technical outcome strip is visible. */
 export async function expectComparisonRequestOutcomeVisible(page: Page): Promise<void> {
-  await expect(page.getByRole("region", { name: "Comparison request outcome" })).toBeVisible();
+  await expect(comparisonRequestOutcomePanel(page)).toBeVisible();
 }

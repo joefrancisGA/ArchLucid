@@ -8,6 +8,14 @@ import {
 
 const claimsShowcasePath = "/showcase/claims-intake-modernization";
 
+/** Manifest detail H1 — buyer-polished demo builds use friendlier copy (`demo-ui-env` + manifest page). */
+const MANIFEST_DETAIL_PRIMARY_HEADING = /Finalized architecture manifest|Architecture review package/i;
+
+/** Canonical run detail path is `/reviews/{runId}`; `/runs/*` permanently redirects (see `next.config.ts`). */
+function showcaseDemoReviewDetailUrlPattern(): RegExp {
+  return new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`);
+}
+
 /**
  * Validates the mock-backed “proof chain”: runs list → run detail → manifest detail.
  * Run in isolation: `npx playwright test -c playwright.mock.config.ts e2e/demo-readiness.spec.ts`
@@ -20,28 +28,28 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
   });
 
   test("runs list shows Claims Intake example without mock-provider leakage", async ({ page }) => {
-    await page.goto("/runs?projectId=default");
+    await page.goto("/reviews?projectId=default");
     await expect(page.getByRole("heading", { name: /architecture reviews/i })).toBeVisible();
     await expect(page.getByText(/Claims Intake Modernization/i).first()).toBeVisible();
     await expect(page.getByText(/mock API/i)).toHaveCount(0);
   });
 
   test("run detail avoids not-found shells, bogus pipeline progress, and invalid dates", async ({ page }) => {
-    await page.goto(`/runs/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     const primaryMain = page.getByRole("main").first();
     await expect(primaryMain).not.toContainText(/run not found/i);
     await expect(primaryMain).not.toContainText(/request failed/i);
     await expect(primaryMain).not.toContainText(/Invalid Date/i);
     await expect(primaryMain.getByText(/\b0 of 4 run pipeline stages complete\b/i)).toHaveCount(0);
 
-    await page.goto(`/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}`);
-    await expect(page).toHaveURL(new RegExp(`/runs/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`));
+    await page.goto(`/reviews/${encodeURIComponent(SCREENSHOT_RUN_ID)}`);
+    await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expect(page.getByRole("main").first()).not.toContainText(/run not found/i);
   });
 
   test("showcase-aligned manifest UUID loads manifest chrome (not indefinite skeleton)", async ({ page }) => {
     await page.goto(`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
-    await expect(page.getByRole("heading", { name: /Finalized architecture manifest/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING, level: 1 })).toBeVisible();
     const primaryMain = page.getByRole("main");
     await expect(primaryMain).toHaveCount(1);
     await expect(primaryMain).not.toContainText(/manifest summary could not be loaded/i);
@@ -55,7 +63,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     );
 
     await page.getByRole("link", { name: /Open review/i }).first().click();
-    await expect(page).toHaveURL(new RegExp(`/runs/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`));
+    await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expect(page.getByRole("main").first()).not.toContainText(/Invalid Date/i);
 
     await page.goto(claimsShowcasePath);
@@ -63,18 +71,18 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page).toHaveURL(
       new RegExp(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}`),
     );
-    await expect(page.getByRole("heading", { name: /Finalized architecture manifest/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING, level: 1 })).toBeVisible();
   });
 
   test("demo pages do not leak internal tokens in main content @demo-readiness", async ({ page }) => {
     const paths: string[] = [
       "/",
-      "/runs?projectId=default",
-      `/runs/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
+      "/reviews?projectId=default",
+      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
       `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
       "/governance",
       "/help",
-      `/runs/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
+      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
     ];
 
     const banned = [
@@ -108,22 +116,22 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     page,
   }) => {
     await page.goto("/");
-    await expect(page.locator('a[href^="/runs/new"]').first()).toBeVisible();
+    await expect(page.locator('a[href^="/reviews/new"]').first()).toBeVisible();
 
-    await page.goto("/runs/new");
-    await expect(page).toHaveURL(/\/runs\/new/);
+    await page.goto("/reviews/new");
+    await expect(page).toHaveURL(/\/reviews\/new/);
 
-    await page.goto("/runs?projectId=default");
+    await page.goto("/reviews?projectId=default");
     await expect(page.getByRole("heading", { name: /architecture reviews/i })).toBeVisible();
     await page.getByRole("link", { name: /Claims Intake Modernization/i }).first().click();
-    await expect(page).toHaveURL(new RegExp(`/runs/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`));
+    await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
 
     await page.goto(`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
-    await expect(page.getByRole("heading", { name: /Finalized architecture manifest/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING, level: 1 })).toBeVisible();
 
     await page.goto(
-      `/runs/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
+      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
     );
     await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
 
@@ -177,7 +185,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.goto("/manifests/undefined");
     await expect(page.getByTestId("branded-not-found")).toBeVisible();
 
-    await page.goto("/runs/undefined");
+    await page.goto("/reviews/undefined");
     await expect(page.getByTestId("branded-not-found")).toBeVisible();
   });
 });
