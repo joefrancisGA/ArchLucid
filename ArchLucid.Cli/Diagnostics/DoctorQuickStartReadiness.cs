@@ -3,7 +3,6 @@ using System.Net;
 
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Hosting;
-using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -320,12 +319,9 @@ internal static class DoctorQuickStartReadiness
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
             string db = connection.Database;
-            int expected = DatabaseMigrator.GetOrderedMigrationResourceNames().Count;
 
-            bool tableMissing;
-            int applied;
-            (tableMissing, applied) = await ReadSchemaVersionCountAsync(connection, cancellationToken)
-                .ConfigureAwait(false);
+            (bool tableMissing, int applied, string? latestScript) =
+                await ReadSchemaVersionSummaryAsync(connection, cancellationToken).ConfigureAwait(false);
 
             DoctorReadinessLine schemaLine;
             if (tableMissing)
@@ -335,27 +331,22 @@ internal static class DoctorQuickStartReadiness
                     "Storage / schema",
                     "dbo.SchemaVersions missing — run migrations (start API host or apply DatabaseMigrator)");
             }
-            else if (applied != expected)
+            else if (applied == 0)
             {
                 schemaLine = new DoctorReadinessLine(
                     false,
                     "Storage / schema",
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Sql schema stale — applied {0}/{1} migration scripts (see ArchLucid.Persistence DbUp journal)",
-                        applied,
-                        expected));
+                    "no migration scripts applied — run migrations (start API host or apply DatabaseMigrator)");
             }
             else
             {
-                IReadOnlyList<string> ordered = DatabaseMigrator.GetOrderedMigrationResourceNames();
-                string latest = ShortMigrationDisplayName(ordered[ordered.Count - 1]);
+                string latest = ShortMigrationDisplayName(latestScript ?? "(unknown)");
                 schemaLine = new DoctorReadinessLine(
                     true,
                     "Storage / schema",
                     string.Format(
                         CultureInfo.InvariantCulture,
-                        "Sql, current ({0} migrations, latest {1})",
+                        "Sql ({0} migrations applied, latest {1})",
                         applied,
                         latest));
             }
@@ -363,7 +354,7 @@ internal static class DoctorQuickStartReadiness
             DoctorReadinessLine connectionLine = new(
                 true,
                 "Connection string",
-                string.Format(CultureInfo.InvariantCulture, "reachable (database {0}, {1} migrations expected)", db, expected));
+                string.Format(CultureInfo.InvariantCulture, "reachable (database {0}, {1} migrations applied)", db, applied));
 
             return (connectionLine, schemaLine);
         }
@@ -382,26 +373,32 @@ internal static class DoctorQuickStartReadiness
         }
     }
 
-    private static async Task<(bool TableMissing, int Count)> ReadSchemaVersionCountAsync(
+    private static async Task<(bool TableMissing, int Count, string? LatestScript)> ReadSchemaVersionSummaryAsync(
         SqlConnection connection,
         CancellationToken cancellationToken)
     {
         const string sql = """
                            IF OBJECT_ID(N'dbo.SchemaVersions', N'U') IS NULL
-                               SELECT -1 AS Cnt;
+                               SELECT -1 AS Cnt, NULL AS LatestScript;
                            ELSE
-                               SELECT COUNT(*) AS Cnt FROM dbo.SchemaVersions;
+                               SELECT COUNT(*) AS Cnt,
+                                      (SELECT TOP 1 ScriptName FROM dbo.SchemaVersions ORDER BY Applied DESC) AS LatestScript
+                               FROM dbo.SchemaVersions;
                            """;
 
         await using SqlCommand command = new(sql, connection);
-        object? scalar = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+        await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
 
-        int c = Convert.ToInt32(scalar, CultureInfo.InvariantCulture);
+        if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            return (true, 0, null);
 
-        if (c < 0)
-            return (true, 0);
+        int count = reader.GetInt32(0);
 
-        return (false, c);
+        if (count < 0)
+            return (true, 0, null);
+
+        string? latestScript = reader.IsDBNull(1) ? null : reader.GetString(1);
+        return (false, count, latestScript);
     }
 
     private static string ShortMigrationDisplayName(string embeddedResourceName)

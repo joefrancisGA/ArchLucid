@@ -49,7 +49,6 @@
     <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
-    <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
