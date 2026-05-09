@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Scoping;
 using ArchLucid.TestSupport;
@@ -122,8 +123,8 @@ public sealed class DemoViewerControllerTests
         HttpResponseMessage response = await client.GetAsync($"/v1/demo/viewer/runs/{demo.RunBaseline}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        RunDetailsResponse? body = await response.Content.ReadFromJsonAsync<RunDetailsResponse>(
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        RunDetailsResponse? body =
+            await response.Content.ReadFromJsonAsync<RunDetailsResponse>(ArchLucidApiJsonSerializerOptions.Web);
 
         body.Should().NotBeNull();
         body.Run.RunId.Should().NotBeNullOrWhiteSpace();
