@@ -354,36 +354,24 @@ public sealed class TenantIsolationSmokeTests
 
     /// <summary>
     ///     Primes the full create-run write path (authority pipeline, idempotency lock, persistence) so subsequent test
-    ///     POSTs do not encounter cold-path timeouts on CI SQL.
+    ///     POSTs do not encounter cold-path timeouts on CI SQL. Uses the same transient-503 retry policy as test POSTs
+    ///     so warmup does not give up while <see cref="PostArchitectureRequestWithTransientRetryAsync" /> would still retry.
     /// </summary>
     private static async Task WarmPostCreateRunPathAsync(HttpClient client)
     {
-        string warmupKey = "warmup-primer-" + Guid.NewGuid().ToString("N");
-        int delayMs = 1000;
+        using HttpResponseMessage response = await PostArchitectureRequestWithTransientRetryAsync(
+            client,
+            TestRequestFactory.CreateArchitectureRequest("REQ-WARMUP-" + Guid.NewGuid().ToString("N")[..8]));
 
-        for (int attempt = 0; attempt < 30; attempt++)
-        {
-            HttpResponseMessage response =
-                await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
-                    client,
-                    TestRequestFactory.CreateArchitectureRequest("REQ-WARMUP-" + Guid.NewGuid().ToString("N")[..8]),
-                    warmupKey,
-                    CancellationToken.None);
-
-            if (response.IsSuccessStatusCode)
-                return;
-
-            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
-                return;
-
-            response.Dispose();
-            await Task.Delay(delayMs);
-            delayMs = Math.Min(delayMs * 2, 8000);
-        }
-
-        throw new InvalidOperationException(
-            "POST /v1/architecture/request warmup stayed 503 (authority pipeline not ready). "
-            + "See " + nameof(WarmPostCreateRunPathAsync) + " and greenfield host startup.");
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException(
+                "POST /v1/architecture/request warmup failed with HTTP "
+                + (int)response.StatusCode
+                + " (expected success after transient SQL retries). See "
+                + nameof(WarmPostCreateRunPathAsync)
+                + ", "
+                + nameof(PostArchitectureRequestWithTransientRetryAsync)
+                + ", and greenfield host startup.");
     }
 
     private static async Task<HttpResponseMessage> PostArchitectureRequestWithTransientRetryAsync(
@@ -391,11 +379,12 @@ public sealed class TenantIsolationSmokeTests
         object body)
     {
         string idempotencyKey = "tenant-iso-smoke-" + Guid.NewGuid().ToString("N");
-        const int maxAttempts = 100;
+        const int maxAttempts = 120;
         int delayMs = 250;
 
         // Total time budget prevents the retry loop from burning CI minutes when SQL is persistently unhealthy.
-        using CancellationTokenSource totalBudget = new(TimeSpan.FromMinutes(4));
+        // Cold shared CI SQL + DbUp can produce many fast 503s; keep alignment with list/health warmup durations.
+        using CancellationTokenSource totalBudget = new(TimeSpan.FromMinutes(12));
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
