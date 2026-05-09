@@ -220,7 +220,7 @@ export function WelcomeBanner() {
     returningUser
       ? "Your review workspace"
       : buyerPolishedShell
-        ? "Walk through one governed Claims Intake review package"
+        ? "Explore one governed Claims Intake review package"
         : "Your first architecture review — four steps";
   const subheadingText = returningUser ? (
     <>
@@ -229,8 +229,8 @@ export function WelcomeBanner() {
     </>
   ) : buyerPolishedShell ? (
     <>
-      Explore the storyline end-to-end: manifest, audit trail, and prioritized{" "}
-      <GlossaryTooltip termKey="findings">findings</GlossaryTooltip> aligned to this sample intake scope.
+      Start with the governed <strong>manifest summary</strong>, then the audit trail and prioritized{" "}
+      <GlossaryTooltip termKey="findings">findings</GlossaryTooltip> for this sample intake scope.
     </>
   ) : (
     <>
@@ -396,7 +396,7 @@ export function WelcomeBanner() {
             </ul>
             <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
               {buyerPolishedShell
-                ? "One walkthrough shows sponsors what a finalized review package looks like."
+                ? "Lead with the manifest summary for sponsors; use the read-only walkthrough when you want a guided tour."
                 : "One request produces everything needed for review."}
             </p>
           </div>
