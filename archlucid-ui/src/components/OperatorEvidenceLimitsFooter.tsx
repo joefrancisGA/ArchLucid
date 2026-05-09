@@ -55,6 +55,8 @@ export function OperatorEvidenceLimitsFooter({
   const modelName = trimmedOrEmpty(inspectMetadata?.modelDeploymentName);
   const promptVersion = trimmedOrEmpty(inspectMetadata?.promptTemplateVersion);
   const showInspectMetaLine = modelName.length > 0 || promptVersion.length > 0;
+  /** Buyer walkthrough shell: disclaimers cite internal APIs; static demo context is surfaced elsewhere (e.g. banner). */
+  const showTechnicalExecutionDisclosures = !buyerPolishedShell;
 
   return (
     <footer
@@ -113,41 +115,26 @@ export function OperatorEvidenceLimitsFooter({
         ) : null}
       </ul>
 
-      {showFallbackDisclaimer ? (
+      {showFallbackDisclaimer && showTechnicalExecutionDisclosures ? (
         <p
           className="m-0 mt-3 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300"
           data-testid="operator-evidence-limits-fallback-disclaimer"
         >
-          {buyerPolishedShell ? (
+          This review is flagged in API data as real-mode fallback: Azure OpenAI execution did not complete and deterministic
+          simulator output was substituted (see review record field{" "}
+          <span className="font-mono text-[11px]">realModeFellBackToSimulator</span>
+          ).
+          {deploymentSnapshot.length > 0 ? (
             <>
-              Live cloud model execution did not complete for every step in this review; outputs reflect the persisted review
-              package shown here.
-              {deploymentSnapshot.length > 0 ? (
-                <>
-                  {" "}
-                  Deployment note: <span className="font-mono text-[11px]">{deploymentSnapshot}</span>.
-                </>
-              ) : null}
+              {" "}
+              Recorded deployment snapshot at fallback:{" "}
+              <span className="font-mono text-[11px]">{deploymentSnapshot}</span>.
             </>
-          ) : (
-            <>
-              This review is flagged in API data as real-mode fallback: Azure OpenAI execution did not complete and deterministic
-              simulator output was substituted (see review record field{" "}
-              <span className="font-mono text-[11px]">realModeFellBackToSimulator</span>
-              ).
-              {deploymentSnapshot.length > 0 ? (
-                <>
-                  {" "}
-                  Recorded deployment snapshot at fallback:{" "}
-                  <span className="font-mono text-[11px]">{deploymentSnapshot}</span>.
-                </>
-              ) : null}
-            </>
-          )}
+          ) : null}
         </p>
       ) : null}
 
-      {showInspectMetaLine ? (
+      {showInspectMetaLine && showTechnicalExecutionDisclosures ? (
         <p
           className="m-0 mt-3 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300"
           data-testid="operator-evidence-limits-inspect-metadata"
