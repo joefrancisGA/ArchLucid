@@ -68,10 +68,12 @@ const PAGES = [
   },
   { name: "Planning", path: "/planning" },
   { name: "Digests", path: "/digests" },
-  { name: "Digest subscriptions", path: "/digest-subscriptions" },
+  /** Canonical hub URL — `/digest-subscriptions` redirects here and can race axe mid-scan. */
+  { name: "Digest subscriptions", path: "/digests?tab=subscriptions" },
   { name: "Tenant settings", path: "/settings/tenant" },
   { name: "Settings baseline", path: "/settings/baseline" },
-  { name: "Settings exec digest", path: "/settings/exec-digest" },
+  /** Canonical hub URL — `/settings/exec-digest` redirects here (same class of flake as legacy digest-subscriptions). */
+  { name: "Settings exec digest", path: "/digests?tab=schedule" },
   { name: "Settings tenant cost", path: "/settings/tenant-cost" },
   { name: "Product learning", path: "/product-learning" },
   { name: "Advisory scheduling", path: "/advisory-scheduling" },
