@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 

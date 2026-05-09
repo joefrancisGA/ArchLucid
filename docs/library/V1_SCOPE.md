@@ -125,7 +125,10 @@ Use these surfaces when the next question is analytical: what changed, why it ch
 
 #### 2.12 Trust and access
 
-- **Entra ID / JWT bearer, API key, RBAC roles** (Admin / Operator / Reader / Auditor).
+- **JWT bearer (`ArchLucidAuth:Mode=JwtBearer`) — OIDC issuers**
+  - **Microsoft Entra ID** — reference Terraform sample (`infra/terraform-entra/`), app roles, audience wiring.
+  - **Generic OIDC IdPs** — **In scope for V1 GA** (**owner 2026-05-09**): configure **`ArchLucidAuth:Authority`** (and related JWT/OIDC settings) against **any standards-compliant OIDC issuer** (metadata discovery + JWKS); map IdP claims to **`ArchLucidRoles`** per **[SECURITY.md](SECURITY.md)** and **[CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)**. Entra remains the **default documented path** for hosted SaaS; Okta / Auth0 / Ping / Keycloak-style integrations use the **same** **`JwtBearer`** surface with tenant-specific configuration.
+- **API key** automation surface where environments allow it; **RBAC roles** (Admin / Operator / Reader / Auditor).
 - **SCIM 2.0 inbound provisioning** — dedicated `ScimBearer` automation surface (`/scim/v2/*`) with per-tenant bearer tokens, group→role mapping, and enterprise seat accounting ([`docs/integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md), ADR [`0032`](../adr/0032-scim-v2-service-provider.md)).
 - **Private endpoints** and WAF Terraform modules; no SMB/445 public exposure.
 - **DPA template, subprocessors register, SOC 2 roadmap** ([go-to-market/TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md)).
@@ -185,6 +188,7 @@ Until these connectors are enabled in a given environment, customers may still u
 | **`terraform apply` or `terraform destroy` on behalf of customers** | All Terraform emit is advisory and plan-only. ArchLucid never issues apply or destroy against customer infrastructure. Orphan removal that requires destroy surfaces as an annotated recommendation comment, not an executable block. Enforced and tested. |
 | **Advanced autonomous planning** | Agents are **orchestrated** with explicit tasks and execution modes; V1 does not promise open-ended self-directed multi-step planning beyond what the implemented pipelines already do. |
 | **Broad event-bus integrations** | Optional publish/consume paths exist; V1 does **not** include a guaranteed catalog of enterprise integrations, mapping tools, or "any message bus" adapters. Custom consumers are customer-owned. |
+| **Native SAML 2.0 Service Provider** (IdP-initiated SAML to ArchLucid **without** an OIDC token path) | **Not in V1.** Workforce authentication for V1 is **OIDC + JWT bearer** ([§2.12](#212-trust-and-access)). Customers on SAML-only IdPs use **OIDC federation**, an **OIDC-capable broker**, or Entra as an intermediary — not a first-class SAML SP in the product for V1 GA. |
 | **VS Code (or IDE) shell integration** | No committed product surface for a VS Code–native operator experience; CLI and HTTP remain the primary integration points outside the web UI. |
 | **Multi-region active/active product guarantees** | Documentation may describe **tier targets** and failover runbooks ([RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md)); V1 does not promise a fully specified multi-region SaaS topology out of the box. |
 | **Speculative ecosystem** | Marketplace plugins, third-party agent stores, and similar ecosystem features are **not** V1 commitments. **MCP** is **not** V1; it is explicitly a **V1.1** membrane surface — see the MCP row at the end of this table and [V1_DEFERRED.md §6d](V1_DEFERRED.md). |
