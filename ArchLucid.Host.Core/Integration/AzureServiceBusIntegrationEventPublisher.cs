@@ -113,6 +113,7 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
         {
             if (_logger.IsEnabled(LogLevel.Warning))
 
+                // codeql[cs/exposure-of-sensitive-information]: eventType flows from IntegrationEventTypes canonical URNs; SanitizedLoggerWarningExtensions sanitizes before the ILogger sink (operational envelope type, not PII/secrets — docs/library/CODEQL_TRIAGE.md).
                 _logger.LogWarningIntegrationEventServiceBusPublishFailed(ex, eventType);
 
             throw;

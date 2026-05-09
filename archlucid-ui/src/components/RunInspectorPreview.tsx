@@ -55,6 +55,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
   const workspaceHref = getCanonicalReviewWorkspaceHref(run.runId);
   const showcaseWalkthroughHref = getShowcaseWalkthroughHref();
+  const showcaseUseWorkspaceQuickLinks = showcaseStory && buyerPolished;
   const headline = buyerFacingReviewTitleFromSummary(run);
   const createdLabel = showcaseStory
     ? demoChrome
@@ -65,8 +66,10 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
   const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
   const findingHref = showcaseStory
-    ? showcaseWalkthroughHref
-    : `/reviews/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
+    ? showcaseUseWorkspaceQuickLinks
+      ? `${workspaceHref}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
+      : showcaseWalkthroughHref
+    : `${workspaceHref}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
   const artifactNote =
     showcaseStory && demoChrome
       ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} warnings${
@@ -84,14 +87,20 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const hasArtifactsLink = run.hasArtifactBundle === true || showcaseStory;
   const showEvidenceGraphCta = showcaseStory || run.hasGraphSnapshot === true;
   const findingsQuickHref = showcaseStory
-    ? showcaseWalkthroughHref
-    : `/reviews/${encodeURIComponent(run.runId)}#run-explanation`;
+    ? showcaseUseWorkspaceQuickLinks
+      ? `${workspaceHref}#run-explanation`
+      : showcaseWalkthroughHref
+    : `${workspaceHref}#run-explanation`;
   const artifactsQuickHref = showcaseStory
     ? `/manifests/${encodeURIComponent(manifestId)}`
-    : `/reviews/${encodeURIComponent(run.runId)}#artifacts-exports`;
+    : `${workspaceHref}#artifacts-exports`;
   const timelineQuickHref = showcaseStory
-    ? showcaseWalkthroughHref
-    : `/reviews/${encodeURIComponent(run.runId)}#pipeline-timeline`;
+    ? showcaseUseWorkspaceQuickLinks
+      ? `${workspaceHref}#pipeline-timeline`
+      : showcaseWalkthroughHref
+    : `${workspaceHref}#pipeline-timeline`;
+  const findingsQuickLabel = showcaseStory && !showcaseUseWorkspaceQuickLinks ? "Findings (walkthrough)" : "Findings";
+  const timelineQuickLabel = showcaseStory && !showcaseUseWorkspaceQuickLinks ? "Timeline (walkthrough)" : "Timeline";
 
   return (
     <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
@@ -202,15 +211,17 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
               {buyerSafePrimary ? (
                 <>
                   <Button variant="outline" size="sm" className="w-full" asChild>
-                    <Link href={showcaseWalkthroughHref}>Guided preview</Link>
+                    <Link href={showcaseWalkthroughHref}>Read-only walkthrough</Link>
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full" asChild>
-                    <Link href={workspaceHref}>Full review detail</Link>
-                  </Button>
+                  {!(buyerPolished && showcaseStory) ? (
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={workspaceHref}>Full review detail</Link>
+                    </Button>
+                  ) : null}
                 </>
               ) : null}
 
-              {!(buyerSafePrimary && showcaseStory) ? (
+              {!(buyerSafePrimary && showcaseStory && !buyerPolished) ? (
                 <>
                   {!buyerSafePrimary ? (
                     <Button variant="outline" size="sm" className="w-full" asChild>
@@ -219,7 +230,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   ) : null}
                   {hasFindingsLink ? (
                     <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={findingsQuickHref}>{showcaseStory ? "Findings (walkthrough)" : "Findings"}</Link>
+                      <Link href={findingsQuickHref}>{findingsQuickLabel}</Link>
                     </Button>
                   ) : null}
                   {hasArtifactsLink ? (
@@ -228,7 +239,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                     </Button>
                   ) : null}
                   <Button variant="outline" size="sm" className="w-full" asChild>
-                    <Link href={timelineQuickHref}>{showcaseStory ? "Timeline (walkthrough)" : "Timeline"}</Link>
+                    <Link href={timelineQuickHref}>{timelineQuickLabel}</Link>
                   </Button>
                 </>
               ) : null}
@@ -251,7 +262,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                 </Button>
               </div>
             ) : null}
-            {!(buyerSafePrimary && showcaseStory) ? (
+            {!(buyerSafePrimary && showcaseStory && !buyerPolished) ? (
               <div>
                 <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                   Quick links
@@ -264,7 +275,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   ) : null}
                   {hasFindingsLink ? (
                     <Button variant="outline" size="sm" className="h-8" asChild>
-                      <Link href={findingsQuickHref}>{showcaseStory ? "Findings (walkthrough)" : "Findings"}</Link>
+                      <Link href={findingsQuickHref}>{findingsQuickLabel}</Link>
                     </Button>
                   ) : null}
                   {hasArtifactsLink ? (
@@ -273,7 +284,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                     </Button>
                   ) : null}
                   <Button variant="outline" size="sm" className="h-8" asChild>
-                    <Link href={timelineQuickHref}>{showcaseStory ? "Timeline (walkthrough)" : "Timeline"}</Link>
+                    <Link href={timelineQuickHref}>{timelineQuickLabel}</Link>
                   </Button>
                 </div>
               </div>
@@ -300,7 +311,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                     <Link href={findingHref}>Primary finding</Link>
                   </Button>
                   <Button variant="outline" size="sm" className="h-8" asChild>
-                    <Link href={timelineQuickHref}>Timeline (walkthrough)</Link>
+                    <Link href={timelineQuickHref}>{timelineQuickLabel}</Link>
                   </Button>
                 </>
               ) : null}
