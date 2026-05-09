@@ -36,11 +36,13 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    // Single baseline per `{arg}`: CI runs on Linux; avoids missing -linux golden when only win32 snapshots exist locally.
     {
       name: "chromium-visual",
       testDir: "tests/e2e",
       use: { ...devices["Desktop Chrome"] },
       testMatch: "**/*.spec.ts",
+      snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
     },
   ],
   webServer: {
