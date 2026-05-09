@@ -52,7 +52,7 @@ public sealed class ArtifactBundlePayloadBlobEnvelopeTests
             BundleId = Guid.NewGuid(),
             RunId = runId,
             ManifestId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ArtifactsJson = "old-a",
             TraceJson = "old-t",
             BundlePayloadBlobUri = "https://blob"

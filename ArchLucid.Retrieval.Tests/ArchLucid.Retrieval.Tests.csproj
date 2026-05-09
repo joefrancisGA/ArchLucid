@@ -21,10 +21,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.AgentRuntime\ArchLucid.AgentRuntime.csproj" />
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
     <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="ArchLucid.Core" />
     <Using Include="Xunit" />
   </ItemGroup>
 

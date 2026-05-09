@@ -106,7 +106,7 @@ public sealed class AdvisoryScanRunner(
             TenantId = schedule.TenantId,
             WorkspaceId = schedule.WorkspaceId,
             ProjectId = schedule.ProjectId,
-            StartedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            StartedUtc = TimeProvider.System.UtcNowDateTime(),
             Status = StatusStarted,
             ResultJson = "{}"
         };
@@ -123,7 +123,7 @@ public sealed class AdvisoryScanRunner(
         catch (Exception ex)
         {
             execution.Status = StatusFailed;
-            execution.CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+            execution.CompletedUtc = TimeProvider.System.UtcNowDateTime();
             execution.ErrorMessage = ex.Message;
             await executionRepository.UpdateAsync(execution, ct);
             await auditService.LogAsync(
@@ -210,7 +210,7 @@ public sealed class AdvisoryScanRunner(
         ArchLucidInstrumentation.ExplainabilityTraceCompleteness.Record(traceCompletenessSummary.OverallCompletenessRatio,
             new KeyValuePair<string, object?>("scan_type", "advisory"));
         execution.Status = StatusCompleted;
-        execution.CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        execution.CompletedUtc = TimeProvider.System.UtcNowDateTime();
         execution.ResultJson = JsonSerializer.Serialize(
             new
             {
@@ -263,7 +263,7 @@ public sealed class AdvisoryScanRunner(
     private async Task CompleteNoRunsAsync(AdvisoryScanExecution execution, AdvisoryScanSchedule schedule, CancellationToken ct)
     {
         execution.Status = StatusCompleted;
-        execution.CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        execution.CompletedUtc = TimeProvider.System.UtcNowDateTime();
         execution.ResultJson = """{"message":"No runs were available."}""";
         await executionRepository.UpdateAsync(execution, ct);
         await auditService.LogAsync(
@@ -279,7 +279,7 @@ public sealed class AdvisoryScanRunner(
     private async Task FailAsync(AdvisoryScanExecution execution, AdvisoryScanSchedule schedule, string message, CancellationToken ct)
     {
         execution.Status = StatusFailed;
-        execution.CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        execution.CompletedUtc = TimeProvider.System.UtcNowDateTime();
         execution.ErrorMessage = message;
         await executionRepository.UpdateAsync(execution, ct);
         await auditService.LogAsync(
@@ -294,7 +294,7 @@ public sealed class AdvisoryScanRunner(
 
     private async Task AdvanceScheduleAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
-        DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime now = TimeProvider.System.UtcNowDateTime();
         schedule.LastRunUtc = now;
         schedule.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(schedule.CronExpression, now);
         await scheduleRepository.UpdateAsync(schedule, ct);
@@ -315,7 +315,7 @@ public sealed class AdvisoryScanRunner(
             runId,
             comparedToRunId,
             digestId,
-            completedUtc = execution.CompletedUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime
+            completedUtc = execution.CompletedUtc ?? TimeProvider.System.UtcNowDateTime()
         };
         string messageId = $"{execution.ExecutionId:D}:{IntegrationEventTypes.AdvisoryScanCompletedV1}";
         return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(integrationEventOutbox, integrationEventPublisher,

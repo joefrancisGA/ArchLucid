@@ -56,7 +56,7 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
         Row integration = (await multi.ReadAsync<Row>()).FirstOrDefault() ?? new Row();
         DeadRow integrationDead = (await multi.ReadAsync<DeadRow>()).FirstOrDefault() ?? new DeadRow();
 
-        DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
         return new OutboxOperationalMetricsSnapshot
         {

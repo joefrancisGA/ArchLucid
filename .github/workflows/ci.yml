@@ -1874,6 +1874,10 @@ jobs:
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
           ARCHLUCID_CI_FULL_LIVE_A11Y: ${{ github.event_name == 'workflow_dispatch' && inputs.run_extended_live_a11y_matrix }}
+          # Api host is DevelopmentBypass — prevent inherited env from sending JWT/API key the server rejects (401).
+          LIVE_JWT_TOKEN: ""
+          LIVE_API_KEY: ""
+          LIVE_API_KEY_READONLY: ""
         run: |
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready

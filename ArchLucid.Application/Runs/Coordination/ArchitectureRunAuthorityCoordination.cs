@@ -113,7 +113,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
             RunId = authorityRun.RunId.ToString("N"),
             RequestId = request.RequestId,
             Status = deferred ? ArchitectureRunStatus.Created : ArchitectureRunStatus.TasksGenerated,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CompletedUtc = null,
             CurrentManifestVersion = null,
             ContextSnapshotId = authorityRun.ContextSnapshotId?.ToString("N"),

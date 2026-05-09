@@ -189,7 +189,7 @@ internal sealed partial class DeploymentEvidenceOptions
 
         return Path.Combine(
             "artifacts",
-            $"deployment-evidence-{slug}-{TimeProvider.System.GetUtcNow().UtcDateTime:yyyyMMddTHHmmss}Z.md");
+            $"deployment-evidence-{slug}-{TimeProvider.System.UtcNowDateTime():yyyyMMddTHHmmss}Z.md");
     }
 
     internal static string SanitizeEnvironmentToken(string environmentName)

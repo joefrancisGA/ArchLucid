@@ -20,11 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
     <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="ArchLucid.Core" />
     <Using Include="Xunit" />
   </ItemGroup>
 

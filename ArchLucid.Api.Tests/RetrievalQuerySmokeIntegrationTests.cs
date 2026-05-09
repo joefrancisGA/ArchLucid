@@ -117,7 +117,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
                 Content =
                     "The system uses a microservices topology with three primary services: API Gateway, Order Service, and Payment Service.",
                 ContentHash = "hash-001",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
             },
             new()
             {
@@ -133,7 +133,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
                 Content =
                     "All inter-service communication is encrypted using mTLS. No public SMB (port 445) exposure is permitted.",
                 ContentHash = "hash-002",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
             }
         ];
 

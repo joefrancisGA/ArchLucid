@@ -128,7 +128,7 @@ public sealed class CompositeAlertService(
                         $"deferred high-pri={snapshot.DeferredHighPriorityRecommendationCount}, " +
                         $"rejected security={snapshot.RejectedSecurityRecommendationCount}, " +
                         $"acceptance%={snapshot.AcceptanceRatePercent:0.##}.",
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     DeduplicationKey = suppression.DeduplicationKey,
                 };
 

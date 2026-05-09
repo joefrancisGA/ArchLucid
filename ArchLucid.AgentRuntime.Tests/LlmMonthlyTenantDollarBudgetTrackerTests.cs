@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core;
+using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -169,7 +169,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
 
         await Task.WhenAll(tasks);
 
-        DateTime utc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime utc = TimeProvider.System.UtcNowDateTime();
         LlmMonthlyTenantBudgetStateReadModel row = await repo.GetOrCreateAsync(tenant, utc.Year, utc.Month, CancellationToken.None);
 
         row.SpentUsd.Should().Be(32m);

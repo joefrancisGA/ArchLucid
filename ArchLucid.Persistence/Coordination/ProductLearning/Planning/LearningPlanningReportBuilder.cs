@@ -124,7 +124,7 @@ public static class LearningPlanningReportBuilder
 
         return new LearningPlanningReportDocument
         {
-            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, Summary = summary, Themes = themeEntries, Plans = planEntries
+            GeneratedUtc = TimeProvider.System.UtcNowDateTime(), Summary = summary, Themes = themeEntries, Plans = planEntries
         };
     }
 

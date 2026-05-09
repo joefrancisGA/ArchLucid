@@ -39,7 +39,7 @@ public sealed class GoldenManifestPayloadBlobEnvelopeTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "h",
             RuleSetId = "r",
             RuleSetVersion = "1",

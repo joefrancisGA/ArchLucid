@@ -50,7 +50,7 @@ public sealed class RunPipelineAuditTimelineServiceTests
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
 
-        RunSummaryDto summary = new() { RunId = runId, ProjectId = "default", CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, };
+        RunSummaryDto summary = new() { RunId = runId, ProjectId = "default", CreatedUtc = TimeProvider.System.UtcNowDateTime(), };
 
         Mock<IAuthorityQueryService> query = new();
         query

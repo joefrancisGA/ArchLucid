@@ -43,7 +43,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
             ]);
         outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);

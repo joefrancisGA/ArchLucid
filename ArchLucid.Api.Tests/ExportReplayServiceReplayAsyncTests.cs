@@ -201,7 +201,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             ExportType = record.ExportType,
             Format = record.Format,
             FileName = "x.docx",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         audit.Setup(a => a.RecordAsync(
@@ -280,7 +280,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             TemplateProfileDisplayName = "Executive",
             WasAutoSelected = false,
             ResolutionReason = "test",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 

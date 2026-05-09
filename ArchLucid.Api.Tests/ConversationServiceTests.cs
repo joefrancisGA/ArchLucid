@@ -61,8 +61,8 @@ public sealed class ConversationServiceTests
             WorkspaceId = _workspace,
             ProjectId = _project,
             Title = "T",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-            LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            LastUpdatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         Mock<IConversationThreadRepository> threads = new();
@@ -99,8 +99,8 @@ public sealed class ConversationServiceTests
             WorkspaceId = _workspace,
             ProjectId = _project,
             Title = "T",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-            LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            LastUpdatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         Mock<IConversationThreadRepository> threads = new();

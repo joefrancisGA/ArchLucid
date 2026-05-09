@@ -20,7 +20,7 @@ public sealed class ImprovementPlanSerializationTests
         ImprovementPlan plan = new()
         {
             RunId = Guid.NewGuid(),
-            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            GeneratedUtc = TimeProvider.System.UtcNowDateTime(),
             PolicyPackAdvisoryDefaults = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["scanDepth"] = "deep",

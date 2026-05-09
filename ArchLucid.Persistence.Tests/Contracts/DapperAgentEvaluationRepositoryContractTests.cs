@@ -36,7 +36,7 @@ public sealed class DapperAgentEvaluationRepositoryContractTests(SqlServerPersis
             AgentType = AgentType.Topology,
             Objective = "seed",
             Status = AgentTaskStatus.Created,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             EvidenceBundleRef = "eb-seed"
         };
 

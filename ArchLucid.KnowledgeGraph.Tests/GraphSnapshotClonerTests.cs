@@ -32,7 +32,7 @@ public sealed class GraphSnapshotClonerTests
             GraphSnapshotId = oldGraphId,
             ContextSnapshotId = oldContextId,
             RunId = oldRunId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-1),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime().AddDays(-1),
             Nodes =
             [
                 new GraphNode
@@ -49,7 +49,7 @@ public sealed class GraphSnapshotClonerTests
 
         ContextSnapshot newContext = new()
         {
-            SnapshotId = Guid.NewGuid(), RunId = Guid.NewGuid(), ProjectId = "proj", CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            SnapshotId = Guid.NewGuid(), RunId = Guid.NewGuid(), ProjectId = "proj", CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         Guid newRunId = Guid.NewGuid();
@@ -58,7 +58,7 @@ public sealed class GraphSnapshotClonerTests
         clone.GraphSnapshotId.Should().NotBe(oldGraphId);
         clone.ContextSnapshotId.Should().Be(newContext.SnapshotId);
         clone.RunId.Should().Be(newRunId);
-        clone.CreatedUtc.Should().BeCloseTo(TimeProvider.System.GetUtcNow().UtcDateTime, TimeSpan.FromSeconds(2));
+        clone.CreatedUtc.Should().BeCloseTo(TimeProvider.System.UtcNowDateTime(), TimeSpan.FromSeconds(2));
         clone.Nodes.Should().HaveCount(1);
         clone.Nodes[0].NodeId.Should().Be("a");
         clone.Nodes[0].Properties["p"].Should().Be("q");

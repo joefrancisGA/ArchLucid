@@ -45,7 +45,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                 {
                     RunId = runId,
                     ProjectId = "proj-bf",
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     TenantId,
                     WorkspaceId,
                     ScopeProjectId = ProjectId
@@ -88,7 +88,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = "proj-bf",
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     CanonicalObjectsJson = canonicalJson,
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyList,

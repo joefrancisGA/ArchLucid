@@ -85,7 +85,7 @@ public sealed class AgentResultDiffServiceApplicationTests
                 RunId = "R",
                 AgentType = AgentType.Cost,
                 Claims = ["c"],
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
         ];
 

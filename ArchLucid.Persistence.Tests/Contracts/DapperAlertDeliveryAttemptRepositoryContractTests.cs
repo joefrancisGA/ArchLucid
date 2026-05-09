@@ -26,7 +26,7 @@ public sealed class DapperAlertDeliveryAttemptRepositoryContractTests(SqlServerP
         CancellationToken ct)
     {
         Guid ruleId = Guid.NewGuid();
-        DateTime createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
         string deduplicationKey = $"contract-alert-{alertId:N}";
 
         await using SqlConnection connection = new(fixture.ConnectionString);

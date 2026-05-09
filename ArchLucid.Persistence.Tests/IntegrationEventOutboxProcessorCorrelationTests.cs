@@ -47,7 +47,7 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     RetryCount = 0
                 }
             ]);
@@ -104,7 +104,7 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     RetryCount = 0
                 }
             ]);

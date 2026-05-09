@@ -20,7 +20,7 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
         string status = ProductLearningPlanningRepositoryValidation.NormalizePlanStatus(plan.Status);
         string actionsJson = ProductLearningPlanningJsonSerializer.SerializeActionSteps(plan.ActionSteps);
         Guid planId = plan.PlanId == Guid.Empty ? Guid.NewGuid() : plan.PlanId;
-        DateTime createdUtc = plan.CreatedUtc == default ? TimeProvider.System.GetUtcNow().UtcDateTime : plan.CreatedUtc;
+        DateTime createdUtc = plan.CreatedUtc == default ? TimeProvider.System.UtcNowDateTime() : plan.CreatedUtc;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

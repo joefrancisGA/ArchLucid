@@ -131,7 +131,7 @@ public sealed class GovernanceWorkflowServiceTests
             RunId = runId,
             RequestId = "req-1",
             Status = ArchitectureRunStatus.Committed,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 

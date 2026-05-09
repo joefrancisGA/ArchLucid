@@ -90,7 +90,7 @@ internal static class DeploymentEvidenceCommand
             options.EnvironmentName,
             baseUrl,
             redactedBase,
-            TimeProvider.System.GetUtcNow().UtcDateTime,
+            TimeProvider.System.UtcNowDateTime(),
             repositoryRoot,
             gitSha,
             gitDirty,

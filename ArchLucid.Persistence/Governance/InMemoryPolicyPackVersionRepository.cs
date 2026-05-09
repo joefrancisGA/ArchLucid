@@ -93,7 +93,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
                 PolicyPackId = policyPackId,
                 Version = version,
                 ContentJson = contentJson,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 IsPublished = true
             };
 

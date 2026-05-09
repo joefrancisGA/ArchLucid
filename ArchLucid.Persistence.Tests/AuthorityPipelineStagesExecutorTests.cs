@@ -240,7 +240,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
-        DateTime utc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime utc = TimeProvider.System.UtcNowDateTime();
         (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
             configureFindings: s =>
             {
@@ -278,7 +278,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
-        DateTime utc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime utc = TimeProvider.System.UtcNowDateTime();
         (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
             configureFindings: s =>
             {
@@ -327,7 +327,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
-        DateTime utc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime utc = TimeProvider.System.UtcNowDateTime();
         (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
             configureFindings: s =>
             {
@@ -405,7 +405,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             WorkspaceId = Guid.NewGuid(),
             ScopeProjectId = Guid.NewGuid(),
             ProjectId = "p1",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         Mock<IArchLucidUnitOfWork> uow = new();
@@ -457,7 +457,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
                         SnapshotId = snapshotId,
                         RunId = Guid.Empty,
                         ProjectId = "p1",
-                        CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                        CreatedUtc = TimeProvider.System.UtcNowDateTime()
                     });
         }
 
@@ -478,7 +478,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = snapshotId,
                     RunId = Guid.Empty,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 });
 
         Mock<IGraphSnapshotRepository> graphRepo = new();
@@ -493,7 +493,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             RunId = Guid.Empty,
             ContextSnapshotId = snapshotId,
             GraphSnapshotId = graphId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         configureFindings?.Invoke(findingsReturn);
@@ -519,7 +519,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             GraphSnapshotId = graphId,
             FindingsSnapshotId = findingsId,
             DecisionTraceId = traceId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "h",
             RuleSetId = "r",
             RuleSetVersion = "1",
@@ -527,7 +527,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         };
 
         DecisionTrace trace = RuleAuditTrace.From(
-            new RuleAuditTracePayload { DecisionTraceId = traceId, RunId = Guid.Empty, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime });
+            new RuleAuditTracePayload { DecisionTraceId = traceId, RunId = Guid.Empty, CreatedUtc = TimeProvider.System.UtcNowDateTime() });
 
         Mock<IDecisionEngine> decision = new();
         decision
@@ -571,7 +571,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
                     BundleId = bundleId,
                     RunId = Guid.Empty,
                     ManifestId = manifestId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     Artifacts = [oneArtifact],
                     Trace = new SynthesisTrace { TraceId = Guid.NewGuid() }
                 });

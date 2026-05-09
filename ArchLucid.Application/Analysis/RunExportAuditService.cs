@@ -56,13 +56,13 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository,
             CompareManifestVersion = analysisRequest?.CompareManifestVersion,
             IncludedAgentResultCompare = analysisRequest?.IncludeAgentResultCompare,
             CompareRunId = analysisRequest?.CompareRunId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
         await _repository.CreateAsync(record, cancellationToken);
         if (!emitArchitectureDocxExportGeneratedAudit)
             return record;
         Guid? auditRunId = TryParseRunGuid(runId);
-        DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         await _auditService.LogAsync(
             new AuditEvent
             {

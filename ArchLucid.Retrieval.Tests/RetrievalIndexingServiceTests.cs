@@ -56,7 +56,7 @@ public sealed class RetrievalIndexingServiceTests
             WorkspaceId = WorkspaceId,
             ProjectId = ProjectId,
             Content = "ignored-by-mock-chunker",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
         await sut.IndexDocumentsAsync([doc], CancellationToken.None);
@@ -91,7 +91,7 @@ public sealed class RetrievalIndexingServiceTests
             WorkspaceId = WorkspaceId,
             ProjectId = ProjectId,
             Content = "x",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
         Func<Task> act = async () => await sut.IndexDocumentsAsync([doc], CancellationToken.None);

@@ -50,7 +50,7 @@ public sealed class AlertDeliveryDispatcher(
                 TenantId = alert.TenantId,
                 WorkspaceId = alert.WorkspaceId,
                 ProjectId = alert.ProjectId,
-                AttemptedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                AttemptedUtc = TimeProvider.System.UtcNowDateTime(),
                 Status = AlertDeliveryAttemptStatus.Started,
                 ChannelType = subscription.ChannelType,
                 Destination = subscription.Destination,
@@ -74,7 +74,7 @@ public sealed class AlertDeliveryDispatcher(
                     ;
 
                 attempt.Status = AlertDeliveryAttemptStatus.Succeeded;
-                subscription.LastDeliveredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+                subscription.LastDeliveredUtc = TimeProvider.System.UtcNowDateTime();
 
                 await attemptRepository.UpdateAsync(attempt, ct);
                 await subscriptionRepository.UpdateAsync(subscription, ct);

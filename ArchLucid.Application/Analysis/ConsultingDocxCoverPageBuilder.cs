@@ -42,7 +42,7 @@ internal static class ConsultingDocxCoverPageBuilder
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Run ID: {report.Run.RunId}", "BodyText");
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Request ID: {report.Run.RequestId}", "BodyText");
-        ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Generated UTC: {TimeProvider.System.GetUtcNow().UtcDateTime:O}", "BodyText");
+        ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Generated UTC: {TimeProvider.System.UtcNowDateTime():O}", "BodyText");
 
         if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
 

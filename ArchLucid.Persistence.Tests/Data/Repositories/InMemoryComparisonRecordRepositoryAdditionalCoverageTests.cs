@@ -32,7 +32,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     public async Task SearchAsync_limit_zero_uses_default_page_size()
     {
         InMemoryComparisonRecordRepository sut = new();
-        await sut.CreateAsync(Row("a", TimeProvider.System.GetUtcNow().UtcDateTime), CancellationToken.None);
+        await sut.CreateAsync(Row("a", TimeProvider.System.UtcNowDateTime()), CancellationToken.None);
 
         IReadOnlyList<ComparisonRecord> page =
             await sut.SearchAsync(null, null, null, null, null, null, null, null, null, null, null, 0, 0,
@@ -45,7 +45,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     public async Task SearchAsync_sorts_by_label_ascending()
     {
         InMemoryComparisonRecordRepository sut = new();
-        DateTime t = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime t = TimeProvider.System.UtcNowDateTime();
         await sut.CreateAsync(Row("x", t, label: "b"), CancellationToken.None);
         await sut.CreateAsync(Row("y", t, label: "a"), CancellationToken.None);
 
@@ -100,7 +100,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     public async Task GetByExportRecordIdAsync_matches_left_or_right()
     {
         InMemoryComparisonRecordRepository sut = new();
-        ComparisonRecord r = Row("c", TimeProvider.System.GetUtcNow().UtcDateTime);
+        ComparisonRecord r = Row("c", TimeProvider.System.UtcNowDateTime());
         r.LeftExportRecordId = "exp-left";
         await sut.CreateAsync(r, CancellationToken.None);
 
@@ -128,7 +128,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
         await cts.CancelAsync();
 
         Func<Task> act = async () =>
-            await sut.CreateAsync(Row("z", TimeProvider.System.GetUtcNow().UtcDateTime), cts.Token);
+            await sut.CreateAsync(Row("z", TimeProvider.System.UtcNowDateTime()), cts.Token);
 
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
@@ -137,7 +137,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
     public async Task ReplacePayloadJsonForIntegrationTest_updates_payload()
     {
         InMemoryComparisonRecordRepository sut = new();
-        ComparisonRecord r = Row("p", TimeProvider.System.GetUtcNow().UtcDateTime);
+        ComparisonRecord r = Row("p", TimeProvider.System.UtcNowDateTime());
         await sut.CreateAsync(r, CancellationToken.None);
 
         sut.ReplacePayloadJsonForIntegrationTest("p", "{\"k\":1}");

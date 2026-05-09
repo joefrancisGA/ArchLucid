@@ -200,7 +200,7 @@ public sealed class DapperPolicyPackVersionRepository(
                 PolicyPackId = policyPackId,
                 Version = version,
                 ContentJson = contentJson,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 IsPublished = true
             };
 

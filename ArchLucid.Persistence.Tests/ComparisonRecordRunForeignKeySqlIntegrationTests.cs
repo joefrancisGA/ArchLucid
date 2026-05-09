@@ -26,7 +26,7 @@ public sealed class ComparisonRecordRunForeignKeySqlIntegrationTests(SqlServerPe
             RightRunId = null,
             Format = "json",
             PayloadJson = "{}",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         Func<Task> act = async () => await repo.CreateAsync(row, CancellationToken.None);

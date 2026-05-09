@@ -40,11 +40,11 @@ public sealed class EvolutionSimulationReportBuilderTests
             Summary = "Candidate summary body.",
             PlanSnapshotJson = planJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         EvolutionSimulationReportDocument document =
-            EvolutionSimulationReportBuilder.Build(candidate, [], TimeProvider.System.GetUtcNow().UtcDateTime);
+            EvolutionSimulationReportBuilder.Build(candidate, [], TimeProvider.System.UtcNowDateTime());
 
         document.SchemaVersion.Should().Be(EvolutionSimulationReportDocument.ExportSchemaVersion);
         document.Candidate.Title.Should().Be("Candidate title");
@@ -87,7 +87,7 @@ public sealed class EvolutionSimulationReportBuilderTests
             Summary = "Cand sum",
             PlanSnapshotJson = planJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         const string outcomeJson =
@@ -103,12 +103,12 @@ public sealed class EvolutionSimulationReportBuilderTests
             EvaluationMode = EvolutionEvaluationModeValues.ReadOnlyArchitectureAnalysis,
             OutcomeJson = outcomeJson,
             WarningsJson = null,
-            CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CompletedUtc = TimeProvider.System.UtcNowDateTime(),
             IsShadowOnly = true
         };
 
         EvolutionSimulationReportDocument document =
-            EvolutionSimulationReportBuilder.Build(candidate, [run], TimeProvider.System.GetUtcNow().UtcDateTime);
+            EvolutionSimulationReportBuilder.Build(candidate, [run], TimeProvider.System.UtcNowDateTime());
 
         document.SimulationRuns.Should().ContainSingle();
         document.SimulationRuns[0].DiffSummaryLines.Should().NotBeEmpty();

@@ -12,7 +12,7 @@ import {
   executeRun,
   getTenantTrialStatus,
   liveApiBase,
-  liveAuthMode,
+  resolveLiveAuthMode,
   liveE2eHarnessHeaders,
   liveJsonHeaders,
   liveTenantScopeHeaders,
@@ -81,7 +81,7 @@ test.describe("live-api-trial-end-to-end", () => {
     request,
   }) => {
     test.setTimeout(600_000);
-    test.skip(liveAuthMode !== "bypass", "Requires DevelopmentBypass (default ui-e2e-live API).");
+    test.skip(resolveLiveAuthMode() !== "bypass", "Requires DevelopmentBypass (default ui-e2e-live API).");
 
     let harnessOk = false;
 

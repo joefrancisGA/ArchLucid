@@ -26,7 +26,7 @@ public sealed class DataArchivalCoordinatorTests
             threads,
             NullLogger<DataArchivalCoordinator>.Instance);
 
-        DateTime old = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-400);
+        DateTime old = TimeProvider.System.UtcNowDateTime().AddDays(-400);
         ScopeContext scope = new()
         {
             TenantId = Guid.NewGuid(),
@@ -73,7 +73,7 @@ public sealed class DataArchivalCoordinatorTests
             threads,
             NullLogger<DataArchivalCoordinator>.Instance);
 
-        DateTime old = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-400);
+        DateTime old = TimeProvider.System.UtcNowDateTime().AddDays(-400);
         ScopeContext scope = new()
         {
             TenantId = Guid.NewGuid(),

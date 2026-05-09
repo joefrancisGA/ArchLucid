@@ -70,7 +70,7 @@ public class DigestSubscription
     {
         get;
         set;
-    } = TimeProvider.System.GetUtcNow().UtcDateTime;
+    } = TimeProvider.System.UtcNowDateTime();
 
     /// <summary>Updated after a successful channel send.</summary>
     public DateTime? LastDeliveredUtc

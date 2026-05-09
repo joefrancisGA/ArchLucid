@@ -108,7 +108,7 @@ public sealed class ImportRequestFileService(
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             SourceFileName = safeName,
             Format = format,
             Status = "Draft",

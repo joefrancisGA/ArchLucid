@@ -34,7 +34,7 @@ public sealed class DataArchivalHostHealthState
         {
             _hasAttempted = true;
             _lastSucceeded = true;
-            _lastAttemptUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+            _lastAttemptUtc = TimeProvider.System.UtcNowDateTime();
             _lastErrorSummary = null;
         }
     }
@@ -47,7 +47,7 @@ public sealed class DataArchivalHostHealthState
         {
             _hasAttempted = true;
             _lastSucceeded = false;
-            _lastAttemptUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+            _lastAttemptUtc = TimeProvider.System.UtcNowDateTime();
             _lastErrorSummary = ex.GetType().Name + ": " + ex.Message;
         }
     }

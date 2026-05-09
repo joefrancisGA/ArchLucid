@@ -83,8 +83,8 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
     {
         InMemoryPolicyPackVersionRepository sut = new();
         Guid packId = Guid.NewGuid();
-        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-2);
-        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-1);
+        DateTime older = TimeProvider.System.UtcNowDateTime().AddHours(-2);
+        DateTime newer = TimeProvider.System.UtcNowDateTime().AddHours(-1);
 
         await sut.CreateAsync(
             new PolicyPackVersion

@@ -86,7 +86,7 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
             TenantId = tenantId,
             WorkspaceId = workspaceId,
             ProjectId = projectId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         lock (_gate)

@@ -129,7 +129,7 @@ public sealed class ManifestFinalizationService(
         await decisionTraceRepository.SaveAsync(request.Trace, cancellationToken, connection, transaction);
         Dm.ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
             cancellationToken, connection, transaction, request.ManifestModel);
-        DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         Guid auditEventId = Guid.NewGuid();
         Guid outboxId = Guid.NewGuid();
         string auditDataJson = JsonSerializer.Serialize(
@@ -225,7 +225,7 @@ public sealed class ManifestFinalizationService(
         header.CurrentManifestVersion = request.Contract.Metadata.ManifestVersion;
         header.GoldenManifestId = persisted.ManifestId;
         header.DecisionTraceId = audit.DecisionTraceId;
-        header.CompletedUtc ??= TimeProvider.System.GetUtcNow().UtcDateTime;
+        header.CompletedUtc ??= TimeProvider.System.UtcNowDateTime();
         await runRepository.UpdateAsync(header, cancellationToken);
         AuditEvent finalized = scope.CreateAuditEvent(
             AuditEventTypes.ManifestFinalized,

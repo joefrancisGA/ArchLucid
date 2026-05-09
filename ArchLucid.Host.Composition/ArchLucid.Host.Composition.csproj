@@ -42,4 +42,8 @@
     <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="ArchLucid.Core" />
+  </ItemGroup>
+
 </Project>

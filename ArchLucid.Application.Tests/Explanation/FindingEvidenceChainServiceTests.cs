@@ -112,7 +112,7 @@ public sealed class FindingEvidenceChainServiceTests
             ScopeProjectId = Guid.NewGuid(),
             RunId = runGuid,
             ProjectId = "default",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
         return new RunDetailDto { Run = run, FindingsSnapshot = new FindingsSnapshot { Findings = findings.ToList() }, };

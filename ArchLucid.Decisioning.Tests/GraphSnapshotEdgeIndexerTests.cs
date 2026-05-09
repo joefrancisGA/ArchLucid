@@ -21,7 +21,7 @@ public sealed class GraphSnapshotEdgeIndexerTests
             GraphSnapshotId = graphId,
             ContextSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             Edges =
             [
                 new GraphEdge

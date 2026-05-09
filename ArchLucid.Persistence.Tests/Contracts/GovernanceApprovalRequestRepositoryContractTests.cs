@@ -42,7 +42,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         IGovernanceApprovalRequestRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
         string approvalId = "apr-upd-" + Guid.NewGuid().ToString("N");
-        GovernanceApprovalRequest item = NewApproval(approvalId, runId, TimeProvider.System.GetUtcNow().UtcDateTime);
+        GovernanceApprovalRequest item = NewApproval(approvalId, runId, TimeProvider.System.UtcNowDateTime());
 
         await repo.CreateAsync(item, CancellationToken.None);
 
@@ -71,7 +71,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         IGovernanceApprovalRequestRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
         string approvalId = "apr-try-" + Guid.NewGuid().ToString("N");
-        GovernanceApprovalRequest item = NewApproval(approvalId, runId, TimeProvider.System.GetUtcNow().UtcDateTime);
+        GovernanceApprovalRequest item = NewApproval(approvalId, runId, TimeProvider.System.UtcNowDateTime());
 
         await repo.CreateAsync(item, CancellationToken.None);
 
@@ -113,7 +113,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         IGovernanceApprovalRequestRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
         string approvalId = "apr-par-" + Guid.NewGuid().ToString("N");
-        GovernanceApprovalRequest item = NewApproval(approvalId, runId, TimeProvider.System.GetUtcNow().UtcDateTime);
+        GovernanceApprovalRequest item = NewApproval(approvalId, runId, TimeProvider.System.UtcNowDateTime());
 
         await repo.CreateAsync(item, CancellationToken.None);
 

@@ -50,7 +50,7 @@ public sealed class AuthorityRunMapperTests
         {
             ManifestId = manifestId,
             RunId = runId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "h",
             RuleSetId = "r",
             RuleSetVersion = "v",

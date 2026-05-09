@@ -55,7 +55,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
                     evidenceBundle.EvidenceBundleId,
                     evidenceBundle.RequestDescription,
                     EvidenceJson = json,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 },
                 transaction,
                 cancellationToken: cancellationToken));

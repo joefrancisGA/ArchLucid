@@ -332,7 +332,7 @@ public sealed class PilotRunDeltaComputerTests
                 ArtifactType = "Doc",
                 Name = "a",
                 Format = "md",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 ContentHash = "h1",
             },
             new ArtifactDescriptor
@@ -341,7 +341,7 @@ public sealed class PilotRunDeltaComputerTests
                 ArtifactType = "Doc",
                 Name = "b",
                 Format = "md",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 ContentHash = "h2",
             },
         ];

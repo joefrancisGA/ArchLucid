@@ -113,7 +113,7 @@ public sealed class SponsorEvidencePackServiceTests
             .ReturnsAsync(
                 new PilotRunDeltas
                 {
-                    RunCreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, AuditRowCount = 1, LlmCallCount = 2, IsDemoTenant = true,
+                    RunCreatedUtc = TimeProvider.System.UtcNowDateTime(), AuditRowCount = 1, LlmCallCount = 2, IsDemoTenant = true,
                 });
 
         Mock<IFindingsSnapshotRepository> findingsRepo = new();

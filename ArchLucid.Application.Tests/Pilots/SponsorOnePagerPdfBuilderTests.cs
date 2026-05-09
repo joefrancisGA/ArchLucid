@@ -90,7 +90,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
                     ScopeProjectId = sc.ProjectId,
                     RunId = Guid.NewGuid(),
                     ProjectId = "default",
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-1),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime().AddDays(-1),
                     CurrentManifestVersion = "v1",
                 },
             ]);

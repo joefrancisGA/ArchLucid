@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core;
+using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -161,7 +161,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
 
         await Task.WhenAll(tasks);
 
-        DateOnly day = DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().UtcDateTime);
+        DateOnly day = TimeProvider.System.UtcToday();
         LlmDailyTenantTokenWindowStateReadModel row =
             await repo.GetOrCreateAsync(tenant, day, CancellationToken.None);
 

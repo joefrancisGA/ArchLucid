@@ -47,7 +47,7 @@ public sealed class ApprovalSlaMonitor
         if (slaHours is null)
             return;
         IReadOnlyList<GovernanceApprovalRequest> breached =
-            await _approvalRequestRepository.GetPendingSlaBreachedAsync(TimeProvider.System.GetUtcNow().UtcDateTime, cancellationToken);
+            await _approvalRequestRepository.GetPendingSlaBreachedAsync(TimeProvider.System.UtcNowDateTime(), cancellationToken);
         foreach (GovernanceApprovalRequest request in breached)
         {
             try
@@ -64,11 +64,11 @@ public sealed class ApprovalSlaMonitor
                             runId = request.RunId,
                             requestedBy = request.RequestedBy,
                             slaDeadlineUtc = request.SlaDeadlineUtc,
-                            breachedByMinutes = (int)(TimeProvider.System.GetUtcNow().UtcDateTime - request.SlaDeadlineUtc!.Value).TotalMinutes
+                            breachedByMinutes = (int)(TimeProvider.System.UtcNowDateTime() - request.SlaDeadlineUtc!.Value).TotalMinutes
                         })
                     }, cancellationToken);
                 await TrySendEscalationWebhookAsync(request, cancellationToken);
-                await _approvalRequestRepository.PatchSlaBreachNotifiedAsync(request.ApprovalRequestId, TimeProvider.System.GetUtcNow().UtcDateTime,
+                await _approvalRequestRepository.PatchSlaBreachNotifiedAsync(request.ApprovalRequestId, TimeProvider.System.UtcNowDateTime(),
                     cancellationToken);
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ public sealed class ApprovalSlaMonitor
             runId = request.RunId,
             requestedBy = request.RequestedBy,
             slaDeadlineUtc = request.SlaDeadlineUtc,
-            breachedByMinutes = (int)(TimeProvider.System.GetUtcNow().UtcDateTime - request.SlaDeadlineUtc!.Value).TotalMinutes
+            breachedByMinutes = (int)(TimeProvider.System.UtcNowDateTime() - request.SlaDeadlineUtc!.Value).TotalMinutes
         });
         string? secret = _options.Value.EscalationWebhookSecret;
         ResiliencePipeline<HttpResponseMessage> retryPipeline = GovernanceSlaEscalationWebhookRetryPipeline.Create(_logger, sanitizedLabel);

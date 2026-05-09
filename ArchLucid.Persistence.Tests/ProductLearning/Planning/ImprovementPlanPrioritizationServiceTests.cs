@@ -17,7 +17,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
             FrequencyScore = 1,
             SeverityScore = 2,
             TrustImpactScore = 0,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 

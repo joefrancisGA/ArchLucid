@@ -40,7 +40,7 @@ public sealed class FirstTenantFunnelEmitter(
             return;
         try
         {
-            DateTime occurredUtc = _timeProvider.GetUtcNow().UtcDateTime;
+            DateTime occurredUtc = _timeProvider.UtcNowDateTime();
             await _eventStore.AppendAsync(eventName, tenantId, occurredUtc, ct);
         }
         catch (OperationCanceledException)when (ct.IsCancellationRequested)

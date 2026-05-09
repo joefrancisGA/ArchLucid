@@ -31,7 +31,7 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
             WorkspaceId = scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
             ProjectId = "default",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-10)
+            CreatedUtc = TimeProvider.System.UtcNowDateTime().AddDays(-10)
         };
 
         await inner.SaveAsync(run, CancellationToken.None);

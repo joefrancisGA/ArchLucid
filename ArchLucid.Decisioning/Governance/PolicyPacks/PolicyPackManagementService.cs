@@ -63,7 +63,7 @@ public sealed class PolicyPackManagementService(
             Description = description,
             PackType = packType,
             Status = PolicyPackStatus.Draft,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentVersion = InitialVersion
         };
 
@@ -84,7 +84,7 @@ public sealed class PolicyPackManagementService(
                             PolicyPackId = pack.PolicyPackId,
                             Version = InitialVersion,
                             ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
-                            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                             IsPublished = false
                         },
                         ct,
@@ -103,7 +103,7 @@ public sealed class PolicyPackManagementService(
                             PolicyPackId = pack.PolicyPackId,
                             Version = InitialVersion,
                             ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
-                            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                             IsPublished = false
                         },
                         ct);
@@ -155,7 +155,7 @@ public sealed class PolicyPackManagementService(
 
         pack.CurrentVersion = version;
         pack.Status = PolicyPackStatus.Active;
-        pack.ActivatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        pack.ActivatedUtc = TimeProvider.System.UtcNowDateTime();
         await packRepository.UpdateAsync(pack, ct);
 
         await AppendChangeLogAsync(
@@ -214,7 +214,7 @@ public sealed class PolicyPackManagementService(
             IsEnabled = true,
             ScopeLevel = normalized,
             IsPinned = isPinned,
-            AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            AssignedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         await assignmentRepository.CreateAsync(assignment, ct);
@@ -293,7 +293,7 @@ public sealed class PolicyPackManagementService(
             ProjectId = projectId,
             ChangeType = changeType,
             ChangedBy = changedBy,
-            ChangedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            ChangedUtc = TimeProvider.System.UtcNowDateTime(),
             PreviousValue = previousValue,
             NewValue = newValue,
             SummaryText = summaryText

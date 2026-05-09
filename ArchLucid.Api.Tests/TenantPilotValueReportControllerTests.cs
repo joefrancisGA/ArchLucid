@@ -21,8 +21,8 @@ public sealed class TenantPilotValueReportControllerTests
         PilotValueReport body = new()
         {
             TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-            FromUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-7),
-            ToUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            FromUtc = TimeProvider.System.UtcNowDateTime().AddDays(-7),
+            ToUtc = TimeProvider.System.UtcNowDateTime(),
             TotalRunsCommitted = 2,
             GovernancePendingApprovalsNow = 0
         };

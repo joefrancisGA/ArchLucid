@@ -41,7 +41,7 @@ public sealed class LlmDailyTenantBudgetTracker(
         if (!opts.Enabled || opts.HardCutoffTokensPerUtcDay < 1)
             return;
 
-        DateOnly today = DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().UtcDateTime);
+        DateOnly today = TimeProvider.System.UtcToday();
         int assumed = Math.Clamp(opts.AssumedMaxTotalTokensPerRequest, 1, 2_000_000);
         long max = opts.HardCutoffTokensPerUtcDay;
 
@@ -52,7 +52,7 @@ public sealed class LlmDailyTenantBudgetTracker(
             return;
 
         DateTimeOffset retryAfterUtc =
-            new(TimeProvider.System.GetUtcNow().UtcDateTime.Date.AddDays(1), TimeSpan.Zero);
+            new(TimeProvider.System.UtcNowDateTime().Date.AddDays(1), TimeSpan.Zero);
 
         throw new LlmTokenQuotaExceededException(
             string.Format(
@@ -85,7 +85,7 @@ public sealed class LlmDailyTenantBudgetTracker(
             return;
 
         long added = Math.Max(0, promptTokens) + (long)Math.Max(0, completionTokens);
-        DateOnly today = DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().UtcDateTime);
+        DateOnly today = TimeProvider.System.UtcToday();
         long max = opts.HardCutoffTokensPerUtcDay;
         long warnAt = (long)Math.Floor(max * (double)decimal.Clamp(opts.WarnFraction, 0.01m, 0.99m));
 

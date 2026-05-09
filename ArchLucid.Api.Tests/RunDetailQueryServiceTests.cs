@@ -87,8 +87,8 @@ public sealed class RunDetailQueryServiceTests
             ProjectId = "proj",
             ArchitectureRequestId = "req-1",
             LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-            CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            CompletedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentManifestVersion = manifestVersion,
             DecisionTraceId = decisionTraceId
         };
@@ -105,7 +105,7 @@ public sealed class RunDetailQueryServiceTests
             ProjectId = "proj",
             ArchitectureRequestId = "req-2",
             LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 

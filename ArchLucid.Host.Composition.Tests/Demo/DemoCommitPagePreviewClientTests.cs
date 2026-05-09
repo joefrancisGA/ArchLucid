@@ -31,7 +31,7 @@ public sealed class DemoCommitPagePreviewClientTests
             GoldenManifestId = manifestId,
             ProjectId = "default",
             Description = "demo",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ContextSnapshotId = Guid.NewGuid(),
             GraphSnapshotId = Guid.NewGuid()
         };
@@ -48,7 +48,7 @@ public sealed class DemoCommitPagePreviewClientTests
         {
             ManifestId = manifestId,
             RunId = run.RunId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "hash",
             RuleSetId = "rs",
             RuleSetVersion = "1",
@@ -66,14 +66,14 @@ public sealed class DemoCommitPagePreviewClientTests
                 ArtifactType = "docx",
                 Name = "a",
                 Format = "binary",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 ContentHash = "h1"
             }
         ];
 
         IReadOnlyList<RunPipelineTimelineItemDto> timeline =
         [
-            new(Guid.NewGuid(), TimeProvider.System.GetUtcNow().UtcDateTime, "Commit", "actor", "corr")
+            new(Guid.NewGuid(), TimeProvider.System.UtcNowDateTime(), "Commit", "actor", "corr")
         ];
 
         RunExplanationSummary summary = new()
@@ -159,7 +159,7 @@ public sealed class DemoCommitPagePreviewClientTests
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = manifestId,
             ProjectId = "default",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         Mock<IDemoSeedRunResolver> seedResolver = new();
@@ -175,7 +175,7 @@ public sealed class DemoCommitPagePreviewClientTests
             {
                 ManifestId = manifestId,
                 RunId = run.RunId,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 ManifestHash = "h",
                 RuleSetId = "r",
                 RuleSetVersion = "v",

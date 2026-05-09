@@ -181,7 +181,7 @@ public sealed class AzureExtractorIngestService(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             RunId = runId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             SchemaVersion = manifest.SchemaVersion,
             ScriptVersion = manifest.ScriptVersion,
             CollectionTimestampUtc = manifest.CollectionTimestamp.UtcDateTime,

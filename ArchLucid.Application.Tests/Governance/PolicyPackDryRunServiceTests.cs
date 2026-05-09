@@ -282,7 +282,7 @@ public sealed class PolicyPackDryRunServiceTests
 
             _byId[runId] = new ArchitectureRunDetail
             {
-                Run = new ArchitectureRun { RunId = runId, RequestId = $"req-{runId}", CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime },
+                Run = new ArchitectureRun { RunId = runId, RequestId = $"req-{runId}", CreatedUtc = TimeProvider.System.UtcNowDateTime() },
                 Results = [new AgentResult { Findings = findings }],
             };
         }

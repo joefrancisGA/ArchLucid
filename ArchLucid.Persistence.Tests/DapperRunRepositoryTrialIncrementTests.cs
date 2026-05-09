@@ -71,7 +71,7 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
                     ScopeProjectId = scope.ProjectId,
                     ProjectId = "p_" + idx,
                     Description = "trial cap",
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
                 try
@@ -139,7 +139,7 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
             ScopeProjectId = scope.ProjectId,
             ProjectId = "p",
             Description = "no trial",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         await repo.SaveAsync(run, CancellationToken.None);

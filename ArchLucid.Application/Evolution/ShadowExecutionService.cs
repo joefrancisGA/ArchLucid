@@ -61,7 +61,7 @@ public sealed class ShadowExecutionService(IRunDetailQueryService runDetailQuery
 
         IOrderedEnumerable<CandidateChangeSetStep> orderedSteps = changeSet.ProposedActions.OrderBy(static s => s.Ordinal)
             .ThenBy(static s => s.ActionType, StringComparer.Ordinal).ThenBy(static s => s.Description, StringComparer.Ordinal);
-        DateTime stamp = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime stamp = TimeProvider.System.UtcNowDateTime();
         foreach (CandidateChangeSetStep step in orderedSteps)
         {
             RunEventTracePayload payload = new()

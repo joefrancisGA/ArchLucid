@@ -77,7 +77,7 @@ public sealed class PilotValueReportService(
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
         if (tenant is null)
             return null;
-        DateTime toExclusive = toUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime toExclusive = toUtc ?? TimeProvider.System.UtcNowDateTime();
         DateTime from = fromUtc ?? tenant.CreatedUtc.UtcDateTime;
         if (toExclusive <= from)
             return EmptyReport(scope.TenantId, from, toExclusive, 0);

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -80,6 +80,10 @@
     <None Include="..\templates\starter-proof-packs\ai-llm-workload\architecture-request.json"
           Link="templates\starter-proof-packs\ai-llm-workload\architecture-request.json"
           CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ArchLucid.Core" />
   </ItemGroup>
 
 </Project>

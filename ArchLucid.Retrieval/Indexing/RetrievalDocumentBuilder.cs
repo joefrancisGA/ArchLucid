@@ -114,7 +114,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 Title = $"Provenance for Run {runId}",
                 Content = summary,
                 ContentHash = runId.ToString("N"),
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
             }
         ];
     }

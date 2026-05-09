@@ -36,7 +36,7 @@ public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchLucidApiFac
                     RightRunId = "R",
                     Format = "json+markdown",
                     PayloadJson = "{}",
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 },
                 CancellationToken.None);
         }

@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Cli\ArchLucid.Cli.csproj" />
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
@@ -29,6 +30,7 @@
     <None Include="..\templates\starter-proof-packs\ai-llm-workload\second-run.json" Link="templates\starter-proof-packs\ai-llm-workload\second-run.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
+    <Using Include="ArchLucid.Core" />
     <Using Include="Xunit" />
   </ItemGroup>
 </Project>

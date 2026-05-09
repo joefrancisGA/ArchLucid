@@ -75,7 +75,7 @@ public static class FirstTenantFunnelArchivalIteration
         string jsonl = BuildJsonLines(rows);
         long minId = rows[0].EventId;
         long maxId = rows[^1].EventId;
-        DateTime stamp = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime stamp = TimeProvider.System.UtcNowDateTime();
         string blobName =
             $"funnel-archive/{stamp:yyyy}/{stamp:MM}/{stamp:dd}/batch-{minId}-{maxId}.jsonl";
 

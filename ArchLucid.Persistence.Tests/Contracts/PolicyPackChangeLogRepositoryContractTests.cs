@@ -35,7 +35,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
             ProjectId = ProjectP,
             ChangeType = PolicyPackChangeTypes.Created,
             ChangedBy = "tester",
-            ChangedUtc = changedUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime,
+            ChangedUtc = changedUtc ?? TimeProvider.System.UtcNowDateTime(),
             PreviousValue = null,
             NewValue = null,
             SummaryText = summary

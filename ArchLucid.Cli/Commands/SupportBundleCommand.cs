@@ -74,7 +74,7 @@ internal static class SupportBundleCommand
         }
 
         string folderName = "support-bundle-" +
-                            TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) + "Z";
+                            TimeProvider.System.UtcNowDateTime().ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) + "Z";
         string bundleDir = string.IsNullOrWhiteSpace(outputOverride)
             ? Path.Combine(cwd, folderName)
             : Path.GetFullPath(outputOverride);

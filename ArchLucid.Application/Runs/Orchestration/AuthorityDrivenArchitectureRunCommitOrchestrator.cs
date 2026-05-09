@@ -327,7 +327,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 LogSanitizer.Sanitize(runId), contract.Metadata.ManifestVersion, persisted.Warnings.Count);
         try
         {
-            DateTime telemetryCommitUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+            DateTime telemetryCommitUtc = TimeProvider.System.UtcNowDateTime();
             CommitRunTelemetryMetrics telemetry = CommitRunTelemetryMetrics.FromCommitContext(runRecord, evidencePackageForTelemetry, agentResultsForTelemetry,
                 telemetryCommitUtc, persisted);
             await TryInsertRunTelemetryAsync(runGuid, telemetry, cancellationToken);

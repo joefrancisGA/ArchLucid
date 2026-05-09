@@ -19,8 +19,8 @@ public sealed class ProductLearningOpportunityScoringTests
             RejectedCount = 1,
             NeedsFollowUpCount = 1,
             RevisedCount = 1,
-            FirstSignalRecordedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-            LastSignalRecordedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            FirstSignalRecordedUtc = TimeProvider.System.UtcNowDateTime(),
+            LastSignalRecordedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         int score = ProductLearningOpportunityScoring.ComputeAggregateBadScore(agg);
@@ -49,8 +49,8 @@ public sealed class ProductLearningOpportunityScoringTests
             RevisionCount = 2,
             NeedsFollowUpCount = 1,
             DistinctRunCount = 2,
-            FirstSeenUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-            LastSeenUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            FirstSeenUtc = TimeProvider.System.UtcNowDateTime(),
+            LastSeenUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         ProductLearningOpportunityScoring.ComputeTrendNegativeMass(trend).Should().Be(4);

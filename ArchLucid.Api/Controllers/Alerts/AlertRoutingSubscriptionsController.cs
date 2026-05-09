@@ -58,7 +58,7 @@ public sealed class AlertRoutingSubscriptionsController(
         subscription.TenantId = scope.TenantId;
         subscription.WorkspaceId = scope.WorkspaceId;
         subscription.ProjectId = scope.ProjectId;
-        subscription.CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        subscription.CreatedUtc = TimeProvider.System.UtcNowDateTime();
         if (string.IsNullOrWhiteSpace(subscription.MetadataJson))
             subscription.MetadataJson = "{}";
 

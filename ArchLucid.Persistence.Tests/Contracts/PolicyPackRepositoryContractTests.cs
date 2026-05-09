@@ -25,7 +25,7 @@ public abstract class PolicyPackRepositoryContractTests
             Description = "desc",
             PackType = PolicyPackType.BuiltIn,
             Status = PolicyPackStatus.Draft,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentVersion = "1.0.0"
         };
     }

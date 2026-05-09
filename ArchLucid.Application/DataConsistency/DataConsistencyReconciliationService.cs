@@ -28,7 +28,7 @@ public sealed class DataConsistencyReconciliationService(
 
     public async Task<DataConsistencyReport> RunReconciliationAsync(CancellationToken cancellationToken)
     {
-        DateTime checkedAt = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime checkedAt = TimeProvider.System.UtcNowDateTime();
         Stopwatch sw = Stopwatch.StartNew();
         if (_storageMode.IsInMemory)
         {

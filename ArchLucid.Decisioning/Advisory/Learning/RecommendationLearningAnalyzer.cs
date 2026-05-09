@@ -17,7 +17,7 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
             TenantId = tenantId,
             WorkspaceId = workspaceId,
             ProjectId = projectId,
-            GeneratedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            GeneratedUtc = TimeProvider.System.UtcNowDateTime(),
             CategoryStats = BuildStats(recommendations, x => x.Category),
             UrgencyStats = BuildStats(recommendations, x => x.Urgency),
             SignalTypeStats = BuildStats(recommendations, InferSignalType)

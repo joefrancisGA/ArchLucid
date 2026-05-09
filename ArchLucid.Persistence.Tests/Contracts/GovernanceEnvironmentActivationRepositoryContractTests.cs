@@ -56,7 +56,7 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
         string activationId = "act-upd-" + Guid.NewGuid().ToString("N");
 
         GovernanceEnvironmentActivation created =
-            NewActivation(activationId, runId, GovernanceEnvironment.Dev, TimeProvider.System.GetUtcNow().UtcDateTime, true);
+            NewActivation(activationId, runId, GovernanceEnvironment.Dev, TimeProvider.System.UtcNowDateTime(), true);
         created.ManifestVersion = "v-before";
 
         await repo.CreateAsync(created, CancellationToken.None);

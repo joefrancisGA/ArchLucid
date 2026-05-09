@@ -30,8 +30,8 @@ public abstract class ConversationMessageRepositoryContractTests
             WorkspaceId = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
             Title = "msg-contract",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-            LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            LastUpdatedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 
@@ -49,7 +49,7 @@ public abstract class ConversationMessageRepositoryContractTests
             ThreadId = thread.ThreadId,
             Role = ConversationMessageRole.User,
             Content = "a",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5)
+            CreatedUtc = TimeProvider.System.UtcNowDateTime().AddMinutes(-5)
         };
 
         ConversationMessage second = new()
@@ -58,7 +58,7 @@ public abstract class ConversationMessageRepositoryContractTests
             ThreadId = thread.ThreadId,
             Role = ConversationMessageRole.Assistant,
             Content = "b",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-4)
+            CreatedUtc = TimeProvider.System.UtcNowDateTime().AddMinutes(-4)
         };
 
         await repo.AddAsync(first, CancellationToken.None);
@@ -89,7 +89,7 @@ public abstract class ConversationMessageRepositoryContractTests
                     ThreadId = thread.ThreadId,
                     Role = ConversationMessageRole.User,
                     Content = $"m{i}",
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddSeconds(-i)
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime().AddSeconds(-i)
                 },
                 CancellationToken.None);
         }

@@ -32,7 +32,7 @@ public sealed class ComparisonAuditServiceTests
                     e.RunId == Guid.ParseExact("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "N") &&
                     e.DataJson.Contains(id, StringComparison.Ordinal) &&
                     e.DataJson.Contains(report.LeftRunId, StringComparison.Ordinal) &&
-                    e.OccurredUtc <= TimeProvider.System.GetUtcNow().UtcDateTime),
+                    e.OccurredUtc <= TimeProvider.System.UtcNowDateTime()),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -52,7 +52,7 @@ public sealed class ComparisonAuditServiceTests
             Format = ComparisonTypes.FormatJsonMarkdown,
             SummaryMarkdown = "x",
             PayloadJson = "{}",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         string newId = await sut.RecordReplayOfAsync(source, "replay note", CancellationToken.None);
@@ -66,7 +66,7 @@ public sealed class ComparisonAuditServiceTests
                     e.RunId == Guid.ParseExact("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "N") &&
                     e.DataJson.Contains(newId, StringComparison.Ordinal) &&
                     e.DataJson.Contains(source.ComparisonRecordId, StringComparison.Ordinal) &&
-                    e.OccurredUtc <= TimeProvider.System.GetUtcNow().UtcDateTime),
+                    e.OccurredUtc <= TimeProvider.System.UtcNowDateTime()),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

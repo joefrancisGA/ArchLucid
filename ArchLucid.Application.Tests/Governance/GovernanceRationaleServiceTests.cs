@@ -43,7 +43,7 @@ public sealed class GovernanceRationaleServiceTests
                         TargetEnvironment = "test",
                         Status = GovernanceApprovalStatus.Submitted,
                     },
-                    Run = new GovernanceLineageRunSummary { RunId = "run-a", Status = "Ready", CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime },
+                    Run = new GovernanceLineageRunSummary { RunId = "run-a", Status = "Ready", CreatedUtc = TimeProvider.System.UtcNowDateTime() },
                     Manifest = new GovernanceLineageManifestSummary
                     {
                         ManifestVersion = "v2", DecisionCount = 3, UnresolvedIssueCount = 1, ComplianceGapCount = 0,

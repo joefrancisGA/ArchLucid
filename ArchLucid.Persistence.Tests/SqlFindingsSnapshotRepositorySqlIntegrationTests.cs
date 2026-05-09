@@ -118,7 +118,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
             RunId = runId,
             ContextSnapshotId = contextId,
             GraphSnapshotId = graphId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             SchemaVersion = 1,
             Findings =
             [
@@ -750,7 +750,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
             RunId = runId,
             ContextSnapshotId = contextId,
             GraphSnapshotId = graphId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             Findings = []
         };
 
@@ -787,7 +787,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 {
                     RunId = runId,
                     ProjectId = "proj-seed",
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
                     ScopeProjectId = scopeProjectId
@@ -818,7 +818,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     SnapshotId = contextSnapshotId,
                     RunId = runId,
                     ProjectId = "proj-seed",
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     CanonicalObjectsJson = emptyCanonical,
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyStringList,
@@ -852,7 +852,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     GraphSnapshotId = graphSnapshotId,
                     ContextSnapshotId = contextSnapshotId,
                     RunId = runId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
                     WarningsJson = emptyGraphWarnings

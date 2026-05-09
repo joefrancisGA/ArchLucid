@@ -38,7 +38,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
             IsEnabled = isEnabled,
             ScopeLevel = scopeLevel,
             IsPinned = false,
-            AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            AssignedUtc = TimeProvider.System.UtcNowDateTime(),
             ArchivedUtc = null
         };
     }

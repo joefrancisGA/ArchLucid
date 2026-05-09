@@ -219,8 +219,8 @@ public sealed class InMemoryBackgroundJobQueueTests
     private static async Task WaitForTerminalStateAsync(InMemoryBackgroundJobQueue queue, string jobId,
         TimeSpan timeout)
     {
-        DateTime deadline = TimeProvider.System.GetUtcNow().UtcDateTime + timeout;
-        while (TimeProvider.System.GetUtcNow().UtcDateTime < deadline)
+        DateTime deadline = TimeProvider.System.UtcNowDateTime() + timeout;
+        while (TimeProvider.System.UtcNowDateTime() < deadline)
         {
             BackgroundJobInfo? info = await queue.GetInfoAsync(jobId);
             if (info is { State: BackgroundJobState.Succeeded or BackgroundJobState.Failed })

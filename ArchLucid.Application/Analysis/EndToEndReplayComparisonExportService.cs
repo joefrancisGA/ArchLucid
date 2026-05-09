@@ -77,7 +77,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine("<h1>ArchLucid End-to-End Replay Comparison Export</h1>");
         sb.AppendLine("<p class=\"meta\">Left Run ID: " + EscapeHtml(report.LeftRunId) + "</p>");
         sb.AppendLine("<p class=\"meta\">Right Run ID: " + EscapeHtml(report.RightRunId) + "</p>");
-        sb.AppendLine("<p class=\"meta\">Generated UTC: " + EscapeHtml(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("O")) + "</p>");
+        sb.AppendLine("<p class=\"meta\">Generated UTC: " + EscapeHtml(TimeProvider.System.UtcNowDateTime().ToString("O")) + "</p>");
         sb.AppendLine("<p class=\"meta\">Profile: " + EscapeHtml(p) + "</p>");
         sb.AppendLine("<hr/>");
         string summaryHtml = MarkdownToSimpleHtml(summaryFormatter.FormatMarkdown(report).Trim());
@@ -121,7 +121,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
             AddHeading(body, "ArchLucid End-to-End Replay Comparison", 1);
             AddParagraph(body, $"Left Run ID: {report.LeftRunId}");
             AddParagraph(body, $"Right Run ID: {report.RightRunId}");
-            AddParagraph(body, $"Generated UTC: {TimeProvider.System.GetUtcNow().UtcDateTime:O}");
+            AddParagraph(body, $"Generated UTC: {TimeProvider.System.UtcNowDateTime():O}");
             AddParagraph(body, $"Profile: {p}");
             AddSpacer(body);
             if (EndToEndComparisonExportProfile.IsShort(p))
@@ -229,7 +229,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                 page.Content().Column(column =>
                 {
                     column.Item().PaddingBottom(5).Text($"Left: {report.LeftRunId}  |  Right: {report.RightRunId}  |  Profile: {p}");
-                    column.Item().PaddingBottom(10).Text($"Generated: {TimeProvider.System.GetUtcNow().UtcDateTime:O}");
+                    column.Item().PaddingBottom(10).Text($"Generated: {TimeProvider.System.UtcNowDateTime():O}");
                     column.Item().PaddingBottom(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingBottom(5).Text("Summary").Bold().FontSize(12);
                     column.Item().PaddingBottom(10).Text(summaryFormatter.FormatMarkdown(report).Trim());
@@ -284,7 +284,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine();
         sb.AppendLine($"- Left Run ID: {report.LeftRunId}");
         sb.AppendLine($"- Right Run ID: {report.RightRunId}");
-        sb.AppendLine($"- Generated UTC: {TimeProvider.System.GetUtcNow().UtcDateTime:O}");
+        sb.AppendLine($"- Generated UTC: {TimeProvider.System.UtcNowDateTime():O}");
         sb.AppendLine();
     }
 
