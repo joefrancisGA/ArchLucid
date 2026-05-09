@@ -35,6 +35,6 @@ test.describe("marketing-demo-preview", () => {
 
     await expect(demoCta).toBeVisible();
     await expect(demoCta).toHaveAttribute("href", "/demo/preview");
-    await expect(page.getByText(/no sign-in|no-sign-in/i)).toBeVisible();
+    await expect(page.getByText("See a full sample review output — no sign-in")).toBeVisible();
   });
 });
