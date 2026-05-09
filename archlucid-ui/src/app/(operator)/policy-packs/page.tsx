@@ -341,7 +341,7 @@ export default function PolicyPacksPage() {
   const selectedPackSummary = packs.find((p) => p.policyPackId === selectedPackId);
 
   return (
-    <main className="max-w-5xl">
+    <div className="max-w-5xl">
       <LayerHeader pageKey="policy-packs" />
       <OperatorPageHeader title="Policy packs" helpKey="policy-packs" />
       {!buyerPolishedShell ? (
@@ -878,6 +878,6 @@ export default function PolicyPacksPage() {
         </p>
       )}
       </div>
-    </main>
+    </div>
   );
 }

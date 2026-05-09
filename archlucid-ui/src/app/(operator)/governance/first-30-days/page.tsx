@@ -14,7 +14,7 @@ export const metadata: Metadata = {
  */
 export default function FirstThirtyDaysGovernancePage() {
   return (
-    <main className="mx-auto max-w-3xl space-y-6 px-1 py-4 sm:px-0">
+    <div className="mx-auto max-w-3xl space-y-6 px-1 py-4 sm:px-0">
       <OperatorPageHeader
         title="First 30 days — governance operating preset"
         subtitle="A minimal enterprise rhythm: one policy baseline, one alert route, one approval SLA story, and one dashboard anchor."
@@ -78,6 +78,6 @@ export default function FirstThirtyDaysGovernancePage() {
           </Card>
         </li>
       </ol>
-    </main>
+    </div>
   );
 }

@@ -66,7 +66,7 @@ export function DigestsBrowseContent() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-5xl">
       <h2 className="m-0 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Architecture digests</h2>
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         Markdown digests from scheduled or manual advisory scans (v1: plain preformatted view).
@@ -172,6 +172,6 @@ export function DigestsBrowseContent() {
           ) : null}
         </section>
       </div>
-    </main>
+    </div>
   );
 }

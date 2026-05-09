@@ -250,7 +250,7 @@ export default async function RunDetailPage({
 
     return (
       <RunDetailMinimalChromeMount>
-        <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
+        <div className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
           <OperatorApiProblem
             problem={loadFailure?.problem ?? null}
@@ -262,7 +262,7 @@ export default async function RunDetailPage({
               ← Back to reviews
             </Link>
           </p>
-        </main>
+        </div>
       </RunDetailMinimalChromeMount>
     );
   }
@@ -282,7 +282,7 @@ export default async function RunDetailPage({
   if (!envelope.ok) {
     return (
       <RunDetailMinimalChromeMount>
-        <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
+        <div className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
           <OperatorMalformedCallout>
             <strong>Review detail response was not usable.</strong>
@@ -296,7 +296,7 @@ export default async function RunDetailPage({
               ← Back to reviews
             </Link>
           </p>
-        </main>
+        </div>
       </RunDetailMinimalChromeMount>
     );
   }
@@ -571,7 +571,7 @@ export default async function RunDetailPage({
     ) : null;
 
   return (
-    <main className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
+    <div className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
         <Link className="text-teal-800 underline dark:text-teal-300" href="/">
           Home
@@ -1174,6 +1174,6 @@ export default async function RunDetailPage({
           </div>
         </CollapsibleSection>
       ) : null}
-    </main>
+    </div>
   );
 }

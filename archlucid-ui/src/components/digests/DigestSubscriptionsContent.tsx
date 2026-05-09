@@ -105,7 +105,7 @@ export function DigestSubscriptionsContent() {
   }
 
   return (
-    <main className="max-w-3xl">
+    <div className="max-w-3xl">
       <h2 className="mt-0">Digest subscriptions</h2>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         When an architecture digest is generated (scheduled or manual scan), enabled subscriptions in this scope receive
@@ -272,6 +272,6 @@ export function DigestSubscriptionsContent() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -123,7 +123,7 @@ export default function PlanningPage() {
   }
 
   return (
-    <main className="max-w-5xl">
+    <div className="max-w-5xl">
       <OperatorPageHeader title="Planning" />
       <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
         Improvement themes and prioritized plans derived from pilot feedback (59R). This is a{" "}
@@ -237,6 +237,6 @@ export default function PlanningPage() {
           <PlanningExportReadinessNote />
         </>
       ) : null}
-    </main>
+    </div>
   );
 }

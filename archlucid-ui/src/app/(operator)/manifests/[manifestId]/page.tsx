@@ -124,7 +124,7 @@ export default async function ManifestDetailPage({
 
   if (summaryFailure) {
     return (
-      <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
+      <div className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
         <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
           <Link className="text-teal-800 underline dark:text-teal-300" href="/">
             Home
@@ -151,13 +151,13 @@ export default async function ManifestDetailPage({
           {" · "}
           <Link href="/reviews?projectId=default">Reviews</Link>
         </p>
-      </main>
+      </div>
     );
   }
 
   if (summaryMalformed) {
     return (
-      <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
+      <div className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
         <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
           <Link className="text-teal-800 underline dark:text-teal-300" href="/">
             Home
@@ -182,13 +182,13 @@ export default async function ManifestDetailPage({
           {" · "}
           <Link href="/reviews?projectId=default">Reviews</Link>
         </p>
-      </main>
+      </div>
     );
   }
 
   if (!summary) {
     return (
-      <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
+      <div className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
         <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
           <Link className="text-teal-800 underline dark:text-teal-300" href="/">
             Home
@@ -217,7 +217,7 @@ export default async function ManifestDetailPage({
           {" · "}
           <Link href="/reviews?projectId=default">Reviews</Link>
         </p>
-      </main>
+      </div>
     );
   }
 
@@ -254,7 +254,7 @@ export default async function ManifestDetailPage({
     ) : null;
 
   return (
-    <main className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
+    <div className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
         <Link className="text-teal-800 underline dark:text-teal-300" href="/">
           Home
@@ -469,6 +469,6 @@ export default async function ManifestDetailPage({
         execution={manifestFooterExecution}
         showArchitectureReviewSummaryLink
       />
-    </main>
+    </div>
   );
 }

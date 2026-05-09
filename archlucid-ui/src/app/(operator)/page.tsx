@@ -32,7 +32,7 @@ export default function HomePage() {
   return (
     <OperatorHomeGate>
     <TrialWelcomeRunDeepLink />
-    <main className="space-y-6">
+    <div className="space-y-6">
       {buyerPolishedShell ? null : <OperatorCoArchitectHomeStrip />}
       <WelcomeBanner />
       
@@ -110,7 +110,7 @@ export default function HomePage() {
           </aside>
         )}
       </div>
-    </main>
+    </div>
     </OperatorHomeGate>
   );
 }

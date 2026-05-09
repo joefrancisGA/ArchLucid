@@ -424,7 +424,7 @@ function GraphPageContent() {
   );
 
   return (
-    <main>
+    <div>
       <LayerHeader pageKey="graph" />
       <OperatorPageHeader title={pageTitle} helpKey="architecture-graph" />
       {graph === null ? (
@@ -650,7 +650,7 @@ function GraphPageContent() {
           ) : null}
         </>
       ) : null}
-    </main>
+    </div>
   );
 }
 
@@ -658,12 +658,12 @@ export default function GraphPage() {
   return (
     <Suspense
       fallback={
-        <main className="max-w-4xl">
+        <div className="max-w-4xl">
           <OperatorLoadingNotice>
             <strong>Loading graph.</strong>
             <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">Reading review id from the URL…</p>
           </OperatorLoadingNotice>
-        </main>
+        </div>
       }
     >
       <GraphPageContent />

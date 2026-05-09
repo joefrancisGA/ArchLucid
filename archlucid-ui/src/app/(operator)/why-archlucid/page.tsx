@@ -180,7 +180,7 @@ export default function WhyArchLucidPage() {
   }, []);
 
   return (
-    <main
+    <div
       className="mx-auto max-w-4xl space-y-8 p-4"
       data-testid="why-archlucid-page"
       aria-busy={state.loading}
@@ -207,7 +207,7 @@ export default function WhyArchLucidPage() {
         <code>GET /v1/explain/runs/{state.snapshot?.demoRunId ?? "{runId}"}/aggregate</code>. See repo{" "}
         <code>docs/SPONSOR_ONE_PAGER.md</code> and <code>docs/go-to-market/POSITIONING.md</code> for narrative context.
       </footer>
-    </main>
+    </div>
   );
 }
 

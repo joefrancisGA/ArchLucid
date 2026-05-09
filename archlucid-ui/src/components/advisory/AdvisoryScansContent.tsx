@@ -85,7 +85,7 @@ export function AdvisoryScansContent() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-6">
+    <div className="mx-auto max-w-4xl px-4 py-6">
       <DocumentLayout>
         <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
           <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Architecture advisory</h2>
@@ -256,6 +256,6 @@ export function AdvisoryScansContent() {
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No persisted recommendations returned for this architecture review.</p>
         ) : null}
       </DocumentLayout>
-    </main>
+    </div>
   );
 }

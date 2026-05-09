@@ -54,14 +54,14 @@ export default function RecommendationLearningPage() {
 
   if (demoMode) {
     return (
-      <main className="max-w-4xl">
+      <div className="max-w-4xl">
         <OperatorLoadingNotice>Returning to home…</OperatorLoadingNotice>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="max-w-4xl">
+    <div className="max-w-4xl">
       <h2 className="mt-0">Recommendation tuning</h2>
       <p className="text-neutral-600 dark:text-neutral-400 text-sm">
         Inspect adaptive weights derived from historical recommendation outcomes (category, urgency, inferred signal type).
@@ -129,6 +129,6 @@ export default function RecommendationLearningPage() {
       ) : !loading && failure === null ? (
         <p className="text-neutral-500 dark:text-neutral-400">No profile loaded. Use the buttons above.</p>
       ) : null}
-    </main>
+    </div>
   );
 }

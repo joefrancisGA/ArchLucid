@@ -100,27 +100,27 @@ export default function RoiSummaryPage() {
 
   if (demo) {
     return (
-      <main className="mx-auto space-y-4 p-4">
+      <div className="mx-auto space-y-4 p-4">
         <LayerHeader pageKey="value-report-roi" />
         <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
           <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">ROI summary not available in demo mode.</p>
         </div>
-      </main>
+      </div>
     );
   }
 
   if (state.status === "loading") {
     return (
-      <main className="mx-auto space-y-4 p-4">
+      <div className="mx-auto space-y-4 p-4">
         <LayerHeader pageKey="value-report-roi" />
         <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading ROI summary…</p>
-      </main>
+      </div>
     );
   }
 
   if (state.status === "error") {
     return (
-      <main className="mx-auto space-y-4 p-4">
+      <div className="mx-auto space-y-4 p-4">
         <LayerHeader pageKey="value-report-roi" />
         <OperatorApiProblem
           fallbackMessage={state.message}
@@ -130,14 +130,14 @@ export default function RoiSummaryPage() {
         <Button type="button" variant="secondary" onClick={() => void load()}>
           Retry
         </Button>
-      </main>
+      </div>
     );
   }
 
   const { rolling30, pilotToDate } = state;
 
   return (
-    <main className="mx-auto space-y-4 p-4">
+    <div className="mx-auto space-y-4 p-4">
       <LayerHeader pageKey="value-report-roi" />
       <DocumentLayout>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">ROI summary</h1>
@@ -180,6 +180,6 @@ export default function RoiSummaryPage() {
           />
         </div>
       </DocumentLayout>
-    </main>
+    </div>
   );
 }

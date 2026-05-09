@@ -364,7 +364,7 @@ function AskPageContent() {
   }, [urlRunIdRaw, runId]);
 
   return (
-    <main className="max-w-5xl">
+    <div className="max-w-5xl">
       <OperatorPageHeader
         title="Ask about a review"
         helpKey="ask-archlucid"
@@ -677,7 +677,7 @@ function AskPageContent() {
           </CardContent>
         </Card>
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -685,9 +685,9 @@ export default function AskPage() {
   return (
     <Suspense
       fallback={
-        <main className="max-w-5xl p-4">
+        <div className="max-w-5xl p-4">
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading Ask…</p>
-        </main>
+        </div>
       }
     >
       <AskPageContent />

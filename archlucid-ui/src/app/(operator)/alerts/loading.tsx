@@ -2,8 +2,8 @@ import { AlertsSkeleton } from "@/components/skeletons/AlertsSkeleton";
 
 export default function AlertsLoading() {
   return (
-    <main>
+    <div>
       <AlertsSkeleton />
-    </main>
+    </div>
   );
 }

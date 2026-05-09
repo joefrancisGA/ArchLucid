@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 /** Product guidance (guide tab default) + documentation index tab. */
 export default function HelpPage() {
   return (
-    <main className="space-y-8">
+    <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Help</h1>
@@ -24,6 +24,6 @@ export default function HelpPage() {
       </div>
 
       <HelpTabsShell guide={<HelpProductGuide />} docs={<HelpDocsClient />} />
-    </main>
+    </div>
   );
 }

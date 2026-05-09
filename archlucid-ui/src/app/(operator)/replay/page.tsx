@@ -70,7 +70,7 @@ function ReplayForm() {
   const runIdTrimmed = runId.trim();
 
   return (
-    <main>
+    <div>
       <LayerHeader pageKey="replay" density="compact" />
       <OperatorPageHeader title="Replay" helpKey="replay-run" />
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
@@ -253,21 +253,21 @@ function ReplayForm() {
           </section>
         </ClientErrorBoundary>
       )}
-    </main>
+    </div>
   );
 }
 
 /** Suspense fallback shown while the ReplayForm client component is initializing. */
 function ReplaySuspenseFallback() {
   return (
-    <main>
+    <div>
       <OperatorLoadingNotice>
         <strong>Loading replay.</strong>
         <p className="mt-2 text-sm">
           Reading <code>runId</code> from the URL so “Replay this review” deep links open with the field prefilled…
         </p>
       </OperatorLoadingNotice>
-    </main>
+    </div>
   );
 }
 

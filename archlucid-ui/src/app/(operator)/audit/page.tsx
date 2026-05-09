@@ -650,7 +650,7 @@ export default function AuditPage() {
   }, [displayEvents]);
 
   return (
-    <main className="max-w-4xl">
+    <div className="max-w-4xl">
       <LayerHeader pageKey="audit" />
       <OperatorPageHeader
         title="Audit log"
@@ -1045,6 +1045,6 @@ export default function AuditPage() {
         </button>
       </section>
       ) : null}
-    </main>
+    </div>
   );
 }

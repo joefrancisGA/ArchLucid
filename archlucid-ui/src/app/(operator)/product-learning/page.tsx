@@ -103,14 +103,14 @@ export default function ProductLearningPage() {
 
   if (demoMode) {
     return (
-      <main className="max-w-5xl">
+      <div className="max-w-5xl">
         <OperatorLoadingNotice>Returning to home…</OperatorLoadingNotice>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="max-w-5xl">
+    <div className="max-w-5xl">
       <h2 className="mt-0">Pilot feedback</h2>
       <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
         Scoped rollups from pilot signals: how outputs are trusted, rejected, or revised; recurring artifact patterns; ranked
@@ -373,6 +373,6 @@ export default function ProductLearningPage() {
           </p>
         </>
       ) : null}
-    </main>
+    </div>
   );
 }
