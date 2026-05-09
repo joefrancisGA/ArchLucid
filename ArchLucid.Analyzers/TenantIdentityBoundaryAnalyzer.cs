@@ -142,12 +142,6 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
                     context.ReportDiagnostic(Arch001Descriptor.Create(identifier.Identifier.GetLocation(), local.Type.ToDisplayString()));
 
                 return;
-
-            case IMethodSymbol method:
-                if (IsOrUsesBannedType(method.ReturnType, symbols))
-                    context.ReportDiagnostic(Arch001Descriptor.Create(identifier.Identifier.GetLocation(), method.ReturnType.ToDisplayString()));
-
-                return;
         }
     }
 
