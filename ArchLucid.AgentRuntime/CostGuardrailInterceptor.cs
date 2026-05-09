@@ -1,4 +1,3 @@
-using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;

@@ -899,7 +899,7 @@ Constraints:
 
 **Specific information needed:** Owner completion of Partner Center seller verification, tax profile, payout account setup, DNS registrar access for signup.archlucid.net, and explicit go-ahead to flip live keys.
 
-**Progress note (2026-05-09):** Partner Center seller verification is **not started** — first-time enrollment path documented in Microsoft Learn (linked under §10 Improvement **11**).
+**Progress note:** Partner Center seller / legal verification **complete** (**owner confirmation**). Remaining commerce un-hold items: **tax profile**, **payout account**, **DNS** for `signup.archlucid.net`, **explicit go-ahead** to rotate live Stripe / Marketplace production config per `BillingProductionSafetyRules`.
 
 ### Improvement 12: Add RBAC Boundary Integration Tests for All Controllers
 
@@ -969,7 +969,7 @@ All deferred items referenced in this assessment (SOC 2 CPA, design partner, com
 - **Operational detail (during execution):** Confirm which **`infra/terraform*`** roots and workspaces are actively applied; greenfield **`.tf`** sources are already Phase **7.5** clean on main.
 
 ### Improvement 11 (Stripe Trial — DEFERRED)
-- **Partner Center seller verification (answered, 2026-05-09):** **Not started.** Enrollment and verification follow Microsoft Learn ([Create a Microsoft Marketplace account in Partner Center](https://learn.microsoft.com/en-us/partner-center/account-settings/create-account); check status under [Verify your account information when you enroll](https://learn.microsoft.com/en-us/partner-center/enroll/verification-responses#check-your-verification-status)). Repo alignment: [`docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md`](docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md), publication checklist [`docs/go-to-market/MARKETPLACE_PUBLICATION.md`](docs/go-to-market/MARKETPLACE_PUBLICATION.md).
+- **Partner Center seller verification (answered):** **Complete** (**owner confirmation**). Further Marketplace setup (offer, certification, **`Published`**) uses [`docs/go-to-market/MARKETPLACE_PUBLICATION.md`](docs/go-to-market/MARKETPLACE_PUBLICATION.md); publisher placeholders in [`docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md`](docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md).
 - Tax profile and payout account filing status?
 - DNS registrar access for signup.archlucid.net?
 

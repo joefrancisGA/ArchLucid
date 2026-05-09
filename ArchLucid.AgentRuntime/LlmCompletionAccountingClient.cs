@@ -1,6 +1,5 @@
 using System.Diagnostics;
 
-using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;

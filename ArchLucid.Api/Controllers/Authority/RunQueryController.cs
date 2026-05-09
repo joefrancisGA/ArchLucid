@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Collections.Generic;
 
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
@@ -143,7 +142,12 @@ public sealed class RunQueryController(
             await Dapper.SqlMapper.QueryFirstOrDefaultAsync<RunRoiTelemetryRow>(
                 connection,
                 sql,
-                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId });
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId
+                });
 
         long totalRuns = aggregateRow?.TotalRuns ?? 0L;
         decimal totalHoursSaved = aggregateRow?.TotalHoursSaved ?? 0m;
@@ -289,7 +293,11 @@ public sealed class RunQueryController(
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        PagingParameters paging = new() { PageNumber = pageNumber, PageSize = pageSize };
+        PagingParameters paging = new()
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
         (int skip, int take) = paging.Normalize();
 
         (IReadOnlyList<AgentExecutionTrace> pagedTraces, int totalCount) =
@@ -354,7 +362,10 @@ public sealed class RunQueryController(
         return Ok(
             new CursorPagedResponse<RunListItemResponse>
             {
-                Items = mapped, NextCursor = nextCursor, HasMore = hasMore, RequestedTake = effectiveTake
+                Items = mapped,
+                NextCursor = nextCursor,
+                HasMore = hasMore,
+                RequestedTake = effectiveTake
             });
     }
 

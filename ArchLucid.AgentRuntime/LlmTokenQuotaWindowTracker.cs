@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 
-using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;

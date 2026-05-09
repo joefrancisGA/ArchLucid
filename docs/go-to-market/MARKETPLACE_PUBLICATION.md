@@ -11,7 +11,7 @@ Track **Partner Center** and repository steps so a transactable SaaS offer can g
 
 ## Preconditions (owner)
 
-1. **Microsoft Partner Center** account in **Commercial Marketplace** program.
+1. **Microsoft Partner Center** account in **Commercial Marketplace** program — **seller / legal verification complete** (**owner-recorded**).
 2. **Landing page URL** aligned with `Billing:AzureMarketplace:LandingPageUrl` (accepts query parameters documented in [AZURE_MARKETPLACE_SAAS_OFFER.md](../AZURE_MARKETPLACE_SAAS_OFFER.md)).
 3. **Webhook URL** reachable from Microsoft: `https://<api-host>/v1/billing/webhooks/marketplace` with Entra validation as configured.
 4. **Managed identity** (or secret) authorized for Marketplace fulfillment API audience `https://marketplaceapi.microsoft.com` when activation calls are enabled.
@@ -30,5 +30,5 @@ Production primary region is **Central US** for new Terraform stacks unless comp
 
 ## Blockers requiring human owner
 
-- Partner Center seller verification, tax profile, payout account.
+- **Tax profile** and **payout account** (Partner Center) until configured.
 - **Azure subscription id** for production (dedicated) — see [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
