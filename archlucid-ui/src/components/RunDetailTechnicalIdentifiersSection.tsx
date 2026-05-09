@@ -19,7 +19,7 @@ export function RunDetailTechnicalIdentifiersSection({
   createdLabel,
   buyerPolishedShell,
 }: RunDetailTechnicalIdentifiersSectionProps) {
-  const triggerLabel = buyerPolishedShell ? "Technical details" : "Developer & API identifiers";
+  const triggerLabel = buyerPolishedShell ? "Technical details" : "Technical identifiers";
   const projectDisplay = buyerPolishedShell ? formatOperatorProjectIdDisplay(projectId) : projectId;
 
   return (

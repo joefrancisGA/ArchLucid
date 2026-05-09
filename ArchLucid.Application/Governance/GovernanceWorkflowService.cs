@@ -119,21 +119,23 @@ public sealed class GovernanceWorkflowService(
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Governance.ApprovalRequestSubmitted, requestedBy, request.ApprovalRequestId,
             $"RunId={runId}; ManifestVersion={manifestVersion}; Source={sourceEnvironment}; Target={targetEnvironment}", cancellationToken);
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid submittedRunGuid) ? submittedRunGuid : null;
-        await LogGovernanceDurableWithRetryAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernanceApprovalSubmitted,
-                RunId = auditRunId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        approvalRequestId = request.ApprovalRequestId,
-                        runId = request.RunId,
-                        manifestVersion = request.ManifestVersion,
-                        sourceEnvironment = request.SourceEnvironment,
-                        targetEnvironment = request.TargetEnvironment
-                    }, AuditJsonSerializationOptions.Instance)
-            }, $"GovernanceApprovalSubmitted:{LogSanitizer.Sanitize(request.ApprovalRequestId)}", cancellationToken);
+        ScopeContext durableScope = scopeContextProvider.GetCurrentScope();
+        AuditEvent governanceSubmitted = durableScope.CreateAuditEvent(
+            AuditEventTypes.GovernanceApprovalSubmitted,
+            requestedBy,
+            requestedBy,
+            JsonSerializer.Serialize(
+                new
+                {
+                    approvalRequestId = request.ApprovalRequestId,
+                    runId = request.RunId,
+                    manifestVersion = request.ManifestVersion,
+                    sourceEnvironment = request.SourceEnvironment,
+                    targetEnvironment = request.TargetEnvironment
+                }, AuditJsonSerializationOptions.Instance));
+        governanceSubmitted.RunId = auditRunId;
+        await LogGovernanceDurableWithRetryAsync(governanceSubmitted,
+            $"GovernanceApprovalSubmitted:{LogSanitizer.Sanitize(request.ApprovalRequestId)}", cancellationToken);
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation(
                 "Governance approval request submitted: ApprovalRequestId={ApprovalRequestId}, RunId={RunId}, ManifestVersion={ManifestVersion}",
@@ -185,16 +187,17 @@ public sealed class GovernanceWorkflowService(
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Governance.ApprovalRequestApproved, reviewedBy, approvalRequestId,
             $"Status={GovernanceApprovalStatus.Approved}", cancellationToken);
         Guid? approvedRunId = Guid.TryParse(request.RunId, out Guid approvedRunGuid) ? approvedRunGuid : null;
-        await LogGovernanceDurableWithRetryAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernanceApprovalApproved,
-                RunId = approvedRunId,
-                DataJson =
-                    JsonSerializer.Serialize(
-                        new { approvalRequestId = request.ApprovalRequestId, runId = request.RunId, reviewedBy, reviewComment = request.ReviewComment },
-                        AuditJsonSerializationOptions.Instance)
-            }, $"GovernanceApprovalApproved:{LogSanitizer.Sanitize(approvalRequestId)}", cancellationToken);
+        ScopeContext durableScope = scopeContextProvider.GetCurrentScope();
+        AuditEvent governanceApproved = durableScope.CreateAuditEvent(
+            AuditEventTypes.GovernanceApprovalApproved,
+            reviewedBy,
+            reviewedBy,
+            JsonSerializer.Serialize(
+                new { approvalRequestId = request.ApprovalRequestId, runId = request.RunId, reviewedBy, reviewComment = request.ReviewComment },
+                AuditJsonSerializationOptions.Instance));
+        governanceApproved.RunId = approvedRunId;
+        await LogGovernanceDurableWithRetryAsync(governanceApproved,
+            $"GovernanceApprovalApproved:{LogSanitizer.Sanitize(approvalRequestId)}", cancellationToken);
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Governance approval request approved: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId), LogSanitizer.Sanitize(reviewedBy));
@@ -244,16 +247,17 @@ public sealed class GovernanceWorkflowService(
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Governance.ApprovalRequestRejected, reviewedBy, approvalRequestId,
             $"Status={GovernanceApprovalStatus.Rejected}", cancellationToken);
         Guid? rejectedRunId = Guid.TryParse(request.RunId, out Guid rejectedRunGuid) ? rejectedRunGuid : null;
-        await LogGovernanceDurableWithRetryAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernanceApprovalRejected,
-                RunId = rejectedRunId,
-                DataJson =
-                    JsonSerializer.Serialize(
-                        new { approvalRequestId = request.ApprovalRequestId, runId = request.RunId, reviewedBy, reviewComment = request.ReviewComment },
-                        AuditJsonSerializationOptions.Instance)
-            }, $"GovernanceApprovalRejected:{LogSanitizer.Sanitize(approvalRequestId)}", cancellationToken);
+        ScopeContext durableScope = scopeContextProvider.GetCurrentScope();
+        AuditEvent governanceRejected = durableScope.CreateAuditEvent(
+            AuditEventTypes.GovernanceApprovalRejected,
+            reviewedBy,
+            reviewedBy,
+            JsonSerializer.Serialize(
+                new { approvalRequestId = request.ApprovalRequestId, runId = request.RunId, reviewedBy, reviewComment = request.ReviewComment },
+                AuditJsonSerializationOptions.Instance));
+        governanceRejected.RunId = rejectedRunId;
+        await LogGovernanceDurableWithRetryAsync(governanceRejected,
+            $"GovernanceApprovalRejected:{LogSanitizer.Sanitize(approvalRequestId)}", cancellationToken);
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Governance approval request rejected: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId), LogSanitizer.Sanitize(reviewedBy));
@@ -319,22 +323,24 @@ public sealed class GovernanceWorkflowService(
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Governance.ManifestPromoted, promotedBy, record.PromotionRecordId,
             $"RunId={persistedRunId}; ManifestVersion={manifestVersion}; {sourceEnvironment}->{targetEnvironment}", cancellationToken);
         Guid? promotedRunId = Guid.TryParse(record.RunId, out Guid promotedRunGuid) ? promotedRunGuid : null;
-        await LogGovernanceDurableWithRetryAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernanceManifestPromoted,
-                RunId = promotedRunId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        promotionRecordId = record.PromotionRecordId,
-                        runId = record.RunId,
-                        manifestVersion = record.ManifestVersion,
-                        sourceEnvironment = record.SourceEnvironment,
-                        targetEnvironment = record.TargetEnvironment,
-                        approvalRequestId = record.ApprovalRequestId
-                    }, AuditJsonSerializationOptions.Instance)
-            }, $"GovernanceManifestPromoted:{LogSanitizer.Sanitize(record.PromotionRecordId)}", cancellationToken);
+        ScopeContext durableScope = scopeContextProvider.GetCurrentScope();
+        AuditEvent governancePromoted = durableScope.CreateAuditEvent(
+            AuditEventTypes.GovernanceManifestPromoted,
+            promotedBy,
+            promotedBy,
+            JsonSerializer.Serialize(
+                new
+                {
+                    promotionRecordId = record.PromotionRecordId,
+                    runId = record.RunId,
+                    manifestVersion = record.ManifestVersion,
+                    sourceEnvironment = record.SourceEnvironment,
+                    targetEnvironment = record.TargetEnvironment,
+                    approvalRequestId = record.ApprovalRequestId
+                }, AuditJsonSerializationOptions.Instance));
+        governancePromoted.RunId = promotedRunId;
+        await LogGovernanceDurableWithRetryAsync(governancePromoted,
+            $"GovernanceManifestPromoted:{LogSanitizer.Sanitize(record.PromotionRecordId)}", cancellationToken);
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformationGovernanceManifestPromoted(record.PromotionRecordId, record.RunId, record.ManifestVersion, record.TargetEnvironment);
         return record;
@@ -402,21 +408,23 @@ public sealed class GovernanceWorkflowService(
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Governance.EnvironmentActivated, activatedBy, activation.ActivationId,
             $"RunId={activation.RunId}; ManifestVersion={manifestVersion}; Environment={environment}", cancellationToken);
         Guid? activationRunId = Guid.TryParse(activation.RunId, out Guid activationRunGuid) ? activationRunGuid : null;
-        await LogGovernanceDurableWithRetryAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernanceEnvironmentActivated,
-                RunId = activationRunId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        activationId = activation.ActivationId,
-                        runId = activation.RunId,
-                        manifestVersion = activation.ManifestVersion,
-                        environment = activation.Environment,
-                        activatedBy
-                    }, AuditJsonSerializationOptions.Instance)
-            }, $"GovernanceEnvironmentActivated:{LogSanitizer.Sanitize(activation.ActivationId)}", cancellationToken);
+        ScopeContext durableScope = scopeContextProvider.GetCurrentScope();
+        AuditEvent governanceActivated = durableScope.CreateAuditEvent(
+            AuditEventTypes.GovernanceEnvironmentActivated,
+            activatedBy,
+            activatedBy,
+            JsonSerializer.Serialize(
+                new
+                {
+                    activationId = activation.ActivationId,
+                    runId = activation.RunId,
+                    manifestVersion = activation.ManifestVersion,
+                    environment = activation.Environment,
+                    activatedBy
+                }, AuditJsonSerializationOptions.Instance));
+        governanceActivated.RunId = activationRunId;
+        await LogGovernanceDurableWithRetryAsync(governanceActivated,
+            $"GovernanceEnvironmentActivated:{LogSanitizer.Sanitize(activation.ActivationId)}", cancellationToken);
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformationGovernanceEnvironmentActivated(activation.ActivationId, activation.RunId, activation.ManifestVersion, activation.Environment);
         if (!enqueuePromotionInSqlTx)
@@ -430,21 +438,23 @@ public sealed class GovernanceWorkflowService(
         if (!GovernanceSegregationRules.IsSameActorForReview(request, reviewedByDisplay, reviewedByActorKey))
             return;
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid runGuid) ? runGuid : null;
-        await LogGovernanceDurableWithRetryAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernanceSelfApprovalBlocked,
-                RunId = auditRunId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        approvalRequestId,
-                        requestedBy = request.RequestedBy,
-                        requestedByActorKey = request.RequestedByActorKey,
-                        attemptedReviewerBy = reviewedByDisplay,
-                        attemptedReviewerActorKey = reviewedByActorKey
-                    }, AuditJsonSerializationOptions.Instance)
-            }, $"GovernanceSelfApprovalBlocked:{LogSanitizer.Sanitize(approvalRequestId)}", cancellationToken);
+        ScopeContext durableScope = scopeContextProvider.GetCurrentScope();
+        AuditEvent selfApprovalBlocked = durableScope.CreateAuditEvent(
+            AuditEventTypes.GovernanceSelfApprovalBlocked,
+            reviewedByDisplay,
+            reviewedByDisplay,
+            JsonSerializer.Serialize(
+                new
+                {
+                    approvalRequestId,
+                    requestedBy = request.RequestedBy,
+                    requestedByActorKey = request.RequestedByActorKey,
+                    attemptedReviewerBy = reviewedByDisplay,
+                    attemptedReviewerActorKey = reviewedByActorKey
+                }, AuditJsonSerializationOptions.Instance));
+        selfApprovalBlocked.RunId = auditRunId;
+        await LogGovernanceDurableWithRetryAsync(selfApprovalBlocked,
+            $"GovernanceSelfApprovalBlocked:{LogSanitizer.Sanitize(approvalRequestId)}", cancellationToken);
         throw new GovernanceSelfApprovalException(approvalRequestId, reviewedByDisplay);
     }
 
@@ -514,17 +524,12 @@ public sealed class GovernanceWorkflowService(
         Guid? auditRunId = Guid.TryParse(runId, out Guid rid) ? rid : null;
         string dataJson = JsonSerializer.Serialize(new { workflow = "approvalRequest", manifestVersion, sourceEnvironment, targetEnvironment },
             AuditJsonSerializationOptions.Instance);
-        AuditEvent auditEvent = new()
-        {
-            EventType = AuditEventTypes.GovernanceDryRunValidationAttempted,
-            ActorUserId = requestedBy,
-            ActorUserName = requestedBy,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = auditRunId,
-            DataJson = dataJson
-        };
+        AuditEvent auditEvent = scope.CreateAuditEvent(
+            AuditEventTypes.GovernanceDryRunValidationAttempted,
+            requestedBy,
+            requestedBy,
+            dataJson);
+        auditEvent.RunId = auditRunId;
         await DurableAuditLogRetry.TryLogAsync(ct => auditService.LogAsync(auditEvent, ct), logger,
             $"GovernanceDryRunValidationAttempted:approval:{LogSanitizer.Sanitize(runId)}", cancellationToken);
     }
@@ -542,17 +547,12 @@ public sealed class GovernanceWorkflowService(
             targetEnvironment,
             approvalRequestId
         }, AuditJsonSerializationOptions.Instance);
-        AuditEvent auditEvent = new()
-        {
-            EventType = AuditEventTypes.GovernanceDryRunValidationAttempted,
-            ActorUserId = promotedBy,
-            ActorUserName = promotedBy,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = auditRunId,
-            DataJson = dataJson
-        };
+        AuditEvent auditEvent = scope.CreateAuditEvent(
+            AuditEventTypes.GovernanceDryRunValidationAttempted,
+            promotedBy,
+            promotedBy,
+            dataJson);
+        auditEvent.RunId = auditRunId;
         await DurableAuditLogRetry.TryLogAsync(ct => auditService.LogAsync(auditEvent, ct), logger,
             $"GovernanceDryRunValidationAttempted:promotion:{LogSanitizer.Sanitize(runId)}", cancellationToken);
     }

@@ -3,11 +3,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import {
-  getCanonicalReviewWorkspaceHref,
-  getShowcaseManifestHref,
-  getShowcaseWalkthroughHref,
-} from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -87,43 +83,45 @@ export function SampleFirstReviewPackageCard() {
 
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            {buyerPolished ? (
-              <>
-                <Button asChild variant="primary" className="h-9">
-                  <Link href={getShowcaseWalkthroughHref()} onClick={recordSampleOpened}>
-                    Read-only walkthrough
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="h-9">
-                  <Link href={getShowcaseManifestHref()} onClick={recordSampleOpened}>
-                    View manifest summary
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="h-9">
-                  <Link
-                    href={getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID)}
-                    onClick={recordSampleOpened}
-                  >
-                    Open full review detail
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="h-9">
-                  <Link href="/reviews/new">Start your own review</Link>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button asChild variant="primary" className="h-9">
-                  <Link href={sampleReviewHref} onClick={recordSampleOpened}>
-                    Start with sample review
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="h-9">
-                  <Link href="/reviews/new">Use my own input</Link>
-                </Button>
-              </>
-            )}
+              {buyerPolished ? (
+                <>
+                  <Button asChild variant="primary" className="h-9">
+                    <Link href={getShowcaseWalkthroughHref()} onClick={recordSampleOpened}>
+                      Read-only walkthrough
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="h-9">
+                    <Link href={getShowcaseManifestHref()} onClick={recordSampleOpened}>
+                      View manifest summary
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild variant="primary" className="h-9">
+                    <Link href={sampleReviewHref} onClick={recordSampleOpened}>
+                      Start with sample review
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="h-9">
+                    <Link href="/reviews/new">Use my own input</Link>
+                  </Button>
+                </>
+              )}
             </div>
+            {buyerPolished ? (
+              <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
+                <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+                  Ready to connect your own workspace?{" "}
+                  <Link
+                    href="/reviews/new"
+                    className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                  >
+                    Start your own review →
+                  </Link>
+                </p>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

@@ -117,18 +117,10 @@ public sealed class ImportRequestFileService(
         await importedRequestRepository.InsertAsync(record, ct);
         object payload = new { importId, requestId = request.RequestId, format, sourceFileName = safeName };
         string dataJson = JsonSerializer.Serialize(payload, ContractJson.CamelCaseCompact);
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.RequestFileImported,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = dataJson,
-                CorrelationId = correlationId
-            }, ct);
+        AuditEvent imported = scope.CreateAuditEvent(AuditEventTypes.RequestFileImported, actor, actor, dataJson);
+        imported.CorrelationId = correlationId;
+
+        await auditService.LogAsync(imported, ct);
         return new ImportRequestFileResult { Succeeded = true, ImportedRequestId = importId, Status = "Draft", Warnings = [] };
     }
 

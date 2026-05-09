@@ -51,19 +51,14 @@ public static class AuthorityCommittedChainDurableAudit
                 decisionTraceId = chainResult.DecisionTraceId,
                 manifestId = chainResult.GoldenManifestId
             };
-            AuditEvent auditEvent = new()
-            {
-                EventType = AuditEventTypes.AuthorityCommittedChainPersisted,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = authorityRunId,
-                ManifestId = chainResult.GoldenManifestId,
-                DataJson = JsonSerializer.Serialize(payload),
-                CorrelationId = correlationId
-            };
+            AuditEvent auditEvent = scope.CreateAuditEvent(
+                AuditEventTypes.AuthorityCommittedChainPersisted,
+                actor,
+                actor,
+                JsonSerializer.Serialize(payload));
+            auditEvent.RunId = authorityRunId;
+            auditEvent.ManifestId = chainResult.GoldenManifestId;
+            auditEvent.CorrelationId = correlationId;
             await auditService.LogAsync(auditEvent, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)

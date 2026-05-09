@@ -9,6 +9,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   useNavCallerAuthorityRank,
@@ -34,7 +35,6 @@ import {
   auditExportCsvButtonLabelWindowIncomplete,
   auditExportExecuteRankAuditorRoleNote,
   auditExportSectionSupportingLine,
-  auditExportSectionSupportingLineBuyerPolished,
   auditClearFiltersButtonLabelReaderRank,
   auditLoadMoreButtonTitleOperator,
   auditLoadMoreButtonTitleReader,
@@ -61,6 +61,7 @@ import {
 } from "@/lib/demo-audit-sample-events";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -81,6 +82,46 @@ function toDatetimeLocalInputValue(d: Date): string {
   const pad = (n: number) => n.toString().padStart(2, "0");
 
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function auditRunIdInputDisplayValue(buyerPolishedShell: boolean, runIdState: string): string {
+  if (!buyerPolishedShell) {
+    return runIdState;
+  }
+
+  const t = runIdState.trim();
+
+  if (t.length === 0) {
+    return "";
+  }
+
+  return buyerFacingReviewLinkLabelFromRunId(runIdState);
+}
+
+function auditRunIdParseInputValue(buyerPolishedShell: boolean, raw: string): string {
+  if (!buyerPolishedShell) {
+    return raw;
+  }
+
+  const t = raw.trim();
+
+  if (t.length === 0) {
+    return "";
+  }
+
+  const showcaseFriendly = buyerFacingReviewLinkLabelFromRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+  if (t === showcaseFriendly) {
+    return SHOWCASE_STATIC_DEMO_RUN_ID;
+  }
+
+  const canon = canonicalizeDemoRunId(t);
+
+  if (canon === SHOWCASE_STATIC_DEMO_RUN_ID) {
+    return SHOWCASE_STATIC_DEMO_RUN_ID;
+  }
+
+  return t;
 }
 
 function tryFormatDataJson(dataJson: string): string {
@@ -276,6 +317,23 @@ export default function AuditPage() {
   useEffect(() => {
     void loadTypes();
   }, [loadTypes]);
+
+  useEffect(() => {
+    if (!buyerPolishedShell || events.length === 0) {
+      return;
+    }
+
+    const sorted = [...events].map((e) => e.occurredUtc).sort((a, b) => a.localeCompare(b));
+    const firstUtc = sorted[0];
+    const lastUtc = sorted[sorted.length - 1];
+
+    if (firstUtc === undefined || lastUtc === undefined) {
+      return;
+    }
+
+    setFromUtc(toDatetimeLocalInputValue(new Date(firstUtc)));
+    setToUtc(toDatetimeLocalInputValue(new Date(lastUtc)));
+  }, [buyerPolishedShell, events]);
 
   const executeSearch = useCallback(
     async (filters: AuditFilterFields, loadMoreCursor?: string | null) => {
@@ -566,9 +624,7 @@ export default function AuditPage() {
   }, [buyerPolishedShell, events]);
 
   const displayEventGroups = useMemo(() => {
-    const eligible =
-      (buyerPolishedShell || isNextPublicDemoMode()) &&
-      auditEventsAreLifecycleOnlyForGrouping(displayEvents);
+    const eligible = buyerPolishedShell && auditEventsAreLifecycleOnlyForGrouping(displayEvents);
 
     if (!eligible) {
       return null;
@@ -592,8 +648,6 @@ export default function AuditPage() {
 
     return allSame ? firstId : null;
   }, [displayEvents]);
-
-  const demoAuditSampleTimelineUi = shouldMergeOperatorDemoAlertSample();
 
   return (
     <main className="max-w-4xl">
@@ -633,7 +687,7 @@ export default function AuditPage() {
       ) : null}
 
       <div className={cn(buyerPolishedShell && "flex flex-col")}>
-        <div className={cn(buyerPolishedShell && "order-3")}>
+        <div className={cn(buyerPolishedShell && "order-2")}>
       <section
         aria-labelledby="audit-search-heading"
         className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-4 bg-white dark:bg-neutral-950"
@@ -651,36 +705,19 @@ export default function AuditPage() {
           </p>
         ) : null}
         <div className="mb-3 flex flex-wrap gap-2">
-          {buyerPolishedShell && demoAuditSampleTimelineUi ? (
-            <>
-              <button
-                type="button"
-                className={cn(
-                  "rounded border px-2 py-1 text-xs font-medium transition-colors",
-                  auditDatePreset === null && fromUtc.length === 0 && toUtc.length === 0
-                    ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
-                    : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
+          {buyerPolishedShell ? (
+            <p
+              className="m-0 inline-flex flex-wrap items-center gap-x-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200"
+              data-testid="audit-buyer-sample-timeline-chip"
+            >
+              <span className="text-neutral-600 dark:text-neutral-400">Showing:</span>
+              <strong className="font-semibold text-neutral-900 dark:text-neutral-100">
+                {buyerFacingReviewLinkLabelFromRunId(
+                  runId.trim().length > 0 ? runId : SHOWCASE_STATIC_DEMO_RUN_ID,
                 )}
-                disabled={searching || loadingTypes}
-                onClick={() => {
-                  void clearDateRangeAndSearch();
-                }}
-              >
-                Sample review timeline
-              </button>
-              {auditDatePreset !== null || fromUtc.length > 0 || toUtc.length > 0 ? (
-                <button
-                  type="button"
-                  className="rounded border border-neutral-300 bg-neutral-50 px-2 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900"
-                  disabled={searching}
-                  onClick={() => {
-                    void clearDateRangeAndSearch();
-                  }}
-                >
-                  Reset to sample timeline
-                </button>
-              ) : null}
-            </>
+              </strong>
+              <span className="text-neutral-600 dark:text-neutral-400">— full lifecycle</span>
+            </p>
           ) : (
             <>
               <button
@@ -745,32 +782,36 @@ export default function AuditPage() {
                   ))}
                 </select>
               </label>
-              <label>
-                From (local){" "}
-                <input
-                  type="datetime-local"
-                  value={fromUtc}
-                  onChange={(e) => setFromUtc(e.target.value)}
-                  className="w-full mt-1"
-                />
-              </label>
-              <label>
-                To (local){" "}
-                <input
-                  type="datetime-local"
-                  value={toUtc}
-                  onChange={(e) => setToUtc(e.target.value)}
-                  className="w-full mt-1"
-                />
-              </label>
+              {buyerPolishedShell ? null : (
+                <>
+                  <label>
+                    From (local){" "}
+                    <input
+                      type="datetime-local"
+                      value={fromUtc}
+                      onChange={(e) => setFromUtc(e.target.value)}
+                      className="w-full mt-1"
+                    />
+                  </label>
+                  <label>
+                    To (local){" "}
+                    <input
+                      type="datetime-local"
+                      value={toUtc}
+                      onChange={(e) => setToUtc(e.target.value)}
+                      className="w-full mt-1"
+                    />
+                  </label>
+                </>
+              )}
               <label>
                 {buyerPolishedShell ? "Linked review" : "Review ID"}{" "}
                 <input
-                  value={runId}
-                  onChange={(e) => setRunId(e.target.value)}
+                  value={auditRunIdInputDisplayValue(buyerPolishedShell, runId)}
+                  onChange={(e) => setRunId(auditRunIdParseInputValue(buyerPolishedShell, e.target.value))}
                   className="w-full mt-1"
                 />
-                {buyerPolishedShell && runId.trim().length > 0 ? (
+                {buyerPolishedShell ? null : runId.trim().length > 0 ? (
                   <span className="mt-1 block text-xs text-neutral-600 dark:text-neutral-400">
                     Showing events for <strong>{buyerFacingReviewLinkLabelFromRunId(runId)}</strong>.
                   </span>
@@ -886,9 +927,9 @@ export default function AuditPage() {
                 <div className="space-y-8">
                   {displayEventGroups.map((group) => (
                     <div key={group.stage} className="space-y-3">
-                      <h4 className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                      <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
                         {group.stage}
-                      </h4>
+                      </h3>
                       <div className="grid gap-3">
                         {group.events.map((ev) => (
                           <AuditTimelineEventCard
@@ -914,32 +955,59 @@ export default function AuditPage() {
                   ))}
                 </div>
               )}
+              {events.length > 0 && hasMoreResults ? (
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    onClick={() => void loadMore()}
+                    disabled={loadingMore || searching}
+                    title={
+                      callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+                        ? auditLoadMoreButtonTitleReader
+                        : auditLoadMoreButtonTitleOperator
+                    }
+                  >
+                    {loadingMore ? "Loading…" : "Load more"}
+                  </button>
+                </div>
+              ) : null}
+              {buyerPolishedShell && events.length > 0 ? (
+                <div className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-700">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void onExportCsv()}
+                    disabled={!csvExportUiAllowed || exporting || searching}
+                    title={
+                      !exportDateRangeReady
+                        ? "Set From and To to enable export"
+                        : !exportRoleOk
+                          ? auditExportControlDisabledTitle
+                          : "Download CSV for the current date range"
+                    }
+                  >
+                    {exporting
+                      ? "Exporting…"
+                      : csvExportUiAllowed
+                        ? "Export CSV"
+                        : !exportDateRangeReady
+                          ? auditExportCsvButtonLabelWindowIncomplete
+                          : !exportRoleOk
+                            ? auditExportCsvButtonLabelRoleRestricted
+                            : "Export CSV"}
+                  </Button>
+                </div>
+              ) : null}
               {buyerPolishedShell ? <BuyerAuditEventsTechnicalAppendix events={displayEvents} /> : null}
             </>
           )}
         </div>
-
-        {events.length > 0 && hasMoreResults ? (
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={() => void loadMore()}
-              disabled={loadingMore || searching}
-              title={
-                callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-                  ? auditLoadMoreButtonTitleReader
-                  : auditLoadMoreButtonTitleOperator
-              }
-            >
-              {loadingMore ? "Loading…" : "Load more"}
-            </button>
-          </div>
-        ) : null}
       </section>
         </div>
+      </div>
 
-        <div className={cn(buyerPolishedShell && "order-2")}>
-      {events.length > 0 && (!buyerPolishedShell || events.length > 0) ? (
+      {events.length > 0 && !buyerPolishedShell ? (
       <section
         aria-labelledby="audit-export-heading"
         className={cn(
@@ -948,10 +1016,10 @@ export default function AuditPage() {
         )}
       >
         <h3 id="audit-export-heading" className="mt-0 mb-2 text-base">
-          {csvExportUiAllowed || buyerPolishedShell ? "Export" : "Export (restricted)"}
+          {csvExportUiAllowed ? "Export" : "Export (restricted)"}
         </h3>
         <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-xl mt-0 mb-3">
-          {buyerPolishedShell ? auditExportSectionSupportingLineBuyerPolished : auditExportSectionSupportingLine}
+          {auditExportSectionSupportingLine}
         </p>
         <button
           type="button"
@@ -977,8 +1045,6 @@ export default function AuditPage() {
         </button>
       </section>
       ) : null}
-        </div>
-      </div>
     </main>
   );
 }

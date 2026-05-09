@@ -240,7 +240,8 @@ function SnapshotSection({ state }: { readonly state: WhyArchLucidPageState }) {
       {state.snapshot ? (
         <CounterGrid snapshot={state.snapshot} />
       ) : state.loading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3" aria-busy aria-label="Loading counters">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3" role="status" aria-busy>
+          <span className="sr-only">Loading counters</span>
           <div className="h-24 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
           <div className="h-24 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
           <div className="h-24 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
@@ -462,7 +463,8 @@ function SponsorEvidencePackSection({ state }: { readonly state: WhyArchLucidPag
       {state.sponsorPack && !state.loading ? (
         <SponsorPackBody sponsorPack={state.sponsorPack} pct={pct} />
       ) : state.loading ? (
-        <div className="space-y-2" aria-busy aria-label="Loading sponsor evidence pack">
+        <div className="space-y-2" role="status" aria-busy>
+          <span className="sr-only">Loading sponsor evidence pack</span>
           <div className="h-4 max-w-xl animate-pulse rounded bg-neutral-100 dark:bg-neutral-900/80" />
           <div className="h-28 animate-pulse rounded border border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950/70" />
         </div>

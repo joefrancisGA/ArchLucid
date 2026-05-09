@@ -42,17 +42,12 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     ScopeContext scope = scopeContextProvider.GetCurrentScope();
                     Guid? runGuid = Guid.TryParse(entityId, out Guid g) ? g : null;
 
-                    AuditEvent failed = new()
-                    {
-                        EventType = AuditEventTypes.Run.Failed,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = scope.TenantId,
-                        WorkspaceId = scope.WorkspaceId,
-                        ProjectId = scope.ProjectId,
-                        RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new { runId = entityId, reason = details })
-                    };
+                    AuditEvent failed = scope.CreateAuditEvent(
+                        AuditEventTypes.Run.Failed,
+                        actor,
+                        actor,
+                        JsonSerializer.Serialize(new { runId = entityId, reason = details }));
+                    failed.RunId = runGuid;
 
                     await auditService.LogAsync(failed, ct);
                 },
@@ -75,17 +70,12 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     string requestId = GetDetail(kv, "RequestId");
                     string systemName = GetDetail(kv, "SystemName");
 
-                    AuditEvent created = new()
-                    {
-                        EventType = AuditEventTypes.Run.Created,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = scope.TenantId,
-                        WorkspaceId = scope.WorkspaceId,
-                        ProjectId = scope.ProjectId,
-                        RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new { requestId, systemName })
-                    };
+                    AuditEvent created = scope.CreateAuditEvent(
+                        AuditEventTypes.Run.Created,
+                        actor,
+                        actor,
+                        JsonSerializer.Serialize(new { requestId, systemName }));
+                    created.RunId = runGuid;
 
                     await auditService.LogAsync(created, ct);
                 },
@@ -104,17 +94,12 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     ScopeContext scope = scopeContextProvider.GetCurrentScope();
                     Guid? runGuid = Guid.TryParse(entityId, out Guid rid) ? rid : null;
 
-                    AuditEvent executeStarted = new()
-                    {
-                        EventType = AuditEventTypes.Run.ExecuteStarted,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = scope.TenantId,
-                        WorkspaceId = scope.WorkspaceId,
-                        ProjectId = scope.ProjectId,
-                        RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new { runId = entityId })
-                    };
+                    AuditEvent executeStarted = scope.CreateAuditEvent(
+                        AuditEventTypes.Run.ExecuteStarted,
+                        actor,
+                        actor,
+                        JsonSerializer.Serialize(new { runId = entityId }));
+                    executeStarted.RunId = runGuid;
 
                     await auditService.LogAsync(executeStarted, ct);
                 },
@@ -135,17 +120,12 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     Guid? runGuid = Guid.TryParse(entityId, out Guid rid) ? rid : null;
                     int resultCount = TryParseResultCount(details);
 
-                    AuditEvent executeSucceeded = new()
-                    {
-                        EventType = AuditEventTypes.Run.ExecuteSucceeded,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = scope.TenantId,
-                        WorkspaceId = scope.WorkspaceId,
-                        ProjectId = scope.ProjectId,
-                        RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new { runId = entityId, resultCount })
-                    };
+                    AuditEvent executeSucceeded = scope.CreateAuditEvent(
+                        AuditEventTypes.Run.ExecuteSucceeded,
+                        actor,
+                        actor,
+                        JsonSerializer.Serialize(new { runId = entityId, resultCount }));
+                    executeSucceeded.RunId = runGuid;
 
                     await auditService.LogAsync(executeSucceeded, ct);
                 },
@@ -165,18 +145,13 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     Guid? runGuid = Guid.TryParse(entityId, out Guid parsedRun) ? parsedRun : null;
                     Dictionary<string, string> kv = ParseSemicolonKeyValues(details);
 
-                    AuditEvent rejected = new()
-                    {
-                        EventType = AuditEventTypes.Run.QualityGateRejected,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = scope.TenantId,
-                        WorkspaceId = scope.WorkspaceId,
-                        ProjectId = scope.ProjectId,
-                        RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(
-                            new { runId = entityId, traceId = GetDetail(kv, "TraceId"), agentLabel = GetDetail(kv, "AgentLabel"), })
-                    };
+                    AuditEvent rejected = scope.CreateAuditEvent(
+                        AuditEventTypes.Run.QualityGateRejected,
+                        actor,
+                        actor,
+                        JsonSerializer.Serialize(
+                            new { runId = entityId, traceId = GetDetail(kv, "TraceId"), agentLabel = GetDetail(kv, "AgentLabel"), }));
+                    rejected.RunId = runGuid;
 
                     await auditService.LogAsync(rejected, ct);
                 },
@@ -212,17 +187,12 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                                 commitPath
                             });
 
-                    AuditEvent commitCompleted = new()
-                    {
-                        EventType = AuditEventTypes.Run.CommitCompleted,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = scope.TenantId,
-                        WorkspaceId = scope.WorkspaceId,
-                        ProjectId = scope.ProjectId,
-                        RunId = runGuid,
-                        DataJson = commitJson
-                    };
+                    AuditEvent commitCompleted = scope.CreateAuditEvent(
+                        AuditEventTypes.Run.CommitCompleted,
+                        actor,
+                        actor,
+                        commitJson);
+                    commitCompleted.RunId = runGuid;
 
                     await auditService.LogAsync(commitCompleted, ct);
                 },

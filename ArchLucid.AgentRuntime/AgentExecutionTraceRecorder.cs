@@ -506,17 +506,12 @@ public sealed class AgentExecutionTraceRecorder(
                 },
                 AuditJsonOptions);
 
-            AuditEvent auditEvent = new()
-            {
-                EventType = AuditEventTypes.AgentTraceInlineFallbackFailed,
-                ActorUserId = "agent-runtime",
-                ActorUserName = "agent-runtime",
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runGuid,
-                DataJson = dataJson
-            };
+            AuditEvent auditEvent = scope.CreateAuditEvent(
+                AuditEventTypes.AgentTraceInlineFallbackFailed,
+                "agent-runtime",
+                "agent-runtime",
+                dataJson);
+            auditEvent.RunId = runGuid;
 
             await _auditService.LogAsync(auditEvent, cancellationToken);
         }
@@ -601,17 +596,12 @@ public sealed class AgentExecutionTraceRecorder(
                 },
                 AuditJsonOptions);
 
-            AuditEvent auditEvent = new()
-            {
-                EventType = AuditEventTypes.AgentTraceBlobPersistenceFailed,
-                ActorUserId = "agent-runtime",
-                ActorUserName = "agent-runtime",
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runGuid,
-                DataJson = dataJson
-            };
+            AuditEvent auditEvent = scope.CreateAuditEvent(
+                AuditEventTypes.AgentTraceBlobPersistenceFailed,
+                "agent-runtime",
+                "agent-runtime",
+                dataJson);
+            auditEvent.RunId = runGuid;
 
             await _auditService.LogAsync(auditEvent, cancellationToken);
         }

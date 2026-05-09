@@ -19,53 +19,53 @@ public static class PromptInjectionPatternSignals
     /// </summary>
     private static readonly Regex[] InjectionFamilyPatterns =
     [
-        new Regex(
+        new(
             @"ignore\s+(the\s+)?(prior|earlier|preceding)\s+(instructions|rules|prompts)",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(
+        new(
             @"(disregard|forget)\s+(your|all)\s+(prior|earlier|previous|system)\s+(instructions|rules|prompt)",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(
+        new(
             @"reveal\s+(your|the)\s+(system|hidden)\s+(prompt|instructions)",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(
+        new(
             @"act\s+as\s+(a\s+|an\s+)?(unrestricted|unfiltered|jailbroken)",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(
+        new(
             @"developer\s+mode",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(@"\bdan\s+mode\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        new(@"\bdan\s+mode\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(
+        new(
             @"pretend\s+you\s+(have\s+no|are\s+without)\s+(rules|restrictions|guidelines)",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(@"\bexecute\s+shell\s*:", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        new(@"\bexecute\s+shell\s*:", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(@"\bignore\s+all\s+prior\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        new(@"\bignore\s+all\s+prior\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(@"\bignore\s+all\s+previous\b",
+        new(@"\bignore\s+all\s+previous\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled, RegexTimeout),
-        new Regex(@"developer\s*[\-\u2013]\s*mode", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        new(@"developer\s*[\-\u2013]\s*mode", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(@"\brm\s+-rf\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        new(@"\brm\s+-rf\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(@"\bkubectl\s+drain\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        new(@"\bkubectl\s+drain\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(@"(?:call|invoke)\s+delete_database\b",
+        new(@"(?:call|invoke)\s+delete_database\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled, RegexTimeout),
-        new Regex(@"\bdelete_database\s+tool\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        new(@"\bdelete_database\s+tool\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(@"<tool\s+name\s*=", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        new(@"<tool\s+name\s*=", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
             RegexTimeout),
-        new Regex(@"\bkeys?\s+from\s+env\s+vars\s+to\s+https?://",
+        new(@"\bkeys?\s+from\s+env\s+vars\s+to\s+https?://",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled, RegexTimeout),
-        new Regex(@"\buse\s+curl\s+to\s+post\b.{0,120}\b(keys?|secrets?|credentials)\b",
+        new(@"\buse\s+curl\s+to\s+post\b.{0,120}\b(keys?|secrets?|credentials)\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled, RegexTimeout),
     ];
 
@@ -87,13 +87,7 @@ public static class PromptInjectionPatternSignals
 
     private static bool MatchesAnyInjectionFamily(string normalized)
     {
-        foreach (Regex pattern in InjectionFamilyPatterns)
-        {
-            if (pattern.IsMatch(normalized))
-                return true;
-        }
-
-        return false;
+        return InjectionFamilyPatterns.Any(pattern => pattern.IsMatch(normalized));
     }
 
     /// <summary>Returns structured reasons when <paramref name="text" /> matches a blocked phrase or regex family.</summary>
@@ -106,8 +100,8 @@ public static class PromptInjectionPatternSignals
         string normalized = Normalize(text);
 
         reasons.AddRange(from phrase in BlockedPhrases
-            where normalized.Contains(phrase, StringComparison.Ordinal)
-            select string.Format(CultureInfo.InvariantCulture, "matches blocked phrase \"{0}\".", phrase));
+                         where normalized.Contains(phrase, StringComparison.Ordinal)
+                         select string.Format(CultureInfo.InvariantCulture, "matches blocked phrase \"{0}\".", phrase));
 
         if (MatchesAnyInjectionFamily(normalized))
             reasons.Add("matches a tuned injection-pattern family.");
@@ -123,10 +117,7 @@ public static class PromptInjectionPatternSignals
         if (string.IsNullOrEmpty(text))
             return;
 
-        foreach (string detail in Evaluate(text))
-
-            reasons.Add(
-                string.Format(CultureInfo.InvariantCulture, "Field {0} {1}", fieldLabel, detail));
+        reasons.AddRange(Evaluate(text).Select(detail => string.Format(CultureInfo.InvariantCulture, "Field {0} {1}", fieldLabel, detail)));
     }
 
     /// <summary>

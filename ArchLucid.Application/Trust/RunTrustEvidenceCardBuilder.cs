@@ -111,17 +111,17 @@ public sealed class RunTrustEvidenceCardBuilder(
         string enc = Uri.EscapeDataString(runId);
         List<RunTrustEvidenceRouteRef> links =
         [
-            new RunTrustEvidenceRouteRef
+            new()
             {
                 Rel = "traceabilityZip",
                 Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/traceability-bundle.zip"),
                 Label = "Review-trail ZIP",
             },
-            new RunTrustEvidenceRouteRef
+            new()
             {
                 Rel = "traces", Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/traces"), Label = "Agent execution traces",
             },
-            new RunTrustEvidenceRouteRef
+            new()
             {
                 Rel = "evidence", Path = FormattableString.Invariant($"/v1/architecture/run/{enc}/evidence"), Label = "Evidence package",
             },
@@ -176,12 +176,8 @@ public sealed class RunTrustEvidenceCardBuilder(
     private async Task<(TrustEvidenceFieldSnapshot Audit, TrustEvidenceFieldSnapshot Traces)> BuildAuditAndTraceFieldsAsync(string runId, Guid? runGuid,
         CancellationToken cancellationToken)
     {
-        TrustEvidenceFieldSnapshot audit = new()
-        {
-            Title = "Audit events (run-scoped)",
-            Status = TrustEvidenceStatusValue.Missing,
-            Detail = "Count not loaded.",
-        };
+        TrustEvidenceFieldSnapshot audit;
+        
         if (runGuid is null)
         {
             audit = new TrustEvidenceFieldSnapshot
@@ -221,12 +217,8 @@ public sealed class RunTrustEvidenceCardBuilder(
             }
         }
 
-        TrustEvidenceFieldSnapshot traces = new()
-        {
-            Title = "Agent execution trace rows",
-            Status = TrustEvidenceStatusValue.Missing,
-            Detail = "Trace totals not loaded.",
-        };
+        TrustEvidenceFieldSnapshot traces;
+        
         try
         {
             (_, int total) = await _agentExecutionTraceRepository.GetPagedByRunIdAsync(runId, 0, 1, cancellationToken).ConfigureAwait(false);

@@ -159,7 +159,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 throw;
             }
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, coordination.Run.RunId,
                 $"Persist failed: {ex.GetType().Name}", cancellationToken);
@@ -169,61 +169,54 @@ public sealed class ArchitectureRunCreateOrchestrator(
         if (idempotency is not null && !inserted)
         {
             CreateRunResult? winner = await ResolveIdempotencyRaceAsync(idempotency, cancellationToken);
-            if (winner is not null)
-                return winner;
-            throw new InvalidOperationException("Idempotency insert failed but no winning row was found; retry the request.");
+            return winner ?? throw new InvalidOperationException("Idempotency insert failed but no winning row was found; retry the request.");
         }
 
         await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunCreated, actor, coordination.Run.RunId,
             $"RequestId={request.RequestId}; Environment={request.Environment}; SystemName={request.SystemName}", cancellationToken);
+
         ScopeContext scopeCtx = _scopeContextProvider.GetCurrentScope();
+
         if (!TryParseCoordinationRunGuid(coordination.Run.RunId, out Guid runGuid))
             runGuid = Guid.Empty;
+
         await DurableAuditLogRetry.TryLogAsync(async ct =>
             {
-                await _auditService.LogAsync(
-                    new AuditEvent
-                    {
-                        EventType = AuditEventTypes.RequestCreated,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = scopeCtx.TenantId,
-                        WorkspaceId = scopeCtx.WorkspaceId,
-                        ProjectId = scopeCtx.ProjectId,
-                        RunId = runGuid == Guid.Empty ? null : runGuid,
-                        DataJson = JsonSerializer.Serialize(
-                            new
-                            {
-                                requestId = request.RequestId,
-                                runId = coordination.Run.RunId,
-                                systemName = request.SystemName,
-                                environment = request.Environment,
-                                cloudProvider = request.CloudProvider.ToString()
-                            }, AuditJsonSerializationOptions.Instance)
-                    }, ct);
+                AuditEvent requestCreated = scopeCtx.CreateAuditEvent(
+                    AuditEventTypes.RequestCreated,
+                    actor,
+                    actor,
+                    JsonSerializer.Serialize(
+                        new
+                        {
+                            requestId = request.RequestId,
+                            runId = coordination.Run.RunId,
+                            systemName = request.SystemName,
+                            environment = request.Environment,
+                            cloudProvider = request.CloudProvider.ToString()
+                        }, AuditJsonSerializationOptions.Instance));
+                requestCreated.RunId = runGuid == Guid.Empty ? null : runGuid;
+
+                await _auditService.LogAsync(requestCreated, ct);
             }, _logger, $"{AuditEventTypes.RequestCreated}:{LogSanitizer.Sanitize(coordination.Run.RunId)}", cancellationToken,
             auditEventTypeForMetrics: AuditEventTypes.RequestCreated);
         await DurableAuditLogRetry.TryLogAsync(async ct =>
             {
-                await _auditService.LogAsync(
-                    new AuditEvent
-                    {
-                        EventType = AuditEventTypes.RequestLocked,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = scopeCtx.TenantId,
-                        WorkspaceId = scopeCtx.WorkspaceId,
-                        ProjectId = scopeCtx.ProjectId,
-                        RunId = runGuid == Guid.Empty ? null : runGuid,
-                        DataJson = JsonSerializer.Serialize(
-                            new
-                            {
-                                requestId = request.RequestId,
-                                runId = coordination.Run.RunId,
-                                rationale =
-                                    "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle."
-                            }, AuditJsonSerializationOptions.Instance)
-                    }, ct);
+                AuditEvent requestLocked = scopeCtx.CreateAuditEvent(
+                    AuditEventTypes.RequestLocked,
+                    actor,
+                    actor,
+                    JsonSerializer.Serialize(
+                        new
+                        {
+                            requestId = request.RequestId,
+                            runId = coordination.Run.RunId,
+                            rationale =
+                                "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle."
+                        }, AuditJsonSerializationOptions.Instance));
+                requestLocked.RunId = runGuid == Guid.Empty ? null : runGuid;
+
+                await _auditService.LogAsync(requestLocked, ct);
             }, _logger, $"{AuditEventTypes.RequestLocked}:{LogSanitizer.Sanitize(coordination.Run.RunId)}", cancellationToken,
             auditEventTypeForMetrics: AuditEventTypes.RequestLocked);
         if (_logger.IsEnabled(LogLevel.Information))
@@ -267,7 +260,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                         CorrelationId = runId
                     }, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Usage metering failed for architecture run (tenant {TenantId}).", scope.TenantId);

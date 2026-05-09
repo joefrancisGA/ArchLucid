@@ -5,6 +5,4 @@ namespace ArchLucid.Application.Runs;
 ///     <see cref = "Orchestration.IArchitectureRunCreateOrchestrator.CreateRunAsync"/>; scope + hashed key + request
 ///     fingerprint).
 /// </summary>
-public sealed record CreateRunIdempotencyState(Guid TenantId, Guid WorkspaceId, Guid ProjectId, byte[] IdempotencyKeyHash, byte[] RequestFingerprint)
-{
-}
+public sealed record CreateRunIdempotencyState(Guid TenantId, Guid WorkspaceId, Guid ProjectId, byte[] IdempotencyKeyHash, byte[] RequestFingerprint);

@@ -159,16 +159,11 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                     hardCutoffUsd = opts.HardCutoffUsdPerUtcMonth
                 });
 
-            AuditEvent auditEvent = new()
-            {
-                EventType = AuditEventTypes.LlmTenantMonthlyDollarBudgetApproaching,
-                ActorUserId = "llm-monthly-dollar-budget",
-                ActorUserName = "llm-monthly-dollar-budget",
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = dataJson
-            };
+            AuditEvent auditEvent = scope.CreateAuditEvent(
+                AuditEventTypes.LlmTenantMonthlyDollarBudgetApproaching,
+                "llm-monthly-dollar-budget",
+                "llm-monthly-dollar-budget",
+                dataJson);
 
             _ = auditService.LogAsync(auditEvent, CancellationToken.None).ContinueWith(
                 static t => _ = t.Exception,

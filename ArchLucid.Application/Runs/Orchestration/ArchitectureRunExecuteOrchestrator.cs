@@ -3,7 +3,6 @@ using System.Text.Json;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
-using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -144,30 +143,32 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     {
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Executing architecture run: RunId={RunId}", LogSanitizer.Sanitize(runId));
+
         ArchitectureRun? run =
             await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(runRepository, scopeContextProvider, taskRepository, runId, cancellationToken);
+
         if (run is null)
             throw new RunNotFoundException(runId);
-        if (run.Status == ArchitectureRunStatus.Failed ||
-            run.Status == ArchitectureRunStatus.ExecutionCompletedQualityRejected)
+
+        if (run.Status is ArchitectureRunStatus.Failed or ArchitectureRunStatus.ExecutionCompletedQualityRejected)
         {
             ScopeContext retryScope = scopeContextProvider.GetCurrentScope();
             if (TryParseRunGuid(runId, out Guid failedRunGuid))
                 await DurableAuditLogRetry.TryLogAsync(async ct =>
                     {
-                        await auditService.LogAsync(
-                            new AuditEvent
+                        AuditEvent retryRequested = retryScope.CreateAuditEvent(
+                            AuditEventTypes.Run.RetryRequested,
+                            actor,
+                            actor,
+                            JsonSerializer.Serialize(new
                             {
-                                EventType = AuditEventTypes.Run.RetryRequested,
-                                ActorUserId = actor,
-                                ActorUserName = actor,
-                                TenantId = retryScope.TenantId,
-                                WorkspaceId = retryScope.WorkspaceId,
-                                ProjectId = retryScope.ProjectId,
-                                RunId = failedRunGuid,
-                                DataJson = JsonSerializer.Serialize(new { runId, previousStatus = run.Status.ToString() },
-                                    AuditJsonSerializationOptions.Instance)
-                            }, ct);
+                                runId,
+                                previousStatus = run.Status.ToString()
+                            },
+                                AuditJsonSerializationOptions.Instance));
+                        retryRequested.RunId = failedRunGuid;
+
+                        await auditService.LogAsync(retryRequested, ct);
                     }, logger, $"{AuditEventTypes.Run.RetryRequested}:{LogSanitizer.Sanitize(runId)}", cancellationToken,
                     auditEventTypeForMetrics: AuditEventTypes.Run.RetryRequested);
         }
@@ -264,7 +265,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             throw;
         }
-        catch (Exception ex)when (ex is not OperationCanceledException and not AgentOutputQualityGateRejectedException)
+        catch (Exception ex) when (ex is not OperationCanceledException and not AgentOutputQualityGateRejectedException)
         {
             if (logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarningArchitectureRunExecutionFailed(ex, runId, ex.GetType().Name);
@@ -379,7 +380,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
                     RunId = runGuid,
-                    DataJson = JsonSerializer.Serialize(new { runId, previousLegacyRunStatus, newLegacyRunStatus = header.LegacyRunStatus },
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        runId,
+                        previousLegacyRunStatus,
+                        newLegacyRunStatus = header.LegacyRunStatus
+                    },
                         AuditJsonSerializationOptions.Instance)
                 };
                 await auditService.LogAsync(auditEvent, ct);
@@ -506,11 +512,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (outstanding.Count != tasks.Count)
             return false;
 
-        foreach (AgentResult result in existingResults)
-        {
-            if (!outstanding.Remove(result.TaskId))
-                return false;
-        }
+        if (existingResults.Any(result => !outstanding.Remove(result.TaskId)))
+            return false;
 
         return outstanding.Count == 0;
     }
