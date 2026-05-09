@@ -37,7 +37,8 @@ public class OpenApiContractWebAppFactory : WebApplicationFactory<Program>
                     ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                     ["RateLimiting:Registration:PermitLimit"] = "100000",
                     ["RateLimiting:Registration:WindowMinutes"] = "1",
-                    ["Billing:Provider"] = "Noop"
+                    ["Billing:Provider"] = "Noop",
+                    ["DataConsistency:InitialDelaySeconds"] = "0"
                 });
         });
     }

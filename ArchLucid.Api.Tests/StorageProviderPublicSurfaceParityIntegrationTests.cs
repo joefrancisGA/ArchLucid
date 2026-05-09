@@ -41,6 +41,7 @@ public sealed class StorageProviderPublicSurfaceParityIntegrationTests
         using HttpClient client = factory.CreateClient();
 
         (await client.GetAsync("/health/live")).StatusCode.Should().Be(HttpStatusCode.OK);
+        await HealthReadyProbe.EnsureReadyAsync(client);
         (await client.GetAsync("/health/ready")).StatusCode.Should().Be(HttpStatusCode.OK);
         (await client.GetAsync("/openapi/v1.json")).StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -54,6 +55,7 @@ public sealed class StorageProviderPublicSurfaceParityIntegrationTests
         using HttpClient client = factory.CreateClient();
 
         (await client.GetAsync("/health/live")).StatusCode.Should().Be(HttpStatusCode.OK);
+        await HealthReadyProbe.EnsureReadyAsync(client);
         (await client.GetAsync("/health/ready")).StatusCode.Should().Be(HttpStatusCode.OK);
         (await client.GetAsync("/openapi/v1.json")).StatusCode.Should().Be(HttpStatusCode.OK);
     }

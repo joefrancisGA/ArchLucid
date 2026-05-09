@@ -48,9 +48,7 @@ public sealed class DemoSeedAuthorityChainAuditIntegrationTests
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
-        HttpResponseMessage ready = await client.GetAsync("/health/ready");
-
-        ready.StatusCode.Should().Be(HttpStatusCode.OK);
+        await HealthReadyProbe.EnsureReadyAsync(client);
 
         Guid tenantId;
 

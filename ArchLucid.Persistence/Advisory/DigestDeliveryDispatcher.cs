@@ -6,7 +6,7 @@ using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Serialization;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
 /// Default <see cref="IDigestDeliveryDispatcher"/>: loads enabled digest subscriptions, records attempts, invokes <see cref="IDigestDeliveryChannel"/>s, and audits per subscription.
