@@ -1,7 +1,5 @@
 using System.Collections.Immutable;
 
-using ArchLucid.Analyzers;
-
 using Microsoft.AspNetCore.Http;
 
 using Microsoft.CodeAnalysis;
@@ -13,8 +11,9 @@ namespace ArchLucid.Analyzers.Tests;
 public sealed class TenantIdentityBoundaryAnalyzerTests
 {
     private static readonly ImmutableArray<MetadataReference> AspCoreHttpRefs =
-        ImmutableArray.Create<MetadataReference>(
-            MetadataReference.CreateFromFile(typeof(IHttpContextAccessor).Assembly.Location));
+    [
+        MetadataReference.CreateFromFile(typeof(IHttpContextAccessor).Assembly.Location)
+    ];
 
     [Fact]
     public async Task Reports_IHttpContextAccessor_in_inner_layer_assembly()

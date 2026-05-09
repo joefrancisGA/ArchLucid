@@ -10,8 +10,11 @@ namespace ArchLucid.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
 {
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        ImmutableArray.Create(Arch001Descriptor.Rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+    {
+        get;
+    } =
+        [Arch001Descriptor.Rule];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -39,11 +42,8 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
         if (assemblyName is not { Length: > 0 } name)
             return false;
 
-        if (string.Equals(name, "ArchLucid.Api", StringComparison.Ordinal) ||
-            name.StartsWith("ArchLucid.Host.", StringComparison.Ordinal))
-            return false;
-
-        return true;
+        return !string.Equals(name, "ArchLucid.Api", StringComparison.Ordinal) &&
+               !name.StartsWith("ArchLucid.Host.", StringComparison.Ordinal);
     }
 
     private static void AnalyzeIdentifierOrGeneric(SyntaxNodeAnalysisContext context, TenantIdentityBoundaryTypeSymbols symbols)
@@ -90,13 +90,12 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
     {
         ISymbol? symbol = model.GetSymbolInfo(generic).Symbol;
 
-        if (symbol is not INamedTypeSymbol named || !named.IsGenericType)
+        if (symbol is not INamedTypeSymbol { IsGenericType: true } named)
             return;
 
-        foreach (ITypeSymbol typeArg in named.TypeArguments)
+        foreach (ITypeSymbol? unused in named.TypeArguments.Where(typeArg => IsOrUsesBannedType(typeArg, symbols)))
         {
-            if (IsOrUsesBannedType(typeArg, symbols))
-                context.ReportDiagnostic(Arch001Descriptor.Create(generic.Identifier.GetLocation(), named.ToDisplayString()));
+            context.ReportDiagnostic(Arch001Descriptor.Create(generic.Identifier.GetLocation(), named.ToDisplayString()));
         }
     }
 
@@ -167,32 +166,25 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
 
         if (unwrapped is not INamedTypeSymbol named)
             return false;
-
         if (symbols.HttpContext is not null && SymbolEqualityComparer.Default.Equals(named, symbols.HttpContext))
             return true;
-
         if (symbols.IHttpContextAccessor is not null && SymbolEqualityComparer.Default.Equals(named, symbols.IHttpContextAccessor))
             return true;
-
         if (symbols.ClaimsPrincipal is not null && SymbolEqualityComparer.Default.Equals(named, symbols.ClaimsPrincipal))
             return true;
+        if (symbols.IHttpContextAccessor is null)
+            return false;
 
-        if (symbols.IHttpContextAccessor is not null)
-        {
-            foreach (INamedTypeSymbol iface in named.AllInterfaces)
-            {
-                if (SymbolEqualityComparer.Default.Equals(iface, symbols.IHttpContextAccessor))
-                    return true;
-            }
-        }
+        foreach (INamedTypeSymbol iface in named.AllInterfaces)
+            if (SymbolEqualityComparer.Default.Equals(iface, symbols.IHttpContextAccessor))
+                return true;
 
         return false;
     }
 
     private static ITypeSymbol UnwrapNullable(ITypeSymbol type)
     {
-        if (type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } named &&
-            named.TypeArguments.Length == 1)
+        if (type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T, TypeArguments.Length: 1 } named)
             return named.TypeArguments[0];
 
         return type;

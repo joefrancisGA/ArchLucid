@@ -498,6 +498,9 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         string pattern = AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "%";
 
+        // List<string> is globally mapped to JSON via ListStringTypeHandler, which prevents Dapper's IN-list expansion.
+        string[] runIdsParameter = normalized.ToArray();
+
         const string sql = """
                              SELECT DISTINCT RunId, AgentType
                              FROM dbo.AgentExecutionTraces
@@ -508,7 +511,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<LlmFallbackAgentTypeRow> rows = await connection.QueryAsync<LlmFallbackAgentTypeRow>(
-            new CommandDefinition(sql, new { RunIds = normalized, PrefixPattern = pattern },
+            new CommandDefinition(sql, new { RunIds = runIdsParameter, PrefixPattern = pattern },
                 cancellationToken: cancellationToken));
 
         Dictionary<string, List<string>> grouped = new(StringComparer.OrdinalIgnoreCase);
