@@ -126,11 +126,12 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<AuditRetryDrainHostedService>();
         services.AddSingleton<CircuitBreakerAuditBridge>();
         services.Configure<LlmTokenQuotaOptions>(configuration.GetSection(LlmTokenQuotaOptions.SectionName));
-        services.Configure<LlmDailyTenantBudgetOptions>(configuration.GetSection(LlmDailyTenantBudgetOptions.SectionName));
-        services.AddSingleton<LlmDailyTenantBudgetTracker>();
+        services.Configure<LlmDailyTenantTokenWindowOptions>(
+            configuration.GetSection(LlmDailyTenantTokenWindowOptions.SectionName));
+        services.AddScoped<LlmDailyTenantBudgetTracker>();
         services.Configure<LlmMonthlyTenantDollarBudgetOptions>(
             configuration.GetSection(LlmMonthlyTenantDollarBudgetOptions.SectionName));
-        services.AddSingleton<LlmMonthlyTenantDollarBudgetTracker>();
+        services.AddScoped<LlmMonthlyTenantDollarBudgetTracker>();
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
         services.Configure<FallbackLlmOptions>(configuration.GetSection(FallbackLlmOptions.SectionName));
         services.Configure<AgentExecutionTraceStorageOptions>(
@@ -153,8 +154,9 @@ public static partial class ServiceCollectionExtensions
             return new LlmCompletionResponseCache(memoryCache, monitor);
         });
         services.AddSingleton<IPromptRedactor, PromptRedactor>();
-        services.Configure<AgentOutputLlmSemanticJudgeOptions>(
-            configuration.GetSection(AgentOutputLlmSemanticJudgeOptions.SectionPath));
+        services.AddOptions<AgentOutputLlmSemanticJudgeOptions>()
+            .Bind(configuration.GetSection(AgentOutputLlmSemanticJudgeOptions.LegacySectionPath))
+            .Bind(configuration.GetSection(AgentOutputLlmSemanticJudgeOptions.SectionPath));
         services.PostConfigure<AgentOutputLlmSemanticJudgeOptions>(static o =>
         {
             o.BlendWeight = Math.Clamp(o.BlendWeight, 0.0, 1.0);
@@ -344,6 +346,10 @@ public static partial class ServiceCollectionExtensions
 
                 services.AddSingleton<LlmTokenQuotaWindowTracker>();
 
+                services.AddKeyedScoped<IAgentCompletionClient>(
+                    AgentOutputLlmJudgeCompletionServiceKey.Value,
+                    static (sp, _) => BuildAgentOutputSemanticJudgeCompletionChain(sp));
+
                 services.AddScoped<IAgentCompletionClient>(sp =>
                 {
                     AzureOpenAiCompletionClient azureInner = sp.GetRequiredService<AzureOpenAiCompletionClient>();
@@ -454,8 +460,8 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<IOptionsMonitor<LlmPromptRedactionOptions>>();
             IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
             IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
-            IOptionsMonitor<LlmDailyTenantBudgetOptions> dailyBudgetOpts =
-                sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantBudgetOptions>>();
+            IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyBudgetOpts =
+                sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>>();
             LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
             IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarOpts =
                 sp.GetRequiredService<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>>();
@@ -778,6 +784,112 @@ public static partial class ServiceCollectionExtensions
             client ?? throw new ArgumentNullException(nameof(client));
     }
 
+    /// <summary>
+    ///     Judge-only chain: non-schema Azure JSON completions + content safety + the same accounting stack as agents (shared
+    ///     quota/monthly pool — no separate judge budget). Omits completion response caching and per-run cost guard (agent batch only).
+    /// </summary>
+    private static IAgentCompletionClient BuildAgentOutputSemanticJudgeCompletionChain(IServiceProvider sp)
+    {
+        IConfiguration config = sp.GetRequiredService<IConfiguration>();
+        IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> judgeOptsMon =
+            sp.GetRequiredService<IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions>>();
+        AgentOutputLlmSemanticJudgeOptions judgeOpts = judgeOptsMon.CurrentValue;
+
+        string endpoint = config["AzureOpenAI:Endpoint"]?.Trim() ?? string.Empty;
+        string apiKey = config["AzureOpenAI:ApiKey"]?.Trim() ?? string.Empty;
+        string deployment = string.IsNullOrWhiteSpace(judgeOpts.DeploymentName)
+            ? config["AzureOpenAI:DeploymentName"]?.Trim() ?? string.Empty
+            : judgeOpts.DeploymentName.Trim();
+
+        int maxTok = Math.Clamp(judgeOpts.MaxCompletionTokens, 64, 4096);
+
+        if (string.IsNullOrWhiteSpace(endpoint) ||
+            string.IsNullOrWhiteSpace(apiKey) ||
+            string.IsNullOrWhiteSpace(deployment))
+            throw new InvalidOperationException(
+                "Azure OpenAI endpoint, API key, and deployment must be configured when using ArchLucid:Agents:LlmJudge "
+                + "(empty DeploymentName falls back to AzureOpenAI:DeploymentName).");
+
+        ILogger<AzureOpenAiCompletionClient> completionLogger =
+            sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
+
+        AzureOpenAiCompletionClient inner = new(
+            endpoint,
+            apiKey,
+            deployment,
+            maxTok,
+            structuredOutputAgentResultSchema: null,
+            completionLogger);
+
+        IContentSafetyGuard contentSafetyGuard = sp.GetRequiredService<IContentSafetyGuard>();
+        IOptionsMonitor<ContentSafetyOptions> contentSafetyOpts =
+            sp.GetRequiredService<IOptionsMonitor<ContentSafetyOptions>>();
+        ILogger<ContentSafetyEnforcingAgentCompletionClient> contentSafetyCompletionLogger =
+            sp.GetRequiredService<ILogger<ContentSafetyEnforcingAgentCompletionClient>>();
+
+        IAgentCompletionClient azureCompletionEnvelope = new ContentSafetyEnforcingAgentCompletionClient(
+            inner,
+            contentSafetyGuard,
+            contentSafetyOpts,
+            contentSafetyCompletionLogger);
+
+        LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
+        IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
+        IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
+        IOptionsMonitor<LlmTelemetryOptions> telemetryOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+        IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
+        IOptionsMonitor<LlmPromptRedactionOptions> redactionOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmPromptRedactionOptions>>();
+        IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
+        IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
+        IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyBudgetOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>>();
+        LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
+        IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>>();
+        LlmMonthlyTenantDollarBudgetTracker monthlyDollarTracker =
+            sp.GetRequiredService<LlmMonthlyTenantDollarBudgetTracker>();
+        IAuditService auditService = sp.GetRequiredService<IAuditService>();
+        ILogger<LlmCompletionAccountingClient> accountingLogger =
+            sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+
+        IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
+            azureCompletionEnvelope,
+            quotaTracker,
+            scopeProvider,
+            quotaOpts,
+            telemetryOpts,
+            labelTelemetryOpts,
+            redactionOpts,
+            promptRedactor,
+            usageMetering,
+            dailyBudgetOpts,
+            dailyBudgetTracker,
+            monthlyDollarOpts,
+            monthlyDollarTracker,
+            auditService,
+            accountingLogger);
+
+        CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Completion);
+        ILogger<CircuitBreakingAgentCompletionClient> breakerLogger =
+            sp.GetRequiredService<ILogger<CircuitBreakingAgentCompletionClient>>();
+        AgentExecutionResilienceOptions resOpts =
+            sp.GetRequiredService<IOptions<AgentExecutionResilienceOptions>>().Value;
+
+        resOpts.Normalize();
+
+        ResiliencePipeline llmRetry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+            logger: breakerLogger,
+            maxRetryAttempts: resOpts.LlmCallMaxRetryAttempts,
+            baseDelay: TimeSpan.FromMilliseconds(resOpts.LlmCallBaseDelayMilliseconds),
+            maxDelay: TimeSpan.FromSeconds(resOpts.LlmCallMaxDelaySeconds),
+            gateName: gate.GateName);
+
+        return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, llmRetry, breakerLogger);
+    }
+
     private static IAgentCompletionClient BuildAzureOpenAiScopedCompletionChain(
         IServiceProvider sp,
         AzureOpenAiCompletionClient azureInner,
@@ -795,8 +907,8 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<IOptionsMonitor<LlmPromptRedactionOptions>>();
         IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
         IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
-        IOptionsMonitor<LlmDailyTenantBudgetOptions> dailyBudgetOpts =
-            sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantBudgetOptions>>();
+        IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyBudgetOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>>();
         LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
         IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>>();

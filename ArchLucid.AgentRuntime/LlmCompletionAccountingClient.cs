@@ -27,7 +27,7 @@ public sealed class LlmCompletionAccountingClient(
     IOptionsMonitor<LlmPromptRedactionOptions> redactionOptions,
     IPromptRedactor promptRedactor,
     IUsageMeteringService usageMetering,
-    IOptionsMonitor<LlmDailyTenantBudgetOptions> dailyTenantBudgetOptions,
+    IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyTenantBudgetOptions,
     LlmDailyTenantBudgetTracker dailyTenantBudgetTracker,
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarBudgetOptions,
     LlmMonthlyTenantDollarBudgetTracker monthlyDollarBudgetTracker,
@@ -38,7 +38,7 @@ public sealed class LlmCompletionAccountingClient(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
-    private readonly IOptionsMonitor<LlmDailyTenantBudgetOptions> _dailyTenantBudgetOptions =
+    private readonly IOptionsMonitor<LlmDailyTenantTokenWindowOptions> _dailyTenantBudgetOptions =
         dailyTenantBudgetOptions ?? throw new ArgumentNullException(nameof(dailyTenantBudgetOptions));
 
     private readonly LlmDailyTenantBudgetTracker _dailyTenantBudgetTracker =
@@ -93,10 +93,14 @@ public sealed class LlmCompletionAccountingClient(
         try
         {
             if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
-                _dailyTenantBudgetTracker.EnsureWithinBudgetBeforeCall(scope.TenantId, providerKind);
+                await _dailyTenantBudgetTracker
+                    .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
+                    .ConfigureAwait(false);
 
             if (_monthlyDollarBudgetOptions.CurrentValue.Enabled)
-                _monthlyDollarBudgetTracker.EnsureWithinBudgetBeforeCall(scope.TenantId, providerKind);
+                await _monthlyDollarBudgetTracker
+                    .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
+                    .ConfigureAwait(false);
 
             if (_quotaOptions.CurrentValue.Enabled)
                 _quotaTracker.EnsureWithinQuotaBeforeCall(scope.TenantId);
@@ -144,21 +148,27 @@ public sealed class LlmCompletionAccountingClient(
 
                 _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
 
-                _dailyTenantBudgetTracker.RecordUsageAndMaybeWarn(
-                    scope.TenantId,
-                    providerKind,
-                    _scopeProvider,
-                    _auditService,
-                    promptTok,
-                    completionTok);
+                await _dailyTenantBudgetTracker
+                    .RecordUsageAndMaybeWarnAsync(
+                        scope.TenantId,
+                        providerKind,
+                        _scopeProvider,
+                        _auditService,
+                        promptTok,
+                        completionTok,
+                        CancellationToken.None)
+                    .ConfigureAwait(false);
 
-                _monthlyDollarBudgetTracker.RecordUsageAndMaybeWarn(
-                    scope.TenantId,
-                    providerKind,
-                    _scopeProvider,
-                    _auditService,
-                    promptTok,
-                    completionTok);
+                await _monthlyDollarBudgetTracker
+                    .RecordUsageAndMaybeWarnAsync(
+                        scope.TenantId,
+                        providerKind,
+                        _scopeProvider,
+                        _auditService,
+                        promptTok,
+                        completionTok,
+                        CancellationToken.None)
+                    .ConfigureAwait(false);
 
                 bool perTenant = _telemetryOptions.CurrentValue.RecordPerTenantTokens;
                 string? tenantKey = perTenant && scope.TenantId != Guid.Empty ? scope.TenantId.ToString("N") : null;

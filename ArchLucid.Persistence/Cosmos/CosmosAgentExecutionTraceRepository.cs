@@ -199,6 +199,40 @@ public sealed class CosmosAgentExecutionTraceRepository(
         return list;
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<AgentExecutionTrace> traces = await GetByRunIdAsync(runId, cancellationToken);
+
+        return AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(traces);
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+        IReadOnlyList<string> runIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(runIds);
+
+        List<string> normalized = runIds
+            .Where(static s => !string.IsNullOrWhiteSpace(s))
+            .Select(static s => s.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        Dictionary<string, IReadOnlyList<string>> map = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string rid in normalized)
+        {
+            IReadOnlyList<AgentExecutionTrace> traces = await GetByRunIdAsync(rid, cancellationToken);
+            map[rid] = AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(traces);
+        }
+
+        return map;
+    }
+
     private async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> QueryRunPageAsync(
         string runId,
         int offset,

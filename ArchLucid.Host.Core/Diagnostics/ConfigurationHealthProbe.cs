@@ -23,25 +23,24 @@ public sealed class ConfigurationHealthProbe(
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
 
-    private readonly ISqlConnectionFactory? _sqlConnectionFactory = sqlConnectionFactory;
-
     private readonly IHttpClientFactory _httpClientFactory =
         httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
     public async Task<ConfigurationHealthReport> ProbeAsync(CancellationToken cancellationToken = default)
     {
-        List<ConfigurationHealthCheckResult> rows = [];
-
-        rows.Add(await ProbeSqlAsync(cancellationToken).ConfigureAwait(false));
-        rows.Add(await ProbeOidcAuthorityAsync(cancellationToken).ConfigureAwait(false));
-        rows.Add(await ProbeKeyVaultListAsync(cancellationToken).ConfigureAwait(false));
+        List<ConfigurationHealthCheckResult> rows =
+        [
+            await ProbeSqlAsync(cancellationToken).ConfigureAwait(false),
+            await ProbeOidcAuthorityAsync(cancellationToken).ConfigureAwait(false),
+            await ProbeKeyVaultListAsync(cancellationToken).ConfigureAwait(false)
+        ];
 
         return new ConfigurationHealthReport { Checks = rows };
     }
 
     private async Task<ConfigurationHealthCheckResult> ProbeSqlAsync(CancellationToken cancellationToken)
     {
-        if (_sqlConnectionFactory is null)
+        if (sqlConnectionFactory is null)
             return new ConfigurationHealthCheckResult
             {
                 Name = "sql_server",
@@ -53,12 +52,12 @@ public sealed class ConfigurationHealthProbe(
         try
         {
             await using SqlConnection connection =
-                await _sqlConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+                await sqlConnectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
             await using SqlCommand cmd = new("SELECT 1;", connection);
             _ = await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
 
-            bool viewServerState = false;
+            bool viewServerState;
 
             try
             {

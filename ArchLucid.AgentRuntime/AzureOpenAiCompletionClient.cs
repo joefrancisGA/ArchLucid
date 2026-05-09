@@ -216,12 +216,36 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         ChatCompletionOptions options,
         CancellationToken cancellationToken)
     {
-        ClientResult<ChatCompletion> response = await _chatClient.CompleteChatAsync(
-            messages,
-            options,
-            cancellationToken).ConfigureAwait(false);
+        for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
+        {
+            try
+            {
+                ClientResult<ChatCompletion> response = await _chatClient.CompleteChatAsync(
+                    messages,
+                    options,
+                    cancellationToken).ConfigureAwait(false);
 
-        return response.Value;
+                return response.Value;
+            }
+            catch (ClientResultException ex) when (ex.Status == 429)
+            {
+                TimeSpan wait = AzureOpenAiTooManyRequestsRetry.GetDelayBeforeRetry(
+                    ex,
+                    tooManyRequestsAttempt,
+                    _logger,
+                    out bool usedRetryAfterHeader);
+                TagList rateTags = [];
+
+                rateTags.Add("retry_after", usedRetryAfterHeader ? "header" : "fallback");
+
+                ArchLucidInstrumentation.LlmRateLimitTotal.Add(1, rateTags);
+
+                if (tooManyRequestsAttempt >= AzureOpenAiTooManyRequestsRetry.MaxConsecutiveTooManyRequestsAttempts - 1)
+                    throw;
+
+                await Task.Delay(wait, cancellationToken).ConfigureAwait(false);
+            }
+        }
     }
 
     private static string? BuildReasoningTraceSnippet(ChatCompletion completion)

@@ -1,10 +1,41 @@
 import type { RunDetail, RunSummary } from "@/types/authority";
 
+function mergeDistinctSortedAgentNames(
+  a?: readonly string[] | null,
+  b?: readonly string[] | null,
+): string[] | undefined {
+  const out = new Set<string>();
+
+  for (const x of a ?? []) {
+    const t = x.trim();
+
+    if (t.length > 0) {
+      out.add(t);
+    }
+  }
+
+  for (const x of b ?? []) {
+    const t = x.trim();
+
+    if (t.length > 0) {
+      out.add(t);
+    }
+  }
+
+  if (out.size === 0) {
+    return undefined;
+  }
+
+  return [...out].sort((x, y) => x.localeCompare(y, undefined, { sensitivity: "base" }));
+}
+
 /**
  * Builds a {@link RunSummary} from run detail so {@link deriveRunListPipelineLabel} / {@link RunStatusBadge}
  * can use the same snapshot-ID presence rules as the runs list when `getRunSummary` is unavailable.
  */
-export function runFromDetailToRunSummary(run: RunDetail["run"]): RunSummary {
+export function runFromDetailToRunSummary(detail: RunDetail): RunSummary {
+  const run = detail.run;
+
   return {
     runId: run.runId,
     projectId: run.projectId,
@@ -22,6 +53,8 @@ export function runFromDetailToRunSummary(run: RunDetail["run"]): RunSummary {
     hasGoldenManifest: Boolean(run.goldenManifestId),
     hasDecisionTrace: Boolean(run.decisionTraceId),
     hasArtifactBundle: Boolean(run.artifactBundleId),
+    runDegradedExecution: detail.runDegradedExecution,
+    degradedExecutionAgents: detail.degradedExecutionAgents ?? undefined,
   };
 }
 
@@ -32,9 +65,11 @@ export function runFromDetailToRunSummary(run: RunDetail["run"]): RunSummary {
  */
 export function effectiveRunSummaryForPipeline(
   apiSummary: RunSummary | null,
-  run: RunDetail["run"],
+  detail: RunDetail,
 ): RunSummary {
-  const fromDetail = runFromDetailToRunSummary(run);
+  const fromDetail = runFromDetailToRunSummary(detail);
+
+  const run = detail.run;
 
   if (apiSummary === null || typeof apiSummary.runId !== "string" || apiSummary.runId !== run.runId) {
     return fromDetail;
@@ -49,5 +84,13 @@ export function effectiveRunSummaryForPipeline(
     hasGoldenManifest: apiSummary.hasGoldenManifest === true || fromDetail.hasGoldenManifest === true,
     hasDecisionTrace: apiSummary.hasDecisionTrace === true || fromDetail.hasDecisionTrace === true,
     hasArtifactBundle: apiSummary.hasArtifactBundle === true || fromDetail.hasArtifactBundle === true,
+    runDegradedExecution:
+      apiSummary.runDegradedExecution === true ||
+      fromDetail.runDegradedExecution === true ||
+      run.realModeFellBackToSimulator === true,
+    degradedExecutionAgents: mergeDistinctSortedAgentNames(
+      apiSummary.degradedExecutionAgents,
+      fromDetail.degradedExecutionAgents,
+    ),
   };
 }

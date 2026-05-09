@@ -107,7 +107,7 @@ public sealed class RunTrustEvidenceCardBuilderTests
                     UnresolvedIssueCount = 0,
                     ComplianceGapCount = 0,
                     FaithfulnessSupportRatio = 0.9,
-                    UsedDeterministicFallback = false,
+                    DeterministicFallbackUsed = false,
                     FaithfulnessWarning = null,
                     FindingTraceConfidences =
                     [

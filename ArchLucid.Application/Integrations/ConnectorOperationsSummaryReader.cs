@@ -1,10 +1,10 @@
+using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts.Delivery;
-using ArchLucid.Contracts.Integrations;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integrations;
@@ -16,7 +16,7 @@ namespace ArchLucid.Application.Integrations;
 /// <summary>Builds connector operations rows from existing options and tenant repositories (no outbound calls).</summary>
 public sealed class ConnectorOperationsSummaryReader(
     IOptions<IntegrationEventsOptions> integrationEventsOptions,
-    IOptions<IntegrationsItsmOutboundOptions> itsmOutboundOptions,
+    IOptions<IntegrationsItsmOutboundOptions>? itsmOutboundOptions,
     IOptions<ConfluencePublishingOptions> confluenceOptions,
     ITenantTeamsIncomingWebhookConnectionRepository teamsConnectionRepository,
     ITenantItsmOutboundSettingsRepository tenantItsmSettingsRepository,
@@ -24,13 +24,13 @@ public sealed class ConnectorOperationsSummaryReader(
     IAdvisoryScanScheduleRepository advisoryScheduleRepository,
     IAlertRoutingSubscriptionRepository alertRoutingRepository) : IConnectorOperationsSummaryReader
 {
-    private readonly IntegrationEventsOptions _bus = integrationEventsOptions?.Value ??
+    private readonly IntegrationEventsOptions _bus = integrationEventsOptions.Value ??
                                                      throw new ArgumentNullException(nameof(integrationEventsOptions));
 
     private readonly IntegrationsItsmOutboundOptions _itsm = itsmOutboundOptions?.Value ??
                                                              throw new ArgumentNullException(nameof(itsmOutboundOptions));
 
-    private readonly ConfluencePublishingOptions _confluence = confluenceOptions?.Value ??
+    private readonly ConfluencePublishingOptions _confluence = confluenceOptions.Value ??
                                                                throw new ArgumentNullException(nameof(confluenceOptions));
 
     private readonly ITenantTeamsIncomingWebhookConnectionRepository _teamsConnectionRepository =
@@ -88,7 +88,7 @@ public sealed class ConnectorOperationsSummaryReader(
 
         List<ConnectorSurfaceSummary> surfaces =
         [
-            new ConnectorSurfaceSummary
+            new()
             {
                 ConnectorKey = "teams",
                 DisplayName = "Microsoft Teams (incoming webhook)",
@@ -99,7 +99,7 @@ public sealed class ConnectorOperationsSummaryReader(
                     : "No Teams incoming webhook connection row for this tenant.",
                 ConfigurationHref = "/integrations/teams",
             },
-            new ConnectorSurfaceSummary
+            new()
             {
                 ConnectorKey = "slack",
                 DisplayName = "Slack (alert routing)",
@@ -110,7 +110,7 @@ public sealed class ConnectorOperationsSummaryReader(
                     : "No enabled Slack webhook routes in this workspace scope.",
                 ConfigurationHref = "/alerts",
             },
-            new ConnectorSurfaceSummary
+            new()
             {
                 ConnectorKey = "jira",
                 DisplayName = "Jira (ITSM outbound)",
@@ -119,7 +119,7 @@ public sealed class ConnectorOperationsSummaryReader(
                 Summary = jiraSummary,
                 ConfigurationHref = "/integrations",
             },
-            new ConnectorSurfaceSummary
+            new()
             {
                 ConnectorKey = "servicenow",
                 DisplayName = "ServiceNow (ITSM outbound)",
@@ -128,7 +128,7 @@ public sealed class ConnectorOperationsSummaryReader(
                 Summary = snowSummary,
                 ConfigurationHref = "/integrations",
             },
-            new ConnectorSurfaceSummary
+            new()
             {
                 ConnectorKey = "confluence",
                 DisplayName = "Confluence publish",
@@ -205,18 +205,13 @@ public sealed class ConnectorOperationsSummaryReader(
         bool tokenOk = !string.IsNullOrWhiteSpace(_itsm.Jira.ApiToken.Trim());
         bool emailOk = !string.IsNullOrWhiteSpace(_itsm.Jira.ServiceAccountEmail.Trim());
 
-        bool ok = urlOk && projectOk && tokenOk && emailOk;
-
         if (!urlOk)
             return (false, "Set Integrations:ItsmOutbound:Jira:CloudBaseUrl to a valid https:// Atlassian URL.");
 
         if (!emailOk || !tokenOk)
             return (false, "Jira requires a service account email and API token in app settings or Key Vault materialization.");
 
-        if (!projectOk)
-            return (false, "Provide DefaultProjectKey or a per-tenant Jira project key override.");
-
-        return (true, "Jira Cloud base URL, project key, and credentials fields are populated (live validation still required).");
+        return !projectOk ? (false, "Provide DefaultProjectKey or a per-tenant Jira project key override.") : (true, "Jira Cloud base URL, project key, and credentials fields are populated (live validation still required).");
     }
 
     private (bool Ok, string Summary) EvaluateServiceNow()
@@ -225,7 +220,6 @@ public sealed class ConnectorOperationsSummaryReader(
         bool urlOk = TryValidateHttpsUrl(url);
         bool userOk = !string.IsNullOrWhiteSpace(_itsm.ServiceNow.Username.Trim());
         bool passOk = !string.IsNullOrWhiteSpace(_itsm.ServiceNow.Password.Trim());
-        bool ok = urlOk && userOk && passOk;
 
         if (!urlOk)
             return (false, "Set Integrations:ItsmOutbound:ServiceNow:InstanceBaseUrl to a valid https:// instance URL.");
@@ -233,8 +227,7 @@ public sealed class ConnectorOperationsSummaryReader(
         if (!userOk || !passOk)
             return (false, "ServiceNow requires username and password fields (store secrets in Key Vault in production).");
 
-        return (true,
-            "ServiceNow instance URL and credential fields are populated (live Table API validation still required).");
+        return (true, "ServiceNow instance URL and credential fields are populated (live Table API validation still required).");
     }
 
     private (bool Ok, string Summary) EvaluateConfluence()
@@ -247,7 +240,6 @@ public sealed class ConnectorOperationsSummaryReader(
         bool spaceOk = !string.IsNullOrWhiteSpace(_confluence.SpaceKey.Trim());
         bool tokenOk = !string.IsNullOrWhiteSpace(_confluence.ApiToken.Trim());
         bool emailOk = !string.IsNullOrWhiteSpace(_confluence.ServiceAccountEmail.Trim());
-        bool ok = urlOk && spaceOk && tokenOk && emailOk;
 
         if (!urlOk)
             return (false, "Set Integrations:ConfluencePublishing:CloudBaseUrl to a valid https:// Atlassian URL.");
@@ -258,8 +250,7 @@ public sealed class ConnectorOperationsSummaryReader(
         if (!emailOk || !tokenOk)
             return (false, "Confluence requires service account email and API token fields.");
 
-        return (true,
-            "Confluence Cloud URL, space, and credential fields are populated (live REST validation still required).");
+        return (true, "Confluence Cloud URL, space, and credential fields are populated (live REST validation still required).");
     }
 
     private static bool TryValidateHttpsUrl(string url)

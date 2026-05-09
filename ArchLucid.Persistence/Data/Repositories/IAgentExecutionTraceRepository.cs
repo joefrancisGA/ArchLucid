@@ -107,4 +107,18 @@ public interface IAgentExecutionTraceRepository
     Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(
         string taskId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Distinct <see cref="AgentExecutionTrace.AgentType" /> names for traces whose
+    ///     <see cref="AgentExecutionTrace.ModelDeploymentName" /> indicates completion-resource fallback (
+    ///     <see cref="AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix" />).
+    /// </summary>
+    Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Batch form of <see cref="GetDistinctAgentTypesWithLlmResourceFallbackAsync" /> keyed by <paramref name="runId" /> string.</summary>
+    Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+        IReadOnlyList<string> runIds,
+        CancellationToken cancellationToken = default);
 }

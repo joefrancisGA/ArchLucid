@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Agents;
+
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
@@ -6,9 +8,6 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 public static class AgentCompletionModelMetadata
 {
-    /// <summary>Prefix applied to <c>ModelDeploymentName</c> when the secondary fallback client was used.</summary>
-    internal const string FallbackDeploymentPrefix = "fallback:";
-
     /// <summary>
     ///     Sets <paramref name="deploymentName" /> and <paramref name="modelVersion" /> from the last LLM call on this
     ///     async flow. When the <see cref="FallbackAgentCompletionClient" /> used its secondary for that call, the
@@ -22,13 +21,17 @@ public static class AgentCompletionModelMetadata
         if (AzureOpenAiCompletionClient.TryConsumeLastModelMetadata(out string d, out string? v)
             && !string.IsNullOrWhiteSpace(d))
         {
-            deploymentName = fallbackUsed ? FallbackDeploymentPrefix + d : d;
+            deploymentName = fallbackUsed
+                ? AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + d
+                : d;
             modelVersion = v;
 
             return;
         }
 
-        deploymentName = fallbackUsed ? FallbackDeploymentPrefix + "unknown" : null;
+        deploymentName = fallbackUsed
+            ? AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "unknown"
+            : null;
         modelVersion = null;
     }
 }

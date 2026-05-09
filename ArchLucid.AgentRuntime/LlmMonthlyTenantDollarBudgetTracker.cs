@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.Json;
 
@@ -6,6 +5,7 @@ using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories.LlmMonthlyTenantBudget;
 
 using Microsoft.Extensions.Options;
 
@@ -13,71 +13,81 @@ namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 ///     UTC-month estimated USD spend per tenant for <see cref="LlmMonthlyTenantDollarBudgetOptions" /> (warn once,
-///     hard stop).
+///     hard stop), backed by <see cref="ILlmMonthlyTenantBudgetStateRepository" /> for multi-replica correctness.
 /// </summary>
 public sealed class LlmMonthlyTenantDollarBudgetTracker(
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> optionsMonitor,
-    ILlmCostEstimator costEstimator)
+    ILlmCostEstimator costEstimator,
+    ILlmMonthlyTenantBudgetStateRepository budgetStateRepository)
 {
-    private readonly ConcurrentDictionary<Guid, TenantMonthState> _states = new();
+    private const int MaxOptimisticRetries = 12;
+
+    private readonly ILlmMonthlyTenantBudgetStateRepository _budgetStateRepository =
+        budgetStateRepository ?? throw new ArgumentNullException(nameof(budgetStateRepository));
+
+    private readonly ILlmCostEstimator _costEstimator = costEstimator ?? throw new ArgumentNullException(nameof(costEstimator));
+
+    private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _optionsMonitor =
+        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
     /// <summary>
     ///     Throws <see cref="LlmTokenQuotaExceededException" /> when the next call would exceed the UTC-month hard
     ///     cutoff.
     /// </summary>
-    public void EnsureWithinBudgetBeforeCall(Guid tenantId, string providerKind)
+    public async Task EnsureWithinBudgetBeforeCallAsync(
+        Guid tenantId,
+        string providerKind,
+        CancellationToken cancellationToken = default)
     {
-        if (tenantId == Guid.Empty || IsExcludedProvider(providerKind))
+        if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
             return;
 
-        LlmMonthlyTenantDollarBudgetOptions opts = optionsMonitor.CurrentValue;
+        LlmMonthlyTenantDollarBudgetOptions opts = _optionsMonitor.CurrentValue;
 
         if (!opts.Enabled || opts.HardCutoffUsdPerUtcMonth < 0.01m)
             return;
 
         int assumedPrompt = Math.Clamp(opts.AssumedMaxPromptTokensPerRequest, 1, 1_000_000);
         int assumedCompletion = Math.Clamp(opts.AssumedMaxCompletionTokensPerRequest, 1, 262_144);
-        decimal? assumedUsd = costEstimator.EstimateUsd(assumedPrompt, assumedCompletion);
+        decimal? assumedUsd = _costEstimator.EstimateUsd(assumedPrompt, assumedCompletion);
         decimal assumed = assumedUsd ?? 0m;
 
         if (assumed <= 0m)
             return;
 
-        TenantMonthState state = GetOrCreateState(tenantId);
         (int year, int month) = GetUtcYearMonth();
 
-        lock (state.Sync)
-        {
-            ResetIfNewUtcMonthLocked(state, year, month);
+        LlmMonthlyTenantBudgetStateReadModel state =
+            await _budgetStateRepository.GetOrCreateAsync(tenantId, year, month, cancellationToken).ConfigureAwait(false);
 
-            if (state.SpentUsd + assumed <= opts.HardCutoffUsdPerUtcMonth)
-                return;
+        if (state.SpentUsd + assumed <= opts.HardCutoffUsdPerUtcMonth)
+            return;
 
-            DateTimeOffset retryAfterUtc = FirstInstantOfNextUtcMonth(year, month);
+        DateTimeOffset retryAfterUtc = FirstInstantOfNextUtcMonth(year, month);
 
-            throw new LlmTokenQuotaExceededException(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "LLM monthly dollar budget exceeded for tenant (UTC month hard cap {0:C}, used ~{1:C}).",
-                    opts.HardCutoffUsdPerUtcMonth,
-                    state.SpentUsd),
-                retryAfterUtc);
-        }
+        throw new LlmTokenQuotaExceededException(
+            string.Format(
+                CultureInfo.InvariantCulture,
+                "LLM monthly dollar budget exceeded for tenant (UTC month hard cap {0:C}, used ~{1:C}).",
+                opts.HardCutoffUsdPerUtcMonth,
+                state.SpentUsd),
+            retryAfterUtc);
     }
 
     /// <summary>Accumulates estimated USD and fires the once-per-UTC-month warning audit when crossing the warn threshold.</summary>
-    public void RecordUsageAndMaybeWarn(
+    public async Task RecordUsageAndMaybeWarnAsync(
         Guid tenantId,
         string providerKind,
         IScopeContextProvider scopeProvider,
         IAuditService? auditService,
         int promptTokens,
-        int completionTokens)
+        int completionTokens,
+        CancellationToken cancellationToken = default)
     {
-        if (tenantId == Guid.Empty || IsExcludedProvider(providerKind))
+        if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
             return;
 
-        LlmMonthlyTenantDollarBudgetOptions opts = optionsMonitor.CurrentValue;
+        LlmMonthlyTenantDollarBudgetOptions opts = _optionsMonitor.CurrentValue;
 
         if (!opts.Enabled || opts.IncludedUsdPerUtcMonth < 0.01m || opts.HardCutoffUsdPerUtcMonth < 0.01m)
             return;
@@ -85,7 +95,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         if (promptTokens < 1 && completionTokens < 1)
             return;
 
-        decimal? addUsd = costEstimator.EstimateUsd(promptTokens, completionTokens);
+        decimal? addUsd = _costEstimator.EstimateUsd(promptTokens, completionTokens);
 
         if (addUsd is null or <= 0m)
             return;
@@ -95,28 +105,46 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
             4,
             MidpointRounding.AwayFromZero);
 
-        TenantMonthState state = GetOrCreateState(tenantId);
         (int year, int month) = GetUtcYearMonth();
-        bool shouldAudit = false;
-        decimal newTotal;
 
-        lock (state.Sync)
+        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
         {
-            ResetIfNewUtcMonthLocked(state, year, month);
-            decimal before = state.SpentUsd;
-            state.SpentUsd += addUsd.Value;
-            newTotal = state.SpentUsd;
+            LlmMonthlyTenantBudgetStateReadModel read =
+                await _budgetStateRepository.GetOrCreateAsync(tenantId, year, month, cancellationToken).ConfigureAwait(false);
 
-            if (!state.WarnedApproaching && before < warnAt && newTotal >= warnAt)
+            LlmMonthlyTenantBudgetSpendUpdateResult updated = await _budgetStateRepository
+                .TryIncrementSpendAsync(tenantId, year, month, addUsd.Value, warnAt, read.RowVersion, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (updated.ConcurrencyConflict)
             {
-                state.WarnedApproaching = true;
-                shouldAudit = true;
+                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
+
+                continue;
             }
+
+            decimal newTotal = updated.NewState?.SpentUsd ?? throw new InvalidOperationException("Missing spend state after update.");
+
+            if (!updated.ShouldEmitWarnAudit || auditService is null)
+                return;
+
+            TryScheduleWarnAudit(scopeProvider, auditService, year, month, newTotal, warnAt, opts);
+
+            return;
         }
 
-        if (!shouldAudit || auditService is null)
-            return;
+        throw new InvalidOperationException("LLM monthly dollar budget could not be updated after optimistic retries.");
+    }
 
+    private static void TryScheduleWarnAudit(
+        IScopeContextProvider scopeProvider,
+        IAuditService auditService,
+        int year,
+        int month,
+        decimal newTotal,
+        decimal warnAt,
+        LlmMonthlyTenantDollarBudgetOptions opts)
+    {
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -154,32 +182,6 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         }
     }
 
-    private static bool IsExcludedProvider(string providerKind)
-    {
-        if (string.IsNullOrWhiteSpace(providerKind))
-            return false;
-
-        return string.Equals(providerKind, "simulator", StringComparison.OrdinalIgnoreCase)
-               || string.Equals(providerKind, "fake", StringComparison.OrdinalIgnoreCase)
-               || string.Equals(providerKind, "echo", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private TenantMonthState GetOrCreateState(Guid tenantId)
-    {
-        return _states.GetOrAdd(tenantId, _ => new TenantMonthState());
-    }
-
-    private static void ResetIfNewUtcMonthLocked(TenantMonthState state, int year, int month)
-    {
-        if (state.UtcYear == year && state.UtcMonth == month)
-            return;
-
-        state.UtcYear = year;
-        state.UtcMonth = month;
-        state.SpentUsd = 0m;
-        state.WarnedApproaching = false;
-    }
-
     private static (int Year, int Month) GetUtcYearMonth()
     {
         DateTime utc = TimeProvider.System.GetUtcNow().UtcDateTime;
@@ -192,37 +194,5 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         DateTime firstNext = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(1);
 
         return new DateTimeOffset(firstNext, TimeSpan.Zero);
-    }
-
-    private sealed class TenantMonthState
-    {
-        public object Sync
-        {
-            get;
-        } = new();
-
-        public int UtcYear
-        {
-            get;
-            set;
-        }
-
-        public int UtcMonth
-        {
-            get;
-            set;
-        }
-
-        public decimal SpentUsd
-        {
-            get;
-            set;
-        }
-
-        public bool WarnedApproaching
-        {
-            get;
-            set;
-        }
     }
 }

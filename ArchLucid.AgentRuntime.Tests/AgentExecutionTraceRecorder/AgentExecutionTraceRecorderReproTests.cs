@@ -564,6 +564,21 @@ public sealed class AgentExecutionTraceRecorderReproTests
         {
             return _inner.GetByTaskIdAsync(taskId, cancellationToken);
         }
+
+        public Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+            string runId,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetDistinctAgentTypesWithLlmResourceFallbackAsync(runId, cancellationToken);
+        }
+
+        public Task<IReadOnlyDictionary<string, IReadOnlyList<string>>>
+            GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+                IReadOnlyList<string> runIds,
+                CancellationToken cancellationToken = default)
+        {
+            return _inner.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(runIds, cancellationToken);
+        }
     }
 
     private sealed class BlobUploadFailureMeasurementCapture : IDisposable

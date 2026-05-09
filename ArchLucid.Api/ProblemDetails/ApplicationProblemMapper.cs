@@ -5,6 +5,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Core;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Persistence.Repositories;
 
 using Microsoft.AspNetCore.Mvc;
@@ -68,6 +69,8 @@ public static class ApplicationProblemMapper
                     d.Extensions["runId"] = qgx.RunId;
                     d.Extensions["traceId"] = qgx.TraceId;
                     d.Extensions["agentLabel"] = qgx.AgentLabel;
+                    d.Extensions[ProblemDocumentationLinks.RunbookExtensionKey] =
+                        ProblemDocumentationLinks.QualityGateRejectionRunbookRelativePath;
                 });
             return true;
         }

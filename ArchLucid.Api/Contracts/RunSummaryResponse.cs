@@ -90,4 +90,18 @@ public class RunSummaryResponse
         get;
         set;
     }
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.RunDegradedExecution" />
+    public bool RunDegradedExecution
+    {
+        get;
+        set;
+    }
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.DegradedExecutionAgents" />
+    public IReadOnlyList<string> DegradedExecutionAgents
+    {
+        get;
+        set;
+    } = [];
 }

@@ -246,7 +246,7 @@ public sealed class RunExplanationSummaryServiceTests
         summary.FaithfulnessSupportRatio.Should().Be(1.0);
         summary.FindingTraceConfidences.Should().NotBeNull();
         summary.FindingTraceConfidences!.Count.Should().Be(2);
-        summary.UsedDeterministicFallback.Should().BeFalse();
+        summary.DeterministicFallbackUsed.Should().BeFalse();
         summary.FindingCount.Should().Be(2);
         summary.DecisionCount.Should().Be(1);
         summary.UnresolvedIssueCount.Should().Be(0);
@@ -391,7 +391,7 @@ public sealed class RunExplanationSummaryServiceTests
         summary.Explanation.Summary.Should().Be("Deterministic headline");
         summary.Explanation.Provenance.Should().BeNull();
         summary.Explanation.Confidence.Should().BeNull();
-        summary.UsedDeterministicFallback.Should().BeTrue();
+        summary.DeterministicFallbackUsed.Should().BeTrue();
         summary.FaithfulnessSupportRatio.Should().BeApproximately(0.05, 1e-6);
         summary.FaithfulnessWarning.Should().NotBeNull();
         summary.FaithfulnessWarning.Should().Contain("deterministic");

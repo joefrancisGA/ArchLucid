@@ -55,6 +55,8 @@ using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Data.Repositories.LlmDailyTenantTokenWindow;
+using ArchLucid.Persistence.Data.Repositories.LlmMonthlyTenantBudget;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Integrations;
@@ -171,6 +173,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
+        services.AddSingleton<ILlmMonthlyTenantBudgetStateRepository, InMemoryLlmMonthlyTenantBudgetStateRepository>();
+        services.AddSingleton<ILlmDailyTenantTokenWindowStateRepository, InMemoryLlmDailyTenantTokenWindowStateRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestRepository, NoOpMarketingPricingQuoteRequestRepository>();
         services.AddSingleton<IFirstTenantFunnelEventStore, NoopFirstTenantFunnelEventStore>();
         services.AddSingleton<IFirstTenantFunnelArchivalBatchStore, NoOpFirstTenantFunnelArchivalBatchStore>();

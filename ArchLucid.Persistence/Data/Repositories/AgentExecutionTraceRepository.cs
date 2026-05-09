@@ -465,6 +465,91 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         return DeserializeTraces(rows, $"task '{taskId}'");
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        IReadOnlyDictionary<string, IReadOnlyList<string>> map =
+            await GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+                [runId.Trim()],
+                cancellationToken);
+
+        return map.TryGetValue(runId.Trim(), out IReadOnlyList<string>? list) ? list : [];
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+        IReadOnlyList<string> runIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(runIds);
+
+        List<string> normalized = runIds
+            .Where(static s => !string.IsNullOrWhiteSpace(s))
+            .Select(static s => s.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (normalized.Count == 0)
+            return new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
+
+        string pattern = AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "%";
+
+        const string sql = """
+                             SELECT DISTINCT RunId, AgentType
+                             FROM dbo.AgentExecutionTraces
+                             WHERE RunId IN @RunIds
+                               AND ModelDeploymentName LIKE @PrefixPattern
+                             """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<LlmFallbackAgentTypeRow> rows = await connection.QueryAsync<LlmFallbackAgentTypeRow>(
+            new CommandDefinition(sql, new { RunIds = normalized, PrefixPattern = pattern },
+                cancellationToken: cancellationToken));
+
+        Dictionary<string, List<string>> grouped = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (LlmFallbackAgentTypeRow row in rows)
+        {
+            string rid = row.RunId.Trim();
+
+            if (!grouped.TryGetValue(rid, out List<string>? list))
+            {
+                list = [];
+                grouped[rid] = list;
+            }
+
+            if (!string.IsNullOrWhiteSpace(row.AgentType))
+                list.Add(row.AgentType.Trim());
+        }
+
+        Dictionary<string, IReadOnlyList<string>> result = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string rid in normalized)
+        {
+            if (!grouped.TryGetValue(rid, out List<string>? agents))
+            {
+                result[rid] = [];
+
+                continue;
+            }
+
+            List<string> ordered = agents
+                .Where(static s => !string.IsNullOrWhiteSpace(s))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(static s => s, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            result[rid] = ordered;
+        }
+
+        return result;
+    }
+
     private static IReadOnlyList<AgentExecutionTrace> DeserializeTraces(
         IEnumerable<string> jsonRows,
         string context)
@@ -494,6 +579,21 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         }
 
         return traces;
+    }
+
+    private sealed class LlmFallbackAgentTypeRow
+    {
+        public string RunId
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string AgentType
+        {
+            get;
+            set;
+        } = string.Empty;
     }
 
     private sealed class TracePageRow

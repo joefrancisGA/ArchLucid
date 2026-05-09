@@ -93,7 +93,9 @@ export type RunExplanationSummary = {
   complianceGapCount: number;
   /** Set when faithfulness checker had claims to evaluate (0–1 support ratio). */
   faithfulnessSupportRatio?: number | null;
-  /** Absent on older API responses; treat as false. */
+  /** True when aggregate text was substituted from manifest (low faithfulness); absent on older API responses. */
+  deterministicFallbackUsed?: boolean;
+  /** @deprecated Prefer {@link deterministicFallbackUsed}; older API wire name. */
   usedDeterministicFallback?: boolean;
   faithfulnessWarning?: string | null;
   findingTraceConfidences?: FindingTraceConfidenceDto[] | null;

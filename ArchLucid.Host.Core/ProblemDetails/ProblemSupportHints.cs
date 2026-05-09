@@ -42,7 +42,9 @@ public static class ProblemSupportHints
 
         if (typeUri == ProblemTypes.QualityGateRejected)
             return
-                "Re-execute with richer architecture context or ask a workspace owner to review ArchLucid:AgentOutput:QualityGate (EnforceOnReject / BlockRunOnReject / PilotStrict thresholds).";
+                "See runbook docs/runbooks/QUALITY_GATE_REJECTION.md. Re-execute with richer architecture context, "
+                + "GET …/agent-evaluation for per-trace scores, or ask a workspace owner to review ArchLucid:AgentOutput:QualityGate "
+                + "(EnforceOnReject, BlockRunOnReject, PilotStrict thresholds).";
 
         if (typeUri is ProblemTypes.ValidationFailed or ProblemTypes.BadRequest or ProblemTypes.RequestBodyRequired)
             return "Correct the request using the detail and validation entries above. Swagger (/swagger) lists required fields for each endpoint.";

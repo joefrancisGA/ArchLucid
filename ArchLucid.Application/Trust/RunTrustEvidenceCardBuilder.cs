@@ -275,7 +275,7 @@ public sealed class RunTrustEvidenceCardBuilder(
             };
         }
 
-        if (explanation.UsedDeterministicFallback)
+        if (explanation.DeterministicFallbackUsed)
         {
             return new TrustEvidenceFieldSnapshot
             {

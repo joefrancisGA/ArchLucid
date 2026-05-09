@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.Json;
 
@@ -6,110 +5,138 @@ using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories.LlmDailyTenantTokenWindow;
 
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-///     UTC-day combined token totals per tenant for <see cref="LlmDailyTenantBudgetOptions" /> (warn once, hard
-///     stop).
+///     UTC-day combined token totals per tenant for <see cref="LlmDailyTenantTokenWindowOptions" /> (warn once, hard
+///     stop), backed by <see cref="ILlmDailyTenantTokenWindowStateRepository" /> for multi-replica correctness.
 /// </summary>
-public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBudgetOptions> optionsMonitor)
+public sealed class LlmDailyTenantBudgetTracker(
+    IOptionsMonitor<LlmDailyTenantTokenWindowOptions> optionsMonitor,
+    ILlmDailyTenantTokenWindowStateRepository stateRepository)
 {
-    private readonly ConcurrentDictionary<Guid, TenantDayState> _states = new();
+    private const int MaxOptimisticRetries = 12;
+
+    private readonly ILlmDailyTenantTokenWindowStateRepository _stateRepository =
+        stateRepository ?? throw new ArgumentNullException(nameof(stateRepository));
+
+    private readonly IOptionsMonitor<LlmDailyTenantTokenWindowOptions> _optionsMonitor =
+        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
     /// <summary>Throws <see cref="LlmTokenQuotaExceededException" /> when the next call would exceed the UTC-day cap.</summary>
-    public void EnsureWithinBudgetBeforeCall(Guid tenantId, string providerKind)
+    public async Task EnsureWithinBudgetBeforeCallAsync(
+        Guid tenantId,
+        string providerKind,
+        CancellationToken cancellationToken = default)
     {
-        if (tenantId == Guid.Empty || IsExcludedProvider(providerKind))
+        if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
             return;
 
-        LlmDailyTenantBudgetOptions opts = optionsMonitor.CurrentValue;
+        LlmDailyTenantTokenWindowOptions opts = _optionsMonitor.CurrentValue;
 
-        if (!opts.Enabled || opts.MaxTotalTokensPerTenantPerUtcDay < 1)
+        if (!opts.Enabled || opts.HardCutoffTokensPerUtcDay < 1)
             return;
 
-        TenantDayState state = GetOrCreateState(tenantId);
         DateOnly today = DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().UtcDateTime);
-        long max = opts.MaxTotalTokensPerTenantPerUtcDay;
         int assumed = Math.Clamp(opts.AssumedMaxTotalTokensPerRequest, 1, 2_000_000);
+        long max = opts.HardCutoffTokensPerUtcDay;
 
-        lock (state.Sync)
-        {
-            ResetIfNewUtcDayLocked(state, today);
+        LlmDailyTenantTokenWindowStateReadModel state =
+            await _stateRepository.GetOrCreateAsync(tenantId, today, cancellationToken).ConfigureAwait(false);
 
-            if (state.TotalTokens + assumed <= max)
-                return;
+        if (state.TotalTokens + assumed <= max)
+            return;
 
-            DateTimeOffset retryAfterUtc = new(TimeProvider.System.GetUtcNow().UtcDateTime.Date.AddDays(1), TimeSpan.Zero);
+        DateTimeOffset retryAfterUtc =
+            new(TimeProvider.System.GetUtcNow().UtcDateTime.Date.AddDays(1), TimeSpan.Zero);
 
-            throw new LlmTokenQuotaExceededException(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "LLM daily token budget exceeded for tenant (UTC day cap {0}, used ~{1}).",
-                    max,
-                    state.TotalTokens),
-                retryAfterUtc);
-        }
+        throw new LlmTokenQuotaExceededException(
+            string.Format(
+                CultureInfo.InvariantCulture,
+                "LLM daily token budget exceeded for tenant (UTC day cap {0}, used ~{1}).",
+                max,
+                state.TotalTokens),
+            retryAfterUtc);
     }
 
     /// <summary>Accumulates usage and fires the once-per-UTC-day warning audit when crossing the warn threshold.</summary>
-    public void RecordUsageAndMaybeWarn(
+    public async Task RecordUsageAndMaybeWarnAsync(
         Guid tenantId,
         string providerKind,
         IScopeContextProvider scopeProvider,
         IAuditService? auditService,
         int promptTokens,
-        int completionTokens)
+        int completionTokens,
+        CancellationToken cancellationToken = default)
     {
-        if (tenantId == Guid.Empty || IsExcludedProvider(providerKind))
+        if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
             return;
 
-        LlmDailyTenantBudgetOptions opts = optionsMonitor.CurrentValue;
+        LlmDailyTenantTokenWindowOptions opts = _optionsMonitor.CurrentValue;
 
-        if (!opts.Enabled || opts.MaxTotalTokensPerTenantPerUtcDay < 1)
+        if (!opts.Enabled || opts.HardCutoffTokensPerUtcDay < 1)
             return;
 
         if (promptTokens < 1 && completionTokens < 1)
             return;
 
-        long added = (long)Math.Max(0, promptTokens) + Math.Max(0, completionTokens);
-        TenantDayState state = GetOrCreateState(tenantId);
+        long added = Math.Max(0, promptTokens) + (long)Math.Max(0, completionTokens);
         DateOnly today = DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().UtcDateTime);
-        long max = opts.MaxTotalTokensPerTenantPerUtcDay;
+        long max = opts.HardCutoffTokensPerUtcDay;
         long warnAt = (long)Math.Floor(max * (double)decimal.Clamp(opts.WarnFraction, 0.01m, 0.99m));
 
-        bool shouldAudit = false;
-        long newTotal;
-
-        lock (state.Sync)
+        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
         {
-            ResetIfNewUtcDayLocked(state, today);
-            long before = state.TotalTokens;
-            state.TotalTokens += added;
-            newTotal = state.TotalTokens;
+            LlmDailyTenantTokenWindowStateReadModel read =
+                await _stateRepository.GetOrCreateAsync(tenantId, today, cancellationToken).ConfigureAwait(false);
 
-            if (!state.WarnedApproaching && before < warnAt && newTotal >= warnAt)
+            LlmDailyTenantTokenWindowTokensUpdateResult updated = await _stateRepository
+                .TryIncrementTokensAsync(tenantId, today, added, warnAt, read.RowVersion, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (updated.ConcurrencyConflict)
             {
-                state.WarnedApproaching = true;
-                shouldAudit = true;
+                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
+
+                continue;
             }
+
+            long newTotal =
+                updated.NewState?.TotalTokens ?? throw new InvalidOperationException("Missing token state after update.");
+
+            if (!updated.ShouldEmitWarnAudit || auditService is null)
+                return;
+
+            TryScheduleWarnAudit(scopeProvider, auditService, today, newTotal, warnAt, max);
+
+            return;
         }
 
-        if (!shouldAudit || auditService is null)
-            return;
+        throw new InvalidOperationException("LLM daily token budget could not be updated after optimistic retries.");
+    }
 
+    private static void TryScheduleWarnAudit(
+        IScopeContextProvider scopeProvider,
+        IAuditService auditService,
+        DateOnly utcDay,
+        long newTotal,
+        long warnAt,
+        long maxTotal)
+    {
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
             string dataJson = JsonSerializer.Serialize(
                 new
                 {
-                    utcDay = today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    utcDay = utcDay.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     usedTotal = newTotal,
                     warnAt,
-                    maxTotal = max
+                    maxTotal
                 });
 
             AuditEvent auditEvent = new()
@@ -132,57 +159,6 @@ public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBu
         catch
         {
             // Never block completion path on audit scheduling.
-        }
-    }
-
-    private static bool IsExcludedProvider(string providerKind)
-    {
-        if (string.IsNullOrWhiteSpace(providerKind))
-            return false;
-
-        return string.Equals(providerKind, "simulator", StringComparison.OrdinalIgnoreCase)
-               || string.Equals(providerKind, "fake", StringComparison.OrdinalIgnoreCase)
-               || string.Equals(providerKind, "echo", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private TenantDayState GetOrCreateState(Guid tenantId)
-    {
-        return _states.GetOrAdd(tenantId, _ => new TenantDayState());
-    }
-
-    private static void ResetIfNewUtcDayLocked(TenantDayState state, DateOnly today)
-    {
-        if (state.UtcDay == today)
-            return;
-
-        state.UtcDay = today;
-        state.TotalTokens = 0;
-        state.WarnedApproaching = false;
-    }
-
-    private sealed class TenantDayState
-    {
-        public object Sync
-        {
-            get;
-        } = new();
-
-        public DateOnly UtcDay
-        {
-            get;
-            set;
-        }
-
-        public long TotalTokens
-        {
-            get;
-            set;
-        }
-
-        public bool WarnedApproaching
-        {
-            get;
-            set;
         }
     }
 }

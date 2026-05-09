@@ -60,6 +60,17 @@ public class RequirementFindingEngine : IFindingEngine
                         ? "Linked requirement to topology resources via RELATES_TO graph edges."
                         : "Promote requirement into candidate architecture decision input."
                 ],
+                AlternativePathsConsidered = relatedFromGraph.Count > 0
+                    ?
+                    [
+                        "Extend RELATES_TO coverage to additional in-scope topology resources before finalizing.",
+                        "Treat current requirement links as sufficient for this review cycle."
+                    ]
+                    :
+                    [
+                        "Add TopologyResource nodes and RELATES_TO edges from this requirement.",
+                        "Track as backlog until architecture scope includes target resources."
+                    ],
                 Notes =
                 [
                     $"Related topology resources: {relatedFromGraph.Count}",

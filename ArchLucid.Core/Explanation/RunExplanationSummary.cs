@@ -64,7 +64,7 @@ public sealed class RunExplanationSummary
     }
 
     /// <summary>True when low faithfulness triggered replacement of the LLM narrative with deterministic manifest text.</summary>
-    public bool UsedDeterministicFallback
+    public bool DeterministicFallbackUsed
     {
         get;
         init;

@@ -286,7 +286,8 @@ groups:
         annotations:
           summary: Agent semantic score p10 is low (per agent_type)
           description: >-
-            10th percentile of `archlucid_agent_output_semantic_score` below 0.35 over 30m rate window. Tune threshold
+            10th percentile of `archlucid_agent_output_semantic_score` below 0.35 over 30m rate window. The series is a
+            heuristic JSON-structure score (optional LLM judge), not embedding similarity or ground truth. Tune threshold
             after baseline; correlate with prompt/model changes. See `docs/library/OBSERVABILITY.md`.
 
       - alert: ArchLucidAgentOutputSemanticScoreP50Low
@@ -301,8 +302,8 @@ groups:
         annotations:
           summary: Agent semantic score p50 is low (per agent_type)
           description: >-
-            Median semantic score below 0.45 — broader regression than p10 alone. Verify exporter mapping if histogram
-            is missing from Prometheus.
+            Median heuristic/optional-judge semantic score below 0.45 — broader regression than p10 alone. Verify exporter
+            mapping if histogram is missing from Prometheus.
 
       - alert: ArchLucidAgentOutputParseFailures
         expr: |

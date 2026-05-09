@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -42,6 +43,11 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                     [
                         "No PolicyControl nodes found in graph — emitted coverage warning."
                     ],
+                    AlternativePathsConsidered =
+                    [
+                        "Introduce PolicyControl nodes with APPLIES_TO edges to topology resources.",
+                        "Document an intentional omission when policy modeling is out of scope for this graph."
+                    ],
                     Notes = [$"Uncovered topology resources: {result.UncoveredResources.Count}"]
                 }
             });
@@ -74,6 +80,11 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                     DecisionsTaken =
                     [
                         "Compared PolicyControl APPLIES_TO edges against topology resources."
+                    ],
+                    AlternativePathsConsidered =
+                    [
+                        "Map uncovered resources to policies by adding or extending APPLIES_TO applicability.",
+                        "Reduce in-scope topology or accept documented exceptions for uncovered resources."
                     ],
                     Notes =
                     [

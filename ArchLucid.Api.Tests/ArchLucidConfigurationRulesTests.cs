@@ -1630,14 +1630,14 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [SkippableFact]
-    public void CollectErrors_WhenLlmDailyTenantBudgetEnabledWithoutPositiveMax_contains_error()
+    public void CollectErrors_WhenLlmDailyTenantBudgetEnabledWithoutPositiveHardCutoff_contains_error()
     {
         Dictionary<string, string?> data = new()
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["LlmDailyTenantBudget:Enabled"] = "true",
-            ["LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay"] = "0",
+            ["LlmDailyTenantBudget:HardCutoffTokensPerUtcDay"] = "0",
             ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
@@ -1648,7 +1648,7 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e =>
-            e.Contains("LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay", StringComparison.OrdinalIgnoreCase));
+            e.Contains("LlmDailyTenantBudget:HardCutoffTokensPerUtcDay", StringComparison.OrdinalIgnoreCase));
     }
 
     [SkippableFact]
@@ -1659,7 +1659,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["LlmDailyTenantBudget:Enabled"] = "false",
-            ["LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay"] = "0",
+            ["LlmDailyTenantBudget:HardCutoffTokensPerUtcDay"] = "0",
             ["WebhookDelivery:UseHttpClient"] = "false"
         };
 

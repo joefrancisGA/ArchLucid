@@ -10,9 +10,6 @@ using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Indexing;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 using Serilog.Context;
 
 namespace ArchLucid.Host.Core.Coordination.Retrieval;
@@ -56,7 +53,9 @@ public sealed class RetrievalIndexingOutboxProcessor(
             {
                 ScopeContext scopeContext = new()
                 {
-                    TenantId = entry.TenantId, WorkspaceId = entry.WorkspaceId, ProjectId = entry.ProjectId
+                    TenantId = entry.TenantId,
+                    WorkspaceId = entry.WorkspaceId,
+                    ProjectId = entry.ProjectId
                 };
 
                 RunDetailDto? detail = await query.GetRunDetailAsync(scopeContext, entry.RunId, ct);

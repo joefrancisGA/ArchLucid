@@ -40,6 +40,24 @@ public class RunDetailDto
         set;
     }
 
+    /// <summary>
+    ///     <see langword="true" /> when the run used pilot simulator substitution after real execution could not complete
+    ///     or at least one agent trace shows resource-level LLM fallback (deployment name prefixed with <c>fallback:</c>
+    ///     in persisted traces).
+    /// </summary>
+    public bool RunDegradedExecution
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Distinct agent type names (sorted) that recorded resource-level LLM fallback on their traces.</summary>
+    public IReadOnlyList<string> DegradedExecutionAgents
+    {
+        get;
+        set;
+    } = [];
+
     /// <summary>Context payload when <see cref="RunRecord.ContextSnapshotId" /> resolves.</summary>
     public ContextSnapshot? ContextSnapshot
     {

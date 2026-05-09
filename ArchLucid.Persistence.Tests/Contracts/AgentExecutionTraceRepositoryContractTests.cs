@@ -252,6 +252,129 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         t.QualityRejected.Should().BeTrue();
     }
 
+    [SkippableFact]
+    public async Task GetDistinctAgentTypesWithLlmResourceFallbackAsync_excludes_non_fallback_deployments()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-llm-fb-empty-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-llm-fb-empty");
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+
+        await repo.CreateAsync(
+            NewTrace(
+                runId,
+                task.TaskId,
+                "fb-absent-1",
+                TimeProvider.System.GetUtcNow().UtcDateTime,
+                modelDeploymentName: "gpt-4-primary"),
+            CancellationToken.None);
+
+        IReadOnlyList<string> agents = await repo.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+            runId,
+            CancellationToken.None);
+
+        agents.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task GetDistinctAgentTypesWithLlmResourceFallbackAsync_orders_distinct_agent_types()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-llm-fb-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask taskTopology = NewTask(runId, "task-top");
+        AgentTask taskCost = NewTask(runId, "task-cost");
+
+        await PrepareRunAndTaskAsync(requestId, runId, taskTopology, CancellationToken.None);
+        await PrepareRunAndTaskAsync(requestId, runId, taskCost, CancellationToken.None);
+
+        string fallbackName =
+            AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "eastus2-secondary";
+
+        await repo.CreateAsync(
+            NewTrace(
+                runId,
+                taskCost.TaskId,
+                "fb-1",
+                TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-2),
+                AgentType.Cost,
+                fallbackName),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            NewTrace(
+                runId,
+                taskTopology.TaskId,
+                "fb-2",
+                TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1),
+                AgentType.Topology,
+                fallbackName),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            NewTrace(
+                runId,
+                taskTopology.TaskId,
+                "fb-dup",
+                TimeProvider.System.GetUtcNow().UtcDateTime,
+                AgentType.Topology,
+                fallbackName),
+            CancellationToken.None);
+
+        IReadOnlyList<string> agents = await repo.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+            runId,
+            CancellationToken.None);
+
+        agents.Should().Equal("Cost", "Topology");
+    }
+
+    [SkippableFact]
+    public async Task GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync_partitions_runs()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-llm-fb-batch-" + Guid.NewGuid().ToString("N");
+        string runA = Guid.NewGuid().ToString("N");
+        string runB = Guid.NewGuid().ToString("N");
+        AgentTask taskA = NewTask(runA, "task-a");
+        AgentTask taskB = NewTask(runB, "task-b");
+
+        await PrepareRunAndTaskAsync(requestId, runA, taskA, CancellationToken.None);
+        await PrepareRunAndTaskAsync(requestId, runB, taskB, CancellationToken.None);
+
+        string fallbackName =
+            AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "secondary";
+
+        await repo.CreateAsync(
+            NewTrace(
+                runA,
+                taskA.TaskId,
+                "fb-a",
+                TimeProvider.System.GetUtcNow().UtcDateTime,
+                AgentType.Compliance,
+                fallbackName),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            NewTrace(
+                runB,
+                taskB.TaskId,
+                "plain-b",
+                TimeProvider.System.GetUtcNow().UtcDateTime,
+                AgentType.Critic,
+                "primary-deployment"),
+            CancellationToken.None);
+
+        IReadOnlyDictionary<string, IReadOnlyList<string>> map =
+            await repo.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync([runA, runB], CancellationToken.None);
+
+        map.Should().ContainKey(runA);
+        map[runA].Should().Equal("Compliance");
+        map.Should().ContainKey(runB);
+        map[runB].Should().BeEmpty();
+    }
+
     private static AgentTask NewTask(string runId, string taskId)
     {
         return new AgentTask
@@ -266,16 +389,23 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         };
     }
 
-    private static AgentExecutionTrace NewTrace(string runId, string taskId, string traceId, DateTime createdUtc)
+    private static AgentExecutionTrace NewTrace(
+        string runId,
+        string taskId,
+        string traceId,
+        DateTime createdUtc,
+        AgentType agentType = AgentType.Topology,
+        string? modelDeploymentName = null)
     {
         return new AgentExecutionTrace
         {
             TraceId = traceId,
             RunId = runId,
             TaskId = taskId,
-            AgentType = AgentType.Topology,
+            AgentType = agentType,
             ParseSucceeded = true,
-            CreatedUtc = createdUtc
+            CreatedUtc = createdUtc,
+            ModelDeploymentName = modelDeploymentName
         };
     }
 }

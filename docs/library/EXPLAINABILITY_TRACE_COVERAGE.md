@@ -11,22 +11,23 @@
 
 ## Trace field coverage matrix (rule-based engines)
 
-Target: **3/5** or **4/5** per finding, or **5/5** when `AlternativePathsConsidered` lists concrete remediation branches (rule engines may still populate short strings; LLM engines may add richer branches).
+Target: **4/5** or **5/5** per finding for shipped rule engines (graph ids may be empty for coarse coverage warnings), or **5/5** when all five trace list fields including `GraphNodeIdsExamined` are populated with meaningful content.
 
 | Engine | GraphNodeIdsExamined | RulesApplied | DecisionsTaken | AlternativePathsConsidered | Notes | Typical ratio |
 |--------|----------------------|-------------|----------------|---------------------------|-------|---------------|
-| RequirementFindingEngine | yes | yes (`requirement-surface`) | yes | — | yes (related count, text length) | 4/5 |
+| RequirementFindingEngine | yes | yes (`requirement-surface`) | yes | concrete (extend vs freeze links when related; add topology vs backlog when unrelated) | yes (related count, text length) | 5/5 |
 | ComplianceFindingEngine | yes | yes (rule id) | yes | sentinel (`ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote`) | yes (rule pack) | 5/5 |
-| SecurityBaselineFindingEngine | yes | yes (`security-baseline-coverage`) | yes | — | yes (PROTECTS count) | 4/5 |
-| CostConstraintFindingEngine | yes | yes (`cost-constraint-surface`) | yes | — | yes (budget cap) | 4/5 |
+| SecurityBaselineFindingEngine | yes | yes (`security-baseline-coverage`) | yes | concrete (missing-control vs present-control remediation pairs) | yes (PROTECTS count) | 5/5 |
+| CostConstraintFindingEngine | yes | yes (`cost-constraint-surface`) | yes | concrete (high vs non-high `costRisk` remediation pairs) | yes (budget cap) | 5/5 |
 | TopologyCoverageFindingEngine | empty when no topology; else all topology node ids | yes (`topology-coverage-presence` / `topology-coverage-categories`) | yes | yes (three concrete ingest / projection / scope alternatives per branch) | yes (expected categories / present+missing) | 5/5 when emitted |
 | SecurityCoverageFindingEngine | yes (unprotected resource ids from analyzer) | yes (`security-coverage-protection`) | yes | yes (three concrete baseline / scope / compensating-control strings when unprotected resources exist) | yes (counts) | 5/5 when emitted |
-| PolicyApplicabilityFindingEngine | via `FindingFactory` | yes (`policy-applicability-mapping` / `policy-applicability-gap`) | yes | — | yes (target count / policy label) | 4/5 |
-| PolicyCoverageFindingEngine | when uncovered | yes (`policy-coverage-presence` / `policy-coverage-applicability`) | yes | — | yes (counts) | 3/5 (no policies) or 4/5 |
-| RequirementCoverageFindingEngine | when uncovered | yes (`requirement-coverage-relation`) | yes | — | yes (totals) | 4/5 |
-| Topology gap findings (`FindingFactory.CreateTopologyGapFinding`) | yes | yes (`topology-gap-{gapCode}`) | yes | — | — | 3/5 |
+| PolicyApplicabilityFindingEngine | via `FindingFactory` | yes (`policy-applicability-mapping` / `policy-applicability-gap`) | yes | sentinel (`ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote`) | yes (target count / policy label) | 5/5 |
+| PolicyCoverageFindingEngine | when uncovered | yes (`policy-coverage-presence` / `policy-coverage-applicability`) | yes | concrete (introduce policies vs intentional omission; map applicability vs reduce scope) | yes (counts) | 4/5 (no policies: no graph ids) or 5/5 (uncovered) |
+| RequirementCoverageFindingEngine | when uncovered | yes (`requirement-coverage-relation`) | yes | concrete (link via RELATES_TO vs defer/descope) | yes (totals) | 5/5 when emitted |
+| Topology gap findings (`FindingFactory.CreateTopologyGapFinding`) | yes | yes (`topology-gap-{gapCode}`) | yes | sentinel (`ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote`) | — | 4/5 (no Notes) |
+| `IFindingEngine` plugin sample (`PluginSampleFindingEngine`) | — | yes (`plugin-sample-stub`) | yes | sentinel | — | 4/5 |
 
-`AlternativePathsConsidered` is optional: many rule engines leave it empty. **Compliance** records a deterministic single-path sentinel; **topology coverage** and **security coverage** populate short, operator-facing remediation branches when the finding fires. Analyzers treat a list as populated when it contains at least one non-whitespace string (`ExplainabilityTraceCompletenessAnalyzer`).
+`AlternativePathsConsidered` is optional: many rule engines leave it empty. **Compliance** and **policy applicability** (via `FindingFactory`) record the deterministic single-path sentinel; **topology coverage**, **security coverage**, **security baseline**, **cost constraint**, **requirement**, **policy coverage**, and **requirement coverage** populate short, operator-facing remediation branches when the finding fires. Analyzers treat a list as populated when it contains at least one non-whitespace string (`ExplainabilityTraceCompletenessAnalyzer`).
 
 ## ExplainabilityTraceCompletenessAnalyzer
 

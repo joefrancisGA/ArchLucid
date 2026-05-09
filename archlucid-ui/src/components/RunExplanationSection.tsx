@@ -33,6 +33,11 @@ export function faithfulnessBadgeClass(pct: number): string {
   return `${badgeShell} border-rose-300 bg-rose-100 text-rose-950 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-50`;
 }
 
+/** Tailwind styles for aggregate explanation deterministic fallback (faithfulness substitution). */
+export function deterministicFallbackBadgeClass(): string {
+  return `${badgeShell} border-violet-300 bg-violet-100 text-violet-950 dark:border-violet-700 dark:bg-violet-950/50 dark:text-violet-100`;
+}
+
 /** Tailwind mapping for risk posture label (case-insensitive). */
 export function riskPostureBadgeClass(posture: string): string {
   const key = posture.trim().toLowerCase();
@@ -179,6 +184,8 @@ export function RunExplanationSection({
   const overallAssessment = summary.overallAssessment?.trim() ?? "Assessment details are not available for this review.";
   const riskPostureLabel = summary.riskPosture?.trim().length > 0 ? summary.riskPosture : "Not rated";
   const postureClass = riskPostureBadgeClass(riskPostureLabel);
+  const deterministicFallback =
+    summary.deterministicFallbackUsed === true || summary.usedDeterministicFallback === true;
   const conf = expl.confidence;
   const pct = conf !== null && conf !== undefined ? confidencePercent(conf) : null;
   const prov = expl.provenance;
@@ -211,6 +218,15 @@ export function RunExplanationSection({
           {summary.decisionCount} decisions · {findingCountForStats} findings · {summary.unresolvedIssueCount}{" "}
           unresolved · {summary.complianceGapCount} compliance gaps
         </span>
+        {deterministicFallback ? (
+          <span
+            role="status"
+            aria-label="Deterministic narrative fallback"
+            className={`ml-3 align-middle ${deterministicFallbackBadgeClass()}`}
+          >
+            Deterministic narrative
+          </span>
+        ) : null}
       </p>
 
       {faithPct !== null && faithClass !== null ? (
@@ -225,7 +241,7 @@ export function RunExplanationSection({
         </p>
       ) : null}
 
-      {summary.usedDeterministicFallback === true && !buyerPolishedShell ? (
+      {deterministicFallback && !buyerPolishedShell ? (
         <p
           role="status"
           className="m-0 rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm leading-relaxed text-yellow-950 dark:border-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-50"
@@ -235,7 +251,7 @@ export function RunExplanationSection({
         </p>
       ) : null}
 
-      {summary.faithfulnessWarning && summary.usedDeterministicFallback !== true ? (
+      {summary.faithfulnessWarning && !deterministicFallback ? (
         <p
           role="status"
           className="m-0 rounded-md border border-orange-300 bg-orange-50 p-3 text-sm leading-relaxed text-orange-950 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-50"

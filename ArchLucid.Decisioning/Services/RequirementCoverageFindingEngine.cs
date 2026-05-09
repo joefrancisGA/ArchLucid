@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -46,6 +47,11 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
                     DecisionsTaken =
                     [
                         "Detected requirement nodes without RELATES_TO edges to topology resources."
+                    ],
+                    AlternativePathsConsidered =
+                    [
+                        "Connect uncovered requirements to TopologyResource nodes via RELATES_TO edges.",
+                        "Defer or descope requirements that are not in this architecture iteration."
                     ],
                     Notes =
                     [
