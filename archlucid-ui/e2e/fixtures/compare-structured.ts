@@ -20,7 +20,7 @@ export function fixtureGoldenManifestComparison(): GoldenManifestComparison {
     topologyChanges: [],
     costChanges: [{ baseCost: 100, targetCost: 120 }],
     summaryHighlights: [
-      "Cost increased from 100 to 120 with higher isolation in the target run.",
+      "Fixture highlight alpha — cost increased from 100 to 120 with higher isolation in the target run.",
       "One decision updated between base and target manifests.",
     ],
     totalDeltaCount: 2,
