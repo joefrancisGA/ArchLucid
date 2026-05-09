@@ -51,6 +51,8 @@ Rules live in **`ArchLucid.Host.Core`** → **`AgentExecutionRules`** (called fr
 - Invalid **`AgentExecution:CompletionClient`** (other than **`Echo`**, **`AzureOpenAi`**, or omitted) fails startup with a dedicated message.
 - **`AzureOpenAI:MaxCompletionTokens`** out of range fails startup (see above).
 
+On **Production** or **Staging** hosts (or **`ARCHLUCID_ENVIRONMENT`** Production/Staging), **`RealModeDeploymentFingerprintRules`** also rejects **`AzureOpenAI:DeploymentName`** that is blank or matches **`AgentExecutionTraceModelMetadata`** sentinels (**`unspecified-deployment`**, **`AgentExecution:Simulator`**, or names starting with **`fallback:`**). See **`docs/library/AGENT_TRACE_FORENSICS.md`**.
+
 If any rule fails, **API** and **Worker** hosts **fail fast** after building the app: they log one **Error** line per problem, then throw **`InvalidOperationException`** with message **`ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.`** (`ArchLucid.Api` / `ArchLucid.Worker` **`Program.cs`**).
 
 When validation **passes** and you are in **Real** mode with Azure keys configured (and not **`Echo`**), the host logs a single **Information** line: **`AgentExecution:Mode is Real and Azure OpenAI settings (Endpoint, ApiKey, DeploymentName) are configured.`** — use it as a positive smoke check in container logs.

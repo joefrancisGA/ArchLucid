@@ -32,6 +32,10 @@ The SQL columns **`ModelDeploymentName`** and **`ModelVersion`** are **nullable*
 
 Constants live in **`ArchLucid.Contracts.Agents.AgentExecutionTraceModelMetadata`**. Forensics queries should filter on real names (exclude these sentinels) when building “model mix” dashboards.
 
+### Host startup (Production / Staging, Real mode)
+
+When **`AgentExecution:Mode=Real`** (and **`AgentExecution:CompletionClient`** is not **`Echo`**) on a **Production** or **Staging** host (including **`ARCHLUCID_ENVIRONMENT`** overrides per **`HostEnvironmentClassification`**), startup validation **`RealModeDeploymentFingerprintRules`** fails fast if **`AzureOpenAI:DeploymentName`** is blank or matches execution-trace sentinel strings (**`unspecified-deployment`**, **`AgentExecution:Simulator`**) or starts with **`fallback:`** (reserved for fallback client metadata in traces). Operators should set the real Azure OpenAI deployment name so persisted **`ModelDeploymentName`** remains meaningful. Implementation: **`ArchLucid.Host.Core`** → **`Startup/Validation/Rules/RealModeDeploymentFingerprintRules.cs`** (invoked from **`ArchLucidConfigurationRules.CollectErrors`**).
+
 ## Retrieving content for a trace
 
 1. Load the trace row (API internal path or SQL **`AgentExecutionTraces`**).

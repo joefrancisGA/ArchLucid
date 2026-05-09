@@ -33,6 +33,7 @@ public static class ArchLucidConfigurationRules
         AuthenticationRules.CollectApiKeyWhenEnabled(configuration, errors);
         AuthenticationRules.CollectJwtBearerLocalSigningKey(configuration, errors);
         AgentExecutionRules.Collect(configuration, errors);
+        RealModeDeploymentFingerprintRules.Collect(configuration, environment, errors);
         LlmCompletionCacheRules.Collect(configuration, errors);
         SchemaValidationRules.Collect(configuration, errors);
         ContextIngestionRules.Collect(configuration, errors);

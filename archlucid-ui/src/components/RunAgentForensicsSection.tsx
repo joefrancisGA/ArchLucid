@@ -1,5 +1,7 @@
+import { AgentEvidenceFaithfulnessBadge } from "@/components/AgentEvidenceFaithfulnessBadge";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER } from "@/lib/agent-evidence-faithfulness-presenter";
 import { getRunAgentEvaluation, getRunTraces } from "@/lib/api";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -65,6 +67,75 @@ function notesPreview(full: string | null | undefined): { text: string; title?: 
   return { text: `${s.slice(0, notesPreviewMax)}…`, title: s };
 }
 
+function averageEvidenceGroundingRatio(scores: AgentOutputEvaluationScoreRow[] | undefined): number | null {
+  const nums: number[] = [];
+  for (const row of scores ?? []) {
+    const raw = row.semantic?.agentResultFaithfulnessSupportRatio;
+
+
+    if (raw === null || raw === undefined)
+      continue;
+
+    const n = typeof raw === "number" ? raw : Number(raw);
+
+
+    if (!Number.isFinite(n))
+      continue;
+
+    nums.push(n);
+  }
+
+
+  if (nums.length === 0)
+    return null;
+
+  return nums.reduce((acc, v) => acc + v, 0) / nums.length;
+}
+
+function EvaluationSummaryFooter(props: {
+  evaluationPayload: AgentOutputEvaluationSummaryPayload;
+  semanticOverallTooltip: string;
+}) {
+  const { evaluationPayload, semanticOverallTooltip } = props;
+  const avgGrounding = averageEvidenceGroundingRatio(evaluationPayload.scores);
+
+  return (
+    <p className="mt-3 text-[13px] text-neutral-500 dark:text-neutral-400">
+      Evaluated at {formatInstantForLocale(evaluationPayload.evaluatedAtUtc)} · skipped traces:{" "}
+      {evaluationPayload.tracesSkippedCount}
+      {evaluationPayload.averageStructuralCompletenessRatio !== null &&
+      evaluationPayload.averageStructuralCompletenessRatio !== undefined
+        ? ` · avg structural: ${evaluationPayload.averageStructuralCompletenessRatio.toFixed(2)}`
+        : ""}
+      {evaluationPayload.averageSemanticScore !== null &&
+      evaluationPayload.averageSemanticScore !== undefined ? (
+        <>
+          {" "}
+          ·{" "}
+          <span
+            className="cursor-help underline decoration-dotted decoration-neutral-400"
+            title={semanticOverallTooltip}
+          >
+            avg semantic: {evaluationPayload.averageSemanticScore.toFixed(2)}
+          </span>
+        </>
+      ) : null}
+      {avgGrounding !== null ? (
+        <>
+          {" "}
+          ·{" "}
+          <span
+            className="cursor-help underline decoration-dotted decoration-neutral-400"
+            title={EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER}
+          >
+            avg evidence grounding: {avgGrounding.toFixed(2)}
+          </span>
+        </>
+      ) : null}
+    </p>
+  );
+}
+
 /** Server fragment: architecture-run LLM traces, blob-upload warnings, and on-demand structural evaluation scores. */
 export async function RunAgentForensicsSection(props: { runId: string }) {
   const { runId } = props;
@@ -97,7 +168,8 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
         backend histogram <code className="text-xs">archlucid_agent_output_semantic_score</code> are{" "}
         <strong className="font-medium text-neutral-600 dark:text-neutral-300">heuristic completeness signals</strong> (and an
         optional LLM rubric when enabled) — not embedding similarity and not proof that recommendations are factually correct.
-        Requires architecture API access; empty results are normal when tracing is disabled or the run has no agent steps yet.
+        The <strong className="font-medium text-neutral-600 dark:text-neutral-300">Evidence grounding</strong> column is a
+        separate deterministic signal (token and evidence-reference overlap vs the bundle). Requires architecture API access; empty results are normal when tracing is disabled or the run has no agent steps yet.
       </p>
 
       {blobPersistFailed ? (
@@ -164,6 +236,9 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                 <th className="px-1.5 py-2" title={llmRubricColumnTooltip}>
                   LLM rubric
                 </th>
+                <th className="px-1.5 py-2 min-w-[8.5rem]" title={EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER}>
+                  Evidence grounding
+                </th>
                 <th className="px-1.5 py-2 min-w-[11rem]">Judge notes</th>
               </tr>
             </thead>
@@ -214,6 +289,13 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                               : null,
                           )}
                     </td>
+                    <td className="px-1.5 py-2 align-middle">
+                      {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? (
+                        "—"
+                      ) : (
+                        <AgentEvidenceFaithfulnessBadge ratio={sem.agentResultFaithfulnessSupportRatio} />
+                      )}
+                    </td>
                     <td
                       className="max-w-[14rem] truncate px-1.5 py-2 text-xs text-neutral-600 dark:text-neutral-400"
                       title={rawNotes.title ?? (rawNotes.text === "—" ? undefined : rawNotes.text)}
@@ -229,26 +311,10 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
       ) : null}
 
       {evaluationPayload && !evaluationFailure ? (
-        <p className="mt-3 text-[13px] text-neutral-500 dark:text-neutral-400">
-          Evaluated at {formatInstantForLocale(evaluationPayload.evaluatedAtUtc)} · skipped traces:{" "}
-          {evaluationPayload.tracesSkippedCount}
-          {evaluationPayload.averageStructuralCompletenessRatio !== null &&
-          evaluationPayload.averageStructuralCompletenessRatio !== undefined
-            ? ` · avg structural: ${evaluationPayload.averageStructuralCompletenessRatio.toFixed(2)}`
-            : ""}
-          {evaluationPayload.averageSemanticScore !== null &&
-          evaluationPayload.averageSemanticScore !== undefined ? (
-            <>
-              {" "}
-              ·{" "}
-              <span className="cursor-help underline decoration-dotted decoration-neutral-400" title={semanticOverallTooltip}>
-                avg semantic: {evaluationPayload.averageSemanticScore.toFixed(2)}
-              </span>
-            </>
-          ) : (
-            ""
-          )}
-        </p>
+        <EvaluationSummaryFooter
+          evaluationPayload={evaluationPayload}
+          semanticOverallTooltip={semanticOverallTooltip}
+        />
       ) : null}
       </CollapsibleSection>
     </section>

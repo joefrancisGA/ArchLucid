@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.ExecDigest;
+using ArchLucid.Application.Rendering;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
@@ -9,12 +10,9 @@ using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Options;
 
-using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-
-using QuestPdfDocument = QuestPDF.Fluent.Document;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -64,8 +62,8 @@ public sealed class BoardPackPdfBuilder(
         combined.AppendLine();
         combined.Append(valueMd);
         string markdown = combined.ToString();
-        Settings.License = LicenseType.Community;
-        QuestPdfDocument doc = QuestPdfDocument.Create(container =>
+
+        return QuestPdfDocumentBytes.Generate(container =>
         {
             container.Page(page =>
             {
@@ -81,8 +79,5 @@ public sealed class BoardPackPdfBuilder(
                 });
             });
         });
-        using MemoryStream stream = new();
-        doc.GeneratePdf(stream);
-        return stream.ToArray();
     }
 }
