@@ -227,27 +227,23 @@ public sealed class ManifestFinalizationService(
         header.DecisionTraceId = audit.DecisionTraceId;
         header.CompletedUtc ??= TimeProvider.System.GetUtcNow().UtcDateTime;
         await runRepository.UpdateAsync(header, cancellationToken);
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ManifestFinalized,
-                ActorUserId = request.ActorUserId,
-                ActorUserName = request.ActorUserName,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = request.RunId,
-                ManifestId = persisted.ManifestId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        manifestVersion = request.Contract.Metadata.ManifestVersion,
-                        findingsSnapshotId = request.ExpectedFindingsSnapshotId,
-                        artifactBundleId = request.ExpectedArtifactBundleId,
-                        decisionTraceId = audit.DecisionTraceId
-                    }, IntegrationEventJson.Options),
-                CorrelationId = request.CorrelationId
-            }, cancellationToken);
+        AuditEvent finalized = scope.CreateAuditEvent(
+            AuditEventTypes.ManifestFinalized,
+            request.ActorUserId,
+            request.ActorUserName,
+            JsonSerializer.Serialize(
+                new
+                {
+                    manifestVersion = request.Contract.Metadata.ManifestVersion,
+                    findingsSnapshotId = request.ExpectedFindingsSnapshotId,
+                    artifactBundleId = request.ExpectedArtifactBundleId,
+                    decisionTraceId = audit.DecisionTraceId
+                }, IntegrationEventJson.Options));
+        finalized.RunId = request.RunId;
+        finalized.ManifestId = persisted.ManifestId;
+        finalized.CorrelationId = request.CorrelationId;
+
+        await auditService.LogAsync(finalized, cancellationToken);
         object outboxPayload = new
         {
             schemaVersion = 1,

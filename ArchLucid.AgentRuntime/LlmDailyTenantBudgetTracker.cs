@@ -139,16 +139,11 @@ public sealed class LlmDailyTenantBudgetTracker(
                     maxTotal
                 });
 
-            AuditEvent auditEvent = new()
-            {
-                EventType = AuditEventTypes.LlmTenantDailyBudgetApproaching,
-                ActorUserId = "llm-daily-budget",
-                ActorUserName = "llm-daily-budget",
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = dataJson
-            };
+            AuditEvent auditEvent = scope.CreateAuditEvent(
+                AuditEventTypes.LlmTenantDailyBudgetApproaching,
+                "llm-daily-budget",
+                "llm-daily-budget",
+                dataJson);
 
             _ = auditService.LogAsync(auditEvent, CancellationToken.None).ContinueWith(
                 static t => _ = t.Exception,

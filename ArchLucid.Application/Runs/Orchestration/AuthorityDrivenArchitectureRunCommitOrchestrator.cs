@@ -136,7 +136,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, "Run not found.", cancellationToken);
                 throw;
             }
-            catch (Exception ex)when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
+            catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
             {
                 CommitRunResult? reconciled = await TryReconcileAfterConcurrentCommitAsync(runId, cancellationToken);
                 if (reconciled is not null)
@@ -150,7 +150,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                         $"Commit for run '{runId}' raced with another commit. The manifest could not be loaded yet; retry the request.");
                 await Task.Delay(TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt), cancellationToken);
             }
-            catch (Exception ex)when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)
+            catch (Exception ex) when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
                     _logger.LogWarning(ex, "CommitRunAsync (authority) transient database error (attempt {Attempt}/{Max}) for RunId={RunId}; retrying.",
@@ -244,7 +244,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             string contractWireJson = JsonSerializer.Serialize(contract, ContractJson.Default);
             await EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, contractWireJson, cancellationToken);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, ex.GetType().Name, cancellationToken);
             throw;
@@ -278,12 +278,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                         idempotentReplay = await TryReturnAuthorityCommittedIdempotentAsync(runReloaded, runId, cancellationToken);
                 }
 
-                if (idempotentReplay is null)
-                    throw new ConflictException($"Run '{runId}' was finalized idempotently but the committed manifest could not be reloaded.");
-                return idempotentReplay;
+                return idempotentReplay ?? throw new ConflictException($"Run '{runId}' was finalized idempotently but the committed manifest could not be reloaded.");
             }
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, $"Persist failed: {ex.GetType().Name}",
                 cancellationToken);
@@ -305,20 +303,23 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         {
             int remainingActiveRuns = await _runRepository.CountActiveRunsForArchitectureRequestAsync(commitScope, run.RequestId, cancellationToken);
             if (remainingActiveRuns == 0)
-                await _auditService.LogAsync(
-                    new AuditEvent
-                    {
-                        EventType = AuditEventTypes.RequestReleased,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = commitScope.TenantId,
-                        WorkspaceId = commitScope.WorkspaceId,
-                        ProjectId = commitScope.ProjectId,
-                        RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(
-                            new { architectureRequestId = run.RequestId, remainingActiveRunsAfterCommit = remainingActiveRuns, trigger = "commit" },
-                            AuditJsonSerializationOptions.Instance)
-                    }, cancellationToken);
+            {
+                AuditEvent requestReleased = commitScope.CreateAuditEvent(
+                    AuditEventTypes.RequestReleased,
+                    actor,
+                    actor,
+                    JsonSerializer.Serialize(
+                        new
+                        {
+                            architectureRequestId = run.RequestId,
+                            remainingActiveRunsAfterCommit = remainingActiveRuns,
+                            trigger = "commit"
+                        },
+                        AuditJsonSerializationOptions.Instance));
+                requestReleased.RunId = runGuid;
+
+                await _auditService.LogAsync(requestReleased, cancellationToken);
+            }
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -331,12 +332,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 telemetryCommitUtc, persisted);
             await TryInsertRunTelemetryAsync(runGuid, telemetry, cancellationToken);
         }
-        catch (Exception ex)when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarningWithSanitizedUserArg(ex, "Failed to insert RunTelemetry for RunId={RunId}", runId);
         }
 
-        return new CommitRunResult { Manifest = contract, DecisionTraces = [trace], Warnings = persisted.Warnings.Count == 0 ? [] : [..persisted.Warnings] };
+        return new CommitRunResult { Manifest = contract, DecisionTraces = [trace], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
     }
 
     private static SaveContractsManifestOptions BuildSaveContractsManifestOptions(Dm.ManifestDocument manifestModel, DecisionTrace trace)
@@ -391,7 +392,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         await EnsureDecisionEngineV2NodesMaterializedAsync(runId, request, cancellationToken);
         return new CommitRunResult
         {
-            Manifest = contract, DecisionTraces = [trace], Warnings = manifestModel.Warnings.Count == 0 ? [] : [..manifestModel.Warnings]
+            Manifest = contract,
+            DecisionTraces = [trace],
+            Warnings = manifestModel.Warnings.Count == 0 ? [] : [.. manifestModel.Warnings]
         };
     }
 
@@ -515,18 +518,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             policyPackId = gateResult.PolicyPackId,
             minimumBlockingSeverity = gateResult.MinimumBlockingSeverity?.ToString()
         });
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernancePreCommitBlocked,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runGuid,
-                DataJson = dataJson
-            }, cancellationToken);
+        AuditEvent preCommitBlocked = scope.CreateAuditEvent(
+            AuditEventTypes.GovernancePreCommitBlocked,
+            actor,
+            actor,
+            dataJson);
+        preCommitBlocked.RunId = runGuid;
+
+        await _auditService.LogAsync(preCommitBlocked, cancellationToken);
         throw new PreCommitGovernanceBlockedException(gateResult);
     }
 
@@ -542,18 +541,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             policyPackId = gateResult.PolicyPackId,
             minimumBlockingSeverity = gateResult.MinimumBlockingSeverity?.ToString()
         });
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GovernancePreCommitWarned,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runGuid,
-                DataJson = dataJson
-            }, cancellationToken);
+        AuditEvent preCommitWarned = scope.CreateAuditEvent(
+            AuditEventTypes.GovernancePreCommitWarned,
+            actor,
+            actor,
+            dataJson);
+        preCommitWarned.RunId = runGuid;
+
+        await _auditService.LogAsync(preCommitWarned, cancellationToken);
         if (_logger.IsEnabled(LogLevel.Warning))
             _logger.LogWarning("Pre-commit governance gate warned (not blocked) — authority path: RunId={RunId}, Reason={Reason}", LogSanitizer.Sanitize(runId),
                 LogSanitizer.Sanitize(gateResult.Reason ?? string.Empty));

@@ -289,12 +289,11 @@ public static class SanitizedLoggerWarningExtensions
 
         string safeEventType = LogSanitizer.Sanitize(eventType);
 
-        // codeql[cs/log-forging]: integration event type string sanitized immediately above.
-        // codeql[cs/exposure-of-sensitive-information]: canonical event-type urn taxonomy only; sanitized; not credentials or subscriber PII (docs/library/CODEQL_TRIAGE.md).
+        // codeql[cs/log-forging]: event type sanitized immediately above; exception + params boxing breaks barrier at downstream call sites.
         logger.LogWarning(
             ex,
             "Failed to publish integration event type {EventType} to Service Bus.",
-            safeEventType);
+            safeEventType); // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN taxonomy only; operational keys, not credentials or PII (docs/library/CODEQL_TRIAGE.md).
     }
 
     /// <summary>
@@ -314,12 +313,11 @@ public static class SanitizedLoggerWarningExtensions
 
         string safeEventType = LogSanitizer.Sanitize(eventType);
 
-        // codeql[cs/log-forging]: integration event type string sanitized immediately above.
-        // codeql[cs/exposure-of-sensitive-information]: canonical event-type urn taxonomy only; sanitized; not credentials or subscriber PII (docs/library/CODEQL_TRIAGE.md).
+        // codeql[cs/log-forging]: event type sanitized immediately above; exception + params boxing breaks barrier at downstream call sites.
         logger.LogWarning(
             ex,
             "Integration event serialization failed for {EventType}",
-            safeEventType);
+            safeEventType); // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN taxonomy only; operational keys, not credentials or PII (docs/library/CODEQL_TRIAGE.md).
     }
 
     /// <summary>
@@ -335,12 +333,11 @@ public static class SanitizedLoggerWarningExtensions
 
         string safeEventType = LogSanitizer.Sanitize(eventType);
 
-        // codeql[cs/log-forging]: integration event type string sanitized immediately above.
-        // codeql[cs/exposure-of-sensitive-information]: canonical event-type urn taxonomy only; sanitized; not credentials or subscriber PII (docs/library/CODEQL_TRIAGE.md).
+        // codeql[cs/log-forging]: event type sanitized immediately above; exception + params boxing breaks barrier at downstream call sites.
         logger.LogWarning(
             ex,
             "Integration event outbox enqueue failed for {EventType}",
-            safeEventType);
+            safeEventType); // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN taxonomy only; operational keys, not credentials or PII (docs/library/CODEQL_TRIAGE.md).
     }
 
     /// <summary>
@@ -356,11 +353,10 @@ public static class SanitizedLoggerWarningExtensions
 
         string safeEventType = LogSanitizer.Sanitize(eventType);
 
-        // codeql[cs/log-forging]: integration event type string sanitized immediately above.
-        // codeql[cs/exposure-of-sensitive-information]: canonical event-type urn taxonomy only; sanitized; not credentials or subscriber PII (docs/library/CODEQL_TRIAGE.md).
+        // codeql[cs/log-forging]: event type sanitized immediately above; exception + params boxing breaks barrier at downstream call sites.
         logger.LogWarning(
             ex,
             "Integration event publish failed for {EventType}",
-            safeEventType);
+            safeEventType); // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN taxonomy only; operational keys, not credentials or PII (docs/library/CODEQL_TRIAGE.md).
     }
 }

@@ -58,7 +58,7 @@ export function PostCommitAdvancedAnalysisHint({
         {buyerPolishedShell ? (
           <>
             If sponsors already have the exported package from <strong>Deliverables & exports</strong>, use this section
-            only for technical diffs, chain replay, or graph inspection. {sidebarHint}
+            only for technical diffs, graph inspection, or asking about this review. {sidebarHint}
           </>
         ) : (
           <>
@@ -96,11 +96,6 @@ export function PostCommitAdvancedAnalysisHint({
             href={`/compare?leftRunId=${encoded}&rightRunId=`}
           >
             Compare
-          </Link>
-        </li>
-        <li>
-          <Link className="text-teal-800 underline dark:text-teal-300" href={`/replay?runId=${encoded}`}>
-            Replay
           </Link>
         </li>
         <li>

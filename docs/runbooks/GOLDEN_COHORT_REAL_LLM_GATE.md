@@ -152,3 +152,25 @@ Real models can paraphrase text while still being â€œcorrectâ€ for prod
 | [`infra/modules/golden-cohort-cost-dashboard/`](../../infra/modules/golden-cohort-cost-dashboard/README.md) | Terraform module for the Workbook |
 | [`.github/workflows/golden-cohort-nightly.yml`](../../.github/workflows/golden-cohort-nightly.yml) | Nightly workflow with the gated job |
 | [`docs/runbooks/GOLDEN_COHORT_BUDGET.md`](./GOLDEN_COHORT_BUDGET.md) | Budget config / Cost Management mechanics |
+
+---
+
+## 10. Release cohort green bar (product planning)
+
+**Audience:** Release owners, pilot leads, and operators aligning **manual real-LLM sessions**, golden cohort automation, and buyer-facing evidence.
+
+**Adopted:** 2026-05-09 — planning baseline. These tiers are **not** merge-blocking CI numeric gates unless you separately wire automation to enforce them; pair with [`GOLDEN_COHORT_BUDGET.md`](./GOLDEN_COHORT_BUDGET.md) and [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md).
+
+**Canonical model:** **`gpt-4o`**. Set **`AzureOpenAI:DeploymentName`** (and secrets) to match the **deployment name** in Azure AI Foundry / Cognitive Services (often also **`gpt-4o`**).
+
+On the committed **release cohort** scenario set, use these targets:
+
+| Layer | Target | Notes |
+|-------|--------|--------|
+| **Structural** (AgentResult envelope / schema-valid per repo gates) | **100%** | Any miss treats the cohort as failed — regression or prompt/wiring defect. Aligns with §7 structural philosophy (shape must hold even when content paraphrases). |
+| **Quality gate** (`outcome="rejected"`) | **0%** on canonical cohort | Any rejected scenario fails the cohort for release narrative purposes. |
+| **Semantic score** (`archlucid_agent_output_semantic_score`) | **p10 ≥ 0.50**, **p50 ≥ 0.70** | Investigation thresholds consistent with histogram-based alerting in [`OBSERVABILITY.md`](../library/OBSERVABILITY.md); if missed, investigate — tighten thresholds after **two** baseline distributions exist. |
+| **Explainability trace completeness** (mean across cohort findings) | **≥ 0.80** | Metric family `archlucid_explainability_trace_completeness_ratio` / cohort rollup — low mean ⇒ thin justification vs auditors. |
+| **Adversarial scenarios** (when added to the corpus) | **Qualitative pass** | Human review for first **two** baseline runs; defer numeric floors until distributions stabilize. |
+
+**Related:** [`MANUAL_QA_CHECKLIST.md`](../quality/MANUAL_QA_CHECKLIST.md) §8.3–8.4, [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md), [`OBSERVABILITY.md`](../library/OBSERVABILITY.md).

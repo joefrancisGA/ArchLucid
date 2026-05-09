@@ -52,17 +52,12 @@ internal static class AgentResultSchemaViolationAudit
                 },
                 JsonOptions);
 
-            AuditEvent auditEvent = new()
-            {
-                EventType = AuditEventTypes.AgentResultSchemaViolation,
-                ActorUserId = "agent-runtime",
-                ActorUserName = "agent-runtime",
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runGuid,
-                DataJson = dataJson
-            };
+            AuditEvent auditEvent = scope.CreateAuditEvent(
+                AuditEventTypes.AgentResultSchemaViolation,
+                "agent-runtime",
+                "agent-runtime",
+                dataJson);
+            auditEvent.RunId = runGuid;
 
             _ = auditService.LogAsync(auditEvent, CancellationToken.None).ContinueWith(
                 static t => _ = t.Exception,

@@ -303,14 +303,14 @@ export default async function RunDetailPage({
 
   const resolvedDetail = envelope.value;
 
-  let atLeastTwoReviewsInProject = true;
+  let canShowCompareReviewButton = false;
 
   try {
     const projectRuns = await listRunsByProject(resolvedDetail.run.projectId, 2);
 
-    atLeastTwoReviewsInProject = projectRuns.length >= 2;
+    canShowCompareReviewButton = projectRuns.length >= 2;
   } catch {
-    atLeastTwoReviewsInProject = true;
+    canShowCompareReviewButton = false;
   }
 
   const buyerPolishedArtifactTable = isBuyerPolishedOperatorShellEnv();
@@ -920,7 +920,7 @@ export default async function RunDetailPage({
       )}
 
       {manifestId ? (
-        <PostCommitRetentionRail runId={runId} showCompareCta={atLeastTwoReviewsInProject} />
+        <PostCommitRetentionRail runId={runId} showCompareCta={canShowCompareReviewButton} />
       ) : null}
 
       {manifestId && (
@@ -935,7 +935,7 @@ export default async function RunDetailPage({
             >
               {buyerPolishedArtifactTable ? (
                 <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
-                  Start here for packages and downloads sponsors typically receive. Technical diff and replay live under{" "}
+                  Start here for packages and downloads sponsors typically receive. Technical diff and graph inspection live under{" "}
                   <strong>Technical analysis</strong> below.
                 </p>
               ) : null}
@@ -1032,7 +1032,7 @@ export default async function RunDetailPage({
                           Download audit package (ZIP)
                         </FunnelTelemetryExportAnchor>
                       </Button>
-                      {atLeastTwoReviewsInProject ? (
+                      {canShowCompareReviewButton ? (
                         <Button variant="outline" size="sm" asChild>
                           <Link
                             href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
@@ -1105,7 +1105,7 @@ export default async function RunDetailPage({
               ) : (
                 <>
                   Exports and sponsor-facing bundles sit in <strong>Deliverables & exports</strong> above. Use this card
-                  for scorecard generation, traceability ZIP, and optional compare/replay shortcuts.
+                  for scorecard generation, traceability ZIP, and optional compare shortcuts.
                 </>
               )}
             </CardDescription>
@@ -1127,9 +1127,6 @@ export default async function RunDetailPage({
                   <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
                     Compare two reviews (baseline = this review)
                   </Link>
-                </Button>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this review</Link>
                 </Button>
                 {manifestId ? (
                   <Button variant="outline" size="sm" asChild>
@@ -1153,12 +1150,30 @@ export default async function RunDetailPage({
         </Card>
       </section>
 
+      <div className="flex items-center gap-3 pt-2">
+        <hr className="flex-1 border-neutral-200 dark:border-neutral-700" />
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+          Technical reference
+        </span>
+        <hr className="flex-1 border-neutral-200 dark:border-neutral-700" />
+      </div>
+
       <RunDetailTechnicalIdentifiersSection
         runId={resolvedDetail.run.runId}
         projectId={resolvedDetail.run.projectId}
         createdLabel={createdLabel}
         buyerPolishedShell={buyerPolishedArtifactTable}
       />
+
+      {!buyerPolishedArtifactTable ? (
+        <CollapsibleSection title="Pipeline tools (operator)" defaultOpen={false}>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this review</Link>
+            </Button>
+          </div>
+        </CollapsibleSection>
+      ) : null}
     </main>
   );
 }

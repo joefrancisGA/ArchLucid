@@ -27,6 +27,10 @@
 - [ ] Opened at least one execution trace; model addressed the request shape.
 - [ ] Compared to simulator on a similar brief if feasible (optional).
 
+## Green cohort bar (release planning)
+
+**Canonical model:** **`gpt-4o`**. Tiered targets for a committed **release cohort** (structural 100%, quality-gate rejects 0%, semantic p10/p50 floors, explainability completeness mean, adversarial qualitative until baselined) live in [`GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) §10. When filing this template after a cohort slice, add **cohort-level** metric summaries if your environment exposes them (UI, diagnostics, Grafana).
+
 ## Links
 
 - Golden cohort gate: [GOLDEN_COHORT_REAL_LLM_GATE.md](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md)

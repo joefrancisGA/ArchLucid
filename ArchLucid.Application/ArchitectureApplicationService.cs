@@ -283,17 +283,13 @@ public sealed class ArchitectureApplicationService(
         await runRepository.UpdateAsync(header, cancellationToken);
         ArchLucidInstrumentation.RecordTryRealModePilotFellBackToSimulator();
         string actor = actorContext.GetActor();
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.FirstRealValueRunFellBackToSimulator,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runGuid
-            }, cancellationToken);
+        AuditEvent fellBack = scope.CreateAuditEvent(
+            AuditEventTypes.FirstRealValueRunFellBackToSimulator,
+            actor,
+            actor);
+        fellBack.RunId = runGuid;
+
+        await auditService.LogAsync(fellBack, cancellationToken);
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)

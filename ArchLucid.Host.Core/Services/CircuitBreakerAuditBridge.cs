@@ -101,21 +101,18 @@ public sealed class CircuitBreakerAuditBridge(
             _ => "CircuitBreakerUnknown",
         };
 
-        return new AuditEvent
-        {
-            EventType = eventType,
-            ActorUserId = "system",
-            ActorUserName = "CircuitBreakerGate",
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            OccurredUtc = entry.OccurredUtc.UtcDateTime,
-            DataJson = JsonSerializer.Serialize(
+        AuditEvent audit = scope.CreateAuditEvent(
+            eventType,
+            "system",
+            "CircuitBreakerGate",
+            JsonSerializer.Serialize(
                 new
                 {
                     gate = entry.GateName, fromState = entry.FromState, toState = entry.ToState, probeOutcome = entry.ProbeOutcome,
-                }),
-            CorrelationId = correlationCapture,
-        };
+                }));
+        audit.OccurredUtc = entry.OccurredUtc.UtcDateTime;
+        audit.CorrelationId = correlationCapture;
+
+        return audit;
     }
 }
