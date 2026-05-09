@@ -1,7 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Findings;
-using ArchLucid.Core;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;

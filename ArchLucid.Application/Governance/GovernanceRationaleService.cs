@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Core;
 
 namespace ArchLucid.Application.Governance;
 

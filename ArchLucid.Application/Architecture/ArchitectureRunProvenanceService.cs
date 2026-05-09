@@ -8,7 +8,6 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Core;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Architecture;

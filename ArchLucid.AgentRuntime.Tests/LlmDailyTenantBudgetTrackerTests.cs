@@ -1,9 +1,11 @@
+using System.Globalization;
+
 using ArchLucid.Core;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Data.Repositories.LlmDailyTenantTokenWindow;
 
 using FluentAssertions;
 
@@ -28,7 +30,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         Mock<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(opts);
 
-        InMemoryLlmDailyTenantTokenWindowStateRepository repo = new();
+        InMemoryLlmTenantBudgetRepository repo = new();
         LlmDailyTenantBudgetTracker tracker = new(monitor.Object, repo);
         Guid tenant = Guid.NewGuid();
 
@@ -55,7 +57,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         Mock<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(opts);
 
-        LlmDailyTenantBudgetTracker tracker = new(monitor.Object, new InMemoryLlmDailyTenantTokenWindowStateRepository());
+        LlmDailyTenantBudgetTracker tracker = new(monitor.Object, new InMemoryLlmTenantBudgetRepository());
         Guid tenant = Guid.NewGuid();
 
         await tracker.RecordUsageAndMaybeWarnAsync(
@@ -84,7 +86,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         Mock<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(opts);
 
-        LlmDailyTenantBudgetTracker tracker = new(monitor.Object, new InMemoryLlmDailyTenantTokenWindowStateRepository());
+        LlmDailyTenantBudgetTracker tracker = new(monitor.Object, new InMemoryLlmTenantBudgetRepository());
         Guid tenant = Guid.NewGuid();
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
@@ -146,7 +148,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         Mock<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(opts);
 
-        InMemoryLlmDailyTenantTokenWindowStateRepository repo = new();
+        InMemoryLlmTenantBudgetRepository repo = new();
         LlmDailyTenantBudgetTracker tracker = new(monitor.Object, repo);
         Guid tenant = Guid.NewGuid();
         IScopeContextProvider scope = CreateScopeProvider(tenant);
@@ -162,10 +164,11 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         await Task.WhenAll(tasks);
 
         DateOnly day = TimeProvider.System.UtcToday();
-        LlmDailyTenantTokenWindowStateReadModel row =
-            await repo.GetOrCreateAsync(tenant, day, CancellationToken.None);
+        string periodKey = day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        LlmTenantBudgetStateReadModel row =
+            await repo.GetOrCreateAsync(tenant, LlmBudgetPeriod.Daily, periodKey, CancellationToken.None);
 
-        row.TotalTokens.Should().Be(64L);
+        row.TokensConsumed.Should().Be(64L);
     }
 
     private static IScopeContextProvider CreateScopeProvider(Guid tenantId)

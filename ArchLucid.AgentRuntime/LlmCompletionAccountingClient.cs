@@ -159,9 +159,21 @@ public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
         }
         finally
         {
-            if (AzureOpenAiCompletionClient.TryConsumeLastCompletionTokenUsage(out int promptTok,
-                    out int completionTok,
-                    out int reasoningTok))
+            bool consumed = AzureOpenAiCompletionClient.TryConsumeLastCompletionTokenUsage(out int promptTok,
+                out int completionTok,
+                out int reasoningTok);
+
+            if (!consumed)
+            {
+                await _dailyTenantBudgetTracker
+                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, CancellationToken.None)
+                    .ConfigureAwait(false);
+
+                await _monthlyDollarBudgetTracker
+                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
+            else
             {
                 _ = reasoningTok;
 

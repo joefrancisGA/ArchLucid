@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core;
 using ArchLucid.Core.Resilience;
 
 using Polly.Timeout;

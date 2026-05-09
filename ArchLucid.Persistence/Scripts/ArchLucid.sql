@@ -6613,16 +6613,18 @@ IF OBJECT_ID(N'dbo.LlmMonthlyTenantBudgetState', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.LlmMonthlyTenantBudgetState
     (
-        TenantId          UNIQUEIDENTIFIER NOT NULL,
-        UtcYear           INT              NOT NULL,
-        UtcMonth          INT              NOT NULL,
-        SpentUsd          DECIMAL(18, 4)   NOT NULL
+        TenantId             UNIQUEIDENTIFIER NOT NULL,
+        UtcYear              INT              NOT NULL,
+        UtcMonth             INT              NOT NULL,
+        SpentUsd             DECIMAL(18, 4)   NOT NULL
             CONSTRAINT DF_LlmMonthlyTenantBudgetState_SpentUsd DEFAULT (0),
-        WarnedApproaching BIT              NOT NULL
+        ReservedAssumedUsd   DECIMAL(18, 4)   NOT NULL
+            CONSTRAINT DF_LlmMonthlyTenantBudgetState_ReservedAssumedUsd DEFAULT (0),
+        WarnedApproaching    BIT              NOT NULL
             CONSTRAINT DF_LlmMonthlyTenantBudgetState_Warned DEFAULT (0),
-        LastUpdatedUtc    DATETIME2(7)     NOT NULL
+        LastUpdatedUtc       DATETIME2(7)     NOT NULL
             CONSTRAINT DF_LlmMonthlyTenantBudgetState_Lku DEFAULT SYSUTCDATETIME(),
-        RowVersion        ROWVERSION       NOT NULL,
+        RowVersion           ROWVERSION       NOT NULL,
         CONSTRAINT PK_LlmMonthlyTenantBudgetState PRIMARY KEY CLUSTERED (TenantId, UtcYear, UtcMonth),
         CONSTRAINT CK_LlmMonthlyTenantBudgetState_Month CHECK (UtcMonth >= 1 AND UtcMonth <= 12),
         CONSTRAINT CK_LlmMonthlyTenantBudgetState_Year CHECK (UtcYear >= 2000 AND UtcYear <= 2100),
@@ -6640,15 +6642,17 @@ IF OBJECT_ID(N'dbo.LlmDailyTenantTokenWindowState', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.LlmDailyTenantTokenWindowState
     (
-        TenantId          UNIQUEIDENTIFIER NOT NULL,
-        UtcDay            DATE             NOT NULL,
-        TotalTokens       BIGINT           NOT NULL
+        TenantId               UNIQUEIDENTIFIER NOT NULL,
+        UtcDay                 DATE             NOT NULL,
+        TotalTokens            BIGINT           NOT NULL
             CONSTRAINT DF_LlmDailyTenantTokenWindowState_Tokens DEFAULT (0),
-        WarnedApproaching BIT              NOT NULL
+        ReservedAssumedTokens  BIGINT           NOT NULL
+            CONSTRAINT DF_LlmDailyTenantTokenWindowState_ReservedAssumedTokens DEFAULT (0),
+        WarnedApproaching      BIT              NOT NULL
             CONSTRAINT DF_LlmDailyTenantTokenWindowState_Warned DEFAULT (0),
-        LastUpdatedUtc    DATETIME2(7)     NOT NULL
+        LastUpdatedUtc         DATETIME2(7)     NOT NULL
             CONSTRAINT DF_LlmDailyTenantTokenWindowState_Lku DEFAULT SYSUTCDATETIME(),
-        RowVersion        ROWVERSION       NOT NULL,
+        RowVersion             ROWVERSION       NOT NULL,
         CONSTRAINT PK_LlmDailyTenantTokenWindowState PRIMARY KEY CLUSTERED (TenantId, UtcDay),
         CONSTRAINT CK_LlmDailyTenantTokenWindowState_TokensNonNegative CHECK (TotalTokens >= 0)
     );

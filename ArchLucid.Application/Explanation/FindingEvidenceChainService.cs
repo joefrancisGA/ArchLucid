@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Explanation;
-using ArchLucid.Core;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
