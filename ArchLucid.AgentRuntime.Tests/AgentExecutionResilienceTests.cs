@@ -7,6 +7,8 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 
+using ArchLucid.AgentRuntime.Tests.Support;
+
 using FluentAssertions;
 using FluentAssertions.Specialized;
 
@@ -49,7 +51,9 @@ public sealed class AgentExecutionResilienceTests
             new AgentHandlerConcurrencyGate(ro),
             ro,
             Options.Create(new StagedCriticAgentOptions()),
-            Options.Create(new AgentOutputQualityGateOptions()));
+            Options.Create(new AgentOutputQualityGateOptions()),
+            new NoOpPromptRedactor(),
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -81,7 +85,9 @@ public sealed class AgentExecutionResilienceTests
             new AgentHandlerConcurrencyGate(ro),
             ro,
             Options.Create(new StagedCriticAgentOptions()),
-            Options.Create(new AgentOutputQualityGateOptions()));
+            Options.Create(new AgentOutputQualityGateOptions()),
+            new NoOpPromptRedactor(),
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -111,7 +117,9 @@ public sealed class AgentExecutionResilienceTests
             new AgentHandlerConcurrencyGate(ro),
             ro,
             Options.Create(new StagedCriticAgentOptions()),
-            Options.Create(new AgentOutputQualityGateOptions()));
+            Options.Create(new AgentOutputQualityGateOptions()),
+            new NoOpPromptRedactor(),
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();

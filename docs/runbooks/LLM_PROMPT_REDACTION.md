@@ -5,7 +5,7 @@
 
 # LLM prompt deny-list redaction (P2)
 
-**Last reviewed:** 2026-04-20
+**Last reviewed:** 2026-05-08
 
 ## When to use this runbook
 
@@ -19,14 +19,15 @@
 |-----|--------|
 | **`LlmPromptRedaction:Enabled`** | When **true**, system and user prompt strings are passed through **`IPromptRedactor`** before **`LlmCompletionAccountingClient`** calls the model, and trace/blob persistence paths in **`AgentExecutionTraceRecorder`** use the same redactor for stored text. |
 | **`LlmPromptRedaction:ReplacementToken`** | String substituted for matches (default **`[REDACTED]`**). |
+| **`ArchLucid:Llm:RedactReasoningTrace`** | When **true**, **`RealAgentExecutor`** runs the merged **`AgentResult.ReasoningTrace`** through **`IPromptRedactor.RedactAlways`** after provider reasoning snippets are attached. Uses the same deny-list and **`LlmPromptRedaction:ReplacementToken`** as prompt text; does **not** require **`LlmPromptRedaction:Enabled`**, so traces can be scrubbed while outbound prompt redaction stays off for short diagnostics. |
 
-Defaults ship **`Enabled=true`** in [`ArchLucid.Api/appsettings.json`](../../ArchLucid.Api/appsettings.json) and [`ArchLucid.Api/appsettings.Production.json`](../../ArchLucid.Api/appsettings.Production.json).
+Defaults ship **`LlmPromptRedaction:Enabled=true`** in [`ArchLucid.Api/appsettings.json`](../../ArchLucid.Api/appsettings.json) and [`ArchLucid.Api/appsettings.Production.json`](../../ArchLucid.Api/appsettings.Production.json). Template **`ArchLucid.Api`** also sets **`ArchLucid:Llm:RedactReasoningTrace`** to **`true`** in **`appsettings.Production.json`** / **`appsettings.Staging.json`** and **`false`** in **`appsettings.Development.json`**.
 
 ## Observability
 
 | Metric | Meaning |
 |--------|--------|
-| **`archlucid_llm_prompt_redactions_total`** | Counter with label **`category`** (`email`, `ssn`, `credit_card`, `jwt`, `api_key`, …) — increments by match count on the **accounting client** path (avoids double-counting with trace-only redaction). |
+| **`archlucid_llm_prompt_redactions_total`** | Counter with label **`category`** (`email`, `ssn`, `credit_card`, `jwt`, `api_key`, …) — increments by match count on the **accounting client** path and when **`ArchLucid:Llm:RedactReasoningTrace`** applies **`RedactAlways`** to merged reasoning text (avoids double-counting redundant passes on the same stored prompt fields). |
 | **`archlucid_llm_prompt_redaction_skipped_total`** | Completions observed while redaction is **disabled**. |
 
 See [`docs/OBSERVABILITY.md`](../library/OBSERVABILITY.md) and [`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`](../../ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs).

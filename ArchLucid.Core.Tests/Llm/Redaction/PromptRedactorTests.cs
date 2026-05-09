@@ -42,6 +42,19 @@ public sealed class PromptRedactorTests
     }
 
     [Fact]
+    public void RedactAlways_applies_rules_when_prompt_redaction_disabled()
+    {
+        Mock<IOptionsMonitor<LlmPromptRedactionOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(new LlmPromptRedactionOptions { Enabled = false });
+        PromptRedactor sut = new(monitor.Object, NullLogger<PromptRedactor>.Instance);
+
+        PromptRedactionOutcome outcome = sut.RedactAlways("Contact ops@example.com today.");
+
+        outcome.Text.Should().Be("Contact [REDACTED] today.");
+        outcome.CountsByCategory.Should().ContainKey("email");
+    }
+
+    [Fact]
     public void Redact_null_returns_empty_without_throwing()
     {
         Mock<IOptionsMonitor<LlmPromptRedactionOptions>> monitor = new();
