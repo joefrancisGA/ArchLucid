@@ -2,6 +2,7 @@ import { CheckCircle2, Circle } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
+import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
 import type { PipelineTimelineItem } from "@/types/authority";
 
 type AuthorityPipelineTimelineProps = {
@@ -11,22 +12,6 @@ type AuthorityPipelineTimelineProps = {
   /** When true, omit per-event technical `<details>` (event id / raw type) — public marketing surfaces. */
   omitEventTechnicalDetails?: boolean;
 };
-
-function isTimelineMilestoneEvent(eventType: string): boolean {
-  const key = eventType.trim();
-  const milestones = new Set<string>([
-    "Commit",
-    "RunCompleted",
-    "finalize.run",
-    "run.finalized",
-    "manifest.committed",
-    "artifact.bundle.created",
-    "com.archlucid.authority.run.completed",
-    "com.archlucid.manifest.finalized.v1",
-  ]);
-
-  return milestones.has(key);
-}
 
 function timelineStatusIcon(eventType: string): ReactNode {
   if (isTimelineMilestoneEvent(eventType)) {

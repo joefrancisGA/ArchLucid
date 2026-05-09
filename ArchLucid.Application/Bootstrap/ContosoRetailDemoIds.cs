@@ -72,10 +72,7 @@ public readonly record struct ContosoRetailDemoIds(
     /// <summary>Committed manifest version key for the welcome sample.</summary>
     public static string TrialWelcomeManifestVersion(Guid tenantId)
     {
-        if (tenantId == ScopeIds.DefaultTenant)
-            return "contoso-online-store-welcome-v1";
-
-        return $"contoso-online-store-welcome-v1-{DemoSuffix12(tenantId)}";
+        return tenantId == ScopeIds.DefaultTenant ? "contoso-online-store-welcome-v1" : $"contoso-online-store-welcome-v1-{DemoSuffix12(tenantId)}";
     }
 
     /// <summary>Agent task / result identifiers for the welcome sample (global string PKs).</summary>

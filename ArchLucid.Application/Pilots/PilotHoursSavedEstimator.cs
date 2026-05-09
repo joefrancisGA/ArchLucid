@@ -14,12 +14,7 @@ public static class PilotHoursSavedEstimator
     public static double Estimate(long runsCreatedTotal, IReadOnlyDictionary<string, long> findingsBySeverity, int auditRowCount)
     {
         ArgumentNullException.ThrowIfNull(findingsBySeverity);
-        long findingsTotal = 0L;
-        foreach (KeyValuePair<string, long> pair in findingsBySeverity)
-        {
-            if (pair.Value > 0)
-                findingsTotal += pair.Value;
-        }
+        long findingsTotal = findingsBySeverity.Where(pair => pair.Value > 0).Sum(pair => pair.Value);
 
         double raw = runsCreatedTotal * 2.0d + findingsTotal * 0.05d + auditRowCount * 0.02d;
         return raw < 0d ? 0d : raw;
