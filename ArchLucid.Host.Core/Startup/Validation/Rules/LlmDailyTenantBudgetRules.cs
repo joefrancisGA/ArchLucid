@@ -9,10 +9,10 @@ internal static class LlmDailyTenantBudgetRules
         if (!enabled)
             return;
 
-        long max = configuration.GetValue("LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay", 0L);
+        long max = configuration.GetValue("LlmDailyTenantBudget:HardCutoffTokensPerUtcDay", 0L);
 
         if (max < 1)
-            errors.Add("LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay must be at least 1 when LlmDailyTenantBudget:Enabled is true.");
+            errors.Add("LlmDailyTenantBudget:HardCutoffTokensPerUtcDay must be at least 1 when LlmDailyTenantBudget:Enabled is true.");
 
         decimal warn = configuration.GetValue("LlmDailyTenantBudget:WarnFraction", 0.8m);
 

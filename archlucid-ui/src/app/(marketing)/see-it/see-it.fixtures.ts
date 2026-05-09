@@ -89,7 +89,7 @@ export function createMinimalDemoPreviewPayload(): DemoCommitPagePreviewResponse
       unresolvedIssueCount: 0,
       complianceGapCount: 2,
       faithfulnessSupportRatio: null,
-      usedDeterministicFallback: false,
+      deterministicFallbackUsed: false,
       faithfulnessWarning: null,
       findingTraceConfidences: null,
       citations: [],

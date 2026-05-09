@@ -19,6 +19,10 @@ export type RunSummary = {
   hasGoldenManifest?: boolean;
   hasDecisionTrace?: boolean;
   hasArtifactBundle?: boolean;
+  /** True when the run fell back to simulator and/or used resource-level LLM fallback (completion deployment `fallback:` prefix) for one or more agents. */
+  runDegradedExecution?: boolean;
+  /** Distinct agent type names (e.g. `Topology`) that used resource-level LLM fallback; may be empty when only simulator substitution applied. */
+  degradedExecutionAgents?: string[] | null;
   /** Optional list enrichment (API may omit). */
   findingCount?: number | null;
   warningCount?: number | null;
@@ -122,6 +126,10 @@ export type ReplayResponse = {
 export type RunDetail = {
   /** Sponsor-safe agent execution line from GET /v1/authority/runs/{runId} (simulator vs live vs fallback). */
   executionFlavorBuyerSummary?: string | null;
+  /** True when pilot simulator substitution occurred and/or traces show resource-level LLM fallback. */
+  runDegradedExecution?: boolean;
+  /** Agent types that used resource-level LLM fallback on this run (sorted). */
+  degradedExecutionAgents?: string[] | null;
   /** Committed runs only — operational evidence summary (API 2026-05+). */
   trustEvidenceCard?: RunTrustEvidenceCard | null;
   run: {

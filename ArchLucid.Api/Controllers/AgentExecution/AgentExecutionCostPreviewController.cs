@@ -23,7 +23,7 @@ namespace ArchLucid.Api.Controllers.AgentExecution;
 public sealed class AgentExecutionCostPreviewController(
     IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
     IOptionsMonitor<AzureOpenAiOptions> azureOpenAiOptions,
-    IOptionsMonitor<LlmDailyTenantBudgetOptions> dailyTenantBudgetOptions,
+    IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyTenantBudgetOptions,
     IOptionsMonitor<LlmCostEstimationOptions> llmCostEstimationOptions,
     ILlmCostEstimator llmCostEstimator) : ControllerBase
 {
@@ -39,7 +39,7 @@ public sealed class AgentExecutionCostPreviewController(
     private readonly IOptionsMonitor<AzureOpenAiOptions> _azureOpenAiOptions =
         azureOpenAiOptions ?? throw new ArgumentNullException(nameof(azureOpenAiOptions));
 
-    private readonly IOptionsMonitor<LlmDailyTenantBudgetOptions> _dailyTenantBudgetOptions =
+    private readonly IOptionsMonitor<LlmDailyTenantTokenWindowOptions> _dailyTenantBudgetOptions =
         dailyTenantBudgetOptions ?? throw new ArgumentNullException(nameof(dailyTenantBudgetOptions));
 
     private readonly IOptionsMonitor<LlmCostEstimationOptions> _llmCostEstimationOptions =

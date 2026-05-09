@@ -8,6 +8,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -26,9 +27,13 @@ public sealed class DapperAuthorityQueryService(
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IDecisionTraceRepository decisionTraceRepository,
     IGoldenManifestRepository goldenManifestRepository,
-    IArtifactBundleRepository artifactBundleRepository)
+    IArtifactBundleRepository artifactBundleRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository)
     : IAuthorityQueryService
 {
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
     /// <inheritdoc />
     public async Task<IReadOnlyList<RunSummaryDto>> ListRunsByProjectAsync(
         ScopeContext scope,
@@ -37,7 +42,10 @@ public sealed class DapperAuthorityQueryService(
         CancellationToken ct)
     {
         IReadOnlyList<RunRecord> runs = await runRepository.ListByProjectAsync(scope, projectId, take, ct);
-        return runs.Select(MapSummary).ToList();
+        List<RunSummaryDto> summaries = runs.Select(AuthorityRunMapper.MapSummary).ToList();
+        await RunExecutionDegradation.PopulateSummariesAsync(summaries, runs, _agentExecutionTraceRepository, ct);
+
+        return summaries;
     }
 
     /// <inheritdoc />
@@ -57,14 +65,27 @@ public sealed class DapperAuthorityQueryService(
             take,
             ct);
 
-        return (page.Items.Select(MapSummary).ToList(), page.HasMore);
+        List<RunSummaryDto> summaries = page.Items.Select(AuthorityRunMapper.MapSummary).ToList();
+        await RunExecutionDegradation.PopulateSummariesAsync(summaries, page.Items, _agentExecutionTraceRepository, ct);
+
+        return (summaries, page.HasMore);
     }
 
     /// <inheritdoc />
     public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
-        return run is null ? null : MapSummary(run);
+
+        if (run is null)
+            return null;
+
+        RunSummaryDto summary = AuthorityRunMapper.MapSummary(run);
+        IReadOnlyList<string> agents = await _agentExecutionTraceRepository.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+            run.RunId.ToString("N"),
+            ct);
+        RunExecutionDegradation.Apply(summary, run, agents);
+
+        return summary;
     }
 
     public async Task<RunDetailDto?> GetRunDetailAsync(ScopeContext scope, Guid runId, CancellationToken ct)
@@ -96,10 +117,19 @@ public sealed class DapperAuthorityQueryService(
         Task<ArtifactBundle?> bundleTask = run.GoldenManifestId.HasValue
             ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, loadArtifactBodies: true, ct)
             : Task.FromResult<ArtifactBundle?>(null);
+        Task<IReadOnlyList<string>> degradedAgentsTask =
+            _agentExecutionTraceRepository.GetDistinctAgentTypesWithLlmResourceFallbackAsync(run.RunId.ToString("N"), ct);
 
-        await Task.WhenAll(contextTask, graphTask, findingsTask, traceTask, manifestTask, bundleTask);
+        await Task.WhenAll(
+            contextTask,
+            graphTask,
+            findingsTask,
+            traceTask,
+            manifestTask,
+            bundleTask,
+            degradedAgentsTask);
 
-        return new RunDetailDto
+        RunDetailDto detail = new()
         {
             Run = run,
             ContextSnapshot = await contextTask,
@@ -109,6 +139,10 @@ public sealed class DapperAuthorityQueryService(
             GoldenManifest = await manifestTask,
             ArtifactBundle = await bundleTask
         };
+
+        RunExecutionDegradation.Apply(detail, run, await degradedAgentsTask);
+
+        return detail;
     }
 
     /// <inheritdoc />
@@ -117,10 +151,5 @@ public sealed class DapperAuthorityQueryService(
     {
         ManifestDocument? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
         return manifest is null ? null : AuthorityRunMapper.MapManifestSummary(manifest);
-    }
-
-    private static RunSummaryDto MapSummary(RunRecord run)
-    {
-        return AuthorityRunMapper.MapSummary(run);
     }
 }

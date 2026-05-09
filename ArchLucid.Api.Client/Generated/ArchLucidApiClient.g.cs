@@ -49792,6 +49792,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("executionFlavorBuyerSummary")]
         public string? ExecutionFlavorBuyerSummary { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("degradedExecutionAgents")]
+        public System.Collections.Generic.ICollection<string>? DegradedExecutionAgents { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("runDegradedExecution")]
+        public bool? RunDegradedExecution { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshot")]
         public FindingsSnapshot? FindingsSnapshot { get; set; } = default!;
 
@@ -49864,6 +49870,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("decisionCount")]
         public int? DecisionCount { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("deterministicFallbackUsed")]
+        public bool? DeterministicFallbackUsed { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("explanation")]
         [System.ComponentModel.DataAnnotations.Required]
         public ExplanationResult Explanation { get; set; } = new ExplanationResult();
@@ -49895,9 +49904,6 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("unresolvedIssueCount")]
         public int? UnresolvedIssueCount { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("usedDeterministicFallback")]
-        public bool? UsedDeterministicFallback { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -50310,6 +50316,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("displayName")]
         public string? DisplayName { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("degradedExecutionAgents")]
+        public System.Collections.Generic.ICollection<string>? DegradedExecutionAgents { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("hasArtifactBundle")]
         public bool? HasArtifactBundle { get; set; } = default!;
 
@@ -50330,6 +50339,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
         public string? ProjectId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("runDegradedExecution")]
+        public bool? RunDegradedExecution { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public System.Guid? RunId { get; set; } = default!;

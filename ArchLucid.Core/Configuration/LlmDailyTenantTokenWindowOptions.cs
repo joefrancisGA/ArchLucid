@@ -2,10 +2,11 @@ namespace ArchLucid.Core.Configuration;
 
 /// <summary>
 ///     Per-tenant total LLM token budget (prompt + completion) aligned to the UTC calendar day — separate from the sliding
-///     <see cref="LlmTokenQuotaOptions" /> window.
+///     <see cref="LlmTokenQuotaOptions" /> window. Bound from configuration section <see cref="SectionName" />.
 /// </summary>
-public sealed class LlmDailyTenantBudgetOptions
+public sealed class LlmDailyTenantTokenWindowOptions
 {
+    /// <summary>Configuration path; kept as <c>LlmDailyTenantBudget</c> for deployment continuity.</summary>
     public const string SectionName = "LlmDailyTenantBudget";
 
     /// <summary>
@@ -18,15 +19,15 @@ public sealed class LlmDailyTenantBudgetOptions
         set;
     }
 
-    /// <summary>Maximum combined prompt + completion tokens per tenant per UTC day.</summary>
-    public long MaxTotalTokensPerTenantPerUtcDay
+    /// <summary>Hard stop: maximum combined prompt + completion tokens per tenant per UTC day.</summary>
+    public long HardCutoffTokensPerUtcDay
     {
         get;
         set;
-    } = 1_000_000;
+    } = 2_000_000;
 
     /// <summary>
-    ///     When cumulative usage reaches this fraction of <see cref="MaxTotalTokensPerTenantPerUtcDay" />, emit a single
+    ///     When cumulative usage reaches this fraction of <see cref="HardCutoffTokensPerUtcDay" />, emit a single
     ///     durable audit per tenant per UTC day.
     /// </summary>
     public decimal WarnFraction

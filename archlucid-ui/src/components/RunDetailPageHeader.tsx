@@ -67,6 +67,19 @@ export function RunDetailPageHeader({
           ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <RunStatusBadge run={runSummary} />
+            {runSummary.runDegradedExecution ? (
+              <Badge
+                variant="outline"
+                className="font-normal text-amber-900 dark:text-amber-200"
+                title={
+                  runSummary.degradedExecutionAgents?.length
+                    ? `Resource-level LLM fallback on: ${runSummary.degradedExecutionAgents.join(", ")}`
+                    : "Run used simulator substitution and/or degraded LLM execution path."
+                }
+              >
+                Degraded execution
+              </Badge>
+            ) : null}
           </div>
         </div>
         <div className="flex shrink-0 flex-col gap-1.5">

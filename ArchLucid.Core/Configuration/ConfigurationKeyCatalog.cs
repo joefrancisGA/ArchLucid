@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(140)
+        return new List<ConfigurationKeyEntry>(148)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -75,6 +75,15 @@ public static class ConfigurationKeyCatalog
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PerAgentTypeFloors",
                 M("appsettings", "env"), "(see AgentTypeQualityFloors)", "—",
                 "Optional JSON dictionary of per-AgentType structural/semantic warn and reject floors.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:LlmJudge:Enabled", M("appsettings", "env"), "false", "—",
+                "Opt-in LLM rubric judge (Topology+Critic). Shares LlmCompletionAccountingClient quotas/monthly cap with agents (no separate judge bucket).",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:Agents:LlmJudge:DeploymentName", M("appsettings", "env"), "empty", "—",
+                "Judge Azure OpenAI deployment; empty falls back to AzureOpenAI:DeploymentName.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:LlmSemanticJudge", M("appsettings", "env"), "(legacy)", "—",
+                "Deprecated binding path for the same options type; prefer ArchLucid:Agents:LlmJudge. Agents section overrides overlapping keys.",
+                ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Agents:Faithfulness:EmbeddingEnabled", M("appsettings", "env"), "false", "—",
                 "When true, compute embedding-based AgentResult→evidence cosine alignment for API telemetry and OTEL (staging-first).",
                 ConfigKeyRequirementKind.None),
@@ -185,8 +194,8 @@ public static class ConfigurationKeyCatalog
                 ConfigKeyRequirementKind.None),
             E("LlmDailyTenantBudget", "LlmDailyTenantBudget:Enabled", M("appsettings", "env"), "false", "—",
                 "Enforce daily LLM token cap per tenant.", ConfigKeyRequirementKind.None),
-            E("LlmDailyTenantBudget", "LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay", M("appsettings", "env"),
-                "1000000", "When cap on", "Token budget per calendar UTC day.", ConfigKeyRequirementKind.None),
+            E("LlmDailyTenantBudget", "LlmDailyTenantBudget:HardCutoffTokensPerUtcDay", M("appsettings", "env"),
+                "2000000", "When cap on", "Hard token budget per calendar UTC day.", ConfigKeyRequirementKind.None),
             E("LlmDailyTenantBudget", "LlmDailyTenantBudget:WarnFraction", M("appsettings", "env"), "0.8",
                 "When cap on", "Warn when consumption crosses this fraction of cap.", ConfigKeyRequirementKind.None),
             E("LlmDailyTenantBudget", "LlmDailyTenantBudget:AssumedMaxTotalTokensPerRequest", M("appsettings", "env"),

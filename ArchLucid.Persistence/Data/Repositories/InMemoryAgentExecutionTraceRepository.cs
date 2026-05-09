@@ -276,6 +276,55 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         }
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            List<AgentExecutionTrace> forRun = _items
+                .Where(t => string.Equals(t.RunId, runId.Trim(), StringComparison.Ordinal))
+                .ToList();
+
+            return Task.FromResult(AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(forRun));
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+        IReadOnlyList<string> runIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(runIds);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        List<string> normalized = runIds
+            .Where(static s => !string.IsNullOrWhiteSpace(s))
+            .Select(static s => s.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        lock (_gate)
+        {
+            Dictionary<string, IReadOnlyList<string>> map = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string rid in normalized)
+            {
+                List<AgentExecutionTrace> forRun = _items
+                    .Where(t => string.Equals(t.RunId, rid, StringComparison.Ordinal))
+                    .ToList();
+
+                map[rid] = AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(forRun);
+            }
+
+            return Task.FromResult<IReadOnlyDictionary<string, IReadOnlyList<string>>>(map);
+        }
+    }
+
     private static AgentExecutionTrace Clone(AgentExecutionTrace source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);

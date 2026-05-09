@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { riskPostureBadgeClass, riskPostureBadgeColors, RunExplanationSection } from "@/components/RunExplanationSection";
+import { deterministicFallbackBadgeClass, riskPostureBadgeClass, riskPostureBadgeColors, RunExplanationSection } from "@/components/RunExplanationSection";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 function mockSummary(overrides: Partial<RunExplanationSummary> = {}): RunExplanationSummary {
@@ -38,6 +38,12 @@ function mockSummary(overrides: Partial<RunExplanationSummary> = {}): RunExplana
     decisionCount: overrides.decisionCount ?? 3,
     unresolvedIssueCount: overrides.unresolvedIssueCount ?? 1,
     complianceGapCount: overrides.complianceGapCount ?? 0,
+    deterministicFallbackUsed: overrides.deterministicFallbackUsed,
+    usedDeterministicFallback: overrides.usedDeterministicFallback,
+    faithfulnessSupportRatio: overrides.faithfulnessSupportRatio,
+    faithfulnessWarning: overrides.faithfulnessWarning,
+    findingTraceConfidences: overrides.findingTraceConfidences,
+    citations: overrides.citations,
   };
 }
 
@@ -59,7 +65,34 @@ describe("riskPostureBadgeClass", () => {
   });
 });
 
+describe("deterministicFallbackBadgeClass", () => {
+  it("uses a distinct violet palette", () => {
+    expect(deterministicFallbackBadgeClass()).toContain("violet");
+  });
+});
+
 describe("RunExplanationSection", () => {
+  it("shows deterministic narrative badge when aggregate used manifest substitution", () => {
+    render(
+      <RunExplanationSection
+        summary={mockSummary({ deterministicFallbackUsed: true })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByRole("status", { name: /deterministic narrative fallback/i })).toHaveTextContent(/deterministic narrative/i);
+  });
+
+  it("honors legacy usedDeterministicFallback wire flag", () => {
+    render(
+      <RunExplanationSection summary={mockSummary({ usedDeterministicFallback: true })} loading={false} error={null} runId="r1" />,
+    );
+
+    expect(screen.getByRole("status", { name: /deterministic narrative fallback/i })).toBeInTheDocument();
+  });
+
   it("shows loading state", () => {
     render(<RunExplanationSection summary={null} loading={true} error={null} runId="r1" />);
 

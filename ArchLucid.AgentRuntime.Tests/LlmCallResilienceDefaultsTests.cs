@@ -61,7 +61,7 @@ public sealed class LlmCallResilienceDefaultsTests
     }
 
     [SkippableFact]
-    public async Task BuildLlmRetryPipeline_RetriesClientResultException429()
+    public async Task BuildLlmRetryPipeline_DoesNotRetryClientResultException429()
     {
         ResiliencePipeline pipeline = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
             maxRetryAttempts: 2,
@@ -69,16 +69,17 @@ public sealed class LlmCallResilienceDefaultsTests
 
         int calls = 0;
 
-        await pipeline.ExecuteAsync(
-            _ =>
-            {
-                int n = Interlocked.Increment(ref calls);
+        Func<Task> act = () => pipeline.ExecuteAsync(
+                _ =>
+                {
+                    Interlocked.Increment(ref calls);
+                    throw CreateClientResultException(429);
+                },
+                CancellationToken.None)
+            .AsTask();
 
-                return n == 1 ? throw CreateClientResultException(429) : ValueTask.CompletedTask;
-            },
-            CancellationToken.None);
-
-        calls.Should().Be(2);
+        await act.Should().ThrowAsync<ClientResultException>();
+        calls.Should().Be(1);
     }
 
     [SkippableFact]
@@ -153,7 +154,7 @@ public sealed class LlmCallResilienceDefaultsTests
     }
 
     [Theory]
-    [InlineData(429, true)]
+    [InlineData(429, false)]
     [InlineData(500, true)]
     [InlineData(502, true)]
     [InlineData(503, true)]

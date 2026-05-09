@@ -269,7 +269,7 @@ function ExplanationPanel({ summary }: { readonly summary: RunExplanationSummary
         </p>
         <p className="mt-1 text-xs text-neutral-500">
           Risk posture: <code>{summary.riskPosture || "unknown"}</code>
-          {summary.usedDeterministicFallback ? " · deterministic fallback in use" : ""}
+          {summary.deterministicFallbackUsed || summary.usedDeterministicFallback ? " · deterministic fallback in use" : ""}
         </p>
       </div>
 

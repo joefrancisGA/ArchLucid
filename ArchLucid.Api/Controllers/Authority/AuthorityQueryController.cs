@@ -364,7 +364,9 @@ public sealed class AuthorityQueryController(
             HasFindingsSnapshot = x.HasFindingsSnapshot,
             HasGoldenManifest = x.HasGoldenManifest,
             HasDecisionTrace = x.HasDecisionTrace,
-            HasArtifactBundle = x.HasArtifactBundle
+            HasArtifactBundle = x.HasArtifactBundle,
+            RunDegradedExecution = x.RunDegradedExecution,
+            DegradedExecutionAgents = x.DegradedExecutionAgents
         };
     }
 }

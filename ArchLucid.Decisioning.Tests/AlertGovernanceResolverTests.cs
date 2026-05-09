@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
-using ArchLucid.Persistence.Helpers;
+using ArchLucid.Persistence.Alerts.Helpers;
 
 using FluentAssertions;
 

@@ -40,5 +40,19 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
         JsonObject? paths = root["paths"]?.AsObject();
         paths.Should().NotBeNull();
         paths.ContainsKey("/v1/register").Should().BeTrue("self-service registration remains a documented entrypoint");
+
+        JsonNode? executePost = paths["/v1/architecture/run/{runId}/execute"]?["post"];
+        executePost.Should().NotBeNull();
+        JsonObject? executeResponses = executePost!["responses"]?.AsObject();
+        executeResponses.Should().NotBeNull();
+        executeResponses!.ContainsKey("409").Should().BeTrue(
+            "execute documents 409 for quality-gate rejection (Problem Details); regen snapshot if this fails");
+
+        JsonNode? submitPost = paths["/v1/runs/{runId}/submit"]?["post"];
+        submitPost.Should().NotBeNull();
+        JsonObject? submitResponses = submitPost!["responses"]?.AsObject();
+        submitResponses.Should().NotBeNull();
+        submitResponses!.ContainsKey("409").Should().BeTrue(
+            "runs submit alias documents 409 for quality-gate rejection; regen snapshot if this fails");
     }
 }

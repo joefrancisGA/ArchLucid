@@ -186,7 +186,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
       unresolvedIssueCount: 0,
       complianceGapCount: 1,
       faithfulnessSupportRatio: null,
-      usedDeterministicFallback: false,
+      deterministicFallbackUsed: false,
       faithfulnessWarning: null,
       findingTraceConfidences: null,
       citations: [

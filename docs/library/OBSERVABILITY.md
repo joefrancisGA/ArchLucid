@@ -45,8 +45,8 @@ Example **Prometheus** alert rules (tune thresholds and `for` windows per enviro
 | Alert (name) | Intent |
 |----------------|--------|
 | `ArchLucidAgentOutputQualityGateRejected` | Non-zero rate of **`outcome="rejected"`** on **`archlucid_agent_output_quality_gate_total`**. |
-| `ArchLucidAgentOutputSemanticScoreP10Low` | **`histogram_quantile(0.1, …)`** on **`archlucid_agent_output_semantic_score_bucket`** below baseline. |
-| `ArchLucidAgentOutputSemanticScoreP50Low` | Median semantic score below baseline. |
+| `ArchLucidAgentOutputSemanticScoreP10Low` | **`histogram_quantile(0.1, …)`** on **`archlucid_agent_output_semantic_score_bucket`** below baseline. Interprets the same **heuristic / optional-judge** signal as the histogram description — not embedding similarity. |
+| `ArchLucidAgentOutputSemanticScoreP50Low` | Median of the same signal below baseline (see above). |
 | `ArchLucidAgentOutputParseFailures` | **`archlucid_agent_output_parse_failures_total`** rate above zero. |
 | `ArchLucidAgentTraceBlobUploadFailures` | **`archlucid_agent_trace_blob_upload_failures_total`** rate above zero. |
 
@@ -86,7 +86,7 @@ Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-o
 | **`archlucid_agent_trace_blob_upload_failures_total`** | Counter | — | **`agent_type`**, **`blob_type`** (`system_prompt`, `user_prompt`, `response`). Incremented when a blob write exhausts all retry attempts. |
 | **`archlucid_agent_trace_prompt_inline_fallback_total`** | Counter | — | **`agent_type`**, **`blob_type`**. **Real** execution: full text written to SQL **`Full*Inline`** when the blob key for that part is missing (see **`docs/AGENT_TRACE_FORENSICS.md`**). |
 | **`archlucid_agent_trace_blob_persist_duration_ms`** | Histogram | — | **`agent_type`**. Wall-clock time for awaited full-prompt/blob persistence after trace row insert (includes retries; see **`AgentExecutionTraceRecorder`** and **`docs/AGENT_TRACE_FORENSICS.md`**). |
-| **`archlucid_agent_output_semantic_score`** | Histogram | — | **`agent_type`**. Semantic quality score (0.0–1.0) evaluating claim evidence and finding completeness in agent output JSON. |
+| **`archlucid_agent_output_semantic_score`** | Histogram | — | **`agent_type`**. **`OverallSemanticScore`** (0.0–1.0): **heuristic** completeness signal from persisted agent JSON (claim evidence refs, finding fields), optionally combined with an **LLM rubric** when enabled — **not** factual “truth”, **not** embedding cosine. Optional embedding alignment is **`archlucid_agent_output_embedding_faithfulness_mean_cosine`**. |
 | **`archlucid_agent_output_embedding_faithfulness_mean_cosine`** | Histogram | — | **`agent_type`**. When embedding faithfulness is enabled and computed, mean cosine vs evidence mapped to **0–1** (see **`AgentResultEmbeddingFaithfulnessScorer`**). |
 | **`archlucid_agent_output_quality_gate_total`** | Counter | — | **`agent_type`**, **`outcome`** (`accepted` / `warned` / `rejected`). Emitted when **`ArchLucid:AgentOutput:QualityGate:Enabled`** is **true** (see **`AgentOutputEvaluationRecorder`**). Shipped defaults use **warn-only** reject floors (`0`); **`rejected`** appears when explicit reject thresholds are configured and scores fall below them. |
 | **`archlucid_explanation_aggregate_faithfulness_fallback_total`** | Counter | — | Aggregate **`GET …/explain/runs/{runId}/aggregate`** replaced LLM narrative with deterministic manifest text after low faithfulness vs findings. |
@@ -120,7 +120,7 @@ These instruments support **product and operator dashboards** (runs volume, find
 | **`archlucid_agent_trace_blob_upload_failures_total`** | Counter | **`agent_type`**, **`blob_type`** | Blob writes that exhausted all retry attempts for agent trace full-prompt persistence. | **Time series** — `rate()`; alert on sustained > 0. |
 | **`archlucid_agent_trace_prompt_inline_fallback_total`** | Counter | **`agent_type`**, **`blob_type`** | Inline SQL fallback after blob miss (Real mode). | **Time series** — `rate()`; correlate with blob failures. |
 | **`archlucid_agent_trace_blob_persist_duration_ms`** | Histogram | **`agent_type`** | End-to-end blob persistence latency after trace insert (timeout-bounded). | **Heatmap** / **p95**; spike with flat availability → storage saturation or timeout tuning. |
-| **`archlucid_agent_output_semantic_score`** | Histogram | **`agent_type`** | Semantic quality: claim evidence coverage + finding completeness (0.0–1.0). | **Heatmap** or **quantiles**; alert if p10 < 0.5 after prompt/model change. |
+| **`archlucid_agent_output_semantic_score`** | Histogram | **`agent_type`** | Same **`OverallSemanticScore`** as the API: **heuristic** JSON checks (and optional judge), **not** embeddings or ground truth. | **Heatmap** or **quantiles**; trend regressions after prompt/model changes; label dashboards so operators do not read it as embedding similarity. |
 | **`archlucid_agent_output_quality_gate_total`** | Counter | **`agent_type`**, **`outcome`** | Post-eval gate (on by default; disable with **`ArchLucid:AgentOutput:QualityGate:Enabled`** false). Default config emphasizes **`warned`**. | **Time series** — `rate()` by outcome; track **`warned`** after prompt changes; **`rejected`** when non-zero reject floors are enabled. |
 | **`archlucid_explanation_aggregate_faithfulness_fallback_total`** | Counter | — | Deterministic aggregate narrative substituted after low faithfulness vs findings. | **Time series** — correlate with model or prompt changes. |
 

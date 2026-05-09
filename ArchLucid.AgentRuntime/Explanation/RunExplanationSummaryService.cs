@@ -38,7 +38,7 @@ public sealed class RunExplanationSummaryService(
         ExplanationResult explanation = await explanationService.ExplainRunAsync(manifest, graph, ct);
 
         double? faithfulnessSupportRatio = null;
-        bool usedDeterministicFallback = false;
+        bool deterministicFallbackUsed = false;
         ExplanationFaithfulnessReport? lastFaithReport = null;
 
         if (detail.FindingsSnapshot is { Findings.Count: > 0 })
@@ -75,7 +75,7 @@ public sealed class RunExplanationSummaryService(
 
                 explanation.Provenance = null;
                 explanation.Confidence = null;
-                usedDeterministicFallback = true;
+                deterministicFallbackUsed = true;
                 ArchLucidInstrumentation.ExplanationAggregateFaithfulnessFallbacksTotal.Add(1);
 
                 logger.LogWarning(
@@ -86,7 +86,7 @@ public sealed class RunExplanationSummaryService(
             }
         }
 
-        string? faithfulnessWarning = BuildFaithfulnessWarning(lastFaithReport, usedDeterministicFallback);
+        string? faithfulnessWarning = BuildFaithfulnessWarning(lastFaithReport, deterministicFallbackUsed);
         IReadOnlyList<FindingTraceConfidenceDto> findingConfidences =
             FindingTraceConfidenceMapper.FromSnapshot(detail.FindingsSnapshot);
 
@@ -113,7 +113,7 @@ public sealed class RunExplanationSummaryService(
             UnresolvedIssueCount = manifest.UnresolvedIssues.Items.Count,
             ComplianceGapCount = manifest.Compliance.Gaps.Count,
             FaithfulnessSupportRatio = faithfulnessSupportRatio,
-            UsedDeterministicFallback = usedDeterministicFallback,
+            DeterministicFallbackUsed = deterministicFallbackUsed,
             FaithfulnessWarning = faithfulnessWarning,
             FindingTraceConfidences = findingConfidences.Count > 0 ? findingConfidences : null,
             Citations = citations
@@ -122,12 +122,12 @@ public sealed class RunExplanationSummaryService(
 
     private static string? BuildFaithfulnessWarning(
         ExplanationFaithfulnessReport? faithReport,
-        bool usedDeterministicFallback)
+        bool deterministicFallbackUsed)
     {
         if (faithReport is null || faithReport.ClaimsChecked <= 0)
             return null;
 
-        if (usedDeterministicFallback)
+        if (deterministicFallbackUsed)
 
             return
                 "The aggregate narrative was replaced with deterministic manifest text because AI-generated text did not sufficiently match underlying finding traces.";

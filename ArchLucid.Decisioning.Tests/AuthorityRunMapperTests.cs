@@ -56,6 +56,8 @@ public sealed class AuthorityRunMapperTests
         dto.ArtifactBundleId.Should().Be(bundle);
         dto.HasContextSnapshot.Should().BeTrue();
         dto.HasGoldenManifest.Should().BeTrue();
+        dto.RunDegradedExecution.Should().BeFalse();
+        dto.DegradedExecutionAgents.Should().BeEmpty();
     }
 
     [Fact]

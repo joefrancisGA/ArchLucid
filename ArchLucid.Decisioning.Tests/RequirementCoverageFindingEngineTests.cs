@@ -63,6 +63,7 @@ public sealed class RequirementCoverageFindingEngineTests
         findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
         findings[0].Trace.GraphNodeIdsExamined.Should().Contain("REQ-99");
         findings[0].Trace.RulesApplied.Should().Contain("requirement-coverage-relation");
+        findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(2);
         findings[0].Trace.Notes.Should().Contain(n => n.StartsWith("Total requirements:", StringComparison.Ordinal));
     }
 

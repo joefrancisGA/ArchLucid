@@ -2,6 +2,8 @@
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Data.Repositories.LlmDailyTenantTokenWindow;
 
 using FluentAssertions;
 
@@ -11,95 +13,103 @@ using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class LlmDailyTenantBudgetTrackerTests
 {
     [SkippableFact]
-    public void EnsureWithinBudgetBeforeCall_when_under_limit_does_not_throw()
+    public async Task EnsureWithinBudgetBeforeCall_when_under_limit_does_not_throw()
     {
-        LlmDailyTenantBudgetOptions opts = new()
+        LlmDailyTenantTokenWindowOptions opts = new()
         {
-            Enabled = true, MaxTotalTokensPerTenantPerUtcDay = 10_000, AssumedMaxTotalTokensPerRequest = 512
+            Enabled = true, HardCutoffTokensPerUtcDay = 10_000, AssumedMaxTotalTokensPerRequest = 512
         };
 
-        Mock<IOptionsMonitor<LlmDailyTenantBudgetOptions>> monitor = new();
+        Mock<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(opts);
 
-        LlmDailyTenantBudgetTracker tracker = new(monitor.Object);
+        InMemoryLlmDailyTenantTokenWindowStateRepository repo = new();
+        LlmDailyTenantBudgetTracker tracker = new(monitor.Object, repo);
         Guid tenant = Guid.NewGuid();
 
-        tracker.EnsureWithinBudgetBeforeCall(tenant, "azure-openai");
-        tracker.RecordUsageAndMaybeWarn(
+        await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(
             tenant,
             "azure-openai",
             CreateScopeProvider(tenant),
             null,
             100,
-            100);
-        tracker.EnsureWithinBudgetBeforeCall(tenant, "azure-openai");
+            100,
+            CancellationToken.None);
+        await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
     }
 
     [SkippableFact]
-    public void EnsureWithinBudgetBeforeCall_when_would_exceed_throws()
+    public async Task EnsureWithinBudgetBeforeCall_when_would_exceed_throws()
     {
-        LlmDailyTenantBudgetOptions opts = new()
+        LlmDailyTenantTokenWindowOptions opts = new()
         {
-            Enabled = true, MaxTotalTokensPerTenantPerUtcDay = 500, AssumedMaxTotalTokensPerRequest = 256
+            Enabled = true, HardCutoffTokensPerUtcDay = 500, AssumedMaxTotalTokensPerRequest = 256
         };
 
-        Mock<IOptionsMonitor<LlmDailyTenantBudgetOptions>> monitor = new();
+        Mock<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(opts);
 
-        LlmDailyTenantBudgetTracker tracker = new(monitor.Object);
+        LlmDailyTenantBudgetTracker tracker = new(monitor.Object, new InMemoryLlmDailyTenantTokenWindowStateRepository());
         Guid tenant = Guid.NewGuid();
 
-        tracker.RecordUsageAndMaybeWarn(
+        await tracker.RecordUsageAndMaybeWarnAsync(
             tenant,
             "azure-openai",
             CreateScopeProvider(tenant),
             null,
             400,
-            0);
+            0,
+            CancellationToken.None);
 
-        Action act = () => tracker.EnsureWithinBudgetBeforeCall(tenant, "azure-openai");
+        Func<Task> act = async () =>
+            await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
 
-        act.Should().Throw<LlmTokenQuotaExceededException>();
+        await act.Should().ThrowAsync<LlmTokenQuotaExceededException>();
     }
 
     [SkippableFact]
-    public void RecordUsageAndMaybeWarn_warns_at_most_once_per_utc_day_when_threshold_crossed()
+    public async Task RecordUsageAndMaybeWarn_warns_at_most_once_per_utc_day_when_threshold_crossed()
     {
-        LlmDailyTenantBudgetOptions opts = new()
+        LlmDailyTenantTokenWindowOptions opts = new()
         {
-            Enabled = true, MaxTotalTokensPerTenantPerUtcDay = 1000, WarnFraction = 0.8m
+            Enabled = true, HardCutoffTokensPerUtcDay = 1000, WarnFraction = 0.8m
         };
 
-        Mock<IOptionsMonitor<LlmDailyTenantBudgetOptions>> monitor = new();
+        Mock<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(opts);
 
-        LlmDailyTenantBudgetTracker tracker = new(monitor.Object);
+        LlmDailyTenantBudgetTracker tracker = new(monitor.Object, new InMemoryLlmDailyTenantTokenWindowStateRepository());
         Guid tenant = Guid.NewGuid();
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        tracker.RecordUsageAndMaybeWarn(
+        await tracker.RecordUsageAndMaybeWarnAsync(
             tenant,
             "azure-openai",
             CreateScopeProvider(tenant),
             audit.Object,
             700,
-            0);
+            0,
+            CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
-        tracker.RecordUsageAndMaybeWarn(
+        await tracker.RecordUsageAndMaybeWarnAsync(
             tenant,
             "azure-openai",
             CreateScopeProvider(tenant),
             audit.Object,
             150,
-            0);
+            0,
+            CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -107,19 +117,55 @@ public sealed class LlmDailyTenantBudgetTrackerTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
-        tracker.RecordUsageAndMaybeWarn(
+        await tracker.RecordUsageAndMaybeWarnAsync(
             tenant,
             "azure-openai",
             CreateScopeProvider(tenant),
             audit.Object,
             10,
-            0);
+            0,
+            CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.LlmTenantDailyBudgetApproaching),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task Concurrent_record_usage_converges_on_expected_tokens()
+    {
+        LlmDailyTenantTokenWindowOptions opts = new()
+        {
+            Enabled = true,
+            HardCutoffTokensPerUtcDay = 500_000,
+            WarnFraction = 0.8m
+        };
+
+        Mock<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(opts);
+
+        InMemoryLlmDailyTenantTokenWindowStateRepository repo = new();
+        LlmDailyTenantBudgetTracker tracker = new(monitor.Object, repo);
+        Guid tenant = Guid.NewGuid();
+        IScopeContextProvider scope = CreateScopeProvider(tenant);
+
+        Task[] tasks = new Task[32];
+
+        for (int i = 0; i < tasks.Length; i++)
+        {
+            tasks[i] = tracker.RecordUsageAndMaybeWarnAsync(
+                tenant, "azure-openai", scope, null, 1, 1, CancellationToken.None);
+        }
+
+        await Task.WhenAll(tasks);
+
+        DateOnly day = DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().UtcDateTime);
+        LlmDailyTenantTokenWindowStateReadModel row =
+            await repo.GetOrCreateAsync(tenant, day, CancellationToken.None);
+
+        row.TotalTokens.Should().Be(64L);
     }
 
     private static IScopeContextProvider CreateScopeProvider(Guid tenantId)

@@ -1,7 +1,7 @@
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchLucid.Persistence.Helpers;
+namespace ArchLucid.Persistence.Alerts.Helpers;
 
 /// <summary>
 /// Resolves the effective governance document for an alert evaluation, reusing

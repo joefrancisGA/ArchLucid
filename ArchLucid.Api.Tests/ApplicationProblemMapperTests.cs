@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core;
+using ArchLucid.Host.Core.ProblemDetails;
 
 using FluentAssertions;
 
@@ -46,6 +47,28 @@ public sealed class ApplicationProblemMapperTests
         MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.Conflict);
         p.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("corr-409");
+    }
+
+    [SkippableFact]
+    public void TryMapUnhandledException_QualityGateRejected_Returns409_with_stable_extensions()
+    {
+        AgentOutputQualityGateRejectedException ex = new("run-1", "trace-1", "Topology");
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/run/run-1/execute", "corr-qg");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.QualityGateRejected);
+        p.Extensions["errorCode"].Should().Be(ProblemErrorCodes.QualityGateRejected);
+        p.Extensions[ProblemDocumentationLinks.RunbookExtensionKey].Should().Be(
+            ProblemDocumentationLinks.QualityGateRejectionRunbookRelativePath);
+        p.Extensions["runId"].Should().Be("run-1");
+        p.Extensions["traceId"].Should().Be("trace-1");
+        p.Extensions["agentLabel"].Should().Be("Topology");
+        p.Extensions.Should().ContainKey("supportHint");
+        ((string)p.Extensions["supportHint"]!).Should().Contain("QUALITY_GATE_REJECTION");
     }
 
     [SkippableFact]

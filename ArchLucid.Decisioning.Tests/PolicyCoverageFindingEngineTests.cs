@@ -40,6 +40,7 @@ public sealed class PolicyCoverageFindingEngineTests
         findings[0].Severity.Should().Be(FindingSeverity.Warning);
         findings[0].Title.Should().Contain("No policy");
         findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
+        findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(2);
         findings[0].Trace.RulesApplied.Should().Contain("policy-coverage-presence");
         findings[0].Trace.Notes.Should().NotBeEmpty();
         PolicyCoverageFindingPayload? payload = findings[0].Payload as PolicyCoverageFindingPayload;
@@ -88,6 +89,7 @@ public sealed class PolicyCoverageFindingEngineTests
         findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
         findings[0].Trace.GraphNodeIdsExamined.Should().Equal("storage-1", "vm-2");
         findings[0].Trace.RulesApplied.Should().Contain("policy-coverage-applicability");
+        findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(2);
         findings[0].Trace.Notes.Should().NotBeEmpty();
     }
 

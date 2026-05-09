@@ -1,24 +1,25 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
-/// <summary>Rubric-based semantic judge using Azure OpenAI JSON completions (distinct deployment supported).</summary>
+/// <summary>Rubric-based semantic judge using the same accounted LLM completion pipeline as agents (opt-in; Topology + Critic only).</summary>
 public sealed class AgentOutputLlmSemanticJudge(
-    IOptionsMonitor<AzureOpenAiOptions> azureOptions,
+    IServiceScopeFactory scopeFactory,
     IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> judgeOptions,
     IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
     ILogger<AgentOutputLlmSemanticJudge> logger) : IAgentOutputLlmSemanticJudge
 {
-    private readonly Lock _clientLock = new();
-    private readonly IOptionsMonitor<AzureOpenAiOptions> _azureOptions =
-        azureOptions ?? throw new ArgumentNullException(nameof(azureOptions));
+    private readonly IServiceScopeFactory _scopeFactory =
+        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
     private readonly IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> _judgeOptions =
         judgeOptions ?? throw new ArgumentNullException(nameof(judgeOptions));
@@ -29,12 +30,11 @@ public sealed class AgentOutputLlmSemanticJudge(
     private readonly ILogger<AgentOutputLlmSemanticJudge> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    private AzureOpenAiCompletionClient? _cachedClient;
-    private string _clientFingerprint = string.Empty;
-
     /// <summary>
-    ///     Null when the judge is disabled, the run is in Simulator mode (optional), credentials are missing, or every sample
-    ///     failed (caller falls back to heuristic).
+    ///     Null when disabled, Cost/Compliance agent, Simulator mode (optional),
+    ///     keyed <see cref="IAgentCompletionClient" /> is not registered, or the completion fails. When enabled, completions
+    ///     run through <see cref="LlmCompletionAccountingClient" /> — same tenant quota and monthly pool as agent completions (no
+    ///     separate judge budget bucket).
     /// </summary>
     public async Task<AgentOutputLlmJudgeParsedResult?> TryJudgeAsync(
         string traceId,
@@ -50,26 +50,25 @@ public sealed class AgentOutputLlmSemanticJudge(
         if (!judgeOpts.Enabled)
             return null;
 
+        if (!IsLlmJudgeEligibleAgentType(agentType))
+            return null;
+
         AgentExecutionOptions exec = _agentExecutionOptions.CurrentValue;
 
         if (judgeOpts.SkipWhenSimulator
             && string.Equals(exec.Mode.Trim(), "Simulator", StringComparison.OrdinalIgnoreCase))
             return null;
 
-        AzureOpenAiCompletionClient? client = AcquireClientLocked(judgeOpts);
-
-        if (client is null)
-            return null;
-
-        string userPayload = TrimForJudge(parsedResultJson, judgeOpts.MaxInputCharacters);
-        string systemPrompt = BuildSystemPrompt(agentType);
-        string userPrompt = "traceId:" + traceId + "\nagentJson:\n" + userPayload;
-
         int sampleCount = Math.Clamp(judgeOpts.JudgeInvocationCount, 1, 8);
 
         if (sampleCount == 1)
 
-            return await InvokeJudgeSampleAsync(client, judgeOpts, traceId, systemPrompt, userPrompt, cancellationToken)
+            return await TryInvokeJudgeSampleAsync(
+                    judgeOpts,
+                    traceId,
+                    parsedResultJson,
+                    agentType,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
         Task<AgentOutputLlmJudgeParsedResult?>[] tasks = new Task<AgentOutputLlmJudgeParsedResult?>[sampleCount];
@@ -77,7 +76,7 @@ public sealed class AgentOutputLlmSemanticJudge(
         for (int i = 0; i < sampleCount; i++)
 
             tasks[i] =
-                InvokeJudgeSampleAsync(client, judgeOpts, traceId, systemPrompt, userPrompt, cancellationToken);
+                TryInvokeJudgeSampleAsync(judgeOpts, traceId, parsedResultJson, agentType, cancellationToken);
 
         AgentOutputLlmJudgeParsedResult?[] samples = await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -103,8 +102,56 @@ public sealed class AgentOutputLlmSemanticJudge(
         return new AgentOutputLlmJudgeParsedResult(median, firstRationale, dispersion, qualities.Count);
     }
 
+    /// <summary>
+    ///     Product rule: only Topology and Critic run the rubric judge; Cost and Compliance stay heuristic-only to limit spend and
+    ///     doubles under the shared monthly pool.
+    /// </summary>
+    internal static bool IsLlmJudgeEligibleAgentType(AgentType agentType) =>
+        agentType is AgentType.Topology or AgentType.Critic;
+
+    private async Task<AgentOutputLlmJudgeParsedResult?> TryInvokeJudgeSampleAsync(
+        AgentOutputLlmSemanticJudgeOptions judgeOpts,
+        string traceId,
+        string parsedResultJson,
+        AgentType agentType,
+        CancellationToken cancellationToken)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+
+        IAgentCompletionClient client;
+
+        try
+        {
+            client = scope.ServiceProvider.GetRequiredKeyedService<IAgentCompletionClient>(
+                AgentOutputLlmJudgeCompletionServiceKey.Value);
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(
+                    ex,
+                    "LLM semantic judge completion client is unavailable (missing registration or Azure OpenAI settings) for TraceId={TraceId}",
+                    traceId);
+
+            return null;
+        }
+
+        string userPayload = TrimForJudge(parsedResultJson, judgeOpts.MaxInputCharacters);
+        string systemPrompt = BuildSystemPrompt(agentType);
+        string userPrompt = "traceId:" + traceId + "\nagentJson:\n" + userPayload;
+
+        return await InvokeJudgeSampleAsync(
+                client,
+                judgeOpts,
+                traceId,
+                systemPrompt,
+                userPrompt,
+                cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     private async Task<AgentOutputLlmJudgeParsedResult?> InvokeJudgeSampleAsync(
-        AzureOpenAiCompletionClient client,
+        IAgentCompletionClient client,
         AgentOutputLlmSemanticJudgeOptions judgeOpts,
         string traceId,
         string systemPrompt,
@@ -163,38 +210,6 @@ public sealed class AgentOutputLlmSemanticJudge(
         return Math.Sqrt(sq / values.Count);
     }
 
-    private AzureOpenAiCompletionClient? AcquireClientLocked(AgentOutputLlmSemanticJudgeOptions judgeOpts)
-    {
-        AzureOpenAiOptions azure = _azureOptions.CurrentValue;
-        string endpoint = azure.Endpoint.Trim();
-        string apiKey = azure.ApiKey.Trim();
-        string deployment = string.IsNullOrWhiteSpace(judgeOpts.DeploymentName)
-            ? azure.DeploymentName.Trim()
-            : judgeOpts.DeploymentName.Trim();
-
-        int maxTok = judgeOpts.MaxCompletionTokens > 0
-            ? judgeOpts.MaxCompletionTokens
-            : Math.Min(AzureOpenAiCompletionClient.DefaultMaxCompletionTokens, 512);
-
-        if (string.IsNullOrWhiteSpace(endpoint) ||
-            string.IsNullOrWhiteSpace(apiKey) ||
-            string.IsNullOrWhiteSpace(deployment))
-            return null;
-
-        string fingerprint = $"{endpoint}|{deployment}|{apiKey.Length}|{maxTok}";
-
-        lock (_clientLock)
-        {
-            if (_cachedClient is not null && string.Equals(_clientFingerprint, fingerprint, StringComparison.Ordinal))
-                return _cachedClient;
-
-            _cachedClient = new AzureOpenAiCompletionClient(endpoint, apiKey, deployment, maxTok);
-            _clientFingerprint = fingerprint;
-
-            return _cachedClient;
-        }
-    }
-
     private static string TrimForJudge(string json, int maxChars)
     {
         maxChars = Math.Max(4096, maxChars);
@@ -209,14 +224,22 @@ public sealed class AgentOutputLlmSemanticJudge(
 
     private static string BuildSystemPrompt(AgentType agentType)
     {
+        string roleHint = agentType switch
+        {
+            AgentType.Topology =>
+                "This agent proposes topology/service relationships — penalize hand-wavy claims without evidence references and diagrams that contradict stated relationships.",
+            AgentType.Critic =>
+                "This agent challenges other agents' proposals — reward constructive challenge grounded in the JSON; penalize empty pushback or claims without evidence.",
+            _ => "Agent role: " + agentType + "."
+        };
+
         return "You are a strict output-quality rater for enterprise architecture review JSON (AgentResult).\n"
                + "Given one JSON object, rate how well it is internally consistent and evidence-backed.\n"
                + "Penalize uncited claims (no evidenceRefs and no evidence string), vague or empty findings, and "
                + "obvious internal contradictions.\n"
                + "Do not invent facts from outside the JSON.\n"
-               + "Agent role: " +
-               agentType +
-               ".\nReturn a single JSON object with keys: overallQuality (number 0..1), rationale (short string, "
+               + roleHint +
+               "\nReturn a single JSON object with keys: overallQuality (number 0..1), rationale (short string, "
                + "max 400 chars, plain text).";
     }
 
@@ -287,6 +310,5 @@ public sealed class AgentOutputLlmSemanticJudge(
         string t = s.Trim();
 
         return t.Length <= 400 ? t : t[..400];
-
     }
 }

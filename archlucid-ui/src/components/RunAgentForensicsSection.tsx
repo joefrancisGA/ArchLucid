@@ -39,6 +39,18 @@ function ratioText(value: number | null | undefined): string {
   return value.toFixed(2);
 }
 
+/** Tooltip: aligns with OTel `archlucid_agent_output_semantic_score` — heuristic / optional judge, not embeddings or truth. */
+const semanticOverallTooltip =
+  "0–1 overall semantic score (same as telemetry archlucid_agent_output_semantic_score): deterministic checks on claims and findings in persisted JSON, optionally combined with an LLM rubric when enabled. Not embedding similarity and not a guarantee of factual correctness.";
+
+/** Baseline heuristic before optional LLM judge overlay (see server-side CompositeAgentOutputSemanticEvaluator). */
+const heuristicColumnTooltip =
+  "Heuristic-only 0–1 score: claim evidence coverage and finding field completeness from persisted JSON (before any LLM judge blend).";
+
+/** Optional server-side model rubric column — distinct from heuristic and from embedding faithfulness metrics. */
+const llmRubricColumnTooltip =
+  "Optional LLM judge score when enabled server-side. Separate from the heuristic and from embedding-cosine faithfulness (a different metric when enabled).";
+
 const notesPreviewMax = 72;
 
 function notesPreview(full: string | null | undefined): { text: string; title?: string } {
@@ -81,9 +93,11 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
     <section id="agent-forensics" className="scroll-mt-24 mb-6" aria-label="Diagnostics — agent traces">
       <CollapsibleSection title="Advanced — agent traces and structural evaluation (diagnostics)" defaultOpen={false}>
       <p className="mt-0 max-w-3xl text-sm text-neutral-500 dark:text-neutral-400">
-        Prompt/response audit rows plus on-demand structural and semantic scoring of persisted agent JSON (deterministic heuristic;
-        optional Azure OpenAI judge when enabled server-side). Requires architecture API access; empty results are normal when tracing
-        is disabled or the run has no agent steps yet.
+        Prompt/response audit rows plus on-demand structural and semantic scoring of persisted agent JSON. Semantic columns and
+        backend histogram <code className="text-xs">archlucid_agent_output_semantic_score</code> are{" "}
+        <strong className="font-medium text-neutral-600 dark:text-neutral-300">heuristic completeness signals</strong> (and an
+        optional LLM rubric when enabled) — not embedding similarity and not proof that recommendations are factually correct.
+        Requires architecture API access; empty results are normal when tracing is disabled or the run has no agent steps yet.
       </p>
 
       {blobPersistFailed ? (
@@ -141,9 +155,15 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                 <th className="px-1.5 py-2">Parse OK</th>
                 <th className="px-1.5 py-2">Blob upload</th>
                 <th className="px-1.5 py-2">Structural</th>
-                <th className="px-1.5 py-2">Semantic overall</th>
-                <th className="px-1.5 py-2">Heuristic</th>
-                <th className="px-1.5 py-2">LLM rubric</th>
+                <th className="px-1.5 py-2" title={semanticOverallTooltip}>
+                  Semantic overall
+                </th>
+                <th className="px-1.5 py-2" title={heuristicColumnTooltip}>
+                  Heuristic
+                </th>
+                <th className="px-1.5 py-2" title={llmRubricColumnTooltip}>
+                  LLM rubric
+                </th>
                 <th className="px-1.5 py-2 min-w-[11rem]">Judge notes</th>
               </tr>
             </thead>
@@ -217,9 +237,17 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
             ? ` · avg structural: ${evaluationPayload.averageStructuralCompletenessRatio.toFixed(2)}`
             : ""}
           {evaluationPayload.averageSemanticScore !== null &&
-          evaluationPayload.averageSemanticScore !== undefined
-            ? ` · avg semantic: ${evaluationPayload.averageSemanticScore.toFixed(2)}`
-            : ""}
+          evaluationPayload.averageSemanticScore !== undefined ? (
+            <>
+              {" "}
+              ·{" "}
+              <span className="cursor-help underline decoration-dotted decoration-neutral-400" title={semanticOverallTooltip}>
+                avg semantic: {evaluationPayload.averageSemanticScore.toFixed(2)}
+              </span>
+            </>
+          ) : (
+            ""
+          )}
         </p>
       ) : null}
       </CollapsibleSection>

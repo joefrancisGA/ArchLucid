@@ -5,6 +5,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Caching;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -55,6 +56,8 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
                 b.GetByManifestIdAsync(scope, manifestId, It.Is<bool>(v => v), It.IsAny<CancellationToken>()))
             .ReturnsAsync(bundle);
 
+        Mock<IAgentExecutionTraceRepository> traceRows = CreateTraceRepoStub();
+
         IAuthorityQueryService sut = CreateQueryService(
             implementationType,
             runs.Object,
@@ -63,7 +66,8 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
             findingsSnapshots.Object,
             traces.Object,
             manifests.Object,
-            bundles.Object);
+            bundles.Object,
+            traceRows.Object);
 
         RunDetailDto? detail = await sut.GetRunDetailAsync(scope, runId, CancellationToken.None);
 
@@ -106,6 +110,8 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         Mock<IGoldenManifestRepository> manifests = new();
         Mock<IArtifactBundleRepository> bundles = new();
 
+        Mock<IAgentExecutionTraceRepository> traceRows = CreateTraceRepoStub();
+
         IAuthorityQueryService sut = CreateQueryService(
             implementationType,
             runs.Object,
@@ -114,7 +120,8 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
             findingsSnapshots.Object,
             traces.Object,
             manifests.Object,
-            bundles.Object);
+            bundles.Object,
+            traceRows.Object);
 
         RunDetailDto? detail = await sut.GetRunDetailAsync(scope, runId, CancellationToken.None);
 
@@ -130,6 +137,34 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
             Times.Never);
     }
 
+    private static Mock<IAgentExecutionTraceRepository> CreateTraceRepoStub()
+    {
+        Mock<IAgentExecutionTraceRepository> traceRows = new();
+        traceRows
+            .Setup(r => r.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<string>());
+        traceRows
+            .Setup(r => r.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<IReadOnlyList<string>, CancellationToken>((ids, _) =>
+            {
+                Dictionary<string, IReadOnlyList<string>> map = new(StringComparer.OrdinalIgnoreCase);
+
+                foreach (string id in ids)
+                {
+                    if (!string.IsNullOrWhiteSpace(id))
+                        map[id.Trim()] = [];
+                }
+
+                return Task.FromResult<IReadOnlyDictionary<string, IReadOnlyList<string>>>(map);
+            });
+
+        return traceRows;
+    }
+
     private static IAuthorityQueryService CreateQueryService(
         Type implementationType,
         IRunRepository runRepository,
@@ -138,7 +173,8 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         IFindingsSnapshotRepository findingsSnapshotRepository,
         IDecisionTraceRepository decisionTraceRepository,
         IGoldenManifestRepository goldenManifestRepository,
-        IArtifactBundleRepository artifactBundleRepository)
+        IArtifactBundleRepository artifactBundleRepository,
+        IAgentExecutionTraceRepository agentExecutionTraceRepository)
     {
         if (implementationType == typeof(InMemoryAuthorityQueryService))
         {
@@ -150,7 +186,8 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
                 findingsSnapshotRepository,
                 decisionTraceRepository,
                 goldenManifestRepository,
-                artifactBundleRepository);
+                artifactBundleRepository,
+                agentExecutionTraceRepository);
         }
 
 
@@ -164,7 +201,8 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
                 findingsSnapshotRepository,
                 decisionTraceRepository,
                 goldenManifestRepository,
-                artifactBundleRepository);
+                artifactBundleRepository,
+                agentExecutionTraceRepository);
         }
 
 

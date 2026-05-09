@@ -11,6 +11,12 @@ namespace ArchLucid.Contracts.Agents;
 /// </remarks>
 public static class AgentExecutionTraceModelMetadata
 {
+    /// <summary>
+    ///     Prefix on <see cref="AgentExecutionTrace.ModelDeploymentName" /> when the secondary (resource-level) LLM
+    ///     completion client produced the response (see host fallback LLM configuration).
+    /// </summary>
+    public const string LlmCompletionFallbackDeploymentPrefix = "fallback:";
+
     /// <summary>Placeholder when the completion client did not report a deployment name.</summary>
     public const string UnspecifiedDeploymentName = "unspecified-deployment";
 

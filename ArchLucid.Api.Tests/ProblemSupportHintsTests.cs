@@ -109,6 +109,18 @@ public sealed class ProblemSupportHintsTests
     }
 
     [SkippableFact]
+    public void AttachForProblemType_WhenQualityGateRejected_adds_runbook_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.QualityGateRejected };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.Should().Contain("QUALITY_GATE_REJECTION.md");
+    }
+
+    [SkippableFact]
     public void AttachForProblemType_WhenUpstreamIntegrationFailed_adds_cred_hint()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.UpstreamIntegrationFailed };

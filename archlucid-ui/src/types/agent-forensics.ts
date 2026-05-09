@@ -24,7 +24,10 @@ export type AgentOutputSemanticScoreRow = {
   findingsQualityRatio: number;
   emptyClaimCount: number;
   incompleteFindingCount: number;
-  /** Primary score — LLM rubric when present, else heuristic. */
+  /**
+   * Aggregate shown in UI and recorded as OTel `archlucid_agent_output_semantic_score`: heuristic JSON-structure signal
+   * (and optional LLM rubric when enabled) — not embedding similarity or ground-truth correctness.
+   */
   overallSemanticScore: number;
   /** Deterministic heuristic aggregate (claims + findings completeness). */
   heuristicOverallScore: number;
@@ -52,5 +55,6 @@ export type AgentOutputEvaluationSummaryPayload = {
   scores: AgentOutputEvaluationScoreRow[];
   tracesSkippedCount: number;
   averageStructuralCompletenessRatio: number | null;
+  /** Mean of {@link AgentOutputSemanticScoreRow.overallSemanticScore} over evaluated rows (same heuristic / optional-judge meaning). */
   averageSemanticScore: number | null;
 };

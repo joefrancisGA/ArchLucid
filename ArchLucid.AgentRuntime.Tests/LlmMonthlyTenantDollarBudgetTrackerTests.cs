@@ -2,6 +2,8 @@
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Data.Repositories.LlmMonthlyTenantBudget;
 
 using FluentAssertions;
 
@@ -11,10 +13,12 @@ using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
 {
     [SkippableFact]
-    public void EnsureWithinBudgetBeforeCall_when_under_hard_cutoff_does_not_throw()
+    public async Task EnsureWithinBudgetBeforeCall_when_under_hard_cutoff_does_not_throw()
     {
         LlmMonthlyTenantDollarBudgetOptions opts = new()
         {
@@ -31,16 +35,17 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(5m);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object);
+        InMemoryLlmMonthlyTenantBudgetStateRepository repo = new();
+        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, repo);
         Guid tenant = Guid.NewGuid();
 
-        tracker.EnsureWithinBudgetBeforeCall(tenant, "azure-openai");
-        tracker.RecordUsageAndMaybeWarn(tenant, "azure-openai", CreateScopeProvider(tenant), null, 100, 100);
-        tracker.EnsureWithinBudgetBeforeCall(tenant, "azure-openai");
+        await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 100, 100, CancellationToken.None);
+        await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
     }
 
     [SkippableFact]
-    public void EnsureWithinBudgetBeforeCall_when_would_exceed_hard_cutoff_throws()
+    public async Task EnsureWithinBudgetBeforeCall_when_would_exceed_hard_cutoff_throws()
     {
         LlmMonthlyTenantDollarBudgetOptions opts = new()
         {
@@ -56,20 +61,21 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(25m);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object);
+        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmMonthlyTenantBudgetStateRepository());
         Guid tenant = Guid.NewGuid();
 
-        tracker.RecordUsageAndMaybeWarn(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10);
-        tracker.RecordUsageAndMaybeWarn(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10);
-        tracker.RecordUsageAndMaybeWarn(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, CancellationToken.None);
 
-        Action act = () => tracker.EnsureWithinBudgetBeforeCall(tenant, "azure-openai");
+        Func<Task> act = async () =>
+            await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
 
-        act.Should().Throw<LlmTokenQuotaExceededException>();
+        await act.Should().ThrowAsync<LlmTokenQuotaExceededException>();
     }
 
     [SkippableFact]
-    public void RecordUsageAndMaybeWarn_warns_at_most_once_per_utc_month_when_threshold_crossed()
+    public async Task RecordUsageAndMaybeWarn_warns_at_most_once_per_utc_month_when_threshold_crossed()
     {
         LlmMonthlyTenantDollarBudgetOptions opts = new()
         {
@@ -81,22 +87,22 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(12m);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object);
+        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmMonthlyTenantBudgetStateRepository());
         Guid tenant = Guid.NewGuid();
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         IScopeContextProvider scopeProvider = CreateScopeProvider(tenant);
 
-        tracker.RecordUsageAndMaybeWarn(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10);
-        tracker.RecordUsageAndMaybeWarn(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10);
-        tracker.RecordUsageAndMaybeWarn(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, CancellationToken.None);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
-        tracker.RecordUsageAndMaybeWarn(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 10, 10, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -104,7 +110,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
-        tracker.RecordUsageAndMaybeWarn(tenant, "azure-openai", scopeProvider, audit.Object, 1, 1);
+        await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scopeProvider, audit.Object, 1, 1, CancellationToken.None);
 
         audit.Verify(
             a => a.LogAsync(
@@ -114,7 +120,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
     }
 
     [SkippableFact]
-    public void EnsureWithinBudgetBeforeCall_skips_for_simulator_provider()
+    public async Task EnsureWithinBudgetBeforeCall_skips_for_simulator_provider()
     {
         LlmMonthlyTenantDollarBudgetOptions opts = new()
         {
@@ -126,10 +132,47 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(100m);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object);
+        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmMonthlyTenantBudgetStateRepository());
         Guid tenant = Guid.NewGuid();
 
-        tracker.EnsureWithinBudgetBeforeCall(tenant, "simulator");
+        await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "simulator", CancellationToken.None);
+    }
+
+    [SkippableFact]
+    public async Task Concurrent_record_usage_converges_on_expected_spend()
+    {
+        LlmMonthlyTenantDollarBudgetOptions opts = new()
+        {
+            Enabled = true,
+            IncludedUsdPerUtcMonth = 500m,
+            HardCutoffUsdPerUtcMonth = 5000m,
+            WarnFraction = 0.75m
+        };
+
+        Mock<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(opts);
+        Mock<ILlmCostEstimator> cost = new();
+        cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(1m);
+
+        InMemoryLlmMonthlyTenantBudgetStateRepository repo = new();
+        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, repo);
+        Guid tenant = Guid.NewGuid();
+        IScopeContextProvider scope = CreateScopeProvider(tenant);
+
+        Task[] tasks = new Task[32];
+
+        for (int i = 0; i < tasks.Length; i++)
+        {
+            tasks[i] = tracker.RecordUsageAndMaybeWarnAsync(
+                tenant, "azure-openai", scope, null, 1, 1, CancellationToken.None);
+        }
+
+        await Task.WhenAll(tasks);
+
+        DateTime utc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        LlmMonthlyTenantBudgetStateReadModel row = await repo.GetOrCreateAsync(tenant, utc.Year, utc.Month, CancellationToken.None);
+
+        row.SpentUsd.Should().Be(32m);
     }
 
     private static IScopeContextProvider CreateScopeProvider(Guid tenantId)

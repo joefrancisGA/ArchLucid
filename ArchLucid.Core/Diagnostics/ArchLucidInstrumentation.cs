@@ -177,6 +177,16 @@ public static class ArchLucidInstrumentation
             "LLM call retry attempts before circuit breaker recording (labels: gate, attempt, exception_type).");
 
     /// <summary>
+    ///     HTTP 429 Too Many Responses from the LLM completion transport (labels: <c>retry_after</c>=header|fallback).
+    ///     Recorded in <c>AzureOpenAiCompletionClient</c> before honoring <c>Retry-After</c> / fallback backoff.
+    /// </summary>
+    public static readonly Counter<long> LlmRateLimitTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_rate_limit_total",
+            description:
+            "LLM completion rate-limit responses (HTTP 429) before retry wait (labels: retry_after=header|fallback).");
+
+    /// <summary>
     ///     Hits on the in-resolve <c>(packId, version)</c> deserialized content cache inside
     ///     <c>EffectiveGovernanceResolver</c>
     ///     (avoids duplicate JSON work when the same version appears on multiple assignments).
@@ -545,11 +555,17 @@ public static class ArchLucidInstrumentation
             "archlucid_agent_trace_prompt_inline_fallback_total",
             description: "Full-text agent trace fields stored inline after blob miss (Real execution only).");
 
-    /// <summary>Agent output semantic quality score distribution (0-1; label <c>agent_type</c>).</summary>
+    /// <summary>
+    ///     Distribution of <c>OverallSemanticScore</c> (0–1; label <c>agent_type</c>): deterministic heuristic checks on
+    ///     persisted agent JSON (claim evidence refs, finding field completeness), optionally combined with an LLM rubric when
+    ///     enabled — <b>not</b> embedding cosine similarity nor a guarantee of factual correctness. For optional embedding
+    ///     alignment telemetry see <see cref="AgentOutputEmbeddingFaithfulnessMeanCosine" />.
+    /// </summary>
     public static readonly Histogram<double> AgentOutputSemanticScore =
         AppMeter.CreateHistogram<double>(
             "archlucid_agent_output_semantic_score",
-            description: "Agent output semantic quality score (0-1).");
+            description:
+            "OverallSemanticScore (0-1): heuristic JSON-structure quality (claims/findings), optionally with LLM judge — not embeddings or ground truth.");
 
     /// <summary>
     ///     AgentResult embedding faithfulness mean cosine vs evidence (clamped 0–1 for telemetry; label <c>agent_type</c>) when

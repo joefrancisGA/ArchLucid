@@ -30,7 +30,18 @@ public sealed class ProblemDetailsResponsesOperationFilter : IOperationFilter
         }
 
         if (operation.Responses.TryGetValue("409", out IOpenApiResponse? conflict))
-            conflict.Description = (conflict.Description ?? "").TrimEnd() +
-                                   " Problem type: `#conflict` (e.g. commit when run is in Failed state or already committed).";
+        {
+            bool isRunExecuteQualityGate =
+                (path.Contains("/run/") && path.Contains("/execute")) || path.EndsWith("/submit");
+
+            if (isRunExecuteQualityGate)
+                conflict.Description = (conflict.Description ?? "").TrimEnd() +
+                                       " Problem type: `#quality-gate-rejected` when agent output fails the quality gate with "
+                                       + "EnforceOnReject and BlockRunOnReject (extensions: runbook path, runId, traceId, agentLabel, "
+                                       + "errorCode QUALITY_GATE_REJECTED). See docs/runbooks/QUALITY_GATE_REJECTION.md.";
+            else
+                conflict.Description = (conflict.Description ?? "").TrimEnd() +
+                                       " Problem type: `#conflict` (e.g. commit when run is in Failed state or already committed).";
+        }
     }
 }

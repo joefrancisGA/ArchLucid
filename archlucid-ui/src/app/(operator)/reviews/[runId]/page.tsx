@@ -290,7 +290,7 @@ export default async function RunDetailPage({
     s.hasFindingsSnapshot === true &&
     s.hasGoldenManifest === true;
 
-  const progressForPipelineUi = effectiveRunSummaryForPipeline(progressInitialSummary, resolvedDetail.run);
+  const progressForPipelineUi = effectiveRunSummaryForPipeline(progressInitialSummary, resolvedDetail);
 
   const showProgressTracker =
     !manifestId || !pipelineCompleteOnSummary(progressForPipelineUi);

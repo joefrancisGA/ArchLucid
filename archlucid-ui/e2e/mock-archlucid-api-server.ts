@@ -67,6 +67,10 @@ function jsonRunSummaryFromDetail(detail: RunDetail): unknown {
     hasGoldenManifest: Boolean(r.goldenManifestId),
     hasDecisionTrace: Boolean(r.decisionTraceId),
     hasArtifactBundle: Boolean(r.artifactBundleId),
+    runDegradedExecution: detail.runDegradedExecution === true,
+    degradedExecutionAgents: Array.isArray(detail.degradedExecutionAgents)
+      ? detail.degradedExecutionAgents
+      : [],
   };
 }
 

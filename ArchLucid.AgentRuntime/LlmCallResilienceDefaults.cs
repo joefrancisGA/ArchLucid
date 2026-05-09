@@ -107,6 +107,9 @@ public static class LlmCallResilienceDefaults
 
         int status = cre.Status;
 
-        return status is 429 or 500 or 502 or 503 or 504;
+        if (status == 429)
+            return false;
+
+        return status is 500 or 502 or 503 or 504;
     }
 }

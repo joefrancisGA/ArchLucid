@@ -4,18 +4,24 @@ namespace ArchLucid.Core.Configuration;
 
 /// <summary>
 ///     Optional Azure OpenAI rubric-based judge over persisted <c>AgentResult</c> JSON (post-execute / on-demand API).
+///     Binds <c>ArchLucid:AgentOutput:LlmSemanticJudge</c> (legacy) first, then <c>ArchLucid:Agents:LlmJudge</c> so canonical
+///     <c>Agents</c> keys override legacy when both are present.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Configuration binding DTO with no logic.")]
 public sealed class AgentOutputLlmSemanticJudgeOptions
 {
-    public const string SectionPath = "ArchLucid:AgentOutput:LlmSemanticJudge";
+    /// <summary>Canonical operator path (assessment item 21).</summary>
+    public const string SectionPath = "ArchLucid:Agents:LlmJudge";
 
-    /// <summary>When false, only deterministic heuristic scoring is used. Defaults to <c>true</c>; skipped when credentials are missing.</summary>
+    /// <summary>Legacy path; still bound after <see cref="SectionPath" /> for backward compatibility.</summary>
+    public const string LegacySectionPath = "ArchLucid:AgentOutput:LlmSemanticJudge";
+
+    /// <summary>When false, only deterministic heuristic scoring is used. Defaults to <c>false</c> (opt-in).</summary>
     public bool Enabled
     {
         get;
         set;
-    } = true;
+    } = false;
 
     /// <summary>
     ///     Deployment name on the configured Azure OpenAI resource. Empty uses <see cref="AzureOpenAiOptions.DeploymentName" />.

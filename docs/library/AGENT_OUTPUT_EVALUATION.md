@@ -13,7 +13,7 @@ Provide a **cheap, deterministic** check that persisted agent **`AgentExecutionT
 
 - **Traces** store **`ParsedResultJson`** only when **`ParseSucceeded`** is true (handlers serialize the validated **`AgentResult`**).
 - **Schema validation** already ran at execution time; this layer catches **drift**, **manual SQL edits**, or **future serializer changes** that leave traces readable but structurally incomplete.
-- **Automatic metrics path:** **`AgentOutputEvaluationRecorder.EvaluateAndRecordMetricsAsync`** runs after a successful architecture execute (**`ArchitectureRunExecuteOrchestrator`** → **`IAgentOutputTraceEvaluationHook.AfterSuccessfulExecuteAsync`**) once evidence, **`AgentResult`** rows, and evaluations are committed. Most hook failures are logged and swallowed so the run can still promote **`LegacyRunStatus`** when results are complete; **`AgentOutputQualityGateRejectedException`** is an exception: when **`EnforceOnReject`** and **`BlockRunOnReject`** are **`true`**, the orchestrator marks **`ExecutionCompletedQualityRejected`**, emits baseline audit **`RunQualityGateRejected`**, and rethrows (API **`409`**). **`GET …/agent-evaluation`** still performs the same scoring on demand without recording OTel metrics.
+- **Automatic metrics path:** **`AgentOutputEvaluationRecorder.EvaluateAndRecordMetricsAsync`** runs after a successful architecture execute (**`ArchitectureRunExecuteOrchestrator`** → **`IAgentOutputTraceEvaluationHook.AfterSuccessfulExecuteAsync`**) once evidence, **`AgentResult`** rows, and evaluations are committed. Most hook failures are logged and swallowed so the run can still promote **`LegacyRunStatus`** when results are complete; **`AgentOutputQualityGateRejectedException`** is an exception: when **`EnforceOnReject`** and **`BlockRunOnReject`** are **`true`**, the orchestrator marks **`ExecutionCompletedQualityRejected`**, emits baseline audit **`RunQualityGateRejected`**, and rethrows (API **`409`** with Problem Details — see **[`docs/runbooks/QUALITY_GATE_REJECTION.md`](../runbooks/QUALITY_GATE_REJECTION.md)**). **`GET …/agent-evaluation`** still performs the same scoring on demand without recording OTel metrics.
 
 ## 3. Constraints
 
@@ -93,7 +93,7 @@ Beyond structural completeness, **`AgentOutputSemanticEvaluator`** performs a de
 
 ### OTel metric
 
-**`archlucid_agent_output_semantic_score`** (histogram, 0.0–1.0; label `agent_type`) — recorded alongside the structural histogram by **`AgentOutputEvaluationRecorder`**.
+**`archlucid_agent_output_semantic_score`** (histogram, 0.0–1.0; label `agent_type`) — records **`OverallSemanticScore`** alongside the structural histogram (**`AgentOutputEvaluationRecorder`**). That value is a **heuristic** signal from structured JSON checks (claim evidence, finding fields), optionally combined with an **LLM rubric** when enabled — it is **not** embedding-based similarity and **not** a measure of factual correctness. Optional embedding alignment appears on the semantic DTO and in **`archlucid_agent_output_embedding_faithfulness_mean_cosine`** when faithfulness embeddings are enabled.
 
 ### Warning threshold
 
@@ -105,7 +105,15 @@ Beyond structural completeness, **`AgentOutputSemanticEvaluator`** performs a de
 IAgentOutputSemanticEvaluator.Evaluate(traceId, parsedResultJson, agentType) → AgentOutputSemanticScore (type lives in **`ArchLucid.Contracts.Agents`**).
 ```
 
-Registered as **singleton** (`IAgentOutputSemanticEvaluator → AgentOutputSemanticEvaluator`).
+Registered as **singleton** (`IAgentOutputSemanticEvaluator → CompositeAgentOutputSemanticEvaluator`).
+
+### LLM-as-judge (opt-in; Topology + Critic only)
+
+- **Configuration:** **`ArchLucid:Agents:LlmJudge`** (canonical). Legacy **`ArchLucid:AgentOutput:LlmSemanticJudge`** is still bound first; any overlapping keys under **`Agents:LlmJudge`** win.
+- **Default:** **`Enabled: false`**. Operators opt in explicitly.
+- **Accounting:** Judge completions use **`LlmCompletionAccountingClient`** on a dedicated inner **`AzureOpenAiCompletionClient`** (JSON object mode — not the AgentResult **`json_schema`** path). Token usage, **`LlmTokenQuota`**, daily tenant windows, and **`LlmMonthlyTenantDollarBudget`** apply **the same way as agent batch completions**. There is **no separate judge budget bucket** or sub-cap; judge calls consume the shared tenant pool.
+- **Agent coverage:** Only **`AgentType.Topology`** and **`AgentType.Critic`** invoke the judge. **Cost** and **Compliance** stay **heuristic-only** to limit spend under that shared cap.
+- **Simulator:** When **`SkipWhenSimulator`** is **true** (default) and **`AgentExecution:Mode`** is **Simulator**, the judge is skipped.
 
 ### AgentResult versus persisted evidence (faithfulness ratio)
 

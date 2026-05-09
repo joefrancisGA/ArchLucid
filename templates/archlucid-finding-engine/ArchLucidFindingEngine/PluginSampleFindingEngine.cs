@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -32,6 +33,7 @@ public sealed class PluginSampleFindingEngine : IFindingEngine
             {
                 RulesApplied = ["plugin-sample-stub"],
                 DecisionsTaken = ["Emitted a single informational finding for graph snapshot validation."],
+                AlternativePathsConsidered = [ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote]
             },
         };
 

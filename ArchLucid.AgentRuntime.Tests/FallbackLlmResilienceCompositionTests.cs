@@ -129,7 +129,7 @@ public sealed class FallbackLlmResilienceCompositionTests
         string result = await sut.CompleteJsonAsync("s", "u");
 
         result.Should().Be("ok");
-        primaryInnerCalls.Should().Be(2);
+        primaryInnerCalls.Should().Be(1);
 
         secondary.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()), Times.Once);
     }
