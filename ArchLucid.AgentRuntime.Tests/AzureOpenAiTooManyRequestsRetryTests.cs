@@ -45,10 +45,37 @@ public sealed class AzureOpenAiTooManyRequestsRetryTests
     }
 
     [Fact]
-    public void CapDelay_clamps_to_product_max()
+    public void GetDelayBeforeRetry_clamps_large_retry_after_header_to_product_max()
     {
-        AzureOpenAiTooManyRequestsRetry.CapDelay(TimeSpan.FromHours(9))
-            .Should().Be(AzureOpenAiTooManyRequestsRetry.MaxRetryAfterDelay);
+        Mock<PipelineResponseHeaders> hdrs = new();
+        string? retryAfter = "100000";
+        hdrs.Setup(h => h.TryGetValue("Retry-After", out retryAfter)).Returns(true);
+
+        using UnitPipelineResponse pr = new(429, hdrs.Object);
+
+        ClientResultException ex = new("unit-too-many", pr);
+
+        TimeSpan wait = AzureOpenAiTooManyRequestsRetry.GetDelayBeforeRetry(ex, 0, logger: null, out bool usedHeader);
+
+        usedHeader.Should().BeTrue();
+        wait.Should().Be(AzureOpenAiTooManyRequestsRetry.MaxRetryAfterDelay);
+    }
+
+    [Fact]
+    public void GetDelayBeforeRetry_raises_sub_second_retry_after_to_minimum_throttle_delay()
+    {
+        Mock<PipelineResponseHeaders> hdrs = new();
+        string? retryAfter = "0";
+        hdrs.Setup(h => h.TryGetValue("Retry-After", out retryAfter)).Returns(true);
+
+        using UnitPipelineResponse pr = new(429, hdrs.Object);
+
+        ClientResultException ex = new("unit-too-many", pr);
+
+        TimeSpan wait = AzureOpenAiTooManyRequestsRetry.GetDelayBeforeRetry(ex, 0, logger: null, out bool usedHeader);
+
+        usedHeader.Should().BeTrue();
+        wait.Should().Be(AzureOpenAiTooManyRequestsRetry.MinimumThrottleDelay);
     }
 
     [Fact]

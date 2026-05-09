@@ -16,9 +16,6 @@ using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 
-using Stripe;
-using Stripe.Checkout;
-
 namespace ArchLucid.Api.Tests.Billing;
 
 /// <summary>
@@ -70,33 +67,17 @@ public sealed class StripeCheckoutEndToEndTests
             string providerSessionId) =
             await RegisterAndCheckoutAsync(fixture, client, organizationName, adminEmail, checkoutTierLabel: "Pro");
 
-        // Stripe.net EventData.Object uses StripeObjectConverter: JSON must include "object":"checkout.session"
-        // or ConstructEvent leaves Data.Object null and activation is skipped while the webhook still returns 200.
-        Session session = new()
-        {
-            Object = "checkout.session",
-            Id = providerSessionId,
-            SubscriptionId = "sub_e2e_" + Guid.NewGuid().ToString("N"),
-            Metadata = new Dictionary<string, string>
-            {
-                ["tenant_id"] = tenantId.ToString("D"),
-                ["workspace_id"] = workspaceId.ToString("D"),
-                ["project_id"] = projectId.ToString("D"),
-                ["tier"] = "Pro",
-                ["seats"] = "2",
-                ["workspaces"] = "1"
-            }
-        };
-
-        Event stripeEvent = new()
-        {
-            Id = "evt_e2e_" + Guid.NewGuid().ToString("N"),
-            Type = "checkout.session.completed",
-            ApiVersion = StripeCheckoutE2EWebhookTestSigning.StripeNetWebhookApiVersion,
-            Data = new EventData { Object = session }
-        };
-
-        string json = stripeEvent.ToJson();
+        string subscriptionId = "sub_e2e_" + Guid.NewGuid().ToString("N");
+        string json = StripeCheckoutE2EWebhookTestSigning.BuildCheckoutSessionCompletedWebhookJson(
+            "evt_e2e_" + Guid.NewGuid().ToString("N"),
+            providerSessionId,
+            subscriptionId,
+            tenantId,
+            workspaceId,
+            projectId,
+            checkoutTierLabel: "Pro",
+            seats: 2,
+            workspaces: 1);
         string signature = StripeCheckoutE2EWebhookTestSigning.BuildStripeV1Signature(
             StripeCheckoutE2EWebhookTestSigning.WebhookSigningSecret,
             json);

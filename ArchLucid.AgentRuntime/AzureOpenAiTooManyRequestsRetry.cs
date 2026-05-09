@@ -33,12 +33,8 @@ internal static class AzureOpenAiTooManyRequestsRetry
         if (TryGetRetryAfterDelay(ex, out TimeSpan fromHeader))
         {
             usedRetryAfterHeader = true;
-            fromHeader = CapDelay(fromHeader);
 
-            if (fromHeader < MinimumThrottleDelay)
-                fromHeader = MinimumThrottleDelay;
-
-            return fromHeader;
+            return fromHeader.Clamp(MinimumThrottleDelay, MaxRetryAfterDelay);
         }
 
         usedRetryAfterHeader = false;
@@ -99,11 +95,6 @@ internal static class AzureOpenAiTooManyRequestsRetry
 
         return delay > TimeSpan.Zero;
 
-    }
-
-    internal static TimeSpan CapDelay(TimeSpan delay)
-    {
-        return delay > MaxRetryAfterDelay ? MaxRetryAfterDelay : delay;
     }
 
     private static bool TryGetRetryAfterHeaderRaw(PipelineResponseHeaders headers, [NotNullWhen(true)] out string? value)
