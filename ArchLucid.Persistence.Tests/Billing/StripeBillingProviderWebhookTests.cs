@@ -110,19 +110,19 @@ public sealed class StripeBillingProviderWebhookTests
 
         // data.object intentionally omits Stripe's resource "object":"checkout.session" — StripeObjectConverter
         // leaves EventData.Object null; RawObject fallback must still produce a Session with metadata.
-        Dictionary<string, object?> payload = new()
+        // Include request:null: Stripe.net EventConverter assumes the request key exists (github.com/stripe/stripe-dotnet).
+        JObject payload = new JObject
         {
             ["id"] = "evt_discriminator_test",
             ["type"] = "checkout.session.completed",
             ["api_version"] = "2025-08-27.basil",
-            ["request"] = null,
-            ["data"] = new Dictionary<string, object?>
+            ["data"] = new JObject
             {
-                ["object"] = new Dictionary<string, object?>
+                ["object"] = new JObject
                 {
                     ["id"] = "cs_test",
                     ["subscription"] = "sub_no_object_key",
-                    ["metadata"] = new Dictionary<string, string>
+                    ["metadata"] = new JObject
                     {
                         ["tenant_id"] = tenantId.ToString("D"),
                         ["workspace_id"] = workspaceId.ToString("D"),
@@ -135,7 +135,9 @@ public sealed class StripeBillingProviderWebhookTests
             }
         };
 
-        string json = System.Text.Json.JsonSerializer.Serialize(payload);
+        payload.Add("request", JValue.CreateNull());
+
+        string json = payload.ToString(Newtonsoft.Json.Formatting.None);
         string signature = BuildStripeV1Signature(signingSecret, json);
 
         BillingWebhookHandleResult result = await sut.HandleWebhookAsync(
