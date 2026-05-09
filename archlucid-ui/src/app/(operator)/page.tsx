@@ -18,6 +18,7 @@ import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityL
 import { HelpLink } from "@/components/HelpLink";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboard";
+import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
@@ -43,6 +44,8 @@ export default function HomePage() {
       )}
 
       {buyerPolishedShell ? null : <CorePilotNextStepsCard />}
+
+      {buyerPolishedShell ? null : <CorePilotChecklist />}
 
       <SampleFirstReviewPackageCard />
 

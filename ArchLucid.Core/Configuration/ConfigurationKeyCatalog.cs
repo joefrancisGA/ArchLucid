@@ -328,7 +328,7 @@ public static class ConfigurationKeyCatalog
                 "Orphan scan cadence.", ConfigKeyRequirementKind.None),
             E("DataConsistency", "DataConsistency:Enforcement:Mode", M("appsettings", "env"), "Warn",
                 "ArchLucid.Api: Alert",
-                "Off | Warn | Alert | Quarantine (see `DataConsistencyEnforcementMode`); reference API ships Alert for orphan paging.",
+                "Off | Warn | Alert | Quarantine (see `DataConsistencyEnforcementMode`); reference Api appsettings.Production.json and appsettings.Staging.json ship Alert for orphan paging.",
                 ConfigKeyRequirementKind.None),
             E("DataConsistency", "DataConsistency:Enforcement:MaxRowsPerBatch", M("appsettings", "env"), "500",
                 "When enforced", "Safer cap per remediation batch.", ConfigKeyRequirementKind.None),

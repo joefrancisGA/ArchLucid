@@ -1,0 +1,186 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+
+import { HelpLink } from "@/components/HelpLink";
+import { Button } from "@/components/ui/button";
+import {
+  CORE_PILOT_CHECKLIST_CHANGED_EVENT,
+  CORE_PILOT_STEP_COUNT,
+  PILOT_CHECKLIST_PANEL_STORAGE_KEY,
+  readPilotChecklistPanelState,
+  writePilotChecklistPanelState,
+} from "@/lib/core-pilot-checklist-storage";
+import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+
+/** Anchor ids in docs/CORE_PILOT.md walkthrough (section 3) — keep aligned with headings. */
+const CORE_PILOT_DOC_FRAGMENTS = ["#new-run", "#pipeline-status", "#commit", "#manifest-review"] as const;
+
+/** Operator-home checklist: manual "mark complete" synced with `archlucid-pilot-checklist` and legacy step keys. */
+export function CorePilotChecklist() {
+  const [hydrated, setHydrated] = useState(false);
+  const [stepsDone, setStepsDone] = useState<boolean[]>(() =>
+    Array.from({ length: CORE_PILOT_STEP_COUNT }, () => false),
+  );
+  const [hidden, setHidden] = useState(false);
+
+  const persist = useCallback((nextSteps: boolean[], nextHidden: boolean) => {
+    writePilotChecklistPanelState({ steps: nextSteps, hidden: nextHidden });
+  }, []);
+
+  useEffect(() => {
+    const s = readPilotChecklistPanelState();
+
+    setStepsDone(s.steps);
+    setHidden(s.hidden);
+    setHydrated(true);
+
+    try {
+      if (typeof window !== "undefined" && window.localStorage.getItem(PILOT_CHECKLIST_PANEL_STORAGE_KEY) === null) {
+        writePilotChecklistPanelState(s);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated || typeof window === "undefined") {
+      return;
+    }
+
+    function syncFromStorage() {
+      const s = readPilotChecklistPanelState();
+
+      setStepsDone(s.steps);
+      setHidden(s.hidden);
+    }
+
+    window.addEventListener(CORE_PILOT_CHECKLIST_CHANGED_EVENT, syncFromStorage);
+
+    return () => {
+      window.removeEventListener(CORE_PILOT_CHECKLIST_CHANGED_EVENT, syncFromStorage);
+    };
+  }, [hydrated]);
+
+  if (!hydrated) {
+    return null;
+  }
+
+  if (hidden) {
+    return (
+      <div
+        className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-950"
+        data-testid="core-pilot-checklist-collapsed"
+      >
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full sm:w-auto"
+          onClick={() => {
+            setHidden(false);
+            persist(stepsDone, false);
+          }}
+        >
+          Show Core Pilot checklist
+        </Button>
+      </div>
+    );
+  }
+
+  const allDone = stepsDone.every(Boolean);
+
+  return (
+    <section
+      className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-950"
+      aria-labelledby="core-pilot-checklist-heading"
+      data-testid="core-pilot-checklist"
+    >
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <h2
+          id="core-pilot-checklist-heading"
+          className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
+        >
+          Core Pilot checklist
+        </h2>
+        <HelpLink docPath="/docs/CORE_PILOT.md" label="Open Core Pilot guide on GitHub (new tab)" />
+      </div>
+
+      <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
+        Work through the four steps from an empty tenant to a reviewed package — check each when you have done it.
+      </p>
+
+      <ol className="m-0 list-none space-y-4 p-0">
+        {CORE_PILOT_STEPS.map((step, index) => {
+          const checkboxId = `core-pilot-checklist-step-${index}`;
+          const docPath = `/docs/CORE_PILOT.md${CORE_PILOT_DOC_FRAGMENTS[index]}`;
+
+          return (
+            <li
+              key={step.title}
+              className="border-b border-neutral-100 pb-4 last:border-b-0 last:pb-0 dark:border-neutral-800"
+            >
+              <div className="flex flex-wrap items-start gap-2">
+                <Link
+                  href={step.primaryHref}
+                  className="text-sm font-semibold text-blue-700 underline-offset-2 hover:underline dark:text-blue-400"
+                >
+                  {step.title}
+                </Link>
+                <HelpLink
+                  docPath={docPath}
+                  label={`Core Pilot guide — step ${index + 1} (new tab)`}
+                />
+              </div>
+              <p className="m-0 mt-1 text-sm text-neutral-700 dark:text-neutral-300">{step.shortBody}</p>
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  id={checkboxId}
+                  type="checkbox"
+                  checked={stepsDone[index] === true}
+                  className="h-4 w-4 shrink-0 rounded border-neutral-400 text-teal-600 focus:ring-teal-500 dark:border-neutral-500"
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    const nextSteps = stepsDone.map((v, i) => (i === index ? checked : v));
+
+                    setStepsDone(nextSteps);
+                    persist(nextSteps, hidden);
+                  }}
+                />
+                <label htmlFor={checkboxId} className="text-sm text-neutral-800 dark:text-neutral-200">
+                  Mark complete
+                </label>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+
+      {allDone ? (
+        <div
+          className="mt-4 rounded-md border border-teal-200 bg-teal-50 p-3 dark:border-teal-900 dark:bg-teal-950/40"
+          data-testid="core-pilot-checklist-complete"
+        >
+          <p className="m-0 text-sm font-medium text-teal-950 dark:text-teal-100">
+            You have stepped through the Core Pilot path — open a finalized review to explore the full review package.
+          </p>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="mt-3"
+            data-testid="core-pilot-checklist-hide"
+            onClick={() => {
+              setHidden(true);
+              persist(stepsDone, true);
+            }}
+          >
+            Hide checklist
+          </Button>
+        </div>
+      ) : null}
+    </section>
+  );
+}

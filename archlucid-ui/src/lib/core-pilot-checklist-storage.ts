@@ -25,6 +25,68 @@ export function corePilotStepDoneStorageKey(index: number): string {
   return `archlucid_onboarding_step_${index}_done`;
 }
 
+/** Full panel state (step checks + hide UI); legacy per-step keys stay in sync for other Home surfaces. */
+export const PILOT_CHECKLIST_PANEL_STORAGE_KEY = "archlucid-pilot-checklist";
+
+export type PilotChecklistPanelPersisted = {
+  steps: boolean[];
+  hidden: boolean;
+};
+
+function defaultPilotChecklistPanelState(): PilotChecklistPanelPersisted {
+  return { steps: Array.from({ length: CORE_PILOT_STEP_COUNT }, () => false), hidden: false };
+}
+
+/** Hydration-safe read: prefers `PILOT_CHECKLIST_PANEL_STORAGE_KEY`, else migrates from `corePilotStepDoneStorageKey`. */
+export function readPilotChecklistPanelState(): PilotChecklistPanelPersisted {
+  if (typeof window === "undefined") {
+    return defaultPilotChecklistPanelState();
+  }
+
+  try {
+    const raw = window.localStorage.getItem(PILOT_CHECKLIST_PANEL_STORAGE_KEY);
+
+    if (raw) {
+      const parsed = JSON.parse(raw) as { steps?: unknown; hidden?: unknown };
+
+      if (Array.isArray(parsed.steps) && parsed.steps.length === CORE_PILOT_STEP_COUNT) {
+        return {
+          steps: parsed.steps.map((s) => s === true),
+          hidden: parsed.hidden === true,
+        };
+      }
+    }
+  } catch {
+    /* fall through */
+  }
+
+  const steps: boolean[] = [];
+
+  for (let i = 0; i < CORE_PILOT_STEP_COUNT; i++) {
+    steps.push(window.localStorage.getItem(corePilotStepDoneStorageKey(i)) === "1");
+  }
+
+  return { steps, hidden: false };
+}
+
+export function writePilotChecklistPanelState(state: PilotChecklistPanelPersisted): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(PILOT_CHECKLIST_PANEL_STORAGE_KEY, JSON.stringify(state));
+
+    for (let i = 0; i < CORE_PILOT_STEP_COUNT; i++) {
+      window.localStorage.setItem(corePilotStepDoneStorageKey(i), state.steps[i] ? "1" : "0");
+    }
+
+    emitCorePilotChecklistChanged();
+  } catch {
+    /* ignore */
+  }
+}
+
 /** True when every checklist step has localStorage value "1". */
 export function readCorePilotChecklistAllDone(): boolean {
   if (typeof window === "undefined") {

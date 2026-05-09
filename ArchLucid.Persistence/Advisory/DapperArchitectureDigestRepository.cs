@@ -1,14 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IArchitectureDigestRepository" />
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]

@@ -151,7 +151,7 @@ Ordered from most urgent (highest weighted deficiency) to least urgent.
 
 **Tradeoffs:** The depth that creates friction is also the depth that creates value for enterprise buyers. Reducing surface area would reduce differentiation.
 
-**Recommendations:** (1) Finish Phase **7** naming cleanup — brownfield Terraform **`state mv`** / verification is **in Improvement 7** (**owner-approved 2026-05-09**); continue doc/config key alignment per **`BREAKING_CHANGES`** as needed. (2) Create a minimal "Pilot-only" appsettings template that hides Operate surfaces. (3) Build an interactive in-UI onboarding checklist that guides operators through Core Pilot. Timeline: v1 for items 2–3; v1.1 for broader residue beyond Improvement **7**.
+**Recommendations:** (1) Finish Phase **7** naming cleanup — brownfield Terraform **`state mv`** / verification is **in Improvement 7** (**owner-approved 2026-05-09**); continue doc/config key alignment per **`BREAKING_CHANGES`** as needed. (2) Create a minimal "Pilot-only" appsettings template that hides Operate surfaces. (3) **Done (2026-05-09):** interactive Core Pilot checklist on operator home — **Improvement 6** (`CorePilotChecklist`, localStorage + doc/deep links). Timeline: v1 for item **2**; v1.1 for broader residue beyond Improvement **7**.
 
 ---
 
@@ -679,49 +679,24 @@ Constraints:
 
 **Title:** Add First-Time Operator In-UI Onboarding Checklist
 
-**Why it matters:** Adoption Friction and Time-to-Value are high-weight deficiencies. The Core Pilot checklist exists in docs but is not surfaced in the UI. A contextual in-UI guide reduces the gap between opening the product and completing the first pilot.
+**Why it matters:** Adoption Friction and Time-to-Value are high-weight deficiencies. **Implemented (2026-05-09):** a dedicated operator-home checklist surfaces the Core Pilot path next to existing next-step cards, with deep links into `docs/CORE_PILOT.md`, so the gap between opening the product and understanding the first-pilot journey is smaller.
 
 **Expected impact:** Directly improves Adoption Friction (+5-7 pts), Time-to-Value (+4-6 pts), Usability (+3-4 pts). Weighted readiness impact: +0.6-1.0%.
 
 **Affected qualities:** Adoption Friction, Time-to-Value, Usability, Cognitive Load.
 
-**Status:** Actionable now.
+**Status:** **Implemented** (2026-05-09).
 
-**Cursor prompt:**
+**Delivered (repo):**
 
-```
-Add an interactive onboarding checklist component to the operator UI home page that guides first-time operators through the Core Pilot steps.
+- `archlucid-ui/src/components/CorePilotChecklist.tsx` — vertical checklist for the **four** Core Pilot steps (via `CORE_PILOT_STEPS` / `docs/CORE_PILOT.md`); per-step UI link, `HelpLink` to anchored guide sections (`#new-run`, `#pipeline-status`, `#commit`, `#manifest-review`), “Mark complete” checkbox, congrats when all done, **Hide checklist** / **Show Core Pilot checklist**; Tailwind/shadcn-aligned styling; **under 200** lines.
+- `archlucid-ui/src/lib/core-pilot-checklist-storage.ts` — `PILOT_CHECKLIST_PANEL_STORAGE_KEY` (`archlucid-pilot-checklist`) JSON `{ steps, hidden }`; `readPilotChecklistPanelState` / `writePilotChecklistPanelState` migrate from legacy keys and **sync** `archlucid_onboarding_step_{i}_done` + `emitCorePilotChecklistChanged` so the sidebar / diagnostics checklist stay aligned.
+- `archlucid-ui/src/app/(operator)/page.tsx` — checklist added **after** `CorePilotNextStepsCard`, before `SampleFirstReviewPackageCard`, when **`!buyerPolishedShell`** (no edits inside other home components).
+- `archlucid-ui/src/components/CorePilotChecklist.test.tsx` — Vitest: render four steps, localStorage persistence, hide/show.
 
-Steps:
-1. Read docs/CORE_PILOT.md for the four Core Pilot steps (Configure, Start, Create Run, Execute, Commit, Review).
-2. Read archlucid-ui/src/app/(operator)/page.tsx (home page) for the current layout.
-3. Read archlucid-ui/src/components/ to understand existing component patterns (LayerHeader, OperatorPageHeader, etc.).
-4. Create a new component archlucid-ui/src/components/CorePilotChecklist.tsx that:
-   - Displays a vertical step list matching the Core Pilot steps.
-   - Each step shows: title, one-line description, and a "Mark complete" checkbox.
-   - Checklist state persists in localStorage (key: archlucid-pilot-checklist).
-   - When all steps are complete, shows a congratulatory message and a "Hide checklist" option.
-   - Includes a "Show checklist" toggle when hidden (persisted in localStorage).
-   - Links each step to the relevant docs page or UI route.
-5. Add the checklist to the home page, above or alongside the existing content.
-6. Add a Vitest test for the component (render, toggle, localStorage persistence).
-7. Style using existing Tailwind/shadcn patterns from the codebase.
+**Acceptance:** Met — no new npm dependencies; no API/backend changes; persistence and tests in place.
 
-Acceptance criteria:
-- CorePilotChecklist renders on the home page for new visitors.
-- Steps match docs/CORE_PILOT.md content.
-- State persists across page reloads via localStorage.
-- Checklist can be hidden and shown again.
-- Vitest test covers render and localStorage behavior.
-- No changes to API or backend code.
-
-Constraints:
-- Do NOT add new npm dependencies.
-- Do NOT change existing home page components — add alongside them.
-- Use existing Radix/shadcn primitives (Collapsible, etc.).
-- Keep the component under 200 lines.
-- Follow the existing code patterns in archlucid-ui/src/components/.
-```
+**Note:** Radix **Collapsible** was optional (“Collapsible, etc.”); hide/show is handled with persisted `hidden` and conditional render.
 
 ---
 
@@ -953,6 +928,263 @@ Constraints:
 - Do NOT add new NuGet dependencies.
 - Use the existing ArchLucidApiFactory test infrastructure.
 - Do not use ConfigureAwait(false) in tests (per user rules).
+```
+
+---
+
+### Improvement 13: Invariant Wave A completion — INV-005 (fail-closed boot) + INV-006 (composition root) (TB-010)
+
+**Title:** Architecture invariant Wave A completion — production host fail-closed + single composition root
+
+**Why it matters:** INV-005 is P0 — a single mis-set `ASPNETCORE_ENVIRONMENT` must not silently enable dev auth in staging or production. The startup validator exists but its rule registry is not continuously diffed against `ConfigurationKeyCatalog` in CI, leaving gaps when new bypass-capable keys are added. INV-006 is P2 but prevents hidden lifetimes and test/prod wiring drift as the project count grows beyond 30.
+
+**Expected impact:** INV-005 closes a hard security gap: Security (+4–6 pts), Reliability (+2–3 pts). INV-006 improves Architectural Integrity (+2–3 pts), Maintainability (+1–2 pts). Weighted readiness impact: +0.4–0.7%.
+
+**Affected qualities:** Security, Reliability, Architectural Integrity, Maintainability.
+
+**Completes:** TB-010 (INV-001 already shipped 2026-05-09 as Improvement 3).
+
+**Status:** Actionable now.
+
+**Cursor prompt:**
+
+```
+Enforce architecture invariants INV-005 (production host fail-closed) and INV-006 (single composition root) from docs/library/ARCHITECTURE_INVARIANTS.md.
+
+## INV-005 — startup validator catalog parity
+
+Steps:
+1. Read ArchLucid.Host.Core/Startup/Validation/ for existing validator rules and IStartupValidator patterns.
+2. Read ArchLucid.Core/Configuration/ConfigurationKeyCatalog.cs (or equivalent) for all registered bypass-capable configuration keys.
+3. Create or extend a CI-level architecture test (ArchLucid.Host.Core.Tests or a new ArchLucid.Architecture.Tests project) that:
+   - Enumerates all ConfigurationKeyCatalog entries whose category is "DeveloperBypass", "SoftGuard", or equivalent.
+   - For each such key, asserts that a matching IStartupValidator rule exists that either rejects or warns when that key is set in a Production-classified environment.
+   - Fails with a clear message listing uncovered keys so new keys cannot be added without a corresponding validator rule.
+4. If any bypass-capable keys have no validator coverage, add the missing rule implementations in ArchLucid.Host.Core/Startup/Validation/Rules/.
+
+Acceptance criteria:
+- Architecture test enumerates bypass keys and asserts validator coverage.
+- No bypass-capable ConfigurationKeyCatalog entry can be added without a test failure until a validator rule is registered.
+- Existing StartupValidatorTests continue to pass.
+- Follow SingleLineThrowNoBraces rule; one blank line before if/foreach.
+
+## INV-006 — single composition root architecture test
+
+Steps:
+1. Read ArchLucid.Host.Composition/ for the canonical IServiceCollection extension method pattern.
+2. Create an architecture test (same test project as INV-005 test above or existing Architecture.Tests) that:
+   - Loads all assemblies in the product assembly set (ArchLucid.Application, ArchLucid.Decisioning, ArchLucid.AgentRuntime, ArchLucid.Persistence, ArchLucid.Core, ArchLucid.KnowledgeGraph, ArchLucid.Provenance, ArchLucid.Retrieval, ArchLucid.ContextIngestion, ArchLucid.ArtifactSynthesis, ArchLucid.Notifications).
+   - Scans for public static methods that accept IServiceCollection as a parameter.
+   - Asserts that none are found in the above assemblies (only ArchLucid.Host.Composition and ArchLucid.TestSupport are allow-listed).
+3. If any stray IServiceCollection extension methods are found outside the allow-list, move them or flag them.
+
+Acceptance criteria:
+- Architecture test runs in CI and fails when IServiceCollection extensions appear outside the allow-list.
+- Allow-list is a named constant in the test (not inline strings) so adding a new project requires an intentional code change.
+- No behavioral changes to production DI registration.
+
+Constraints:
+- Do NOT add new NuGet dependencies (use reflection; NetArchTest is optional if already referenced).
+- Each new test class in its own file.
+- No ConfigureAwait(false) in tests.
+```
+
+---
+
+### Improvement 14: Invariant Wave B — INV-002 (structural execution mode) + INV-012 (quality-gate SSOT) + INV-013 (replay isolation) (TB-011)
+
+**Title:** Architecture invariant Wave B — execution mode honesty, quality-gate single source of truth, replay isolation
+
+**Why it matters:** INV-002 is P0 — buyers must never see simulator output labeled as live-model output. The `StructuralExecutionMode` enum exists in the codebase but is not enforced NOT NULL at the persistence layer, meaning a code defect could silently persist `Unknown`. INV-012 (P1) prevents UI/API/audit contradictions from environments with slightly different appsettings thresholds. INV-013 (P2) ensures replay artefacts cannot overwrite original committed evidence.
+
+**Expected impact:** INV-002 closes a trust gap: Trustworthiness (+3–5 pts), Correctness (+2–3 pts). INV-012: Correctness (+2–3 pts), Data Consistency (+1–2 pts). INV-013: Audit Integrity (+2–3 pts). Weighted readiness impact: +0.5–0.9%.
+
+**Affected qualities:** Trustworthiness, Correctness, Data Consistency, Audit Integrity.
+
+**Note:** INV-004 (durable LLM budget coherence) is already covered by Improvement 2 in this assessment.
+
+**Completes:** TB-011 (together with Improvement 2 for INV-004).
+
+**Status:** Actionable now.
+
+**Cursor prompt:**
+
+```
+Enforce architecture invariants INV-002, INV-012, and INV-013 from docs/library/ARCHITECTURE_INVARIANTS.md.
+
+## INV-002 — structural execution mode NOT NULL enforcement
+
+Steps:
+1. Read the StructuralExecutionMode enum and the dbo.Runs schema in ArchLucid.Persistence/Scripts/ArchLucid.sql.
+2. Verify the column is NOT NULL in the DDL; if nullable, add a DbUp migration to add NOT NULL with a DEFAULT of the appropriate "Unknown" or "Real" value and update the DDL.
+3. Add a schema-level unit test that attempts to INSERT a row with NULL StructuralExecutionMode and asserts the database rejects it.
+4. Add an OpenAPI contract test that asserts the StructuralExecutionMode field is present and not null-annotated on the run response DTO.
+
+## INV-012 — quality-gate single source of truth
+
+Steps:
+1. Read ArchLucid.Application/Runs/ for quality gate outcome computation and persistence.
+2. Identify any locations outside the canonical IQualityGateOutcomeRepository or equivalent persistence path that re-derive quality gate verdicts from appsettings or options directly (e.g., re-reading AgentOutputQualityGateOptions downstream of the persisted verdict).
+3. Add an architecture test that scans assemblies for direct reads of AgentOutputQualityGateOptions (or equivalent threshold-options class) outside the single evaluation point, and asserts no such reads exist downstream of persistence.
+4. If violations are found, refactor to read the persisted verdict rather than re-deriving it.
+
+## INV-013 — replay read-only scope isolation
+
+Steps:
+1. Read ArchLucid.Application/Runs/ replay orchestration code.
+2. Add an integration test that:
+   - Creates an original run with committed artefacts and records their content hashes.
+   - Initiates a replay of that run.
+   - After replay, re-reads the original run's artefact records and asserts the hashes are unchanged.
+   - Asserts that replay output was written under a distinct scope identifier (not the original run scope).
+3. If the replay path currently has no scope separation, add it.
+
+Acceptance criteria:
+- StructuralExecutionMode is NOT NULL in DDL and verified by a schema test.
+- Architecture test detects downstream threshold re-derivation.
+- Integration test proves original artefact hashes survive replay.
+- No controller or API surface changes.
+
+Constraints:
+- All DDL changes go into the single ArchLucid.sql master file plus a numbered DbUp migration.
+- Each new class in its own file; no ConfigureAwait(false) in tests.
+```
+
+---
+
+### Improvement 15: Invariant Wave C — Roslyn hygiene analyzer pack ARCH002–ARCH005 (INV-007, INV-008, INV-010, INV-014) (TB-012)
+
+**Title:** Architecture invariant Wave C — Roslyn hygiene analyzers: injected time, cancellation, HTTP clients, mutable statics
+
+**Why it matters:** Four P2 invariants are best enforced at compile time and can be added as incremental rules to the `ArchLucid.Analyzers` project shipping from Improvement 3. None touch production behavior but collectively prevent correctness and cost regressions as the codebase grows.
+
+- **INV-007** (injected time): Naked `DateTime.UtcNow` / `DateTimeOffset.UtcNow` in production code breaks deterministic replay and testability.
+- **INV-008** (cancellation forwarding): Missing `CancellationToken` on LLM and HTTP calls leaks cost after user abort.
+- **INV-010** (central HTTP clients): `new HttpClient()` bypasses circuit-breaking, retry policies, and distributed tracing headers.
+- **INV-014** (no mutable statics): Mutable statics in `Application` / `AgentRuntime` create cross-tenant cache risks in multi-replica Container Apps.
+
+**Expected impact:** Correctness (+2–3 pts), Reliability (+2–3 pts), Cost Control (+1–2 pts), Architectural Integrity (+2–3 pts). Weighted readiness impact: +0.3–0.5% (preventive — score uplift accrues when violations are absent in assessments after shipping).
+
+**Affected qualities:** Correctness, Reliability, Cost Control, Architectural Integrity, Testability.
+
+**Status:** Actionable now. `ArchLucid.Analyzers` project and test harness are already in place from Improvement 3.
+
+**Cursor prompt:**
+
+```
+Add four new Roslyn diagnostic analyzers to ArchLucid.Analyzers, enforcing INV-007, INV-008, INV-010, and INV-014 from docs/library/ARCHITECTURE_INVARIANTS.md.
+
+Context: ArchLucid.Analyzers already contains TenantIdentityBoundaryAnalyzer (ARCH001) and the test harness uses Microsoft.CodeAnalysis.CSharp.Analyzer.Testing. Follow the same patterns.
+
+## ARCH002 — INV-007: Ban DateTime.UtcNow / DateTimeOffset.UtcNow outside clock adapters
+
+1. Read ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs for the existing pattern.
+2. Create ArchLucid.Analyzers/Arch002Descriptor.cs (rule ARCH002, Warning, "INV-007 Injected Time").
+3. Create ArchLucid.Analyzers/NakedDateTimeAnalyzer.cs that:
+   - Flags any member access to DateTime.UtcNow, DateTime.Now, DateTimeOffset.UtcNow, DateTimeOffset.Now in assemblies that are NOT ArchLucid.Host.*, ArchLucid.Analyzers, or ArchLucid.*Clock* (clock adapter allow-list).
+   - Reports ARCH002 at the member access site.
+4. Add ARCH002 tests in ArchLucid.Analyzers.Tests/NakedDateTimeAnalyzerTests.cs:
+   - Flags DateTime.UtcNow in inner assembly.
+   - Does not flag in Host.* allow-listed assembly.
+   - Does not flag TimeProvider or IClock usage.
+
+## ARCH003 — INV-008: Warn on public async methods missing CancellationToken
+
+1. Create ArchLucid.Analyzers/Arch003Descriptor.cs (rule ARCH003, Warning, "INV-008 Cancellation Forwarding").
+2. Create ArchLucid.Analyzers/MissingCancellationTokenAnalyzer.cs that:
+   - Inspects public interface methods in I*Service types whose return type is Task or Task<T>.
+   - Reports ARCH003 if no CancellationToken parameter is present.
+   - Allows [SuppressMessage("ARCH003")] for explicitly intentional omissions.
+3. Add tests in ArchLucid.Analyzers.Tests/MissingCancellationTokenAnalyzerTests.cs:
+   - Flags an IFooService method returning Task with no CancellationToken.
+   - Does not flag when CancellationToken is present.
+   - Does not flag non-interface classes.
+
+## ARCH004 — INV-010: Ban new HttpClient() directly
+
+1. Create ArchLucid.Analyzers/Arch004Descriptor.cs (rule ARCH004, Warning, "INV-010 Central HTTP Clients").
+2. Create ArchLucid.Analyzers/DirectHttpClientConstructionAnalyzer.cs that:
+   - Flags ObjectCreationExpression or ImplicitObjectCreationExpression whose type resolves to System.Net.Http.HttpClient.
+   - Allow-lists: ArchLucid.Analyzers itself, test assemblies (*.Tests), any class named *HttpClientFactory*.
+3. Add tests covering: flags new HttpClient(); does not flag IHttpClientFactory usage.
+
+## ARCH004 — INV-014: Ban mutable static fields/properties in Application and AgentRuntime
+
+1. Create ArchLucid.Analyzers/Arch005Descriptor.cs (rule ARCH005, Warning, "INV-014 No Mutable Statics").
+2. Create ArchLucid.Analyzers/MutableStaticAnalyzer.cs that:
+   - Inspects static field and property declarations in assemblies named ArchLucid.Application or ArchLucid.AgentRuntime.
+   - Flags any static field not marked readonly, and any static property with a public or internal setter.
+   - Allow-lists: const fields, static readonly fields, [ThreadStatic] fields.
+3. Add tests: flags non-readonly static field; does not flag static readonly; does not flag in non-Application assemblies.
+
+Register all four analyzers in ArchLucid.Analyzers.csproj and ensure they appear in the existing analyzer ProjectReference chain already applied to product projects.
+
+Acceptance criteria:
+- 4 new descriptor files, 4 new analyzer files, 4 new test files.
+- All existing ARCH001 tests still pass.
+- dotnet build produces no CS* errors from the analyzer project.
+- Each class in its own file; no ConfigureAwait(false) in tests.
+```
+
+---
+
+### Improvement 16: Invariant Wave C — structural conformance tests (INV-003, INV-011, INV-015) (TB-012)
+
+**Title:** Architecture invariant Wave C — audit path markers, append-only repository shape, webhook pipeline order
+
+**Why it matters:** Three invariants are best enforced via architecture/integration tests rather than Roslyn analyzers:
+
+- **INV-003** (P1): The distinction between transactional audit (fail-closed) and informational async audit (best-effort per TB-001) exists in code comments and docs but has no programmatic marker preventing accidental promotion of fire-and-forget paths to synchronous contract paths.
+- **INV-011** (P2): Append-only domain repositories (`IAuditRepository`, immutable trace stores) must not expose `Update*` / `Delete*` methods; SQL GRANT/REVOKE alone is insufficient without an interface gate.
+- **INV-015** (P1): Inbound webhooks must run verify-signature → size-cap → rate-limit → schema-parse in that order before handler dispatch; out-of-order middleware is a parser-DoS and signature-bypass risk.
+
+**Expected impact:** INV-003: Correctness (+1–2 pts), Reliability (+1–2 pts). INV-011: Audit Integrity (+2–3 pts). INV-015: Security (+3–4 pts). Weighted readiness impact: +0.3–0.5%.
+
+**Affected qualities:** Correctness, Reliability, Audit Integrity, Security.
+
+**Status:** Actionable now.
+
+**Cursor prompt:**
+
+```
+Add structural conformance tests for architecture invariants INV-003, INV-011, and INV-015 from docs/library/ARCHITECTURE_INVARIANTS.md.
+
+## INV-003 — transactional vs informational audit path markers
+
+Steps:
+1. Read ArchLucid.Core/Audit/ for IAuditService and related types.
+2. Read ArchLucid.Application/Runs/Orchestration/ to understand which audit call sites use DurableAuditLogRetry (informational) vs direct IAuditService (transactional).
+3. Introduce a marker: either an [InformationalAudit] attribute or an IInformationalAuditOperation marker interface applied to informational audit call sites; transactional call sites have no marker and are expected to propagate failures.
+4. Add an architecture test that:
+   - Scans the product assemblies for direct IAuditService.LogAsync call sites NOT wrapped in DurableAuditLogRetry.TryLogAsync.
+   - For each such site, asserts either: (a) the enclosing method is on the allow-list of known transactional paths, or (b) the call site is marked with [InformationalAudit] / equivalent.
+   - Fails with a clear list of unclassified call sites so new audit calls must be consciously classified.
+
+## INV-011 — append-only repository shape
+
+Steps:
+1. Read ArchLucid.Core/ for IAuditRepository, IAppendOnly* interfaces, and any immutable-trace repository interfaces.
+2. Create an architecture test that:
+   - Enumerates the allow-listed append-only repository interfaces (hardcode names: IAuditRepository, any interface starting with IAppendOnly, IImmutableTrace*).
+   - For each interface, asserts no method name starts with Update, Delete, Remove, Patch, Upsert, or Truncate.
+   - Reports violations with interface + method name.
+
+## INV-015 — inbound webhook pipeline order
+
+Steps:
+1. Read ArchLucid.Api/ or ArchLucid.Host.Core/ for the webhook middleware pipeline registration and webhook controllers.
+2. Create an integration test or middleware-order unit test that:
+   - Constructs the test middleware pipeline from the DI container the same way as the production host.
+   - Sends a fabricated malformed/oversized webhook request and verifies the pipeline rejects it at the size-cap stage (HTTP 413) before reaching the schema parser.
+   - Sends a correctly-sized but signature-invalid request and verifies rejection at the signature stage (HTTP 401/400) before rate limiting and schema parsing.
+   - Documents the expected stage order in a comment in the test for future maintainers.
+
+Acceptance criteria:
+- INV-003: Architecture test lists unclassified IAuditService call sites; zero unclassified sites means test passes.
+- INV-011: Architecture test passes on current codebase (confirm no Update*/Delete* on append-only interfaces); fails if a mutation method is added.
+- INV-015: Integration test passes; if pipeline order is wrong, test catches it.
+- No changes to production webhook handlers or audit logic unless violations are found.
+- Each new test class in its own file; no ConfigureAwait(false) in tests.
 ```
 
 ---

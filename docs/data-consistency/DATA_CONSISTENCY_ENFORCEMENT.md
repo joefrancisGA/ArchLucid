@@ -61,8 +61,9 @@ Quarantine rows include **tenant id** from the orphaned golden manifest or findi
 
 ## Operational considerations
 
-- **Staging:** `Mode=Alert` — page on `archlucid_data_consistency_alerts_total`.
-- **Production:** `Mode=Quarantine` only after runbook sign-off; reconcile rows with **`AdminDiagnosticsService`** remediation endpoints where applicable.
+- **Production and staging (reference `ArchLucid.Api` appsettings):** `DataConsistency:Enforcement:Mode` defaults to **`Alert`** in **`appsettings.Production.json`** and **`appsettings.Staging.json`**, so paging can use **`archlucid_data_consistency_alerts_total`** when orphan counts meet **`AlertThreshold`** (type default **1**; keep **> 0** to suppress zero-threshold noise).
+- **Development / base profile:** **`appsettings.json`** does not elevate enforcement; the type default remains **`Warn`** unless **`DataConsistency:Enforcement:Mode`** is overridden (e.g. via environment or additional appsettings layers).
+- **`Quarantine` mode:** enable only after explicit operator runbook sign-off; reconcile rows with **`AdminDiagnosticsService`** remediation endpoints where applicable. Do not set **`Quarantine`** as the default in shipped appsettings.
 - **Dashboard:** committed Grafana JSON **`infra/grafana/dashboard-archlucid-authority.json`** includes the **`archlucid_data_consistency_*_total`** time series (orphans, alerts, quarantine) on the data consistency panel; Prometheus rules in **`infra/prometheus/archlucid-alerts.yml`**.
 - Operator quick-reference: [../runbooks/DATA_CONSISTENCY_ENFORCEMENT.md](../runbooks/DATA_CONSISTENCY_ENFORCEMENT.md).
 - See also [../OBSERVABILITY.md](../library/OBSERVABILITY.md) for metric names.

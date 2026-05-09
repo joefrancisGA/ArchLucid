@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core;
 
 using FluentAssertions;
 

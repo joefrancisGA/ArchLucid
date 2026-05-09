@@ -12,7 +12,7 @@ Items here are **greenlit in principle** â€” the decision has been made and
 | TB-002 | OTel counter + log for production config validation warnings | **Complete** â€” counter + Host.Core startup paths + Composition.Tests + alerts module stub | Done |
 | TB-003 | Performance regression sentinel â€” named-query allowlist CI gate | **Complete** â€” allowlist + histogram + CI dry-run + persistence timings on hot paths (`ListRecentInScopeAsync`, `AppendAsync`, `GetByIdAsync` manifest/snapshot) | Done |
 | TB-009 | Architecture invariant program â€” doc + ADR 0035 finalize | Engineering governance â€” single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
-| TB-010 | Architecture invariant enforcement â€” Wave A (INV-001, INV-005, INV-006) | Multi-tenant + prod boot safety â€” analyzers/tests for tenant boundary + startup validators + composition-root scan | M |
+| TB-010 | Architecture invariant enforcement â€” Wave A (INV-001 done, INV-005, INV-006) | Multi-tenant + prod boot safety â€” **INV-001 shipped 2026-05-09**; remaining: startup validator parity + composition-root scan | S (remainder) |
 | TB-011 | Architecture invariant enforcement â€” Wave B (INV-002, INV-004, INV-012, INV-013) | Honesty + economics â€” persisted execution mode, durable budget coherence, single quality-gate truth, replay scope isolation | L |
 | TB-012 | Architecture invariant enforcement â€” Wave C (INV-007â€“INV-011, INV-014â€“INV-015) | Contributor hygiene â€” time/cancellation/idempotency/HTTP/analyzer pack + webhook ordering + INV-003 path markers | L |
 | TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar â€” conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1â€“2 h |
@@ -135,6 +135,8 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
 ---
 
 ## TB-010 â€” Invariant Wave A â€” tenant boundary + fail-closed boot + composition root
+
+**Status (2026-05-09):** INV-001 (tenant identity boundary Roslyn analyzer ARCH001) **shipped** — see assessment Improvement 3. Remaining: INV-005 startup-validator catalog parity and INV-006 composition-root architecture test — see assessment Improvement 13.
 
 **Covers:** **INV-001**, **INV-005**, **INV-006**.
 
