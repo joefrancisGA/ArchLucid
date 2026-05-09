@@ -56,7 +56,7 @@ internal static class AzureOpenAiTooManyRequestsRetry
 
     internal static bool TryGetRetryAfterDelay(ClientResultException ex, out TimeSpan delay)
     {
-        delay = default;
+        delay = TimeSpan.Zero;
 
         if (ex.Status != 429)
             return false;
@@ -74,7 +74,7 @@ internal static class AzureOpenAiTooManyRequestsRetry
 
     internal static bool TryParseRetryAfterHeaderValue(string? raw, out TimeSpan delay)
     {
-        delay = default;
+        delay = TimeSpan.Zero;
 
         if (string.IsNullOrWhiteSpace(raw))
             return false;
@@ -88,39 +88,34 @@ internal static class AzureOpenAiTooManyRequestsRetry
             return true;
         }
 
-        if (DateTimeOffset.TryParse(
+        if (!DateTimeOffset.TryParse(
                 raw,
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
                 out DateTimeOffset retryAt))
-        {
-            delay = retryAt - DateTimeOffset.UtcNow;
+            return false;
 
-            return delay > TimeSpan.Zero;
-        }
+        delay = retryAt - DateTimeOffset.UtcNow;
 
-        return false;
+        return delay > TimeSpan.Zero;
+
     }
 
     internal static TimeSpan CapDelay(TimeSpan delay)
     {
-        if (delay > MaxRetryAfterDelay)
-            return MaxRetryAfterDelay;
-
-        return delay;
+        return delay > MaxRetryAfterDelay ? MaxRetryAfterDelay : delay;
     }
 
     private static bool TryGetRetryAfterHeaderRaw(PipelineResponseHeaders headers, [NotNullWhen(true)] out string? value)
     {
         value = null;
 
-        if (headers.TryGetValue("Retry-After", out string? v) && !string.IsNullOrWhiteSpace(v))
-        {
-            value = v;
+        if (!headers.TryGetValue("Retry-After", out string? v) || string.IsNullOrWhiteSpace(v))
+            return false;
 
-            return true;
-        }
+        value = v;
 
-        return false;
+        return true;
+
     }
 }

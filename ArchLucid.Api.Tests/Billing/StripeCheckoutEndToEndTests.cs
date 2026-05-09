@@ -70,8 +70,11 @@ public sealed class StripeCheckoutEndToEndTests
             string providerSessionId) =
             await RegisterAndCheckoutAsync(fixture, client, organizationName, adminEmail, checkoutTierLabel: "Pro");
 
+        // Stripe.net EventData.Object uses StripeObjectConverter: JSON must include "object":"checkout.session"
+        // or ConstructEvent leaves Data.Object null and activation is skipped while the webhook still returns 200.
         Session session = new()
         {
+            Object = "checkout.session",
             Id = providerSessionId,
             SubscriptionId = "sub_e2e_" + Guid.NewGuid().ToString("N"),
             Metadata = new Dictionary<string, string>

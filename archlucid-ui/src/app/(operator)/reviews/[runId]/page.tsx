@@ -55,7 +55,7 @@ import {
 } from "@/components/OperatorEvidenceLimitsFooter";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   type ApiResponseWithTrace,
   getBundleDownloadUrl,
@@ -529,6 +529,35 @@ export default async function RunDetailPage({
         executionFlavorBuyerSummary={resolvedDetail.executionFlavorBuyerSummary}
       />
 
+      {buyerPolishedArtifactTable && manifestId ? (
+        <Card className="border-neutral-200 dark:border-neutral-800">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+              Sponsor-ready view
+            </CardTitle>
+            <CardDescription>
+              Concise risk summary and outcomes — no operator scaffolding. Start here for executive and sponsor
+              distribution.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 pt-0">
+            <Button type="button" variant="primary" asChild>
+              <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>
+                Open executive view
+              </Link>
+            </Button>
+            <p className="m-0">
+              <Link
+                href="#manifest-summary"
+                className="text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+              >
+                or view manifest summary →
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
+
       {usedStaticDemoRun ? (
         <SampleReviewPackageSummary
           runId={resolvedDetail.run.runId}
@@ -546,22 +575,11 @@ export default async function RunDetailPage({
         warningCountDisplay={warningCountDisplay}
         hasGoldenManifest={Boolean(manifestId)}
         unresolvedIssueCountDisplay={manifestSummary?.unresolvedIssueCount ?? null}
+        aggregateRiskPosture={explanationSummary?.riskPosture ?? null}
         governanceGateLabel={
           manifestSummary !== null ? governanceGateLabelFromManifestStatus(manifestSummary.status) : null
         }
       />
-
-      {buyerPolishedArtifactTable && manifestId ? (
-        <div className="flex flex-col gap-3 rounded-lg border border-teal-200/80 bg-teal-50/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-teal-900/55 dark:bg-teal-950/30">
-          <p className="m-0 max-w-prose text-sm text-neutral-800 dark:text-neutral-200">
-            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Executive readout:</span> Concise
-            outcomes and risk framing for sponsors—without operator scaffolding below.
-          </p>
-          <Button type="button" variant="primary" size="sm" className="shrink-0" asChild>
-            <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>Open executive view</Link>
-          </Button>
-        </div>
-      ) : null}
 
       {showProgressTracker ? (
         <RunProgressTracker runId={runId} initialSummary={progressForPipelineUi} />
