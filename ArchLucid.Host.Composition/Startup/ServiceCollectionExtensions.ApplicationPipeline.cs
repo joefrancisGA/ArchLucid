@@ -43,6 +43,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Host.Composition.ValueReports;
+using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Host.Core.Marketing;
@@ -136,7 +137,7 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterRunReplayManifestAndDiffs(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IActorContext, ActorContext>();
+        services.AddScoped<IActorContext, HttpActorContext>();
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
         services.Configure<PreCommitGovernanceGateOptions>(
             configuration.GetSection(PreCommitGovernanceGateOptions.SectionPath));

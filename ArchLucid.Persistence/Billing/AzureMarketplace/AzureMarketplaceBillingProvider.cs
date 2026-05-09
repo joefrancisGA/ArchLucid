@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Core.Billing;
@@ -88,10 +87,10 @@ public sealed class AzureMarketplaceBillingProvider(
         if (string.IsNullOrWhiteSpace(inbound.MarketplaceAuthorizationBearer))
             return BillingWebhookHandleResult.Rejected("Missing Marketplace bearer token.");
 
-        ClaimsPrincipal? principal =
+        MarketplaceWebhookValidatedToken? validated =
             await _tokenVerifier.ValidateAsync(inbound.MarketplaceAuthorizationBearer, cancellationToken);
 
-        if (principal is null)
+        if (validated is null)
             return BillingWebhookHandleResult.Rejected("Marketplace JWT validation failed.");
 
         using JsonDocument doc = JsonDocument.Parse(inbound.RawBody);
@@ -124,7 +123,7 @@ public sealed class AzureMarketplaceBillingProvider(
 
         try
         {
-            Guid tenantId = ResolveTenantId(root, principal);
+            Guid tenantId = ResolveTenantId(root, validated);
 
             if (tenantId == Guid.Empty)
             {
@@ -306,14 +305,14 @@ public sealed class AzureMarketplaceBillingProvider(
         return Guid.TryParse(s, out Guid g) ? g : fallback;
     }
 
-    private Guid ResolveTenantId(JsonElement root, ClaimsPrincipal principal)
+    private Guid ResolveTenantId(JsonElement root, MarketplaceWebhookValidatedToken validatedToken)
     {
         BillingOptions billing = _billingOptions.CurrentValue;
         string? claimType = billing.AzureMarketplace.TenantIdClaimType?.Trim();
 
         if (!string.IsNullOrWhiteSpace(claimType))
         {
-            string? fromClaim = principal.FindFirst(claimType)?.Value;
+            string? fromClaim = validatedToken.FindFirstClaimValue(claimType);
 
             if (Guid.TryParse(fromClaim, out Guid tenantFromClaim))
                 return tenantFromClaim;

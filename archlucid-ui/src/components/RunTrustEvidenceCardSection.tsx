@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunTrustEvidenceCard } from "@/types/authority";
 
 function proxyApiPath(path: string): string {
@@ -61,6 +63,7 @@ function FieldRow(props: {
 /** Committed-run evidence summary: manifest/audit/traces/export posture (no CPA / pen-test / legal claims). */
 export function RunTrustEvidenceCardSection(props: { readonly card: RunTrustEvidenceCard }): ReactElement {
   const { card } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const rows: ReactElement[] = [
     <FieldRow
@@ -112,7 +115,7 @@ export function RunTrustEvidenceCardSection(props: { readonly card: RunTrustEvid
       <Card>
         <CardHeader>
           <h3 className="m-0 text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-            Trust evidence (operational)
+            Evidence basis (operational)
           </h3>
           <CardDescription className="text-neutral-600 dark:text-neutral-400">
             {card.selfAttestationNotice}
@@ -140,16 +143,32 @@ export function RunTrustEvidenceCardSection(props: { readonly card: RunTrustEvid
           ) : null}
 
           <div>
-            <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Evidence routes</div>
-            <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-teal-800 dark:text-teal-300">
-              {card.links.map((l) => (
-                <li key={l.rel}>
-                  <Link className="underline" href={proxyApiPath(l.path)}>
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {buyerPolishedShell ? (
+              <CollapsibleSection title="API evidence routes (advanced)" defaultOpen={false}>
+                <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-teal-800 dark:text-teal-300">
+                  {card.links.map((l) => (
+                    <li key={l.rel}>
+                      <Link className="underline" href={proxyApiPath(l.path)}>
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </CollapsibleSection>
+            ) : (
+              <>
+                <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Evidence routes</div>
+                <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-teal-800 dark:text-teal-300">
+                  {card.links.map((l) => (
+                    <li key={l.rel}>
+                      <Link className="underline" href={proxyApiPath(l.path)}>
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>

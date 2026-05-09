@@ -168,8 +168,8 @@ public sealed class RunTrustEvidenceCardBuilder(
             Title = "Execution mode",
             Status = TrustEvidenceStatusValue.Available,
             Detail = simulator
-                ? "Simulator / deterministic agent path (no live model for agent work on this host configuration)."
-                : "Live model path for agent work (subject to current host execution settings).",
+                ? "Deterministic analysis path for agent steps on this host (repeatable, no billable model usage for those steps)."
+                : "Configured model-backed path for agent steps on this host.",
         };
     }
 
@@ -352,12 +352,12 @@ public sealed class RunTrustEvidenceCardBuilder(
         if (run.RealModeFellBackToSimulator)
         {
             return
-                "Part of this architecture review used deterministic output after a live-model path failed. Treat numeric highlights cautiously; open the first-value report for the full execution provenance table.";
+                "Part of this review used a documented deterministic analysis path after the primary path did not complete. Treat numeric highlights conservatively and use sponsor exports for the full provenance table.";
         }
 
         return string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase)
-            ? "Agent steps for this review used the live model path, subject to this API host's execution configuration when you loaded this page."
-            : "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).";
+            ? "Agent-assisted steps used your API host's configured model path when this page was loaded."
+            : "Agent-assisted steps used a deterministic analysis path on this host (no billable model calls for those steps).";
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)

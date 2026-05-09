@@ -167,7 +167,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "Sample walkthrough — fixed inputs and reproducible analysis so sponsors see the same package every time. No external model calls in this environment; production tenants follow your configured execution mode (see Trust / Evidence).",
+      "Sample walkthrough — curated inputs so every evaluator sees the same finished review package. Analysis path follows your tenant configuration in production. See Evidence basis below for exports and audit correlation.",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,

@@ -16,7 +16,7 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 
   return {
     executionFlavorBuyerSummary:
-      "This sample review uses a fixed pipeline replay for consistent demonstration (no live model calls for agent steps).",
+      "Sample walkthrough — curated inputs so evaluators see the same finished review package. Production uses your tenant's configured analysis path. See Evidence basis below for exports and audit correlation.",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,
@@ -42,7 +42,7 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 export function fixtureRunDetail(): RunDetail {
   return {
     executionFlavorBuyerSummary:
-      "This sample review uses a fixed pipeline replay for consistent demonstration (no live model calls for agent steps).",
+      "Sample walkthrough — curated inputs so evaluators see the same finished review package. Production uses your tenant's configured analysis path. See Evidence basis below for exports and audit correlation.",
     run: {
       runId: FIXTURE_RUN_ID,
       projectId: FIXTURE_PROJECT_ID,

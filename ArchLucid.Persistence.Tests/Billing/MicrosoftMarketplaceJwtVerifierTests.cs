@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-
+﻿using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Billing.AzureMarketplace;
 
@@ -24,10 +23,10 @@ public sealed class MicrosoftMarketplaceJwtVerifierTests
         TestMonitor<BillingOptions> monitor = new(billing);
         MicrosoftMarketplaceJwtVerifier sut = new(monitor);
 
-        ClaimsPrincipal? principal =
+        MarketplaceWebhookValidatedToken? validated =
             await sut.ValidateAsync("any.jwt.here", CancellationToken.None);
 
-        principal.Should().BeNull();
+        validated.Should().BeNull();
     }
 
     private sealed class TestMonitor<T>(T value) : IOptionsMonitor<T>

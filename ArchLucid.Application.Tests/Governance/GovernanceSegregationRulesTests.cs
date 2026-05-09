@@ -12,7 +12,7 @@ public sealed class GovernanceSegregationRulesTests
     [SkippableFact]
     public void SameActor_JwtMatchingKeys_returns_true_even_when_displays_differ()
     {
-        const string canon = $"{ActorContext.JwtActorKeyPrefix}tid-guid:object-guid-user";
+        const string canon = $"{ActorContextKeys.JwtActorKeyPrefix}tid-guid:object-guid-user";
         GovernanceApprovalRequest req = new() { RequestedBy = "portal-name@fabrikam.net", RequestedByActorKey = canon, };
 
         bool same = GovernanceSegregationRules.IsSameActorForReview(
@@ -36,7 +36,7 @@ public sealed class GovernanceSegregationRulesTests
     [SkippableFact]
     public void SameActor_DisplaysDiffer_but_jwt_both_sid_and_equal_returns_true()
     {
-        const string k = $"{ActorContext.JwtActorKeyPrefix}s-t-id:o-id";
+        const string k = $"{ActorContextKeys.JwtActorKeyPrefix}s-t-id:o-id";
         GovernanceApprovalRequest req = new() { RequestedBy = "wrong-for-old-path", RequestedByActorKey = k, };
 
         bool same = GovernanceSegregationRules.IsSameActorForReview(req, reviewedByDisplay: "other-display", reviewedByActorKey: k);

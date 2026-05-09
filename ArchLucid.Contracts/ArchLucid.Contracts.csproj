@@ -11,4 +11,10 @@
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Analyzers\ArchLucid.Analyzers.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
 </Project>

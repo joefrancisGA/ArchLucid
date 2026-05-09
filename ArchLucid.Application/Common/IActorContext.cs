@@ -1,8 +1,8 @@
 namespace ArchLucid.Application.Common;
 
 /// <summary>
-///     Resolves the acting principal for audit and logging (Corrected 51R). Host supplies an implementation using
-///     <c>IHttpContextAccessor</c>.
+///     Resolves the acting principal for audit and logging (Corrected 51R). The host registers an HTTP-bound implementation
+///     (<c>ArchLucid.Host.Core.Auth.Services.HttpActorContext</c>).
 /// </summary>
 public interface IActorContext
 {

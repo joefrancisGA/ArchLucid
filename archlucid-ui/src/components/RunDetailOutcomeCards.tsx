@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { cn } from "@/lib/utils";
@@ -146,11 +147,11 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
   return (
     <section
       role="status"
-      aria-label="Package status"
+      aria-label="Review outcome summary"
       className={cn(stripShell, "flex flex-col divide-y divide-neutral-200 sm:flex-row sm:divide-x sm:divide-y-0 dark:divide-neutral-700")}
     >
       <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Package</p>
+        <p className={stripSegmentLabelClass()}>Review outcome</p>
         <div className="mt-1">
           {props.hasGoldenManifest && hasManifest ? (
             <Link
@@ -166,7 +167,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
       </div>
 
       <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Findings</p>
+        <p className={stripSegmentLabelClass()}>Risk posture</p>
         <div className="mt-1">
           {hasManifest ? (
             <Link
@@ -182,7 +183,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
       </div>
 
       <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Deliverables</p>
+        <p className={stripSegmentLabelClass()}>Artifacts</p>
         <div className="mt-1">
           {hasManifest ? (
             <Link
@@ -190,19 +191,19 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
               className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
             >
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Artifact files</p>
+              <p className={detailClass}>Sponsor-ready outputs</p>
             </Link>
           ) : (
             <>
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Artifact files</p>
+              <p className={detailClass}>Sponsor-ready outputs</p>
             </>
           )}
         </div>
       </div>
 
       <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Governance</p>
+        <p className={stripSegmentLabelClass()}>Approval status</p>
         <p className={cn(valueClass, "mt-1")}>{gate}</p>
       </div>
     </section>
@@ -224,15 +225,18 @@ export function RunDetailOutcomeCards({
 
   if (buyerPolishedShell) {
     return (
-      <PackageStatusStrip
-        manifestId={manifestId}
-        hasGoldenManifest={hasGoldenManifest}
-        warningCountDisplay={warningCountDisplay}
-        findingCountDisplay={findingCountDisplay}
-        aggregateRiskPosture={aggregateRiskPosture}
-        artifactCount={artifactCount}
-        governanceGateLabel={governanceGateLabel}
-      />
+      <div className="space-y-2">
+        <PackageStatusStrip
+          manifestId={manifestId}
+          hasGoldenManifest={hasGoldenManifest}
+          warningCountDisplay={warningCountDisplay}
+          findingCountDisplay={findingCountDisplay}
+          aggregateRiskPosture={aggregateRiskPosture}
+          artifactCount={artifactCount}
+          governanceGateLabel={governanceGateLabel}
+        />
+        <ReviewOutcomeTaxonomyLegend />
+      </div>
     );
   }
 
