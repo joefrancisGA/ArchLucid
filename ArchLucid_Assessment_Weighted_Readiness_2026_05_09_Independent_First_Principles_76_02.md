@@ -581,19 +581,21 @@ Constraints:
 
 ---
 
-### Improvement 3: Implement Roslyn Analyzer for Tenant Identity Boundary (INV-001)
+### Improvement 3: Roslyn analyzer for tenant identity boundary (INV-001) — **completed**
 
-**Title:** Implement Roslyn Analyzer for Tenant Identity Boundary (INV-001)
+**Title:** Roslyn analyzer for tenant identity boundary (INV-001) — **completed**
 
-**Why it matters:** INV-001 is P0 — cross-tenant data access is an "irreversible reputational failure." Currently enforced by convention only. A Roslyn analyzer preventing `IHttpContextAccessor` or `ClaimsPrincipal` reads below the API/Middleware layer would catch violations at compile time.
+**Why it matters:** INV-001 is P0 — cross-tenant data access is an "irreversible reputational failure." This improvement adds compile-time enforcement: a Roslyn analyzer (ARCH001) prevents `IHttpContextAccessor`, `HttpContext`, or `ClaimsPrincipal` usage in inner product assemblies, with boundary allow-listing for `ArchLucid.Api` and `ArchLucid.Host.*`.
 
 **Expected impact:** Directly improves Correctness (+4-6 pts), Security (+3-4 pts), Architectural Integrity (+3-4 pts). Weighted readiness impact: +0.5-0.8%.
 
 **Affected qualities:** Correctness, Security, Architectural Integrity, Trustworthiness.
 
-**Status:** Actionable now.
+**Status:** **Completed** (2026-05-09).
 
-**Cursor prompt:**
+**Outcome:** Shipped `ArchLucid.Analyzers` (ARCH001 / `TenantIdentityBoundaryAnalyzer`) with assembly allow-list for `ArchLucid.Api` and `ArchLucid.Host.*`; analyzer `ProjectReference` (OutputItemType=Analyzer) on the listed inner product projects; `ArchLucid.Analyzers.Tests` using Microsoft.CodeAnalysis.CSharp.Analyzer.Testing and `Microsoft.CodeAnalysis.CSharp.Workspaces` 4.14.0; refactors to clear violations: `HttpActorContext` + `ActorContextKeys`, marketplace contract `MarketplaceWebhookValidatedToken` (replacing `ClaimsPrincipal` on `IMarketplaceWebhookTokenVerifier`).
+
+**Cursor prompt** (historical — task completed):
 
 ```
 Implement a Roslyn diagnostic analyzer that enforces architecture invariant INV-001 (tenant identity boundary) from docs/library/ARCHITECTURE_INVARIANTS.md.

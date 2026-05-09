@@ -2,6 +2,8 @@
 
 using ArchLucid.Host.Core.Auth.Services;
 
+using FluentAssertions;
+
 using Microsoft.AspNetCore.Http;
 
 using Moq;
