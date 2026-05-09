@@ -10,6 +10,9 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+
+using ArchLucid.AgentRuntime.Tests.Support;
+
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Data.Repositories;
@@ -119,7 +122,9 @@ public sealed class RealAzureOpenAIEndToEndTests
             new AgentHandlerConcurrencyGate(resilience),
             resilience,
             Options.Create(new StagedCriticAgentOptions()),
-            Options.Create(new AgentOutputQualityGateOptions()));
+            Options.Create(new AgentOutputQualityGateOptions()),
+            new NoOpPromptRedactor(),
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
 
         ArchitectureRequest request = new()
         {

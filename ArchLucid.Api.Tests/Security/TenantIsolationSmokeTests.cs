@@ -288,13 +288,14 @@ public sealed class TenantIsolationSmokeTests
     }
 
     /// <summary>
-    ///     DbUp + cold CI SQL can return 503 until migrations and first queries settle; combine readiness + list probes so
-    ///     POST create-run does not hit a colder write path alone.
+    ///     DbUp + cold CI SQL can return 503 until migrations and first queries settle; combine readiness + list + POST
+    ///     probes so the full authority write path is warmed before test assertions begin.
     /// </summary>
     private static async Task WarmSqlAuthorityPipelineAsync(HttpClient client)
     {
         await WarmHealthReadyPathAsync(client);
         await WarmListRunsPathAsync(client);
+        await WarmPostCreateRunPathAsync(client);
     }
 
     private static async Task WarmHealthReadyPathAsync(HttpClient client)
@@ -351,30 +352,67 @@ public sealed class TenantIsolationSmokeTests
             + "See " + nameof(WarmListRunsPathAsync) + " and greenfield host startup.");
     }
 
+    /// <summary>
+    ///     Primes the full create-run write path (authority pipeline, idempotency lock, persistence) so subsequent test
+    ///     POSTs do not encounter cold-path timeouts on CI SQL.
+    /// </summary>
+    private static async Task WarmPostCreateRunPathAsync(HttpClient client)
+    {
+        string warmupKey = "warmup-primer-" + Guid.NewGuid().ToString("N");
+        int delayMs = 1000;
+
+        for (int attempt = 0; attempt < 30; attempt++)
+        {
+            HttpResponseMessage response =
+                await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
+                    client,
+                    TestRequestFactory.CreateArchitectureRequest("REQ-WARMUP-" + Guid.NewGuid().ToString("N")[..8]),
+                    warmupKey,
+                    CancellationToken.None);
+
+            if (response.IsSuccessStatusCode)
+                return;
+
+            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+                return;
+
+            response.Dispose();
+            await Task.Delay(delayMs);
+            delayMs = Math.Min(delayMs * 2, 8000);
+        }
+
+        throw new InvalidOperationException(
+            "POST /v1/architecture/request warmup stayed 503 (authority pipeline not ready). "
+            + "See " + nameof(WarmPostCreateRunPathAsync) + " and greenfield host startup.");
+    }
+
     private static async Task<HttpResponseMessage> PostArchitectureRequestWithTransientRetryAsync(
         HttpClient client,
         object body)
     {
-        // Stable key: retries must replay the same create semantically (distributed lock + idempotency row). Use the same
-        // transport pattern as ArchitectureRequestConcurrencyTestSupport for TestServer long responses.
         string idempotencyKey = "tenant-iso-smoke-" + Guid.NewGuid().ToString("N");
         const int maxAttempts = 100;
         int delayMs = 250;
 
+        // Total time budget prevents the retry loop from burning CI minutes when SQL is persistently unhealthy.
+        using CancellationTokenSource totalBudget = new(TimeSpan.FromMinutes(4));
+
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
+            totalBudget.Token.ThrowIfCancellationRequested();
+
             HttpResponseMessage response =
                 await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
                     client,
                     body,
                     idempotencyKey,
-                    CancellationToken.None);
+                    totalBudget.Token);
 
             if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
                 return response;
 
             response.Dispose();
-            await Task.Delay(delayMs);
+            await Task.Delay(delayMs, totalBudget.Token);
             delayMs = Math.Min(delayMs * 2, 4000);
         }
 

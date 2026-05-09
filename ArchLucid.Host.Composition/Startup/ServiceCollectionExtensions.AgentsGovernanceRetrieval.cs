@@ -52,6 +52,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AgentExecutionOptions>(configuration.GetSection(AgentExecutionOptions.SectionName));
         services.Configure<StagedCriticAgentOptions>(
             configuration.GetSection(StagedCriticAgentOptions.SectionPath));
+        services.Configure<ArchLucidLlmOptions>(configuration.GetSection(ArchLucidLlmOptions.SectionPath));
         services.AddSingleton<IPostConfigureOptions<StagedCriticAgentOptions>,
             StagedCriticAgentOptionsNormalizePostConfigure>();
         services.Configure<AzureOpenAiOptions>(configuration.GetSection(AzureOpenAiOptions.SectionName));

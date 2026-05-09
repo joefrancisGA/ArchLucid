@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
@@ -38,6 +39,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
     private readonly IAgentHandlerConcurrencyGate _concurrencyGate;
     private readonly IOptions<AgentOutputQualityGateOptions> _agentOutputBudgetGate;
+    private readonly IOptionsMonitor<ArchLucidLlmOptions> _archLucidLlmOptions;
+    private readonly IPromptRedactor _promptRedactor;
     private readonly IReadOnlyDictionary<string, IAgentHandler> _handlers;
     private readonly ILogger<RealAgentExecutor> _logger;
     private readonly IOptionsMonitor<AgentPromptCatalogOptions> _promptCatalog;
@@ -54,7 +57,9 @@ public sealed class RealAgentExecutor : IAgentExecutor
         IAgentHandlerConcurrencyGate concurrencyGate,
         IOptions<AgentExecutionResilienceOptions> resilienceOptions,
         IOptions<StagedCriticAgentOptions> stagedCriticOptions,
-        IOptions<AgentOutputQualityGateOptions> agentOutputBudgetGate)
+        IOptions<AgentOutputQualityGateOptions> agentOutputBudgetGate,
+        IPromptRedactor promptRedactor,
+        IOptionsMonitor<ArchLucidLlmOptions> archLucidLlmOptions)
     {
         ArgumentNullException.ThrowIfNull(handlers);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -64,6 +69,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
         _resilienceOptions = resilienceOptions ?? throw new ArgumentNullException(nameof(resilienceOptions));
         _stagedCriticOptions = stagedCriticOptions ?? throw new ArgumentNullException(nameof(stagedCriticOptions));
         _agentOutputBudgetGate = agentOutputBudgetGate ?? throw new ArgumentNullException(nameof(agentOutputBudgetGate));
+        _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
+        _archLucidLlmOptions = archLucidLlmOptions ?? throw new ArgumentNullException(nameof(archLucidLlmOptions));
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
@@ -407,21 +414,30 @@ public sealed class RealAgentExecutor : IAgentExecutor
         }
     }
 
-    private static AgentResult MergeProviderReasoningTrace(AgentResult result, string? providerTrace)
+    private AgentResult MergeProviderReasoningTrace(AgentResult result, string? providerTrace)
     {
-        if (string.IsNullOrWhiteSpace(providerTrace))
-            return result;
-
-        string trimmed = providerTrace.Trim();
-
-        if (string.IsNullOrWhiteSpace(result.ReasoningTrace))
+        if (!string.IsNullOrWhiteSpace(providerTrace))
         {
-            result.ReasoningTrace = trimmed;
+            string trimmed = providerTrace.Trim();
 
-            return result;
+            if (string.IsNullOrWhiteSpace(result.ReasoningTrace))
+                result.ReasoningTrace = trimmed;
+            else
+                result.ReasoningTrace = result.ReasoningTrace.TrimEnd() + "\n\n---\n\n" + trimmed;
         }
 
-        result.ReasoningTrace = result.ReasoningTrace.TrimEnd() + "\n\n---\n\n" + trimmed;
+        if (!_archLucidLlmOptions.CurrentValue.RedactReasoningTrace)
+            return result;
+
+        if (string.IsNullOrWhiteSpace(result.ReasoningTrace))
+            return result;
+
+        PromptRedactionOutcome outcome = _promptRedactor.RedactAlways(result.ReasoningTrace);
+
+        foreach (KeyValuePair<string, int> kv in outcome.CountsByCategory)
+            ArchLucidInstrumentation.RecordLlmPromptRedactions(kv.Key, kv.Value);
+
+        result.ReasoningTrace = outcome.Text;
 
         return result;
     }

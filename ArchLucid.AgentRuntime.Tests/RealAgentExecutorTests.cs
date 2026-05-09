@@ -7,7 +7,10 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
+
+using ArchLucid.AgentRuntime.Tests.Support;
 
 using FluentAssertions;
 using FluentAssertions.Specialized;
@@ -27,7 +30,16 @@ public sealed class RealAgentExecutorTests
             new AgentExecutionResilienceOptions { MaxConcurrentHandlers = 0, PerHandlerTimeoutSeconds = 0 });
     }
 
-    private static RealAgentExecutor CreateSut(params IAgentHandler[] handlers)
+    private static RealAgentExecutor CreateSut(params IAgentHandler[] handlers) =>
+        CreateSut(
+            new NoOpPromptRedactor(),
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
+            handlers);
+
+    private static RealAgentExecutor CreateSut(
+        IPromptRedactor promptRedactor,
+        IOptionsMonitor<ArchLucidLlmOptions> archLucidLlm,
+        params IAgentHandler[] handlers)
     {
         IOptions<AgentExecutionResilienceOptions> ro = UnlimitedResilienceOptions();
 
@@ -45,7 +57,9 @@ public sealed class RealAgentExecutorTests
             new AgentHandlerConcurrencyGate(ro),
             ro,
             Options.Create(new StagedCriticAgentOptions()),
-            Options.Create(new AgentOutputQualityGateOptions()));
+            Options.Create(new AgentOutputQualityGateOptions()),
+            promptRedactor,
+            archLucidLlm);
     }
 
     [SkippableFact]
@@ -100,6 +114,76 @@ public sealed class RealAgentExecutorTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*cost*");
+    }
+
+    [SkippableFact]
+    public async Task ReasoningTrace_redacts_when_ArchLucid_Llm_flag_true_even_if_prompt_redaction_disabled()
+    {
+        FixedValueOptionsMonitor<LlmPromptRedactionOptions> redactionOpts = new(new LlmPromptRedactionOptions { Enabled = false });
+        PromptRedactor redactor = new(redactionOpts, NullLogger<PromptRedactor>.Instance);
+        FixedValueOptionsMonitor<ArchLucidLlmOptions> llmOpts = new(new ArchLucidLlmOptions { RedactReasoningTrace = true });
+        IAgentHandler handler = new ProviderReasoningStubHandler(AgentType.Topology, "Reach alice@example.com for access.", null);
+        RealAgentExecutor sut = CreateSut(redactor, llmOpts, handler);
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1", Description = "1234567890ab", SystemName = "S", Environment = "prod"
+        };
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
+
+        IReadOnlyList<AgentResult> results = await sut.ExecuteAsync(runId, request, evidence, [task], CancellationToken.None);
+
+        results.Should().HaveCount(1);
+        results[0].ReasoningTrace.Should().NotBeNull();
+        results[0].ReasoningTrace.Should().Contain("[REDACTED]");
+        results[0].ReasoningTrace.Should().NotContain("alice@example.com");
+    }
+
+    [SkippableFact]
+    public async Task ReasoningTrace_left_untouched_when_ArchLucid_Llm_flag_false()
+    {
+        FixedValueOptionsMonitor<LlmPromptRedactionOptions> redactionOpts = new(new LlmPromptRedactionOptions { Enabled = false });
+        PromptRedactor redactor = new(redactionOpts, NullLogger<PromptRedactor>.Instance);
+        FixedValueOptionsMonitor<ArchLucidLlmOptions> llmOpts = new(new ArchLucidLlmOptions { RedactReasoningTrace = false });
+        IAgentHandler handler = new ProviderReasoningStubHandler(AgentType.Topology, "Reach alice@example.com.", null);
+        RealAgentExecutor sut = CreateSut(redactor, llmOpts, handler);
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1", Description = "1234567890ab", SystemName = "S", Environment = "prod"
+        };
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
+
+        IReadOnlyList<AgentResult> results = await sut.ExecuteAsync(runId, request, evidence, [task], CancellationToken.None);
+
+        results[0].ReasoningTrace.Should().Be("Reach alice@example.com.");
+    }
+
+    [SkippableFact]
+    public async Task ReasoningTrace_redacts_merged_handler_and_provider_snippets()
+    {
+        FixedValueOptionsMonitor<LlmPromptRedactionOptions> redactionOpts = new(new LlmPromptRedactionOptions { Enabled = true });
+        PromptRedactor redactor = new(redactionOpts, NullLogger<PromptRedactor>.Instance);
+        FixedValueOptionsMonitor<ArchLucidLlmOptions> llmOpts = new(new ArchLucidLlmOptions { RedactReasoningTrace = true });
+        IAgentHandler handler = new ProviderReasoningStubHandler(AgentType.Topology, "backup alice@example.com", "Primary bob@example.com");
+        RealAgentExecutor sut = CreateSut(redactor, llmOpts, handler);
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1", Description = "1234567890ab", SystemName = "S", Environment = "prod"
+        };
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
+
+        IReadOnlyList<AgentResult> results = await sut.ExecuteAsync(runId, request, evidence, [task], CancellationToken.None);
+
+        string? trace = results[0].ReasoningTrace;
+        trace.Should().NotBeNull();
+        trace.Should().NotContain("alice@");
+        trace.Should().NotContain("bob@");
+        trace.Should().Contain("[REDACTED]");
     }
 
     [SkippableFact]
@@ -268,6 +352,41 @@ public sealed class RealAgentExecutorTests
         public ScopeContext GetCurrentScope()
         {
             return scope;
+        }
+    }
+
+    private sealed class ProviderReasoningStubHandler(
+        AgentType agentType,
+        string providerSnippet,
+        string? handlerReasoningTrace) : IAgentHandler
+    {
+        public AgentType AgentType => agentType;
+
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(agentType);
+
+        public Task<AgentResult> ExecuteAsync(
+            string runId,
+            ArchitectureRequest request,
+            AgentEvidencePackage evidence,
+            AgentTask task,
+            CancellationToken cancellationToken = default)
+        {
+            _ = request;
+            _ = evidence;
+            _ = cancellationToken;
+
+            AgentHandlerLlmReasoningTrace.AppendCompletionSnippet(providerSnippet);
+
+            return Task.FromResult(
+                new AgentResult
+                {
+                    RunId = runId,
+                    TaskId = task.TaskId,
+                    AgentType = agentType,
+                    Claims = [],
+                    EvidenceRefs = [],
+                    ReasoningTrace = handlerReasoningTrace
+                });
         }
     }
 

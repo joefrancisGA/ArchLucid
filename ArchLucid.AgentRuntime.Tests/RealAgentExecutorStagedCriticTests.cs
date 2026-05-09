@@ -6,6 +6,8 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 
+using ArchLucid.AgentRuntime.Tests.Support;
+
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
@@ -43,7 +45,9 @@ public sealed class RealAgentExecutorStagedCriticTests
             new AgentHandlerConcurrencyGate(ro),
             ro,
             stagedOptions,
-            Options.Create(new AgentOutputQualityGateOptions()));
+            Options.Create(new AgentOutputQualityGateOptions()),
+            new NoOpPromptRedactor(),
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
     }
 
     [SkippableFact]

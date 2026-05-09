@@ -246,6 +246,8 @@ public sealed class PolicyPackDryRunServiceTests
 
             return new PromptRedactionOutcome(text, ImmutableDictionary<string, int>.Empty);
         }
+
+        public PromptRedactionOutcome RedactAlways(string? input) => Redact(input);
     }
 
     private sealed class StubAuditService : IAuditService
