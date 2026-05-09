@@ -18,8 +18,6 @@ public static class ExecDigestCompositionMarkdownFormatter
     public static string Format(ExecDigestComposition composition)
     {
         ArgumentNullException.ThrowIfNull(composition);
-        if (composition is null)
-            throw new ArgumentNullException(nameof(composition));
         StringBuilder sb = new();
         sb.AppendLine("# Executive digest highlights (weekly pipeline)");
         sb.AppendLine();

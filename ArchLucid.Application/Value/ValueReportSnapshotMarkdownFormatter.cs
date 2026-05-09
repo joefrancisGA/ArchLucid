@@ -12,8 +12,6 @@ public static class ValueReportSnapshotMarkdownFormatter
     public static string Format(ValueReportSnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
-        if (snapshot is null)
-            throw new ArgumentNullException(nameof(snapshot));
         StringBuilder sb = new();
         sb.AppendLine("# Value report snapshot (tenant window)");
         sb.AppendLine();

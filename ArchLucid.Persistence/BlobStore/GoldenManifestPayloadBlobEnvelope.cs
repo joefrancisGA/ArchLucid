@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.GoldenManifests;
 
 namespace ArchLucid.Persistence.BlobStore;
@@ -9,11 +10,6 @@ namespace ArchLucid.Persistence.BlobStore;
 public sealed class GoldenManifestPayloadBlobEnvelope
 {
     public const int CurrentSchemaVersion = 1;
-
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.Never
-    };
 
     [JsonPropertyName("schemaVersion")]
     public int SchemaVersion
@@ -168,7 +164,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
 
     public string ToJson()
     {
-        return JsonSerializer.Serialize(this, SerializerOptions);
+        return JsonSerializer.Serialize(this, ContractJson.CamelCaseIncludeNullCompact);
     }
 
     public static GoldenManifestPayloadBlobEnvelope? TryDeserialize(string json)
@@ -178,7 +174,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
 
         try
         {
-            return JsonSerializer.Deserialize<GoldenManifestPayloadBlobEnvelope>(json, SerializerOptions);
+            return JsonSerializer.Deserialize<GoldenManifestPayloadBlobEnvelope>(json, ContractJson.CamelCaseIncludeNullCompact);
         }
         catch (JsonException)
         {

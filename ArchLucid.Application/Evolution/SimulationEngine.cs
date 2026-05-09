@@ -1,10 +1,10 @@
 using System.Globalization;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Abstractions.Evolution;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Evolution;
 
 using JetBrains.Annotations;
@@ -20,11 +20,6 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
 {
     private readonly IArchitectureAnalysisService _analysisService = analysisService ?? throw new ArgumentNullException(nameof(analysisService));
     private const int SummaryPreviewMaxChars = 512;
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false
-    };
 
     /// <inheritdoc/>
     public async Task<SimulationResult> SimulateAsync(SimulationRequest request, CancellationToken cancellationToken = default)
@@ -107,7 +102,7 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         SimulationDiffDetailDto detail = new(candidate.ChangeSetId.ToString("D"), baselineRunId, singlePass, baseline.Warnings.Count, simulated.Warnings.Count,
             baseline.Summary?.Length ?? 0, simulated.Summary?.Length ?? 0, manifestDiff is not null, manifestDiff?.AddedServices.Count,
             manifestDiff?.RemovedServices.Count, manifestDiff?.AddedDatastores.Count, manifestDiff?.RemovedDatastores.Count);
-        string detailJson = JsonSerializer.Serialize(detail, JsonOptions);
+        string detailJson = JsonSerializer.Serialize(detail, ContractJson.CamelCaseIgnoreNullCompact);
         return new SimulationDiff { Summary = summary, DetailJson = detailJson };
     }
 

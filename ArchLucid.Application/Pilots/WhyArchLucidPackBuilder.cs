@@ -13,8 +13,6 @@ public static class WhyArchLucidPackBuilder
     public static string BuildMarkdown(WhyArchLucidPackSourceDto source)
     {
         ArgumentNullException.ThrowIfNull(source);
-        if (source is null)
-            throw new ArgumentNullException(nameof(source));
         StringBuilder body = new();
         body.AppendLine("# ArchLucid — side-by-side proof pack (demo)");
         body.AppendLine();

@@ -403,6 +403,7 @@ BEGIN
         CurrentManifestVersion NVARCHAR(128) NULL,
         OtelTraceId NVARCHAR(64) NULL,
         IsPublicShowcase BIT NOT NULL CONSTRAINT DF_Runs_IsPublicShowcase_Greenfield DEFAULT (0),
+        IsDemoWelcomeRun BIT NOT NULL CONSTRAINT DF_Runs_IsDemoWelcomeRun_Greenfield DEFAULT (0),
         RowVersionStamp ROWVERSION,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
@@ -441,6 +442,11 @@ GO
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'IsPublicShowcase') IS NULL
     ALTER TABLE dbo.Runs ADD IsPublicShowcase BIT NOT NULL CONSTRAINT DF_Runs_IsPublicShowcase DEFAULT (0);
+GO
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'IsDemoWelcomeRun') IS NULL
+    ALTER TABLE dbo.Runs ADD IsDemoWelcomeRun BIT NOT NULL CONSTRAINT DF_Runs_IsDemoWelcomeRun DEFAULT (0);
 GO
 
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
@@ -2891,6 +2897,7 @@ BEGIN
             CompletedUtc,
             CurrentManifestVersion,
             OtelTraceId,
+            IsDemoWelcomeRun,
             IsPublicShowcase,
             RealModeFellBackToSimulator,
             PilotAoaiDeploymentSnapshot)

@@ -65,8 +65,6 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
     public Task<SupportBundleArtifact> AssembleAsync(SupportBundleRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        if (request is null)
-            throw new ArgumentNullException(nameof(request));
         cancellationToken.ThrowIfCancellationRequested();
         DateTimeOffset generatedUtc = _timeProvider.GetUtcNow();
         string createdUtcIso = generatedUtc.UtcDateTime.ToString("O", CultureInfo.InvariantCulture);

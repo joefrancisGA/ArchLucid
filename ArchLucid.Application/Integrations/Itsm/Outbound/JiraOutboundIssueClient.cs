@@ -3,7 +3,8 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Common;
 
 using Microsoft.Extensions.Logging;
 
@@ -12,11 +13,6 @@ namespace ArchLucid.Application.Integrations.Itsm.Outbound;
 /// <summary>HTTP calls to Jira Cloud issue REST (no SDK).</summary>
 public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboundIssueClient> logger)
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
     private readonly ILogger<JiraOutboundIssueClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -48,7 +44,7 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
         using HttpRequestMessage request = new(HttpMethod.Post, issuePostUri);
         string basic = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{serviceAccountEmail}:{apiToken}"));
         request.Headers.Authorization = new AuthenticationHeaderValue("Basic", basic);
-        request.Content = JsonContent.Create(body, options: SerializerOptions);
+        request.Content = JsonContent.Create(body, options: ContractJson.CamelCaseIgnoreNullCompact);
         HttpResponseMessage response;
         try
         {
@@ -67,7 +63,7 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
         {
             try
             {
-                JiraCreateIssueResponse? parsed = JsonSerializer.Deserialize<JiraCreateIssueResponse>(raw, SerializerOptions);
+                JiraCreateIssueResponse? parsed = JsonSerializer.Deserialize<JiraCreateIssueResponse>(raw, ContractJson.CamelCaseIgnoreNullCompact);
                 if (parsed is null || string.IsNullOrWhiteSpace(parsed.Key))
                     return new JiraOutboundIssueHttpResult(false, null, null, response.StatusCode, "Jira returned success but no issue key.");
                 return new JiraOutboundIssueHttpResult(true, parsed.Key.Trim(), parsed.Id, response.StatusCode, null);

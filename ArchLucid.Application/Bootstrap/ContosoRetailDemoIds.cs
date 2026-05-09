@@ -57,6 +57,52 @@ public readonly record struct ContosoRetailDemoIds(
             "result-hardened-demo-topo", "trace-baseline-demo-001", "trace-hardened-demo-001");
     }
 
+    /// <summary>Authority <c>dbo.Runs.RunId</c> for the trial ecommerce welcome sample (per-tenant).</summary>
+    public static Guid TrialWelcomeAuthorityRunId(Guid tenantId)
+    {
+        return DeriveDemoRunGuid(tenantId, "trial-welcome");
+    }
+
+    /// <summary>Stable <c>ArchitectureRequests.RequestId</c> for the welcome sample.</summary>
+    public static string TrialWelcomeRequestId(Guid tenantId)
+    {
+        if (tenantId == ScopeIds.DefaultTenant)
+            return "request-contoso-trial-welcome";
+
+        return $"req-trial-welcome-{DemoSuffix12(tenantId)}";
+    }
+
+    /// <summary>Committed manifest version key for the welcome sample.</summary>
+    public static string TrialWelcomeManifestVersion(Guid tenantId)
+    {
+        if (tenantId == ScopeIds.DefaultTenant)
+            return "contoso-online-store-welcome-v1";
+
+        return $"contoso-online-store-welcome-v1-{DemoSuffix12(tenantId)}";
+    }
+
+    /// <summary>Agent task / result identifiers for the welcome sample (global string PKs).</summary>
+    public static (string TopoTask, string CostTask, string CompTask, string TopoResult, string CostResult, string CompResult) TrialWelcomeAgentKeys(
+        Guid tenantId)
+    {
+        string suffix = tenantId == ScopeIds.DefaultTenant ? "canonical" : DemoSuffix12(tenantId);
+
+        return (
+            $"task-trial-welcome-topo-{suffix}",
+            $"task-trial-welcome-cost-{suffix}",
+            $"task-trial-welcome-comp-{suffix}",
+            $"result-trial-welcome-topo-{suffix}",
+            $"result-trial-welcome-cost-{suffix}",
+            $"result-trial-welcome-comp-{suffix}");
+    }
+
+    private static string DemoSuffix12(Guid tenantId)
+    {
+        string t = tenantId.ToString("N");
+
+        return t.Length >= 12 ? t[..12] : t;
+    }
+
     private static Guid DeriveDemoRunGuid(Guid tenantId, string role)
     {
         return GuidFromUtf8("ArchLucid.ContosoRetail.Demo.Run", tenantId.ToString("N"), role);

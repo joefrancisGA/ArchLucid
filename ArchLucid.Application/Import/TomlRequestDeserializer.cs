@@ -19,8 +19,6 @@ public static class TomlRequestDeserializer
     public static ArchitectureRequest Deserialize(string text)
     {
         ArgumentNullException.ThrowIfNull(text);
-        if (text is null)
-            throw new ArgumentNullException(nameof(text));
         TomlTable model;
         try
         {

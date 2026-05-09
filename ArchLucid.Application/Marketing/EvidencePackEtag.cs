@@ -26,8 +26,6 @@ public static class EvidencePackEtag
     public static string Compute(IReadOnlyList<EvidencePackEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
-        if (entries is null)
-            throw new ArgumentNullException(nameof(entries));
         using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         Span<byte> lengthBuffer = stackalloc byte[4];
         foreach (var entry in entries)

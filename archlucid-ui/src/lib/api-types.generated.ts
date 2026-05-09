@@ -23604,8 +23604,6 @@ export interface components {
             contextSnapshot?: null | components["schemas"]["ContextSnapshot"];
             decisionTrace?: null | components["schemas"]["DecisionTrace"];
             executionFlavorBuyerSummary?: null | string;
-            degradedExecutionAgents?: string[];
-            runDegradedExecution?: boolean;
             findingsSnapshot?: null | components["schemas"]["FindingsSnapshot"];
             goldenManifest?: null | components["schemas"]["ManifestDocument"];
             graphSnapshot?: null | components["schemas"]["GraphSnapshot"];
@@ -23626,7 +23624,6 @@ export interface components {
             complianceGapCount?: number;
             /** Format: int32 */
             decisionCount?: number;
-            deterministicFallbackUsed?: boolean;
             explanation: components["schemas"]["ExplanationResult"];
             /** Format: double */
             faithfulnessSupportRatio?: null | number | string;
@@ -23639,6 +23636,7 @@ export interface components {
             themeSummaries: string[];
             /** Format: int32 */
             unresolvedIssueCount?: number;
+            usedDeterministicFallback?: boolean;
         };
         RunExportHistoryResponse: {
             exports?: components["schemas"]["RunExportRecord"][];
@@ -23781,6 +23779,7 @@ export interface components {
             hasFindingsSnapshot?: boolean;
             hasGoldenManifest?: boolean;
             hasGraphSnapshot?: boolean;
+            isDemoWelcomeRun?: boolean;
             projectId?: string;
             runDegradedExecution?: boolean;
             /** Format: uuid */

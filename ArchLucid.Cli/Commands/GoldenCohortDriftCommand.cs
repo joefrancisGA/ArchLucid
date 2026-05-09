@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -17,16 +16,6 @@ namespace ArchLucid.Cli.Commands;
 [ExcludeFromCodeCoverage(Justification = "HTTP orchestration; core logic in ArchLucid.Core.GoldenCorpus and tests.")]
 internal static class GoldenCohortDriftCommand
 {
-    private static readonly JsonSerializerOptions StdoutJson = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
-    private static readonly JsonSerializerOptions JsonCamel = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
     public static async Task<int> RunAsync(string[] args)
     {
         if (args is null)
@@ -194,7 +183,7 @@ internal static class GoldenCohortDriftCommand
                     };
                     structuralFailures.Add(fb);
                     await Console.Out.WriteLineAsync(
-                        JsonSerializer.Serialize(new { success = false, failure = fb }, StdoutJson));
+                        JsonSerializer.Serialize(new { success = false, failure = fb }, ContractJson.CamelCaseIgnoreNullIndented));
 
                     return CliExitCode.OperationFailed;
                 }
@@ -282,7 +271,7 @@ internal static class GoldenCohortDriftCommand
                 structuralOnly,
                 structuralFailures
             };
-            await Console.Out.WriteLineAsync(JsonSerializer.Serialize(report, StdoutJson));
+            await Console.Out.WriteLineAsync(JsonSerializer.Serialize(report, ContractJson.CamelCaseIgnoreNullIndented));
 
             return CliExitCode.OperationFailed;
         }
@@ -306,7 +295,7 @@ internal static class GoldenCohortDriftCommand
                 structuralOnly,
                 cohortPath = resolvedCohort
             };
-            Console.WriteLine(JsonSerializer.Serialize(ok, JsonCamel));
+            Console.WriteLine(JsonSerializer.Serialize(ok, ContractJson.CamelCaseIgnoreNullIndented));
         }
 
         return CliExitCode.Success;

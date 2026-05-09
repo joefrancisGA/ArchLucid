@@ -2,7 +2,8 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Cli.Commands;
 
@@ -15,11 +16,6 @@ public sealed class TrialSmokeRunner(HttpClient http)
 {
     /// <summary>Canonical correlation header emitted by <c>CorrelationIdMiddleware</c> on every API response.</summary>
     private const string CorrelationHeaderName = "X-Correlation-ID";
-
-    private static readonly JsonSerializerOptions JsonCamel = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
 
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
 
@@ -85,7 +81,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
 
         try
         {
-            using HttpResponseMessage res = await _http.PostAsJsonAsync("/v1/register", payload, JsonCamel, ct);
+            using HttpResponseMessage res = await _http.PostAsJsonAsync("/v1/register", payload, ContractJson.CamelCaseIgnoreNullCompactCaseInsensitive, ct);
             string? correlationId = ReadCorrelationId(res);
 
             if (res.StatusCode != HttpStatusCode.Created)
@@ -103,7 +99,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
             }
 
             TrialSmokeRegisterResponse? body200 =
-                await res.Content.ReadFromJsonAsync<TrialSmokeRegisterResponse>(JsonCamel, ct);
+                await res.Content.ReadFromJsonAsync<TrialSmokeRegisterResponse>(ContractJson.CamelCaseIgnoreNullCompactCaseInsensitive, ct);
 
             if (body200 is null || string.IsNullOrWhiteSpace(body200.TenantId))
                 return (
@@ -166,7 +162,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
             }
 
             TrialSmokeTrialStatusResponse? body200 =
-                await res.Content.ReadFromJsonAsync<TrialSmokeTrialStatusResponse>(JsonCamel, ct);
+                await res.Content.ReadFromJsonAsync<TrialSmokeTrialStatusResponse>(ContractJson.CamelCaseIgnoreNullCompactCaseInsensitive, ct);
 
             if (body200 is null)
                 return (
@@ -225,7 +221,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
             }
 
             TrialSmokePilotRunDeltasShape? body200 =
-                await res.Content.ReadFromJsonAsync<TrialSmokePilotRunDeltasShape>(JsonCamel, ct);
+                await res.Content.ReadFromJsonAsync<TrialSmokePilotRunDeltasShape>(ContractJson.CamelCaseIgnoreNullCompactCaseInsensitive, ct);
             string seconds = body200?.TimeToCommittedManifestTotalSeconds is { } s
                 ? s.ToString("0.##", CultureInfo.InvariantCulture)
                 : "<null>";

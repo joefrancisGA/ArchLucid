@@ -40,6 +40,13 @@ public class RunSummaryResponse
         set;
     }
 
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.IsDemoWelcomeRun" />
+    public bool IsDemoWelcomeRun
+    {
+        get;
+        set;
+    }
+
     public DateTime CreatedUtc
     {
         get;

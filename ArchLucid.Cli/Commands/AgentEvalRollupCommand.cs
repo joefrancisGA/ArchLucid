@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Cli.Commands;
 
@@ -74,7 +75,7 @@ internal static class AgentEvalRollupCommand
             Console.WriteLine(
                 JsonSerializer.Serialize(
                     BuildRollupModel(summary),
-                    new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+                    ContractJson.CamelCaseIncludeNullIndented));
 
             return CliExitCode.Success;
         }

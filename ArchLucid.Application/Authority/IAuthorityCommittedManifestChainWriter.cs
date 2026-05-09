@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
 
 using Cm = ArchLucid.Contracts.Manifest;
 
@@ -26,5 +27,6 @@ public interface IAuthorityCommittedManifestChainWriter
         bool richFindingsAndGraph,
         CancellationToken cancellationToken,
         IDbConnection? connection = null,
-        IDbTransaction? transaction = null);
+        IDbTransaction? transaction = null,
+        IReadOnlyList<Finding>? committedFindingsOverride = null);
 }

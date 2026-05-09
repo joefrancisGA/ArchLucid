@@ -116,6 +116,13 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>When <see langword="true" />, this run was created by <c>SeedTrialWelcomeRunAsync</c> for trial onboarding.</summary>
+    public bool IsDemoWelcomeRun
+    {
+        get;
+        set;
+    }
+
     /// <summary>When <see langword="true" />, anonymous marketing may read a bounded showcase payload for this run.</summary>
     public bool IsPublicShowcase
     {
