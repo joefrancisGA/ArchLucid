@@ -35,13 +35,9 @@ internal static class ItsmJiraPriorityAndIssueTypeResolver
 
             string key = severity.ToString();
 
-            foreach (KeyValuePair<string, string> kv in map)
+            foreach (var kv in map.Where(kv => !string.IsNullOrWhiteSpace(kv.Value)).Where(kv => string.Equals(kv.Key.Trim(), key, StringComparison.OrdinalIgnoreCase)))
             {
-                if (string.IsNullOrWhiteSpace(kv.Value))
-                    continue;
-
-                if (string.Equals(kv.Key.Trim(), key, StringComparison.OrdinalIgnoreCase))
-                    return kv.Value.Trim();
+                return kv.Value.Trim();
             }
         }
         catch (System.Text.Json.JsonException)

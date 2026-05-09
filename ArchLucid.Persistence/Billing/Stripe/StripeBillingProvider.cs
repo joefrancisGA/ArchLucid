@@ -6,6 +6,8 @@ using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
+using Newtonsoft.Json.Linq;
+
 using Stripe;
 using Stripe.Checkout;
 
@@ -144,10 +146,13 @@ public sealed class StripeBillingProvider(
 
         try
         {
-            if (string.Equals(stripeEvent.Type, "checkout.session.completed", StringComparison.OrdinalIgnoreCase) &&
-                stripeEvent.Data.Object is Session session)
+            if (string.Equals(stripeEvent.Type, "checkout.session.completed", StringComparison.OrdinalIgnoreCase))
+            {
+                Session? session = TryGetCheckoutSessionFromEvent(stripeEvent);
 
-                await HandleCheckoutSessionCompletedAsync(session, inbound.RawBody, cancellationToken);
+                if (session is not null)
+                    await HandleCheckoutSessionCompletedAsync(session, inbound.RawBody, cancellationToken);
+            }
 
             await _ledger.MarkWebhookProcessedAsync(stripeEvent.Id, "Processed", cancellationToken);
 
@@ -159,6 +164,19 @@ public sealed class StripeBillingProvider(
 
             throw;
         }
+    }
+
+    private static Session? TryGetCheckoutSessionFromEvent(Event stripeEvent)
+    {
+        if (stripeEvent.Data?.Object is Session fromTyped)
+            return fromTyped;
+
+        // StripeObjectConverter yields null on data.object when JSON omits the Stripe "object" discriminator.
+        // EventConverter still stores data.object on RawObject; deserialize as Session so metadata activation works.
+        if (stripeEvent.Data?.RawObject is JToken token)
+            return token.ToObject<Session>(Newtonsoft.Json.JsonSerializer.Create(StripeConfiguration.SerializerSettings));
+
+        return null;
     }
 
     private async Task HandleCheckoutSessionCompletedAsync(
@@ -189,7 +207,7 @@ public sealed class StripeBillingProvider(
         };
 
         using JsonDocument planDoc = JsonDocument.Parse(
-            JsonSerializer.Serialize(new Dictionary<string, string> { ["planId"] = planToken }));
+            System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, string> { ["planId"] = planToken }));
 
         await _changePlanWebhookMutationHandler.HandleAsync(tenantId, planDoc.RootElement, rawBody, cancellationToken);
 

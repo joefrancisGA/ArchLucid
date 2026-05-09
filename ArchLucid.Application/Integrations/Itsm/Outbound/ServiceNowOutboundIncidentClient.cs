@@ -6,6 +6,8 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Common;
 
+using JetBrains.Annotations;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Integrations.Itsm.Outbound;
@@ -43,18 +45,20 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         }
 
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+
         if (!response.IsSuccessStatusCode)
         {
-            if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
-                return new ServiceNowCmdbCiResolveResult(true, null, response.StatusCode, TruncateForUser(raw));
-            return new ServiceNowCmdbCiResolveResult(false, null, null, null);
+            return response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden ? new ServiceNowCmdbCiResolveResult(true, null, response.StatusCode, TruncateForUser(raw)) : new ServiceNowCmdbCiResolveResult(false, null, null, null);
         }
 
         string? sysId = TryReadFirstResultSysId(raw);
+
         if (!string.IsNullOrWhiteSpace(sysId))
             return new ServiceNowCmdbCiResolveResult(false, sysId.Trim(), null, null);
+
         if (!autoCreateWhenMissing)
             return new ServiceNowCmdbCiResolveResult(false, null, null, null);
+
         return await TryCreateCmdbCiApplAsync(instanceRoot, username, password, systemName.Trim(), ct).ConfigureAwait(false);
     }
 
@@ -94,11 +98,14 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         }
 
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+
+        // ReSharper disable once InvertIf
         if (response.IsSuccessStatusCode)
         {
             try
             {
                 ServiceNowSingleResultEnvelope? env = JsonSerializer.Deserialize<ServiceNowSingleResultEnvelope>(raw, ContractJson.CamelCaseIgnoreNullCompact);
+
                 if (env?.Result is null || string.IsNullOrWhiteSpace(env.Result.SysId) || string.IsNullOrWhiteSpace(env.Result.Number))
                 {
                     return new ServiceNowIncidentHttpResult(false, null, null, response.StatusCode, "ServiceNow returned success but no incident identifiers.");
@@ -121,7 +128,10 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
     {
         string root = instanceRoot.GetLeftPart(UriPartial.Authority).TrimEnd('/');
         Uri uri = new($"{root}/api/now/table/cmdb_ci_appl");
-        object body = new { name };
+        object body = new
+        {
+            name
+        };
         using HttpRequestMessage request = new(HttpMethod.Post, uri);
         ApplyBasicAuth(request, username, password);
         string cmJson = JsonSerializer.Serialize(body, ContractJson.CamelCaseIgnoreNullCompact);
@@ -135,24 +145,23 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "ServiceNow CMDB create failed: transport error.");
+
             return new ServiceNowCmdbCiResolveResult(false, null, HttpStatusCode.ServiceUnavailable, "ServiceNow CMDB create failed (network error).");
         }
 
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+
         if (!response.IsSuccessStatusCode)
         {
-            if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
-                return new ServiceNowCmdbCiResolveResult(true, null, response.StatusCode, TruncateForUser(raw));
-            return new ServiceNowCmdbCiResolveResult(false, null, null, null);
+            return response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden ? new ServiceNowCmdbCiResolveResult(true, null, response.StatusCode, TruncateForUser(raw)) : new ServiceNowCmdbCiResolveResult(false, null, null, null);
         }
 
         try
         {
             ServiceNowSingleResultEnvelope? env = JsonSerializer.Deserialize<ServiceNowSingleResultEnvelope>(raw, ContractJson.CamelCaseIgnoreNullCompact);
             string? sysId = env?.Result?.SysId;
-            if (string.IsNullOrWhiteSpace(sysId))
-                return new ServiceNowCmdbCiResolveResult(false, null, null, null);
-            return new ServiceNowCmdbCiResolveResult(false, sysId.Trim(), null, null);
+
+            return string.IsNullOrWhiteSpace(sysId) ? new ServiceNowCmdbCiResolveResult(false, null, null, null) : new ServiceNowCmdbCiResolveResult(false, sysId.Trim(), null, null);
         }
         catch (JsonException)
         {
@@ -191,9 +200,8 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
     {
         if (string.IsNullOrEmpty(raw))
             return "ServiceNow request failed.";
-        if (raw.Length <= 2048)
-            return raw;
-        return raw[..2048];
+
+        return raw.Length <= 2048 ? raw : raw[..2048];
     }
 
     private sealed class IncidentCreatePayload
@@ -201,6 +209,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         [JsonPropertyName("short_description")]
         public string ShortDescription
         {
+            [UsedImplicitly]
             get;
             init;
         } = "";
@@ -208,6 +217,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         [JsonPropertyName("description")]
         public string Description
         {
+            [UsedImplicitly]
             get;
             init;
         } = "";
@@ -215,6 +225,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         [JsonPropertyName("urgency")]
         public string Urgency
         {
+            [UsedImplicitly]
             get;
             init;
         } = "";
@@ -222,6 +233,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         [JsonPropertyName("impact")]
         public string Impact
         {
+            [UsedImplicitly]
             get;
             init;
         } = "";
@@ -229,6 +241,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         [JsonPropertyName("cmdb_ci")]
         public string? CmdbCi
         {
+            [UsedImplicitly]
             get;
             init;
         }
@@ -240,6 +253,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         public string? SysId
         {
             get;
+            [UsedImplicitly]
             set;
         }
 
@@ -247,6 +261,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         public string? Number
         {
             get;
+            [UsedImplicitly]
             set;
         }
     }
@@ -257,7 +272,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         public ServiceNowIncidentResult? Result
         {
             get;
-            set;
+            init;
         }
     }
 }

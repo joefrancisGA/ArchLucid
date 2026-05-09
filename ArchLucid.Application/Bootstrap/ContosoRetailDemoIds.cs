@@ -66,10 +66,7 @@ public readonly record struct ContosoRetailDemoIds(
     /// <summary>Stable <c>ArchitectureRequests.RequestId</c> for the welcome sample.</summary>
     public static string TrialWelcomeRequestId(Guid tenantId)
     {
-        if (tenantId == ScopeIds.DefaultTenant)
-            return "request-contoso-trial-welcome";
-
-        return $"req-trial-welcome-{DemoSuffix12(tenantId)}";
+        return tenantId == ScopeIds.DefaultTenant ? "request-contoso-trial-welcome" : $"req-trial-welcome-{DemoSuffix12(tenantId)}";
     }
 
     /// <summary>Committed manifest version key for the welcome sample.</summary>

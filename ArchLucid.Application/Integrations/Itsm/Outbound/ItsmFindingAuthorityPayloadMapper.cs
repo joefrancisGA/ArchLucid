@@ -18,10 +18,7 @@ internal static class ItsmFindingAuthorityPayloadMapper
         {
             ArchitectureFinding? parsed = JsonSerializer.Deserialize<ArchitectureFinding>(typedPayload.Value.GetRawText(), SerializerOptions);
 
-            if (parsed is null)
-                return @default;
-
-            return parsed.Severity;
+            return parsed?.Severity ?? @default;
         }
         catch (JsonException)
         {
@@ -53,7 +50,7 @@ internal static class ItsmFindingAuthorityPayloadMapper
             if (parsed is null)
                 return (summary, AppendDecisionAndActions(description, decisionRuleName, recommendedActions));
 
-            string msg = parsed.Message?.Trim() ?? string.Empty;
+            string msg = parsed.Message.Trim();
 
             if (msg.Length > 0)
                 summary = Truncate(msg, 240);
@@ -65,7 +62,7 @@ internal static class ItsmFindingAuthorityPayloadMapper
             if (!string.IsNullOrWhiteSpace(reasoning))
                 body += Environment.NewLine + Environment.NewLine + "Reasoning:" + Environment.NewLine + reasoning;
 
-            body = AppendDecisionAndActions(body, decisionRuleName ?? parsed.Category?.Trim(), recommendedActions);
+            body = AppendDecisionAndActions(body, decisionRuleName ?? parsed.Category.Trim(), recommendedActions);
 
             return (Truncate(summary, 240), body);
         }
@@ -83,25 +80,15 @@ internal static class ItsmFindingAuthorityPayloadMapper
         if (!string.IsNullOrWhiteSpace(decisionRuleName))
             description += Environment.NewLine + Environment.NewLine + "Decision / category:" + Environment.NewLine + decisionRuleName.Trim();
 
-        if (recommendedActions.Count is 0)
-            return description;
+        if (recommendedActions.Count is 0) return description;
 
         description += Environment.NewLine + Environment.NewLine + "Recommended actions:";
 
-        foreach (string action in recommendedActions)
-        {
-            if (!string.IsNullOrWhiteSpace(action))
-                description += Environment.NewLine + "- " + action.Trim();
-        }
-
-        return description;
+        return recommendedActions.Where(action => !string.IsNullOrWhiteSpace(action)).Aggregate(description, (current, action) => current + (Environment.NewLine + "- " + action.Trim()));
     }
 
     private static string Truncate(string s, int max)
     {
-        if (s.Length <= max)
-            return s;
-
-        return s[..max];
+        return s.Length <= max ? s : s[..max];
     }
 }

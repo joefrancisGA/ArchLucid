@@ -34,11 +34,20 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
         {
             fields = new
             {
-                project = new { key = projectKey },
+                project = new
+                {
+                    key = projectKey
+                },
                 summary,
                 description = descriptionAdf,
-                issuetype = new { name = issueTypeName },
-                priority = new { name = priorityName }
+                issuetype = new
+                {
+                    name = issueTypeName
+                },
+                priority = new
+                {
+                    name = priorityName
+                }
             }
         };
         using HttpRequestMessage request = new(HttpMethod.Post, issuePostUri);
@@ -59,6 +68,8 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
         }
 
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+
+        // ReSharper disable once InvertIf
         if (response.IsSuccessStatusCode)
         {
             try
@@ -81,9 +92,8 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
     {
         if (string.IsNullOrEmpty(raw))
             return "Jira request failed.";
-        if (raw.Length <= 2048)
-            return raw;
-        return raw[..2048];
+
+        return raw.Length <= 2048 ? raw : raw[..2048];
     }
 
     private sealed record JiraCreateIssueResponse(string? Id, string? Key);
