@@ -7,6 +7,7 @@ namespace ArchLucid.Core;
 public static class TimeProviderExtensions
 {
     /// <summary>Returns <see cref="DateTimeKind.Utc" /> <see cref="DateTime" /> for the provider clock.</summary>
+    /// <remarks>Keep using <see cref="TimeProvider.GetUtcNow" /> here; do not call this extension from inside itself.</remarks>
     public static DateTime UtcNowDateTime(this TimeProvider provider)
     {
         if (provider is null)
