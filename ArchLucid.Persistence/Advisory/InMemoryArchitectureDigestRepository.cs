@@ -1,7 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Persistence.Advisory;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IArchitectureDigestRepository" />
 public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRepository

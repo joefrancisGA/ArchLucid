@@ -7,7 +7,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>Dapper implementation of <see cref="IDigestSubscriptionRepository"/> over <c>dbo.DigestSubscriptions</c>.</summary>
 /// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
