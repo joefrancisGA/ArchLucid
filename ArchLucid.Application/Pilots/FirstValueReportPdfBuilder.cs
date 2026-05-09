@@ -35,8 +35,6 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
         {
             SponsorProofReadinessClassification.DemoOnly => DemoOnlyPdfBanner,
             SponsorProofReadinessClassification.NeedsBaseline => NeedsBaselinePdfBanner,
-            SponsorProofReadinessClassification.Incomplete => IncompletePdfBanner,
-            SponsorProofReadinessClassification.Sendable => IncompletePdfBanner,
             _ => IncompletePdfBanner,
         };
 

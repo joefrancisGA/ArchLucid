@@ -21,7 +21,7 @@ internal static class QuestPdfDocumentBytes
 
         Document document = Document.Create(composeDocument);
 
-        using MemoryStream stream = new MemoryStream();
+        using MemoryStream stream = new();
         document.GeneratePdf(stream);
 
         return stream.ToArray();

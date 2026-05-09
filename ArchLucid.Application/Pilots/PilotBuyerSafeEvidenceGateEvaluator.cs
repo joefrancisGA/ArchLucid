@@ -103,9 +103,6 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         if (demoTenant || hardGaps.Count > 0)
             return (PilotBuyerSafeEvidencePublishingTier.DemoOnly, ProofPackageSendability.NotSendable);
 
-        if (softGaps.Count > 0)
-            return (PilotBuyerSafeEvidencePublishingTier.Partial, ProofPackageSendability.SendableWithCaveats);
-
-        return (PilotBuyerSafeEvidencePublishingTier.Complete, ProofPackageSendability.Sendable);
+        return softGaps.Count > 0 ? (PilotBuyerSafeEvidencePublishingTier.Partial, ProofPackageSendability.SendableWithCaveats) : (PilotBuyerSafeEvidencePublishingTier.Complete, ProofPackageSendability.Sendable);
     }
 }

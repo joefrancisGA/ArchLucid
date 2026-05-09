@@ -11,18 +11,34 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
+type GovernanceInteractiveQuickstartCardProps = {
+  /** Hide the First 30 days onboarding link (buyer-polished workflow surface). */
+  hideFirst30DaysLink?: boolean;
+  /** Omit the card title when an outer shell (e.g. CollapsibleSection) already supplies it. */
+  suppressCardTitle?: boolean;
+  className?: string;
+};
 
 /**
  * Condensed governance path for first-time operators: links policy packs, review creation, and deeper walkthrough.
  */
-export function GovernanceInteractiveQuickstartCard() {
+export function GovernanceInteractiveQuickstartCard({
+  hideFirst30DaysLink = false,
+  suppressCardTitle = false,
+  className,
+}: GovernanceInteractiveQuickstartCardProps) {
   return (
     <Card
-      className="mb-6 border-teal-200/80 bg-teal-50/35 dark:border-teal-900/55 dark:bg-teal-950/20"
+      className={cn(
+        "mb-6 border-teal-200/80 bg-teal-50/35 dark:border-teal-900/55 dark:bg-teal-950/20",
+        className,
+      )}
       data-testid="governance-interactive-quickstart"
     >
-      <CardHeader className="space-y-1 pb-2">
-        <CardTitle className="text-base">Governance quick path</CardTitle>
+      <CardHeader className={cn("space-y-1 pb-2", suppressCardTitle && "pt-0")}>
+        {suppressCardTitle ? null : <CardTitle className="text-base">Governance quick path</CardTitle>}
         <CardDescription>
           Use this sequence the first time you move a finalized manifest through approval. Skipping steps is fine once
           your team knows the rhythm.
@@ -48,12 +64,14 @@ export function GovernanceInteractiveQuickstartCard() {
           </li>
         </ol>
       </CardContent>
-      <p className="m-0 px-6 pb-2 text-xs text-neutral-600 dark:text-neutral-400">
-        Onboarding preset (optional):{" "}
-        <Link href="/governance/first-30-days" className="font-medium text-teal-800 underline dark:text-teal-300">
-          First 30 days — governance rhythm
-        </Link>
-      </p>
+      {hideFirst30DaysLink ? null : (
+        <p className="m-0 px-6 pb-2 text-xs text-neutral-600 dark:text-neutral-400">
+          Onboarding preset (optional):{" "}
+          <Link href="/governance/first-30-days" className="font-medium text-teal-800 underline dark:text-teal-300">
+            First 30 days — governance rhythm
+          </Link>
+        </p>
+      )}
       <CardFooter className="flex flex-wrap gap-2 border-t border-teal-200/60 pt-3 dark:border-teal-900/50">
         <Button asChild size="sm" variant="secondary">
           <Link href="/policy-packs">Policy packs</Link>

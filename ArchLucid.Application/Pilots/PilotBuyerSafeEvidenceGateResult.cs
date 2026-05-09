@@ -6,6 +6,4 @@ public sealed record PilotBuyerSafeEvidenceGateResult(
     ProofPackageSendability ProofSendability,
     IReadOnlyList<string> DemoGaps,
     IReadOnlyList<string> HardGaps,
-    IReadOnlyList<string> SoftGaps)
-{
-}
+    IReadOnlyList<string> SoftGaps);

@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Common;
 using ArchLucid.Core;
 using ArchLucid.Core.Resilience;
 
@@ -38,16 +37,15 @@ public static class AgentExecutionFailureSummaryFactory
             return direct;
         }
 
-        if (ex is AggregateException aggregateException)
+        if (ex is not AggregateException aggregateException)
+            return ex.InnerException is null ? null : FindAgentHandlerExecutionException(ex.InnerException);
+        foreach (Exception inner in aggregateException.Flatten().InnerExceptions)
         {
-            foreach (Exception inner in aggregateException.Flatten().InnerExceptions)
-            {
-                AgentHandlerExecutionException? hit = FindAgentHandlerExecutionException(inner);
+            AgentHandlerExecutionException? hit = FindAgentHandlerExecutionException(inner);
 
-                if (hit is not null)
-                {
-                    return hit;
-                }
+            if (hit is not null)
+            {
+                return hit;
             }
         }
 
@@ -56,25 +54,20 @@ public static class AgentExecutionFailureSummaryFactory
 
     internal static Exception SelectPrimaryCause(Exception ex)
     {
-        if (ex is AggregateException aggregateException)
+        if (ex is not AggregateException aggregateException)
+            return ex;
+
+        IReadOnlyCollection<Exception> inners = aggregateException.Flatten().InnerExceptions;
+
+        List<Exception> preferred =
+            inners.Where(static e => e is not OperationCanceledException and not TaskCanceledException).ToList();
+
+        if (preferred.Count == 1)
         {
-            IReadOnlyCollection<Exception> inners = aggregateException.Flatten().InnerExceptions;
-
-            List<Exception> preferred =
-                inners.Where(static e => e is not OperationCanceledException and not TaskCanceledException).ToList();
-
-            if (preferred.Count == 1)
-            {
-                return preferred[0];
-            }
-
-            if (preferred.Count > 1)
-            {
-                return preferred[0];
-            }
+            return preferred[0];
         }
 
-        return ex;
+        return preferred.Count > 1 ? preferred[0] : ex;
     }
 
     internal static string Classify(Exception root)
@@ -84,7 +77,7 @@ public static class AgentExecutionFailureSummaryFactory
             return AgentExecutionFailureClasses.Timeout;
         }
 
-        if (root is OperationCanceledException || root is TaskCanceledException)
+        if (root is OperationCanceledException or TaskCanceledException)
         {
             return AgentExecutionFailureClasses.Canceled;
         }
@@ -114,12 +107,7 @@ public static class AgentExecutionFailureSummaryFactory
             return AgentExecutionFailureClasses.Dependency;
         }
 
-        if (root is InvalidOperationException or ArgumentException)
-        {
-            return AgentExecutionFailureClasses.InvalidOperation;
-        }
-
-        return AgentExecutionFailureClasses.Unknown;
+        return root is InvalidOperationException or ArgumentException ? AgentExecutionFailureClasses.InvalidOperation : AgentExecutionFailureClasses.Unknown;
     }
 
     internal static string? ResolveReasonCode(Exception root)
@@ -134,11 +122,6 @@ public static class AgentExecutionFailureSummaryFactory
             return AgentExecutionTraceFailureReasonCodes.LlmTokenQuotaExceeded;
         }
 
-        if (root is CostLimitExceededException)
-        {
-            return AgentExecutionTraceFailureReasonCodes.RunCostLimitExceeded;
-        }
-
-        return null;
+        return root is CostLimitExceededException ? AgentExecutionTraceFailureReasonCodes.RunCostLimitExceeded : null;
     }
 }

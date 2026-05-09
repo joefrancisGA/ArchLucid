@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
@@ -33,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { GovernanceInteractiveQuickstartCard } from "@/components/GovernanceInteractiveQuickstartCard";
 import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -190,6 +192,9 @@ function GovernanceWorkflowPageInner() {
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const hideGovernanceQueryLoadCard =
     buyerPolishedShell && approvals.length > 0 && !listsLoading;
+
+  const buyerSuppressGovernanceSubmitChrome =
+    buyerPolishedShell && activeRunId !== null && approvals.length > 0;
 
   const listsLoadingShowsBusyChrome = listsLoading && !(buyerPolishedShell && approvals.length > 0);
 
@@ -553,6 +558,9 @@ function GovernanceWorkflowPageInner() {
         subtitle={canMutateWorkflow ? governanceWorkflowPageLeadOperator : governanceWorkflowPageLeadReader}
         helpKey="governance-workflow"
       />
+      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
+        <GovernanceApprovalStoryCard row={approvals[0]!} />
+      ) : null}
       <p
         className="mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
         data-testid="governance-workflow-outcome-banner"
@@ -560,11 +568,13 @@ function GovernanceWorkflowPageInner() {
         {governanceWorkflowOutcomeBannerLine}
       </p>
 
-      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
-        <GovernanceApprovalStoryCard row={approvals[0]!} />
-      ) : null}
-
-      <GovernanceInteractiveQuickstartCard />
+      {buyerPolishedShell ? (
+        <CollapsibleSection title="Governance quick path" defaultOpen={false}>
+          <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
+        </CollapsibleSection>
+      ) : (
+        <GovernanceInteractiveQuickstartCard />
+      )}
 
       {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) ? (
         <div className="mb-6 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 text-sm text-neutral-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-neutral-50">
@@ -612,7 +622,17 @@ function GovernanceWorkflowPageInner() {
         )}
       >
       <section className="mb-10">
-        {buyerPolishedShell && !canMutateWorkflow ? (
+        {buyerSuppressGovernanceSubmitChrome ? (
+          <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+            To submit a new approval request, use the full governance workflow.{" "}
+            <Link
+              className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+              href="/governance/dashboard"
+            >
+              Governance dashboard
+            </Link>
+          </p>
+        ) : buyerPolishedShell && !canMutateWorkflow ? (
           <Card className="border border-teal-200/80 bg-teal-50/50 dark:border-teal-900/55 dark:bg-teal-950/35">
             <CardHeader className="space-y-1">
               <CardTitle>Governance submissions</CardTitle>
