@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Security.Claims;
 
 using ArchLucid.Application.Billing;
 using ArchLucid.Core.Audit;
@@ -50,7 +49,7 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
         Mock<IMarketplaceWebhookTokenVerifier> verifier = new();
         verifier
             .Setup(v => v.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ClaimsPrincipal());
+            .ReturnsAsync(new MarketplaceWebhookValidatedToken([]));
 
         Mock<IHttpClientFactory> httpFactory = new();
         MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
@@ -125,7 +124,7 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
         Mock<IMarketplaceWebhookTokenVerifier> verifier = new();
         verifier
             .Setup(v => v.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ClaimsPrincipal());
+            .ReturnsAsync(new MarketplaceWebhookValidatedToken([]));
 
         Mock<IHttpClientFactory> httpFactory = new();
         MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(

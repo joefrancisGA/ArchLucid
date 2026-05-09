@@ -95,6 +95,7 @@ function severityBadgeClass(severity: string): string {
 
 export function AlertsInboxContent() {
   const canMutateAlertInbox = useNavSurface("alerts").mutationCapability;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [alerts, setAlerts] = useState<AlertRecord[]>([]);
   const [status, setStatus] = useState<string>("Open");
   const [page, setPage] = useState(1);
@@ -181,9 +182,7 @@ export function AlertsInboxContent() {
   }, [alerts]);
 
   const emptyFilteredProps = useMemo(() => {
-    const buyerPolished = isBuyerPolishedOperatorShellEnv();
-
-    if (buyerPolished) {
+    if (buyerPolishedShell) {
       return {
         ...ALERTS_EMPTY_FILTERED,
         title: "No alerts in this sample",
@@ -217,7 +216,7 @@ export function AlertsInboxContent() {
       actions,
       gettingStarted,
     };
-  }, [canMutateAlertInbox]);
+  }, [buyerPolishedShell, canMutateAlertInbox]);
 
   const act = useCallback(
     async (alertId: string, action: AlertActionKind, comment: string) => {
@@ -276,7 +275,7 @@ export function AlertsInboxContent() {
       </p>
       {!canMutateAlertInbox ? <AlertsInboxRankCue /> : null}
 
-      {isBuyerPolishedOperatorShellEnv() && shouldMergeOperatorDemoAlertSample() ? (
+      {buyerPolishedShell && shouldMergeOperatorDemoAlertSample() ? (
         <div
           className="mb-4 max-w-prose rounded-md border border-teal-200 bg-teal-50/90 px-3 py-2 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100"
           role="status"
@@ -357,7 +356,7 @@ export function AlertsInboxContent() {
                   Page {page} of {totalPages}: {pageMixSummary}.
                 </p>
               ) : null}
-              {totalCount === 0 && !isBuyerPolishedOperatorShellEnv() ? (
+              {totalCount === 0 && !buyerPolishedShell ? (
                 <p className="m-0 mt-1">
                   <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/alerts?tab=rules">
                     Configure alert rules
@@ -370,7 +369,7 @@ export function AlertsInboxContent() {
         </div>
       ) : null}
 
-      {isBuyerPolishedOperatorShellEnv() ? null : (
+      {buyerPolishedShell ? null : (
         <span className="sr-only">
           {canMutateAlertInbox
             ? "Keyboard shortcuts: Alt+J and Alt+K move between alert cards; Alt+1 acknowledge; Alt+2 resolve; Alt+3 opens suppress from More triage actions."
@@ -382,7 +381,7 @@ export function AlertsInboxContent() {
         {loading && failure === null && alerts.length === 0 ? (
           <OperatorLoadingNotice>
             <strong>Loading alerts.</strong>
-            {isBuyerPolishedOperatorShellEnv() ? null : (
+            {buyerPolishedShell ? null : (
               <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
                 {ALERTS_PAGE_SIZE} per page; empty means no rows for this filter.
               </p>
@@ -396,7 +395,7 @@ export function AlertsInboxContent() {
           ? alerts.map((alert) => {
               const findingDetailHref = alertPrimaryFindingDetailHref(alert);
               const hideDemoTriageActions =
-                isBuyerPolishedOperatorShellEnv() && alert.alertId === "demo-alert-phi-intake";
+                buyerPolishedShell && alert.alertId === "demo-alert-phi-intake";
 
               return (
               <article
@@ -507,6 +506,7 @@ export function AlertsInboxContent() {
                       >
                         {canMutateAlertInbox ? "Resolve" : alertsTriageResolveButtonLabelReaderInbox}
                       </Button>
+                      {buyerPolishedShell ? null : (
                       <details className="group relative">
                         <summary className="cursor-pointer list-none rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800 [&::-webkit-details-marker]:hidden">
                           More triage actions
@@ -527,6 +527,7 @@ export function AlertsInboxContent() {
                           </Button>
                         </div>
                       </details>
+                      )}
                     </div>
                   </section>
                 )}

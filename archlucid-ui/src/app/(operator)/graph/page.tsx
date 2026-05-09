@@ -559,6 +559,7 @@ function GraphPageContent() {
                 ? `${graph.nodes.length} nodes in this view`
                 : `${graph.nodes.length} nodes, ${graph.edges.length} edges (before filter)`}
             </span>
+            {!buyerPolishedShell ? (
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
@@ -614,6 +615,7 @@ function GraphPageContent() {
                 Export Mermaid
               </Button>
             </div>
+            ) : null}
           </div>
           <div className="mb-3 max-w-4xl">
             <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Legend</p>

@@ -27,9 +27,11 @@ internal static class RunExecutionFlavorSummary
 
         if (realModeFellBackToSimulator)
         {
-            return "Part of this architecture review used deterministic output after a live-model path failed. Treat numeric highlights cautiously; open the first-value report for the full execution provenance table.";
+            return "Part of this review used a documented deterministic analysis path after the primary path did not complete. Treat numeric highlights conservatively and use sponsor exports for the full provenance table.";
         }
 
-        return string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase) ? "Agent steps for this review used the live model path, subject to this API host’s execution configuration when you loaded this page." : "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).";
+        return string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase)
+            ? "Agent-assisted steps used your API host’s configured model path when this page was loaded."
+            : "Agent-assisted steps used a deterministic analysis path on this host (no billable model calls for those steps).";
     }
 }

@@ -119,13 +119,13 @@ describe("EmailRunToSponsorBanner", () => {
     );
   });
 
-  it("renders the time-to-value heading and primary pilot scorecard CTA", async () => {
+  it("renders the sponsor distribution heading and primary scorecard CTA", async () => {
     render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     expect(screen.getByTestId("email-run-to-sponsor-banner")).toBeInTheDocument();
-    expect(screen.getByText(/time to value/i)).toBeInTheDocument();
+    expect(screen.getByText(/sponsor distribution/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /generate pilot scorecard package/i }),
+      screen.getByRole("button", { name: /create sponsor scorecard|generate pilot scorecard package/i }),
     ).toBeInTheDocument();
 
     await waitFor(() => {
@@ -148,11 +148,15 @@ describe("EmailRunToSponsorBanner", () => {
   it("exposes canonical export links without duplicating download handlers", () => {
     render(<EmailRunToSponsorBanner {...bannerProps} />);
 
-    const md = screen.getByRole("link", { name: /first-value report \(markdown\)/i });
+    const md = screen.getByRole("link", {
+      name: /executive value summary \(markdown\)|first-value report \(markdown\)/i,
+    });
 
     expect(md).toHaveAttribute("href", "/api/proxy/v1/pilots/runs/run-42/first-value-report");
 
-    const docx = screen.getByRole("link", { name: /architecture package \(docx\)/i });
+    const docx = screen.getByRole("link", {
+      name: /architecture decision package \(docx\)|architecture package \(docx\)/i,
+    });
 
     expect(docx.getAttribute("href")).toContain("/api/proxy/v1/docx/runs/run-42/architecture-package");
 

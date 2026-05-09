@@ -18,4 +18,10 @@
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Analyzers\ArchLucid.Analyzers.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
 </Project>

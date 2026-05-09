@@ -198,11 +198,11 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
       id="pilot-scorecard-package"
       data-testid="email-run-to-sponsor-banner"
       role="region"
-      aria-label="Pilot scorecard package"
+      aria-label="Sponsor scorecard package"
       className="mb-6 max-w-3xl rounded-md border border-teal-300 bg-teal-50 px-4 py-3 dark:border-teal-700 dark:bg-teal-950/40"
     >
       <p className="m-0 flex flex-wrap items-center text-[11px] font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
-        <span>Time to value</span>
+        <span>Sponsor distribution</span>
         {badgeDayN !== null ? (
           <span
             data-testid="email-run-to-sponsor-first-commit-badge"
@@ -216,7 +216,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
       </p>
 
       <h2 className="m-0 mt-2 text-base font-semibold text-neutral-900 dark:text-neutral-50">
-        Generate pilot scorecard package
+        {buyerPolishedShell ? "Create executive sponsor scorecard" : "Generate pilot scorecard package"}
       </h2>
 
       <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-100">
@@ -228,8 +228,8 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
           target="_blank"
         >
           executive sponsor brief
-        </a>
-        {" "}and conservative ROI framing in the{" "}
+        </a>{" "}
+        and conservative ROI framing in the{" "}
         <a
           className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
           href={pilotRoiModelHref}
@@ -238,12 +238,14 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         >
           pilot ROI reference model
         </a>
-        . Use the exports below for sponsor-ready collateral.
+        .{buyerPolishedShell ? " Downloads and readiness checks are split below." : " Use the exports below for sponsor-ready collateral."}
       </p>
+
+      <h3 className="m-0 mt-4 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Sponsor readiness</h3>
 
       {proofGate.status === "skipped" ? null : proofGate.status === "loading" ? (
         <p
-          className="m-0 mt-3 text-xs text-neutral-600 dark:text-neutral-400"
+          className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400"
           data-testid="email-run-to-sponsor-readiness-loading"
           aria-busy
         >
@@ -253,7 +255,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         </p>
       ) : proofGate.status === "error" ? (
         <p
-          className="m-0 mt-3 text-xs font-medium text-amber-800 dark:text-amber-200"
+          className="m-0 mt-2 text-xs font-medium text-amber-800 dark:text-amber-200"
           data-testid="email-run-to-sponsor-readiness-error"
         >
           {buyerPolishedShell
@@ -262,7 +264,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         </p>
       ) : !readinessCopy ? (
         <p
-          className="m-0 mt-3 text-xs text-neutral-600 dark:text-neutral-400"
+          className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400"
           data-testid="email-run-to-sponsor-readiness-incomplete"
         >
           {buyerPolishedShell
@@ -276,12 +278,12 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
           data-readiness-classification={readinessCopy.classification ?? ""}
           className={
             readinessCopy.variant === "blocked"
-              ? "mt-3 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-50"
+              ? "mt-2 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-50"
               : readinessCopy.variant === "caveats"
-                ? "mt-3 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-2 text-sm text-yellow-950 dark:border-yellow-600 dark:bg-yellow-950/40 dark:text-yellow-50"
+                ? "mt-2 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-2 text-sm text-yellow-950 dark:border-yellow-600 dark:bg-yellow-950/40 dark:text-yellow-50"
                 : readinessCopy.variant === "ready"
-                  ? "mt-3 rounded-md border border-teal-500 bg-white/90 px-3 py-2 text-sm text-teal-950 dark:border-teal-600 dark:bg-teal-950/30 dark:text-teal-50"
-                  : "mt-3 rounded-md border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-100"
+                  ? "mt-2 rounded-md border border-teal-500 bg-white/90 px-3 py-2 text-sm text-teal-950 dark:border-teal-600 dark:bg-teal-950/30 dark:text-teal-50"
+                  : "mt-2 rounded-md border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-100"
           }
         >
           <p className="m-0 font-semibold leading-snug">{readinessCopy.title}</p>
@@ -289,7 +291,9 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         </div>
       )}
 
-      <div className="mt-3 flex flex-wrap items-center gap-3">
+      <h3 className="m-0 mt-5 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Download package</h3>
+
+      <div className="mt-2 flex flex-wrap items-center gap-3">
         <Button
           type="button"
           variant="primary"
@@ -297,10 +301,16 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
           onClick={() => void onDownloadPdf()}
           data-testid="email-run-to-sponsor-primary-action"
         >
-          {busy ? "Preparing PDF…" : "Generate pilot scorecard package"}
+          {busy
+            ? "Preparing PDF…"
+            : buyerPolishedShell
+              ? "Create sponsor scorecard (PDF)"
+              : "Generate pilot scorecard package"}
         </Button>
         <span className="text-xs text-neutral-600 dark:text-neutral-400">
-          Step 1: generate the sponsor one‑pager PDF — same storyline as the Markdown narrative.
+          {buyerPolishedShell
+            ? "Primary export is the sponsor one‑pager PDF — same storyline as the Markdown summary."
+            : "Step 1: generate the sponsor one‑pager PDF — same storyline as the Markdown narrative."}
         </span>
       </div>
 
@@ -311,7 +321,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
             href={markdownHref}
             download={`archlucid-first-value-report-${runId}.md`}
           >
-            First-value report (Markdown)
+            {buyerPolishedShell ? "Executive value summary (Markdown)" : "First-value report (Markdown)"}
           </a>
         </li>
         <li>
@@ -319,7 +329,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
             href={getArchitecturePackageDocxUrl(runId)}
           >
-            Architecture package (DOCX)
+            Architecture decision package (DOCX)
           </a>
         </li>
         <li>
@@ -334,7 +344,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
             href={getRunExportDownloadUrl(runId)}
           >
-            {buyerPolishedShell ? "Review export (ZIP)" : "Run export (ZIP)"}
+            {buyerPolishedShell ? "Audit-ready review export (ZIP)" : "Run export (ZIP)"}
           </a>
           {" · "}
           {buyerPolishedShell ? null : (
@@ -346,7 +356,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
             </>
           )}
           <a className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="#artifacts-exports">
-            Artifacts &amp; exports on this page
+            {buyerPolishedShell ? "More downloads on this review page" : "Artifacts &amp; exports on this page"}
           </a>
         </li>
       </ul>

@@ -36,12 +36,11 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
 
     private static bool ShouldAnalyzeAssembly(string? assemblyName)
     {
-        if (string.IsNullOrEmpty(assemblyName))
+        if (assemblyName is not { Length: > 0 } name)
             return false;
 
-        // Boundary assemblies may use HTTP/claims to build IScopeContextProvider and related adapters.
-        if (string.Equals(assemblyName, "ArchLucid.Api", StringComparison.Ordinal) ||
-            assemblyName.StartsWith("ArchLucid.Host.", StringComparison.Ordinal))
+        if (string.Equals(name, "ArchLucid.Api", StringComparison.Ordinal) ||
+            name.StartsWith("ArchLucid.Host.", StringComparison.Ordinal))
             return false;
 
         return true;

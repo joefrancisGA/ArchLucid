@@ -1,8 +1,6 @@
 ﻿using System.Security.Claims;
 
-using ArchLucid.Application.Common;
-
-using FluentAssertions;
+using ArchLucid.Host.Core.Auth.Services;
 
 using Microsoft.AspNetCore.Http;
 
@@ -29,7 +27,7 @@ public sealed class ActorContextTests
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
-        ActorContext sut = new(accessor.Object);
+        HttpActorContext sut = new(accessor.Object);
 
         sut.GetActor().Should().Be("domain\\alice");
     }
@@ -40,7 +38,7 @@ public sealed class ActorContextTests
         Mock<IHttpContextAccessor> accessor = new();
         accessor.Setup(a => a.HttpContext).Returns((HttpContext?)null);
 
-        ActorContext sut = new(accessor.Object);
+        HttpActorContext sut = new(accessor.Object);
 
         sut.GetActor().Should().Be("api-user");
     }
@@ -56,7 +54,7 @@ public sealed class ActorContextTests
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
-        ActorContext sut = new(accessor.Object);
+        HttpActorContext sut = new(accessor.Object);
 
         string actor = sut.GetActor();
 
@@ -77,7 +75,7 @@ public sealed class ActorContextTests
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
-        ActorContext sut = new(accessor.Object);
+        HttpActorContext sut = new(accessor.Object);
 
         sut.GetActor().Should().Be("JwtE2eAdmin");
     }
@@ -99,7 +97,7 @@ public sealed class ActorContextTests
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
-        ActorContext sut = new(accessor.Object);
+        HttpActorContext sut = new(accessor.Object);
 
         sut.GetActorId().Should().Be("jwt:tenant-guid:obj-guid");
     }
@@ -117,7 +115,7 @@ public sealed class ActorContextTests
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
-        ActorContext sut = new(accessor.Object);
+        HttpActorContext sut = new(accessor.Object);
 
         sut.GetActorId().Should().Be("jwt:only-oid-guid");
     }
@@ -135,7 +133,7 @@ public sealed class ActorContextTests
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
-        ActorContext sut = new(accessor.Object);
+        HttpActorContext sut = new(accessor.Object);
 
         sut.GetActor().Should().Be("spi-user");
         sut.GetActorId().Should().Be("spi-user");
@@ -173,8 +171,8 @@ public sealed class ActorContextTests
         };
         accessorLong.Setup(a => a.HttpContext).Returns(httpLong);
 
-        new ActorContext(accessorShort.Object).GetActorId().Should().Be("jwt:same-tenant:same-object");
-        new ActorContext(accessorLong.Object).GetActorId().Should().Be("jwt:same-tenant:same-object");
+        new HttpActorContext(accessorShort.Object).GetActorId().Should().Be("jwt:same-tenant:same-object");
+        new HttpActorContext(accessorLong.Object).GetActorId().Should().Be("jwt:same-tenant:same-object");
     }
 
     [SkippableFact]
@@ -195,7 +193,7 @@ public sealed class ActorContextTests
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
-        ActorContext sut = new(accessor.Object);
+        HttpActorContext sut = new(accessor.Object);
 
         sut.GetActor().Should().Be("friendly-sp-name-only");
         sut.GetActorId().Should().Be("jwt:t1:real-oid-guid");

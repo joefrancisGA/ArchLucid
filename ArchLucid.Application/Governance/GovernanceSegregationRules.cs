@@ -11,7 +11,7 @@ public static class GovernanceSegregationRules
 {
     /// <summary>
     ///     Returns <see langword="true" /> when the reviewer is the same logical actor as the submitter.
-    ///     When both sides carry <see cref="ActorContext.JwtActorKeyPrefix" /> keys, compares those; otherwise
+    ///     When both sides carry <see cref="ActorContextKeys.JwtActorKeyPrefix" /> keys, compares those; otherwise
     ///     compares <see cref="GovernanceApprovalRequest.RequestedBy" /> to <paramref name="reviewedByDisplay" />.
     /// </summary>
     public static bool IsSameActorForReview(
@@ -35,6 +35,6 @@ public static class GovernanceSegregationRules
     internal static bool LooksLikeJwtCanonicalActorKey(string? key)
     {
         return !string.IsNullOrWhiteSpace(key) &&
-               key.StartsWith(ActorContext.JwtActorKeyPrefix, StringComparison.Ordinal);
+               key.StartsWith(ActorContextKeys.JwtActorKeyPrefix, StringComparison.Ordinal);
     }
 }

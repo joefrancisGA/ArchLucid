@@ -691,7 +691,7 @@ export function formatTrustEvidenceCardMarkdown(card: RunTrustEvidenceCard): str
     lines.push(`- **${title}:** ${status}${extra}`);
   };
 
-  lines.push("## Trust evidence (operational)");
+  lines.push("## Evidence basis (operational)");
   lines.push("");
   lines.push(card.selfAttestationNotice);
   lines.push("");

@@ -453,12 +453,12 @@ export default async function RunDetailPage({
 
   const runDetailNavSections: RunDetailSection[] = buyerPolishedSections
     ? [
-        { id: "manifest-summary", label: "Package", available: Boolean(manifestSummary) },
+        { id: "manifest-summary", label: "Outcome", available: Boolean(manifestSummary) },
         { id: "trust-evidence", label: "Evidence", available: Boolean(resolvedDetail.trustEvidenceCard) },
         { id: "run-explanation", label: "Review narrative", available: Boolean(manifestId) },
         { id: "run-metadata", label: "Review", available: true },
         { id: "pipeline-timeline", label: "Activity", available: true },
-        { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
+        { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
         { id: "run-actions", label: "Next steps", available: true },
       ]
     : [
@@ -1112,7 +1112,7 @@ export default async function RunDetailPage({
           </CardHeader>
           <CardContent className="space-y-6">
             {buyerPolishedArtifactTable ? (
-              showPilotScorecardPackageCta ? <GenerateSponsorValueReportButton /> : null
+              showPilotScorecardPackageCta ? null : <GenerateSponsorValueReportButton />
             ) : manifestId ? (
               <GenerateSponsorValueReportButton />
             ) : null}
