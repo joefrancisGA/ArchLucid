@@ -226,4 +226,40 @@ describe("RunsDashboardPanel", () => {
       runsDashBuyerPolishedForced.on = false;
     }
   });
+
+  it("buyer-polished empty state links sample preview to manifest summary", async () => {
+    runsDashBuyerPolishedForced.on = true;
+
+    const fallbackSpy = vi.spyOn(operatorStaticDemo, "tryStaticDemoRunSummariesPaged").mockReturnValue(null);
+
+    try {
+      listRuns.mockResolvedValue({
+        items: [],
+        totalCount: 0,
+        page: 1,
+        pageSize: 5,
+        hasMore: false,
+      });
+      stubFetchForDashboard();
+
+      render(<RunsDashboardPanel />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("operator-home-getting-started")).toBeInTheDocument();
+      });
+      expect(
+        screen.getByText(
+          /open the sample manifest summary to see a governed package/i,
+        ),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
+        "href",
+        "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+      );
+      expect(screen.queryByTestId("example-request-panel")).toBeNull();
+    } finally {
+      fallbackSpy.mockRestore();
+      runsDashBuyerPolishedForced.on = false;
+    }
+  });
 });

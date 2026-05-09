@@ -23,6 +23,7 @@ import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import {
   getBuyerSafeReviewsTableLink,
   getCanonicalReviewWorkspaceHref,
+  getShowcaseManifestHref,
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
@@ -369,7 +370,7 @@ export function RunsDashboardPanel() {
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     {buyerPolishedShell
-                      ? "Start with a new request, or preview the sample output to see a governed package end to end."
+                      ? "Start with a new request, or open the sample manifest summary to see a governed package end to end."
                       : "You have no architecture reviews yet. Create a request to produce a manifest, findings, and exportable artifacts — or walk the pilot checklist first."}
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
@@ -378,7 +379,7 @@ export function RunsDashboardPanel() {
                     </Button>
                     {buyerPolishedShell ? (
                       <Button asChild variant="outline" size="sm" className="h-8">
-                        <Link href="/showcase/claims-intake-modernization">See sample output</Link>
+                        <Link href={getShowcaseManifestHref()}>View manifest summary</Link>
                       </Button>
                     ) : (
                       <>
