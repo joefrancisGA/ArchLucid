@@ -103,6 +103,10 @@ jobs:
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           NODE_OPTIONS: --max-old-space-size=6144
+          # Api host is DevelopmentBypass — prevent inherited JWT/API key env from forcing the wrong client auth lane.
+          LIVE_JWT_TOKEN: ""
+          LIVE_API_KEY: ""
+          LIVE_API_KEY_READONLY: ""
         run: |
           npx playwright install --with-deps chromium
           npx playwright test

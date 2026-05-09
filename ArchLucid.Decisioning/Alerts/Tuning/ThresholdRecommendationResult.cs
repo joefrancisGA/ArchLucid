@@ -8,7 +8,7 @@ public class ThresholdRecommendationResult
     {
         get;
         set;
-    } = TimeProvider.System.GetUtcNow().UtcDateTime;
+    } = TimeProvider.System.UtcNowDateTime();
 
     /// <summary>Echo of request rule kind.</summary>
     public string RuleKind

@@ -40,7 +40,7 @@ public static class AuthorityRunChainTestSeed
                 {
                     RunId = runId,
                     ProjectId = projectSlug,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
                     ScopeProjectId = projectId
@@ -89,7 +89,7 @@ public static class AuthorityRunChainTestSeed
                     SnapshotId = contextSnapshotId,
                     RunId = runId,
                     ProjectId = projectSlug,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     CanonicalObjectsJson = emptyCanonical,
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyList,
@@ -171,7 +171,7 @@ public static class AuthorityRunChainTestSeed
                     SnapshotId = contextSnapshotId,
                     RunId = runId,
                     ProjectId = projectSlug,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     CanonicalObjectsJson = emptyCanonical,
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyList,
@@ -205,7 +205,7 @@ public static class AuthorityRunChainTestSeed
                     GraphSnapshotId = graphSnapshotId,
                     ContextSnapshotId = contextSnapshotId,
                     RunId = runId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
                     WarningsJson = emptyGraphWarnings
@@ -237,7 +237,7 @@ public static class AuthorityRunChainTestSeed
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
                     ScopeProjectId = scopeProjectId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     SchemaVersion = 1,
                     FindingsJson = JsonEntitySerializer.Serialize(new FindingsSnapshot
                     {
@@ -245,7 +245,7 @@ public static class AuthorityRunChainTestSeed
                         RunId = runId,
                         ContextSnapshotId = contextSnapshotId,
                         GraphSnapshotId = graphSnapshotId,
-                        CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                        CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                         Findings = []
                     })
                 },
@@ -275,7 +275,7 @@ public static class AuthorityRunChainTestSeed
                 {
                     DecisionTraceId = decisionTraceId,
                     RunId = runId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     RuleSetId = "rs",
                     RuleSetVersion = "1",
                     RuleSetHash = "h",

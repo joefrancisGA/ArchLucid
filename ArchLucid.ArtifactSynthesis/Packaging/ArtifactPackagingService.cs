@@ -68,7 +68,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             WriteBundleIndex(archive, artifacts);
             WritePackageMetadata(
                 archive,
-                new { CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, ManifestId = manifestId, ArtifactCount = artifacts.Count });
+                new { CreatedUtc = TimeProvider.System.UtcNowDateTime(), ManifestId = manifestId, ArtifactCount = artifacts.Count });
         }
 
         return new ArtifactPackage
@@ -157,7 +157,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
                 archive,
                 new
                 {
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     RunId = runId,
                     ManifestId = manifestId,
                     ArtifactCount = artifacts.Count

@@ -17,7 +17,7 @@ public sealed class ArtifactDescriptorMapperTests
             ArtifactId = id,
             RunId = Guid.Parse("10000000-0000-0000-0000-000000000001"),
             ManifestId = Guid.Parse("20000000-0000-0000-0000-000000000001"),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ArtifactType = "Test",
             Name = name,
             Format = "json",

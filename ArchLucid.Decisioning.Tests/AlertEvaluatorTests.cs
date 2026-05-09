@@ -210,7 +210,7 @@ public sealed class AlertEvaluatorTests
                 Status = RecommendationStatus.Deferred,
                 PriorityScore = 90,
                 // Updated 5 days ago — inside the 30-day threshold
-                LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-5),
+                LastUpdatedUtc = TimeProvider.System.UtcNowDateTime().AddDays(-5),
                 Title = "Rec",
                 RecommendationId = Guid.NewGuid()
             }
@@ -233,7 +233,7 @@ public sealed class AlertEvaluatorTests
                 Status = RecommendationStatus.Deferred,
                 PriorityScore = 85,
                 // Updated 40 days ago — beyond the 30-day threshold
-                LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-40),
+                LastUpdatedUtc = TimeProvider.System.UtcNowDateTime().AddDays(-40),
                 Title = "Old Rec",
                 RecommendationId = Guid.NewGuid()
             }
@@ -256,7 +256,7 @@ public sealed class AlertEvaluatorTests
             {
                 Status = RecommendationStatus.Deferred,
                 PriorityScore = 50, // below the 80 floor
-                LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-30),
+                LastUpdatedUtc = TimeProvider.System.UtcNowDateTime().AddDays(-30),
                 Title = "Low Pri Rec",
                 RecommendationId = Guid.NewGuid()
             }

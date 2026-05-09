@@ -49,7 +49,7 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
                 ArchitectureRequestId = "req-dry-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
 
@@ -61,7 +61,7 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 Findings =
                 [
                     new Finding
@@ -125,7 +125,7 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
                 ArchitectureRequestId = "req-dry-2",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
 
@@ -137,7 +137,7 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
                 RunId = runGuid,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 Findings = [],
             },
             CancellationToken.None);
@@ -154,7 +154,7 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = snapshotId,
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "hash",
             RuleSetId = "rs",
             RuleSetVersion = "1",
@@ -211,7 +211,7 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "hash",
             RuleSetId = "rs",
             RuleSetVersion = "1",

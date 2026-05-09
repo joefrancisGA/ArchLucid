@@ -69,7 +69,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
                 RequestId = "req-1",
                 Status = ArchitectureRunStatus.Committed,
                 CurrentManifestVersion = "v1",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
             },
             Manifest = manifest,
             Tasks = [],
@@ -113,7 +113,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
                 RequestId = "req-1",
                 Status = ArchitectureRunStatus.TasksGenerated,
                 CurrentManifestVersion = null,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
             },
             Manifest = manifest,
             Tasks = [],

@@ -61,7 +61,7 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
 
 
         Guid signalId = record.SignalId == Guid.Empty ? Guid.NewGuid() : record.SignalId;
-        DateTime recordedUtc = record.RecordedUtc == default ? TimeProvider.System.GetUtcNow().UtcDateTime : record.RecordedUtc;
+        DateTime recordedUtc = record.RecordedUtc == default ? TimeProvider.System.UtcNowDateTime() : record.RecordedUtc;
         string triage = string.IsNullOrWhiteSpace(record.TriageStatus)
             ? ProductLearningTriageStatusValues.Open
             : record.TriageStatus;

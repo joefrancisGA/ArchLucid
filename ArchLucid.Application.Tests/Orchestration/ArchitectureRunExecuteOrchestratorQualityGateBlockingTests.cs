@@ -53,7 +53,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
             ProjectId = "default",
             ArchitectureRequestId = "req-qgate-block",
             LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
         ArchitectureRequest request = new()

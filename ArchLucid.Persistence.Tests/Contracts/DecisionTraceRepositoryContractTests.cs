@@ -24,7 +24,7 @@ public abstract class DecisionTraceRepositoryContractTests
             ProjectId = scope.ProjectId,
             DecisionTraceId = traceId,
             RunId = runId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             RuleSetId = "rs-dt",
             RuleSetVersion = "1",
             RuleSetHash = "h",

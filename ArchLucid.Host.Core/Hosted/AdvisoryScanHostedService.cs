@@ -35,7 +35,7 @@ public sealed class AdvisoryScanHostedService(
                 using IServiceScope scope = serviceProvider.CreateScope();
                 AdvisoryDueScheduleProcessor processor = scope.ServiceProvider.GetRequiredService<AdvisoryDueScheduleProcessor>();
 
-                await processor.ProcessDueAsync(TimeProvider.System.GetUtcNow().UtcDateTime, 10, leaderToken);
+                await processor.ProcessDueAsync(TimeProvider.System.UtcNowDateTime(), 10, leaderToken);
             }
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {

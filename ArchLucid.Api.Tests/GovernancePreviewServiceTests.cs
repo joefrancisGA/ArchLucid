@@ -44,7 +44,7 @@ public sealed class GovernancePreviewServiceTests
             Datastores = [],
             Relationships = [],
             Governance = gov,
-            Metadata = new ManifestMetadata { ManifestVersion = version, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime }
+            Metadata = new ManifestMetadata { ManifestVersion = version, CreatedUtc = TimeProvider.System.UtcNowDateTime() }
         };
     }
 
@@ -55,7 +55,7 @@ public sealed class GovernancePreviewServiceTests
             RunId = runId,
             RequestId = "req-1",
             Status = ArchitectureRunStatus.Committed,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 

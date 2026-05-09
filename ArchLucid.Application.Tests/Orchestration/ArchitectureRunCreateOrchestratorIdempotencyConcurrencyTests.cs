@@ -67,7 +67,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         {
             Run = new ArchitectureRun
             {
-                RunId = runId, RequestId = requestId, Status = ArchitectureRunStatus.TasksGenerated, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                RunId = runId, RequestId = requestId, Status = ArchitectureRunStatus.TasksGenerated, CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             EvidenceBundle = new EvidenceBundle { EvidenceBundleId = "eb-conc" },
             Tasks =
@@ -80,7 +80,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
                     AgentType = AgentType.Topology,
                     Objective = "o",
                     Status = AgentTaskStatus.Created,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 },
             ],
         };
@@ -237,7 +237,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
                         RunId = runId,
                         RequestId = req.RequestId,
                         Status = ArchitectureRunStatus.TasksGenerated,
-                        CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                        CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     },
                     EvidenceBundle = new EvidenceBundle { EvidenceBundleId = "eb-" + runId },
                     Tasks = [],

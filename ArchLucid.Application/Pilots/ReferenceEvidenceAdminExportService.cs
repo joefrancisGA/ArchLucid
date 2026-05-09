@@ -118,7 +118,7 @@ public sealed class ReferenceEvidenceAdminExportService(
                                  TenantId: {tenantId:D}
                                  RunId: {runId}
                                  IncludeDemo: {includeDemo}
-                                 GeneratedUtc: {TimeProvider.System.GetUtcNow().UtcDateTime:O}
+                                 GeneratedUtc: {TimeProvider.System.UtcNowDateTime():O}
 
                                  Files:
                                  - pilot-run-deltas.json — proof-of-ROI numbers (see PILOT_ROI_MODEL.md).
@@ -177,7 +177,7 @@ public sealed class ReferenceEvidenceAdminExportService(
                 - **TenantId:** `{tenantId:D}`
                 - **RunId:** `{runId}`
                 - **IncludeDemo:** {includeDemo}
-                - **GeneratedUtc:** {TimeProvider.System.GetUtcNow().UtcDateTime:O}
+                - **GeneratedUtc:** {TimeProvider.System.UtcNowDateTime():O}
 
                 Obtain a **signed reference agreement** before publishing customer-specific metrics externally.
                 """;

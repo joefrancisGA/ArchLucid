@@ -45,7 +45,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         ScopeContext scope = NewScope();
         Guid runId = Guid.NewGuid();
 
-        DecisionProvenanceSnapshot snap = NewSnapshot(runId, """{"n":1}""", TimeProvider.System.GetUtcNow().UtcDateTime);
+        DecisionProvenanceSnapshot snap = NewSnapshot(runId, """{"n":1}""", TimeProvider.System.UtcNowDateTime());
 
         await repo.SaveAsync(snap, CancellationToken.None);
 
@@ -65,7 +65,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
 
         Guid runId = Guid.NewGuid();
 
-        await repo.SaveAsync(NewSnapshot(runId, "{}", TimeProvider.System.GetUtcNow().UtcDateTime), CancellationToken.None);
+        await repo.SaveAsync(NewSnapshot(runId, "{}", TimeProvider.System.UtcNowDateTime()), CancellationToken.None);
 
         ScopeContext other = new()
         {
@@ -87,8 +87,8 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         ScopeContext scope = NewScope();
         Guid runId = Guid.NewGuid();
 
-        await repo.SaveAsync(NewSnapshot(runId, "first", TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-2)), CancellationToken.None);
-        await repo.SaveAsync(NewSnapshot(runId, "second", TimeProvider.System.GetUtcNow().UtcDateTime), CancellationToken.None);
+        await repo.SaveAsync(NewSnapshot(runId, "first", TimeProvider.System.UtcNowDateTime().AddMinutes(-2)), CancellationToken.None);
+        await repo.SaveAsync(NewSnapshot(runId, "second", TimeProvider.System.UtcNowDateTime()), CancellationToken.None);
 
         DecisionProvenanceSnapshot? loaded = await repo.GetByRunIdAsync(scope, runId, CancellationToken.None);
 

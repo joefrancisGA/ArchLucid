@@ -204,7 +204,7 @@ public sealed class AuthorityPipelineWorkProcessor(
             return;
         }
 
-        DateTime utcNow = _timeProvider.GetUtcNow().UtcDateTime;
+        DateTime utcNow = _timeProvider.UtcNowDateTime();
 
         TimeSpan delay = RetryDelayAfterFailure(entry, opts);
 

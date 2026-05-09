@@ -74,7 +74,7 @@ internal sealed class SecurityControlsDecisionStrategy : IDecisionStrategy
                 .Where(e => e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase))
                 .Select(e => e.EvaluationId)
                 .ToList(),
-            CreatedUtc = clock.GetUtcNow().UtcDateTime
+            CreatedUtc = clock.UtcNowDateTime()
         };
     }
 }

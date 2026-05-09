@@ -119,7 +119,7 @@ public sealed class ReplayRunService(
             AgentType = t.AgentType,
             Objective = t.Objective,
             Status = AgentTaskStatus.Created,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CompletedUtc = null,
             EvidenceBundleRef = t.EvidenceBundleRef,
             AllowedTools = t.AllowedTools.ToList(),
@@ -173,10 +173,10 @@ public sealed class ReplayRunService(
             // RunDetailQueryService now reads decision traces from the authority table only.
             if (uow.SupportsExternalTransaction)
                 chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest,
-                    chainKeying, TimeProvider.System.GetUtcNow().UtcDateTime, true, cancellationToken, uow.Connection, uow.Transaction);
+                    chainKeying, TimeProvider.System.UtcNowDateTime(), true, cancellationToken, uow.Connection, uow.Transaction);
             else
                 chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(scope, replayGuid, request.SystemName, manifest,
-                    chainKeying, TimeProvider.System.GetUtcNow().UtcDateTime, true, cancellationToken);
+                    chainKeying, TimeProvider.System.UtcNowDateTime(), true, cancellationToken);
             await uow.CommitAsync(cancellationToken);
             await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, _logger, replayGuid, request.SystemName,
                 chainPersisted, "replay-commit", true, cancellationToken);
@@ -261,7 +261,7 @@ public sealed class ReplayRunService(
                     ExistingRequiredControls = original.PriorManifest.ExistingRequiredControls.ToList()
                 },
             Notes = original.Notes.Select(n => new EvidenceNote { NoteType = n.NoteType, Message = n.Message }).ToList(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 

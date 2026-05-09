@@ -78,7 +78,7 @@ internal sealed class ComplexityDecisionStrategy : IDecisionStrategy
                 .Select(e => e.EvaluationId)
                 .ToList(),
             OpposingEvaluationIds = cautions.Select(e => e.EvaluationId).ToList(),
-            CreatedUtc = clock.GetUtcNow().UtcDateTime
+            CreatedUtc = clock.UtcNowDateTime()
         };
     }
 }

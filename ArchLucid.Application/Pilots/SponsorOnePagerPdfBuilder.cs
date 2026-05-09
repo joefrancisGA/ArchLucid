@@ -76,7 +76,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                 page.Content().Column(column =>
                 {
                     column.Item().Text($"Run: {run.RunId}").FontSize(11);
-                    column.Item().Text($"Generated (UTC): {TimeProvider.System.GetUtcNow().UtcDateTime:O}");
+                    column.Item().Text($"Generated (UTC): {TimeProvider.System.UtcNowDateTime():O}");
                     column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
                     column.Item().Element(c => RenderComputedDeltasTable(c, deltas));

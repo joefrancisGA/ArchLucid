@@ -169,7 +169,7 @@ public sealed class KnowledgeGraphServiceTests
             SnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
             ProjectId = "proj-test",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 }

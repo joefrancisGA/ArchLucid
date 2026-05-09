@@ -68,4 +68,8 @@
     <InternalsVisibleTo Include="ArchLucid.Persistence.Tests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="ArchLucid.Core" />
+  </ItemGroup>
+
 </Project>

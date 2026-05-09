@@ -43,7 +43,7 @@ public sealed class EndToEndReplayComparisonServiceTests
             RunId = id,
             RequestId = "req",
             Status = ArchitectureRunStatus.Committed,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentManifestVersion = manifestVersion
         };
     }

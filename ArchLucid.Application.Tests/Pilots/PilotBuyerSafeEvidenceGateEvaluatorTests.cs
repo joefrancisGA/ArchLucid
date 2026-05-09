@@ -86,7 +86,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             RunId = "r1",
             RequestId = "q",
             Status = ArchitectureRunStatus.ReadyForCommit,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
         PilotRunDeltas deltas = MinimalDeltas(run);

@@ -75,7 +75,7 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
                     WarningsJson = emptyGraphWarnings

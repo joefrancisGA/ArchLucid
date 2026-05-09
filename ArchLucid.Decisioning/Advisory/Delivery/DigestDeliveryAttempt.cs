@@ -52,7 +52,7 @@ public class DigestDeliveryAttempt
     {
         get;
         set;
-    } = TimeProvider.System.GetUtcNow().UtcDateTime;
+    } = TimeProvider.System.UtcNowDateTime();
 
     /// <summary><see cref="DigestDeliveryStatus" /> value.</summary>
     public string Status

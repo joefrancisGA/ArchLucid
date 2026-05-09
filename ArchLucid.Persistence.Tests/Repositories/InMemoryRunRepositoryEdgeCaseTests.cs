@@ -37,7 +37,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
         ScopeContext scope = NewScope();
-        RunRecord run = NewRun(scope, TimeProvider.System.GetUtcNow().UtcDateTime);
+        RunRecord run = NewRun(scope, TimeProvider.System.UtcNowDateTime());
 
         Func<Task> act = async () => await repo.UpdateAsync(run, CancellationToken.None);
 
@@ -50,7 +50,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
         ScopeContext scope = NewScope();
-        RunRecord run = NewRun(scope, TimeProvider.System.GetUtcNow().UtcDateTime);
+        RunRecord run = NewRun(scope, TimeProvider.System.UtcNowDateTime());
 
         await repo.SaveAsync(run, CancellationToken.None);
 
@@ -92,7 +92,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
         ScopeContext scope = NewScope();
-        RunRecord run = NewRun(scope, TimeProvider.System.GetUtcNow().UtcDateTime);
+        RunRecord run = NewRun(scope, TimeProvider.System.UtcNowDateTime());
 
         await repo.SaveAsync(run, CancellationToken.None);
 

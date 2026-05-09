@@ -85,7 +85,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             RunId = runId,
             RequestId = "req-audit-best-effort",
             Status = ArchitectureRunStatus.Created,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
         EvidenceBundle bundle = new() { EvidenceBundleId = "eb-audit-be" };
         List<AgentTask> tasks =
@@ -98,7 +98,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
                 AgentType = AgentType.Topology,
                 Objective = "obj",
                 Status = AgentTaskStatus.Created,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
         ];
 

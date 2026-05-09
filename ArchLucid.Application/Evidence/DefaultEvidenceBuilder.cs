@@ -55,7 +55,7 @@ public sealed class DefaultEvidenceBuilder(IUnifiedGoldenManifestReader goldenMa
             Patterns = BuildPatterns(request),
             PriorManifest = priorManifest,
             Notes = BuildNotes(request, priorManifestMissingInScope),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         return package;

@@ -34,8 +34,8 @@ public abstract class AgentTaskRepositoryContractTests
 
         await PrepareRequestAndRunAsync(requestId, runId, CancellationToken.None);
 
-        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5);
-        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1);
+        DateTime older = TimeProvider.System.UtcNowDateTime().AddMinutes(-5);
+        DateTime newer = TimeProvider.System.UtcNowDateTime().AddMinutes(-1);
 
         List<AgentTask> tasks =
         [

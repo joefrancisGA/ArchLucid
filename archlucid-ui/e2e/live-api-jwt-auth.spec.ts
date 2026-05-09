@@ -5,16 +5,16 @@
 import { expect, test } from "@playwright/test";
 
 import {
-  isJwtMode,
+  resolveLiveJwtMode,
   liveApiBase,
   liveAcceptHeaders,
-  liveAuthActorName,
+  resolveLiveAuthActorName,
   liveBearerAcceptHeaders,
   liveJsonHeaders,
 } from "./helpers/live-api-client";
 
 test.describe("live-api-jwt-auth", () => {
-  test.skip(!isJwtMode, "Set LIVE_JWT_TOKEN to run JWT auth production-like gates.");
+  test.skip(!resolveLiveJwtMode(), "Set LIVE_JWT_TOKEN to run JWT auth production-like gates.");
 
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
@@ -110,12 +110,14 @@ test.describe("live-api-jwt-auth", () => {
     const envelope = (await search.json()) as { items?: { actorUserName?: string }[] };
     const rows = envelope.items ?? [];
 
+    const actor = resolveLiveAuthActorName();
+
     const match = rows.some(
       (r) =>
         typeof r.actorUserName === "string" &&
-        r.actorUserName.trim().toLowerCase() === liveAuthActorName.trim().toLowerCase(),
+        r.actorUserName.trim().toLowerCase() === actor.trim().toLowerCase(),
     );
 
-    expect.soft(match, `expected an audit row with actorUserName=${liveAuthActorName}`).toBe(true);
+    expect.soft(match, `expected an audit row with actorUserName=${actor}`).toBe(true);
   });
 });

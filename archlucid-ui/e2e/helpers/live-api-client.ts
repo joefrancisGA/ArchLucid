@@ -11,36 +11,67 @@ import type { APIRequestContext, APIResponse } from "@playwright/test";
 
 import { getLiveJwtTokenFromEnvSync, isLiveJwtTokenConfigured } from "./jwt-token-provider";
 
-/** Base URL for ArchLucid.Api (e.g. http://127.0.0.1:5128). */
-export const liveApiBase = process.env.LIVE_API_URL ?? "http://127.0.0.1:5128";
+/** Base URL for ArchLucid.Api (e.g. http://127.0.0.1:5128), resolved when read (supports late env injection). */
+export function resolveLiveApiBase(): string {
+  const raw = process.env.LIVE_API_URL ?? "http://127.0.0.1:5128";
 
-const liveApiKeyEnv = process.env.LIVE_API_KEY?.trim() ?? "";
+  return raw.trim().replace(/\/+$/, "");
+}
 
-/** True when `LIVE_JWT_TOKEN` is set — helpers send `Authorization: Bearer`. */
-export const isJwtMode = isLiveJwtTokenConfigured();
+/** @deprecated Prefer calling {@link resolveLiveApiBase}; kept for `${liveApiBase}/…` in specs. */
+export const liveApiBase = resolveLiveApiBase();
 
-/** True when `LIVE_API_KEY` is set and JWT is not configured. */
-export const isApiKeyMode = liveApiKeyEnv.length > 0 && !isJwtMode;
+/** True when `LIVE_JWT_TOKEN` is non-empty (call at use site — JWT lane can change between module load and test run). */
+export function resolveLiveJwtMode(): boolean {
+  return isLiveJwtTokenConfigured();
+}
+
+/** True when `LIVE_API_KEY` is set and JWT is not configured (see {@link resolveLiveJwtMode}). */
+export function resolveLiveApiKeyMode(): boolean {
+  return readLiveAdminApiKeyFromEnv().length > 0 && !resolveLiveJwtMode();
+}
 
 /** Detected primary auth lane for logging / assertions in specs. */
 export type LiveAuthMode = "bypass" | "apikey" | "jwt";
 
-export const liveAuthMode: LiveAuthMode = isJwtMode ? "jwt" : isApiKeyMode ? "apikey" : "bypass";
+export function resolveLiveAuthMode(): LiveAuthMode {
+  if (resolveLiveJwtMode()) {
+    return "jwt";
+  }
+
+  if (readLiveAdminApiKeyFromEnv().length > 0) {
+    return "apikey";
+  }
+
+  return "bypass";
+}
+
+function readLiveAdminApiKeyFromEnv(): string {
+  return process.env.LIVE_API_KEY?.trim() ?? "";
+}
 
 /** Optional second key for readonly / least-privilege tests (`live-api-apikey-auth.spec.ts`). */
-export const liveApiKeyReadOnly = process.env.LIVE_API_KEY_READONLY?.trim() ?? "";
+export function resolveLiveApiKeyReadOnly(): string {
+  return process.env.LIVE_API_KEY_READONLY?.trim() ?? "";
+}
 
 /**
  * Governance submitter identity for segregation: DevelopmentBypass **Developer**, ApiKey **ApiKeyAdmin**,
  * JWT **LIVE_JWT_ACTOR_NAME** (default **JwtE2eAdmin**) — must match JWT `name` claim.
  */
-export const liveAuthActorName = isJwtMode
-  ? (process.env.LIVE_JWT_ACTOR_NAME?.trim() || "JwtE2eAdmin")
-  : isApiKeyMode
-    ? "ApiKeyAdmin"
-    : "Developer";
+export function resolveLiveAuthActorName(): string {
+  if (resolveLiveJwtMode()) {
+    return process.env.LIVE_JWT_ACTOR_NAME?.trim() || "JwtE2eAdmin";
+  }
 
-/** Distinct `reviewedBy` body value vs {@link liveAuthActorName} for approve/reject paths. */
+  if (resolveLiveApiKeyMode()) {
+    return "ApiKeyAdmin";
+  }
+
+  return "Developer";
+}
+
+/** Distinct `reviewedBy` body value vs {@link resolveLiveAuthActorName} for approve/reject paths. */
 export const livePeerReviewerActorName = "e2e-peer-reviewer";
 
 /** Scope headers for mutating/reading architecture + tenant routes in a specific tenant (self-service registration E2E). */
@@ -91,7 +122,9 @@ function pickApiKey(explicitApiKey?: string | null): string | undefined {
     return t.length > 0 ? t : undefined;
   }
 
-  return liveApiKeyEnv.length > 0 ? liveApiKeyEnv : undefined;
+  const fromEnv = readLiveAdminApiKeyFromEnv();
+
+  return fromEnv.length > 0 ? fromEnv : undefined;
 }
 
 /**
@@ -110,7 +143,7 @@ function pickAuthHeaders(
     return {};
   }
 
-  if (isJwtMode) {
+  if (resolveLiveJwtMode()) {
     const token =
       explicitBearerToken !== undefined && explicitBearerToken !== null && explicitBearerToken.trim().length > 0
         ? explicitBearerToken.trim()
@@ -175,7 +208,13 @@ async function throwIfNotOk(res: APIResponse, label: string): Promise<void> {
   const text = await res.text();
   const snippet = text.slice(0, 500);
 
-  throw new Error(`${label} failed ${res.status()}: ${snippet}`);
+  let hint = "";
+
+  if (res.status() === 401 && label.includes("/v1/"))
+    hint =
+      " Hint: use auth lane matching the API — DevelopmentBypass expects no Bearer/X-Api-Key (omit LIVE_JWT_TOKEN and LIVE_API_KEY); JwtBearer CI needs LIVE_JWT_TOKEN; ApiKey needs LIVE_API_KEY. Confirm LIVE_API_URL points at ArchLucid.Api.";
+
+  throw new Error(`${label} failed ${res.status()}: ${snippet}${hint}`);
 }
 
 /** Waits after HTTP 429 using `Retry-After` when present (capped), else a short default. */
@@ -195,7 +234,7 @@ export async function postArchitectureRequestRaw(
   body: unknown,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/architecture/request`, {
+  return request.post(`${resolveLiveApiBase()}/v1/architecture/request`, {
     data: body,
     headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
   });
@@ -247,7 +286,7 @@ export async function executeRun(
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<unknown> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
-    const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/execute`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/execute`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
@@ -278,7 +317,7 @@ export async function commitRun(
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<CommitRunResponseJson> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
-    const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
@@ -312,7 +351,7 @@ export async function commitRunRaw(
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
-    const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
+    const res = await request.post(`${resolveLiveApiBase()}/v1/architecture/run/${runId}/commit`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
@@ -347,7 +386,7 @@ export async function getRunDetailsRaw(
   runId: string,
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
-  return request.get(`${liveApiBase}/v1/architecture/run/${runId}`, {
+  return request.get(`${resolveLiveApiBase()}/v1/architecture/run/${runId}`, {
     headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
   });
 }
@@ -377,7 +416,7 @@ export async function getRunDetailsWithTransientRetries(
   tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<RunDetailsJson> {
   for (let attempt = 0; attempt < maxRunDetailPollAttempts; attempt++) {
-    const res = await request.get(`${liveApiBase}/v1/architecture/run/${runId}`, {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/architecture/run/${runId}`, {
       headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
     const code = res.status();
@@ -519,7 +558,7 @@ export async function waitForArchitectureRunListCommitted(
 
 /** GET `/v1/architecture/runs` — recent runs in scope (dashboard / picker). */
 export async function listArchitectureRuns(request: APIRequestContext): Promise<ArchitectureRunListItemJson[]> {
-  const res = await request.get(`${liveApiBase}/v1/architecture/runs`, {
+  const res = await request.get(`${resolveLiveApiBase()}/v1/architecture/runs`, {
     headers: liveAcceptHeaders(),
   });
 
@@ -535,7 +574,7 @@ export async function postGovernanceApproveRaw(
   body: { reviewedBy: string; reviewComment?: string | null },
   options?: { apiKey?: string | null },
 ): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/approve`, {
+  return request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests/${approvalRequestId}/approve`, {
     data: {
       reviewedBy: body.reviewedBy,
       reviewComment: body.reviewComment ?? null,
@@ -557,7 +596,7 @@ export async function createApprovalRequest(
   request: APIRequestContext,
   body: CreateGovernanceApprovalRequestBody,
 ): Promise<GovernanceApprovalRequestJson> {
-  const res = await request.post(`${liveApiBase}/v1/governance/approval-requests`, {
+  const res = await request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests`, {
     data: {
       runId: body.runId,
       manifestVersion: body.manifestVersion,
@@ -595,7 +634,7 @@ export async function approveGovernanceRequest(
   options?: { apiKey?: string | null },
 ): Promise<GovernanceApprovalRequestJson> {
   const res = await request.post(
-    `${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/approve`,
+    `${resolveLiveApiBase()}/v1/governance/approval-requests/${approvalRequestId}/approve`,
     {
       data: {
         reviewedBy: body.reviewedBy,
@@ -618,7 +657,7 @@ export async function rejectGovernanceRequest(
   options?: { apiKey?: string | null },
 ): Promise<GovernanceApprovalRequestJson> {
   const res = await request.post(
-    `${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/reject`,
+    `${resolveLiveApiBase()}/v1/governance/approval-requests/${approvalRequestId}/reject`,
     {
       data: {
         reviewedBy: body.reviewedBy,
@@ -640,7 +679,7 @@ export async function postGovernanceRejectRaw(
   body: { reviewedBy: string; reviewComment?: string | null },
   options?: { apiKey?: string | null },
 ): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/reject`, {
+  return request.post(`${resolveLiveApiBase()}/v1/governance/approval-requests/${approvalRequestId}/reject`, {
     data: {
       reviewedBy: body.reviewedBy,
       reviewComment: body.reviewComment ?? null,
@@ -698,7 +737,7 @@ export async function searchAudit(
   const maxAuditSearchAttempts = 8;
 
   for (let attempt = 0; attempt < maxAuditSearchAttempts; attempt++) {
-    const res = await request.get(`${liveApiBase}/v1/audit/search`, {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/audit/search`, {
       params: query,
       headers: { ...liveAcceptHeaders(), ...scopeHeaders },
     });
@@ -723,7 +762,7 @@ export async function listRecentAudit(
   request: APIRequestContext,
   take = 200,
 ): Promise<AuditEventJson[]> {
-  const res = await request.get(`${liveApiBase}/v1/audit`, {
+  const res = await request.get(`${resolveLiveApiBase()}/v1/audit`, {
     params: { take: String(Math.min(500, Math.max(1, take))) },
     headers: liveAcceptHeaders(),
   });
@@ -742,7 +781,7 @@ export type AuditEventJson = {
 
 /** GET `/v1/artifacts/runs/{runId}/export` — ZIP of committed run (binary). */
 export async function getRunExportZip(request: APIRequestContext, runId: string): Promise<APIResponse> {
-  return request.get(`${liveApiBase}/v1/artifacts/runs/${runId}/export`, {
+  return request.get(`${resolveLiveApiBase()}/v1/artifacts/runs/${runId}/export`, {
     headers: liveBinaryAcceptHeaders("application/zip, application/octet-stream, */*"),
   });
 }
@@ -769,7 +808,7 @@ export async function createPolicyPack(
     initialContentJson: string;
   },
 ): Promise<{ policyPackId: string }> {
-  const res = await request.post(`${liveApiBase}/v1/policy-packs`, {
+  const res = await request.post(`${resolveLiveApiBase()}/v1/policy-packs`, {
     data: {
       name: body.name,
       description: body.description ?? "",
@@ -797,7 +836,7 @@ export async function publishPolicyPackVersion(
   policyPackId: string,
   body: { version: string; contentJson: string },
 ): Promise<unknown> {
-  const res = await request.post(`${liveApiBase}/v1/policy-packs/${policyPackId}/publish`, {
+  const res = await request.post(`${resolveLiveApiBase()}/v1/policy-packs/${policyPackId}/publish`, {
     data: { version: body.version, contentJson: body.contentJson },
     headers: liveJsonHeaders(),
   });
@@ -813,7 +852,7 @@ export async function assignPolicyPack(
   policyPackId: string,
   body: { version: string; scopeLevel?: string; isPinned?: boolean },
 ): Promise<unknown> {
-  const res = await request.post(`${liveApiBase}/v1/policy-packs/${policyPackId}/assign`, {
+  const res = await request.post(`${resolveLiveApiBase()}/v1/policy-packs/${policyPackId}/assign`, {
     data: {
       version: body.version,
       scopeLevel: body.scopeLevel ?? "Project",
@@ -831,7 +870,7 @@ export async function assignPolicyPack(
 export async function getEffectivePolicyPacks(request: APIRequestContext): Promise<{
   packs?: { policyPackId?: string; version?: string }[];
 }> {
-  const res = await request.get(`${liveApiBase}/v1/policy-packs/effective`, {
+  const res = await request.get(`${resolveLiveApiBase()}/v1/policy-packs/effective`, {
     headers: liveAcceptHeaders(),
   });
 
@@ -846,7 +885,7 @@ export async function compareAuthorityRuns(
   leftRunId: string,
   rightRunId: string,
 ): Promise<APIResponse> {
-  return request.get(`${liveApiBase}/v1/authority/compare/runs`, {
+  return request.get(`${resolveLiveApiBase()}/v1/authority/compare/runs`, {
     params: { leftRunId, rightRunId },
     headers: liveAcceptHeaders(),
   });
@@ -857,7 +896,7 @@ export async function postAdvisoryScanRaw(
   request: APIRequestContext,
   body: { runId: string; description?: string },
 ): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/advisory/scans`, {
+  return request.post(`${resolveLiveApiBase()}/v1/advisory/scans`, {
     data: { runId: body.runId, description: body.description ?? "" },
     headers: liveJsonHeaders(),
   });
@@ -865,7 +904,7 @@ export async function postAdvisoryScanRaw(
 
 /** POST `/v1/replay/run/{runId}` — authority replay (raw for 404 skip in live E2E). */
 export async function postReplayRunRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/replay/run/${runId}`, {
+  return request.post(`${resolveLiveApiBase()}/v1/replay/run/${runId}`, {
     headers: liveAcceptHeaders(),
   });
 }
@@ -875,7 +914,7 @@ export async function postAnalysisReportRaw(
   request: APIRequestContext,
   body: { runId: string },
 ): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/reports/analysis`, {
+  return request.post(`${resolveLiveApiBase()}/v1/reports/analysis`, {
     data: { runId: body.runId },
     headers: liveJsonHeaders(),
   });
@@ -886,7 +925,7 @@ export async function getDocxArchitecturePackageExportRaw(
   request: APIRequestContext,
   runId: string,
 ): Promise<APIResponse> {
-  return request.get(`${liveApiBase}/v1/exports/docx/runs/${runId}/architecture-package`, {
+  return request.get(`${resolveLiveApiBase()}/v1/exports/docx/runs/${runId}/architecture-package`, {
     headers: liveBinaryAcceptHeaders("application/vnd.openxmlformats-officedocument.wordprocessingml.document, */*"),
   });
 }
@@ -904,7 +943,7 @@ export async function postAlertRuleRaw(
     metadataJson: string;
   },
 ): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/alert-rules`, {
+  return request.post(`${resolveLiveApiBase()}/v1/alert-rules`, {
     data: body,
     headers: liveJsonHeaders(),
   });
@@ -912,14 +951,14 @@ export async function postAlertRuleRaw(
 
 /** GET `/v1/alert-rules` — list rules. */
 export async function getAlertRulesRaw(request: APIRequestContext): Promise<APIResponse> {
-  return request.get(`${liveApiBase}/v1/alert-rules`, {
+  return request.get(`${resolveLiveApiBase()}/v1/alert-rules`, {
     headers: liveAcceptHeaders(),
   });
 }
 
 /** GET `/v1/graph/runs/{runGuid}` — knowledge graph for run. */
 export async function getGraphForRunRaw(request: APIRequestContext, runGuidPathSegment: string): Promise<APIResponse> {
-  return request.get(`${liveApiBase}/v1/graph/runs/${runGuidPathSegment}`, {
+  return request.get(`${resolveLiveApiBase()}/v1/graph/runs/${runGuidPathSegment}`, {
     headers: liveAcceptHeaders(),
   });
 }
@@ -929,7 +968,7 @@ export async function postAskRaw(
   request: APIRequestContext,
   body: { runId: string; question: string },
 ): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/ask`, {
+  return request.post(`${resolveLiveApiBase()}/v1/ask`, {
     data: { runId: body.runId, question: body.question },
     headers: liveJsonHeaders(),
   });
@@ -948,7 +987,7 @@ export async function createDigestSubscription(
   request: APIRequestContext,
   body: { name: string; channelType: string; destination: string; isEnabled?: boolean; metadataJson?: string },
 ): Promise<DigestSubscriptionJson> {
-  const res = await request.post(`${liveApiBase}/v1/digest-subscriptions`, {
+  const res = await request.post(`${resolveLiveApiBase()}/v1/digest-subscriptions`, {
     data: {
       name: body.name,
       channelType: body.channelType,
@@ -966,7 +1005,7 @@ export async function createDigestSubscription(
 
 /** GET `/v1/digest-subscriptions` — list subscriptions in scope. */
 export async function listDigestSubscriptions(request: APIRequestContext): Promise<DigestSubscriptionJson[]> {
-  const res = await request.get(`${liveApiBase}/v1/digest-subscriptions`, {
+  const res = await request.get(`${resolveLiveApiBase()}/v1/digest-subscriptions`, {
     headers: liveAcceptHeaders(),
   });
 
@@ -980,7 +1019,7 @@ export async function toggleDigestSubscription(
   request: APIRequestContext,
   subscriptionId: string,
 ): Promise<DigestSubscriptionJson> {
-  const res = await request.post(`${liveApiBase}/v1/digest-subscriptions/${subscriptionId}/toggle`, {
+  const res = await request.post(`${resolveLiveApiBase()}/v1/digest-subscriptions/${subscriptionId}/toggle`, {
     headers: liveAcceptHeaders(),
   });
 
@@ -1010,7 +1049,7 @@ export async function postHarnessTrialSetExpires(
   tenantId: string,
   expiresUtcIso: string,
 ): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/e2e/trial/set-expires`, {
+  return request.post(`${resolveLiveApiBase()}/v1/e2e/trial/set-expires`, {
     headers: liveE2eHarnessHeaders(),
     data: { tenantId, expiresUtc: expiresUtcIso },
   });
@@ -1021,7 +1060,7 @@ export async function postHarnessBillingSimulateActivated(
   request: APIRequestContext,
   body: Record<string, unknown>,
 ): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/e2e/billing/simulate-subscription-activated`, {
+  return request.post(`${resolveLiveApiBase()}/v1/e2e/billing/simulate-subscription-activated`, {
     headers: liveE2eHarnessHeaders(),
     data: body,
   });
@@ -1046,7 +1085,7 @@ export async function getTenantTrialStatus(
   baselineReviewCycleSource?: string | null;
   baselineReviewCycleCapturedUtc?: string | null;
 }> {
-  const res = await request.get(`${liveApiBase}/v1/tenant/trial-status`, {
+  const res = await request.get(`${resolveLiveApiBase()}/v1/tenant/trial-status`, {
     headers: mergeTenantScope(liveAcceptHeaders(), scope),
   });
 

@@ -31,10 +31,10 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             SummaryMarkdown = summaryMarkdown,
             PayloadJson = JsonSerializer.Serialize(report, JsonOptions),
             Notes = "Persisted end-to-end replay comparison.",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
         await _repository.CreateAsync(record, cancellationToken);
-        DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         await _auditService.LogAsync(
             new AuditEvent
             {
@@ -70,7 +70,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             SummaryMarkdown = summaryMarkdown,
             PayloadJson = JsonSerializer.Serialize(diff, JsonOptions),
             Notes = "Persisted export record diff.",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
         await _repository.CreateAsync(record, cancellationToken);
         // Durable `ComparisonSummaryPersisted` is emitted by `ExportsController` after this call; avoid duplicate rows.
@@ -95,10 +95,10 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             SummaryMarkdown = sourceRecord.SummaryMarkdown,
             PayloadJson = sourceRecord.PayloadJson,
             Notes = notes ?? $"Replay of comparison record {sourceRecord.ComparisonRecordId}.",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
         await _repository.CreateAsync(record, cancellationToken);
-        DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         await _auditService.LogAsync(
             new AuditEvent
             {

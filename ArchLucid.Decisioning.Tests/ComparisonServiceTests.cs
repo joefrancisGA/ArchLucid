@@ -330,7 +330,7 @@ public sealed class ComparisonServiceTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "h",
             RuleSetId = "rs",
             RuleSetVersion = "1",

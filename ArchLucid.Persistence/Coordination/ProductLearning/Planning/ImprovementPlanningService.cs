@@ -24,7 +24,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
 
 
         int maxSteps = options.MaxStepsPerPlan < 1 ? 1 : Math.Min(options.MaxStepsPerPlan, 20);
-        DateTime createdUtc = options.CreatedUtcOverride ?? TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime createdUtc = options.CreatedUtcOverride ?? TimeProvider.System.UtcNowDateTime();
         string ruleVersion = options.RuleVersion.Trim();
 
         List<ImprovementThemeWithEvidence> ordered = themes

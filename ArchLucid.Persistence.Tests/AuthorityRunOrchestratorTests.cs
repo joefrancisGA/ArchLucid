@@ -77,7 +77,7 @@ public sealed class AuthorityRunOrchestratorTests
                     SnapshotId = contextSnapshotId,
                     RunId = ctx.Run.RunId,
                     ProjectId = ctx.Request.ProjectId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
                 ctx.FindingsSnapshot = new FindingsSnapshot
@@ -86,7 +86,7 @@ public sealed class AuthorityRunOrchestratorTests
                     RunId = ctx.Run.RunId,
                     ContextSnapshotId = contextSnapshotId,
                     GraphSnapshotId = Guid.NewGuid(),
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
                 ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
@@ -96,7 +96,7 @@ public sealed class AuthorityRunOrchestratorTests
                     ProjectId = ctx.Scope.ProjectId,
                     DecisionTraceId = traceId,
                     RunId = ctx.Run.RunId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     RuleSetId = "rs",
                     RuleSetVersion = "1",
                     RuleSetHash = "h"
@@ -277,7 +277,7 @@ public sealed class AuthorityRunOrchestratorTests
                     SnapshotId = contextSnapshotId,
                     RunId = ctx.Run.RunId,
                     ProjectId = ctx.Request.ProjectId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
                 ctx.FindingsSnapshot = new FindingsSnapshot
@@ -286,7 +286,7 @@ public sealed class AuthorityRunOrchestratorTests
                     RunId = ctx.Run.RunId,
                     ContextSnapshotId = contextSnapshotId,
                     GraphSnapshotId = Guid.NewGuid(),
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
                 ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
@@ -296,7 +296,7 @@ public sealed class AuthorityRunOrchestratorTests
                     ProjectId = ctx.Scope.ProjectId,
                     DecisionTraceId = traceId,
                     RunId = ctx.Run.RunId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     RuleSetId = "rs",
                     RuleSetVersion = "1",
                     RuleSetHash = "h"
@@ -557,7 +557,7 @@ public sealed class AuthorityRunOrchestratorTests
             WorkspaceId = scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
             ContextSnapshotId = null,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         Mock<IRunRepository> runRepo = new();
@@ -584,7 +584,7 @@ public sealed class AuthorityRunOrchestratorTests
                     SnapshotId = contextSnapshotId,
                     RunId = ctx.Run.RunId,
                     ProjectId = ctx.Request.ProjectId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
                 ctx.FindingsSnapshot = new FindingsSnapshot
@@ -593,7 +593,7 @@ public sealed class AuthorityRunOrchestratorTests
                     RunId = ctx.Run.RunId,
                     ContextSnapshotId = contextSnapshotId,
                     GraphSnapshotId = Guid.NewGuid(),
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
                 ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
@@ -603,7 +603,7 @@ public sealed class AuthorityRunOrchestratorTests
                     ProjectId = ctx.Scope.ProjectId,
                     DecisionTraceId = traceId,
                     RunId = ctx.Run.RunId,
-                    CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     RuleSetId = "rs",
                     RuleSetVersion = "1",
                     RuleSetHash = "h"
@@ -948,7 +948,7 @@ public sealed class AuthorityRunOrchestratorTests
             GraphSnapshotId = graphId,
             FindingsSnapshotId = findingsId,
             DecisionTraceId = traceId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "pending",
             RuleSetId = "rs",
             RuleSetVersion = "1",

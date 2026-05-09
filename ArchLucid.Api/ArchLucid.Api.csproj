@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -56,6 +56,10 @@
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
     <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ArchLucid.Core" />
   </ItemGroup>
 
 </Project>

@@ -70,7 +70,7 @@ public sealed class EvolutionSimulationServiceEvaluateLinkedRunsHappyPathTests
             Summary = "s",
             PlanSnapshotJson = snapshotJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         ArchitectureAnalysisReport report = new()

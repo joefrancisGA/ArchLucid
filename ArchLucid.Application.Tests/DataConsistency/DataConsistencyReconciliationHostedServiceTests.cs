@@ -40,7 +40,7 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
             .Returns<string, Func<CancellationToken, Task>, CancellationToken>(static (_, work, ct) => work(ct));
 
         DataConsistencyReport expected = new(
-            TimeProvider.System.GetUtcNow().UtcDateTime,
+            TimeProvider.System.UtcNowDateTime(),
             [],
             IsHealthy: true);
 
@@ -156,7 +156,7 @@ public sealed class DataConsistencyHealthCheckTests
         DataConsistencyReconciliationHealthState state = new();
         state.RecordSuccess(
             new DataConsistencyReport(
-                TimeProvider.System.GetUtcNow().UtcDateTime,
+                TimeProvider.System.UtcNowDateTime(),
                 [new DataConsistencyFinding("x", DataConsistencyFindingSeverity.Critical, "c", [])],
                 IsHealthy: false));
 
@@ -184,7 +184,7 @@ public sealed class DataConsistencyHealthCheckTests
         DataConsistencyReconciliationHealthState state = new();
         state.RecordSuccess(
             new DataConsistencyReport(
-                TimeProvider.System.GetUtcNow().UtcDateTime,
+                TimeProvider.System.UtcNowDateTime(),
                 [new DataConsistencyFinding("x", DataConsistencyFindingSeverity.Warning, "w", [])],
                 IsHealthy: false));
 
@@ -201,7 +201,7 @@ public sealed class DataConsistencyHealthCheckTests
         DataConsistencyReconciliationHealthState state = new();
         state.RecordSuccess(
             new DataConsistencyReport(
-                TimeProvider.System.GetUtcNow().UtcDateTime,
+                TimeProvider.System.UtcNowDateTime(),
                 [new DataConsistencyFinding("skip", DataConsistencyFindingSeverity.Info, "ok", [])],
                 IsHealthy: true));
 

@@ -16,7 +16,7 @@ import {
   createRun,
   executeRun,
   liveApiBase,
-  liveAuthMode,
+  resolveLiveAuthMode,
   liveJsonHeaders,
   liveTenantScopeHeaders,
   searchAudit,
@@ -114,7 +114,7 @@ test.describe("live-api-trial-signup", () => {
 
   test("ui: signup → verify → onboarding → sample run → manifest (DevelopmentBypass)", async ({ page, request }) => {
     test.setTimeout(240_000);
-    test.skip(liveAuthMode !== "bypass", "Requires DevelopmentBypass auth (default ui-e2e-live API).");
+    test.skip(resolveLiveAuthMode() !== "bypass", "Requires DevelopmentBypass auth (default ui-e2e-live API).");
 
     const suffix = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
     const adminEmail = `trial-ui-${suffix}@example.com`;
@@ -222,7 +222,7 @@ test.describe("live-api-trial-signup", () => {
     request,
   }) => {
     test.setTimeout(300_000);
-    test.skip(liveAuthMode !== "bypass", "Requires DevelopmentBypass (AdminAuthority) for tenant billing and convert.");
+    test.skip(resolveLiveAuthMode() !== "bypass", "Requires DevelopmentBypass (AdminAuthority) for tenant billing and convert.");
 
     const suffix = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
     const orgName = `Metrics Funnel Org ${suffix}`;

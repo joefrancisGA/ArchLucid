@@ -55,7 +55,7 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
                 record.ReviewedByUserName = existing.ReviewedByUserName;
                 record.ReviewComment = existing.ReviewComment;
                 record.ResolutionRationale = existing.ResolutionRationale;
-                record.LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+                record.LastUpdatedUtc = TimeProvider.System.UtcNowDateTime();
             }
 
             await repository.UpsertAsync(record, ct);
@@ -91,7 +91,7 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
         recommendation.ReviewedByUserName = userName;
         recommendation.ReviewComment = request.Comment;
         recommendation.ResolutionRationale = request.Rationale;
-        recommendation.LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        recommendation.LastUpdatedUtc = TimeProvider.System.UtcNowDateTime();
 
         await repository.UpsertAsync(recommendation, ct);
         return recommendation;

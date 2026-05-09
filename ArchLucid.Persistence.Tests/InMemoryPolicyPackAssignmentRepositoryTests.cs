@@ -30,8 +30,8 @@ public sealed class InMemoryPolicyPackAssignmentRepositoryTests
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-                ArchivedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                AssignedUtc = TimeProvider.System.UtcNowDateTime(),
+                ArchivedUtc = TimeProvider.System.UtcNowDateTime()
             },
             CancellationToken.None);
 
@@ -61,7 +61,7 @@ public sealed class InMemoryPolicyPackAssignmentRepositoryTests
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                AssignedUtc = TimeProvider.System.UtcNowDateTime()
             },
             CancellationToken.None);
 

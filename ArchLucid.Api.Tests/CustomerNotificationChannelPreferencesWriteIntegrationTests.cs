@@ -127,8 +127,8 @@ public sealed class
             issuer,
             audience,
             claims,
-            TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1),
-            TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(1),
+            TimeProvider.System.UtcNowDateTime().AddMinutes(-1),
+            TimeProvider.System.UtcNowDateTime().AddHours(1),
             creds);
 
         return handler.WriteToken(token);

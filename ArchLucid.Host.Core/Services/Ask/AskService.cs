@@ -212,7 +212,7 @@ public sealed class AskService(
 
         try
         {
-            DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
+            DateTime now = TimeProvider.System.UtcNowDateTime();
             List<ConversationMessage> conversationTurn =
             [
                 new()

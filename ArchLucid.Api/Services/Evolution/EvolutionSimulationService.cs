@@ -63,7 +63,7 @@ public sealed class EvolutionSimulationService(
         };
 
         string snapshotJson = JsonSerializer.Serialize(snapshot, ContractJson.CamelCaseIgnoreNullCompact);
-        DateTime createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
         Guid candidateId = Guid.NewGuid();
 
         EvolutionCandidateChangeSetRecord record = new()
@@ -140,7 +140,7 @@ public sealed class EvolutionSimulationService(
             await simulationRunRepository.DeleteByCandidateAsync(candidateChangeSetId, cancellationToken);
 
         List<EvolutionSimulationRunRecord> inserted = [];
-        DateTime completedUtcBase = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime completedUtcBase = TimeProvider.System.UtcNowDateTime();
 
         if (snapshot.LinkedArchitectureRunIds.Count == 0)
         {

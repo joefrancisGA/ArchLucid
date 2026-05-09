@@ -449,7 +449,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             return;
 
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.Failed);
-        header.CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        header.CompletedUtc = TimeProvider.System.UtcNowDateTime();
         header.LastFailureReason = AgentExecutionFailureSummaryJson.Serialize(summary);
         await runRepository.UpdateAsync(header, cancellationToken);
     }

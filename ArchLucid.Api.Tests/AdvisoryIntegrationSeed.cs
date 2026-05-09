@@ -41,7 +41,7 @@ public static class AdvisoryIntegrationSeed
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "integration-seed",
             RuleSetId = "test-rs",
             RuleSetVersion = "1",
@@ -57,7 +57,7 @@ public static class AdvisoryIntegrationSeed
             ScopeProjectId = ScopeIds.DefaultProject,
             RunId = runId,
             ProjectId = AdvisoryScanSchedule.DefaultProjectSlug,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             GoldenManifestId = manifestId
         };
 

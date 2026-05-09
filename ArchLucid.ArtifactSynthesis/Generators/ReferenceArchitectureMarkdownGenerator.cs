@@ -133,7 +133,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             ArtifactId = Guid.NewGuid(),
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ArtifactType = Models.ArtifactType.ReferenceArchitectureMarkdown,
             Name = "reference-architecture.md",
             Format = "markdown",

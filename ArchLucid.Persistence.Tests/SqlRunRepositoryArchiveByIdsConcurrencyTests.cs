@@ -46,7 +46,7 @@ public sealed class SqlRunRepositoryArchiveByIdsConcurrencyTests(SqlServerPersis
             ScopeProjectId = scope.ProjectId,
             ProjectId = slug,
             Description = "concurrency archive",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         await repo.SaveAsync(run, CancellationToken.None);

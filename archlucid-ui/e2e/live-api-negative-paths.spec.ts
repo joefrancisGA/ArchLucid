@@ -11,7 +11,7 @@ import {
   executeRun,
   getRunDetailsRaw,
   liveApiBase,
-  liveAuthActorName,
+  resolveLiveAuthActorName,
   postArchitectureRequestRaw,
   postGovernanceApproveRaw,
   searchAudit,
@@ -87,7 +87,7 @@ test.describe("live-api-negative-paths", () => {
     }
 
     const selfApprove = await postGovernanceApproveRaw(request, approvalRequestId, {
-      reviewedBy: liveAuthActorName,
+      reviewedBy: resolveLiveAuthActorName(),
       reviewComment: "same actor as submitter — must fail",
     });
 

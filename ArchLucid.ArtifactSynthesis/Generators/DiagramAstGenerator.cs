@@ -45,7 +45,7 @@ public class DiagramAstGenerator : IArtifactGenerator
             ArtifactId = Guid.NewGuid(),
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ArtifactType = Models.ArtifactType.DiagramAst,
             Name = "diagram-ast.json",
             Format = "json",

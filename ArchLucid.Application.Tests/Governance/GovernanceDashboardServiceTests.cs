@@ -19,7 +19,7 @@ public sealed class GovernanceDashboardServiceTests
         GovernanceApprovalRequest pending = new() { ApprovalRequestId = "p1", Status = GovernanceApprovalStatus.Submitted };
         GovernanceApprovalRequest decision = new()
         {
-            ApprovalRequestId = "d1", Status = GovernanceApprovalStatus.Approved, ReviewedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            ApprovalRequestId = "d1", Status = GovernanceApprovalStatus.Approved, ReviewedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
         PolicyPackChangeLogEntry change = new()
@@ -29,7 +29,7 @@ public sealed class GovernanceDashboardServiceTests
             TenantId = tenantId,
             ChangeType = "Published",
             ChangedBy = "u1",
-            ChangedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            ChangedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
         Mock<IGovernanceApprovalRequestRepository> approvals = new();

@@ -44,13 +44,13 @@ public class ArtifactSynthesisService(
             BundleId = Guid.NewGuid(),
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             Trace = new SynthesisTrace
             {
                 TraceId = Guid.NewGuid(),
                 RunId = manifest.RunId,
                 ManifestId = manifest.ManifestId,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 SourceDecisionIds = manifest.Decisions.Select(x => x.DecisionId).ToList()
             }
         };

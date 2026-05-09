@@ -32,7 +32,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
             ProjectId = ProjectId,
             RunId = Guid.NewGuid(),
             ComparedToRunId = null,
-            GeneratedUtc = generatedUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime,
+            GeneratedUtc = generatedUtc ?? TimeProvider.System.UtcNowDateTime(),
             Title = $"Digest-{Guid.NewGuid():N}",
             Summary = "Contract test summary.",
             ContentMarkdown = "# Body\n\n- item",

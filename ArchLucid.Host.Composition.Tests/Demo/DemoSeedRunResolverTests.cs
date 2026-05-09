@@ -25,7 +25,7 @@ public sealed class DemoSeedRunResolverTests
             RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = manifestId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         Mock<IRunRepository> runRepo = new();
@@ -60,28 +60,28 @@ public sealed class DemoSeedRunResolverTests
             RunId = Guid.NewGuid(),
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.MultiTenantRequestPrefix + "abc",
             GoldenManifestId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5)
+            CreatedUtc = TimeProvider.System.UtcNowDateTime().AddMinutes(-5)
         };
         RunRecord older = new()
         {
             RunId = Guid.NewGuid(),
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-1)
+            CreatedUtc = TimeProvider.System.UtcNowDateTime().AddHours(-1)
         };
         RunRecord nonDemo = new()
         {
             RunId = Guid.NewGuid(),
             ArchitectureRequestId = "request-not-demo",
             GoldenManifestId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
         RunRecord demoUncommitted = new()
         {
             RunId = Guid.NewGuid(),
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = null,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1)
+            CreatedUtc = TimeProvider.System.UtcNowDateTime().AddMinutes(-1)
         };
 
         runRepo

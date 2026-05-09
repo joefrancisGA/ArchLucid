@@ -94,10 +94,10 @@ internal static class PilotUpCommand
         }
 
         Console.WriteLine("Waiting for API readiness (GET /health/ready on http://127.0.0.1:5000)...");
-        DateTime deadline = TimeProvider.System.GetUtcNow().UtcDateTime + ReadyDeadline;
+        DateTime deadline = TimeProvider.System.UtcNowDateTime() + ReadyDeadline;
         bool ready = false;
 
-        while (TimeProvider.System.GetUtcNow().UtcDateTime < deadline && !cancellationToken.IsCancellationRequested)
+        while (TimeProvider.System.UtcNowDateTime() < deadline && !cancellationToken.IsCancellationRequested)
         {
             try
             {

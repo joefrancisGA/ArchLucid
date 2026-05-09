@@ -56,7 +56,7 @@ public class KnowledgeGraphService(
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = contextSnapshot.SnapshotId,
             RunId = contextSnapshot.RunId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             Nodes = nodes,
             Edges = edges,
             Warnings = warnings

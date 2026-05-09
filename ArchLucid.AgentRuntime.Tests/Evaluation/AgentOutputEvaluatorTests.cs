@@ -50,7 +50,7 @@ public sealed class AgentOutputEvaluatorTests
 
         score.IsJsonParseFailure.Should().BeFalse();
         score.StructuralCompletenessRatio.Should().Be(0.0);
-        score.MissingKeys.Should().HaveCount(10);
+        score.MissingKeys.Should().HaveCount(9);
     }
 
     [SkippableFact]
@@ -61,7 +61,7 @@ public sealed class AgentOutputEvaluatorTests
         AgentOutputEvaluationScore score = _sut.Evaluate("t1", json, AgentType.Critic);
 
         score.IsJsonParseFailure.Should().BeFalse();
-        score.StructuralCompletenessRatio.Should().BeApproximately(5.0 / 10.0, 0.0001);
+        score.StructuralCompletenessRatio.Should().BeApproximately(4.0 / 9.0, 0.0001);
         score.MissingKeys.Should().HaveCount(5);
     }
 

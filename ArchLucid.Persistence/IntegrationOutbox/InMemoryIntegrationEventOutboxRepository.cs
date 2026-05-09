@@ -62,7 +62,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
             TenantId = tenantId,
             WorkspaceId = workspaceId,
             ProjectId = projectId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             Priority = IntegrationEventOutboxPriority.ForEventType(eventType),
             RetryCount = 0,
             NextRetryUtc = null,
@@ -82,7 +82,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     public Task<IReadOnlyList<IntegrationEventOutboxEntry>> DequeuePendingAsync(int maxBatch, CancellationToken ct)
     {
         int take = Math.Clamp(maxBatch, 1, 100);
-        DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
         lock (_gate)
         {

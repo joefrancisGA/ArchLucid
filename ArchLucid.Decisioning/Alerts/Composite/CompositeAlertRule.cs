@@ -105,7 +105,7 @@ public class CompositeAlertRule
     {
         get;
         set;
-    } = TimeProvider.System.GetUtcNow().UtcDateTime;
+    } = TimeProvider.System.UtcNowDateTime();
 
     /// <summary>Child conditions loaded with the rule from persistence.</summary>
     public List<AlertRuleCondition> Conditions

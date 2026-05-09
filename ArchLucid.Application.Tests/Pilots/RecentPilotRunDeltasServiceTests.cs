@@ -89,7 +89,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         Mock<IPilotRunDeltaComputer> deltaComputer = new();
         queryService.Setup(q => q.ListRunSummariesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(
         [
-            BuildSummary("uncommitted0000000000000000000aaa", "req-A", TimeProvider.System.GetUtcNow().UtcDateTime, committed: false),
+            BuildSummary("uncommitted0000000000000000000aaa", "req-A", TimeProvider.System.UtcNowDateTime(), committed: false),
         ]);
 
         RecentPilotRunDeltasService sut = BuildSut(queryService, deltaComputer);
@@ -108,8 +108,8 @@ public sealed class RecentPilotRunDeltasServiceTests
         Mock<IRunDetailQueryService> queryService = new();
         Mock<IPilotRunDeltaComputer> deltaComputer = new();
 
-        RunSummary good = BuildSummary("goodgoodgoodgoodgoodgoodgoodaaaa", "req-A", TimeProvider.System.GetUtcNow().UtcDateTime, committed: true);
-        RunSummary missing = BuildSummary("missingmissingmissingmissing0001", "req-B", TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1),
+        RunSummary good = BuildSummary("goodgoodgoodgoodgoodgoodgoodaaaa", "req-A", TimeProvider.System.UtcNowDateTime(), committed: true);
+        RunSummary missing = BuildSummary("missingmissingmissingmissing0001", "req-B", TimeProvider.System.UtcNowDateTime().AddMinutes(-1),
             committed: true);
 
         queryService.Setup(q => q.ListRunSummariesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([good, missing]);
@@ -133,8 +133,8 @@ public sealed class RecentPilotRunDeltasServiceTests
         Mock<IRunDetailQueryService> queryService = new();
         Mock<IPilotRunDeltaComputer> deltaComputer = new();
 
-        RunSummary good = BuildSummary("goodgoodgoodgoodgoodgoodgoodaaaa", "req-A", TimeProvider.System.GetUtcNow().UtcDateTime, committed: true);
-        RunSummary fails = BuildSummary("failfailfailfailfailfailfailbbbb", "req-B", TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1),
+        RunSummary good = BuildSummary("goodgoodgoodgoodgoodgoodgoodaaaa", "req-A", TimeProvider.System.UtcNowDateTime(), committed: true);
+        RunSummary fails = BuildSummary("failfailfailfailfailfailfailbbbb", "req-B", TimeProvider.System.UtcNowDateTime().AddMinutes(-1),
             committed: true);
 
         queryService.Setup(q => q.ListRunSummariesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([good, fails]);

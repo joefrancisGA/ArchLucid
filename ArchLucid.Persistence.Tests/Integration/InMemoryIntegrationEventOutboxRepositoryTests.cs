@@ -93,7 +93,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         await sut.RecordPublishFailureAsync(
             idA,
             1,
-            TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(1),
+            TimeProvider.System.UtcNowDateTime().AddHours(1),
             null,
             "err",
             CancellationToken.None);
@@ -158,7 +158,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
             id,
             3,
             null,
-            TimeProvider.System.GetUtcNow().UtcDateTime,
+            TimeProvider.System.UtcNowDateTime(),
             "boom",
             CancellationToken.None);
 

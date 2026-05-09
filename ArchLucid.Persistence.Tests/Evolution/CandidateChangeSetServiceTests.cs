@@ -98,7 +98,7 @@ public sealed class CandidateChangeSetServiceTests
                 new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "Y", Description = "d1" }
             ],
             PriorityScore = 9,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         IReadOnlyList<CandidateChangeSet> results = _sut.MapFromImprovementPlan(plan, theme);
@@ -140,7 +140,7 @@ public sealed class CandidateChangeSetServiceTests
                 new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "A", Description = "a" }
             ],
             PriorityScore = 1,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         ProductLearningImprovementPlanRecord sorted = new()

@@ -26,8 +26,8 @@ public sealed class InMemoryGraphSnapshotRepositoryTests
     {
         InMemoryGraphSnapshotRepository sut = new();
         Guid contextId = Guid.NewGuid();
-        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-2);
-        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddHours(-1);
+        DateTime older = TimeProvider.System.UtcNowDateTime().AddHours(-2);
+        DateTime newer = TimeProvider.System.UtcNowDateTime().AddHours(-1);
 
         GraphSnapshot oldSnap = CreateSnapshot(contextId, older);
         GraphSnapshot newSnap = CreateSnapshot(contextId, newer);
@@ -60,7 +60,7 @@ public sealed class InMemoryGraphSnapshotRepositoryTests
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             Edges =
             [
                 new GraphEdge

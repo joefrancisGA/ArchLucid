@@ -15,7 +15,7 @@ import {
   getRunExportZip,
   listArchitectureRuns,
   liveApiBase,
-  liveAuthActorName,
+  resolveLiveAuthActorName,
   livePeerReviewerActorName,
   normalizeRunIdForCompare,
   waitForArchitectureRunListCommitted,
@@ -184,7 +184,7 @@ test.describe("live-api-journey", () => {
     test.info().annotations.push({ type: "e2e-approval-request-id", description: approvalRequestId });
 
     const selfApprovalRes = await postGovernanceApproveRaw(request, approvalRequestId, {
-      reviewedBy: liveAuthActorName,
+      reviewedBy: resolveLiveAuthActorName(),
       reviewComment: "should be blocked (same as submitter)",
     });
 

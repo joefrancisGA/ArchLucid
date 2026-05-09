@@ -126,7 +126,7 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
             new
             {
                 RunId = runId,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 TenantId,
                 WorkspaceId,
                 ScopeProjectId
@@ -143,7 +143,7 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
             {
                 SnapshotId = snapshotId,
                 RunId = runId,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 CanonicalObjectsJson = JsonEntitySerializer.Serialize(new List<CanonicalObject>
                 {
                     new()
@@ -172,7 +172,7 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
             SnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
             ProjectId = "proj-readiness-rel",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CanonicalObjects =
             [
                 new CanonicalObject

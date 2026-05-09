@@ -172,7 +172,7 @@ public sealed class PolicyPackManagementServiceTests
             PolicyPackId = packId,
             Version = "2.0.0",
             ContentJson = """{"k":1}""",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             IsPublished = true,
         };
 
@@ -233,7 +233,7 @@ public sealed class PolicyPackManagementServiceTests
             PolicyPackId = packId,
             Version = "1.0.0",
             ContentJson = """{"old":true}""",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             IsPublished = false,
         };
 

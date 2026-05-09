@@ -35,7 +35,7 @@ public sealed class ArchitectureComparisonTaggingTests(ArchLucidApiFactory facto
                 Format = "json+markdown",
                 SummaryMarkdown = "s",
                 PayloadJson = "{}",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5)
+                CreatedUtc = TimeProvider.System.UtcNowDateTime().AddMinutes(-5)
             });
         }
 

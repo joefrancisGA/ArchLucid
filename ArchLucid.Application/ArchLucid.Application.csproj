@@ -73,4 +73,8 @@
     <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="ArchLucid.Core" />
+  </ItemGroup>
+
 </Project>

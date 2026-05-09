@@ -26,4 +26,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="ArchLucid.Core" />
+  </ItemGroup>
+
 </Project>

@@ -51,7 +51,7 @@ public class AdvisoryScanExecution
     {
         get;
         set;
-    } = TimeProvider.System.GetUtcNow().UtcDateTime;
+    } = TimeProvider.System.UtcNowDateTime();
 
     /// <summary>When the runner finished (success, no-runs, or failure), if applicable.</summary>
     public DateTime? CompletedUtc

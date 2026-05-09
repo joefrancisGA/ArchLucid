@@ -104,7 +104,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             ScopeProjectId = scope.ProjectId,
             RunId = runId,
             ProjectId = "default",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentManifestVersion = null
         };
 
@@ -164,7 +164,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             ScopeProjectId = scope.ProjectId,
             RunId = runId,
             ProjectId = "default",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentManifestVersion = "v2"
         };
 
@@ -205,7 +205,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             ScopeProjectId = scope.ProjectId,
             RunId = runId,
             ProjectId = "default",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentManifestVersion = null,
             GoldenManifestId = manifestId,
             ArchitectureRequestId = "req-z"
@@ -271,7 +271,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             GraphSnapshotId = Guid.NewGuid(),
             FindingsSnapshotId = Guid.NewGuid(),
             DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "h",
             RuleSetId = "r",
             RuleSetVersion = "1",

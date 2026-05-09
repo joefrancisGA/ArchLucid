@@ -24,7 +24,7 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
 
         string status = ProductLearningPlanningRepositoryValidation.NormalizeThemeStatus(theme.Status);
         Guid themeId = theme.ThemeId == Guid.Empty ? Guid.NewGuid() : theme.ThemeId;
-        DateTime createdUtc = theme.CreatedUtc == default ? TimeProvider.System.GetUtcNow().UtcDateTime : theme.CreatedUtc;
+        DateTime createdUtc = theme.CreatedUtc == default ? TimeProvider.System.UtcNowDateTime() : theme.CreatedUtc;
 
         if (_themes.Any(t =>
                 t.TenantId == theme.TenantId &&
@@ -105,7 +105,7 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
 
         string status = ProductLearningPlanningRepositoryValidation.NormalizePlanStatus(plan.Status);
         Guid planId = plan.PlanId == Guid.Empty ? Guid.NewGuid() : plan.PlanId;
-        DateTime createdUtc = plan.CreatedUtc == default ? TimeProvider.System.GetUtcNow().UtcDateTime : plan.CreatedUtc;
+        DateTime createdUtc = plan.CreatedUtc == default ? TimeProvider.System.UtcNowDateTime() : plan.CreatedUtc;
 
         ProductLearningImprovementThemeRecord? theme = _themes.FirstOrDefault(t =>
             t.ThemeId == plan.ThemeId &&

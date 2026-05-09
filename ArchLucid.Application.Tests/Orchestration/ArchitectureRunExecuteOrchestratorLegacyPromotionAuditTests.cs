@@ -53,7 +53,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             ProjectId = "default",
             ArchitectureRequestId = "req-promote-audit",
             LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
         ArchitectureRequest request = new() { RequestId = "req-promote-audit", Description = new string('x', 12), SystemName = "PromoteAudit", };

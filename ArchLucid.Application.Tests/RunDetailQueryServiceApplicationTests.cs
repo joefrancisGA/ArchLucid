@@ -56,7 +56,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             ProjectId = "p",
             ArchitectureRequestId = "req-x",
             LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentManifestVersion = "v-missing",
         };
 
@@ -112,7 +112,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             ProjectId = "p",
             ArchitectureRequestId = "req-y",
             LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentManifestVersion = "v1",
             DecisionTraceId = traceId,
         };

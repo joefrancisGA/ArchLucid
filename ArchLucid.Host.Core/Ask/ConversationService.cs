@@ -46,8 +46,8 @@ public sealed class ConversationService(
             BaseRunId = baseRunId,
             TargetRunId = targetRunId,
             Title = "Architecture Conversation",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-            LastUpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            LastUpdatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         await threadRepository.CreateAsync(thread, ct);
@@ -66,12 +66,12 @@ public sealed class ConversationService(
                 ThreadId = threadId,
                 Role = ConversationMessageRole.User,
                 Content = content,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 MetadataJson = "{}"
             },
             ct);
 
-        await threadRepository.UpdateLastUpdatedAsync(threadId, TimeProvider.System.GetUtcNow().UtcDateTime, ct);
+        await threadRepository.UpdateLastUpdatedAsync(threadId, TimeProvider.System.UtcNowDateTime(), ct);
     }
 
     /// <inheritdoc />
@@ -88,11 +88,11 @@ public sealed class ConversationService(
                 ThreadId = threadId,
                 Role = ConversationMessageRole.Assistant,
                 Content = content,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 MetadataJson = metadataJson
             },
             ct);
 
-        await threadRepository.UpdateLastUpdatedAsync(threadId, TimeProvider.System.GetUtcNow().UtcDateTime, ct);
+        await threadRepository.UpdateLastUpdatedAsync(threadId, TimeProvider.System.UtcNowDateTime(), ct);
     }
 }

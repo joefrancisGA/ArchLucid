@@ -53,7 +53,7 @@ public abstract class RunRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IRunRepository repo = CreateRepository();
         ScopeContext scope = NewScope();
-        RunRecord run = NewRun(scope, "proj_a", TimeProvider.System.GetUtcNow().UtcDateTime);
+        RunRecord run = NewRun(scope, "proj_a", TimeProvider.System.UtcNowDateTime());
 
         await repo.SaveAsync(run, CancellationToken.None);
 
@@ -71,7 +71,7 @@ public abstract class RunRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IRunRepository repo = CreateRepository();
         ScopeContext scope = NewScope();
-        RunRecord run = NewRun(scope, "proj_a", TimeProvider.System.GetUtcNow().UtcDateTime);
+        RunRecord run = NewRun(scope, "proj_a", TimeProvider.System.UtcNowDateTime());
 
         await repo.SaveAsync(run, CancellationToken.None);
 
@@ -92,8 +92,8 @@ public abstract class RunRepositoryContractTests
         IRunRepository repo = CreateRepository();
         ScopeContext scope = NewScope();
         string slug = "list_proj_" + Guid.NewGuid().ToString("N");
-        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-10);
-        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5);
+        DateTime older = TimeProvider.System.UtcNowDateTime().AddMinutes(-10);
+        DateTime newer = TimeProvider.System.UtcNowDateTime().AddMinutes(-5);
 
         RunRecord first = NewRun(scope, slug, older);
         RunRecord second = NewRun(scope, slug, newer);
@@ -114,9 +114,9 @@ public abstract class RunRepositoryContractTests
         IRunRepository repo = CreateRepository();
         ScopeContext scope = NewScope();
         string slug = "keyset_proj_" + Guid.NewGuid().ToString("N");
-        DateTime t0 = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-30);
-        DateTime t1 = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-20);
-        DateTime t2 = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-10);
+        DateTime t0 = TimeProvider.System.UtcNowDateTime().AddMinutes(-30);
+        DateTime t1 = TimeProvider.System.UtcNowDateTime().AddMinutes(-20);
+        DateTime t2 = TimeProvider.System.UtcNowDateTime().AddMinutes(-10);
 
         RunRecord a = NewRun(scope, slug, t0);
         RunRecord b = NewRun(scope, slug, t1);
@@ -151,8 +151,8 @@ public abstract class RunRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IRunRepository repo = CreateRepository();
         ScopeContext scope = NewScope();
-        DateTime older = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-10);
-        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-5);
+        DateTime older = TimeProvider.System.UtcNowDateTime().AddMinutes(-10);
+        DateTime newer = TimeProvider.System.UtcNowDateTime().AddMinutes(-5);
 
         RunRecord first = NewRun(scope, "slug_a", older);
         RunRecord second = NewRun(scope, "slug_b", newer);
@@ -173,7 +173,7 @@ public abstract class RunRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IRunRepository repo = CreateRepository();
         ScopeContext scope = NewScope();
-        RunRecord run = NewRun(scope, "proj_u", TimeProvider.System.GetUtcNow().UtcDateTime);
+        RunRecord run = NewRun(scope, "proj_u", TimeProvider.System.UtcNowDateTime());
 
         await repo.SaveAsync(run, CancellationToken.None);
 
@@ -197,7 +197,7 @@ public abstract class RunRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IRunRepository repo = CreateRepository();
         ScopeContext scope = NewScope();
-        RunRecord oldRun = NewRun(scope, "proj_arch", TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-5));
+        RunRecord oldRun = NewRun(scope, "proj_arch", TimeProvider.System.UtcNowDateTime().AddDays(-5));
 
         await repo.SaveAsync(oldRun, CancellationToken.None);
 
@@ -221,8 +221,8 @@ public abstract class RunRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IRunRepository repo = CreateRepository();
         ScopeContext scope = NewScope();
-        RunRecord a = NewRun(scope, "proj_ids", TimeProvider.System.GetUtcNow().UtcDateTime);
-        RunRecord b = NewRun(scope, "proj_ids", TimeProvider.System.GetUtcNow().UtcDateTime);
+        RunRecord a = NewRun(scope, "proj_ids", TimeProvider.System.UtcNowDateTime());
+        RunRecord b = NewRun(scope, "proj_ids", TimeProvider.System.UtcNowDateTime());
         Guid missing = Guid.NewGuid();
 
         await repo.SaveAsync(a, CancellationToken.None);

@@ -43,7 +43,7 @@ public sealed class ManifestVersionIncrementPropertyTests
             RunId = runId,
             RequestId = "r",
             Status = ArchitectureRunStatus.ReadyForCommit,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentManifestVersion = null,
         };
 
@@ -82,7 +82,7 @@ public sealed class ManifestVersionIncrementPropertyTests
             RunId = runId,
             RequestId = "r",
             Status = ArchitectureRunStatus.ReadyForCommit,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentManifestVersion = "v3",
         };
 

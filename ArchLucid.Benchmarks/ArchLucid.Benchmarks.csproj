@@ -25,4 +25,8 @@
     <None Include="..\schemas\*.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="ArchLucid.Core" />
+  </ItemGroup>
+
 </Project>

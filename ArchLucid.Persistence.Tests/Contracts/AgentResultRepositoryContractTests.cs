@@ -37,7 +37,7 @@ public abstract class AgentResultRepositoryContractTests
 
         await PrepareRunTaskChainAsync(requestId, runId, task, CancellationToken.None);
 
-        AgentResult result = NewResult(runId, task.TaskId, "r1", TimeProvider.System.GetUtcNow().UtcDateTime);
+        AgentResult result = NewResult(runId, task.TaskId, "r1", TimeProvider.System.UtcNowDateTime());
 
         await repo.CreateAsync(result, CancellationToken.None);
 
@@ -59,11 +59,11 @@ public abstract class AgentResultRepositoryContractTests
 
         await PrepareRunTaskChainAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewResult(runId, task.TaskId, "old", TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-1)),
+        await repo.CreateAsync(NewResult(runId, task.TaskId, "old", TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
             CancellationToken.None);
 
         await repo.CreateManyAsync(
-            [NewResult(runId, task.TaskId, "new", TimeProvider.System.GetUtcNow().UtcDateTime)],
+            [NewResult(runId, task.TaskId, "new", TimeProvider.System.UtcNowDateTime())],
             CancellationToken.None);
 
         IReadOnlyList<AgentResult> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
@@ -81,7 +81,7 @@ public abstract class AgentResultRepositoryContractTests
             AgentType = AgentType.Topology,
             Objective = "o",
             Status = AgentTaskStatus.Created,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             EvidenceBundleRef = "eb-ar"
         };
     }

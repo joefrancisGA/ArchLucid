@@ -107,7 +107,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             manifestVersion = "v1",
             environment = "prod",
             activatedBy = "user-1",
-            activatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            activatedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 
@@ -189,7 +189,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             runId = (Guid?)null,
             comparedToRunId = (Guid?)null,
             digestId = (Guid?)null,
-            completedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            completedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 
@@ -197,7 +197,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
     private static object CreateDataConsistencyCheckCompleted()
     {
         DataConsistencyReport report = new(
-            CheckedAtUtc: TimeProvider.System.GetUtcNow().UtcDateTime,
+            CheckedAtUtc: TimeProvider.System.UtcNowDateTime(),
             Findings:
             [
                 new DataConsistencyFinding(
@@ -228,7 +228,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
             driftSignalId = Guid.NewGuid(),
-            escalatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            escalatedUtc = TimeProvider.System.UtcNowDateTime(),
             metricKey = "policyPackStaleHours",
             thresholdValue = 72.0,
             observedValue = 96.0
@@ -245,7 +245,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
             reservationId = Guid.NewGuid(),
-            releasedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            releasedUtc = TimeProvider.System.UtcNowDateTime(),
             releaseReason = "expired"
         };
     }

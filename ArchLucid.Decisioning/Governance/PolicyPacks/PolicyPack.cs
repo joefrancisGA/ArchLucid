@@ -70,7 +70,7 @@ public class PolicyPack
     {
         get;
         set;
-    } = TimeProvider.System.GetUtcNow().UtcDateTime;
+    } = TimeProvider.System.UtcNowDateTime();
 
     /// <summary>Set when the pack first becomes active (publish).</summary>
     public DateTime? ActivatedUtc

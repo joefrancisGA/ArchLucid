@@ -31,7 +31,7 @@ public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
             ArtifactId = Guid.NewGuid(),
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ArtifactType = Models.ArtifactType.UnresolvedIssuesReport,
             Name = "unresolved-issues.json",
             Format = "json",

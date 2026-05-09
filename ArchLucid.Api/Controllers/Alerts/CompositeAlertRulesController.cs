@@ -56,7 +56,7 @@ public sealed class CompositeAlertRulesController(
         rule.TenantId = scope.TenantId;
         rule.WorkspaceId = scope.WorkspaceId;
         rule.ProjectId = scope.ProjectId;
-        rule.CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        rule.CreatedUtc = TimeProvider.System.UtcNowDateTime();
 
         foreach (AlertRuleCondition c in rule.Conditions.Where(c => c.ConditionId == Guid.Empty))
 

@@ -16,7 +16,7 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
         IReadOnlyList<ProductLearningImprovementThemeRecord> rows =
             await planningRepository.ListThemesAsync(scope, maxThemes, cancellationToken);
 
-        DateTime generatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime generatedUtc = TimeProvider.System.UtcNowDateTime();
         List<LearningThemeResponse> themes = rows.Select(MapTheme).ToList();
 
         return new LearningThemesListResponse { GeneratedUtc = generatedUtc, Themes = themes };
@@ -30,7 +30,7 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
         IReadOnlyList<ProductLearningImprovementPlanRecord> rows =
             await planningRepository.ListPlansAsync(scope, maxPlans, cancellationToken);
 
-        DateTime generatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime generatedUtc = TimeProvider.System.UtcNowDateTime();
 
         Guid[] distinctThemeIds = rows.Select(r => r.ThemeId).Distinct().ToArray();
 
@@ -125,7 +125,7 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
                     .Count))
             .ConfigureAwait(false);
 
-        DateTime generatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime generatedUtc = TimeProvider.System.UtcNowDateTime();
         int totalThemeEvidence = themes.Sum(t => t.EvidenceSignalCount);
 
         return new LearningSummaryResponse

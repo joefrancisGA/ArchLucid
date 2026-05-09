@@ -105,7 +105,7 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
                     transaction,
                     cancellationToken: cancellationToken));
 
-            DateTime nowUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+            DateTime nowUtc = TimeProvider.System.UtcNowDateTime();
             DateTime newExpiryUtc = nowUtc.AddSeconds(leaseDurationSeconds);
 
             if (row is null)

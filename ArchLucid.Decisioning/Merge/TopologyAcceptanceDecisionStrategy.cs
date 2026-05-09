@@ -79,7 +79,7 @@ internal sealed class TopologyAcceptanceDecisionStrategy : IDecisionStrategy
                             e.EvaluationType.Equals(EvalTypes.Caution, StringComparison.OrdinalIgnoreCase))
                 .Select(e => e.EvaluationId)
                 .ToList(),
-            CreatedUtc = clock.GetUtcNow().UtcDateTime
+            CreatedUtc = clock.UtcNowDateTime()
         };
     }
 }

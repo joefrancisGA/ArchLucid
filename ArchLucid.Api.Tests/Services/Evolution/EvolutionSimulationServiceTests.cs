@@ -107,7 +107,7 @@ public sealed class EvolutionSimulationServiceTests
             Summary = "s",
             PlanSnapshotJson = snapshotJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         Mock<IProductLearningPlanningRepository> planning = new();

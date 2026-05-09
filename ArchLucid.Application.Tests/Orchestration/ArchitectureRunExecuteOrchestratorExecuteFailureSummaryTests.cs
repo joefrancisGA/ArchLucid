@@ -52,7 +52,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
             ProjectId = "default",
             ArchitectureRequestId = "req-exec-fail",
             LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
         ArchitectureRequest request = new()

@@ -95,7 +95,7 @@ public abstract class AgentEvaluationRepositoryContractTests
             EvaluationType = evaluationType,
             ConfidenceDelta = 0.1,
             Rationale = "r",
-            CreatedUtc = createdUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = createdUtc ?? TimeProvider.System.UtcNowDateTime()
         };
     }
 }

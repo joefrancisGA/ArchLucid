@@ -100,7 +100,7 @@ public sealed class CloudEventsWrappingWebhookPoster(
                 Type = type,
                 Source = source,
                 Id = Guid.NewGuid().ToString("D"),
-                Time = TimeProvider.System.GetUtcNow().UtcDateTime.ToString("O"),
+                Time = TimeProvider.System.UtcNowDateTime().ToString("O"),
                 Data = element,
             };
         }

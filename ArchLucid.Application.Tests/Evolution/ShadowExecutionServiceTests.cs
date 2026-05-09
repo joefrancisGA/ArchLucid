@@ -71,7 +71,7 @@ public sealed class ShadowExecutionServiceTests
             ChangeSetId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             SourcePlanId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             Description = "shadow",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ApprovalStatus = ApprovalStatus.PendingReview,
             ProposedActions =
             [
@@ -137,7 +137,7 @@ public sealed class ShadowExecutionServiceTests
             ChangeSetId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             SourcePlanId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             Description = "shadow",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ApprovalStatus = ApprovalStatus.PendingReview,
         };
     }

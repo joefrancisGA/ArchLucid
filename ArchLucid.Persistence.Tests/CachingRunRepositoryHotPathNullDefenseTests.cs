@@ -88,7 +88,7 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
             ProjectId = Guid.NewGuid()
         };
 
-        DateTime cursorUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime cursorUtc = TimeProvider.System.UtcNowDateTime();
         Guid cursorRun = Guid.NewGuid();
 
         RunListPage page = await sut.ListByProjectKeysetAsync(scope, "p", cursorUtc, cursorRun, 10, CancellationToken.None);
@@ -127,7 +127,7 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
             ProjectId = Guid.NewGuid()
         };
 
-        DateTime cursorUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime cursorUtc = TimeProvider.System.UtcNowDateTime();
         Guid cursorRun = Guid.NewGuid();
 
         RunListPage page =

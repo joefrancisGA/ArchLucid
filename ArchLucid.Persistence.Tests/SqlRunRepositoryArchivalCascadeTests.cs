@@ -43,7 +43,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         Guid traceId = Guid.NewGuid();
         string slug = "arch_cascade_" + Guid.NewGuid().ToString("N");
 
-        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.GetUtcNow().UtcDateTime.AddDays(-10));
+        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.UtcNowDateTime().AddDays(-10));
         await repo.SaveAsync(run, CancellationToken.None);
 
         await using SqlConnection seed = new(fixture.ConnectionString);
@@ -115,7 +115,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         Guid traceId = Guid.NewGuid();
         string slug = "arch_byids_" + Guid.NewGuid().ToString("N");
 
-        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.GetUtcNow().UtcDateTime);
+        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.UtcNowDateTime());
         await repo.SaveAsync(run, CancellationToken.None);
 
         await using SqlConnection seed = new(fixture.ConnectionString);
@@ -180,7 +180,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         Guid manifestId = Guid.NewGuid();
         string slug = "gm_cascade_" + Guid.NewGuid().ToString("N");
 
-        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.GetUtcNow().UtcDateTime);
+        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.UtcNowDateTime());
         await repo.SaveAsync(run, CancellationToken.None);
 
         await using SqlConnection seed = new(fixture.ConnectionString);

@@ -87,7 +87,7 @@ public sealed class BackgroundJobWorkUnitExecutor(
         CancellationToken cancellationToken)
     {
         Guid correlationSuffix = Guid.NewGuid();
-        DateTime occurredUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         Guid? auditRunId = TryParseRunGuid(runId);
         await _auditService.LogAsync(
             new AuditEvent

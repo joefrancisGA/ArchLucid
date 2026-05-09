@@ -103,7 +103,7 @@ public partial class FindingsOrchestrator(
                         ErrorMessage = ex.Message,
                         ExceptionType = ex.GetType().Name,
                         DurationMs = sw.ElapsedMilliseconds,
-                        OccurredUtc = _clock.GetUtcNow().UtcDateTime
+                        OccurredUtc = _clock.UtcNowDateTime()
                     });
 
                 continue;
@@ -144,7 +144,7 @@ public partial class FindingsOrchestrator(
             RunId = runId,
             ContextSnapshotId = contextSnapshotId,
             GraphSnapshotId = graphSnapshot.GraphSnapshotId,
-            CreatedUtc = _clock.GetUtcNow().UtcDateTime,
+            CreatedUtc = _clock.UtcNowDateTime(),
             Findings = dedupedFindings,
             EngineFailures = engineFailures,
             SchemaVersion = FindingsSchema.CurrentSnapshotVersion

@@ -23,7 +23,7 @@ public static class GraphSnapshotCloner
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = newContext.SnapshotId,
             RunId = runId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             Nodes = [.. source.Nodes.Select(CloneNode)],
             Edges = [.. source.Edges.Select(CloneEdge)],
             Warnings = [.. source.Warnings]

@@ -34,7 +34,7 @@ public abstract class AlertRuleRepositoryContractTests
             IsEnabled = isEnabled,
             TargetChannelType = "DigestOnly",
             MetadataJson = """{"contract":"test"}""",
-            CreatedUtc = createdUtc ?? TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = createdUtc ?? TimeProvider.System.UtcNowDateTime()
         };
     }
 

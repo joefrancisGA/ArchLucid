@@ -69,7 +69,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
                 AgentType = AgentType.Topology,
                 Objective = "o",
                 Status = AgentTaskStatus.Created,
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
         ];
 

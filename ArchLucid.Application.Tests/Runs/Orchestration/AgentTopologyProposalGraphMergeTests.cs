@@ -20,7 +20,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             Nodes = [],
             Edges = [],
             Warnings = []
@@ -54,7 +54,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
                     }
                 ]
             },
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(
@@ -76,7 +76,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             Nodes =
             [
                 new GraphNode { NodeId = "x", NodeType = GraphNodeTypes.TopologyResource, Label = "rag-api" }
@@ -99,7 +99,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
                     new ManifestService { ServiceName = "rag-api", ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService }
                 ]
             },
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);

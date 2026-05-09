@@ -30,7 +30,7 @@ public abstract class ComparisonRecordRepositoryContractTests
             Format = "json+markdown",
             SummaryMarkdown = "s",
             PayloadJson = "{}",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             Label = "lbl",
             Tags = ["a", "b"]
         };

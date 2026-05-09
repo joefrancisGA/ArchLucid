@@ -73,7 +73,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             ArtifactId = Guid.NewGuid(),
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ArtifactType = Models.ArtifactType.Inventory,
             Name = "inventory.json",
             Format = "json",

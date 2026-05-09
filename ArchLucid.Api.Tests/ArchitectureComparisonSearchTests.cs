@@ -152,7 +152,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
                 Format = "json+markdown",
                 SummaryMarkdown = "s",
                 PayloadJson = "{}",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-10),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime().AddMinutes(-10),
                 Label = "incident-42",
                 Tags = ["incident", "urgent"]
             });

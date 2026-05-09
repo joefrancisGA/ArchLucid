@@ -44,7 +44,7 @@ public sealed class DeterminismCheckServiceTests
                 AgentType = AgentType.Topology,
                 Confidence = 0.5,
                 ResultId = "res",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
         ];
 
@@ -125,7 +125,7 @@ public sealed class DeterminismCheckServiceTests
                 AgentType = AgentType.Topology,
                 Confidence = 0.5,
                 ResultId = "res",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
         ];
 
@@ -138,7 +138,7 @@ public sealed class DeterminismCheckServiceTests
                 AgentType = AgentType.Topology,
                 Confidence = 0.9,
                 ResultId = "res",
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
         ];
 

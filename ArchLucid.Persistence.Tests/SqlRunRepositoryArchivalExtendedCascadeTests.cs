@@ -51,7 +51,7 @@ public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersis
         string slug = "ext_cascade_" + Guid.NewGuid().ToString("N");
         string runIdText = runId.ToString("D");
 
-        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.GetUtcNow().UtcDateTime);
+        RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.UtcNowDateTime());
         await repo.SaveAsync(run, CancellationToken.None);
 
         await using SqlConnection seed = new(fixture.ConnectionString);
@@ -131,7 +131,7 @@ public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersis
             AgentType = AgentType.Topology,
             Objective = "test",
             Status = AgentTaskStatus.Created,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CompletedUtc = null,
             EvidenceBundleRef = null
         };

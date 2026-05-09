@@ -155,7 +155,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
             GraphSnapshotId = graphId,
             FindingsSnapshotId = findingsId,
             DecisionTraceId = traceId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ManifestHash = "h",
             RuleSetId = "r",
             RuleSetVersion = "1",

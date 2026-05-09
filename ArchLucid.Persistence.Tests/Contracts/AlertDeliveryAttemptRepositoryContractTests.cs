@@ -40,7 +40,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
-        DateTime newer = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime newer = TimeProvider.System.UtcNowDateTime();
         DateTime older = newer.AddMinutes(-5);
 
         await EnsureDeliveryAttemptParentsExistAsync(
@@ -87,7 +87,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         IAlertDeliveryAttemptRepository repo = CreateRepository(tenantId, workspaceId, projectId);
 
         AlertDeliveryAttempt attempt =
-            NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, TimeProvider.System.GetUtcNow().UtcDateTime);
+            NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, TimeProvider.System.UtcNowDateTime());
         await repo.CreateAsync(attempt, CancellationToken.None);
 
         attempt.Status = AlertDeliveryAttemptStatus.Succeeded;
@@ -119,7 +119,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
 
         IAlertDeliveryAttemptRepository repo = CreateRepository(tenantId, workspaceId, projectId);
 
-        DateTime newestUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime newestUtc = TimeProvider.System.UtcNowDateTime();
         AlertDeliveryAttempt c =
             NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, newestUtc);
         AlertDeliveryAttempt b =

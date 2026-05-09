@@ -8,15 +8,15 @@
 import { expect, test } from "@playwright/test";
 
 import {
-  isApiKeyMode,
+  resolveLiveApiKeyMode,
   liveAcceptHeaders,
   liveApiBase,
-  liveApiKeyReadOnly,
+  resolveLiveApiKeyReadOnly,
   liveJsonHeaders,
 } from "./helpers/live-api-client";
 
 test.describe("live-api-apikey-auth", () => {
-  test.skip(!isApiKeyMode, "Set LIVE_API_KEY to run ApiKey auth production-like gates.");
+  test.skip(!resolveLiveApiKeyMode(), "Set LIVE_API_KEY to run ApiKey auth production-like gates.");
 
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
@@ -59,16 +59,18 @@ test.describe("live-api-apikey-auth", () => {
   });
 
   test("readonly key: GET runs 200; POST /v1/architecture/request returns 403", async ({ request }) => {
-    test.skip(!liveApiKeyReadOnly, "Set LIVE_API_KEY_READONLY to assert read-only key is denied for ExecuteAuthority.");
+    test.skip(resolveLiveApiKeyReadOnly().length === 0, "Set LIVE_API_KEY_READONLY to assert read-only key is denied for ExecuteAuthority.");
+
+    const ro = resolveLiveApiKeyReadOnly();
 
     const list = await request.get(`${liveApiBase}/v1/architecture/runs`, {
-      headers: liveAcceptHeaders(liveApiKeyReadOnly),
+      headers: liveAcceptHeaders(ro),
     });
 
     expect(list.status()).toBe(200);
 
     const create = await request.post(`${liveApiBase}/v1/architecture/request`, {
-      headers: liveJsonHeaders(liveApiKeyReadOnly),
+      headers: liveJsonHeaders(ro),
       data: {
         requestId: `E2E-RO-${Date.now()}`,
         description:

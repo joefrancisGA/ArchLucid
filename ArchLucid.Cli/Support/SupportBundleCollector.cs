@@ -32,7 +32,7 @@ public static class SupportBundleCollector
     {
         ArgumentNullException.ThrowIfNull(client);
 
-        string createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime.ToString("O", CultureInfo.InvariantCulture);
+        string createdUtc = TimeProvider.System.UtcNowDateTime().ToString("O", CultureInfo.InvariantCulture);
         string archLucidJsonPath = Path.Combine(workingDirectory, "archlucid.json");
 
         SupportBundleManifest manifest = new()

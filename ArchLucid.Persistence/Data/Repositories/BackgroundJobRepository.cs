@@ -332,7 +332,7 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
                              AND RetryCount < MaxRetries;
                            """;
 
-        DateTime staleBeforeUtc = TimeProvider.System.GetUtcNow().UtcDateTime.Subtract(maxRunningAge);
+        DateTime staleBeforeUtc = TimeProvider.System.UtcNowDateTime().Subtract(maxRunningAge);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

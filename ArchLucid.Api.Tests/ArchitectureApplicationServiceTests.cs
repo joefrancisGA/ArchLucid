@@ -96,7 +96,7 @@ public sealed class ArchitectureApplicationServiceTests
                 ServiceCatalog = [],
                 Patterns = [],
                 Notes = [],
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                CreatedUtc = TimeProvider.System.UtcNowDateTime()
             });
 
         _sut = new ArchitectureApplicationService(
@@ -135,7 +135,7 @@ public sealed class ArchitectureApplicationServiceTests
             RunId = runId,
             RequestId = requestId,
             Status = ArchitectureRunStatus.TasksGenerated,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
     }
 
@@ -747,7 +747,7 @@ public sealed class ArchitectureApplicationServiceTests
             WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             ScopeProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
             ProjectId = "p",
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             RealModeFellBackToSimulator = false
         };
 

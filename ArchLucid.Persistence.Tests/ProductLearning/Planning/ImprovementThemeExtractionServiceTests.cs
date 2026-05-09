@@ -258,7 +258,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             ProjectId = scope.ProjectId,
             SubjectType = ProductLearningSubjectTypeValues.RunOutput,
             Disposition = ProductLearningDispositionValues.Trusted,
-            RecordedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            RecordedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
         await Assert.ThrowsAsync<ArgumentException>(() => svc.ExtractThemesAsync(

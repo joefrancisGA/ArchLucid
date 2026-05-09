@@ -43,7 +43,7 @@ public class RuleBasedDecisionEngine(
         {
             DecisionTraceId = Guid.NewGuid(),
             RunId = runId,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             RuleSetId = ruleSet.RuleSetId,
             RuleSetVersion = ruleSet.Version,
             RuleSetHash = ruleSet.RuleSetHash
