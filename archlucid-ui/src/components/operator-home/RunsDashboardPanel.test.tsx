@@ -10,6 +10,18 @@ vi.mock("@/lib/api", async (importOriginal) => {
   };
 });
 
+const runsDashBuyerPolishedForced = vi.hoisted(() => ({ on: false as boolean }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () =>
+      runsDashBuyerPolishedForced.on ? true : actual.isBuyerPolishedOperatorShellEnv(),
+  };
+});
+
 import { listRunsByProjectPaged } from "@/lib/api";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
@@ -176,5 +188,42 @@ describe("RunsDashboardPanel", () => {
     fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
 
     expect(await screen.findByLabelText(/Run pipeline status: Ready to finalize/i)).toBeInTheDocument();
+  });
+
+  it("buyer-polished showcase banner uses manifest primary, omits full-review CTA, and hides full list when only sample run", async () => {
+    runsDashBuyerPolishedForced.on = true;
+
+    try {
+      const run: RunSummary = {
+        runId: "claims-intake-modernization",
+        projectId: "default",
+        description: "Claims Intake sample",
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+      };
+      listRuns.mockResolvedValue({
+        items: [run],
+        totalCount: 1,
+        page: 1,
+        pageSize: 5,
+        hasMore: false,
+      });
+      stubFetchForDashboard();
+
+      render(<RunsDashboardPanel />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("operator-home-showcase-demo-banner")).toBeInTheDocument();
+      });
+      expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
+        "href",
+        "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+      );
+      expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Open full reviews list" })).toBeNull();
+    } finally {
+      runsDashBuyerPolishedForced.on = false;
+    }
   });
 });

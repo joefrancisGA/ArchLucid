@@ -22,8 +22,7 @@ export function getShowcaseManifestHref(): string {
 }
 
 /**
- * In buyer-safe demo builds, prefer destinations that ship without `/reviews/[id]` (detail can hit the segment error
- * boundary when hydration throws). Canonical workspace detail remains available behind an explicit tertiary link.
+ * Buyer-safe demo builds: curated spine IDs can use manifest/walkthrough shortcuts instead of workspace detail first.
  */
 export function isBuyerSafePrimaryReviewNavigationPreferred(runId: string): boolean {
   if (!isBuyerSafeDemoMarketingChromeEnv()) {
@@ -35,15 +34,19 @@ export function isBuyerSafePrimaryReviewNavigationPreferred(runId: string): bool
   return isDemoRunIdEligibleForStaticFallback(id);
 }
 
-/** Primary authenticated “next step” column on the reviews table and similar hero CTAs. */
+/**
+ * Primary authenticated “next step” on the reviews table and similar hero CTAs.
+ * For curated static-spine runs, prefer the **manifest summary** (sealed package) — sponsor-safe and avoids sending
+ * evaluators through walkthrough before they see outputs. Walkthrough stays available as a secondary action on home
+ * and in the runs dashboard banner.
+ */
 export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(runId.trim());
 
-  /** Walkthrough-first for the curated Claims Intake spine — sponsor-safe before sealed manifest drill-down. */
   if (isDemoRunIdEligibleForStaticFallback(id)) {
     return {
-      href: getShowcaseWalkthroughHref(),
-      label: "Read-only walkthrough",
+      href: getShowcaseManifestHref(),
+      label: "View manifest summary",
     };
   }
 

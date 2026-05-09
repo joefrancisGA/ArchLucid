@@ -42,8 +42,8 @@ export function SampleFirstReviewPackageCard() {
           {buyerPolished ? (
             <p className="m-0 mt-2 max-w-2xl text-sm font-medium leading-snug text-neutral-800 dark:text-neutral-200">
               Includes a finalized manifest, a PHI finding with traceability, the evidence graph, an audit-ready event
-              trail, and governance handoff deliverables — start with the read-only walkthrough for the shortest sponsor path,
-              then open the manifest summary for sealed outputs.
+              trail, and governance handoff deliverables — open the manifest summary first for sealed outputs, then use the
+              read-only walkthrough if you want a guided tour.
             </p>
           ) : null}
           {buyerPolished ? null : (
@@ -86,13 +86,13 @@ export function SampleFirstReviewPackageCard() {
               {buyerPolished ? (
                 <>
                   <Button asChild variant="primary" className="h-9">
-                    <Link href={getShowcaseWalkthroughHref()} onClick={recordSampleOpened}>
-                      Read-only walkthrough
+                    <Link href={getShowcaseManifestHref()} onClick={recordSampleOpened}>
+                      View manifest summary
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="h-9">
-                    <Link href={getShowcaseManifestHref()} onClick={recordSampleOpened}>
-                      View manifest summary
+                    <Link href={getShowcaseWalkthroughHref()} onClick={recordSampleOpened}>
+                      Read-only walkthrough
                     </Link>
                   </Button>
                 </>
