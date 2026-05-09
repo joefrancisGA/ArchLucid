@@ -104,6 +104,9 @@ function filePathForHref(href: string): string {
 }
 
 test.describe("all routes screenshots (mock API)", () => {
+  // Apply to hooks: default 30s applies to beforeEach until the test runs.
+  test.describe.configure({ timeout: ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS });
+
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await registerOperatorJourneyApiRoutes(page, {
@@ -131,8 +134,6 @@ test.describe("all routes screenshots (mock API)", () => {
   });
 
   test("writes PNGs for every app route (page.tsx)", async ({ page }) => {
-    test.setTimeout(ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS);
-
     for (const href of HREFS) {
       // `networkidle` rarely settles on Next.js (open connections); health route proxy GETs must still resolve — see registerScreenshotSuiteProxyRoutes.
       await page.goto(href, { waitUntil: "load", timeout: 120_000 });
