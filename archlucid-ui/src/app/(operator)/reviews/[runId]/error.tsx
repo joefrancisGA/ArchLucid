@@ -41,7 +41,7 @@ export default function RunDetailSegmentError({
           <strong className="text-base">Sample review unavailable</strong>
           <p className="mt-2 text-sm">
             {isBuyerPolished
-              ? "Open the sample review package or the guided preview below to explore the Claims Intake outputs."
+              ? "Open the manifest summary first, or use the read-only walkthrough below, to explore the Claims Intake outputs."
               : "Open the sample manifest or the public walkthrough below to explore the Claims Intake review outputs."}
           </p>
           {isDev ? (
