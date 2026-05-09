@@ -223,7 +223,7 @@ export default function PilotValueReportPage() {
   }
 
   return (
-    <main className="mx-auto space-y-4 p-4 print:w-full">
+    <div className="mx-auto space-y-4 p-4 print:w-full">
       <LayerHeader pageKey="value-report-pilot" />
       <DocumentLayout>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Pilot value report</h1>
@@ -361,6 +361,6 @@ export default function PilotValueReportPage() {
           </div>
         ) : null}
       </DocumentLayout>
-    </main>
+    </div>
   );
 }

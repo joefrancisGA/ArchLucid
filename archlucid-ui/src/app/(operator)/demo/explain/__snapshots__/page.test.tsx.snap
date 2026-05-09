@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side provenance + explanation layout for the demo tenant 1`] = `
-<main
+<div
   aria-busy="false"
   class="mx-auto max-w-6xl space-y-6 p-4"
   data-testid="demo-explain-page"
@@ -294,5 +294,5 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
       </div>
     </section>
   </section>
-</main>
+</div>
 `;

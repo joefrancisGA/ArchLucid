@@ -151,18 +151,18 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
   if (state.status === "loading" || state.status === "idle") {
     return (
-      <main className="mx-auto max-w-6xl space-y-4 p-4">
+      <div className="mx-auto max-w-6xl space-y-4 p-4">
         <LayerHeader pageKey="governance-dashboard" />
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           {buyerPolishedShell ? "Loading workspace overview…" : "Loading executive workspace health…"}
         </p>
-      </main>
+      </div>
     );
   }
 
   if (state.status === "error") {
     return (
-      <main className="mx-auto max-w-6xl space-y-4 p-4">
+      <div className="mx-auto max-w-6xl space-y-4 p-4">
         <LayerHeader pageKey="governance-dashboard" />
         <OperatorApiProblem
           fallbackMessage={state.message}
@@ -181,7 +181,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
         <Button type="button" variant="secondary" onClick={() => void load()}>
           Retry
         </Button>
-      </main>
+      </div>
     );
   }
 
@@ -221,7 +221,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
     : `≥ ${blocked30d.count} (sampled lower bound; audit paging reached safety cap)`;
 
   return (
-    <main className="mx-auto max-w-6xl space-y-6 p-4">
+    <div className="mx-auto max-w-6xl space-y-6 p-4">
       <LayerHeader pageKey="governance-dashboard" />
 
       <header className="space-y-2">
@@ -392,6 +392,6 @@ export function ExecutiveWorkspaceHealthDashboard() {
         Full USD modeling lives on the ROI report
         {callerRank >= AUTHORITY_RANK.AdminAuthority ? "" : " (Admin-only loaded $/hour line)"}.
       </p>
-    </main>
+    </div>
   );
 }

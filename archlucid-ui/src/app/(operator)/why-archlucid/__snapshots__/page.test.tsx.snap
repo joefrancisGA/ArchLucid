@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout snapshot for the demo tenant 1`] = `
-<main
+<div
   aria-busy="false"
   class="mx-auto max-w-4xl space-y-8 p-4"
   data-testid="why-archlucid-page"
@@ -725,5 +725,5 @@ Demo body.
     </code>
      for narrative context.
   </footer>
-</main>
+</div>
 `;

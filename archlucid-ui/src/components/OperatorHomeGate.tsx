@@ -43,9 +43,9 @@ export function OperatorHomeGate({ children }: { children: ReactNode }) {
 
   if (!allow) {
     return (
-      <main aria-busy="true">
+      <div aria-busy="true">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</p>
-      </main>
+      </div>
     );
   }
 

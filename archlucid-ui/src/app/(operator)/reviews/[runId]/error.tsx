@@ -36,7 +36,7 @@ export default function RunDetailSegmentError({
   if (isStaticFallback || isBuyerPolished) {
     return (
       <RunDetailMinimalChromeMount>
-        <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
+        <div className="mx-auto max-w-lg space-y-4 px-4 py-8">
         <OperatorErrorCallout>
           <strong className="text-base">Sample review unavailable</strong>
           <p className="mt-2 text-sm">
@@ -66,14 +66,14 @@ export default function RunDetailSegmentError({
             <Link href="/reviews?projectId=default">Back to reviews</Link>
           </Button>
         </div>
-        </main>
+        </div>
       </RunDetailMinimalChromeMount>
     );
   }
 
   return (
     <RunDetailMinimalChromeMount>
-      <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
+      <div className="mx-auto max-w-lg space-y-4 px-4 py-8">
       <OperatorErrorCallout>
         <strong className="text-base">Review could not be loaded</strong>
         <p className="mt-2 text-sm">
@@ -116,7 +116,7 @@ export default function RunDetailSegmentError({
           <Link href="/help">Help</Link>
         </Button>
       </div>
-      </main>
+      </div>
     </RunDetailMinimalChromeMount>
   );
 }

@@ -551,7 +551,7 @@ function GovernanceWorkflowPageInner() {
   return (
     <MutationErrorBoundary title="Governance workflow failed to render">
     <TooltipProvider delayDuration={300}>
-    <main className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-4xl">
       <LayerHeader pageKey="governance-workflow" />
       <OperatorPageHeader
         title="Governance workflow"
@@ -1251,7 +1251,7 @@ function GovernanceWorkflowPageInner() {
           void onConfirmActivateFromPromotion();
         }}
       />
-    </main>
+    </div>
     </TooltipProvider>
     </MutationErrorBoundary>
   );
@@ -1259,12 +1259,12 @@ function GovernanceWorkflowPageInner() {
 
 function GovernanceWorkflowSuspenseFallback() {
   return (
-    <main className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-4xl">
       <OperatorLoadingNotice>
         <strong>Loading governance workflow.</strong>
         <p className="mt-2 text-sm">Reading URL parameters…</p>
       </OperatorLoadingNotice>
-    </main>
+    </div>
   );
 }
 

@@ -109,7 +109,7 @@ export default function ValueReportPage() {
   }
 
   return (
-    <main className="mx-auto space-y-4 p-4 print:w-full">
+    <div className="mx-auto space-y-4 p-4 print:w-full">
       <LayerHeader pageKey="value-report" />
       <DocumentLayout>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Value report</h1>
@@ -164,6 +164,6 @@ export default function ValueReportPage() {
           />
         ) : null}
       </DocumentLayout>
-    </main>
+    </div>
   );
 }

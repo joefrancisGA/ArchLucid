@@ -376,7 +376,7 @@ function CompareForm() {
       : "Updated review";
 
   return (
-    <main>
+    <div>
       <LayerHeader pageKey="compare" />
       <OperatorPageHeader
         title="Compare reviews"
@@ -753,14 +753,14 @@ function CompareForm() {
           </div>
         </details>
       ) : null}
-    </main>
+    </div>
   );
 }
 
 /** Suspense fallback shown while the CompareForm client component is initializing (reading URL params). */
 function CompareSuspenseFallback() {
   return (
-    <main>
+    <div>
       <OperatorLoadingNotice>
         <strong>Loading compare.</strong>
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
@@ -769,7 +769,7 @@ function CompareSuspenseFallback() {
           fields prefilled…
         </p>
       </OperatorLoadingNotice>
-    </main>
+    </div>
   );
 }
 

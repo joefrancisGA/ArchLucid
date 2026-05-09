@@ -109,7 +109,7 @@ export default function PilotScorecardPage() {
   };
 
   return (
-    <main className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
       <header>
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Pilot scorecard</h1>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-300">
@@ -260,6 +260,6 @@ export default function PilotScorecardPage() {
           </section>
         </>
       ) : null}
-    </main>
+    </div>
   );
 }

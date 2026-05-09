@@ -2,8 +2,8 @@ import { GenericPageSkeleton } from "@/components/skeletons/GenericPageSkeleton"
 
 export default function AuditLoading() {
   return (
-    <main>
+    <div>
       <GenericPageSkeleton />
-    </main>
+    </div>
   );
 }

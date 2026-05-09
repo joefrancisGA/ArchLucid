@@ -71,7 +71,7 @@ export default function SearchPage() {
   }
 
   return (
-    <main className="max-w-4xl">
+    <div className="max-w-4xl">
       <OperatorPageHeader
         title="Semantic Search"
         helpKey="semantic-search"
@@ -146,6 +146,6 @@ export default function SearchPage() {
           </Card>
         ))}
       </div>
-    </main>
+    </div>
   );
 }

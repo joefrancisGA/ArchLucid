@@ -2,8 +2,8 @@ import { GenericPageSkeleton } from "@/components/skeletons/GenericPageSkeleton"
 
 export default function ReplayLoading() {
   return (
-    <main>
+    <div>
       <GenericPageSkeleton />
-    </main>
+    </div>
   );
 }

@@ -94,7 +94,7 @@ export default function DemoExplainPage() {
   }, []);
 
   return (
-    <main
+    <div
       className="mx-auto max-w-6xl space-y-6 p-4"
       data-testid="demo-explain-page"
       aria-busy={state.loading}
@@ -136,7 +136,7 @@ export default function DemoExplainPage() {
           The demo response was incomplete — provenance or explanation is missing. Try again after the API is ready.
         </p>
       ) : null}
-    </main>
+    </div>
   );
 }
 

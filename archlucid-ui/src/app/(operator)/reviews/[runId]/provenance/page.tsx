@@ -77,7 +77,7 @@ export default async function RunProvenancePage({
       "Provenance could not be loaded (review missing, broken manifest reference, or transport error).";
 
     return (
-      <main className="mx-auto max-w-3xl p-4">
+      <div className="mx-auto max-w-3xl p-4">
         <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Provenance</h2>
         <OperatorApiProblem
           problem={loadFailure?.problem ?? null}
@@ -93,7 +93,7 @@ export default async function RunProvenancePage({
             ← Review detail
           </Link>
         </p>
-      </main>
+      </div>
     );
   }
 
@@ -107,7 +107,7 @@ export default async function RunProvenancePage({
   ];
 
   return (
-    <main className="mx-auto p-4 print:w-full">
+    <div className="mx-auto p-4 print:w-full">
       <DocumentLayout tocItems={tocItems}>
         <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Provenance</h2>
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
@@ -241,6 +241,6 @@ export default async function RunProvenancePage({
           </div>
         </section>
       </DocumentLayout>
-    </main>
+    </div>
   );
 }

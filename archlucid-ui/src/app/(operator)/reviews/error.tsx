@@ -28,7 +28,7 @@ export default function RunsSegmentError({
   const isDev = process.env.NODE_ENV === "development";
 
   return (
-    <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
+    <div className="mx-auto max-w-lg space-y-4 px-4 py-8">
       <OperatorErrorCallout>
         <strong className="text-base">Reviews could not load</strong>
         <p className="mt-2 text-sm">
@@ -71,6 +71,6 @@ export default function RunsSegmentError({
           <Link href="/help">Help</Link>
         </Button>
       </div>
-    </main>
+    </div>
   );
 }

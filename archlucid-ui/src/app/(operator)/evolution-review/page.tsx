@@ -135,7 +135,7 @@ export default function EvolutionReviewPage() {
   const emptyList = !listLoading && candidates.length === 0 && listFailure === null;
 
   return (
-    <main className="max-w-5xl">
+    <div className="max-w-5xl">
       <OperatorPageHeader title="Simulation review" />
       <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
         Read-only view of <strong>60R evolution candidates</strong>: plan snapshot (description and expected impact),
@@ -338,6 +338,6 @@ export default function EvolutionReviewPage() {
           )}
         </section>
       ) : null}
-    </main>
+    </div>
   );
 }

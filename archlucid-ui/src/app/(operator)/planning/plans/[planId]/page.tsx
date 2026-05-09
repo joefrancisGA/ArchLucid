@@ -48,7 +48,7 @@ export default function PlanningPlanDetailPage() {
   }, [load]);
 
   return (
-    <main className="max-w-3xl">
+    <div className="max-w-3xl">
       {failure !== null && isApiNotFoundFailure(failure) ? (
         <OperatorBrandedNotFound />
       ) : (
@@ -171,6 +171,6 @@ export default function PlanningPlanDetailPage() {
       ) : null}
         </>
       )}
-    </main>
+    </div>
   );
 }

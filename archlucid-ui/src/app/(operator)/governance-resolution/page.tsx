@@ -51,7 +51,7 @@ export default function GovernanceResolutionPage() {
   }, [load]);
 
   return (
-    <main className="max-w-6xl">
+    <div className="max-w-6xl">
       <LayerHeader pageKey="governance-resolution" density="compact" />
       <OperatorPageHeader
         title="Governance resolution"
@@ -187,6 +187,6 @@ export default function GovernanceResolutionPage() {
           </Button>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
