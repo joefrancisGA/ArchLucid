@@ -1,4 +1,3 @@
-using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;

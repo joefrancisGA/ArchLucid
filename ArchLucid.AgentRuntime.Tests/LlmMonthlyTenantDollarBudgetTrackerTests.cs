@@ -1,9 +1,11 @@
+using System.Globalization;
+
 using ArchLucid.Core;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Data.Repositories.LlmMonthlyTenantBudget;
 
 using FluentAssertions;
 
@@ -35,7 +37,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(5m);
 
-        InMemoryLlmMonthlyTenantBudgetStateRepository repo = new();
+        InMemoryLlmTenantBudgetRepository repo = new();
         LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, repo);
         Guid tenant = Guid.NewGuid();
 
@@ -61,7 +63,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(25m);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmMonthlyTenantBudgetStateRepository());
+        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmTenantBudgetRepository());
         Guid tenant = Guid.NewGuid();
 
         await tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", CreateScopeProvider(tenant), null, 10, 10, CancellationToken.None);
@@ -87,7 +89,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(12m);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmMonthlyTenantBudgetStateRepository());
+        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmTenantBudgetRepository());
         Guid tenant = Guid.NewGuid();
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
@@ -132,7 +134,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(100m);
 
-        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmMonthlyTenantBudgetStateRepository());
+        LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, new InMemoryLlmTenantBudgetRepository());
         Guid tenant = Guid.NewGuid();
 
         await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "simulator", CancellationToken.None);
@@ -154,7 +156,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(1m);
 
-        InMemoryLlmMonthlyTenantBudgetStateRepository repo = new();
+        InMemoryLlmTenantBudgetRepository repo = new();
         LlmMonthlyTenantDollarBudgetTracker tracker = new(monitor.Object, cost.Object, repo);
         Guid tenant = Guid.NewGuid();
         IScopeContextProvider scope = CreateScopeProvider(tenant);
@@ -170,9 +172,11 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         await Task.WhenAll(tasks);
 
         DateTime utc = TimeProvider.System.UtcNowDateTime();
-        LlmMonthlyTenantBudgetStateReadModel row = await repo.GetOrCreateAsync(tenant, utc.Year, utc.Month, CancellationToken.None);
+        string periodKey = string.Format(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", utc.Year, utc.Month);
+        LlmTenantBudgetStateReadModel row =
+            await repo.GetOrCreateAsync(tenant, LlmBudgetPeriod.Monthly, periodKey, CancellationToken.None);
 
-        row.SpentUsd.Should().Be(32m);
+        row.CommittedUsd.Should().Be(32m);
     }
 
     private static IScopeContextProvider CreateScopeProvider(Guid tenantId)

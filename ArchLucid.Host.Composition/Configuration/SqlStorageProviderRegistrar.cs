@@ -11,6 +11,7 @@ using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Billing;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.CustomerSuccess;
@@ -55,8 +56,6 @@ using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.CustomerSuccess;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Data.Repositories.LlmDailyTenantTokenWindow;
-using ArchLucid.Persistence.Data.Repositories.LlmMonthlyTenantBudget;
 using ArchLucid.Persistence.Feedback;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.GoToMarket;
@@ -299,8 +298,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IBillingLedger, SqlBillingLedger>();
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
-        services.AddScoped<ILlmMonthlyTenantBudgetStateRepository, SqlLlmMonthlyTenantBudgetStateRepository>();
-        services.AddScoped<ILlmDailyTenantTokenWindowStateRepository, SqlLlmDailyTenantTokenWindowStateRepository>();
+        services.AddScoped<ILlmTenantBudgetRepository, SqlLlmTenantBudgetRepository>();
         services.AddScoped<IReferenceEvidenceRunLookup, SqlReferenceEvidenceRunLookup>();
     }
 

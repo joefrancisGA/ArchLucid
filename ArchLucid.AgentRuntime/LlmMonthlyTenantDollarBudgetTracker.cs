@@ -2,9 +2,9 @@ using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Data.Repositories.LlmMonthlyTenantBudget;
 
 using Microsoft.Extensions.Options;
 
@@ -12,17 +12,20 @@ namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 ///     UTC-month estimated USD spend per tenant for <see cref="LlmMonthlyTenantDollarBudgetOptions" /> (warn once,
-///     hard stop), backed by <see cref="ILlmMonthlyTenantBudgetStateRepository" /> for multi-replica correctness.
+///     hard stop), backed by <see cref="ILlmTenantBudgetRepository" /> with pre-call reserve and post-call settle
+///     (INV-004).
 /// </summary>
 public sealed class LlmMonthlyTenantDollarBudgetTracker(
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> optionsMonitor,
     ILlmCostEstimator costEstimator,
-    ILlmMonthlyTenantBudgetStateRepository budgetStateRepository)
+    ILlmTenantBudgetRepository budgetRepository)
 {
     private const int MaxOptimisticRetries = 12;
 
-    private readonly ILlmMonthlyTenantBudgetStateRepository _budgetStateRepository =
-        budgetStateRepository ?? throw new ArgumentNullException(nameof(budgetStateRepository));
+    private static readonly AsyncLocal<decimal?> PendingReservedAssumedUsd = new();
+
+    private readonly ILlmTenantBudgetRepository _budgetRepository =
+        budgetRepository ?? throw new ArgumentNullException(nameof(budgetRepository));
 
     private readonly ILlmCostEstimator _costEstimator = costEstimator ?? throw new ArgumentNullException(nameof(costEstimator));
 
@@ -54,23 +57,75 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
         if (assumed <= 0m)
             return;
 
-        (int year, int month) = GetUtcYearMonth();
+        string periodKey = MonthlyPeriodKey(GetUtcYearMonth());
+        decimal max = opts.HardCutoffUsdPerUtcMonth;
 
-        LlmMonthlyTenantBudgetStateReadModel state =
-            await _budgetStateRepository.GetOrCreateAsync(tenantId, year, month, cancellationToken).ConfigureAwait(false);
+        LlmTenantBudgetStateReadModel state =
+            await _budgetRepository.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, cancellationToken)
+                .ConfigureAwait(false);
 
-        if (state.SpentUsd + assumed <= opts.HardCutoffUsdPerUtcMonth)
+        if (state.TotalUsdPressure + assumed > max)
+        {
+            (int year, int month) = GetUtcYearMonth();
+            DateTimeOffset retryAfterUtc = FirstInstantOfNextUtcMonth(year, month);
+
+            throw new LlmTokenQuotaExceededException(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "LLM monthly dollar budget exceeded for tenant (UTC month hard cap {0:C}, used ~{1:C}).",
+                    max,
+                    state.TotalUsdPressure),
+                retryAfterUtc);
+        }
+
+        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+        {
+            state =
+                await _budgetRepository.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, cancellationToken)
+                    .ConfigureAwait(false);
+
+            LlmTenantBudgetReserveResult reserved = await _budgetRepository
+                .ReserveAsync(
+                    new LlmTenantBudgetReserveRequest
+                    {
+                        TenantId = tenantId,
+                        Period = LlmBudgetPeriod.Monthly,
+                        PeriodKey = periodKey,
+                        ReserveUsd = assumed,
+                        HardCapUsd = max,
+                        ExpectedRowVersion = state.RowVersion
+                    },
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (reserved.ConcurrencyConflict)
+            {
+                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
+
+                continue;
+            }
+
+            if (reserved.HardCapBlocked)
+            {
+                LlmTenantBudgetStateReadModel blocked = reserved.NewState ?? state;
+                (int year, int month) = GetUtcYearMonth();
+                DateTimeOffset retryAfterUtc = FirstInstantOfNextUtcMonth(year, month);
+
+                throw new LlmTokenQuotaExceededException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "LLM monthly dollar budget exceeded for tenant (UTC month hard cap {0:C}, used ~{1:C}).",
+                        max,
+                        blocked.TotalUsdPressure),
+                    retryAfterUtc);
+            }
+
+            PendingReservedAssumedUsd.Value = assumed;
+
             return;
+        }
 
-        DateTimeOffset retryAfterUtc = FirstInstantOfNextUtcMonth(year, month);
-
-        throw new LlmTokenQuotaExceededException(
-            string.Format(
-                CultureInfo.InvariantCulture,
-                "LLM monthly dollar budget exceeded for tenant (UTC month hard cap {0:C}, used ~{1:C}).",
-                opts.HardCutoffUsdPerUtcMonth,
-                state.SpentUsd),
-            retryAfterUtc);
+        throw new InvalidOperationException("LLM monthly dollar budget reserve could not complete after optimistic retries.");
     }
 
     /// <summary>Accumulates estimated USD and fires the once-per-UTC-month warning audit when crossing the warn threshold.</summary>
@@ -104,35 +159,114 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
             4,
             MidpointRounding.AwayFromZero);
 
-        (int year, int month) = GetUtcYearMonth();
+        string periodKey = MonthlyPeriodKey(GetUtcYearMonth());
+        decimal? pendingReserved = PendingReservedAssumedUsd.Value;
 
         for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
         {
-            LlmMonthlyTenantBudgetStateReadModel read =
-                await _budgetStateRepository.GetOrCreateAsync(tenantId, year, month, cancellationToken).ConfigureAwait(false);
+            LlmTenantBudgetStateReadModel read =
+                await _budgetRepository.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, cancellationToken)
+                    .ConfigureAwait(false);
 
-            LlmMonthlyTenantBudgetSpendUpdateResult updated = await _budgetStateRepository
-                .TryIncrementSpendAsync(tenantId, year, month, addUsd.Value, warnAt, read.RowVersion, cancellationToken)
+            LlmTenantBudgetSettleResult settled = await _budgetRepository
+                .SettleAsync(
+                    new LlmTenantBudgetSettleRequest
+                    {
+                        TenantId = tenantId,
+                        Period = LlmBudgetPeriod.Monthly,
+                        PeriodKey = periodKey,
+                        ActualUsd = addUsd.Value,
+                        ReleaseReservedUsd = pendingReserved ?? 0m,
+                        WarnAtUsd = warnAt,
+                        ExpectedRowVersion = read.RowVersion
+                    },
+                    cancellationToken)
                 .ConfigureAwait(false);
 
-            if (updated.ConcurrencyConflict)
+            if (settled.ConcurrencyConflict)
             {
                 await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
 
                 continue;
             }
 
-            decimal newTotal = updated.NewState?.SpentUsd ?? throw new InvalidOperationException("Missing spend state after update.");
+            PendingReservedAssumedUsd.Value = null;
 
-            if (!updated.ShouldEmitWarnAudit || auditService is null)
+            decimal newTotal =
+                settled.NewState?.CommittedUsd ?? throw new InvalidOperationException("Missing spend state after update.");
+
+            if (!settled.ShouldEmitWarnAudit || auditService is null)
                 return;
 
+            (int year, int month) = GetUtcYearMonth();
             TryScheduleWarnAudit(scopeProvider, auditService, year, month, newTotal, warnAt, opts);
 
             return;
         }
 
         throw new InvalidOperationException("LLM monthly dollar budget could not be updated after optimistic retries.");
+    }
+
+    /// <summary>Releases a pre-call reservation when no completion usage was recorded (failed provider call).</summary>
+    public async Task ReleasePendingReservationIfAnyAsync(
+        Guid tenantId,
+        string providerKind,
+        CancellationToken cancellationToken = default)
+    {
+        if (tenantId == Guid.Empty || providerKind.IsExcludedFromBudgetTracking())
+            return;
+
+        LlmMonthlyTenantDollarBudgetOptions opts = _optionsMonitor.CurrentValue;
+
+        if (!opts.Enabled || opts.HardCutoffUsdPerUtcMonth < 0.01m)
+            return;
+
+        decimal? pending = PendingReservedAssumedUsd.Value;
+
+        if (pending is null or <= 0m)
+            return;
+
+        string periodKey = MonthlyPeriodKey(GetUtcYearMonth());
+        decimal warnAt = decimal.Round(
+            opts.IncludedUsdPerUtcMonth * decimal.Clamp(opts.WarnFraction, 0.01m, 0.99m),
+            4,
+            MidpointRounding.AwayFromZero);
+
+        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+        {
+            LlmTenantBudgetStateReadModel read =
+                await _budgetRepository.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, cancellationToken)
+                    .ConfigureAwait(false);
+
+            LlmTenantBudgetSettleResult settled = await _budgetRepository
+                .SettleAsync(
+                    new LlmTenantBudgetSettleRequest
+                    {
+                        TenantId = tenantId,
+                        Period = LlmBudgetPeriod.Monthly,
+                        PeriodKey = periodKey,
+                        ActualUsd = 0m,
+                        ReleaseReservedUsd = pending.Value,
+                        WarnAtUsd = warnAt,
+                        ExpectedRowVersion = read.RowVersion
+                    },
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (settled.ConcurrencyConflict)
+            {
+                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
+
+                continue;
+            }
+
+            PendingReservedAssumedUsd.Value = null;
+
+            return;
+        }
+
+        throw new InvalidOperationException(
+            "LLM monthly dollar budget reservation could not be released after optimistic retries.");
     }
 
     private static void TryScheduleWarnAudit(
@@ -189,4 +323,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
         return new DateTimeOffset(firstNext, TimeSpan.Zero);
     }
+
+    private static string MonthlyPeriodKey((int Year, int Month) ym) =>
+        string.Format(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", ym.Year, ym.Month);
 }
