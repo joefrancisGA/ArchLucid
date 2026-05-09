@@ -6893,6 +6893,17 @@ export interface paths {
                         "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
                 /** @description Too Many Requests */
                 429: {
                     headers: {
@@ -18751,6 +18762,17 @@ export interface paths {
                         "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
                 /** @description Too Many Requests */
                 429: {
                     headers: {
@@ -23603,11 +23625,13 @@ export interface components {
             artifactBundle?: null | components["schemas"]["ArtifactBundle"];
             contextSnapshot?: null | components["schemas"]["ContextSnapshot"];
             decisionTrace?: null | components["schemas"]["DecisionTrace"];
+            degradedExecutionAgents?: string[];
             executionFlavorBuyerSummary?: null | string;
             findingsSnapshot?: null | components["schemas"]["FindingsSnapshot"];
             goldenManifest?: null | components["schemas"]["ManifestDocument"];
             graphSnapshot?: null | components["schemas"]["GraphSnapshot"];
             run?: components["schemas"]["RunRecord"];
+            runDegradedExecution?: boolean;
         };
         RunDetailsResponse: {
             decisionTraces?: unknown[];
@@ -23624,6 +23648,7 @@ export interface components {
             complianceGapCount?: number;
             /** Format: int32 */
             decisionCount?: number;
+            deterministicFallbackUsed?: boolean;
             explanation: components["schemas"]["ExplanationResult"];
             /** Format: double */
             faithfulnessSupportRatio?: null | number | string;
@@ -23636,7 +23661,6 @@ export interface components {
             themeSummaries: string[];
             /** Format: int32 */
             unresolvedIssueCount?: number;
-            usedDeterministicFallback?: boolean;
         };
         RunExportHistoryResponse: {
             exports?: components["schemas"]["RunExportRecord"][];
@@ -23731,6 +23755,7 @@ export interface components {
             goldenManifestId?: null | string;
             /** Format: uuid */
             graphSnapshotId?: null | string;
+            isDemoWelcomeRun?: boolean;
             isPublicShowcase?: boolean;
             lastFailureReason?: null | string;
             legacyRunStatus?: null | string;
@@ -23770,9 +23795,9 @@ export interface components {
         RunSummaryResponse: {
             /** Format: date-time */
             createdUtc?: string;
+            degradedExecutionAgents?: string[];
             description?: null | string;
             displayName?: null | string;
-            degradedExecutionAgents?: string[];
             hasArtifactBundle?: boolean;
             hasContextSnapshot?: boolean;
             hasDecisionTrace?: boolean;

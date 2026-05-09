@@ -15250,6 +15250,16 @@ namespace ArchLucid.Api.Client.Generated
                             throw new ArchLucidApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 409)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Conflict", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -35128,6 +35138,16 @@ namespace ArchLucid.Api.Client.Generated
                             throw new ArchLucidApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 409)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Conflict", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         if (status_ == 429)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -49789,6 +49809,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("decisionTrace")]
         public DecisionTrace? DecisionTrace { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("degradedExecutionAgents")]
+        public System.Collections.Generic.ICollection<string>? DegradedExecutionAgents { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("executionFlavorBuyerSummary")]
         public string? ExecutionFlavorBuyerSummary { get; set; } = default!;
 
@@ -49803,6 +49826,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("run")]
         public RunRecord? Run { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("runDegradedExecution")]
+        public bool? RunDegradedExecution { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -49864,6 +49890,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("decisionCount")]
         public int? DecisionCount { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("deterministicFallbackUsed")]
+        public bool? DeterministicFallbackUsed { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("explanation")]
         [System.ComponentModel.DataAnnotations.Required]
         public ExplanationResult Explanation { get; set; } = new ExplanationResult();
@@ -49895,9 +49924,6 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("unresolvedIssueCount")]
         public int? UnresolvedIssueCount { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("usedDeterministicFallback")]
-        public bool? UsedDeterministicFallback { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -50205,6 +50231,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
         public System.Guid? GraphSnapshotId { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("isDemoWelcomeRun")]
+        public bool? IsDemoWelcomeRun { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("isPublicShowcase")]
         public bool? IsPublicShowcase { get; set; } = default!;
 
@@ -50304,14 +50333,14 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("degradedExecutionAgents")]
+        public System.Collections.Generic.ICollection<string>? DegradedExecutionAgents { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("displayName")]
         public string? DisplayName { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("degradedExecutionAgents")]
-        public System.Collections.Generic.ICollection<string>? DegradedExecutionAgents { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasArtifactBundle")]
         public bool? HasArtifactBundle { get; set; } = default!;
