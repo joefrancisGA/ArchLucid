@@ -107,13 +107,15 @@ public sealed class ItsmOutboundIssueCreationService(
             };
         }
 
-        string? projectKey = !string.IsNullOrWhiteSpace(tenantRow?.JiraProjectKeyOverride) ? tenantRow!.JiraProjectKeyOverride : jiraOpts.DefaultProjectKey;
+        string? projectKey = !string.IsNullOrWhiteSpace(tenantRow?.JiraProjectKeyOverride) ? tenantRow.JiraProjectKeyOverride : jiraOpts.DefaultProjectKey;
         if (string.IsNullOrWhiteSpace(projectKey))
         {
             AuditEvent ev = SkippedAudit(AuditEventTypes.IntegrationJiraIssueCreateSkipped, scope, inspect, JiraProjectKeyMissingMessage);
             return new ItsmOutboundIssueCreationResult
             {
-                Kind = ItsmOutboundCreateTerminalKind.Skipped, UserMessage = JiraProjectKeyMissingMessage, AuditEvents = [ev]
+                Kind = ItsmOutboundCreateTerminalKind.Skipped,
+                UserMessage = JiraProjectKeyMissingMessage,
+                AuditEvents = [ev]
             };
         }
 
@@ -147,7 +149,9 @@ public sealed class ItsmOutboundIssueCreationService(
                 RunId = inspect.RunId,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    findingId = inspect.FindingId, statusCode = (int)http.StatusCode, reason = http.ErrorDetail ?? "jira_create_failed"
+                    findingId = inspect.FindingId,
+                    statusCode = (int)http.StatusCode,
+                    reason = http.ErrorDetail ?? "jira_create_failed"
                 })
             };
             return new ItsmOutboundIssueCreationResult
@@ -175,7 +179,10 @@ public sealed class ItsmOutboundIssueCreationService(
                 RunId = inspect.RunId,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    findingId = inspect.FindingId, issueKey = http.IssueKey, reason = "correlation_persist_failed", error = ex.Message
+                    findingId = inspect.FindingId,
+                    issueKey = http.IssueKey,
+                    reason = "correlation_persist_failed",
+                    error = ex.Message
                 })
             };
             return new ItsmOutboundIssueCreationResult
@@ -194,11 +201,18 @@ public sealed class ItsmOutboundIssueCreationService(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             RunId = inspect.RunId,
-            DataJson = JsonSerializer.Serialize(new { findingId = inspect.FindingId, issueKey = http.IssueKey })
+            DataJson = JsonSerializer.Serialize(new
+            {
+                findingId = inspect.FindingId,
+                issueKey = http.IssueKey
+            })
         };
         return new ItsmOutboundIssueCreationResult
         {
-            Kind = ItsmOutboundCreateTerminalKind.Succeeded, ExternalKey = http.IssueKey, UserMessage = "Jira issue created.", AuditEvents = [ok]
+            Kind = ItsmOutboundCreateTerminalKind.Succeeded,
+            ExternalKey = http.IssueKey,
+            UserMessage = "Jira issue created.",
+            AuditEvents = [ok]
         };
     }
 
@@ -229,7 +243,7 @@ public sealed class ItsmOutboundIssueCreationService(
         if (!string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
         {
             ArchitectureRequest? req = await _architectureRequests.GetByIdAsync(run.ArchitectureRequestId, ct).ConfigureAwait(false);
-            systemName = req?.SystemName?.Trim();
+            systemName = req?.SystemName.Trim();
         }
 
         string instanceRoot = sn.InstanceBaseUrl.Trim().TrimEnd('/');
@@ -277,7 +291,9 @@ public sealed class ItsmOutboundIssueCreationService(
                 RunId = inspect.RunId,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    findingId = inspect.FindingId, statusCode = (int)http.StatusCode, reason = http.ErrorDetail ?? "servicenow_create_failed"
+                    findingId = inspect.FindingId,
+                    statusCode = (int)http.StatusCode,
+                    reason = http.ErrorDetail ?? "servicenow_create_failed"
                 })
             };
             return new ItsmOutboundIssueCreationResult
@@ -305,7 +321,10 @@ public sealed class ItsmOutboundIssueCreationService(
                 RunId = inspect.RunId,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    findingId = inspect.FindingId, sysId = http.SysId, reason = "correlation_persist_failed", error = ex.Message
+                    findingId = inspect.FindingId,
+                    sysId = http.SysId,
+                    reason = "correlation_persist_failed",
+                    error = ex.Message
                 })
             };
             return new ItsmOutboundIssueCreationResult
@@ -324,11 +343,19 @@ public sealed class ItsmOutboundIssueCreationService(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             RunId = inspect.RunId,
-            DataJson = JsonSerializer.Serialize(new { findingId = inspect.FindingId, sysId = http.SysId, number = http.Number })
+            DataJson = JsonSerializer.Serialize(new
+            {
+                findingId = inspect.FindingId,
+                sysId = http.SysId,
+                number = http.Number
+            })
         };
         return new ItsmOutboundIssueCreationResult
         {
-            Kind = ItsmOutboundCreateTerminalKind.Succeeded, ExternalKey = http.SysId, UserMessage = "ServiceNow incident created.", AuditEvents = [ok]
+            Kind = ItsmOutboundCreateTerminalKind.Succeeded,
+            ExternalKey = http.SysId,
+            UserMessage = "ServiceNow incident created.",
+            AuditEvents = [ok]
         };
     }
 
@@ -341,11 +368,17 @@ public sealed class ItsmOutboundIssueCreationService(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             RunId = inspect.RunId,
-            DataJson = JsonSerializer.Serialize(new { findingId = inspect.FindingId, reason = "run_not_found" })
+            DataJson = JsonSerializer.Serialize(new
+            {
+                findingId = inspect.FindingId,
+                reason = "run_not_found"
+            })
         };
         return new ItsmOutboundIssueCreationResult
         {
-            Kind = ItsmOutboundCreateTerminalKind.VendorError, UserMessage = "Owning run was not found for this finding.", AuditEvents = [ev]
+            Kind = ItsmOutboundCreateTerminalKind.VendorError,
+            UserMessage = "Owning run was not found for this finding.",
+            AuditEvents = [ev]
         };
     }
 

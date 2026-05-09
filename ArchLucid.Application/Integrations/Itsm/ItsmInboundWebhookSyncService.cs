@@ -33,7 +33,7 @@ public sealed class ItsmInboundWebhookSyncService(
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex ServiceNowSysIdRegex = new(
-        @"^[a-fA-F0-9]{32}$",
+        "^[a-fA-F0-9]{32}$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private readonly IItsmFindingCorrelationRepository _correlations =
@@ -54,7 +54,7 @@ public sealed class ItsmInboundWebhookSyncService(
         CancellationToken ct,
         int? inboundPayloadUtf8ByteCount = null)
     {
-        if (inboundPayloadUtf8ByteCount is int overLimit && overLimit > MaxInboundWebhookPayloadUtf8Bytes)
+        if (inboundPayloadUtf8ByteCount is { } overLimit and > MaxInboundWebhookPayloadUtf8Bytes)
             return new ItsmInboundWebhookProcessResult(false, CreatePayloadTooLargeAudit(true, overLimit));
 
         string? issueKeyRaw = TryReadJiraIssueKey(root);
@@ -104,7 +104,11 @@ public sealed class ItsmInboundWebhookSyncService(
                     Guid.Empty,
                     Guid.Empty,
                     "jira_status_unknown",
-                    new { issueKey, statusName }));
+                    new
+                    {
+                        issueKey,
+                        statusName
+                    }));
         }
 
         if (humanReview.Length == 0)
@@ -140,7 +144,12 @@ public sealed class ItsmInboundWebhookSyncService(
                     row.WorkspaceId,
                     row.ProjectId,
                     "finding_not_found",
-                    new { issueKey, statusName, row.FindingId }));
+                    new
+                    {
+                        issueKey,
+                        statusName,
+                        row.FindingId
+                    }));
         }
 
         int updated = await _correlations
@@ -164,7 +173,13 @@ public sealed class ItsmInboundWebhookSyncService(
             WorkspaceId = row.WorkspaceId,
             ProjectId = row.ProjectId,
             DataJson = JsonSerializer.Serialize(
-                new { issueKey, statusName, humanReviewStatus = humanReview, rowsUpdated = updated })
+                new
+                {
+                    issueKey,
+                    statusName,
+                    humanReviewStatus = humanReview,
+                    rowsUpdated = updated
+                })
         };
 
         return new ItsmInboundWebhookProcessResult(true, auditEvent);
@@ -175,13 +190,12 @@ public sealed class ItsmInboundWebhookSyncService(
         CancellationToken ct,
         int? inboundPayloadUtf8ByteCount = null)
     {
-        if (inboundPayloadUtf8ByteCount is int overLimit && overLimit > MaxInboundWebhookPayloadUtf8Bytes)
+        if (inboundPayloadUtf8ByteCount is { } overLimit and > MaxInboundWebhookPayloadUtf8Bytes)
             return new ItsmInboundWebhookProcessResult(false, CreatePayloadTooLargeAudit(false, overLimit));
 
         if (!TryReadServiceNowKeys(root, out string? externalKeyRaw, out string? stateRaw) ||
             string.IsNullOrWhiteSpace(externalKeyRaw) ||
             string.IsNullOrWhiteSpace(stateRaw))
-
             return new ItsmInboundWebhookProcessResult(false, null);
 
         string externalKey = externalKeyRaw.Trim();
@@ -222,7 +236,11 @@ public sealed class ItsmInboundWebhookSyncService(
                     Guid.Empty,
                     Guid.Empty,
                     "servicenow_state_unknown",
-                    new { externalKey, state = stateNormalized }));
+                    new
+                    {
+                        externalKey,
+                        state = stateNormalized
+                    }));
         }
 
         if (humanReview.Length == 0)
@@ -258,7 +276,12 @@ public sealed class ItsmInboundWebhookSyncService(
                     row.WorkspaceId,
                     row.ProjectId,
                     "finding_not_found",
-                    new { externalKey, state = stateNormalized, row.FindingId }));
+                    new
+                    {
+                        externalKey,
+                        state = stateNormalized,
+                        row.FindingId
+                    }));
         }
 
         int updated = await _correlations
@@ -282,7 +305,13 @@ public sealed class ItsmInboundWebhookSyncService(
             WorkspaceId = row.WorkspaceId,
             ProjectId = row.ProjectId,
             DataJson = JsonSerializer.Serialize(
-                new { externalKey, state = stateNormalized, humanReviewStatus = humanReview, rowsUpdated = updated })
+                new
+                {
+                    externalKey,
+                    state = stateNormalized,
+                    humanReviewStatus = humanReview,
+                    rowsUpdated = updated
+                })
         };
 
         return new ItsmInboundWebhookProcessResult(true, auditEvent);
@@ -319,7 +348,11 @@ public sealed class ItsmInboundWebhookSyncService(
                 Guid.Empty,
                 Guid.Empty,
                 reasonCode,
-                new { issueKey, message }));
+                new
+                {
+                    issueKey,
+                    message
+                }));
 
     private static ItsmInboundWebhookProcessResult RejectServiceNow(string externalKey, string reasonCode, string message) =>
         new(
@@ -331,7 +364,11 @@ public sealed class ItsmInboundWebhookSyncService(
                 Guid.Empty,
                 Guid.Empty,
                 reasonCode,
-                new { externalKey, message }));
+                new
+                {
+                    externalKey,
+                    message
+                }));
 
     private static AuditEvent RejectedAudit(
         string eventType,
@@ -363,7 +400,7 @@ public sealed class ItsmInboundWebhookSyncService(
     {
         string fid = row.FindingId.Trim();
 
-        if (fid.Length is 0 || fid.Length > MaxFindingIdPersistedLength)
+        if (fid.Length is 0 or > MaxFindingIdPersistedLength)
         {
             reject = new ItsmInboundWebhookProcessResult(
                 false,
@@ -374,7 +411,10 @@ public sealed class ItsmInboundWebhookSyncService(
                     row.WorkspaceId,
                     row.ProjectId,
                     "finding_id_invalid_length",
-                    new { row.FindingId }));
+                    new
+                    {
+                        row.FindingId
+                    }));
 
             return false;
         }
@@ -395,20 +435,20 @@ public sealed class ItsmInboundWebhookSyncService(
             return (string.Empty, false);
 
         if (TryConfiguredHumanReview(options.JiraStatusHumanReviewMap, s, out string? configured))
-            return (configured!, true);
+            return (configured, true);
 
         if (s.Equals("Done", StringComparison.OrdinalIgnoreCase) ||
             s.Equals("Closed", StringComparison.OrdinalIgnoreCase) ||
             s.Equals("Resolved", StringComparison.OrdinalIgnoreCase))
 
-            return (FindingHumanReviewStatus.Approved.ToString(), true);
+            return (nameof(FindingHumanReviewStatus.Approved), true);
 
         if (s.Equals("To Do", StringComparison.OrdinalIgnoreCase) ||
             s.Equals("Open", StringComparison.OrdinalIgnoreCase) ||
             s.Equals("In Progress", StringComparison.OrdinalIgnoreCase) ||
             s.Equals("In Development", StringComparison.OrdinalIgnoreCase))
 
-            return (FindingHumanReviewStatus.Pending.ToString(), true);
+            return (nameof(FindingHumanReviewStatus.Pending), true);
 
         return (string.Empty, false);
     }
@@ -424,27 +464,27 @@ public sealed class ItsmInboundWebhookSyncService(
             return (string.Empty, false);
 
         if (TryConfiguredHumanReview(options.ServiceNowStateHumanReviewMap, trimmed, out string? configured))
-            return (configured!, true);
+            return (configured, true);
 
         if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out int state) &&
             (state is 6 or 7))
 
-            return (FindingHumanReviewStatus.Approved.ToString(), true);
+            return (nameof(FindingHumanReviewStatus.Approved), true);
 
         if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out int openish) &&
             openish is 1 or 2 or 3)
 
-            return (FindingHumanReviewStatus.Pending.ToString(), true);
+            return (nameof(FindingHumanReviewStatus.Pending), true);
 
         if (trimmed.Equals("resolved", StringComparison.OrdinalIgnoreCase) ||
             trimmed.Equals("closed", StringComparison.OrdinalIgnoreCase))
 
-            return (FindingHumanReviewStatus.Approved.ToString(), true);
+            return (nameof(FindingHumanReviewStatus.Approved), true);
 
         if (trimmed.Equals("new", StringComparison.OrdinalIgnoreCase) ||
             trimmed.Equals("in progress", StringComparison.OrdinalIgnoreCase))
 
-            return (FindingHumanReviewStatus.Pending.ToString(), true);
+            return (nameof(FindingHumanReviewStatus.Pending), true);
 
         return (string.Empty, false);
     }
@@ -463,14 +503,8 @@ public sealed class ItsmInboundWebhookSyncService(
         if (rawMap.Count is 0)
             return false;
 
-        foreach (KeyValuePair<string, string> kv in rawMap)
+        foreach (KeyValuePair<string, string> kv in rawMap.Where(kv => !string.IsNullOrWhiteSpace(kv.Key) && !string.IsNullOrWhiteSpace(kv.Value)).Where(kv => string.Equals(kv.Key.Trim(), incomingKey, StringComparison.OrdinalIgnoreCase)))
         {
-            if (string.IsNullOrWhiteSpace(kv.Key) || string.IsNullOrWhiteSpace(kv.Value))
-                continue;
-
-            if (!string.Equals(kv.Key.Trim(), incomingKey, StringComparison.OrdinalIgnoreCase))
-                continue;
-
             if (!Enum.TryParse(kv.Value.Trim(), ignoreCase: true, out FindingHumanReviewStatus parsed))
                 return false;
 
@@ -495,22 +529,15 @@ public sealed class ItsmInboundWebhookSyncService(
     private static string? TryReadJiraStatusName(JsonElement root)
     {
         if (!root.TryGetProperty("issue", out JsonElement issue))
-
             return null;
 
         if (!issue.TryGetProperty("fields", out JsonElement fields))
-
             return null;
 
         if (!fields.TryGetProperty("status", out JsonElement status))
-
             return null;
 
-        if (status.TryGetProperty("name", out JsonElement name))
-
-            return name.GetString();
-
-        return null;
+        return status.TryGetProperty("name", out JsonElement name) ? name.GetString() : null;
     }
 
     /// <summary>Reads ServiceNow <c>sys_id</c> (or camelCase <c>sysId</c>) — inbound correlation matches outbound registration by sys_id.</summary>

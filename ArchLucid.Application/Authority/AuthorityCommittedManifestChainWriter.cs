@@ -1,5 +1,4 @@
 using System.Data;
-using System.Linq;
 
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
@@ -208,7 +207,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
             RuleSetVersion = DemoRuleSetVersion,
             RuleSetHash = DemoRuleSetHash,
             AppliedRuleIds = ["demo-seed-rule"],
-            AcceptedFindingIds = [..acceptedFindingIds],
+            AcceptedFindingIds = [.. acceptedFindingIds],
             RejectedFindingIds = [],
             Notes = ["Seeded authority rule-audit trace (demo / replay FK chain)."]
         };
