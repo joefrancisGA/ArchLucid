@@ -75,7 +75,7 @@ public sealed class RunAgentEvaluationController(
             scores.Where(static s => !s.IsJsonParseFailure).Select(static s => s.StructuralCompletenessRatio);
 
         IEnumerable<double> semanticForAverage =
-            scores.Where(static s => !s.IsJsonParseFailure && s.Semantic is not null)
+            scores.Where(static s => s is { IsJsonParseFailure: false, Semantic: not null })
                 .Select(static s => s.Semantic!.OverallSemanticScore);
 
         double[] ratioArray = ratiosForAverage.ToArray();
@@ -111,28 +111,28 @@ public sealed class RunAgentEvaluationController(
         score.BlobUploadFailed = trace.BlobUploadFailed;
         score.QualityWarning = trace.QualityWarning;
 
-        if (!score.IsJsonParseFailure)
-        {
-            score.Semantic =
-                await agentOutputSemanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
-                    .ConfigureAwait(false);
+        if (score.IsJsonParseFailure)
+            return score;
 
-            if (evidence is not null)
-            {
-                AgentResultEvidenceFaithfulnessReport faithReport =
-                    agentResultEvidenceFaithfulnessChecker.Evaluate(trace.ParsedResultJson!, evidence);
+        score.Semantic =
+            await agentOutputSemanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
+                .ConfigureAwait(false);
 
-                score.Semantic.AgentResultFaithfulnessSupportRatio = faithReport.SupportRatio;
+        if (evidence is null)
+            return score;
 
-                double? emb =
-                    await embeddingFaithfulnessScorer
-                        .TryComputeMeanCosineAsync(trace.ParsedResultJson!, evidence, cancellationToken)
-                        .ConfigureAwait(false);
+        AgentResultEvidenceFaithfulnessReport faithReport =
+            agentResultEvidenceFaithfulnessChecker.Evaluate(trace.ParsedResultJson!, evidence);
 
-                if (emb is double e)
-                    score.Semantic.AgentResultEmbeddingFaithfulnessMeanCosine = e;
-            }
-        }
+        score.Semantic.AgentResultFaithfulnessSupportRatio = faithReport.SupportRatio;
+
+        double? emb =
+            await embeddingFaithfulnessScorer
+                .TryComputeMeanCosineAsync(trace.ParsedResultJson!, evidence, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (emb is { } e)
+            score.Semantic.AgentResultEmbeddingFaithfulnessMeanCosine = e;
 
         return score;
     }
