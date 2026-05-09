@@ -14,8 +14,6 @@ public static class PilotHoursSavedEstimator
     public static double Estimate(long runsCreatedTotal, IReadOnlyDictionary<string, long> findingsBySeverity, int auditRowCount)
     {
         ArgumentNullException.ThrowIfNull(findingsBySeverity);
-        if (findingsBySeverity is null)
-            throw new ArgumentNullException(nameof(findingsBySeverity));
         long findingsTotal = 0L;
         foreach (KeyValuePair<string, long> pair in findingsBySeverity)
         {

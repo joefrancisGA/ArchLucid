@@ -41,8 +41,6 @@ public sealed class ExecDigestComposer(
         ArgumentNullException.ThrowIfNull(operatorBaseUrl);
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
-        if (authorityScope is null)
-            throw new ArgumentNullException(nameof(authorityScope));
         if (weekStartUtcInclusive >= weekEndUtcExclusive)
             throw new ArgumentOutOfRangeException(nameof(weekEndUtcExclusive));
         string baseUrl = NormalizeBaseUrl(operatorBaseUrl);

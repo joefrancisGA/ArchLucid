@@ -1,7 +1,7 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Application.Templates;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
@@ -10,11 +10,6 @@ namespace ArchLucid.Application.Tests.Templates;
 
 public sealed class ArchitectureRequestTemplatesTests
 {
-    private static readonly JsonSerializerOptions JsonRoundTripOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
     public static TheoryData<Func<string?, ArchitectureRequest>> TemplateFactories =>
     [
         ArchitectureRequestTemplates.MicroservicesWebPlatform,
@@ -96,8 +91,8 @@ public sealed class ArchitectureRequestTemplatesTests
     {
         ArchitectureRequest original = factory("req-roundtrip-001");
 
-        string json = JsonSerializer.Serialize(original, JsonRoundTripOptions);
-        ArchitectureRequest? restored = JsonSerializer.Deserialize<ArchitectureRequest>(json, JsonRoundTripOptions);
+        string json = JsonSerializer.Serialize(original, ContractJson.CamelCaseIgnoreNullCompact);
+        ArchitectureRequest? restored = JsonSerializer.Deserialize<ArchitectureRequest>(json, ContractJson.CamelCaseIgnoreNullCompact);
 
         restored.Should().NotBeNull();
         restored.RequestId.Should().Be(original.RequestId);

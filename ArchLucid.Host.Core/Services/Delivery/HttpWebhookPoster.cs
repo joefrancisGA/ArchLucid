@@ -3,8 +3,8 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Notifications;
 
@@ -14,11 +14,6 @@ namespace ArchLucid.Host.Core.Services.Delivery;
 public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpClientFactory httpClientFactory) : IWebhookPoster
 {
     public const string WebhookHttpClientName = "ArchLucidWebhooks";
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    };
 
     /// <inheritdoc />
     public async Task PostJsonAsync(string url, object payload, CancellationToken ct, WebhookPostOptions? options = null)
@@ -30,7 +25,7 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
 
         HttpClient client = httpClientFactory.CreateClient(WebhookHttpClientName);
 
-        string json = JsonSerializer.Serialize(payload, payload.GetType(), JsonOptions);
+        string json = JsonSerializer.Serialize(payload, payload.GetType(), ContractJson.CamelCaseIgnoreNullCompact);
         byte[] body = Encoding.UTF8.GetBytes(json);
 
         string telemetryEventType = TelemetryEventLabel(options?.EventType);

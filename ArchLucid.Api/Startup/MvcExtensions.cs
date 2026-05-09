@@ -76,6 +76,7 @@ internal static class MvcExtensions
         {
             options.AddDocumentTransformer<MicrosoftOpenApiAuthDocumentTransformer>();
             options.AddDocumentTransformer<MicrosoftOpenApiCodeGenFriendlySchemaTransformer>();
+            options.AddDocumentTransformer<RunSummaryResponseOpenApiContractTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiAnonymousSecurityOperationTransformer>();
         });
         services.AddEndpointsApiExplorer();

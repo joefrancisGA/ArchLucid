@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Configuration.Summary;
 
@@ -13,11 +13,6 @@ namespace ArchLucid.Cli.Commands;
 [ExcludeFromCodeCoverage(Justification = "Thin I/O; Core + tests cover logic.")]
 internal static class ConfigCheckCommand
 {
-    private static readonly JsonSerializerOptions JsonWriter = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = true
-    };
-
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
         bool noApi = args.Any(a => string.Equals(a, "--no-api", StringComparison.Ordinal));
@@ -127,7 +122,7 @@ internal static class ConfigCheckCommand
                     })
                     .ToList()
             };
-            Console.WriteLine(JsonSerializer.Serialize(payload, JsonWriter));
+            Console.WriteLine(JsonSerializer.Serialize(payload, ContractJson.CamelCaseIgnoreNullIndented));
         }
         else
         {
@@ -275,7 +270,7 @@ internal static class ConfigCheckCommand
             string body = await r.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             AdminConfigSummaryResponse? d = JsonSerializer.Deserialize<AdminConfigSummaryResponse>(
                 body,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                ContractJson.CamelCaseDeserializeCaseInsensitive);
             if (d?.Keys is not { } rows || rows.Count == 0)
                 return (null, "API: (skip) empty body");
 

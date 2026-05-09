@@ -11,6 +11,10 @@ Items here are **greenlit in principle** â€” the decision has been made and
 | TB-001 | Harden async audit write paths (never block users) | **Complete** â€” landed + regression tests | Done |
 | TB-002 | OTel counter + log for production config validation warnings | **Complete** â€” counter + Host.Core startup paths + Composition.Tests + alerts module stub | Done |
 | TB-003 | Performance regression sentinel â€” named-query allowlist CI gate | **Complete** â€” allowlist + histogram + CI dry-run + persistence timings on hot paths (`ListRecentInScopeAsync`, `AppendAsync`, `GetByIdAsync` manifest/snapshot) | Done |
+| TB-009 | Architecture invariant program â€” doc + ADR 0035 finalize | Engineering governance â€” single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
+| TB-010 | Architecture invariant enforcement â€” Wave A (INV-001, INV-005, INV-006) | Multi-tenant + prod boot safety â€” analyzers/tests for tenant boundary + startup validators + composition-root scan | M |
+| TB-011 | Architecture invariant enforcement â€” Wave B (INV-002, INV-004, INV-012, INV-013) | Honesty + economics â€” persisted execution mode, durable budget coherence, single quality-gate truth, replay scope isolation | L |
+| TB-012 | Architecture invariant enforcement â€” Wave C (INV-007â€“INV-011, INV-014â€“INV-015) | Contributor hygiene â€” time/cancellation/idempotency/HTTP/analyzer pack + webhook ordering + INV-003 path markers | L |
 | TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar â€” conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1â€“2 h |
 | TB-005 | AI-assisted owner pen-test support (Cursor agent) | Security / V1 assurance â€” structured help for 2026-Q2 owner exercise | Ongoing (time-boxed sessions) |
 | TB-006 | Type-migrate `dbo.ComparisonRecords` run id columns → `UNIQUEIDENTIFIER` + FK to `dbo.Runs` | Referential correctness — orphans are detection-only until types align (ADR-0012 / migration 047) | **Done** (DbUp 137 + repos + probes) |
@@ -114,6 +118,53 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
 - Unit test for `assert_query_performance.py`: green case (all under threshold), red case (one over), missing-query-name case (script should warn, not fail, for unknown names so new queries don't silently break CI).
 
 **Size estimate:** ~3 h, zero blast radius, no API or schema changes.
+
+---
+
+## TB-009 â€” Architecture invariant catalog + ADR 0035
+
+**Status:** **Documentation landed** (2026-05-09) â€” [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (IDs `INV-001`â€“`INV-015`), authoring skeleton [`docs/adr/TEMPLATE.md`](../adr/TEMPLATE.md), governance ADR **`docs/adr/0035-architecture-invariant-catalog.md`** (**Status: Proposed** â€” flip to Accepted when owner reviews).
+
+**What remains:**
+
+1. Owner moves **ADR 0035** â†’ **Accepted** after skimming invariant list + confirming no conflict with **TB-001** audit posture (especially **INV-003**).
+2. Pick up **TB-010** â†’ **TB-012** in order unless a security incident reprioritizes **INV-015**.
+
+**Refs:** Cursor rule `.cursor/rules/Architecture-Invariants.mdc` (points agents at the catalog).
+
+---
+
+## TB-010 â€” Invariant Wave A â€” tenant boundary + fail-closed boot + composition root
+
+**Covers:** **INV-001**, **INV-005**, **INV-006**.
+
+**Objective:** Eliminate ambiguous tenant derivation below the HTTP boundary and fail fast when production-like hosts violate auth/secret/disposition rules; constrain DI extensions to **`ArchLucid.Host.Composition`** (allow-listed exceptions only).
+
+**Enforcement sketches:** Roslyn analyzer / architecture tests (`NetArchTest` or equivalent patterns already in-repo), **`StartupValidatorTests`** extensions, documented allow-list path for **`IServiceCollection`** extensions used by tests.
+
+**Out of scope for this wave:** execution-mode persistence (**TB-011**), webhook middleware (**INV-015** â†’ **TB-012**).
+
+---
+
+## TB-011 â€” Invariant Wave B â€” execution mode, budgets, single quality-gate outcome, replay isolation
+
+**Covers:** **INV-002**, **INV-004**, **INV-012**, **INV-013**.
+
+**Objective:** Persist honest execution labelling across API + DB + traces; reconcile LLM budgets across replicas; persist one quality-gate verdict per persisted run revision for downstream consumers; ensure replay artefacts do not mutate original evidence namespaces.
+
+**Enforcement sketches:** DbUp â† master DDL as per repo SQL rules; OpenAPI snapshot + codegen per **[`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md)** if DTO shape changes.
+
+**Depends on:** product agreement on **`Mixed`** UX copy (INV-002) before UI ships.
+
+---
+
+## TB-012 â€” Invariant Wave C â€” hygiene pack (clock, cancellation, idempotency, HTTP, repos, webhook order)
+
+**Covers:** **INV-007**â€“**INV-011**, **INV-014**, **INV-015** plus **INV-003** transactional vs informational markings.
+
+**Objective:** Analyzer-first gates with low behavioural risk; ordered inbound webhook pipeline before handler bodies; forbid mutable static state in **`Application`** / **`AgentRuntime`**.
+
+**Note:** **INV-003** must respect **TB-001** informational-audit semantics unless a superseding backlog item merges.
 
 ---
 

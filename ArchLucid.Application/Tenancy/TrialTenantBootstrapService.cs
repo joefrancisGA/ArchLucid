@@ -64,6 +64,7 @@ public sealed class TrialTenantBootstrapService(
             try
             {
                 await _demoSeedService.SeedAsync(cancellationToken);
+                await _demoSeedService.SeedTrialWelcomeRunAsync(cancellationToken);
                 DateTimeOffset start = TimeProvider.System.GetUtcNow();
                 DateTimeOffset expires = start.AddDays(14);
                 await _tenantRepository.CommitSelfServiceTrialAsync(result.TenantId, start, expires, 10, 3, demoIds.AuthorityRunBaselineId,

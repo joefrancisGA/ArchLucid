@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Diagnostics;
@@ -36,17 +37,10 @@ public sealed class AskService(
 {
     private const int HistoryTake = 40;
 
-    private static readonly JsonSerializerOptions JsonWrite = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-    };
-
     private static readonly JsonSerializerOptions JsonRead = new()
     {
         PropertyNameCaseInsensitive = true, ReadCommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true
     };
-
-    private static readonly JsonSerializerOptions MetadataWrite = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     private const string ArchitectSystemPrompt =
         "You are a senior enterprise architect. " +
@@ -119,7 +113,7 @@ public sealed class AskService(
         }
 
         object context = ContextBuilder.BuildContext(manifest, graph, comparisonResult);
-        string contextJson = JsonSerializer.Serialize(context, JsonWrite);
+        string contextJson = JsonSerializer.Serialize(context, ContractJson.CamelCaseIgnoreNullCompact);
 
         IReadOnlyList<RetrievalHit> retrievalHits = [];
         try
@@ -208,7 +202,7 @@ public sealed class AskService(
 
         string metadataJson = JsonSerializer.Serialize(
             new { response.ReferencedDecisions, response.ReferencedFindings, response.ReferencedArtifacts },
-            MetadataWrite);
+            ContractJson.CamelCaseCompact);
 
         await conversationService.AppendAssistantMessageAsync(
             thread.ThreadId,

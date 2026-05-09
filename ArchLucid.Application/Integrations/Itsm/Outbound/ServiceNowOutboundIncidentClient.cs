@@ -4,6 +4,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Common;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Integrations.Itsm.Outbound;
@@ -11,11 +13,6 @@ namespace ArchLucid.Application.Integrations.Itsm.Outbound;
 /// <summary>HTTP calls to ServiceNow Table API for <c>incident</c> and optional <c>cmdb_ci_appl</c> lookup.</summary>
 public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<ServiceNowOutboundIncidentClient> logger)
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
     private readonly ILogger<ServiceNowOutboundIncidentClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -81,7 +78,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         };
         using HttpRequestMessage request = new(HttpMethod.Post, incidentTableUri);
         ApplyBasicAuth(request, username, password);
-        string incidentJson = JsonSerializer.Serialize(body, SerializerOptions);
+        string incidentJson = JsonSerializer.Serialize(body, ContractJson.CamelCaseIgnoreNullCompact);
         request.Content = new StringContent(incidentJson, Encoding.UTF8, "application/json");
         HttpResponseMessage response;
         try
@@ -101,7 +98,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         {
             try
             {
-                ServiceNowSingleResultEnvelope? env = JsonSerializer.Deserialize<ServiceNowSingleResultEnvelope>(raw, SerializerOptions);
+                ServiceNowSingleResultEnvelope? env = JsonSerializer.Deserialize<ServiceNowSingleResultEnvelope>(raw, ContractJson.CamelCaseIgnoreNullCompact);
                 if (env?.Result is null || string.IsNullOrWhiteSpace(env.Result.SysId) || string.IsNullOrWhiteSpace(env.Result.Number))
                 {
                     return new ServiceNowIncidentHttpResult(false, null, null, response.StatusCode, "ServiceNow returned success but no incident identifiers.");
@@ -127,7 +124,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         object body = new { name };
         using HttpRequestMessage request = new(HttpMethod.Post, uri);
         ApplyBasicAuth(request, username, password);
-        string cmJson = JsonSerializer.Serialize(body, SerializerOptions);
+        string cmJson = JsonSerializer.Serialize(body, ContractJson.CamelCaseIgnoreNullCompact);
         request.Content = new StringContent(cmJson, Encoding.UTF8, "application/json");
         HttpResponseMessage response;
         try
@@ -151,7 +148,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
 
         try
         {
-            ServiceNowSingleResultEnvelope? env = JsonSerializer.Deserialize<ServiceNowSingleResultEnvelope>(raw, SerializerOptions);
+            ServiceNowSingleResultEnvelope? env = JsonSerializer.Deserialize<ServiceNowSingleResultEnvelope>(raw, ContractJson.CamelCaseIgnoreNullCompact);
             string? sysId = env?.Result?.SysId;
             if (string.IsNullOrWhiteSpace(sysId))
                 return new ServiceNowCmdbCiResolveResult(false, null, null, null);

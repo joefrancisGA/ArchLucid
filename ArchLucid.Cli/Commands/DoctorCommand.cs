@@ -15,6 +15,7 @@ namespace ArchLucid.Cli.Commands;
 /// <summary>
 ///     Operator-facing readiness diagnostics: CLI build identity, local project layout,
 ///     optional Azure Key Vault connectivity (when <c>ArchLucid:Secrets:KeyVaultUri</c> is configured),
+///     a <b>quick-start readiness</b> table (local SQL, auth mode, optional OpenAI probe, ConfigurationKeyCatalog requirements),
 ///     API <c>GET /version</c>, and API <c>/health/live</c>, <c>/health/ready</c>, and optional combined <c>/health</c>
 ///     (requires API key or JWT with read authority).
 /// </summary>
@@ -46,6 +47,8 @@ internal static class DoctorCommand
             Console.WriteLine("Key Vault: Unexpected probe error — " + ex.GetType().Name + ": " + ex.Message);
             Console.WriteLine();
         }
+
+        await DoctorQuickStartReadiness.WriteSectionAsync(Console.Out, doctorConfiguration, ct).ConfigureAwait(false);
 
         string baseUrl = ArchLucidApiClient.ResolveBaseUrl(config);
         string? urlError = ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl);

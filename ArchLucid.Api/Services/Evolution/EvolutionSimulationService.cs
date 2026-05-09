@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evolution;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
@@ -27,13 +28,6 @@ public sealed class EvolutionSimulationService(
     : IEvolutionSimulationService
 {
     private const string DerivationRuleVersion = "60R-v1";
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = false
-    };
 
     /// <inheritdoc />
     public async Task<EvolutionCandidateChangeSetRecord> CreateCandidateFromImprovementPlanAsync(
@@ -68,7 +62,7 @@ public sealed class EvolutionSimulationService(
             LinkedArchitectureRunIds = sortedRunIds
         };
 
-        string snapshotJson = JsonSerializer.Serialize(snapshot, JsonOptions);
+        string snapshotJson = JsonSerializer.Serialize(snapshot, ContractJson.CamelCaseIgnoreNullCompact);
         DateTime createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
         Guid candidateId = Guid.NewGuid();
 
@@ -137,7 +131,7 @@ public sealed class EvolutionSimulationService(
                 $"Candidate change set '{candidateChangeSetId}' was not found in the current scope.");
 
         EvolutionPlanSnapshotDocument? snapshot =
-            JsonSerializer.Deserialize<EvolutionPlanSnapshotDocument>(candidate.PlanSnapshotJson, JsonOptions);
+            JsonSerializer.Deserialize<EvolutionPlanSnapshotDocument>(candidate.PlanSnapshotJson, ContractJson.CamelCaseIgnoreNullCompact);
 
         if (snapshot is null)
             throw new InvalidOperationException("Stored plan snapshot is invalid JSON.");
@@ -172,12 +166,12 @@ public sealed class EvolutionSimulationService(
                 await EvaluateRunReadOnlyAsync(runId, cancellationToken);
 
             string? warningsJson = analysisWarnings.Count > 0
-                ? JsonSerializer.Serialize(analysisWarnings, JsonOptions)
+                ? JsonSerializer.Serialize(analysisWarnings, ContractJson.CamelCaseIgnoreNullCompact)
                 : null;
 
             string outcomeJson = useEvaluationEnvelope
                 ? await BuildOutcomeEnvelopeJsonAsync(outcome, report, runId, cancellationToken)
-                : JsonSerializer.Serialize(outcome, JsonOptions);
+                : JsonSerializer.Serialize(outcome, ContractJson.CamelCaseIgnoreNullCompact);
 
             EvolutionSimulationRunRecord row = await InsertSimulationRowAsync(
                 candidateChangeSetId,
@@ -279,7 +273,7 @@ public sealed class EvolutionSimulationService(
             explanationSummary,
             explanationDetailJson);
 
-        return JsonSerializer.Serialize(envelope, JsonOptions);
+        return JsonSerializer.Serialize(envelope, ContractJson.CamelCaseIgnoreNullCompact);
     }
 
     private async Task<EvolutionSimulationRunRecord> InsertSimulationRowAsync(

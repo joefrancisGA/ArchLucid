@@ -16,6 +16,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -87,9 +88,10 @@ public sealed class ReplayRunServiceTests
                 It.IsAny<bool>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection?>(),
-                It.IsAny<IDbTransaction?>()))
+                It.IsAny<IDbTransaction?>(),
+                It.IsAny<IReadOnlyList<Finding>?>()))
             .ReturnsAsync((ScopeContext _, Guid _, string _, GoldenManifest _, AuthorityChainKeying k, DateTime _, bool _, CancellationToken _,
-                    IDbConnection? _, IDbTransaction? _) =>
+                    IDbConnection? _, IDbTransaction? _, IReadOnlyList<Finding>? _) =>
                 new AuthorityManifestPersistResult(
                     k.ContextSnapshotId,
                     k.GraphSnapshotId,
@@ -476,7 +478,8 @@ public sealed class ReplayRunServiceTests
                 It.IsAny<bool>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection?>(),
-                It.IsAny<IDbTransaction?>()),
+                It.IsAny<IDbTransaction?>(),
+                It.IsAny<IReadOnlyList<Finding>?>()),
             Times.Once);
         Guid replayGuid = Guid.Parse(output.ReplayRunId);
         authorityRuns.Verify(

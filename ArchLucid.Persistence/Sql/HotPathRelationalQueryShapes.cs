@@ -17,6 +17,7 @@ public static class HotPathRelationalQueryShapes
                                                       ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                                       GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                                       ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                                                      IsDemoWelcomeRun,
                                                       IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                                       RetryCount, LastFailureReason
                                                   FROM dbo.Runs WITH (NOLOCK)
@@ -35,6 +36,7 @@ public static class HotPathRelationalQueryShapes
                                                             ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                                             GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                                             ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                                                            IsDemoWelcomeRun,
                                                             IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                                             RetryCount, LastFailureReason
                                                         FROM dbo.Runs WITH (NOLOCK)
@@ -82,6 +84,7 @@ public static class HotPathRelationalQueryShapes
                                                           ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                                           GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                                           ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                                                          IsDemoWelcomeRun,
                                                           IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                                           RetryCount, LastFailureReason
                                                       FROM dbo.Runs WITH (NOLOCK)
@@ -99,6 +102,7 @@ public static class HotPathRelationalQueryShapes
                                                                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                                                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                                                 ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                                                                IsDemoWelcomeRun,
                                                                 IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                                                 RetryCount, LastFailureReason
                                                             FROM dbo.Runs WITH (NOLOCK)

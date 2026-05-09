@@ -12300,12 +12300,6 @@
               }
             ]
           },
-          "degradedExecutionAgents": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
           "executionFlavorBuyerSummary": {
             "type": [
               "null",
@@ -12344,9 +12338,6 @@
           },
           "run": {
             "$ref": "#/components/schemas/RunRecord"
-          },
-          "runDegradedExecution": {
-            "type": "boolean"
           }
         },
         "type": "object"
@@ -12416,9 +12407,6 @@
             "format": "int32",
             "type": "integer"
           },
-          "deterministicFallbackUsed": {
-            "type": "boolean"
-          },
           "explanation": {
             "$ref": "#/components/schemas/ExplanationResult"
           },
@@ -12465,6 +12453,9 @@
           "unresolvedIssueCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "usedDeterministicFallback": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -12931,12 +12922,6 @@
             "format": "date-time",
             "type": "string"
           },
-          "degradedExecutionAgents": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
           "description": {
             "type": [
               "null",
@@ -12948,6 +12933,12 @@
               "null",
               "string"
             ]
+          },
+          "degradedExecutionAgents": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "hasArtifactBundle": {
             "type": "boolean"
@@ -12965,6 +12956,9 @@
             "type": "boolean"
           },
           "hasGraphSnapshot": {
+            "type": "boolean"
+          },
+          "isDemoWelcomeRun": {
             "type": "boolean"
           },
           "projectId": {
@@ -24725,26 +24719,6 @@
               }
             },
             "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict"
           },
           "429": {
             "content": {
@@ -41270,26 +41244,6 @@
               }
             },
             "description": "Not Found"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Conflict"
           },
           "429": {
             "content": {

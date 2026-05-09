@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Notifications;
 using ArchLucid.Host.Core.Configuration;
 
@@ -16,11 +17,6 @@ public sealed class CloudEventsWrappingWebhookPoster(
     IOptionsMonitor<WebhookDeliveryOptions> deliveryOptions,
     IWebhookPoster inner) : IWebhookPoster
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    };
-
     /// <inheritdoc />
     public Task PostJsonAsync(string url, object payload, CancellationToken ct, WebhookPostOptions? options = null)
     {
@@ -96,7 +92,7 @@ public sealed class CloudEventsWrappingWebhookPoster(
 
         public static CloudEventV10 Create(string type, string source, object data)
         {
-            byte[] raw = JsonSerializer.SerializeToUtf8Bytes(data, data.GetType(), JsonOptions);
+            byte[] raw = JsonSerializer.SerializeToUtf8Bytes(data, data.GetType(), ContractJson.CamelCaseIgnoreNullCompact);
             JsonElement element = JsonSerializer.Deserialize<JsonElement>(raw);
 
             return new CloudEventV10

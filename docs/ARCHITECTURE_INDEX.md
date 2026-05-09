@@ -133,8 +133,10 @@
   - `docs/CONCEPTS.md`
 - **Changelog** – per-release summaries (55R → latest); archived design-session logs in `docs/archive/`  
   - `docs/CHANGELOG.md`
-- **ADRs** – 11 numbered decisions; no shared prefix IDs  
+- **ADRs** – numbered decisions (`docs/adr/README.md` index); no shared prefix IDs  
   - `docs/adr/README.md`
+- **Architecture invariants** — registry `INV-001`–`INV-015`, enforcement waves `TB-009`–`TB-012` (`docs/library/TECH_BACKLOG.md`), proposed governance `docs/adr/0035-architecture-invariant-catalog.md`  
+  - `docs/library/ARCHITECTURE_INVARIANTS.md`
 - **Contributor onboarding** – stub → `docs/onboarding/day-one-developer.md`; archived checklist  
   - `docs/CONTRIBUTOR_ONBOARDING.md`, `docs/archive/ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md`
 

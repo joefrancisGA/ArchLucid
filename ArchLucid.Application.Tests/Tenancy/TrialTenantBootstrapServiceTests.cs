@@ -63,6 +63,7 @@ public sealed class TrialTenantBootstrapServiceTests
     {
         Mock<IDemoSeedService> demo = new();
         demo.Setup(s => s.SeedAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        demo.Setup(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         Mock<ITenantRepository> repo = new();
         repo.Setup(r => r.CommitSelfServiceTrialAsync(
@@ -109,6 +110,7 @@ public sealed class TrialTenantBootstrapServiceTests
         await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", null, null, CancellationToken.None);
 
         demo.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Once);
+        demo.Verify(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>()), Times.Once);
         repo.Verify(
             r => r.CommitSelfServiceTrialAsync(
                 tenantId,
@@ -157,6 +159,7 @@ public sealed class TrialTenantBootstrapServiceTests
         await sut.TryBootstrapAfterSelfRegistrationAsync(result, "x@y.com", null, null, CancellationToken.None);
 
         demo.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Never);
+        demo.Verify(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>()), Times.Never);
         audit.Verify(
             a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialProvisioned), It.IsAny<CancellationToken>()),
             Times.Never);

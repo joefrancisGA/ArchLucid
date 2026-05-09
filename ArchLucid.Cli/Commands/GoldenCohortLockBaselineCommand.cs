@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.GoldenCorpus;
 
@@ -15,11 +15,6 @@ namespace ArchLucid.Cli.Commands;
 [ExcludeFromCodeCoverage(Justification = "Console + HTTP orchestration; guards covered by unit tests.")]
 internal static class GoldenCohortLockBaselineCommand
 {
-    private static readonly JsonSerializerOptions JsonCamel = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
     public static async Task<int> RunAsync(string[] args)
     {
         if (args is null)
@@ -178,7 +173,7 @@ internal static class GoldenCohortLockBaselineCommand
             return CliExitCode.Success;
         object payload = new { cohortPath = resolvedCohort, wrote = write, items = jsonRows };
 
-        Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
+        Console.WriteLine(JsonSerializer.Serialize(payload, ContractJson.CamelCaseIgnoreNullCompact));
 
         return CliExitCode.Success;
     }

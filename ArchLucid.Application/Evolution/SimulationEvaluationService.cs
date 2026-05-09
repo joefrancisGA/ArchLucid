@@ -1,10 +1,10 @@
 using System.Globalization;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.Manifest;
 
@@ -24,11 +24,6 @@ public sealed class SimulationEvaluationService(IManifestDiffService manifestDif
 
     private readonly IManifestDiffService _manifestDiffService = manifestDiffService ?? throw new ArgumentNullException(nameof(manifestDiffService));
     private const string RuleVersion = "60R-eval-v1";
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false
-    };
 
     /// <inheritdoc/>
     public async Task<SimulationEvaluationResult> EvaluateAsync(SimulationEvaluationRequest request, CancellationToken cancellationToken = default)
@@ -62,7 +57,7 @@ public sealed class SimulationEvaluationService(IManifestDiffService manifestDif
         };
         EvaluationExplanationDto detail = new(RuleVersion, baseline.Warnings.Count, simulated?.Warnings.Count, usedPrecomputedManifestDiff,
             usedComputedManifestDiff, determinismResolution.Source, regressionSignals.Count);
-        string detailJson = JsonSerializer.Serialize(detail, JsonOptions);
+        string detailJson = JsonSerializer.Serialize(detail, ContractJson.CamelCaseIgnoreNullCompact);
         string regressionPart = regressionRisk.HasValue ? string.Format(CultureInfo.InvariantCulture, "{0:F3}", regressionRisk.Value) : "n/a";
         string summary = string.Format(CultureInfo.InvariantCulture,
             "Rule={0}; ImprovementDelta={1:F3}; SimulationScore={2:F3}; Determinism={3}; RegressionRisk={4}; Confidence={5:F3}; Signals={6}", RuleVersion,

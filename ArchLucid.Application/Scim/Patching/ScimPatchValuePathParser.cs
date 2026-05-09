@@ -12,8 +12,6 @@ public static class ScimPatchValuePathParser
     public static ScimPatchPathParseOutcome ParseForGroupMemberPath(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
-        if (path is null)
-            throw new ArgumentNullException(nameof(path));
         string trimmed = path.Trim();
         if (trimmed.Length is 0)
             return new ScimPatchPathInvalidOutcome("Empty path.");
@@ -41,8 +39,6 @@ public static class ScimPatchValuePathParser
     public static string ParseForUserFlatPatchPath(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
-        if (path is null)
-            throw new ArgumentNullException(nameof(path));
         string trimmed = path.Trim();
         if (trimmed.Length is 0)
             throw new ScimPatchException("invalidPath", "Empty path.");

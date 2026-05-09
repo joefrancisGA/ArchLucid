@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -115,7 +116,7 @@ public sealed class ImportRequestFileService(
         };
         await importedRequestRepository.InsertAsync(record, ct);
         object payload = new { importId, requestId = request.RequestId, format, sourceFileName = safeName };
-        string dataJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        string dataJson = JsonSerializer.Serialize(payload, ContractJson.CamelCaseCompact);
         await auditService.LogAsync(
             new AuditEvent
             {

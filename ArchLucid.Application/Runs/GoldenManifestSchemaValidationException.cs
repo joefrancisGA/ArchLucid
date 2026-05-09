@@ -7,8 +7,7 @@ public sealed class GoldenManifestSchemaValidationException : Exception
 {
     public GoldenManifestSchemaValidationException(SchemaValidationResult result) : base(BuildMessage(result))
     {
-        ArgumentNullException.ThrowIfNull(result);
-        Result = result ?? throw new ArgumentNullException(nameof(result));
+        Result = result;
     }
 
     public SchemaValidationResult Result

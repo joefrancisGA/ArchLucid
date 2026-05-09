@@ -16,6 +16,6 @@ public static class JsonRequestDeserializer
     public static ArchitectureRequest DeserializeText(string text)
     {
         ArgumentNullException.ThrowIfNull(text);
-        return text is null ? throw new ArgumentNullException(nameof(text)) : DeserializeUtf8(Encoding.UTF8.GetBytes(text));
+        return DeserializeUtf8(Encoding.UTF8.GetBytes(text));
     }
 }

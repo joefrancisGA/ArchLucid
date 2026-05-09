@@ -48,7 +48,7 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                               IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                RetryCount, LastFailureReason
                            )
                            OUTPUT inserted.RowVersionStamp
@@ -58,7 +58,7 @@ public sealed class SqlRunRepository(
                                @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
                                @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc,
                                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
-                               @IsPublicShowcase, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
+                               @IsDemoWelcomeRun, @IsPublicShowcase, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
                                @RetryCount, @LastFailureReason
                            );
                            """;
@@ -107,7 +107,7 @@ public sealed class SqlRunRepository(
                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    RetryCount, LastFailureReason,
                                    RowVersionStamp AS RowVersion
                                FROM dbo.Runs
@@ -152,7 +152,7 @@ public sealed class SqlRunRepository(
                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    RetryCount, LastFailureReason,
                                    RowVersionStamp AS RowVersion
                                FROM dbo.Runs
@@ -379,6 +379,7 @@ public sealed class SqlRunRepository(
                                LegacyRunStatus = @LegacyRunStatus,
                                CompletedUtc = @CompletedUtc,
                                CurrentManifestVersion = @CurrentManifestVersion,
+                               IsDemoWelcomeRun = @IsDemoWelcomeRun,
                                IsPublicShowcase = @IsPublicShowcase,
                                RealModeFellBackToSimulator = @RealModeFellBackToSimulator,
                                PilotAoaiDeploymentSnapshot = @PilotAoaiDeploymentSnapshot,
@@ -814,6 +815,7 @@ public sealed class SqlRunRepository(
                     run.LegacyRunStatus,
                     run.CompletedUtc,
                     run.CurrentManifestVersion,
+                    run.IsDemoWelcomeRun,
                     run.IsPublicShowcase,
                     run.RealModeFellBackToSimulator,
                     run.PilotAoaiDeploymentSnapshot,

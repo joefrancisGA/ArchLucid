@@ -41,6 +41,27 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 ---
 
+## Data residency and sovereignty
+
+**Single-region SaaS footprint (primary):** ArchLucid’s hosted environments are designed so the **primary** control-plane and data-plane resources for a deployment land in **one Azure region** chosen per environment. The region is **configurable in Terraform** via **`location`** (and related variables) for the stacks you apply. **Documented defaults vary by module:** **`infra/terraform-container-apps/variables.tf`** sets a default **`location`** of **`centralus`** for that Container Apps–oriented module; **`infra/terraform/terraform.tfvars.example`** illustrates **`eastus2`** for the example root footprint; **`infra/terraform/variables.tf`** leaves **`location`** empty until an operator sets it for resource-group creation. Use the **committed Terraform variables and examples** for your deployment as the source of truth for the selected region.
+
+| Data class | Where it resides |
+|------------|------------------|
+| Architecture run data | **Azure SQL** in the deployment region |
+| Agent execution traces | **Azure SQL** in the deployment region |
+| Audit events | **Azure SQL** in the deployment region |
+| Uploaded Azure extractor packages | **Azure Blob Storage** in the deployment region (artifact storage account aligned with the hosted stack) |
+| LLM completions | Processed by **Azure OpenAI** in the **configured** region for the Cognitive Services account (**[SUBPROCESSORS.md](SUBPROCESSORS.md)**). Under **Microsoft’s Data Processing Agreement** for **Azure OpenAI**, customer prompts and completions are **not stored** for reuse in **training** foundation models (inference-time processing only — confirm exact wording in current **Microsoft** product terms) |
+| Tenant configuration | **Azure SQL** in the deployment region for durable catalog state, plus **Azure Key Vault** in the deployment region for secret material referenced by configuration |
+
+**Geo-redundancy and cross-region copies:** ArchLucid **does not** replicate customer **primary** tenant data to a **secondary Azure region** unless the **operator explicitly enables** cross-region or failover options in shipped IaC—e.g. **`secondary_region_stack_enabled`** and related variables in **`infra/terraform-container-apps/variables.tf`**, and/or **`enable_sql_failover_group`** with a configured geo-secondary SQL server in **`infra/terraform-sql-failover`**. When those controls are **off**, data stays in the **primary** region’s provisioned SQL, Blob, and Key Vault resources.
+
+**Region availability:** Customers requiring a **specific Azure region** (SKU, capacity, or sovereignty alignment) should confirm **regional availability** with their **ArchLucid account contact** before finalizing procurement.
+
+**Contractual commitments:** For data-processing terms at signature, start from **[DPA_TEMPLATE.md](DPA_TEMPLATE.md)** (template — requires legal review before use), consistent with the procurement pack table below.
+
+---
+
 ## Penetration testing and security assessments
 
 **Owner-conducted (V1):** **V1** penetration-style testing and related evidence are **owner-led** (not a third-party attestation). Track progress in [`../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md). **Independent quality assessments must not** penalize V1 for lacking an **external** third-party pen test — see [`../library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c (owner 2026-05-01).

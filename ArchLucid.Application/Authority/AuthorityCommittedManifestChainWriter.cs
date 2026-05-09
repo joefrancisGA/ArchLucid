@@ -1,4 +1,5 @@
 using System.Data;
+using System.Linq;
 
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
@@ -36,7 +37,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
     /// <inheritdoc/>
     public async Task<AuthorityManifestPersistResult> PersistCommittedChainAsync(ScopeContext scope, Guid authorityRunId, string projectSlug,
         Cm.GoldenManifest contract, AuthorityChainKeying chainIds, DateTime createdUtc, bool richFindingsAndGraph, CancellationToken cancellationToken,
-        IDbConnection? connection = null, IDbTransaction? transaction = null)
+        IDbConnection? connection = null, IDbTransaction? transaction = null, IReadOnlyList<Finding>? committedFindingsOverride = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(projectSlug);
@@ -51,7 +52,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
         ContextSnapshot context = BuildContextSnapshot(chainIds.ContextSnapshotId, authorityRunId, projectSlug, createdUtc);
         GraphSnapshot graph = BuildGraphSnapshot(chainIds.GraphSnapshotId, chainIds.ContextSnapshotId, authorityRunId, createdUtc, richFindingsAndGraph);
         (FindingsSnapshot findings, IReadOnlyList<string> acceptedFindingIds) = BuildFindingsSnapshot(chainIds.FindingsSnapshotId, authorityRunId,
-            chainIds.ContextSnapshotId, chainIds.GraphSnapshotId, createdUtc, richFindingsAndGraph);
+            chainIds.ContextSnapshotId, chainIds.GraphSnapshotId, createdUtc, richFindingsAndGraph, committedFindingsOverride);
         RuleAuditTrace ruleAudit = BuildRuleAudit(scope, chainIds.DecisionTraceId, authorityRunId, createdUtc, acceptedFindingIds);
         await _contextSnapshots.SaveAsync(context, cancellationToken, connection, transaction);
         await _graphSnapshots.SaveAsync(graph, cancellationToken, connection, transaction);
@@ -135,8 +136,25 @@ public sealed class AuthorityCommittedManifestChainWriter(
     }
 
     private static (FindingsSnapshot Snapshot, IReadOnlyList<string> AcceptedIds) BuildFindingsSnapshot(Guid findingsSnapshotId, Guid runId,
-        Guid contextSnapshotId, Guid graphSnapshotId, DateTime createdUtc, bool rich)
+        Guid contextSnapshotId, Guid graphSnapshotId, DateTime createdUtc, bool rich, IReadOnlyList<Finding>? overrideFindings)
     {
+        if (overrideFindings is { Count: > 0 })
+        {
+            FindingsSnapshot custom = new()
+            {
+                FindingsSnapshotId = findingsSnapshotId,
+                RunId = runId,
+                ContextSnapshotId = contextSnapshotId,
+                GraphSnapshotId = graphSnapshotId,
+                CreatedUtc = createdUtc,
+                EngineFailures = [],
+                Findings = [.. overrideFindings]
+            };
+            List<string> customAccepted = overrideFindings.Select(f => f.FindingId).ToList();
+
+            return (custom, customAccepted);
+        }
+
         FindingsSnapshot snapshot = new()
         {
             FindingsSnapshotId = findingsSnapshotId,

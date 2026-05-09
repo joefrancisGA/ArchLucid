@@ -38,6 +38,13 @@ public class RunSummaryDto
         set;
     }
 
+    /// <summary>When <see langword="true" />, this run is the trial welcome ecommerce sample.</summary>
+    public bool IsDemoWelcomeRun
+    {
+        get;
+        set;
+    }
+
     /// <summary><see langword="true" /> when <see cref="ContextSnapshotId" /> is set.</summary>
     public bool HasContextSnapshot => ContextSnapshotId.HasValue;
 
