@@ -7,6 +7,12 @@
 
 **Owner targets (2026-05-09 follow-up):** **Azure Marketplace** offer aimed at **`Published` by 2026-06-20**. **Committed pilot start** aimed **by the same date** (aligned with Marketplace readiness). These are planning anchors, not repo-evidence claims until shipped.
 
+**Owner commerce posture (2026-05-09):** Quote-to-cash / Enterprise **order-form path does not require legal sign-off per transaction** — planning assumption; **numerical scores unchanged**.
+
+**Owner workforce posture (2026-05-09):** **Single-developer concentration** is **not** modeled as an operational continuity risk in this assessment (**owner**); **numerical scores unchanged**.
+
+**Owner identity scope (2026-05-09):** **Generic OIDC** workforce **`JwtBearer`** is **in V1 GA** per **`docs/library/V1_SCOPE.md` §2.12**; **numerical scores unchanged**.
+
 **Owner scope pin (2026-05-09):** A dedicated **hosted product sandbox** (always-on demo tenant stack / `sandbox.*` environment) is **out of scope** for this planning pass — Improvement 4 and related pending questions are withdrawn unless scope changes.
 
 **Golden cohort / real-LLM anchor (answered):** Canonical model **`gpt-4o`**. Owner confirms **`AzureOpenAI:DeploymentName`** matches the Azure deployment label (**2026-05-09**). Evidence runs should still record the deployment id used when filing session templates.
@@ -241,7 +247,7 @@ Ordered from most urgent (highest weighted deficiency) to least urgent.
 
 #### 15. Decision Velocity (Score: 62, Weight: 2, Weighted Deficiency: 76.0)
 
-**Why this score:** Buyers need to make fast go/no-go decisions. The procurement pack is thorough but is a CLI-generated ZIP requiring technical skill to produce. The pricing page supports quote capture and guarded Stripe UX; **production self-serve checkout and Marketplace discovery are not yet active per repo posture**. Trial signup is wired but not production-flipped. Order form template still gates enterprise quote-to-cash with legal review. **Against the owner’s stated next-90-days motion (self-serve trial + Marketplace),** velocity is constrained until Partner Center publication, DNS/signup hostname readiness, and live Stripe/Marketplace webhooks satisfy `BillingProductionSafetyRules`.
+**Why this score:** Buyers need to make fast go/no-go decisions. The procurement pack is thorough but is a CLI-generated ZIP requiring technical skill to produce. The pricing page supports quote capture and guarded Stripe UX; **production self-serve checkout and Marketplace discovery are not yet active per repo posture**. Trial signup is wired but not production-flipped. **Owner planning posture:** Enterprise quote-to-cash is **not** blocked by **per-transaction** legal sign-off (**2026-05-09**). **Against the owner’s stated next-90-days motion (self-serve trial + Marketplace),** velocity is constrained primarily until Partner Center publication, DNS/signup hostname readiness, and live Stripe/Marketplace webhooks satisfy `BillingProductionSafetyRules`.
 
 **Tradeoffs:** Quote-led fallback stays valuable for Enterprise procurement and bespoke deals; **for the declared motion**, friction is dominated by **commerce activation**, not missing HTTP endpoints.
 
@@ -437,7 +443,7 @@ Ordered from most urgent (highest weighted deficiency) to least urgent.
 
 2. **No reference customer or case study.** Enterprise buyers need social proof. The reference-customer table exists with placeholder rows but nothing is published.
 
-3. **Quote-to-cash requires manual legal review.** Order form template needs legal sign-off per transaction. Low-touch purchase still needs standardized click-through terms where applicable.
+3. **Quote-to-cash remains execution-heavy.** **Owner:** **no** **per-transaction** legal sign-off required (**2026-05-09**); friction is **sales/ops cadence** (order-form completion, signatures, bespoke Enterprise terms where negotiated) — distinct from live **self-serve + Marketplace** activation.
 
 4. **No measured ROI to cite in sales conversations.** The ROI model projects $294K savings but no actual measurement exists. Difficult to justify budget allocation.
 
@@ -459,7 +465,7 @@ Ordered from most urgent (highest weighted deficiency) to least urgent.
 
 5. **No SLA with financial backing.** API SLOs are documented as "engineering targets, not contractual." Enterprise contracts with credits require negotiation per the pricing table's Enterprise tier.
 
-6. **Identity federation limited to Entra ID / JWT.** Generic OIDC is "roadmap." Organizations using Okta, Ping, or other IdPs must configure JWT claim mapping rather than using a native integration.
+6. **Native SAML 2.0 SP as first-class sign-in.** **Generic OIDC** issuers are **in V1 GA** per **`docs/library/V1_SCOPE.md` §2.12** (**owner 2026-05-09**). SAML-only IdPs remain **out of V1** unless brokered to OIDC / JWT bearer.
 
 ---
 
@@ -475,7 +481,7 @@ Ordered from most urgent (highest weighted deficiency) to least urgent.
 
 5. **Doc maintenance burden at current volume.** 662+ markdown files with scope headers, CI-enforced counts, and cross-references create a documentation debt surface proportional to the engineering surface. Stale docs are worse than no docs for operator trust.
 
-6. **Single-developer concentration.** The breadth of the codebase (49 .csproj, Next.js UI, Python CI scripts, PowerShell tooling, Terraform modules, k6 load tests) across multiple technology stacks concentrated in one contributor creates operational continuity risk.
+6. **Golden manifest schema validation is not universally forced-on.** `ValidateGoldenManifestSchema` remains configurable; a production-adjacent host misconfigured to relax validation could accept manifests that CI and reviewers assumed were rejected.
 
 ---
 
@@ -491,15 +497,17 @@ ArchLucid is an exceptionally well-engineered product that has invested heavily 
 
 **Title:** Execute and Commit Real-LLM Golden Cohort Evidence
 
-**Why it matters:** AI/Agent Readiness is the second-highest weighted deficiency. The simulator path is excellent but buyers need confidence that real Azure OpenAI completions produce quality outputs. The `REAL_LLM_RUN_EVIDENCE_TEMPLATE.md` exists but no evidence artifacts are committed.
+**Why it matters:** AI/Agent Readiness is the second-highest weighted deficiency. The simulator path is excellent but buyers need confidence that real Azure OpenAI completions produce quality outputs. A dated evidence log is now in-repo (see Completion); a full live AOAI session remains operator-owned when credentials are available.
 
 **Expected impact:** Directly improves AI/Agent Readiness (+6-8 pts), Correctness (+3-5 pts), Trustworthiness (+2-3 pts). Weighted readiness impact: +0.8-1.3%.
 
 **Affected qualities:** AI/Agent Readiness, Correctness, Trustworthiness, Proof-of-ROI Readiness.
 
-**Status:** Actionable now.
+**Status:** Completed (2026-05-09).
 
-**Cursor prompt:**
+**Completion:** Committed [`docs/quality/REAL_LLM_GOLDEN_COHORT_GATE_EVIDENCE_2026-05-09.md`](docs/quality/REAL_LLM_GOLDEN_COHORT_GATE_EVIDENCE_2026-05-09.md) (blocked live Azure OpenAI in the automation environment; documented attempt, exemplar-path `eval_agent_corpus.py` metrics, quality gate outcomes, placeholder exemplar `runId`s, and operator steps for true live exports). [`docs/library/V1_READINESS_SUMMARY.md`](docs/library/V1_READINESS_SUMMARY.md) links that file. Commit: `53bdabb26`.
+
+**Cursor prompt (reference — task done):**
 
 ```
 Execute the golden cohort real-LLM gate documented in docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md. The goal is to produce committed evidence artifacts proving real Azure OpenAI completions meet quality thresholds.
@@ -899,7 +907,9 @@ Constraints:
 
 **Specific information needed:** Owner completion of Partner Center seller verification, tax profile, payout account setup, DNS registrar access for signup.archlucid.net, and explicit go-ahead to flip live keys.
 
-**Progress note:** Partner Center seller / legal verification **complete** (**owner confirmation**). Remaining commerce un-hold items: **tax profile**, **payout account**, **DNS** for `signup.archlucid.net`, **explicit go-ahead** to rotate live Stripe / Marketplace production config per `BillingProductionSafetyRules`.
+**Progress note:** Partner Center seller / legal verification **complete** (**owner confirmation**). **Tax profile:** **in progress** (**owner**). **Payout profile:** **not started until tax is finished** (**owner**). **`signup.archlucid.net` DNS:** **owner controls registrar** (**answered**). Remaining commerce un-hold: finish **tax**, then **payout**, **DNS record changes at cutover** (when Front Door / certs require), **explicit go-ahead** to rotate live Stripe / Marketplace production config per `BillingProductionSafetyRules`.
+
+---
 
 ### Improvement 12: Add RBAC Boundary Integration Tests for All Controllers
 
@@ -970,11 +980,15 @@ All deferred items referenced in this assessment (SOC 2 CPA, design partner, com
 
 ### Improvement 11 (Stripe Trial — DEFERRED)
 - **Partner Center seller verification (answered):** **Complete** (**owner confirmation**). Further Marketplace setup (offer, certification, **`Published`**) uses [`docs/go-to-market/MARKETPLACE_PUBLICATION.md`](docs/go-to-market/MARKETPLACE_PUBLICATION.md); publisher placeholders in [`docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md`](docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md).
-- Tax profile and payout account filing status?
-- DNS registrar access for signup.archlucid.net?
+- **Tax profile:** **In progress** (**owner**).
+- **Payout account (answered):** **Deferred until tax profile is complete** (**owner**).
+- **DNS — `signup.archlucid.net` (answered):** **Owner controls registrar** (**owner confirmation**) — can apply TXT/CNAME/A when Front Door / production cutover requires.
 
 ### General (owner input — partial)
 
 - **Primary commercial motion (answered, 2026-05-09):** Next **90 days** — **mixture of self-serve trial and Azure Marketplace** (narrative updated throughout this document).
 - **Marketplace + pilot dates (answered, 2026-05-09):** Azure Marketplace offer aimed at **`Published` by 2026-06-20**; **committed pilot start** aimed **by the same date** (aligned with Marketplace readiness).
-- Is there a defined maximum number of concurrent pilot tenants the current infrastructure should support?
+- **Concurrent pilot tenants — planning ceiling (answered):** **5** concurrent pilot tenants assumed for capacity / ops planning unless revised (**owner**).
+- **Quote-to-cash legal gate (answered, 2026-05-09):** **No** legal sign-off **per transaction** required for quote-to-cash / Enterprise order-form path (**owner planning posture**).
+- **Workforce / continuity (answered, 2026-05-09):** **Single-developer concentration** is **not** treated as an operational continuity risk (**owner**).
+- **Generic OIDC (answered, 2026-05-09):** **In V1 GA** product scope — [`docs/library/V1_SCOPE.md`](docs/library/V1_SCOPE.md) §2.12; native SAML SP remains **out of V1** unless brokered to OIDC (**owner**).
