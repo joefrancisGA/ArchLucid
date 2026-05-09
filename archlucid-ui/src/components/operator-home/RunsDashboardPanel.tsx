@@ -179,6 +179,12 @@ export function RunsDashboardPanel() {
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
+  const onlyShowcaseRunInBuyerPolishedWorkspace =
+    buyerPolishedShell &&
+    effectiveItems.length === 1 &&
+    effectiveItems[0] !== undefined &&
+    runIsShowcaseHomeExampleStory(effectiveItems[0]);
+
   const attentionRuns = useMemo(() => effectiveItems.filter(isRunNeedingAttention), [effectiveItems]);
   const attentionPreview = useMemo(() => attentionRuns.slice(0, 3), [attentionRuns]);
 
@@ -260,8 +266,8 @@ export function RunsDashboardPanel() {
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     {buyerSafeHighlight ? (
                       <>
-                        Start with the manifest summary and evidence graph. Optional read-only walkthrough and full workspace
-                        detail stay available for stakeholders who want deeper navigation.
+                        Start with the manifest summary and evidence graph. Optional read-only walkthrough below — open
+                        workspace detail from the review title in the recent list when you need the full console.
                       </>
                     ) : (
                       <>
@@ -285,9 +291,6 @@ export function RunsDashboardPanel() {
                     <div className="flex flex-wrap gap-2">
                       <Button asChild variant="outline" size="sm" className="h-8">
                         <Link href={getShowcaseWalkthroughHref()}>Read-only walkthrough</Link>
-                      </Button>
-                      <Button asChild variant="outline" size="sm" className="h-8">
-                        <Link href={getCanonicalReviewWorkspaceHref(showcaseDemoRun.runId)}>Full review detail</Link>
                       </Button>
                     </div>
                   </div>
@@ -505,12 +508,14 @@ export function RunsDashboardPanel() {
             </div>
           ) : null}
 
-          <Link
-            href={`/reviews?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}
-            className="inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
-          >
-            Open full reviews list
-          </Link>
+          {!onlyShowcaseRunInBuyerPolishedWorkspace ? (
+            <Link
+              href={`/reviews?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}
+              className="inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
+            >
+              Open full reviews list
+            </Link>
+          ) : null}
         </CardContent>
       </Card>
 

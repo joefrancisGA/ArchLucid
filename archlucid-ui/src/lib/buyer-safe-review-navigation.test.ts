@@ -12,7 +12,7 @@ describe("buyer-safe-review-navigation", () => {
     vi.restoreAllMocks();
   });
 
-  it("prefers authenticated walkthrough link for curated demo IDs when DEMO_MODE buyer chrome is enabled", async () => {
+  it("prefers buyer-primary navigation for curated demo IDs when DEMO_MODE buyer chrome is enabled", async () => {
     process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "true", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
 
     const mod = await import("./buyer-safe-review-navigation");
@@ -22,11 +22,11 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("Read-only walkthrough");
-    expect(link.href).toContain("/showcase/");
+    expect(link.label).toBe("View manifest summary");
+    expect(link.href).toContain("/manifests/");
   });
 
-  it("uses curated walkthrough link for static spine IDs even when buyer chrome env is off", async () => {
+  it("uses manifest summary link for static spine IDs even when buyer chrome env is off", async () => {
     process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
 
     const mod = await import("./buyer-safe-review-navigation");
@@ -35,19 +35,19 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("Read-only walkthrough");
-    expect(link.href).toContain("/showcase/");
+    expect(link.label).toBe("View manifest summary");
+    expect(link.href).toContain("/manifests/");
   });
 
-  it("uses Read-only walkthrough label when static operator enables buyer-polished shell without DEMO_MODE", async () => {
+  it("uses manifest summary for static spine IDs when static operator enables buyer-polished shell without DEMO_MODE", async () => {
     process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true" };
 
     const mod = await import("./buyer-safe-review-navigation");
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("Read-only walkthrough");
-    expect(link.href).toContain("/showcase/");
+    expect(link.label).toBe("View manifest summary");
+    expect(link.href).toContain("/manifests/");
   });
 
   it("canonicalizes workspace href for alias demo IDs", async () => {

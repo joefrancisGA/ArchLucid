@@ -72,17 +72,20 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     vi.clearAllMocks();
   });
 
-  it("uses primary walkthrough, outline manifest summary, and separated own-workspace link", () => {
+  it("uses primary manifest summary, outline walkthrough, and separated own-workspace link", () => {
     render(<SampleFirstReviewPackageCard />);
 
     expect(screen.getByRole("heading", { name: "Sample review package" })).toBeInTheDocument();
     expect(
       screen.getByText(/Includes a finalized manifest, a PHI finding with traceability/i),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
       "href",
       "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+    );
+    expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
+      "href",
+      "/showcase/claims-intake-modernization",
     );
     expect(screen.queryByRole("link", { name: "Open full review detail" })).toBeNull();
     expect(screen.getByText(/Ready to connect your own workspace\?/i)).toBeInTheDocument();
