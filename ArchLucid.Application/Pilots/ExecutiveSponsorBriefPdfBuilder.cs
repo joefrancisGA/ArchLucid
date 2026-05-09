@@ -1,9 +1,8 @@
-using QuestPDF;
+using ArchLucid.Application.Rendering;
+
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-
-using QuestPdfDocument = QuestPDF.Fluent.Document;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -19,9 +18,7 @@ public sealed class ExecutiveSponsorBriefPdfBuilder
     {
         ArgumentNullException.ThrowIfNull(markdown);
 
-        Settings.License = LicenseType.Community;
-
-        QuestPdfDocument doc = QuestPdfDocument.Create(container =>
+        return QuestPdfDocumentBytes.Generate(container =>
         {
             container.Page(page =>
             {
@@ -39,10 +36,5 @@ public sealed class ExecutiveSponsorBriefPdfBuilder
                         text.Span("Canonical body: docs/EXECUTIVE_SPONSOR_BRIEF.md — PDF is a portable rendering"));
             });
         });
-
-        using MemoryStream stream = new();
-        doc.GeneratePdf(stream);
-
-        return stream.ToArray();
     }
 }

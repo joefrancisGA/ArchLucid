@@ -3,6 +3,8 @@
 #   Tier 0.x — OpenAPI v1 snapshot (build ArchLucid.Api.Tests + OpenApiContractSnapshotTests only).
 #               Runs parallel with Terraform validate; dotnet-fast-core needs it → drift fails before corset guards.
 #   Tier 1 — .NET fast core (fail-fast, no SQL) + CycloneDX SBOM artifact
+#   Tier 1a — Named agent gates (branch protection): prompt-injection regression (Python + dotnet test);
+#             offline agent regression (eval corpus + prompt JSON baseline); parallel after gitleaks
 #   Tier 1.5 — DbUp migrations on empty catalog (Docker SQL) + greenfield SQL boot (API process + /health/ready); after Tier 1
 #   Tier 2 — .NET full regression + SQL (parallel shards: Category!=Slow vs Category=Slow; merged in `dotnet-coverage-merge`)
 #   Tier 2b — Simmy chaos (after Tier 2; no SQL)
@@ -557,6 +559,63 @@ jobs:
       - name: Build + OpenApiContractSnapshotTests
         run: bash scripts/ci/check_openapi_contract_snapshot.sh
 
+  # Exact `name:` strings below are listed in `.github/BRANCH_PROTECTION.md` and `.github/pull_request_template.md`
+  # for org admins enabling required status checks (owner decision).
+  ci-agent-prompt-injection-regression:
+    name: "CI: prompt-injection regression (strict + block layer)"
+    needs:
+      - gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore + build (AgentRuntime.Tests for executable regression)
+        run: |
+          set -euo pipefail
+          dotnet restore ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
+          dotnet build ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj --no-restore -c Release
+
+      - name: Prompt-injection datasets (shape + executable regression)
+        run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only --strict --enforce-prompt-injection-block-layer
+
+  ci-agent-offline-regression:
+    name: "CI: agent offline regression (eval corpus + prompt JSON baseline)"
+    needs:
+      - gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Agent eval corpus (offline recall + simulator quality evidence)
+        run: |
+          set -euo pipefail
+          REP="${{ runner.temp }}/eval-corpus-report.md"
+          python3 scripts/ci/eval_agent_corpus.py --markdown-report "$REP"
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "$REP" >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Agent prompt regression baseline (JSON shape)
+        run: python3 scripts/ci/assert_prompt_regression.py
+
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
     needs:
@@ -782,18 +841,8 @@ jobs:
       - name: Agent eval dataset manifest (shape)
         run: python3 scripts/ci/eval_agent_quality.py --manifest-only --strict
 
-      - name: Prompt injection eval datasets (shape + executable regression)
-        run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only --strict --enforce-prompt-injection-block-layer
-
-      - name: Agent eval corpus (offline recall + simulator quality evidence)
-        run: |
-          set -euo pipefail
-          REP="${{ runner.temp }}/eval-corpus-report.md"
-          python3 scripts/ci/eval_agent_corpus.py --markdown-report "$REP"
-          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "$REP" >> "$GITHUB_STEP_SUMMARY"; fi
-
-      - name: Agent prompt regression baseline (JSON shape)
-        run: python3 scripts/ci/assert_prompt_regression.py
+      # Prompt-injection executable regression + eval corpus live in dedicated jobs (ci-agent-prompt-injection-regression,
+      # ci-agent-offline-regression) so branch protection can require them by exact check name.
 
       # Includes OpenApiContractSnapshotTests (Suite=Core); same assertion already ran in job openapi-contract-snapshot for fail-fast ordering.
       # ArchLucid.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
@@ -2526,6 +2575,8 @@ jobs:
       - terraform-validate-private
       - terraform-validate-public-stacks
       - openapi-contract-snapshot
+      - ci-agent-prompt-injection-regression
+      - ci-agent-offline-regression
       - dotnet-fast-core
       - saas-terraform-roots-validate
       - sql-dbup-empty-catalog

@@ -1,5 +1,6 @@
 using System.Globalization;
 
+using ArchLucid.Application.Rendering;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
@@ -8,12 +9,9 @@ using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
-using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-
-using QuestPdfDocument = QuestPDF.Fluent.Document;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -52,13 +50,13 @@ public sealed class SponsorOnePagerPdfBuilder(
         DateTimeOffset end = TimeProvider.System.GetUtcNow();
         DateTimeOffset start = end.AddDays(-30);
         PilotScorecardSummary scorecard = await _scorecardBuilder.BuildAsync(start, end, cancellationToken);
-        Settings.License = LicenseType.Community;
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
         string footer = string.IsNullOrWhiteSpace(baseUrlForFooter) ? "http://localhost:5000" : baseUrlForFooter.Trim().TrimEnd('/');
         int denom = Math.Max(1, scorecard.RunsInPeriod);
         double committedRatio = scorecard.RunsWithCommittedManifest / (double)denom;
-        QuestPdfDocument doc = QuestPdfDocument.Create(container =>
+
+        return QuestPdfDocumentBytes.Generate(container =>
         {
             container.Page(page =>
             {
@@ -131,9 +129,6 @@ public sealed class SponsorOnePagerPdfBuilder(
                 });
             });
         });
-        using MemoryStream stream = new();
-        doc.GeneratePdf(stream);
-        return stream.ToArray();
     }
 
     /// <summary>

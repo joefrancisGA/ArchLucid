@@ -21,6 +21,8 @@ Use **exact** names as they appear on a completed run (Settings shows autocomple
 | Check name |
 |------------|
 | `Security: gitleaks (secret scan)` |
+| `CI: prompt-injection regression (strict + block layer)` |
+| `CI: agent offline regression (eval corpus + prompt JSON baseline)` |
 | `Terraform: validate private stack (no backend)` |
 | `Terraform: validate main / edge / entra (no backend) (infra/terraform)` |
 | `Terraform: validate main / edge / entra (no backend) (infra/terraform-edge)` |

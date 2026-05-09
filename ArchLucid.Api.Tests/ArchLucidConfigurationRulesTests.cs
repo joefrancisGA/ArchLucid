@@ -1,4 +1,5 @@
-﻿using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation;
 
 using FluentAssertions;
@@ -698,6 +699,60 @@ public sealed class ArchLucidConfigurationRulesTests
             NullLogger.Instance);
 
         act.Should().NotThrow();
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenProductionRealAndDeploymentIsTraceSentinel_contains_fingerprint_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
+            ["ArchLucid:ContentSafety:ApiKey"] = "key",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["LlmCompletionCache:Enabled"] = "false",
+            ["AgentExecution:Mode"] = "Real",
+            ["AzureOpenAI:Endpoint"] = "https://example.openai.azure.com/",
+            ["AzureOpenAI:ApiKey"] = "key",
+            ["AzureOpenAI:DeploymentName"] = AgentExecutionTraceModelMetadata.SimulatorDeploymentName,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("AGENT_TRACE_FORENSICS.md", StringComparison.OrdinalIgnoreCase)
+                                     && e.Contains("AzureOpenAI:DeploymentName", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenDevelopmentRealAndDeploymentIsTraceSentinel_does_not_add_fingerprint_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["LlmCompletionCache:Enabled"] = "false",
+            ["AgentExecution:Mode"] = "Real",
+            ["AzureOpenAI:Endpoint"] = "https://example.openai.azure.com/",
+            ["AzureOpenAI:ApiKey"] = "key",
+            ["AzureOpenAI:DeploymentName"] = AgentExecutionTraceModelMetadata.SimulatorDeploymentName,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("AGENT_TRACE_FORENSICS.md", StringComparison.OrdinalIgnoreCase));
     }
 
     [SkippableFact]

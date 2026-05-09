@@ -1,11 +1,9 @@
+using ArchLucid.Application.Rendering;
 using ArchLucid.Contracts.Pilots;
 
-using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-
-using QuestPdfDocument = QuestPDF.Fluent.Document;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -43,14 +41,15 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
         };
 
         string markdown = built.Markdown;
-        Settings.License = LicenseType.Community;
-        QuestPdfDocument doc = QuestPdfDocument.Create(container =>
+
+        return QuestPdfDocumentBytes.Generate(container =>
         {
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
                 page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Helvetica"));
+
                 if (showSponsorCirculationWatermark)
                 {
                     page.Foreground().AlignCenter()
@@ -82,6 +81,7 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
                 {
                     if (showSponsorCirculationWatermark)
                         foot.Item().AlignCenter().Text(watermarkBannerText).FontSize(9).Italic().FontColor(Colors.Grey.Medium);
+
                     foot.Item().AlignCenter().Text(text =>
                     {
                         text.Span("Generated from run ");
@@ -90,8 +90,5 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
                 });
             });
         });
-        using MemoryStream stream = new();
-        doc.GeneratePdf(stream);
-        return stream.ToArray();
     }
 }

@@ -33,6 +33,11 @@ export type AgentOutputSemanticScoreRow = {
   heuristicOverallScore: number;
   llmJudgeOverallQuality?: number | null;
   llmJudgeNotes?: string | null;
+  /**
+   * Deterministic claim/finding grounding vs run evidence bundle (0–1); absent when no evidence package or not evaluated.
+   * Distinct from {@link agentResultEmbeddingFaithfulnessMeanCosine}.
+   */
+  agentResultFaithfulnessSupportRatio?: number | null;
   /** Mean embedding cosine vs evidence when `ArchLucid:Agents:Faithfulness:EmbeddingEnabled` is on. */
   agentResultEmbeddingFaithfulnessMeanCosine?: number | null;
 };
