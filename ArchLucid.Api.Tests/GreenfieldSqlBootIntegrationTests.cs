@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Net;
 
 using ArchLucid.TestSupport;
 
@@ -46,9 +45,7 @@ public sealed class GreenfieldSqlBootIntegrationTests
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage response = await client.GetAsync("/health/ready");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        await HealthReadyProbe.EnsureReadyAsync(client);
     }
 
     [SkippableFact]
@@ -59,9 +56,7 @@ public sealed class GreenfieldSqlBootIntegrationTests
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage ready = await client.GetAsync("/health/ready");
-
-        ready.StatusCode.Should().Be(HttpStatusCode.OK);
+        await HealthReadyProbe.EnsureReadyAsync(client);
 
         await using SqlConnection connection = new(factory.SqlConnectionString);
         await connection.OpenAsync();
@@ -86,9 +81,7 @@ public sealed class GreenfieldSqlBootIntegrationTests
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage ready = await client.GetAsync("/health/ready");
-
-        ready.StatusCode.Should().Be(HttpStatusCode.OK);
+        await HealthReadyProbe.EnsureReadyAsync(client);
 
         await using SqlConnection connection = new(factory.SqlConnectionString);
         await connection.OpenAsync(CancellationToken.None);

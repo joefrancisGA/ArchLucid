@@ -298,32 +298,7 @@ public sealed class TenantIsolationSmokeTests
         await WarmPostCreateRunPathAsync(client);
     }
 
-    private static async Task WarmHealthReadyPathAsync(HttpClient client)
-    {
-        int delayMs = 500;
-
-        for (int attempt = 0; attempt < 60; attempt++)
-        {
-            using HttpResponseMessage response = await client.GetAsync("/health/ready");
-
-            if (response.StatusCode == HttpStatusCode.OK)
-                return;
-
-            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
-            {
-                response.EnsureSuccessStatusCode();
-
-                return;
-            }
-
-            await Task.Delay(delayMs);
-            delayMs = Math.Min(delayMs * 2, 8000);
-        }
-
-        throw new InvalidOperationException(
-            "GET /health/ready stayed 503 (host still warming or SQL not reachable). See "
-            + nameof(WarmHealthReadyPathAsync) + ".");
-    }
+    private static Task WarmHealthReadyPathAsync(HttpClient client) => HealthReadyProbe.EnsureReadyAsync(client);
 
     private static async Task WarmListRunsPathAsync(HttpClient client)
     {

@@ -87,6 +87,8 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
                 ["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "300",
                 // Parallel idempotency integration tests hold sp_getapplock while the first create-run completes; cold CI SQL + greenfield DbUp can exceed the default 120s waiter budget.
                 ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "300000",
+                // appsettings.Advanced.json sets 120s; that blocks DataConsistency readiness on Combined hosts until the first reconciliation.
+                ["DataConsistency:InitialDelaySeconds"] = "0",
                 // Http-only URL list disables HTTPS redirection middleware for in-memory TestServer (avoids redirect handler + long POST interaction quirks in CI).
                 ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
             });
