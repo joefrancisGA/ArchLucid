@@ -31,13 +31,13 @@ internal static class AgentOutputEvaluationWorstGateAggregator
 
     private static AgentOutputQualityGateOutcome PickWorse(AgentOutputQualityGateOutcome a, AgentOutputQualityGateOutcome b)
     {
+        return Rank(a) >= Rank(b) ? a : b;
+
         int Rank(AgentOutputQualityGateOutcome x) => x switch
         {
             AgentOutputQualityGateOutcome.Rejected => 2,
             AgentOutputQualityGateOutcome.Warned => 1,
             _ => 0,
         };
-
-        return Rank(a) >= Rank(b) ? a : b;
     }
 }

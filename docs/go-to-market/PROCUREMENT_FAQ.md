@@ -34,7 +34,7 @@
 
 ### 4. Can we authenticate with **Okta / Ping / Auth0** instead of Microsoft Entra ID?
 
-**Answer:** Shipping **JWT + Entra-compatible** integrations are documented in **[SECURITY.md](../library/SECURITY.md)**; non-Microsoft IdPs commonly federate inbound to **Entra** or negotiate a **JWT** integration roadmap—capture your IdP OAuth/OIDC specifics in questionnaire follow-ups (**no guaranteed same-day turnkey** for arbitrary IdPs in V1).
+**Answer:** **Yes — V1 GA.** **[V1_SCOPE.md](../library/V1_SCOPE.md) §2.12** commits **`JwtBearer`** against **configurable OIDC issuers** (metadata discovery + JWKS), including non-Microsoft IdPs; **`ArchLucidAuth:Authority`** / audience and **role claim mapping** are documented in **[SECURITY.md](../library/SECURITY.md)** and **[CONFIGURATION_REFERENCE.md](../library/CONFIGURATION_REFERENCE.md)**. **Microsoft Entra ID** remains the **reference** path in Terraform samples (**[`infra/terraform-entra/`](../../infra/terraform-entra/)**). **Native SAML SP** (without OIDC tokens) is **out of V1** — use OIDC or broker SAML→OIDC. Capture your issuer URLs, audience, and claim shapes in questionnaire follow-ups; lead times depend on IdP-specific federation work on **your** side.
 
 ---
 

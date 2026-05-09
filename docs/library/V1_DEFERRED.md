@@ -199,6 +199,21 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ---
 
+## 6g. Identity — generic OIDC in **V1 GA** (owner **2026-05-09**)
+
+**Generic OIDC** workforce sign-in — **`ArchLucidAuth:Mode=JwtBearer`** with **`ArchLucidAuth:Authority`** pointed at a **non-Microsoft OIDC issuer** (standard discovery + JWKS validation; claim mapping to **`ArchLucidRoles`** per **[SECURITY.md](SECURITY.md)**) — is **in scope for V1 GA** per [V1_SCOPE.md §2.12](V1_SCOPE.md).
+
+**Supersedes:** procurement copy and assessments that described generic OIDC as **roadmap-only** or implied Entra was the **only** first-class workforce IdP.
+
+**Still not automatic V1 without separate promotion:** turnkey **per-vendor** admin wizards beyond configuration docs; **native SAML 2.0 SP** as a first-class sign-in path ([V1_SCOPE.md §3](V1_SCOPE.md) non-goals row).
+
+**Rules:**
+
+- Quality assessments **must not** treat “no generic OIDC” as a V1 defect — it is a **committed V1 integration surface** alongside Entra.
+- Claim-mapping and issuer allowlisting discipline stays **documented operator responsibility** — capture buyer IdP specifics in questionnaires ([PROCUREMENT_FAQ.md](../go-to-market/PROCUREMENT_FAQ.md)).
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |
@@ -215,5 +230,6 @@ This file is **maintainer hygiene**. It is **not** a commitment to ship listed i
 - When **AUDIT_COVERAGE_MATRIX** gains or loses a **Known gaps** row.
 - When **Phase 7** rename items move (only with program approval).
 - When a **V2 platform enhancement** is recorded from engineering/architecture review (see §6e–§6f pattern — add §3 row in [V1_SCOPE.md](V1_SCOPE.md) in the same change).
+- When **identity scope** is promoted (see §6g pattern — update [V1_SCOPE.md](V1_SCOPE.md) §2.12 / §3 together / procurement FAQ as needed).
 
 **Change control:** Prefer updating **this file** and [V1_SCOPE.md](V1_SCOPE.md) §3 together so external messaging stays aligned.
