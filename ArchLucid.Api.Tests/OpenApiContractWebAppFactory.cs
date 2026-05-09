@@ -11,11 +11,20 @@ namespace ArchLucid.Api.Tests;
 ///     (Scalar + <c>/swagger/v1/swagger.json</c> + Microsoft OpenAPI; generation uses <c>CustomSchemaIds</c> and optional
 ///     auth security filters).
 /// </summary>
+/// <remarks>
+///     Matches <see cref="ArchLucidApiFactory" /> knobs that gate readiness under CI/agent env leakage:
+///     <see cref="ArchLucid.Core.Integration.IntegrationEventsOptions" /> clears so
+///     <see cref="ArchLucid.Api.Health.AzureServiceBusNamespaceHealthCheck" /> does not open real Service Bus connections;
+///     leader election disabled so reconciliation timing matches local runs.
+/// </remarks>
 public class OpenApiContractWebAppFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
+
+        builder.UseSetting("DataConsistency:InitialDelaySeconds", "0");
+        builder.UseSetting("HostLeaderElection:Enabled", "false");
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
@@ -24,6 +33,12 @@ public class OpenApiContractWebAppFactory : WebApplicationFactory<Program>
                 {
                     ["ArchLucid:StorageProvider"] = "InMemory",
                     ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
+                    ["DataConsistency:InitialDelaySeconds"] = "0",
+                    ["HostLeaderElection:Enabled"] = "false",
+                    ["IntegrationEvents:QueueOrTopicName"] = "",
+                    ["IntegrationEvents:ServiceBusConnectionString"] = "",
+                    ["IntegrationEvents:ServiceBusFullyQualifiedNamespace"] = "",
+                    ["IntegrationEvents:ServiceBusManagedIdentityClientId"] = "",
                     ["AgentExecution:Mode"] = "Simulator",
                     ["AzureOpenAI:Endpoint"] = "",
                     ["AzureOpenAI:ApiKey"] = "",
@@ -37,8 +52,7 @@ public class OpenApiContractWebAppFactory : WebApplicationFactory<Program>
                     ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                     ["RateLimiting:Registration:PermitLimit"] = "100000",
                     ["RateLimiting:Registration:WindowMinutes"] = "1",
-                    ["Billing:Provider"] = "Noop",
-                    ["DataConsistency:InitialDelaySeconds"] = "0"
+                    ["Billing:Provider"] = "Noop"
                 });
         });
     }

@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Workflow;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IRecommendationRepository" />
 public sealed class InMemoryRecommendationRepository : IRecommendationRepository
