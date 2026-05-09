@@ -10,20 +10,29 @@ namespace ArchLucid.Retrieval.Embedding;
 ///     Decorator for <see cref="IOpenAiEmbeddingClient" /> that applies a <see cref="CircuitBreakerGate" /> around
 ///     embedding calls.
 /// </summary>
-public sealed class CircuitBreakingOpenAiEmbeddingClient(
-    IOpenAiEmbeddingClient inner,
-    CircuitBreakerGate gate,
-    ResiliencePipeline llmRetryPipeline,
-    ILogger<CircuitBreakingOpenAiEmbeddingClient> logger) : IOpenAiEmbeddingClient
+public sealed class CircuitBreakingOpenAiEmbeddingClient : IOpenAiEmbeddingClient
 {
-    private readonly CircuitBreakerGate _gate = gate ?? throw new ArgumentNullException(nameof(gate));
-    private readonly IOpenAiEmbeddingClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+    private readonly CircuitBreakerGate _gate;
+    private readonly IOpenAiEmbeddingClient _inner;
+    private readonly ResiliencePipeline _llmRetryPipeline;
+    private readonly ILogger<CircuitBreakingOpenAiEmbeddingClient> _logger;
 
-    private readonly ResiliencePipeline _llmRetryPipeline =
-        llmRetryPipeline ?? throw new ArgumentNullException(nameof(llmRetryPipeline));
+    public CircuitBreakingOpenAiEmbeddingClient(
+        IOpenAiEmbeddingClient inner,
+        CircuitBreakerGate gate,
+        ResiliencePipeline llmRetryPipeline,
+        ILogger<CircuitBreakingOpenAiEmbeddingClient> logger)
+    {
+        ArgumentNullException.ThrowIfNull(inner);
+        ArgumentNullException.ThrowIfNull(gate);
+        ArgumentNullException.ThrowIfNull(llmRetryPipeline);
+        ArgumentNullException.ThrowIfNull(logger);
 
-    private readonly ILogger<CircuitBreakingOpenAiEmbeddingClient> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+        _inner = inner;
+        _gate = gate;
+        _llmRetryPipeline = llmRetryPipeline;
+        _logger = logger;
+    }
 
     /// <inheritdoc />
     public async Task<float[]> EmbedAsync(string text, CancellationToken ct)

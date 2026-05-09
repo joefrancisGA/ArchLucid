@@ -129,7 +129,7 @@ export default async function RunsPage({
     )?.runId ?? null;
 
   return (
-    <main aria-label="Architecture reviews">
+    <div>
       <OperatorPageHeader title="Architecture reviews" metadata={<span>{projectTitle}</span>} />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to inspect its manifest, artifacts,
@@ -231,6 +231,6 @@ export default async function RunsPage({
           nextCursor={nextCursorForClient}
         />
       ) : null}
-    </main>
+    </div>
   );
 }

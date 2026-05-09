@@ -17,67 +17,87 @@ namespace ArchLucid.AgentRuntime;
 ///     Scoped decorator: enforces per-tenant token quota, records OTel counters (and optional per-tenant series),
 ///     and forwards to the inner client (typically <see cref="AzureOpenAiCompletionClient" />).
 /// </summary>
-public sealed class LlmCompletionAccountingClient(
-    IAgentCompletionClient inner,
-    LlmTokenQuotaWindowTracker quotaTracker,
-    IScopeContextProvider scopeProvider,
-    IOptionsMonitor<LlmTokenQuotaOptions> quotaOptions,
-    IOptionsMonitor<LlmTelemetryOptions> telemetryOptions,
-    IOptionsMonitor<LlmTelemetryLabelOptions> labelOptions,
-    IOptionsMonitor<LlmPromptRedactionOptions> redactionOptions,
-    IPromptRedactor promptRedactor,
-    IUsageMeteringService usageMetering,
-    IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyTenantBudgetOptions,
-    LlmDailyTenantBudgetTracker dailyTenantBudgetTracker,
-    IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarBudgetOptions,
-    LlmMonthlyTenantDollarBudgetTracker monthlyDollarBudgetTracker,
-    IAuditService auditService,
-    ILogger<LlmCompletionAccountingClient> logger)
-    : IAgentCompletionClient
+public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
 {
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IAuditService _auditService;
 
-    private readonly IOptionsMonitor<LlmDailyTenantTokenWindowOptions> _dailyTenantBudgetOptions =
-        dailyTenantBudgetOptions ?? throw new ArgumentNullException(nameof(dailyTenantBudgetOptions));
+    private readonly IOptionsMonitor<LlmDailyTenantTokenWindowOptions> _dailyTenantBudgetOptions;
 
-    private readonly LlmDailyTenantBudgetTracker _dailyTenantBudgetTracker =
-        dailyTenantBudgetTracker ?? throw new ArgumentNullException(nameof(dailyTenantBudgetTracker));
+    private readonly LlmDailyTenantBudgetTracker _dailyTenantBudgetTracker;
 
-    private readonly IAgentCompletionClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+    private readonly IAgentCompletionClient _inner;
 
-    private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions =
-        labelOptions ?? throw new ArgumentNullException(nameof(labelOptions));
+    private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions;
 
-    private readonly ILogger<LlmCompletionAccountingClient> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly ILogger<LlmCompletionAccountingClient> _logger;
 
-    private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _monthlyDollarBudgetOptions =
-        monthlyDollarBudgetOptions ?? throw new ArgumentNullException(nameof(monthlyDollarBudgetOptions));
+    private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _monthlyDollarBudgetOptions;
 
-    private readonly LlmMonthlyTenantDollarBudgetTracker _monthlyDollarBudgetTracker =
-        monthlyDollarBudgetTracker ?? throw new ArgumentNullException(nameof(monthlyDollarBudgetTracker));
+    private readonly LlmMonthlyTenantDollarBudgetTracker _monthlyDollarBudgetTracker;
 
-    private readonly IPromptRedactor _promptRedactor =
-        promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
+    private readonly IPromptRedactor _promptRedactor;
 
-    private readonly IOptionsMonitor<LlmTokenQuotaOptions> _quotaOptions =
-        quotaOptions ?? throw new ArgumentNullException(nameof(quotaOptions));
+    private readonly IOptionsMonitor<LlmTokenQuotaOptions> _quotaOptions;
 
-    private readonly LlmTokenQuotaWindowTracker _quotaTracker =
-        quotaTracker ?? throw new ArgumentNullException(nameof(quotaTracker));
+    private readonly LlmTokenQuotaWindowTracker _quotaTracker;
 
-    private readonly IOptionsMonitor<LlmPromptRedactionOptions> _redactionOptions =
-        redactionOptions ?? throw new ArgumentNullException(nameof(redactionOptions));
+    private readonly IOptionsMonitor<LlmPromptRedactionOptions> _redactionOptions;
 
-    private readonly IScopeContextProvider _scopeProvider =
-        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+    private readonly IScopeContextProvider _scopeProvider;
 
-    private readonly IOptionsMonitor<LlmTelemetryOptions> _telemetryOptions =
-        telemetryOptions ?? throw new ArgumentNullException(nameof(telemetryOptions));
+    private readonly IOptionsMonitor<LlmTelemetryOptions> _telemetryOptions;
 
-    private readonly IUsageMeteringService _usageMetering =
-        usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
+    private readonly IUsageMeteringService _usageMetering;
+
+    public LlmCompletionAccountingClient(
+        IAgentCompletionClient inner,
+        LlmTokenQuotaWindowTracker quotaTracker,
+        IScopeContextProvider scopeProvider,
+        IOptionsMonitor<LlmTokenQuotaOptions> quotaOptions,
+        IOptionsMonitor<LlmTelemetryOptions> telemetryOptions,
+        IOptionsMonitor<LlmTelemetryLabelOptions> labelOptions,
+        IOptionsMonitor<LlmPromptRedactionOptions> redactionOptions,
+        IPromptRedactor promptRedactor,
+        IUsageMeteringService usageMetering,
+        IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyTenantBudgetOptions,
+        LlmDailyTenantBudgetTracker dailyTenantBudgetTracker,
+        IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarBudgetOptions,
+        LlmMonthlyTenantDollarBudgetTracker monthlyDollarBudgetTracker,
+        IAuditService auditService,
+        ILogger<LlmCompletionAccountingClient> logger)
+    {
+        ArgumentNullException.ThrowIfNull(inner);
+        ArgumentNullException.ThrowIfNull(quotaTracker);
+        ArgumentNullException.ThrowIfNull(scopeProvider);
+        ArgumentNullException.ThrowIfNull(quotaOptions);
+        ArgumentNullException.ThrowIfNull(telemetryOptions);
+        ArgumentNullException.ThrowIfNull(labelOptions);
+        ArgumentNullException.ThrowIfNull(redactionOptions);
+        ArgumentNullException.ThrowIfNull(promptRedactor);
+        ArgumentNullException.ThrowIfNull(usageMetering);
+        ArgumentNullException.ThrowIfNull(dailyTenantBudgetOptions);
+        ArgumentNullException.ThrowIfNull(dailyTenantBudgetTracker);
+        ArgumentNullException.ThrowIfNull(monthlyDollarBudgetOptions);
+        ArgumentNullException.ThrowIfNull(monthlyDollarBudgetTracker);
+        ArgumentNullException.ThrowIfNull(auditService);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        _inner = inner;
+        _quotaTracker = quotaTracker;
+        _scopeProvider = scopeProvider;
+        _quotaOptions = quotaOptions;
+        _telemetryOptions = telemetryOptions;
+        _labelOptions = labelOptions;
+        _redactionOptions = redactionOptions;
+        _promptRedactor = promptRedactor;
+        _usageMetering = usageMetering;
+        _dailyTenantBudgetOptions = dailyTenantBudgetOptions;
+        _dailyTenantBudgetTracker = dailyTenantBudgetTracker;
+        _monthlyDollarBudgetOptions = monthlyDollarBudgetOptions;
+        _monthlyDollarBudgetTracker = monthlyDollarBudgetTracker;
+        _auditService = auditService;
+        _logger = logger;
+    }
 
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor => _inner.Descriptor;

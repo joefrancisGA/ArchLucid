@@ -2,8 +2,8 @@ import { RunsListSkeleton } from "@/components/skeletons/RunsListSkeleton";
 
 export default function RunsLoading() {
   return (
-    <main>
+    <div>
       <RunsListSkeleton />
-    </main>
+    </div>
   );
 }
