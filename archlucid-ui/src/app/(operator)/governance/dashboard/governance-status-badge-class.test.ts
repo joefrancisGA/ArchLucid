@@ -6,7 +6,7 @@ import { governanceStatusBadgeClass } from "./governance-status-badge-class";
 describe("governanceStatusBadgeClass", () => {
   it("maps known statuses to colored badge classes", () => {
     expect(governanceStatusBadgeClass("Submitted")).toContain("bg-blue-600");
-    expect(governanceStatusBadgeClass("Approved")).toContain("bg-emerald-700");
+    expect(governanceStatusBadgeClass("Approved")).toContain("bg-emerald-800");
     expect(governanceStatusBadgeClass("Rejected")).toContain("bg-red-600");
     expect(governanceStatusBadgeClass("Promoted")).toContain("bg-violet-600");
     expect(governanceStatusBadgeClass("Activated")).toContain("bg-teal-700");

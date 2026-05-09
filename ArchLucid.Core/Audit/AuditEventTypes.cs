@@ -471,6 +471,15 @@ public static class AuditEventTypes
     /// <summary>Inbound ServiceNow webhook mapped an incident state to finding <c>HumanReviewStatus</c>.</summary>
     public const string IntegrationServiceNowIncidentStatusSynced = "Integration.ServiceNowIncidentStatusSynced";
 
+    /// <summary>Inbound Jira webhook rejected — invalid payload, unknown status, missing finding, or other validation guard.</summary>
+    public const string IntegrationJiraInboundWebhookRejected = "Integration.JiraInboundWebhookRejected";
+
+    /// <summary>Inbound ServiceNow webhook rejected — invalid payload, unknown status, missing finding, or other validation guard.</summary>
+    public const string IntegrationServiceNowInboundWebhookRejected = "Integration.ServiceNowInboundWebhookRejected";
+
+    /// <summary>Inbound ITSM webhook body exceeded the configured UTF-8 size limit (vendor-agnostic).</summary>
+    public const string IntegrationItsmInboundWebhookPayloadRejected = "Integration.ItsmInboundWebhookPayloadRejected";
+
     /// <summary>Operator registered a finding ↔ ITSM external key correlation for inbound webhooks.</summary>
     public const string IntegrationItsmFindingCorrelationRegistered = "Integration.ItsmFindingCorrelationRegistered";
 
