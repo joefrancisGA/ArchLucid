@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
+import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -284,10 +285,10 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             Create a request
           </Link>{" "}
           to add a review, open an existing conversation from the left, or{" "}
-          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/showcase/claims-intake-modernization">
-            browse the Claims Intake sample scenario
+          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={getShowcaseManifestHref()}>
+            open the Claims Intake manifest summary
           </Link>{" "}
-          (read-only).
+          (read-only sample).
         </p>
       </div>
     );

@@ -26,6 +26,7 @@ import {
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER } from "@/lib/operator-co-architect-copy";
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
+import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
@@ -477,9 +478,15 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
             </Link>
             <Link
               className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
-              href="/showcase/claims-intake-modernization"
+              href={getShowcaseManifestHref()}
             >
-              Showcase
+              Manifest summary
+            </Link>
+            <Link
+              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              href={getShowcaseWalkthroughHref()}
+            >
+              Walkthrough
             </Link>
             <Link
               className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
@@ -499,22 +506,29 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 Explore completed output
               </h2>
               <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                Claims Intake is the guided story — review detail, manifest, and showcase are the proof path. The checklist
-                below is optional.
+                Claims Intake is the sample package — start with the manifest summary, then review detail or the read-only
+                walkthrough. The checklist below is optional.
               </p>
               <p className="m-0 mt-2 text-xs font-medium text-neutral-700 dark:text-neutral-300">
                 <Link
                   className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                  href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+                  href={getShowcaseManifestHref()}
                 >
-                  Open the completed Claims Intake review
+                  View manifest summary
                 </Link>{" "}
                 ·{" "}
                 <Link
                   className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                  href="/showcase/claims-intake-modernization"
+                  href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
                 >
-                  Public showcase
+                  Open review detail
+                </Link>{" "}
+                ·{" "}
+                <Link
+                  className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                  href={getShowcaseWalkthroughHref()}
+                >
+                  Read-only walkthrough
                 </Link>
               </p>
             </>

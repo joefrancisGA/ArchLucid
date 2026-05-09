@@ -94,4 +94,22 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     expect(screen.getByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING })).toBeInTheDocument();
     expect(localStorage.getItem("archlucid_operator_workflow_guide_v1")).toBeNull();
   });
+
+  it("exploreCompletedOutput lists manifest link before review detail and walkthrough", async () => {
+    render(<OperatorFirstRunWorkflowPanel exploreCompletedOutput />);
+
+    expect(await screen.findByRole("heading", { name: "Explore completed output" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
+      "href",
+      "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+    );
+    expect(screen.getByRole("link", { name: "Open review detail" })).toHaveAttribute(
+      "href",
+      "/reviews/claims-intake-modernization",
+    );
+    expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
+      "href",
+      "/showcase/claims-intake-modernization",
+    );
+  });
 });
