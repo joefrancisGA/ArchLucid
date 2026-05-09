@@ -21,7 +21,7 @@ export function OperatorDemoStaticBanner(): ReactElement {
       {" — "}
       {demoMode
         ? "Curated scenario aligned with the public completed example; connect a workspace for live data."
-        : "The live API was unavailable for this view; showing curated demo data aligned with the Completed example showcase."}
+        : "You are viewing a curated sample review aligned with the completed example showcase — connect a workspace for live data."}
     </div>
   );
 }
