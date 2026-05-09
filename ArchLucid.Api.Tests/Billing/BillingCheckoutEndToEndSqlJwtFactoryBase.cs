@@ -37,8 +37,17 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
     {
         base.ConfigureWebHost(builder);
 
-        builder.ConfigureAppConfiguration(
-            (_, config) => config.AddInMemoryCollection(BuildJwtAndBillingConfigurationOverrides()));
+        Dictionary<string, string?> overrides = BuildJwtAndBillingConfigurationOverrides();
+
+        foreach (KeyValuePair<string, string?> pair in overrides)
+        {
+            if (pair.Value is null)
+                continue;
+
+            builder.UseSetting(pair.Key, pair.Value);
+        }
+
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(overrides));
 
         builder.ConfigureTestServices(ConfigureEndToEndServices);
     }
