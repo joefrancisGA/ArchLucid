@@ -6,7 +6,6 @@ using ArchLucid.ArtifactSynthesis.Repositories;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Repositories;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
-using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Billing;
@@ -155,9 +154,6 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IIntegrationEventOutboxRepository, InMemoryIntegrationEventOutboxRepository>();
         services.AddSingleton<IProductLearningPilotSignalRepository, InMemoryProductLearningPilotSignalRepository>();
         services.AddSingleton<IProductLearningPlanningRepository, InMemoryProductLearningPlanningRepository>();
-        services.AddSingleton<IImprovementThemeExtractionService, ImprovementThemeExtractionService>();
-        services.AddSingleton<IImprovementPlanningService, ImprovementPlanningService>();
-        services.AddSingleton<IImprovementPlanPrioritizationService, ImprovementPlanPrioritizationService>();
         services.AddSingleton<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
         services.AddSingleton<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
         services.AddSingleton<IProductLearningDashboardService, ProductLearningDashboardService>();

@@ -57,7 +57,7 @@ The health scoring worker currently computes engagement from recent run count an
 - `docs/go-to-market/CUSTOMER_HEALTH_SCORING.md` defines useful health dimensions: engagement, breadth, quality, governance adoption, and support.
 - `ArchLucid.Persistence.CustomerSuccess.SqlTenantCustomerSuccessRepository` computes engagement from `Runs` in the last seven days and assigns neutral `3.0` scores for other dimensions.
 - `docs/library/PRODUCT_LEARNING.md` states pilot feedback rows exist and dashboards/exports exist, but first-party HTTP POST is not the main shipped pilot path.
-- `ProductLearningImprovementOpportunityService` and `ImprovementPlanningService` show ranking and planning logic, but they rely on signals existing.
+- `ProductLearningImprovementOpportunityService` shows deterministic opportunity ranking based on aggregated signals (persisted themes/plans are separate).
 
 **Tradeoffs:**
 

@@ -73,8 +73,10 @@ public static class ScimPatchValuePathParser
         if (path.IndexOf('[', open + 1) >= 0)
             return new ScimPatchPathNotImplementedOutcome("Nested bracket paths are not implemented.");
         ReadOnlySpan<char> attrPath = path.AsSpan(0, open).TrimEnd();
+
         if (attrPath.Length is 0)
             throw new ScimPatchException("invalidPath", "Missing attribute path before '['.");
+
         if (requireMembersAttribute && !attrPath.Equals("members".AsSpan(), StringComparison.OrdinalIgnoreCase))
         {
             return new ScimPatchPathNotImplementedOutcome(
@@ -84,36 +86,37 @@ public static class ScimPatchValuePathParser
         if (!requireMembersAttribute && !attrPath.Equals("members".AsSpan(), StringComparison.OrdinalIgnoreCase))
         {
             ReadOnlySpan<char> filterProbe = path.AsSpan(open + 1, close - open - 1).Trim();
+
             if (LooksLikeRichScimFilter(filterProbe))
                 return new ScimPatchPathNotImplementedOutcome($"Complex selectors on '{attrPath.ToString()}' are not implemented.");
-            if (TryParseValueEqFilter(filterProbe, out _))
-                return new ScimPatchPathNotImplementedOutcome($"Complex selectors on '{attrPath.ToString()}' are not implemented.");
-            throw new ScimPatchException("invalidPath", "Complex path does not match supported attribute[value eq \"…\"] grammar.");
+
+            return TryParseValueEqFilter(filterProbe, out _) ? new ScimPatchPathNotImplementedOutcome($"Complex selectors on '{attrPath.ToString()}' are not implemented.") : throw new ScimPatchException("invalidPath", "Complex path does not match supported attribute[value eq \"…\"] grammar.");
         }
 
         ReadOnlySpan<char> filter = path.AsSpan(open + 1, close - open - 1).Trim();
         ReadOnlySpan<char> tail = path.AsSpan(close + 1).Trim();
         string? subAttr = null;
+
         if (tail.Length > 0)
         {
             if (!tail.StartsWith(".", StringComparison.Ordinal))
                 throw new ScimPatchException("invalidPath", "Unexpected characters after ']' — expected '.' sub-attribute or nothing.");
+
             ReadOnlySpan<char> rest = tail[1..].Trim();
+
             if (rest.Length is 0 || rest.IndexOfAny(['.', '[']) >= 0)
                 throw new ScimPatchException("invalidPath", "Invalid sub-attribute after '.'.");
+
             subAttr = rest.ToString();
         }
 
         if (subAttr is not null && !subAttr.Equals("active", StringComparison.OrdinalIgnoreCase))
-        {
             return new ScimPatchPathNotImplementedOutcome($"Sub-attribute '{subAttr}' on group members is not implemented (only '.active').");
-        }
 
         if (TryParseValueEqFilter(filter, out Guid memberId))
             return new ScimPatchMembersFilteredPathOutcome(memberId, subAttr);
-        if (LooksLikeRichScimFilter(filter))
-            return new ScimPatchPathNotImplementedOutcome("Only 'value eq \"…\"' member filters are implemented.");
-        throw new ScimPatchException("invalidPath", "Member filter must be 'value eq \"<guid>\"' (RFC 7644 subset).");
+
+        return LooksLikeRichScimFilter(filter) ? new ScimPatchPathNotImplementedOutcome("Only 'value eq \"…\"' member filters are implemented.") : throw new ScimPatchException("invalidPath", "Member filter must be 'value eq \"<guid>\"' (RFC 7644 subset).");
     }
 
     internal static bool TryParseValueEqFilter(ReadOnlySpan<char> filterTrimmed, out Guid memberId)

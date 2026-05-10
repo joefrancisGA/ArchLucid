@@ -14,19 +14,20 @@ Split **service interfaces** out of `ArchLucid.Contracts` into `ArchLucid.Contra
 - `ArchLucid.Contracts.Abstractions` → references → `ArchLucid.Contracts`
 - `ArchLucid.Contracts` does **not** reference `ArchLucid.Contracts.Abstractions`
 
-## Inventory (Step 0)
+## Abstractions snapshot (maintained)
 
-All `public interface` declarations in `ArchLucid.Contracts` were found (7 types). None were single-consumer-only; each is used by at least two of: `ArchLucid.Persistence`, `ArchLucid.Application`, `ArchLucid.Api`, `ArchLucid.Host.Composition`.
+`ArchLucid.Contracts.Abstractions` currently exposes these **cross-cutting port interfaces** (plus small integration DTOs next to Azure DevOps):
 
-| Interface | Destination |
-|-----------|-------------|
-| `IImprovementThemeExtractionService` | `ArchLucid.Contracts.Abstractions` |
-| `IImprovementPlanPrioritizationService` | `ArchLucid.Contracts.Abstractions` |
-| `IImprovementPlanningService` | `ArchLucid.Contracts.Abstractions` |
-| `IProductLearningImprovementOpportunityService` | `ArchLucid.Contracts.Abstractions` |
-| `IProductLearningFeedbackAggregationService` | `ArchLucid.Contracts.Abstractions` |
-| `IProductLearningDashboardService` | `ArchLucid.Contracts.Abstractions` |
-| `ISimulationEngine` | `ArchLucid.Contracts.Abstractions` |
+| Interface | Folder |
+|-----------|--------|
+| `IAgentExecutor` | `Abstractions/Agents/` |
+| `IAgentHandler` | `Abstractions/Agents/` |
+| `IAzureDevOpsPullRequestDecorator` | `Abstractions/Integrations/` |
+| `IProductLearningImprovementOpportunityService` | `Abstractions/ProductLearning/` |
+| `IProductLearningFeedbackAggregationService` | `Abstractions/ProductLearning/` |
+| `IProductLearningDashboardService` | `Abstractions/ProductLearning/` |
+
+Historical note: extraction/planning/prioritization services for product-learning (**`IImprovementThemeExtractionService`**, **`IImprovementPlanningService`**, **`IImprovementPlanPrioritizationService`**) and evolution read-only **`ISimulationEngine`** were removed along with unused implementations.
 
 ## Namespace strategy
 
@@ -38,8 +39,6 @@ Because `ArchLucid.Contracts` cannot reference abstractions, `see cref` to moved
 
 - `ProductLearningTriageOptions.cs`
 - `ProductLearningAggregationSnapshot.cs`
-- `ProductLearning/Planning/ImprovementPlan.cs`
-- `Evolution/SimulationRequest.cs`
 
 ## Project references added
 
@@ -60,5 +59,5 @@ Other projects keep only `ArchLucid.Contracts` if they use DTOs alone (or receiv
 
 ## Surprises / deviations
 
-- `ArchLucid.Contracts` previously contained **only** these eight public interfaces; there were no marker interfaces or other `public interface` types left behind.
+- `ArchLucid.Contracts` hosts many **additional** domain port interfaces directly under namespaces like `ArchLucid.Contracts.Agents` (not duplicated under `Abstractions`).
 - `InternalsVisibleTo` was not present on `ArchLucid.Contracts.csproj`; none was added to Abstractions (no internal test surface for these interfaces).

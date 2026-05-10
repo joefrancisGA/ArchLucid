@@ -35,7 +35,7 @@ Split `ArchLucid.Persistence` (formerly 234 .cs files) into two focused projects
 ┌────────────────┐  ┌────────────────────────────┐
 │ArchLucid.      │  │ArchLucid.                  │
 │Persistence     │◄─│ Persistence.Coordination   │
-│(164 files)     │  │ (67 files)                 │
+│(164 files)     │  │ (61 files)                 │
 │                │  │                            │
 │ Pure data      │  │ Service coordination:      │
 │ access:        │  │ Compare, Replay, Evolution,│
@@ -86,14 +86,14 @@ Split `ArchLucid.Persistence` (formerly 234 .cs files) into two focused projects
 | `Queries/` | 11 | Dapper/InMemory query services, DTOs, mappers |
 | Other | ~15 | Models, Interfaces, Sql schema, Options, RelationalRead |
 
-### ArchLucid.Persistence.Coordination (67 files) — services and coordination
+### ArchLucid.Persistence.Coordination (61 files) — services and coordination
 
 | Folder | Files | Purpose |
 |--------|-------|---------|
 | `Compare/` | 6 | AuthorityCompareService, run/manifest comparison results, diff types |
 | `Replay/` | 6 | AuthorityReplayService, replay request/result/mode/validation |
 | `Evolution/` | 6 | Evolution repositories (Dapper + InMemory) |
-| `ProductLearning/` | 29 | Dashboard, feedback aggregation, improvement opportunities, triage reports, pilot signals, planning |
+| `ProductLearning/` | 23 | Dashboard, feedback aggregation, improvement opportunities, triage reports, pilot signals, persisted planning repos and reports |
 | `Retrieval/` | 6 | RetrievalIndexingOutboxProcessor, outbox repo interfaces/impls |
 | `Backfill/` | 8 | SqlRelationalBackfillService, CutoverReadinessService, interfaces/models |
 | `Compliance/` | 1 | PolicyFilteredComplianceRulePackProvider |

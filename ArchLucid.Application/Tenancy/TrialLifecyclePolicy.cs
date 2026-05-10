@@ -20,26 +20,19 @@ public static class TrialLifecyclePolicy
         DateTimeOffset readOnlyNotBefore = anchor.AddDays(options.ReadOnlyAfterExpireDays);
         DateTimeOffset exportOnlyNotBefore = readOnlyNotBefore.AddDays(options.ExportOnlyAfterReadOnlyDays);
         DateTimeOffset purgeNotBefore = exportOnlyNotBefore.AddDays(options.PurgeAfterExportOnlyDays);
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
 
-        {
+        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
             return utcNow < anchor ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.Active, TrialLifecycleStatus.Expired, "trial_active_window_ended");
-        }
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Expired, StringComparison.Ordinal))
-        {
-            if (utcNow < readOnlyNotBefore)
-                return null;
-            return new TrialLifecycleAdvancement(TrialLifecycleStatus.Expired, TrialLifecycleStatus.ReadOnly, "trial_read_only_phase");
-        }
+            return utcNow < readOnlyNotBefore ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.Expired, TrialLifecycleStatus.ReadOnly, "trial_read_only_phase");
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal))
-        {
             return utcNow < exportOnlyNotBefore ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.ReadOnly, TrialLifecycleStatus.ExportOnly, "trial_export_only_phase");
-        }
 
         if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal))
             return null;
+
         return utcNow < purgeNotBefore ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.ExportOnly, TrialLifecycleStatus.Deleted, "trial_dpa_hard_purge");
     }
 

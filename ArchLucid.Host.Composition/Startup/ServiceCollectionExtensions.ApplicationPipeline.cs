@@ -36,7 +36,6 @@ using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Services;
 using ArchLucid.ContextIngestion.Summaries;
-using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
@@ -84,7 +83,6 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRunExportAuditService, RunExportAuditService>();
         services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
         services.AddScoped<IArchitectureAnalysisService, ArchitectureAnalysisService>();
-        services.AddScoped<ISimulationEngine, SimulationEngine>();
         services.AddScoped<IShadowExecutionService, ShadowExecutionService>();
         services.AddScoped<ISimulationEvaluationService, SimulationEvaluationService>();
         services.AddScoped<IArchitectureAnalysisExportService, MarkdownArchitectureAnalysisExportService>();
