@@ -354,36 +354,42 @@ public sealed class TenantIsolationSmokeTests
         object body)
     {
         string idempotencyKey = "tenant-iso-smoke-" + Guid.NewGuid().ToString("N");
-        const int maxAttempts = 120;
         int delayMs = 250;
 
-        // Total time budget prevents the retry loop from burning CI minutes when SQL is persistently unhealthy.
-        // Cold shared CI SQL + DbUp can produce many fast 503s; keep alignment with list/health warmup durations.
-        using CancellationTokenSource totalBudget = new(TimeSpan.FromMinutes(12));
+        // Time-bounded retries only: a fixed max-attempt loop can exhaust (~9 minutes of backoff with cap 4000ms)
+        // before the CTS below, wasting minutes of unused budget and flaking CI when DbUp/create-run settles late.
+        // Cold shared CI SQL + DbUp can produce many fast 503s until the authority write path is warm.
+        using CancellationTokenSource totalBudget = new(TimeSpan.FromMinutes(15));
 
-        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        try
         {
-            totalBudget.Token.ThrowIfCancellationRequested();
+            while (true)
+            {
+                CancellationToken ct = totalBudget.Token;
+                ct.ThrowIfCancellationRequested();
 
-            HttpResponseMessage response =
-                await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
-                    client,
-                    body,
-                    idempotencyKey,
-                    totalBudget.Token);
+                HttpResponseMessage response =
+                    await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
+                        client,
+                        body,
+                        idempotencyKey,
+                        ct);
 
-            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
-                return response;
+                if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+                    return response;
 
-            response.Dispose();
-            await Task.Delay(delayMs, totalBudget.Token);
-            delayMs = Math.Min(delayMs * 2, 4000);
+                response.Dispose();
+                await Task.Delay(delayMs, ct);
+                delayMs = Math.Min(delayMs * 2, 4000);
+            }
         }
-
-        throw new InvalidOperationException(
-            "POST /v1/architecture/request stayed 503 (host/SQL not ready). See "
-            + nameof(WarmSqlAuthorityPipelineAsync) + ", "
-            + nameof(WarmListRunsPathAsync) + ", and "
-            + nameof(PostArchitectureRequestWithTransientRetryAsync) + ".");
+        catch (OperationCanceledException) when (totalBudget.IsCancellationRequested)
+        {
+            throw new InvalidOperationException(
+                "POST /v1/architecture/request stayed 503 (host/SQL not ready). See "
+                + nameof(WarmSqlAuthorityPipelineAsync) + ", "
+                + nameof(WarmListRunsPathAsync) + ", and "
+                + nameof(PostArchitectureRequestWithTransientRetryAsync) + ".");
+        }
     }
 }

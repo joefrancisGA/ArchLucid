@@ -13,6 +13,7 @@ export const config = {
   matcher: [
     "/reviews/:path*",
     "/executive/reviews/:path*",
+    "/executive/scorecard",
     "/runs/:path*",
     "/compare",
     "/replay",

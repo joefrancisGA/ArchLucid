@@ -13,6 +13,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/ask": "demo-ready",
   "/search": "demo-ready",
   "/scorecard": "demo-ready",
+  "/executive/scorecard": "demo-ready",
   "/reviews": "demo-ready",
   "/governance/findings": "advanced-only",
   "/workspace/security-trust": "demo-ready",
