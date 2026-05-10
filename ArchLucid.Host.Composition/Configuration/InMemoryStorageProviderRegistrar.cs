@@ -5,7 +5,6 @@ using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Repositories;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Repositories;
-using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 using ArchLucid.Core.AdminNotifications;
@@ -124,6 +123,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
         services.AddSingleton<IAuditRepository, InMemoryAuditRepository>();
         services.AddSingleton<IPilotScorecardMetricsReader, NullPilotScorecardMetricsReader>();
+        services.AddSingleton<IPilotReportCardMetricsReader, NullPilotReportCardMetricsReader>();
         services.AddSingleton<IPilotBaselineRepository, InMemoryPilotBaselineRepository>();
         services.AddSingleton<IPilotCloseoutRepository, InMemoryPilotCloseoutRepository>();
         services.AddSingleton<IValueReportMetricsReader, InMemoryValueReportMetricsReader>();
@@ -157,7 +157,6 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IProductLearningPlanningRepository, InMemoryProductLearningPlanningRepository>();
         services.AddSingleton<IImprovementThemeExtractionService, ImprovementThemeExtractionService>();
         services.AddSingleton<IImprovementPlanningService, ImprovementPlanningService>();
-        services.AddSingleton<ICandidateChangeSetService, CandidateChangeSetService>();
         services.AddSingleton<IImprovementPlanPrioritizationService, ImprovementPlanPrioritizationService>();
         services.AddSingleton<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
         services.AddSingleton<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();

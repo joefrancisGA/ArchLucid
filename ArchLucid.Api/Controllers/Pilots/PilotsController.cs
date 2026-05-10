@@ -40,6 +40,7 @@ public sealed class PilotsController(
     PilotScorecardBuilder pilotScorecardBuilder,
     IPilotInProductScorecardService pilotInProductScorecardService,
     PilotOutcomeSummaryService pilotOutcomeSummaryService,
+    IPilotReportCardService pilotReportCardService,
     SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
     IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
     ISponsorEvidencePackService sponsorEvidencePackService,
@@ -154,6 +155,23 @@ public sealed class PilotsController(
         };
 
         return Ok(response);
+    }
+
+    /// <summary>
+    ///     JSON pilot report card: committed-run KPIs plus governance, export audits, synthesized artifact breadth for the
+    ///     authenticated workspace scope.
+    /// </summary>
+    [HttpGet("report-card")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(PilotReportCard), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PilotReportCard>> GetReportCard(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        PilotReportCard report =
+            await pilotReportCardService.GenerateReportCardAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                cancellationToken);
+
+        return Ok(report);
     }
 
     /// <summary>

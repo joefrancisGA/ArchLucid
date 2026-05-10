@@ -151,7 +151,7 @@ Ordered from most urgent (highest weighted deficiency) to least urgent.
 
 **Tradeoffs:** The depth that creates friction is also the depth that creates value for enterprise buyers. Reducing surface area would reduce differentiation.
 
-**Recommendations:** (1) Finish Phase **7** naming cleanup — brownfield Terraform **`state mv`** / verification is **in Improvement 7** (**owner-approved 2026-05-09**); continue doc/config key alignment per **`BREAKING_CHANGES`** as needed. (2) Create a minimal "Pilot-only" appsettings template that hides Operate surfaces. (3) **Done (2026-05-09):** interactive Core Pilot checklist on operator home — **Improvement 6** (`CorePilotChecklist`, localStorage + doc/deep links). Timeline: v1 for item **2**; v1.1 for broader residue beyond Improvement **7**.
+**Recommendations:** (1) Continue Phase **7** naming cleanup for **docs/config** per **`BREAKING_CHANGES`** as needed — **Improvement 7** (Phase **7.5** Terraform state) is **closed (2026-05-09)**; see that improvement’s **Closure** note. (2) Create a minimal "Pilot-only" appsettings template that hides Operate surfaces. (3) **Done (2026-05-09):** interactive Core Pilot checklist on operator home — **Improvement 6** (`CorePilotChecklist`, localStorage + doc/deep links). Timeline: v1 for item **2**; v1.1 for broader Phase **7** residue in docs/config.
 
 ---
 
@@ -431,7 +431,7 @@ Ordered from most urgent (highest weighted deficiency) to least urgent.
 
 10. **ROI model is theoretical.** Break-even calculations exist but no actual pilot has produced measured time savings or cost reduction data.
 
-11. **Phase 7 legacy naming creates confusion.** Residual tokens mainly surface for **brownfield Terraform remote state** and stray docs/config references — SQL RLS rename shipped via DbUp. **Mitigation:** owner approved completing Phase **7.5** **`state mv`** / verification **with the current improvement batch (2026-05-09)** per [`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`](docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md).
+11. **Phase 7 legacy naming creates confusion.** **Terraform — closed (2026-05-09):** **`infra/**/*.tf`** is Phase **7.5** clean (no `archiforge`); actively-applied workspaces are **greenfield** for this assessment (**`state mv`** **N/A**). **Residual:** stray **docs/config** references per **`BREAKING_CHANGES`** — SQL RLS rename shipped via DbUp. **Reference:** Improvement **7** **Closure**; brownfield procedures remain in [`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`](docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md) if remote state is ever introduced that predates the rename.
 
 12. **Architecture fitness functions are not yet automated.** The invariant catalog (INV-001 through INV-015) documents the right intent, but absence of Roslyn analyzers and architecture tests means violations accumulate silently until code review catches them.
 
@@ -700,19 +700,21 @@ Constraints:
 
 ---
 
-### Improvement 7: Complete Phase 7.5 Terraform State Naming Cleanup
+### Improvement 7: Complete Phase 7.5 Terraform State Naming Cleanup — **closed (2026-05-09)**
 
 **Title:** Complete Phase 7.5 Terraform State Naming Cleanup
 
 **Owner approval (2026-05-09):** **Approved** to execute **with this batch of improvements** — no separate deferral milestone; coordinate **`terraform state mv`** only on stacks where remote state still holds legacy resource addresses (see runbook below). Greenfield **`infra/**/*.tf`** sources are already Phase **7.5** clean on main.
 
-**Why it matters:** Brownfield remote state can lag renamed `.tf` resources; unresolved **`state`** drift blocks confident applies and keeps weakness §3 item **11** open.
+**Why it matters:** Brownfield remote state can lag renamed `.tf` resources; unresolved **`state`** drift blocks confident applies until operators follow the archive **`state mv`** procedures. **Assessment:** weakness §3 item **11** documents Terraform closure and residual doc/config naming.
 
 **Expected impact:** Azure Compatibility / SaaS Deployment Readiness (+2–4 pts), Maintainability (+1–3 pts). Weighted readiness impact: small (+0.1–0.3%) once evidenced.
 
 **Affected qualities:** Azure Compatibility, Maintainability.
 
-**Status:** Actionable now (**this improvement batch**).
+**Status:** **Closed** (2026-05-09).
+
+**Closure:** Main-branch Terraform **sources** are Phase **7.5** clean per [`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`](docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md). Repo check: `rg "archiforge" infra --glob "*.tf"` returns **no matches**. Actively-applied environments for this assessment are **greenfield** with respect to legacy state addresses — no **`terraform state mv`** required. If a **brownfield** backend appears later, use [`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`](docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md) and apply order in [`docs/library/DEPLOYMENT_TERRAFORM.md`](docs/library/DEPLOYMENT_TERRAFORM.md) / [`docs/library/REFERENCE_SAAS_STACK_ORDER.md`](docs/library/REFERENCE_SAAS_STACK_ORDER.md); do not commit state or secrets.
 
 **Cursor prompt:**
 
@@ -748,7 +750,19 @@ Constraints:
 
 **Affected qualities:** AI/Agent Readiness, Correctness, Trustworthiness.
 
-**Status:** Actionable now.
+**Status:** **Completed** (2026-05-09).
+
+**Delivered (repo):**
+
+- `tests/eval-corpus/adversarial/hallucination-detection/` — scenario, recordings, `agent-result.simulator.json`, `expected-outcome.json`.
+- `tests/eval-corpus/adversarial/citation-mismatch/` — same shape.
+- `tests/eval-corpus/adversarial/contradictory-manifest/` — same shape (scenario id `corpus-adv-contradictory-requirements`; RFP serverless vs dedicated VM deadlock).
+- `tests/eval-corpus/adversarial/oversized-context/` — same shape (token budget / truncation signaling).
+- `tests/eval-corpus/manifest.json` — four new scenario paths appended.
+
+**Verification:** `python scripts/ci/eval_agent_corpus.py` exits 0 with full recall on new rows. The script does not define `--dry-run`; well-formedness was validated with the default invocation (same as PR CI posture).
+
+**Acceptance:** Golden baseline list unchanged (`agent-reference-baselines.json`); no eval script or gate-threshold edits.
 
 **Cursor prompt:**
 
@@ -1191,7 +1205,7 @@ Acceptance criteria:
 
 ## 9. Deferred Scope Uncertainty
 
-All deferred items referenced in this assessment (SOC 2 CPA, design partner, commerce un-hold, third-party pen test, MCP, broader Phase 7 rename residue in product docs where applicable, distributed cache, Container Apps Jobs, PGP key) were located in `docs/library/V1_DEFERRED.md` and `docs/library/V1_SCOPE.md` §3 with clear scope pinning and owner decisions. **Hosted product sandbox** is **not** deferred here — it is **explicitly out of scope** (**owner, 2026-05-09**). **Phase 7.5 Terraform state cleanup** for brownfield stacks is **in scope for the owner-approved improvement batch (2026-05-09)** — see Improvement **7**. No deferred scope uncertainty exists — all items have explicit documentation.
+All deferred items referenced in this assessment (SOC 2 CPA, design partner, commerce un-hold, third-party pen test, MCP, broader Phase 7 rename residue in product docs where applicable, distributed cache, Container Apps Jobs, PGP key) were located in `docs/library/V1_DEFERRED.md` and `docs/library/V1_SCOPE.md` §3 with clear scope pinning and owner decisions. **Hosted product sandbox** is **not** deferred here — it is **explicitly out of scope** (**owner, 2026-05-09**). **Phase 7.5 Terraform** — Improvement **7** is **closed (2026-05-09)** with greenfield **`state mv`** **N/A**; archived brownfield procedures remain documented if needed. No deferred scope uncertainty exists — all items have explicit documentation.
 
 ---
 
@@ -1208,9 +1222,9 @@ All deferred items referenced in this assessment (SOC 2 CPA, design partner, com
 ### Improvement 4 (Hosted sandbox — OUT OF SCOPE)
 - **Owner decision (2026-05-09):** Dedicated hosted product sandbox **withdrawn** from this planning pass — no subscription/RG/budget/URL/auto-reset answers required unless scope reopens.
 
-### Improvement 7 (Phase 7.5 Terraform)
-- **Owner go-ahead (answered, 2026-05-09):** Approved **with this batch of improvements** — proceed with brownfield **`terraform state mv`** / verification per [`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`](docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md); no separate deploy-freeze constraint declared.
-- **Operational detail (during execution):** Confirm which **`infra/terraform*`** roots and workspaces are actively applied; greenfield **`.tf`** sources are already Phase **7.5** clean on main.
+### Improvement 7 (Phase 7.5 Terraform) — **CLOSED (2026-05-09)**
+- **Owner go-ahead (answered, 2026-05-09):** Approved **with this batch of improvements**; executed as **closure without brownfield `state mv`** — sources clean, **N/A** for legacy remote-state addresses on stacks in use.
+- **Closure record:** See Improvement **7** body (**Status** + **Closure**); weakness §3 item **11** updated for Terraform; [`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`](docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md) retained for any future brownfield backend.
 
 ### Improvement 11 (Stripe Trial — DEFERRED)
 - **Partner Center seller verification (answered):** **Complete** (**owner confirmation**). Further Marketplace setup (offer, certification, **`Published`**) uses [`docs/go-to-market/MARKETPLACE_PUBLICATION.md`](docs/go-to-market/MARKETPLACE_PUBLICATION.md); publisher placeholders in [`docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md`](docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md).

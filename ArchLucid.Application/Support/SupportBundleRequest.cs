@@ -10,6 +10,4 @@ namespace ArchLucid.Application.Support;
 /// </remarks>
 /// <param name = "RequesterDisplayId">Operator identity (e.g. UPN or email) — written to the manifest.</param>
 /// <param name = "TenantDisplayName">Tenant name (or null when anonymous / cross-tenant operator).</param>
-public sealed record SupportBundleRequest(string? RequesterDisplayId, string? TenantDisplayName)
-{
-}
+public sealed record SupportBundleRequest(string? RequesterDisplayId, string? TenantDisplayName);

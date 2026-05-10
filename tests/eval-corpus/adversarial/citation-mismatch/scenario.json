@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-adv-citation-mismatch",
+  "metadata": {
+    "title": "Adversarial: sourced context contradicts the naive executive summary",
+    "complexity": "medium",
+    "primaryAgents": ["Critic", "Topology", "Compliance"]
+  },
+  "inputSummary": "Section 3 of the architecture packet states plainly: Regional Redis cache stays disabled for the Q3 cost freeze. The executive summary nonetheless claims Redis cache is mandatory for HA—verbatim contradiction that faithfulness checks must surface.",
+  "recording": "adversarial/citation-mismatch/recordings/corpus-adv-citation-mismatch.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Critic",
+    "agentResultPath": "adversarial/citation-mismatch/agent-result.simulator.json",
+    "notes": "Simulator omits grounded refs—offline scorer warns as a stand-in for overlap/faithfulness failures vs sourced context."
+  },
+  "expectedFindings": [
+    {
+      "id": "e contradict redis critic",
+      "category": "Critic",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["contradict", "redis"]
+    },
+    {
+      "id": "e alignment topology",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["alignment", "cache"]
+    },
+    {
+      "id": "e traceability compliance",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["traceability", "source"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Critic",
+      "ifContainsAny": ["ignore cost freeze", "trust summary blindly"]
+    },
+    {
+      "category": "Compliance",
+      "ifContainsAny": ["waive lineage", "skip citation checks"]
+    }
+  ]
+}

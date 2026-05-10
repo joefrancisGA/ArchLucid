@@ -37,7 +37,7 @@ public sealed class SetDiffConnectorDeltaComputer : IConnectorDeltaComputer
         int removed = prevByKey.Keys.Count(k => !currByKey.ContainsKey(k));
 
         IReadOnlyList<string> commonKeys = currByKey.Keys
-            .Where(k => prevByKey.ContainsKey(k))
+            .Where(prevByKey.ContainsKey)
             .ToList();
 
         int modified = commonKeys.Count(k => !ArePropertiesEqual(currByKey[k], prevByKey[k]));
@@ -81,7 +81,11 @@ public sealed class SetDiffConnectorDeltaComputer : IConnectorDeltaComputer
     }
 
     private static ContextDelta BuildInitialDelta(int count)
-        => new() { AddedCount = count, Summary = $"Initial ingestion: {count} item(s)" };
+        => new()
+        {
+            AddedCount = count,
+            Summary = $"Initial ingestion: {count} item(s)"
+        };
 
     private static string BuildDeltaSummary(int added, int removed, int modified, int unchanged)
         => $"+{added} added, -{removed} removed, {modified} modified, {unchanged} unchanged";

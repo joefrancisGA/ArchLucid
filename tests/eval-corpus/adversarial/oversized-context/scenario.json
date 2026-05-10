@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-adv-oversized-context",
+  "metadata": {
+    "title": "Adversarial: context exceeds planner token budgets",
+    "complexity": "high",
+    "primaryAgents": ["Critic", "Topology", "Cost"]
+  },
+  "inputSummary": "Authors pasted nineteen megabytes of merged ARM templates, Swagger blobs, and Terraform dumps into a single prompt slice without chunk markers. The ingest pipeline must emit an explicit token budget boundary error or deterministic truncation summary rather than silently dropping middle sections.",
+  "recording": "adversarial/oversized-context/recordings/corpus-adv-oversized-context.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Critic",
+    "agentResultPath": "adversarial/oversized-context/agent-result.simulator.json",
+    "notes": "Simulator captures graceful truncation + explicit boundary signaling in findings."
+  },
+  "expectedFindings": [
+    {
+      "id": "e token budget critic",
+      "category": "Critic",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["token", "budget"]
+    },
+    {
+      "id": "e truncation topology",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["truncat", "subgraph"]
+    },
+    {
+      "id": "e projection cost",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["projection", "partial"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Critic",
+      "ifContainsAny": ["silent data loss", "assume complete ingest"]
+    },
+    {
+      "category": "Topology",
+      "ifContainsAny": ["infer missing zones", "guess unseen subnets"]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "adv-cite-1",
+      "category": "Critic",
+      "severity": "High",
+      "title": "Summary contradicts sourced Redis stance",
+      "detail": "Section 3 forbids regional Redis under the cost freeze while the executive summary mandates Redis for HA—this contradicts the authoritative context that reviewers must reconcile."
+    },
+    {
+      "findingId": "adv-cite-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Cache edges versus declared freeze",
+      "detail": "Topology diagrams cannot assert warm Redis cache edges until alignment returns between the frozen posture and the contested HA narrative."
+    },
+    {
+      "findingId": "adv-cite-3",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Evidence lineage gap",
+      "detail": "Traceability breaks when summaries omit pointers back to Section 3 controls; compliance packets need explicit source bindings before approvals."
+    },
+    {
+      "findingId": "adv-cite-4",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "Hidden spend assumptions",
+      "detail": "Redis reinstatement would reopen premium networking charges masked by the optimistic summary alone."
+    }
+  ]
+}

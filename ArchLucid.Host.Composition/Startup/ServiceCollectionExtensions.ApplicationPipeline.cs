@@ -185,6 +185,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IConnectorOperationsSummaryReader, ConnectorOperationsSummaryReader>();
         services.AddScoped<IWeeklyDigestHealthReader, WeeklyDigestHealthReader>();
         services.AddScoped<IAlertActionLoopReader, AlertActionLoopReader>();
+        services.AddScoped<IPilotReportCardService, PilotReportCardService>();
         services.AddScoped<PilotOutcomeSummaryService>();
         services.AddScoped<SponsorOnePagerPdfBuilder>();
         services.AddScoped<BoardPackPdfBuilder>();

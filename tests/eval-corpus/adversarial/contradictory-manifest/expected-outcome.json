@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "corpus-adv-contradictory-requirements",
+  "adversarialTheme": "contradictory-manifest",
+  "offlineQualityGateExpectation": "accepted",
+  "rationale": "Grounded AgentResult mirrors reviewers explicitly naming the serverless versus dedicated VM deadlock plus waiver vocabulary in compliance collateral.",
+  "recordingExpectations": [
+    "Deadlock language references serverless and dedicated VMs together; compliance cites ambiguity until waivers exist."
+  ]
+}

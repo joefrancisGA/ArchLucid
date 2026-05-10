@@ -38,8 +38,10 @@ public static class IntegrationEventPublishing
                                    && ex is not StackOverflowException)
         {
             if (logger.IsEnabled(LogLevel.Warning))
-
+            {
+                // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN taxonomy only; operational keys, not credentials or PII (docs/library/CODEQL_TRIAGE.md).
                 logger.LogWarningIntegrationEventBestEffortPublishFailed(ex, eventType);
+            }
         }
     }
 }
