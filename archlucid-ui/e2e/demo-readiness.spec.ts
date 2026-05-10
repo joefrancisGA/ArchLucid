@@ -11,6 +11,12 @@ const claimsShowcasePath = "/showcase/claims-intake-modernization";
 /** Manifest detail H1 — buyer-polished demo builds use friendlier copy (`demo-ui-env` + manifest page). */
 const MANIFEST_DETAIL_PRIMARY_HEADING = /Finalized architecture manifest|Architecture review package/i;
 
+/**
+ * Marketing showcase QuickNav (`ShowcaseQuickNav`) uses "Open manifest"; review-trail cards use "Manifest";
+ * operator runs table still uses "Finalized manifest". Proof-chain tests accept any stable deep-link label.
+ */
+const SHOWCASE_MANIFEST_DEEP_LINK = /^(?:Open manifest|Manifest|Finalized manifest)$/i;
+
 /** Canonical run detail path is `/reviews/{runId}`; `/runs/*` permanently redirects (see `next.config.ts`). */
 function showcaseDemoReviewDetailUrlPattern(): RegExp {
   return new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`);
@@ -67,7 +73,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page.getByRole("main").first()).not.toContainText(/Invalid Date/i);
 
     await page.goto(claimsShowcasePath);
-    await page.getByRole("link", { name: /Finalized manifest/i }).first().click();
+    await page.getByRole("link", { name: SHOWCASE_MANIFEST_DEEP_LINK }).first().click();
     await expect(page).toHaveURL(
       new RegExp(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}`),
     );

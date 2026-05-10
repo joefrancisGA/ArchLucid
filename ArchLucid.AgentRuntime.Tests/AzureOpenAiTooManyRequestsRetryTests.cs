@@ -1,7 +1,6 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Diagnostics;
-using System.IO;
 
 using ArchLucid.Core.Diagnostics;
 
@@ -127,16 +126,16 @@ public sealed class AzureOpenAiTooManyRequestsRetryTests
     /// <summary>Minimal <see cref="PipelineResponse" /> for exercising 429 header parsing without the live SDK.</summary>
     private sealed class UnitPipelineResponse : PipelineResponse
     {
-        private readonly int _status;
-        private readonly PipelineResponseHeaders _headers;
-
         public UnitPipelineResponse(int status, PipelineResponseHeaders headers)
         {
-            _status = status;
-            _headers = headers;
+            Status = status;
+            HeadersCore = headers;
         }
 
-        public override int Status => _status;
+        public override int Status
+        {
+            get;
+        }
 
         public override string ReasonPhrase => "unit";
 
@@ -148,13 +147,13 @@ public sealed class AzureOpenAiTooManyRequestsRetryTests
             set;
         } = Stream.Null;
 
-        protected override PipelineResponseHeaders HeadersCore => _headers;
-
+        protected override PipelineResponseHeaders HeadersCore
+        {
+            get;
+        }
         public override BinaryData BufferContent(CancellationToken cancellationToken) => BinaryData.Empty;
-
         public override ValueTask<BinaryData> BufferContentAsync(CancellationToken cancellationToken) =>
             ValueTask.FromResult(BinaryData.Empty);
-
         public override void Dispose()
         {
         }

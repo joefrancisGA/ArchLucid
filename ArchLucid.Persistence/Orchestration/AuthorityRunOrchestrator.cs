@@ -48,6 +48,9 @@ public sealed class AuthorityRunOrchestrator(
     IGraphSnapshotProjectionCache graphSnapshotProjectionCache,
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
     /// <inheritdoc />
     /// <remarks>
     ///     Persists the run under the current <see cref="ScopeContext" />, records telemetry tags, then chooses one of two
@@ -252,7 +255,7 @@ public sealed class AuthorityRunOrchestrator(
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
-            RunRecord? existing = await runRepository.GetByIdAsync(scope, request.RunId, cancellationToken);
+            RunRecord? existing = await _runRepository.GetByIdAsync(scope, request.RunId, cancellationToken);
             if (existing is null)
                 throw new InvalidOperationException(
                     $"Run '{request.RunId:D}' was not found for queued authority completion.");
@@ -478,21 +481,38 @@ public sealed class AuthorityRunOrchestrator(
 
     private async Task<Guid?> TryResolvePreviousCommittedGoldenRunIdAsync(ScopeContext scope, RunRecord run, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(run);
 
         // Tests and degenerate mocks may return a null Task or a completed Task with a null list; treat both as empty.
-        Task<IReadOnlyList<RunRecord>>? listTask = runRepository.ListByProjectAsync(scope, run.ProjectId ?? string.Empty, 100, ct);
-        IReadOnlyList<RunRecord> recent = (listTask is null ? null : await listTask) ?? Array.Empty<RunRecord>();
+        IReadOnlyList<RunRecord> recent = Array.Empty<RunRecord>();
 
-        foreach (RunRecord candidate in recent)
+        Task<IReadOnlyList<RunRecord>>? listTask =
+            _runRepository.ListByProjectAsync(scope, run.ProjectId ?? string.Empty, 100, ct);
+
+        if (listTask is not null)
         {
+            IReadOnlyList<RunRecord>? materialized = await listTask;
+
+            if (materialized is not null)
+                recent = materialized;
+        }
+
+        int count = recent.Count;
+
+        for (int i = 0; i < count; i++)
+        {
+            RunRecord? candidate = recent[i];
+
             if (candidate is null)
                 continue;
 
             if (candidate.RunId == run.RunId)
                 continue;
+
             if (candidate.ArchivedUtc is not null)
                 continue;
+
             if (candidate.GoldenManifestId is null)
                 continue;
 
@@ -531,9 +551,9 @@ public sealed class AuthorityRunOrchestrator(
     private async Task SaveRunAsync(RunRecord run, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
-            await runRepository.SaveAsync(run, ct, uow.Connection, uow.Transaction);
+            await _runRepository.SaveAsync(run, ct, uow.Connection, uow.Transaction);
         else
-            await runRepository.SaveAsync(run, ct);
+            await _runRepository.SaveAsync(run, ct);
     }
 
     private static void ApplyScope(RunRecord run, ScopeContext scope)
