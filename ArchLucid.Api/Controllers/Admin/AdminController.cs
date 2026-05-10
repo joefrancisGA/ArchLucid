@@ -37,19 +37,36 @@ public sealed class AdminController(
     private readonly IFeatureManager _featureManager =
         featureManager ?? throw new ArgumentNullException(nameof(featureManager));
 
-    /// <summary>Non-secret <c>IsSet</c> snapshot of catalog keys for <c>archlucid config check</c> and operators.</summary>
+    /// <summary>
+    ///     Catalog-aligned key presence; set <paramref name="includeEffectiveValues" /> for redacted/effective scalars
+    ///     (never returns raw secrets).
+    /// </summary>
     [HttpGet("config-summary")]
     [ProducesResponseType(typeof(AdminConfigSummaryResponse), StatusCodes.Status200OK)]
-    public ActionResult<AdminConfigSummaryResponse> GetConfigSummary()
+    public ActionResult<AdminConfigSummaryResponse> GetConfigSummary([FromQuery] bool includeEffectiveValues = false)
     {
         List<ConfigSummaryKeyRow> keys = new(ConfigurationKeyCatalog.All.Count);
-        keys.AddRange(ConfigurationKeyCatalog.All.Select(e => new ConfigSummaryKeyRow
-        {
-            ConfigPath = e.ConfigPath, IsSet = ConfigurationKeyPresence.IsValuePresent(_configuration, e.ConfigPath)
-        }));
 
-        return Ok(
-            new AdminConfigSummaryResponse { Keys = keys });
+        foreach (ConfigurationKeyEntry entry in ConfigurationKeyCatalog.All)
+        {
+            bool isSet = ConfigurationKeyPresence.IsValuePresent(_configuration, entry.ConfigPath);
+            ConfigSummaryKeyRow row = new()
+            {
+                Section = entry.Section,
+                ConfigPath = entry.ConfigPath,
+                IsSet = isSet,
+                RequirementKind = entry.Requirement.ToString()
+            };
+
+            if (includeEffectiveValues)
+            {
+                row.EffectiveValue = ConfigurationEffectiveValueResolver.Resolve(_configuration, entry.ConfigPath, isSet);
+            }
+
+            keys.Add(row);
+        }
+
+        return Ok(new AdminConfigSummaryResponse { Keys = keys });
     }
 
     /// <summary>Pending asynchronous authority and retrieval indexing work.</summary>

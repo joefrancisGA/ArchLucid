@@ -3314,8 +3314,26 @@
               "string"
             ]
           },
+          "effectiveValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "isSet": {
             "type": "boolean"
+          },
+          "requirementKind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "section": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -15370,6 +15388,16 @@
     },
     "/v1/admin/config-summary": {
       "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "includeEffectiveValues",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
