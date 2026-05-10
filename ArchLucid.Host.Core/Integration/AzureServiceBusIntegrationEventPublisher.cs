@@ -112,9 +112,7 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-
-                // codeql[cs/exposure-of-sensitive-information]: eventType flows from IntegrationEventTypes canonical URNs; SanitizedLoggerWarningExtensions sanitizes before the ILogger sink (operational envelope type, not PII/secrets — docs/library/CODEQL_TRIAGE.md).
-                _logger.LogWarningIntegrationEventServiceBusPublishFailed(ex, eventType);
+                _logger.LogWarningIntegrationEventServiceBusPublishFailed(ex, eventType); // codeql[cs/exposure-of-sensitive-information]: eventType is IntegrationEventTypes canonical URN taxonomy, not PII/secrets; sanitized inside the helper (docs/library/CODEQL_TRIAGE.md).
 
             throw;
         }

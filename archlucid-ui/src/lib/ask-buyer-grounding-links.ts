@@ -1,4 +1,5 @@
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -23,6 +24,10 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
   }
 
   return [
+    {
+      label: "Executive summary",
+      href: getShowcaseExecutiveHref(),
+    },
     {
       label: "Finalized manifest package",
       href: `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,

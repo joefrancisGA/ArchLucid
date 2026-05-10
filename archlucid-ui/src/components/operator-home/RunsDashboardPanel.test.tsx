@@ -220,6 +220,14 @@ describe("RunsDashboardPanel", () => {
         "href",
         "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       );
+      expect(screen.getByRole("link", { name: "Executive summary" })).toHaveAttribute(
+        "href",
+        "/executive/reviews/claims-intake-modernization",
+      );
+      expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
+        "href",
+        "/showcase/claims-intake-modernization",
+      );
       expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Open full reviews list" })).toBeNull();
     } finally {
