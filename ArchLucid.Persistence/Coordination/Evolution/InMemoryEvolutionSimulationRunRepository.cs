@@ -13,11 +13,7 @@ public sealed class InMemoryEvolutionSimulationRunRepository : IEvolutionSimulat
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryAdd(record.SimulationRunId, record))
-            throw new InvalidOperationException($"Simulation run '{record.SimulationRunId}' already exists.");
-
-
-        return Task.CompletedTask;
+        return !_byId.TryAdd(record.SimulationRunId, record) ? throw new InvalidOperationException($"Simulation run '{record.SimulationRunId}' already exists.") : Task.CompletedTask;
     }
 
     public Task<IReadOnlyList<EvolutionSimulationRunRecord>> ListByCandidateAsync(
