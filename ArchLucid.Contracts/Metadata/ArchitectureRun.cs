@@ -139,6 +139,14 @@ public sealed class ArchitectureRun
         set;
     }
 
+    /// <summary>INV-002: persisted structural execution mode for this run (SQL NOT NULL).</summary>
+    [Required]
+    public StructuralExecutionMode StructuralExecutionMode
+    {
+        get;
+        set;
+    } = StructuralExecutionMode.Simulator;
+
     /// <summary>Azure OpenAI deployment name captured when simulator fallback was recorded (nullable).</summary>
     public string? PilotAoaiDeploymentSnapshot
     {

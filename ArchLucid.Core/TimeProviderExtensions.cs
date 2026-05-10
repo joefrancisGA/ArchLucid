@@ -16,9 +16,6 @@ public static class TimeProviderExtensions
     /// <summary>UTC calendar date for the provider clock.</summary>
     public static DateOnly UtcToday(this TimeProvider provider)
     {
-        if (provider is null)
-            throw new ArgumentNullException(nameof(provider));
-
-        return DateOnly.FromDateTime(provider.GetUtcNow().UtcDateTime);
+        return provider is null ? throw new ArgumentNullException(nameof(provider)) : DateOnly.FromDateTime(provider.GetUtcNow().UtcDateTime);
     }
 }

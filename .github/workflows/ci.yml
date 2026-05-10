@@ -9,7 +9,7 @@
 #   Tier 2 — .NET full regression + SQL (parallel shards: Category!=Slow vs Category=Slow; merged in `dotnet-coverage-merge`)
 #   Tier 2b — Simmy chaos (after Tier 2; no SQL)
 #   Tier 2c — k6: operator-path API smoke after full regression (native k6; merge-blocking) + k6 CI smoke read+write (after Tier 1)
-#   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact; lint/typecheck/build (`ui-static-quality`); mock smoke (`ui-playwright-mock-smoke`)
+#   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact; lint/typecheck/build (`ui-static-quality`); mock smoke (`ui-playwright-mock-smoke` + `ui-playwright-mock-visual`)
 #   Tier 3b — Operator UI e2e (Playwright live API + SQL; PR omits extended live-a11y route matrix — see nightly / manual workflow_dispatch)
 #
 # Re-run failed jobs from the Actions tab. Local equivalents: test-fast-core.*, test-full.*,
@@ -1724,11 +1724,10 @@ jobs:
           npm run build
 
   ui-playwright-mock-smoke:
-    name: "Operator UI: Playwright mock smoke (mock API)"
+    name: "Operator UI: Playwright mock functional (mock API)"
     needs: gitleaks
-    # Visual baselines are Playwright snapshots with an OS suffix (e.g. *-chromium-visual-win32.png).
-    # The repo currently commits Windows goldens; match the runner here or add *-linux.png and use ubuntu-latest.
-    runs-on: windows-latest
+    # Mock journey specs (`e2e/`, `chromium` project). Visual goldens stay in `ui-playwright-mock-visual` (Windows) — see playwright.mock.config.ts.
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
@@ -1739,7 +1738,7 @@ jobs:
           cache: npm
           cache-dependency-path: archlucid-ui/package-lock.json
 
-      - name: Mock Playwright suite (includes operator smoke specs)
+      - name: Mock Playwright suite (functional mock specs; excludes visual project)
         working-directory: archlucid-ui
         env:
           CI: true
@@ -1748,7 +1747,7 @@ jobs:
           npm ci
           npm run build
           npx playwright install --with-deps chromium
-          npm run test:e2e
+          npm run test:e2e:mock:functional
 
       - uses: actions/upload-artifact@v6
         if: always()
@@ -1768,6 +1767,53 @@ jobs:
         if: always()
         with:
           name: ui-mock-smoke-blob-report
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+  ui-playwright-mock-visual:
+    name: "Operator UI: Playwright mock visual regression"
+    needs: gitleaks
+    # Snapshots are OS-specific (`*-chromium-visual-win32.png`). Runner must match committed goldens or regenerate via `scripts/update-visual-snapshots-docker.ps1` (*-linux).
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Mock Playwright visual project (`chromium-visual` / tests/e2e)
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run build
+          npx playwright install --with-deps chromium
+          npm run test:e2e:mock:visual
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: ui-mock-visual-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: ui-mock-visual-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: ui-mock-visual-blob-report
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
@@ -2597,6 +2643,7 @@ jobs:
       - ui-axe-components
       - ui-static-quality
       - ui-playwright-mock-smoke
+      - ui-playwright-mock-visual
       - ui-e2e-live
       - ui-e2e-live-apikey
       - ui-e2e-live-jwt

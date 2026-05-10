@@ -148,6 +148,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
             new NoOpAgentOutputTraceEvaluationHook(),
             new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
+            Options.Create(new AgentExecutionOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 

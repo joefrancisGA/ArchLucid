@@ -54,6 +54,7 @@ using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.CustomerSuccess;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Feedback;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.GoToMarket;
@@ -88,6 +89,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
         DapperGlobalCommandTimeoutBootstrap.ApplyIfConfigured(configuration);
+
+        StructuralExecutionModeTypeHandler.Register();
 
         string connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration)
                                   ?? throw new InvalidOperationException(

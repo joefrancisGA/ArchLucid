@@ -49,6 +49,7 @@ public sealed class SqlRunRepository(
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                               StructuralExecutionMode,
                                RetryCount, LastFailureReason
                            )
                            OUTPUT inserted.RowVersionStamp
@@ -59,6 +60,7 @@ public sealed class SqlRunRepository(
                                @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc,
                                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
                                @IsDemoWelcomeRun, @IsPublicShowcase, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
+                               @StructuralExecutionMode,
                                @RetryCount, @LastFailureReason
                            );
                            """;
@@ -108,6 +110,7 @@ public sealed class SqlRunRepository(
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                    IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
                                    RowVersionStamp AS RowVersion
                                FROM dbo.Runs
@@ -153,6 +156,7 @@ public sealed class SqlRunRepository(
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                    IsDemoWelcomeRun, IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
                                    RowVersionStamp AS RowVersion
                                FROM dbo.Runs
@@ -383,6 +387,7 @@ public sealed class SqlRunRepository(
                                IsPublicShowcase = @IsPublicShowcase,
                                RealModeFellBackToSimulator = @RealModeFellBackToSimulator,
                                PilotAoaiDeploymentSnapshot = @PilotAoaiDeploymentSnapshot,
+                               StructuralExecutionMode = @StructuralExecutionMode,
                                RetryCount = @RetryCount,
                                LastFailureReason = @LastFailureReason
                            OUTPUT inserted.RowVersionStamp
@@ -819,6 +824,7 @@ public sealed class SqlRunRepository(
                     run.IsPublicShowcase,
                     run.RealModeFellBackToSimulator,
                     run.PilotAoaiDeploymentSnapshot,
+                    run.StructuralExecutionMode,
                     run.RetryCount,
                     run.LastFailureReason,
                     run.RowVersion

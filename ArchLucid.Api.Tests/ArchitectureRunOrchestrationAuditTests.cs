@@ -116,6 +116,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             new NoOpAgentOutputTraceEvaluationHook(),
             new NoOpEvidencePackageInjectionMitigator(),
             precheck,
+            Options.Create(new AgentExecutionOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }

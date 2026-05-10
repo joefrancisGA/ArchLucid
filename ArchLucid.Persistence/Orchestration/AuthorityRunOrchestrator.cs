@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
@@ -86,7 +87,8 @@ public sealed class AuthorityRunOrchestrator(
                 ArchitectureRequestId = request.ArchitectureRequestId,
                 ProjectId = request.ProjectId,
                 Description = request.Description,
-                CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                StructuralExecutionMode = StructuralExecutionMode.Simulator
             };
             ApplyScope(run, scope);
 

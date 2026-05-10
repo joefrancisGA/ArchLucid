@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -43,6 +44,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
     IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
+    IOptions<AgentExecutionOptions> agentExecutionOptions,
     IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
@@ -51,6 +53,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private readonly IOptions<AgentOutputQualityGateOptions> _agentOutputQualityGateOptions =
         agentOutputQualityGateOptions ?? throw new ArgumentNullException(nameof(agentOutputQualityGateOptions));
+
+    private readonly IOptions<AgentExecutionOptions> _agentExecutionOptions =
+        agentExecutionOptions ?? throw new ArgumentNullException(nameof(agentExecutionOptions));
 
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
 
@@ -95,7 +100,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ValidateDependencies(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository,
             agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, auditService, unitOfWorkFactory,
-            outputTraceEvaluationHook, evidencePackageInjectionMitigator, requestContentSafetyPrecheck, agentOutputQualityGateOptions, logger);
+            outputTraceEvaluationHook, evidencePackageInjectionMitigator, requestContentSafetyPrecheck, agentExecutionOptions, agentOutputQualityGateOptions, logger);
         string actor = actorContext.GetActor();
         try
         {
@@ -114,7 +119,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IActorContext actorContext,
         IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IArchLucidUnitOfWorkFactory unitOfWorkFactory,
         IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
-        IRequestContentSafetyPrecheck requestContentSafetyPrecheck, IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
+        IRequestContentSafetyPrecheck requestContentSafetyPrecheck, IOptions<AgentExecutionOptions> agentExecutionOptions,
+        IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
         ILogger<ArchitectureRunExecuteOrchestrator> logger)
     {
         ArgumentNullException.ThrowIfNull(runRepository);
@@ -134,6 +140,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ArgumentNullException.ThrowIfNull(outputTraceEvaluationHook);
         ArgumentNullException.ThrowIfNull(evidencePackageInjectionMitigator);
         ArgumentNullException.ThrowIfNull(requestContentSafetyPrecheck);
+        ArgumentNullException.ThrowIfNull(agentExecutionOptions);
         ArgumentNullException.ThrowIfNull(agentOutputQualityGateOptions);
         ArgumentNullException.ThrowIfNull(logger);
     }
@@ -366,6 +373,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             string.Equals(previousLegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
             return;
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit);
+        header.StructuralExecutionMode = StructuralExecutionModeResolver.FromAgentExecutionOptionsAndFallback(
+            _agentExecutionOptions.Value,
+            header.RealModeFellBackToSimulator);
         await runRepository.UpdateAsync(header, cancellationToken);
         string actor = actorContext.GetActor();
         await DurableAuditLogRetry.TryLogAsync(async ct =>
