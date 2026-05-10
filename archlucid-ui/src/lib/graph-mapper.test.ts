@@ -115,8 +115,8 @@ describe("mapGraphToReactFlow", () => {
     const phiPos = nodes.find((n) => n.id === "n-phi")?.position;
     const centerIdx = Math.floor(graph.nodes.length / 2);
     const columnCount = 4;
-    const cellW = 300;
-    const cellH = 182;
+    const cellW = 320;
+    const cellH = 196;
 
     expect(phiPos).toEqual({
       x: (centerIdx % columnCount) * cellW,
@@ -124,6 +124,6 @@ describe("mapGraphToReactFlow", () => {
     });
 
     const phiNode = nodes.find((n) => n.id === "n-phi");
-    expect(phiNode?.style?.border).toContain("3px");
+    expect(phiNode?.style?.border).toContain("4px");
   });
 });

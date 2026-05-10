@@ -76,7 +76,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     render(<SampleFirstReviewPackageCard />);
 
     expect(screen.getByRole("heading", { name: "Sample architecture review package" })).toBeInTheDocument();
-    expect(screen.getByText(/executive view is the board-ready summary/i)).toBeInTheDocument();
+    expect(screen.getByText(/Start with executive view — it is the clearest board-ready summary/i)).toBeInTheDocument();
     expect(
       screen.getByText(/Includes manifest outputs, PHI minimization risk with traceability/i),
     ).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
       "/showcase/claims-intake-modernization",
     );
     expect(screen.queryByRole("link", { name: "Open full review detail" })).toBeNull();
-    expect(screen.getByRole("link", { name: "Connect your own workspace →" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "connect your own workspace" })).toHaveAttribute("href", "/reviews/new");
   });
 
   it("records review-output telemetry when the sample review package is opened", () => {

@@ -1237,6 +1237,8 @@ jobs:
       - dotnet-full-regression-slow
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
 
@@ -1301,6 +1303,7 @@ jobs:
             --min-package-line-pct 63 \
             --warn-below-package-line-pct 70 \
             --annotations-file "${ART_DIR}/coverage-annotations-assert.txt"
+          python3 scripts/ci/assert_coverage_floor_ratchet.py "${OUT}/Cobertura.xml"
           cp "${{ runner.temp }}/coverage-metrics.txt" "${ART_DIR}/coverage-metrics.txt"
 
       - uses: actions/upload-artifact@v6
@@ -1330,6 +1333,36 @@ jobs:
           name: coverage-report-full-regression-html
           path: ${{ runner.temp }}/coverage-report-full/**
           if-no-files-found: warn
+
+      - name: Coverage line badge SVG (main push; shields.io) + publish to gh-pages branch
+        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          COV_OUT="${{ runner.temp }}/coverage-report-full"
+          BADGE_ROOT="${{ runner.temp }}/coverage-badge-publish"
+          BADGE_DIR="${BADGE_ROOT}/badges"
+          mkdir -p "${BADGE_DIR}"
+          python3 scripts/ci/fetch_coverage_badge_shields_svg.py \
+            "${COV_OUT}/Cobertura.xml" \
+            "${BADGE_DIR}/coverage.svg"
+
+      - uses: actions/upload-artifact@v6
+        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
+        with:
+          name: coverage-line-badge-svg
+          path: ${{ runner.temp }}/coverage-badge-publish/badges/coverage.svg
+          if-no-files-found: error
+
+      - name: Deploy coverage badge — gh-pages badges path
+        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ runner.temp }}/coverage-badge-publish
+          keep_files: true
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
+          commit_message: "chore: update coverage badge [skip ci]"
 
   # Polly Simmy chaos (LLM + SQL-fault + blob compositions). No SQL service container: Persistence
   # Simmy tests use synthetic SqlException and in-memory delegates only.

@@ -1,0 +1,4 @@
+# Merged Cobertura root line %% high-water baseline (strict profile in ci.yml).
+# CI ratchet: merged line must stay >= (this value minus 2.0%%).
+# Bump explicitly when coverage improves; lower only with deliberate review.
+81.25

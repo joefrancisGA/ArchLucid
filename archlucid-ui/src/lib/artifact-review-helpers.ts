@@ -270,6 +270,76 @@ export function sponsorArtifactDownloadActionLabel(artifactType: string): string
   return map[normalizedType] ?? "Download";
 }
 
+export type SponsorArtifactAudienceBucket = "sponsor" | "shared" | "architects" | "audit" | "other";
+
+const AUDIENCE_SECTION_COPY: Record<
+  SponsorArtifactAudienceBucket,
+  { readonly title: string; readonly lead: string }
+> = {
+  sponsor: {
+    title: "Executive & sponsor",
+    lead: "Outputs sponsors use for sign-off, briefing leadership, and readiness checkpoints.",
+  },
+  shared: {
+    title: "Sponsor & architecture",
+    lead: "Deliverables shared across sponsor and architecture reviewers.",
+  },
+  architects: {
+    title: "Architecture review board",
+    lead: "Decision records, diagrams, and inventories for engineering handoff.",
+  },
+  audit: {
+    title: "Audit & compliance",
+    lead: "Trace bundles and coverage artifacts auditors can cite.",
+  },
+  other: {
+    title: "Additional outputs",
+    lead: "Supporting exports attached to this package.",
+  },
+};
+
+/** Buckets sponsor-mode rows for manifest-style grouping (uses {@link sponsorArtifactAudienceLine} semantics). */
+export function sponsorArtifactAudienceBucket(artifactType: string): SponsorArtifactAudienceBucket {
+  const raw = sponsorArtifactAudienceLine(artifactType);
+
+  if (raw === null || raw.trim().length === 0) {
+    return "other";
+  }
+
+  const line = raw.toLowerCase();
+  const mentionsSponsor = line.includes("sponsor");
+  const mentionsArchitect = line.includes("architect");
+  const mentionsAudit = line.includes("audit") || line.includes("compliance");
+
+  const topicHits = [mentionsSponsor, mentionsArchitect, mentionsAudit].filter(Boolean).length;
+
+  if (topicHits >= 2) {
+    return "shared";
+  }
+
+  if (mentionsAudit) {
+    return "audit";
+  }
+
+  if (mentionsArchitect) {
+    return "architects";
+  }
+
+  if (mentionsSponsor) {
+    return "sponsor";
+  }
+
+  return "other";
+}
+
+export function sponsorAudienceSectionHeading(bucket: SponsorArtifactAudienceBucket): string {
+  return AUDIENCE_SECTION_COPY[bucket].title;
+}
+
+export function sponsorAudienceSectionLead(bucket: SponsorArtifactAudienceBucket): string {
+  return AUDIENCE_SECTION_COPY[bucket].lead;
+}
+
 /** Returns a one-line description of what an artifact type represents, for the preview panel header. */
 export function getArtifactTypeDescription(artifactType: string): string {
   const entry = ARTIFACT_TYPE_COPY[artifactType];

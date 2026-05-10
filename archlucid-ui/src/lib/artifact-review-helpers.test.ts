@@ -6,9 +6,50 @@ import {
   getArtifactTypeDescription,
   getArtifactTypeLabel,
   prepareArtifactBodyText,
+  sponsorArtifactAudienceBucket,
   sponsorArtifactAudienceLine,
+  sponsorArtifactDownloadActionLabel,
+  sponsorArtifactOpenActionLabel,
   sponsorArtifactSecondaryCaption,
 } from "./artifact-review-helpers";
+
+describe("sponsorArtifactOpenActionLabel", () => {
+  it("uses sponsor verbs for MarkdownReport", () => {
+    expect(sponsorArtifactOpenActionLabel("MarkdownReport")).toBe("Open sponsor brief");
+  });
+
+  it("falls back for unknown types", () => {
+    expect(sponsorArtifactOpenActionLabel("UnknownSynthetic")).toBe("Open output");
+  });
+});
+
+describe("sponsorArtifactDownloadActionLabel", () => {
+  it("pairs EvidenceBundle with audit wording", () => {
+    expect(sponsorArtifactDownloadActionLabel("EvidenceBundle")).toBe("Download audit evidence");
+  });
+
+  it("falls back for unknown types", () => {
+    expect(sponsorArtifactDownloadActionLabel("UnknownSynthetic")).toBe("Download");
+  });
+});
+
+describe("sponsorArtifactAudienceBucket", () => {
+  it("classifies sponsor-only lines", () => {
+    expect(sponsorArtifactAudienceBucket("MarkdownReport")).toBe("sponsor");
+  });
+
+  it("classifies audit-oriented lines", () => {
+    expect(sponsorArtifactAudienceBucket("EvidenceBundle")).toBe("audit");
+  });
+
+  it("classifies mixed sponsor/architect copy into shared", () => {
+    expect(sponsorArtifactAudienceBucket("CostSummary")).toBe("shared");
+  });
+
+  it("returns other when no audience hint exists", () => {
+    expect(sponsorArtifactAudienceBucket("UnknownSyntheticType")).toBe("other");
+  });
+});
 
 describe("sponsorArtifactAudienceLine", () => {
   it("returns sponsor-oriented line for MarkdownReport", () => {
