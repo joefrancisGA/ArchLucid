@@ -16,7 +16,7 @@ Split **service interfaces** out of `ArchLucid.Contracts` into `ArchLucid.Contra
 
 ## Inventory (Step 0)
 
-All `public interface` declarations in `ArchLucid.Contracts` were found (8 types). None were single-consumer-only; each is used by at least two of: `ArchLucid.Persistence`, `ArchLucid.Application`, `ArchLucid.Api`, `ArchLucid.Host.Composition`.
+All `public interface` declarations in `ArchLucid.Contracts` were found (7 types). None were single-consumer-only; each is used by at least two of: `ArchLucid.Persistence`, `ArchLucid.Application`, `ArchLucid.Api`, `ArchLucid.Host.Composition`.
 
 | Interface | Destination |
 |-----------|-------------|
@@ -27,7 +27,6 @@ All `public interface` declarations in `ArchLucid.Contracts` were found (8 types
 | `IProductLearningFeedbackAggregationService` | `ArchLucid.Contracts.Abstractions` |
 | `IProductLearningDashboardService` | `ArchLucid.Contracts.Abstractions` |
 | `ISimulationEngine` | `ArchLucid.Contracts.Abstractions` |
-| `ICandidateChangeSetService` | `ArchLucid.Contracts.Abstractions` |
 
 ## Namespace strategy
 

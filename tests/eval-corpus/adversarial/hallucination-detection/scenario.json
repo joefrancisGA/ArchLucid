@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-adv-hallucination-detection",
+  "metadata": {
+    "title": "Adversarial: fabricated Azure SKUs and invented compliance labels",
+    "complexity": "medium",
+    "primaryAgents": ["Critic", "Compliance", "Topology"]
+  },
+  "inputSummary": "The brief insists workloads rely on the fictional Azure Helios Dedicated Quantum Router tier and cites the non-existent SOC-9001-Zeta Prime framework as mandatory. Inventory CSVs and Azure pricing surfaces contain neither SKU; reviewers must treat these as hallucinated anchors.",
+  "recording": "adversarial/hallucination-detection/recordings/corpus-adv-hallucination-detection.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Critic",
+    "agentResultPath": "adversarial/hallucination-detection/agent-result.simulator.json",
+    "notes": "Simulator omits claim evidenceRefs so offline semantic score warns—proxy for fabricated-evidence grounding failures."
+  },
+  "expectedFindings": [
+    {
+      "id": "e hallucinated azure critic",
+      "category": "Critic",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["fabricat", "azure"]
+    },
+    {
+      "id": "e sku inventory topology",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["sku", "inventory"]
+    },
+    {
+      "id": "e framework verify compliance",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["framework", "verify"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Topology",
+      "ifContainsAny": ["silent acceptance", "assume diagram truth"]
+    },
+    {
+      "category": "Cost",
+      "ifContainsAny": ["ignore burn", "omit finance"]
+    }
+  ]
+}

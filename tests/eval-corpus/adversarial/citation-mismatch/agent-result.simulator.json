@@ -1,0 +1,16 @@
+{
+  "resultId": "corp-adv-cite-sim-01",
+  "taskId": "corp-adv-cite-task-01",
+  "runId": "corp-adv-cite-run-01",
+  "agentType": 4,
+  "claims": [
+    {
+      "detail": "Simulator adversarial stub: overlap between summary prose and frozen-context excerpts is intentionally ungrounded pending faithfulness recomputation."
+    }
+  ],
+  "evidenceRefs": [],
+  "confidence": 0.44,
+  "findings": [],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-09T12:00:00Z"
+}

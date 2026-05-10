@@ -15964,6 +15964,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/pilots/report-card": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PilotReportCard"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/pilots/runs/recent-deltas": {
         parameters: {
             query?: never;
@@ -22771,6 +22824,38 @@ export interface components {
             totalManifestsCreated?: number;
             /** Format: int32 */
             totalRunsCommitted?: number;
+        };
+        PilotReportCard: {
+            /** Format: double */
+            averageRequestToCommitWallSeconds?: null | number | string;
+            /** Format: int64 */
+            exportsGenerated?: number | string;
+            findingsBySeverity?: components["schemas"]["PilotReportCardFindingSeverity"][];
+            /** Format: int32 */
+            governanceApprovalActions?: number;
+            /** Format: int32 */
+            governanceRejections?: number;
+            /** Format: date-time */
+            periodEndUtc?: null | string;
+            /** Format: date-time */
+            periodStartUtc?: null | string;
+            /** Format: uuid */
+            scopeProjectId?: string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: int32 */
+            totalCompletedRuns?: number;
+            /** Format: int32 */
+            totalFindings?: number;
+            /** Format: int32 */
+            uniqueSynthesizedArtifactTypes?: number;
+            /** Format: uuid */
+            workspaceId?: string;
+        };
+        PilotReportCardFindingSeverity: {
+            /** Format: int32 */
+            count?: number;
+            severity: string;
         };
         PilotRoiEvidenceConfidence: number;
         PilotRunDeltaSeverityCountResponse: {

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-adv-contradictory-requirements",
+  "metadata": {
+    "title": "Adversarial: mutually exclusive hosting mandates in one brief",
+    "complexity": "high",
+    "primaryAgents": ["Critic", "Topology", "Compliance"]
+  },
+  "inputSummary": "The RFP simultaneously demands every workload must remain strictly serverless on consumption plans and every workload must execute on customer-dedicated VMs with pinned cores for licensing. Both clauses are mandatory; reviewers must surface the deadlock instead of silently choosing one.",
+  "recording": "adversarial/contradictory-manifest/recordings/corpus-adv-contradictory-requirements.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Critic",
+    "agentResultPath": "adversarial/contradictory-manifest/agent-result.simulator.json",
+    "notes": "Contradiction acknowledgment scenario with grounded simulator AgentResult."
+  },
+  "expectedFindings": [
+    {
+      "id": "e deadlock critic",
+      "category": "Critic",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["deadlock", "serverless"]
+    },
+    {
+      "id": "e dedicated vm topology",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["dedicated", "vm"]
+    },
+    {
+      "id": "e waiver compliance",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["ambiguous", "waiver"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Topology",
+      "ifContainsAny": ["pick dedicated silently", "assume serverless wins"]
+    },
+    {
+      "category": "Cost",
+      "ifContainsAny": ["hide licensing exposure", "suppress sku debate"]
+    }
+  ]
+}

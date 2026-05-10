@@ -1,0 +1,30 @@
+{
+  "resultId": "corp-adv-over-sim-01",
+  "taskId": "corp-adv-over-task-01",
+  "runId": "corp-adv-over-run-01",
+  "agentType": 4,
+  "claims": [
+    {
+      "evidenceRefs": ["oversized-context-truncation-pattern"],
+      "detail": "Simulator critic claim: oversized prompts must raise explicit token budget signals instead of silently discarding interior spans."
+    }
+  ],
+  "evidenceRefs": ["oversized-context-truncation-pattern"],
+  "confidence": 0.76,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Critic",
+      "description": "Downstream agents must refuse holistic approvals when ingestion truncates multi-megabyte payloads unless chunk replay completes with checksum parity.",
+      "recommendation": "Split templates into bounded uploads and attach continuity tokens so planners never omit interior ARM sections quietly."
+    },
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Topology scoring should annotate truncated subgraph ranges whenever deterministic slicing skips contiguous spans.",
+      "recommendation": "Replay omitted offsets through the streaming ingest lane before publishing blast-radius scores externally."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-09T12:00:00Z"
+}

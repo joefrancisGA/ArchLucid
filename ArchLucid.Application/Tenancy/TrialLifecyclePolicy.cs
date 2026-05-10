@@ -21,10 +21,9 @@ public static class TrialLifecyclePolicy
         DateTimeOffset exportOnlyNotBefore = readOnlyNotBefore.AddDays(options.ExportOnlyAfterReadOnlyDays);
         DateTimeOffset purgeNotBefore = exportOnlyNotBefore.AddDays(options.PurgeAfterExportOnlyDays);
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+
         {
-            if (utcNow < anchor)
-                return null;
-            return new TrialLifecycleAdvancement(TrialLifecycleStatus.Active, TrialLifecycleStatus.Expired, "trial_active_window_ended");
+            return utcNow < anchor ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.Active, TrialLifecycleStatus.Expired, "trial_active_window_ended");
         }
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Expired, StringComparison.Ordinal))
@@ -36,16 +35,12 @@ public static class TrialLifecyclePolicy
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal))
         {
-            if (utcNow < exportOnlyNotBefore)
-                return null;
-            return new TrialLifecycleAdvancement(TrialLifecycleStatus.ReadOnly, TrialLifecycleStatus.ExportOnly, "trial_export_only_phase");
+            return utcNow < exportOnlyNotBefore ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.ReadOnly, TrialLifecycleStatus.ExportOnly, "trial_export_only_phase");
         }
 
         if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal))
             return null;
-        if (utcNow < purgeNotBefore)
-            return null;
-        return new TrialLifecycleAdvancement(TrialLifecycleStatus.ExportOnly, TrialLifecycleStatus.Deleted, "trial_dpa_hard_purge");
+        return utcNow < purgeNotBefore ? null : new TrialLifecycleAdvancement(TrialLifecycleStatus.ExportOnly, TrialLifecycleStatus.Deleted, "trial_dpa_hard_purge");
     }
 
     /// <summary>Whole days until the next lifecycle boundary for <c>GET /v1/tenant/trial-status</c>.</summary>

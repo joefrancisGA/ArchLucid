@@ -4,7 +4,6 @@ using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 using ArchLucid.ContextIngestion.Interfaces;
@@ -232,7 +231,6 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IProductLearningPlanningRepository, DapperProductLearningPlanningRepository>();
         services.AddScoped<IImprovementThemeExtractionService, ImprovementThemeExtractionService>();
         services.AddScoped<IImprovementPlanningService, ImprovementPlanningService>();
-        services.AddScoped<ICandidateChangeSetService, CandidateChangeSetService>();
         services.AddScoped<IImprovementPlanPrioritizationService, ImprovementPlanPrioritizationService>();
         services.AddScoped<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
         services.AddScoped<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
@@ -245,6 +243,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
         services.AddScoped<IPilotScorecardMetricsReader, DapperPilotScorecardMetricsReader>();
+        services.AddScoped<IPilotReportCardMetricsReader, DapperPilotReportCardMetricsReader>();
         services.AddScoped<IPilotBaselineRepository, DapperPilotBaselineRepository>();
         services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
         services.AddScoped<IMarketingPricingQuoteRequestRepository, SqlMarketingPricingQuoteRequestRepository>();

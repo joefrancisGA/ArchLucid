@@ -9577,6 +9577,95 @@
         },
         "type": "object"
       },
+      "PilotReportCard": {
+        "properties": {
+          "averageRequestToCommitWallSeconds": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "exportsGenerated": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "findingsBySeverity": {
+            "items": {
+              "$ref": "#/components/schemas/PilotReportCardFindingSeverity"
+            },
+            "type": "array"
+          },
+          "governanceApprovalActions": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "governanceRejections": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "periodEndUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "periodStartUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "scopeProjectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "totalCompletedRuns": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalFindings": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "uniqueSynthesizedArtifactTypes": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PilotReportCardFindingSeverity": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "severity"
+        ],
+        "type": "object"
+      },
       "PilotRoiEvidenceConfidence": {
         "type": "integer"
       },
@@ -37570,6 +37659,45 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PilotScorecardResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Pilots"
+        ]
+      }
+    },
+    "/v1/pilots/report-card": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotReportCard"
                 }
               }
             },

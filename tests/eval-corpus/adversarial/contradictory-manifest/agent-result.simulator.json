@@ -1,0 +1,30 @@
+{
+  "resultId": "corp-adv-contra-req-sim-01",
+  "taskId": "corp-adv-contra-req-task-01",
+  "runId": "corp-adv-contra-req-run-01",
+  "agentType": 4,
+  "claims": [
+    {
+      "evidenceRefs": ["contradictory-hosting-rfp-pattern"],
+      "detail": "Simulator critic claim: mutually exclusive hosting mandates must be surfaced as an explicit deadlock pending waiver—not smoothed over in prose."
+    }
+  ],
+  "evidenceRefs": ["contradictory-hosting-rfp-pattern"],
+  "confidence": 0.81,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Critic",
+      "description": "Executive summaries cannot green-light migrations while mandatory serverless clauses collide with mandatory dedicated VM licensing riders in the same RFP revision.",
+      "recommendation": "Schedule sponsor arbitration that documents which clause yields via formal waiver before rerunning topology automation."
+    },
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Declared elastic tiers contradict illustrated pinned-core VMs until editors collapse the narrative into one permitted footprint.",
+      "recommendation": "Regenerate diagrams after the waiver pins hosting to either dedicated fleets or consumption-only endpoints."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-09T12:00:00Z"
+}

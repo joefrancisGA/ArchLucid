@@ -1,0 +1,16 @@
+{
+  "resultId": "corp-adv-hall-sim-01",
+  "taskId": "corp-adv-hall-task-01",
+  "runId": "corp-adv-hall-run-01",
+  "agentType": 4,
+  "claims": [
+    {
+      "detail": "Simulator adversarial stub: claims about Azure Helios Dedicated Quantum Router lack grounded evidenceRefs until SKU catalogs resolve them."
+    }
+  ],
+  "evidenceRefs": [],
+  "confidence": 0.41,
+  "findings": [],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-09T12:00:00Z"
+}

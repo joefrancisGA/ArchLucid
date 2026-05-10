@@ -267,16 +267,19 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     Keying = BuildSaveContractsManifestOptions(manifestModel, trace),
                     Trace = trace
                 }, cancellationToken);
+
             if (finalization.WasIdempotentReturn)
             {
                 CommitRunResult? idempotentReplay = await TryReturnAuthorityCommittedIdempotentAsync(run, runId, cancellationToken);
-                if (idempotentReplay is null)
-                {
-                    ArchitectureRun? runReloaded = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(_runRepository, _scopeContextProvider,
-                        _taskRepository, runId, cancellationToken);
-                    if (runReloaded is not null)
-                        idempotentReplay = await TryReturnAuthorityCommittedIdempotentAsync(runReloaded, runId, cancellationToken);
-                }
+                if (idempotentReplay is not null)
+                    return idempotentReplay ??
+                           throw new ConflictException($"Run '{runId}' was finalized idempotently but the committed manifest could not be reloaded.");
+
+                ArchitectureRun? runReloaded = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(_runRepository, _scopeContextProvider,
+                    _taskRepository, runId, cancellationToken);
+
+                if (runReloaded is not null)
+                    idempotentReplay = await TryReturnAuthorityCommittedIdempotentAsync(runReloaded, runId, cancellationToken);
 
                 return idempotentReplay ?? throw new ConflictException($"Run '{runId}' was finalized idempotently but the committed manifest could not be reloaded.");
             }

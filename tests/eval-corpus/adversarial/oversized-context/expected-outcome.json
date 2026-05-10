@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "corpus-adv-oversized-context",
+  "adversarialTheme": "oversized-context",
+  "offlineQualityGateExpectation": "accepted",
+  "rationale": "Grounded AgentResult pairs with recordings that insist on explicit boundary errors or deterministic truncation markers—not silent middle deletion.",
+  "recordingExpectations": [
+    "Findings mention token budgets, truncated subgraph language, and partial cost projections tied to incomplete ingest."
+  ]
+}

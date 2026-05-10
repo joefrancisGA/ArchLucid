@@ -17,6 +17,4 @@ public sealed record SupportBundleArtifact(
     string FileName,
     string ContentType,
     DateTimeOffset GeneratedUtc,
-    DateTimeOffset RetentionDiscardAfterUtc)
-{
-}
+    DateTimeOffset RetentionDiscardAfterUtc);
