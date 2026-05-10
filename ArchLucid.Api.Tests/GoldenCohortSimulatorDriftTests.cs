@@ -4,9 +4,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
-using ArchLucid.Core.GoldenCorpus;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.GoldenCorpus;
 
 using FluentAssertions;
 
@@ -106,7 +106,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
                 GoldenCohortFindingCategoryAggregator.DistinctCategories(typedResults);
             SortedSet<string> expectedCategories = new(StringComparer.Ordinal);
 
-            foreach (var c in item.ExpectedFindingCategories.Where(c => !string.IsNullOrWhiteSpace(c)))
+            foreach (string c in item.ExpectedFindingCategories.Where(c => !string.IsNullOrWhiteSpace(c)))
             {
                 expectedCategories.Add(c.Trim());
             }

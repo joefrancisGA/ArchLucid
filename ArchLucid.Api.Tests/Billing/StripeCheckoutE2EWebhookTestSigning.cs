@@ -73,7 +73,7 @@ internal static class StripeCheckoutE2EWebhookTestSigning
         int seats,
         int workspaces)
     {
-        JObject metadata = new JObject
+        JObject metadata = new()
         {
             ["tenant_id"] = tenantId.ToString("D"),
             ["workspace_id"] = workspaceId.ToString("D"),
@@ -83,7 +83,7 @@ internal static class StripeCheckoutE2EWebhookTestSigning
             ["workspaces"] = workspaces.ToString(CultureInfo.InvariantCulture)
         };
 
-        JObject payload = new JObject
+        JObject payload = new()
         {
             ["id"] = eventId,
             ["type"] = "checkout.session.completed",

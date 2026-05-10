@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Archival;
 
 using FluentAssertions;
@@ -56,7 +56,7 @@ public sealed class DataArchivalHostedServiceTests
         ServiceProvider provider = services.BuildServiceProvider();
 
         Mock<IServiceScopeFactory> scopeFactory = new();
-        scopeFactory.Setup(f => f.CreateScope()).Returns(() => provider.CreateScope());
+        scopeFactory.Setup(f => f.CreateScope()).Returns(provider.CreateScope);
 
         Mock<IOptionsMonitor<DataArchivalOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(

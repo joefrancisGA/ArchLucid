@@ -218,7 +218,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             JsonSerializer.Deserialize<GovernanceApprovalResponseDto>(submitBody, JsonOptions);
 
         submitted.Should().NotBeNull();
-        submitted!.RunId.Should().NotBeNullOrWhiteSpace();
+        submitted.RunId.Should().NotBeNullOrWhiteSpace();
         submitted.ApprovalRequestId.Should().NotBeNullOrWhiteSpace();
 
         HttpResponseMessage approveResponse = await PostJsonAsTestActorAsync(
@@ -274,12 +274,12 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         GovernanceActivationResponseDto? result =
             JsonSerializer.Deserialize<GovernanceActivationResponseDto>(body, JsonOptions);
         result.Should().NotBeNull();
-        result!.IsActive.Should().BeTrue();
+        result.IsActive.Should().BeTrue();
         AssertSameArchitectureRunId(runId, result.RunId);
         result.Environment.Should().Be("dev");
     }
 
-    // â”€â”€ List by run â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // List by run 
 
     [SkippableFact]
     public async Task GetApprovalRequests_ByRunId_ReturnsRows()
@@ -410,7 +410,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         submitted.Should().NotBeNull();
-        submitted!.ApprovalRequestId.Should().NotBeNullOrWhiteSpace();
+        submitted.ApprovalRequestId.Should().NotBeNullOrWhiteSpace();
 
         string url = $"/v1/governance/approval-requests/{submitted.ApprovalRequestId}/approve";
         Task<HttpResponseMessage>[] tasks = Enumerable.Range(0, 5)
