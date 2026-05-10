@@ -7,6 +7,8 @@ import { DocumentLayout, type DocumentTocItem } from "@/components/DocumentLayou
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Progress } from "@/components/ui/progress";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import type { ExplanationResult, RunExplanationSummary } from "@/types/explanation";
 
 export type RunExplanationSectionProps = {
@@ -110,6 +112,36 @@ function explanationBody(summary: RunExplanationSummary): ExplanationResult {
   return raw;
 }
 
+function hasPhiMinimizationFlagship(summary: RunExplanationSummary, runId: string): boolean {
+  if (isDemoRunIdEligibleForStaticFallback(runId)) {
+    return true;
+  }
+
+  const haystack = [
+    summary.overallAssessment,
+    summary.riskPosture,
+    summary.explanation?.summary,
+    summary.explanation?.detailedNarrative,
+    ...(summary.explanation?.riskImplications ?? []),
+    ...(summary.explanation?.complianceImplications ?? []),
+    ...(summary.citations ?? []).map((c) => `${c.kind} ${c.id} ${c.label}`),
+    ...(summary.findingTraceConfidences ?? []).map((r) => `${r.findingId} ${r.ruleId ?? ""}`),
+  ]
+    .filter((value): value is string => typeof value === "string")
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes("phi") || haystack.includes("privacy") || haystack.includes(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID);
+}
+
+function buyerAssessmentHeadline(summary: RunExplanationSummary, runId: string, fallbackAssessment: string): string {
+  if (isBuyerPolishedOperatorShellEnv() && hasPhiMinimizationFlagship(summary, runId)) {
+    return "PHI minimization, privacy controls, and intake evidence posture are the named compliance focus for this review.";
+  }
+
+  return fallbackAssessment;
+}
+
 /**
  * Run-level aggregate explanation: assessment, posture, confidence, themes, drivers/risks, provenance.
  */
@@ -181,7 +213,9 @@ export function RunExplanationSection({
 
   const expl = explanationBody(summary);
   const themeSummaries = summary.themeSummaries ?? [];
-  const overallAssessment = summary.overallAssessment?.trim() ?? "Assessment details are not available for this review.";
+  const rawOverallAssessment = summary.overallAssessment?.trim() ?? "Assessment details are not available for this review.";
+  const overallAssessment = buyerAssessmentHeadline(summary, runId, rawOverallAssessment);
+  const showPhiFlagship = buyerPolishedShell && hasPhiMinimizationFlagship(summary, runId);
   const riskPostureLabel = summary.riskPosture?.trim().length > 0 ? summary.riskPosture : "Not rated";
   const postureClass = riskPostureBadgeClass(riskPostureLabel);
   const deterministicFallback =
@@ -200,6 +234,17 @@ export function RunExplanationSection({
 
   return (
     <DocumentLayout tocItems={tocItems}>
+      {showPhiFlagship ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50/80 p-4 text-sm leading-relaxed text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/25 dark:text-amber-50">
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide">Flagship regulated finding</p>
+          <p className="m-0 mt-1 font-semibold">PHI minimization risk is the named privacy and control-posture issue.</p>
+          <p className="m-0 mt-1">
+            Approval depends on evidence that intake classification, adapter retention boundaries, OCR bypass monitoring,
+            and exception-volume review are in place before the package is treated as ready.
+          </p>
+        </div>
+      ) : null}
+
       <p id="doc-explanation-assessment" className="m-0 text-xl font-bold leading-snug text-neutral-900 dark:text-neutral-50">
         {overallAssessment}
       </p>
@@ -212,7 +257,7 @@ export function RunExplanationSection({
           data-risk-posture={riskPostureLabel.trim().toLowerCase()}
           className={postureClass}
         >
-          {riskPostureLabel}
+          {showPhiFlagship ? "Privacy controls monitored" : riskPostureLabel}
         </span>
         <span className="ml-3 text-[13px] text-neutral-500 dark:text-neutral-400">
           {summary.decisionCount} decisions · {findingCountForStats} findings · {summary.unresolvedIssueCount}{" "}
@@ -333,7 +378,13 @@ export function RunExplanationSection({
           Risk implications
         </h3>
         <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
-          {(expl.riskImplications ?? []).map((r) => (
+          {(showPhiFlagship
+            ? [
+                "PHI minimization must remain explicit at ingress, adapter boundaries, OCR exception paths, and downstream handoff before approval.",
+                ...(expl.riskImplications ?? []),
+              ]
+            : (expl.riskImplications ?? [])
+          ).map((r) => (
             <li key={r}>{r}</li>
           ))}
         </ul>
