@@ -34,7 +34,7 @@ public sealed class AgentResultEmbeddingFaithfulnessScorerTests
         {
             float[] vector = new float[256];
 
-            foreach (char ch in (text ?? string.Empty).ToLowerInvariant())
+            foreach (char ch in text.ToLowerInvariant())
                 vector[ch % vector.Length] += 1f;
 
             NormalizeL2(vector);
@@ -44,15 +44,11 @@ public sealed class AgentResultEmbeddingFaithfulnessScorerTests
 
         private static void NormalizeL2(float[] vector)
         {
-            double sum = 0;
-
-            foreach (float t in vector)
-                sum += t * t;
+            double sum = vector.Aggregate<float, double>(0, (current, t) => current + t * t);
 
             double norm = Math.Sqrt(sum);
 
-            if (norm < 1e-12)
-                return;
+            if (norm < 1e-12) return;
 
             for (int i = 0; i < vector.Length; i++)
                 vector[i] = (float)(vector[i] / norm);
@@ -109,7 +105,7 @@ public sealed class AgentResultEmbeddingFaithfulnessScorerTests
             await sut.TryComputeMeanCosineAsync(json, evidence, CancellationToken.None);
 
         cosine.Should().NotBeNull();
-        cosine!.Value.Should().BeGreaterThan(0.92);
+        cosine.Value.Should().BeGreaterThan(0.92);
     }
 
     private static AgentEvidencePackage MinimalEvidence(string requestDescription)

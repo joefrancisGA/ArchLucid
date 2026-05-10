@@ -6,7 +6,6 @@ using ArchLucid.Core.Resilience;
 
 using FluentAssertions;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
@@ -216,7 +215,11 @@ public sealed class FallbackLlmResilienceCompositionTests
         int maxRetryAttempts,
         int failureThreshold = 10)
     {
-        CircuitBreakerOptions options = new() { FailureThreshold = failureThreshold, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = failureThreshold,
+            DurationOfBreakSeconds = 60
+        };
         CircuitBreakerGate gate = new("composition-primary-gate", options);
         ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
             logger: NullLogger.Instance,

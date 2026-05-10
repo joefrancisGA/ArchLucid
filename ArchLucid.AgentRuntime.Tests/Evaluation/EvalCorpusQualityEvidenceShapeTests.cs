@@ -81,16 +81,16 @@ public sealed class EvalCorpusQualityEvidenceShapeTests
                     $"scenario {scenarioFile} missing {agentPath}");
             }
 
-            if (isReal)
-            {
-                qe.TryGetProperty("agentResultPathEnv", out JsonElement envEl).Should().BeTrue(
-                    $"scenario {scenarioFile} must declare qualityEvidence.agentResultPathEnv for real mode");
-                string envName = envEl.GetString()!;
-                envName.Should().NotBeNullOrWhiteSpace();
-                envName.Should().MatchRegex(
-                    "^[A-Za-z_][A-Za-z0-9_]*$",
-                    because: "eval_agent_corpus forwards the name to os.environ without substitution");
-            }
+            if (!isReal)
+                continue;
+
+            qe.TryGetProperty("agentResultPathEnv", out JsonElement envEl).Should().BeTrue(
+                $"scenario {scenarioFile} must declare qualityEvidence.agentResultPathEnv for real mode");
+            string envName = envEl.GetString()!;
+            envName.Should().NotBeNullOrWhiteSpace();
+            envName.Should().MatchRegex(
+                "^[A-Za-z_][A-Za-z0-9_]*$",
+                because: "eval_agent_corpus forwards the name to os.environ without substitution");
         }
     }
 }

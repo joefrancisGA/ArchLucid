@@ -125,7 +125,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         int ms = options.Value.DistributedIdempotencyLockTimeoutMilliseconds;
         if (ms < 1_000)
             return 1_000;
-        return ms > 600_000 ? 600_000 : ms;
+        return ms > 1_500_000 ? 1_500_000 : ms;
     }
 
     private async Task<CreateRunResult> CreateRunWithCoordinationAsync(ArchitectureRequest request, CreateRunIdempotencyState? idempotency,

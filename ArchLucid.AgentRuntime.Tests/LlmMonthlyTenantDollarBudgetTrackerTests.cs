@@ -1,6 +1,5 @@
 using System.Globalization;
 
-using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
@@ -81,7 +80,10 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
     {
         LlmMonthlyTenantDollarBudgetOptions opts = new()
         {
-            Enabled = true, IncludedUsdPerUtcMonth = 50m, HardCutoffUsdPerUtcMonth = 75m, WarnFraction = 0.75m
+            Enabled = true,
+            IncludedUsdPerUtcMonth = 50m,
+            HardCutoffUsdPerUtcMonth = 75m,
+            WarnFraction = 0.75m
         };
 
         Mock<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>> monitor = new();
@@ -126,7 +128,9 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
     {
         LlmMonthlyTenantDollarBudgetOptions opts = new()
         {
-            Enabled = true, IncludedUsdPerUtcMonth = 1m, HardCutoffUsdPerUtcMonth = 1m
+            Enabled = true,
+            IncludedUsdPerUtcMonth = 1m,
+            HardCutoffUsdPerUtcMonth = 1m
         };
 
         Mock<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>> monitor = new();
