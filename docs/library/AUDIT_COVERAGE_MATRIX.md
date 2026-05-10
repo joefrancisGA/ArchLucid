@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:175 -->
+<!-- audit-core-const-count:176 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -129,6 +129,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Microsoft Teams incoming-webhook connection remove | `TeamsIncomingWebhookConnectionsController` (`DELETE /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields |
 | ITSM outbound issue/incident create (Jira / ServiceNow) | `ItsmOutboundIssuesController` (`POST /v1/integrations/itsm/outbound/issues`) | `IntegrationJiraIssueCreateSucceeded`, `IntegrationJiraIssueCreateFailed`, `IntegrationJiraIssueCreateSkipped`, `IntegrationServiceNowIncidentCreateSucceeded`, `IntegrationServiceNowIncidentCreateFailed`, `IntegrationServiceNowIncidentCreateSkipped` | RunId / finding id when parseable | finding id, provider label, external key / skip reason — **no** secrets, tokens, or full external URLs with query strings |
 | Weekly executive digest preferences upsert | `TenantExecDigestPreferencesController` (`POST …/tenant/exec-digest-preferences`) | `ExecDigestPreferencesUpdated` | Tenant + default workspace/project from scope | digest cadence / channel booleans (JSON) |
+| Core Pilot team checklist step upsert | `CorePilotTeamChecklistController` (`PUT …/tenant/core-pilot-checklist`) | `CorePilotTeamChecklistUpdated` | Tenant + default workspace/project from scope | `{ stepIndex, isCompleted }` JSON (indexes 0–3) |
 | Entra directory bound to tenant (commercial `tid` after paid conversion) | `TenantTrialController` (`POST …/tenant/link-entra`) | `TenantEntraDirectoryBound` | Tenant from ambient scope | `{ entraTenantId }` |
 | Trial local identity linked to Entra `oid` (optional; same request as directory bind when `LocalEmail` + `EntraOid` set) | `TenantTrialController` (`POST …/tenant/link-entra`) | `TrialLocalIdentityLinkedToEntra` | Tenant from ambient scope | `{ normalizedEmail }` |
 | Trial converted (billing integration stub) | `TenantTrialController` (`POST …/convert`) | `TenantTrialConverted` | Tenant from ambient scope | `{ targetTier }` from request body when present |
@@ -164,7 +165,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-**Last reviewed:** 2026-04-30.
+**Last reviewed:** 2026-05-10.
 
 ### Mutating / lifecycle — risk acceptance (verified in repository)
 
@@ -205,7 +206,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Metric | Approximate value |
 |--------|-------------------|
 | **Core `AuditEventTypes` `public const string` rows** | 154 (see CI marker above; includes nested `Baseline` and nested `Run`) |
-| **`await *auditService.LogAsync` production call sites** | ~44 (excluding tests; includes bridge) |
+| **`await *auditService.LogAsync` production call sites** | ~45 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Known-gap catalogued-only items** | 2 — `ManifestSuperseded` (no supersession writer), `FindingsListAccessed` (no list route wiring) — see **Known gaps** |
 
@@ -307,6 +308,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `GovernanceApprovalApproved` | `GovernanceApprovalApproved` | `GovernanceWorkflowService` |
 | `PilotScorecardBaselinesUpdated` | `PilotScorecardBaselinesUpdated` | `PilotInProductScorecardService` (`PUT /v1/pilots/scorecard/baselines`) |
 | `PilotCloseoutRecorded` | `PilotCloseoutRecorded` | `PilotsController` (`POST /v1/pilots/closeout`) |
+| `CorePilotTeamChecklistUpdated` | `CorePilotTeamChecklistUpdated` | `CorePilotTeamChecklistController` (`PUT …/tenant/core-pilot-checklist`) |
 | `GovernanceApprovalRejected` | `GovernanceApprovalRejected` | `GovernanceWorkflowService` |
 | `GovernanceSelfApprovalBlocked` | `GovernanceSelfApprovalBlocked` | `GovernanceWorkflowService` |
 | `GovernanceManifestPromoted` | `GovernanceManifestPromoted` | `GovernanceWorkflowService` |

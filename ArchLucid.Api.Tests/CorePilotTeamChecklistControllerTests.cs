@@ -1,6 +1,7 @@
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Application.Common;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
 
@@ -27,9 +28,10 @@ public sealed class CorePilotTeamChecklistControllerTests
     private static CorePilotTeamChecklistController BuildSut(
         ICorePilotTeamChecklistRepository repository,
         IScopeContextProvider scopeProvider,
-        IActorContext actorContext)
+        IActorContext actorContext,
+        IAuditService auditService)
     {
-        return new CorePilotTeamChecklistController(repository, scopeProvider, actorContext)
+        return new CorePilotTeamChecklistController(auditService, repository, scopeProvider, actorContext)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -47,8 +49,9 @@ public sealed class CorePilotTeamChecklistControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
         Mock<IActorContext> actor = new();
+        Mock<IAuditService> audit = new();
 
-        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object);
+        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object, audit.Object);
         IActionResult result = await sut.GetAsync(CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
@@ -66,12 +69,14 @@ public sealed class CorePilotTeamChecklistControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
         Mock<IActorContext> actor = new();
+        Mock<IAuditService> audit = new();
 
-        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object);
+        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object, audit.Object);
         IActionResult result = await sut.PutAsync(null, CancellationToken.None);
 
         ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
         repo.Verify(
             r => r.UpsertAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>(),
                 It.IsAny<bool>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
@@ -86,13 +91,15 @@ public sealed class CorePilotTeamChecklistControllerTests
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActorId()).Returns("me");
+        Mock<IAuditService> audit = new();
 
-        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object);
+        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object, audit.Object);
         IActionResult result = await sut.PutAsync(new CorePilotChecklistPutRequest { StepIndex = 7, IsCompleted = true },
             CancellationToken.None);
 
         ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
         repo.Verify(
             r => r.UpsertAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>(),
                 It.IsAny<bool>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
@@ -107,14 +114,24 @@ public sealed class CorePilotTeamChecklistControllerTests
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActorId()).Returns("op-1");
+        Mock<IAuditService> audit = new();
 
-        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object);
+        CorePilotTeamChecklistController sut = BuildSut(repo.Object, scopeProvider.Object, actor.Object, audit.Object);
         IActionResult result = await sut.PutAsync(new CorePilotChecklistPutRequest { StepIndex = 2, IsCompleted = false },
             CancellationToken.None);
 
         result.Should().BeOfType<NoContentResult>();
         repo.Verify(
             r => r.UpsertAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, 2, false, "op-1",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.CorePilotTeamChecklistUpdated
+                    && e.TenantId == Scope.TenantId
+                    && e.DataJson.Contains("\"stepIndex\":2", StringComparison.Ordinal)
+                    && e.DataJson.Contains("\"isCompleted\":false", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

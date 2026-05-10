@@ -109,9 +109,9 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 
 ### 2.11 Traceability
 - **Score:** 78 | **Weight:** 3 | **Weighted deficiency:** 66
-- **Justification:** Strong: 78 typed audit events in append-only SQL, correlation IDs across the pipeline, decision traces, agent execution traces, provenance graph, finding inspector with evidence chains, audit log search with keyset pagination, CSV export, SIEM-compatible CEF line writer, and durable audit for governance workflows. The finding inspector shows typed payload, decision rule, evidence nodes, and audit row ID. The gap is that some mutating flows do not yet emit durable audit events (acknowledged in AUDIT_COVERAGE_MATRIX known gaps).
+- **Justification:** Strong: 176 Core catalogued audit types (nested `Baseline` / `Run` included; see `audit-core-const-count` in `AUDIT_COVERAGE_MATRIX.md`) in append-only SQL, correlation IDs across the pipeline, decision traces, agent execution traces, provenance graph, finding inspector with evidence chains, audit log search with keyset pagination, CSV export, SIEM-compatible CEF line writer, and durable audit for governance workflows. The finding inspector shows typed payload, decision rule, evidence nodes, and audit row ID. Per **`docs/library/AUDIT_COVERAGE_MATRIX.md`** (**last reviewed 2026-05-10**), **open catalogue / policy items number 2**, not undocumented mutating omissions: **`ManifestSuperseded`** (constant + enum exist; **no** supersession writer emits it yet — risk-accepted until that feature ships) and **`FindingsListAccessed`** (reserved constant; durable audit **deferred** until a stable bulk findings-list API ties to it — per-finding inspect routes cover reads today). **`PUT …/tenant/core-pilot-checklist`** now emits durable **`CorePilotTeamChecklistUpdated`**. Pairing and wiring CI scripts (`BaselineMutationAuditDualWritePairingTests`, `assert_layered_audit_wiring_echo.py`, `assert_controller_mutations_have_audit.py`) constrain new drift.
 - **Tradeoffs:** Append-only audit with DPA-aware retention (purge excludes AuditEvents) is the right trade.
-- **Improvements:** Close remaining audit coverage gaps documented in AUDIT_COVERAGE_MATRIX.
+- **Improvements:** Run the **audit hygiene loop** in Improvement 6; when manifest supersession or a stable findings list surface ships, emit the corresponding durable events and update the matrix; add audit event count (or hot-tier volume) to the admin health dashboard.
 
 ### 2.12 Usability
 - **Score:** 71 | **Weight:** 3 | **Weighted deficiency:** 87
@@ -205,9 +205,9 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 
 ### 2.27 Auditability
 - **Score:** 76 | **Weight:** 2 | **Weighted deficiency:** 48
-- **Justification:** 78 typed audit events, append-only SQL store, correlation IDs, CSV export, SIEM-compatible export (CEF), audit search with keyset pagination, filter by event type/actor/run/correlation/time window, governance dual-write to durable audit, and DPA-aware retention (audit excluded from purge). Strong.
-- **Tradeoffs:** Some flows still lack durable audit (documented as known gaps). Cosmos DB audit path is optional/future.
-- **Improvements:** Close the remaining known gaps in AUDIT_COVERAGE_MATRIX; add audit event count to the admin health dashboard.
+- **Justification:** 176 catalogue audit types (`AuditEventTypes` — includes nested namespaces; see **`AUDIT_COVERAGE_MATRIX.md`**) in append-only SQL, correlation IDs, CSV export, SIEM-compatible export (CEF), audit search with keyset pagination, filter by event type/actor/run/correlation/time window, governance dual-write to durable audit, and DPA-aware retention (audit excluded from purge). Strong.
+- **Tradeoffs:** The **two** open rows in **`AUDIT_COVERAGE_MATRIX.md` § Known gaps** (last reviewed **2026-05-10**) remain **catalogue / future-surface** items (`ManifestSuperseded`, `FindingsListAccessed`). Cosmos DB audit path is optional/future.
+- **Improvements:** Same hygiene loop as **`§2.11` / Improvement 6**; optional admin health surfacing of audit volume or recent write-failure counter.
 
 ### 2.28 Policy and Governance Alignment
 - **Score:** 74 | **Weight:** 2 | **Weighted deficiency:** 52
@@ -597,7 +597,7 @@ Constraints:
 - Keep the page simple — 4 cards maximum
 ```
 
-### Improvement 5: Reduce Cognitive Load — Terminology Consistency Pass
+### COMPLETED: Improvement 5: Reduce Cognitive Load — Terminology Consistency Pass
 
 **Why it matters:** The product uses "run" (API/database), "architecture review" (buyer language), "review" (UI), and "pilot" (first-time flow) interchangeably. This creates confusion for new users. The explicit hybrid vocabulary decision (2026-05-01) needs to be fully applied.
 
@@ -644,19 +644,54 @@ Constraints:
 - Do not rename any CSS classes, component names, or exported functions
 ```
 
-### Improvement 6: Close Top Audit Coverage Gaps
+### Improvement 6: Audit coverage hygiene — matrix is current (2 catalogue items)
 
-**Why it matters:** The audit trail is a key trust differentiator. Known gaps in AUDIT_COVERAGE_MATRIX reduce the credibility of the audit claim. Closing the top gaps strengthens Auditability, Traceability, and Compliance Readiness.
+**Why it matters:** The audit trail is a key trust differentiator. **`docs/library/AUDIT_COVERAGE_MATRIX.md`** is the contract for what emits durable **`IAuditService`** rows. **`(A)`** narrative should match the matrix — there are **not** unidentified “silent” omission categories today.
 
-**Expected impact:** Directly improves Auditability (+3-5 pts), Traceability (+2-3 pts), Compliance Readiness (+2-3 pts). Weighted readiness impact: +0.2-0.4%.
+**Current matrix posture (verified 2026-05-10 read + hygiene run):**
+- **Last reviewed** in-doc: **2026-05-10**.
+- **`audit-core-const-count`** anchor matches **`AuditEventTypes.cs`**: **176** constants.
+- **Resolved this pass:** `PUT …/tenant/core-pilot-checklist` emits durable **`IAuditService`** rows (**`CorePilotTeamChecklistUpdated`**); **`CorePilotTeamChecklistController`** was removed from **`controller_action_audit_allowlist.txt`** (no silent allowlist omission).
+- **Open catalogued-only / policy-deferred items: 2** (see § “Known gaps”):
+  1. **`ManifestSuperseded`** — type exists; **no** persist path sets golden manifest lifecycle to superseded yet. **Risk acceptance:** emit durable audit **when supersession ships** from the application service/orchestrator that performs the transition (matrix prescribes — not inside raw Dapper repos).
+  2. **`FindingsListAccessed`** — constant exists; **no** `LogAsync` call site; product uses **per-finding** inspect routes. **Deferred:** durable audit **only after** a stable bulk “list findings” API exists and is wired to this event name.
+
+No additional “unknown” gaps were asserted by this pass; future mutating controllers must remain covered by existing CI (**`assert_controller_mutations_have_audit.py`**, **`assert_layered_audit_wiring_echo.py`**, **`BaselineMutationAuditDualWritePairingTests`**).
+
+**Expected impact:** Auditability / Traceability / Compliance Readiness hold or improve modestly (**+2–4** aggregate narrative confidence) once hygiene is routine; **implementing** the two backlog items later yields the **+3–5** style gains in the matrix row.
 
 **Affected qualities:** Auditability, Traceability, Compliance Readiness, Trustworthiness
 
-**Status:** DEFERRED
+**Status:** Actionable now (hygiene loop); backlog items (**superseded**, bulk list + **`FindingsListAccessed`**) tie to future product slices.
 
-**Reason:** Need to read the current AUDIT_COVERAGE_MATRIX.md "Known gaps" section to identify which specific flows lack durable audit. The document states "zero open durable-audit omissions" as of 2026-04-23 for previously listed areas, but new routes and flows may have been added since.
+**Cursor Prompt:**
+```
+Execute audit coverage hygiene aligned with docs/library/AUDIT_COVERAGE_MATRIX.md (Known gaps §, last reviewed 2026-05-10).
 
-**Information needed:** Confirm whether there are any current known gaps in AUDIT_COVERAGE_MATRIX.md, or point me to the specific flows you want audited.
+Context:
+- Open catalogue items exactly 2: ManifestSuperseded (no supersession writer), FindingsListAccessed (no bulk list route + no LogAsync)
+- CI guards: scripts/ci/assert_controller_mutations_have_audit.py, scripts/ci/assert_layered_audit_wiring_echo.py, ArchLucid.Application.Tests/Audit/BaselineMutationAuditDualWritePairingTests.cs
+- assert_audit_const_count.py anchors AuditEventTypes count in the matrix HTML comment
+
+Tasks:
+1. Re-read AUDIT_COVERAGE_MATRIX.md Known gaps — confirm unchanged count (2) or update assessment + matrix together if drift.
+2. From repo root run (or CI-equivalent): 
+   python scripts/ci/assert_controller_mutations_have_audit.py
+   python scripts/ci/assert_layered_audit_wiring_echo.py  
+   dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~BaselineMutationAuditDualWritePairing"
+3. Scan for new mutating controllers added since matrix "Last reviewed" — if any route posts/puts/deletes tenant state without appearing in matrix durable table, add row + IAuditService OR document new gap row with owner policy (do not silently leave holes).
+4. Optional quick win: add admin health card or Prometheus-friendly counter for recent archlucid_audit_write_failures_total (or equivalent) — matrix references coordinator retry exhaustion telemetry.
+5. Do NOT invent ManifestSuperseded or bulk FindingsListAccessed emits in this pass unless implementing those features fully — backlog items stay explicit.
+
+Acceptance criteria:
+- Scripts/tests above pass locally
+- If matrix updated, bump "Last reviewed" date and audit-core-const-count comment if AuditEventTypes changed
+- Update this assessment §2.11 / §2.27 / Improvement 6 only if gap inventory or last-reviewed date materially changes
+
+Constraints:
+- Durable audit from application orchestrators/services per matrix policy — not repositories only
+- No secrets or PII in new audit payloads
+```
 
 ### Improvement 7: Add In-Product Configuration Summary View
 
@@ -1510,9 +1545,10 @@ Constraints:
 - Is staging.archlucid.net currently accessible and configured with Stripe TEST keys?
 - What is the desired trial tenant duration before auto-expiration?
 
-### Improvement 6 (Audit Gaps)
-- Are there any current known gaps in the audit coverage matrix beyond what was documented as of 2026-04-23?
-- Are there new flows added since the last audit matrix review that need coverage?
+### Improvement 6 (Audit hygiene — optional product follow-ups)
+- **Backlog:** When **golden manifest supersession** ships — emit **`ManifestSuperseded`** from the orchestrator that performs the lifecycle transition (**per `docs/library/AUDIT_COVERAGE_MATRIX.md`**).
+- **Backlog:** When a **stable bulk findings list API** ships — wire **`FindingsListAccessed`** durable audit (**per matrix**).
+- Otherwise the matrix **last reviewed 2026-05-10** already enumerates the **2** open backlog items; run the Improvement 6 CI hygiene loop on each release with new mutating routes.
 
 ### Improvement 8 (Hosted Trial)
 - Should trial evaluators share a staging environment or get isolated per-tenant provisioning?
