@@ -72,6 +72,22 @@ export async function expectComparisonRequestOutcomeVisible(page: Page): Promise
 }
 
 /**
+ * Expands `<details aria-label="Comparison request outcome">` when closed.
+ * Inner outcome rows (`Manifest comparison`, `OK`, etc.) are hidden until expanded unless
+ * the compare page stale-inputs warning keeps the panel `open`.
+ */
+export async function expandComparisonRequestOutcome(page: Page): Promise<void> {
+  const panel = comparisonRequestOutcomePanel(page);
+
+  await expect(panel).toBeVisible();
+  const isOpen: boolean = await panel.evaluate((el) => (el as HTMLDetailsElement).open);
+
+  if (!isOpen) {
+    await panel.locator(":scope > summary").click();
+  }
+}
+
+/**
  * Opens supplementary legacy comparison (`<details id="compare-technical">`).
  * Content (`#compare-legacy`, review-level table) is hidden until expanded.
  */
