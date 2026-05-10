@@ -229,7 +229,7 @@ These are genuine differentiators if they work as described. The risk is that th
 
 ### 2.16 Commercial Packaging Readiness — Score: 70 | Weight: 2 | Weighted Deficiency: 60
 
-**Justification:** Three tiers (Team $199/mo, Professional $899/mo, Enterprise custom), clear seat and run allowances, annual prepay discounts, finding engine access tiers, governance capability tiering. The billing infrastructure (Stripe controllers, Marketplace webhooks, production safety rules, tier enforcement via `[RequiresCommercialTenantTier]` 402 filter) is wired but in TEST mode.
+**Justification:** Three tiers (Team, Professional, Enterprise custom) per [PRICING_PHILOSOPHY §5 — Locked list prices](docs/go-to-market/PRICING_PHILOSOPHY.md#5-locked-list-prices-2026), clear seat and run allowances, annual prepay discounts, finding engine access tiers, governance capability tiering. The billing infrastructure (Stripe controllers, Marketplace webhooks, production safety rules, tier enforcement via `[RequiresCommercialTenantTier]` 402 filter) is wired but in TEST mode.
 
 **Tradeoffs:** The packaging is more developed than most pre-revenue products. The gap is the live commerce flip, which is explicitly deferred to V1.1.
 
@@ -624,7 +624,7 @@ Gaps: (1) LLM cost estimation options exist but the accuracy of cost projections
 
 2. **No reference customer or case study.** Buyers cannot see evidence of real-world value. The ROI model is theoretical. No testimonial, logo, or measured outcome exists.
 
-3. **AI output quality unproven = risky purchase decision.** A buyer committing $199-$899/month needs confidence the AI analysis is useful. Without a live demo with real model output, the purchase is faith-based.
+3. **AI output quality unproven = risky purchase decision.** A buyer committing to the [published subscription bands in PRICING_PHILOSOPHY §5](docs/go-to-market/PRICING_PHILOSOPHY.md#5-locked-list-prices-2026) needs confidence the AI analysis is useful. Without a live demo with real model output, the purchase is faith-based.
 
 4. **Self-serve trial funnel incomplete for production.** The staging trial works in TEST mode but the production path requires multiple owner-only actions (Stripe live keys, Marketplace publishing, DNS cutover). PLG motion is blocked.
 
@@ -688,11 +688,13 @@ Gaps: (1) LLM cost estimation options exist but the accuracy of cost projections
 
 **Status:** DEFERRED
 
-**Reason:** Requires **`AZURE_OPENAI_API_KEY`** (CI secret) and wiring **`AZURE_OPENAI_ENDPOINT`** / **`AZURE_OPENAI_DEPLOYMENT_NAME`** to the pipeline. Cannot be executed until CI secrets and job config are connected.
+**Reason:** Owner must enable **`vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM`**, set **`secrets.ARCHLUCID_GOLDEN_COHORT_API_HOST`**, and populate GitHub **secret** **`AZURE_OPENAI_API_KEY`** plus **variable** **`AZURE_OPENAI_ENDPOINT`** (see **CI wiring** below). Live cohort execution is still **owner-gated** until those are set and a run is observed green.
 
-**Information needed:** **`AZURE_OPENAI_API_KEY`** only, supplied as a CI secret (do not commit).
+**Information needed:** Nothing further for deployment identity — use **`AZURE_OPENAI_API_KEY`** (GitHub secret) and **`AZURE_OPENAI_ENDPOINT`** (GitHub variable); never commit the key.
 
-**Owner guidance (2026-05-10):** Use deployment name **`gpt-4o`**. Treat nightly real-LLM CI as capped at **`USD 5`** spend (cost budget for that tier). Endpoint for the dev/project-aligned gate: **`https://oai-archlucid-dev.services.ai.azure.com/api/projects/proj-default`** (maps to **`AZURE_OPENAI_ENDPOINT`** in CI).
+**Owner guidance (2026-05-10):** Use deployment name **`gpt-4o`**. Treat nightly real-LLM CI as capped at **`USD 5`** spend (cost budget for that tier; the budget probe’s **`monthlyTokenBudgetUsd`** in **`tests/golden-cohort/budget.config.json`** may still reflect the older **`$50`** Q15 cap — align in a dedicated change if you want Cost Management kill-switch to match **`$5`**). Endpoint for the dev/project-aligned gate: **`https://oai-archlucid-dev.services.ai.azure.com/api/projects/proj-default`** — set this as repository variable **`AZURE_OPENAI_ENDPOINT`**.
+
+**CI wiring (2026-05-10):** **`.github/workflows/golden-cohort-nightly.yml`**, job **`cohort-real-llm-live`**, step **Golden cohort drift (strict real + structural-only)**, passes **`secrets.AZURE_OPENAI_API_KEY`**, **`vars.AZURE_OPENAI_ENDPOINT`**, and **`AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o`** into the process environment. See **`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`** §2.
 
 ---
 
@@ -871,7 +873,7 @@ Do not change:
 
 **Affected qualities:** Procurement Readiness, Accessibility, Compliance Readiness
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`docs/security/VPAT_2_4_WCAG_2_1_DRAFT.md`** (VPAT® 2.4 Rev–style ACR draft; WCAG 2.1 Levels A/AA; Doc-Scope-Header; Trust Center link in **`docs/go-to-market/TRUST_CENTER.md`** *Compliance and certifications* table). No code or test file changes per acceptance constraints.
 
 **Cursor prompt:**
 ```

@@ -314,11 +314,18 @@ jobs:
       - name: dotnet restore CLI
         run: dotnet restore ArchLucid.Cli/ArchLucid.Cli.csproj
 
+      # Runner-side AZURE_OPENAI_* matches docs/library/FIRST_REAL_VALUE.md and CLI RealModePreflight
+      # expectations. The drift command calls the hosted API; these env vars still align tooling and
+      # any subprocess that reads process environment. Set secret AZURE_OPENAI_API_KEY and variable
+      # AZURE_OPENAI_ENDPOINT on the repository (see docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md §2).
       - name: Golden cohort drift (strict real + structural-only)
         env:
           ARCHLUCID_API_URL: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_API_HOST }}
           ARCHLUCID_GOLDEN_COHORT_REAL_LLM: "true"
           ARCHLUCID_AGENT_EXECUTION_MODE: "Real"
+          AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_DEPLOYMENT_NAME: gpt-4o
         run: >
           dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --configuration Release --
           golden-cohort drift --strict-real --structural-only

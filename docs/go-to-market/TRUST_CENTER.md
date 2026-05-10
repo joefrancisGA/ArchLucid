@@ -159,6 +159,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 
 | Item | Status | Notes |
 |------|--------|--------|
+| **Accessibility Conformance Report (draft)** — VPAT® **2.4 Rev**, WCAG **2.1** A / AA (**Operator UI**) | **Draft** — automated axe-core evidence + honesty on manual gaps | [VPAT_2_4_WCAG_2_1_DRAFT.md](../security/VPAT_2_4_WCAG_2_1_DRAFT.md) mirrors CI posture (`jest-axe`, Playwright axe); **manual** conformance work remains for criteria marked Not Evaluated. |
 | **SOC 2** (Type I / II) | **Deferred** — interim self-assessment + Trust Center honesty until trigger is reached | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). SOC 2 Type I engagement planned when ArchLucid reaches **$250K ARR** or upon a **binding procurement requirement from a contracted customer**, whichever is earlier; until then, we publish a self-attested security and compliance summary. (Directional, not contractual — see `docs/PENDING_QUESTIONS.md` *Resolved 2026-05-05 (SOC 2 ARR trigger)*.) External readiness consultant + CPA firm selection paused until that threshold; G-001 in the self-assessment captures the resumption checklist. |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
 | **ISO 27001** | Not claimed | Roadmap timing tied to SOC 2 program (date not yet set). |
