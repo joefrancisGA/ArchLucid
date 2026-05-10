@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rmms-real-exemplar-01",
+  "taskId": "corpus-rmms-task-exemplar",
+  "runId": "corpus-rmms-run-exemplar",
+  "agentType": 1,
+  "claims": [
+    {
+      "evidenceRefs": ["mesh-without-gateway"],
+      "detail": "Committed exemplar: services invoke peers directly; edge hardening relies on per-service authz instead of a shared gateway."
+    }
+  ],
+  "evidenceRefs": ["mesh-without-gateway"],
+  "confidence": 0.76,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Calls fan out east-west across nine services without a centralized API gateway or WAF screening ingress JSON shapes.",
+      "recommendation": "Introduce an edge gateway for external consumers and standardize mTLS or signed service tokens internally."
+    },
+    {
+      "severity": "Low",
+      "category": "Critic",
+      "description": "Blast radius grows because compromised credentials could traverse service-to-service paths before detection.",
+      "recommendation": "Pair segmentation controls with centralized correlation identifiers across all outbound HTTP clients."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T12:00:00Z"
+}

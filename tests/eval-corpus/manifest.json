@@ -21,6 +21,12 @@
     "scenario-real-mode-smoke.json",
     "scenario-real-mode-cost.json",
     "scenario-real-mode-compliance.json",
-    "scenario-real-mode-critic.json"
+    "scenario-real-mode-critic.json",
+    "scenario-real-mode-three-tier.json",
+    "scenario-real-mode-microservices.json",
+    "scenario-real-mode-database-backup.json",
+    "scenario-real-mode-overprovisioned-vm.json",
+    "scenario-real-mode-multi-region.json",
+    "scenario-real-mode-azure-web-app.json"
   ]
 }

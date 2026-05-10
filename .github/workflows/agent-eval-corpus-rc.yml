@@ -35,6 +35,12 @@ jobs:
           ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-cost.real.json
           ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-compliance.real.json
           ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-critic.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_THREE_TIER_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-three-tier.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MICROSERVICES_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-microservices.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATABASE_BACKUP_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-database-backup.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_OVERPROVISIONED_VM_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-overprovisioned-vm.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-multi-region.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_AZURE_WEB_APP_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-azure-web-app.real.json
         run: bash scripts/ci/run_eval_agent_corpus_rc.sh
 
       - uses: actions/upload-artifact@v4

@@ -181,6 +181,14 @@ public static class Program
                 case "procurement-pack":
                     return await ProcurementPackCommand.RunAsync(normalized.Skip(1).ToArray());
 
+                case "demo":
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "export", StringComparison.OrdinalIgnoreCase))
+                        return await DemoCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                    Console.WriteLine("Usage: archlucid demo export [--out <dir>]");
+
+                    return CliExitCode.UsageError;
+
                 case "buyer-proof-pack":
                     return await BuyerProofPackCommand.RunAsync(normalized.Skip(1).ToArray());
 

@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rmdb-real-exemplar-01",
+  "taskId": "corpus-rmdb-task-exemplar",
+  "runId": "corpus-rmdb-run-exemplar",
+  "agentType": 3,
+  "claims": [
+    {
+      "evidenceRefs": ["sql-backup-posture"],
+      "detail": "Committed exemplar: backup window documented but geo-redundancy flags disabled on primary storage accounts."
+    }
+  ],
+  "evidenceRefs": ["sql-backup-posture"],
+  "confidence": 0.78,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Compliance",
+      "description": "Backup retention and RPO targets are not evidenced in the architecture pack for the production OLTP database tier.",
+      "recommendation": "Publish RPO/RTO decisions and attach Azure SQL automated backup exports or third-party vault references."
+    },
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Geo-redundant storage is disabled while marketing pages imply multi-site availability for transactional APIs.",
+      "recommendation": "Either enable paired-region storage patterns or narrow availability claims in external communications."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T12:00:00Z"
+}

@@ -11,11 +11,15 @@ export type ContextualHelpEntry = {
  */
 export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "new-run-wizard": {
-    text: "Create an architecture request that describes the system you want ArchLucid to analyze.",
+    text: "Create an architecture request that describes the system you want ArchLucid to analyze. Reference starters, Quick shapes, and industry templates pre-fill the form — you can still edit everything before submission.",
     learnMoreUrl: "/docs/CORE_PILOT.md#new-run",
   },
+  "runs-list-overview": {
+    text: "Each row is one architecture review. Open a row to inspect the manifest, findings, pipeline timeline, and exports for that review.",
+    learnMoreUrl: "/docs/CORE_PILOT.md",
+  },
   "run-pipeline-status": {
-    text: "The pipeline shows each AI agent's progress. When all steps complete, the run is ready to finalize.",
+    text: "The pipeline shows each AI agent's progress. When all steps complete, the run is ready to finalize. Elapsed labels (when shown) measure wall time since the previous listed event — useful for sponsor readouts.",
     learnMoreUrl: "/docs/CORE_PILOT.md#pipeline-status",
   },
   "commit-manifest": {

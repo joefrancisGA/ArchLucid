@@ -7,7 +7,7 @@
 
 **Audience:** Product and engineering teams planning the self-serve trial path.
 
-**Last reviewed:** 2026-05-11 (§4 separates near‑term **automated infra purge urgency** vs **product lifecycle** posture; §3 AOAI unchanged; prior 2026‑05‑10 self‑serve/email stance unchanged).
+**Last reviewed:** 2026-05-12 (**§3.2** — trial infra marginal cost vs AOAI + **no** gated Azure **subscription-commitment milestone** for prospects; §4 infra-purge urgency; §3 AOAI bands; prior §2 PLG/email stance unchanged).
 
 **Pricing:** Trial parameters (seats, runs, duration) are governed by the free trial row in [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) §4. Prices for conversion are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — do not restate numbers here.
 
@@ -92,7 +92,7 @@ Add light **Ask** / advisory chatter: **~\$1–\$3**/month discretionary.
 
 Fleet envelope (multiply by **concurrently active trials**): **\$5 × trials** (\$150 at **30**) for mini‑class optimism; **`LlmMonthlyTenantDollarBudget` hard‑cutoffs** clamp worst‑case outliers.
 
-Infra dominates hosted COGS (**per‑tenant SQL**, Container Apps compute, egress, observability) — AOAI tuning alone does **not** replace elastic‑pool sizing for signup traffic.
+Infra dominates hosted **fleet** COGS (**per‑tenant SQL**, Container Apps compute, egress, observability) versus **aggregate** AOAI envelopes — AOAI tuning alone does **not** replace elastic‑pool sizing for **high concurrent signup traffic**. **Operator stance (2026-05-12):** **Incremental trial prospects alone** do **not** warrant carving a discrete **Azure subscription cost commitment** or financing milestone — idle/dormant per‑catalog infra stays **cheap** at current architecture granularity; widen pools only when measured **traffic** demands it (**`CAPACITY_AND_COST_PLAYBOOK`**).
 
 #### Configuration posture (engineering)
 

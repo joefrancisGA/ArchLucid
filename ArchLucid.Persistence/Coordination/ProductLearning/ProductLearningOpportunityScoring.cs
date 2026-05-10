@@ -103,10 +103,6 @@ public static class ProductLearningOpportunityScoring
 
     private static string Truncate(string value, int maxChars)
     {
-        if (value.Length <= maxChars)
-            return value;
-
-
-        return value[..maxChars];
+        return value.Length <= maxChars ? value : value[..maxChars];
     }
 }

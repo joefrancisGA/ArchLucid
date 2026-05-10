@@ -18,6 +18,12 @@
 #   ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT        — scenario-real-mode-cost
 #   ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT  — scenario-real-mode-compliance
 #   ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT      — scenario-real-mode-critic
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_THREE_TIER_AGENT_RESULT   — scenario-real-mode-three-tier
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_MICROSERVICES_AGENT_RESULT  — scenario-real-mode-microservices
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATABASE_BACKUP_AGENT_RESULT — scenario-real-mode-database-backup
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_OVERPROVISIONED_VM_AGENT_RESULT — scenario-real-mode-overprovisioned-vm
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_AGENT_RESULT — scenario-real-mode-multi-region
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_AZURE_WEB_APP_AGENT_RESULT — scenario-real-mode-azure-web-app
 # See docs/library/AGENT_EVAL_CORPUS.md.
 #
 set -euo pipefail

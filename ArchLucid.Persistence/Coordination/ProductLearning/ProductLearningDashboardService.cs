@@ -49,8 +49,6 @@ public sealed class ProductLearningDashboardService(
         IReadOnlyList<string> notes = BuildSummaryNotes(
             totalSignals,
             distinctRuns,
-            snapshot,
-            opportunities,
             options);
 
         return new LearningDashboardSummary
@@ -75,64 +73,45 @@ public sealed class ProductLearningDashboardService(
         ProductLearningTriageOptions options)
     {
         List<(int Score, string TieBreaker, TriageQueueItem Item)> rows = [];
+        rows.AddRange(from opportunity in opportunities
+                      let score = ComputeOpportunityTriageScore(opportunity)
+                      let tie = "o:" + opportunity.Title
+                      select (score, tie, new TriageQueueItem
+                      {
+                          QueueItemId = Guid.NewGuid(),
+                          RelatedSignalId = null,
+                          RelatedOpportunityId = opportunity.OpportunityId,
+                          Title = opportunity.Title,
+                          DetailSummary = opportunity.Summary,
+                          PriorityRank = 0,
+                          Severity = opportunity.Severity,
+                          AffectedArtifactTypeOrWorkflowArea = opportunity.AffectedArtifactTypeOrWorkflowArea,
+                          TriageStatus = ProductLearningTriageStatusValues.Open,
+                          FirstSeenUtc = opportunity.FirstSeenUtc,
+                          LastSeenUtc = opportunity.LastSeenUtc,
+                          SuggestedNextAction = "Review rollup and pilot context; confirm whether to file an engineering backlog item."
+                      }));
 
-        foreach (ImprovementOpportunity opportunity in opportunities)
-        {
-            int score = ComputeOpportunityTriageScore(opportunity);
-            string tie = "o:" + opportunity.Title;
-
-            rows.Add((
-                score,
-                tie,
-                new TriageQueueItem
-                {
-                    QueueItemId = Guid.NewGuid(),
-                    RelatedSignalId = null,
-                    RelatedOpportunityId = opportunity.OpportunityId,
-                    Title = opportunity.Title,
-                    DetailSummary = opportunity.Summary,
-                    PriorityRank = 0,
-                    Severity = opportunity.Severity,
-                    AffectedArtifactTypeOrWorkflowArea = opportunity.AffectedArtifactTypeOrWorkflowArea,
-                    TriageStatus = ProductLearningTriageStatusValues.Open,
-                    FirstSeenUtc = opportunity.FirstSeenUtc,
-                    LastSeenUtc = opportunity.LastSeenUtc,
-                    SuggestedNextAction =
-                        "Review rollup and pilot context; confirm whether to file an engineering backlog item."
-                }));
-        }
-
-        foreach (RepeatedCommentTheme theme in snapshot.RepeatedCommentThemes)
-        {
-            if (theme.OccurrenceCount < options.MinCommentOccurrencesForTriageQueue)
-                continue;
-
-
-            int score = ComputeCommentThemeTriageScore(theme);
-            string tie = "c:" + theme.ThemeKey;
-
-            string severity = theme.OccurrenceCount >= 8 ? "High" : theme.OccurrenceCount >= 5 ? "Medium" : "Low";
-
-            rows.Add((
-                score,
-                tie,
-                new TriageQueueItem
-                {
-                    QueueItemId = Guid.NewGuid(),
-                    RelatedSignalId = null,
-                    RelatedOpportunityId = null,
-                    Title = "Repeated pilot wording (" + theme.OccurrenceCount + "×)",
-                    DetailSummary = "ThemeKey=" + theme.ThemeKey + "; sample=" + theme.SampleCommentShort,
-                    PriorityRank = 0,
-                    Severity = severity,
-                    AffectedArtifactTypeOrWorkflowArea = "Feedback comments",
-                    TriageStatus = ProductLearningTriageStatusValues.Open,
-                    FirstSeenUtc = theme.FirstSeenUtc,
-                    LastSeenUtc = theme.LastSeenUtc,
-                    SuggestedNextAction =
-                        "Check whether the theme maps to a documentation or UX fix; avoid over-interpreting without pilot interviews."
-                }));
-        }
+        rows.AddRange(from theme in snapshot.RepeatedCommentThemes
+                      where theme.OccurrenceCount >= options.MinCommentOccurrencesForTriageQueue
+                      let score = ComputeCommentThemeTriageScore(theme)
+                      let tie = "c:" + theme.ThemeKey
+                      let severity = theme.OccurrenceCount >= 8 ? "High" : theme.OccurrenceCount >= 5 ? "Medium" : "Low"
+                      select (score, tie, new TriageQueueItem
+                      {
+                          QueueItemId = Guid.NewGuid(),
+                          RelatedSignalId = null,
+                          RelatedOpportunityId = null,
+                          Title = "Repeated pilot wording (" + theme.OccurrenceCount + "×)",
+                          DetailSummary = "ThemeKey=" + theme.ThemeKey + "; sample=" + theme.SampleCommentShort,
+                          PriorityRank = 0,
+                          Severity = severity,
+                          AffectedArtifactTypeOrWorkflowArea = "Feedback comments",
+                          TriageStatus = ProductLearningTriageStatusValues.Open,
+                          FirstSeenUtc = theme.FirstSeenUtc,
+                          LastSeenUtc = theme.LastSeenUtc,
+                          SuggestedNextAction = "Check whether the theme maps to a documentation or UX fix; avoid over-interpreting without pilot interviews."
+                      }));
 
         int maxQueue = options.MaxTriageQueueItems < 1 ? 1 : Math.Min(options.MaxTriageQueueItems, 100);
 
@@ -144,11 +123,7 @@ public sealed class ProductLearningDashboardService(
             .ToList();
 
         List<TriageQueueItem> ranked = new(ordered.Count);
-
-        for (int i = 0; i < ordered.Count; i++)
-
-            ranked.Add(WithQueuePriority(ordered[i], i + 1));
-
+        ranked.AddRange(ordered.Select((t, i) => WithQueuePriority(t, i + 1)));
 
         return ranked;
     }
@@ -188,8 +163,6 @@ public sealed class ProductLearningDashboardService(
     private static IReadOnlyList<string> BuildSummaryNotes(
         int totalSignals,
         int distinctRuns,
-        ProductLearningAggregationSnapshot snapshot,
-        IReadOnlyList<ImprovementOpportunity> opportunities,
         ProductLearningTriageOptions options)
     {
         List<string> lines =

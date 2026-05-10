@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-three-tier",
+  "metadata": {
+    "title": "Real-mode three-tier brief (offline AgentResult scorer)",
+    "complexity": "low",
+    "primaryAgents": ["Topology"]
+  },
+  "inputSummary": "Stable three-tier SaaS pattern probes on committed recordings plus Topology AgentResult exemplar for expanded golden cohort coverage.",
+  "recording": "recordings/three-tier-web-simple.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Topology",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_THREE_TIER_AGENT_RESULT",
+    "notes": "Synthetic exemplar under agent-results/; nightly expanded job sets this path to score real-mode rows without live AOAI."
+  },
+  "expectedFindings": [
+    {
+      "id": "e topology baseline",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["three-tier", "HTTPS"]
+    },
+    {
+      "id": "e identity posture",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["managed identity", "Vault"]
+    },
+    {
+      "id": "e segmentation",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["private endpoints", "data plane"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Critic", "ifContainsAny": ["catastrophic", "immediate production halt required"] },
+    { "category": "Cost", "ifContainsAny": ["400% overrun", "emergency resizing"] }
+  ]
+}

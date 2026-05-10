@@ -59,6 +59,26 @@ Establish a clear **cut line** between **system-plane** and **tenant-plane** dat
 - Health/readiness should distinguish **system** reachability from **sample tenant** DB failure without fan-out to all tenants each request.
 - Local dev may use `SingleCatalog` or a small **system + one tenant** SQL pair with explicit binding rows.
 
+### Signup latency: warm catalogs in elastic pools
+
+**Goal:** Hold a small standby of **already-migrated tenant product catalogs** in an elastic pool so a new signup does **not** pay `DatabaseMigrator.RunTenant` latency on the hot path — only binding, optional **logical rename** to match `TenantDatabaseNaming.SqlLogicalNameForTenant(tenantId)`, and **`MirrorTenantRowFromSystemAsync`**.
+
+**Why it fits pooling:** Idle databases in an elastic pool still share compute with other DBs on the pool; provisioning **new** DBs repeatedly competes with **storage + migration time**. Pre-migrated empties amortize DDL over background refill.
+
+**Operational pattern (hosted):**
+
+1. **Background replenish** maintains **N &ge; signup burst** catalogs with schema baseline applied and **no tenant-specific rows** (`dbo.Tenants` empty until claim).
+2. **Claim:** On signup, assign the next standby to the tenant: update **`TenantDatabaseBindings`** from a reserved “warm” sentinel to **`Pending` → migrate/mirror/active** semantics (today `SqlTenantSqlCatalogProvisioner` always runs **`RunTenant`**; a fast path **skips** `RunTenant` when the standby is already baseline-equal and jumps to **`MirrorTenantRowFromSystemAsync` + MarkActive`).
+3. **Rename** (if desired for operational clarity): rename the standby logical database server-side to match canonical tenant naming (**Azure SQL** supports `ALTER DATABASE … MODIFY NAME` within the logical server).
+
+**Trade-offs**
+
+- **Cost:** Standby catalogs consume **minimum file size/storage** pool-side even when lightly used; sizing **N** is a **signup p95 SLA vs idle storage** knob (spreadsheet belongs in **`CAPACITY_AND_COST_PLAYBOOK.md`**).
+- **Safety:** Warm DBs must **never** be routable via **`ITenantDatabaseResolver`** until bindings show **claimed + Active** after control-plane **`dbo.Tenants`** insert succeeds (avoid serving traffic against the wrong standby).
+- **Drift:** New migrations ship → either **migrate standbys idle** before claim or expire/rebuild stale warm DBs (`RunTenant` is idempotent; policy choice).
+
+See **TB-018** in **`TECH_BACKLOG.md`** for the implementation slice (provisioner/refill job + IaC knobs).
+
 ## Alternatives considered
 
 - **Drop all `FK -> Tenants` in tenant DB** and remove mirror `Tenants` row: reduces duplication but requires broad DDL and regression risk—deferred.

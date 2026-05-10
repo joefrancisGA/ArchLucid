@@ -11,7 +11,8 @@ Companion scripts:
 
 Release-candidate automation:
 
-- **`.github/workflows/agent-eval-corpus-rc.yml`** — runs on **`workflow_dispatch`**, tags **`v*-rc*`**, and branches **`release/**`**; asserts committed **`tests/eval-corpus/agent-results/*.real.json`** exemplars (Topology via **`corpus-real-mode-smoke.real.json`**, plus Cost / Compliance / Critic) and **`scripts/ci/run_eval_agent_corpus_rc.sh`** (strict recall + simulator/real quality-gate enforcement + required real-mode evidence paths); uploads Markdown artifact **`eval-corpus-rc`**.
+- **`.github/workflows/agent-eval-corpus-rc.yml`** — runs on **`workflow_dispatch`**, tags **`v*-rc*`**, and branches **`release/**`**; asserts committed **`tests/eval-corpus/agent-results/*.real.json`** exemplars (four original agent families **plus six expanded topology/cost/compliance slices**) and **`scripts/ci/run_eval_agent_corpus_rc.sh`** (strict recall + simulator/real quality-gate enforcement + required real-mode evidence paths); uploads Markdown artifact **`eval-corpus-rc`**.
+- **`.github/workflows/golden-cohort-expanded-nightly.yml`** — weekly job that scores **all** real-mode rows by pinning every **`ARCHLUCID_EVAL_CORPUS_REAL_MODE_*`** env var to repo exemplars and running **`--enforce-quality-gate`** / **`--enforce-real-quality-gate`** (informational recall remains off unless you add **`--enforce`** manually).
 
 ---
 
@@ -46,7 +47,7 @@ Each follows the authoring checklist (≥3 expected probes, ≥2 unexpected prob
 **Real Azure OpenAI** traces are **not** committed as prompts. Two complementary paths:
 
 1. **HTTP / tenant evidence:** After **`POST …/execute`**, call **`GET /v1/architecture/run/{runId}/agent-evaluation`** and archive exports outside the repo (or consume metrics backends). Name the **reference deployment** alongside **`AGENT_OUTPUT_EVALUATION.md`** quality-gate floors.
-2. **Corpus hook (deterministic scorer on AgentResult JSON):** Four scenarios commit **`qualityEvidence.mode: "real"`** with distinct env vars — **`scenario-real-mode-smoke`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT`, Topology), **`scenario-real-mode-cost`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT`), **`scenario-real-mode-compliance`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT`), **`scenario-real-mode-critic`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT`). RC automation sets each to the matching **`tests/eval-corpus/agent-results/*.real.json`** (synthetic Web-serialized shape). Locally, point any var at **`ParsedResultJson`** from a trusted run when comparing simulator fixtures to a live export; omit all vars in PR CI so rows skip without failing.
+2. **Corpus hook (deterministic scorer on AgentResult JSON):** Ten scenarios commit **`qualityEvidence.mode: "real"`** with distinct env vars — the original quartet (**`scenario-real-mode-smoke`**, **`scenario-real-mode-cost`**, **`scenario-real-mode-compliance`**, **`scenario-real-mode-critic`**) plus **`scenario-real-mode-three-tier`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_THREE_TIER_AGENT_RESULT`), **`scenario-real-mode-microservices`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_MICROSERVICES_AGENT_RESULT`), **`scenario-real-mode-database-backup`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATABASE_BACKUP_AGENT_RESULT`), **`scenario-real-mode-overprovisioned-vm`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_OVERPROVISIONED_VM_AGENT_RESULT`), **`scenario-real-mode-multi-region`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_AGENT_RESULT`), **`scenario-real-mode-azure-web-app`** (`ARCHLUCID_EVAL_CORPUS_REAL_MODE_AZURE_WEB_APP_AGENT_RESULT`). RC automation sets each to the matching **`tests/eval-corpus/agent-results/*.real.json`** (synthetic Web-serialized shape). Locally, point any var at **`ParsedResultJson`** from a trusted run when comparing simulator fixtures to a live export; omit all vars in PR CI so rows skip without failing.
 
 ### Markdown report (structural, semantic, gate)
 
@@ -89,7 +90,7 @@ Reported **`recall`** = **hits ÷ rules** per scenario — not classical IR reca
 
 - **Default:** informational — script exits **0** even when recalls dip (aligns with assessment “do not block CI initially”).
 - **Pull requests:** `eval_agent_corpus.py` runs in **`ci.yml`** with `--markdown-report` (appended to the job summary); **no** Azure OpenAI.
-- **Strict / RC:** `bash scripts/ci/run_eval_agent_corpus_rc.sh` with all four **`ARCHLUCID_EVAL_CORPUS_REAL_MODE_*_AGENT_RESULT`** vars set (workflow uses repo **`*.real.json`** paths), or invoke `eval_agent_corpus.py` with `--enforce --min-recall 0.75 --enforce-quality-gate --enforce-real-quality-gate --require-real-mode-evidence` manually.
+- **Strict / RC:** `bash scripts/ci/run_eval_agent_corpus_rc.sh` with **all ten** **`ARCHLUCID_EVAL_CORPUS_REAL_MODE_*_AGENT_RESULT`** vars set (workflow uses repo **`*.real.json`** paths), or invoke `eval_agent_corpus.py` with `--enforce --min-recall 0.75 --enforce-quality-gate --enforce-real-quality-gate --require-real-mode-evidence` manually.
 
 ---
 
@@ -99,7 +100,7 @@ Reported **`recall`** = **hits ÷ rules** per scenario — not classical IR reca
 2. Keep **≥3** expected rules and **≥2** unexpected rules (assessment minimum).
 3. Append the filename to **`manifest.json`**.
 4. (Optional) Add **`qualityEvidence`** with **`mode: "simulator"`** and **`agent-results/<case>.simulator.json`** — see the “V1 customer-like brief slice” section above.
-5. (Optional **real-mode quality row**) Clone **`scenario-real-mode-smoke.json`** or the **`scenario-real-mode-{cost,compliance,critic}.json`** trio: **`mode: "real"`**, a unique **`agentResultPathEnv`** name, **`agentType`** label, **`recordings/*.findings.json`**, substring probes. RC may commit **synthetic** **`agent-results/*.real.json`** exemplars (same shape as Web **`AgentResult`**); do **not** commit customer or production AOAI prompts/responses.
+5. (Optional **real-mode quality row**) Clone **`scenario-real-mode-smoke.json`** or any **`scenario-real-mode-*.json`**: **`mode: "real"`**, a unique **`agentResultPathEnv`** name, **`agentType`** label, **`recordings/*.findings.json`**, substring probes. RC may commit **synthetic** **`agent-results/*.real.json`** exemplars (same shape as Web **`AgentResult`**); do **not** commit customer or production AOAI prompts/responses.
 6. Run `python scripts/ci/eval_agent_corpus.py` locally before pushing; use `--markdown-report` for the RC artifact.
 
 ---

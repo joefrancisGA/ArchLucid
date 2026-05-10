@@ -28,6 +28,8 @@ ArchLucid shortens the path from an architecture request to a reviewable, defens
 dotnet run --project ArchLucid.Cli -- try
 ```
 
+**Offline demo pack** (sanitized JSON for slides / examples): [`docs/demo/README.md`](docs/demo/README.md) — `dotnet run --project ArchLucid.Cli -- demo export`.
+
 Windows Docker-only helper: `.\scripts\demo-start.ps1`
 
 <details>

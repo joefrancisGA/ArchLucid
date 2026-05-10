@@ -1,0 +1,7 @@
+{
+  "systemName": "Demo.Package.Example",
+  "status": "ReadyForCommit",
+  "decisionCount": 14,
+  "warningCount": 2,
+  "note": "Head side of offline diff example — paired with manifest-snippet.json."
+}

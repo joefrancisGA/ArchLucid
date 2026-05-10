@@ -17,6 +17,7 @@ import { documentationArchitectureRequestWizardPresets } from "@/lib/docs-archit
 import { getDocHref } from "@/lib/help-topics";
 import { TRIAL_ONBOARDING_SAMPLE_RUN_ID } from "@/lib/trial-sample-run";
 import { verticalBriefWizardPresets } from "@/lib/vertical-wizard-presets";
+import { starterArchitectureTemplates } from "@/data/starter-templates";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { cn } from "@/lib/utils";
 
@@ -242,6 +243,36 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           </div>
         </div>
       ) : null}
+
+      <div className="mb-6">
+        <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">Reference starters</h3>
+        <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          Opinionated footprints (API platforms, internal portals, telemetry, payments-adjacent) you can refine in later
+          steps.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {starterArchitectureTemplates.map((preset) => (
+            <Card key={preset.id} className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-base">{preset.label}</CardTitle>
+                <CardDescription>{preset.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1" />
+              <CardFooter>
+                <Button
+                  type="button"
+                  className="w-full border-teal-700 text-teal-900 hover:bg-teal-50 dark:border-teal-600 dark:text-teal-100 dark:hover:bg-teal-950/50"
+                  variant="outline"
+                  data-testid={`wizard-starter-${preset.id}`}
+                  onClick={() => selectPreset(preset.id, preset.values)}
+                >
+                  {`Use ${preset.label}`}
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
 
       <div className="mb-6">
         <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">Quick shapes</h3>

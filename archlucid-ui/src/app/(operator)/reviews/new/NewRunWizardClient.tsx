@@ -14,6 +14,7 @@ import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity
 import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { createArchitectureRun, listRunsByProjectPaged } from "@/lib/api";
@@ -380,7 +381,8 @@ export function NewRunWizardClient() {
 
           {wizardModeReady && showFullWizardShell ? (
             <>
-          <div className="space-y-1" data-testid="new-run-wizard-progress">
+          <div className="flex flex-wrap items-start justify-between gap-2" data-testid="new-run-wizard-progress">
+            <div className="min-w-0 flex-1 space-y-1">
             <p
               className="m-0 font-medium text-neutral-900 dark:text-neutral-100"
               data-testid="new-run-wizard-stage-line"
@@ -394,6 +396,8 @@ export function NewRunWizardClient() {
             >
               Step {stepIndex + 1}: {WIZARD_STEP_DEFINITIONS[stepIndex].label}
             </p>
+            </div>
+            {stepIndex === 0 ? <ContextualHelp helpKey="new-run-wizard" placement="left" /> : null}
           </div>
 
           <WizardStepper

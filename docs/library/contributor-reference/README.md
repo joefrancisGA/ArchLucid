@@ -16,6 +16,7 @@ Bookmark these canonical paths (**no stub yet**):
 | Test tiers & CI filters | [`TEST_STRUCTURE.md`](../TEST_STRUCTURE.md), [`TEST_EXECUTION_MODEL.md`](../TEST_EXECUTION_MODEL.md) |
 | Where-to-patch atlas | [`CONTRIBUTOR_CODE_MAP.md`](../CONTRIBUTOR_CODE_MAP.md) |
 | Contributor quick ramp | [`CONTRIBUTOR_QUICK_START.md`](../CONTRIBUTOR_QUICK_START.md) |
+| Apex marketing + Front Door coexistence (`archlucid.net`) | [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](../PUBLIC_MARKETING_SITE_TOPOLOGY.md) |
 
 ## Phase roadmap
 

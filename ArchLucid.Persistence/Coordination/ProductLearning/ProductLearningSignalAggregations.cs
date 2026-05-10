@@ -28,18 +28,12 @@ public static class ProductLearningSignalAggregations
         if (string.IsNullOrWhiteSpace(commentShort))
             return null;
 
-
         string trimmed = commentShort.Trim();
 
         if (trimmed.Length == 0)
             return null;
 
-
-        if (trimmed.Length <= CommentThemePrefixLength)
-            return trimmed;
-
-
-        return trimmed[..CommentThemePrefixLength];
+        return trimmed.Length <= CommentThemePrefixLength ? trimmed : trimmed[..CommentThemePrefixLength];
     }
 
     /// <summary>Matches SQL trend key: subject + artifact facet.</summary>
@@ -53,11 +47,7 @@ public static class ProductLearningSignalAggregations
     /// <summary>Display hint for artifact trend row.</summary>
     public static string BuildArtifactTypeOrHint(string subjectType, string? artifactHint)
     {
-        if (!string.IsNullOrWhiteSpace(artifactHint))
-            return artifactHint.Trim();
-
-
-        return subjectType;
+        return !string.IsNullOrWhiteSpace(artifactHint) ? artifactHint.Trim() : subjectType;
     }
 
     public static IEnumerable<ProductLearningPilotSignalRecord> FilterScope(

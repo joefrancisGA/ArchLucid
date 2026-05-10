@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rm3t-real-exemplar-01",
+  "taskId": "corpus-rm3t-task-exemplar",
+  "runId": "corpus-rm3t-run-exemplar",
+  "agentType": 1,
+  "claims": [
+   {
+      "evidenceRefs": ["three-tier-web-pattern"],
+      "detail": "Committed exemplar: HTTPS web tier, application tier, and data tier separated with managed identity database access."
+    }
+  ],
+  "evidenceRefs": ["three-tier-web-pattern"],
+  "confidence": 0.81,
+  "findings": [
+    {
+      "severity": "Low",
+      "category": "Topology",
+      "description": "Three-tier layout keeps HTTPS ingress at the edge with App Service handling session state separately from the OLTP database tier.",
+      "recommendation": "Validate TLS chains and slot swap behavior before widening autoscale maximum instances."
+    },
+    {
+      "severity": "Low",
+      "category": "Compliance",
+      "description": "Managed identities reach Azure SQL and Key Vault without embedding passwords in application configuration files.",
+      "recommendation": "Rotate client secrets for any remaining legacy service principals quarterly."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T12:00:00Z"
+}

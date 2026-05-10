@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-overprovisioned-vm",
+  "metadata": {
+    "title": "Real-mode oversized VM cluster (offline AgentResult scorer)",
+    "complexity": "low",
+    "primaryAgents": ["Cost", "Topology"]
+  },
+  "inputSummary": "Batch workers with low average CPU — Cost AgentResult exemplar mirrors FinOps / right-sizing probes.",
+  "recording": "recordings/overprovisioned-vm-cluster.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Cost",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_OVERPROVISIONED_VM_AGENT_RESULT",
+    "notes": "Synthetic Cost exemplar for nightly real-mode quality rollup."
+  },
+  "expectedFindings": [
+    {
+      "id": "e right-size",
+      "category": "Cost",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["right-sizing", "utilization"]
+    },
+    {
+      "id": "e scale dynamics",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["autoscale", "batch"]
+    },
+    {
+      "id": "e metering",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["FinOps", "chargeback"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["cluster is optimally sized today"] },
+    { "category": "Critic", "ifContainsAny": ["security-critical need for constant peak footprint"] }
+  ]
+}
