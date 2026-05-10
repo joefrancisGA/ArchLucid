@@ -18,6 +18,7 @@ import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityL
 import { HelpLink } from "@/components/HelpLink";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboard";
+import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -36,7 +37,9 @@ export default function HomePage() {
     <div className="space-y-6">
       {buyerPolishedShell ? null : <OperatorCoArchitectHomeStrip />}
       <WelcomeBanner />
-      
+
+      {buyerPolishedShell ? <CorePilotBuyerStepHint /> : null}
+
       {buyerPolishedShell ? null : (
         <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
           Get started

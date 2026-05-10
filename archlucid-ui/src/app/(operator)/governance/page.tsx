@@ -573,7 +573,7 @@ function GovernanceWorkflowPageInner() {
         docsPageKey="/governance"
         subtitle={
           buyerPolishedShell
-            ? "The approval path governs which finalized architecture packages may advance. Promotion moves an approved version toward staging or production; activation makes it operative for that environment."
+            ? "The approval path decides whether a finalized review package may advance. After approval, the sealed package can move toward staging or production and go live in the target environment."
             : canMutateWorkflow
               ? governanceWorkflowPageLeadOperator
               : governanceWorkflowPageLeadReader
@@ -604,8 +604,8 @@ function GovernanceWorkflowPageInner() {
         <div className="mb-6 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 text-sm text-neutral-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-neutral-50">
           <strong>Sample approval path</strong>
           {" — "}
-          Read-only sample timeline. In production, authorized users submit, approve, promote, and activate governed
-          changes.
+          Read-only sample timeline. In production, authorized roles submit requests, complete approval, release approved
+          packages to each environment, and record go-live.
         </div>
       ) : null}
 

@@ -4,19 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { HelpLink } from "@/components/HelpLink";
+import {
+  corePilotStepBadgeLabel,
+  deriveCorePilotCommitProgressState,
+  type CorePilotCommitProgressState,
+} from "@/lib/core-pilot-commit-progress";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 
 type Phase = "loading" | "ready";
-
-/** Derived pilot state from commit-context signals. */
-type PilotState = "no-run" | "has-run" | "committed";
-
-function derivePilotState(hasCommit: boolean, latestRunId: string | null): PilotState {
-  if (hasCommit) return "committed";
-  if (latestRunId !== null) return "has-run";
-
-  return "no-run";
-}
 
 /** Step badge shown in the panel header. */
 function StepBadge({ label }: { label: string }) {
@@ -131,7 +126,7 @@ export function CorePilotNextStepsCard() {
     return null;
   }
 
-  const pilotState = derivePilotState(hasCommit, latestRunId);
+  const pilotState: CorePilotCommitProgressState = deriveCorePilotCommitProgressState(hasCommit, latestRunId);
 
   if (pilotState === "committed") {
     const reviewHref =
@@ -150,7 +145,7 @@ export function CorePilotNextStepsCard() {
           >
             Core Pilot complete
           </h2>
-          <StepBadge label="Step 4 of 4" />
+          <StepBadge label={corePilotStepBadgeLabel("committed")} />
         </div>
         <p className="mb-3 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
           First committed manifest is in place. Review the architecture package and findings — export sponsor-ready
@@ -211,7 +206,7 @@ export function CorePilotNextStepsCard() {
           <h2 id="core-pilot-next-steps" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
             Core Pilot — your first architecture review
           </h2>
-          <StepBadge label="Step 2–3 of 4" />
+          <StepBadge label={corePilotStepBadgeLabel("has-run")} />
           <HelpLink docPath="/docs/CORE_PILOT.md" label="Open Core Pilot guide on GitHub (new tab)" />
         </div>
 
@@ -261,7 +256,7 @@ export function CorePilotNextStepsCard() {
         <h2 id="core-pilot-next-steps" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
           Core Pilot — your first architecture review
         </h2>
-        <StepBadge label="Step 1 of 4" />
+        <StepBadge label={corePilotStepBadgeLabel("no-run")} />
         <HelpLink docPath="/docs/CORE_PILOT.md" label="Open Core Pilot guide on GitHub (new tab)" />
       </div>
 
