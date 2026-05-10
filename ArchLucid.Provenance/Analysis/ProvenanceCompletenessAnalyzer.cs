@@ -18,8 +18,8 @@ public static class ProvenanceCompletenessAnalyzer
         ArgumentNullException.ThrowIfNull(graph);
 
         // Deserialization or hand-built graphs can leave list properties null; treat as empty.
-        IReadOnlyList<ProvenanceNode> nodes = graph.Nodes ?? [];
-        IReadOnlyList<ProvenanceEdge> edges = graph.Edges ?? [];
+        IReadOnlyList<ProvenanceNode> nodes = CoalesceEmpty(graph.Nodes);
+        IReadOnlyList<ProvenanceEdge> edges = CoalesceEmpty(graph.Edges);
 
         Dictionary<Guid, ProvenanceNode> nodeById = nodes.ToDictionary(n => n.Id, n => n);
 
@@ -30,7 +30,7 @@ public static class ProvenanceCompletenessAnalyzer
             .ToList();
 
         if (decisionNodes.Count == 0)
-
+        {
             return new ProvenanceCompletenessResult
             {
                 DecisionsCovered = 0,
@@ -38,7 +38,7 @@ public static class ProvenanceCompletenessAnalyzer
                 CoverageRatio = 1.0,
                 UncoveredDecisionKeys = []
             };
-
+        }
 
         List<(ProvenanceNode Node, bool Covered)> evaluated = decisionNodes
             .Select(d => (Node: d, Covered: IsDecisionFullyCovered(d, inboundByTarget, nodeById, edges)))
@@ -61,6 +61,8 @@ public static class ProvenanceCompletenessAnalyzer
             UncoveredDecisionKeys = uncoveredKeys
         };
     }
+
+    private static IReadOnlyList<T> CoalesceEmpty<T>(List<T>? items) => items ?? Array.Empty<T>();
 
     private static bool IsDecisionFullyCovered(
         ProvenanceNode decision,
