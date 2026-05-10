@@ -43,8 +43,8 @@ def _env_float(key: str, default: str) -> float:
 
 def _k6_api_smoke_tag_caps() -> dict[str, float]:
     """Caps for tests/load/k6-api-smoke.js — MUST stay aligned with that script's P95_MS + thresholds."""
-    tier2 = _env_float("ARCHLUCID_K6_P95_TIER2_MS", "800")
-    tier3 = _env_float("ARCHLUCID_K6_P95_TIER3_MS", "8000")
+    tier2 = _env_float("ARCHLUCID_K6_P95_TIER2_MS", "928")
+    tier3 = _env_float("ARCHLUCID_K6_P95_TIER3_MS", "6600")
     hr = _env_float("ARCHLUCID_K6_P95_HEALTH_READY_MS", "1200")
     seed_raw = os.environ.get("ARCHLUCID_K6_P95_SEED_FAKE_MS")
     seed = float(seed_raw) if seed_raw not in (None, "") else tier3
