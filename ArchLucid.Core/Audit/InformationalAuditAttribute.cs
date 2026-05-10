@@ -6,6 +6,4 @@ namespace ArchLucid.Core.Audit;
 ///     <see cref="IAuditService" /> directly).
 /// </summary>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, Inherited = false)]
-public sealed class InformationalAuditAttribute : Attribute
-{
-}
+public sealed class InformationalAuditAttribute : Attribute;

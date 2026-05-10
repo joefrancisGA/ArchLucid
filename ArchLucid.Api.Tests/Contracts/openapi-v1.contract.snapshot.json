@@ -1992,9 +1992,6 @@
           "realModeFellBackToSimulator": {
             "type": "boolean"
           },
-          "structuralExecutionMode": {
-            "$ref": "#/components/schemas/StructuralExecutionMode"
-          },
           "requestId": {
             "type": "string"
           },
@@ -2003,6 +2000,9 @@
           },
           "status": {
             "$ref": "#/components/schemas/ArchitectureRunStatus"
+          },
+          "structuralExecutionMode": {
+            "$ref": "#/components/schemas/StructuralExecutionMode"
           },
           "taskIds": {
             "items": {
@@ -2096,14 +2096,6 @@
       },
       "ArchitectureRunStatus": {
         "type": "integer"
-      },
-      "StructuralExecutionMode": {
-        "enum": [
-          "Simulator",
-          "Real",
-          "Fallback",
-          "Mixed"
-        ]
       },
       "ArchitectureTraceTimelineEntry": {
         "properties": {
@@ -12956,9 +12948,6 @@
           "realModeFellBackToSimulator": {
             "type": "boolean"
           },
-          "structuralExecutionMode": {
-            "$ref": "#/components/schemas/StructuralExecutionMode"
-          },
           "retryCount": {
             "format": "int32",
             "type": "integer"
@@ -12977,6 +12966,9 @@
           "scopeProjectId": {
             "format": "uuid",
             "type": "string"
+          },
+          "structuralExecutionMode": {
+            "$ref": "#/components/schemas/StructuralExecutionMode"
           },
           "tenantId": {
             "format": "uuid",
@@ -13445,6 +13437,9 @@
           }
         },
         "type": "object"
+      },
+      "StructuralExecutionMode": {
+        "type": "integer"
       },
       "StructuredExplanation": {
         "properties": {

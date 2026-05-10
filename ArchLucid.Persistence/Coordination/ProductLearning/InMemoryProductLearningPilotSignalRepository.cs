@@ -9,7 +9,7 @@ namespace ArchLucid.Persistence.Coordination.ProductLearning;
 public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearningPilotSignalRepository
 {
     private readonly List<ProductLearningPilotSignalRecord> _rows = [];
-    private readonly object _sync = new();
+    private readonly Lock _sync = new();
 
     public Task InsertAsync(ProductLearningPilotSignalRecord record, CancellationToken cancellationToken)
     {
@@ -18,10 +18,8 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         if (string.IsNullOrWhiteSpace(record.SubjectType))
             throw new ArgumentException("SubjectType is required.", nameof(record));
 
-
         if (string.IsNullOrWhiteSpace(record.Disposition))
             throw new ArgumentException("Disposition is required.", nameof(record));
-
 
         Guid signalId = record.SignalId == Guid.Empty ? Guid.NewGuid() : record.SignalId;
         DateTime recordedUtc = record.RecordedUtc == default ? TimeProvider.System.UtcNowDateTime() : record.RecordedUtc;
@@ -31,13 +29,13 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
 
         ProductLearningPilotSignalRecord stored = record with
         {
-            SignalId = signalId, RecordedUtc = recordedUtc, TriageStatus = triage
+            SignalId = signalId,
+            RecordedUtc = recordedUtc,
+            TriageStatus = triage
         };
 
         lock (_sync)
-
             _rows.Add(stored);
-
 
         return Task.CompletedTask;
     }
@@ -54,7 +52,6 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         List<ProductLearningPilotSignalRecord> list;
 
         lock (_sync)
-
             list = _rows
                 .Where(r =>
                     r.TenantId == tenantId &&
@@ -65,7 +62,6 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
                 .Take(capped)
                 .Select(static r => r with { })
                 .ToList();
-
 
         return Task.FromResult<IReadOnlyList<ProductLearningPilotSignalRecord>>(list);
     }
@@ -226,7 +222,6 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
     private IReadOnlyList<ProductLearningPilotSignalRecord> SnapshotRows()
     {
         lock (_sync)
-
             return _rows.Select(static r => r with { }).ToList();
     }
 }

@@ -1,4 +1,4 @@
-# ArchLucid Assessment – Weighted Readiness 73.45%
+# ArchLucid Assessment – Weighted Readiness 74.43%
 
 **Date:** 2026-05-10
 **Basis:** Independent first-principles review of the repository as of 2026-05-09 23:39 UTC-4.
@@ -10,15 +10,15 @@
 
 ### Overall Readiness
 
-ArchLucid is an ambitious, well-engineered AI-assisted architecture workflow system that produces versioned, evidence-linked findings through a multi-agent pipeline. The engineering foundation — modular C# codebase, extensive test tiers, OpenAPI contract drift detection, CI security scanning, Terraform IaC, and operator UI — is significantly more mature than typical pre-revenue products. The product's biggest liability is the gap between engineering depth and commercial traction: zero paying customers, no live LLM evidence in the assessment environment, and a heavy prerequisite stack (SQL Server + .NET 10 + Azure OpenAI + Docker) that narrows the addressable market before a single prospect evaluates.
+ArchLucid is an ambitious, well-engineered AI-assisted architecture workflow system that produces versioned, evidence-linked findings through a multi-agent pipeline. The engineering foundation — modular C# codebase, extensive test tiers, OpenAPI contract drift detection, CI security scanning, Terraform IaC, and operator UI — is significantly more mature than typical pre-revenue products. The product's biggest liability is the gap between engineering depth and commercial traction: zero paying customers, no live LLM evidence in the assessment environment, and (commercially) still having to win trust and prove ROI with **thin references** and a **commerce ramp** (live self-serve intended as default — see Commercial Picture). **Note:** For **hosted SaaS**, buyers evaluate through the **operator website** (e.g. `archlucid.net` / staging); they are **not** asked to install .NET, Docker, or SQL locally. **Commercial posture (per operator):** the product is **not open source** and customers are **not** given the repo to self-build; **customer self-host / BYO deployment is not a planned mainstream motion** when sensitivity is moderate — pilots consume **vendor-operated** infrastructure. The heavy toolchain stays **internal** (engineering, CI, vendor operations). The **enterprise** dimension that will matter next is **Azure region / data residency and DPA alignment**, not “clone and run.”
 
 ### Commercial Picture
 
-The pricing model is well-reasoned (value-based, $436–$2,331+/month) and the competitive positioning against Backstage/LeanIX/Structurizr is credible. However, the product remains sales-led with no self-serve commerce active (Stripe TEST mode only, Marketplace unpublished). No reference customer, no design partner, and no public case study exist. The ROI model is theoretical — grounded in reasonable assumptions but unvalidated by any real buyer engagement. Decision velocity for prospects is low: evaluating ArchLucid requires standing up infrastructure, not signing up on a website.
+The pricing model is well-reasoned (value-based, $436–$2,331+/month) and the competitive positioning against Backstage/LeanIX/Structurizr is credible. **Operator intent (2026-05-10):** **live self-serve checkout is the default GTM path**; there is **no formal sales organization** at this stage (that may follow if the product scales). **Decision velocity** is still constrained by **execution vs intent**: production **live** Stripe / Marketplace **un-hold** remains **deferred** per `V1_SCOPE` / `V1_DEFERRED` (TEST-mode and wiring today), so **today’s** buyer may still hit **friction between “designed for PLG” and “not yet flipped to live checkout”** — not because the strategy is **quote-driven enterprise sales**. No reference customer, no design partner, and no public case study exist. The ROI model is theoretical. **Credibility assets** (references, measured ROI, published real-LLM proof) are thin. For **hosted SaaS**, evaluation is **web-based** (sign-in / trial on the product site), not a **source handoff** or **customer-operated** install path.
 
 ### Enterprise Picture
 
-Enterprise-facing surfaces are strong for a V1: RBAC with four roles, append-only audit trail with 173+ typed events, governance workflows with segregation of duties, pre-commit gates, policy packs, SCIM 2.0 provisioning, OIDC/JWT bearer auth, and database-per-tenant isolation. Trust center documentation is honest and well-organized. The ITSM connectors (Jira, ServiceNow, Confluence, Slack, Teams) are shipped with automated tests but only manually validated against live vendors. SOC 2 is self-assessed only (CPA attestation explicitly deferred). The procurement pack (DPA, CAIQ, SIG) is template-grade, not battle-tested in a real RFP cycle.
+Enterprise-facing surfaces are strong for a V1: RBAC with four roles, append-only audit trail with 173+ typed events, governance workflows with segregation of duties, pre-commit gates, policy packs, SCIM 2.0 provisioning, OIDC/JWT bearer auth, and database-per-tenant isolation. Trust center documentation is honest and well-organized. **Commercial posture:** pilots consume **vendor-hosted SaaS** (not customer source or routine self-host); over time, **region choice and data residency** narratives will matter more than extreme data classification for most buyers. The ITSM connectors (Jira, ServiceNow, Confluence, Slack, Teams) are shipped with automated tests but only manually validated against live vendors. SOC 2 is self-assessed only (CPA attestation explicitly deferred). The procurement pack (DPA, CAIQ, SIG) is template-grade, not battle-tested in a real RFP cycle.
 
 ### Engineering Picture
 
@@ -28,20 +28,22 @@ The codebase is well-structured across 30+ projects with clear layer boundaries.
 
 ## Weighted Quality Assessment
 
-Qualities are ordered from most urgent (highest weighted deficiency) to least urgent.
+Qualities are ordered from most urgent (highest weighted deficiency) to least urgent. **Note (2026-05-10 rescore):** **Adoption Friction** was revised **55 → 68**; by weighted deficiency, **Marketability** and **AI/Agent Readiness** still rank above it. **Decision Velocity** revised **52 → 62** (**operator intent:** PLG / live self-serve default, no sales team at this stage). Section **numbers** below are left as in the original pass to avoid renumbering the full catalog.
 
-### 1. Adoption Friction — Score: 55 | Weight: 6 | Weighted Deficiency: 2.70
+### 1. Adoption Friction — Score: 68 | Weight: 6 | Weighted Deficiency: 1.92
 
-**Justification:** Evaluating ArchLucid requires: .NET 10 SDK, Docker, SQL Server (or container), Azure OpenAI access (for real mode), Node.js (for UI). The "Try in 60 seconds" claim requires all of these pre-installed. No hosted free trial exists; the self-serve signup funnel is Stripe TEST mode only. The `archlucid try` CLI command is the fastest path but still requires a local .NET SDK. Compared to competitors where prospects visit a URL and click around, ArchLucid demands significant infrastructure commitment before a buyer sees value.
+**Justification (revised score):** **Hosted SaaS** removes the largest historical friction vector — **no local install** for the default buyer path (browser + vendor-hosted API/SQL/worker). That merits a materially higher score than a “clone and run Docker” product. **Residual friction** keeps this short of the 80s: **enterprise identity** (Entra / External ID / trial flows), **first-run conceptual load** (wizard, manifest model), **procurement** on some accounts (even under PLG), **time-to-trust** without references or published real-LLM evidence, **future** asks around **Azure region / data residency** (DPA, subprocessors), and any **temporary** gap while **live** self-serve commerce is still **rolling out** vs **TEST** / deferred un-hold. **Vendor-internal** engineering still uses the full toolchain; that is **not** a customer deliverable.
 
-**Tradeoffs:** The heavy stack reflects real architectural choices (SQL Server for transactional integrity, .NET for type safety and performance, Azure OpenAI for LLM). These are defensible for the enterprise target market but brutal for top-of-funnel conversion.
+**Score move:** Raised from **55 → 68** (+13) after correcting the earlier conflation of **buyer SaaS** with **local/repo-based** evaluation.
+
+**Tradeoffs:** A vendor-operated stack keeps buyer burden low on purpose. Enterprise pilots still absorb **identity, vendor data-plane assurance (where data lives, who subprocessors are), and procurement** friction — they never touch the database, but security/legal still review **region, residency, and LLM data flow**. **Customer self-host** and **source distribution** are **not** part of the mainstream commercial story (non-OSS); the alternative to “I won’t use your cloud” is usually **procurement / regional footprint**, not **give me the repo**.
 
 **Recommendations:**
-- Ship a hosted staging environment where prospects can run a guided pilot without local infrastructure.
-- Create a 5-minute video demo that shows the complete pilot path with real outputs.
-- Build a "sandbox" mode that uses in-memory storage and simulator agents for zero-dependency evaluation.
+- Ensure **public** positioning and **go-to-market** collateral are **hosted SaaS–first**; treat **region/residency** and trust-center linkage as the enterprise **data** story, not self-deploy.
+- Create a 5-minute video demo that shows the complete pilot path **in the operator UI** (hosted or staging) with real outputs.
+- For **security reviewers**, surface **region**, **subprocessors**, and **DPA** early; add **sample exports** or **`archlucid demo`**-style artifacts only as **read-only** aids for **procurement / security** — not as a substitute for giving away source.
 
-**Fixability:** Sandbox mode is V1-feasible; hosted trial is V1.1.
+**Fixability:** Trust-center and region narrative is V1; formal multi-region / residency SKUs can track product roadmap.
 
 ---
 
@@ -64,7 +66,7 @@ Qualities are ordered from most urgent (highest weighted deficiency) to least ur
 
 **Justification:** The positioning is clear ("shortens the path from architecture request to reviewable, defensible architecture package") and the competitive differentiation against Backstage/LeanIX/Structurizr is credible. The executive sponsor brief, product datasheet, and pricing page exist. However: no reference customer, no case study, no testimonial, no published benchmark of time savings. The ROI model ($294K annual savings for 6-architect team) is theoretical. The product name "ArchLucid" is clear but the domain `archlucid.net` deployment status is uncertain from the codebase. No marketing site beyond the hosted staging exists.
 
-**Tradeoffs:** Building deep product before marketing is a valid founder strategy for enterprise B2B, but the complete absence of external validation means every sales conversation starts from zero credibility.
+**Tradeoffs:** Building deep product before marketing is a valid founder strategy for enterprise B2B, but the complete absence of external validation means **every buyer or evaluator conversation** starts from zero credibility.
 
 **Recommendations:**
 - Run one complete pilot (even internal) and document measurable time savings with before/after evidence.
@@ -90,32 +92,37 @@ Qualities are ordered from most urgent (highest weighted deficiency) to least ur
 
 ---
 
-### 5. Decision Velocity — Score: 52 | Weight: 2 | Weighted Deficiency: 0.96
+### 5. Decision Velocity — Score: 62 | Weight: 2 | Weighted Deficiency: 0.76
 
-**Justification:** A prospect evaluating ArchLucid faces a long path to a purchase decision: install prerequisites → configure infrastructure → run a pilot → evaluate outputs → determine ROI → navigate procurement. No self-serve trial shortens this. The sales-led motion (quote request → manual follow-up) adds human latency. The pricing page exists but checkout is disabled (Stripe TEST mode). There is no "try before you buy" path that works in under an hour without infrastructure.
+**Justification:** **Operator intent:** **live self-serve checkout** is the **default** motion; **no dedicated sales team** is planned at this stage. A prospect on **hosted SaaS** reaches the product **via the web** without local install. **What still slows “decide now”** is not a **chosen** quote-led strategy but **(a)** **implementation lag**: production **live** Stripe / Marketplace un-hold may still trail intent (repo documents defer the flip; TEST-mode today); **(b)** **thin proof** (no references, weak public real-LLM evidence), so buyers pause even when the funnel is self-serve; **(c)** **enterprise overlays** (IdP, procurement) on some accounts regardless of PLG. The **`/pricing` quote-request** path is **supplemental**, not the declared primary motion.
 
-**Tradeoffs:** Enterprise B2B sales cycles are inherently long, and the sales-led motion is appropriate for the price point ($5K–$30K+ annually). But zero self-serve capability means even interested prospects must wait for human engagement.
+**Score move:** Raised from **52 → 62** to reflect **stated PLG default**; points held back for **live commerce ramp** and **proof gap**.
+
+**Tradeoffs:** PLG at **$5K–$30K+** ACV still hits **long cycle** and **security review** on many logos; **low-touch** support and **crisp in-product** upgrade paths matter more than a **CRM** until a sales team exists.
 
 **Recommendations:**
-- Enable a time-limited hosted trial (14 days, simulator mode) that requires only email signup.
-- Add a "Quick Demo" mode to the CLI that produces a sample output package without SQL or AOAI dependencies.
+- Close the gap between **intent** and **production**: **live** checkout, webhook, and **published** offer when owner gates clear — keep **`BillingProductionSafetyRules`** discipline.
+- Instrument **funnel metrics** (signup → activate → first commit → pay) for a **founder-led / product-led** org.
+- Time-limited **hosted** trial or **demo tenant** with email signup only.
 
-**Fixability:** Demo mode is V1; hosted trial is V1.1.
+**Fixability:** Live un-hold is **V1.1** per scope docs; funnel polish is **V1**.
+
+**Note:** Optional **CLI / sample bundle** for **founder or solutions** assist — not a customer deploy story.
 
 ---
 
 ### 6. Time-to-Value — Score: 66 | Weight: 7 | Weighted Deficiency: 2.38
 
-**Justification:** Once infrastructure is running, the pilot path (request → execute → commit → review) can complete in minutes with simulator mode. The "Core Pilot" checklist is well-documented. The CLI `archlucid try` command is the fastest path. However, getting to "infrastructure is running" takes hours to days depending on existing toolchain. Real-mode execution (with actual LLM analysis) requires Azure OpenAI provisioning, which adds more setup time. The first useful output (a committed manifest with real AI findings) requires both the infrastructure and AOAI — there is no intermediate value point where the product proves something useful without the full stack.
+**Justification:** On **hosted SaaS**, once a tenant and user can sign in, the pilot path (request → execute → commit → review) can complete in **minutes** to **tens of minutes** depending on pipeline and model mode (simulator vs real). The Core Pilot checklist applies in-product. **Real LLM** analysis uses **vendor-side** Azure OpenAI configuration for that environment — not anything the pilot installs locally.
 
 **Tradeoffs:** The product delivers a comprehensive package (manifest + artifacts + governance evidence) rather than a single insight, which means the time-to-first-value is higher but the value-per-output is also higher.
 
 **Recommendations:**
-- Create a "zero-config demo" that ships pre-generated sample outputs so prospects can explore the output format before committing to infrastructure.
-- Document a 15-minute "first value" path that uses Docker Compose with pre-configured simulator mode.
-- Separate the "see what ArchLucid produces" experience from the "run ArchLucid in your environment" experience.
+- Create **in-product** or **hosted** sample runs / exports so prospects see outputs without a long setup (still SaaS — no implied customer deploy).
+- Document a **15-minute first value** path entirely **inside the operator UI** (sign in → template or wizard → execute → review).
+- Separate **“see what ArchLucid produces”** (read-only artifacts, demo tenant, or video) from **full pilot** only where needed — not from “run your own server.”
 
-**Fixability:** V1 for sample outputs and demo path improvement.
+**Fixability:** V1 for sample outputs and in-product demo path improvement.
 
 ---
 
@@ -286,7 +293,7 @@ Qualities are ordered from most urgent (highest weighted deficiency) to least ur
 
 ### 18. Commercial Packaging Readiness — Score: 65 | Weight: 2 | Weighted Deficiency: 0.70
 
-**Justification:** Three tiers are defined (Team/Professional/Enterprise) with clear feature gates. The pricing model is value-based. The order form template exists. The Stripe integration (checkout, webhooks, billing controller) is coded. The Azure Marketplace SaaS offer alignment is documented. The tenant tier enforcement (`[RequiresCommercialTenantTier]`, 402 filter) is implemented. However: (a) commerce is TEST mode only — no live Stripe keys, no published Marketplace listing; (b) the tier enforcement is UI-shaping-based (soft disable), not hard API entitlement; (c) trial funnel is code-complete but not live; (d) no billing portal or invoice management exists.
+**Justification:** **Operator intent:** **live self-serve checkout** as the **default** path; **quote** flows are **supplemental**. Three tiers are defined (Team/Professional/Enterprise) with clear feature gates. The pricing model is value-based. The order form template exists. The Stripe integration (checkout, webhooks, billing controller) is coded. The Azure Marketplace SaaS offer alignment is documented. The tenant tier enforcement (`[RequiresCommercialTenantTier]`, 402 filter) is implemented. However: (a) commerce may still be **TEST** mode in many environments — no **live** Stripe keys / published Marketplace until **V1.1-style** un-hold (per scope docs); **(b)** the tier enforcement is UI-shaping-based (soft disable), not hard API entitlement; **(c)** trial funnel must stay tight for **PLG** (no sales team to paper over gaps); **(d)** no billing portal or invoice management exists.
 
 **Tradeoffs:** Having the billing infrastructure coded before first customer is the right investment. The "un-hold" (flip to live) is explicitly V1.1.
 
@@ -677,11 +684,11 @@ Qualities are ordered from most urgent (highest weighted deficiency) to least ur
 |----------|---------|-------|--------|----------|
 | COMMERCIAL | Marketability | 62 | 8 | 496 |
 | COMMERCIAL | Time-to-Value | 66 | 7 | 462 |
-| COMMERCIAL | Adoption Friction | 55 | 6 | 330 |
+| COMMERCIAL | Adoption Friction | 68 | 6 | 408 |
 | COMMERCIAL | Proof-of-ROI Readiness | 60 | 5 | 300 |
 | COMMERCIAL | Executive Value Visibility | 70 | 4 | 280 |
 | COMMERCIAL | Differentiability | 78 | 4 | 312 |
-| COMMERCIAL | Decision Velocity | 52 | 2 | 104 |
+| COMMERCIAL | Decision Velocity | 62 | 2 | 124 |
 | COMMERCIAL | Commercial Packaging Readiness | 65 | 2 | 130 |
 | COMMERCIAL | Stickiness | 58 | 1 | 58 |
 | COMMERCIAL | Template and Accelerator Richness | 55 | 1 | 55 |
@@ -722,15 +729,15 @@ Qualities are ordered from most urgent (highest weighted deficiency) to least ur
 | ENGINEERING | Cognitive Load | 58 | 1 | 58 |
 | ENGINEERING | Cost-Effectiveness | 65 | 1 | 65 |
 
-**Commercial subtotal:** 2,527 / 4,000 = 63.18%
+**Commercial subtotal:** 2,625 / 4,000 = 65.63%
 **Enterprise subtotal:** 1,754 / 2,500 = 70.16%
-**Engineering subtotal:** 3,064 / 3,500 = 87.54% (wait — let me recount)
+**Engineering subtotal:** 3,064 / 3,500 = 87.54%
 
-Let me recalculate engineering: 576+520+237+231+144+152+140+152+160+68+70+62+75+73+74+79+82+83+75+74+82+80+58+65 = 3,064 ... wait, engineering weight = 8+8+3+3+2+2+2+2+2+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1 = 35, so max = 3,500.
-
-**Total weighted:** 2,527 + 1,754 + 3,064 = 7,345
+**Total weighted:** 2,625 + 1,754 + 3,064 = 7,443
 **Total max:** 10,000
-**Weighted readiness:** 73.45%
+**Weighted readiness:** 74.43%
+
+**Re-score notes (2026-05-10):** **Adoption Friction** **55 → 68** (hosted SaaS vs local/repo framing); overall **73.45% → 74.23%**. **Decision Velocity** **52 → 62** (**operator intent:** PLG / live self-serve default, no formal sales org yet); overall **74.23% → 74.43%**. **Posture:** commercial path is **vendor-hosted SaaS**, not customer source or routine self-host.
 
 ---
 
@@ -740,19 +747,19 @@ Ranked from most serious to least serious, based on cross-cutting impact weighte
 
 ### 1. No Live AI Evidence Validates the Core Value Proposition
 
-The product claims to produce "AI-generated architecture findings." The golden cohort gate was blocked (no AOAI credentials in the assessment environment). All automated testing uses simulator mode, which produces deterministic outputs that prove pipeline correctness but not output usefulness. No buyer can verify that real LLM completions produce architecture analysis worth paying for without standing up the full stack and supplying their own Azure OpenAI credentials. This is the single largest risk to the product.
+The product claims to produce "AI-generated architecture findings." The golden cohort gate was blocked (no AOAI credentials in the assessment environment). All automated testing uses simulator mode, which produces deterministic outputs that prove pipeline correctness but not output usefulness. **This assessment** could not independently certify real-model output quality from code alone. **Pilot customers on hosted SaaS** judge usefulness **in the vendor environment** (and exports), not by building from source; the remaining **commercial** risk is **thin published, buyer-grade proof** (diverse briefs, real deployment names, before/after) that real LLM output is worth paying for. This is the single largest risk to the product.
 
 ### 2. Zero Customer Traction Creates a Credibility Vacuum
 
-No paying customer, no signed design partner (V1.1 — not scored), no case study, no testimonial, no measured ROI. Every sales conversation starts from zero. The product competes against the buyer's default state ("we use Confluence and Jira") with no proof that switching produces measurably better outcomes. The ROI model is theoretical.
+No paying customer, no signed design partner (V1.1 — not scored), no case study, no testimonial, no measured ROI. **Every** new **evaluation** starts from zero. The product competes against the buyer's default state ("we use Confluence and Jira") with no proof that switching produces measurably better outcomes. The ROI model is theoretical.
 
-### 3. Prohibitive Evaluation Barrier
+### 3. Evaluation Friction Depends on Motion — SaaS Is Web-First
 
-Evaluating ArchLucid requires installing .NET 10, Docker, SQL Server, and optionally Azure OpenAI and Node.js. No hosted trial exists. The "Try in 60 seconds" claim requires all prerequisites pre-installed. Compared to SaaS competitors where evaluation starts with a URL, ArchLucid demands hours of infrastructure setup before a prospect sees any output.
+**Hosted SaaS** prospects are not required to install .NET, Docker, or SQL; they use the **website / operator UI**. Friction that still hurts conversion includes **funnel or activation** gaps until **live** checkout is fully flipped, **identity / trial** complexity, and **lack of instantly credible outputs** (no reference customers, thin public real-LLM evidence). **Customer repo access** and **self-hosting** are **not** part of the mainstream offering (non-OSS); **regional** / **data-residency** expectations from procurement are the more realistic long-term **data-plane** discussion than “run ArchLucid on our VMs.”
 
 ### 4. Self-Serve Commerce Is Inactive
 
-Stripe is TEST mode only. Marketplace is unpublished. The sales-led motion (quote request → manual follow-up) adds latency to every conversion. The trial funnel is code-complete but not live. A prospect who decides "I want to buy this" cannot complete the transaction without human intermediation.
+Stripe may still be **TEST** in many environments and Marketplace **unpublished** until **V1.1-style** un-hold; **operator intent** is **self-serve checkout as default**, not quote desks. Where live keys are not yet flipped, a “buy now” path can **lag intent**. Quote-request on `/pricing` is **fallback**, not the primary motion.
 
 ### 5. AI Output Quality Is Untested at Scale
 
@@ -790,9 +797,9 @@ The operator UI has no tooltips, no inline help, no "what is this?" links, no co
 
 ## Top 6 Monetization Blockers
 
-### 1. No Self-Serve Trial or Checkout
+### 1. Live Commerce Execution vs PLG Intent
 
-Prospects cannot try or buy without human involvement. The entire top-of-funnel is gated on sales capacity. Fix: enable a hosted trial with simulator mode; enable Stripe TEST checkout for staging evaluation.
+**Intent** is **self-serve** default; **production** may still run **TEST** Stripe or unpublished Marketplace until owner un-hold — buyers can feel a **gap** between “designed to buy online” and “not live yet.” **Fix:** complete **live** path when gates clear; keep staging **TEST** validation strong.
 
 ### 2. No Proof That AI Output Is Worth Paying For
 
@@ -800,7 +807,7 @@ The core value proposition (AI-generated architecture findings) has no published
 
 ### 3. No Reference Customer or Case Study
 
-Every sales conversation starts from zero credibility. Enterprise buyers want to see who else uses the product. Fix: run an internal pilot and publish a sanitized case study.
+Every **evaluation** starts from zero credibility when there are no published references. Buyers want to see who else uses the product. Fix: run an internal pilot and publish a sanitized case study.
 
 ### 4. ROI Model Is Theoretical
 
@@ -808,11 +815,11 @@ The $294K savings claim is a model, not a measurement. No before/after evidence 
 
 ### 5. Evaluation Barrier Filters Out Prospects
 
-Requiring .NET + Docker + SQL Server to evaluate means many potential buyers never try the product. Fix: create a zero-dependency demo mode or hosted sandbox.
+For segments that only ever touch **hosted SaaS**, fix conversion with **clear web trial / signup**, faster **time-to-first-manifest** in-product, and **credibility** (case study, real-LLM proof), not by implying buyers need source or a parallel install path. Invest in **read-only** demo artifacts or **`archlucid demo`**-style bundles for **buyer education / security review**, not as a substitute for OSS or customer deploy. **Fix:** sharpen GTM around **web-first** and **region/residency** honesty in the trust center.
 
-### 6. Sales-Led Motion Has No Sales Infrastructure
+### 6. PLG Ops Without a Sales Team — Instrumentation and Support
 
-The sales-led model requires quote requests → manual follow-up, but there is no CRM, no pipeline tracking, no sales playbook beyond the "one-email kit." Fix: establish a minimal sales pipeline with lead tracking.
+**Current posture:** **no formal sales org**; motion is **founder- / product-led**. **Risk:** weak **funnel analytics**, **activation** support, and **async** buyer success — not missing **CRM for quote reps**. **Fix:** ship **product analytics** (signup → activate → commit → pay), **in-app** guidance, and **clear** upgrade/billing UX; add **human sales tooling later** only if the model scales that way.
 
 ---
 
@@ -834,9 +841,9 @@ Jira, ServiceNow, Confluence, and Slack connectors are tested against mocks. No 
 
 100+ configuration keys. Startup validation catches some misconfigurations but the surface area is large. An implementation team could easily misconfigure auth, database topology, content safety, or observability exports.
 
-### 5. Single-Vendor Cloud Dependency
+### 5. Azure Footprint, Region, and Data Residency Expectations
 
-Azure-only hosting limits adoption by organizations committed to AWS, GCP, or multi-cloud. The product requires Azure SQL, Azure OpenAI, Azure Key Vault, and optionally Azure Container Apps, Front Door, and Application Insights.
+The **commercial** path is **vendor-hosted SaaS on Azure**; pilots do not self-host or receive **source**. Sensitivity of architecture content is often **moderate**, but **procurement** will still ask **which Azure region** holds tenant data, how that matches **DPA** and **subprocessors**, and how **Azure OpenAI** fits **data processing**. Orgs that **refuse any Azure** subprocessors (e.g. no Azure OpenAI) remain a **fit** problem; that is distinct from a **“give us the repo”** ask.
 
 ### 6. No Formal Incident Response SLA
 
@@ -928,7 +935,7 @@ Acceptance criteria:
 
 ### 2. Create Zero-Dependency Demo Experience
 
-**Why it matters:** The #1 adoption friction is the infrastructure requirement. A prospect who can see ArchLucid's output without installing anything is 10x more likely to evaluate further.
+**Why it matters:** For **web/SaaS** prospects, friction is often **time-to-trust and time-to-first meaningful output**, not a local install. A **sample output pack** or **guided in-product demo** still accelerates evaluation before or alongside a full pilot.
 
 **Expected impact:** Directly improves Adoption Friction (+8-12 pts), Time-to-Value (+5-8 pts), Decision Velocity (+5-8 pts). Weighted readiness impact: +1.0-1.8%.
 

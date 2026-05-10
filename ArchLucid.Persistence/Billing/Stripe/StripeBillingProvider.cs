@@ -76,7 +76,10 @@ public sealed class StripeBillingProvider(
 
             options.CustomerEmail = request.BillingEmail;
 
-        RequestOptions requestOptions = new() { ApiKey = secretKey };
+        RequestOptions requestOptions = new()
+        {
+            ApiKey = secretKey
+        };
 
         Session session = await sessionService.CreateAsync(options, requestOptions, cancellationToken);
 
@@ -207,7 +210,7 @@ public sealed class StripeBillingProvider(
         };
 
         using JsonDocument planDoc = JsonDocument.Parse(
-            System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, string> { ["planId"] = planToken }));
+            JsonSerializer.Serialize(new Dictionary<string, string> { ["planId"] = planToken }));
 
         await _changePlanWebhookMutationHandler.HandleAsync(tenantId, planDoc.RootElement, rawBody, cancellationToken);
 

@@ -176,7 +176,13 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
             await connection.QueryAsync<ProductLearningPilotSignalRecord>(
                 new CommandDefinition(
                     sql,
-                    new { Take = capped, TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                    new
+                    {
+                        Take = capped,
+                        TenantId = tenantId,
+                        WorkspaceId = workspaceId,
+                        ProjectId = projectId
+                    },
                     cancellationToken: cancellationToken));
 
         return rows.ToList();
@@ -465,7 +471,13 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         long n = await connection.ExecuteScalarAsync<long>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, SinceUtc = sinceUtc },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    SinceUtc = sinceUtc
+                },
                 cancellationToken: cancellationToken));
 
         return n > int.MaxValue ? int.MaxValue : (int)n;
@@ -493,7 +505,13 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         int n = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, SinceUtc = sinceUtc },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    SinceUtc = sinceUtc
+                },
                 cancellationToken: cancellationToken));
 
         return n;
@@ -563,10 +581,6 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
 
     private static string TruncateForDisplay(string value, int maxChars)
     {
-        if (value.Length <= maxChars)
-            return value;
-
-
-        return value[..maxChars];
+        return value.Length <= maxChars ? value : value[..maxChars];
     }
 }

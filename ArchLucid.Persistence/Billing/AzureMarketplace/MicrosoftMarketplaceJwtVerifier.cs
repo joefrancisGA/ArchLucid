@@ -62,10 +62,7 @@ public sealed class MicrosoftMarketplaceJwtVerifier(IOptionsMonitor<BillingOptio
         {
             _ = handler.ValidateToken(bearerToken, validationParameters, out SecurityToken validatedToken);
 
-            if (validatedToken is not JwtSecurityToken jwt)
-                return null;
-
-            return new MarketplaceWebhookValidatedToken(jwt.Claims);
+            return validatedToken is not JwtSecurityToken jwt ? null : new MarketplaceWebhookValidatedToken(jwt.Claims);
         }
         catch (SecurityTokenException)
         {

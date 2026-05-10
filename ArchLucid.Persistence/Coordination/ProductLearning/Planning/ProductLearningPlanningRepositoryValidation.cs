@@ -24,7 +24,7 @@ internal static class ProductLearningPlanningRepositoryValidation
 
     internal static void EnsureTake(int take)
     {
-        if (take < 1 || take > MaxTake)
+        if (take is < 1 or > MaxTake)
             throw new ArgumentOutOfRangeException(nameof(take), take, "take must be between 1 and " + MaxTake + ".");
     }
 
