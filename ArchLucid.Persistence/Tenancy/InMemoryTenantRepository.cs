@@ -59,7 +59,12 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        IReadOnlyList<TenantRecord> list = _byId.Values.OrderByDescending(static r => r.CreatedUtc).ToList();
+        IReadOnlyList<TenantRecord> list;
+
+        lock (_trialGate)
+        {
+            list = _byId.Values.OrderByDescending(static r => r.CreatedUtc).ToList();
+        }
 
         return Task.FromResult(list);
     }
@@ -562,13 +567,18 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        List<Guid> ids = _byId.Values
-            .Where(static t =>
-                t.TrialExpiresUtc is not null &&
-                !string.IsNullOrWhiteSpace(t.TrialStatus) &&
-                !string.Equals(t.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
-            .Select(static t => t.Id)
-            .ToList();
+        List<Guid> ids;
+
+        lock (_trialGate)
+        {
+            ids = _byId.Values
+                .Where(static t =>
+                    t.TrialExpiresUtc is not null &&
+                    !string.IsNullOrWhiteSpace(t.TrialStatus) &&
+                    !string.Equals(t.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
+                .Select(static t => t.Id)
+                .ToList();
+        }
 
         return Task.FromResult<IReadOnlyList<Guid>>(ids);
     }
