@@ -256,3 +256,12 @@ Once the Core Pilot is validated, the following areas are available for deeper e
 | Multi-tenant isolation and OIDC auth | [docs/security/MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md) |
 
 These are valuable, but they should remain **follow-on layers** after the first four-step proof path is already successful.
+
+---
+
+## Related templates and evidence
+
+- **Architecture request (field map + OpenAPI pointer):** [docs/library/ARCHITECTURE_REQUEST_WIRE_FORMAT.md](library/ARCHITECTURE_REQUEST_WIRE_FORMAT.md)
+- **Starter `ArchitectureRequest` JSON:** [templates/reference-architectures/README.md](../templates/reference-architectures/README.md) · [templates/architecture-requests/README.md](../templates/architecture-requests/README.md) (scenario pack)
+- **Buyer-safe pilot narrative (anonymized):** [docs/go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)
+- **Real LLM session log (when live AOAI is in scope):** [docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md)

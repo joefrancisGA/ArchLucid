@@ -5,7 +5,10 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Learning;
 using ArchLucid.Api.Models.Learning;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.ProductLearning;
 using ArchLucid.Api.Services;
+using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Core.Authorization;
@@ -22,7 +25,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Advisory;
 
 /// <summary>
-///     59R learning-to-planning read APIs: themes, improvement plans, priority scores, and evidence-style counts.
+///     59R learning-to-planning APIs: themes, improvement plans, deterministic materialization, exports, and KPIs.
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -32,6 +35,8 @@ namespace ArchLucid.Api.Controllers.Advisory;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class LearningController(
     ILearningPlanningReadService learningReadService,
+    IProductLearningPlanningDerivationService planningDerivationService,
+    IActorContext actorContext,
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
@@ -259,6 +264,46 @@ public sealed class LearningController(
         string markdown = LearningPlanningReportMarkdownFormatter.Format(document);
 
         return ApiFileResults.RangeText(Request, markdown, "text/markdown", "learning-planning-report-59r.md");
+    }
+
+    /// <summary>
+    ///     Persists deterministic themes and bounded draft plans from ranked pilot-feedback opportunities (59R). Operator-
+    ///     triggered — does not mutate agents, prompts, or governance packs.
+    /// </summary>
+    [HttpPost("planning/materialize")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(ProductLearningPlanningMaterializeResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> MaterializePlanningDrafts(
+        [FromQuery] string? since,
+        [FromQuery] string? maxPlansToMaterialize,
+        CancellationToken cancellationToken)
+    {
+        if (!ProductLearningQueryParser.TryParseOptionalSince(since, out DateTime? sinceUtc, out string? sinceError))
+            return this.BadRequestProblem(sinceError!, ProblemTypes.ValidationFailed);
+
+        if (!LearningPlanningQueryParser.TryParseMaxPlansToMaterialize(maxPlansToMaterialize, out int maxPlans,
+                out string? maxError))
+            return this.BadRequestProblem(maxError!, ProblemTypes.ValidationFailed);
+
+        ProductLearningTriageOptions triage = new()
+        {
+            SinceUtc = sinceUtc,
+            MaxImprovementOpportunities = ProductLearningQueryParser.DefaultMaxImprovementOpportunities
+        };
+
+        ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
+
+        ProductLearningPlanningMaterializeResult result =
+            await planningDerivationService.MaterializeFromRankedOpportunitiesAsync(
+                    scope,
+                    triage,
+                    actorContext.GetActorId(),
+                    maxPlans,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+        return Ok(result);
     }
 
     private static ProductLearningScope ToProductLearningScope(ScopeContext scopeContext)

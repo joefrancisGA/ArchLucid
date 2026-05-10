@@ -235,6 +235,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
         services.AddScoped<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
         services.AddScoped<IProductLearningDashboardService, ProductLearningDashboardService>();
+        services.AddScoped<IProductLearningPlanningDerivationService, ProductLearningPlanningDerivationService>();
         services.AddScoped<IEvolutionCandidateChangeSetRepository, DapperEvolutionCandidateChangeSetRepository>();
         services.AddScoped<IEvolutionSimulationRunRepository, DapperEvolutionSimulationRunRepository>();
         services.AddScoped<IAuthorityPipelineWorkRepository, DapperAuthorityPipelineWorkRepository>();

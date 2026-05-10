@@ -79,6 +79,7 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 - [CAIQ Lite pre-fill (2026)](../security/CAIQ_LITE_2026.md) — map to CSA CAIQ v4 spreadsheet for STAR submissions
 - [SIG Core pre-fill (2026)](../security/SIG_CORE_2026.md) — map to Shared Assessments SIG Core workbook
+- **VPAT:** working draft [**`VPAT_2_5_WCAG_2_1_AA.md`**](../security/VPAT_2_5_WCAG_2_1_AA.md) — procurement-facing accessibility disclosure; pair with public **`/accessibility`** marketing route and root **`ACCESSIBILITY.md`**
 
 ---
 

@@ -19,13 +19,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-007 | LLM correctness boundary — cohort gate promotion + eval real-mode scenarios | Correctness posture — gated real-model CI blocked on prereqs (Gap A+C open) | A: ~1 h ops; C: ~4 h eng |
 | TB-008 | Context ingestion connectors — Phases 3–4 (meaningful delta + enrichers, policy/topology coupling) | Architecture maintainability — Phases 1–2 shipped | L |
 | TB-013 | Documentation library audience split — Phases 2–3 (customer-facing vs contributor-reference) | Developer experience — lower onboarding cognitive load without breaking bookmarks or procurement/UI doc paths | M |
-| TB-014 | LLM monthly budget top-up SKU — let tenants buy more tokens when `LlmMonthlyTenantDollarBudget` hard-cuts | Customer self-service — avoid waiting for next UTC month after legitimate heavy use; preserves PLG motion | M |
+| TB-014 | LLM monthly budget top-up — **`PurchasedCapBumpUsd`** column + effective cap (manual SQL / test hook today); Stripe SKU + webhook + UI TBD | Self-service headroom before UTC month roll | M |
 | TB-015 | Per-agent/per-invoke-kind LLM token dimensions + CI export of real-mode averages | FinOps honesty — truthful Topology/Cost/Compliance/Critic token envelopes for `cost-preview` + cohort budgeting (no guesses) | M |
 | TB-016 | ITSM + chat vendor sandbox accounts — provision, secrets, inbound webhooks — for recurring live smoke | Trust / interoperability — mocks are not proofs; gated CI + CONNECTOR_READINESS_MATRIX need operator-owned URLs + tokens | S–M |
 | TB-017 | Trial orphaned-catalog teardown SOP + only then tighten unattended `Trial:Lifecycle` purge | Hosted COGS — idle dormant trials burn negligible AOAI; manual Azure SQL/catalog drop suffices at low cardinality (`TRIAL_AND_SIGNUP` §4, `TRIAL_LIFECYCLE`) | S |
 | TB-018 | Warm tenant catalogs in elastic pool — replenish + fast claim (`RunTenant`-skip path) | Signup SLA — elastic pool amortizes DDL; standby empties shorten hot path (`TENANT_DATABASE_TOPOLOGY` Operational notes warm catalogs) | M |
 | TB-019 | Signup marketing attribution + server-side conversion (UTM survive funnel → provision success → telemetry/SQL) | Paid + organic honesty — **`SEO_AND_PAID_ACQUISITION.md`** data flow requires measurable **`TenantProvisioningService`** outcomes; avoids raw-UTM metric cardinality explosions | M |
-| TB-020 | Public marketing SEO enrichment — JSON-LD structured data + consent-gated analytics (e.g. Clarity) + CSP allowlists | SERP/discernment + posture — richer snippets without lying; third-party analytics only behind explicit consent where required (`next.config.ts` CSP, `privacy` copy) | S–M |
+| TB-020 | Public marketing SEO — `SoftwareApplication` + trust `FAQPage` JSON-LD; consent-gated Clarity (`NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`); CSP (`clarity.ms`, `c.bing.com`); privacy §2.4 — DPIA / server kill-switch mirror optional | SERP + honest analytics posture | S–M |
 
 ---
 
@@ -230,6 +230,8 @@ Default new **`library/`** root files to **`contributor-reference/`** unless the
 
 ## TB-014 — LLM monthly budget top-up SKU
 
+**Progress (2026-05-10):** Persistent bump column **`PurchasedCapBumpUsd`** on **`dbo.LlmMonthlyTenantBudgetState`** (migration **`155_LlmMonthlyTenantBudgetPurchasedCapBump.sql`**) + effective cap in **`LlmMonthlyTenantDollarBudgetTracker`**; runbook **[`LLM_BUDGET_TOP_UP.md`](LLM_BUDGET_TOP_UP.md)**; test hook **`InMemoryLlmTenantBudgetRepository.ApplyMonthlyPurchasedCapBumpAsync`**. **Remaining:** Stripe SKU, idempotent purchase webhook, operator UI surfacing, audit event names.
+
 **Decision (operator, 2026-05-11):** **Greenlit in principle.** There is **no** target cost-per-run budget — runs are bounded by **`LlmMonthlyTenantDollarBudget`** + **`LlmTokenQuota`**, not by a per-run prompt-design ceiling. Tenants who legitimately exhaust their **`HardCutoffUsdPerUtcMonth`** before the UTC month rolls should be able to **buy more tokens** (or more dollars of estimated LLM spend) self-serve, rather than waiting or contacting sales.
 
 **Why it's not in the current session:** Requires Stripe SKU + Marketplace plan-add-on alignment with [`docs/go-to-market/PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) (already has **run overage** concepts — token top-up is the **adjacent** SKU governing the AOAI envelope), commerce un-hold sequencing in [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) §6b, and a runtime path that lifts the per-tenant cap **after** the purchase webhook is durable.
@@ -247,7 +249,7 @@ Allow a paying tenant who has hit `HardCutoffUsdPerUtcMonth` to add headroom **f
 
 **Constraints**
 
-- **No new runtime budget ledger.** Top-up purchases must increment the **same** monthly accumulator path (or apply an **additive** monthly grant) read by `LlmCompletionAccountingClient`. A second source of truth would violate **INV-004** (durable budget coherence — see [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md)).
+- **No new budget *table*.** Top-up purchases must adjust the **same** `dbo.LlmMonthlyTenantBudgetState` monthly row (e.g. **`PurchasedCapBumpUsd`**) read by `LlmCompletionAccountingClient`, not a second spend ledger. A parallel ledger would violate **INV-004** coherence — see [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md).
 - **Idempotent purchase webhook.** Stripe (or Marketplace) → API webhook must be replay-safe; reuse the existing webhook idempotency pipeline.
 - **Refund / proration policy.** Top-ups are consumed within the **current UTC month** and **do not roll over** unless product decides otherwise; document explicitly in **`PRICING_PHILOSOPHY`** before shipping.
 - **Audit.** Issue durable audit on purchase + apply (event names TBD; reuse **`AuditEventTypes.Llm*`** family) and emit a metric (e.g. `archlucid_llm_budget_topup_usd_total`).
@@ -375,7 +377,7 @@ Roll forward measured **p50 / p95** ranges into **`docs/library/PER_TENANT_COST_
 
 **Status (operator question, resolved for scope 2026-05-11):** The repo **does not** ship tenant credentials or long-lived sandbox URLs — **those are operator-owned**. Free / trial programs exist for **Jira Cloud**, **ServiceNow Developer instances**, **Confluence Cloud**, and **Slack developer workspaces**. Use **separate pilot projects / spaces / channels** away from production knowledge bases — never reuse brittle automation credentials against prod SOX systems.
 
-Cross-check posture with **`docs/go-to-market/INTEGRATION_CATALOG.md`** and **`CONNECTOR_READINESS_MATRIX.md`** after first successful smoke; pair procedural steps with **`docs/integrations/smoke/CONNECTOR_SMOKE_*.md`**.
+Cross-check posture with **`docs/go-to-market/INTEGRATION_CATALOG.md`** and **`CONNECTOR_READINESS_MATRIX.md`** after first successful smoke; pair procedural steps with **`docs/integrations/smoke/CONNECTOR_SMOKE_*.md`**. **Scaffold:** [`docs/runbooks/ITSM_LIVE_SMOKE_SCAFFOLD.md`](../runbooks/ITSM_LIVE_SMOKE_SCAFFOLD.md) (workflow + secret naming convention).
 Recurrence aligns with **`ArchLucid_Assessment_Weighted_Readiness_2026_05_10`** — Improvement 8 (**scheduled + `workflow_dispatch`**, not one-off).
 
 ---
@@ -518,12 +520,14 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 
 **Context:** Honest **`JSON-LD`** lifts SERP/discernment without fabricated review stars; third-party replay widens CSP and may demand consent banners for EU-heavy traffic.
 
+**Status (2026-05-10):** **`JSON-LD`** — `SoftwareApplication` on `(marketing)` + **`FAQPage`** on **`/trust`** (`TrustCenterFaqJsonLd`). **Microsoft Clarity** — consent banner + loader; CSP allows `https://www.clarity.ms` + Bing pixel host; **`PRIVACY_POLICY.md`** updated (§2.4). **Config:** `NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID` in **`archlucid-ui/.env.example`**. **Remaining:** DPIA text for EU-heavy traffic if legal requests; optional CONFIGURATION_REFERENCE row if ops wants server-side kill-switch mirror.
+
 **What to ship**
 
-1. **`JSON-LD`** — inject **`@type: SoftwareApplication`** (and minimal **`publisher`**) from **`(marketing)`** shells with narrative aligned **`POSITIONING.md`** — **never** mint **`aggregateRating`** / **`reviewCount`** unless tied to audited real survey data.
-2. **FAQ blocks only where copy supports them** — e.g. discrete Q/A on **`/compliance-journey`** or **`/trust`** excerpts; reject spam-tier FAQ schema stuffing.
-3. **Analytics gated** — optional **Microsoft Clarity** (or chosen vendor) activates only when (**a**) host config **`ArchLucid:Marketing:*`** flag (exact subtree TBD **`docs/library/CONFIGURATION_REFERENCE.md`**) **`true`** and (**b**) client consent UX exists where jurisdictions require opt-in (**`(marketing)`** subtree only until a separate DPIA says otherwise for logged-in shells).
-4. **CSP** — extend **`archlucid-ui/next.config.ts`** **`script-src`** / **`connect-src`** minimally per vendor subdomain allowlist + changelog entry in **`PRIVACY_POLICY.md`** noting active vendors.
+1. **`JSON-LD`** — inject **`@type: SoftwareApplication`** (and minimal **`publisher`**) from **`(marketing)`** shells with narrative aligned **`POSITIONING.md`** — **never** mint **`aggregateRating`** / **`reviewCount`** unless tied to audited real survey data. *(Done for marketing shell.)*
+2. **FAQ blocks only where copy supports them** — e.g. discrete Q/A on **`/compliance-journey`** or **`/trust`** excerpts; reject spam-tier FAQ schema stuffing. *(Partial: factual **`FAQPage`** on **`/trust`**.)*
+3. **Analytics gated** — optional **Microsoft Clarity** (or chosen vendor) activates only when (**a**) optional server kill-switch (exact subtree TBD **`docs/library/CONFIGURATION_REFERENCE.md`**) and (**b**) client consent UX exists where jurisdictions require opt-in (**`(marketing)`** subtree only until a separate DPIA says otherwise for logged-in shells). *(Partial: consent + `NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`.)*
+4. **CSP** — extend **`archlucid-ui/next.config.ts`** **`script-src`** / **`connect-src`** minimally per vendor subdomain allowlist + changelog entry in **`PRIVACY_POLICY.md`** noting active vendors. *(Done for Clarity + Bing image host used by Clarity.)*
 
 **Size estimate:** **S** JSON-LD alone (**~half day eng + positioning copy QA**); **M** packaged with consent UX + DPIA-aligned Clarity.
 

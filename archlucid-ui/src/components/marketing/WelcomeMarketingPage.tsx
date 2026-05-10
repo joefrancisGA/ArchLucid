@@ -150,6 +150,40 @@ export function WelcomeMarketingPage() {
         </div>
       </section>
 
+      <section aria-labelledby="walkthrough-heading" className="mb-14 rounded-lg border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+        <h2 id="walkthrough-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+          First-time visitor path
+        </h2>
+        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+          Hosted SaaS Core Pilot: create an architecture review request, let the pipeline finish, finalize when ready,
+          then open your review package — no local Docker required for the buyer story.
+        </p>
+        <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+          <li>
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/see-it">
+              See it (30s)
+            </Link>{" "}
+            — fastest visual proof; then{" "}
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/why">
+              Why ArchLucid
+            </Link>{" "}
+            for positioning depth.
+          </li>
+          <li>
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/compliance-journey">
+              Compliance journey
+            </Link>{" "}
+            — how reviewers map controls to shipped mechanisms.
+          </li>
+          <li>
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
+              Trust Center
+            </Link>
+            , privacy, and procurement-linked evidence.
+          </li>
+        </ol>
+      </section>
+
       <section aria-labelledby="pillars-heading" className="mb-14">
         <h2 id="pillars-heading" className="mb-6 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
           Three pillars

@@ -164,8 +164,9 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 
 - **Tables**: `ProductLearningImprovementThemes`, `ProductLearningImprovementPlans`, `ProductLearningImprovementPlanArchitectureRuns`, `ProductLearningImprovementPlanSignalLinks`, `ProductLearningImprovementPlanArtifactLinks`.
 - **Scope**: same `TenantId` / `WorkspaceId` / `ProjectId` as pilot signals. **Theme** rows carry a scope-unique **`ThemeKey`** (deterministic idempotency token for future derivation from 58R aggregates). **Plan** rows reference **`ThemeId`** and store a bounded JSON action list (**`BoundedActionsJson`**, max length enforced in application code).
-- **Links**: plans attach to string **`ArchitectureRunId`** (same convention as coordinator **`RunId`**; validated against **`dbo.Runs`** in SQL repositories), to **`ProductLearningPilotSignals`** (optional **`TriageStatusSnapshot`** for explainability), and to authority **`ArtifactBundleArtifacts`** (when present) or free-text **`PilotArtifactHint`**.
-- **Access**: `ArchLucid.Persistence.ProductLearning.Planning.IProductLearningPlanningRepository` (Dapper + in-memory). No autonomous mutation of generation or evaluation pipelines in this change set.
+- **Links**: plans attach to string **`ArchitectureRunId`** (same convention as coordinator **`RunId`**; validated against **`dbo.Runs`** in SQL repositories when run links are used), to **`ProductLearningPilotSignals`** (optional **`TriageStatusSnapshot`** for explainability), and to authority **`ArtifactBundleArtifacts`** (when present) or free-text **`PilotArtifactHint`**.
+- **V1 materialization (2026-05-10):** `IProductLearningPlanningDerivationService` / `ProductLearningPlanningDerivationService` builds themes and plans from ranked 58R opportunities; **`POST /v1/learning/planning/materialize`** (**ExecuteAuthority**) persists rows idempotently by **`ThemeKey`** and **pilot-signal links** only (bounded) — see [`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md) §4.1.
+- **Access**: `ArchLucid.Persistence.ProductLearning.Planning.IProductLearningPlanningRepository` (Dapper + in-memory). No autonomous mutation of generation or evaluation pipelines from product-learning paths.
 
 ---
 

@@ -136,8 +136,8 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
             return row;
 
         const string insert = """
-                              INSERT INTO dbo.LlmMonthlyTenantBudgetState (TenantId, UtcYear, UtcMonth, SpentUsd, ReservedAssumedUsd, WarnedApproaching, LastUpdatedUtc)
-                              VALUES (@TenantId, @UtcYear, @UtcMonth, 0, 0, 0, SYSUTCDATETIME());
+                              INSERT INTO dbo.LlmMonthlyTenantBudgetState (TenantId, UtcYear, UtcMonth, SpentUsd, ReservedAssumedUsd, PurchasedCapBumpUsd, WarnedApproaching, LastUpdatedUtc)
+                              VALUES (@TenantId, @UtcYear, @UtcMonth, 0, 0, 0, 0, SYSUTCDATETIME());
                               """;
 
         try
@@ -509,6 +509,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                                   ReservedAssumedTokens AS ReservedTokens,
                                   CAST(0 AS DECIMAL(18, 6)) AS CommittedUsd,
                                   CAST(0 AS DECIMAL(18, 6)) AS ReservedUsd,
+                                  CAST(0 AS DECIMAL(18, 6)) AS PurchasedCapBumpUsd,
                                   WarnedApproaching,
                                   RowVersion
                            FROM dbo.LlmDailyTenantTokenWindowState
@@ -535,6 +536,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                                   CAST(0 AS BIGINT) AS ReservedTokens,
                                   SpentUsd AS CommittedUsd,
                                   ReservedAssumedUsd AS ReservedUsd,
+                                  PurchasedCapBumpUsd AS PurchasedCapBumpUsd,
                                   WarnedApproaching,
                                   RowVersion
                            FROM dbo.LlmMonthlyTenantBudgetState

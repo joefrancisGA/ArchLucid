@@ -19,6 +19,24 @@ internal static class LearningPlanningQueryParser
 
     public const int MaxMaxReportEvidenceRefsPerPlan = 500;
 
+    public const int DefaultMaxPlansToMaterialize = 10;
+
+    public const int MinMaxPlansToMaterialize = 1;
+
+    public const int MaxMaxPlansToMaterialize = 50;
+
+    public static bool TryParseMaxPlansToMaterialize(string? raw, out int value, out string? error)
+    {
+        return TryParseBoundedInt(
+            raw,
+            DefaultMaxPlansToMaterialize,
+            MinMaxPlansToMaterialize,
+            MaxMaxPlansToMaterialize,
+            "maxPlansToMaterialize",
+            out value,
+            out error);
+    }
+
     public static bool TryParseMaxItems(string? raw, string queryParameterName, out int value, out string? error)
     {
         return TryParseBoundedInt(

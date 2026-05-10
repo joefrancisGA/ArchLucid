@@ -12,9 +12,10 @@ export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
   title: "No architecture runs yet",
   description:
-    "Create a request to generate your first architecture manifest, surfaced findings, and exportable artifact bundle. You can also submit via the CLI or API.",
+    "Core Pilot path: create an architecture review request, let the pipeline finish, finalize when ready, then open your review package. You can start here, use Getting started, or submit via the CLI or API.",
   actions: [
     { label: "Create request", href: "/reviews/new" },
+    { label: "Getting started", href: "/getting-started", variant: "outline" },
     { label: "Onboarding", href: "/onboarding", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
@@ -24,7 +25,7 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
   icon: Bell,
   title: "No alerts for this filter",
   description:
-    "Try another status or refresh. Alerts appear after rules evaluate findings from completed reviews.",
+    "Try another status or time range. Alerts appear when rules evaluate against findings from completed reviews — finish a review package first if you are in an empty tenant.",
   actions: [
     { label: "Set up alert rules", href: "/alerts?tab=rules" },
     { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
@@ -36,24 +37,33 @@ export const GRAPH_IDLE: EmptyStateProps = {
   icon: Network,
   title: "No graph on screen yet",
   description:
-    "Choose a review above, keep Review trail graph selected for the default story, then use Load graph.",
-  actions: [{ label: "View reviews list", href: "/reviews?projectId=default", variant: "outline" }],
+    "Pick a committed review above, keep Review trail selected, then choose Load graph. If the list is empty, start from reviews or Core Pilot: create a request, finish the pipeline, then return here.",
+  actions: [
+    { label: "View reviews list", href: "/reviews?projectId=default" },
+    { label: "Getting started", href: "/getting-started", variant: "outline" },
+  ],
 };
 
 export const COMPARE_WAITING: EmptyStateProps = {
   icon: GitCompareArrows,
   title: "Waiting for both review IDs",
   description:
-    "Enter a base and target review ID before comparing. Query parameters leftRunId and rightRunId prefill these fields. Get IDs from Reviews or the Compare shortcut on review detail.",
-  actions: [{ label: "View reviews list", href: "/reviews?projectId=default", variant: "outline" }],
+    "Enter a base and target review ID to diff manifests and findings. Prefill with query parameters leftRunId and rightRunId, or copy IDs from the review header or list.",
+  actions: [
+    { label: "View reviews list", href: "/reviews?projectId=default" },
+    { label: "Open Compare", href: "/compare", variant: "outline" },
+  ],
 };
 
 export const PLANNING_EMPTY: EmptyStateProps = {
   icon: BarChart3,
   title: "No themes or plans in this scope yet",
   description:
-    "When 59R themes and improvement plans are persisted for the current tenant / workspace / project, they will appear here. Scope follows the operator shell defaults unless you configure proxy scope overrides.",
-  actions: [{ label: "View pilot feedback", href: "/product-learning", variant: "outline" }],
+    "59R themes and improvement plans show here when persisted for the current tenant / workspace / project. Scope follows operator defaults unless you set proxy overrides. Run a committed review first if this tenant is new.",
+  actions: [
+    { label: "View reviews", href: "/reviews?projectId=default" },
+    { label: "Product learning", href: "/product-learning", variant: "outline" },
+  ],
 };
 
 export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {

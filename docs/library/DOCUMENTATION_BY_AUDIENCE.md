@@ -68,6 +68,8 @@ trust-center.*       runbooks/deployment/security depth
 - **Customer-plane** narratives avoid asking for SMB (port **445**) or raw SQL shells; infra runbooks encode **least privilege** assumptions for **operators of the fleet**, not pilots.
 - **Sensitive** rollout steps stay in **runbooks** + Key Vault narratives — reviewers should skim **trust center** policies before crawling **infra** prose.
 
+Short tri-age hub: **[`DOCUMENTATION_AUDIENCES.md`](DOCUMENTATION_AUDIENCES.md)** (TB-013 starter — buyer vs operator vs contributor).
+
 ## Operational considerations
 
 When **adding markdown**, place it under the subtree that matches the **primary** reader (`go-to-market` vs `engineering` vs `runbooks`). If a doc truly serves equal audiences (rare), add a single-line **Audience:** note under the Scope block and link **both** entry hubs.

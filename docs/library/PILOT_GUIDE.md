@@ -23,7 +23,9 @@
 
 ## Reference architecture payloads (instant runs)
 
-Starter **`ArchitectureRequest`** JSON files aligned with **`POST /v1/architecture/request`** live under **[`templates/reference-architectures/README.md`](../../templates/reference-architectures/README.md)**. Use them verbatim or as copy-paste baselines during pilots when teams do not yet have their own drafted request bodies.
+Starter **`ArchitectureRequest`** JSON files aligned with **`POST /v1/architecture/request`** live under **[`templates/reference-architectures/README.md`](../../templates/reference-architectures/README.md)** (pattern samples) and **[`templates/architecture-requests/README.md`](../../templates/architecture-requests/README.md)** (named scenario pack). Use them verbatim or as copy-paste baselines during pilots when teams do not yet have their own drafted request bodies.
+
+**Field map (no schema drift):** **[`ARCHITECTURE_REQUEST_WIRE_FORMAT.md`](ARCHITECTURE_REQUEST_WIRE_FORMAT.md)** summarizes the binding type and points at **`GET /openapi/v1.json`**. **Buyer-safe evidence** for updating pilot trackers: **[`../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`](../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)**. **Real-LLM session evidence** when live AOAI is in scope: **[`../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md)**.
 
 There is no `archlucid request create --from-file` subcommand today; submit the file as the JSON body to **`POST /v1/architecture/request`** (same contract as the operator wizard import). From the repository root, after **`export BASE=https://your-api-host`** (or `http://localhost:5128`):
 

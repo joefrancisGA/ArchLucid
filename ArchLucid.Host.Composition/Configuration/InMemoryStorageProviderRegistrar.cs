@@ -158,6 +158,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
         services.AddSingleton<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
         services.AddSingleton<IProductLearningDashboardService, ProductLearningDashboardService>();
+        services.AddSingleton<IProductLearningPlanningDerivationService, ProductLearningPlanningDerivationService>();
         services.AddSingleton<IEvolutionCandidateChangeSetRepository, InMemoryEvolutionCandidateChangeSetRepository>();
         services.AddSingleton<IEvolutionSimulationRunRepository, InMemoryEvolutionSimulationRunRepository>();
         services.AddSingleton<IConversationThreadRepository, InMemoryConversationThreadRepository>();

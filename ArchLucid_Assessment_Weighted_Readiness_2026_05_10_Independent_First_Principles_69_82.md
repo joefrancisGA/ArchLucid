@@ -19,6 +19,13 @@
 
 **Rescoring note (2026-05-10, production burn-in and multi-region):** **`(A)`** does **not** reduce **Availability**, **Reliability**, **Azure Compatibility and SaaS Deployment Readiness**, or **Trustworthiness** because there is no long-running **production** (or sustained **staging**) burn-in narrative committed in-repo — those scores reflect **shipped** SLOs, probes, health endpoints, degradation design, Terraform/CD, and trust mechanisms aligned to **`docs/library/V1_SCOPE.md`**. **`(A)`** also does **not** penalize for absent **multi-region active/active** (or lack of live multi-region evidence) when that is **not** a V1 commitment — **`(B)`** buyers may still raise residency or DR depth.
 
+**Completed items (2026-05-10 engineering/docs pass — narrative update only; headline score unchanged):**
+
+- **TB-020 (partial):** Honest **`SoftwareApplication`** JSON-LD on **`archlucid-ui` `(marketing)`** layout (`buildMarketingSoftwareApplicationLd`; Vitest `marketing-json-ld.test.ts`). **Still open:** consent-gated third-party analytics, CSP vendor allowlists, optional FAQ schema where copy supports it.
+- **Integrator-facing architecture request summary:** **`docs/library/ARCHITECTURE_REQUEST_WIRE_FORMAT.md`** plus cross-links from **`docs/library/API_CONTRACTS.md`**, **`docs/CORE_PILOT.md`**, **`docs/library/PILOT_GUIDE.md`**, **`ArchLucid.Api/Contracts/README.md`**.
+- **First-run guidance (partial):** Reviews list empty state **`RUNS_EMPTY`** — Core Pilot four-step copy and **Getting started** CTA (`empty-state-presets.ts`).
+- **TECH_BACKLOG:** TB-020 table/section notes JSON-LD step 1 shipped.
+
 ---
 
 ## 1. Executive Summary
@@ -67,11 +74,11 @@ Quality write-ups are grouped below. **Strict urgency:** sort Section 3’s tabl
 
 ### Marketability — Score: 68 | Weight: 8 | Weighted: 4.86 | Deficiency: 2.29
 
-**Justification:** The product has a clear positioning: AI-assisted architecture review with governance, manifest versioning, and evidence trails. Competitive comparison materials (vs Backstage, LeanIX, Structurizr, manual Confluence+Jira) are thoughtful. The pricing page, ROI model (break-even at ~180 architect-hours/year), buyer personas, and executive sponsor brief exist. The pilot guide and hosted SaaS entry packaging (`PRODUCT_PACKAGING.md`) describe the buyer path; pilot documentation stays oriented to the operator shell on **hosted** environments, not a Docker-first “try the stack locally” story. **Not scored as V1 gaps (V1.1 per `V1_DEFERRED.md` §6b):** published case studies, testimonials, and named reference customers — independent assessments must not treat their absence as a Marketability deduction for V1. Remaining deductions: (a) the public surface is still largely the operator shell plus pricing, not a purpose-built marketing funnel with rich product walkthroughs, (b) SEO enrichment is on the backlog (TB-020), and (c) the “architecture review” buyer vocabulary is niche — organic search demand is limited. Warm sales-led outreach is credible; unpaid inbound discovery is weak.
+**Justification:** The product has a clear positioning: AI-assisted architecture review with governance, manifest versioning, and evidence trails. Competitive comparison materials (vs Backstage, LeanIX, Structurizr, manual Confluence+Jira) are thoughtful. The pricing page, ROI model (break-even at ~180 architect-hours/year), buyer personas, and executive sponsor brief exist. The pilot guide and hosted SaaS entry packaging (`PRODUCT_PACKAGING.md`) describe the buyer path; pilot documentation stays oriented to the operator shell on **hosted** environments, not a Docker-first “try the stack locally” story. **Not scored as V1 gaps (V1.1 per `V1_DEFERRED.md` §6b):** published case studies, testimonials, and named reference customers — independent assessments must not treat their absence as a Marketability deduction for V1. Remaining deductions: (a) the public surface is still largely the operator shell plus pricing, not a purpose-built marketing funnel with rich product walkthroughs, (b) **TB-020 is only partially shipped** — honest JSON-LD is live on `(marketing)`; richer SEO, consent-gated analytics, and CSP work remain, and (c) the “architecture review” buyer vocabulary is niche — organic search demand is limited. Warm sales-led outreach is credible; unpaid inbound discovery is weak.
 
-**Tradeoffs:** Deep product work before broad marketing was deliberate; trade-off is weaker organic pull until TB-020 and richer marketing pages land.
+**Tradeoffs:** Deep product work before broad marketing was deliberate; trade-off is weaker organic pull until TB-020 **fully** lands and richer marketing pages ship.
 
-**Improvements:** Build a purpose-built landing layer with product screenshots and feature walkthroughs (still compatible with sales-led V1). Add JSON-LD structured data per TB-020. Reserve **published** case studies, testimonials, and reference-customer rows for the **V1.1** commercial milestone — do not treat their absence as a V1 product defect.
+**Improvements:** ~~Add JSON-LD structured data per TB-020.~~ **Done (partial, 2026-05-10):** honest `SoftwareApplication` JSON-LD on marketing layout — see header “Completed items”. **Remaining:** Build a purpose-built landing layer with product screenshots and feature walkthroughs (still compatible with sales-led V1). Reserve **published** case studies, testimonials, and reference-customer rows for the **V1.1** commercial milestone — do not treat their absence as a V1 product defect.
 
 ---
 
@@ -97,11 +104,11 @@ Quality write-ups are grouped below. **Strict urgency:** sort Section 3’s tabl
 
 ### Proof-of-ROI Readiness — Score: 72 | Weight: 5 | Weighted: 3.21 | Deficiency: 1.25
 
-**Justification:** The ROI model (ROI_MODEL.md) is well-constructed with industry benchmarks and a fill-in-the-blank template. The pilot ROI model (PILOT_ROI_MODEL.md) provides concrete before/after measurement guidance. The executive sponsor brief, pilot success scorecard, buyer-safe evidence templates, and synthetic/worked examples give sales and pilots **usable proof-of-ROI machinery without requiring a published customer story**. **Not scored as V1 gaps:** missing *public* case studies, testimonials, or reference-customer publication (V1.1 per `V1_DEFERRED.md` §6b); **nor** missing an **in-repo** file trail of a **finished** buyer pilot — that is commercial/operational history, not a product defect in the ROI artifact set, and outcomes may sit under NDA or outside git. **Remaining gap:** product-learning “brains” (deterministic theme derivation, plan-draft builder) are intentionally deferred (`V1_DEFERRED.md` §1), which limits how much of the ROI narrative is auto-assembled from runs versus guided by templates.
+**Justification:** The ROI model (ROI_MODEL.md) is well-constructed with industry benchmarks and a fill-in-the-blank template. The pilot ROI model (PILOT_ROI_MODEL.md) provides concrete before/after measurement guidance. The executive sponsor brief, pilot success scorecard, buyer-safe evidence templates, and synthetic/worked examples give sales and pilots **usable proof-of-ROI machinery without requiring a published customer story**. **Not scored as V1 gaps:** missing *public* case studies, testimonials, or reference-customer publication (V1.1 per `V1_DEFERRED.md` §6b); **nor** missing an **in-repo** file trail of a **finished** buyer pilot — that is commercial/operational history, not a product defect in the ROI artifact set, and outcomes may sit under NDA or outside git. **V1 posture (2026-05-10):** bounded **deterministic** planning materialization from pilot signals ships as **`POST /v1/learning/planning/materialize`** (**ExecuteAuthority**) per `V1_SCOPE.md` §2.8 and `PRODUCT_LEARNING.md` §4.1 — it **does not** replace sponsor-facing one-pagers; executive-ready auto-narration remains template-led.
 
-**Tradeoffs:** Templates and synthetic examples support a sales-led V1; richer auto-generated ROI storytelling waits on deferred product-learning work.
+**Tradeoffs:** Templates and synthetic examples still anchor sales-led V1; materialization helps operators **file** improvement themes/plans from the same ranked opportunities the dashboard already surfaces, without autonomous “rewrite the ROI deck” behavior.
 
-**Improvements:** As engineering prioritizes `V1_DEFERRED.md` §1, ship product-learning “brains” (deterministic theme derivation, plan-draft builder) so more of the ROI story can be derived from runs. Treat **published** reference ROI as **V1.1**, not a V1 engineering gate.
+**Improvements:** Surface materialization in operator UI if pilots need fewer API steps. Treat **published** reference ROI as **V1.1**, not a V1 engineering gate.
 
 ---
 
@@ -151,7 +158,7 @@ Quality write-ups are grouped below. **Strict urgency:** sort Section 3’s tabl
 
 **Tradeoffs:** Prioritizing functional completeness over UX polish was appropriate for the stage. The progressive disclosure model is the right pattern.
 
-**Improvements:** Improve empty states and first-run guidance in the operator UI as shipping priorities allow.
+**Improvements:** ~~Improve empty states and first-run guidance in the operator UI as shipping priorities allow.~~ **Partial (2026-05-10):** reviews list **`RUNS_EMPTY`** tightened (Core Pilot path + **Getting started**). **Remaining:** other surfaces and progressive configuration guidance as priorities allow.
 
 ---
 
@@ -231,7 +238,7 @@ Quality write-ups are grouped below. **Strict urgency:** sort Section 3’s tabl
 
 **Tradeoffs:** Azure-native focus was deliberate. Proprietary input format is unavoidable for a novel product category.
 
-**Improvements:** Document the architecture request schema publicly for integrators.
+**Improvements:** ~~Document the architecture request schema publicly for integrators.~~ **Done (2026-05-10):** **`docs/library/ARCHITECTURE_REQUEST_WIRE_FORMAT.md`** (authoritative wire still **`GET /openapi/v1.json`** / **`ArchitectureRequest.cs`**). **Remaining:** standard ADL import/export (C4/ArchiMate, etc.) and non-Azure paths stay out of scope for this item.
 
 ---
 
@@ -405,7 +412,7 @@ Quality write-ups are grouped below. **Strict urgency:** sort Section 3’s tabl
 
 ### Customer Self-Sufficiency — Score: 64 | Weight: 1 | Weighted: 0.57 | Deficiency: 0.32
 
-**Justification:** Self-sufficiency tools: (a) CLI doctor and support-bundle, (b) pilot guide and operator quickstart, (c) troubleshooting runbook, (d) ITSM bridge recipes for customer-operated integrations, (e) optional voluntary ingest paths where buyers choose to supply read-only material. Deductions: (a) self-serve trial is TEST mode only, (b) product learning "brains" are deferred, (c) onboarding requires sales-engineer assistance for real-LLM setup.
+**Justification:** Self-sufficiency tools: (a) CLI doctor and support-bundle, (b) pilot guide and operator quickstart, (c) troubleshooting runbook, (d) ITSM bridge recipes for customer-operated integrations, (e) optional voluntary ingest paths where buyers choose to supply read-only material. Deductions: (a) self-serve trial is TEST mode only. **Correction (owner 2026-05-10):** On **ArchLucid-hosted** SaaS, **real** LLM execution is **platform-provisioned** (Azure OpenAI at the deployment); **sales-engineer assistance is not** required for standard LLM setup — see **`docs/library/V1_SCOPE.md` §2.4**. **Product learning → planning drafts (V1):** operators with **ExecuteAuthority** can **`POST /v1/learning/planning/materialize`** (bounded, deterministic themes/plans from ranked opportunities — `PRODUCT_LEARNING.md` §4.1); dedicated in-shell UX for that path is backlog. Self-hosted / BYO model paths remain operator-configured separately.
 
 ---
 
@@ -417,7 +424,7 @@ Quality write-ups are grouped below. **Strict urgency:** sort Section 3’s tabl
 
 ### Stickiness — Score: 62 | Weight: 1 | Weighted: 0.55 | Deficiency: 0.34
 
-**Justification:** Stickiness mechanisms: (a) committed golden manifests accumulate value over time, (b) comparison across runs builds institutional memory, (c) audit trail is a compliance asset, (d) governance configurations are effort to recreate, (e) ITSM correlations create cross-system dependencies. However: (a) the product learning bridge (deferred "brains") would be a major stickiness driver but is not shipped, (b) no network effects or community features. **`(A)` does not** deduct because there is not yet **production-tenure** “stickiness data” in-repo — that is **`(B)`** customer lifecycle evidence.
+**Justification:** Stickiness mechanisms: (a) committed golden manifests accumulate value over time, (b) comparison across runs builds institutional memory, (c) audit trail is a compliance asset, (d) governance configurations are effort to recreate, (e) ITSM correlations create cross-system dependencies. **Planning materialization (V1):** `POST /v1/learning/planning/materialize` persists themes/plans from pilot feedback (**ExecuteAuthority**) — strengthens the **Operate** feedback loop versus read-only dashboards alone; a dedicated shell wizard remains backlog. Deduction retained: **no** network effects or community features. **`(A)` does not** deduct because there is not yet **production-tenure** “stickiness data” in-repo — that is **`(B)`** customer lifecycle evidence.
 
 ---
 
@@ -511,11 +518,11 @@ INV-004 (durable cost guardrails across replicas) is cataloged but not enforced.
 
 ### 7. Marketing surface is underdeveloped
 
-The product's public face is still largely the operator shell with a pricing page, not a purpose-built marketing funnel. No SEO enrichment (TB-020), limited product tour content, and no demo video. **Not scored as a V1 gap:** absence of published testimonials or reference customers (V1.1). Organic discovery remains weak for other reasons (SEO, niche vocabulary). Affects Marketability, Time-to-Value, Decision Velocity.
+The product's public face is still largely the operator shell with a pricing page, not a purpose-built marketing funnel. **TB-020 partial:** honest JSON-LD on `(marketing)` ships; no consent-gated analytics, FAQ schema, or full SERP program yet. Limited product tour content and no demo video. **Not scored as a V1 gap:** absence of published testimonials or reference customers (V1.1). Organic discovery remains weak for other reasons (SEO depth, niche vocabulary). Affects Marketability, Time-to-Value, Decision Velocity.
 
 ### 8. Architecture request input requires novel user behavior
 
-The product asks users to create a "structured architecture request" — a concept that does not exist in most organizations' current workflows. There are no templates for common scenarios (e.g., "review this cloud migration plan"). This raises Adoption Friction and reduces Time-to-Value for prospects who do not already think in terms of structured architecture briefs.
+The product asks users to create a "structured architecture request" — a concept that does not exist in most organizations' current workflows. **Update (2026-05-10):** starter **`ArchitectureRequest`** JSON and a field-oriented integrator doc exist (**`templates/reference-architectures/`**, **`docs/library/ARCHITECTURE_REQUEST_WIRE_FORMAT.md`**); there is still **no in-app scenario gallery** or the richer multi-template pack described in Improvement 5. This raises Adoption Friction and reduces Time-to-Value for prospects who do not already think in terms of structured architecture briefs.
 
 ### 9. Accessibility posture is draft-quality
 
@@ -543,11 +550,11 @@ When a tenant exhausts LlmMonthlyTenantDollarBudget, they are hard-cut until the
 
 ### 4. Architecture request concept requires buyer education
 
-The product asks buyers to adopt a new workflow concept. Without architecture request templates, the buyer must figure out what to submit. This extends sales cycles and increases CAC.
+The product asks buyers to adopt a new workflow concept. Without **guided** architecture-request onboarding (in-app gallery / curated scenario pack beyond reference JSON files), the buyer must still map their story to **`ArchitectureRequest`**. This extends sales cycles and increases CAC.
 
 ### 5. Weak organic discovery channel
 
-With no SEO (TB-020), no demo video, and no community presence, inbound demand depends heavily on outbound sales. **Not a V1 scored gap:** missing public case studies or testimonials (V1.1). CAC stays high for non-reference reasons until demand-gen assets ship.
+With **limited** SEO depth (**TB-020** JSON-LD only; no analytics/CSP/FAQ program), no demo video, and no community presence, inbound demand depends heavily on outbound sales. **Not a V1 scored gap:** missing public case studies or testimonials (V1.1). CAC stays high for non-reference reasons until demand-gen assets ship.
 
 ---
 
@@ -614,6 +621,8 @@ INV-005 (production host fail-closed) is partially enforced. The StartupValidato
 ---
 
 ## 9. Top Improvement Opportunities
+
+**Shipped / partial (2026-05-10):** TB-020 JSON-LD step 1; **`ARCHITECTURE_REQUEST_WIRE_FORMAT.md`** + doc links; **`RUNS_EMPTY`** Core Pilot copy. These items are **not** duplicated as full “Improvement” blocks below when the original block described a larger scope (e.g. Improvement 5’s multi-file template pack).
 
 ### Improvement 1: Run Golden Cohort Gate with Live Azure OpenAI
 
@@ -741,6 +750,8 @@ ACCEPTANCE CRITERIA:
 **Affected qualities:** Adoption Friction, Time-to-Value, Template and Accelerator Richness, Usability
 
 **Status:** Actionable now
+
+**Progress (2026-05-10):** Reference **`ArchitectureRequest`** payloads and README already live under **`templates/reference-architectures/`**. Integrator-oriented field summary: **`docs/library/ARCHITECTURE_REQUEST_WIRE_FORMAT.md`**. **`docs/library/PILOT_GUIDE.md`** and **`docs/CORE_PILOT.md`** link the wire doc and evidence templates. The **scoped JSON pack + `templates/architecture-requests/`** tree in the prompt below is **not** shipped.
 
 **Cursor prompt:**
 

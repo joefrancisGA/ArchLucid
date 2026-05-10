@@ -1,0 +1,30 @@
+{
+  "requestId": "TPL-COST-OPT-REVIEW-001",
+  "systemName": "FabrikamAnalyticsTier",
+  "description": "Fabrikam seeks to reduce recurring Azure spend for analytics pipelines while maintaining nightly SLAs. Review current PaaS choices, scaling rules, storage tiers, and ingress patterns for cost-risk tradeoffs and right-sizing recommendations.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Nightly batch must complete by 06:00 UTC",
+    "No reduction of RPO beyond 24 hours without executive sign-off",
+    "Private connectivity for sensitive datasets"
+  ],
+  "requiredCapabilities": [
+    "Azure Synapse or Fabric-capable SQL pools (representative)",
+    "Azure Data Lake Storage",
+    "Azure Functions or Container Apps for orchestration"
+  ],
+  "assumptions": [
+    "Read-only architecture export available for optional cost fidelity",
+    "Traffic patterns stable quarter over quarter"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Prefer serverless or scale-to-zero for intermittent workloads"
+  ],
+  "securityBaselineHints": [],
+  "infrastructureDeclarations": []
+}

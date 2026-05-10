@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { TrustCenterFaqJsonLd } from "@/components/TrustCenterFaqJsonLd";
 import {
   parseTrustCenterLastReviewedUtc,
   readTrustCenterMarkdown,
@@ -74,6 +75,7 @@ export default function MarketingTrustCenterPage(): ReactNode {
 
   return (
     <main id="main-content" className="mx-auto max-w-3xl px-4 py-10" tabIndex={-1}>
+      <TrustCenterFaqJsonLd />
       <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Trust Center</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         {lastReviewed

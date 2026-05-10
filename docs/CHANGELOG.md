@@ -1057,7 +1057,7 @@ Added aggregate run explanation endpoint (`/v1/explain/runs/{runId}/aggregate`) 
 - Unit tests: `ProductLearningPlanningRepositoryTests`.
 - Docs: `SQL_SCRIPTS.md`, `DATA_MODEL.md`, this file.
 
-**Intentionally deferred:** deterministic theme-derivation service, plan-draft builder with priority score.
+**2026-05-10 — promoted to V1 (supersedes prior note that deterministic derivation + plan-draft builder were deferred):** Bounded **deterministic** theme derivation and **plan-draft materialization** from ranked pilot-feedback opportunities — `IProductLearningPlanningDerivationService` / `ProductLearningPlanningDerivationService`, priority scoring in `ProductLearningOpportunityScoring`, **`POST /v1/learning/planning/materialize`** on [`LearningController.cs`](../ArchLucid.Api/Controllers/Advisory/LearningController.cs) (**ExecuteAuthority**; query `since`, `maxPlansToMaterialize`). Idempotent per theme key; links **pilot signals** only (no automatic architecture-run links). Still **no** autonomous mutation of prompts, agents, or governance from this path.
 
 ---
 

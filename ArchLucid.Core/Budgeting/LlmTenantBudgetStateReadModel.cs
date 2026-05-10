@@ -39,6 +39,13 @@ public sealed class LlmTenantBudgetStateReadModel
         init;
     } = [];
 
+    /// <summary>Optional SQL-backed bump to <see cref="LlmMonthlyTenantDollarBudgetOptions.HardCutoffUsdPerUtcMonth"/> for the UTC month row (TB-014).</summary>
+    public decimal PurchasedCapBumpUsd
+    {
+        get;
+        init;
+    } = 0m;
+
     public long TotalTokenPressure => TokensConsumed + ReservedTokens;
 
     public decimal TotalUsdPressure => CommittedUsd + ReservedUsd;
