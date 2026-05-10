@@ -9,22 +9,19 @@ namespace ArchLucid.AgentRuntime.QuickScan;
 /// <inheritdoc cref="IQuickScanService" />
 public sealed class QuickScanService(IAgentCompletionClient completionClient) : IQuickScanService
 {
-    private const string SystemPrompt = """
-        You are a lightweight architecture scanner. Analyze the provided file contents and return a JSON object with:
-        - "summary": A high-level string summary of the architecture.
-        - "findings": An array of objects with "category", "message", and "severity" (Info, Low, Medium, High, Critical).
-        Do not include any markdown formatting, only return raw JSON.
-        """;
-
     public async Task<QuickScanResult> ScanAsync(IReadOnlyDictionary<string, string> files, CancellationToken cancellationToken = default)
     {
         if (files is null)
             throw new ArgumentNullException(nameof(files));
+
         if (completionClient is null)
             throw new ArgumentNullException(nameof(completionClient));
 
         string userPrompt = JsonSerializer.Serialize(files);
-        string jsonResponse = await completionClient.CompleteJsonAsync(SystemPrompt, userPrompt, cancellationToken);
+        string jsonResponse = await completionClient.CompleteJsonAsync(
+            QuickScanLlmPrompts.SystemPrompt,
+            userPrompt,
+            cancellationToken);
 
         if (string.IsNullOrWhiteSpace(jsonResponse))
             return new QuickScanResult { Summary = "No response from LLM." };
@@ -51,13 +48,18 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
                 if (!Enum.TryParse(severityStr, true, out FindingSeverity severity))
                     severity = FindingSeverity.Info;
 
+                double? confidenceScore = TryReadConfidenceScore(findingElement);
+                FindingConfidenceLevel? confidenceLevel = TryReadConfidenceLevel(findingElement);
+
                 findings.Add(new ArchitectureFinding
                 {
                     Category = category,
                     Message = message,
                     Severity = severity,
                     FindingId = Guid.NewGuid().ToString("N"),
-                    SourceAgent = AgentType.Topology // Using Topology as a generic source for quick scan
+                    SourceAgent = AgentType.Topology, // Using Topology as a generic source for quick scan
+                    ConfidenceScore = confidenceScore,
+                    ConfidenceLevel = confidenceLevel
                 });
             }
 
@@ -71,5 +73,43 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
         {
             return new QuickScanResult { Summary = "Failed to parse LLM response as JSON." };
         }
+    }
+
+    private static FindingConfidenceLevel? TryReadConfidenceLevel(JsonElement findingElement)
+    {
+        if (!findingElement.TryGetProperty("confidenceLevel", out JsonElement levelElement))
+            return null;
+
+        string raw = levelElement.GetString() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        if (!Enum.TryParse(raw, true, out FindingConfidenceLevel level))
+            return null;
+
+        return level;
+    }
+
+    private static double? TryReadConfidenceScore(JsonElement findingElement)
+    {
+        if (!findingElement.TryGetProperty("confidenceScore", out JsonElement scoreElement))
+            return null;
+
+
+        if (scoreElement.ValueKind == JsonValueKind.Null)
+            return null;
+
+
+        if (scoreElement.ValueKind == JsonValueKind.Number && scoreElement.TryGetDouble(out double value))
+            return value;
+
+
+        if (scoreElement.ValueKind == JsonValueKind.String
+            && double.TryParse(scoreElement.GetString(), System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out double parsed))
+            return parsed;
+
+        return null;
     }
 }
