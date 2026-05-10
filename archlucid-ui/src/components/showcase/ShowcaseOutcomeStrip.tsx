@@ -34,12 +34,12 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
     <section aria-label="Open completed output" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/reviews/${encRun}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Open review</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Outcome summary, timeline, exports</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Review package</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">Outcomes, timeline, and exports</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Open review</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Review package</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">
             Sign in with a connected workspace to open the full review detail screen.
           </span>

@@ -53,10 +53,7 @@ public sealed class ProductLearningPlanningDerivationService(
             existingThemes.Select(static t => t.ThemeKey).ToHashSet(StringComparer.Ordinal);
 
         IReadOnlyList<ProductLearningPilotSignalRecord> hydrated =
-            await signalRepository
-                .ListRecentForScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, MaxPilotSignalsHydrate,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            await HydratePilotSignalsForScopeAsync(signalRepository, scope, cancellationToken).ConfigureAwait(false);
 
         IReadOnlyList<ProductLearningPilotSignalRecord> scopedSignals = hydrated
             .Where(r =>
@@ -141,6 +138,18 @@ public sealed class ProductLearningPlanningDerivationService(
             SignalLinksInserted = signalLinksInserted
         };
     }
+
+    /// <summary>Fetches capped recent pilot signals for the scope via <see cref="IProductLearningPilotSignalRepository" />.</summary>
+    private static Task<IReadOnlyList<ProductLearningPilotSignalRecord>> HydratePilotSignalsForScopeAsync(
+        IProductLearningPilotSignalRepository repository,
+        ProductLearningScope scope,
+        CancellationToken cancellationToken) =>
+        repository.ListRecentForScopeAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            MaxPilotSignalsHydrate,
+            cancellationToken);
 
     private static async Task<int> LinkSignalsAsync(
         IProductLearningPlanningRepository repository,

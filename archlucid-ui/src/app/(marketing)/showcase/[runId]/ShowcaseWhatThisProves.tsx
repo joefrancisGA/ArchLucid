@@ -15,7 +15,7 @@ export const SHOWCASE_ARCHLUCID_OUTPUT_BULLETS: readonly string[] = [
 
   "Findings and narrative explanation surfaced for review",
 
-  "Artifacts exported as a bundle and per-descriptor downloads",
+  "Deliverables exported as a bundle and per-descriptor downloads",
 
   "Review trail and pipeline events recorded for traceability",
 
@@ -101,7 +101,7 @@ export function ShowcaseOutcomeCards({ snapshot }: { readonly snapshot: Showcase
 
         {
 
-          label: "Artifacts exported",
+          label: "Deliverables exported",
 
           value: String(snapshot.artifactCount),
 

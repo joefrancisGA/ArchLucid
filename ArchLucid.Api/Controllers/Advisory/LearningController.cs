@@ -11,6 +11,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -37,7 +38,8 @@ public sealed class LearningController(
     ILearningPlanningReadService learningReadService,
     IProductLearningPlanningDerivationService planningDerivationService,
     IActorContext actorContext,
-    IScopeContextProvider scopeProvider)
+    IScopeContextProvider scopeProvider,
+    IAuditService auditService)
     : ControllerBase
 {
     private static readonly JsonSerializerOptions ReportFileJsonOptions = new()
@@ -302,6 +304,22 @@ public sealed class LearningController(
                     maxPlans,
                     cancellationToken)
                 .ConfigureAwait(false);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ProductLearningPlanningMaterialized,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    sinceUtc,
+                    maxPlansToMaterialize = maxPlans,
+                    themesInserted = result.ThemesInserted,
+                    plansInserted = result.PlansInserted,
+                    skippedExistingThemeKeys = result.SkippedExistingThemeKeys,
+                    signalLinksInserted = result.SignalLinksInserted
+                })
+            },
+            cancellationToken);
 
         return Ok(result);
     }

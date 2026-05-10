@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { getBreadcrumbs } from "@/lib/breadcrumb-map";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 /**
  * Location-aware breadcrumb trail (client — uses `usePathname`). Hidden on home only.
  */
 export function Breadcrumbs() {
   const pathname = usePathname() ?? "/";
-  const items = getBreadcrumbs(pathname);
+  const items = getBreadcrumbs(pathname, { buyerPolishedShell: isBuyerPolishedOperatorShellEnv() });
 
   if (items.length <= 1) {
     return null;

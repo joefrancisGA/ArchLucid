@@ -149,7 +149,7 @@ function BuyerAuditEventsTechnicalAppendix(props: { events: AuditEvent[] }) {
   return (
     <details className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
       <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
-        Identifiers and raw payloads (audit reference)
+        Technical correlation appendix
       </summary>
       <div className="mt-3 space-y-4">
         {events.map((ev) => (
@@ -1026,8 +1026,8 @@ export default function AuditPage() {
         <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
           {buyerPolishedShell ? (
             <>
-              Each milestone is traceable to an actor, time, and review context. For audit forensics, expand
-              Identifiers and raw payloads below when you need full correlation IDs and payloads.
+              Each milestone is traceable to an actor, time, and review context. For deeper verification, expand the
+              technical correlation appendix below for correlation IDs and stored event payloads.
             </>
           ) : (
             <>

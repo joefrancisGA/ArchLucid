@@ -17,6 +17,7 @@ import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import {
   getBuyerSafeReviewsTableLink,
   getCanonicalReviewWorkspaceHref,
+  getShowcaseExecutiveHref,
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
@@ -77,7 +78,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         }`
       : run.hasArtifactBundle
         ? buyerPolished
-          ? "Open the review package on the left to browse sponsor-ready deliverables and exports."
+          ? "Browse sponsor-ready deliverables and exports from the full review. Open review detail when you need the complete workspace view."
           : "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."
         : buyerPolished
           ? "No file bundle reported for this row yet."
@@ -210,6 +211,11 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
               {buyerSafePrimary ? (
                 <>
+                  {showcaseStory ? (
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={getShowcaseExecutiveHref()}>Executive summary</Link>
+                    </Button>
+                  ) : null}
                   <Button variant="outline" size="sm" className="w-full" asChild>
                     <Link href={showcaseWalkthroughHref}>Read-only walkthrough</Link>
                   </Button>
