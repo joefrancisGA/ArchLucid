@@ -5,7 +5,7 @@
 
 # Trial lifecycle runbook (expiry → read-only → export-only → purge)
 
-**Last reviewed:** 2026-04-17
+**Last reviewed:** 2026-05-11 (operator infra-teardown urgency note under **Operational considerations**)
 
 ## Objective
 
@@ -57,6 +57,12 @@ stateDiagram-v2
 - **API:** `TrialLimitGate` blocks writes in post-active phases; deletes blocked from **ReadOnly** onward.
 
 ## Operational considerations
+
+### Operator urgency when volumes are modest (cost vs automation)
+
+Hosted **inactive** prospects consume almost **zero Azure OpenAI** (no completions — no **`ArchLucid.AgentRuntime`** spend). Persisted idle SQL catalogs dominate marginal infra versus LLM at low signup counts, yet **individual catalog teardown** stays **straightforward for Azure admins** (**`TenantDatabaseBindings`** — [`TENANT_DATABASE_TOPOLOGY.md`](../library/TENANT_DATABASE_TOPOLOGY.md)).
+
+**Near-term stance (2026-05-11, aligned with [`TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md) §4):** do **not** treat **immediate unattended hard purge SLA** automation as urgent when **manual** infra delete + ticketing suffices. Prefer **generous** `Trial:Lifecycle` horizons (`PurgeAfterExportOnlyDays`, `IntervalMinutes`) until dormant-tenant cardinality justifies tightening. **Compliance** (export-only window per policy, contractual deletion timelines) stays operator-led — statuses may advance automatically while **underlying Azure SQL catalogs** drop on an admin cadence acceptable to FinOps until scale demands lights-out churn.
 
 ### Manual override (SQL break-glass)
 

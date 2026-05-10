@@ -23,6 +23,7 @@ import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
@@ -651,12 +652,12 @@ export default async function RunDetailPage({
             <CardDescription>
               {buyerPolishedArtifactTable ? (
                 <>
-                  Major milestones only — granular audit events and timestamps live in{" "}
+                  Major milestones only — granular events and timestamps live in the{" "}
                   <Link
                     className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                     href={`/audit?runId=${encodeURIComponent(runId)}`}
                   >
-                    Audit
+                    {BUYER_SURFACE_VOCABULARY.auditTrail}
                   </Link>
                   .
                 </>
@@ -687,12 +688,12 @@ export default async function RunDetailPage({
             pipelineTimelineForUi.length > 0 &&
             pipelineTimelineForUi.length < 3 ? (
               <p className="m-0 mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-                For the full audit trail with every pipeline event, open{" "}
+                For the full {BUYER_SURFACE_VOCABULARY.auditTrail.toLowerCase()} with every pipeline event, open{" "}
                 <Link
                   className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                   href={`/audit?runId=${encodeURIComponent(runId)}`}
                 >
-                  Audit
+                  {BUYER_SURFACE_VOCABULARY.auditTrail}
                 </Link>
                 .
               </p>
@@ -853,7 +854,11 @@ export default async function RunDetailPage({
       )}
 
       {manifestId ? (
-        <PostCommitRetentionRail runId={runId} showCompareCta={canShowCompareReviewButton} />
+        <PostCommitRetentionRail
+          runId={runId}
+          showCompareCta={canShowCompareReviewButton}
+          buyerShowcaseQuickLinks={usedStaticDemoRun}
+        />
       ) : null}
 
       {manifestId && (
@@ -863,13 +868,16 @@ export default async function RunDetailPage({
               <ContextualHelp helpKey="manifest-review" placement="left" />
             </div>
             <CollapsibleSection
-              title={buyerPolishedArtifactTable ? "Deliverables & exports (sponsor-ready)" : "Artifacts & exports"}
+              title={buyerPolishedArtifactTable ? "Deliverables by audience" : "Artifacts & exports"}
               defaultOpen
             >
               {buyerPolishedArtifactTable ? (
                 <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
-                  Start here for packages and downloads sponsors typically receive. Technical diff and graph inspection live under{" "}
-                  <strong>Technical analysis</strong> below.
+                  <strong>Sponsor:</strong> executive summary and scorecard exports.{" "}
+                  <strong>Architecture review board:</strong> decision package and manifest bundle.{" "}
+                  <strong>Audit / compliance:</strong> traceability and review exports via{" "}
+                  <strong>More export options</strong>. Optional operator tooling sits in{" "}
+                  <strong>Deep dive (full package detail)</strong> below.
                 </p>
               ) : null}
               {artifactsFailure && (
@@ -1012,15 +1020,28 @@ export default async function RunDetailPage({
 
       {!buyerPolishedArtifactTable ? explanationSection : null}
 
-      {showPilotScorecardPackageCta && manifestId ? (
-        <EmailRunToSponsorBanner runId={runId} manifestId={manifestId} />
+      {showPilotScorecardPackageCta && buyerPolishedArtifactTable && manifestId ? (
+        <CollapsibleSection title="Executive sponsor package (downstream)" defaultOpen={false}>
+          <EmailRunToSponsorBanner runId={runId} manifestId={manifestId} curatedSampleRun={usedStaticDemoRun} />
+        </CollapsibleSection>
+      ) : null}
+      {showPilotScorecardPackageCta && !buyerPolishedArtifactTable && manifestId ? (
+        <EmailRunToSponsorBanner runId={runId} manifestId={manifestId} curatedSampleRun={usedStaticDemoRun} />
       ) : null}
 
       {manifestId && <BeforeAfterDeltaPanel variant="inline" runId={runId} />}
 
+      {buyerPolishedArtifactTable && manifestId ? (
+        <section id="advanced-analysis" className="scroll-mt-24">
+          <CollapsibleSection title="Deep dive (full package detail)" defaultOpen={false}>
+            <PostCommitAdvancedAnalysisHint runId={runId} embeddedInCollapsible />
+          </CollapsibleSection>
+        </section>
+      ) : null}
+
       {!buyerPolishedArtifactTable && manifestId ? (
         <section id="advanced-analysis" className="scroll-mt-24">
-          <CollapsibleSection title="Technical analysis" defaultOpen={false}>
+          <CollapsibleSection title="Deep dive (technical analysis)" defaultOpen={false}>
             <PostCommitAdvancedAnalysisHint runId={runId} embeddedInCollapsible />
           </CollapsibleSection>
         </section>

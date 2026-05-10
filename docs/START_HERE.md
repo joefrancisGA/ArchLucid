@@ -13,7 +13,7 @@ Five-doc evaluator spine (read in order — everything else is lookup):
 5. library/PILOT_ROI_MODEL.md (optional metrics only after you have a committed review)
 ```
 
-Deep reference lives in [`library/START_HERE_DEPTH.md`](library/START_HERE_DEPTH.md) and [`NAVIGATOR.md`](NAVIGATOR.md); do not start there on day one.
+Deep reference lives in [`library/START_HERE_DEPTH.md`](library/START_HERE_DEPTH.md) and [`NAVIGATOR.md`](NAVIGATOR.md); do not start there on day one. **`library/DOCUMENTATION_BY_AUDIENCE.md`** maps which parts of **`docs/`** skew customer-evaluator versus contributor/vendor-internal (reduces cross-traffic fatigue).
 
 ```text
 START_HERE.md (you are here)

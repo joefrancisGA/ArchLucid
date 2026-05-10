@@ -570,18 +570,26 @@ function GovernanceWorkflowPageInner() {
       <LayerHeader pageKey="governance-workflow" />
       <OperatorPageHeader
         title="Governance workflow"
-        subtitle={canMutateWorkflow ? governanceWorkflowPageLeadOperator : governanceWorkflowPageLeadReader}
+        subtitle={
+          buyerPolishedShell
+            ? "The approval path governs which finalized architecture packages may advance. Promotion moves an approved version toward staging or production; activation makes it operative for that environment."
+            : canMutateWorkflow
+              ? governanceWorkflowPageLeadOperator
+              : governanceWorkflowPageLeadReader
+        }
         helpKey="governance-workflow"
       />
       {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
         <GovernanceApprovalStoryCard row={approvals[0]!} />
       ) : null}
+      {!(buyerPolishedShell && approvals.length > 0 && activeRunId !== null) ? (
       <p
         className="mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
         data-testid="governance-workflow-outcome-banner"
       >
         {governanceWorkflowOutcomeBannerLine}
       </p>
+      ) : null}
 
       {buyerPolishedShell ? (
         <CollapsibleSection title="Governance quick path" defaultOpen={false}>
@@ -593,10 +601,10 @@ function GovernanceWorkflowPageInner() {
 
       {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) ? (
         <div className="mb-6 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 text-sm text-neutral-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-neutral-50">
-          <strong>Evaluation sample</strong>
+          <strong>Sample approval path</strong>
           {" — "}
-          This workflow is read-only here. In production, authorized users submit, approve, promote, and activate governed
-          changes. For a full walkthrough, contact your account team.
+          Read-only sample timeline. In production, authorized users submit, approve, promote, and activate governed
+          changes.
         </div>
       ) : null}
 

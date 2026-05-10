@@ -24,3 +24,7 @@ The operator **new-run wizard** review step calls this endpoint to show an **ill
 ## Per-tenant dashboards
 
 Aggregated tenant spend, budgets, and anomaly detection are **out of scope** for this file; see [`CAPACITY_AND_COST_PLAYBOOK.md`](CAPACITY_AND_COST_PLAYBOOK.md) for operational capacity guidance.
+
+## Hosted signup trials — forecasting appendix (2026‑05‑11)
+
+The **hosted self‑serve trial** path uses **`LlmMonthlyTenantDollarBudget`** when enabled (see **`LlmMonthlyTenantDollarBudgetOptions`** and SaaS overlays in **`appsettings.SaaS.json`**). Operational **\$ / trial‑month envelopes**, mini vs full **GPT‑class** multiples, **`AgentExecution:Mode=Real`** expectations, **`MaxCompletionTokens`** guidance, tier‑scoped **\$25/\$35** tightening once Free‑tier binds exist, SQL elastic‑pool caveat, idle early read‑only backlog reco, plus example fleet math live in [`TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md) (**sections 3.1–3.2**).

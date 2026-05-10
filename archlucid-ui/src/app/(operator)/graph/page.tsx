@@ -21,6 +21,7 @@ import { GRAPH_IDLE } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { coerceGraphViewModel } from "@/lib/operator-response-guards";
 import {
   getArchitectureGraph,
@@ -338,9 +339,9 @@ function GraphPageContent() {
     if (demoUi && showIdleCard) {
       return {
         ...GRAPH_IDLE,
-        title: "Review trail graph",
+        title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
         description:
-          "The Claims Intake sample draws how the review advances from captured context through analysis, flagship risks, the finalized manifest, and bundled deliverables. The graph loads automatically — if the canvas stays empty, choose Load graph above.",
+          "The Claims Intake sample traces evidence from captured context through flagship risks to the finalized package and deliverables. The graph loads automatically — if the canvas stays empty, expand explore options below and choose Load graph.",
       };
     }
 
@@ -349,10 +350,10 @@ function GraphPageContent() {
 
   const leadIntro =
     demoUi || buyerPolishedShell
-      ? "Interactive review-trail graph for the selected architecture review. Use the review control to open another finalized package when available."
+      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. The sample emphasizes evidence → PHI minimization risk → mitigation decisions → sealed manifest outputs.`
       : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
-  const pageTitle = demoUi || buyerPolishedShell ? "Review trail graph" : "Review evidence graph";
+  const pageTitle = BUYER_SURFACE_VOCABULARY.evidenceGraph;
 
   const loadButtonLabel = loading ? "Loading…" : "Load graph";
 
@@ -389,7 +390,7 @@ function GraphPageContent() {
           )}
         >
           <option value="provenance-full" title={GRAPH_MODE_NATIVE_TITLES["provenance-full"]}>
-            Review trail graph
+            {BUYER_SURFACE_VOCABULARY.evidenceGraph} (provenance)
           </option>
           <option value="decision-subgraph" title={GRAPH_MODE_NATIVE_TITLES["decision-subgraph"]}>
             Decision focus
@@ -537,7 +538,16 @@ function GraphPageContent() {
 
       {graph ? (
         <>
-          {graphControls}
+          {buyerPolishedShell ? (
+            <details className="mb-6 max-w-4xl rounded-lg border border-neutral-200 bg-white/40 dark:border-neutral-700 dark:bg-neutral-900/30">
+              <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                Explore layout options — change review, filters, or reload
+              </summary>
+              <div className="border-t border-neutral-200 px-2 pb-3 pt-1 dark:border-neutral-700">{graphControls}</div>
+            </details>
+          ) : (
+            graphControls
+          )}
           {buyerPolishedShell ? (
             <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
               Analysis and captured evidence converge on key risks. Risks determine the architecture
@@ -646,8 +656,8 @@ function GraphPageContent() {
           </ClientErrorBoundary>
           {demoUi && buyerPolishedShell ? (
             <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-              Use the review control above to open another finalized package. This view stays on the review-trail graph; the
-              sample loads automatically when data is available.
+              Expand explore options when you need a different finalized package. This view defaults to the curated sample
+              evidence graph.
             </p>
           ) : null}
           {demoUi && !buyerPolishedShell ? (

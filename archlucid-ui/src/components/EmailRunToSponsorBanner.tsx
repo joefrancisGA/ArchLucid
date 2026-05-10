@@ -29,6 +29,10 @@ import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-teleme
 export type EmailRunToSponsorBannerProps = {
   runId: string;
   manifestId: string;
+  /**
+   * Curated static demo / golden-path review — avoid “preparing…” copy that reads like an unresolved check in screenshots.
+   */
+  curatedSampleRun?: boolean;
 };
 
 type TrialStatusPayload = {
@@ -59,7 +63,11 @@ function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
  *
  * Render only when the server has confirmed a **Committed** manifest summary (see `runs/[runId]/page.tsx`).
  */
-export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsorBannerProps) {
+export function EmailRunToSponsorBanner({
+  runId,
+  manifestId,
+  curatedSampleRun = false,
+}: EmailRunToSponsorBannerProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{
     message: string;
@@ -198,11 +206,11 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
       id="pilot-scorecard-package"
       data-testid="email-run-to-sponsor-banner"
       role="region"
-      aria-label="Sponsor scorecard package"
+      aria-label="Executive sponsor deliverables (downstream)"
       className="mb-6 max-w-3xl rounded-md border border-teal-300 bg-teal-50 px-4 py-3 dark:border-teal-700 dark:bg-teal-950/40"
     >
       <p className="m-0 flex flex-wrap items-center text-[11px] font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
-        <span>Sponsor distribution</span>
+        <span>{buyerPolishedShell ? "Downstream deliverable" : "Sponsor distribution"}</span>
         {badgeDayN !== null ? (
           <span
             data-testid="email-run-to-sponsor-first-commit-badge"
@@ -241,9 +249,28 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         .{buyerPolishedShell ? " Downloads and readiness checks are split below." : " Use the exports below for sponsor-ready collateral."}
       </p>
 
-      <h3 className="m-0 mt-4 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Sponsor readiness</h3>
+      <h3 className="m-0 mt-4 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        {buyerPolishedShell ? "Executive readiness (sample signals)" : "Sponsor readiness"}
+      </h3>
 
-      {proofGate.status === "skipped" ? null : proofGate.status === "loading" ? (
+      {proofGate.status === "skipped" ? null : proofGate.status === "loading" && curatedSampleRun ? (
+        <p
+          className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400"
+          data-testid="email-run-to-sponsor-readiness-sample-static"
+        >
+          {buyerPolishedShell ? (
+            <>
+              Sample walkthrough: executive readiness lines summarize pilot deltas when telemetry is connected — packages
+              below are representative for this review.
+            </>
+          ) : (
+            <>
+              Sample review: readiness detail fills in when pilot deltas finish loading — export links below stay
+              available for the walkthrough.
+            </>
+          )}
+        </p>
+      ) : proofGate.status === "loading" ? (
         <p
           className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400"
           data-testid="email-run-to-sponsor-readiness-loading"
@@ -291,7 +318,9 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         </div>
       )}
 
-      <h3 className="m-0 mt-5 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Download package</h3>
+      <h3 className="m-0 mt-5 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        {buyerPolishedShell ? "Primary package downloads" : "Download package"}
+      </h3>
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <Button

@@ -68,11 +68,12 @@ Durable **append-only** audit events and correlation IDs support forensic review
 
 ## 5. What we do not claim here
 
+Hosted **trial** tenants and **commercial** pilots use ArchLucid's **single supported multitenant data-plane model**: **`SystemWithPerTenantCatalogs`** (**database-per-tenant** routing via **`TenantDatabaseBindings`** — one product catalog per tenant organization). `SingleCatalog` may exist only for narrow **developer/CI convenience** and is **not** the hosted SaaS posture; deep detail: **[`../library/TENANT_DATABASE_TOPOLOGY.md`](../library/TENANT_DATABASE_TOPOLOGY.md)**, **[`TRUST_CENTER.md`](TRUST_CENTER.md)** (*Data isolation*).
+
 Unless separately contracted and documented:
 
-- **Dedicated database per tenant** — not implied; isolation is **logical** with RLS and app scope.
+- **Dedicated compute / silo SKU per tenant** — not implied for standard SaaS.
 - **Customer-managed keys (BYOK)** — not stated; confirm in roadmap or security pack if offered.
-- **Separate compute per tenant** — not implied for standard SaaS.
 
 Be explicit in sales and security packs to avoid over-claiming.
 

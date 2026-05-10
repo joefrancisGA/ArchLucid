@@ -6,7 +6,11 @@ import {
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/OperatorEvidenceLimitsFooter";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { findingDetailHeadingTitle, findingDetailLeadSentence } from "@/lib/finding-display-from-inspect";
+import {
+  findingDetailHeadingTitle,
+  findingDetailLeadSentence,
+  findingInspectPageEyebrow,
+} from "@/lib/finding-display-from-inspect";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -93,7 +97,7 @@ export function FindingInspectView({
   }
 
   const findingTitle = findingDetailHeadingTitle(payload);
-  const inspectHeroTitle = buyerPolishedShell ? `Traceability: ${findingTitle}` : `Technical inspection — ${findingTitle}`;
+  const inspectHeroTitle = `${findingTitle} — evidence & trace`;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
@@ -102,7 +106,7 @@ export function FindingInspectView({
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}`}
           className="text-base font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
         >
-          ← {buyerPolishedShell ? "Back to finding overview" : "Finding detail"}
+          ← {buyerPolishedShell ? "Back to risk observation overview" : "Finding detail"}
         </Link>
       </div>
 
@@ -113,19 +117,33 @@ export function FindingInspectView({
             : "space-y-3"
         }
       >
+        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-200">
+          {findingInspectPageEyebrow(payload)}
+        </p>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{inspectHeroTitle}</h1>
         <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           {findingDetailLeadSentence(payload)}
         </p>
-        <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          {buyerPolishedShell
-            ? "Below: cited evidence, rule linkage, typed finding payload, reasoning trace, and audit correlation. Use finding overview for the sponsor summary first."
-            : "This view adds rule identifiers, citations, typed payload, and reasoning trace. Use Finding detail (link above) for the product summary; use this view for full traceability."}
-        </p>
-        <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Finding <span className="font-mono text-xs">{decodedFindingId}</span> — manifest{" "}
-          <span className="font-mono text-xs">{payload.manifestVersion ?? "—"}</span>
-        </p>
+        <ul className="m-0 list-disc space-y-1.5 py-1 pl-5 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          <li>
+            <strong className="font-medium text-neutral-900 dark:text-neutral-100">Source evidence:</strong> citations,
+            snapshots, and structured payload fields persisted with this finding.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900 dark:text-neutral-100">Trace path:</strong> decision rule →
+            finding record → manifest version; correlated events appear in the audit trail.
+          </li>
+          <li>
+            <strong className="font-medium text-neutral-900 dark:text-neutral-100">Audit metadata:</strong> model and
+            template versions (when present) support reproducibility — open the reference section below for full detail.
+          </li>
+        </ul>
+        {!buyerPolishedShell ? (
+          <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            Finding <span className="font-mono text-xs">{decodedFindingId}</span> — manifest{" "}
+            <span className="font-mono text-xs">{payload.manifestVersion ?? "—"}</span>
+          </p>
+        ) : null}
       </header>
 
       <FindingInspectFindingBody

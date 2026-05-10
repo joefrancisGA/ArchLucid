@@ -294,7 +294,7 @@ export default async function ManifestDetailPage({
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="primary" size="sm" asChild>
             <a href={getBundleDownloadUrl(manifestId)}>
               {buyerPolishedLayout ? "Download full package (ZIP)" : "Export manifest bundle"}
             </a>
@@ -345,20 +345,17 @@ export default async function ManifestDetailPage({
                 : "Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence rows are available."}
             </p>
             {buyerPolishedLayout && primaryFindingHref ? (
-              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    PHI minimization risk
-                  </span>
-                  <Badge variant="destructive" className="text-[11px]">
-                    High severity
-                  </Badge>
+                <div className="mt-3 space-y-2 rounded-lg border border-amber-200/90 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
+                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-950/90 dark:text-amber-100/90">
+                    PHI minimization risk · sample package
+                  </p>
+                  <p className="m-0 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
+                    <strong>Severity:</strong> High — expanded breach and audit scope if minimization is understated.{" "}
+                    <strong>Mitigation:</strong> classification at ingress, adapter boundaries, retention controls tied to
+                    evidence in this package. <strong>Validation:</strong> trace exception paths and attachment volume
+                    through go-live monitoring.
+                  </p>
                 </div>
-                <p className="m-0 mt-2 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
-                  Over-retaining identifiable health context expands audit scope and downstream processing obligations —
-                  this finding tracks how intake minimizes PHI exposure for the design under review.
-                </p>
-              </div>
             ) : null}
             <div className="mt-4">
               <Button variant="secondary" size="sm" asChild>
@@ -388,7 +385,7 @@ export default async function ManifestDetailPage({
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Button variant="outline" size="sm" asChild>
+            <Button variant={buyerPolishedLayout ? "primary" : "outline"} size="sm" asChild>
               <a href={getBundleDownloadUrl(manifestId)}>
                 {buyerPolishedLayout ? "Download all files (ZIP)" : "Download bundle (ZIP)"}
               </a>

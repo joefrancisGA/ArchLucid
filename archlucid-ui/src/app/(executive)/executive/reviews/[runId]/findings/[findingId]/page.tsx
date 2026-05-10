@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { FindingInspectFindingBody } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectFindingBody";
 import { sameAuthorityRunId } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectView";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
+import { findingDetailHeadingTitle, findingDetailPageEyebrow } from "@/lib/finding-display-from-inspect";
 import {
   findingIdsAlignForInspectRoute,
   loadFindingInspectForRoute,
@@ -108,12 +108,14 @@ export default async function ExecutiveFindingDetailPage({
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
           className="text-neutral-600 underline hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
         >
-          Technical inspection (operator)
+          Technical traceability (operator)
         </Link>
       </div>
 
       <header className="space-y-1">
-        <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">Finding</p>
+        <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
+          {findingDetailPageEyebrow(safePayload)}
+        </p>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
           {findingDetailHeadingTitle(safePayload)}
         </h1>

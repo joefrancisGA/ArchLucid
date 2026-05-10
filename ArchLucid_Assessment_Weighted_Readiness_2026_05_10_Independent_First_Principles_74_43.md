@@ -1,4 +1,4 @@
-# ArchLucid Assessment – Weighted Readiness 74.43%
+# ArchLucid Assessment – Weighted Readiness 74.51%
 
 **Date:** 2026-05-10
 **Basis:** Independent first-principles review of the repository as of 2026-05-09 23:39 UTC-4.
@@ -10,7 +10,7 @@
 
 ### Overall Readiness
 
-ArchLucid is an ambitious, well-engineered AI-assisted architecture workflow system that produces versioned, evidence-linked findings through a multi-agent pipeline. The engineering foundation — modular C# codebase, extensive test tiers, OpenAPI contract drift detection, CI security scanning, Terraform IaC, and operator UI — is significantly more mature than typical pre-revenue products. The product's biggest liability is the gap between engineering depth and commercial traction: zero paying customers, no live LLM evidence in the assessment environment, and (commercially) still having to win trust and prove ROI with **thin references** and a **commerce ramp** (live self-serve intended as default — see Commercial Picture). **Note:** For **hosted SaaS**, buyers evaluate through the **operator website** (e.g. `archlucid.net` / staging); they are **not** asked to install .NET, Docker, or SQL locally. **Commercial posture (per operator):** the product is **not open source** and customers are **not** given the repo to self-build; **customer self-host / BYO deployment is not a planned mainstream motion** when sensitivity is moderate — pilots consume **vendor-operated** infrastructure. The heavy toolchain stays **internal** (engineering, CI, vendor operations). The **enterprise** dimension that will matter next is **Azure region / data residency and DPA alignment**, not “clone and run.”
+ArchLucid is an ambitious, well-engineered AI-assisted architecture workflow system that produces versioned, evidence-linked findings through a multi-agent pipeline. The engineering foundation — modular C# codebase, extensive test tiers, OpenAPI contract drift detection, CI security scanning, Terraform IaC, and operator UI — is significantly more mature than typical pre-revenue products. The product's biggest liability is the gap between engineering depth and commercial traction: zero paying customers, **no live LLM runs observed during this isolated assessment**, and (commercially) still having to win trust and prove ROI with **thin references** and a **commerce ramp** (live self-serve intended as default — see Commercial Picture). **Note:** For **hosted SaaS**, buyers evaluate through the **operator website** (e.g. `archlucid.net` / staging); they are **not** asked to install .NET, Docker, or SQL locally. **Commercial posture (per operator):** the product is **not open source** and customers are **not** given the repo to self-build; **customer self-host / BYO deployment is not a planned mainstream motion** when sensitivity is moderate — pilots consume **vendor-operated** infrastructure. The heavy toolchain stays **internal** (engineering, CI, vendor operations). The **enterprise** dimension that will matter next is **Azure region / data residency and DPA alignment**, not “clone and run.”
 
 ### Commercial Picture
 
@@ -22,7 +22,7 @@ Enterprise-facing surfaces are strong for a V1: RBAC with four roles, append-onl
 
 ### Engineering Picture
 
-The codebase is well-structured across 30+ projects with clear layer boundaries. Test infrastructure includes property-based testing (FsCheck), mutation testing (Stryker), OWASP ZAP baseline, Schemathesis API fuzzing, k6 load tests, Playwright E2E, and architecture fitness tests. 27 CI/CD workflows cover build, security, performance, and deployment. Data consistency enforcement includes orphan probes and quarantine. The primary engineering risk is AI agent output quality: the golden cohort gate was blocked in the assessment environment (no Azure OpenAI credentials), meaning the core value proposition — AI-generated architecture findings — cannot be independently verified from this codebase alone. Simulator mode produces deterministic outputs that pass structural validation but do not prove that real LLM completions will produce usable architecture analysis.
+The codebase is well-structured across 30+ projects with clear layer boundaries. Test infrastructure includes property-based testing (FsCheck), mutation testing (Stryker), OWASP ZAP baseline, Schemathesis API fuzzing, k6 load tests, Playwright E2E, and architecture fitness tests. 27 CI/CD workflows cover build, security, performance, and deployment. Data consistency enforcement includes orphan probes and quarantine. The primary engineering risk is AI agent output quality: live Azure OpenAI–backed checks (golden cohort **live** path, `RealAzureOpenAIEndToEndTests`, optional post-regression **`dotnet-azure-openai-live-post-regression`**) remain **credential-dependent** — they do not execute from a **bare clone alone** unless secrets are mounted. **This assessment environment** lacked those secrets, so the golden cohort live gate could not be invoked here as part of desk review; **organisation GitHub Actions**, where repository secrets (`ARCHLUCID_CI_REAL_AOAI_*`) and **`ARCHLUCID_CI_REAL_AOAI_ENABLED`** are set, can corroborate real completions via passing workflow logs. Simulator mode produces deterministic outputs that pass structural validation but do not constitute buyer-grade proof that **production-like** completions yield useful architecture analysis.
 
 ---
 
@@ -47,16 +47,16 @@ Qualities are ordered from most urgent (highest weighted deficiency) to least ur
 
 ---
 
-### 2. AI/Agent Readiness — Score: 65 | Weight: 8 | Weighted Deficiency: 2.80
+### 2. AI/Agent Readiness — Score: 66 | Weight: 8 | Weighted Deficiency: 2.72
 
-**Justification:** The multi-agent pipeline (Topology, Cost, Compliance, Critic) is architecturally sound with clear stage boundaries, explainability traces (5/5 field coverage on most engines), and a quality gate framework. The eval corpus exists with structural/semantic scoring. However: (a) the golden cohort real-LLM gate was blocked in the assessment environment — no live Azure OpenAI credentials were available, so the core product claim (AI-generated architecture findings) is unverifiable from codebase alone; (b) the exemplar JSON fixtures used for eval scoring are hand-crafted, not captured from real model runs; (c) the agent output quality gate thresholds are configurable but there is no published evidence of what real GPT-4o outputs look like against diverse architecture briefs; (d) prompt regression testing exists conceptually but the corpus is thin (4 real-mode scenarios).
+**Justification (+1 versus prior pass — optional GitHub Actions `dotnet-azure-openai-live-post-regression` plus documented AOAI CI secrets strengthens third-party corroboration of live completions versus a tarball-only review; corpus depth, handcrafted eval fixtures, and buyer-grade publication of diverse real runs remain materially unchanged):** The multi-agent pipeline (Topology, Cost, Compliance, Critic) is architecturally sound with clear stage boundaries, explainability traces (5/5 field coverage on most engines), and a quality gate framework. The eval corpus exists with structural/semantic scoring. However: (a) **this workspace** did not run the golden cohort **live LLM** gate or live AOAI integration tests — no credentials were wired for this assessment task, so a **repo-only**, secret-free replay still cannot certify real-model fidelity; reviewers who rely on upstream **configured** GitHub Actions can instead corroborate real completions via green **`dotnet-azure-openai-live-post-regression`** (and related knobs) rather than codebase inspection alone; (b) the exemplar JSON fixtures used for eval scoring are hand-crafted, not captured from real model runs; (c) the agent output quality gate thresholds are configurable but there is no published evidence of what real GPT-4o outputs look like against diverse architecture briefs; (d) prompt regression testing exists conceptually but the corpus is thin (4 real-mode scenarios).
 
-**Tradeoffs:** Simulator-first development is the right engineering choice for deterministic testing, but it creates a gap between what CI proves (structural correctness of the pipeline) and what buyers need (useful AI-generated architecture analysis). The `--real` mode path exists but has not been exercised in this assessment.
+**Tradeoffs:** Simulator-first development is the right engineering choice for deterministic testing, but it creates a gap between what default CI proves (structural correctness of the pipeline under simulator-heavy runs) and what buyers need (useful AI-generated architecture analysis under **production-like** completions). **`--real` paths and optional live-AOAI GitHub Actions jobs exist** when secrets are configured, but **this assessment** did not execute them locally.
 
 **Recommendations:**
 - Run and document 10+ diverse architecture briefs through real Azure OpenAI and publish the output quality metrics.
 - Expand the eval corpus to 20+ scenarios covering different architecture styles, scales, and industries.
-- Add a nightly CI job that runs 3-5 briefs against real AOAI (gated on secret availability) and publishes a quality report.
+- Prefer **organisation CI** (**`dotnet-azure-openai-live-post-regression`** with Actions secrets plus **`ARCHLUCID_CI_REAL_AOAI_ENABLED`**) green runs on tracked branches as prima facie AOAI sanity; widen golden cohort coverage as budgets allow (see nightly workflow + runbooks).
 
 **Fixability:** V1 with AOAI credentials; corpus expansion is incremental.
 
@@ -705,7 +705,7 @@ Qualities are ordered from most urgent (highest weighted deficiency) to least ur
 | ENTERPRISE | Customer Self-Sufficiency | 55 | 1 | 55 |
 | ENTERPRISE | Change Impact Clarity | 68 | 1 | 68 |
 | ENGINEERING | Correctness | 72 | 8 | 576 |
-| ENGINEERING | AI/Agent Readiness | 65 | 8 | 520 |
+| ENGINEERING | AI/Agent Readiness | 66 | 8 | 528 |
 | ENGINEERING | Architectural Integrity | 79 | 3 | 237 |
 | ENGINEERING | Security | 77 | 3 | 231 |
 | ENGINEERING | Reliability | 72 | 2 | 144 |
@@ -731,13 +731,13 @@ Qualities are ordered from most urgent (highest weighted deficiency) to least ur
 
 **Commercial subtotal:** 2,625 / 4,000 = 65.63%
 **Enterprise subtotal:** 1,754 / 2,500 = 70.16%
-**Engineering subtotal:** 3,064 / 3,500 = 87.54%
+**Engineering subtotal:** 3,072 / 3,500 = 87.77%
 
-**Total weighted:** 2,625 + 1,754 + 3,064 = 7,443
+**Total weighted:** 2,625 + 1,754 + 3,072 = 7,451
 **Total max:** 10,000
-**Weighted readiness:** 74.43%
+**Weighted readiness:** 74.51%
 
-**Re-score notes (2026-05-10):** **Adoption Friction** **55 → 68** (hosted SaaS vs local/repo framing); overall **73.45% → 74.23%**. **Decision Velocity** **52 → 62** (**operator intent:** PLG / live self-serve default, no formal sales org yet); overall **74.23% → 74.43%**. **Posture:** commercial path is **vendor-hosted SaaS**, not customer source or routine self-host.
+**Re-score notes (2026-05-10):** **Adoption Friction** **55 → 68** (hosted SaaS vs local/repo framing); overall **73.45% → 74.23%**. **Decision Velocity** **52 → 62** (**operator intent:** PLG / live self-serve default, no formal sales org yet); overall **74.23% → 74.43%**. **AI/Agent Readiness** **65 → 66** (**optional AOAI corroboration** when GitHub Actions secrets + `ARCHLUCID_CI_REAL_AOAI_ENABLED` are set); overall **74.43% → 74.51%**. **Posture:** commercial path is **vendor-hosted SaaS**, not customer source or routine self-host.
 
 ---
 
@@ -745,13 +745,13 @@ Qualities are ordered from most urgent (highest weighted deficiency) to least ur
 
 Ranked from most serious to least serious, based on cross-cutting impact weighted by commercial and engineering significance.
 
-### 1. No Live AI Evidence Validates the Core Value Proposition
+### 1. Live LLM outputs remain hard to audit without credentials or privileged CI visibility
 
-The product claims to produce "AI-generated architecture findings." The golden cohort gate was blocked (no AOAI credentials in the assessment environment). All automated testing uses simulator mode, which produces deterministic outputs that prove pipeline correctness but not output usefulness. **This assessment** could not independently certify real-model output quality from code alone. **Pilot customers on hosted SaaS** judge usefulness **in the vendor environment** (and exports), not by building from source; the remaining **commercial** risk is **thin published, buyer-grade proof** (diverse briefs, real deployment names, before/after) that real LLM output is worth paying for. This is the single largest risk to the product.
+The product claims to produce "AI-generated architecture findings." **This desk review** lacked Azure OpenAI credentials — the golden cohort **live** gate and similar live completions **cannot be reproduced without secrets**, so evaluator trust **cannot rest on a tarball alone**. Where **organisation GitHub Actions** supplies AOAI secrets (optional post-regression job **`dotnet-azure-openai-live-post-regression`**, etc.), third parties **may corroborate** real-model completions by inspecting **successful runs** rather than cloning and running offline. Automated testing still emphasises **simulator mode**, which proves pipeline correctness — not usefulness of buyer-facing completions. Pilot customers judge usefulness **in the vendor SaaS surface** anyway; residual **commercial** risk is **thin published, buyer-grade proof** (diverse briefs, deployment names, before/after artefacts) tied to LLM-backed runs. This remains a top risk bundle.
 
 ### 2. Zero Customer Traction Creates a Credibility Vacuum
 
-No paying customer, no signed design partner (V1.1 — not scored), no case study, no testimonial, no measured ROI. **Every** new **evaluation** starts from zero. The product competes against the buyer's default state ("we use Confluence and Jira") with no proof that switching produces measurably better outcomes. The ROI model is theoretical.
+No paying customer, no signed design partner (V1.1 — not scored), no case study, no testimonial, no measured ROI. **Every** new **evaluation** starts from zero. **Jira, Confluence, and similar tooling are strong partners for backlog and collaborative documentation**, not interchangeable analogues for **versioned architecture findings, manifests, authority chains, or evidence-linked rationale** ArchLucid is built around. Buyers still gravitate toward **implicit status quo**: architecture intent spread across unstructured pages, slideware, tacit reviewer knowledge, or one-off diagrams — with little measured lift from adding **another SaaS pane** absent reference proof. There is therefore **nothing buyer-grade demonstrating** materially shorter cycles or sharper decisions **versus that messy baseline**, even though framing the competitive set as purely “Confluence/Jira replaces architecture” oversimplifies roles. The ROI model is theoretical.
 
 ### 3. Evaluation Friction Depends on Motion — SaaS Is Web-First
 
@@ -763,7 +763,7 @@ Stripe may still be **TEST** in many environments and Marketplace **unpublished*
 
 ### 5. AI Output Quality Is Untested at Scale
 
-The eval corpus has 4 real-mode scenarios. There is no published evidence of what GPT-4o produces against 20+ diverse architecture briefs. The agent output quality gate exists but the thresholds are defaults, not calibrated against real buyer expectations. Prompt regression testing is conceptual but thin.
+The eval corpus has 4 real-mode scenarios. There is no published evidence of what GPT-4o produces against 20+ diverse architecture briefs. The agent output quality gate is **explicitly configured** (**`PilotStrict`** under **`ArchLucid:AgentOutput:QualityGate`** in **`ArchLucid.Api`** **`appsettings.Staging.json`** / **`appsettings.Production.json`** — **`docs/runbooks/QUALITY_GATE_REJECTION.md`**, **`docs/library/AGENT_OUTPUT_EVALUATION.md`**). **Resolved (operator, 2026-05-11):** **do not** recalibrate those production thresholds toward survey-derived buyer expectations; keep the shipped posture unless product risk review changes it deliberately. **`structural completeness 1.0`** and **`semantic score ≥ 0.8`** remain the **committed eval-corpus / harness exemplar targets** (**`AgentOutputExpectation`**-style fixtures), **not** the live **`PilotStrictMin*`** numeric floors — avoid conflating the two when reading scores. Prompt regression testing is conceptual but thin.
 
 ### 6. Cognitive Overhead for First-Time Users
 
@@ -1298,30 +1298,37 @@ Acceptance criteria:
 
 **Title:** DEFERRED — Establish Hosted Staging Trial for Prospects
 
-**Reason deferred:** Requires infrastructure decisions about trial tenant provisioning, data isolation for trial users, trial expiration/cleanup automation, and Azure subscription cost commitment for hosting trial workloads. These are product and commercial decisions, not engineering implementation.
+**Reason deferred:** Requires infrastructure decisions about trial tenant provisioning, data isolation for trial users, urgency of unattended **infra purge/teardown automation** (**operator 2026-05-11:** deliberately **Phase 2** — idle trials burn negligible AOAI; manual Azure catalog drop acceptable at low cardinality per **`docs/go-to-market/TRIAL_AND_SIGNUP.md`** §4 and **`docs/library/TECH_BACKLOG.md`** **TB-017**), and Azure subscription cost commitment for hosting trial workloads. These blend product posture with incremental engineering.
 
-**Information needed:** (a) Should trial tenants use a shared database or database-per-tenant? (b) What is the trial duration? (c) Should trials use simulator mode or real AOAI? (d) What Azure subscription and budget should host trials? (e) Should trial signup require email verification, or should it be open?
+**Resolved (operator, 2026-05-10):** Hosted **trial** tenants use **database-per-tenant** (`SystemWithPerTenantCatalogs`) — **the same catalog-per-tenant model as paying tenants.** **There is no supported shared multitenant trial product database**; pooled trials are out of scope for the supported data plane.
 
----
+**Resolved (operator, 2026-05-10):** **Trial motion — self-serve** signup with **email + organization** (canonical flow in [`docs/go-to-market/TRIAL_AND_SIGNUP.md`](docs/go-to-market/TRIAL_AND_SIGNUP.md)). **Not** “request trial → manual provisioning” as the default prospect path.
+
+**Resolved (operator, 2026-05-11):** **Trial duration** remains **30 days** (**10 evaluation runs**/trial — calendar length is secondary to AOAI spend). Hosted **buyer** architecture runs **`AgentExecution:Mode=Real`** (welcome seeded sample remains **Simulator** per **`TRIAL_AND_SIGNUP`**). **Fleet AOAI** planning + budgeting (`LlmMonthlyTenantDollarBudget`, SKU, **`MaxCompletionTokens`**) summarized in **`TRIAL_AND_SIGNUP`** **sections 3.1–3.2** (also **`CAPACITY_AND_COST_PLAYBOOK`** FinOps checkpoints).
+
+**Infrastructure still owner-sized:** Azure subscription grouping + SQL elastic pools / SKU for hosted signup concurrency (infra dominates hosted COGS; AOAI appendix is supplemental). Correlate with Prometheus trial funnel dashboards ([`docs/runbooks/TRIAL_FUNNEL.md`](docs/runbooks/TRIAL_FUNNEL.md)).
 
 ## Pending Questions for Later
 
 ### Improvement 1 — Real LLM Architecture Analysis Quality
-- What Azure OpenAI deployment name and model version should be used as the canonical baseline for quality scoring? (Golden cohort doc references `gpt-4o` but deployment names vary.)
-- Should the quality gate thresholds be calibrated against buyer expectations, or should the current defaults (structural 1.0, semantic 0.8) be maintained?
+- **Resolved (2026-05-11):** Canonical baseline model **`gpt-4o`**; bind **`AzureOpenAI:DeploymentName`** to whichever Azure deployment resource targets **`gpt-4o`** (portal names vary). Consolidated **`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`** **section 10** + **`tests/golden-cohort/README.md`**.
+- **Resolved (operator, 2026-05-11):** **Maintain** production quality-gate posture **as shipped** (**`PilotStrict`** + per-agent rejects + **`PilotStrictMin*`** in **`ArchLucid.Api`** **`appsettings.Staging.json` / `appsettings.Production.json`**) — **do not** recalibrate thresholds from buyer-expectation norms. Narrative **`structural completeness 1.0` / exemplar semantic `≥ 0.8`** refer to **golden eval corpus / harness expectations**, not **`PilotStrictMinStructuralCompleteness` / `PilotStrictMinSemanticScore`** (typically **0.9 / 0.5**) or per-agent rejects. See **`docs/runbooks/QUALITY_GATE_REJECTION.md`** + **`docs/library/AGENT_OUTPUT_EVALUATION.md`**.
 
 ### Improvement 4 (DEFERRED) — Cost-to-Serve Instrumentation
-- What is the average token count per agent type (Topology, Cost, Compliance, Critic) in a real-mode run? This would allow cost estimation without a live deployment.
-- Is there a target cost-per-run budget that should constrain prompt design?
+- **Resolved (operator, 2026-05-11):** Credibly **measuring average prompt/completion tokens per agent type** in real-mode requires **capturing labelled telemetry across live AOAI completions** — not something we can approximate from prompts alone offline. **`LlmPromptTokensTotal` / `LlmCompletionTokensTotal`** today omit **`Topology` / `Cost` / …** dimensions (**`ArchLucidInstrumentation.RecordLlmTokenUsage`**, **`MeterName`** = **`ArchLucid`**), while **`Activity`** exposes **`archlucid.agent.type_enum`** separately. Capture plan (**`AsyncLocal`** accounting scope → tagged counters/histogram → golden-cohort **`/metrics`** scrape + aggregator script) is **`TB-015`** in **`docs/library/TECH_BACKLOG.md`**. Until then, operator-facing envelopes stay **estimated** via **`GET /v1/agent-execution/cost-preview`** (`docs/library/PER_TENANT_COST_MODEL.md`).
+- **Resolved (operator, 2026-05-11):** **No** target **cost-per-run** budget. Prompt design is **not** constrained by an artificial per-run dollar ceiling — the governing envelope is the **per-tenant per-UTC-month** estimate enforced by **`LlmMonthlyTenantDollarBudget`** (**`IncludedUsdPerUtcMonth`** / **`HardCutoffUsdPerUtcMonth`** + **`WarnFraction`** in **`ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs`**) and the **sliding-window** cap in **`LlmTokenQuota`**. A run that consumes most of the monthly envelope is **acceptable**; the system warns at **`WarnFraction`**, hard-cuts at **`HardCutoffUsdPerUtcMonth`**, and surfaces the **`LlmTenantDailyBudgetApproaching`** / **`LlmTokenQuotaExceeded`** audit + Problem Details (**`ProblemTypes.LlmTokenQuotaExceeded`**, see **`docs/OPERATIONS_LLM_QUOTA.md`**).
+- **Open follow-up (operator-approved direction, 2026-05-11):** offer a **monthly budget top-up SKU** — let a tenant **buy more LLM dollars** (or token packs) when they hit the included envelope, instead of being read-only-blocked until the next UTC month rolls. Tracked as **`TB-014`** in **`docs/library/TECH_BACKLOG.md`** (Stripe SKU + Marketplace mapping, **`LlmMonthlyTenantDollarBudget`** runtime increment path, audit + Problem Details, refund/proration policy).
 
 ### Improvement 8 — ITSM Live Validation
-- Are test accounts available for Jira Cloud, ServiceNow Developer Instance, Confluence Cloud, and Slack workspace? If so, what are the authentication methods configured?
-- Should live validation be a one-time exercise or a recurring scheduled job?
+- **Resolved (operator, 2026-05-11):** No shared org credentials ship in-repo — sandbox / pilot vendor accounts (**Jira Cloud**, **ServiceNow personal developer instance**, **Confluence Cloud**, **Slack**) are **provisioned via each vendor's free/dev programs** into **Azure Key Vault** / GitHub **staging environment** secrets mapped to **`Integrations:ItsmOutbound`** (Jira + ServiceNow Basic), **`Integrations:ItsmInbound`** (**`JiraWebhookSecret`**, **`ServiceNowWebhookSecret`**), **`Integrations:ConfluencePublishing`** (**email + Atlassian API token**), and **`SlackWebhook`** subscription destinations (incoming webhook URL). Step-by-step owner guide: **`TB-016`** in **`docs/library/TECH_BACKLOG.md`** (`docs/go-to-market/INTEGRATION_CATALOG.md`, `docs/integrations/smoke/CONNECTOR_SMOKE_*.md`, **`docs/library/CONNECTOR_READINESS_MATRIX.md`** for post-smoke dated rows).
+- **Resolved (operator, 2026-05-11):** Live validation runs on a **recurring schedule**, not only as a one-time exercise — vendor APIs, auth rotates, scopes drift, and connector behaviour regresses absent steady smoke coverage. Operational pattern: **`workflow_dispatch`** for ad-hoc + **cron** GitHub Actions (or timer-trigger automation) invoking the scripted checklist path described under **Top 10 Improvement Opportunities → "8. Validate ITSM Connectors Against Live Vendor Instances"** (**`docs/integrations/smoke/`**, operator-owned results reflected in **`docs/library/CONNECTOR_READINESS_MATRIX.md`** posture); credential handling stays GitHub **`vars`** / **`secrets`** / protected environments, never committed.
 
 ### Improvement 10 (DEFERRED) — Hosted Trial
-- What is the acceptable Azure spend per month for hosting prospect trials?
-- Should trials be self-serve (email signup) or gated (request access → manual approval)?
-
+- **Resolved (2026-05-10):** Multitenant data plane for prospects is **database-per-tenant** (same **`TenantDatabaseBindings`** path as commercial); **shared trial pool DB not supported**.
+- **Resolved (2026-05-10):** **Self-serve** hosted trials via **email + organization signup** ([`docs/go-to-market/TRIAL_AND_SIGNUP.md`](docs/go-to-market/TRIAL_AND_SIGNUP.md)); **manual trial-by-request is not** the default GTM posture for prospects.
+- **Resolved (2026-05-11):** Trial **duration + AOAI** economics (**30 days**, **`Runs = 10`**, **`AgentExecution:Mode=Real`** for buyer executions, illustrative **\$5 × concurrent active trials** AOAI band, infra caveat, SaaS **`LlmMonthlyTenantDollarBudget`** defaults **\$50 / \$75** with future tier-scoped **\$25 / \$35** tightening) consolidated in **`TRIAL_AND_SIGNUP`** **sections 3.1–3.2** and **`CAPACITY_AND_COST_PLAYBOOK`** checkpoints.
+- **Resolved (operator, 2026-05-11):** **Trial orphaned-catalog teardown / unattended purge urgency** deferred — **inactive trials cost almost nothing on AOAI**; **manual** Azure teardown of dormant tenant catalogs is acceptable at low cardinality; widen **`Trial:Lifecycle`** horizons and capture runbook **`TB-017`** / **`docs/go-to-market/TRIAL_AND_SIGNUP.md`** §4 + **`docs/runbooks/TRIAL_LIFECYCLE.md`** before insisting on aggressive automated cleanup SLA.
+- **Open:** holistic **hosted platform** sizing — Azure subscription grouping, elastic pools, replicas — driven by signup concurrency projections (**not** AOAI alone).
 ---
 
 ## Deferred Scope Uncertainty

@@ -163,7 +163,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </span>
           </li>
           <li className="flex justify-between gap-2">
-            <span>{buyerPolished ? "Evidence map" : "Graph generated"}</span>
+            <span>{buyerPolished ? "Evidence graph" : "Graph generated"}</span>
             <span aria-label={run.hasGraphSnapshot ? "Graph snapshot present" : "Graph snapshot missing"}>
               {snapshotLabel(run.hasGraphSnapshot)}
             </span>

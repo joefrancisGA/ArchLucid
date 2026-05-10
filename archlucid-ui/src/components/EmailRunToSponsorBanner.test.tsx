@@ -119,11 +119,58 @@ describe("EmailRunToSponsorBanner", () => {
     );
   });
 
+  it("uses sample-static readiness line when curatedSampleRun is set (no loading ellipsis)", async () => {
+    let resolveDeltas: ((body: unknown) => void) | null = null;
+    vi.mocked(fetch).mockImplementation((input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+
+      if (url.includes("/v1/tenant/trial-status")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ firstCommitUtc: null }),
+        } as Response);
+      }
+
+      if (url.includes("/pilot-run-deltas")) {
+        return new Promise<Response>((resolve) => {
+          resolveDeltas = (body: unknown) => {
+            resolve({
+              ok: true,
+              json: async () => body,
+            } as Response);
+          };
+        });
+      }
+
+      return Promise.reject(new Error(`unexpected fetch: ${url}`));
+    });
+
+    render(<EmailRunToSponsorBanner {...bannerProps} curatedSampleRun />);
+
+    expect(await screen.findByTestId("email-run-to-sponsor-readiness-sample-static")).toBeInTheDocument();
+    expect(screen.queryByTestId("email-run-to-sponsor-readiness-loading")).toBeNull();
+
+    resolveDeltas?.({
+      isDemoTenant: false,
+      proofPackageCompleteness: {
+        demoTenantWarningRequired: false,
+        sponsorProofReadiness: "Sendable",
+        proofSendability: "Sendable",
+        publishingTier: "Complete",
+        roiEvidenceConfidence: "Strong",
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-readiness")).toBeInTheDocument();
+    });
+  });
+
   it("renders the sponsor distribution heading and primary scorecard CTA", async () => {
     render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     expect(screen.getByTestId("email-run-to-sponsor-banner")).toBeInTheDocument();
-    expect(screen.getByText(/sponsor distribution/i)).toBeInTheDocument();
+    expect(screen.getByText(/downstream deliverable|sponsor distribution/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /create sponsor scorecard|generate pilot scorecard package/i }),
     ).toBeInTheDocument();

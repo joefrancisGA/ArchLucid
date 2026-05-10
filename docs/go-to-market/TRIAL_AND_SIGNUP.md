@@ -7,7 +7,7 @@
 
 **Audience:** Product and engineering teams planning the self-serve trial path.
 
-**Last reviewed:** 2026-05-01 (trial duration extended from 14 to 30 days)
+**Last reviewed:** 2026-05-11 (§4 separates near‑term **automated infra purge urgency** vs **product lifecycle** posture; §3 AOAI unchanged; prior 2026‑05‑10 self‑serve/email stance unchanged).
 
 **Pricing:** Trial parameters (seats, runs, duration) are governed by the free trial row in [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) §4. Prices for conversion are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — do not restate numbers here.
 
@@ -16,6 +16,8 @@
 ## 1. Goal
 
 Prospect → active trial in **< 5 minutes** with no sales contact required. The trial should deliver the same "first impression" as the seller-led Docker demo ([DEMO_QUICKSTART.md](DEMO_QUICKSTART.md)) but in a **buyer-led, hosted** experience.
+
+**Operator stance (2026-05-10):** Hosted **trials ship as PLG**: **self-serve** onboarding through **`/signup`** with **email + organization**, Entra/email-password paths per §2. **Default GTM posture is not** “request trial access → manual approval before account exists.” Exceptions (e.g. named enterprise pilots) remain **sales-led** engagements outside this self-serve path.
 
 ---
 
@@ -63,6 +65,50 @@ Public **`/pricing`** treats Team self-serve checkout as **off by default**: the
 | **Data** | Pre-seeded sample project (using Docker demo seed pattern) | Ensures immediate value — user sees a completed run on first login |
 | **Trial end** | **Read-only access** for 14 days after expiration, then data export available for 30 days, then deletion per [DPA](DPA_TEMPLATE.md) | Avoids abrupt loss; incentivizes conversion; one-time 14-day extension available via in-app button |
 
+### 3.1 Duration economics (operator, 2026-05-11)
+
+Calendar **duration stays 30 days** (table above): evaluation buyers revisit across **weeks**. **Runs** (**10**) cap Azure OpenAI spend **before** the calendar does — shortening trial days **without lowering run caps saves almost no AOAI**.
+
+To reduce LLM envelope: **fewer evaluation runs**, **lower `AzureOpenAI:MaxCompletionTokens`**, cheaper **deployment SKUs**, and **`LlmMonthlyTenantDollarBudget`** (see **section 3.2**)—**not** a 14‑day blanket duration cut.
+
+**Product backlog recommendation (not coded today):** transition abandoned trials earlier by **moving to read‑only after 14 consecutive days with zero product activity** once activity signals are authoritative (coordinate with **`TrialLifecycleTransitionEngine`** and `archlucid_trial_expirations_total` reason labels).
+
+---
+
+### 3.2 Azure OpenAI spend (hosted trial, operator stance 2026-05-11)
+
+This is **order‑of‑magnitude forecasting** backed by **`AgentExecution:LlmCostEstimation`** default illustrative rates (**`InputUsdPerMillionTokens`** **\$0.5** / **`OutputUsdPerMillionTokens`** **\$1.5** USD per 1M tokens — see **`LlmCostEstimationOptions`**) plus the **`GET /v1/agent-execution/cost-preview`** assumptions (wizard upper bound inputs \~8192 tokens, completion bound by effective **`AzureOpenAI:MaxCompletionTokens`**, commonly **4096** unless tightened). Detailed methodology and caveats live in **[`../library/PER_TENANT_COST_MODEL.md`](../library/PER_TENANT_COST_MODEL.md)** — reconcile against **Azure invoice** pricing.
+
+Real architecture runs invoke **four** specialist pipelines (topology / cost / compliance / critic) plus follow‑on tooling; totals scale with **`MaxCompletionTokens`**, retries, and **Ask** traffic.
+
+**Rule of thumb (one active tenant, **10 evaluation runs**/month saturated):**
+
+| Deployment class | Ballpark AOAI **USD / trial‑month** (LLM tokens only) | Notes |
+|------------------|------------------------------------------------------|--------|
+| **`gpt‑4o`‑mini class** (rates near shipped defaults above) | **~\$3–\$6** | Baseline SaaS forecasting band. |
+| **`gpt‑4o`‑class deployments** | **~\$15–\$25** | Higher list prices + longer completions. |
+
+Add light **Ask** / advisory chatter: **~\$1–\$3**/month discretionary.
+
+Fleet envelope (multiply by **concurrently active trials**): **\$5 × trials** (\$150 at **30**) for mini‑class optimism; **`LlmMonthlyTenantDollarBudget` hard‑cutoffs** clamp worst‑case outliers.
+
+Infra dominates hosted COGS (**per‑tenant SQL**, Container Apps compute, egress, observability) — AOAI tuning alone does **not** replace elastic‑pool sizing for signup traffic.
+
+#### Configuration posture (engineering)
+
+Target hosted signup hosts (**`Hosting` SaaS overlays merge `appsettings.SaaS.json`**) as follows:
+
+| Knob | Stance |
+|------|--------|
+| **`AgentExecution:Mode`** | **`Real`** for buyer‑started architecture runs (**welcome seed/sample** may remain **Simulator** for zero‑day cost control in **section 2**). |
+| **`AzureOpenAI`** deployment SKU | Prefer **mini / cost‑efficient** SKUs mapped to illustrative **`LlmCostEstimation`** rates (override USD/M tokens when SKU prices diverge — see [**`CAPACITY_AND_COST_PLAYBOOK.md`**](../library/CAPACITY_AND_COST_PLAYBOOK.md)). |
+| **`AzureOpenAI:MaxCompletionTokens`** | Rightsize below default **4096** when QA tolerates tighter findings (staging currently uses tighter caps elsewhere; align trial hosts deliberately). **`1024`** is an evaluation‑friendly midpoint when product agrees. |
+| **`LlmMonthlyTenantDollarBudget`** | Repo **`appsettings.SaaS.json`** enables budgeting with **`IncludedUsdPerUtcMonth`** **\$50** / **`HardCutoffUsdPerUtcMonth`** **\$75** (**all SaaS tenants** share this host today — generous headroom for trials **and** pilots). When **tier‑scoped** binds exist, tighten **Free/`Tier` trial tenants** toward **\$25** included / **\$35** hard‑cutoff (warn first via **`WarnFraction`**). Instrument with **`archlucid_llm_cost_usd_total`** and **`LlmTenantMonthlyDollarBudgetApproaching`** audits ([`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md)). |
+
+Merge order for **`appsettings`** is environment‑specific — reconcile **`AgentExecution:Mode=Real`** plus AOAI prerequisites before asserting hosted‑prospect fidelity (**[`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)**); funnel scraping remains in **`docs/runbooks/TRIAL_FUNNEL.md`**.
+
+**Per‑run prompt design is not capped (operator, 2026-05-11).** A run that consumes most of a tenant’s monthly envelope is **acceptable**; the governing limit is the **per‑tenant per‑UTC‑month** estimate enforced by **`LlmMonthlyTenantDollarBudget`** + the sliding window in **`LlmTokenQuota`**, not an artificial per‑run dollar ceiling. **Buying more tokens** when the monthly cap is hit is a tracked backlog item — see **`TB-014`** in **[`../library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md)** (Stripe SKU + grant ledger reuse + audit). Trial tenants are **not** the target audience for top‑up SKUs; PLG conversion remains the path forward when a trial nears its run cap or budget.
+
 ---
 
 ## 4. Technical requirements (high level)
@@ -73,8 +119,9 @@ Public **`/pricing`** treats Team self-serve checkout as **off by default**: the
 | **Trial feature flags** | Configuration-driven tier enforcement (run limits, feature gates per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)) | Must-have |
 | **Usage metering** | Track runs consumed, seats active, features used — feeds health scoring ([CUSTOMER_HEALTH_SCORING.md](CUSTOMER_HEALTH_SCORING.md)) and conversion analytics | Must-have |
 | **Billing integration** | Stripe, Azure Marketplace, or equivalent — triggered on conversion from trial to paid | Phase 2 |
-| **Marketing Team Stripe CTA** | Public `/pricing` Team tier: **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED=true`** (or **`1`**) required for Stripe Checkout as primary CTA; optional **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL`** overrides **`pricing.json`**. **`resolveTeamStripeCheckoutHref`** still returns **`null`** when the flag is **`0`**/**`false`** (suppression). Details: §2.2. | Phase 2 |
-| **Trial expiration workflow** | Automated emails (approaching limit, expiration), read-only enforcement, deletion scheduler | Must-have |
+| **Marketing Team Stripe CTA** | Public `/pricing` Team tier: **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED=true`** (or **`1`**) required for Stripe Checkout as primary CTA; optional **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL`** overrides **`pricing.json`**. **`resolveTeamStripeCheckoutHref`** still returns **`null`** when the flag is **`0`**/**`false`** (suppression). Details in **section 2.2** above. | Phase 2 |
+| **Trial lifecycle (CRM + entitlement)** | Automated lifecycle emails (**§5**), **read‑only enforcement** once trial phases advance, **`TrialLimitGate`**, **`dbo.TenantLifecycleTransitions`** / audit trail (**[`TRIAL_LIFECYCLE.md`](../runbooks/TRIAL_LIFECYCLE.md)**) | Must‑have |
+| **Automated hard purge vs manual infra cleanup** | **Product code** already exposes **`Trial:Lifecycle`** → **`TrialLifecycleSchedulerHostedService`** → optional **`SqlTenantHardPurgeService`** (see **`TRIAL_LIFECYCLE`**). **Operator stance (2026-05‑11):** do **not** treat **immediate lights‑out infra teardown** as a near‑term optimisation — **inactive trials burn negligible AOAI** (no completions). **Deleting an idle tenant’s Azure SQL catalog remains low friction for platform admins** (`TenantDatabaseBindings` path per **`../library/TENANT_DATABASE_TOPOLOGY.md`**). Tune **`PurgeAfterExportOnlyDays`** / scheduler interval **generously**, lean on **manual** catalog drop + ticket when volume is modest, revisit **prioritising** unattended purge automation when dormant‑tenant cardinality strains pools or violates retention SLAs. **DPA** export / eventual deletion narratives stay honest — timing may be **`Trial:Lifecycle` + Ops SOP**, not hurry. | Phase 2 (automation urgency) |
 
 ---
 
@@ -114,3 +161,7 @@ Both paths should deliver the **same first impression**: a completed architectur
 | [DEMO_QUICKSTART.md](DEMO_QUICKSTART.md) | Seller-led Docker demo |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Who signs up |
 | [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) | Post-conversion onboarding |
+| [PER_TENANT_COST_MODEL.md](../library/PER_TENANT_COST_MODEL.md) | AOAI estimation methodology (`GET /v1/agent-execution/cost-preview` wizard bound) |
+| **[`CAPACITY_AND_COST_PLAYBOOK.md`](../library/CAPACITY_AND_COST_PLAYBOOK.md)** | Hosted capacity + **`LlmMonthlyTenantDollarBudget`** posture |
+
+---

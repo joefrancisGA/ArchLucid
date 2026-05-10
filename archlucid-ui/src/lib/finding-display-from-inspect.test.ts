@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  findingDetailHeadingTitle,
   findingWhyThisMattersText,
   typedPayloadLookupString,
 } from "@/lib/finding-display-from-inspect";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 
 function payloadWithTyped(data: Record<string, unknown>): FindingInspectPayload {
   return {
@@ -18,6 +21,17 @@ function payloadWithTyped(data: Record<string, unknown>): FindingInspectPayload 
     manifestVersion: null,
   };
 }
+
+describe("findingDetailHeadingTitle", () => {
+  it("uses canonical PHI title for showcase finding id", () => {
+    const payload: FindingInspectPayload = {
+      ...payloadWithTyped({ title: "Some engine title" }),
+      findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+    };
+
+    expect(findingDetailHeadingTitle(payload)).toBe("PHI Minimization Risk");
+  });
+});
 
 describe("findingWhyThisMattersText", () => {
   it("reads camelCase and PascalCase keys", () => {

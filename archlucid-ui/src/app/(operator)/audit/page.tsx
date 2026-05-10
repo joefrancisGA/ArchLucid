@@ -996,18 +996,18 @@ export default function AuditPage() {
                         ? "Set From and To to enable export"
                         : !exportRoleOk
                           ? auditExportControlDisabledTitle
-                          : "Download CSV for the current date range"
+                          : "Download audit evidence package (CSV) for the current date range"
                     }
                   >
                     {exporting
                       ? "Exporting…"
                       : csvExportUiAllowed
-                        ? "Export audit trail"
+                        ? "Download audit evidence"
                         : !exportDateRangeReady
                           ? auditExportCsvButtonLabelWindowIncomplete
                           : !exportRoleOk
                             ? auditExportCsvButtonLabelRoleRestricted
-                            : "Export audit trail"}
+                            : "Download audit evidence"}
                   </Button>
                 </div>
               ) : null}

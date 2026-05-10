@@ -19,7 +19,10 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 import {
   findingDetailHeadingTitle,
   findingDetailLeadSentence,
+  findingDetailPageEyebrow,
   findingInspectPrimaryLabels,
+  isPhiMinimizationSampleFinding,
+  phiMinimizationBuyerConsequenceNarrative,
 } from "@/lib/finding-display-from-inspect";
 
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
@@ -90,8 +93,8 @@ export default async function RunFindingExplainPage({
       {buyerPolishedShell ? (
         <div className="rounded-xl border-2 border-teal-300/70 bg-gradient-to-b from-teal-50/90 to-white p-5 shadow-sm dark:border-teal-800/70 dark:from-teal-950/40 dark:to-neutral-950">
           <header className="space-y-3 border-b border-teal-200/60 pb-4 dark:border-teal-900/50">
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Finding detail (sponsor summary)
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200">
+              {inspectPayload !== null ? findingDetailPageEyebrow(inspectPayload) : "Risk observation"}
             </p>
             <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{pageTitle}</h1>
 
@@ -124,6 +127,14 @@ export default async function RunFindingExplainPage({
               <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                 {findingDetailLeadSentence(inspectPayload)}
               </p>
+            ) : null}
+            {inspectPayload !== null && isPhiMinimizationSampleFinding(inspectPayload) ? (
+              <div className="mt-3 rounded-lg border border-amber-200/80 bg-white/80 p-3 text-sm leading-relaxed text-neutral-800 dark:border-amber-900/50 dark:bg-neutral-950/40 dark:text-neutral-200">
+                <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                  Consequence, controls, and monitoring
+                </p>
+                <p className="m-0 mt-2">{phiMinimizationBuyerConsequenceNarrative()}</p>
+              </div>
             ) : null}
           </header>
         </div>
@@ -222,7 +233,7 @@ export default async function RunFindingExplainPage({
       ) : null}
 
       <CollapsibleSection
-        title={buyerPolishedShell ? "Technical audit trail (optional)" : "Technical audit trail"}
+        title={buyerPolishedShell ? "Reference — audit correlation (optional)" : "Technical audit trail"}
         defaultOpen={false}
       >
         <FindingExplainPanel
