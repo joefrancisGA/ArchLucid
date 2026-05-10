@@ -45,18 +45,29 @@ public sealed class ItsmOutboundIssuesController(
             return this.BadRequestProblem("body is required.", ProblemTypes.RequestBodyRequired);
 
         if (string.IsNullOrWhiteSpace(body.FindingId))
-            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem(
+                "findingId is required.",
+                ProblemTypes.ValidationFailed,
+                extensions: ItsmProblemExtensions(TrimOrNull(body.Provider), null));
+
+        string findingTrimmed = body.FindingId.Trim();
 
         if (string.IsNullOrWhiteSpace(body.Provider))
-            return this.BadRequestProblem("provider is required.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem(
+                "provider is required.",
+                ProblemTypes.ValidationFailed,
+                extensions: ItsmProblemExtensions(null, findingTrimmed));
 
         if (!TryMapProvider(body.Provider, out ItsmOutboundIssueProvider provider))
-            return this.BadRequestProblem("provider must be Jira or ServiceNow.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem(
+                "provider must be Jira or ServiceNow.",
+                ProblemTypes.ValidationFailed,
+                extensions: ItsmProblemExtensions(body.Provider.Trim(), findingTrimmed));
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         ItsmOutboundIssueCreationResult result = await _issueCreation
-            .TryCreateForFindingAsync(provider, scope, body.FindingId.Trim(), ct)
+            .TryCreateForFindingAsync(provider, scope, findingTrimmed, ct)
             .ConfigureAwait(false);
 
         foreach (AuditEvent auditEvent in result.AuditEvents)
@@ -64,20 +75,30 @@ public sealed class ItsmOutboundIssuesController(
 
         string providerLabel = provider is ItsmOutboundIssueProvider.Jira ? "Jira" : "ServiceNow";
 
+        IReadOnlyDictionary<string, object?>? scopeExtensions = ItsmProblemExtensions(providerLabel, findingTrimmed);
+
         return result.Kind switch
         {
             ItsmOutboundCreateTerminalKind.Succeeded => Ok(
                 new CreateItsmOutboundIssueResponse(providerLabel, result.ExternalKey)),
             ItsmOutboundCreateTerminalKind.Skipped => this.BadRequestProblem(
                 result.UserMessage ?? "Request was skipped.",
-                ProblemTypes.ValidationFailed),
+                ProblemTypes.ValidationFailed,
+                extensions: scopeExtensions),
             ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed => this.ServiceUnavailableProblem(
                 result.UserMessage ?? "Ticket was created upstream but correlation could not be persisted.",
-                ProblemTypes.UpstreamIntegrationFailed),
+                ProblemTypes.UpstreamIntegrationFailed,
+                extensions: scopeExtensions),
             ItsmOutboundCreateTerminalKind.VendorError when IsNotFoundMessage(result.UserMessage) =>
-                this.NotFoundProblem(result.UserMessage ?? "Resource not found.", ProblemTypes.ResourceNotFound),
-            ItsmOutboundCreateTerminalKind.VendorError => VendorProblem(result),
-            _ => this.BadRequestProblem("Unexpected outcome.", ProblemTypes.ValidationFailed)
+                this.NotFoundProblem(
+                    result.UserMessage ?? "Resource not found.",
+                    ProblemTypes.ResourceNotFound,
+                    extensions: scopeExtensions),
+            ItsmOutboundCreateTerminalKind.VendorError => VendorProblem(result, scopeExtensions),
+            _ => this.BadRequestProblem(
+                "Unexpected outcome.",
+                ProblemTypes.ValidationFailed,
+                extensions: scopeExtensions)
         };
     }
 
@@ -85,16 +106,39 @@ public sealed class ItsmOutboundIssuesController(
         message is not null &&
         message.Contains("not found", StringComparison.OrdinalIgnoreCase);
 
-    private IActionResult VendorProblem(ItsmOutboundIssueCreationResult result)
+    private IActionResult VendorProblem(
+        ItsmOutboundIssueCreationResult result,
+        IReadOnlyDictionary<string, object?>? extensions)
     {
         int? code = result.VendorStatusCode;
 
         if (code is 401 or 403 or 404 or 429 or >= 500 and <= 599)
             return this.ServiceUnavailableProblem(
                 result.UserMessage ?? "Upstream ITSM request failed.",
-                ProblemTypes.UpstreamIntegrationFailed);
+                ProblemTypes.UpstreamIntegrationFailed,
+                extensions: extensions);
 
-        return this.BadRequestProblem(result.UserMessage ?? "ITSM request failed.", ProblemTypes.ValidationFailed);
+        return this.BadRequestProblem(
+            result.UserMessage ?? "ITSM request failed.",
+            ProblemTypes.ValidationFailed,
+            extensions: extensions);
+    }
+
+    private static string? TrimOrNull(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    /// <summary>Optional RFC 9457 extensions so operators can tie errors to ITSM provider + finding without reading prose.</summary>
+    private static Dictionary<string, object?>? ItsmProblemExtensions(string? providerLabel, string? findingId)
+    {
+        Dictionary<string, object?> ext = [];
+
+        if (!string.IsNullOrWhiteSpace(providerLabel))
+            ext["provider"] = providerLabel.Trim();
+
+        if (!string.IsNullOrWhiteSpace(findingId))
+            ext["findingId"] = findingId.Trim();
+
+        return ext.Count > 0 ? ext : null;
     }
 
     private static bool TryMapProvider(string raw, out ItsmOutboundIssueProvider provider)
@@ -119,6 +163,5 @@ public sealed class ItsmOutboundIssuesController(
         provider = ItsmOutboundIssueProvider.ServiceNow;
 
         return true;
-
     }
 }

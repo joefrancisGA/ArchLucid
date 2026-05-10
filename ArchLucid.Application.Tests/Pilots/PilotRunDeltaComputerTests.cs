@@ -40,7 +40,12 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
 
-        ScopeContext sc = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext sc = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
 
         traces.Setup(t => t.GetByRunIdAsync(detail.Run.RunId, It.IsAny<CancellationToken>()))
@@ -314,7 +319,12 @@ public sealed class PilotRunDeltaComputerTests
         traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
-        ScopeContext sc = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext sc = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
         audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
@@ -326,7 +336,7 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IArtifactQueryService> artifacts = new();
         IReadOnlyList<ArtifactDescriptor> two =
         [
-            new ArtifactDescriptor
+            new()
             {
                 ArtifactId = Guid.NewGuid(),
                 ArtifactType = "Doc",
@@ -335,7 +345,7 @@ public sealed class PilotRunDeltaComputerTests
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 ContentHash = "h1",
             },
-            new ArtifactDescriptor
+            new()
             {
                 ArtifactId = Guid.NewGuid(),
                 ArtifactType = "Doc",
@@ -503,7 +513,10 @@ public sealed class PilotRunDeltaComputerTests
 
         return new ArchitectureRunDetail
         {
-            Run = run, Manifest = manifest, Results = [result], DecisionTraces = [],
+            Run = run,
+            Manifest = manifest,
+            Results = [result],
+            DecisionTraces = [],
         };
     }
 }

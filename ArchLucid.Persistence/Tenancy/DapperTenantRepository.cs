@@ -200,6 +200,37 @@ public sealed class DapperTenantRepository(
     }
 
     /// <inheritdoc />
+    public async Task PersistTrialSignupBaselineReviewCycleAsync(
+        Guid tenantId,
+        decimal baselineReviewCycleHours,
+        string? baselineReviewCycleSource,
+        DateTimeOffset baselineReviewCycleCapturedUtc,
+        CancellationToken ct)
+    {
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET BaselineReviewCycleHours = @BaselineReviewCycleHours,
+                               BaselineReviewCycleSource = @BaselineReviewCycleSource,
+                               BaselineReviewCycleCapturedUtc = @BaselineReviewCycleCapturedUtc
+                           WHERE Id = @Id;
+                           """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Id = tenantId,
+                    BaselineReviewCycleHours = baselineReviewCycleHours,
+                    BaselineReviewCycleSource = baselineReviewCycleSource,
+                    BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc
+                },
+                cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
     public async Task UpdateBaselineAsync(
         Guid tenantId,
         decimal? manualPrepHoursPerReview,

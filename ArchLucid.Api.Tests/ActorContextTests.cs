@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-
-using ArchLucid.Host.Core.Auth.Services;
+using System.Security.Claims;
 
 using FluentAssertions;
 

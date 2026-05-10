@@ -42,10 +42,10 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
         if (tenant.TrialExpiresUtc is { } exp && exp <= now)
             throw new TrialLimitExceededException(TrialLimitReason.Expired, 0);
         // Non-positive limits are treated like unset metering (parity with telemetry / email scanners); only positive caps enforce trials.
-        if (tenant.TrialRunsLimit is { } runLimit && runLimit > 0 && tenant.TrialRunsUsed >= runLimit)
+        if (tenant.TrialRunsLimit is { } runLimit and > 0 && tenant.TrialRunsUsed >= runLimit)
             throw new TrialLimitExceededException(TrialLimitReason.RunsExceeded, daysRemainingActive);
 
-        if (tenant.TrialSeatsLimit is { } seatLimit && seatLimit > 0 && tenant.TrialSeatsUsed >= seatLimit)
+        if (tenant.TrialSeatsLimit is { } seatLimit and > 0 && tenant.TrialSeatsUsed >= seatLimit)
             throw new TrialLimitExceededException(TrialLimitReason.SeatsExceeded, daysRemainingActive);
     }
 

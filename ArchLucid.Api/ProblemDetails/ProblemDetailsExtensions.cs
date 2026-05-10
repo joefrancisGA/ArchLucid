@@ -20,7 +20,8 @@ public static class ProblemDetailsExtensions
         this ControllerBase controller,
         string detail,
         string? type = null,
-        string? instance = null)
+        string? instance = null,
+        IReadOnlyDictionary<string, object?>? extensions = null)
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
@@ -30,6 +31,7 @@ public static class ProblemDetailsExtensions
             Detail = detail,
             Instance = instance ?? controller.Request.Path
         };
+        ApplyOptionalProblemExtensions(problem, extensions);
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
@@ -43,7 +45,8 @@ public static class ProblemDetailsExtensions
         this ControllerBase controller,
         string detail,
         string? type = null,
-        string? instance = null)
+        string? instance = null,
+        IReadOnlyDictionary<string, object?>? extensions = null)
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
@@ -53,6 +56,7 @@ public static class ProblemDetailsExtensions
             Detail = detail,
             Instance = instance ?? controller.Request.Path
         };
+        ApplyOptionalProblemExtensions(problem, extensions);
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
@@ -249,7 +253,8 @@ public static class ProblemDetailsExtensions
         this ControllerBase controller,
         string detail,
         string? type = null,
-        string? instance = null)
+        string? instance = null,
+        IReadOnlyDictionary<string, object?>? extensions = null)
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
@@ -259,10 +264,25 @@ public static class ProblemDetailsExtensions
             Detail = detail,
             Instance = instance ?? controller.Request.Path
         };
+        ApplyOptionalProblemExtensions(problem, extensions);
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+    }
+
+    private static void ApplyOptionalProblemExtensions(
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem,
+        IReadOnlyDictionary<string, object?>? extensions)
+    {
+        if (extensions is null || extensions.Count is 0)
+            return;
+
+        foreach (KeyValuePair<string, object?> kv in extensions)
+        {
+            if (!string.IsNullOrEmpty(kv.Key) && kv.Value is not null)
+                problem.Extensions[kv.Key] = kv.Value;
+        }
     }
 
     /// <summary>

@@ -65,12 +65,14 @@ public sealed class SqlRunRepository(
                            );
                            """;
 
+        object insertParams = CreateRunInsertParameters(run);
+
         if (connection is not null)
         {
             await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction);
 
             byte[] stamp = await connection.QuerySingleAsync<byte[]>(
-                new CommandDefinition(sql, run, transaction, cancellationToken: ct));
+                new CommandDefinition(sql, insertParams, transaction, cancellationToken: ct));
             run.RowVersion = stamp;
 
             return;
@@ -84,7 +86,7 @@ public sealed class SqlRunRepository(
             await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, owned, tran);
 
             byte[] ownedStamp =
-                await owned.QuerySingleAsync<byte[]>(new CommandDefinition(sql, run, tran, cancellationToken: ct));
+                await owned.QuerySingleAsync<byte[]>(new CommandDefinition(sql, insertParams, tran, cancellationToken: ct));
             run.RowVersion = ownedStamp;
             await tran.CommitAsync(ct);
         }
@@ -791,6 +793,45 @@ public sealed class SqlRunRepository(
                 "Run keyset cursor requires both CreatedUtc and RunId together, or both omitted for the first page.");
     }
 
+    /// <summary>
+    ///     Binds <see cref="RunRecord.StructuralExecutionMode" /> as NVARCHAR labels. Dapper may otherwise send the enum's
+    ///     underlying integer, which SQL coerces to values like <c>N'0'</c> and fails <c>CK_Runs_StructuralExecutionMode</c>.
+    /// </summary>
+    private static object CreateRunInsertParameters(RunRecord run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        return new
+        {
+            run.RunId,
+            run.TenantId,
+            run.WorkspaceId,
+            run.ScopeProjectId,
+            run.ProjectId,
+            run.Description,
+            run.CreatedUtc,
+            run.ContextSnapshotId,
+            run.GraphSnapshotId,
+            run.FindingsSnapshotId,
+            run.GoldenManifestId,
+            run.DecisionTraceId,
+            run.ArtifactBundleId,
+            run.ArchivedUtc,
+            run.ArchitectureRequestId,
+            run.LegacyRunStatus,
+            run.CompletedUtc,
+            run.CurrentManifestVersion,
+            run.OtelTraceId,
+            run.IsDemoWelcomeRun,
+            run.IsPublicShowcase,
+            run.RealModeFellBackToSimulator,
+            run.PilotAoaiDeploymentSnapshot,
+            StructuralExecutionMode = run.StructuralExecutionMode.ToString(),
+            run.RetryCount,
+            run.LastFailureReason
+        };
+    }
+
     private static async Task ApplyUpdateAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
@@ -824,7 +865,7 @@ public sealed class SqlRunRepository(
                     run.IsPublicShowcase,
                     run.RealModeFellBackToSimulator,
                     run.PilotAoaiDeploymentSnapshot,
-                    run.StructuralExecutionMode,
+                    StructuralExecutionMode = run.StructuralExecutionMode.ToString(),
                     run.RetryCount,
                     run.LastFailureReason,
                     run.RowVersion

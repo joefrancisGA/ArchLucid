@@ -41,7 +41,12 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "ServiceNow CMDB lookup failed: transport error.");
-            return new ServiceNowCmdbCiResolveResult(false, null, HttpStatusCode.ServiceUnavailable, "ServiceNow CMDB lookup failed (network error).");
+
+            string detail = ex is OperationCanceledException
+                ? "ServiceNow CMDB lookup timed out."
+                : "ServiceNow CMDB lookup failed (network error).";
+
+            return new ServiceNowCmdbCiResolveResult(false, null, HttpStatusCode.ServiceUnavailable, detail);
         }
 
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -93,8 +98,12 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "ServiceNow incident create failed: transport error.");
-            return new ServiceNowIncidentHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable,
-                "ServiceNow request could not be completed (network error).");
+
+            string detail = ex is OperationCanceledException
+                ? "ServiceNow request timed out."
+                : "ServiceNow request could not be completed (network error).";
+
+            return new ServiceNowIncidentHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable, detail);
         }
 
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -146,7 +155,11 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "ServiceNow CMDB create failed: transport error.");
 
-            return new ServiceNowCmdbCiResolveResult(false, null, HttpStatusCode.ServiceUnavailable, "ServiceNow CMDB create failed (network error).");
+            string detail = ex is OperationCanceledException
+                ? "ServiceNow CMDB create timed out."
+                : "ServiceNow CMDB create failed (network error).";
+
+            return new ServiceNowCmdbCiResolveResult(false, null, HttpStatusCode.ServiceUnavailable, detail);
         }
 
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

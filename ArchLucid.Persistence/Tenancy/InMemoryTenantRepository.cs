@@ -300,6 +300,65 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
+    public Task PersistTrialSignupBaselineReviewCycleAsync(
+        Guid tenantId,
+        decimal baselineReviewCycleHours,
+        string? baselineReviewCycleSource,
+        DateTimeOffset baselineReviewCycleCapturedUtc,
+        CancellationToken ct)
+    {
+        _ = ct;
+
+        TenantRecord? existing;
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out existing))
+                return Task.CompletedTask;
+        }
+
+        TenantRecord updated = new()
+        {
+            Id = existing.Id,
+            Name = existing.Name,
+            Slug = existing.Slug,
+            Tier = existing.Tier,
+            EntraTenantId = existing.EntraTenantId,
+            CreatedUtc = existing.CreatedUtc,
+            SuspendedUtc = existing.SuspendedUtc,
+            TrialStartUtc = existing.TrialStartUtc,
+            TrialExpiresUtc = existing.TrialExpiresUtc,
+            TrialRunsLimit = existing.TrialRunsLimit,
+            TrialRunsUsed = existing.TrialRunsUsed,
+            TrialSeatsLimit = existing.TrialSeatsLimit,
+            TrialSeatsUsed = existing.TrialSeatsUsed,
+            TrialStatus = existing.TrialStatus,
+            TrialSampleRunId = existing.TrialSampleRunId,
+            TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
+            TrialWelcomeRunId = existing.TrialWelcomeRunId,
+            TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
+            BaselineReviewCycleHours = baselineReviewCycleHours,
+            BaselineReviewCycleSource = baselineReviewCycleSource,
+            BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
+            BaselineManualPrepHoursPerReview = existing.BaselineManualPrepHoursPerReview,
+            BaselinePeoplePerReview = existing.BaselinePeoplePerReview,
+            BaselineManualPrepCapturedUtc = existing.BaselineManualPrepCapturedUtc,
+            CompanySize = existing.CompanySize,
+            ArchitectureTeamSize = existing.ArchitectureTeamSize,
+            IndustryVertical = existing.IndustryVertical,
+            IndustryVerticalOther = existing.IndustryVerticalOther,
+            EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
+            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
+        };
+
+        lock (_trialGate)
+        {
+            _byId[tenantId] = updated;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Task UpdateBaselineAsync(
         Guid tenantId,
         decimal? manualPrepHoursPerReview,
@@ -493,13 +552,10 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
-                return Task.CompletedTask;
-
-            if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
-                t.TrialRunsLimit is not int runCap ||
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t) ||
+                !string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+                t.TrialRunsLimit is not { } runCap ||
                 runCap < 1)
-
                 return Task.CompletedTask;
 
             DateTimeOffset now = TimeProvider.System.GetUtcNow();
@@ -598,10 +654,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-                return Task.FromResult(false);
-
-            if (!string.Equals(existing.TrialStatus, expectedCurrentStatus, StringComparison.Ordinal))
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || !string.Equals(existing.TrialStatus, expectedCurrentStatus, StringComparison.Ordinal))
                 return Task.FromResult(false);
 
             _byId[tenantId] = CopyTenant(existing, trialStatus: nextStatus);
@@ -620,10 +673,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
-                return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
-
-            if (!_trialFirstManifestCommitted.TryAdd(tenantId, 0))
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t) || !_trialFirstManifestCommitted.TryAdd(tenantId, 0))
                 return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
 
             DateTimeOffset anchor = t.TrialStartUtc ?? t.CreatedUtc;
@@ -665,10 +715,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
-                return Task.FromResult(false);
-
-            if (t.EnterpriseSeatsLimit is { } lim && t.EnterpriseSeatsUsed >= lim)
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t) || t.EnterpriseSeatsLimit is { } lim && t.EnterpriseSeatsUsed >= lim)
                 return Task.FromResult(false);
 
             _byId[tenantId] = CopyTenant(t, enterpriseSeatsUsedOverride: t.EnterpriseSeatsUsed + 1);
@@ -701,10 +748,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-                return Task.CompletedTask;
-
-            if (existing.TrialWelcomeRunId is not null || existing.TrialArchitecturePreseedEnqueuedUtc is not null)
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.TrialWelcomeRunId is not null || existing.TrialArchitecturePreseedEnqueuedUtc is not null)
                 return Task.CompletedTask;
 
             _byId[tenantId] = CopyTenant(existing, trialArchitecturePreseedEnqueuedUtc: TimeProvider.System.GetUtcNow());
@@ -741,10 +785,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-                return Task.CompletedTask;
-
-            if (existing.TrialWelcomeRunId is not null)
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing) || existing.TrialWelcomeRunId is not null)
                 return Task.CompletedTask;
 
             _byId[tenantId] = CopyTenant(existing, trialWelcomeRunId: welcomeRunId);

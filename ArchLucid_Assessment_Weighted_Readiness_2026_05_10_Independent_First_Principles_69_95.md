@@ -433,7 +433,7 @@ Ranked by weighted deficiency × strategic criticality:
 
 **Affected qualities:** Workflow Embeddedness, Interoperability, Adoption Friction, Time-to-Value, Stickiness
 
-**Status:** Actionable now (code path exists, tests exist, needs completion and staging validation)
+**Status:** Completed (2026-05-10). Outbound Jira/ServiceNow create path is staging-testable: controller→service→typed HTTP clients are exercised under `ArchLucid.Api.Tests/Integrations/` (`ItsmOutboundIssuesIntegrationApiFactory`, `ItsmOutboundIssuesEndpointIntegrationTests`, `RecordingOutboundHttpHandler`), durable audit append is asserted via `CapturingAuditRepository`, Problem+JSON gains optional extensions (`provider`, `findingId`) alongside existing `correlationId`, `JiraAdfDescriptionBuilderTests` validates ADF shape, and outbound HTTP clients emit explicit timeout detail vs generic transport failures.
 
 **Cursor Prompt:**
 ```
@@ -466,6 +466,9 @@ Constraints:
 - Do not add new NuGet dependencies
 - Follow existing test patterns in the Itsm/Outbound test folder
 ```
+
+*(Prompt executed; items above delivered in-repo.)*
+
 
 ### Improvement 2: Expand Golden Cohort Real-LLM Evaluation Evidence
 
