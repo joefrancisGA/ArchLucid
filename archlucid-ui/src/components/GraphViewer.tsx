@@ -69,6 +69,7 @@ export function GraphViewer({
   runId = "",
   presentation = "operator",
   defaultSelectedNodeId,
+  onInteractiveSurfaceReady,
 }: {
   graph: GraphViewModel;
   typeFilter?: string;
@@ -77,6 +78,8 @@ export function GraphViewer({
   presentation?: MapGraphPresentation;
   /** When presentation is buyerTrail, pre-select this node id when present on the graph. */
   defaultSelectedNodeId?: string;
+  /** Fires once the React Flow canvas has initialized (used to avoid “nodes in view” copy before pixels exist). */
+  onInteractiveSurfaceReady?: () => void;
 }) {
   const filtered = useMemo(() => graphViewModelFilteredByNodeType(graph, typeFilter), [graph, typeFilter]);
 
@@ -98,6 +101,31 @@ export function GraphViewer({
   const [edgeInferenceThreshold, setEdgeInferenceThreshold] = useState("0.75");
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
+
+  useEffect(() => {
+    if (filtered.nodes.length === 0) {
+      return;
+    }
+
+    if (onInteractiveSurfaceReady === undefined) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const outer = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        if (!cancelled) {
+          onInteractiveSurfaceReady();
+        }
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(outer);
+    };
+  }, [filtered.nodes.length, filtered.edges.length, flowPresentation, onInteractiveSurfaceReady]);
 
   useEffect(() => {
     if (!buyerTrailPanel) {

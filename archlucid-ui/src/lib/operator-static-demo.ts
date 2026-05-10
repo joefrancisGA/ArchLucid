@@ -167,7 +167,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "Completed sample review — representative inputs so every evaluator sees the same finished review package. In production, analysis follows your tenant configuration.",
+      "Finished architecture review package — curated sample with consistent inputs so every evaluator sees the same outcomes. In production, workflows and evidence sources follow your tenant configuration.",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,

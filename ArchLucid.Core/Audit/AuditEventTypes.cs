@@ -185,6 +185,13 @@ public static class AuditEventTypes
     /// </summary>
     public const string ProductLearningPilotSignalRecorded = "ProductLearningPilotSignalRecorded";
 
+    /// <summary>
+    ///     59R planning drafts materialized via <c>POST /v1/learning/planning/materialize</c>.
+    ///     Payload: <c>sinceUtc</c>, <c>maxPlansToMaterialize</c>, and themes/plans/signal-link insert counts (same fields as
+    ///     the JSON response body).
+    /// </summary>
+    public const string ProductLearningPlanningMaterialized = "ProductLearningPlanningMaterialized";
+
     public const string AdvisoryScanScheduled = "AdvisoryScanScheduled";
     public const string AdvisoryScanExecuted = "AdvisoryScanExecuted";
     public const string ArchitectureDigestGenerated = "ArchitectureDigestGenerated";

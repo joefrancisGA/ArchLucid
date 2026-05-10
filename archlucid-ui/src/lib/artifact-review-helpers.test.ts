@@ -11,6 +11,7 @@ import {
   sponsorArtifactDownloadActionLabel,
   sponsorArtifactOpenActionLabel,
   sponsorArtifactSecondaryCaption,
+  stripArtifactFilenameExtension,
 } from "./artifact-review-helpers";
 
 describe("sponsorArtifactOpenActionLabel", () => {
@@ -135,6 +136,18 @@ describe("sponsorArtifactSecondaryCaption", () => {
     expect(sponsorArtifactSecondaryCaption("Intake modernization context diagram.mmd", "Intake context diagram")).toBe(
       "Intake modernization context diagram",
     );
+  });
+});
+
+describe("stripArtifactFilenameExtension", () => {
+  it("removes common trailing extensions for marketing captions", () => {
+    expect(stripArtifactFilenameExtension("Sponsor briefing — Claims Intake Modernization.md")).toBe(
+      "Sponsor briefing — Claims Intake Modernization",
+    );
+
+    expect(stripArtifactFilenameExtension("decisions.bundle.json")).toBe("decisions.bundle");
+
+    expect(stripArtifactFilenameExtension("flow.mmd")).toBe("flow");
   });
 });
 

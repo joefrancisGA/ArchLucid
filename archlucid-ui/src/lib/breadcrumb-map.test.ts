@@ -7,6 +7,13 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/")).toEqual([{ label: "Home" }]);
   });
 
+  it("uses New review on the wizard path when buyer-polished breadcrumbs are requested", () => {
+    expect(getBreadcrumbs("/reviews/new", { buyerPolishedShell: true })).toEqual([
+      { label: "Home", href: "/" },
+      { label: "New review" },
+    ]);
+  });
+
   it("shortens the new-review path to Home / New request", () => {
     expect(getBreadcrumbs("/reviews/new")).toEqual([
       { label: "Home", href: "/" },

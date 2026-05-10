@@ -6,7 +6,7 @@ import { ShowcaseOutcomeStrip } from "@/components/showcase/ShowcaseOutcomeStrip
 import { ShowcasePipelineReviewTrailCards } from "@/components/showcase/ShowcasePipelineReviewTrailCards";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
-import { getArtifactBusinessLabel } from "@/lib/artifact-review-helpers";
+import { getArtifactBusinessLabel, stripArtifactFilenameExtension } from "@/lib/artifact-review-helpers";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
@@ -318,12 +318,14 @@ export function DemoPreviewMarketingBody({
       </section>
 
       <section data-testid="demo-preview-artifacts">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Artifacts</h2>
+        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+          {demoMode ? "Deliverables" : "Artifacts"}
+        </h2>
         <div className="mt-2 overflow-x-auto rounded border border-neutral-200 dark:border-neutral-800">
           <table className="min-w-full text-left text-sm text-neutral-800 dark:text-neutral-200">
             <thead className="bg-neutral-100 text-xs uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
               <tr>
-                <th className="px-3 py-2">Artifact</th>
+                <th className="px-3 py-2">{demoMode ? "Deliverable" : "Artifact"}</th>
                 <th className="px-3 py-2">Created</th>
               </tr>
             </thead>
@@ -354,10 +356,19 @@ export function DemoPreviewMarketingBody({
                     className="border-t border-neutral-200 dark:border-neutral-800"
                     title={typeof a.contentHash === "string" ? `Content hash: ${a.contentHash}` : undefined}
                   >
-                    <td className="px-3 py-2">
+                    <td
+                      className="px-3 py-2"
+                      title={
+                        demoMode && typeof a.name === "string" && a.name.trim().length > 0
+                          ? a.name.trim()
+                          : undefined
+                      }
+                    >
                       <span className="font-medium">{typeLabel}</span>
                       {typeof a.name === "string" && a.name.trim().length > 0 ? (
-                        <p className="m-0 mt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">{a.name.trim()}</p>
+                        <p className="m-0 mt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">
+                          {demoMode ? stripArtifactFilenameExtension(a.name.trim()) : a.name.trim()}
+                        </p>
                       ) : null}
                     </td>
                     <td className="px-3 py-2">{createdLabel}</td>

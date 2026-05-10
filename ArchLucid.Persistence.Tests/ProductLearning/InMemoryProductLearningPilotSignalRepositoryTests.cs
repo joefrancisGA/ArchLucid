@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Persistence.Coordination.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
@@ -16,7 +17,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
     [SkippableFact]
     public async Task Insert_then_list_returns_newest_first_with_stable_secondary_sort()
     {
-        InMemoryProductLearningPilotSignalRepository repo = new();
+        IProductLearningPilotSignalRepository repo = new InMemoryProductLearningPilotSignalRepository();
         DateTime t0 = new(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc);
         DateTime t1 = new(2026, 4, 1, 12, 0, 1, DateTimeKind.Utc);
 
@@ -58,7 +59,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
     [SkippableFact]
     public async Task Insert_assigns_id_and_utc_when_defaults()
     {
-        InMemoryProductLearningPilotSignalRepository repo = new();
+        IProductLearningPilotSignalRepository repo = new InMemoryProductLearningPilotSignalRepository();
 
         await repo.InsertAsync(
             new ProductLearningPilotSignalRecord

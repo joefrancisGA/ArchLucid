@@ -62,7 +62,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       /completed architecture output|Completed example/i,
     );
 
-    await page.getByRole("link", { name: /Open review/i }).first().click();
+    await page.getByRole("link", { name: /Review package/i }).first().click();
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expect(page.getByRole("main").first()).not.toContainText(/Invalid Date/i);
 

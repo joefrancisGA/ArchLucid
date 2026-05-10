@@ -55,13 +55,15 @@ export function ShowcasePipelineReviewTrailCards(props: {
       aria-label="Review trail milestones"
       data-testid="showcase-pipeline-review-cards"
     >
-      {items.map((row) => {
+      {items.map((row, index) => {
         const label = pipelineEventTypeFriendlyLabel(row.eventType);
         const showManifest = manifest !== null && manifestishEvent(row.eventType);
         const showFinding =
           primaryFindingId !== undefined &&
           primaryFindingId.trim().length > 0 &&
           findingishEvent(row.eventType);
+
+        const showPrimaryReviewDeepLink = index === 0;
 
         return (
           <li
@@ -85,12 +87,14 @@ export function ShowcasePipelineReviewTrailCards(props: {
                 ) : null}
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
-                <Link
-                  className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 font-medium text-teal-800 no-underline hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
-                  href={`/reviews/${encodeURIComponent(runId)}`}
-                >
-                  Open review
-                </Link>
+                {showPrimaryReviewDeepLink ? (
+                  <Link
+                    className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 font-medium text-teal-800 no-underline hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+                    href={`/reviews/${encodeURIComponent(runId)}`}
+                  >
+                    Review package
+                  </Link>
+                ) : null}
                 {showManifest ? (
                   <Link
                     className="rounded-md border border-teal-200 bg-teal-50/80 px-2 py-1 font-medium text-teal-900 no-underline hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-200 dark:hover:bg-teal-950/80"

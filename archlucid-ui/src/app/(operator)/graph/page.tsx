@@ -48,6 +48,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GraphStaticFallback } from "@/components/GraphStaticFallback";
 
 const GraphViewer = dynamic(
   () => import("@/components/GraphViewer").then((m) => m.GraphViewer),
@@ -56,12 +57,11 @@ const GraphViewer = dynamic(
     loading: () => (
       <div
         data-testid="graph-viewer-chunk-loading"
-        className="flex min-h-[320px] w-full items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 dark:border-neutral-600 dark:bg-neutral-900/40"
         role="status"
         aria-live="polite"
-        aria-label="Loading graph viewer"
+        aria-label="Loading interactive evidence graph viewer"
       >
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Preparing interactive graph…</p>
+        <GraphStaticFallback />
       </div>
     ),
   },
@@ -118,8 +118,33 @@ function GraphPageContent() {
   const [loading, setLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState("");
   const [architectureGraphNote, setArchitectureGraphNote] = useState<string | null>(null);
+  const [graphInteractiveReady, setGraphInteractiveReady] = useState(false);
 
   const loadGenRef = useRef(0);
+
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  const graphSurfaceKey = useMemo(() => {
+    if (graph === null) {
+      return "";
+    }
+
+    return `${runId.trim()}-${graph.nodes.length}-${graph.edges.length}`;
+  }, [graph, runId]);
+
+  useEffect(() => {
+    if (graphSurfaceKey.length === 0) {
+      setGraphInteractiveReady(false);
+
+      return;
+    }
+
+    setGraphInteractiveReady(false);
+  }, [graphSurfaceKey]);
+
+  const handleGraphInteractiveSurfaceReady = useCallback(() => {
+    setGraphInteractiveReady(true);
+  }, []);
 
   useEffect(() => {
     if (urlRunId.length === 0) {
@@ -156,6 +181,11 @@ function GraphPageContent() {
   const performGraphLoad = useCallback(async () => {
     const gen = ++loadGenRef.current;
     setLoading(true);
+
+    if (buyerPolishedShell) {
+      setGraphInteractiveReady(false);
+    }
+
     setLoadFailure(null);
     setMalformedMessage(null);
     setArchitectureGraphNote(null);
@@ -274,7 +304,7 @@ function GraphPageContent() {
         setLoading(false);
       }
     }
-  }, [mode, runId, decisionId, nodeId, depth]);
+  }, [mode, runId, decisionId, nodeId, depth, buyerPolishedShell]);
 
   const performRef = useRef(performGraphLoad);
   performRef.current = performGraphLoad;
@@ -324,8 +354,6 @@ function GraphPageContent() {
     isNextPublicDemoMode() ||
     isStaticDemoPayloadFallbackEnabled() ||
     isStaticDemoPayloadFallbackActiveForRun(runId.trim());
-
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   useEffect(() => {
     if (!demoUi && !buyerPolishedShell) {
@@ -550,7 +578,7 @@ function GraphPageContent() {
           )}
           {buyerPolishedShell ? (
             <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-              Analysis and captured evidence converge on key risks. Risks determine the architecture
+              Captured evidence and review outcomes converge on flagship risks. Those risks anchor the architecture
               decisions recorded in the final package, which produces the sponsor and audit deliverables.
               Select any highlighted node to see its role in this review.
             </p>
@@ -575,7 +603,9 @@ function GraphPageContent() {
             ) : null}
             <span className="text-neutral-500 dark:text-neutral-400 text-sm">
               {buyerPolishedShell
-                ? `${graph.nodes.length} nodes in this view`
+                ? graphInteractiveReady && !loading
+                  ? `${graph.nodes.length} nodes in this view`
+                  : "Rendering interactive graph…"
                 : `${graph.nodes.length} nodes, ${graph.edges.length} edges (before filter)`}
             </span>
             {!buyerPolishedShell ? (
@@ -645,12 +675,15 @@ function GraphPageContent() {
             )}
           </div>
           <ClientErrorBoundary title="Graph viewer failed to render">
-            <div data-testid="graph-canvas-ready">
+            <div data-testid="graph-canvas-ready" key={graphSurfaceKey}>
               <GraphViewer
                 graph={graph}
                 typeFilter={typeFilter}
                 runId={runId.trim()}
                 presentation={demoUi || buyerPolishedShell ? "buyerTrail" : "operator"}
+                onInteractiveSurfaceReady={
+                  buyerPolishedShell ? handleGraphInteractiveSurfaceReady : undefined
+                }
               />
             </div>
           </ClientErrorBoundary>

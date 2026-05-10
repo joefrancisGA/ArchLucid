@@ -53,7 +53,7 @@ export function RunDetailPageHeader({
           {buyerPolishedShell && executionFlavorBuyerSummary ? (
             <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
               <Badge variant="secondary" className="me-2 align-middle font-normal">
-                Analysis mode
+                Sample review package
               </Badge>
               {executionFlavorBuyerSummary}{" "}
               <Link

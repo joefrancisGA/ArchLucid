@@ -5,6 +5,15 @@ export type BreadcrumbItem = {
   href?: string;
 };
 
+export type GetBreadcrumbsOptions = {
+  /** Buyer-polished shell uses calmer create-flow labels on the wizard path. */
+  readonly buyerPolishedShell?: boolean;
+};
+
+function newReviewWizardCrumbLabel(buyerPolishedShell: boolean | undefined): string {
+  return buyerPolishedShell === true ? "New review" : "New request";
+}
+
 const SEGMENT_LABELS: Record<string, string> = {
   onboarding: "Onboarding",
   reviews: "Architecture reviews",
@@ -51,7 +60,7 @@ const SEGMENT_LABELS: Record<string, string> = {
  * Builds breadcrumb trail from pathname. Last item has no href (current page).
  * Query strings are ignored for matching; dynamic segments use friendly labels.
  */
-export function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
+export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions): BreadcrumbItem[] {
   const normalized = pathname === "" ? "/" : pathname.startsWith("/") ? pathname : `/${pathname}`;
 
   if (normalized === "/") {
@@ -62,7 +71,7 @@ export function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
   if (normalized === "/reviews/new") {
     return [
       { label: "Home", href: "/" },
-      { label: "New request" },
+      { label: newReviewWizardCrumbLabel(options?.buyerPolishedShell) },
     ];
   }
 

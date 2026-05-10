@@ -44,7 +44,7 @@ export function ShowcaseQuickNav({ payload }: { readonly payload: DemoCommitPage
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Link href={`/reviews/${encodeURIComponent(runId)}`} className={btnClass}>
-          Open review
+          Review package
         </Link>
         <Link href={`/manifests/${encodeURIComponent(manifestId)}`} className={btnClass}>
           Open manifest

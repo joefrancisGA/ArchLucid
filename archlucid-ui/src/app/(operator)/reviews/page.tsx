@@ -153,7 +153,7 @@ export default async function RunsPage({
         <div className="inline-flex items-center gap-1.5">
           <Button variant="outline" size="sm" asChild>
             <Link href="/reviews/new" className="no-underline">
-              New request
+              {isBuyerPolishedOperatorShellEnv() ? "New review" : "New request"}
             </Link>
           </Button>
           {isBuyerPolishedOperatorShellEnv() ? null : (
