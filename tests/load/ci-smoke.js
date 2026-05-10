@@ -3,7 +3,7 @@
  * Scenarios: health (live+ready), version, create_run, list_runs, audit_search, get_run_detail, client_error_telemetry.
  * get_run_detail: list runs, create a run, GET that id (avoids 404 list probes that inflate http_req_failed).
  *
- * Latency SLO alignment: docs/library/API_SLOS.md (Tier 1 / 2 / 3 external p95: 300 ms / 800 ms / 8 s).
+ * Latency SLO alignment: docs/library/API_SLOS.md + enforced ceilings in docs/library/API_PERFORMANCE_TARGETS.md.
  * k6 `thresholds` below fail the process (exit ≠ 0) when breached — merge-blocking before the Python gate.
  *
  * Environment (optional overrides):

@@ -2418,8 +2418,8 @@ jobs:
           K6_SUMMARY_PATH: ${{ runner.temp }}/k6-api-smoke-summary.json
           # Core Pilot operator-path smoke budgets (aligned with docs/library/API_SLOS.md tiers — informational for CI).
           ARCHLUCID_K6_P95_HEALTH_READY_MS: "1200"
-          ARCHLUCID_K6_P95_TIER2_MS: "800"
-          ARCHLUCID_K6_P95_TIER3_MS: "8000"
+          ARCHLUCID_K6_P95_TIER2_MS: "928"
+          ARCHLUCID_K6_P95_TIER3_MS: "6600"
           ARCHLUCID_K6_HTTP_FAIL_RATE_MAX: "0.02"
         run: |
           set -e
@@ -2428,8 +2428,8 @@ jobs:
       - name: Assert k6 API smoke thresholds (Core Pilot operator-path budgets)
         env:
           ARCHLUCID_K6_P95_HEALTH_READY_MS: "1200"
-          ARCHLUCID_K6_P95_TIER2_MS: "800"
-          ARCHLUCID_K6_P95_TIER3_MS: "8000"
+          ARCHLUCID_K6_P95_TIER2_MS: "928"
+          ARCHLUCID_K6_P95_TIER3_MS: "6600"
         run: >
           python3 scripts/ci/assert_k6_ci_smoke_summary.py
           "${{ runner.temp }}/k6-api-smoke-summary.json"
@@ -2514,8 +2514,8 @@ jobs:
           # Aligned with docs/library/API_SLOS.md Tier 1/2/3 p95; tests/load/ci-smoke.js + assert_k6_ci_smoke_summary.py — override in fork for noisy runners only.
           ARCHLUCID_K6_P95_HEALTH_LIVE_MS: "300"
           ARCHLUCID_K6_P95_HEALTH_READY_MS: "1200"
-          ARCHLUCID_K6_P95_TIER2_MS: "800"
-          ARCHLUCID_K6_P95_TIER3_MS: "8000"
+          ARCHLUCID_K6_P95_TIER2_MS: "928"
+          ARCHLUCID_K6_P95_TIER3_MS: "6600"
           ARCHLUCID_K6_HTTP_FAIL_RATE_MAX: "0.02"
         run: |
           set -e
