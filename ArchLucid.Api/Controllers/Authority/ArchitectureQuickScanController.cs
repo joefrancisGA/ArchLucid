@@ -32,9 +32,9 @@ public sealed class ArchitectureQuickScanController(IQuickScanService quickScanS
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        string systemName = (request.SystemName ?? string.Empty).Trim();
-        string cloud = (request.CloudProvider ?? string.Empty).Trim();
-        string description = (request.Description ?? string.Empty).Trim();
+        string systemName = (request.SystemName).Trim();
+        string cloud = (request.CloudProvider).Trim();
+        string description = (request.Description).Trim();
 
 
         if (string.IsNullOrWhiteSpace(systemName))

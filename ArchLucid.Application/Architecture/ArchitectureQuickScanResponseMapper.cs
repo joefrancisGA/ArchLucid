@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Application.Architecture;
 
@@ -21,8 +20,8 @@ public static class ArchitectureQuickScanResponseMapper
             .Take(maxFindings)
             .Select(static f => new ArchitectureQuickScanFindingItem
             {
-                Title = f.Category ?? string.Empty,
-                Description = f.Message ?? string.Empty,
+                Title = f.Category,
+                Description = f.Message,
                 Severity = f.Severity,
                 ConfidenceScore = f.ConfidenceScore,
                 ConfidenceLevel = f.ConfidenceLevel
@@ -32,7 +31,7 @@ public static class ArchitectureQuickScanResponseMapper
         return new ArchitectureQuickScanResponse
         {
             ScanId = result.ScanId,
-            Summary = result.Summary ?? string.Empty,
+            Summary = result.Summary,
             Findings = findings,
             CompletedUtc = result.CompletedUtc
         };

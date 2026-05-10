@@ -134,6 +134,7 @@ export default async function RunsPage({
         title="Architecture reviews"
         metadata={<span>{projectTitle}</span>}
         helpKey="runs-list-overview"
+        docsPageKey="/runs"
       />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to inspect its manifest, artifacts,

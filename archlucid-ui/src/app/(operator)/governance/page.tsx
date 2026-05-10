@@ -570,6 +570,7 @@ function GovernanceWorkflowPageInner() {
       <LayerHeader pageKey="governance-workflow" />
       <OperatorPageHeader
         title="Governance workflow"
+        docsPageKey="/governance"
         subtitle={
           buyerPolishedShell
             ? "The approval path governs which finalized architecture packages may advance. Promotion moves an approved version toward staging or production; activation makes it operative for that environment."
