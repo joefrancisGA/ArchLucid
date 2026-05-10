@@ -165,7 +165,65 @@ public sealed class TrialLimitGateTests
     }
 
     [SkippableFact]
-    public async Task GuardWriteAsync_none_trial_does_not_throw()
+    public async Task GuardWriteAsync_active_non_positive_runs_limit_does_not_enforce_metering()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "n",
+                    Slug = "s",
+                    Tier = TenantTier.Standard,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    TrialStatus = TrialLifecycleStatus.Active,
+                    TrialExpiresUtc = TimeProvider.System.GetUtcNow().AddDays(7),
+                    TrialRunsLimit = 0,
+                    TrialRunsUsed = 999,
+                    TrialSeatsLimit = null,
+                    TrialSeatsUsed = 1,
+                });
+
+        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+        Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
+    [SkippableFact]
+    public async Task GuardWriteAsync_active_non_positive_seats_limit_does_not_enforce_metering()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "n",
+                    Slug = "s",
+                    Tier = TenantTier.Standard,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    TrialStatus = TrialLifecycleStatus.Active,
+                    TrialExpiresUtc = TimeProvider.System.GetUtcNow().AddDays(7),
+                    TrialRunsLimit = null,
+                    TrialRunsUsed = 0,
+                    TrialSeatsLimit = 0,
+                    TrialSeatsUsed = 99,
+                });
+
+        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+        Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
     {
         Guid tenantId = Guid.NewGuid();
         Mock<ITenantRepository> tenants = new();

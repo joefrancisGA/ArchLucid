@@ -215,6 +215,42 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ---
 
+## 6h. Customer extensibility docs — custom agent handlers (V2) (product note 2026-05-10)
+
+**V1 / V1.1 stance:** **Hosted SaaS** delivery does **not** require customer-facing prose that teaches how to **author and wire a custom agent handler** into the execution surface. Existing **in-repo** patterns (registered handlers aligned with orchestration — e.g. compliance-class handlers) illustrate internal extensibility **without** implying a documented customer self-service path.
+
+**V2 commitment (documentation only — not a headline gate):**
+
+| Deliverable | V1 posture | V2 commitment |
+|-------------|------------|---------------|
+| **Documentation — how a customer would add a custom agent handler** | **Out of V1**; **not weighed in V1.1 headline readiness `(A)`**. Narrative gaps **must not** be read as MCP completeness or speculative-ecosystem debt. | **Document** expectations, prerequisites, boundaries, and a pattern-level workflow (registration, authority/safety posture, versioning) aligned to the product's orchestration contracts when this slice is prioritized. Scope is **guides and clarity**, not automatically a shipped **third-party plugin SDK**, marketplace listing, or new public HTTP contracts — those remain gated per [V1_SCOPE.md §3](V1_SCOPE.md) **speculative ecosystem** rows unless separately promoted. |
+
+**Rules:**
+
+- **Independent quality assessments must not** reduce **`(A)` V1/V1.1 headline readiness** solely because this documentation does not yet exist — same posture as MCP absence in V1 and **Assessment-Scope-V1_1** ecosystem non-gates.
+- **Do not** confuse this row with inbound **MCP** ([§6d](#6d-agent-ecosystem--mcp--v11-candidates-scope-documentation-2026-04-24)): MCP is a **V1.1** membrane over **existing** bounded tools; **custom handler** documentation speaks to customer-aligned **code-level** handler extension **patterns** scoped to **V2** narrative.
+- Promoting specifics or pinning dates requires [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+
+---
+
+## 6i. Hosted trials — documented `V1` → `V1.1` migration path (V1.1 documentation) (product note 2026-05-10)
+
+**Context:** Hosted **trial** tenants use the same **catalog-per-tenant** isolation story as paid tenants ([`TENANT_DATABASE_TOPOLOGY.md`](TENANT_DATABASE_TOPOLOGY.md)). **`V1`** ships ongoing schema evolution via migrations and publishes breaking guidance in-repo (`CHANGELOG`, **`BREAKING_CHANGES`**). This section pins the **rollup narrative** tenants need when **`V1.1`** ships **novel** outward-facing deltas (coordinate with commerce un-hold in [§6b](#6b-commercial--v11-candidates-resolved-2026-04-23), MCP in [§6d](#6d-agent-ecosystem--mcp--v11-candidates-scope-documentation-2026-04-24), and other promoted **`V1.1`** items).
+
+**V1 stance — scoring:** **`(A)` headline readiness for `V1`** must **not** be reduced solely because buyer- or tenant-admin-facing prose has **not yet** summarized “what happens to my trial when ArchLucid moves **`V1` → `V1.1`**.” Missing that guide is **not** Evolvability, Documentation, Adoption Friction, or Customer Self-Sufficiency debt against **`V1`**.
+
+| Deliverable | `V1` posture | `V1.1` commitment |
+|-------------|----------------|-------------------|
+| **Hosted trial tenants — consolidated `V1` → `V1.1` migration / expectations document** | **Out of `(A)` V1 readiness.** Operational truth remains: vendor-hosted upgrades, changelog discipline, pilot/trial support channels. | **In `V1.1` documentation scope.** Publish (or prominently link from operator onboarding / **[`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md)** and companions) tenant-oriented guidance covering at minimum: what **`V1.1`** introduces relative to **`V1`**, relevance to commerce rails (**[§6b](#6b-commercial--v11-candidates-resolved-2026-04-23)**), optional integrations (e.g. MCP **[§6d](#6d-agent-ecosystem--mcp--v11-candidates-scope-documentation-2026-04-24)**), tenant-admin actions vs vendor-managed changes, and where to watch for **`BREAKING_CHANGES`**. Exact section list is owner-authored at rollout. |
+
+**Rules:**
+
+- **`V1` quality assessments:** do **not** list “no trial **`V1`→`V1.1`** migration memo” as a weighted defect pillar against **`V1`**.
+- **`V1.1`** scoring models may treat this artifact as normal **`V1.1`** rollout documentation when those assessments are authored — this file does **not** pin **`V1.1`** calendar dates (`PENDING_QUESTIONS.md`).
+- Update [V1_SCOPE.md §3](V1_SCOPE.md) if the **non‑`V1` gate** wording above changes.
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |
@@ -230,7 +266,7 @@ This file is **maintainer hygiene**. It is **not** a commitment to ship listed i
 - After a changelog entry marks something **“intentionally deferred”** or **“gap.”**
 - When **AUDIT_COVERAGE_MATRIX** gains or loses a **Known gaps** row.
 - When **Phase 7** rename items move (only with program approval).
-- When a **V2 platform enhancement** is recorded from engineering/architecture review (see §6e–§6f pattern — add §3 row in [V1_SCOPE.md](V1_SCOPE.md) in the same change).
+- When **V2 platform or V2 customer-documentation** items (§6e–§6h) or **`V1.1` buyer-visible documentation** commitments (e.g. §6i) are recorded, add or update the matching **`V1_SCOPE.md` §3** row in the same change.
 - When **identity scope** is promoted (see §6g pattern — update [V1_SCOPE.md](V1_SCOPE.md) §2.12 / §3 together / procurement FAQ as needed).
 
 **Change control:** Prefer updating **this file** and [V1_SCOPE.md](V1_SCOPE.md) §3 together so external messaging stays aligned.
