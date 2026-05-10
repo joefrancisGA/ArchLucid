@@ -873,12 +873,11 @@ export default async function RunDetailPage({
               defaultOpen
             >
               {buyerPolishedArtifactTable ? (
-                <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
-                  <strong>Sponsor:</strong> executive summary and scorecard exports.{" "}
-                  <strong>Architecture review board:</strong> decision package and manifest bundle.{" "}
-                  <strong>Audit / compliance:</strong> traceability and review exports via{" "}
-                  <strong>More export options</strong>. Optional operator tooling sits in{" "}
-                  <strong>Advanced — package technical detail</strong> below.
+                <p className="m-0 mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+                  Outputs are grouped below by who typically consumes them. Open or download row-by-row; use{" "}
+                  <strong>Download review package</strong> or <strong>More formats</strong> for quick exports, and expand{" "}
+                  <strong>More export options</strong> for additional ZIPs and links. Optional operator tooling stays under{" "}
+                  <strong>Advanced — package technical detail</strong>.
                 </p>
               ) : null}
               {artifactsFailure && (

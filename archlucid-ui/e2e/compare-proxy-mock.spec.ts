@@ -17,7 +17,13 @@ test.describe("operator journey — compare proxy mocks", () => {
     const compareSubmit = comparePageSubmitButton(page);
     await expect(compareSubmit).toBeEnabled();
     await compareSubmit.click();
-    await expect(page.getByText(/Fixture highlight alpha/i)).toBeVisible();
+    await expect(
+      page
+        .locator("#compare-structured")
+        .locator("p")
+        .filter({ hasText: /Sponsor recommendation/i })
+        .filter({ hasText: /Fixture highlight alpha/i }),
+    ).toBeVisible();
 
     await page.getByRole("button", { name: "Summarize for sponsor", exact: true }).click();
     await expect(page.getByText("E2E fixture: target run adds capacity", { exact: false })).toBeVisible();

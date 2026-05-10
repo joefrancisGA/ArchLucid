@@ -1017,7 +1017,7 @@ Do not change:
 
 **Affected qualities:** Decision Velocity, Adoption Friction, Marketability, Time-to-Value
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`docs/SHOULD_YOU_EVALUATE.md`** (buyer decision tree Q1–Q4; 15-minute hosted + self-hosted paths; links to sponsor brief, pricing, trust center, Core Pilot; Doc-Scope-Header; placed at `docs/` root because docs root count stayed under the 32-file cap; no edits to other docs or code per constraints).
 
 **Cursor prompt:**
 ```

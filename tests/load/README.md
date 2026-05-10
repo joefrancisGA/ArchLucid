@@ -128,8 +128,8 @@ Exercises a **Core Pilot-shaped** slice: **`GET /health/ready`**, **`GET /versio
 | **`K6_SUMMARY_PATH`** | `tests/load/results/k6-summary.json` | **`handleSummary`** output path |
 | **`ARCHLUCID_K6_OPERATOR_MINIMAL`** | *(unset)* | **`1`** / **`true`** = legacy four-call slice only (no internal seed/commit) |
 | **`ARCHLUCID_K6_P95_HEALTH_READY_MS`** | `1200` | Tier-style ceiling for **`/health/ready`** |
-| **`ARCHLUCID_K6_P95_TIER2_MS`** | `800` | List/detail/version/artifacts list |
-| **`ARCHLUCID_K6_P95_TIER3_MS`** | `8000` | Create run + seed + commit (unless overridden) |
+| **`ARCHLUCID_K6_P95_TIER2_MS`** | `928` | List/detail/version/artifacts list (**`API_PERFORMANCE_TARGETS.md`**) |
+| **`ARCHLUCID_K6_P95_TIER3_MS`** | `6600` | Create run + seed + commit (unless overridden) |
 | **`ARCHLUCID_K6_P95_SEED_FAKE_MS`** | Tier 3 | Optional seed-only ceiling |
 | **`ARCHLUCID_K6_P95_COMMIT_MS`** | Tier 3 | Optional commit-only ceiling |
 | **`ARCHLUCID_K6_HTTP_FAIL_RATE_MAX`** | `0.02` | Merge gate noise allowance on Actions |
@@ -162,7 +162,7 @@ K6_SCENARIO=load k6 run tests/load/k6-api-smoke.js --summary-export /tmp/k6-load
 **Thresholds (built into script)**
 
 - **`http_req_failed`**: rate &lt; **`ARCHLUCID_K6_HTTP_FAIL_RATE_MAX`** (default **2%**)
-- **`http_req_duration{k6api:…}`**: **p95** per step (defaults aligned with **`ci-smoke.js`** / **`API_SLOS.md`** tier hints)
+- **`http_req_duration{k6api:…}`**: **p95** per step (defaults in **`docs/library/API_PERFORMANCE_TARGETS.md`**)
 
 **CI**
 

@@ -107,6 +107,10 @@ describe("ArtifactListTable", () => {
       />,
     );
 
+    expect(
+      screen.getByRole("region", { name: "Deliverables grouped by audience" }),
+    ).toBeInTheDocument();
+
     const headings = screen.getAllByRole("heading", { level: 3 });
     expect(headings.map((heading) => heading.textContent)).toEqual([
       "Executive & sponsor",
