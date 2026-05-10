@@ -73,7 +73,7 @@ describe("RunInspectorPreview", () => {
       "href",
       "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
     );
-    fireEvent.click(screen.getByText("More ways to explore"));
+    fireEvent.click(screen.getByText("Next steps"));
 
     expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
       "href",

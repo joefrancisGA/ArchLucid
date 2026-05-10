@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
+import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 
 describe("pipelineEventTypeFriendlyLabel", () => {
   it("maps canonical com.archlucid integration codes", () => {
@@ -20,5 +20,22 @@ describe("pipelineEventTypeFriendlyLabel", () => {
 
   it("title-cases unknown dotted codes without dumping raw namespaces", () => {
     expect(pipelineEventTypeFriendlyLabel("com.vendor.obscure.pipeline.step")).toBe("Step");
+  });
+});
+
+describe("pipelineEventTypeBuyerMilestoneSubtitle", () => {
+  it("maps key lifecycle codes to buyer-facing narrative lines", () => {
+    expect(pipelineEventTypeBuyerMilestoneSubtitle("context.snapshot.created")).toBe(
+      "Captures the ingested context used to justify findings and graph evidence.",
+    );
+    expect(pipelineEventTypeBuyerMilestoneSubtitle("com.archlucid.manifest.finalized.v1")).toBe(
+      "Pins the authoritative reviewed manifest for sign-off and downstream promotion.",
+    );
+  });
+
+  it("falls back to a generic assurance line for unmapped types", () => {
+    expect(pipelineEventTypeBuyerMilestoneSubtitle("CustomObscureEvent")).toBe(
+      "Recorded on the authoritative audit trail for this review.",
+    );
   });
 });

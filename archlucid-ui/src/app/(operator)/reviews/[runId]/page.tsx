@@ -930,7 +930,7 @@ export default async function RunDetailPage({
                   <div className="flex flex-wrap items-center gap-3">
                     <Button variant="primary" size="sm" asChild>
                       <FunnelTelemetryExportAnchor href={getBundleDownloadUrl(manifestId)}>
-                        Download package (ZIP)
+                        Download review package
                       </FunnelTelemetryExportAnchor>
                     </Button>
                     <GoldenManifestExportMenu
@@ -1021,7 +1021,7 @@ export default async function RunDetailPage({
       {!buyerPolishedArtifactTable ? explanationSection : null}
 
       {showPilotScorecardPackageCta && buyerPolishedArtifactTable && manifestId ? (
-        <CollapsibleSection title="Executive sponsor package (downstream)" defaultOpen={false}>
+        <CollapsibleSection title="Executive sponsor package" defaultOpen={false}>
           <EmailRunToSponsorBanner runId={runId} manifestId={manifestId} curatedSampleRun={usedStaticDemoRun} />
         </CollapsibleSection>
       ) : null}

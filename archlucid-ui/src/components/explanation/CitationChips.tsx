@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { citationKindBuyerLabel } from "@/lib/citation-kind-buyer-label";
 import type { CitationReference } from "@/types/explanation";
 
 export type CitationChipsProps = {
@@ -38,14 +39,16 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
       <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
         {citations.map((c) => {
           const href = citationHref(c, runId);
+          const kindLabel = citationKindBuyerLabel(c.kind);
+
           return (
             <li key={`${c.kind}-${c.id}`}>
               <Link
                 href={href}
                 className="inline-block rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-                aria-label={`Citation ${c.kind}: ${c.label}`}
+                aria-label={`Citation ${kindLabel}: ${c.label}`}
               >
-                <span className="text-neutral-500 dark:text-neutral-400">{c.kind}</span> · {c.label}
+                <span className="text-neutral-500 dark:text-neutral-400">{kindLabel}</span> · {c.label}
               </Link>
             </li>
           );
