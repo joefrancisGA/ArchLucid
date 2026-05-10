@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 import {
   FIXTURE_LEFT_RUN_ID,
@@ -69,4 +69,16 @@ export function comparisonRequestOutcomePanel(page: Page) {
 /** After Compare succeeds, the collapsed technical outcome strip is visible. */
 export async function expectComparisonRequestOutcomeVisible(page: Page): Promise<void> {
   await expect(comparisonRequestOutcomePanel(page)).toBeVisible();
+}
+
+/**
+ * Sponsor callout under structured manifest compare (`#compare-structured`).
+ * Do not assert highlight copy with bare `getByText` — the same string appears in summary highlights `<li>` (strict mode).
+ */
+export function structuredCompareSponsorRecommendationParagraph(page: Page): Locator {
+  return page
+    .locator("#compare-structured")
+    .locator("p")
+    .filter({ hasText: /Sponsor recommendation/i })
+    .filter({ hasText: /Fixture highlight alpha/i });
 }

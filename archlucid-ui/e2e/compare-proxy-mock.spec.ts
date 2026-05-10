@@ -1,12 +1,17 @@
 import { expect, test } from "@playwright/test";
 
-import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "./fixtures";
-import { comparePageSubmitButton } from "./helpers/operator-journey";
+import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID, fixtureComparisonExplanation } from "./fixtures";
+import {
+  comparePageSubmitButton,
+  structuredCompareSponsorRecommendationParagraph,
+} from "./helpers/operator-journey";
 import { registerCompareAndExplainRoutes } from "./helpers/register-operator-api-routes";
 
 test.describe("operator journey — compare proxy mocks", () => {
   test("client compare + explain calls are fulfilled without a live API", async ({ page }) => {
     await registerCompareAndExplainRoutes(page);
+
+    const explainFixture = fixtureComparisonExplanation();
 
     const q = new URLSearchParams({
       leftRunId: FIXTURE_LEFT_RUN_ID,
@@ -17,15 +22,10 @@ test.describe("operator journey — compare proxy mocks", () => {
     const compareSubmit = comparePageSubmitButton(page);
     await expect(compareSubmit).toBeEnabled();
     await compareSubmit.click();
-    await expect(
-      page
-        .locator("#compare-structured")
-        .locator("p")
-        .filter({ hasText: /Sponsor recommendation/i })
-        .filter({ hasText: /Fixture highlight alpha/i }),
-    ).toBeVisible();
+    await expect(structuredCompareSponsorRecommendationParagraph(page)).toBeVisible();
 
     await page.getByRole("button", { name: "Summarize for sponsor", exact: true }).click();
-    await expect(page.getByText("E2E fixture: target run adds capacity", { exact: false })).toBeVisible();
+    await page.locator("#compare-ai summary").click();
+    await expect(page.getByText(explainFixture.highLevelSummary)).toBeVisible();
   });
 });
