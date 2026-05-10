@@ -25,9 +25,13 @@ public sealed class RunTrustEvidenceCardBuilderTests
     [Fact]
     public async Task BuildAsync_WhenNotCommitted_ReturnsNull()
     {
-        ArchitectureRunDetail detail = new() { Run = new ArchitectureRun { RunId = Guid.NewGuid().ToString("N") }, Manifest = null, };
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = Guid.NewGuid().ToString("N") },
+            Manifest = null,
+        };
 
-        RunTrustEvidenceCardBuilder sut = CreateSut(out _, out _, out _, out _, out _);
+        RunTrustEvidenceCardBuilder sut = CreateSut(out _, out _);
 
         RunTrustEvidenceCard? card = await sut.BuildAsync(detail, "Real", CancellationToken.None);
 
@@ -42,10 +46,7 @@ public sealed class RunTrustEvidenceCardBuilderTests
 
         RunTrustEvidenceCardBuilder sut = CreateSut(
             out Mock<IAuditRepository> audit,
-            out Mock<IAgentExecutionTraceRepository> traces,
-            out _,
-            out _,
-            out _);
+            out Mock<IAgentExecutionTraceRepository> traces);
 
         audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(),
@@ -60,7 +61,7 @@ public sealed class RunTrustEvidenceCardBuilderTests
         RunTrustEvidenceCard? card = await sut.BuildAsync(detail, "Real", CancellationToken.None);
 
         card.Should().NotBeNull();
-        card!.AuditTrail.Detail.Should().Contain("12");
+        card.AuditTrail.Detail.Should().Contain("12");
         card.AgentTraces.Detail.Should().Contain("44");
         card.Links.Should().Contain(l => l.Rel == "traceabilityZip");
         card.TopFinding.Should().NotBeNull();
@@ -69,18 +70,20 @@ public sealed class RunTrustEvidenceCardBuilderTests
 
     private static RunTrustEvidenceCardBuilder CreateSut(
         out Mock<IAuditRepository> audit,
-        out Mock<IAgentExecutionTraceRepository> traces,
-        out Mock<IFindingEvidenceChainService> evidence,
-        out Mock<IRunExplanationSummaryService> explanation,
-        out Mock<IScopeContextProvider> scope)
+        out Mock<IAgentExecutionTraceRepository> traces)
     {
         audit = new Mock<IAuditRepository>();
         traces = new Mock<IAgentExecutionTraceRepository>();
-        evidence = new Mock<IFindingEvidenceChainService>();
-        explanation = new Mock<IRunExplanationSummaryService>();
-        scope = new Mock<IScopeContextProvider>();
+        Mock<IFindingEvidenceChainService> evidence = new();
+        Mock<IRunExplanationSummaryService> explanation = new();
+        Mock<IScopeContextProvider> scope = new();
 
-        ScopeContext sc = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext sc = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
 
         evidence.Setup(e => e.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))

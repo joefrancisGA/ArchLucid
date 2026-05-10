@@ -158,7 +158,7 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Create request" }));
+      fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
     });
 
     await waitFor(() => {

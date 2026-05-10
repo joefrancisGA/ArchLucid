@@ -29,7 +29,7 @@ const MIN_BRIEF_CHARS = 100;
 const QUICK_REVIEW_STEPS = [
   { label: "Paste your architecture brief", description: "Free text — we send it as the architecture review description." },
   { label: "Review scope", description: "Confirm workspace scope and optional title." },
-  { label: "Confirm and start review", description: "Create the request and open pipeline progress." },
+  { label: "Confirm and start architecture review", description: "Create the request and open pipeline progress." },
 ] as const;
 
 function readStoredPathMode(): "quick-review" | "detailed" {
@@ -264,7 +264,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       {step === 2 ? (
         <Card>
           <CardHeader>
-            <CardTitle>Confirm and start review</CardTitle>
+            <CardTitle>Confirm and start architecture review</CardTitle>
             <CardDescription>This starts a new architecture review with your pasted brief.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
@@ -298,7 +298,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
             disabled={submitting}
             data-testid="quick-review-start"
           >
-            Start review
+            Start Architecture Review
           </Button>
         )}
       </div>

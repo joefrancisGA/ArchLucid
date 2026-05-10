@@ -2,7 +2,6 @@ using System.Net;
 using System.Text;
 
 using ArchLucid.Application.Integrations.Itsm.Outbound;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;

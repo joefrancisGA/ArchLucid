@@ -501,7 +501,7 @@ export function NewRunWizardClient() {
                 isFirstStep={isFirstStep}
                 isLastInputStep={isReviewStep}
                 nextLabel={stepIndex === 0 ? "Continue" : "Next"}
-                submitLabel="Create request"
+                submitLabel="Start Architecture Review"
                 submittingLabel="Creating…"
               />
             </div>

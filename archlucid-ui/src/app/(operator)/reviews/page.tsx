@@ -26,7 +26,7 @@ import { listRunsByProjectPaged } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
 
 export const metadata: Metadata = {
-  title: "Architecture reviews",
+  title: "Architecture Reviews",
 };
 
 /** Server-rendered run list page. Fetches a page of runs and validates via coerceRunSummaryPaged. */
@@ -131,7 +131,7 @@ export default async function RunsPage({
   return (
     <div>
       <OperatorPageHeader
-        title="Architecture reviews"
+        title="Architecture Reviews"
         metadata={<span>{projectTitle}</span>}
         helpKey="runs-list-overview"
         docsPageKey="/runs"
@@ -231,7 +231,18 @@ export default async function RunsPage({
             </a>
             ). Compare, Replay, and heavy governance surfaces can wait until after your first committed package.
           </div>
-          <EmptyState {...RUNS_EMPTY} />
+          <EmptyState
+            {...RUNS_EMPTY}
+            title="No architecture reviews yet"
+            description={`Each architecture review is tracked as a run in the system. Your Run ID appears in metadata for support and diagnostics.\n\n${RUNS_EMPTY.description}`}
+            actions={
+              RUNS_EMPTY.actions === undefined
+                ? undefined
+                : RUNS_EMPTY.actions.map((action, index) =>
+                    index === 0 ? { ...action, label: "Start Architecture Review" } : action,
+                  )
+            }
+          />
         </>
       ) : null}
 

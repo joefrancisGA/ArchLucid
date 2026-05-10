@@ -109,7 +109,8 @@ export function CorePilotChecklist() {
       </div>
 
       <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
-        Work through the four steps from an empty tenant to a reviewed package — check each when you have done it.
+        Work through the four steps from an empty tenant to your first architecture review package — check each when you
+        have done it.
       </p>
 
       <ol className="m-0 list-none space-y-4 p-0">
@@ -164,7 +165,7 @@ export function CorePilotChecklist() {
           data-testid="core-pilot-checklist-complete"
         >
           <p className="m-0 text-sm font-medium text-teal-950 dark:text-teal-100">
-            You have stepped through the Core Pilot path — open a finalized review to explore the full review package.
+            You have stepped through the Core Pilot path — open a finalized architecture review to explore the full review package.
           </p>
           <Button
             type="button"
