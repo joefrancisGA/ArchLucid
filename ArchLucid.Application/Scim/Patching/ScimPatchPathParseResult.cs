@@ -19,9 +19,7 @@ public sealed record ScimPatchFlatAttributePathOutcome : ScimPatchPathParseOutco
 }
 
 /// <summary><c>members[value eq "..."]</c> optionally followed by <c>.subAttr</c> (<c>active</c> only).</summary>
-public sealed record ScimPatchMembersFilteredPathOutcome(Guid ReferenceUserId, string? SubAttribute) : ScimPatchPathParseOutcome
-{
-}
+public sealed record ScimPatchMembersFilteredPathOutcome(Guid ReferenceUserId, string? SubAttribute) : ScimPatchPathParseOutcome;
 
 /// <summary>Bracketed attribute path ArchLucid does not implement (valid-looking SCIM grammar subset).</summary>
 public sealed record ScimPatchPathNotImplementedOutcome : ScimPatchPathParseOutcome

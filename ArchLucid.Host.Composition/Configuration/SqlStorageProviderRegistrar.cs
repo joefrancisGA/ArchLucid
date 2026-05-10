@@ -5,7 +5,6 @@ using ArchLucid.Application.Audit;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
-using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.Authority;
@@ -229,9 +228,6 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IIntegrationEventOutboxRepository, DapperIntegrationEventOutboxRepository>();
         services.AddScoped<IProductLearningPilotSignalRepository, DapperProductLearningPilotSignalRepository>();
         services.AddScoped<IProductLearningPlanningRepository, DapperProductLearningPlanningRepository>();
-        services.AddScoped<IImprovementThemeExtractionService, ImprovementThemeExtractionService>();
-        services.AddScoped<IImprovementPlanningService, ImprovementPlanningService>();
-        services.AddScoped<IImprovementPlanPrioritizationService, ImprovementPlanPrioritizationService>();
         services.AddScoped<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
         services.AddScoped<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
         services.AddScoped<IProductLearningDashboardService, ProductLearningDashboardService>();
