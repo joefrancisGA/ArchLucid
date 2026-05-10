@@ -137,8 +137,9 @@ public sealed class TrialLocalIdentityService(
         }
         catch (Exception ex)
         {
+            // Avoid logging email (PII); notifier logs send failures without exposing full addresses where applicable.
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning(ex, "Failed to send trial local duplicate-registration notice for {Email}.", displayEmail);
+                _logger.LogWarning(ex, "Failed to send trial local duplicate-registration notice.");
         }
     }
 }

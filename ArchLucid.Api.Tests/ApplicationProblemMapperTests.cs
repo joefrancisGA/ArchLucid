@@ -1,7 +1,5 @@
-﻿using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
-using ArchLucid.Core;
-using ArchLucid.Host.Core.ProblemDetails;
 
 using FluentAssertions;
 
@@ -21,7 +19,11 @@ public sealed class ApplicationProblemMapperTests
     [SkippableFact]
     public void TryMapUnhandledException_ComparisonVerificationFailed_Returns422()
     {
-        DriftAnalysisResult drift = new() { DriftDetected = true, Summary = "x" };
+        DriftAnalysisResult drift = new()
+        {
+            DriftDetected = true,
+            Summary = "x"
+        };
         ComparisonVerificationFailedException ex = new("verify", drift);
         DefaultHttpContext http = CreateHttpContext("/p", "corr-verify");
 

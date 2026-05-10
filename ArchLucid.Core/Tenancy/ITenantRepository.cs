@@ -52,6 +52,17 @@ public interface ITenantRepository
         string? industryVerticalOther,
         CancellationToken ct);
 
+    /// <summary>
+    ///     Persists signup baseline review-cycle capture on <c>dbo.Tenants</c> before demo seed / trial activation so
+    ///     <c>GET /v1/tenant/trial-status</c> can surface values even when bootstrap fails later (seed failure or email gate).
+    /// </summary>
+    Task PersistTrialSignupBaselineReviewCycleAsync(
+        Guid tenantId,
+        decimal baselineReviewCycleHours,
+        string? baselineReviewCycleSource,
+        DateTimeOffset baselineReviewCycleCapturedUtc,
+        CancellationToken ct);
+
     /// <summary>Updates deferrable manual-prep baseline fields (settings page).</summary>
     Task UpdateBaselineAsync(
         Guid tenantId,

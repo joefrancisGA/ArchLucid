@@ -38,38 +38,71 @@ public sealed class TrialTenantBootstrapService(
             throw new ArgumentException("Audit actor email is required.", nameof(auditActorEmail));
         if (result.WasAlreadyProvisioned)
             return;
-        if (!await _emailVerificationPolicy.CanProvisionTrialForRegisteredEmailAsync(auditActorEmail, cancellationToken))
-        {
-            if (_logger.IsEnabled(LogLevel.Information))
-                _logger.LogInformation("Skipping trial bootstrap for tenant {TenantId}: email verification policy blocked provisioning for {Email}.",
-                    result.TenantId, auditActorEmail);
-            ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.TrialSignupFailed,
-                    ActorUserId = auditActorEmail.Trim(),
-                    ActorUserName = auditActorEmail.Trim(),
-                    TenantId = result.TenantId,
-                    WorkspaceId = result.DefaultWorkspaceId,
-                    ProjectId = result.DefaultProjectId,
-                    DataJson = JsonSerializer.Serialize(new { stage = "email_verification", reason = "policy_blocked" })
-                }, cancellationToken);
-            return;
-        }
 
-        ContosoRetailDemoIds demoIds = ContosoRetailDemoIds.ForTenant(result.TenantId);
-        ScopeContext scope = new() { TenantId = result.TenantId, WorkspaceId = result.DefaultWorkspaceId, ProjectId = result.DefaultProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = result.TenantId,
+            WorkspaceId = result.DefaultWorkspaceId,
+            ProjectId = result.DefaultProjectId
+        };
+
         using (AmbientScopeContext.Push(scope))
+        {
+            if (baselineReviewCycle is not null)
+                await _tenantRepository.PersistTrialSignupBaselineReviewCycleAsync(
+                    result.TenantId,
+                    baselineReviewCycle.Hours,
+                    baselineReviewCycle.SourceNote,
+                    baselineReviewCycle.CapturedUtc,
+                    cancellationToken);
+
+            if (!await _emailVerificationPolicy.CanProvisionTrialForRegisteredEmailAsync(auditActorEmail, cancellationToken))
+            {
+                if (_logger.IsEnabled(LogLevel.Information))
+                    _logger.LogInformation(
+                        "Skipping trial bootstrap for tenant {TenantId}: email verification policy blocked provisioning for {Email}.",
+                        result.TenantId,
+                        auditActorEmail);
+                ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
+                await _auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.TrialSignupFailed,
+                        ActorUserId = auditActorEmail.Trim(),
+                        ActorUserName = auditActorEmail.Trim(),
+                        TenantId = result.TenantId,
+                        WorkspaceId = result.DefaultWorkspaceId,
+                        ProjectId = result.DefaultProjectId,
+                        DataJson = JsonSerializer.Serialize(new { stage = "email_verification", reason = "policy_blocked" })
+                    },
+                    cancellationToken);
+
+                return;
+            }
+
+            ContosoRetailDemoIds demoIds = ContosoRetailDemoIds.ForTenant(result.TenantId);
+
             try
             {
                 await _demoSeedService.SeedAsync(cancellationToken);
                 await _demoSeedService.SeedTrialWelcomeRunAsync(cancellationToken);
                 DateTimeOffset start = TimeProvider.System.GetUtcNow();
                 DateTimeOffset expires = start.AddDays(14);
-                await _tenantRepository.CommitSelfServiceTrialAsync(result.TenantId, start, expires, 10, 3, demoIds.AuthorityRunBaselineId,
-                    baselineReviewCycle?.Hours, baselineReviewCycle?.SourceNote, baselineReviewCycle?.CapturedUtc, companyProfile?.CompanySize,
-                    companyProfile?.ArchitectureTeamSize, companyProfile?.IndustryVertical, companyProfile?.IndustryVerticalOther, cancellationToken);
+                await _tenantRepository.CommitSelfServiceTrialAsync(
+                    result.TenantId,
+                    start,
+                    expires,
+                    10,
+                    3,
+                    demoIds.AuthorityRunBaselineId,
+                    baselineReviewCycle?.Hours,
+                    baselineReviewCycle?.SourceNote,
+                    baselineReviewCycle?.CapturedUtc,
+                    companyProfile?.CompanySize,
+                    companyProfile?.ArchitectureTeamSize,
+                    companyProfile?.IndustryVertical,
+                    companyProfile?.IndustryVerticalOther,
+                    cancellationToken);
                 string actor = auditActorEmail.Trim();
                 await _auditService.LogAsync(
                     new AuditEvent
@@ -80,15 +113,20 @@ public sealed class TrialTenantBootstrapService(
                         TenantId = result.TenantId,
                         WorkspaceId = result.DefaultWorkspaceId,
                         ProjectId = result.DefaultProjectId,
-                        DataJson = JsonSerializer.Serialize(new { trialExpiresUtc = expires, sampleRunId = demoIds.AuthorityRunBaselineId })
-                    }, cancellationToken);
+                        DataJson = JsonSerializer.Serialize(
+                            new { trialExpiresUtc = expires, sampleRunId = demoIds.AuthorityRunBaselineId })
+                    },
+                    cancellationToken);
                 await _tenantRepository.EnqueueTrialArchitecturePreseedAsync(result.TenantId, cancellationToken);
                 ArchLucidInstrumentation.RecordTrialSignup("self_service", "trial_provisioned");
             }
             catch (Exception ex)
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                    _logger.LogError(ex, "Trial bootstrap failed for tenant {TenantId}; tenant row exists without trial metadata.", result.TenantId);
+                    _logger.LogError(
+                        ex,
+                        "Trial bootstrap failed for tenant {TenantId}; tenant row exists without trial metadata.",
+                        result.TenantId);
                 ArchLucidInstrumentation.RecordTrialSignupFailure("trial_bootstrap", ex.GetType().Name);
                 await _auditService.LogAsync(
                     new AuditEvent
@@ -100,7 +138,9 @@ public sealed class TrialTenantBootstrapService(
                         WorkspaceId = result.DefaultWorkspaceId,
                         ProjectId = result.DefaultProjectId,
                         DataJson = JsonSerializer.Serialize(new { stage = "trial_bootstrap", reason = ex.GetType().Name })
-                    }, cancellationToken);
+                    },
+                    cancellationToken);
             }
+        }
     }
 }

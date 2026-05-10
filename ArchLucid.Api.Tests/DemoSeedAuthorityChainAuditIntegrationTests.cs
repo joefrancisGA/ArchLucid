@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Net;
+using System.Globalization;
 
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Audit;
