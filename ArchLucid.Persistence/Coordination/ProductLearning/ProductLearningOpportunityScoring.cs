@@ -42,6 +42,32 @@ public static class ProductLearningOpportunityScoring
         return badScore >= 12 ? "High" : badScore >= 6 ? "Medium" : "Low";
     }
 
+    /// <summary>
+    ///     Deterministic plan priority (aligned with dashboard triage banding + evidence mass) for 59R plan drafts.
+    /// </summary>
+    public static int ComputePlanPriorityScore(ImprovementOpportunity opportunity)
+    {
+        ArgumentNullException.ThrowIfNull(opportunity);
+
+        int band = opportunity.Severity == "High" ? 1_000_000 : opportunity.Severity == "Medium" ? 600_000 : 200_000;
+
+        int rankBoost = 10_000 - Math.Clamp(opportunity.PriorityRank, 0, 9_999);
+
+        int evidence = Math.Clamp(opportunity.EvidenceSignalCount, 0, 99_999);
+
+        return band + rankBoost + evidence;
+    }
+
+    /// <summary>Human-readable explanation for <see cref="ComputePlanPriorityScore" /> (audit / UI).</summary>
+    public static string BuildPlanPriorityExplanation(ImprovementOpportunity opportunity)
+    {
+        ArgumentNullException.ThrowIfNull(opportunity);
+
+        return "Deterministic score from severity band, dashboard-style rank boost, and capped evidence signal mass " +
+            "(59R V1 derivation). severity=" + opportunity.Severity + "; opportunityRank=" + opportunity.PriorityRank +
+            "; evidenceSignals=" + opportunity.EvidenceSignalCount + ".";
+    }
+
     public static ImprovementOpportunity MapAggregateToOpportunity(FeedbackAggregate aggregate, int badScore,
         int priorityRank)
     {

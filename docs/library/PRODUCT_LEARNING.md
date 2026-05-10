@@ -88,6 +88,19 @@ Exports are **short, human-readable rollups**: totals, artifact outcome table, p
 
 ---
 
+## 4.1 Persist planning drafts from opportunities (59R)
+
+When you want **named themes** and **improvement plans** in the 59R tables (for exports, KPIs, or handoff to your own backlog tooling), an operator with **ExecuteAuthority** can materialize a **bounded** draft set from the same ranked opportunities the dashboard uses:
+
+- **`POST /v1/learning/planning/materialize`** — optional query **`since`** (ISO 8601, same semantics as other product-learning reads), **`maxPlansToMaterialize`** (default **10**, max **50**).
+- **Deterministic:** same scoped inputs produce the same derivation and priority ordering; existing theme keys are skipped (idempotent).
+- **Evidence:** new plans link **pilot feedback signals** only (capped per plan) — not automatic “prove it” links to every architecture run.
+- **Still no auto-adaptation:** this path does **not** change prompts, rule packs, agents, or governance — same rule as §1.
+
+Read/list/report for themes and plans live under **`GET /v1/learning/*`** (59R); see OpenAPI at **`GET /openapi/v1.json`**.
+
+---
+
 ## 5. How product / architecture owners should use this
 
 | Do | Avoid |

@@ -20,8 +20,9 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value:
       "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; " +
-      "img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http://localhost:* ws://localhost:* wss://localhost:*",
+      // Microsoft Clarity (marketing only, consent-gated in UI): tag script host.
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms; style-src 'self' 'unsafe-inline'; " +
+      "img-src 'self' data: blob: https://c.bing.com; font-src 'self' data:; connect-src 'self' https: http://localhost:* ws://localhost:* wss://localhost:*",
   },
 ];
 

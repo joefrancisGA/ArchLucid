@@ -6636,6 +6636,8 @@ BEGIN
             CONSTRAINT DF_LlmMonthlyTenantBudgetState_SpentUsd DEFAULT (0),
         ReservedAssumedUsd   DECIMAL(18, 4)   NOT NULL
             CONSTRAINT DF_LlmMonthlyTenantBudgetState_ReservedAssumedUsd DEFAULT (0),
+        PurchasedCapBumpUsd  DECIMAL(18, 6)   NOT NULL
+            CONSTRAINT DF_LlmMonthlyTenantBudgetState_PurchasedCapBumpUsd DEFAULT (0),
         WarnedApproaching    BIT              NOT NULL
             CONSTRAINT DF_LlmMonthlyTenantBudgetState_Warned DEFAULT (0),
         LastUpdatedUtc       DATETIME2(7)     NOT NULL

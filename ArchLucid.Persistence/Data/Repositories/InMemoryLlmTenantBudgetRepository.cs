@@ -17,6 +17,8 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
 
         public decimal ReservedUsd;
 
+        public decimal PurchasedCapBumpUsd;
+
         public bool WarnedApproaching;
 
         public long Version;
@@ -53,6 +55,7 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
                     ReservedTokens = 0,
                     CommittedUsd = 0m,
                     ReservedUsd = 0m,
+                    PurchasedCapBumpUsd = 0m,
                     WarnedApproaching = false,
                     Version = 1
                 });
@@ -120,6 +123,43 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
             return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
 
         }
+    }
+
+    /// <summary>Test and emergency hook: adds to <see cref="LlmTenantBudgetStateReadModel.PurchasedCapBumpUsd"/> for a monthly period row.</summary>
+    public Task ApplyMonthlyPurchasedCapBumpAsync(
+        Guid tenantId,
+        string periodKey,
+        decimal addUsd,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (string.IsNullOrWhiteSpace(periodKey))
+            throw new ArgumentException("Period key is required.", nameof(periodKey));
+
+        (Guid, LlmBudgetPeriod, string) key = (tenantId, LlmBudgetPeriod.Monthly, periodKey);
+        object gate = _locks.GetOrAdd(key, _ => new object());
+
+        lock (gate)
+        {
+            Row row = _rows.GetOrAdd(
+                key,
+                _ => new Row
+                {
+                    TokensConsumed = 0,
+                    ReservedTokens = 0,
+                    CommittedUsd = 0m,
+                    ReservedUsd = 0m,
+                    PurchasedCapBumpUsd = 0m,
+                    WarnedApproaching = false,
+                    Version = 1
+                });
+
+            row.PurchasedCapBumpUsd += addUsd;
+            row.Version++;
+        }
+
+        return Task.CompletedTask;
     }
 
     /// <inheritdoc />
@@ -205,6 +245,7 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
             ReservedTokens = row.ReservedTokens,
             CommittedUsd = decimal.Round(row.CommittedUsd, 6, MidpointRounding.AwayFromZero),
             ReservedUsd = decimal.Round(row.ReservedUsd, 6, MidpointRounding.AwayFromZero),
+            PurchasedCapBumpUsd = decimal.Round(row.PurchasedCapBumpUsd, 6, MidpointRounding.AwayFromZero),
             WarnedApproaching = row.WarnedApproaching,
             RowVersion = row.RowVersionBytes
         };

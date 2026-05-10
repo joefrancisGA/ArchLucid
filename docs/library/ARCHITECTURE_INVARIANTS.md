@@ -68,6 +68,8 @@
 
 **Enforcement sketch:** SQL row with optimistic concurrency or equivalent; two-instance test harness.
 
+**Shipped (product):** **`ILlmTenantBudgetRepository`** with daily token + monthly USD reserve/settle (`SqlLlmTenantBudgetRepository` / `InMemoryLlmTenantBudgetRepository`); see **`155_LlmMonthlyTenantBudgetPurchasedCapBump.sql`** for TB-014 additive cap bumps on the monthly row.
+
 ---
 
 ## INV-005: Production host fail-closed

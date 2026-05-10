@@ -3,9 +3,13 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
+import { MarketingAnalyticsConsentBanner } from "@/components/MarketingAnalyticsConsentBanner";
+import { MarketingJsonLd } from "@/components/MarketingJsonLd";
+import { MicrosoftClarityLoader } from "@/components/MicrosoftClarityLoader";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { Button } from "@/components/ui/button";
+import { getMarketingClarityProjectId } from "@/lib/marketing-analytics-consent";
 import { resolveMarketingLiveDemoApiBase } from "@/lib/marketing-live-demo-api-base";
 import { isMarketingLiveDemoLinkEnabled } from "@/lib/public-demo-mode";
 
@@ -20,9 +24,12 @@ export const metadata: Metadata = {
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   const liveDemoLinked =
     isMarketingLiveDemoLinkEnabled() && resolveMarketingLiveDemoApiBase().length > 0;
+  const clarityProjectId = getMarketingClarityProjectId();
 
   return (
     <ShellReadySurface className="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+      <MarketingJsonLd />
+      <MicrosoftClarityLoader projectId={clarityProjectId} />
       <header className="border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex items-center gap-3">
@@ -70,6 +77,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
       {children}
+      <MarketingAnalyticsConsentBanner clarityProjectId={clarityProjectId} />
     </ShellReadySurface>
   );
 }

@@ -68,6 +68,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 
 - **Container images** and **docker compose** profiles ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
 - **SQL Server** persistence via DbUp migrations; automatic on startup ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)). **`SystemWithPerTenantCatalogs`** (**database-per-tenant** with **`TenantDatabaseBindings`** and a control-plane system catalog) is the **only supported multitenant isolation model for hosted workloads**, **including self-serve trial tenants** ([TENANT_DATABASE_TOPOLOGY.md](TENANT_DATABASE_TOPOLOGY.md)). **`SingleCatalog`** remains available for narrow **developer/CI ergonomics**, not as a substitute for tenant isolation on hosted SaaS.
+- **Hosted SaaS LLM execution (real mode):** On **ArchLucid-operated** deployments, agent **real** execution uses **platform-provisioned Azure OpenAI** from environment configuration (**`AzureOpenAI:*`** / Key Vault-backed secrets — [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)). The **standard hosted and trial-tenant path** does **not** treat customer-supplied model endpoints as a prerequisite for normal operation, and **sales-engineer-assisted LLM onboarding is not a V1 gate** on that path. **Self-hosted** installs, deliberate **simulator** environments, or **bring-your-own** inference endpoints remain configuration-owned per [README.md](../../README.md).
 - **Health:** `/health/live`, `/health/ready`, `/health`; `GET /version` for support attribution.
 - **Correlation IDs**, **CLI diagnostics** (`doctor`, `support-bundle`), and **Troubleshooting** runbooks.
 - **Authentication modes:** development bypass, JWT bearer, API key ([README.md](../../README.md)).
@@ -98,6 +99,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 - **Ask** — natural-language queries against architecture context.
 - **Advisory scans** — architecture digests and scheduled scans.
 - **Pilot feedback** — rollup and triage of product learning signals.
+- **Planning materialization (59R)** — bounded, deterministic drafting of improvement **themes** and **plans** from ranked pilot-feedback opportunities via **`POST /v1/learning/planning/materialize`** (**ExecuteAuthority**); operator-triggered; ties evidence with **pilot signal** links only; does **not** mutate prompts, agents, or governance packs ([`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md), [`LearningController.cs`](../../ArchLucid.Api/Controllers/Advisory/LearningController.cs)).
 - **Recommendation learning** — learning profiles per run.
 - **Integration events** (optional Azure Service Bus, CloudEvents envelope, webhooks) ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
 

@@ -64,7 +64,9 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
             await _budgetRepository.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, cancellationToken)
                 .ConfigureAwait(false);
 
-        if (state.TotalUsdPressure + assumed > max)
+        decimal effectiveMax = max + state.PurchasedCapBumpUsd;
+
+        if (state.TotalUsdPressure + assumed > effectiveMax)
         {
             (int year, int month) = GetUtcYearMonth();
             DateTimeOffset retryAfterUtc = FirstInstantOfNextUtcMonth(year, month);
@@ -73,7 +75,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "LLM monthly dollar budget exceeded for tenant (UTC month hard cap {0:C}, used ~{1:C}).",
-                    max,
+                    effectiveMax,
                     state.TotalUsdPressure),
                 retryAfterUtc);
         }
@@ -84,6 +86,8 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                 await _budgetRepository.GetOrCreateAsync(tenantId, LlmBudgetPeriod.Monthly, periodKey, cancellationToken)
                     .ConfigureAwait(false);
 
+            effectiveMax = max + state.PurchasedCapBumpUsd;
+
             LlmTenantBudgetReserveResult reserved = await _budgetRepository
                 .ReserveAsync(
                     new LlmTenantBudgetReserveRequest
@@ -92,11 +96,11 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                         Period = LlmBudgetPeriod.Monthly,
                         PeriodKey = periodKey,
                         ReserveUsd = assumed,
-                        HardCapUsd = max,
+                        HardCapUsd = effectiveMax,
                         ExpectedRowVersion = state.RowVersion
                     },
                     cancellationToken)
-                .ConfigureAwait(false);
+                    .ConfigureAwait(false);
 
             if (reserved.ConcurrencyConflict)
             {
@@ -115,7 +119,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                     string.Format(
                         CultureInfo.InvariantCulture,
                         "LLM monthly dollar budget exceeded for tenant (UTC month hard cap {0:C}, used ~{1:C}).",
-                        max,
+                        max + blocked.PurchasedCapBumpUsd,
                         blocked.TotalUsdPressure),
                     retryAfterUtc);
             }

@@ -39,7 +39,7 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 |------|----------------|
 | **Terraform `state mv`** (Phase **7.5**) | Resource **addresses** may still contain `archlucid`; human-facing defaults moved where safe—coordinate with deploy window ([ARCHLUCID_RENAME_CHECKLIST.md](../ARCHLUCID_RENAME_CHECKLIST.md)). |
 | **GitHub repo rename, Entra apps, workspace path** (Phase **7.6–7.8**) | External / org coordination; checklist marks **deferred**. |
-| **Product-learning “brains”** | Storage/API exist; deterministic theme derivation and plan-draft builder called out as deferred ([V1_DEFERRED.md](V1_DEFERRED.md) §1). |
+| **Dedicated in-shell “planning bridge” UX** | **V1** ships **API** materialization (`POST /v1/learning/planning/materialize`, [V1_SCOPE.md](V1_SCOPE.md) §2.8, [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) §4.1); a first-class operator UI wizard for the same flow is **not** claimed here — treat as backlog if pilots need it. |
 | **Full audit parity** | Some mutating flows do not emit `dbo.AuditEvents`; documented as **known gaps** ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md), [V1_DEFERRED.md](V1_DEFERRED.md) §2). |
 | **Multi-region SaaS guarantees** | Docs describe targets; not a boxed V1 product promise ([V1_SCOPE.md](V1_SCOPE.md) §3). |
 | **Enterprise integration catalog** | Optional events/webhooks exist; custom consumers are customer-owned ([V1_SCOPE.md](V1_SCOPE.md) §3). |
@@ -80,7 +80,7 @@ Ordered by **typical leverage**, not mandatory roadmap:
 1. **Phase 7.5–7.8** when org is ready: Terraform `state mv`, repo rename, Entra alignment, workspace conventions ([ARCHLUCID_RENAME_CHECKLIST.md](../ARCHLUCID_RENAME_CHECKLIST.md)).
 2. **Live API + operator UI** validation pass where Playwright mocks are insufficient (record outcome in release notes).
 3. **Audit coverage** closes you care about for compliance ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md)).
-4. **Product learning** deferred “brains” if pilots depend on planning bridge UX ([V1_DEFERRED.md](V1_DEFERRED.md) §1).
+4. **Planning materialization UX** if pilots need guided in-product workflow beyond the API ([PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) §4.1).
 5. **Maintainer backlog** ([NEXT_REFACTORINGS.md](NEXT_REFACTORINGS.md))—engineering hygiene, not pilot-blocking by default.
 
 ---

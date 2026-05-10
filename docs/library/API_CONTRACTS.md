@@ -34,6 +34,8 @@
 | AsyncAPI (webhooks) | **`docs/contracts/archlucid-asyncapi-2.6.yaml`** | Documents **outbound** alert/digest webhook JSON and optional HMAC header. |
 | Bruno collection | **`contracts/bruno/`** | Manual smoke requests (health, OpenAPI, admin diagnostics); set **`local`** environment `baseUrl` and **`apiKey`** (or switch auth to JWT in Bruno for Entra). |
 
+**Architecture request body (`POST /v1/architecture/request`):** Field-level summary and integrator notes live in **[`ARCHITECTURE_REQUEST_WIRE_FORMAT.md`](ARCHITECTURE_REQUEST_WIRE_FORMAT.md)** (canonical shapes remain **`GET /openapi/v1.json`** and **`ArchLucid.Contracts.Requests.ArchitectureRequest`**).
+
 **Operator narrative:** `docs/ONBOARDING_HAPPY_PATH.md` (request → commit → retrieval). **Consistency guarantees:** `docs/DATA_CONSISTENCY_MATRIX.md`. **Admin / runbooks:** `docs/OPERATIONS_ADMIN.md`, `docs/OPERATIONS_LLM_QUOTA.md`. **ADRs:** `docs/adr/README.md`.
 
 ## Operator artifacts (`/v1/artifacts`)
@@ -87,6 +89,16 @@ All routes require **ReadAuthority** and use versioned paths under **`/v1/explai
 **Legacy per-node provenance explanation URL (compatibility only):** **`GET /v1/architecture/runs/{runId}/provenance/{nodeId}/explanation`** (and alias **`GET /v1/architecture/run/{runId}/provenance/{nodeId}/explanation`**) are **omitted from** **`GET /openapi/v1.json`** because there is no supported per-node explanation contract. **ReadAuthority** and tenant/run scope still apply (**404** when the run is missing). **501** returns RFC 9457 **Problem+JSON** with stable `type` **`https://archlucid.example.org/errors#provenance-node-explanation-not-supported`** (see **`API_ERROR_CONTRACT.md`**), **`errorCode`** **`PROVENANCE_NODE_EXPLANATION_NOT_SUPPORTED`**, **`title`**/**`detail`**, and extension keys **`aggregateExplanationPathTemplate`** (`/v1/explain/runs/{runId}/aggregate`) and **`granularExplanationPathTemplate`** (`/v1/explain/runs/{runId}/explain`). New clients should call **`GET /v1/explain/runs/{runId}/aggregate`** (and the same Standard-tier / licensing rules as other `/v1/explain` routes) instead of the legacy path.
 
 Schema and posture rules: **`docs/EXPLANATION_SCHEMA.md`**. Operator UI: run detail **Explanation** section calls **`getRunExplanationSummary`** (`archlucid-ui`).
+
+## Learning / planning (59R) (`/v1/learning`)
+
+Read routes use **ReadAuthority** (controller default). **Standard** commercial tenant tier applies.
+
+| Method | Path | Auth | Notes |
+|--------|------|------|-------|
+| `POST` | **`/v1/learning/planning/materialize`** | **ExecuteAuthority** | Bounded, deterministic **themes + plans** from ranked pilot-feedback opportunities; query **`since`**, **`maxPlansToMaterialize`**. Idempotent per theme key; does **not** mutate prompts/agents/governance. See **`PRODUCT_LEARNING.md`** §4.1. |
+
+Other **`GET /v1/learning/*`** themes, plans, summary, and report routes: see **`GET /openapi/v1.json`**.
 
 ## Demo anonymous surfaces (`/v1/demo`)
 

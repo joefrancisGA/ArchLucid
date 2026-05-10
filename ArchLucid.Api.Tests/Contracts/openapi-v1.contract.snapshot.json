@@ -10851,6 +10851,27 @@
         },
         "type": "object"
       },
+      "ProductLearningPlanningMaterializeResult": {
+        "properties": {
+          "plansInserted": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "signalLinksInserted": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "skippedExistingThemeKeys": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "themesInserted": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "ProductLearningSignalRequest": {
         "properties": {
           "architectureRunId": {
@@ -36802,6 +36823,71 @@
         },
         "tags": [
           "Jobs"
+        ]
+      }
+    },
+    "/v1/learning/planning/materialize": {
+      "post": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "since",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "maxPlansToMaterialize",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningPlanningMaterializeResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningPlanningMaterializeResult"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningPlanningMaterializeResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Learning"
         ]
       }
     },

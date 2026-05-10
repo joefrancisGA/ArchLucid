@@ -15074,6 +15074,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/learning/planning/materialize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    since?: string;
+                    maxPlansToMaterialize?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProductLearningPlanningMaterializeResult"];
+                        "text/json": components["schemas"]["ProductLearningPlanningMaterializeResult"];
+                        "text/plain": components["schemas"]["ProductLearningPlanningMaterializeResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/learning/plans": {
         parameters: {
             query?: never;
@@ -23317,6 +23368,16 @@ export interface components {
             /** Format: date-time */
             generatedUtc?: string;
             opportunities?: components["schemas"]["ImprovementOpportunity"][];
+        };
+        ProductLearningPlanningMaterializeResult: {
+            /** Format: int32 */
+            plansInserted?: number;
+            /** Format: int32 */
+            signalLinksInserted?: number;
+            /** Format: int32 */
+            skippedExistingThemeKeys?: number;
+            /** Format: int32 */
+            themesInserted?: number;
         };
         ProductLearningSignalRequest: {
             architectureRunId?: null | string;

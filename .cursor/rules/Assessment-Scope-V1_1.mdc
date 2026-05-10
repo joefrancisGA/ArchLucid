@@ -1,7 +1,10 @@
 ---
 description: >-
   Dual-score readiness rubric — V1.1 headline excludes SOC 2 CPA attestation,
-  signed design partner, and similar owner-only GTM items; those stay informational only.
+  signed design partner, public extension/plugin SDK, MCP-as-V1.1-only, third-party
+  plugin marketplace, assistive-technology user testing as a headline gate,
+  sales-engineer-led LLM onboarding as a hosted-SaaS gate for `(A)`, and similar
+  out-of-scope items; penalize `(A)` only on in-contract gates.
 alwaysApply: true
 ---
 
@@ -33,6 +36,36 @@ When producing **weighted readiness**, **solution quality**, **go-to-market**, o
 
 - **Explicitly prohibited:** lowering **`(A)`** because the repo or org has not closed a design-partner contract; framing headline readiness as conditional on “finding” a design partner.
 
+## Extension SDK, MCP, and third-party plugin marketplace — headline non-gates
+
+- **Not V1 headline gates:** Per **`docs/library/V1_SCOPE.md`** (including the **speculative ecosystem** row and the **MCP** row) and **`docs/library/V1_DEFERRED.md` §6d**, the following are **out of `(A)`** unless the user explicitly asks for a separate ecosystem score:
+
+  1. **No public extension / plugin SDK** — absence of a published, productized third-party extension SDK (or equivalent store-facing developer kit) for building ArchLucid plugins.
+
+  2. **MCP not in V1** — absence of an inbound MCP server / MCP transport in the **V1** shipping boundary. **MCP is a named V1.1 engineering candidate**, not a pilot or V1 GA gate; narrate under roadmap / **`(B)`** if useful.
+
+  3. **No third-party plugin marketplace** — absence of a customer-facing marketplace or agent store for third-party plugins (distinct from **Azure commercial marketplace** billing/GTM for ArchLucid’s own offer).
+
+- **`(A)` must not be reduced** for any of the above in integrability, ecosystem, marketability, or “platform openness” pillars **unless `V1_SCOPE.md` / `V1_DEFERRED.md` explicitly lists the item as an in-window V1 or V1.1 engineering commitment you are scoring.**
+
+- **Explicitly prohibited:** treating “no public extension SDK,” “no MCP yet,” or “no third-party plugin marketplace” as defects against **V1.1 headline readiness** in **`(A)`**; folding them into weighted deductions without labeling them **`(B)`** optional ecosystem realism.
+
+## Assistive technology user testing — headline non-gate
+
+- **Not a headline delivery gate for `(A)`:** Absence of **participant user testing with assistive technologies** (e.g. scheduled research sessions with screen-reader or other AT users as primary validation) is **out of scope** for headline readiness scoring. ArchLucid’s **projected primary users and buyers** are **not** modeled as requiring or valuing that class of study as a product commitment in **`(A)`**.
+
+- **`(A)` must not be reduced** for “no AT user testing,” “no screen reader usability panel,” or similar — not under Trust, Quality, Inclusive design, or procurement-adjacent pillars unless **`V1_SCOPE.md` / `V1_DEFERRED.md` / `TRUST_CENTER.md`** explicitly names such testing as an in-window commitment.
+
+- **Does not negate honest narrative:** If the assessment discusses **inclusive design**, **Section 508**, or **buyer accessibility questionnaires**, place material obligations, regulatory risk, or stretch goals under **`(B)` informational** (or a user-requested accessibility deep-dive), **without** treating missing AT user studies as a weighted defect inside **`(A)`**.
+
+- **Explicitly prohibited:** lowering **`(A)`** solely because the org has not run user tests with assistive technologies; implying V1.1 headline readiness is deficient for lacking that research program.
+
+## Hosted SaaS real LLM — not a sales-engineer gate for `(A)`
+
+- **`(A)` must not be reduced** for lack of **sales-engineer-assisted onboarding** to obtain **real LLM** execution on **ArchLucid-hosted** SaaS. Per **`docs/library/V1_SCOPE.md` §2.4**, **platform-provisioned Azure OpenAI** on the standard hosted path is the **V1** posture; optional white-glove for **non-LLM** topics (identity, networking, procurement) belongs in **`(B)`** narrative when relevant — not as a headline defect that **real** LLM is “blocked” pending SE setup.
+
+- **Explicitly prohibited:** claiming **Customer self-sufficiency**, **Time-to-Value**, or **Adoption friction** headline gaps **solely** because buyers were not walked through **LLM credential** setup on hosted SaaS — that contradicts the **V1** contract unless **`V1_SCOPE.md`** is superseded by an explicit owner decision.
+
 ## Alignment with broader realism rules
 
 Workspace **`Enterprise-Realism.mdc`** still applies for design trade-offs. For **numerical readiness scoring**, this rule **wins**: organizational procurement pressure is modeled in **`(B)`**, not as hidden deductions inside **`(A)`**.
@@ -43,7 +76,7 @@ Workspace **`Enterprise-Realism.mdc`** still applies for design trade-offs. For 
 
 Produce **two labeled scores**:
 
-- **`(A) V1.1 headline readiness (100)`** — only in-contract V1 / V1.1 gates per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and trust-center commitments. **SOC 2 CPA attestation, ISO certificate, and signed design partner are out of `(A)`**; cite them only under **`(B)`** when relevant.
+- **`(A) V1.1 headline readiness (100)`** — only in-contract V1 / V1.1 gates per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and trust-center commitments. **Out of `(A)`:** SOC 2 CPA attestation, ISO certificate, signed design partner, **public third-party extension/plugin SDK**, **MCP absence in V1** (MCP is **V1.1**-scoped per docs), **third-party plugin marketplace / agent store**, and **participant user testing with assistive technologies** (not a projected ICP commitment in headline scoring) — cite under **`(B)`** or roadmap only when relevant.
 - **`(B) Procurement / market-motion realism (informational, not weighted into `(A)`)`** — buyer friction incl. SOC 2 report expectations; optional GTM pipeline (design partner, reference pipeline) **only if the user asked**.
 
-Do **not** reduce **`(A)`** for missing CPA SOC 2 / ISO certs or for lacking a design partner; summarize interim posture + roadmap citations instead.
+Do **not** reduce **`(A)`** for missing CPA SOC 2 / ISO certs, lacking a design partner, lacking a public extension SDK, lacking MCP in V1, lacking a third-party plugin marketplace, **not having run user tests with assistive technologies**, or **absence of sales-engineer-led LLM setup on ArchLucid-hosted SaaS**; summarize interim posture + roadmap citations instead.

@@ -1,0 +1,34 @@
+{
+  "requestId": "TPL-CLOUD-MIGRATION-REVIEW-001",
+  "systemName": "ContosoClaimsProcessing",
+  "description": "Contoso is migrating claims processing from two on-premises data centers to Azure. The target must preserve private connectivity for SQL backends, support blue/green cutover, and honor retention policies. Review proposed hub-spoke topology, identity, and data paths for gaps before executive approval.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No public ingress to transactional SQL",
+    "Private Link for PaaS data planes",
+    "Encryption in transit and at rest",
+    "RPO under 15 minutes for core workflows"
+  ],
+  "requiredCapabilities": [
+    "Azure Virtual Network",
+    "Azure Application Gateway or Front Door",
+    "Azure SQL or managed equivalent",
+    "Microsoft Entra ID",
+    "Azure Monitor"
+  ],
+  "assumptions": [
+    "Single primary Azure region with DR region limited to warm standby",
+    "Lift-and-shift phase completes before containerization"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [],
+  "securityBaselineHints": [
+    "CIS-aligned VM and PaaS baselines",
+    "Secrets in Azure Key Vault only"
+  ],
+  "infrastructureDeclarations": []
+}

@@ -2,13 +2,13 @@
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
-<!-- PRIVACY_POLICY_LAST_REVIEWED_UTC:2026-05-03 -->
+<!-- PRIVACY_POLICY_LAST_REVIEWED_UTC:2026-05-10 -->
 
 # ArchLucid Privacy Policy
 
 **Effective date:** 2026-04-26
 
-**Last reviewed (UTC):** 2026-05-03
+**Last reviewed (UTC):** 2026-05-10
 
 This privacy policy describes how ArchLucid ("we", "us", "our") collects, uses, shares, and protects personal information when you visit our website at `archlucid.net` or use the ArchLucid platform (the "Service"). It applies to all visitors, trial users, and paying customers.
 
@@ -44,12 +44,19 @@ ArchLucid is a B2B SaaS platform that provides AI-assisted architecture workflow
 | **Usage telemetry** | Pages visited, features used, run counts, trial lifecycle events | Product improvement and onboarding measurement |
 | **Technical diagnostics** | Browser type, OS, error messages, stack traces (sanitized via `LogSanitizer`), URL pathnames | Service reliability and bug detection |
 | **Server logs** | IP address, request timestamps, HTTP method, response codes, correlation IDs | Security, abuse prevention, debugging |
+| **Optional marketing session replay** | Aggregated interaction signals on public marketing pages when you accept Microsoft Clarity (see §2.4) | Site improvement and marketing funnel measurement — **not** loaded on the signed-in product shell without a separate notice |
 
-### 2.3 Information we do not collect
+### 2.3 Information we do not collect (defaults)
 
-- We do not use advertising trackers, third-party analytics cookies, or social media tracking pixels.
+- We do **not** load third-party marketing analytics on public pages unless you **explicitly accept** the banner (§2.4) and the operator configures a Clarity project id for the marketing front.
 - We do not sell personal information.
 - We do not use personal information for automated decision-making or profiling that produces legal effects.
+
+### 2.4 Optional marketing analytics (Microsoft Clarity)
+
+On **`archlucid.net` public marketing routes only**, we may offer **Microsoft Clarity** session replay / heatmaps **after** you click **Accept** on the in-app consent banner. **Decline** stores a local preference and does not load Clarity. The signed-in **operator** application shell does not use this banner; product telemetry remains governed by your subscription, DPA, and Application Insights posture documented elsewhere.
+
+Clarity is a Microsoft subprocessors path — see [`SUBPROCESSORS.md`](SUBPROCESSORS.md). You can clear the preference anytime by removing site data for `archlucid.net` or using browser controls.
 
 ---
 
@@ -61,10 +68,11 @@ ArchLucid is a B2B SaaS platform that provides AI-assisted architecture workflow
 | **Deliver transactional email** — welcome, usage warnings, trial expiry | Art. 6(1)(b) — contract performance | Business purpose |
 | **Maintain security and reliability** — detect errors, prevent abuse, enforce rate limits | Art. 6(1)(f) — legitimate interest | Business purpose |
 | **Measure onboarding success** — aggregated funnel metrics (per-tenant correlation is opt-in and flag-gated; default is aggregated-only with no personal data) | Art. 6(1)(f) — legitimate interest | Business purpose |
+| **Optional public-site analytics (Clarity)** — only after explicit consent on marketing pages | Art. 6(1)(a) — consent | Business purpose |
 | **Respond to inquiries** — answer questions, provide support | Art. 6(1)(f) — legitimate interest | Business purpose |
 | **Comply with legal obligations** — respond to lawful requests, maintain audit records | Art. 6(1)(c) — legal obligation | Business purpose |
 
-We do **not** use personal information for marketing, advertising, or selling to third parties.
+We do **not** use personal information for unsolicited **email** marketing, advertising lists, or selling to third parties.
 
 ---
 
@@ -75,6 +83,7 @@ We share personal information only in the following circumstances:
 | Recipient | Purpose | Safeguards |
 |-----------|---------|------------|
 | **Microsoft Azure** (subprocessor) | Infrastructure hosting, identity, AI inference, email delivery | Azure data processing terms; managed identity; encryption at rest and in transit; private endpoints where configured |
+| **Microsoft Clarity** (optional subprocessor) | Marketing-page session replay / heatmaps after explicit visitor consent | Loads only on public marketing surfaces when enabled; consent stored in browser localStorage |
 | **Your organization** | Tenant administrators can view audit logs and user activity within their tenant scope | RLS tenant isolation; RBAC role enforcement |
 | **Legal compliance** | Response to valid legal process (subpoena, court order) | We will notify affected customers unless legally prohibited |
 
@@ -107,7 +116,7 @@ If you are in the European Economic Area (EEA), United Kingdom, or Switzerland, 
 | **Restriction** — limit how we process your data | Email `privacy@archlucid.net` |
 | **Data portability** — receive your data in a structured, machine-readable format | Use product export features (ZIP, DOCX, CSV, API) or email `privacy@archlucid.net` |
 | **Objection** — object to processing based on legitimate interest | Email `privacy@archlucid.net`; for onboarding telemetry, the per-tenant flag defaults to OFF |
-| **Withdraw consent** — where processing is based on consent (currently none in V1) | Email `privacy@archlucid.net` |
+| **Withdraw consent** — where processing is based on consent (marketing Clarity only today) | Clear site data for `archlucid.net` or email `privacy@archlucid.net` |
 | **Lodge a complaint** — contact your local supervisory authority | See your national data protection authority's website |
 
 We will respond to rights requests within **30 days** (extendable by 60 days for complex requests, with notice).

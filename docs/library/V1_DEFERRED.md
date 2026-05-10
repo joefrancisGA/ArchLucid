@@ -13,13 +13,14 @@
 
 ---
 
-## 1. Product and learning (implemented storage, deferred “brains”)
+## 1. Product and learning (signals, planning drafts, follow-ups)
 
 | Item | Doc source | Note |
 |------|------------|------|
 | **First-tenant funnel SQL — retention / purge for `dbo.FirstTenantFunnelEvents`** | [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **40** (ii) | **V1:** **no** automatic row deletion and **no** scheduled prune job for this table. **V1.1:** owner picks retention window + purge or aggregate semantics (supersedes prior “90-day” draft wording for V1). |
-| **Product learning — planning bridge** | [CHANGELOG.md](../CHANGELOG.md) §59R | SQL + APIs exist; **deterministic theme-derivation** and **plan-draft builder with priority score** are **intentionally deferred**. |
 | **Cross-tenant analytics** | `docs/archive/CHANGE_SET_58R.md` | Aggregation stays **within** tenant/workspace/project unless a future change explicitly adds cross-tenant analytics. |
+
+**V1 (59R) — planning drafts:** Deterministic theme derivation and bounded plan materialization from ranked opportunities ship as **`POST /v1/learning/planning/materialize`** ([CHANGELOG.md](../CHANGELOG.md) §59R, [V1_SCOPE.md](V1_SCOPE.md) §2.8). Prior “deferred brains” wording for that slice is **superseded** as of **2026-05-10**.
 
 ---
 
