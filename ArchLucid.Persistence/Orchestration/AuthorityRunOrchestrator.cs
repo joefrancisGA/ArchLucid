@@ -478,11 +478,17 @@ public sealed class AuthorityRunOrchestrator(
 
     private async Task<Guid?> TryResolvePreviousCommittedGoldenRunIdAsync(ScopeContext scope, RunRecord run, CancellationToken ct)
     {
-        IReadOnlyList<RunRecord> recent =
-            await runRepository.ListByProjectAsync(scope, run.ProjectId, 100, ct);
+        ArgumentNullException.ThrowIfNull(run);
+
+        // Tests and degenerate mocks may return a null Task or a completed Task with a null list; treat both as empty.
+        Task<IReadOnlyList<RunRecord>>? listTask = runRepository.ListByProjectAsync(scope, run.ProjectId ?? string.Empty, 100, ct);
+        IReadOnlyList<RunRecord> recent = (listTask is null ? null : await listTask) ?? Array.Empty<RunRecord>();
 
         foreach (RunRecord candidate in recent)
         {
+            if (candidate is null)
+                continue;
+
             if (candidate.RunId == run.RunId)
                 continue;
             if (candidate.ArchivedUtc is not null)

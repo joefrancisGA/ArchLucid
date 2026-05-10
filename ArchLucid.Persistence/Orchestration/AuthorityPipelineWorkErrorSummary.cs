@@ -5,8 +5,12 @@ public static class AuthorityPipelineWorkErrorSummary
 {
     public const int MaxLength = 400;
 
-    public static string From(Exception exception)
+    /// <summary>Returns empty when <paramref name="exception" /> is null (defensive; some callers surface a nullable fault).</summary>
+    public static string From(Exception? exception)
     {
+        if (exception is null)
+            return string.Empty;
+
         string composed = $"{exception.GetType().Name}:{exception.Message}";
         return Truncate(composed);
     }
