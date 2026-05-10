@@ -266,7 +266,7 @@ test.describe("live-api-trial-end-to-end", () => {
       { timeout: 120_000 },
     );
 
-    await page.getByRole("button", { name: "Create request" }).click();
+    await page.getByRole("button", { name: "Start Architecture Review" }).click();
 
     const createResp = await createRespPromise;
     const createJson = (await createResp.json()) as { run?: { runId?: string } };

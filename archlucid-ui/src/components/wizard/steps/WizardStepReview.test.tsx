@@ -60,17 +60,17 @@ describe("WizardStepReview", () => {
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
 
-  it("shows the Create request primary action when paired with WizardNavButtons on the review step", () => {
+  it("shows the Start Architecture Review primary action when paired with WizardNavButtons on the review step", () => {
     const onSubmit = vi.fn();
 
     render(
       <WizardFormTestHarness values={richValues}>
         <WizardStepReview />
-        <WizardNavButtons onSubmit={onSubmit} isLastInputStep submitLabel="Create request" canProceed />
+        <WizardNavButtons onSubmit={onSubmit} isLastInputStep submitLabel="Start Architecture Review" canProceed />
       </WizardFormTestHarness>,
     );
 
-    const createBtn = screen.getByRole("button", { name: "Create request" });
+    const createBtn = screen.getByRole("button", { name: "Start Architecture Review" });
     expect(createBtn).toBeInTheDocument();
     fireEvent.click(createBtn);
     expect(onSubmit).toHaveBeenCalledTimes(1);
