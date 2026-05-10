@@ -1,5 +1,4 @@
 using ArchLucid.Application.Integrations.Itsm.Outbound;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -8,10 +7,6 @@ using ArchLucid.Persistence.Integrations;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.TestSupport.Connectors;
 using ArchLucid.TestSupport.Http;
-
-using FluentAssertions;
-
-using Microsoft.Extensions.Options;
 
 using Moq;
 

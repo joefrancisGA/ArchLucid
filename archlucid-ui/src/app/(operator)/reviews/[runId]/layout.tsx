@@ -6,7 +6,7 @@ import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect } from "@/li
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
 export const metadata: Metadata = {
-  title: "Review detail",
+  title: "Architecture Review Detail",
 };
 
 export default async function RunDetailLayout({

@@ -266,7 +266,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
           isFirstStep={isFirstStep}
           isLastInputStep={isReviewStep}
           nextLabel="Next"
-          submitLabel="Create request"
+          submitLabel="Start Architecture Review"
           submittingLabel="Creating…"
         />
       </div>

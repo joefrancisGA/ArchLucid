@@ -7,14 +7,14 @@ import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleto
 import { ReviewsNewPathSwitcher } from "./QuickReviewWizard";
 
 export const metadata: Metadata = {
-  title: "New architecture request",
+  title: "New Architecture Review",
 };
 
 export default function NewRunPage() {
   return (
     <div>
       <div className="mb-1 flex flex-wrap items-center gap-2">
-        <h2 className="m-0">New architecture request</h2>
+        <h2 className="m-0">New Architecture Review</h2>
         <ContextualHelp helpKey="new-run-wizard" />
         <HelpLink
           docPath="/docs/library/PILOT_GUIDE.md"

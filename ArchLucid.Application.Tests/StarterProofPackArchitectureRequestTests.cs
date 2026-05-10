@@ -43,7 +43,7 @@ public sealed class StarterProofPackArchitectureRequestTests
         ArchitectureRequest? request = JsonSerializer.Deserialize<ArchitectureRequest>(json, JsonOptions);
 
         request.Should().NotBeNull();
-        request!.RequestId.Should().NotBeNullOrWhiteSpace();
+        request.RequestId.Should().NotBeNullOrWhiteSpace();
         request.RequestId.Length.Should().BeLessOrEqualTo(64);
         request.SystemName.Should().NotBeNullOrWhiteSpace();
         request.Description.Length.Should().BeInRange(10, 4000);
