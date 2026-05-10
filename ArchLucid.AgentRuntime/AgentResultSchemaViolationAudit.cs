@@ -16,6 +16,7 @@ internal static class AgentResultSchemaViolationAudit
     /// <summary>
     ///     Schedules <see cref="IAuditService.LogAsync" /> without blocking the caller; swallows audit failures.
     /// </summary>
+    [InformationalAudit]
     public static void ScheduleLog(
         IAuditService auditService,
         IScopeContextProvider scopeProvider,

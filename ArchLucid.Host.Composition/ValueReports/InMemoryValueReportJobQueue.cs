@@ -56,6 +56,7 @@ public sealed class InMemoryValueReportJobQueue(
         };
     }
 
+    [InformationalAudit]
     private async Task RunJobAsync(Guid jobId, ValueReportJobRequest request)
     {
         try

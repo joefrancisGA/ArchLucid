@@ -30,6 +30,7 @@ public sealed class CircuitBreakerAuditBridge(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <summary>Builds a callback suitable for <see cref="CircuitBreakerGate"/>; never throws to the breaker.</summary>
+    [InformationalAudit]
     public Action<CircuitBreakerAuditEntry> CreateCallback()
     {
         return entry =>

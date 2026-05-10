@@ -269,6 +269,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
             "LLM monthly dollar budget reservation could not be released after optimistic retries.");
     }
 
+    [InformationalAudit]
     private static void TryScheduleWarnAudit(
         IScopeContextProvider scopeProvider,
         IAuditService auditService,

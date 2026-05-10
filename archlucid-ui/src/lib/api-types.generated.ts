@@ -20560,6 +20560,7 @@ export interface components {
             otelTraceId?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
             realModeFellBackToSimulator?: boolean;
+            structuralExecutionMode: components["schemas"]["StructuralExecutionMode"];
             requestId: string;
             runId: string;
             status: components["schemas"]["ArchitectureRunStatus"];
@@ -20582,6 +20583,8 @@ export interface components {
             traceabilityGaps?: string[];
         };
         ArchitectureRunStatus: number;
+        /** @enum {string} */
+        StructuralExecutionMode: "Simulator" | "Real" | "Fallback" | "Mixed";
         ArchitectureTraceTimelineEntry: {
             kind: string;
             label: string;
@@ -23848,6 +23851,7 @@ export interface components {
             pilotAoaiDeploymentSnapshot?: null | string;
             projectId?: string;
             realModeFellBackToSimulator?: boolean;
+            structuralExecutionMode?: components["schemas"]["StructuralExecutionMode"];
             /** Format: int32 */
             retryCount?: number;
             /** Format: byte */

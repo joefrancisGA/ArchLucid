@@ -91,7 +91,7 @@ internal static class AzureOpenAiTooManyRequestsRetry
                 out DateTimeOffset retryAt))
             return false;
 
-        delay = retryAt - DateTimeOffset.UtcNow;
+        delay = retryAt - TimeProvider.System.GetUtcNow();
 
         return delay > TimeSpan.Zero;
 

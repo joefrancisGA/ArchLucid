@@ -16,6 +16,7 @@ namespace ArchLucid.Application.Authority;
 /// </summary>
 public static class AuthorityCommittedChainDurableAudit
 {
+    [InformationalAudit]
     public static async Task TryLogAsync(IAuditService auditService, IScopeContextProvider scopeProvider, IActorContext actorContext, ILogger logger,
         Guid authorityRunId, string projectSlug, AuthorityManifestPersistResult chainResult, string source, bool richFindingsAndGraph,
         CancellationToken cancellationToken)
