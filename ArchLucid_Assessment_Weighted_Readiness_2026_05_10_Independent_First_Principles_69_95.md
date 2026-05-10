@@ -549,7 +549,7 @@ Constraints:
 
 **Information needed:** Confirmation that staging.archlucid.net is accessible and Stripe TEST-mode keys are configured. Or: provide the Stripe TEST-mode publishable key and the staging API base URL.
 
-### Improvement 4: Add Executive Scorecard Summary Page
+### COMPLETED:  Improvement 4: Add Executive Scorecard Summary Page
 
 **Why it matters:** Executive sponsors need to see value delivered without diving into operator-level detail. A lightweight scorecard using existing data (run count, finding count, estimated hours saved, compliance coverage) directly addresses Executive Value Visibility.
 
