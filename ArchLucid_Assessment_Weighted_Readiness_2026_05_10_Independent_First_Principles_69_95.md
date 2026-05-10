@@ -7,6 +7,8 @@
 
 **Product boundary (this assessment revision):** Customer delivery is **hosted SaaS only**. **Self-hosted** installs and an **open-source contributor** community are **not in scope** here. Local Docker / .NET tooling in the repo refers to **engineering** build and test workflows, not to a parallel buyer motion.
 
+**Buyer-perception policy (this assessment):** **Single-vendor risk** (concern that the product comes from one company or a small engineering team) is **not** treated as a defect against headline readiness **`(A)`** and was **not** used to lower any quality score. Organizational scale optics belong only in optional **`(B)`** procurement-realism narrative, with **zero weight** on **`(A)`**, when explicitly labeled.
+
 ---
 
 ## 1. Executive Summary
@@ -137,7 +139,7 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 
 ### 2.18 Decision Velocity
 - **Score:** 62 | **Weight:** 2 | **Weighted deficiency:** 76
-- **Justification:** The product is designed to accelerate architecture decisions (request → manifest in one session, comparison between runs, advisory scans). The core pilot path is streamlined. However, the actual decision velocity depends on how quickly an organization can: install/configure, submit a meaningful architecture brief, interpret findings, and act on recommendations. The product does not yet automate the "act on findings" step beyond creating ITSM tickets.
+- **Justification:** The product is designed to accelerate architecture decisions (request → manifest in one session, comparison between runs, advisory scans). The core pilot path is streamlined. However, the actual decision velocity depends on how quickly an organization can: complete tenant onboarding and identity alignment (hosted SaaS), submit a meaningful architecture brief, interpret findings, and act on recommendations. The product does not yet automate the "act on findings" step beyond creating ITSM tickets.
 - **Tradeoffs:** Decision velocity is partly a product property and partly an organizational property; ArchLucid correctly focuses on the structured-output side.
 - **Improvements:** Add a "quick decision summary" that extracts the top 3 actionable items from a run without requiring full manifest review.
 
@@ -281,8 +283,8 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 
 ### 2.42 Evolvability
 - **Score:** 72 | **Weight:** 1 | **Weighted deficiency:** 28
-- **Justification:** API versioning with deprecation headers and sunset policy. ADR catalog tracking architectural decisions. Explicit deferred scope (V1_DEFERRED.md). Strangler pattern for coordinator-to-authority migration (ADR 0021). Breaking change trail. The product is designed to evolve. However, the evolution path assumes a growing team and customer base that don't yet exist.
-- **Tradeoffs:** Building evolution infrastructure for a single-developer project is forward-looking but creates documentation and maintenance overhead.
+- **Justification:** API versioning with deprecation headers and sunset policy. ADR catalog tracking architectural decisions. Explicit deferred scope (V1_DEFERRED.md). Strangler pattern for coordinator-to-authority migration (ADR 0021). Breaking change trail. The product is designed to evolve. The evolution path assumes deepening product and customer use over time.
+- **Tradeoffs:** Building evolution infrastructure early creates documentation and maintenance overhead; the trade is paid for by safer API and schema change discipline.
 - **Improvements:** Ensure the V1 → V1.1 migration path is documented for existing trial tenants.
 
 ### 2.43 Documentation
@@ -340,7 +342,7 @@ Ranked by weighted deficiency × strategic criticality:
 
 6. **No user research or usability testing.** 527+ UI components, progressive disclosure, accessibility tests — but no human has validated the UX. Architecture review is a domain where workflow fit matters enormously.
 
-7. **Configuration complexity.** Hundreds of configuration keys, multiple auth modes, multiple SQL topology modes, optional Redis, optional Service Bus, multiple Terraform modules. The operational surface is large for what appears to be a single-team product.
+7. **Configuration complexity.** Hundreds of configuration keys, multiple auth modes, multiple SQL topology modes, optional Redis, optional Service Bus, multiple Terraform modules. The operational and admin surface is large relative to the default Pilot path (**scored as configuration / operability load, not as vendor team-size commentary**).
 
 8. **Proof-of-ROI is theoretical.** The ROI model is detailed but entirely hypothetical. No customer has measured hours saved, compliance gaps prevented, or inconsistency incidents avoided.
 
@@ -350,7 +352,7 @@ Ranked by weighted deficiency × strategic criticality:
 
 11. **Incomplete executive visibility surfaces.** Executive sponsors need a dashboard showing value delivered over time. The ROI telemetry infrastructure exists but no executive-optimized view is built.
 
-12. **Single-developer bus factor.** The codebase size (~1,992 files, 30+ projects, 682 docs) implies a larger team than appears to exist. Knowledge concentration creates risk for enterprise buyers evaluating long-term viability.
+12. **Production support and incident narrative (unvalidated at scale).** Runbooks, correlation IDs, incident communications policy, and staging observability exist, but there is limited **customer-visible** production history of incident handling, published support tiers vs contractual response times, and multi-tenant escalation stories. Buyers may still ask operational due-diligence questions; **that friction is optional `(B)` procurement realism only — not used to deduct `(A)` headline readiness here.**
 
 ---
 
@@ -380,7 +382,7 @@ Ranked by weighted deficiency × strategic criticality:
 
 4. **Enterprise integration and assurance work.** Customers still spend cycles on workforce identity (Entra External ID vs workforce OIDC maps), SCIM, network allowlists if used, SSO questionnaires, DPAs/subprocessors reviews, and (where required) aligning internal ITSM workflows with ArchLucid — even though **ArchLucid’s hosting footprint is vendor-operated**.
 
-5. **Single-vendor risk perception.** A buyer evaluating a pre-revenue, single-developer product faces concentration risk. The documentation and code quality mitigate this but cannot eliminate it.
+5. **AI / LLM addenda and subprocessor scrutiny.** Enterprises often run legal and security reviews on Azure OpenAI (and related Microsoft DPAs), model use, retention, and acceptable-use language. Delays here are procurement friction, **not** a statement about vendor headcount — and **single-vendor or small-team optics are explicitly excluded from `(A)` scoring** per the header policy.
 
 6. **No multi-tenant administrative surface.** Enterprise customers with multiple teams/projects need administrative visibility. While database-per-tenant isolation exists, the admin experience for managing multiple tenants is limited to API calls and configuration.
 
@@ -734,4 +736,4 @@ All deferred items referenced in this assessment (MCP/V1.1, SOC 2 CPA/post-V1.1,
 
 **(B) Procurement / market-motion realism (informational, not weighted into headline score):**
 
-Enterprise procurement teams at $500K+ ACV will likely require: (1) CPA SOC 2 Type II — the self-assessment and roadmap are credible but the absence of an independent report will be flagged in ~60% of enterprise RFPs; (2) independent pen test summary — owner-conducted is honest but procurement teams often require a third-party attestor; (3) reference customer or case study — enterprise buyers want peer evidence before committing; (4) contractual SLA with credits — the 99.9% target needs a signed commitment. These are correctly scoped to V1.1/V2/post-V1.1 and do not affect the (A) headline score, but they represent real friction in enterprise pipeline conversion. The procurement pack, CAIQ, SIG, and DPA are excellent preparation — better than most pre-revenue products — and will handle initial procurement cycles well. The SOC 2 trigger ($250K ARR) is pragmatic.
+Enterprise procurement teams at $500K+ ACV will likely require: (1) CPA SOC 2 Type II — the self-assessment and roadmap are credible but the absence of an independent report will be flagged in ~60% of enterprise RFPs; (2) independent pen test summary — owner-conducted is honest but procurement teams often require a third-party attestor; (3) reference customer or case study — enterprise buyers want peer evidence before committing; (4) contractual SLA with credits — the 99.9% target needs a signed commitment. These are correctly scoped to V1.1/V2/post-V1.1 and do not affect the (A) headline score, but they represent real friction in enterprise pipeline conversion. The procurement pack, CAIQ, SIG, and DPA are excellent preparation — better than most pre-revenue products — and will handle initial procurement cycles well. The SOC 2 trigger ($250K ARR) is pragmatic. **Single-vendor concentration or “small vendor” optics are buyer psychology in some RFPs; they are explicitly not used to reduce `(A)` in this assessment** — cite only under `(B)` if the reader wants GTM realism, with zero weight on the headline composite.

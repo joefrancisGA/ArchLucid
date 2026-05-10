@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -8,8 +8,6 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Billing.Stripe;
-
-using FluentAssertions;
 
 using Microsoft.Extensions.Options;
 

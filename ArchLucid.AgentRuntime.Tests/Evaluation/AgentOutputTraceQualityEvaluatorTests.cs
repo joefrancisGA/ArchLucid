@@ -50,7 +50,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
                 CancellationToken.None);
 
         r.Should().NotBeNull();
-        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Warned);
+        r.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Warned);
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
                 CancellationToken.None);
 
         r.Should().NotBeNull();
-        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
     }
 
     [Fact]
@@ -125,7 +125,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
                 CancellationToken.None);
 
         r.Should().NotBeNull();
-        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
     }
 
     [Fact]
@@ -188,7 +188,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
                 CancellationToken.None);
 
         r.Should().NotBeNull();
-        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
         r.EmitQualityGateMetric.Should().BeTrue();
     }
 }

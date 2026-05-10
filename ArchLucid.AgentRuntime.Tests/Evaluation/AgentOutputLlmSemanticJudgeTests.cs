@@ -78,7 +78,7 @@ public sealed class AgentOutputLlmSemanticJudgeTests
         bool enabled,
         string mode)
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddKeyedSingleton<IAgentCompletionClient>(
             AgentOutputLlmJudgeCompletionServiceKey.Value,
             (_, _) => completionClient);

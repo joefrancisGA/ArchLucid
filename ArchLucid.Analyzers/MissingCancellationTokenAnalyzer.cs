@@ -107,14 +107,12 @@ public sealed class MissingCancellationTokenAnalyzer : DiagnosticAnalyzer
         {
             // Standard ctor: SuppressMessage(category, checkId, ...). Check id is the second positional arg.
             // Do not use list patterns with `..`; netstandard2.0 lacks System.Index/System.Range for that lowering.
-            if (args.Length >= 2 &&
-                args[1].Value is string checkId &&
+            if (args is [_, { Value: string checkId } _, ..] &&
                 string.Equals(checkId, "ARCH003", StringComparison.Ordinal))
                 return true;
 
             // Alternate shapes where the rule id is the first string (preserve prior matcher behavior).
-            if (args.Length >= 1 &&
-                args[0].Value is string first &&
+            if (args is [{ Value: string first } _, ..] &&
                 string.Equals(first, "ARCH003", StringComparison.Ordinal))
                 return true;
         }

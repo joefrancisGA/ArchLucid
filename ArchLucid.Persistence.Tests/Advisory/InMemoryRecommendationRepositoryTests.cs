@@ -1,5 +1,4 @@
-﻿using ArchLucid.Decisioning.Advisory.Workflow;
-using ArchLucid.Persistence.Advisory;
+using ArchLucid.Decisioning.Advisory.Workflow;
 
 namespace ArchLucid.Persistence.Tests.Advisory;
 

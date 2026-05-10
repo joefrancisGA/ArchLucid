@@ -1,5 +1,4 @@
-﻿using ArchLucid.Decisioning.Advisory.Learning;
-using ArchLucid.Persistence.Advisory;
+using ArchLucid.Decisioning.Advisory.Learning;
 
 namespace ArchLucid.Persistence.Tests.Advisory;
 
@@ -119,7 +118,10 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
     {
         return new RecommendationLearningProfile
         {
-            TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId, GeneratedUtc = generatedUtc
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            GeneratedUtc = generatedUtc
         };
     }
 }

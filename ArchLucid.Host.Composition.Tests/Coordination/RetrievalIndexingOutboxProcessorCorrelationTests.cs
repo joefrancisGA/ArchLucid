@@ -2,12 +2,13 @@ using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
-using FluentAssertions;
 using ArchLucid.Host.Core.Coordination.Retrieval;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Indexing;
+
+using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -26,7 +27,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         using ActivityListener listener = new();
         listener.ShouldListenTo = s => s.Name == "ArchLucid.RetrievalIndexing.Outbox";
         listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
-        listener.ActivityStopped = a => stopped.Add(a);
+        listener.ActivityStopped = stopped.Add;
         ActivitySource.AddActivityListener(listener);
 
         Guid outboxId = Guid.NewGuid();

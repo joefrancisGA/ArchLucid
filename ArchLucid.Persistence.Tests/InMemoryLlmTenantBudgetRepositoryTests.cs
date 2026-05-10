@@ -3,8 +3,6 @@ using System.Globalization;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Persistence.Data.Repositories;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests;
 
 [Trait("Category", "Unit")]
