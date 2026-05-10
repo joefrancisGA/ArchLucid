@@ -11,9 +11,9 @@ internal static class E2EHarnessRules
         if (!o.Enabled)
             return;
 
-        if (environment.IsProduction())
+        if (HostEnvironmentClassification.IsProductionOrStagingLike(environment, configuration))
         {
-            errors.Add("ArchLucid:E2eHarness:Enabled must be false in Production.");
+            errors.Add("ArchLucid:E2eHarness:Enabled must be false when the host is Production or Staging.");
 
             return;
         }

@@ -185,7 +185,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
       </div>
 
       <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Risk posture</p>
+        <p className={stripSegmentLabelClass()}>Findings</p>
         <div className="mt-1">
           {hasManifest ? (
             <Link

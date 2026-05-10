@@ -46,10 +46,10 @@ export const GLOSSARY_DEFINITIONS = {
       "The authority chain is the trusted sequence from context through engines and governance: each step declares inputs, rules, and outputs so overrides and replay stay explainable.",
   },
   governance_gate: {
-    displayLabel: "Governance gate",
-    shortDefinition: "A checkpoint where policy, risk, or approval must pass before promotion.",
+    displayLabel: "Governance approval",
+    shortDefinition: "Checkpoints where policy, reviewers, or thresholds must pass before advancing.",
     longDefinition:
-      "Governance gates enforce thresholds, required reviewers, or policy packs before a manifest or artifact state advances—blocking silently unsafe changes.",
+      "Governance approvals enforce required reviewers, policy packs, and risk thresholds before a manifest or deliverable state advances—blocking unsafe silent changes.",
   },
   policy_pack: {
     displayLabel: "Policy pack",

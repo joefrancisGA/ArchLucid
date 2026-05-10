@@ -137,8 +137,17 @@ export default async function RunsPage({
         docsPageKey="/runs"
       />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to inspect its manifest, artifacts,
-        findings, and exports.
+        {isBuyerPolishedOperatorShellEnv() ? (
+          <>
+            Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to review its manifest, evidence,
+            findings, and deliverables.
+          </>
+        ) : (
+          <>
+            Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to inspect its manifest,
+            artifacts, findings, and exports.
+          </>
+        )}
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <div className="inline-flex items-center gap-1.5">

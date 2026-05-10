@@ -49,11 +49,16 @@ public static class ProductionDangerousMisconfigurationLint
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        if (!AppliesDangerousFailFast(aspNetCoreEnvironmentName, configuration))
-            return [];
-
         string trimmedAsp = aspNetCoreEnvironmentName.Trim();
         string? arch = ReadArchLucidEnvironment(configuration)?.Trim();
+
+        bool fullFailFast = AppliesDangerousFailFast(aspNetCoreEnvironmentName, configuration);
+        bool stagingDeveloperBypassSurface = !fullFailFast
+            && (string.Equals(trimmedAsp, Environments.Staging, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(arch, "Staging", StringComparison.OrdinalIgnoreCase));
+
+        if (!fullFailFast && !stagingDeveloperBypassSurface)
+            return [];
 
         bool productionNamedProfile =
             string.Equals(trimmedAsp, Environments.Production, StringComparison.OrdinalIgnoreCase)
@@ -67,128 +72,145 @@ public static class ProductionDangerousMisconfigurationLint
                 new HostingMisconfigurationWarning(
                     ProductionLikeHostingMisconfigurationAdvisorRuleNames.AuthenticationApiKeyDevelopmentBypassAllDisallowed,
                     "Authentication:ApiKey:DevelopmentBypassAll must be false under production-profile validation "
-                    + "(ASP.NET Core Production, ARCHLUCID_ENVIRONMENT=Production, or ProductionValidation:Strict with Staging)."));
+                    + "(ASP.NET Core Production, ARCHLUCID_ENVIRONMENT=Production, ProductionValidation:Strict with Staging, "
+                    + "or ASP.NET Core / ARCHLUCID_ENVIRONMENT Staging for this developer-bypass flag)."));
         }
 
         string? mode = configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ArchLucidAuthMode]?.Trim();
 
-        if (!IsWellKnownAuthMode(mode))
+        if (fullFailFast)
         {
-            findings.Add(
-                new HostingMisconfigurationWarning(
-                    ProductionLikeHostingMisconfigurationAdvisorRuleNames.AuthModeUnrecognized,
-                    "ArchLucidAuth:Mode must be ApiKey, JwtBearer, or DevelopmentBypass. "
-                    + "Unrecognized values are not allowed (they are treated as an unsupported auth path at startup)."));
+            if (!IsWellKnownAuthMode(mode))
+            {
+                findings.Add(
+                    new HostingMisconfigurationWarning(
+                        ProductionLikeHostingMisconfigurationAdvisorRuleNames.AuthModeUnrecognized,
+                        "ArchLucidAuth:Mode must be ApiKey, JwtBearer, or DevelopmentBypass. "
+                        + "Unrecognized values are not allowed (they are treated as an unsupported auth path at startup)."));
+            }
+            else if (string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
+            {
+                findings.Add(
+                    new HostingMisconfigurationWarning(
+                        ProductionLikeHostingMisconfigurationAdvisorRuleNames.AuthModeDevelopmentBypassDisallowed,
+                        "ArchLucidAuth:Mode cannot be DevelopmentBypass under production-profile validation "
+                        + "(ASP.NET Core Production via ASPNETCORE_ENVIRONMENT/DOTNET_ENVIRONMENT, ARCHLUCID_ENVIRONMENT=Production, "
+                        + "or ProductionValidation:Strict with Staging)."));
+            }
+            else if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
+            {
+                string? pemPath =
+                    configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ArchLucidAuthJwtSigningPublicKeyPemPath]
+                        ?.Trim();
+                string? authority =
+                    configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ArchLucidAuthAuthority]?.Trim();
+
+                if (productionNamedProfile && !string.IsNullOrWhiteSpace(pemPath))
+                {
+                    findings.Add(
+                        new HostingMisconfigurationWarning(
+                            ProductionLikeHostingMisconfigurationAdvisorRuleNames.JwtBearerLocalPemDisallowedProductionProfile,
+                            "ArchLucidAuth:JwtSigningPublicKeyPemPath is set; local JWT validation is for non-production / CI only "
+                            + "and must not be used when the host is ASP.NET Core Production or ARCHLUCID_ENVIRONMENT=Production."));
+                }
+                else if (string.IsNullOrWhiteSpace(pemPath) && string.IsNullOrWhiteSpace(authority))
+                {
+                    findings.Add(
+                        new HostingMisconfigurationWarning(
+                            ProductionLikeHostingMisconfigurationAdvisorRuleNames.JwtBearerMissingAuthorityAndPem,
+                            "ArchLucidAuth:Mode is JwtBearer but neither ArchLucidAuth:Authority nor "
+                            + "ArchLucidAuth:JwtSigningPublicKeyPemPath is set; JWT authentication cannot succeed."));
+                }
+            }
+            else if (string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase)
+                     && !configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.AuthenticationApiKeyEnabled, false))
+            {
+                findings.Add(
+                    new HostingMisconfigurationWarning(
+                        ProductionLikeHostingMisconfigurationAdvisorRuleNames.ApiKeyModeDisabledWhenConfigured,
+                        "ArchLucidAuth:Mode is ApiKey but Authentication:ApiKey:Enabled is false; "
+                        + "configure API keys or switch ArchLucidAuth:Mode."));
+            }
+
+            string? agentMode =
+                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.AgentExecutionMode]?.Trim();
+            bool realMode = string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase);
+
+            if (realMode)
+            {
+                string? completionClient =
+                    configuration[ProductionProfileFailFastMonitoredConfigurationPaths.AgentExecutionCompletionClient]?.Trim();
+                bool echo = string.Equals(completionClient, "Echo", StringComparison.OrdinalIgnoreCase);
+
+                if (!echo)
+                {
+                    LlmPromptRedactionOptions redaction =
+                        configuration.GetSection(LlmPromptRedactionOptions.SectionName).Get<LlmPromptRedactionOptions>()
+                        ?? new LlmPromptRedactionOptions();
+
+                    if (!redaction.Enabled)
+                    {
+                        findings.Add(
+                            new HostingMisconfigurationWarning(
+                                ProductionLikeHostingMisconfigurationAdvisorRuleNames.LlmPromptRedactionRequiredForRealMode,
+                                "LlmPromptRedaction:Enabled must be true when AgentExecution:Mode is Real under production-profile validation "
+                                + "(deny-list redaction before outbound LLM calls and trace persistence)."));
+                    }
+                }
+            }
+
+            if (!configuration.GetValue(
+                    ProductionProfileFailFastMonitoredConfigurationPaths.ProductionValidationRequireTelemetryExport, false))
+                return findings;
+
+            string? otlpEndpointRaw =
+                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityOtlpEndpoint]?.Trim();
+            bool otlpEndpointPresent = !string.IsNullOrWhiteSpace(otlpEndpointRaw);
+            bool? otlpEnabled =
+                configuration.GetValue<bool?>(ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityOtlpEnabled);
+            bool otlpActive = otlpEndpointPresent && (!otlpEnabled.HasValue || otlpEnabled.Value);
+
+            string? applicationInsightsConnectionString =
+                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ApplicationInsightsConnectionStringEnv]?.Trim();
+
+            if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
+                applicationInsightsConnectionString =
+                    configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ApplicationInsightsConnectionString]?.Trim();
+
+            if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
+                applicationInsightsConnectionString =
+                    configuration[
+                            ProductionProfileFailFastMonitoredConfigurationPaths
+                                .ObservabilityAzureMonitorApplicationInsightsConnectionString]
+                        ?.Trim();
+
+            bool applicationInsightsOk = !string.IsNullOrWhiteSpace(applicationInsightsConnectionString);
+            bool prometheusOk =
+                configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityPrometheusEnabled, false);
+
+            if (!otlpActive && !applicationInsightsOk && !prometheusOk)
+            {
+                findings.Add(
+                    new HostingMisconfigurationWarning(
+                        ProductionLikeHostingMisconfigurationAdvisorRuleNames.TelemetryExportRequiredMissing,
+                        "ProductionValidation:RequireTelemetryExport is true but no telemetry sink is configured. "
+                        + "Set Observability:Otlp:Endpoint (with Observability:Otlp:Enabled=true or omit), "
+                        + "an Application Insights connection string "
+                        + "(APPLICATIONINSIGHTS_CONNECTION_STRING, ApplicationInsights:ConnectionString, or "
+                        + "Observability:AzureMonitor:ApplicationInsightsConnectionString), "
+                        + "or Observability:Prometheus:Enabled=true."));
+            }
+
+            return findings;
         }
-        else if (string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
+
+        if (string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
         {
             findings.Add(
                 new HostingMisconfigurationWarning(
                     ProductionLikeHostingMisconfigurationAdvisorRuleNames.AuthModeDevelopmentBypassDisallowed,
-                    "ArchLucidAuth:Mode cannot be DevelopmentBypass under production-profile validation "
-                    + "(ASP.NET Core Production via ASPNETCORE_ENVIRONMENT/DOTNET_ENVIRONMENT, ARCHLUCID_ENVIRONMENT=Production, "
-                    + "or ProductionValidation:Strict with Staging)."));
-        }
-        else if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
-        {
-            string? pemPath =
-                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ArchLucidAuthJwtSigningPublicKeyPemPath]
-                    ?.Trim();
-            string? authority =
-                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ArchLucidAuthAuthority]?.Trim();
-
-            if (productionNamedProfile && !string.IsNullOrWhiteSpace(pemPath))
-            {
-                findings.Add(
-                    new HostingMisconfigurationWarning(
-                        ProductionLikeHostingMisconfigurationAdvisorRuleNames.JwtBearerLocalPemDisallowedProductionProfile,
-                        "ArchLucidAuth:JwtSigningPublicKeyPemPath is set; local JWT validation is for non-production / CI only "
-                        + "and must not be used when the host is ASP.NET Core Production or ARCHLUCID_ENVIRONMENT=Production."));
-            }
-            else if (string.IsNullOrWhiteSpace(pemPath) && string.IsNullOrWhiteSpace(authority))
-            {
-                findings.Add(
-                    new HostingMisconfigurationWarning(
-                        ProductionLikeHostingMisconfigurationAdvisorRuleNames.JwtBearerMissingAuthorityAndPem,
-                        "ArchLucidAuth:Mode is JwtBearer but neither ArchLucidAuth:Authority nor "
-                        + "ArchLucidAuth:JwtSigningPublicKeyPemPath is set; JWT authentication cannot succeed."));
-            }
-        }
-        else if (string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase)
-                 && !configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.AuthenticationApiKeyEnabled, false))
-        {
-            findings.Add(
-                new HostingMisconfigurationWarning(
-                    ProductionLikeHostingMisconfigurationAdvisorRuleNames.ApiKeyModeDisabledWhenConfigured,
-                    "ArchLucidAuth:Mode is ApiKey but Authentication:ApiKey:Enabled is false; "
-                    + "configure API keys or switch ArchLucidAuth:Mode."));
-        }
-
-        string? agentMode = configuration[ProductionProfileFailFastMonitoredConfigurationPaths.AgentExecutionMode]?.Trim();
-        bool realMode = string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase);
-
-        if (realMode)
-        {
-            string? completionClient =
-                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.AgentExecutionCompletionClient]?.Trim();
-            bool echo = string.Equals(completionClient, "Echo", StringComparison.OrdinalIgnoreCase);
-
-            if (!echo)
-            {
-                LlmPromptRedactionOptions redaction =
-                    configuration.GetSection(LlmPromptRedactionOptions.SectionName).Get<LlmPromptRedactionOptions>()
-                    ?? new LlmPromptRedactionOptions();
-
-                if (!redaction.Enabled)
-                {
-                    findings.Add(
-                        new HostingMisconfigurationWarning(
-                            ProductionLikeHostingMisconfigurationAdvisorRuleNames.LlmPromptRedactionRequiredForRealMode,
-                            "LlmPromptRedaction:Enabled must be true when AgentExecution:Mode is Real under production-profile validation "
-                            + "(deny-list redaction before outbound LLM calls and trace persistence)."));
-                }
-            }
-        }
-
-        if (!configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.ProductionValidationRequireTelemetryExport, false))
-            return findings;
-
-        string? otlpEndpointRaw =
-            configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityOtlpEndpoint]?.Trim();
-        bool otlpEndpointPresent = !string.IsNullOrWhiteSpace(otlpEndpointRaw);
-        bool? otlpEnabled =
-            configuration.GetValue<bool?>(ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityOtlpEnabled);
-        bool otlpActive = otlpEndpointPresent && (!otlpEnabled.HasValue || otlpEnabled.Value);
-
-        string? applicationInsightsConnectionString =
-            configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ApplicationInsightsConnectionStringEnv]?.Trim();
-
-        if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
-            applicationInsightsConnectionString =
-                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ApplicationInsightsConnectionString]?.Trim();
-
-        if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
-            applicationInsightsConnectionString =
-                configuration[
-                        ProductionProfileFailFastMonitoredConfigurationPaths
-                            .ObservabilityAzureMonitorApplicationInsightsConnectionString]
-                    ?.Trim();
-
-        bool applicationInsightsOk = !string.IsNullOrWhiteSpace(applicationInsightsConnectionString);
-        bool prometheusOk =
-            configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityPrometheusEnabled, false);
-
-        if (!otlpActive && !applicationInsightsOk && !prometheusOk)
-        {
-            findings.Add(
-                new HostingMisconfigurationWarning(
-                    ProductionLikeHostingMisconfigurationAdvisorRuleNames.TelemetryExportRequiredMissing,
-                    "ProductionValidation:RequireTelemetryExport is true but no telemetry sink is configured. "
-                    + "Set Observability:Otlp:Endpoint (with Observability:Otlp:Enabled=true or omit), "
-                    + "an Application Insights connection string "
-                    + "(APPLICATIONINSIGHTS_CONNECTION_STRING, ApplicationInsights:ConnectionString, or "
-                    + "Observability:AzureMonitor:ApplicationInsightsConnectionString), "
-                    + "or Observability:Prometheus:Enabled=true."));
+                    "ArchLucidAuth:Mode cannot be DevelopmentBypass when the host is ASP.NET Core Staging "
+                    + "or ARCHLUCID_ENVIRONMENT=Staging (set ArchLucidAuth:Mode to ApiKey or JwtBearer)."));
         }
 
         return findings;

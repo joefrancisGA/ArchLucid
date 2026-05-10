@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import {
@@ -8,6 +9,17 @@ import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 
 import { FindingInspectView } from "../FindingInspectView";
+import { metadataForFindingInspectRoute } from "@/lib/finding-route-metadata";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ runId: string; findingId: string }>;
+}): Promise<Metadata> {
+  const { runId, findingId } = await params;
+
+  return metadataForFindingInspectRoute(runId, findingId);
+}
 
 /**
  * First-class technical inspection: persisted payload, rule linkage, evidence citations, and audit correlation.

@@ -175,6 +175,83 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [SkippableFact]
+    public void CollectErrors_WhenStagingAndApiKeyDevelopmentBypassAll_without_strict_contains_fail_fast_rule_prefix()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
+            ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
+            ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
+            ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Staging);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .Contain(e =>
+                e.Contains("[authentication_api_key_development_bypass_all_disallowed]", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenStagingAndDevelopmentBypass_without_strict_contains_fail_fast_rule_prefix()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
+            ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Staging);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .Contain(e => e.Contains("[auth_mode_development_bypass_disallowed]", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenStagingAndE2eHarnessEnabled_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
+            ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
+            ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["ArchLucid:E2eHarness:Enabled"] = "true",
+            ["ArchLucid:E2eHarness:SharedSecret"] = "1234567890123456"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Staging);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("E2eHarness", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndDevelopmentBypass_contains_error()
     {
         Dictionary<string, string?> data = new()
