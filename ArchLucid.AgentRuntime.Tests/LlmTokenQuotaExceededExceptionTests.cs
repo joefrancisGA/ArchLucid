@@ -1,5 +1,3 @@
-﻿using ArchLucid.Core;
-
 using FluentAssertions;
 
 namespace ArchLucid.AgentRuntime.Tests;

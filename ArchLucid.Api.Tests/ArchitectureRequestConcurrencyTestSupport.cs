@@ -12,7 +12,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 {
     /// <summary>
     ///     Default <see cref="HttpClient.Timeout" /> is 100s; create-run idempotency uses <c>sp_getapplock</c> with a
-    ///     wait budget up to <c>CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c> (300s in greenfield SQL tests).
+    ///     wait budget up to <c>CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c> (1500s in greenfield SQL tests).
     ///     Parallel POSTs serialize on that lock; cold CI SQL + greenfield create-run can keep contenders blocked well
     ///     beyond the default <see cref="HttpClient.Timeout" /> (100s) unless the client and per-burst token are raised.
     /// </summary>
@@ -67,6 +67,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         string idempotencyKey,
         CancellationToken cancellationToken)
     {
+        AlignHttpClientTimeoutForSqlIdempotencyLockChain(client);
+
         return PostArchitectureRequestAndBufferAsync(client, body, idempotencyKey, cancellationToken);
     }
 

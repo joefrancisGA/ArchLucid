@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
@@ -5,8 +6,6 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
-
-using ArchLucid.AgentRuntime.Tests.Support;
 
 using FluentAssertions;
 
@@ -67,9 +66,24 @@ public sealed class RealAgentExecutorStagedCriticTests
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
         string runId = Guid.NewGuid().ToString("N");
-        AgentTask tTopo = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
-        AgentTask tComp = new() { TaskId = "tc", RunId = runId, AgentType = AgentType.Compliance };
-        AgentTask tCrit = new() { TaskId = "tk", RunId = runId, AgentType = AgentType.Critic };
+        AgentTask tTopo = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology
+        };
+        AgentTask tComp = new()
+        {
+            TaskId = "tc",
+            RunId = runId,
+            AgentType = AgentType.Compliance
+        };
+        AgentTask tCrit = new()
+        {
+            TaskId = "tk",
+            RunId = runId,
+            AgentType = AgentType.Critic
+        };
 
         await sut.ExecuteAsync(runId, request, evidence, [tTopo, tComp, tCrit], CancellationToken.None);
 
@@ -93,9 +107,24 @@ public sealed class RealAgentExecutorStagedCriticTests
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
         string runId = Guid.NewGuid().ToString("N");
-        AgentTask tTopo = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
-        AgentTask tComp = new() { TaskId = "tc", RunId = runId, AgentType = AgentType.Compliance };
-        AgentTask tCrit = new() { TaskId = "tk", RunId = runId, AgentType = AgentType.Critic };
+        AgentTask tTopo = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology
+        };
+        AgentTask tComp = new()
+        {
+            TaskId = "tc",
+            RunId = runId,
+            AgentType = AgentType.Compliance
+        };
+        AgentTask tCrit = new()
+        {
+            TaskId = "tk",
+            RunId = runId,
+            AgentType = AgentType.Critic
+        };
 
         await sut.ExecuteAsync(runId, request, evidence, [tTopo, tComp, tCrit], CancellationToken.None);
 
@@ -118,9 +147,24 @@ public sealed class RealAgentExecutorStagedCriticTests
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
         string runId = Guid.NewGuid().ToString("N");
-        AgentTask tTopo = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
-        AgentTask tComp = new() { TaskId = "tc", RunId = runId, AgentType = AgentType.Compliance };
-        AgentTask tCrit = new() { TaskId = "tk", RunId = runId, AgentType = AgentType.Critic };
+        AgentTask tTopo = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology
+        };
+        AgentTask tComp = new()
+        {
+            TaskId = "tc",
+            RunId = runId,
+            AgentType = AgentType.Compliance
+        };
+        AgentTask tCrit = new()
+        {
+            TaskId = "tk",
+            RunId = runId,
+            AgentType = AgentType.Critic
+        };
 
         await sut.ExecuteAsync(runId, request, evidence, [tTopo, tComp, tCrit], CancellationToken.None);
 
@@ -128,7 +172,7 @@ public sealed class RealAgentExecutorStagedCriticTests
             EvidenceNoteTypes.StagedPriorAgentsSummary.Equals(n.NoteType, StringComparison.Ordinal));
 
         note.Should().NotBeNull();
-        note!.Message.Should().Contain("Topology");
+        note.Message.Should().Contain("Topology");
         note.Message.Should().Contain("Compliance");
         note.Message.Should().Contain("topo-claim");
     }
@@ -149,9 +193,24 @@ public sealed class RealAgentExecutorStagedCriticTests
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
         string runId = Guid.NewGuid().ToString("N");
-        AgentTask tTopo = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
-        AgentTask tComp = new() { TaskId = "tc", RunId = runId, AgentType = AgentType.Compliance };
-        AgentTask tCrit = new() { TaskId = "tk", RunId = runId, AgentType = AgentType.Critic };
+        AgentTask tTopo = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology
+        };
+        AgentTask tComp = new()
+        {
+            TaskId = "tc",
+            RunId = runId,
+            AgentType = AgentType.Compliance
+        };
+        AgentTask tCrit = new()
+        {
+            TaskId = "tk",
+            RunId = runId,
+            AgentType = AgentType.Critic
+        };
 
         await sut.ExecuteAsync(runId, request, evidence, [tTopo, tComp, tCrit], CancellationToken.None);
 

@@ -85,10 +85,10 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
         if (lockTimeoutMs <= 0)
             return 0;
 
-        // Ceiling to whole seconds, add buffer for scheduling. Max orchestrator lock is 600s; command timeout must exceed that.
-        int seconds = (lockTimeoutMs + 999) / 1000 + 30;
+        // Must exceed sp_getapplock @LockTimeout plus headroom — a low ceiling aborts the command while the lock call is still blocking.
+        int seconds = (lockTimeoutMs + 999) / 1000 + 120;
 
-        return seconds > 660 ? 660 : seconds;
+        return seconds > 7200 ? 7200 : seconds;
     }
 
     private static string NormalizeResourceName(string lockResourceName)

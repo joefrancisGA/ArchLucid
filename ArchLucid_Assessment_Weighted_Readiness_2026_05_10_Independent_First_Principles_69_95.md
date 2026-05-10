@@ -1,7 +1,7 @@
 # ArchLucid Assessment – Weighted Readiness 70.13%
 
 **Date:** 2026-05-10
-**Method:** Independent first-principles assessment from repository materials only
+**Method:** Independent first-principles assessment from repository materials **and** documented owner-declared posture where it corrects factual gaps versus the repo snapshot (below: **Azure OpenAI / real-mode**). Scores reflect **breadth of evidence and product maturity**, not absence of infra you have already provisioned.
 **Scoring basis:** 47 qualities, 112 total weight points, scores 1–100 per quality
 **Deferred-scope policy:** Items explicitly deferred to V1.1/V2 per `V1_SCOPE.md` and `V1_DEFERRED.md` are not penalized
 
@@ -17,7 +17,9 @@
 
 **Cost-Effectiveness definition (this assessment):** **`§2.46 Cost-Effectiveness` is anchored on vendor economics** — your **hosted-service COGS and capacity discipline** (LLM token spend, caching and quotas protecting margin and reliability, infra cost signals in IaC/runbooks). **Buyer- or tenant-visible** cost transparency **may** reinforce the score (budget UX, procurement-friendly ranges) **but is not the primary definitional lens** unless the pillar text explicitly says otherwise.
 
-**Production-customer policy (this assessment):** **Absence of a buyer tenant running ArchLucid in sustained “production workload” steady state** (`(A)` / `V1_SCOPE` terminology: no **shipping** prerequisite that such a tenant exist for **V1 GA headline readiness**) is **not treated as lowering any `V1` `(A)` quality score**. **Measured outcomes, pipeline proof, procurement lived experience, and peer validation** tied to eventual production adoption belong in **`(B)` market-motion / pipeline realism** (zero weight on **`(A)`**) alongside **`V1_DEFERRED.md` §6b** reference-customer **`V1.1`** posture — **without** implying **`V1` product/engineering completeness requires an external production logo.
+**Production-customer policy (this assessment):** **Absence of a buyer tenant running ArchLucid in sustained “production workload” steady state** (`(A)` / `V1_SCOPE` terminology: no **shipping** prerequisite that such a tenant exist for **V1 GA headline readiness**) is **not treated as lowering any `V1` `(A)` quality score**. **Measured outcomes, pipeline proof, procurement lived experience, and peer validation** tied to eventual production adoption belong in **`(B)` market-motion / pipeline realism** (zero weight on **`(A)`**) alongside **`V1_DEFERRED.md` §6b** reference-customer **`V1.1`** posture — **without** implying **`V1` product/engineering completeness requires an external production logo**.
+
+**Azure OpenAI / real-mode posture (owner-declared — this assessment revision):** A **development** Azure AI / Foundry-hosted OpenAI endpoint is provisioned (**resource `oai-archlucid-dev`**, canonical chat deployment **`gpt-4o`**, base URL shape `https://oai-archlucid-dev.services.ai.azure.com/...`). The repo wires **optional** gated CI (`ARCHLUCID_CI_REAL_AOAI_ENDPOINT`, `ARCHLUCID_CI_REAL_AOAI_KEY`, `ARCHLUCID_CI_REAL_AOAI_*`) and local **user secrets** for real mode (`AzureOpenAI:*`, `AgentExecution:Mode`). **Credibility gaps in §2.1 / §2.2 / §4 / §7 are therefore framed as empirical breadth (golden cohort expansion, drift measurement, logged outcomes) — not “no AOAI credentials.”**
 
 ---
 
@@ -37,7 +39,7 @@ Enterprise trust infrastructure is unusually mature for a product at this maturi
 
 ### Engineering Picture
 
-Engineering quality is the strongest pillar. The solution has 30+ projects with clean dependency boundaries, Dapper-over-EF persistence, DbUp migrations, FsCheck property-based tests, OWASP ZAP and Schemathesis in CI, OpenAPI contract snapshot testing, Stryker mutation testing, golden cohort LLM evaluation, architecture fitness tests, and 114 Terraform files across 15+ modules. Agent runtime includes circuit breakers, token budgets, content safety guards, caching, cost estimation, and quality gates with LLM semantic judges. The primary engineering risks are: correctness of AI-generated outputs in novel real-world scenarios (inherent to the domain), incomplete ITSM connector implementation, and the gap between simulator-mode testing and real LLM production behavior.
+Engineering quality is the strongest pillar. The solution has 30+ projects with clean dependency boundaries, Dapper-over-EF persistence, DbUp migrations, FsCheck property-based tests, OWASP ZAP and Schemathesis in CI, OpenAPI contract snapshot testing, Stryker mutation testing, golden cohort LLM evaluation, architecture fitness tests, and 114 Terraform files across 15+ modules. Agent runtime includes circuit breakers, token budgets, content safety guards, caching, cost estimation, and quality gates with LLM semantic judges. **Real Azure OpenAI execution is supported and provisioned on the dev footprint** (**header Azure OpenAI / real-mode posture**); default developer and most CI surfaces still emphasize **simulator mode** for speed and cost — so the primary engineering tension is **empirical grounding at scale**: correctness of AI-generated outputs in novel real-world contexts, incomplete ITSM connector implementation, **thin systematically committed breadth** of real-mode golden cohort + drift characterization versus production-scale diversity of inputs (**not** lack of AOAI infra).
 
 ---
 
@@ -47,13 +49,13 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 
 ### 2.1 Correctness
 - **Score:** 72 | **Weight:** 8 | **Weighted deficiency:** 224
-- **Justification:** The core pipeline produces structured manifests, findings, and artifacts. Schema validation, decision traces, typed findings, and property-based tests (FsCheck) provide structural correctness. Agent output quality gates with heuristic and LLM semantic judges catch low-quality completions. Golden cohort evidence exists. However, "correctness" for an AI architecture advisor means the *recommendations are actually right* — and empirical grounding is **still thin**: **little independent/external review** of finding accuracy versus diverse enterprise architectures outside the authoring org, simulator mode (**most CI**) produces deterministic façades over real-model behavior, and **real-Azure-OpenAI** golden cohort breadth is incomplete. **`(A)` is not lowered** solely because **no buyer steady-state production tenant** exists (**header production-customer policy**); uncertainty here is **evidence-shape and model-fidelity**, not tenancy counting.
-- **Tradeoffs:** Simulator-first testing enables fast CI but masks real LLM failure modes (hallucination, context window drift, prompt sensitivity). Golden cohort attempts to bridge this but is still operator-triggered and evidence is sparse.
+- **Justification:** The core pipeline produces structured manifests, findings, and artifacts. Schema validation, decision traces, typed findings, and property-based tests (FsCheck) provide structural correctness. Agent output quality gates with heuristic and LLM semantic judges catch low-quality completions. Golden cohort evidence exists. However, "correctness" for an AI architecture advisor means the *recommendations are actually right* — and empirical grounding is **still thin**: **little independent/external review** of finding accuracy versus diverse enterprise architectures outside the authoring org, simulator mode (**most CI**) produces deterministic façades over real-model behavior, and **real-Azure-OpenAI** golden cohort **breadth and published drift-vs-simulator characterization** lag what the infrastructure already permits (**header Azure OpenAI / real-mode posture** — AOAI dev resource + gated CI hooks exist). **`(A)` is not lowered** solely because **no buyer steady-state production tenant** exists (**header production-customer policy**); uncertainty here is **evidence-shape and model-fidelity**, not tenancy counting or missing AOAI endpoint access.
+- **Tradeoffs:** Simulator-first testing enables fast CI but masks real LLM failure modes (hallucination, context window drift, prompt sensitivity). Golden cohort and optional real-mode CI attempt to bridge this; expand committed real-mode corpus and drift reports to tighten confidence.
 - **Improvements:** Run golden cohort against diverse real architecture briefs; establish a correctness benchmark with expert-reviewed outputs; add drift detection between simulator and real-LLM outputs for the same inputs.
 
 ### 2.2 AI/Agent Readiness
 - **Score:** 75 | **Weight:** 8 | **Weighted deficiency:** 200
-- **Justification:** The agent runtime is well-structured: `RealAgentExecutor`, `AgentResultParser`, schema validation, circuit breakers (`CircuitBreakingAgentCompletionClient`), caching (`CachingLlmCompletionClient`), fallback providers, token quota trackers (daily and monthly), content safety guards, prompt redaction, cost estimation, staged critic agents, model tier routing, and agent output evaluation (heuristic + LLM judge + reference case catalog). The pipeline supports both simulator and real Azure OpenAI modes. The quality gate architecture (`AgentOutputQualityGate`) with configurable floors and modes is mature. The gap is that most test evidence runs in simulator mode, real-LLM golden cohort evidence is thin, and the agent pipeline has not been validated at scale with diverse, adversarial, or edge-case architecture briefs.
+- **Justification:** The agent runtime is well-structured: `RealAgentExecutor`, `AgentResultParser`, schema validation, circuit breakers (`CircuitBreakingAgentCompletionClient`), caching (`CachingLlmCompletionClient`), fallback providers, token quota trackers (daily and monthly), content safety guards, prompt redaction, cost estimation, staged critic agents, model tier routing, and agent output evaluation (heuristic + LLM judge + reference case catalog). The pipeline supports both simulator and real Azure OpenAI modes (**header Azure OpenAI / real-mode posture**). The quality gate architecture (`AgentOutputQualityGate`) with configurable floors and modes is mature. The gap is that **most** automated test evidence runs in simulator mode; **committed** real-LLM golden cohort depth and adversarial/regression envelopes are still catching up versus what AOAI provisioning already allows — the agent pipeline has not been validated at scale with diverse, adversarial, or edge-case architecture briefs in **documented breadth**.
 - **Tradeoffs:** The simulator-first design is correct for CI speed but creates a coverage gap for agent behavior under real conditions. Content safety is fail-closed in production, which is correct but means production deployment requires Azure Content Safety provisioning.
 - **Improvements:** Expand golden cohort to 20+ diverse scenarios; add agent output regression suites comparing real-LLM vs simulator; track prompt version → output quality correlation.
 
@@ -340,7 +342,7 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 
 Ranked by weighted deficiency × strategic criticality:
 
-1. **No real-world validation of AI output correctness.** The core value proposition — that ArchLucid produces *correct* architecture findings and recommendations — has never been validated against a real enterprise architecture. Simulator mode dominates testing. This is the existential uncertainty.
+1. **Thin breadth of externally validated AI output correctness.** The core proposition — defensible correctness of architecture findings across **diverse** enterprise contexts — still relies heavily on simulator-mode automation and limited **committed** real-mode corpus / expert-reviewed baselines (**header Azure OpenAI / real-mode posture**: infra exists; systematic evidence expansion remains the workstream). Treat as **severity of residual uncertainty**, not “real LLM inaccessible.”
 
 2. **`(B)` Pipeline proof vs `V1` completeness.** Narratives that ordinarily lean on production logos, longitudinal ROI tables, procurement war stories, and peer quotes are thin — **`(B)` market-motion realism** (zero weight on **`(A)`**). **`(A)` `V1` headline scores are explicitly not lowered** solely because **no buyer steady-state production tenant exists** (**header production-customer policy**; **`V1_DEFERRED.md` §6b** reference-customer **`V1.1`**).
 
@@ -358,7 +360,7 @@ Ranked by weighted deficiency × strategic criticality:
 
 9. **Documentation volume is itself a UX problem.** 682 markdown files is extraordinary but creates a "where do I start?" problem. The five-doc spine helps but the depth behind it is overwhelming.
 
-10. **Gap between simulator and real-LLM behavior is unquantified.** Golden cohort evidence exists but is thin. The product cannot yet state confidently how outputs differ between real Azure OpenAI and the deterministic simulator.
+10. **Simulator–real-LLM delta is empirically under-measured.** Golden cohort scaffolding exists but **steady drift metrics** (side-by-side or paired runs summarizing divergence) are **not yet a durable product artifact**. AOAI provisioning supports closing this (**header Azure OpenAI / real-mode posture**); the weakness is measurement and corpus commitment, not missing endpoints.
 
 11. **Incomplete executive visibility surfaces.** Executive sponsors need a dashboard showing value delivered over time. The ROI telemetry infrastructure exists but no executive-optimized summary view is built.
 
@@ -402,7 +404,7 @@ Ranked by weighted deficiency × strategic criticality:
 
 ## 7. Top 6 Engineering Risks
 
-1. **Real-LLM output quality is unvalidated at scale.** The agent pipeline works in simulator mode, but real Azure OpenAI responses may contain hallucinations, inconsistencies, or missing findings that the quality gate doesn't catch. The gap between golden cohort evidence and production-scale diverse inputs is the primary technical risk.
+1. **Real-LLM output quality at breadth and hostile inputs remains an open empirical envelope.** Simulator mode dominates cheap CI loops; **real Azure OpenAI** can still surface hallucinations, inconsistencies, or missing findings gates miss (**header Azure OpenAI / real-mode posture** supplies dev execution paths — risk is **unexercised breadth vs rare enterprise inputs**, not lack of AOAI connectivity).
 
 2. **Database migration ordering under concurrent deployment.** DbUp runs on startup, which means multiple replicas racing to apply migrations. MigrationCatalogMutexScope exists, but concurrent startup of Container Apps replicas during deployment could create race conditions.
 
@@ -418,7 +420,7 @@ Ranked by weighted deficiency × strategic criticality:
 
 ## 8. Most Important Truth
 
-**ArchLucid exhibits rare engineering maturity for its stage**: coherent architecture decomposition, disciplined tests and security tooling, and a procurement-grade documentation spine. **`V1` `(A)` headline readiness does not require** external **steady-state buyer production tenancy** (**header production-customer policy**) — incompleteness belongs in **`(B)`** buyer-motion narrative unless `V1_SCOPE` names an in-contract gate. The distinct **technical** risk stays **whether AI-generated outputs retain accuracy and trust across diverse enterprise contexts** (**simulator–real‑LLM evidence gap**, **`§2.1` / §7**) — orthogonal to tallying logos.
+**ArchLucid exhibits rare engineering maturity for its stage**: coherent architecture decomposition, disciplined tests and security tooling, and a procurement-grade documentation spine. **`V1` `(A)` headline readiness does not require** external **steady-state buyer production tenancy** (**header production-customer policy**) — incompleteness belongs in **`(B)`** buyer-motion narrative unless `V1_SCOPE` names an in-contract gate. The distinct **technical** risk stays **whether AI-generated outputs retain accuracy and trust across diverse enterprise contexts** — characterized here as **simulator–real‑LLM evidence *breadth* and external validation**, not denial of AOAI (**header Azure OpenAI / real-mode posture**: dev resource + `gpt-4o` + gated CI naming are aligned with Improvement 2 / 13 / 18 tracks) — **orthogonal to tallying logos**.
 
 ---
 ## 9. Top Improvement Opportunities
