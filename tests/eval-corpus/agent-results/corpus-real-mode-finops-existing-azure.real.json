@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rm-finops-real-exemplar-01",
+  "taskId": "corpus-rm-finops-task-exemplar",
+  "runId": "corpus-rm-finops-run-exemplar",
+  "agentType": 2,
+  "claims": [
+    {
+      "evidenceRefs": ["lz-cost-baseline-2026"],
+      "detail": "Committed exemplar: hub firewall logs attribute shared egress so FinOps can reconcile chargeback disputes with network owners."
+    }
+  ],
+  "evidenceRefs": ["lz-cost-baseline-2026"],
+  "confidence": 0.75,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Cost",
+      "description": "Idle App Service plans illustrate predictable savings once workloads consolidate onto fewer SKUs with slot sharing.",
+      "recommendation": "Pair consolidations with synthetic probes so latency budgets stay within marketing commitments."
+    },
+    {
+      "severity": "Low",
+      "category": "Cost",
+      "description": "Cool tier automation for telemetry blobs should respect legal holds already attached to regulated containers.",
+      "recommendation": "Gate lifecycle policies on compliance metadata before blanket age-based transitions."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T18:00:00Z"
+}

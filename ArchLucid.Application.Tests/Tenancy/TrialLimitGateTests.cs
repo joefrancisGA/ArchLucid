@@ -224,6 +224,8 @@ public sealed class TrialLimitGateTests
         await act.Should().NotThrowAsync();
     }
 
+    [SkippableFact]
+    public async Task GuardWriteAsync_null_trial_status_does_not_throw()
     {
         Guid tenantId = Guid.NewGuid();
         Mock<ITenantRepository> tenants = new();

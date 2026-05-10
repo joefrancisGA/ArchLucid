@@ -27,6 +27,14 @@
     "scenario-real-mode-database-backup.json",
     "scenario-real-mode-overprovisioned-vm.json",
     "scenario-real-mode-multi-region.json",
-    "scenario-real-mode-azure-web-app.json"
+    "scenario-real-mode-azure-web-app.json",
+    "scenario-real-mode-cloud-migration-lift-shift.json",
+    "scenario-real-mode-greenfield-microservices.json",
+    "scenario-real-mode-healthcare-hipaa.json",
+    "scenario-real-mode-finops-existing-azure.json",
+    "scenario-real-mode-event-driven.json",
+    "scenario-real-mode-multi-region-active-active.json",
+    "scenario-real-mode-data-platform-analytics.json",
+    "scenario-real-mode-ai-ml-inference.json"
   ]
 }

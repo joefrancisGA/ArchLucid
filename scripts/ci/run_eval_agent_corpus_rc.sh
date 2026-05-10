@@ -24,6 +24,14 @@
 #   ARCHLUCID_EVAL_CORPUS_REAL_MODE_OVERPROVISIONED_VM_AGENT_RESULT — scenario-real-mode-overprovisioned-vm
 #   ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_AGENT_RESULT — scenario-real-mode-multi-region
 #   ARCHLUCID_EVAL_CORPUS_REAL_MODE_AZURE_WEB_APP_AGENT_RESULT — scenario-real-mode-azure-web-app
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_CLOUD_MIGRATION_LIFT_SHIFT_AGENT_RESULT — scenario-real-mode-cloud-migration-lift-shift
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_GREENFIELD_MICROSERVICES_AGENT_RESULT — scenario-real-mode-greenfield-microservices
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_HEALTHCARE_HIPAA_AGENT_RESULT — scenario-real-mode-healthcare-hipaa
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_FINOPS_EXISTING_AZURE_AGENT_RESULT — scenario-real-mode-finops-existing-azure
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_EVENT_DRIVEN_AGENT_RESULT — scenario-real-mode-event-driven
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_ACTIVE_ACTIVE_AGENT_RESULT — scenario-real-mode-multi-region-active-active
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATA_PLATFORM_ANALYTICS_AGENT_RESULT — scenario-real-mode-data-platform-analytics
+#   ARCHLUCID_EVAL_CORPUS_REAL_MODE_AI_ML_INFERENCE_AGENT_RESULT — scenario-real-mode-ai-ml-inference
 # See docs/library/AGENT_EVAL_CORPUS.md.
 #
 set -euo pipefail

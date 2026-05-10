@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rm-dpan-real-exemplar-01",
+  "taskId": "corpus-rm-dpan-task-exemplar",
+  "runId": "corpus-rm-dpan-run-exemplar",
+  "agentType": 2,
+  "claims": [
+    {
+      "evidenceRefs": ["lakehouse-finops-pack"],
+      "detail": "Committed exemplar: Synapse pause automation references occupancy sensors so nightly jobs still finish before the SLA window."
+    }
+  ],
+  "evidenceRefs": ["lakehouse-finops-pack"],
+  "confidence": 0.74,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Cost",
+      "description": "Dedicated SQL pool idle windows on weekends justify pause-resume hooks without breaching 06:00 curation deadlines.",
+      "recommendation": "Coordinate pauses with ADF triggers and add preflight queries that abort pause when pipelines backlog."
+    },
+    {
+      "severity": "Low",
+      "category": "Cost",
+      "description": "Power BI Premium nodes remain oversized relative to concurrent dataset refreshes after workspace consolidation.",
+      "recommendation": "Rightsize Premium SKUs once embedded refresh telemetry stabilizes for two billing cycles."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T18:00:00Z"
+}
