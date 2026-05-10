@@ -11,7 +11,7 @@ export type ContextualHelpEntry = {
  */
 export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "new-run-wizard": {
-    text: "Create an architecture request that describes the system you want ArchLucid to analyze. Reference starters, Quick shapes, and industry templates pre-fill the form — you can still edit everything before submission.",
+    text: "Create an architecture request for what ArchLucid should analyze. Reference starters, Quick shapes, and industry templates pre-fill the form — edit anything before submit.",
     learnMoreUrl: "/docs/CORE_PILOT.md#new-run",
   },
   "runs-list-overview": {
@@ -19,7 +19,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/CORE_PILOT.md",
   },
   "run-pipeline-status": {
-    text: "The pipeline shows each AI agent's progress. When all steps complete, the run is ready to finalize. Elapsed labels (when shown) measure wall time since the previous listed event — useful for sponsor readouts.",
+    text: "The pipeline shows each AI agent's progress. When all steps complete, the run is ready to finalize. Elapsed labels (when shown) are wall time since the prior event — useful for sponsor readouts.",
     learnMoreUrl: "/docs/CORE_PILOT.md#pipeline-status",
   },
   "commit-manifest": {
