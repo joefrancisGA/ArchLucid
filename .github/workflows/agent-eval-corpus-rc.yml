@@ -41,6 +41,14 @@ jobs:
           ARCHLUCID_EVAL_CORPUS_REAL_MODE_OVERPROVISIONED_VM_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-overprovisioned-vm.real.json
           ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-multi-region.real.json
           ARCHLUCID_EVAL_CORPUS_REAL_MODE_AZURE_WEB_APP_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-azure-web-app.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_CLOUD_MIGRATION_LIFT_SHIFT_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-cloud-migration-lift-shift.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_GREENFIELD_MICROSERVICES_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-greenfield-microservices.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_HEALTHCARE_HIPAA_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-healthcare-hipaa.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_FINOPS_EXISTING_AZURE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-finops-existing-azure.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_EVENT_DRIVEN_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-event-driven.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_ACTIVE_ACTIVE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-multi-region-active-active.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATA_PLATFORM_ANALYTICS_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-data-platform-analytics.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_AI_ML_INFERENCE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-ai-ml-inference.real.json
         run: bash scripts/ci/run_eval_agent_corpus_rc.sh
 
       - uses: actions/upload-artifact@v4

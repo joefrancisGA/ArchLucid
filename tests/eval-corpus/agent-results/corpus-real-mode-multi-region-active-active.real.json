@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rm-mraa-real-exemplar-01",
+  "taskId": "corpus-rm-mraa-task-exemplar",
+  "runId": "corpus-rm-mraa-run-exemplar",
+  "agentType": 1,
+  "claims": [
+    {
+      "evidenceRefs": ["helio-active-active-drill"],
+      "detail": "Committed exemplar: Front Door shifts weights only after synthetic probes confirm both regions pass checkout health contracts."
+    }
+  ],
+  "evidenceRefs": ["helio-active-active-drill"],
+  "confidence": 0.8,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Topology",
+      "description": "Dual active AKS footprints amplify configuration drift unless GitOps convergence is measured hourly.",
+      "recommendation": "Add automated diff checks between clusters with automatic freeze when drift crosses policy."
+    },
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Cosmos conflict tuning needs game-day rehearsal because merge policies can mask application-level duplicates.",
+      "recommendation": "Run chaos experiments that isolate a region writer while verifying compensating workflows alert analysts."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T18:00:00Z"
+}

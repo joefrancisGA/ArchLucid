@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-ev-1",
+      "category": "Topology",
+      "severity": "High",
+      "title": "Ingress streaming",
+      "detail": "Partner orders land in Event Hubs with autoscale throughput units aligned to seasonal peaks before Azure Functions consumers fan out."
+    },
+    {
+      "findingId": "f-ev-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Serverless processors",
+      "detail": "Azure Functions premium plan hosts stateless processors using managed identity for downstream REST facades."
+    },
+    {
+      "findingId": "f-ev-3",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Poison handling",
+      "detail": "Dead-letter queues retain failed envelopes for manual replay with tamper-evident logging keyed by correlation identifiers."
+    }
+  ]
+}

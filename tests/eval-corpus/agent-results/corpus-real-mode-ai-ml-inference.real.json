@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rm-aiml-real-exemplar-01",
+  "taskId": "corpus-rm-aiml-task-exemplar",
+  "runId": "corpus-rm-aiml-run-exemplar",
+  "agentType": 1,
+  "claims": [
+    {
+      "evidenceRefs": ["falcon-ml-serving"],
+      "detail": "Committed exemplar: Batch endpoints pin ONNX bundles with signed manifests before traffic shifts off shadow lanes."
+    }
+  ],
+  "evidenceRefs": ["falcon-ml-serving"],
+  "confidence": 0.78,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Topology",
+      "description": "GPU node pools require predictable drain windows during model refreshes to avoid batch queue stalls.",
+      "recommendation": "Coordinate cordon/drain automation with AML deployment jobs and warm standby pools."
+    },
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Feature snapshot storage replication must honor US-only residency tags when experiments copy tensors cross workspace.",
+      "recommendation": "Block automatic artifact promotion unless geo-fence metadata matches the production subscription policy."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T18:00:00Z"
+}

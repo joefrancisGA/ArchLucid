@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-hipaa-1",
+      "category": "Compliance",
+      "severity": "High",
+      "title": "PHI encryption boundary",
+      "detail": "Patient indexes and imaging metadata use customer-managed keys in Key Vault with explicit PHI classification on every blob container."
+    },
+    {
+      "findingId": "f-hipaa-2",
+      "category": "Topology",
+      "severity": "High",
+      "title": "Private data paths",
+      "detail": "Clinical APIs resolve storage and SQL through private endpoints; public network access remains denied on data stores."
+    },
+    {
+      "findingId": "f-hipaa-3",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Audit coverage",
+      "detail": "Diagnostic settings stream administrative actions and data-plane queries into immutable Log Analytics workspaces."
+    }
+  ]
+}

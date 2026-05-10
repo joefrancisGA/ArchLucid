@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-greenfield-microservices",
+  "metadata": {
+    "title": "Real-mode greenfield microservices on Azure (offline AgentResult scorer)",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Compliance"]
+  },
+  "architectureBrief": {
+    "systemName": "Aurora Commerce Platform",
+    "description": "New multi-tenant retail API platform built as microservices with external consumers onboarding through a managed API layer.",
+    "technologyStack": [
+      "Azure API Management (external tier)",
+      "Azure Kubernetes Service",
+      "Azure Container Registry",
+      "Azure Key Vault",
+      "Application Insights + Azure Monitor workspace",
+      "Entra ID workload identity federation"
+    ],
+    "reviewObjectives": [
+      "Confirm ingress and east-west security boundaries",
+      "Validate identity patterns avoid static secrets at runtime",
+      "Highlight scaling risks before Black Friday launch"
+    ],
+    "constraints": [
+      "Must support 50k RPS spike with <200ms p95 external latency",
+      "No public admin endpoints",
+      "PCI SAQ-A scope for payment widgets only (out of scope for core APIs)"
+    ]
+  },
+  "inputSummary": "Greenfield AKS microservices behind API Management with workload identities and mesh-style mTLS assumptions. Synthetic brief for cohort diversity vs brownfield no-gateway mesh.",
+  "recording": "recordings/corpus-greenfield-microservices-platform.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Topology",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_GREENFIELD_MICROSERVICES_AGENT_RESULT",
+    "notes": "Distinct from corpus-real-mode-microservices (no edge gateway); exemplar is synthetic Web AgentResult JSON."
+  },
+  "expectedFindings": [
+    {
+      "id": "e api management edge",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["API Management", "ingress"]
+    },
+    {
+      "id": "e aks runtime",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["AKS", "microservices"]
+    },
+    {
+      "id": "e workload identity",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["identity", "vault"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["expose kubernetes api publicly", "admin kubeconfig in wiki"] },
+    { "category": "Critic", "ifContainsAny": ["delete all namespaces", "disable api management"] }
+  ]
+}

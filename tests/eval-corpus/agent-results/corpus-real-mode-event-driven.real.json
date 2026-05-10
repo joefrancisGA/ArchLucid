@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rm-evtd-real-exemplar-01",
+  "taskId": "corpus-rm-evtd-task-exemplar",
+  "runId": "corpus-rm-evtd-run-exemplar",
+  "agentType": 1,
+  "claims": [
+    {
+      "evidenceRefs": ["order-hub-streaming"],
+      "detail": "Committed exemplar: Event Hubs capture feeds replay deterministically when Functions scale out under burst envelopes."
+    }
+  ],
+  "evidenceRefs": ["order-hub-streaming"],
+  "confidence": 0.77,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Topology",
+      "description": "Autoscale rules on Event Hubs still depend on manual throughput unit ceilings that may lag partner spikes.",
+      "recommendation": "Automate TU bumps with alerting hooks tied to partition reader lag and consumer health."
+    },
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Dead-letter reviewers need a single pane correlating Service Bus message IDs with upstream Event Hubs offsets.",
+      "recommendation": "Instrument Functions with OpenTelemetry spans that carry both broker identifiers end-to-end."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T18:00:00Z"
+}

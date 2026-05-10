@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rm-gfms-real-exemplar-01",
+  "taskId": "corpus-rm-gfms-task-exemplar",
+  "runId": "corpus-rm-gfms-run-exemplar",
+  "agentType": 1,
+  "claims": [
+    {
+      "evidenceRefs": ["greenfield-ingress-blueprint"],
+      "detail": "Committed exemplar: API Management terminates OAuth at the edge while AKS ingress keeps internal-only listeners for cluster traffic."
+    }
+  ],
+  "evidenceRefs": ["greenfield-ingress-blueprint"],
+  "confidence": 0.79,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Mesh mTLS assumptions require consistent sidecar upgrades; lagging nodes would weaken east-west guarantees during load tests.",
+      "recommendation": "Automate canary rollouts and block production promotions when sidecar skew exceeds one minor version."
+    },
+    {
+      "severity": "Low",
+      "category": "Topology",
+      "description": "Regional AKS clusters need mirrored autoscaling profiles before Black Friday to avoid asymmetric shard loss.",
+      "recommendation": "Replay prior peak traces against both regions with Front Door weighting set to production ratios."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T18:00:00Z"
+}

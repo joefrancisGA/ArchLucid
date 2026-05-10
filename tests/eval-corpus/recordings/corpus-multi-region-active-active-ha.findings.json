@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-ha-1",
+      "category": "Topology",
+      "severity": "High",
+      "title": "Global traffic manager",
+      "detail": "Azure Front Door fronts microservices in East US and West Europe with health probes enforcing active-active routing during normal operations."
+    },
+    {
+      "findingId": "f-ha-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Dual-region API mesh",
+      "detail": "Each region runs a full API tier with regional load balancers; shared configuration propagates through GitOps within minutes."
+    },
+    {
+      "findingId": "f-ha-3",
+      "category": "Compliance",
+      "severity": "High",
+      "title": "Cosmos dual-write policy",
+      "detail": "Cosmos DB multi-region writes require conflict resolution tuned per container with explicit audit when merge rules override analysts."
+    }
+  ]
+}

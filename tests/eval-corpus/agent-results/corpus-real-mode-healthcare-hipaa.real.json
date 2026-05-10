@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rm-hipaa-real-exemplar-01",
+  "taskId": "corpus-rm-hipaa-task-exemplar",
+  "runId": "corpus-rm-hipaa-run-exemplar",
+  "agentType": 3,
+  "claims": [
+    {
+      "evidenceRefs": ["hipaa-kms-boundary"],
+      "detail": "Committed exemplar: CMK rotation drills validated with clinical stakeholders before enabling automated rewrap jobs."
+    }
+  ],
+  "evidenceRefs": ["hipaa-kms-boundary"],
+  "confidence": 0.81,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Compliance",
+      "description": "PHI classification tags propagate into Purview, but break-glass role reviews still rely on weekly spreadsheets instead of Entra lifecycle workflows.",
+      "recommendation": "Replace manual attestations with access reviews coupled to PIM activation evidence."
+    },
+    {
+      "severity": "Medium",
+      "category": "Compliance",
+      "description": "Diagnostic settings cover administrative mutations but omit some data-plane reads initiated by integration service principals.",
+      "recommendation": "Extend auditing to proxy SQL and storage paths using least-privilege diagnostic bundles."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T18:00:00Z"
+}

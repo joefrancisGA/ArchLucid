@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rm-lift-real-exemplar-01",
+  "taskId": "corpus-rm-lift-task-exemplar",
+  "runId": "corpus-rm-lift-run-exemplar",
+  "agentType": 2,
+  "claims": [
+    {
+      "evidenceRefs": ["wave1-finops-baseline"],
+      "detail": "Committed exemplar: ExpressRoute hub spend couples regions until secondary circuits or transitive peering reduce backhaul risk."
+    }
+  ],
+  "evidenceRefs": ["wave1-finops-baseline"],
+  "confidence": 0.76,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Cost",
+      "description": "Reserved instance purchasing should follow burstable SKU trials because CPU samples already show headroom on rehosted VMs.",
+      "recommendation": "Sequence reservation commits after automated rightsizing scripts retire the worst 20 percent outliers."
+    },
+    {
+      "severity": "Medium",
+      "category": "Cost",
+      "description": "Premium disk leftovers on developer sandboxes inflate monthly storage without reliability benefit during migration.",
+      "recommendation": "Apply lifecycle policies and owner tags before finance locks the FY storage forecast."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T18:00:00Z"
+}
