@@ -116,6 +116,30 @@ describe("ArtifactListTable", () => {
     ]);
   });
 
+  it("sponsor mode with audienceSections keeps run-scoped preview links when runId is set", () => {
+    const artifacts = [
+      {
+        ...sample,
+        artifactId: "md",
+        artifactType: "MarkdownReport",
+        name: "b.md",
+        format: "text/markdown",
+      },
+    ];
+    render(
+      <ArtifactListTable
+        manifestId="manifest-1"
+        artifacts={artifacts}
+        runId="run-guid-1"
+        sponsorMode
+        audienceSections
+      />,
+    );
+
+    const preview = screen.getByRole("link", { name: "Open sponsor brief" });
+    expect(preview.getAttribute("href")).toBe("/reviews/run-guid-1/artifacts/md");
+  });
+
   it("sponsor mode: omits redundant filename caption when stem aligns with business label", () => {
     const row = {
       artifactId: "artifact-guid-md",
