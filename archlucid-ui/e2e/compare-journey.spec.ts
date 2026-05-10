@@ -6,6 +6,7 @@ import {
   comparePageRightRunInput,
   comparePageSubmitButton,
   comparisonRequestOutcomePanel,
+  expandCompareTechnicalDetails,
   expectComparisonRequestOutcomeVisible,
   gotoComparePageWithFixturePair,
   structuredCompareSponsorRecommendationParagraph,
@@ -36,6 +37,7 @@ test.describe("operator journey — compare query prefill and review order", () 
     await expect(page.locator("#compare-structured")).toBeVisible();
     await expect(structuredCompareSponsorRecommendationParagraph(page)).toBeVisible();
 
+    await expandCompareTechnicalDetails(page);
     await expect(page.getByRole("heading", { name: "Review-level diff", level: 3 })).toBeVisible();
     await expect(page.locator("#compare-legacy")).toBeVisible();
     await expect(page.getByRole("cell", { name: "topology", exact: true })).toBeVisible();

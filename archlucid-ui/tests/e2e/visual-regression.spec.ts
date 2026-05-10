@@ -1,7 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "../../e2e/fixtures";
-import { gotoComparePageWithFixturePair, gotoRunDetailForMockFixtureRun } from "../../e2e/helpers/operator-journey";
+import {
+  expandCompareTechnicalDetails,
+  gotoComparePageWithFixturePair,
+  gotoRunDetailForMockFixtureRun,
+} from "../../e2e/helpers/operator-journey";
 import { registerDefaultPairLegacyStructuredCompare } from "../../e2e/helpers/register-operator-api-routes";
 
 /** Shared options for stable viewports (mock operator UI; golden files live next to this spec). */
@@ -48,7 +52,7 @@ test.describe("visual regression — operator UI", () => {
     await page.getByRole("button", { name: "Compare", exact: true }).click();
     await expect(page.locator("#compare-structured")).toBeVisible();
 
-    await page.locator("#compare-technical").locator(":scope > summary").click();
+    await expandCompareTechnicalDetails(page);
     await expect(page.locator("#compare-legacy")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Manifest comparison", level: 3 })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Review-level diff", level: 3 })).toBeVisible();

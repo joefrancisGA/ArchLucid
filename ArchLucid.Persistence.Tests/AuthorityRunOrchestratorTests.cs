@@ -60,6 +60,8 @@ public sealed class AuthorityRunOrchestratorTests
         runRepo.Setup(x => x.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
 
+        StubRunRepositoryListByProjectEmpty(runRepo);
+
         Guid contextSnapshotId = Guid.NewGuid();
         Guid findingsId = Guid.NewGuid();
         Guid traceId = Guid.NewGuid();
@@ -259,6 +261,8 @@ public sealed class AuthorityRunOrchestratorTests
             .Returns(Task.CompletedTask);
         runRepo.Setup(x => x.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
+
+        StubRunRepositoryListByProjectEmpty(runRepo);
 
         Guid contextSnapshotId = Guid.NewGuid();
         Guid findingsId = Guid.NewGuid();
@@ -567,6 +571,8 @@ public sealed class AuthorityRunOrchestratorTests
         runRepo.Setup(x => x.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
 
+        StubRunRepositoryListByProjectEmpty(runRepo);
+
         Guid contextSnapshotId = Guid.NewGuid();
         Guid findingsId = Guid.NewGuid();
         Guid traceId = Guid.NewGuid();
@@ -787,6 +793,17 @@ public sealed class AuthorityRunOrchestratorTests
 
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static void StubRunRepositoryListByProjectEmpty(Mock<IRunRepository> runRepo)
+    {
+        // Finalization calls ListByProjectAsync for previous golden run id; Moq returns null without a setup.
+        runRepo.Setup(x => x.ListByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
     }
 
     private static void StubIntegrationOutbox(Mock<IIntegrationEventOutboxRepository> mock)

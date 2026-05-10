@@ -72,6 +72,17 @@ export async function expectComparisonRequestOutcomeVisible(page: Page): Promise
 }
 
 /**
+ * Opens supplementary legacy comparison (`<details id="compare-technical">`).
+ * Content (`#compare-legacy`, review-level table) is hidden until expanded.
+ */
+export async function expandCompareTechnicalDetails(page: Page): Promise<void> {
+  const technical = page.locator("#compare-technical");
+
+  await expect(technical).toBeVisible();
+  await technical.locator(":scope > summary").click();
+}
+
+/**
  * Sponsor callout under structured manifest compare (`#compare-structured`).
  * Do not assert highlight copy with bare `getByText` — the same string appears in summary highlights `<li>` (strict mode).
  */
