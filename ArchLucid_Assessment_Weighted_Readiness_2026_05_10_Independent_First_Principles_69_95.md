@@ -5,6 +5,8 @@
 **Scoring basis:** 47 qualities, 112 total weight points, scores 1–100 per quality
 **Deferred-scope policy:** Items explicitly deferred to V1.1/V2 per `V1_SCOPE.md` and `V1_DEFERRED.md` are not penalized
 
+**Product boundary (this assessment revision):** Customer delivery is **hosted SaaS only**. **Self-hosted** installs and an **open-source contributor** community are **not in scope** here. Local Docker / .NET tooling in the repo refers to **engineering** build and test workflows, not to a parallel buyer motion.
+
 ---
 
 ## 1. Executive Summary
@@ -19,7 +21,7 @@ The product has clear positioning (AI-assisted architecture workflow) and a diff
 
 ### Enterprise Picture
 
-Enterprise trust infrastructure is unusually mature for a pre-revenue product: CAIQ/SIG pre-fills, DPA template, SOC 2 self-assessment, STRIDE threat model, 78 typed audit events, RBAC with four roles, RLS, SCIM 2.0. The gaps are in real-world workflow integration — no customer has threaded ArchLucid into their actual architecture review cadence, ITSM ticket creation is shipping but bidirectional sync is in-flight, and the product still requires meaningful operator sophistication to configure and run.
+Enterprise trust infrastructure is unusually mature for a pre-revenue product: CAIQ/SIG pre-fills, DPA template, SOC 2 self-assessment, STRIDE threat model, 78 typed audit events, RBAC with four roles, RLS, SCIM 2.0. The gaps are in real-world workflow integration — no customer has threaded ArchLucid into their actual architecture review cadence, ITSM ticket creation is shipping but bidirectional sync is in-flight. **Hosted SaaS operators** do not stand up ArchLucid’s backing services; sophistication is about interpreting outputs, aligning workforce identity, and navigating Operate-layer capabilities. Operational deployment and platform hardening are **vendor** responsibilities on this motion.
 
 ### Engineering Picture
 
@@ -51,15 +53,15 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 
 ### 2.4 Time-to-Value
 - **Score:** 72 | **Weight:** 7 | **Weighted deficiency:** 196
-- **Justification:** The documented happy path (install → create run → commit → review manifest) is achievable in a single session. `archlucid try` offers a 60-second path. Docker-first dev environment with `dev up` is clean. The Core Pilot checklist is well-designed. However, real time-to-value for an enterprise buyer requires: configuring auth (JWT/Entra), SQL Server setup, understanding the domain model, and interpreting AI-generated findings — a process that realistically takes days, not minutes. The gap between "demo works" and "buyer sees value for their architecture" is significant.
+- **Justification:** For **hosted SaaS customers**, the commercial path is browser-based: signup / trial, workforce identity (JWT / Entra External ID where used), and progressing from first login to a first committed manifest (`docs/START_HERE.md`). Time-to-value is gated by trial and onboarding quality, IdP alignment, domain fluency (how to phrase a good architecture brief and read findings), not by customers provisioning compute or databases. **Internal engineering** builds and validates the product with local tooling and CI; that is unrelated to customer time-to-value. The gap between "first session" and "they believe it saved meaningful architecture-review effort" remains significant until product and process fluency catch up.
 - **Tradeoffs:** The two-layer model (Pilot → Operate) correctly defers complexity, but even Pilot requires domain understanding that the product cannot shortcut.
-- **Improvements:** Create a hosted trial path where the buyer never touches infrastructure; add a guided "sample architecture review" that runs with bundled inputs and walks the user through interpreting results.
+- **Improvements:** Shorten hosted SaaS time-to-first-value (signup → first meaningful committed review): polish trial onboarding, seeded sample architecture review tour, obvious next steps on home; optionally add guided "sample architecture review" with bundled inputs — without conflating that with infra, which buyers do not provision on the SaaS path.
 
 ### 2.5 Adoption Friction
 - **Score:** 65 | **Weight:** 6 | **Weighted deficiency:** 210
-- **Justification:** Adopting ArchLucid requires: .NET 10 SDK or Docker, SQL Server, Azure OpenAI credentials (for real mode), and understanding of architecture review concepts. The trial funnel exists but is in TEST mode. No self-service SaaS path is live. The operator UI is progressive but the product surface is large (governance, alerts, policy packs, advisory scans, SCIM, replay, compare, graph — all in Operate layer). Configuration keys number in the hundreds. For a buyer evaluating the product, the friction is medium-to-high.
+- **Justification:** For **hosted SaaS**, buyers do not install .NET, Docker, SQL Server, or provision Azure OpenAI for the vendor stack. Adoption friction comes from trial and signup UX, interpreting a broad operator surface when Operate layers are disclosed, enterprise IdP / SCIM and governance conversations, and the trial funnel still not being on **live** commerce rails in the current window. Severity is **medium**: product depth and onboarding/commerce maturity, not customer-run infrastructure.
 - **Tradeoffs:** The product's depth creates inherent surface area. The progressive disclosure model (Pilot → Operate) mitigates but doesn't eliminate this.
-- **Improvements:** Ship the hosted trial funnel with Stripe TEST end-to-end; create a "zero-config evaluation" mode that works against a hosted staging environment; reduce the number of configuration decisions required for first pilot.
+- **Improvements:** Ship and harden the hosted trial funnel end-to-end (Stripe TEST → production equivalents per release window); keep first-session onboarding focused on **hosted SaaS** buyers; reduce in-product configuration and concept load on the default Pilot path where possible.
 
 ### 2.6 Workflow Embeddedness
 - **Score:** 55 | **Weight:** 3 | **Weighted deficiency:** 135
@@ -82,7 +84,7 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 ### 2.9 Architectural Integrity
 - **Score:** 80 | **Weight:** 3 | **Weighted deficiency:** 60
 - **Justification:** The solution demonstrates genuine architectural discipline: ~30 projects with clear responsibilities (Core → Contracts → AgentRuntime → ContextIngestion → KnowledgeGraph → Decisioning → ArtifactSynthesis → Provenance → Application → Persistence → Api → Worker → Cli), dependency constraint tests (`DependencyConstraintTests`), ADR catalog (35+ records), C4-level architecture documentation, clean separation between coordinator and authority pipelines, convergence tracked via ADRs (0002 → 0012 → 0021), and a navigation rule system for the UI. The architecture is internally coherent and well-documented.
-- **Tradeoffs:** The large number of projects creates cognitive overhead for new contributors, but the clean dependency graph justifies it. The coordinator-to-authority migration (ADR 0021 strangler plan) adds temporary complexity.
+- **Tradeoffs:** The large number of projects creates cognitive overhead for **engineers** joining the codebase, but the clean dependency graph justifies it. The coordinator-to-authority migration (ADR 0021 strangler plan) adds temporary complexity.
 - **Improvements:** Complete the coordinator pipeline strangler; ensure all INV-* invariants from the architecture invariant catalog are enforced by tests.
 
 ### 2.10 Trustworthiness
@@ -159,7 +161,7 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 
 ### 2.22 Maintainability
 - **Score:** 74 | **Weight:** 2 | **Weighted deficiency:** 52
-- **Justification:** Clean project structure with dependency constraints enforced by tests. Roslyn analyzers (DirectHttpClientConstructionAnalyzer and others). EditorConfig. Directory.Packages.props for central package management. Contributor quick start. Architecture fitness tests. Code coverage enforcement. However, ~291 files in Core alone, ~225 in Contracts, ~116 in AgentRuntime — the codebase is large and growing, and the documentation-to-code ratio is very high (682 markdown files in docs/), which itself becomes a maintenance burden.
+- **Justification:** Clean project structure with dependency constraints enforced by tests. Roslyn analyzers (DirectHttpClientConstructionAnalyzer and others). EditorConfig. Directory.Packages.props for central package management. Engineering onboarding / install spine in `docs/`. Architecture fitness tests. Code coverage enforcement. However, ~291 files in Core alone, ~225 in Contracts, ~116 in AgentRuntime — the codebase is large and growing, and the documentation-to-code ratio is very high (682 markdown files in docs/), which itself becomes a maintenance burden.
 - **Tradeoffs:** Extensive documentation is a strength but creates a second codebase that must stay aligned. The doc scope header CI check and canonical JSON enforcement help.
 - **Improvements:** Add a "stale doc" detector that flags markdown files not updated in 90+ days that reference code paths; consider archiving assessment/quality docs older than one quarter.
 
@@ -207,7 +209,7 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 
 ### 2.30 Customer Self-Sufficiency
 - **Score:** 57 | **Weight:** 1 | **Weighted deficiency:** 43
-- **Justification:** Extensive documentation (682 markdown files), CLI with `doctor` and `support-bundle`, troubleshooting guide, runbooks, health endpoints, correlation IDs. However, the product requires significant domain expertise (architecture review methodology) and operational expertise (SQL Server, Azure OpenAI, Terraform) to configure and run. No in-product help system, no chatbot, no community forum, no knowledge base beyond markdown files in the repo.
+- **Justification:** For **hosted SaaS**, buyers lean on Trust Center links, procurement pack, `/health` and versioning for support escalations, and in-product workflows. Repo docs and tooling (`doctor`, `support-bundle`) are primarily **engineering / vendor-operator** aids. Buyers still face domain load (architecture review methodology) and a large surface once Operate is revealed. No in-product help search or chat companion is described as first-class today.
 - **Tradeoffs:** Documentation-heavy self-service is appropriate for an operator-focused product, but the volume of documentation itself becomes a navigation challenge.
 - **Improvements:** Add a searchable help index in the operator UI; create a "common tasks" quick reference card; consider in-product contextual help tooltips.
 
@@ -285,7 +287,7 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 
 ### 2.43 Documentation
 - **Score:** 82 | **Weight:** 1 | **Weighted deficiency:** 18
-- **Justification:** 682 markdown files in docs/. Five-document onboarding spine. Buyer, contributor, operator, and security personas with targeted entry points. CI-enforced doc scope headers. Architecture poster (C4). Operator atlas. Configuration reference. 15+ runbooks. CHANGELOG. BREAKING_CHANGES. ADR catalog. API contracts. Data model. This is *extraordinarily* thorough documentation.
+- **Justification:** 682 markdown files in docs/. Five-document onboarding spine for **buyers and operators**, plus deeper **engineering** and **security/GRC** material. CI-enforced doc scope headers. Architecture poster (C4). Operator atlas. Configuration reference. 15+ runbooks. CHANGELOG. BREAKING_CHANGES. ADR catalog. API contracts. Data model. This is *extraordinarily* thorough documentation.
 - **Tradeoffs:** The documentation volume is itself a usability challenge — finding the right doc requires navigation skill. The NAVIGATOR.md and START_HERE.md help but the depth is intimidating.
 - **Improvements:** Add a doc search feature to the operator UI; consider a documentation site generator (Docusaurus/VitePress) for the buyer-facing subset.
 
@@ -293,11 +295,11 @@ Qualities ordered by **weighted deficiency** (weight × (100 − score)), most u
 - **Score:** 77 | **Weight:** 1 | **Weighted deficiency:** 23
 - **Justification:** Azure-native throughout: Entra ID, Azure SQL, Azure OpenAI, Azure Content Safety, Azure Service Bus, Azure Key Vault, Azure Blob Storage, Azure Container Apps, Azure Front Door, Azure API Management, Application Insights, Azure Monitor. Private endpoints. Managed identity. The product is built for Azure.
 - **Tradeoffs:** Azure-native is a strength for Azure customers and a limitation for non-Azure customers.
-- **Improvements:** Document the minimum Azure services required for a pilot deployment vs a full production deployment.
+- **Improvements:** In Trust Center / buyer docs, summarize which **Microsoft Azure capabilities** underpin the hosted service (transparent subprocessors posture) **without implying customers operate** Container Apps/SQL/OpenAI tenancy for ArchLucid.
 
 ### 2.45 Cognitive Load
 - **Score:** 61 | **Weight:** 1 | **Weighted deficiency:** 39
-- **Justification:** The product imposes significant cognitive load: architecture review domain concepts, multi-layer UI, hundreds of configuration keys, governance/policy/alert model, multiple deployment options, extensive documentation requiring navigation. Progressive disclosure helps but the full surface is complex. The naming is occasionally confusing (run vs architecture review, coordinator vs authority, tier vs layer vs rank).
+- **Justification:** The product imposes significant cognitive load: architecture review domain concepts, multi-layer UI, a large configurable surface (much of which is **vendor-hosted** implementation detail surfaced to admins), governance/policy/alert model, and documentation depth. Progressive disclosure helps but the full surface is complex. The naming is occasionally confusing (run vs architecture review, coordinator vs authority, tier vs layer vs rank).
 - **Tradeoffs:** Domain complexity is inherent; the product could do more to manage it.
 - **Improvements:** Standardize terminology in the UI (architecture review consistently, not mixed with "run"); add a glossary link in the operator shell; reduce the default visible surface further.
 
@@ -334,7 +336,7 @@ Ranked by weighted deficiency × strategic criticality:
 
 4. **Self-serve commercial path is not live.** Trial funnel in TEST mode, Stripe not live, Marketplace not published. Buyers cannot self-evaluate without seller involvement. This is V1.1-deferred (not penalized in score) but is a practical commercial gap.
 
-5. **High adoption friction for non-technical evaluators.** The product requires SQL Server, .NET, Docker, and Azure OpenAI to evaluate. No hosted evaluation path exists. This eliminates most casual evaluators.
+5. **Hosted SaaS trial and onboarding friction.** Buyers are not asked to provision the platform stack, yet the hosted path from signup to first credible committed review still needs tightening, and commerce is not on live rails in this window — so meaningful self-serve trial remains incomplete until those pieces land.
 
 6. **No user research or usability testing.** 527+ UI components, progressive disclosure, accessibility tests — but no human has validated the UX. Architecture review is a domain where workflow fit matters enormously.
 
@@ -360,7 +362,7 @@ Ranked by weighted deficiency × strategic criticality:
 
 3. **ITSM connector gap prevents workflow replacement.** Buyers won't pay for a tool that doesn't integrate with their ticket system. Jira/ServiceNow outbound must ship.
 
-4. **No self-service evaluation path.** Buyers who want to "try before they buy" cannot do so without significant setup effort. The hosted trial funnel needs to be live.
+4. **No self-service evaluation path on live commercial rails.** On **SaaS**, buyers are not asked to run SQL or Docker; the gap is an end-to-end, low-friction hosted trial (signup → tenant → first review) with commerce and operations ready for scale, not “install the stack.” The trial funnel still needs to be fully production-equivalent where the business requires it.
 
 5. **ROI is unproven.** The ROI model cites $288K+ annual savings for a 200-person org, but no customer has measured this. Pricing must be defensible against "we could just use Confluence and manual reviews."
 
@@ -376,7 +378,7 @@ Ranked by weighted deficiency × strategic criticality:
 
 3. **No production SLA.** 99.9% is a target, not a commitment. Enterprise procurement may require a contractual SLA with credit terms before signing.
 
-4. **Configuration complexity for enterprise IT.** Deploying ArchLucid requires Azure expertise (Container Apps, SQL, Key Vault, Entra, optionally Service Bus, Redis, Front Door, APIM). Many enterprise IT teams will need deployment support.
+4. **Enterprise integration and assurance work.** Customers still spend cycles on workforce identity (Entra External ID vs workforce OIDC maps), SCIM, network allowlists if used, SSO questionnaires, DPAs/subprocessors reviews, and (where required) aligning internal ITSM workflows with ArchLucid — even though **ArchLucid’s hosting footprint is vendor-operated**.
 
 5. **Single-vendor risk perception.** A buyer evaluating a pre-revenue, single-developer product faces concentration risk. The documentation and code quality mitigate this but cannot eliminate it.
 
@@ -634,11 +636,11 @@ Constraints:
 - Follow existing admin page patterns (e.g., admin/health)
 ```
 
-### Improvement 8: DEFERRED — Hosted Trial Environment for Zero-Config Evaluation
+### Improvement 8: DEFERRED — Hosted SaaS trial funnel and tenant lifecycle
 
-**Title:** DEFERRED — Create a hosted trial path where buyers evaluate without local infrastructure
+**Title:** DEFERRED — Lock hosted SaaS trial experience (signup → tenant → first value) and operational policies
 
-**Reason:** This requires infrastructure provisioning decisions (shared vs per-tenant trial staging), Stripe TEST mode configuration, DNS, and Front Door routing that are owner decisions.
+**Reason:** On SaaS, buyers never provision ArchLucid infrastructure; the open work is **vendor-side** host configuration and product policy: which environment hosts trials, Stripe mode, DNS/Front Door, tenant isolation, trial duration, and data lifecycle. Those are owner decisions, not “buyer avoids infra.”
 
 **Information needed:** Should trial evaluators use the existing staging.archlucid.net, or should there be a separate trial-only deployment? What is the desired trial tenant lifecycle (duration, auto-expire, data purge)?
 
