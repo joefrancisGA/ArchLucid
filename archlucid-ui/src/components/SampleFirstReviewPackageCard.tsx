@@ -40,7 +40,7 @@ export function SampleFirstReviewPackageCard() {
           </h2>
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {buyerPolished
-              ? "One primary path below: executive view is the board-ready summary. Manifest summary is the sealed package record. Guided walkthrough is optional narrative — same frozen sample dates throughout."
+              ? "Start with executive view — it is the clearest board-ready summary for this frozen sample. Manifest summary is the sealed package record; the guided walkthrough is optional narrative."
               : "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."}
           </p>
           {buyerPolished ? (
@@ -88,12 +88,12 @@ export function SampleFirstReviewPackageCard() {
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               {buyerPolished ? (
                 <>
-                  <Button asChild variant="primary" className="h-9">
+                  <Button asChild variant="primary" size="lg" className="h-11 min-h-[44px] px-7 text-base shadow-sm">
                     <Link href={getShowcaseExecutiveHref()} onClick={recordSampleOpened}>
                       Open executive view
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" className="h-9">
+                  <Button asChild variant="outline" size="default" className="h-9">
                     <Link href={getShowcaseManifestHref()} onClick={recordSampleOpened}>
                       Manifest summary
                     </Link>
@@ -113,20 +113,23 @@ export function SampleFirstReviewPackageCard() {
               )}
             </div>
             {buyerPolished ? (
-              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-neutral-200 pt-2 dark:border-neutral-700">
-                <Link
-                  href={getShowcaseWalkthroughHref()}
-                  onClick={recordSampleOpened}
-                  className="text-sm text-neutral-600 underline underline-offset-2 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200"
-                >
-                  Optional guided walkthrough
-                </Link>
-                <Link
-                  href="/reviews/new"
-                  className="text-sm text-neutral-500 hover:text-neutral-800 dark:text-neutral-500 dark:hover:text-neutral-300"
-                >
-                  Connect your own workspace →
-                </Link>
+              <div className="mt-2 flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <Link
+                    href={getShowcaseWalkthroughHref()}
+                    onClick={recordSampleOpened}
+                    className="text-sm text-neutral-600 underline underline-offset-2 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200"
+                  >
+                    Optional guided walkthrough
+                  </Link>
+                </div>
+                <p className="m-0 text-xs leading-snug text-neutral-500 dark:text-neutral-500">
+                  After the sample,{" "}
+                  <Link href="/reviews/new" className="font-medium text-neutral-700 underline dark:text-neutral-400">
+                    connect your own workspace
+                  </Link>{" "}
+                  — conversion path; not part of the frozen evaluation spine.
+                </p>
               </div>
             ) : null}
           </div>

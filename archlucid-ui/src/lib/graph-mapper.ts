@@ -147,12 +147,12 @@ export function mapGraphToReactFlow(
   const heroId = isBuyerTrail ? layoutNodes.find((n) => isBuyerTrailPhiHeroNode(n))?.id : undefined;
 
   const columnCount = isBuyerTrail ? 4 : 5;
-  const cellW = isBuyerTrail ? 300 : 240;
-  const cellH = isBuyerTrail ? 182 : 140;
-  const nodeWidth = isBuyerTrail ? 272 : 180;
-  const heroNodeWidth = isBuyerTrail ? 304 : nodeWidth;
-  const fontSize = isBuyerTrail ? 15 : 12;
-  const heroFontSize = isBuyerTrail ? 16 : fontSize;
+  const cellW = isBuyerTrail ? 320 : 240;
+  const cellH = isBuyerTrail ? 196 : 140;
+  const nodeWidth = isBuyerTrail ? 288 : 180;
+  const heroNodeWidth = isBuyerTrail ? 324 : nodeWidth;
+  const fontSize = isBuyerTrail ? 16 : 12;
+  const heroFontSize = isBuyerTrail ? 17 : fontSize;
 
   const nodes: Node[] = layoutNodes.map((node, index) => {
     const hero = isBuyerTrail && isBuyerTrailPhiHeroNode(node);
@@ -171,19 +171,19 @@ export function mapGraphToReactFlow(
       },
       style: {
         border: hero
-          ? "3px solid #b45309"
+          ? "4px solid #b45309"
           : isBuyerTrail
             ? "2px solid #64748b"
             : "1px solid #999",
         borderRadius: 10,
-        padding: isBuyerTrail ? (hero ? 14 : 12) : 8,
+        padding: isBuyerTrail ? (hero ? 16 : 12) : 8,
         background: hero ? "#fde68a" : pickColor(node.type),
         width,
         whiteSpace: "pre-wrap",
         fontSize: fs,
-        fontWeight: isBuyerTrail ? (hero ? 600 : 500) : 400,
+        fontWeight: isBuyerTrail ? (hero ? 700 : 500) : 400,
         color: "#0f172a",
-        boxShadow: hero ? "0 8px 22px rgba(180, 83, 9, 0.18)" : undefined,
+        boxShadow: hero ? "0 10px 28px rgba(180, 83, 9, 0.22)" : undefined,
       },
       type: "default",
     };
@@ -208,13 +208,13 @@ export function mapGraphToReactFlow(
           }
         : { stroke: "#94a3b8", strokeWidth: 1.25 },
       labelStyle: isBuyerTrail
-        ? { fill: touchesHero ? "#9a3412" : "#0f172a", fontWeight: 700, fontSize: touchesHero ? 14 : 13 }
+        ? { fill: touchesHero ? "#9a3412" : "#0f172a", fontWeight: 700, fontSize: touchesHero ? 15 : 14 }
         : { fill: "#64748b", fontSize: 11 },
       labelBgStyle:
         isBuyerTrail
-          ? { fill: "#ffffff", fillOpacity: 0.95 }
+          ? { fill: "#ffffff", fillOpacity: 0.97 }
           : { fill: "#f8fafc", fillOpacity: 0.9 },
-      labelBgPadding: [4, 2] as [number, number],
+      labelBgPadding: [6, 3] as [number, number],
     };
   });
 

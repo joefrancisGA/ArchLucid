@@ -19,6 +19,7 @@ Buyers: `docs/BUYER_FIRST_30_MINUTES.md` · Sponsors: `docs/EXECUTIVE_SPONSOR_BR
 **Quick persona routing:** buyer / evaluator (`archlucid.net` + sponsor brief + Core Pilot); contributor — spine above, then `docs/ARCHITECTURE_INDEX.md` once something runs locally.
 
 [![Hosted SaaS probe](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml/badge.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml)
+[![Coverage](https://joefrancisGA.github.io/ArchLucid/badges/coverage.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/ci.yml)
 
 ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package, helping teams ship committed manifests, reviewable artifacts, and governance evidence with less manual assembly.
 

@@ -455,7 +455,12 @@ export default async function ManifestDetailPage({
           )}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 && (
-            <ArtifactListTable manifestId={manifestId} artifacts={artifacts} sponsorMode={buyerPolishedLayout} />
+            <ArtifactListTable
+              manifestId={manifestId}
+              artifacts={artifacts}
+              sponsorMode={buyerPolishedLayout}
+              audienceSections={buyerPolishedLayout}
+            />
           )}
         </CardContent>
       </Card>

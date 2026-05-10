@@ -9,9 +9,8 @@ BEGIN
             CONSTRAINT DF_Runs_StructuralExecutionMode155 DEFAULT (N'Simulator'),
         CONSTRAINT CK_Runs_StructuralExecutionMode155 CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed'));
 
-    UPDATE dbo.Runs
-    SET StructuralExecutionMode = N'Fallback'
-    WHERE RealModeFellBackToSimulator = 1;
+    -- Same-batch UPDATE cannot see a column added by ALTER TABLE (compile-time metadata); defer compilation.
+    EXEC (N'UPDATE dbo.Runs SET StructuralExecutionMode = N''Fallback'' WHERE RealModeFellBackToSimulator = 1;');
 END;
 GO
 

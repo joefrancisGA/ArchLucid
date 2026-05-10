@@ -501,9 +501,7 @@ BEGIN
             CONSTRAINT DF_Runs_StructuralExecutionModeArchLucidSql DEFAULT (N'Simulator'),
         CONSTRAINT CK_Runs_StructuralExecutionModeArchLucidSql CHECK (StructuralExecutionMode IN (N'Simulator', N'Real', N'Fallback', N'Mixed'));
 
-    UPDATE dbo.Runs
-    SET StructuralExecutionMode = N'Fallback'
-    WHERE RealModeFellBackToSimulator = 1;
+    EXEC (N'UPDATE dbo.Runs SET StructuralExecutionMode = N''Fallback'' WHERE RealModeFellBackToSimulator = 1;');
 END;
 
 GO

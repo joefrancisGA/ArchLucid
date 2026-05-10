@@ -878,7 +878,7 @@ export default async function RunDetailPage({
                   <strong>Architecture review board:</strong> decision package and manifest bundle.{" "}
                   <strong>Audit / compliance:</strong> traceability and review exports via{" "}
                   <strong>More export options</strong>. Optional operator tooling sits in{" "}
-                  <strong>Deep dive (full package detail)</strong> below.
+                  <strong>Advanced — package technical detail</strong> below.
                 </p>
               ) : null}
               {artifactsFailure && (
@@ -1022,7 +1022,7 @@ export default async function RunDetailPage({
       {!buyerPolishedArtifactTable ? explanationSection : null}
 
       {showPilotScorecardPackageCta && buyerPolishedArtifactTable && manifestId ? (
-        <CollapsibleSection title="Executive sponsor package" defaultOpen={false}>
+        <CollapsibleSection title="Sponsor briefing package" defaultOpen={false}>
           <EmailRunToSponsorBanner runId={runId} manifestId={manifestId} curatedSampleRun={usedStaticDemoRun} />
         </CollapsibleSection>
       ) : null}
@@ -1034,7 +1034,7 @@ export default async function RunDetailPage({
 
       {buyerPolishedArtifactTable && manifestId ? (
         <section id="advanced-analysis" className="scroll-mt-24">
-          <CollapsibleSection title="Deep dive (full package detail)" defaultOpen={false}>
+          <CollapsibleSection title="Advanced — package technical detail" defaultOpen={false}>
             <PostCommitAdvancedAnalysisHint runId={runId} embeddedInCollapsible />
           </CollapsibleSection>
         </section>

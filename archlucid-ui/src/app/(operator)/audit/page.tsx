@@ -284,6 +284,7 @@ export default function AuditPage() {
   const canMutateEnterpriseShell = useEnterpriseMutationCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [advancedAuditFiltersOpen, setAdvancedAuditFiltersOpen] = useState(!buyerPolishedShell);
+  const [buyerPrimaryFiltersOpen, setBuyerPrimaryFiltersOpen] = useState(false);
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventType, setEventType] = useState<string>("");
   const [fromUtc, setFromUtc] = useState<string>("");
@@ -781,6 +782,121 @@ export default function AuditPage() {
             </>
           )}
         </div>
+        {buyerPolishedShell ? (
+          <Collapsible
+            open={buyerPrimaryFiltersOpen}
+            onOpenChange={setBuyerPrimaryFiltersOpen}
+            className="mt-1"
+          >
+            <CollapsibleTrigger
+              type="button"
+              className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-sm font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+            >
+              Optional filters — event type, review scope, and search actions
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 shrink-0 transition-transform",
+                  buyerPrimaryFiltersOpen ? "rotate-0" : "-rotate-90",
+                )}
+                aria-hidden
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-3 pt-3">
+              <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+                <label>
+                  Event type{" "}
+                  <select
+                    value={eventType}
+                    onChange={(e) => setEventType(e.target.value)}
+                    disabled={loadingTypes}
+                    className="mt-1 w-full"
+                  >
+                    <option value="">Any</option>
+                    {eventTypes.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Linked review{" "}
+                  <input
+                    value={auditRunIdInputDisplayValue(buyerPolishedShell, runId)}
+                    onChange={(e) => setRunId(auditRunIdParseInputValue(buyerPolishedShell, e.target.value))}
+                    className="mt-1 w-full"
+                  />
+                </label>
+              </div>
+              <Collapsible
+                open={advancedAuditFiltersOpen}
+                onOpenChange={setAdvancedAuditFiltersOpen}
+                className="mt-2"
+              >
+                <CollapsibleTrigger
+                  type="button"
+                  className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left text-xs font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+                >
+                  Advanced filters
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 shrink-0 transition-transform",
+                      advancedAuditFiltersOpen ? "rotate-0" : "-rotate-90",
+                    )}
+                    aria-hidden
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-2">
+                  <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+                    <label>
+                      Correlation ID{" "}
+                      <input
+                        value={correlationId}
+                        onChange={(e) => setCorrelationId(e.target.value)}
+                        className="mt-1 w-full"
+                      />
+                    </label>
+                    <label>
+                      Actor user id{" "}
+                      <input
+                        value={actorUserId}
+                        onChange={(e) => setActorUserId(e.target.value)}
+                        className="mt-1 w-full"
+                      />
+                    </label>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void runSearch()}
+                  disabled={searching || loadingTypes}
+                  title={
+                    callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+                      ? auditSearchEventsButtonTitleReader
+                      : auditSearchEventsButtonTitleOperator
+                  }
+                >
+                  {searching ? "Searching…" : canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void clearFiltersAndSearch()}
+                  disabled={searching}
+                  title={
+                    canMutateEnterpriseShell
+                      ? "Clear filter fields and run search with empty criteria"
+                      : "Clear fields and re-run search (GET only; export rules unchanged)"
+                  }
+                >
+                  {canMutateEnterpriseShell ? "Clear filters" : auditClearFiltersButtonLabelReaderRank}
+                </button>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        ) : (
+          <>
             <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
               <label>
                 Event type{" "}
@@ -788,7 +904,7 @@ export default function AuditPage() {
                   value={eventType}
                   onChange={(e) => setEventType(e.target.value)}
                   disabled={loadingTypes}
-                  className="w-full mt-1"
+                  className="mt-1 w-full"
                 >
                   <option value="">Any</option>
                   {eventTypes.map((t) => (
@@ -798,36 +914,34 @@ export default function AuditPage() {
                   ))}
                 </select>
               </label>
-              {buyerPolishedShell ? null : (
-                <>
-                  <label>
-                    From (local){" "}
-                    <input
-                      type="datetime-local"
-                      value={fromUtc}
-                      onChange={(e) => setFromUtc(e.target.value)}
-                      className="w-full mt-1"
-                    />
-                  </label>
-                  <label>
-                    To (local){" "}
-                    <input
-                      type="datetime-local"
-                      value={toUtc}
-                      onChange={(e) => setToUtc(e.target.value)}
-                      className="w-full mt-1"
-                    />
-                  </label>
-                </>
-              )}
+              <>
+                <label>
+                  From (local){" "}
+                  <input
+                    type="datetime-local"
+                    value={fromUtc}
+                    onChange={(e) => setFromUtc(e.target.value)}
+                    className="mt-1 w-full"
+                  />
+                </label>
+                <label>
+                  To (local){" "}
+                  <input
+                    type="datetime-local"
+                    value={toUtc}
+                    onChange={(e) => setToUtc(e.target.value)}
+                    className="mt-1 w-full"
+                  />
+                </label>
+              </>
               <label>
-                {buyerPolishedShell ? "Linked review" : "Review ID"}{" "}
+                Review ID{" "}
                 <input
                   value={auditRunIdInputDisplayValue(buyerPolishedShell, runId)}
                   onChange={(e) => setRunId(auditRunIdParseInputValue(buyerPolishedShell, e.target.value))}
-                  className="w-full mt-1"
+                  className="mt-1 w-full"
                 />
-                {buyerPolishedShell ? null : runId.trim().length > 0 ? (
+                {runId.trim().length > 0 ? (
                   <span className="mt-1 block text-xs text-neutral-600 dark:text-neutral-400">
                     Showing events for <strong>{buyerFacingReviewLinkLabelFromRunId(runId)}</strong>.
                   </span>
@@ -841,7 +955,10 @@ export default function AuditPage() {
               >
                 Advanced filters
                 <ChevronDown
-                  className={cn("h-4 w-4 shrink-0 transition-transform", advancedAuditFiltersOpen ? "rotate-0" : "-rotate-90")}
+                  className={cn(
+                    "h-4 w-4 shrink-0 transition-transform",
+                    advancedAuditFiltersOpen ? "rotate-0" : "-rotate-90",
+                  )}
                   aria-hidden
                 />
               </CollapsibleTrigger>
@@ -852,7 +969,7 @@ export default function AuditPage() {
                     <input
                       value={correlationId}
                       onChange={(e) => setCorrelationId(e.target.value)}
-                      className="w-full mt-1"
+                      className="mt-1 w-full"
                     />
                   </label>
                   <label>
@@ -860,38 +977,40 @@ export default function AuditPage() {
                     <input
                       value={actorUserId}
                       onChange={(e) => setActorUserId(e.target.value)}
-                      className="w-full mt-1"
+                      className="mt-1 w-full"
                     />
                   </label>
                 </div>
               </CollapsibleContent>
             </Collapsible>
-        <div className="mt-3 flex gap-2 flex-wrap">
-          <button
-            type="button"
-            onClick={() => void runSearch()}
-            disabled={searching || loadingTypes}
-            title={
-              callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-                ? auditSearchEventsButtonTitleReader
-                : auditSearchEventsButtonTitleOperator
-            }
-          >
-            {searching ? "Searching…" : canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}
-          </button>
-          <button
-            type="button"
-            onClick={() => void clearFiltersAndSearch()}
-            disabled={searching}
-            title={
-              canMutateEnterpriseShell
-                ? "Clear filter fields and run search with empty criteria"
-                : "Clear fields and re-run search (GET only; export rules unchanged)"
-            }
-          >
-            {canMutateEnterpriseShell ? "Clear filters" : auditClearFiltersButtonLabelReaderRank}
-          </button>
-        </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void runSearch()}
+                disabled={searching || loadingTypes}
+                title={
+                  callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+                    ? auditSearchEventsButtonTitleReader
+                    : auditSearchEventsButtonTitleOperator
+                }
+              >
+                {searching ? "Searching…" : canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}
+              </button>
+              <button
+                type="button"
+                onClick={() => void clearFiltersAndSearch()}
+                disabled={searching}
+                title={
+                  canMutateEnterpriseShell
+                    ? "Clear filter fields and run search with empty criteria"
+                    : "Clear fields and re-run search (GET only; export rules unchanged)"
+                }
+              >
+                {canMutateEnterpriseShell ? "Clear filters" : auditClearFiltersButtonLabelReaderRank}
+              </button>
+            </div>
+          </>
+        )}
       </section>
         </div>
 

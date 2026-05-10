@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 export type GoldenManifestExportMenuProps = {
@@ -32,6 +33,7 @@ export type GoldenManifestExportMenuProps = {
 export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
   const { runId, manifestId, goldenManifestJson, manifestSummary, trustEvidenceCard } = props;
   const [exportMenuKey, setExportMenuKey] = useState(0);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const canExport: boolean =
     isUsableGoldenManifestExportJson(goldenManifestJson) || manifestSummary !== null;
@@ -61,8 +63,11 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         setExportMenuKey((k: number) => k + 1);
       }}
     >
-      <SelectTrigger className="h-9 w-[10rem]" aria-label="Export reviewed manifest">
-        <SelectValue placeholder="Export" />
+      <SelectTrigger
+        className={buyerPolishedShell ? "h-9 w-[11rem]" : "h-9 w-[10rem]"}
+        aria-label={buyerPolishedShell ? "More export formats for this package" : "Export reviewed manifest"}
+      >
+        <SelectValue placeholder={buyerPolishedShell ? "More formats" : "Export"} />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="markdown-summary">Markdown summary</SelectItem>

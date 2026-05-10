@@ -924,7 +924,7 @@ Do not change:
 
 **Affected qualities:** Security, Reliability, Correctness, Trustworthiness, Manageability
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`ProductionDangerousMisconfigurationLint.DescribeFailFastFindings`** extended so catalog **DeveloperBypass** keys are enforced whenever ASP.NET Core is not **Development** and full production-profile lint does not already run (e.g. **Staging** without **`ProductionValidation:Strict`**, custom env names). **`ArchLucidConfigurationRules`** and **`ConfigLintCommand`** always merge those findings. **`E2eHarnessRules`** disallow harness in **Staging** as well as **Production** via **`HostEnvironmentClassification.IsProductionOrStagingLike`**. Parity CI was already **`ConfigurationCatalogProductionProfileGuardParityTests`** vs **`ProductionProfileFailFastMonitoredConfigurationPaths`**. Tests: **`ProductionDangerousMisconfigurationLintTests`**, **`ArchLucidConfigurationRulesTests`**. No separate **`IStartupValidator`** type in codebase — behavior matches the **`ArchLucidConfigurationRules` / lint** pattern.
 
 **Product guidance (2026-05-10):** **No** dedicated **“allowed in production with warning only”** catalog for **V1** — unsafe **Required** / **Conditional** disposition in Production/Staging stays **hard-fail**; optional keys need no validator. **No** break-glass keys exempt from validation by default. If a real break-glass scenario appears later, add an explicit **`ARCHLUCID_BREAK_GLASS_*`** (or equivalent) path **via ADR**, with logging/audit — not an informal warn tier.
 
@@ -1254,6 +1254,8 @@ Do not change:
 
 **Status:** COMPLETED (2026-05-10) — extended existing **`GET /v1/admin/config-summary`** with `Section`, `RequirementKind`, optional **`includeEffectiveValues`** (redacted via `ConfigurationEffectiveValueResolver`). No separate `configuration-summary` route; audit event from prompt not added.
 
+**Product guidance (2026-05-10):** **V1 default — redact secrets, do not omit catalog keys** (preserve presence / `configured` signal for operators). **Narrow omissions** only when **mere key presence** leaks unacceptable signal: (1) **internal roadmap / unreleased capability** flags, (2) identifiers that could **hint cross-tenant** linkage, (3) rare **defensive-posture** keys — each added via **catalog-level opt-out** + **ADR**, not ad hoc omission.
+
 **Cursor prompt:**
 ```
 In the ArchLucid API, add a diagnostic configuration summary endpoint.
@@ -1452,6 +1454,8 @@ Do not change:
 **Affected qualities:** Deployability, Adoption Friction, Time-to-Value, Azure Compatibility and SaaS Deployment Readiness
 
 **Status:** COMPLETED (2026-05-10) — **`infra/deploy-reference.ps1`** (wrapper over **`apply-saas.ps1 -MultiRoot`**). No **`deploy-reference.cmd`** or **`infra/REFERENCE_DEPLOYMENT.md`** per prompt.
+
+**Product guidance (2026-05-10):** **Minimum viable reference stack** assumes **private connectivity** — **private endpoints** for data plane (e.g. **SQL** not internet-exposed; app/data paths **not** public-by-default for pilot). Public-endpoint-only pilots are **out of scope** for the reference story unless explicitly documented as a **non-production lab** exception. **Current script** remains a thin wrapper; **Terraform variable defaults** and docs should converge to this posture over time. **SQL:** happy path is **provision via Terraform** with the rest of the stack; **bring-your-own SQL** is **not** in the reference story (**enterprise carve-out** / separate runbook if needed later).
 
 **Cursor prompt:**
 ```
@@ -1746,7 +1750,7 @@ Do not change:
 
 ## 10. Pending Questions for Later
 
-**Note (2026-05-10):** Baseline implementations now exist for Improvements **2**, **3**, **12**, **14**, and **18** (see section 9 status notes). The bullets under those headings are optional product follow-ups, not blockers.
+**Note (2026-05-10):** Baseline implementations now exist for Improvements **2**, **3**, **7**, **12**, **14**, and **18** (see section 9 status notes). The bullets under those headings are optional product follow-ups, not blockers.
 
 ### Improvement 1 (Real-LLM Golden Cohort Gate)
 - **Answered (2026-05-10):** Azure OpenAI deployment for CI is **`gpt-4o`**. Nightly real-LLM CI cost budget cap: **`USD 5`**.
@@ -1764,6 +1768,7 @@ Do not change:
 - **Deferred (2026-05-10):** **Dedicated service account vs owner credentials** for nightly CI — **no decision yet**.
 
 ### Improvement 7 (INV-005 Startup Validator Parity)
+**Status (2026-05-10):** Implemented — see **Improvement 7** in section 9 (lint + **`ArchLucidConfigurationRules`** merge; **Staging** / non-Development developer-bypass surface; **E2eHarness** blocked for staging-like hosts; **`ConfigurationCatalogProductionProfileGuardParityTests`** parity).
 - **Answered (2026-05-10):** **No** break-glass or dev-only keys exempt from Production/Staging validation for **V1**; any future break-glass is **explicit env + ADR**, not a silent warn tier.
 - **Answered (2026-05-10):** **No** separate **warn-in-production** key list for **V1** — invalid required/conditional stays **hard block**; optional keys are not startup-gated that way.
 
@@ -1772,15 +1777,15 @@ Do not change:
 - **Answered (2026-05-10):** **Minimum retention** before purge-eligible treatment: **three months** (~**90 days**); operators should not set archival hard-delete windows **below** that floor without legal sign-off.
 
 ### Improvement 14 (Configuration Summary Endpoint)
-- Are there any configuration keys that should be hidden entirely (not just redacted) from the summary — e.g., keys whose existence reveals architectural decisions the buyer shouldn't see?
+- **Answered (2026-05-10):** **Default:** **redact** sensitive values, **show** key presence (**no wholesale omission**). **Exceptions:** omit from summary only for a **small, catalog-tagged** set where presence leaks roadmap, cross-tenant, or defensive signal — each via **ADR** (see **§9 Improvement 14** product guidance).
 
 ### Improvement 18 (Reference Deployment Script)
-- What is the minimum viable set of Terraform roots? Should it include private networking, or is a public-endpoint deployment acceptable for pilots?
-- Should the script support bring-your-own SQL Server, or always provision a new one?
+- **Answered (2026-05-10):** **Minimum** reference path targets **all-private** data/app connectivity (**private SQL / private endpoints**); **not** public-endpoint pilots unless called out as a separate **non-prod lab** exception (see **§9 Improvement 18**).
+- **Answered (2026-05-10):** **Happy path:** operators **provision SQL via Terraform** with the stack; **BYO SQL** is **out of scope** for the reference wrapper unless added later as an **enterprise** path.
 
 ### General
-- What is the target date for the V1.1 commerce un-hold (Stripe live keys + Marketplace publish)?
-- Is there a budget allocated for the SOC 2 Type I readiness assessment (even if the CPA engagement is deferred)?
+- **Answered (2026-05-10):** **V1.1 commerce un-hold** (Stripe live keys + Marketplace publish) **target: 2026-06-15**.
+- **Answered (2026-05-10):** **SOC 2 Type I readiness** (self-assessment / gap work): **yes** — **internal labor only** (no separate external CPA budget called out here); **complete before production release**.
 - What is the expected tenant count at V1 GA — single digits, tens, or hundreds? This affects whether the scaling gaps are urgent.
 
 ---

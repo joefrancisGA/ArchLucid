@@ -63,11 +63,12 @@ describe("ArtifactListTable", () => {
     expect(preview.getAttribute("href")).toBe("/reviews/run-guid-1/artifacts/artifact-guid-1");
   });
 
-  it("sponsor mode: Output / View labels, technical details include raw format MIME", () => {
+  it("sponsor mode: Output column and role-specific open/download labels; technical details include raw format MIME", () => {
     const mimeSample = {
       ...sample,
       format: "text/markdown",
       name: "brief.md",
+      artifactType: "MarkdownReport",
     };
     render(
       <ArtifactListTable manifestId="manifest-1" artifacts={[mimeSample]} sponsorMode />,
@@ -75,12 +76,44 @@ describe("ArtifactListTable", () => {
 
     expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Generated" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open sponsor brief" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Download sponsor brief" })).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: "Format" })).toBeNull();
 
     expect(screen.getByText(/Integrity and format details/)).toBeInTheDocument();
     expect(screen.getByText("text/markdown")).toBeInTheDocument();
     expect(screen.getByText(/Presentation:/)).toBeInTheDocument();
+  });
+
+  it("sponsor mode with audienceSections groups rows under ordered audience headings", () => {
+    const artifacts = [
+      { ...sample, artifactId: "ev", artifactType: "EvidenceBundle", name: "ev.zip" },
+      {
+        ...sample,
+        artifactId: "md",
+        artifactType: "MarkdownReport",
+        name: "b.md",
+        format: "text/markdown",
+      },
+      { ...sample, artifactId: "jb", artifactType: "JsonBundle", name: "decisions.json" },
+      { ...sample, artifactId: "cs", artifactType: "CostSummary", name: "cost.json" },
+    ];
+    render(
+      <ArtifactListTable
+        manifestId="manifest-1"
+        artifacts={artifacts}
+        sponsorMode
+        audienceSections
+      />,
+    );
+
+    const headings = screen.getAllByRole("heading", { level: 3 });
+    expect(headings.map((heading) => heading.textContent)).toEqual([
+      "Executive & sponsor",
+      "Sponsor & architecture",
+      "Architecture review board",
+      "Audit & compliance",
+    ]);
   });
 
   it("sponsor mode: omits redundant filename caption when stem aligns with business label", () => {

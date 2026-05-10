@@ -142,9 +142,9 @@ export function GraphViewer({
             nodes={nodes as Node[]}
             edges={edges as Edge[]}
             fitView
-            fitViewOptions={{ padding: buyerTrailPanel ? 0.16 : 0.1, maxZoom: buyerTrailPanel ? 1.58 : 1.35 }}
+            fitViewOptions={{ padding: buyerTrailPanel ? 0.12 : 0.1, maxZoom: buyerTrailPanel ? 1.78 : 1.35 }}
             minZoom={0.2}
-            maxZoom={1.65}
+            maxZoom={buyerTrailPanel ? 1.95 : 1.65}
             onlyRenderVisibleElements
             proOptions={{ hideAttribution: true }}
             onNodeClick={(_, node) => {
