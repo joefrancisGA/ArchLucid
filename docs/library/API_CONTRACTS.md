@@ -36,7 +36,16 @@
 
 **Architecture request body (`POST /v1/architecture/request`):** Field-level summary and integrator notes live in **[`ARCHITECTURE_REQUEST_WIRE_FORMAT.md`](ARCHITECTURE_REQUEST_WIRE_FORMAT.md)** (canonical shapes remain **`GET /openapi/v1.json`** and **`ArchLucid.Contracts.Requests.ArchitectureRequest`**).
 
-**Operator narrative:** `docs/ONBOARDING_HAPPY_PATH.md` (request → commit → retrieval). **Consistency guarantees:** `docs/DATA_CONSISTENCY_MATRIX.md`. **Admin / runbooks:** `docs/OPERATIONS_ADMIN.md`, `docs/OPERATIONS_LLM_QUOTA.md`. **ADRs:** `docs/adr/README.md`.
+**Operator narrative:** `docs/ONBOARDING_HAPPY_PATH.md` (request → commit → retrieval). **Consistency guarantees:** `docs/DATA_CONSISTENCY_MATRIX.md`. **Admin / runbooks:** `docs/OPERATIONS_ADMIN.md`, **`docs/OPERATIONS_LLM_QUOTA.md`** (token budgets, quotas, hosted LLM posture). **ADRs:** `docs/adr/README.md`.
+
+## LLM cost signals — wire contract vs vendor economics
+
+Documentation and weighted-readiness framing distinguish:
+
+- **Vendor economics (platform cost-effectiveness — primary):** Protecting **hosted** COGS and capacity — quotas, caches, **`LlmCostEstimator`** / **`LlmCostEstimationOptions`**, consumption budgets in IaC/host config, telemetry — is **chiefly operational**. It does **not** require every control to surface on **`GET /openapi/v1.json`**. See **`OPERATIONS_LLM_QUOTA.md`** and **`CONFIGURATION_REFERENCE.md`**.
+- **Tenant- or integrator-visible usage / cost-like fields (valid adjunct):** JSON that exposes **token counts**, **`LLM call count`**, or future **estimated USD** fields is primarily **buyer transparency and trust** — **estimates ≠ invoiced Azure OpenAI**; tenants should reconcile spend with Azure Cost Management where applicable.
+
+**Contract changes:** Adding or altering **`v1`** DTOs with LLM usage, token totals, or derived cost estimates follows **§ Changing the HTTP contract** (snapshot, **`ArchLucid.Api.Client`**, **`archlucid-ui`** `npm run generate:api-types`, and doc touch-ups).
 
 ## Operator artifacts (`/v1/artifacts`)
 
@@ -118,7 +127,7 @@ Sponsor- and pilot-facing read models. All routes require **ReadAuthority** and 
 | Method | Path | Response | Notes |
 |--------|------|----------|-------|
 | `GET` | **`/v1/pilots/runs/{runId}/first-value-report`** | **`text/markdown`** | One-page Markdown summary (run metadata, findings counts, decision trace excerpt, baseline placeholders). **404** when the run id is unknown. |
-| `GET` | **`/v1/pilots/runs/{runId}/pilot-run-deltas`** | **`PilotRunDeltasResponse` (JSON)** | Proof-of-ROI numbers aligned with the first-value report (`timeToCommittedManifestTotalSeconds`, findings-by-severity, audit row count, LLM call count, `isDemoTenant`, optional evidence-chain pointers). **404** when the run id is unknown. |
+| `GET` | **`/v1/pilots/runs/{runId}/pilot-run-deltas`** | **`PilotRunDeltasResponse` (JSON)** | Proof-of-ROI numbers aligned with the first-value report (`timeToCommittedManifestTotalSeconds`, findings-by-severity, audit row count, **LLM call count** (workload / transparency signal, not invoice truth), `isDemoTenant`, optional evidence-chain pointers). **404** when the run id is unknown. |
 | `POST` | **`/v1/pilots/runs/{runId}/first-value-report.pdf`** | **`application/pdf`** | One-shot **sponsor-shareable PDF projection** of the same first-value-report Markdown body — same auth (`ReadAuthority`), same content (single source of truth), no Standard-tier gate. Backs the post-commit "Email this run to your sponsor" CTA on the operator-shell `/runs/[runId]` page. **404** when the run id is unknown. |
 
 CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evidence --run <runId> [--out <dir>] [--include-demo]` (see **`docs/CLI_USAGE.md`**). UI banner is `EmailRunToSponsorBanner` in `archlucid-ui/src/components/`; the operator-shell page renders it whenever the run has a golden manifest.

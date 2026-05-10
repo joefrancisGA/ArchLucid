@@ -420,6 +420,7 @@ public sealed class DapperTenantRepository(
                                  WHERE Id = @Id
                                    AND TrialStatus = @Active
                                    AND TrialRunsLimit IS NOT NULL
+                                   AND TrialRunsLimit > 0
                                    AND TrialExpiresUtc > SYSUTCDATETIME()
                                    AND TrialRunsUsed < TrialRunsLimit;
                                  """;
@@ -476,7 +477,8 @@ public sealed class DapperTenantRepository(
         }
 
         if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
-            t.TrialSeatsLimit is null)
+            t.TrialSeatsLimit is null ||
+            t.TrialSeatsLimit.Value < 1)
         {
             await tran.CommitAsync(ct);
 
@@ -879,7 +881,8 @@ public sealed class DapperTenantRepository(
             return;
 
         if (!string.Equals(row.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
-            row.TrialRunsLimit is null)
+            row.TrialRunsLimit is null ||
+            row.TrialRunsLimit.Value < 1)
             return;
 
         if (row.TrialExpiresUtc is { } exp && exp <= TimeProvider.System.GetUtcNow())

@@ -497,7 +497,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 return Task.CompletedTask;
 
             if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
-                t.TrialRunsLimit is null)
+                t.TrialRunsLimit is not int runCap ||
+                runCap < 1)
 
                 return Task.CompletedTask;
 
@@ -509,7 +510,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                     TrialLimitReason.Expired,
                     ComputeDaysRemaining(t.TrialExpiresUtc));
 
-            if (t.TrialRunsUsed >= t.TrialRunsLimit.Value)
+            if (t.TrialRunsUsed >= runCap)
 
                 throw new TrialLimitExceededException(
                     TrialLimitReason.RunsExceeded,
@@ -535,7 +536,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 return Task.CompletedTask;
 
             if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
-                t.TrialSeatsLimit is null)
+                t.TrialSeatsLimit is not int seatCap ||
+                seatCap < 1)
 
                 return Task.CompletedTask;
 
@@ -548,7 +550,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             if (_trialSeatOccupants.ContainsKey((tenantId, key)))
                 return Task.CompletedTask;
 
-            if (t.TrialSeatsUsed >= t.TrialSeatsLimit.Value)
+            if (t.TrialSeatsUsed >= seatCap)
 
                 throw new TrialLimitExceededException(
                     TrialLimitReason.SeatsExceeded,
