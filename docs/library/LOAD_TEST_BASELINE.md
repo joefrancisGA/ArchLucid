@@ -109,8 +109,8 @@ k6 runs with **`options.thresholds`** in `ci-smoke.js` (non-zero exit on breach)
 | --- | --- | --- |
 | `ARCHLUCID_K6_P95_HEALTH_LIVE_MS` | 300 | Tier 1 — `/health/live` |
 | `ARCHLUCID_K6_P95_HEALTH_READY_MS` | 1200 | Ready probes (noisier than Tier 1 external 300 ms) |
-| `ARCHLUCID_K6_P95_TIER2_MS` | 800 | Tier 2 synchronous API (list, version, audit, detail, telemetry) |
-| `ARCHLUCID_K6_P95_TIER3_MS` | 8000 | Tier 3 — `POST /v1/architecture/request` |
+| `ARCHLUCID_K6_P95_TIER2_MS` | 928 | Tier 2 synchronous API (see **`API_PERFORMANCE_TARGETS.md`** — 120% of **`k6-summary.json`** hotpaths p95) |
+| `ARCHLUCID_K6_P95_TIER3_MS` | 6600 | Tier 3 write/finish paths (`POST /v1/architecture/request`, seed/commit in operator smoke) |
 | `ARCHLUCID_K6_HTTP_FAIL_RATE_MAX` | 0.02 | Merge gate allows 2 % `http_req_failed` on Actions; **not** the customer-published 0.1 % availability row |
 
 Workflow **`.github/workflows/ci.yml`** job **`k6-ci-smoke`** passes these **`ARCHLUCID_K6_*`** values explicitly so forks can bump them without editing the script.
@@ -131,12 +131,12 @@ The **`k6-ci-smoke`** CI job uses **`--per-tag-ci-smoke`** so each scenario is i
 | Scenario | Executor | VUs | Duration | Endpoint | Threshold |
 | --- | --- | --- | --- | --- | --- |
 | `health` | constant-vus | 5 | 20 s | `GET /health/live` (`k6ci:health_live`), `GET /health/ready` (`k6ci:health_ready`) | live p(95) ≤ 300 ms; ready p(95) ≤ 1200 ms (ready includes SQL / probes) |
-| `create_run` | constant-vus | 2 | 30 s | `POST /v1/architecture/request` | p(95) ≤ 8000 ms (Tier 3 external SLO); API startup lengthens SqlClient timeouts for CI |
-| `list_runs` | constant-vus | 3 | 20 s (`startTime: "5s"`) | `GET /v1/architecture/runs` | p(95) ≤ 800 ms |
-| `audit_search` | constant-vus | 2 | 20 s | `GET /v1/audit/search?take=20` | p(95) ≤ 800 ms |
-| `version` | constant-vus | 2 | 20 s | `GET /version` (`k6ci:version`) | p(95) ≤ 800 ms |
-| `get_run_detail` | constant-vus | 2 | 20 s (`startTime: "8s"`) | `GET /v1/architecture/runs` then `POST` create then `GET /v1/architecture/run/{id}` (`k6ci:list_for_get_run`, `k6ci:get_run_detail`) | each tag p(95) ≤ 800 ms |
-| `client_error_telemetry` | constant-vus | 1 | 18 s (`startTime: "10s"`) | `POST /v1/diagnostics/client-error` (expects **204**) | p(95) ≤ 800 ms |
+| `create_run` | constant-vus | 2 | 30 s | `POST /v1/architecture/request` | p(95) ≤ 6600 ms — see **`API_PERFORMANCE_TARGETS.md`** |
+| `list_runs` | constant-vus | 3 | 20 s (`startTime: "5s"`) | `GET /v1/architecture/runs` | p(95) ≤ 928 ms |
+| `audit_search` | constant-vus | 2 | 20 s | `GET /v1/audit/search?take=20` | p(95) ≤ 928 ms |
+| `version` | constant-vus | 2 | 20 s | `GET /version` (`k6ci:version`) | p(95) ≤ 928 ms |
+| `get_run_detail` | constant-vus | 2 | 20 s (`startTime: "8s"`) | `GET /v1/architecture/runs` then `POST` create then `GET /v1/architecture/run/{id}` (`k6ci:list_for_get_run`, `k6ci:get_run_detail`) | each tag p(95) ≤ 928 ms |
+| `client_error_telemetry` | constant-vus | 1 | 18 s (`startTime: "10s"`) | `POST /v1/diagnostics/client-error` (expects **204**) | p(95) ≤ 928 ms |
 
 Global failure threshold: `http_req_failed` rate `< 2 %` (aligned with **`ARCHLUCID_K6_HTTP_FAIL_RATE_MAX`**). Total wall-clock duration: ~30 s (longest scenario).
 

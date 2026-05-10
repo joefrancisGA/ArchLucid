@@ -201,7 +201,7 @@ export function ArtifactListTable(props: {
   if (sponsorMode === true && audienceSections === true) {
     return (
       <div className="overflow-x-auto">
-        <div className="space-y-10">
+        <div className="space-y-10" role="region" aria-label="Deliverables grouped by audience">
           {AUDIENCE_BUCKET_ORDER.map((bucket) => {
             const slice = sorted.filter((a) => sponsorArtifactAudienceBucket(a.artifactType) === bucket);
 

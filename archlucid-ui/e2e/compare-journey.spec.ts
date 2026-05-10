@@ -33,7 +33,14 @@ test.describe("operator journey — compare query prefill and review order", () 
 
     await expect(page.getByRole("heading", { name: "Manifest comparison", level: 3 })).toBeVisible();
     await expect(page.locator("#compare-structured")).toBeVisible();
-    await expect(page.getByText(/Fixture highlight alpha/i)).toBeVisible();
+    // Same highlight is duplicated in Summary highlights <li>; target sponsor callout only.
+    await expect(
+      page
+        .locator("#compare-structured")
+        .locator("p")
+        .filter({ hasText: /Sponsor recommendation/i })
+        .filter({ hasText: /Fixture highlight alpha/i }),
+    ).toBeVisible();
 
     await expect(page.getByRole("heading", { name: "Review-level diff", level: 3 })).toBeVisible();
     await expect(page.locator("#compare-legacy")).toBeVisible();
