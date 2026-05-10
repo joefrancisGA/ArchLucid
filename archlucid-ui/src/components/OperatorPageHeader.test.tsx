@@ -7,6 +7,12 @@ vi.mock("@/components/ContextualHelp", () => ({
   ),
 }));
 
+vi.mock("@/components/ui/help-button", () => ({
+  HelpButton: ({ pageKey }: { pageKey: string }) => (
+    <span data-testid="docs-help-button">{pageKey}</span>
+  ),
+}));
+
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 
 describe("OperatorPageHeader", () => {
@@ -36,6 +42,16 @@ describe("OperatorPageHeader", () => {
   it("omits ContextualHelp when helpKey not provided", () => {
     render(<OperatorPageHeader title="T" />);
     expect(screen.queryByTestId("contextual-help")).toBeNull();
+  });
+
+  it("renders HelpButton when docsPageKey provided", () => {
+    render(<OperatorPageHeader title="T" docsPageKey="/compare" />);
+    expect(screen.getByTestId("docs-help-button")).toHaveTextContent("/compare");
+  });
+
+  it("omits HelpButton when docsPageKey not provided", () => {
+    render(<OperatorPageHeader title="T" />);
+    expect(screen.queryByTestId("docs-help-button")).toBeNull();
   });
 
   it("renders actions right-aligned with ml-auto container", () => {

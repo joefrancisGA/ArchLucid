@@ -15,9 +15,6 @@ public static class FakeQuickScanCompletionJson
     /// <summary>Builds a valid quick-scan response for <see cref="QuickScanService" /> parsing.</summary>
     public static string Build(string serializedFilesPayload)
     {
-        if (serializedFilesPayload is null)
-            return SerializePayload("No input payload.");
-
         try
         {
             using JsonDocument doc = JsonDocument.Parse(serializedFilesPayload);
@@ -25,19 +22,9 @@ public static class FakeQuickScanCompletionJson
             if (doc.RootElement.ValueKind != JsonValueKind.Object)
                 return SerializePayload("Unstructured quick-scan input.");
 
-            foreach (JsonProperty prop in doc.RootElement.EnumerateObject())
+            foreach (string? preview in from prop in doc.RootElement.EnumerateObject() where prop.Value.ValueKind == JsonValueKind.String select prop.Value.GetString() ?? string.Empty into text where text.Length > 0 select text.Length > 280 ? text[..280] + "…" : text)
             {
-                if (prop.Value.ValueKind == JsonValueKind.String)
-                {
-                    string text = prop.Value.GetString() ?? string.Empty;
-
-                    if (text.Length > 0)
-                    {
-                        string preview = text.Length > 280 ? text[..280] + "…" : text;
-
-                        return SerializePayload(preview);
-                    }
-                }
+                return SerializePayload(preview);
             }
         }
         catch (JsonException)
@@ -93,7 +80,11 @@ public static class FakeQuickScanCompletionJson
                 0.45,
                 "Low"));
 
-        JsonObject root = new() { ["summary"] = summary, ["findings"] = findings };
+        JsonObject root = new()
+        {
+            ["summary"] = summary,
+            ["findings"] = findings
+        };
 
         return root.ToJsonString(SerializerOptions);
     }

@@ -688,9 +688,11 @@ Gaps: (1) LLM cost estimation options exist but the accuracy of cost projections
 
 **Status:** DEFERRED
 
-**Reason:** Requires Azure OpenAI credentials (AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_DEPLOYMENT_NAME) that are owner-provisioned. Cannot be executed without active Azure OpenAI deployment.
+**Reason:** Requires **`AZURE_OPENAI_API_KEY`** (CI secret) and wiring **`AZURE_OPENAI_ENDPOINT`** / **`AZURE_OPENAI_DEPLOYMENT_NAME`** to the pipeline. Cannot be executed until CI secrets and job config are connected.
 
-**Information needed:** Azure OpenAI endpoint URL, API key, and deployment name for the gpt-4o deployment.
+**Information needed:** **`AZURE_OPENAI_API_KEY`** only, supplied as a CI secret (do not commit).
+
+**Owner guidance (2026-05-10):** Use deployment name **`gpt-4o`**. Treat nightly real-LLM CI as capped at **`USD 5`** spend (cost budget for that tier). Endpoint for the dev/project-aligned gate: **`https://oai-archlucid-dev.services.ai.azure.com/api/projects/proj-default`** (maps to **`AZURE_OPENAI_ENDPOINT`** in CI).
 
 ---
 
@@ -819,7 +821,7 @@ Do not change:
 
 **Affected qualities:** Cognitive Load, Usability, Customer Self-Sufficiency, Adoption Friction, Time-to-Value
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`archlucid-ui/src/lib/contextual-help.ts`** (`getHelpUrl`, `listContextualHelpDocPaths`, minimum route map incl. `/audit`, `/alerts`, `/graph`); **`HelpButton`** in **`archlucid-ui/src/components/ui/help-button.tsx`** (lucide **`HelpCircle`**, Radix tooltip “View documentation”, new tab); base URL via existing **`getDocHref`** / **`NEXT_PUBLIC_DOCS_BASE_URL`**; wired through **`OperatorPageHeader`** (**`docsPageKey`**) on reviews list (**`/runs`** key), **`/compare`**, **`/governance`**, plus **`RunDetailPageHeader`** (**`/runs/[id]`**). Vitest **`contextual-help.test.ts`** asserts URLs and repo doc paths exist.
 
 **Cursor prompt:**
 ```
@@ -1741,7 +1743,7 @@ Do not change:
 **Note (2026-05-10):** Baseline implementations now exist for Improvements **2**, **3**, **12**, **14**, and **18** (see section 9 status notes). The bullets under those headings are optional product follow-ups, not blockers.
 
 ### Improvement 1 (Real-LLM Golden Cohort Gate)
-- What Azure OpenAI deployment is available for CI? Is there a cost budget for nightly real-LLM CI runs?
+- **Answered (2026-05-10):** Azure OpenAI deployment for CI is **`gpt-4o`**. Nightly real-LLM CI cost budget cap: **`USD 5`**.
 - Should the real-LLM tier be merge-blocking or advisory-only initially?
 
 ### Improvement 2 (Durable LLM Budget Trackers)

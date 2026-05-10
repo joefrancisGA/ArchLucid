@@ -103,20 +103,13 @@ public sealed class MissingCancellationTokenAnalyzer : DiagnosticAnalyzer
 
     private static bool HasArch003Suppression(ISymbol symbol)
     {
-        foreach (AttributeData attr in symbol.GetAttributes())
+        foreach (var args in from attr in symbol.GetAttributes() where attr.AttributeClass?.ToDisplayString() == "System.Diagnostics.CodeAnalysis.SuppressMessageAttribute" select attr.ConstructorArguments)
         {
-            if (attr.AttributeClass?.ToDisplayString() != "System.Diagnostics.CodeAnalysis.SuppressMessageAttribute")
-                continue;
-
-            ImmutableArray<TypedConstant> args = attr.ConstructorArguments;
-
-            if (args.Length >= 2 &&
-                args[1].Value is string checkId &&
+            if (args is [_, { Value: string checkId } _, ..] &&
                 string.Equals(checkId, "ARCH003", StringComparison.Ordinal))
                 return true;
 
-            if (args.Length >= 1 &&
-                args[0].Value is string first &&
+            if (args is [{ Value: string first } _, ..] &&
                 string.Equals(first, "ARCH003", StringComparison.Ordinal))
                 return true;
         }

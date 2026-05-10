@@ -381,6 +381,7 @@ function CompareForm() {
       <OperatorPageHeader
         title="Compare reviews"
         helpKey="compare-runs"
+        docsPageKey="/compare"
         metadata={
           isBuyerPolishedOperatorShellEnv() ? undefined : (
             <ShortcutHint shortcut="Alt+C" className="text-[0.75rem] text-neutral-500" />
