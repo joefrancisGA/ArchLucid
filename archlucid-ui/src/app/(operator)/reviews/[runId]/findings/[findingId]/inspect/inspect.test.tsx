@@ -40,7 +40,7 @@ describe("FindingInspectView", () => {
 
     const view = within(container);
 
-    expect(view.getByRole("heading", { name: "Technical inspection — Rule A" })).toBeTruthy();
+    expect(view.getByRole("heading", { name: "Rule A — evidence & trace" })).toBeTruthy();
     expect(view.getByText("AI Audit Inspection")).toBeTruthy();
     expect(view.getByRole("heading", { name: "Why Rule A matters" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Evidence citations" })).toBeTruthy();

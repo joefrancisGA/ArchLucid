@@ -674,6 +674,8 @@ Gaps: (1) LLM cost estimation options exist but the accuracy of cost projections
 
 ## 9. Top Improvement Opportunities
 
+**Implementation status (2026-05-10):** Items **11–18**, **20–23** have landed in-repo since this assessment was drafted; **19** is only partially addressed. **Status** lines under each improvement are updated accordingly. Executive scores in sections 1–8 are not recalculated here.
+
 ### Improvement 1: Run Real-LLM Golden Cohort Gate with Live Azure OpenAI
 
 **Title:** Execute the golden cohort real-LLM gate against live Azure OpenAI and document results
@@ -1099,7 +1101,7 @@ Do not change:
 
 **Affected qualities:** Architectural Integrity, Maintainability, Security, Testability
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — composition-root list extended (incl. Contracts, Capabilities.Cost, Integrations.AzureDevOps); bin-output DLL coverage test added. See `ArchLucid.Architecture.Tests/SingleCompositionRoot*`.
 
 **Cursor prompt:**
 ```
@@ -1140,7 +1142,7 @@ Do not change:
 
 **Affected qualities:** Cost-Effectiveness, Manageability, Scalability, Reliability, Data Consistency
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — implemented as optional **`DataArchival:PurgeArchivedAgentExecutionTracesAfterDays`** / **`PurgeArchivedAgentExecutionTracesBatchSize`** during **`DataArchivalCoordinator`** (hard-delete SQL rows with `ArchivedUtc` before cutoff). Does **not** match the prompt’s separate `AgentExecutionTrace:RetentionDays` worker job / `Maintenance.TracesPurged` audit event.
 
 **Cursor prompt:**
 ```
@@ -1191,7 +1193,7 @@ Do not change:
 
 **Affected qualities:** Usability, Adoption Friction, Time-to-Value, Customer Self-Sufficiency, Cognitive Load
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — existing operator **`OnboardingTour`** (`archlucid-ui/src/components/OnboardingTour.tsx`) wired in **`AppShellClient`**; aligns with guided-tour intent (paths differ from prompt file names).
 
 **Cursor prompt:**
 ```
@@ -1242,7 +1244,7 @@ Do not change:
 
 **Affected qualities:** Manageability, Supportability, Deployability, Observability
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — extended existing **`GET /v1/admin/config-summary`** with `Section`, `RequirementKind`, optional **`includeEffectiveValues`** (redacted via `ConfigurationEffectiveValueResolver`). No separate `configuration-summary` route; audit event from prompt not added.
 
 **Cursor prompt:**
 ```
@@ -1293,7 +1295,7 @@ Do not change:
 
 **Affected qualities:** Change Impact Clarity, Marketability, Decision Velocity, Executive Value Visibility
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — buyer-facing **rolling shorthand** paragraph at top of **`docs/CHANGELOG.md`** (not the prompt’s separate `## Release highlights (buyer-facing)` table).
 
 **Cursor prompt:**
 ```
@@ -1339,7 +1341,7 @@ Do not change:
 
 **Affected qualities:** Supportability, Reliability, Customer Self-Sufficiency, Manageability
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`SupportBundleDiagnosticCompletenessTests`** (triage catalog / ordering invariants); narrower than prompt’s five scenario assertions.
 
 **Cursor prompt:**
 ```
@@ -1385,7 +1387,7 @@ Do not change:
 
 **Affected qualities:** Differentiability, Proof-of-ROI Readiness, Trustworthiness, Explainability, Marketability
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`docs/library/FINDING_ENGINE_OUTPUT_REFERENCE.md`**.
 
 **Cursor prompt:**
 ```
@@ -1441,7 +1443,7 @@ Do not change:
 
 **Affected qualities:** Deployability, Adoption Friction, Time-to-Value, Azure Compatibility and SaaS Deployment Readiness
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`infra/deploy-reference.ps1`** (wrapper over **`apply-saas.ps1 -MultiRoot`**). No **`deploy-reference.cmd`** or **`infra/REFERENCE_DEPLOYMENT.md`** per prompt.
 
 **Cursor prompt:**
 ```
@@ -1492,7 +1494,7 @@ Do not change:
 
 **Affected qualities:** Observability, Manageability, Supportability, Reliability
 
-**Status:** Actionable now
+**Status:** PARTIALLY COMPLETED (2026-05-10) — **`infra/appinsights-workbook/README.md`** with KQL starters; no ARM **`archlucid-operations.workbook.json`** or **`deploy-workbook.ps1`** from prompt.
 
 **Cursor prompt:**
 ```
@@ -1541,7 +1543,7 @@ Do not change:
 
 **Affected qualities:** Differentiability, Marketability, Decision Velocity, Executive Value Visibility
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`docs/go-to-market/COMPETITIVE_COMPARISON.md`**.
 
 **Cursor prompt:**
 ```
@@ -1589,7 +1591,7 @@ Do not change:
 
 **Affected qualities:** Cognitive Load, Customer Self-Sufficiency, Usability, Adoption Friction
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`archlucid-ui/src/lib/docs-search-index.ts`** + Documentation group in **`CommandPalette`** (Vitest: **`docs-search-index.test.ts`**).
 
 **Cursor prompt:**
 ```
@@ -1640,7 +1642,7 @@ Do not change:
 
 **Affected qualities:** Stickiness, Trustworthiness, Data Consistency, Compliance Readiness
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`ExportControllerSurfaceArchitectureTests`** (curated export HTTP surface); not the prompt’s full DDL ↔ export matrix.
 
 **Cursor prompt:**
 ```
@@ -1685,7 +1687,7 @@ Do not change:
 
 **Affected qualities:** Marketability, Decision Velocity, Proof-of-ROI Readiness, Executive Value Visibility, Differentiability
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`docs/demo/DEMO_RECORDING_STORYBOARD.md`**, **`scripts/demo-setup.ps1`**.
 
 **Cursor prompt:**
 ```
@@ -1735,6 +1737,8 @@ Do not change:
 ---
 
 ## 10. Pending Questions for Later
+
+**Note (2026-05-10):** Baseline implementations now exist for Improvements **12**, **14**, and **18** (see section 9 status notes). The bullets under those headings are optional product follow-ups, not blockers.
 
 ### Improvement 1 (Real-LLM Golden Cohort Gate)
 - What Azure OpenAI deployment is available for CI? Is there a cost budget for nightly real-LLM CI runs?

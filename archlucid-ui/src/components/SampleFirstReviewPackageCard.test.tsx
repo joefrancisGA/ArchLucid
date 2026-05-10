@@ -75,27 +75,31 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
   it("uses primary manifest summary, outline walkthrough, and separated own-workspace link", () => {
     render(<SampleFirstReviewPackageCard />);
 
-    expect(screen.getByRole("heading", { name: "Sample review package" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sample architecture review package" })).toBeInTheDocument();
+    expect(screen.getByText(/executive view is the board-ready summary/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/Includes a finalized manifest, a PHI finding with traceability/i),
+      screen.getByText(/Includes manifest outputs, PHI minimization risk with traceability/i),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open executive view" })).toHaveAttribute(
+      "href",
+      "/executive/reviews/claims-intake-modernization",
+    );
+    expect(screen.getByRole("link", { name: "Manifest summary" })).toHaveAttribute(
       "href",
       "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
     );
-    expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Optional guided walkthrough" })).toHaveAttribute(
       "href",
       "/showcase/claims-intake-modernization",
     );
     expect(screen.queryByRole("link", { name: "Open full review detail" })).toBeNull();
-    expect(screen.getByText(/Ready to connect your own workspace\?/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start your own review →" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Connect your own workspace →" })).toHaveAttribute("href", "/reviews/new");
   });
 
   it("records review-output telemetry when the sample review package is opened", () => {
     render(<SampleFirstReviewPackageCard />);
 
-    fireEvent.click(screen.getByRole("link", { name: "View manifest summary" }));
+    fireEvent.click(screen.getByRole("link", { name: /manifest summary/i }));
 
     expect(recordCorePilotRailChecklistStep).toHaveBeenCalledWith(3);
   });

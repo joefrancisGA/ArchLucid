@@ -55,6 +55,8 @@ function CommandPaletteDocumentationSearch() {
     </CommandGroup>
   );
 }
+
+function CommandPaletteCuratedTasks({
   visibleHrefs,
   onNavigate,
 }: {
