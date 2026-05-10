@@ -17,7 +17,6 @@ import {
   OperatorErrorCallout,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";

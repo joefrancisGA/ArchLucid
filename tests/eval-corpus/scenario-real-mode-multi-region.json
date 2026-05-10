@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-multi-region",
+  "metadata": {
+    "title": "Real-mode multi-region without DR (offline AgentResult scorer)",
+    "complexity": "high",
+    "primaryAgents": ["Topology", "Compliance"]
+  },
+  "inputSummary": "Marketing sites in two regions with single authoritative data plane — Topology exemplar for failover and residency probes.",
+  "recording": "recordings/multi-region-no-dr.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Topology",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_AGENT_RESULT",
+    "notes": "Synthetic exemplar; expanded cohort wires env to committed JSON."
+  },
+  "expectedFindings": [
+    {
+      "id": "e failover readiness",
+      "category": "Topology",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["failover", "RTO"]
+    },
+    {
+      "id": "e data sovereignty",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["residency", "replication lag"]
+    },
+    {
+      "id": "e availability testing",
+      "category": "Critic",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["chaos", "regional evacuation"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["active-active data plane validated monthly"] },
+    { "category": "Cost", "ifContainsAny": ["no material availability risk"] }
+  ]
+}

@@ -1298,7 +1298,7 @@ Acceptance criteria:
 
 **Title:** DEFERRED — Establish Hosted Staging Trial for Prospects
 
-**Reason deferred:** Requires infrastructure decisions about trial tenant provisioning, data isolation for trial users, urgency of unattended **infra purge/teardown automation** (**operator 2026-05-11:** deliberately **Phase 2** — idle trials burn negligible AOAI; manual Azure catalog drop acceptable at low cardinality per **`docs/go-to-market/TRIAL_AND_SIGNUP.md`** §4 and **`docs/library/TECH_BACKLOG.md`** **TB-017**), and Azure subscription cost commitment for hosting trial workloads. These blend product posture with incremental engineering.
+**Reason deferred:** Requires infrastructure decisions about **trial tenant provisioning** and **data isolation** (canonical shape already resolved database-per-tenant), plus urgency of unattended **infra purge/teardown automation** (**operator 2026-05-11:** deliberately **Phase 2** — idle trials burn negligible AOAI; manual Azure catalog drop acceptable at low cardinality — **`docs/go-to-market/TRIAL_AND_SIGNUP.md`** §4, **`docs/library/TECH_BACKLOG.md`** **TB-017**). **Resolved (operator, 2026-05-12):** Hosted **trial** uptake is **not** modeled as forcing a discrete **Azure subscription cost commitment** or financing milestone — **per-tenant catalog** architecture yields **small marginal infra per idle/dormant trial** versus LLM bursts at typical PLG volumes; elasticity follows **traffic**, not a prospect headcount pledge.
 
 **Resolved (operator, 2026-05-10):** Hosted **trial** tenants use **database-per-tenant** (`SystemWithPerTenantCatalogs`) — **the same catalog-per-tenant model as paying tenants.** **There is no supported shared multitenant trial product database**; pooled trials are out of scope for the supported data plane.
 
@@ -1306,7 +1306,7 @@ Acceptance criteria:
 
 **Resolved (operator, 2026-05-11):** **Trial duration** remains **30 days** (**10 evaluation runs**/trial — calendar length is secondary to AOAI spend). Hosted **buyer** architecture runs **`AgentExecution:Mode=Real`** (welcome seeded sample remains **Simulator** per **`TRIAL_AND_SIGNUP`**). **Fleet AOAI** planning + budgeting (`LlmMonthlyTenantDollarBudget`, SKU, **`MaxCompletionTokens`**) summarized in **`TRIAL_AND_SIGNUP`** **sections 3.1–3.2** (also **`CAPACITY_AND_COST_PLAYBOOK`** FinOps checkpoints).
 
-**Infrastructure still owner-sized:** Azure subscription grouping + SQL elastic pools / SKU for hosted signup concurrency (infra dominates hosted COGS; AOAI appendix is supplemental). Correlate with Prometheus trial funnel dashboards ([`docs/runbooks/TRIAL_FUNNEL.md`](docs/runbooks/TRIAL_FUNNEL.md)).
+**Hosting capacity (traffic-driven, not trial subscription locks):** When **paid or active concurrent** signup pressure grows, revisit SQL elastic pools / SKU and replica sizing using **`CAPACITY_AND_COST_PLAYBOOK`** and Prometheus funnel metrics ([`docs/runbooks/TRIAL_FUNNEL.md`](docs/runbooks/TRIAL_FUNNEL.md)) — **`operator 2026-05-12`:** incremental **trial** infra is **not** treated as needing a discrete **Azure subscription commitment** milestone.
 
 ## Pending Questions for Later
 
@@ -1328,7 +1328,7 @@ Acceptance criteria:
 - **Resolved (2026-05-10):** **Self-serve** hosted trials via **email + organization signup** ([`docs/go-to-market/TRIAL_AND_SIGNUP.md`](docs/go-to-market/TRIAL_AND_SIGNUP.md)); **manual trial-by-request is not** the default GTM posture for prospects.
 - **Resolved (2026-05-11):** Trial **duration + AOAI** economics (**30 days**, **`Runs = 10`**, **`AgentExecution:Mode=Real`** for buyer executions, illustrative **\$5 × concurrent active trials** AOAI band, infra caveat, SaaS **`LlmMonthlyTenantDollarBudget`** defaults **\$50 / \$75** with future tier-scoped **\$25 / \$35** tightening) consolidated in **`TRIAL_AND_SIGNUP`** **sections 3.1–3.2** and **`CAPACITY_AND_COST_PLAYBOOK`** checkpoints.
 - **Resolved (operator, 2026-05-11):** **Trial orphaned-catalog teardown / unattended purge urgency** deferred — **inactive trials cost almost nothing on AOAI**; **manual** Azure teardown of dormant tenant catalogs is acceptable at low cardinality; widen **`Trial:Lifecycle`** horizons and capture runbook **`TB-017`** / **`docs/go-to-market/TRIAL_AND_SIGNUP.md`** §4 + **`docs/runbooks/TRIAL_LIFECYCLE.md`** before insisting on aggressive automated cleanup SLA.
-- **Open:** holistic **hosted platform** sizing — Azure subscription grouping, elastic pools, replicas — driven by signup concurrency projections (**not** AOAI alone).
+- **Resolved (operator, 2026-05-12):** Hosted **trial** uptake does **not** imply a gated **Azure subscription cost commitment** or financing milestone — **`database-per-tenant`** catalogs keep marginal **infra** per dormant trial **small** versus LLM; pool / replica sizing tracks **traffic** when paying or active concurrency strains capacity (**see `CAPACITY_AND_COST_PLAYBOOK`**, Prometheus in **`docs/runbooks/TRIAL_FUNNEL.md`**), not prospective headcount promises.
 ---
 
 ## Deferred Scope Uncertainty

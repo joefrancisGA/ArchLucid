@@ -94,7 +94,6 @@ public static class ProductLearningTriageReportBuilder
             if (line.Length == 0 || !seen.Add(line))
                 continue;
 
-
             lines.Add(Truncate(line, 200));
         }
 
@@ -104,12 +103,10 @@ public static class ProductLearningTriageReportBuilder
             if (lines.Count >= maxLines)
                 break;
 
-
-            string line = Truncate((o.Title ?? string.Empty).Trim(), 200);
+            string line = Truncate((o.Title).Trim(), 200);
 
             if (line.Length == 0 || !seen.Add(line))
                 continue;
-
 
             lines.Add(line);
         }
@@ -119,24 +116,21 @@ public static class ProductLearningTriageReportBuilder
 
     private static string FormatAggregateProblemLine(FeedbackAggregate a)
     {
-        string area = (a.SubjectTypeOrWorkflowArea ?? string.Empty).Trim();
+        string area = (a.SubjectTypeOrWorkflowArea).Trim();
 
         if (area.Length == 0)
-
             area = "Feedback";
-
 
         string? pattern = string.IsNullOrWhiteSpace(a.PatternKey) ? null : a.PatternKey.Trim();
         string baseLine = pattern is null ? area : area + " — pattern `" + pattern + "`";
 
-        if (!string.IsNullOrWhiteSpace(a.DominantThemeHint))
-        {
-            string? hint = TrimHint(a.DominantThemeHint, 80);
+        if (string.IsNullOrWhiteSpace(a.DominantThemeHint))
+            return baseLine;
 
-            if (hint is not null)
+        string? hint = TrimHint(a.DominantThemeHint, 80);
 
-                baseLine += " (" + hint + ")";
-        }
+        if (hint is not null)
+            baseLine += " (" + hint + ")";
 
         return baseLine;
     }
@@ -154,10 +148,10 @@ public static class ProductLearningTriageReportBuilder
             .Take(max)
             .Select(o => new ProductLearningTriageReportImprovementLine
             {
-                Title = (o.Title ?? string.Empty).Trim(),
-                Severity = (o.Severity ?? string.Empty).Trim(),
-                Area = (o.AffectedArtifactTypeOrWorkflowArea ?? string.Empty).Trim(),
-                Summary = Truncate((o.Summary ?? string.Empty).Trim(), cap)
+                Title = (o.Title).Trim(),
+                Severity = (o.Severity).Trim(),
+                Area = (o.AffectedArtifactTypeOrWorkflowArea).Trim(),
+                Summary = Truncate((o.Summary).Trim(), cap)
             })
             .ToList();
     }
@@ -175,9 +169,9 @@ public static class ProductLearningTriageReportBuilder
             .Select(i => new ProductLearningTriageReportTriageLine
             {
                 Rank = i.PriorityRank,
-                Title = (i.Title ?? string.Empty).Trim(),
-                Severity = (i.Severity ?? string.Empty).Trim(),
-                DetailSummary = Truncate((i.DetailSummary ?? string.Empty).Trim(), 280),
+                Title = (i.Title).Trim(),
+                Severity = (i.Severity).Trim(),
+                DetailSummary = Truncate((i.DetailSummary).Trim(), 280),
                 SuggestedNextStep = string.IsNullOrWhiteSpace(i.SuggestedNextAction)
                     ? null
                     : Truncate(i.SuggestedNextAction.Trim(), 200)
@@ -187,11 +181,7 @@ public static class ProductLearningTriageReportBuilder
 
     private static string? TrimHint(string? value, int maxLen)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return null;
-
-
-        return Truncate(value.Trim(), maxLen);
+        return string.IsNullOrWhiteSpace(value) ? null : Truncate(value.Trim(), maxLen);
     }
 
     private static string Truncate(string value, int maxLen)

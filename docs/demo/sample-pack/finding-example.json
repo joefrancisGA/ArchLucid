@@ -1,0 +1,7 @@
+{
+  "findingId": "demo-finding-001",
+  "category": "Topology",
+  "severity": "Medium",
+  "title": "Sample finding",
+  "detail": "Illustrative finding body for buyer-safe slide decks — replace with exports from a real review when presenting."
+}

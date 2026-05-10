@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rmawa-real-exemplar-01",
+  "taskId": "corpus-rmawa-task-exemplar",
+  "runId": "corpus-rmawa-run-exemplar",
+  "agentType": 1,
+  "claims": [
+    {
+      "evidenceRefs": ["pattern-front-door"],
+      "detail": "Committed exemplar: marketing site and API share Front Door plus WAF before App Service origins with slot-based deployment."
+    }
+  ],
+  "evidenceRefs": ["pattern-front-door"],
+  "confidence": 0.83,
+  "findings": [
+    {
+      "severity": "Low",
+      "category": "Topology",
+      "description": "HTTPS terminates at Azure Front Door and Application Insights dependency maps cover outbound SQL and HTTP calls.",
+      "recommendation": "Reconfirm origin certificate pinning after each WAF policy change."
+    },
+    {
+      "severity": "Low",
+      "category": "Compliance",
+      "description": "Secrets for connection strings reference Key Vault with no plaintext credentials checked into the repository.",
+      "recommendation": "Enable automatic rotation alerts for any emergency break-glass secrets."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T12:00:00Z"
+}

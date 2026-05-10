@@ -1,0 +1,51 @@
+# Weekly: score all committed real-mode AgentResult exemplars with quality gates (no --enforce recall).
+# See docs/library/AGENT_EVAL_CORPUS.md — mapping mirrors agent-eval-corpus-rc env vars.
+name: golden-cohort-expanded-nightly
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 6 * * 0"
+
+permissions:
+  contents: read
+
+jobs:
+  eval-corpus-expanded-real-mode:
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Eval corpus (real-mode exemplars + quality gates)
+        env:
+          ARCHLUCID_EVAL_CORPUS_MARKDOWN_REPORT: ${{ runner.temp }}/eval-corpus-expanded.md
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-smoke.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-cost.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-compliance.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-critic.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_THREE_TIER_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-three-tier.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MICROSERVICES_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-microservices.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATABASE_BACKUP_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-database-backup.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_OVERPROVISIONED_VM_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-overprovisioned-vm.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-multi-region.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_AZURE_WEB_APP_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-azure-web-app.real.json
+        run: |
+          set -euo pipefail
+          REP="${ARCHLUCID_EVAL_CORPUS_MARKDOWN_REPORT}"
+          python3 scripts/ci/eval_agent_corpus.py \
+            --markdown-report "${REP}" \
+            --enforce-quality-gate \
+            --enforce-real-quality-gate
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "${REP}" >> "${GITHUB_STEP_SUMMARY}"; fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-corpus-expanded
+          path: ${{ runner.temp }}/eval-corpus-expanded.md
+          if-no-files-found: warn

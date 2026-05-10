@@ -1,0 +1,22 @@
+name: Manifest delta (example)
+description: Diff two offline golden-manifest JSON exports via scripts/integrations/github_pr_manifest_delta.py
+
+inputs:
+  base-manifest:
+    description: Path under GITHUB_WORKSPACE to base manifest JSON
+    required: true
+  head-manifest:
+    description: Path under GITHUB_WORKSPACE to head manifest JSON
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: python3 manifest delta
+      shell: bash
+      run: |
+        set -euo pipefail
+        python3 "${GITHUB_WORKSPACE}/scripts/integrations/github_pr_manifest_delta.py" \
+          --base "${GITHUB_WORKSPACE}/${{ inputs.base-manifest }}" \
+          --head "${GITHUB_WORKSPACE}/${{ inputs.head-manifest }}" \
+          --markdown >> "${GITHUB_STEP_SUMMARY}"

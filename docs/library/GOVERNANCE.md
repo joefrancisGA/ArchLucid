@@ -7,6 +7,10 @@
 
 ArchLucid governance covers **approval requests**, **manifest promotions** between deployment environments, and **environment activation** (which manifest version is live in a given environment). The primary HTTP API is under `POST /v1/governance/...` (`GovernanceController`). The durable audit path dual-writes `IAuditService` and baseline mutation logs from `GovernanceWorkflowService` (see `docs/AUDIT_COVERAGE_MATRIX.md`).
 
+## Default policy pack bodies (reference)
+
+Pilots creating packs via **`POST /v1/governance/policy-packs`** can start from checked-in JSON that matches **`PolicyPackContentDocument`**. Canonical strings live in **`ArchLucid.Application/Governance/DefaultPolicyPacks/DefaultPolicyPackTemplates.cs`** (`AzureWellArchitectedAnalogueJson`, `SecurityBaselineSaaSJson`). They are **not** auto-inserted into SQL—operators still **create**, **publish**, and **assign** packs explicitly per [`PRE_COMMIT_GOVERNANCE_GATE.md`](PRE_COMMIT_GOVERNANCE_GATE.md). For curl-oriented templates see also [`../../templates/policy-packs/README.md`](../../templates/policy-packs/README.md).
+
 ## Segregation of duties (approve / reject)
 
 A reviewer **must not** approve or reject a governance approval request they **submitted**.

@@ -42,6 +42,30 @@ function actorLabel(name: string): string {
   return n;
 }
 
+function formatElapsedSincePrevious(prevIso: string | undefined, curIso: string): string | null {
+  if (!prevIso) {
+    return null;
+  }
+
+  const prevMs = Date.parse(prevIso);
+  const curMs = Date.parse(curIso);
+
+  if (!Number.isFinite(prevMs) || !Number.isFinite(curMs) || curMs < prevMs) {
+    return null;
+  }
+
+  const sec = Math.round((curMs - prevMs) / 1000);
+
+  if (sec < 60) {
+    return `${sec}s after prior event`;
+  }
+
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+
+  return `${m}m ${s}s after prior event`;
+}
+
 /** Read-only vertical timeline of audit events for one architecture review (oldest first). */
 export function AuthorityPipelineTimeline({
   items,
@@ -77,7 +101,11 @@ export function AuthorityPipelineTimeline({
       className="m-0 max-w-3xl list-none space-y-0 pl-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
       aria-label="Review trail timeline"
     >
-      {items.map((row) => (
+      {items.map((row, index) => {
+        const prevUtc = index > 0 ? items[index - 1]!.occurredUtc : undefined;
+        const elapsed = formatElapsedSincePrevious(prevUtc, row.occurredUtc);
+
+        return (
         <li
           key={row.eventId}
           className="relative border-s-2 border-neutral-200 pb-6 ps-4 last:border-s-transparent last:pb-0 dark:border-neutral-700"
@@ -91,6 +119,9 @@ export function AuthorityPipelineTimeline({
               >
                 {new Date(row.occurredUtc).toLocaleString()}
               </time>
+              {elapsed ? (
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">{elapsed}</span>
+              ) : null}
               <span className="font-medium text-neutral-900 dark:text-neutral-100">
                 {pipelineEventTypeFriendlyLabel(row.eventType)}
               </span>
@@ -124,7 +155,8 @@ export function AuthorityPipelineTimeline({
             </div>
           </div>
         </li>
-      ))}
+        );
+      })}
     </ol>
   );
 }

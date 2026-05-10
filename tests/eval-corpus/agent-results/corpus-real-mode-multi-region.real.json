@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rmmr-real-exemplar-01",
+  "taskId": "corpus-rmmr-task-exemplar",
+  "runId": "corpus-rmmr-run-exemplar",
+  "agentType": 1,
+  "claims": [
+    {
+      "evidenceRefs": ["multi-region-drill"],
+      "detail": "Committed exemplar: user ingress is multi-region while database writes remain in a single primary region with manual playbook cutover."
+    }
+  ],
+  "evidenceRefs": ["multi-region-drill"],
+  "confidence": 0.74,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Topology",
+      "description": "Failover readiness depends on a manual runbook without measured RTO tied to DNS and cache invalidation steps.",
+      "recommendation": "Run timed regional evacuation drills and attach observability traces for each dependency hop."
+    },
+    {
+      "severity": "Medium",
+      "category": "Compliance",
+      "description": "Replication lag disclosures are missing for data subjects served from secondary marketing regions.",
+      "recommendation": "Document residency commitments and maximum acceptable replication delay for authoritative OLTP changes."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T12:00:00Z"
+}

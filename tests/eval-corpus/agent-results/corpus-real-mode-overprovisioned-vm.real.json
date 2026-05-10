@@ -1,0 +1,31 @@
+{
+  "resultId": "corpus-rmov-real-exemplar-01",
+  "taskId": "corpus-rmov-task-exemplar",
+  "runId": "corpus-rmov-run-exemplar",
+  "agentType": 2,
+  "claims": [
+    {
+      "evidenceRefs": ["vm-utilization-study"],
+      "detail": "Committed exemplar: average CPU under fifteen percent while SKUs remain pegged to holiday peak sizing."
+    }
+  ],
+  "evidenceRefs": ["vm-utilization-study"],
+  "confidence": 0.72,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Cost",
+      "description": "Right-sizing reviews show sustained low utilization on burstable VMs that could move to smaller SKUs or scheduled scale-in.",
+      "recommendation": "Attach FinOps dashboards and chargeback tags before the next reservation purchase window."
+    },
+    {
+      "severity": "Low",
+      "category": "Topology",
+      "description": "Autoscale profiles exist for batch workers but batch queues drain slowly overnight leaving idle capacity.",
+      "recommendation": "Tighten scale-down cool-downs after validating maximum queue age SLOs."
+    }
+  ],
+  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-10T12:00:00Z"
+}
