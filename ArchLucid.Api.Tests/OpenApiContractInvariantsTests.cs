@@ -44,9 +44,19 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
         JsonNode? executePost = paths["/v1/architecture/run/{runId}/execute"]?["post"];
         executePost.Should().NotBeNull();
         JsonObject? executeResponses = executePost!["responses"]?.AsObject();
-        executeResponses.Should().NotBeNull();
+        executeResponses.Should().NotBeNull();        
         executeResponses!.ContainsKey("409").Should().BeTrue(
             "execute documents 409 for quality-gate rejection (Problem Details); regen snapshot if this fails");
+
+        JsonNode? architectureRunSchema = root["components"]?["schemas"]?["ArchitectureRun"]?.AsObject();
+        architectureRunSchema.Should().NotBeNull();
+        JsonObject properties = architectureRunSchema!["properties"]!.AsObject();
+        properties.ContainsKey("structuralExecutionMode").Should().BeTrue("INV-002 requires ArchitectureRun.structuralExecutionMode on the wire");
+
+        JsonArray? required = architectureRunSchema["required"]?.AsArray();
+        required.Should().NotBeNull();
+        required!.Any(n => string.Equals(n?.GetValue<string>(), "structuralExecutionMode", StringComparison.Ordinal)).Should()
+            .BeTrue("structuralExecutionMode must be required on ArchitectureRun in OpenAPI");
 
         JsonNode? submitPost = paths["/v1/runs/{runId}/submit"]?["post"];
         submitPost.Should().NotBeNull();

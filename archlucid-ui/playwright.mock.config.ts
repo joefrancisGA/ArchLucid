@@ -38,8 +38,8 @@ export default defineConfig({
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     /**
      * Snapshots are OS-specific (`*-chromium-visual-win32.png` vs `*-linux.png`). CI must use the same OS as the
-     * committed baselines (see `ui-playwright-mock-smoke` in ci.yml) or you must regenerate Linux goldens via Docker
-     * (`scripts/update-visual-snapshots-docker.ps1`) and run mock E2E on Linux.
+     * committed baselines (see `ui-playwright-mock-visual` in ci.yml — Windows runner) or regenerate Linux
+     * goldens via Docker (`scripts/update-visual-snapshots-docker.ps1`) and match CI to `ubuntu-latest`.
      */
     {
       name: "chromium-visual",

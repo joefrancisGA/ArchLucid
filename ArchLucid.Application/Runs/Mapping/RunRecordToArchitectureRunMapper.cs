@@ -36,6 +36,7 @@ public static class RunRecordToArchitectureRunMapper
             OtelTraceId = record.OtelTraceId,
             TaskIds = [.. taskIds],
             RealModeFellBackToSimulator = record.RealModeFellBackToSimulator,
+            StructuralExecutionMode = record.StructuralExecutionMode,
             PilotAoaiDeploymentSnapshot = record.PilotAoaiDeploymentSnapshot,
             LastAgentExecutionFailure = AgentExecutionFailureSummaryJson.TryDeserialize(record.LastFailureReason)
         };

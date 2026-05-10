@@ -22,6 +22,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
         sql.Should().Contain("ArchivedUtc IS NULL");
         sql.Should().Contain("ORDER BY CreatedUtc DESC");
+        sql.Should().Contain("StructuralExecutionMode");
     }
 
     [SkippableFact]

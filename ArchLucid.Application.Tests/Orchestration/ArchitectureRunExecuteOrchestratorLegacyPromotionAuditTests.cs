@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -169,10 +170,13 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             new NoOpAgentOutputTraceEvaluationHook(),
             new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
+            Microsoft.Extensions.Options.Options.Create(new AgentExecutionOptions()),
             Microsoft.Extensions.Options.Options.Create(new ArchLucid.Core.Configuration.AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);
+
+        header.StructuralExecutionMode.Should().Be(StructuralExecutionMode.Simulator);
 
         captured.Should().NotBeNull();
         captured!.EventType.Should().Be(AuditEventTypes.RunLegacyReadyForCommitPromoted);

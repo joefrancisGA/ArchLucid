@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -124,6 +125,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             new NoOpAgentOutputTraceEvaluationHook(),
             new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
+            Microsoft.Extensions.Options.Options.Create(new AgentExecutionOptions()),
             Microsoft.Extensions.Options.Options.Create(new ArchLucid.Core.Configuration.AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
@@ -230,6 +232,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             new NoOpAgentOutputTraceEvaluationHook(),
             new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
+            Microsoft.Extensions.Options.Options.Create(new AgentExecutionOptions()),
             Microsoft.Extensions.Options.Options.Create(new ArchLucid.Core.Configuration.AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 

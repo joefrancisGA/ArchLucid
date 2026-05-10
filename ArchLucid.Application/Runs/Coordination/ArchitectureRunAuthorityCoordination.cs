@@ -122,6 +122,7 @@ public sealed class ArchitectureRunAuthorityCoordination(
             GoldenManifestId = authorityRun.GoldenManifestId,
             DecisionTraceId = authorityRun.DecisionTraceId,
             ArtifactBundleId = authorityRun.ArtifactBundleId,
+            StructuralExecutionMode = authorityRun.StructuralExecutionMode,
             TaskIds = []
         };
     }

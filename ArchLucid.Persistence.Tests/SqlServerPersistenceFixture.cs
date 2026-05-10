@@ -61,6 +61,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        StructuralExecutionModeTypeHandler.Register();
+
         string? fromEnv = Environment.GetEnvironmentVariable(EnvironmentConnectionStringVariable);
 
         if (!string.IsNullOrWhiteSpace(fromEnv))

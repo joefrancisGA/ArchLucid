@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Common;
+
 namespace ArchLucid.Persistence.Models;
 
 public sealed class RunRecord
@@ -146,6 +148,13 @@ public sealed class RunRecord
         get;
         set;
     }
+
+    /// <summary>INV-002: honest structural execution labeling for buyer-visible surfaces.</summary>
+    public StructuralExecutionMode StructuralExecutionMode
+    {
+        get;
+        set;
+    } = StructuralExecutionMode.Simulator;
 
     /// <summary>Optional snapshot of <c>AzureOpenAI:DeploymentName</c> at fallback time (for provenance footer).</summary>
     public string? PilotAoaiDeploymentSnapshot

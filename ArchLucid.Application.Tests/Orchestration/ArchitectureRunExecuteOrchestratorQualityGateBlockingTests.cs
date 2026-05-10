@@ -188,6 +188,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
             traceHook.Object,
             new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
+            Options.Create(new AgentExecutionOptions()),
             gateOptions,
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 

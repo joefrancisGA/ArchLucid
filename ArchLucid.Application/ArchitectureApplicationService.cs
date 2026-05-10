@@ -279,6 +279,7 @@ public sealed class ArchitectureApplicationService(
         if (header is null)
             return;
         header.RealModeFellBackToSimulator = true;
+        header.StructuralExecutionMode = StructuralExecutionMode.Fallback;
         header.PilotAoaiDeploymentSnapshot = configuration["AzureOpenAI:DeploymentName"]?.Trim();
         await runRepository.UpdateAsync(header, cancellationToken);
         ArchLucidInstrumentation.RecordTryRealModePilotFellBackToSimulator();

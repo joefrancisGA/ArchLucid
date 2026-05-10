@@ -19,6 +19,7 @@ public static class HotPathRelationalQueryShapes
                                                       ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                                       IsDemoWelcomeRun,
                                                       IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                                      StructuralExecutionMode,
                                                       RetryCount, LastFailureReason
                                                   FROM dbo.Runs WITH (NOLOCK)
                                                   WHERE ProjectId = @ProjectSlug
@@ -38,6 +39,7 @@ public static class HotPathRelationalQueryShapes
                                                             ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                                             IsDemoWelcomeRun,
                                                             IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                                            StructuralExecutionMode,
                                                             RetryCount, LastFailureReason
                                                         FROM dbo.Runs WITH (NOLOCK)
                                                         WHERE ProjectId = @ProjectSlug
@@ -86,6 +88,7 @@ public static class HotPathRelationalQueryShapes
                                                           ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                                           IsDemoWelcomeRun,
                                                           IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                                          StructuralExecutionMode,
                                                           RetryCount, LastFailureReason
                                                       FROM dbo.Runs WITH (NOLOCK)
                                                       WHERE TenantId = @TenantId
@@ -104,6 +107,7 @@ public static class HotPathRelationalQueryShapes
                                                                 ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                                                 IsDemoWelcomeRun,
                                                                 IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                                                StructuralExecutionMode,
                                                                 RetryCount, LastFailureReason
                                                             FROM dbo.Runs WITH (NOLOCK)
                                                             WHERE TenantId = @TenantId
