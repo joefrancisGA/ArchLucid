@@ -22,7 +22,7 @@
     "test:a11y": "playwright test -c playwright.mock.config.ts e2e/a11y.spec.ts",
     "e2e:mock": "playwright test -c playwright.mock.config.ts",
     "screenshots": "playwright test -c playwright.mock.config.ts capture-marketing-screenshots.spec.ts",
-    "screenshots:all": "playwright test -c playwright.mock.config.ts capture-all-screenshots.spec.ts",
+    "screenshots:all": "playwright test -c playwright.mock.config.ts capture-all-screenshots.spec.ts --workers=50%",
     "screenshots:demo": "playwright test --project=chromium e2e/live-api-demo-screenshots.spec.ts",
     "screenshots:all:prebuilt": "node ./scripts/run-screenshots-all-prebuilt.mjs",
     "test:e2e:live": "playwright test",

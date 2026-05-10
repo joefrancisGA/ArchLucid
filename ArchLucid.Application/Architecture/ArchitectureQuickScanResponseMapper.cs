@@ -13,7 +13,6 @@ public static class ArchitectureQuickScanResponseMapper
     {
         ArgumentNullException.ThrowIfNull(result);
 
-
         if (maxFindings < 1)
             throw new ArgumentOutOfRangeException(nameof(maxFindings));
 
