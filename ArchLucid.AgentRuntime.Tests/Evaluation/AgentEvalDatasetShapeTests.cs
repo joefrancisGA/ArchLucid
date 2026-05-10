@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using FluentAssertions;
 
@@ -89,10 +89,8 @@ public sealed class AgentEvalDatasetShapeTests
 
         int countedPi = 0;
 
-        foreach (JsonElement relEl in piPaths.EnumerateArray())
+        foreach (string piPath in piPaths.EnumerateArray().Select(relEl => relEl.GetString()!).Select(rel => Path.Combine(root, rel.Replace('/', Path.DirectorySeparatorChar))))
         {
-            string rel = relEl.GetString()!;
-            string piPath = Path.Combine(root, rel.Replace('/', Path.DirectorySeparatorChar));
             File.Exists(piPath).Should().BeTrue();
 
             JsonDocument piDoc = JsonDocument.Parse(File.ReadAllText(piPath));
@@ -112,10 +110,10 @@ public sealed class AgentEvalDatasetShapeTests
         countedPi.Should().BeGreaterThanOrEqualTo(minTotalPi);
 
         string piDir = Path.Combine(root, "prompt-injection");
-        string[] extraOnDisk = Directory.GetFiles(piDir, "*.json").Select(f => Path.GetFileName(f)!).ToArray();
+        string[] extraOnDisk = Directory.GetFiles(piDir, "*.json").Select(f => Path.GetFileName(f)).ToArray();
         string[] fromManifest = piPaths
             .EnumerateArray()
-            .Select(e => Path.GetFileName(e.GetString()!.Replace('/', Path.DirectorySeparatorChar))!)
+            .Select(e => Path.GetFileName(e.GetString()!.Replace('/', Path.DirectorySeparatorChar)))
             .ToArray();
 
         extraOnDisk.OrderBy(x => x).Should().Equal(fromManifest.OrderBy(x => x));

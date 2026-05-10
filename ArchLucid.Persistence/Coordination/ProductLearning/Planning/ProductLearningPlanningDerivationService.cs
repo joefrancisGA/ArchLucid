@@ -165,13 +165,8 @@ public sealed class ProductLearningPlanningDerivationService(
 
         int inserted = 0;
 
-        foreach (ProductLearningPilotSignalRecord row in matches)
+        foreach (ProductLearningPilotSignalRecord row in matches.TakeWhile(_ => budget-- > 0))
         {
-            if (budget-- <= 0)
-
-                break;
-
-
             await repository
                 .AddPlanSignalLinkAsync(
                     new ProductLearningImprovementPlanSignalLinkRecord
@@ -350,44 +345,31 @@ public sealed class ProductLearningPlanningDerivationService(
     }
 
     private static string BuildThemeSummary(ImprovementOpportunity opportunity)
-
     {
-
         string body =
             $"Pilot feedback rollup opportunity (rank {opportunity.PriorityRank}). {opportunity.Summary}".Trim();
 
+        const int maxSummaryUtf16Chars = 4_096;
 
-        const int MaxSummaryUtf16Chars = 4_096;
-
-        return body.Length <= MaxSummaryUtf16Chars ? body : body[..MaxSummaryUtf16Chars];
-
+        return body.Length <= maxSummaryUtf16Chars ? body : body[..maxSummaryUtf16Chars];
     }
 
     private static string NormalizeThemeKey(string? aggregateKey, string? patternFallback, string titleFallback)
-
     {
-
         string? raw = aggregateKey;
 
+        if (string.IsNullOrWhiteSpace(raw)) raw = patternFallback;
 
-        if (string.IsNullOrWhiteSpace(raw))
-
-            raw = patternFallback;
-
-
-        if (string.IsNullOrWhiteSpace(raw))
-
-            raw = slugFromTitleFallback(titleFallback);
-
+        if (string.IsNullOrWhiteSpace(raw)) 
+            raw = SlugFromTitleFallback(titleFallback);
 
         string trimmed = raw.Trim();
-
 
         return trimmed.Length <= ThemeKeyMaxChars ? trimmed : trimmed[..ThemeKeyMaxChars];
 
     }
 
-    private static string slugFromTitleFallback(string title)
+    private static string SlugFromTitleFallback(string title)
 
     {
 

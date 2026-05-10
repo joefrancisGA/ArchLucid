@@ -1,4 +1,3 @@
-using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
@@ -10,8 +9,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
-
-using Xunit;
 
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
@@ -69,7 +66,7 @@ public sealed class AgentOutputLlmSemanticJudgeTests
             await judge.TryJudgeAsync("trace-1", """{"claims":[]}""", AgentType.Topology, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.OverallQuality.Should().BeApproximately(0.82, 1e-9);
+        result.OverallQuality.Should().BeApproximately(0.82, 1e-9);
         result.Rationale.Should().Contain("evidence");
         client.Verify(
             c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
