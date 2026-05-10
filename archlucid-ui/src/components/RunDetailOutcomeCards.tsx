@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
 type RunDetailOutcomeCardsProps = {
@@ -107,6 +109,7 @@ function stripSegmentLabelClass(): string {
 }
 
 type PackageStatusStripProps = {
+  runId: string;
   manifestId: string | null | undefined;
   hasGoldenManifest: boolean;
   warningCountDisplay: number | null;
@@ -120,6 +123,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
   const trimmedManifestId = props.manifestId?.trim() ?? "";
   const hasManifest = trimmedManifestId.length > 0;
   const warningsLine = manifestWarningsSecondaryCopy(props.warningCountDisplay);
+  const hasPhiFlagship = isDemoRunIdEligibleForStaticFallback(props.runId);
   const findingN =
     typeof props.findingCountDisplay === "number" && Number.isFinite(props.findingCountDisplay)
       ? Math.trunc(props.findingCountDisplay)
@@ -129,7 +133,9 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
     findingN !== null && findingN >= 0
       ? `${findingN} ${findingsWord}`
       : finiteIntegerCountDisplay(props.findingCountDisplay);
-  const severitySignal = buyerFindingSeveritySignal(props.findingCountDisplay, props.aggregateRiskPosture);
+  const severitySignal = hasPhiFlagship
+    ? "Flagship risk: PHI minimization"
+    : buyerFindingSeveritySignal(props.findingCountDisplay, props.aggregateRiskPosture);
   const gate =
     props.governanceGateLabel !== null &&
     props.governanceGateLabel !== undefined &&
@@ -189,7 +195,11 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
         <div className="mt-1">
           {hasManifest ? (
             <Link
-              href="#run-explanation"
+              href={
+                hasPhiFlagship
+                  ? `/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
+                  : "#run-explanation"
+              }
               className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
             >
               {findingsBody}
@@ -228,6 +238,29 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
   );
 }
 
+function FlagshipRegulatedRiskCallout({ runId }: { readonly runId: string }) {
+  if (!isDemoRunIdEligibleForStaticFallback(runId)) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm leading-relaxed text-amber-950 shadow-sm dark:border-amber-900/60 dark:bg-amber-950/25 dark:text-amber-50">
+      <p className="m-0 font-semibold">Flagship regulated risk: PHI minimization.</p>
+      <p className="m-0 mt-1">
+        Privacy/control posture is the named review concern for this sample; verify ingress classification, adapter
+        retention boundaries, OCR bypass monitoring, and approval evidence before sign-off. {" "}
+        <Link
+          href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+          className="font-semibold underline underline-offset-2"
+        >
+          Open the PHI minimization finding
+        </Link>
+        .
+      </p>
+    </div>
+  );
+}
+
 export function RunDetailOutcomeCards({
   runId,
   manifestId,
@@ -245,6 +278,7 @@ export function RunDetailOutcomeCards({
     return (
       <div className="space-y-2">
         <PackageStatusStrip
+          runId={runId}
           manifestId={manifestId}
           hasGoldenManifest={hasGoldenManifest}
           warningCountDisplay={warningCountDisplay}
@@ -253,6 +287,7 @@ export function RunDetailOutcomeCards({
           artifactCount={artifactCount}
           governanceGateLabel={governanceGateLabel}
         />
+        <FlagshipRegulatedRiskCallout runId={runId} />
         <ReviewOutcomeTaxonomyLegend />
       </div>
     );
