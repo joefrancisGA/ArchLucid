@@ -69,4 +69,20 @@ describe("AskAssistantMessageBody", () => {
 
     expect(evidenceLink).toHaveAttribute("href", "/reviews/22222222-2222-4222-8222-222222222222");
   });
+
+  it("renders grounding links footer when provided", () => {
+    render(
+      <AskAssistantMessageBody
+        content="Plain reply."
+        groundingLinks={[
+          { label: "Manifest", href: "/manifests/a1" },
+          { label: "Finding", href: "/reviews/r1/findings/f1" },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Sources in this workspace")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Manifest" })).toHaveAttribute("href", "/manifests/a1");
+    expect(screen.getByRole("link", { name: "Finding" })).toHaveAttribute("href", "/reviews/r1/findings/f1");
+  });
 });

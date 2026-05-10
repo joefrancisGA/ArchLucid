@@ -53,11 +53,11 @@ public static class ProductionDangerousMisconfigurationLint
         string? arch = ReadArchLucidEnvironment(configuration)?.Trim();
 
         bool fullFailFast = AppliesDangerousFailFast(aspNetCoreEnvironmentName, configuration);
-        bool stagingDeveloperBypassSurface = !fullFailFast
-            && (string.Equals(trimmedAsp, Environments.Staging, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(arch, "Staging", StringComparison.OrdinalIgnoreCase));
+        bool nonDevelopmentDeveloperBypassSurface =
+            !fullFailFast
+            && !string.Equals(trimmedAsp, Environments.Development, StringComparison.OrdinalIgnoreCase);
 
-        if (!fullFailFast && !stagingDeveloperBypassSurface)
+        if (!fullFailFast && !nonDevelopmentDeveloperBypassSurface)
             return [];
 
         bool productionNamedProfile =
@@ -209,8 +209,8 @@ public static class ProductionDangerousMisconfigurationLint
             findings.Add(
                 new HostingMisconfigurationWarning(
                     ProductionLikeHostingMisconfigurationAdvisorRuleNames.AuthModeDevelopmentBypassDisallowed,
-                    "ArchLucidAuth:Mode cannot be DevelopmentBypass when the host is ASP.NET Core Staging "
-                    + "or ARCHLUCID_ENVIRONMENT=Staging (set ArchLucidAuth:Mode to ApiKey or JwtBearer)."));
+                    "ArchLucidAuth:Mode cannot be DevelopmentBypass when ASP.NET Core is not Development "
+                    + "(set ArchLucidAuth:Mode to ApiKey or JwtBearer for this environment)."));
         }
 
         return findings;

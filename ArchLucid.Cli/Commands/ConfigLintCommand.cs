@@ -82,18 +82,6 @@ internal static class ConfigLintCommand
         string modeTrim =
             cfg["ArchLucidAuth:Mode"]?.Trim() ?? string.Empty;
 
-        bool lintFailFast = ProductionDangerousMisconfigurationLint.AppliesDangerousFailFast(hostingEnvironmentName, cfg);
-
-        if (!lintFailFast
-            && nonDevelopmentHosting
-            && string.Equals(modeTrim, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
-            errors.Add(
-                "ArchLucidAuth:Mode must not be DevelopmentBypass outside safe Development workstations (check ASPNETCORE_ENVIRONMENT / ARCHLUCID_ENVIRONMENT).");
-
-        if (!lintFailFast && nonDevelopmentHosting && cfg.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
-            errors.Add(
-                "Authentication:ApiKey:DevelopmentBypassAll must be false outside intentional Development workstations.");
-
         if (!nonDevelopmentHosting || modeTrim.Length <= 0)
             return errors;
 

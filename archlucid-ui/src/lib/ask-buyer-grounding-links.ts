@@ -1,0 +1,43 @@
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import {
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
+
+export type BuyerAskGroundingLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+/**
+ * Deterministic anchors shown under Ask assistant replies on the Claims Intake demo spine — makes grounding visible
+ * without depending on model prose (Illustrative seeded threads still apply).
+ */
+export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAskGroundingLink[] | null {
+  const runId = canonicalizeDemoRunId(runIdRaw.trim());
+
+  if (runId !== SHOWCASE_STATIC_DEMO_RUN_ID) {
+    return null;
+  }
+
+  return [
+    {
+      label: "Finalized manifest package",
+      href: `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
+    },
+    {
+      label: BUYER_SURFACE_VOCABULARY.phiMinimizationRisk,
+      href: `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`,
+    },
+    {
+      label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
+      href: `/graph?runId=${encodeURIComponent(runId)}`,
+    },
+    {
+      label: BUYER_SURFACE_VOCABULARY.auditTrail,
+      href: `/audit?runId=${encodeURIComponent(runId)}`,
+    },
+  ];
+}

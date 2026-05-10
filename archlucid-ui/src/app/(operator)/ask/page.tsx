@@ -24,6 +24,7 @@ import {
   getConversationMessages,
   listConversationThreads,
 } from "@/lib/conversation-api";
+import { buyerAskGroundingLinksForRun } from "@/lib/ask-buyer-grounding-links";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -363,6 +364,11 @@ function AskPageContent() {
     return canonicalizeDemoRunId(urlRunIdRaw) === canonicalizeDemoRunId(runId.trim());
   }, [urlRunIdRaw, runId]);
 
+  const askAssistantGroundingLinks = useMemo(
+    () => (buyerPolishedShell ? buyerAskGroundingLinksForRun(runId) : null),
+    [buyerPolishedShell, runId],
+  );
+
   return (
     <div className="max-w-5xl">
       <OperatorPageHeader
@@ -377,8 +383,14 @@ function AskPageContent() {
       <p className="mb-4 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
         {buyerPolishedShell ? (
           <>
-            Answers use the review you attach. Finalized packages include manifest and findings; in-flight reviews may omit
-            late outputs until processing completes.
+            Answers tie to the review you attach. Finalized packages pair best with manifest, findings, evidence graph, and
+            audit trail checks.
+            {canonicalizeDemoRunId(runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID ? (
+              <>
+                {" "}
+                On the Claims Intake sample review, assistant replies include quick links to those anchors.
+              </>
+            ) : null}
           </>
         ) : (
           <>
@@ -661,7 +673,11 @@ function AskPageContent() {
                     <CardContent className="space-y-1 p-3">
                       <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{message.role}</div>
                       {message.role.toLowerCase() === "assistant" ? (
-                        <AskAssistantMessageBody buyerPolishedLinks={buyerPolishedShell} content={message.content} />
+                        <AskAssistantMessageBody
+                          buyerPolishedLinks={buyerPolishedShell}
+                          content={message.content}
+                          groundingLinks={askAssistantGroundingLinks ?? undefined}
+                        />
                       ) : (
                         <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">
                           {message.content}

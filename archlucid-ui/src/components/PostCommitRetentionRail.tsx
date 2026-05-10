@@ -25,6 +25,8 @@ type PostCommitRetentionRailProps = {
   readonly showCompareCta?: boolean;
   /** Curated demo spine — adds compact links for the polished buyer path (PHI risk, evidence graph, audit trail). */
   readonly buyerShowcaseQuickLinks?: boolean;
+  /** Present after finalize — unlocks manifest package deep link on the polished demo row. */
+  readonly goldenManifestId?: string | null;
 };
 
 /**
@@ -34,6 +36,7 @@ export function PostCommitRetentionRail({
   runId,
   showCompareCta = true,
   buyerShowcaseQuickLinks = false,
+  goldenManifestId = null,
 }: PostCommitRetentionRailProps): ReactElement {
   const canMutate: boolean = useEnterpriseMutationCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -47,7 +50,9 @@ export function PostCommitRetentionRail({
         <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Recommended next steps</h2>
         <CardDescription className="text-neutral-700 dark:text-neutral-300">
           {buyerPolishedShell
-            ? "Finalized package — start with executive view, PHI minimization risk, or the evidence graph; use the audit trail for every event."
+            ? showcaseSpine
+              ? "Finalized sample package — confirm PHI mitigation on the finding, read the manifest decision record, walk the evidence graph, and use the audit trail for the timeline."
+              : "Finalized package — start with executive view, PHI minimization risk, or the evidence graph; use the audit trail for every event."
             : "You have a committed review package. Pick the next loop that fits your team—navigation stays inside this workspace."}
         </CardDescription>
       </CardHeader>
@@ -143,6 +148,14 @@ export function PostCommitRetentionRail({
               Polished path — sample review
             </p>
             <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (
+                <Link
+                  className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                  href={`/manifests/${encodeURIComponent(goldenManifestId.trim())}`}
+                >
+                  Manifest package
+                </Link>
+              ) : null}
               <Link
                 className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
                 href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}

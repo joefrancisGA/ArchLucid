@@ -102,6 +102,23 @@ public sealed class ProductionDangerousMisconfigurationLintTests
     }
 
     [Fact]
+    public void DescribeFailFastFindings_non_development_environment_development_bypass_mode_emits_rule_name()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+
+        IReadOnlyList<HostingMisconfigurationWarning> warnings =
+            ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(configuration, "Test");
+
+        HostingMisconfigurationWarning first = warnings.Should().ContainSingle().Subject;
+        first.RuleName.Should().Be(ProductionLikeHostingMisconfigurationAdvisorRuleNames.AuthModeDevelopmentBypassDisallowed);
+    }
+
+    [Fact]
     public void DescribeFailFastFindings_production_development_bypass_emits_stable_rule_and_aspnet_env_hint()
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
