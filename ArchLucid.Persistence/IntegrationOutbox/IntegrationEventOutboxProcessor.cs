@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 using Serilog.Context;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.IntegrationOutbox;
 
 /// <inheritdoc cref="IIntegrationEventOutboxProcessor" />
 public sealed class IntegrationEventOutboxProcessor(

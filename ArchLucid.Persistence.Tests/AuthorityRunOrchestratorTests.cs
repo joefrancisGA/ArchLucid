@@ -9,11 +9,10 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
-
-using ArchLucid.KnowledgeGraph.Caching;
-
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Caching;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 

@@ -25,10 +25,7 @@ public static class ConfigurationEffectiveValueResolver
 
         const int maxLength = 256;
 
-        if (v.Length <= maxLength)
-            return v;
-
-        return string.Concat(v.AsSpan(0, maxLength), "…");
+        return v.Length <= maxLength ? v : string.Concat(v.AsSpan(0, maxLength), "…");
     }
 
     internal static bool IsSensitiveConfigPath(string configPath)

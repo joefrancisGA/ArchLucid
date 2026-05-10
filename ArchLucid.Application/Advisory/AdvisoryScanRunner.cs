@@ -18,8 +18,8 @@ using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
@@ -98,7 +98,12 @@ public sealed class AdvisoryScanRunner(
         scanActivity?.SetTag("archlucid.schedule_id", schedule.ScheduleId.ToString("D"));
         scanActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
         using IDisposable _ = LogContext.PushProperty("CorrelationId", logicalCorrelation);
-        ScopeContext scope = new() { TenantId = schedule.TenantId, WorkspaceId = schedule.WorkspaceId, ProjectId = schedule.ProjectId };
+        ScopeContext scope = new()
+        {
+            TenantId = schedule.TenantId,
+            WorkspaceId = schedule.WorkspaceId,
+            ProjectId = schedule.ProjectId
+        };
         AdvisoryScanExecution execution = new()
         {
             ExecutionId = Guid.NewGuid(),
@@ -131,7 +136,13 @@ public sealed class AdvisoryScanRunner(
                 {
                     EventType = AuditEventTypes.AdvisoryScanExecuted,
                     DataJson = JsonSerializer.Serialize(
-                        new { scheduleId = schedule.ScheduleId, executionId = execution.ExecutionId, failed = true, error = ex.Message },
+                        new
+                        {
+                            scheduleId = schedule.ScheduleId,
+                            executionId = execution.ExecutionId,
+                            failed = true,
+                            error = ex.Message
+                        },
                         AuditJsonSerializationOptions.Instance)
                 }, ct);
             await AdvanceScheduleAsync(schedule, ct);
@@ -246,7 +257,11 @@ public sealed class AdvisoryScanRunner(
             {
                 EventType = AuditEventTypes.AdvisoryScanExecuted,
                 RunId = latest.RunId,
-                DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, executionId = execution.ExecutionId },
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    scheduleId = schedule.ScheduleId,
+                    executionId = execution.ExecutionId
+                },
                     AuditJsonSerializationOptions.Instance)
             }, ct);
         await auditService.LogAsync(
@@ -286,7 +301,12 @@ public sealed class AdvisoryScanRunner(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AdvisoryScanExecuted,
-                DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, failed = true, message },
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    scheduleId = schedule.ScheduleId,
+                    failed = true,
+                    message
+                },
                     AuditJsonSerializationOptions.Instance)
             }, ct);
         await AdvanceScheduleAsync(schedule, ct);

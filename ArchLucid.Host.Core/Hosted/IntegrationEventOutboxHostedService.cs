@@ -1,4 +1,4 @@
-using ArchLucid.Persistence;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 namespace ArchLucid.Host.Core.Hosted;
 

@@ -2,7 +2,7 @@ using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

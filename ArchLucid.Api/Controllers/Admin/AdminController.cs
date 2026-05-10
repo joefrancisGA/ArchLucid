@@ -5,8 +5,8 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Configuration.Summary;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Models;
 
 using Asp.Versioning;

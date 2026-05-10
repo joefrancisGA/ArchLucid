@@ -222,6 +222,54 @@ export function sponsorArtifactSecondaryCaption(filename: string, businessLabel:
   return stripped;
 }
 
+/**
+ * Buyer/sponsor table: verb-led preview link (assessment — avoid generic “View”).
+ */
+export function sponsorArtifactOpenActionLabel(artifactType: string): string {
+  const normalizedType = artifactType.trim();
+
+  const map: Record<string, string> = {
+    MarkdownReport: "Open sponsor brief",
+    ArchitectureNarrative: "Open architecture narrative",
+    JsonBundle: "Open decision record",
+    EvidenceBundle: "Open audit evidence",
+    ComplianceMatrix: "Open compliance matrix",
+    CoverageSummary: "Open coverage summary",
+    UnresolvedIssuesReport: "Open issues summary",
+    CostSummary: "Open cost summary",
+    Inventory: "Open inventory",
+    DiagramAst: "Open diagram structure",
+    MermaidDiagram: "Open diagram source",
+    Diagram: "Open diagram",
+    ReferenceArchitectureMarkdown: "Open reference architecture",
+  };
+
+  return map[normalizedType] ?? "Open output";
+}
+
+/** Buyer/sponsor table: matching download verb per artifact role. */
+export function sponsorArtifactDownloadActionLabel(artifactType: string): string {
+  const normalizedType = artifactType.trim();
+
+  const map: Record<string, string> = {
+    MarkdownReport: "Download sponsor brief",
+    ArchitectureNarrative: "Download narrative",
+    JsonBundle: "Download decision record",
+    EvidenceBundle: "Download audit evidence",
+    ComplianceMatrix: "Download compliance matrix",
+    CoverageSummary: "Download coverage summary",
+    UnresolvedIssuesReport: "Download issues summary",
+    CostSummary: "Download cost summary",
+    Inventory: "Download inventory",
+    DiagramAst: "Download diagram structure",
+    MermaidDiagram: "Download diagram source",
+    Diagram: "Download diagram",
+    ReferenceArchitectureMarkdown: "Download reference architecture",
+  };
+
+  return map[normalizedType] ?? "Download";
+}
+
 /** Returns a one-line description of what an artifact type represents, for the preview panel header. */
 export function getArtifactTypeDescription(artifactType: string): string {
   const entry = ARTIFACT_TYPE_COPY[artifactType];

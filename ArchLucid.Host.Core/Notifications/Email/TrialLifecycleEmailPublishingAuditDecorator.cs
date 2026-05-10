@@ -4,7 +4,7 @@ using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Auth.Services;
-using ArchLucid.Persistence;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using Microsoft.Extensions.Options;
 

@@ -1,6 +1,6 @@
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Integration;
-using ArchLucid.Persistence;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -53,7 +53,7 @@ public sealed class DataConsistencyReconciliationHostedService(
             int initialSeconds = Math.Clamp(_optionsMonitor.CurrentValue.InitialDelaySeconds, 0, 600);
             await Task.Delay(TimeSpan.FromSeconds(initialSeconds), leaderToken);
         }
-        catch (OperationCanceledException)when (leaderToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
         {
             return;
         }
@@ -69,7 +69,7 @@ public sealed class DataConsistencyReconciliationHostedService(
                 _healthState.RecordSuccess(report);
                 await TryPublishCompletedEventAsync(report, leaderToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException)when (leaderToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 return;
             }
@@ -84,7 +84,7 @@ public sealed class DataConsistencyReconciliationHostedService(
             {
                 await Task.Delay(TimeSpan.FromMinutes(minutes), leaderToken);
             }
-            catch (OperationCanceledException)when (leaderToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 return;
             }
@@ -102,7 +102,10 @@ public sealed class DataConsistencyReconciliationHostedService(
                 report.IsHealthy,
                 Findings = report.Findings.Select(f => new
                 {
-                    f.CheckName, Severity = f.Severity.ToString(), f.Description, AffectedEntityIds = f.AffectedEntityIds.Take(50).ToArray()
+                    f.CheckName,
+                    Severity = f.Severity.ToString(),
+                    f.Description,
+                    AffectedEntityIds = f.AffectedEntityIds.Take(50).ToArray()
                 }).ToArray()
             };
             string messageId = $"data-consistency-check:{report.CheckedAtUtc:o}";

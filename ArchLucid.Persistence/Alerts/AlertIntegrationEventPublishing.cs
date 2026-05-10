@@ -1,5 +1,6 @@
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

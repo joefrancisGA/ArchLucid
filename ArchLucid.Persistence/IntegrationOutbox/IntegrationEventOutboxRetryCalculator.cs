@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.IntegrationOutbox;
 
 /// <summary>Computes exponential backoff after a failed Service Bus publish.</summary>
 public static class IntegrationEventOutboxRetryCalculator

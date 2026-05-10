@@ -3,7 +3,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Jobs;
-using ArchLucid.Persistence;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using FluentAssertions;
 

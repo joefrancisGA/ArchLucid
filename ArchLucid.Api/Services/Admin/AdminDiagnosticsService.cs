@@ -7,10 +7,10 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.DataConsistency;
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
@@ -190,7 +190,12 @@ public sealed class AdminDiagnosticsService(
                 {
                     EventType = AuditEventTypes.ComparisonRecordOrphansRemediated,
                     DataJson = JsonSerializer.Serialize(
-                        new { dryRun = false, deletedCount = deletedIds.Count, comparisonRecordIds = deletedIds })
+                        new
+                        {
+                            dryRun = false,
+                            deletedCount = deletedIds.Count,
+                            comparisonRecordIds = deletedIds
+                        })
                 },
                 cancellationToken);
 
@@ -287,7 +292,12 @@ public sealed class AdminDiagnosticsService(
                 {
                     EventType = AuditEventTypes.GoldenManifestOrphansRemediated,
                     DataJson = JsonSerializer.Serialize(
-                        new { dryRun = false, deletedCount = deletedIds.Count, manifestIds = deletedIds })
+                        new
+                        {
+                            dryRun = false,
+                            deletedCount = deletedIds.Count,
+                            manifestIds = deletedIds
+                        })
                 },
                 cancellationToken);
 
@@ -372,7 +382,12 @@ public sealed class AdminDiagnosticsService(
                 {
                     EventType = AuditEventTypes.FindingsSnapshotOrphansRemediated,
                     DataJson = JsonSerializer.Serialize(
-                        new { dryRun = false, deletedCount = deletedIds.Count, findingsSnapshotIds = deletedIds })
+                        new
+                        {
+                            dryRun = false,
+                            deletedCount = deletedIds.Count,
+                            findingsSnapshotIds = deletedIds
+                        })
                 },
                 cancellationToken);
 

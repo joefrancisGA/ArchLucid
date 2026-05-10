@@ -14,6 +14,7 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.Coordination.Retrieval;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration.Pipeline;
@@ -127,7 +128,11 @@ public sealed class AuthorityRunOrchestrator(
                     EventType = AuditEventTypes.RunStarted,
                     RunId = run.RunId,
                     DataJson = JsonSerializer.Serialize(
-                        new { run.ProjectId, Queued = false },
+                        new
+                        {
+                            run.ProjectId,
+                            Queued = false
+                        },
                         AuditJsonSerializationOptions.Instance)
                 },
                 pipelineCt);
@@ -143,7 +148,8 @@ public sealed class AuthorityRunOrchestrator(
 
                 AuthorityPipelineWorkPayload payload = new()
                 {
-                    ContextIngestionRequest = request, EvidenceBundleId = deferredEvidenceBundleId
+                    ContextIngestionRequest = request,
+                    EvidenceBundleId = deferredEvidenceBundleId
                 };
 
                 await authorityPipelineWorkRepository.EnqueueAsync(
@@ -162,7 +168,11 @@ public sealed class AuthorityRunOrchestrator(
                         EventType = AuditEventTypes.RunStarted,
                         RunId = run.RunId,
                         DataJson = JsonSerializer.Serialize(
-                            new { run.ProjectId, Queued = true },
+                            new
+                            {
+                                run.ProjectId,
+                                Queued = true
+                            },
                             AuditJsonSerializationOptions.Instance)
                     },
                     pipelineCt);
@@ -298,7 +308,12 @@ public sealed class AuthorityRunOrchestrator(
                     EventType = AuditEventTypes.RunStarted,
                     RunId = run.RunId,
                     DataJson = JsonSerializer.Serialize(
-                        new { run.ProjectId, Queued = true, ResumedFromQueue = true },
+                        new
+                        {
+                            run.ProjectId,
+                            Queued = true,
+                            ResumedFromQueue = true
+                        },
                         AuditJsonSerializationOptions.Instance)
                 },
                 pipelineCt);
@@ -418,7 +433,12 @@ public sealed class AuthorityRunOrchestrator(
                 RunId = run.RunId,
                 ManifestId = run.GoldenManifestId,
                 DataJson = JsonSerializer.Serialize(
-                    new { run.GoldenManifestId, run.ArtifactBundleId, run.DecisionTraceId },
+                    new
+                    {
+                        run.GoldenManifestId,
+                        run.ArtifactBundleId,
+                        run.DecisionTraceId
+                    },
                     AuditJsonSerializationOptions.Instance)
             },
             ct);
@@ -498,7 +518,12 @@ public sealed class AuthorityRunOrchestrator(
 
             string id = f.FindingId.Trim();
             string deepLink = $"{publicBaseUrl}/runs/{runId:D}/findings/{Uri.EscapeDataString(id)}";
-            rows.Add(new { findingId = id, deepLinkUrl = deepLink, severity = f.Severity.ToString() });
+            rows.Add(new
+            {
+                findingId = id,
+                deepLinkUrl = deepLink,
+                severity = f.Severity.ToString()
+            });
         }
 
         return [.. rows];

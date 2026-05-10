@@ -61,6 +61,7 @@ using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.GoToMarket;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Identity;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Integrations;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Marketing;

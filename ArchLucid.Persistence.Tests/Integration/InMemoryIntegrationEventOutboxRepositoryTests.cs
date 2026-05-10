@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Core.Integration;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using Moq;
 

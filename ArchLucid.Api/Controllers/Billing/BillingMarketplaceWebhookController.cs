@@ -4,8 +4,8 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Integration;
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Billing.AzureMarketplace;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using Asp.Versioning;
 
@@ -67,7 +67,11 @@ public sealed class BillingMarketplaceWebhookController(
             auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             bearer = auth["Bearer ".Length..].Trim();
 
-        BillingWebhookInbound inbound = new() { RawBody = rawBody, MarketplaceAuthorizationBearer = bearer };
+        BillingWebhookInbound inbound = new()
+        {
+            RawBody = rawBody,
+            MarketplaceAuthorizationBearer = bearer
+        };
 
         BillingWebhookHandleResult result =
             await _marketplaceBillingProvider.HandleWebhookAsync(inbound, cancellationToken);

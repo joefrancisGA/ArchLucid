@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Advisory;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
@@ -14,9 +15,8 @@ using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Application.Advisory;
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 

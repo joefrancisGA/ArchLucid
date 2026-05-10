@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.IntegrationOutbox;
 
 /// <summary>One row in <c>dbo.IntegrationEventOutbox</c> awaiting Service Bus publish.</summary>
 public sealed class IntegrationEventOutboxEntry

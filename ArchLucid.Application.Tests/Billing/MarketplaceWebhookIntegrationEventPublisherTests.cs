@@ -1,7 +1,7 @@
-﻿using ArchLucid.Application.Billing;
+using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Integration;
-using ArchLucid.Persistence;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using FluentAssertions;
 
@@ -19,7 +19,10 @@ public sealed class MarketplaceWebhookIntegrationEventPublisherTests
     {
         Mock<IIntegrationEventOutboxRepository> outbox = new();
         Mock<IIntegrationEventPublisher> publisher = new();
-        IntegrationEventsOptions options = new() { TransactionalOutboxEnabled = false };
+        IntegrationEventsOptions options = new()
+        {
+            TransactionalOutboxEnabled = false
+        };
         ILogger logger = NullLoggerFactory.Instance.CreateLogger(nameof(MarketplaceWebhookIntegrationEventPublisherTests));
 
         string? capturedEventType = null;

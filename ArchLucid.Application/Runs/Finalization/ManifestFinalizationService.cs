@@ -9,7 +9,7 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Persistence;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -103,7 +103,13 @@ public sealed class ManifestFinalizationService(
                                  AND ArchivedUtc IS NULL;
                                """;
         LockedRunRow? locked = await connection.QuerySingleOrDefaultAsync<LockedRunRow>(new CommandDefinition(lockSql,
-            new { request.RunId, scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId }, transaction, cancellationToken: cancellationToken));
+            new
+            {
+                request.RunId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
+            }, transaction, cancellationToken: cancellationToken));
         if (locked is null)
             throw new RunNotFoundException(request.RunId.ToString("N"));
         if (string.Equals(locked.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
@@ -328,6 +334,6 @@ public sealed class ManifestFinalizationService(
         {
             get;
             init;
-        } = null !;
+        } = null!;
     }
 }

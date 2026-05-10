@@ -10,8 +10,8 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -193,7 +193,13 @@ public sealed class GovernanceWorkflowService(
             reviewedBy,
             reviewedBy,
             JsonSerializer.Serialize(
-                new { approvalRequestId = request.ApprovalRequestId, runId = request.RunId, reviewedBy, reviewComment = request.ReviewComment },
+                new
+                {
+                    approvalRequestId = request.ApprovalRequestId,
+                    runId = request.RunId,
+                    reviewedBy,
+                    reviewComment = request.ReviewComment
+                },
                 AuditJsonSerializationOptions.Instance));
         governanceApproved.RunId = approvedRunId;
         await LogGovernanceDurableWithRetryAsync(governanceApproved,
@@ -253,7 +259,13 @@ public sealed class GovernanceWorkflowService(
             reviewedBy,
             reviewedBy,
             JsonSerializer.Serialize(
-                new { approvalRequestId = request.ApprovalRequestId, runId = request.RunId, reviewedBy, reviewComment = request.ReviewComment },
+                new
+                {
+                    approvalRequestId = request.ApprovalRequestId,
+                    runId = request.RunId,
+                    reviewedBy,
+                    reviewComment = request.ReviewComment
+                },
                 AuditJsonSerializationOptions.Instance));
         governanceRejected.RunId = rejectedRunId;
         await LogGovernanceDurableWithRetryAsync(governanceRejected,
@@ -522,7 +534,13 @@ public sealed class GovernanceWorkflowService(
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         Guid? auditRunId = Guid.TryParse(runId, out Guid rid) ? rid : null;
-        string dataJson = JsonSerializer.Serialize(new { workflow = "approvalRequest", manifestVersion, sourceEnvironment, targetEnvironment },
+        string dataJson = JsonSerializer.Serialize(new
+        {
+            workflow = "approvalRequest",
+            manifestVersion,
+            sourceEnvironment,
+            targetEnvironment
+        },
             AuditJsonSerializationOptions.Instance);
         AuditEvent auditEvent = scope.CreateAuditEvent(
             AuditEventTypes.GovernanceDryRunValidationAttempted,
