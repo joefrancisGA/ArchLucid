@@ -56,7 +56,7 @@ export function RunDetailPageHeader({
                 href={`/reviews/${encodeURIComponent(runId)}#trust-evidence`}
                 className="font-medium text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600"
               >
-                Evidence basis
+                Traceable evidence and audit-ready history
               </Link>
             </p>
           ) : null}

@@ -640,13 +640,8 @@ function GovernanceWorkflowPageInner() {
       <section className="mb-10">
         {buyerSuppressGovernanceSubmitChrome ? (
           <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-            To submit a new approval request, use the full governance workflow.{" "}
-            <Link
-              className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-              href="/governance/dashboard"
-            >
-              Governance dashboard
-            </Link>
+            To submit a new approval request, your workspace administrator can use the full operator governance tools.
+            Evaluation builds keep this screen read-only.
           </p>
         ) : buyerPolishedShell && !canMutateWorkflow ? (
           <Card className="border border-teal-200/80 bg-teal-50/50 dark:border-teal-900/55 dark:bg-teal-950/35">

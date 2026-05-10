@@ -74,8 +74,20 @@ export function RunIdPicker({
   const autoPickAppliedRef = useRef(false);
 
   useEffect(() => {
+    if (!useBuyerFacingRunLabels) {
+      setQuery(value);
+      return;
+    }
+
+    const match = runs.find((r) => r.runId === value.trim());
+
+    if (match !== undefined) {
+      setQuery(buyerFacingReviewTitleFromSummary(match));
+      return;
+    }
+
     setQuery(value);
-  }, [value]);
+  }, [value, runs, useBuyerFacingRunLabels]);
 
   const loadRuns = useCallback(async () => {
     setLoading(true);
@@ -179,10 +191,13 @@ export function RunIdPicker({
   }, [preferAutoPick, loading, loadError, runs, value, onChange, onSelect]);
 
   const filtered = useMemo(() => {
+    if (useBuyerFacingRunLabels) {
+      return runs.slice(0, 12);
+    }
+
     const q = query.trim().toLowerCase();
 
-    if (q.length === 0)
-    {
+    if (q.length === 0) {
       return runs.slice(0, 12);
     }
 
@@ -195,7 +210,7 @@ export function RunIdPicker({
           (r.projectId ?? "").toLowerCase().includes(q),
       )
       .slice(0, 12);
-  }, [runs, query]);
+  }, [runs, query, useBuyerFacingRunLabels]);
 
   return (
     <div className="relative max-w-xl">
@@ -207,6 +222,12 @@ export function RunIdPicker({
         role="combobox"
         value={query}
         placeholder={placeholder}
+        readOnly={useBuyerFacingRunLabels}
+        title={
+          useBuyerFacingRunLabels
+            ? "Pick a review from the list. The field shows the review title; selection keeps the technical id for loading."
+            : undefined
+        }
         autoComplete="off"
         aria-autocomplete="list"
         aria-haspopup="listbox"
@@ -267,7 +288,7 @@ export function RunIdPicker({
                     e.preventDefault();
                   }}
                   onClick={() => {
-                    setQuery(r.runId);
+                    setQuery(useBuyerFacingRunLabels ? buyerFacingReviewTitleFromSummary(r) : r.runId);
                     onChange(r.runId);
                     onSelect?.(r.runId);
                     onRunPicked?.(r);
