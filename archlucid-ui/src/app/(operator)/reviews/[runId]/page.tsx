@@ -858,6 +858,7 @@ export default async function RunDetailPage({
           runId={runId}
           showCompareCta={canShowCompareReviewButton}
           buyerShowcaseQuickLinks={usedStaticDemoRun}
+          goldenManifestId={manifestId}
         />
       ) : null}
 

@@ -5,6 +5,11 @@ import { Fragment, type ReactNode } from "react";
 
 import { parseAskAssistantStructuredSections } from "@/lib/ask-assistant-section-parser";
 
+export type AskAssistantGroundingLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
 const UUID_RE =
   /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
 
@@ -56,14 +61,44 @@ function renderTextWithUuidReviewLinks(body: string, buyerPolishedLinks: boolean
   return parts;
 }
 
+function GroundingLinksFooter(props: { readonly links: readonly AskAssistantGroundingLink[] }) {
+  return (
+    <div className="mt-4 rounded-lg border border-neutral-200/90 bg-white/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
+      <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+        Sources in this workspace
+      </p>
+      <ul className="m-0 mt-2 list-none space-y-1.5 p-0 text-sm">
+        {props.links.map((link) => (
+          <li key={link.href}>
+            <Link
+              href={link.href}
+              className="font-medium text-teal-800 underline decoration-teal-300/60 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-700 dark:hover:text-teal-200"
+            >
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /**
  * Renders assistant markdown-free content with best-effort deep links for run-shaped UUIDs in plain text.
  * When responses include Risk:/Evidence:/Mitigation:/Validation: blocks, renders them as labeled sections
  * for faster executive scanning (still driven by the model; see Ask service system prompt).
  */
-export function AskAssistantMessageBody(props: { readonly content: string; readonly buyerPolishedLinks?: boolean }) {
-  const { content, buyerPolishedLinks = false } = props;
+export function AskAssistantMessageBody(props: {
+  readonly content: string;
+  readonly buyerPolishedLinks?: boolean;
+  readonly groundingLinks?: readonly AskAssistantGroundingLink[];
+}) {
+  const { content, buyerPolishedLinks = false, groundingLinks } = props;
   const structured = parseAskAssistantStructuredSections(content);
+  const footer =
+    groundingLinks !== undefined && groundingLinks.length > 0 ? (
+      <GroundingLinksFooter links={groundingLinks} />
+    ) : null;
 
   if (structured !== null) {
     const bodyClass =
@@ -86,13 +121,17 @@ export function AskAssistantMessageBody(props: { readonly content: string; reado
             </div>
           </section>
         ))}
+        {footer}
       </div>
     );
   }
 
   return (
-    <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">
-      {renderTextWithUuidReviewLinks(content, buyerPolishedLinks)}
-    </p>
+    <div className="space-y-0">
+      <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">
+        {renderTextWithUuidReviewLinks(content, buyerPolishedLinks)}
+      </p>
+      {footer}
+    </div>
   );
 }

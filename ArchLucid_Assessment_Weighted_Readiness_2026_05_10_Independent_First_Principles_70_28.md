@@ -926,6 +926,8 @@ Do not change:
 
 **Status:** Actionable now
 
+**Product guidance (2026-05-10):** **No** dedicated **“allowed in production with warning only”** catalog for **V1** — unsafe **Required** / **Conditional** disposition in Production/Staging stays **hard-fail**; optional keys need no validator. **No** break-glass keys exempt from validation by default. If a real break-glass scenario appears later, add an explicit **`ARCHLUCID_BREAK_GLASS_*`** (or equivalent) path **via ADR**, with logging/audit — not an informal warn tier.
+
 **Cursor prompt:**
 ```
 In the ArchLucid codebase, extend the startup validation system to achieve INV-005 catalog parity (TB-010 remainder).
@@ -1150,7 +1152,7 @@ Do not change:
 
 **Status:** COMPLETED (2026-05-10) — implemented as optional **`DataArchival:PurgeArchivedAgentExecutionTracesAfterDays`** / **`PurgeArchivedAgentExecutionTracesBatchSize`** during **`DataArchivalCoordinator`** (hard-delete SQL rows with `ArchivedUtc` before cutoff). Does **not** match the prompt’s separate `AgentExecutionTrace:RetentionDays` worker job / `Maintenance.TracesPurged` audit event.
 
-**Cursor prompt:**
+**Product guidance (2026-05-10):** Retention / purge policy should be **per-tenant** configurable on the roadmap (buyer/regulator variance). **Current shipping slice** is **deployment-global** `DataArchival:*` only — **per-tenant overrides** are a **documented gap** until modeled (e.g., tenant settings + purge keyed by `TenantId`). **Minimum retention (owner):** treat **three calendar months** as the **floor** before trace data may be purged (hard-delete); **`PurgeArchivedAgentExecutionTracesAfterDays`** (when enabled) must be **≥ ~90 days** in regulated-style deployments unless legal approves shorter — product should enforce floor when per-tenant rules land.
 ```
 In the ArchLucid codebase, implement a configurable retention policy and automated purge for agent execution traces.
 
@@ -1762,12 +1764,12 @@ Do not change:
 - **Deferred (2026-05-10):** **Dedicated service account vs owner credentials** for nightly CI — **no decision yet**.
 
 ### Improvement 7 (INV-005 Startup Validator Parity)
-- Are there any development-only configuration keys that should be excluded from production validation by design (break-glass scenarios)?
-- Is there an existing list of "allowed in production with warning" keys versus "hard block" keys?
+- **Answered (2026-05-10):** **No** break-glass or dev-only keys exempt from Production/Staging validation for **V1**; any future break-glass is **explicit env + ADR**, not a silent warn tier.
+- **Answered (2026-05-10):** **No** separate **warn-in-production** key list for **V1** — invalid required/conditional stays **hard block**; optional keys are not startup-gated that way.
 
 ### Improvement 12 (Agent Execution Trace Retention)
-- Should trace retention be per-tenant configurable or global?
-- Are there regulatory requirements for minimum trace retention in any target market?
+- **Answered (2026-05-10):** **Per-tenant** configurable retention is the **target**; today’s **`DataArchival:*`** purge is **global** — per-tenant overrides remain **product/engineering follow-up**.
+- **Answered (2026-05-10):** **Minimum retention** before purge-eligible treatment: **three months** (~**90 days**); operators should not set archival hard-delete windows **below** that floor without legal sign-off.
 
 ### Improvement 14 (Configuration Summary Endpoint)
 - Are there any configuration keys that should be hidden entirely (not just redacted) from the summary — e.g., keys whose existence reveals architectural decisions the buyer shouldn't see?

@@ -36,8 +36,7 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
           "Mitigation:\n\n" +
           "Align adapters to the minimization posture documented in the review package before sign-off.\n\n" +
           "Validation:\n\n" +
-          "Confirm checklist completion on the findings panel and manifest summary before go-live. Trace sources for this " +
-          "sample reply: manifest summary, PHI minimization risk finding, and the evidence graph (illustrative dialogue only).",
+          "Confirm checklist completion on the findings panel and manifest summary before go-live.",
         createdUtc: "2026-01-12T10:06:12.000Z",
         metadataJson: "{}",
       },
