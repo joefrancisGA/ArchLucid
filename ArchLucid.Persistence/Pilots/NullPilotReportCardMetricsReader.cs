@@ -12,7 +12,7 @@ public sealed class NullPilotReportCardMetricsReader : IPilotReportCardMetricsRe
         PilotReportCardScopeMetrics empty =
             new()
             {
-                FindingsBySeverity = Array.Empty<PilotReportCardSeverityCountRow>(),
+                FindingsBySeverity = [],
             };
 
         return Task.FromResult(empty);

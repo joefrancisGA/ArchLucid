@@ -551,7 +551,7 @@ public sealed class SqlRunRepository(
         List<Guid> distinctOrdered = [];
         HashSet<Guid> seen = [];
 
-        distinctOrdered.AddRange(runIds.Where(id => seen.Add(id)));
+        distinctOrdered.AddRange(runIds.Where(seen.Add));
 
         const string selectSql = """
                                  SELECT RunId, ArchivedUtc

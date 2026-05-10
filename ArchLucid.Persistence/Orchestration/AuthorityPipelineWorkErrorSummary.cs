@@ -7,19 +7,13 @@ public static class AuthorityPipelineWorkErrorSummary
 
     public static string From(Exception exception)
     {
-        if (exception is null)
-            return string.Empty;
-
         string composed = $"{exception.GetType().Name}:{exception.Message}";
         return Truncate(composed);
     }
 
     public static string TruncateNullable(string? value)
     {
-        if (string.IsNullOrEmpty(value))
-            return string.Empty;
-
-        return Truncate(value);
+        return string.IsNullOrEmpty(value) ? string.Empty : Truncate(value);
     }
 
     private static string Truncate(string value)

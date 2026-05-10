@@ -423,7 +423,7 @@ public sealed class AuthorityRunOrchestrator(
 
         await uow.CommitAsync(ct);
 
-        if (run.GraphSnapshotId is Guid graphSnapshotId)
+        if (run.GraphSnapshotId is { } graphSnapshotId)
             graphSnapshotProjectionCache.Invalidate(scope, run.RunId, graphSnapshotId);
 
         await auditService.LogAsync(
@@ -479,18 +479,14 @@ public sealed class AuthorityRunOrchestrator(
     private async Task<Guid?> TryResolvePreviousCommittedGoldenRunIdAsync(ScopeContext scope, RunRecord run, CancellationToken ct)
     {
         IReadOnlyList<RunRecord> recent =
-            await runRepository.ListByProjectAsync(scope, run.ProjectId, 100, ct) ?? [];
+            await runRepository.ListByProjectAsync(scope, run.ProjectId, 100, ct);
 
         foreach (RunRecord candidate in recent)
         {
             if (candidate.RunId == run.RunId)
                 continue;
-
-
             if (candidate.ArchivedUtc is not null)
                 continue;
-
-
             if (candidate.GoldenManifestId is null)
                 continue;
 
@@ -510,9 +506,6 @@ public sealed class AuthorityRunOrchestrator(
 
         foreach (Finding f in findings)
         {
-            if (f is null)
-                continue;
-
             if (string.IsNullOrWhiteSpace(f.FindingId))
                 continue;
 

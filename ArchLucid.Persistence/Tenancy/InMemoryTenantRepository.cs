@@ -4,6 +4,8 @@ using System.Data;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
+using JetBrains.Annotations;
+
 namespace ArchLucid.Persistence.Tenancy;
 
 /// <summary>In-memory tenant registry for tests and <c>InMemory</c> storage mode.</summary>
@@ -110,12 +112,19 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             EnterpriseSeatsUsed = 0
         };
 
-        if (!_byId.TryAdd(tenantId, record))
-            throw new InvalidOperationException($"Tenant id '{tenantId:D}' already exists.");
+        lock (_trialGate)
+        {
+            if (!_byId.TryAdd(tenantId, record))
+                throw new InvalidOperationException($"Tenant id '{tenantId:D}' already exists.");
+        }
 
         if (!_slugToId.TryAdd(slugKey, tenantId))
         {
-            _byId.TryRemove(tenantId, out _);
+            lock (_trialGate)
+            {
+                _byId.TryRemove(tenantId, out _);
+            }
+
             throw new InvalidOperationException($"Tenant slug '{slugKey}' already exists.");
         }
 
@@ -124,7 +133,10 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             if (!_entraTenantIdToTenantId.TryAdd(entraTenantId.Value, tenantId))
             {
                 _slugToId.TryRemove(slugKey, out _);
-                _byId.TryRemove(tenantId, out _);
+                lock (_trialGate)
+                {
+                    _byId.TryRemove(tenantId, out _);
+                }
                 throw new InvalidOperationException($"Entra tenant id '{entraTenantId.Value:D}' is already linked.");
             }
 
@@ -164,8 +176,13 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-            return Task.CompletedTask;
+        TenantRecord? existing;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out existing))
+                return Task.CompletedTask;
+        }
 
         TenantRecord updated = new()
         {
@@ -228,8 +245,12 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-            return Task.CompletedTask;
+        TenantRecord? existing;
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out existing))
+                return Task.CompletedTask;
+        }
 
         TenantRecord updated = new()
         {
@@ -283,42 +304,49 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-            return Task.CompletedTask;
-
-        _byId[tenantId] = new TenantRecord
+        TenantRecord? existing;
+        lock (_trialGate)
         {
-            Id = existing.Id,
-            Name = existing.Name,
-            Slug = existing.Slug,
-            Tier = existing.Tier,
-            EntraTenantId = existing.EntraTenantId,
-            CreatedUtc = existing.CreatedUtc,
-            SuspendedUtc = existing.SuspendedUtc,
-            TrialStartUtc = existing.TrialStartUtc,
-            TrialExpiresUtc = existing.TrialExpiresUtc,
-            TrialRunsLimit = existing.TrialRunsLimit,
-            TrialRunsUsed = existing.TrialRunsUsed,
-            TrialSeatsLimit = existing.TrialSeatsLimit,
-            TrialSeatsUsed = existing.TrialSeatsUsed,
-            TrialStatus = existing.TrialStatus,
-            TrialSampleRunId = existing.TrialSampleRunId,
-            TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
-            TrialWelcomeRunId = existing.TrialWelcomeRunId,
-            TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
-            BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
-            BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
-            BaselineManualPrepHoursPerReview = manualPrepHoursPerReview,
-            BaselinePeoplePerReview = peoplePerReview,
-            BaselineManualPrepCapturedUtc = capturedUtc,
-            CompanySize = existing.CompanySize,
-            ArchitectureTeamSize = existing.ArchitectureTeamSize,
-            IndustryVertical = existing.IndustryVertical,
-            IndustryVerticalOther = existing.IndustryVerticalOther,
-            EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
-            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
-        };
+            if (!_byId.TryGetValue(tenantId, out existing))
+                return Task.CompletedTask;
+        }
+
+        lock (_trialGate)
+        {
+            _byId[tenantId] = new TenantRecord
+            {
+                Id = existing.Id,
+                Name = existing.Name,
+                Slug = existing.Slug,
+                Tier = existing.Tier,
+                EntraTenantId = existing.EntraTenantId,
+                CreatedUtc = existing.CreatedUtc,
+                SuspendedUtc = existing.SuspendedUtc,
+                TrialStartUtc = existing.TrialStartUtc,
+                TrialExpiresUtc = existing.TrialExpiresUtc,
+                TrialRunsLimit = existing.TrialRunsLimit,
+                TrialRunsUsed = existing.TrialRunsUsed,
+                TrialSeatsLimit = existing.TrialSeatsLimit,
+                TrialSeatsUsed = existing.TrialSeatsUsed,
+                TrialStatus = existing.TrialStatus,
+                TrialSampleRunId = existing.TrialSampleRunId,
+                TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
+                TrialWelcomeRunId = existing.TrialWelcomeRunId,
+                TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
+                BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
+                BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
+                BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
+                BaselineManualPrepHoursPerReview = manualPrepHoursPerReview,
+                BaselinePeoplePerReview = peoplePerReview,
+                BaselineManualPrepCapturedUtc = capturedUtc,
+                CompanySize = existing.CompanySize,
+                ArchitectureTeamSize = existing.ArchitectureTeamSize,
+                IndustryVertical = existing.IndustryVertical,
+                IndustryVerticalOther = existing.IndustryVerticalOther,
+                EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
+                EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
+            };
+        }
 
         return Task.CompletedTask;
     }
@@ -328,8 +356,12 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-            return Task.CompletedTask;
+        TenantRecord? existing;
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out existing))
+                return Task.CompletedTask;
+        }
 
         if (!string.Equals(existing.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
             return Task.CompletedTask;
@@ -370,7 +402,10 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
         };
 
-        _byId[tenantId] = updated;
+        lock (_trialGate)
+        {
+            _byId[tenantId] = updated;
+        }
 
         return Task.CompletedTask;
     }
@@ -380,8 +415,14 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(tenantId, out TenantRecord? tenant))
-            return Task.FromResult(false);
+        TenantRecord? tenant;
+
+        lock (_trialGate)
+        {
+
+            if (!_byId.TryGetValue(tenantId, out tenant))
+                return Task.FromResult(false);
+        }
 
         if (tenant.EntraTenantId is { } existing && existing != entraTenantId)
             return Task.FromResult(false);
@@ -860,12 +901,14 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         public Guid TenantId
         {
+            [UsedImplicitly]
             get;
             init;
         }
 
         public string Name
         {
+            [UsedImplicitly]
             get;
             init;
         } = string.Empty;
