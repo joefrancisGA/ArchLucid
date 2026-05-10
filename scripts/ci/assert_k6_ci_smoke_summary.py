@@ -24,13 +24,13 @@ from pathlib import Path
 _CI_SMOKE_TAG_CAPS: dict[str, float] = {
     "http_req_duration{k6ci:health_live}": 300.0,
     "http_req_duration{k6ci:health_ready}": 1200.0,
-    "http_req_duration{k6ci:create_run}": 8000.0,
-    "http_req_duration{k6ci:list_runs}": 800.0,
-    "http_req_duration{k6ci:audit_search}": 800.0,
-    "http_req_duration{k6ci:version}": 800.0,
-    "http_req_duration{k6ci:list_for_get_run}": 800.0,
-    "http_req_duration{k6ci:get_run_detail}": 800.0,
-    "http_req_duration{k6ci:client_error_telemetry}": 800.0,
+    "http_req_duration{k6ci:create_run}": 6600.0,
+    "http_req_duration{k6ci:list_runs}": 928.0,
+    "http_req_duration{k6ci:audit_search}": 928.0,
+    "http_req_duration{k6ci:version}": 928.0,
+    "http_req_duration{k6ci:list_for_get_run}": 928.0,
+    "http_req_duration{k6ci:get_run_detail}": 928.0,
+    "http_req_duration{k6ci:client_error_telemetry}": 928.0,
 }
 
 

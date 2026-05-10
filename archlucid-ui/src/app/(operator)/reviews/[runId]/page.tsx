@@ -884,7 +884,9 @@ export default async function RunDetailPage({
               {artifactsFailure && (
                 <>
                   <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-                    Artifact list could not be loaded.
+                    {buyerPolishedArtifactTable
+                      ? "Deliverables list could not be loaded."
+                      : "Artifact list could not be loaded."}
                   </p>
                   <OperatorApiProblem
                     problem={artifactsFailure.problem}
@@ -893,26 +895,61 @@ export default async function RunDetailPage({
                     variant="warning"
                   />
                   <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                    The artifacts request failed (network, 404, or server error)—distinct from an empty
-                    list or malformed JSON.
+                    {buyerPolishedArtifactTable ? (
+                      <>
+                        Try reloading, or return to the review. You can still use{" "}
+                        <strong>Download review package</strong> when the bundle is available.
+                      </>
+                    ) : (
+                      <>
+                        The artifacts request failed (network, 404, or server error)—distinct from an empty list or
+                        malformed JSON.
+                      </>
+                    )}
                   </p>
-                  <OperatorSectionRetryButton label="Retry loading artifacts" />
+                  <OperatorSectionRetryButton
+                    label={buyerPolishedArtifactTable ? "Retry loading deliverables" : "Retry loading artifacts"}
+                  />
                 </>
               )}
 
               {!artifactsFailure && artifactsMalformed && (
-                <OperatorMalformedCallout>
-                  <strong>Artifact list response was not usable.</strong>
-                  <p className="mt-2">{artifactsMalformed}</p>
-                </OperatorMalformedCallout>
+                <>
+                  <OperatorMalformedCallout>
+                    <strong>
+                      {buyerPolishedArtifactTable
+                        ? "Deliverables response was not usable."
+                        : "Artifact list response was not usable."}
+                    </strong>
+                    <p className="mt-2">{artifactsMalformed}</p>
+                  </OperatorMalformedCallout>
+                  <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+                    {buyerPolishedArtifactTable
+                      ? "Try reloading, or return to the review. ZIP download may still work."
+                      : "Try reloading, or return to the review detail page. Bundle download may still work."}
+                  </p>
+                </>
               )}
 
               {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 && (
-                <OperatorEmptyState title="No artifacts for this manifest">
+                <OperatorEmptyState
+                  title={
+                    buyerPolishedArtifactTable ? "No deliverables listed yet" : "No artifacts for this manifest"
+                  }
+                >
                   <p className="m-0">
-                    The manifest exists but the artifact descriptor list is empty (valid empty result).
-                    Bundle ZIP may return 404 when there is no bundle; review export may still include other
-                    files.
+                    {buyerPolishedArtifactTable ? (
+                      <>
+                        The review loaded, but no individual files are listed yet. Try the ZIP if your workspace
+                        publishes a bundle for this review.
+                      </>
+                    ) : (
+                      <>
+                        The manifest exists but the artifact descriptor list is empty (valid empty result).
+                        Bundle ZIP may return 404 when there is no bundle; review export may still include other
+                        files.
+                      </>
+                    )}
                   </p>
                 </OperatorEmptyState>
               )}
@@ -923,6 +960,7 @@ export default async function RunDetailPage({
                   artifacts={artifacts}
                   runId={resolvedDetail.run.runId}
                   sponsorMode={buyerPolishedArtifactTable}
+                  audienceSections={buyerPolishedArtifactTable}
                 />
               )}
 

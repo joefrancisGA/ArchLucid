@@ -10,8 +10,8 @@
  *   ARCHLUCID_BASE_URL | BASE_URL     — API root (default http://127.0.0.1:5128)
  *   ARCHLUCID_K6_P95_HEALTH_LIVE_MS   — Tier 1 live (default 300)
  *   ARCHLUCID_K6_P95_HEALTH_READY_MS  — ready probes SQL/deps; default 1200 (noisier on Actions)
- *   ARCHLUCID_K6_P95_TIER2_MS         — list/version/audit/detail/telemetry (default 800)
- *   ARCHLUCID_K6_P95_TIER3_MS         — create_run write path (default 8000)
+ *   ARCHLUCID_K6_P95_TIER2_MS         — list/version/audit/detail/telemetry (default 928; 120% of hotpaths p95 baseline in docs/library/API_PERFORMANCE_TARGETS.md)
+ *   ARCHLUCID_K6_P95_TIER3_MS         — create_run write path (default 6600)
  *   ARCHLUCID_K6_HTTP_FAIL_RATE_MAX   — http_req_failed rate ceiling (default 0.02 for CI noise; stricter in prod monitoring)
  *
  * Run: BASE_URL=http://127.0.0.1:5128 k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json
@@ -25,8 +25,8 @@ const BASE = __ENV.ARCHLUCID_BASE_URL || __ENV.BASE_URL || "http://127.0.0.1:512
 const P95_MS = {
   health_live: Number(__ENV.ARCHLUCID_K6_P95_HEALTH_LIVE_MS ?? 300),
   health_ready: Number(__ENV.ARCHLUCID_K6_P95_HEALTH_READY_MS ?? 1200),
-  tier2: Number(__ENV.ARCHLUCID_K6_P95_TIER2_MS ?? 800),
-  tier3_create: Number(__ENV.ARCHLUCID_K6_P95_TIER3_MS ?? 8000),
+  tier2: Number(__ENV.ARCHLUCID_K6_P95_TIER2_MS ?? 928),
+  tier3_create: Number(__ENV.ARCHLUCID_K6_P95_TIER3_MS ?? 6600),
 };
 const HTTP_FAIL_RATE_MAX = Number(__ENV.ARCHLUCID_K6_HTTP_FAIL_RATE_MAX ?? 0.02);
 
