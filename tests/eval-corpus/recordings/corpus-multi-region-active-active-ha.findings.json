@@ -12,7 +12,7 @@
       "category": "Topology",
       "severity": "Medium",
       "title": "Dual-region API mesh",
-      "detail": "Each region runs a full API tier with regional load balancers; shared configuration propagates through GitOps within minutes."
+      "detail": "Each active region runs a full API tier with regional load balancers; shared configuration propagates through GitOps within minutes."
     },
     {
       "findingId": "f-ha-3",
