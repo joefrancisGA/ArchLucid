@@ -674,7 +674,7 @@ Gaps: (1) LLM cost estimation options exist but the accuracy of cost projections
 
 ## 9. Top Improvement Opportunities
 
-**Implementation status (2026-05-10):** Items **11–18**, **20–23** have landed in-repo since this assessment was drafted; **19** is only partially addressed. **Status** lines under each improvement are updated accordingly. Executive scores in sections 1–8 are not recalculated here.
+**Implementation status (2026-05-10):** Item **2** (INV-004 durable LLM budgets) and items **11–18**, **20–23** are implemented in-repo; **19** is only partially addressed. **Status** lines under each improvement are updated accordingly. Executive scores in sections 1–8 are not recalculated here.
 
 ### Improvement 1: Run Real-LLM Golden Cohort Gate with Live Azure OpenAI
 
@@ -704,7 +704,7 @@ Gaps: (1) LLM cost estimation options exist but the accuracy of cost projections
 
 **Affected qualities:** Cost-Effectiveness, Reliability, Scalability, Data Consistency, AI/Agent Readiness
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`LlmMonthlyTenantDollarBudgetTracker`** / **`LlmDailyTenantBudgetTracker`** use **`ILlmTenantBudgetRepository`** with **`SqlLlmTenantBudgetRepository`** (optimistic concurrency, pre-call **`ReserveAsync`** / post-call **`SettleAsync`**) on **`dbo.LlmMonthlyTenantBudgetState`** and **`dbo.LlmDailyTenantTokenWindowState`** (not the prompt’s single `TenantLlmBudgetLedger` table name). DbUp **`154_LlmBudgetPreCallReservation.sql`**; concurrency coverage in **`SqlLlmTenantBudgetRepositoryConcurrencyIntegrationTests`**.
 
 **Cursor prompt:**
 ```
@@ -1738,7 +1738,7 @@ Do not change:
 
 ## 10. Pending Questions for Later
 
-**Note (2026-05-10):** Baseline implementations now exist for Improvements **12**, **14**, and **18** (see section 9 status notes). The bullets under those headings are optional product follow-ups, not blockers.
+**Note (2026-05-10):** Baseline implementations now exist for Improvements **2**, **12**, **14**, and **18** (see section 9 status notes). The bullets under those headings are optional product follow-ups, not blockers.
 
 ### Improvement 1 (Real-LLM Golden Cohort Gate)
 - What Azure OpenAI deployment is available for CI? Is there a cost budget for nightly real-LLM CI runs?

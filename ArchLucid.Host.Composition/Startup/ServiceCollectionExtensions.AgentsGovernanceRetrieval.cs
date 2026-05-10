@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Caching;
+using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts;
@@ -12,6 +13,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Agents;
@@ -408,6 +410,7 @@ public static partial class ServiceCollectionExtensions
         });
 
         services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<ILlmCompletionProvider>());
+        services.AddScoped<IQuickScanService, QuickScanService>();
     }
 
     private static void ConfigureLlmTelemetryLabels(
@@ -537,8 +540,11 @@ public static partial class ServiceCollectionExtensions
         };
 
         services.AddScoped<IAgentCompletionClient>(_ => new FakeAgentCompletionClient(
-            (_, userPrompt) =>
+            (systemPrompt, userPrompt) =>
             {
+                if (systemPrompt.Contains(QuickScanLlmPrompts.ClientRoutingMarker, StringComparison.OrdinalIgnoreCase))
+                    return FakeQuickScanCompletionJson.Build(userPrompt);
+
                 string runId = "RUN-001";
                 string taskId = "TASK-TOPO-001";
 
