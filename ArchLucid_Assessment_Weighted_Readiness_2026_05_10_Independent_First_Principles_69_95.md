@@ -470,7 +470,7 @@ Constraints:
 *(Prompt executed; items above delivered in-repo.)*
 
 
-### Improvement 2: Expand Golden Cohort Real-LLM Evaluation Evidence
+### COMPLETED:  Improvement 2: Expand Golden Cohort Real-LLM Evaluation Evidence
 
 **Why it matters:** The gap between simulator-mode testing and real-LLM production behavior is the largest uncertainty in the product. Expanding golden cohort evidence directly addresses the correctness and trustworthiness gap.
 

@@ -92,6 +92,7 @@ const PAGES = [
   { name: "Admin support", path: "/admin/support" },
   { name: "Admin health", path: "/admin/health" },
   { name: "Executive reviews list", path: "/executive/reviews" },
+  { name: "Executive scorecard", path: "/executive/scorecard" },
   { name: "Executive run detail (showcase)", path: `/executive/reviews/${SHOWCASE_DEMO_RUN_ID}` },
   {
     name: "Executive finding detail (showcase)",
