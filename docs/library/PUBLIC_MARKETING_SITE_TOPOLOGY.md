@@ -1,3 +1,5 @@
+> **Scope:** Engineers and operators designing apex-domain routing (Front Door, Next.js) for public marketing alongside API and operator UI; not a standalone CMS strategy doc or subdomain-only deployment guide.
+
 # Public marketing site topology (apex `archlucid.net`)
 
 ## Objective

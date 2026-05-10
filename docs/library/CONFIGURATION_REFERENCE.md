@@ -180,6 +180,8 @@ All other keys are optional unless **When required** in the detailed table says 
 | DataConsistency | `DataConsistency:Enforcement:MaxRowsPerBatch` | appsettings, env | 500 | Optional (When enforced) | All (Api, Worker, Combined) | Safer cap per remediation batch. |
 | DataConsistency | `DataConsistency:Enforcement:AlertThreshold` | appsettings, env | 1 | Optional (not mode-gated) | All (Api, Worker, Combined) | Orphan count threshold to page operators. |
 | DataConsistency | `DataConsistency:Enforcement:AutoQuarantine` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | If true, auto quarantine (must be off until approved). |
+| DataArchival | `DataArchival:PurgeArchivedAgentExecutionTracesAfterDays` | appsettings, env | 0 | Optional (not mode-gated) | Worker, Combined | Hard-delete SQL `AgentExecutionTraces` rows soft-archived longer than N days; 0 disables (Cosmos uses TTL). Runs during **`DataArchivalCoordinator`**. |
+| DataArchival | `DataArchival:PurgeArchivedAgentExecutionTracesBatchSize` | appsettings, env | 500 | Optional (When trace purge on) | Worker, Combined | `DELETE TOP` batch size per loop iteration (validated 1–10000 when purge enabled). |
 | AzureDevOps | `AzureDevOps:Enabled` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | Enables work-item / PR status integration. |
 | AzureDevOps | `AzureDevOps:Organization` | appsettings, env, KeyVault ref | empty | Optional (If ADO on) | All (Api, Worker, Combined) | DevOps org name (non-secret, still presence-checked). |
 | AzureDevOps | `AzureDevOps:Project` | appsettings, env | empty | Optional (If ADO on) | All (Api, Worker, Combined) | Project in Azure DevOps. |

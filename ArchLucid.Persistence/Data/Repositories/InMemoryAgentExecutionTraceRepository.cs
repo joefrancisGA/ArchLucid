@@ -325,6 +325,19 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         }
     }
 
+    /// <inheritdoc />
+    public Task<int> HardDeleteTracesArchivedBeforeAsync(
+        DateTimeOffset archivedBeforeUtc,
+        int maxRows,
+        CancellationToken cancellationToken = default)
+    {
+        _ = archivedBeforeUtc;
+        _ = maxRows;
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(0);
+    }
+
     private static AgentExecutionTrace Clone(AgentExecutionTrace source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);

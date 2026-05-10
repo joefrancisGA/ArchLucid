@@ -1,3 +1,5 @@
+> **Scope:** Engineering and CI consumers of non-proprietary JSON fragments for demos, slides, and manifest-delta fixtures; not production exports or authoritative API contracts.
+
 # Demo sample pack (offline)
 
 Non-proprietary JSON fragments for **slides, PLG onboarding copy, and CI examples**.

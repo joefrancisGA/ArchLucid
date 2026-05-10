@@ -553,6 +553,32 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         return result;
     }
 
+    /// <inheritdoc />
+    public async Task<int> HardDeleteTracesArchivedBeforeAsync(
+        DateTimeOffset archivedBeforeUtc,
+        int maxRows,
+        CancellationToken cancellationToken = default)
+    {
+        int batch = Math.Clamp(maxRows, 1, 10_000);
+
+        const string sql = """
+                           DELETE TOP (@Batch)
+                           FROM dbo.AgentExecutionTraces
+                           WHERE ArchivedUtc IS NOT NULL
+                             AND ArchivedUtc < @ArchivedBeforeUtc;
+                           """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int deleted = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new { Batch = batch, ArchivedBeforeUtc = archivedBeforeUtc.UtcDateTime },
+                cancellationToken: cancellationToken));
+
+        return deleted;
+    }
+
     private static IReadOnlyList<AgentExecutionTrace> DeserializeTraces(
         IEnumerable<string> jsonRows,
         string context)

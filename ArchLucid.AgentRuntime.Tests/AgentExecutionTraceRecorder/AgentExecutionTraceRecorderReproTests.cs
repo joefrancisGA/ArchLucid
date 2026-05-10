@@ -579,6 +579,14 @@ public sealed class AgentExecutionTraceRecorderReproTests
         {
             return _inner.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(runIds, cancellationToken);
         }
+
+        public Task<int> HardDeleteTracesArchivedBeforeAsync(
+            DateTimeOffset archivedBeforeUtc,
+            int maxRows,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.HardDeleteTracesArchivedBeforeAsync(archivedBeforeUtc, maxRows, cancellationToken);
+        }
     }
 
     private sealed class BlobUploadFailureMeasurementCapture : IDisposable
