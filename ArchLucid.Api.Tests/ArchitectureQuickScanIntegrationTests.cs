@@ -29,7 +29,7 @@ public sealed class ArchitectureQuickScanIntegrationTests(ArchLucidApiFactory fa
             await response.Content.ReadFromJsonAsync<ArchitectureQuickScanResponse>(JsonOptions);
         body.Should().NotBeNull();
         body!.Findings.Should().NotBeEmpty();
-        body.Findings.Count.Should().BeLessOrEqualTo(5);
+        body.Findings.Count.Should().BeLessThanOrEqualTo(5);
         body.Findings.Should().OnlyContain(f => !string.IsNullOrWhiteSpace(f.Title));
         body.Findings.Should().OnlyContain(f => !string.IsNullOrWhiteSpace(f.Description));
     }

@@ -756,7 +756,7 @@ Do not change:
 
 **Affected qualities:** Time-to-Value, Adoption Friction, Decision Velocity, Marketability, Usability
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`POST /v1/architecture/quick-scan`** (`ArchitectureQuickScanController`); minimal request/response DTOs in **`ArchLucid.Contracts`**; **`QuickScanMinimalContextBuilder`** + **`ArchitectureQuickScanResponseMapper`** in **`ArchLucid.Application`**; **`QuickScanService`** prompt aligned to **`FindingSeverity`** with optional **`confidenceScore`** / **`confidenceLevel`**; simulator **`FakeAgentCompletionClient`** routes on **`QuickScanLlmPrompts.ClientRoutingMarker`** to **`FakeQuickScanCompletionJson`**; **`IQuickScanService`** registered in **`ArchLucid.Host.Composition`**; integration test **`ArchitectureQuickScanIntegrationTests`**; OpenAPI snapshot + **`ArchLucid.Api.Client`** + **`archlucid-ui`** `api-types` regenerated. Real completions follow existing host **`AgentExecution:Mode`** + Azure OpenAI config (same pipeline as other LLM calls). Unrelated compile fix: **`ProvenanceCompletenessAnalyzer.CoalesceEmpty`**.
 
 **Cursor prompt:**
 ```
@@ -1738,7 +1738,7 @@ Do not change:
 
 ## 10. Pending Questions for Later
 
-**Note (2026-05-10):** Baseline implementations now exist for Improvements **2**, **12**, **14**, and **18** (see section 9 status notes). The bullets under those headings are optional product follow-ups, not blockers.
+**Note (2026-05-10):** Baseline implementations now exist for Improvements **2**, **3**, **12**, **14**, and **18** (see section 9 status notes). The bullets under those headings are optional product follow-ups, not blockers.
 
 ### Improvement 1 (Real-LLM Golden Cohort Gate)
 - What Azure OpenAI deployment is available for CI? Is there a cost budget for nightly real-LLM CI runs?
@@ -1749,8 +1749,7 @@ Do not change:
 - Should budget reservation failures (SQL unavailable) fail the LLM call or proceed with a logged warning?
 
 ### Improvement 3 (Quick Scan)
-- Is the existing QuickScanService already functional? What is its current implementation state?
-- Should quick scan results be persisted as a lightweight run, or be ephemeral (not stored)?
+**Status (2026-05-10):** Implemented — **`POST /v1/architecture/quick-scan`** (see Improvement 3 in section 9). **`QuickScanService`** is functional end-to-end; results are **ephemeral** for this slice (no persistence / no new run lifecycle). *Open product follow-up:* whether to persist quick scans as lightweight runs in a future iteration.
 
 ### Improvement 4 (ITSM Vendor Sandbox)
 - Which Jira Cloud project should be used? Is there an existing Atlassian account?

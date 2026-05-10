@@ -62,7 +62,13 @@ public static class ProvenanceCompletenessAnalyzer
         };
     }
 
-    private static IReadOnlyList<T> CoalesceEmpty<T>(List<T>? items) => items ?? Array.Empty<T>();
+    private static IReadOnlyList<T> CoalesceEmpty<T>(List<T>? items)
+    {
+        if (items is null)
+            return Array.Empty<T>();
+
+        return items;
+    }
 
     private static bool IsDecisionFullyCovered(
         ProvenanceNode decision,

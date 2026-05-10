@@ -4565,6 +4565,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/architecture/quick-scan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["ArchitectureQuickScanRequest"];
+                    "application/json": null | components["schemas"]["ArchitectureQuickScanRequest"];
+                    "text/json": null | components["schemas"]["ArchitectureQuickScanRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureQuickScanResponse"];
+                        "text/json": components["schemas"]["ArchitectureQuickScanResponse"];
+                        "text/plain": components["schemas"]["ArchitectureQuickScanResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/architecture/request": {
         parameters: {
             query?: never;
@@ -20518,6 +20594,26 @@ export interface components {
             name: string;
             referenceId: string;
             type: string;
+        };
+        ArchitectureQuickScanFindingItem: {
+            confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
+            /** Format: double */
+            confidenceScore?: null | number | string;
+            description: string;
+            severity?: components["schemas"]["FindingSeverity"];
+            title: string;
+        };
+        ArchitectureQuickScanRequest: {
+            cloudProvider: string;
+            description: string;
+            systemName: string;
+        };
+        ArchitectureQuickScanResponse: {
+            /** Format: date-time */
+            completedUtc?: string;
+            findings?: components["schemas"]["ArchitectureQuickScanFindingItem"][];
+            scanId: string;
+            summary: string;
         };
         ArchitectureRequest: {
             assumptions?: string[];

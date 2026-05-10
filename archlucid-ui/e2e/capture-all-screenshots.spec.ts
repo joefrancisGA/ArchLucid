@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+﻿import { expect, test } from "@playwright/test";
 
 import {
   fixtureArtifactDescriptorsScreenshot,
@@ -27,8 +27,14 @@ import { assertPageFreeOfScreenshotDemoFailures } from "./screenshot-demo-qualit
 
 const OUT = publicDirUnderUi("screenshots", "all-routes");
 
-/** Per-test cap for visiting every route: default Playwright would time out; 30m for slow cold builds or CI. */
-const ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS = 30 * 60 * 1_000;
+/** Each route runs as its own parallel test; generous ceiling for cold Next + mock on shared webServer. */
+const PER_ROUTE_SCREENSHOT_TIMEOUT_MS = 12 * 60 * 1_000;
+
+function slugForHref(href: string): string {
+  const noLead = href.replace(/^\//, "");
+
+  return (noLead.length > 0 ? noLead : "index").replace(/[/?&=]+/g, "-").replace(/-+/g, "-");
+}
 
 /** One href per `page.tsx` (63 routes); run/manifest/compare paths use {@link SCREENSHOT_*} for human-readable URLs. Legacy `/getting-started` redirects to `/onboarding`. */
 const HREFS: string[] = [
@@ -98,14 +104,11 @@ const HREFS: string[] = [
 ];
 
 function filePathForHref(href: string): string {
-  const noLead = href.replace(/^\//, "");
-  const slug = (noLead.length > 0 ? noLead : "index").replace(/[/?&=]+/g, "-").replace(/-+/g, "-");
-  return `${OUT}/${slug}.png`;
+  return `${OUT}/${slugForHref(href)}.png`;
 }
 
-test.describe("all routes screenshots (mock API)", () => {
-  // Apply to hooks: default 30s applies to beforeEach until the test runs.
-  test.describe.configure({ timeout: ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS });
+test.describe.parallel("all routes screenshots (mock API)", () => {
+  test.describe.configure({ timeout: PER_ROUTE_SCREENSHOT_TIMEOUT_MS });
 
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -133,10 +136,11 @@ test.describe("all routes screenshots (mock API)", () => {
     await registerScreenshotSuiteProxyRoutes(page);
   });
 
-  test("writes PNGs for every app route (page.tsx)", async ({ page }) => {
-    for (const href of HREFS) {
+  for (const href of HREFS) {
+    test(`PNG ${slugForHref(href)}`, async ({ page }) => {
       // `networkidle` rarely settles on Next.js (open connections); health route proxy GETs must still resolve — see registerScreenshotSuiteProxyRoutes.
       await page.goto(href, { waitUntil: "load", timeout: 120_000 });
+
 
       if (href === "/advisory-scheduling")
         await page.waitForURL(/\/advisory\?tab=schedules(?:&[^#]*)?(?:$|#)/, { timeout: 30_000 });
@@ -156,6 +160,6 @@ test.describe("all routes screenshots (mock API)", () => {
       await expect(page.locator("body")).toBeVisible({ timeout: 120_000 });
       await assertPageFreeOfScreenshotDemoFailures(page, href);
       await page.screenshot({ path: filePathForHref(href), fullPage: true });
-    }
-  });
+    });
+  }
 });
