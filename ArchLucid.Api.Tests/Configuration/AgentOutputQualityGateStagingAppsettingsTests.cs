@@ -51,7 +51,7 @@ public sealed class AgentOutputQualityGateStagingAppsettingsTests
             .Get<AgentOutputQualityGateOptions>();
 
         options.Should().NotBeNull();
-        options!.Enabled.Should().BeTrue();
+        options.Enabled.Should().BeTrue();
         options.Mode.Should().Be(AgentOutputQualityGateMode.PilotStrict);
         options.EnforceOnReject.Should().BeTrue();
         options.BlockRunOnReject.Should().BeTrue();
@@ -79,7 +79,7 @@ public sealed class AgentOutputQualityGateStagingAppsettingsTests
             .Get<AgentOutputQualityGateOptions>();
 
         options.Should().NotBeNull();
-        AssertLockedPerAgentRejectFloors(options!);
+        AssertLockedPerAgentRejectFloors(options);
     }
 
     [SkippableFact]
@@ -101,7 +101,7 @@ public sealed class AgentOutputQualityGateStagingAppsettingsTests
             .Get<AgentOutputQualityGateOptions>();
 
         options.Should().NotBeNull();
-        options!.Mode.Should().Be(AgentOutputQualityGateMode.PilotStrict);
+        options.Mode.Should().Be(AgentOutputQualityGateMode.PilotStrict);
         options.EnforceOnReject.Should().BeFalse();
         options.BlockRunOnReject.Should().BeTrue();
     }
@@ -120,7 +120,7 @@ public sealed class AgentOutputQualityGateStagingAppsettingsTests
             .Get<AgentResultSchemaValidationOptions>();
 
         schemaOpts.Should().NotBeNull();
-        schemaOpts!.EnforceOnParse.Should().BeTrue();
+        schemaOpts.EnforceOnParse.Should().BeTrue();
     }
 
     [SkippableFact]
@@ -137,6 +137,6 @@ public sealed class AgentOutputQualityGateStagingAppsettingsTests
             .Get<AgentResultSchemaValidationOptions>();
 
         schemaOpts.Should().NotBeNull();
-        schemaOpts!.EnforceOnParse.Should().BeTrue();
+        schemaOpts.EnforceOnParse.Should().BeTrue();
     }
 }

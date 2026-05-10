@@ -13,6 +13,9 @@ ArchLucid is a **proprietary** product codebase. References below to onboarding 
 
 ## Documentation spine
 
+<details>
+<summary><strong>Documentation spine links</strong> — buyers START_HERE plus engineering five-doc onboarding</summary>
+
 Start at **[docs/START_HERE.md](docs/START_HERE.md)** (buyers). **Engineering team** onboarding for this repo stays on these five active docs (install bodies live under `docs/engineering/`):
 
 1. **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** — toolchain order and verification
@@ -26,6 +29,8 @@ Start at **[docs/START_HERE.md](docs/START_HERE.md)** (buyers). **Engineering te
 Buyers: `docs/BUYER_FIRST_30_MINUTES.md` · Sponsors: `docs/EXECUTIVE_SPONSOR_BRIEF.md` · Security / trust: `docs/trust-center.md` · Depth: `docs/library/` · `docs/ARCHITECTURE_INDEX.md` · Archived root-era snapshots: `docs/archive/root-superseded-2026-05-01/README.md` · Engineering onboarding persona table: [`docs/library/CONTRIBUTOR_PERSONA_TABLE.md`](docs/library/CONTRIBUTOR_PERSONA_TABLE.md) (legacy filename — refers to engineers on the codebase, not public OSS contributors).
 
 **Quick routing:** buyer / evaluator — hosted SaaS + `START_HERE`, sponsor brief, Core Pilot **only** — no repo clone required. **Engineering** — spine above, then [`docs/ARCHITECTURE_INDEX.md`](docs/ARCHITECTURE_INDEX.md) once something runs locally.
+
+</details>
 
 [![Hosted SaaS probe](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml/badge.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml)
 [![Coverage](https://joefrancisGA.github.io/ArchLucid/badges/coverage.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/ci.yml)

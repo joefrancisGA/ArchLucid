@@ -588,13 +588,10 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
-                return Task.CompletedTask;
-
-            if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
-                t.TrialSeatsLimit is not int seatCap ||
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t) ||
+                !string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+                t.TrialSeatsLimit is not { } seatCap ||
                 seatCap < 1)
-
                 return Task.CompletedTask;
 
             if (t.TrialExpiresUtc is { } exp && exp <= TimeProvider.System.GetUtcNow())

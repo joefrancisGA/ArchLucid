@@ -23,7 +23,7 @@ public sealed class FastPathContextPreviewIntegrationTests(ArchLucidApiFactory f
         FastPathContextPreviewResponse? body =
             await response.Content.ReadFromJsonAsync<FastPathContextPreviewResponse>(JsonOptions);
         body.Should().NotBeNull();
-        body!.Elements.Should().NotBeEmpty();
+        body.Elements.Should().NotBeEmpty();
         body.SourceUrl.Should().Contain("github.com");
     }
 
