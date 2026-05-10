@@ -37,6 +37,8 @@ The weekday schedule uses **`0 6 * * 1-6`** and Sunday uses **`0 6 * * 0`** so t
 
 Keep secrets (**`ARCHLUCID_GOLDEN_COHORT_API_HOST`**, Azure OpenAI IDs/keys/federation used by preflight) in a protected environment once you enable unattended schedule.
 
+**Runner-side Azure OpenAI env (`cohort-real-llm-live` drift step):** the workflow exports **`AZURE_OPENAI_API_KEY`** from repository **secret** **`AZURE_OPENAI_API_KEY`**, **`AZURE_OPENAI_ENDPOINT`** from repository **variable** **`AZURE_OPENAI_ENDPOINT`** (HTTPS project or resource URL), and **`AZURE_OPENAI_DEPLOYMENT_NAME`** as **`gpt-4o`** for parity with [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md). Do not commit keys; rotate any key that was pasted into chat or logs.
+
 ## 3. Probe exit-code semantics (the kill-switch)
 
 | Exit code | MTD spend (default cap = $50) | Workflow behavior | Issue created? |
