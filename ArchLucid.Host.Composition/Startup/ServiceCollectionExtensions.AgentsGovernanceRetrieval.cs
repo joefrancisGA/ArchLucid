@@ -2,20 +2,19 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
-using ArchLucid.Capabilities.Cost;
 using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
-using ArchLucid.Contracts.Abstractions.Agents;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Application.Governance;
+using ArchLucid.Capabilities.Cost;
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Validation;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -24,6 +23,8 @@ using ArchLucid.Core.Metering;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Safety;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Resilience;
 using ArchLucid.Host.Core.Services;
@@ -34,12 +35,9 @@ using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Queries;
 
-using ArchLucid.Core.Agents;
-
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-
-using Microsoft.Extensions.Caching.Memory;
 
 using Polly;
 
@@ -1004,7 +1002,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(SchemaValidationOptions.SectionName).Get<SchemaValidationOptions>()
             ?? new SchemaValidationOptions();
 
-        string relative = parsed.AgentResultSchemaPath?.Trim() ?? string.Empty;
+        string relative = parsed.AgentResultSchemaPath.Trim();
 
         if (string.IsNullOrEmpty(relative))
             relative = new SchemaValidationOptions().AgentResultSchemaPath;

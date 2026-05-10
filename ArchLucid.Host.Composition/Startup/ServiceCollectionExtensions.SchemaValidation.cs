@@ -1,8 +1,5 @@
 using ArchLucid.Decisioning.Validation;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions

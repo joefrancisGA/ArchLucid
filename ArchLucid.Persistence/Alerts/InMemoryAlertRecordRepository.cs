@@ -1,7 +1,7 @@
 using ArchLucid.Core.Pagination;
 using ArchLucid.Decisioning.Alerts;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
 /// Thread-safe in-memory store implementing <see cref="IAlertRecordRepository"/> for tests and local scenarios.

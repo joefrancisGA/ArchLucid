@@ -14,7 +14,7 @@ using ArchLucid.Persistence.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
 /// Evaluates composite (multi-metric) alert rules after policy governance filtering, applies suppression policy, then persists and delivers.

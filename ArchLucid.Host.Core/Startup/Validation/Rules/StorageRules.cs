@@ -35,14 +35,14 @@ internal static class StorageRules
         SqlTopologyOptions? sqlTopology =
             configuration.GetSection(SqlTopologyOptions.SectionPath).Get<SqlTopologyOptions>();
 
-        if (storageIsSql && sqlTopology?.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
-        {
-            if (string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveSqlSystemConnectionString(configuration)))
-                errors.Add("ConnectionStrings:ArchLucidSystem is required when ArchLucid:SqlTopology:Mode is SystemWithPerTenantCatalogs.");
+        if (!storageIsSql || sqlTopology?.Mode != SqlTopologyMode.SystemWithPerTenantCatalogs)
+            return;
 
-            if (string.IsNullOrWhiteSpace(sqlTopology.TenantCatalogConnectionStringTemplate))
-                errors.Add(
-                    "ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate is required when ArchLucid:SqlTopology:Mode is SystemWithPerTenantCatalogs.");
-        }
+        if (string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveSqlSystemConnectionString(configuration)))
+            errors.Add("ConnectionStrings:ArchLucidSystem is required when ArchLucid:SqlTopology:Mode is SystemWithPerTenantCatalogs.");
+
+        if (string.IsNullOrWhiteSpace(sqlTopology.TenantCatalogConnectionStringTemplate))
+            errors.Add(
+                "ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate is required when ArchLucid:SqlTopology:Mode is SystemWithPerTenantCatalogs.");
     }
 }

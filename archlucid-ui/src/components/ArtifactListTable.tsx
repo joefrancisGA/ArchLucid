@@ -144,7 +144,7 @@ export function ArtifactListTable(props: {
       {sponsorMode && sorted.length > 0 ? (
         <details className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
           <summary className="cursor-pointer select-none text-sm font-medium text-neutral-800 dark:text-neutral-200">
-            Technical appendix — format and fingerprints for all outputs
+            Integrity and format details
           </summary>
           <div className="mt-3 space-y-4">
             {sorted.map((artifact) => (

@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export type FindingInspectWhyMattersSectionProps = {
@@ -20,9 +21,15 @@ export function FindingInspectWhyMattersSection({
   demoFillGaps,
   whyThisMattersNarrative,
 }: FindingInspectWhyMattersSectionProps): ReactElement {
+  const findingTitle = findingDetailHeadingTitle(payload);
+  const whyHeading =
+    findingTitle.trim().length > 0 && findingTitle !== "Finding detail"
+      ? `Why ${findingTitle} matters`
+      : "Why this matters";
+
   return (
     <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Why this matters</h2>
+      <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{whyHeading}</h2>
       {whyThisMattersNarrative ? (
         <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
           {whyThisMattersNarrative}

@@ -681,6 +681,22 @@ export default async function RunDetailPage({
                 omitEventTechnicalDetails={buyerPolishedArtifactTable}
               />
             )}
+            {buyerPolishedArtifactTable &&
+            !pipelineTimelineFailure &&
+            pipelineTimelineForUi !== null &&
+            pipelineTimelineForUi.length > 0 &&
+            pipelineTimelineForUi.length < 3 ? (
+              <p className="m-0 mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+                For the full audit trail with every pipeline event, open{" "}
+                <Link
+                  className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                  href={`/audit?runId=${encodeURIComponent(runId)}`}
+                >
+                  Audit
+                </Link>
+                .
+              </p>
+            ) : null}
           </CardContent>
         </Card>
       </section>

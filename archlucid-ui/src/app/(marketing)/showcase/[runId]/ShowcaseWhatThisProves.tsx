@@ -239,7 +239,7 @@ export function ShowcaseWhatThisProves({
           <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/see-it">
             See it in 30 seconds
           </Link>
-          . Operator-only exports and compare replay stay behind sign-in — see the{" "}
+          . Full exports and comparison tools are available after sign-in — see the{" "}
           <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
             Trust Center
           </Link>{" "}

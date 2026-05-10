@@ -35,7 +35,7 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"DbUp failed: {ex.Message}");
+            await Console.Error.WriteLineAsync($"DbUp failed: {ex.Message}");
             Console.Error.WriteLine(ex);
 
             return 2;

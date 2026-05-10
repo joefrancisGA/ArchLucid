@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Linq;
 
 namespace ArchLucid.Persistence.Integrations;
 
@@ -66,9 +65,11 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
         string humanReviewStatus,
         CancellationToken ct)
     {
-        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
 
-        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("findingId is required.", nameof(findingId));
 
         return string.IsNullOrWhiteSpace(humanReviewStatus)
             ? throw new ArgumentException("humanReviewStatus is required.", nameof(humanReviewStatus))
@@ -80,9 +81,11 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
     /// <inheritdoc />
     public Task<bool> FindingRecordExistsAsync(Guid tenantId, string findingId, CancellationToken ct)
     {
-        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
 
-        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("findingId is required.", nameof(findingId));
 
         string trimmed = findingId.Trim();
 

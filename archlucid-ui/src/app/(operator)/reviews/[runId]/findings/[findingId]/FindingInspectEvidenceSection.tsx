@@ -46,7 +46,7 @@ export function FindingInspectEvidenceSection({
 }: FindingInspectEvidenceSectionProps): ReactElement {
   return (
     <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Evidence</h2>
+      <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Evidence citations</h2>
       {evidence.length === 0 ? (
         demoFillGaps ? (
           <ul className="mt-2 list-none space-y-3 p-0 text-sm">
@@ -56,7 +56,7 @@ export function FindingInspectEvidenceSection({
                 birth fields referenced by the adjudication subgraph.
               </p>
               <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-                Sample-only evidence for buyer walkthrough; production findings link live graph nodes and artifacts.
+                Illustrative — production reviews link live graph nodes and artifact references.
               </p>
               <div className="mt-2">
                 <Link href={reviewContextHref} className="text-xs font-medium text-sky-700 underline dark:text-sky-300">

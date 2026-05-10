@@ -8,7 +8,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
 /// Dapper implementation of <see cref="ICompositeAlertRuleRepository"/>; writes <c>dbo.CompositeAlertRules</c> and child condition rows in a transaction.

@@ -54,7 +54,7 @@ public sealed class FastPathContextPreviewResponse
     {
         get;
         set;
-    } = Array.Empty<FastPathContextElementDto>();
+    } = [];
 
     /// <summary>Version tag for clients that cache previews.</summary>
     public string Mode

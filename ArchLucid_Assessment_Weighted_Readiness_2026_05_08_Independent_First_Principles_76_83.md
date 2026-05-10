@@ -736,7 +736,7 @@ In `ArchLucid.Application/Integrations/Itsm/ItsmInboundWebhookSyncService.cs`, a
 
 3. Validate payload size (reject payloads > 64KB for webhook bodies — reasonable upper bound for a status sync)
 
-4. Add a `[MaxLength]` or explicit length check on any string field that will be persisted to SQL (prevent oversized strings from causing SQL truncation)
+4. Add a `[MaxLength]` or explicit length check on any string field that will be persisted to SQL (prevent oversized strings from causing SQL truncation)   
 
 5. Ensure that `findingId` from the correlation table is validated (exists in the current tenant's findings) before updating finding state
 

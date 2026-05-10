@@ -4,8 +4,8 @@ using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Billing;
@@ -39,6 +39,7 @@ using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Billing;
@@ -53,8 +54,8 @@ using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.CustomerSuccess;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Feedback;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.GoToMarket;
@@ -305,7 +306,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         IConfiguration configuration,
         string connectionString)
     {
-        services.AddSingleton<Persistence.Data.Infrastructure.IDbConnectionFactory>(p =>
+        services.AddSingleton<IDbConnectionFactory>(p =>
             new SqlScopedResolutionDbConnectionFactory(
                 p.GetRequiredService<IServiceScopeFactory>(),
                 connectionString));

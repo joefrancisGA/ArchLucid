@@ -15,8 +15,7 @@ public sealed class RunsStructuralExecutionModeDdlTests
         string sql = File.ReadAllText(ResolveArchLucidSqlPath());
 
         sql.Should().MatchRegex(
-            @"(?<!\w)StructuralExecutionMode(?!\w).*NOT\s+NULL",
-            RegexOptions.IgnoreCase | RegexOptions.Singleline,
+            new Regex(@"(?<!\w)StructuralExecutionMode(?!\w).*NOT\s+NULL", RegexOptions.IgnoreCase | RegexOptions.Singleline),
             because: "INV-002 requires dbo.Runs.StructuralExecutionMode NOT NULL in ArchLucid.sql");
 
         sql.Should().Contain("CK_Runs_StructuralExecutionMode", because: "enum domain must be CHECK-constrained");

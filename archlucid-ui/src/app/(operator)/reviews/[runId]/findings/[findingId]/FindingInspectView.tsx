@@ -6,6 +6,7 @@ import {
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/OperatorEvidenceLimitsFooter";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { findingDetailHeadingTitle, findingDetailLeadSentence } from "@/lib/finding-display-from-inspect";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -91,6 +92,9 @@ export function FindingInspectView({
     );
   }
 
+  const findingTitle = findingDetailHeadingTitle(payload);
+  const inspectHeroTitle = buyerPolishedShell ? `Traceability: ${findingTitle}` : `Technical inspection — ${findingTitle}`;
+
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
       <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
@@ -109,13 +113,14 @@ export function FindingInspectView({
             : "space-y-3"
         }
       >
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-          {buyerPolishedShell ? "Traceability & inspection" : "Technical inspection"}
-        </h1>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{inspectHeroTitle}</h1>
+        <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          {findingDetailLeadSentence(payload)}
+        </p>
         <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           {buyerPolishedShell
-            ? "Rules, typed payloads, citations, and audit correlation for this finding. Use the finding overview when you need the sponsor summary first."
-            : "This view shows audit and explainability details for the finding: decision-rule linkage, citations, typed payload, and audit correlation. Use Finding detail (link above) for the product summary; come here when you need full traceability."}
+            ? "Below: cited evidence, rule linkage, typed finding payload, reasoning trace, and audit correlation. Use finding overview for the sponsor summary first."
+            : "This view adds rule identifiers, citations, typed payload, and reasoning trace. Use Finding detail (link above) for the product summary; use this view for full traceability."}
         </p>
         <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Finding <span className="font-mono text-xs">{decodedFindingId}</span> — manifest{" "}

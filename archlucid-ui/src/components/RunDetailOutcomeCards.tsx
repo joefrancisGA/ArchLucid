@@ -41,7 +41,7 @@ function manifestWarningsSecondaryCopy(warningCountDisplay: number | null): stri
     return null;
   }
 
-  return `${n} manifest warning${n === 1 ? "" : "s"}`;
+  return `${n} review warning${n === 1 ? "" : "s"}`;
 }
 
 function buyerFindingSeveritySignal(
@@ -183,7 +183,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
       </div>
 
       <div className={segmentInner}>
-        <p className={stripSegmentLabelClass()}>Artifacts</p>
+        <p className={stripSegmentLabelClass()}>Deliverables</p>
         <div className="mt-1">
           {hasManifest ? (
             <Link
@@ -308,7 +308,7 @@ export function RunDetailOutcomeCards({
           </p>
           {governanceGateLabel !== null && governanceGateLabel !== undefined && governanceGateLabel.length > 0 ? (
             <p className="m-0 mt-2 text-xs text-neutral-700 dark:text-neutral-300">
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Governance gate:</span>{" "}
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Governance approval:</span>{" "}
               {governanceGateLabel}
             </p>
           ) : null}

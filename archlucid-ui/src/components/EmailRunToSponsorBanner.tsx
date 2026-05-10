@@ -236,7 +236,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
           rel="noopener noreferrer"
           target="_blank"
         >
-          pilot ROI reference model
+          pilot ROI estimate assumptions
         </a>
         .{buyerPolishedShell ? " Downloads and readiness checks are split below." : " Use the exports below for sponsor-ready collateral."}
       </p>
@@ -250,8 +250,8 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
           aria-busy
         >
           {readinessLoadingPhase === "slow"
-            ? "Still checking sponsor readiness — you can use the exports below in the meantime."
-            : "Checking sponsor readiness…"}
+            ? "Still preparing executive package details — you can use the exports below in the meantime."
+            : "Preparing executive package details…"}
         </p>
       ) : proofGate.status === "error" ? (
         <p

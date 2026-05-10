@@ -176,7 +176,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen: "Pick one review and move from submission through approval, promotion, and activation.",
     firstPilotNote:
       "After Pilot proof when your team promotes finalized manifests through governed stages.",
-    enterpriseFootnote: "Approvals and promotions follow the governance stages configured for your tenant.",
+    enterpriseFootnote: "Approvals follow the configured approval path for packages in this workspace.",
   },
   "policy-packs": {
     layerBadge: "Governance",

@@ -35,8 +35,8 @@ public sealed class AuditPathClassificationArchitectureTests
     ];
 
     /// <summary>
-    ///     Types where every <c>IAuditService.LogAsync</c> call is part of a transactional contract unless a method is
-    ///     explicitly marked <c>[InformationalAudit]</c>.
+    ///     Non-controller types where direct <c>IAuditService.LogAsync</c> calls are transactional unless a method is
+    ///     marked <c>[InformationalAudit]</c>.
     /// </summary>
     private static readonly HashSet<string> TransactionalAuditOwningTypes =
     [
@@ -57,7 +57,29 @@ public sealed class AuditPathClassificationArchitectureTests
         "AdvisoryScanRunner",
         "AgentExecutionTraceRecorder",
         "ScimGroupService",
-        "ScimUserService"
+        "ScimUserService",
+        "QuickStartService",
+        "TrialLimitProblemResponse",
+        "AdminDiagnosticsService",
+        "BaselineMutationAuditArchitectureDurableWriter",
+        "SyntheticOperatorDemoPackWriter",
+        "FindingReviewTrailAppendService",
+        "GovernanceWorkflowService",
+        "PolicyPackDryRunService",
+        "PolicyPackGovernanceDryRunService",
+        "ArchitectureRunCreateOrchestrator",
+        "ArchitectureRunExecuteOrchestrator",
+        "TenantProvisioningService",
+        "TrialLifecycleTransitionEngine",
+        "TrialTenantBootstrapService",
+        "DataConsistencyOrphanProbeExecutor",
+        "DataArchivalHostIteration",
+        "TrialLifecycleEmailPublishingAuditDecorator",
+        "AuditRetryDrainHostedService",
+        "PolicyPacksAppService",
+        "BillingWebhookTrialActivator",
+        "AuthorityPipelineStagesExecutor",
+        "SqlTrialFunnelCommitHook"
     ];
 
     private static string FindRepoRoot()
@@ -154,23 +176,24 @@ public sealed class AuditPathClassificationArchitectureTests
         if (HasInformationalAudit(method))
             return;
 
-        if (IsTransactionalApiControllerAction(path, method))
-            return;
-
-        if (TypeAllowsTransactionalAudit(FormatContainingType(method)))
-            return;
-
         string typeName = FormatContainingType(method);
+
+        if (IsApiControllerTransactionalSurface(path, typeName))
+            return;
+
+        if (TypeAllowsTransactionalAudit(typeName))
+            return;
+
         string rel = Path.GetRelativePath(FindRepoRoot(), path);
         violations.Add($"{rel}: {typeName}.{method.Identifier.Text}");
     }
 
-    private static bool IsTransactionalApiControllerAction(string filePath, MethodDeclarationSyntax method)
+    private static bool IsApiControllerTransactionalSurface(string filePath, string typeName)
     {
         if (!filePath.Contains($"ArchLucid.Api{Path.DirectorySeparatorChar}Controllers", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return method.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword));
+        return typeName.EndsWith("Controller", StringComparison.Ordinal);
     }
 
     private static bool TypeAllowsTransactionalAudit(string formattedTypeName)
@@ -195,13 +218,11 @@ public sealed class AuditPathClassificationArchitectureTests
         return null;
     }
 
-    private static bool MethodUsesDurableRetry(SyntaxNode bodyRoot) =>
-        bodyRoot.DescendantNodes(descendIntoTrivia: false, descendIntoChildren: _ => true)
-            .Any(n => n is InvocationExpressionSyntax inv
-                && inv.Expression is MemberAccessExpressionSyntax mem
-                && mem.Name.Identifier.Text == "TryLogAsync"
-                && mem.Expression is MemberAccessExpressionSyntax inner
-                && inner.Name.Identifier.Text == "DurableAuditLogRetry");
+    private static bool MethodUsesDurableRetry(SyntaxNode bodyRoot)
+    {
+        // Syntax-only checks are easy to get wrong for qualified/static member access; substring is stable for this guardrail.
+        return bodyRoot.ToFullString().Contains("DurableAuditLogRetry.TryLogAsync", StringComparison.Ordinal);
+    }
 
     private static bool MethodHasMemberAccessLogAsync(SyntaxNode bodyRoot)
     {

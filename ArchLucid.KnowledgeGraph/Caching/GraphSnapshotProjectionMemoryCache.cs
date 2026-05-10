@@ -44,11 +44,9 @@ public sealed class GraphSnapshotProjectionMemoryCache(
 
         TimeSpan ttl = ResolveTtl();
 
-        using (ICacheEntry entry = _memoryCache.CreateEntry(key))
-        {
-            entry.AbsoluteExpirationRelativeToNow = ttl;
-            entry.Value = created;
-        }
+        using ICacheEntry entry = _memoryCache.CreateEntry(key);
+        entry.AbsoluteExpirationRelativeToNow = ttl;
+        entry.Value = created;
 
         return created;
     }

@@ -23,12 +23,12 @@ internal static class DoctorQuickStartReadiness
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        output.WriteLine("--- Quick-start readiness (local configuration) ---");
-        output.WriteLine(
+        await output.WriteLineAsync("--- Quick-start readiness (local configuration) ---");
+        await output.WriteLineAsync(
             "Merged appsettings*.json in the current directory + environment — align with the API host process.");
-        output.WriteLine();
+        await output.WriteLineAsync();
 
-        string? envName =
+        string envName =
             configuration["ASPNETCORE_ENVIRONMENT"]?.Trim()
             ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.Trim()
             ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")?.Trim()
@@ -45,12 +45,12 @@ internal static class DoctorQuickStartReadiness
             }
             catch (Exception ex)
             {
-                output.WriteLine(
+                await output.WriteLineAsync(
                     new DoctorReadinessLine(
                         false,
                         "Connection string",
                         "invalid — " + ex.Message
-                        + " (fix ConnectionStrings:ArchLucid / ConnectionStrings__ArchLucid).").Format());
+                                     + " (fix ConnectionStrings:ArchLucid / ConnectionStrings__ArchLucid).").Format());
 
                 await WriteRemainingLinesAfterSqlFailureAsync(output, configuration, envName, cancellationToken, hooks)
                     .ConfigureAwait(false);
@@ -63,21 +63,21 @@ internal static class DoctorQuickStartReadiness
             ? await customSql(securedConnection, useSql, cancellationToken).ConfigureAwait(false)
             : await DefaultSqlProbeAsync(securedConnection, useSql, cancellationToken).ConfigureAwait(false);
 
-        output.WriteLine(connectionLine.Format());
+        await output.WriteLineAsync(connectionLine.Format());
 
-        output.WriteLine(schemaLine.Format());
+        await output.WriteLineAsync(schemaLine.Format());
 
-        output.WriteLine(EvaluateAuthMode(configuration, envName).Format());
+        await output.WriteLineAsync(EvaluateAuthMode(configuration, envName).Format());
 
         DoctorReadinessLine openAiLine = hooks?.OpenAiAsync is { } customOpenAi
             ? await customOpenAi(configuration, cancellationToken).ConfigureAwait(false)
             : await DefaultOpenAiLineAsync(configuration, cancellationToken).ConfigureAwait(false);
 
-        output.WriteLine(openAiLine.Format());
+        await output.WriteLineAsync(openAiLine.Format());
 
-        output.WriteLine(EvaluateRequiredConfigurationKeys(configuration, envName).Format());
+        await output.WriteLineAsync(EvaluateRequiredConfigurationKeys(configuration, envName).Format());
 
-        output.WriteLine();
+        await output.WriteLineAsync();
     }
 
     /// <summary>For unit tests: auth row only (mirrors <c>ConfigLintCommand</c> traps).</summary>
@@ -127,13 +127,10 @@ internal static class DoctorQuickStartReadiness
                 StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if (string.Equals(
-                configuration["AgentExecution:CompletionClient"]?.Trim(),
-                "Echo",
-                StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        return true;
+        return !string.Equals(
+            configuration["AgentExecution:CompletionClient"]?.Trim(),
+            "Echo",
+            StringComparison.OrdinalIgnoreCase);
     }
 
     internal static DoctorReadinessLine EvaluateRequiredConfigurationKeys(
@@ -263,23 +260,23 @@ internal static class DoctorQuickStartReadiness
         CancellationToken cancellationToken,
         DoctorQuickStartReadinessHooks? hooks)
     {
-        output.WriteLine(
+        await output.WriteLineAsync(
             new DoctorReadinessLine(
                 false,
                 "Storage / schema",
                 "skipped — fix connection string first").Format());
 
-        output.WriteLine(EvaluateAuthMode(configuration, envName).Format());
+        await output.WriteLineAsync(EvaluateAuthMode(configuration, envName).Format());
 
         DoctorReadinessLine openAiLine = hooks?.OpenAiAsync is { } customOpenAi
             ? await customOpenAi(configuration, cancellationToken).ConfigureAwait(false)
             : await DefaultOpenAiLineAsync(configuration, cancellationToken).ConfigureAwait(false);
 
-        output.WriteLine(openAiLine.Format());
+        await output.WriteLineAsync(openAiLine.Format());
 
-        output.WriteLine(EvaluateRequiredConfigurationKeys(configuration, envName).Format());
+        await output.WriteLineAsync(EvaluateRequiredConfigurationKeys(configuration, envName).Format());
 
-        output.WriteLine();
+        await output.WriteLineAsync();
     }
 
     private static async Task<(DoctorReadinessLine Connection, DoctorReadinessLine Schema)> DefaultSqlProbeAsync(
@@ -406,10 +403,7 @@ internal static class DoctorQuickStartReadiness
         const string token = ".Migrations.";
         int idx = embeddedResourceName.IndexOf(token, StringComparison.OrdinalIgnoreCase);
 
-        if (idx < 0)
-            return embeddedResourceName;
-
-        return embeddedResourceName[(idx + token.Length)..];
+        return idx < 0 ? embeddedResourceName : embeddedResourceName[(idx + token.Length)..];
     }
 
     private static async Task<DoctorReadinessLine> DefaultOpenAiLineAsync(

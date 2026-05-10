@@ -1,8 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Host.Core.Configuration;
 
-using Microsoft.AspNetCore.Hosting;
-
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 /// <summary>

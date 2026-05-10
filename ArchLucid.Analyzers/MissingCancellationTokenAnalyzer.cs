@@ -86,7 +86,7 @@ public sealed class MissingCancellationTokenAnalyzer : DiagnosticAnalyzer
 
     private static bool IsSystemThreadingTasksTaskSymbol(INamedTypeSymbol named)
     {
-        return named is { Name: "Task", ContainingNamespace: INamespaceSymbol ns } &&
+        return named is { Name: "Task", ContainingNamespace: { } ns } &&
                string.Equals(ns.ToDisplayString(), "System.Threading.Tasks", StringComparison.Ordinal);
     }
 
@@ -103,18 +103,18 @@ public sealed class MissingCancellationTokenAnalyzer : DiagnosticAnalyzer
 
     private static bool HasArch003Suppression(ISymbol symbol)
     {
-        foreach (AttributeData attr in symbol.GetAttributes())
+        foreach (AttributeData? attr in symbol.GetAttributes())
         {
             if (attr.AttributeClass?.ToDisplayString() != "System.Diagnostics.CodeAnalysis.SuppressMessageAttribute")
                 continue;
 
-            if (attr.ConstructorArguments.Length >= 2 &&
-                attr.ConstructorArguments[1].Value is string checkId &&
+            ImmutableArray<TypedConstant> args = attr.ConstructorArguments;
+
+            if (args.Length >= 2 && args[1].Value is string checkId &&
                 string.Equals(checkId, "ARCH003", StringComparison.Ordinal))
                 return true;
 
-            if (attr.ConstructorArguments.Length >= 1 &&
-                attr.ConstructorArguments[0].Value is string first &&
+            if (args.Length >= 1 && args[0].Value is string first &&
                 string.Equals(first, "ARCH003", StringComparison.Ordinal))
                 return true;
         }

@@ -40,7 +40,7 @@ describe("FindingInspectFindingBody", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Why this matters" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Why Rule A matters" })).toBeTruthy();
     expect(screen.queryByText("View AI Reasoning")).toBeNull();
     expect(screen.queryByText("AI Audit Inspection")).toBeNull();
     expect(screen.getByRole("heading", { name: "Audit" })).toBeTruthy();

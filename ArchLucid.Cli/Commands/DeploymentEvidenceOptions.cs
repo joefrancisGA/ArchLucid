@@ -163,20 +163,19 @@ internal sealed partial class DeploymentEvidenceOptions
             return null;
         }
 
-        if (string.IsNullOrWhiteSpace(apiBaseUrl))
-        {
-            error = "Required: --api-base-url <url> (HTTPS origin for ArchLucid.Api).";
+        if (!string.IsNullOrWhiteSpace(apiBaseUrl))
+            return new DeploymentEvidenceOptions(
+                environmentName.Trim(),
+                apiBaseUrl.Trim().TrimEnd('/'),
+                string.IsNullOrWhiteSpace(outPath) ? null : outPath.Trim(),
+                string.IsNullOrWhiteSpace(repoRoot) ? null : repoRoot.Trim(),
+                syntheticPath,
+                allowMissingOpenApi);
 
-            return null;
-        }
+        error = "Required: --api-base-url <url> (HTTPS origin for ArchLucid.Api).";
 
-        return new DeploymentEvidenceOptions(
-            environmentName.Trim(),
-            apiBaseUrl.Trim().TrimEnd('/'),
-            string.IsNullOrWhiteSpace(outPath) ? null : outPath.Trim(),
-            string.IsNullOrWhiteSpace(repoRoot) ? null : repoRoot.Trim(),
-            syntheticPath,
-            allowMissingOpenApi);
+        return null;
+
     }
 
     internal string ResolveDefaultOutPath()
@@ -184,12 +183,7 @@ internal sealed partial class DeploymentEvidenceOptions
         string slug = SanitizeEnvironmentToken(EnvironmentName);
         string? runId = Environment.GetEnvironmentVariable("GITHUB_RUN_ID");
 
-        if (!string.IsNullOrWhiteSpace(runId))
-            return Path.Combine("artifacts", $"deployment-evidence-{slug}-{runId.Trim()}.md");
-
-        return Path.Combine(
-            "artifacts",
-            $"deployment-evidence-{slug}-{TimeProvider.System.UtcNowDateTime():yyyyMMddTHHmmss}Z.md");
+        return Path.Combine("artifacts", !string.IsNullOrWhiteSpace(runId) ? $"deployment-evidence-{slug}-{runId.Trim()}.md" : $"deployment-evidence-{slug}-{TimeProvider.System.UtcNowDateTime():yyyyMMddTHHmmss}Z.md");
     }
 
     internal static string SanitizeEnvironmentToken(string environmentName)

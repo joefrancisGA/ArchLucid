@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Alerts.Delivery;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>In-memory <see cref="IAlertDeliveryAttemptRepository"/> for tests; thread-safe via lock.</summary>
 public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttemptRepository
