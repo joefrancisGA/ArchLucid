@@ -76,7 +76,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             await correlations.TryGetByExternalKeyAsync("Jira", "DP-900", CancellationToken.None);
 
         row.Should().NotBeNull();
-        row!.FindingId.Should().Be(DemoPrimaryFindingId);
+        row.FindingId.Should().Be(DemoPrimaryFindingId);
 
         factory.AuditCapture.Snapshot()
             .Select(static a => a.EventType)
@@ -255,7 +255,7 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             await correlations.TryGetByExternalKeyAsync("ServiceNow", "sn-sys-42", CancellationToken.None);
 
         row.Should().NotBeNull();
-        row!.FindingId.Should().Be(DemoPrimaryFindingId);
+        row.FindingId.Should().Be(DemoPrimaryFindingId);
 
         factory.AuditCapture.Snapshot()
             .Select(static a => a.EventType)

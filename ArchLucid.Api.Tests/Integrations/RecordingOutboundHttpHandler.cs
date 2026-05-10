@@ -15,9 +15,6 @@ public sealed class RecordingOutboundHttpHandler : HttpMessageHandler
 
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        if (RespondAsync is null)
-            return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.NotFound));
-
-        return RespondAsync(request, cancellationToken);
+        return RespondAsync is null ? Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.NotFound)) : RespondAsync(request, cancellationToken);
     }
 }

@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations.Itsm.Outbound;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -104,7 +103,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
 
         HttpRequestMessage? incidentRequest = handler.LastRequest;
         incidentRequest.Should().NotBeNull();
-        incidentRequest!.Method.Should().Be(HttpMethod.Post);
+        incidentRequest.Method.Should().Be(HttpMethod.Post);
         incidentRequest.RequestUri!.ToString().Should().Contain("/api/now/table/incident");
         AssertBasicAuthPresent(incidentRequest);
 

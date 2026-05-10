@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests.Security;
@@ -34,34 +34,7 @@ public sealed class RbacBoundaryIntegrationTests(ApiKeyReaderAndAdminArchLucidAp
     public void All_public_controller_http_actions_declare_authorization_boundary()
     {
         List<string> violations = [];
-
-        foreach (Type type in DiscoverArchLucidApiControllerTypes())
-        {
-            foreach (MethodInfo method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public |
-                                                          BindingFlags.DeclaredOnly))
-            {
-                if (method.GetCustomAttribute<NonActionAttribute>(false) is not null)
-                {
-                    continue;
-                }
-
-                if (!MethodDeclaresHttpVerb(method))
-                {
-                    continue;
-                }
-
-                if (MethodOrTypeAllowsAnonymous(type, method))
-                {
-                    continue;
-                }
-
-                if (!TypeOrMethodRequiresAuthentication(type, method))
-                {
-                    violations.Add(
-                        $"{type.FullName}.{method.Name}: HTTP action has no [AllowAnonymous] and no [Authorize] (named or plain) on method or controller.");
-                }
-            }
-        }
+        violations.AddRange(from type in DiscoverArchLucidApiControllerTypes() from method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly) where method.GetCustomAttribute<NonActionAttribute>(false) is null where MethodDeclaresHttpVerb(method) where !MethodOrTypeAllowsAnonymous(type, method) where !TypeOrMethodRequiresAuthentication(type, method) select $"{type.FullName}.{method.Name}: HTTP action has no [AllowAnonymous] and no [Authorize] (named or plain) on method or controller.");
 
         violations.Should().BeEmpty();
     }
@@ -202,12 +175,7 @@ public sealed class RbacBoundaryIntegrationTests(ApiKeyReaderAndAdminArchLucidAp
 
     private static bool TypeOrMethodRequiresAuthentication(Type controllerType, MethodInfo method)
     {
-        if (method.GetCustomAttributes<AuthorizeAttribute>(false).Any())
-        {
-            return true;
-        }
-
-        return controllerType.GetCustomAttributes<AuthorizeAttribute>(true).Any();
+        return method.GetCustomAttributes<AuthorizeAttribute>(false).Any() || controllerType.GetCustomAttributes<AuthorizeAttribute>(true).Any();
     }
 
     private static string? TryBuildUrlFromRouteEndpoint(RouteEndpoint routeEndpoint, out string? failureReason)
@@ -220,14 +188,13 @@ public sealed class RbacBoundaryIntegrationTests(ApiKeyReaderAndAdminArchLucidAp
         dynamic routePatternDynamic = routePatternObject;
         string? rawText = routePatternDynamic.RawText as string;
 
-        if (string.IsNullOrWhiteSpace(rawText))
-        {
-            failureReason = "route pattern RawText was empty.";
+        if (!string.IsNullOrWhiteSpace(rawText))
+            return ExpandRawRouteTemplate(rawText, out failureReason);
 
-            return null;
-        }
+        failureReason = "route pattern RawText was empty.";
 
-        return ExpandRawRouteTemplate(rawText, out failureReason);
+        return null;
+
     }
 
     private static string? ExpandRawRouteTemplate(string rawText, out string? failureReason)
