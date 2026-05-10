@@ -42,7 +42,11 @@ public static class ProductionDangerousMisconfigurationLint
         return strict && (aspNetStaging || archStaging);
     }
 
-    /// <summary>Returns stable <see cref="HostingMisconfigurationWarning.RuleName" /> values and operator text.</summary>
+    /// <summary>
+    ///     Returns stable <see cref="HostingMisconfigurationWarning.RuleName" /> values and operator text. When
+    ///     <see cref="AppliesDangerousFailFast" /> is false but ASP.NET Core is not Development, still evaluates catalog
+    ///     DeveloperBypass keys (<c>Authentication:ApiKey:DevelopmentBypassAll</c>, <c>ArchLucidAuth:Mode=DevelopmentBypass</c>).
+    /// </summary>
     public static IReadOnlyList<HostingMisconfigurationWarning> DescribeFailFastFindings(
         IConfiguration configuration,
         string aspNetCoreEnvironmentName)
