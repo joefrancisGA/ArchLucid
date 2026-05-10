@@ -14,11 +14,8 @@ public static class StructuralExecutionModeResolver
         if (realModeFellBackToSimulator)
             return StructuralExecutionMode.Fallback;
 
-        string mode = options.Mode?.Trim() ?? "";
+        string mode = options.Mode.Trim();
 
-        if (mode.Equals("Real", StringComparison.OrdinalIgnoreCase))
-            return StructuralExecutionMode.Real;
-
-        return StructuralExecutionMode.Simulator;
+        return mode.Equals("Real", StringComparison.OrdinalIgnoreCase) ? StructuralExecutionMode.Real : StructuralExecutionMode.Simulator;
     }
 }

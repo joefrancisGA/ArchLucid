@@ -241,21 +241,20 @@ internal static class BuyerProofPackCommand
             if (File.Exists(outZip))
                 File.Delete(outZip);
 
-            using (FileStream zipFs = new(outZip, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-            using (ZipArchive zip = new(zipFs, ZipArchiveMode.Create))
-
+            await using (FileStream zipFs = new(outZip, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            await using (ZipArchive zip = new(zipFs, ZipArchiveMode.Create))
             {
                 foreach (PackFileEntry entry in entries)
                 {
                     ZipArchiveEntry ze = zip.CreateEntry(entry.RelativePath, CompressionLevel.Optimal);
 
-                    await using Stream zs = ze.Open();
+                    await using Stream zs = await ze.OpenAsync(cancellationToken);
                     await zs.WriteAsync(entry.Content, cancellationToken);
                 }
 
                 ZipArchiveEntry m = zip.CreateEntry("pack-manifest.json", CompressionLevel.Optimal);
 
-                await using Stream ms = m.Open();
+                await using Stream ms = await m.OpenAsync(cancellationToken);
                 await ms.WriteAsync(manifestBytes, cancellationToken);
             }
 
@@ -266,22 +265,18 @@ internal static class BuyerProofPackCommand
         finally
         {
             if (Directory.Exists(staging))
-
                 Directory.Delete(staging, true);
         }
     }
 
     private static string? ResolveRepoRoot(string? overridePath)
     {
-        if (!string.IsNullOrWhiteSpace(overridePath))
-        {
-            string full = Path.GetFullPath(overridePath.Trim());
+        if (string.IsNullOrWhiteSpace(overridePath))
+            return CliRepositoryRootResolver.TryResolveRepositoryRoot();
 
-            if (Directory.Exists(full))
-                return full;
-        }
+        string full = Path.GetFullPath(overridePath.Trim());
 
-        return CliRepositoryRootResolver.TryResolveRepositoryRoot();
+        return Directory.Exists(full) ? full : CliRepositoryRootResolver.TryResolveRepositoryRoot();
     }
 
     private static string PrettyPrintJson(string raw)
@@ -344,11 +339,10 @@ internal static class BuyerProofPackCommand
 
         sb.AppendLine();
 
-        if (root.TryGetProperty("topFindingId", out JsonElement tf) && tf.ValueKind == JsonValueKind.String)
-        {
-            sb.AppendLine(CultureInfo.InvariantCulture, $"**Top finding id (evidence excerpt):** `{tf.GetString()}`");
-            sb.AppendLine();
-        }
+        if (!root.TryGetProperty("topFindingId", out JsonElement tf) || tf.ValueKind != JsonValueKind.String)
+            return sb.ToString();
+        sb.AppendLine(CultureInfo.InvariantCulture, $"**Top finding id (evidence excerpt):** `{tf.GetString()}`");
+        sb.AppendLine();
 
         return sb.ToString();
     }
@@ -386,11 +380,11 @@ internal static class BuyerProofPackCommand
             ["runId"] = runId,
             ["demoDataWarning"] = demoWarning,
             ["files"] = sortedEntries.Select(e => new Dictionary<string, object>(StringComparer.Ordinal)
-                {
-                    ["path"] = e.RelativePath,
-                    ["sha256"] = Sha256Hex(e.Content),
-                    ["sizeBytes"] = e.Content.Length,
-                })
+            {
+                ["path"] = e.RelativePath,
+                ["sha256"] = Sha256Hex(e.Content),
+                ["sizeBytes"] = e.Content.Length,
+            })
                 .ToList(),
         };
 

@@ -95,7 +95,7 @@ function ShowcaseHero({ runId }: { readonly runId: string }): ReactElement {
         className="mb-4 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100"
         data-testid="showcase-demo-single-banner"
       >
-        <strong className="font-semibold">Demo data</strong>
+        <strong className="font-semibold">Illustrative sample</strong>
         {" — "}
         Claims Intake Modernization sample scenario.
       </div>

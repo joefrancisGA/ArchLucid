@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 
@@ -120,7 +119,10 @@ public sealed class TrialSmokeRunner(HttpClient http)
             return (
                 new TrialSmokeStepResult
                 {
-                    Name = name, Passed = false, Detail = $"POST /v1/register threw: {ex.GetType().Name}: {ex.Message}", FailureHint = hint
+                    Name = name,
+                    Passed = false,
+                    Detail = $"POST /v1/register threw: {ex.GetType().Name}: {ex.Message}",
+                    FailureHint = hint
                 }, null, null);
         }
     }
@@ -188,7 +190,10 @@ public sealed class TrialSmokeRunner(HttpClient http)
             return (
                 new TrialSmokeStepResult
                 {
-                    Name = name, Passed = false, Detail = $"GET /v1/tenant/trial-status threw: {ex.GetType().Name}: {ex.Message}", FailureHint = hint
+                    Name = name,
+                    Passed = false,
+                    Detail = $"GET /v1/tenant/trial-status threw: {ex.GetType().Name}: {ex.Message}",
+                    FailureHint = hint
                 }, null);
         }
     }
@@ -216,7 +221,10 @@ public sealed class TrialSmokeRunner(HttpClient http)
 
                 return new TrialSmokeStepResult
                 {
-                    Name = name, Passed = false, Detail = $"GET {path} returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}", FailureHint = hint
+                    Name = name,
+                    Passed = false,
+                    Detail = $"GET {path} returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
+                    FailureHint = hint
                 };
             }
 
@@ -232,7 +240,10 @@ public sealed class TrialSmokeRunner(HttpClient http)
         {
             return new TrialSmokeStepResult
             {
-                Name = name, Passed = false, Detail = $"GET pilot-run-deltas threw: {ex.GetType().Name}: {ex.Message}", FailureHint = hint
+                Name = name,
+                Passed = false,
+                Detail = $"GET pilot-run-deltas threw: {ex.GetType().Name}: {ex.Message}",
+                FailureHint = hint
             };
         }
     }

@@ -27,14 +27,11 @@ internal static class BuyerProofPackCommitGuard
             return false;
         }
 
-        if (!proof.TryGetProperty("runInCommittedStatus", out JsonElement committedEl) || !committedEl.GetBoolean())
-        {
-            error =
-                "Run is not in committed status (or manifest not present). Buyer proof pack is for finalized pilots only — commit the run and retry.";
+        if (proof.TryGetProperty("runInCommittedStatus", out JsonElement committedEl) && committedEl.GetBoolean())
+            return true;
+        error =
+            "Run is not in committed status (or manifest not present). Buyer proof pack is for finalized pilots only — commit the run and retry.";
 
-            return false;
-        }
-
-        return true;
+        return false;
     }
 }

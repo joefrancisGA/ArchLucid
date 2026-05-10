@@ -53,7 +53,7 @@ public sealed class InboundWebhookPipelineOrderIntegrationTests
 
         string payload = await response.Content.ReadAsStringAsync();
 
-        payload.Should().Contain("payload exceeds", StringComparison.OrdinalIgnoreCase);
+        payload.IndexOf("payload exceeds", StringComparison.OrdinalIgnoreCase).Should().BeGreaterThanOrEqualTo(0);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public sealed class InboundWebhookPipelineOrderIntegrationTests
 
         string payload = await response.Content.ReadAsStringAsync();
 
-        payload.Should().NotContain("JsonException", StringComparison.OrdinalIgnoreCase);
+        payload.IndexOf("JsonException", StringComparison.OrdinalIgnoreCase).Should().Be(-1);
     }
 
     private static WebApplicationFactory<Program> CreateFactory() =>

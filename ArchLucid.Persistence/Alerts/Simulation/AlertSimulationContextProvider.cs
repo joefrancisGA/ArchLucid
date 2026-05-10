@@ -10,7 +10,7 @@ using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 
-namespace ArchLucid.Persistence.Simulation;
+namespace ArchLucid.Persistence.Alerts.Simulation;
 
 /// <summary>
 /// Replays advisory-style plan generation for historical runs to produce <see cref="AlertEvaluationContext"/> for simulation APIs or tooling.

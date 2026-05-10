@@ -13,7 +13,7 @@ using ArchLucid.Persistence.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
 /// Loads alert rules for a scope, applies policy-pack governance filtering, evaluates, persists new open alerts, delivers, and audits.

@@ -43,10 +43,7 @@ public sealed class NakedDateTimeAnalyzer : DiagnosticAnalyzer
         if (name.StartsWith("ArchLucid.Host.", StringComparison.Ordinal))
             return false;
 
-        if (name.StartsWith("ArchLucid.", StringComparison.Ordinal) && name.Contains("Clock", StringComparison.Ordinal))
-            return false;
-
-        return true;
+        return !name.StartsWith("ArchLucid.", StringComparison.Ordinal) || !name.Contains("Clock", StringComparison.Ordinal);
     }
 
     private static void AnalyzeMemberAccess(SyntaxNodeAnalysisContext context)
@@ -93,7 +90,7 @@ public sealed class NakedDateTimeAnalyzer : DiagnosticAnalyzer
         if (containing is null)
             return false;
 
-        INamedTypeSymbol? systemDateTime = compilation.GetSpecialType(SpecialType.System_DateTime);
+        INamedTypeSymbol systemDateTime = compilation.GetSpecialType(SpecialType.System_DateTime);
 
         if (SymbolEqualityComparer.Default.Equals(containing, systemDateTime))
             return true;

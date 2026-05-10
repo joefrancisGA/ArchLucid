@@ -2,8 +2,6 @@ using System.Security.Claims;
 
 using ArchLucid.Application.Common;
 
-using Microsoft.AspNetCore.Http;
-
 namespace ArchLucid.Host.Core.Auth.Services;
 
 /// <summary>

@@ -5,6 +5,7 @@ using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence;
+using ArchLucid.Persistence.Alerts;
 
 using FluentAssertions;
 

@@ -71,7 +71,7 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
       </CardHeader>
       <CardContent className="pt-0">
         <p className="m-0 mb-3 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Sequence for this package
+          Approval path for this package
         </p>
         <ol className="m-0 flex list-none flex-col gap-3 p-0 sm:flex-row sm:items-stretch sm:gap-2">
           {steps.map((s, index) => (

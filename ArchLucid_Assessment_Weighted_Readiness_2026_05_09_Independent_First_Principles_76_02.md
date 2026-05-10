@@ -1081,7 +1081,7 @@ Constraints:
 
 **Affected qualities:** Correctness, Reliability, Cost Control, Architectural Integrity, Testability.
 
-**Status:** Actionable now. `ArchLucid.Analyzers` project and test harness are already in place from Improvement 3.
+**Status:** Closed (2026-05-10). Roslyn pack ARCH002–ARCH005 implemented; analyzer test harness uses `ReferenceAssemblies.Net.Net90` for HttpClient cases; `MissingCancellationTokenAnalyzer` uses netstandard2-safe constructor argument checks (no `System.Index` patterns).
 
 **Cursor prompt:**
 
@@ -1156,7 +1156,7 @@ Acceptance criteria:
 
 **Affected qualities:** Correctness, Reliability, Audit Integrity, Security.
 
-**Status:** Actionable now.
+**Status:** Closed (2026-05-10). `InformationalAuditAttribute` in Core; `AuditPathClassificationArchitectureTests` (INV-003); `AppendOnlyRepositoryInterfaceShapeTests` (INV-011); `InboundWebhookPipelineOrderArchitectureTests` (INV-015); `RunsStructuralExecutionModeDdlTests` FluentAssertions `MatchRegex(Regex)` fix; audit guard uses `DurableAuditLogRetry.TryLogAsync` substring + `*Controller` API surface rule.
 
 **Cursor prompt:**
 

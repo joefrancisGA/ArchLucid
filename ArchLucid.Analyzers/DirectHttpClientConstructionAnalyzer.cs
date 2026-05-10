@@ -40,10 +40,7 @@ public sealed class DirectHttpClientConstructionAnalyzer : DiagnosticAnalyzer
         if (string.Equals(name, "ArchLucid.Analyzers", StringComparison.Ordinal))
             return false;
 
-        if (name.EndsWith(".Tests", StringComparison.Ordinal))
-            return false;
-
-        return true;
+        return !name.EndsWith(".Tests", StringComparison.Ordinal);
     }
 
     private static void AnalyzeCreation(SyntaxNodeAnalysisContext context)
@@ -71,14 +68,14 @@ public sealed class DirectHttpClientConstructionAnalyzer : DiagnosticAnalyzer
     {
         for (SyntaxNode? current = node; current is not null; current = current.Parent)
         {
-            if (current is BaseTypeDeclarationSyntax typeDecl)
-            {
-                ISymbol? symbol = model.GetDeclaredSymbol(typeDecl);
+            if (current is not BaseTypeDeclarationSyntax typeDecl)
+                continue;
 
-                if (symbol is INamedTypeSymbol named &&
-                    named.Name.Contains("HttpClientFactory", StringComparison.Ordinal))
-                    return true;
-            }
+            ISymbol? symbol = model.GetDeclaredSymbol(typeDecl);
+
+            if (symbol is INamedTypeSymbol named &&
+                named.Name.Contains("HttpClientFactory", StringComparison.Ordinal))
+                return true;
         }
 
         return false;

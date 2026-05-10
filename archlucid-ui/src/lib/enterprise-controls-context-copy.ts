@@ -125,7 +125,7 @@ export const governanceDashboardOpenWorkflowReviewTitleReader =
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator =
-  "Submit finalized architecture outputs for governance review and promotion. Load a review to see approvals, promotions, and environment activations.";
+  "Submit finalized architecture outputs for governance review. Load a review to see approval status and the full approval trail.";
 
 /** Governance workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
 export const governanceWorkflowPageLeadReader =
@@ -147,13 +147,13 @@ export const governanceWorkflowPromotionsActivationsHeadingOperator = "Governanc
 export const governanceWorkflowPromotionsActivationsHeadingReader = "Governance activity";
 
 /** Governance workflow — activations list under promotions. */
-export const governanceWorkflowActivationsSubheadingOperator = "Environment activations";
+export const governanceWorkflowActivationsSubheadingOperator = "Deployment releases";
 
-export const governanceWorkflowActivationsSubheadingReader = "Environment activations";
+export const governanceWorkflowActivationsSubheadingReader = "Deployment releases";
 
 /** Governance workflow — reload lists for the active review (`GET`); shown next to **Load** after a review is selected. */
 export const governanceWorkflowRefreshRunDataTitle =
-  "Reload approval requests, promotions, and activations for the loaded review.";
+  "Reload approval requests and governance activity for the loaded review.";
 
 export const governanceWorkflowRefreshRunDataButtonLabel = "Refresh data";
 
@@ -363,7 +363,7 @@ export const governanceWorkflowPromotionsActivationsSectionLeadReader =
 
 /** Governance workflow — outcome banner under headers (`governance/page.tsx`): scope vs Policy packs / resolution. */
 export const governanceWorkflowOutcomeBannerLine =
-  "Submits and tracks approvals and promotions; rule content is edited in Policy packs. Effective merge is inspected on Governance resolution.";
+  "Tracks approvals for finalized architecture packages. Outcomes are recorded in the audit trail.";
 
 /** Policy packs — lead under title (Execute+); link to Governance resolution for stack semantics. */
 export const policyPacksPageLeadOperator =
@@ -525,17 +525,17 @@ export const auditSearchSectionLeadReaderLine =
 
 /** Audit log — short line above the CSV button (LayerHeader + search strip carry the rest). */
 export const auditExportSectionSupportingLine =
-  "Bulk CSV downloads need Auditor or Admin; pick From/To, then Export CSV.";
+  "Bulk downloads need Auditor or Admin; pick From/To, then Export audit trail.";
 
 /** Audit log — polished shell: no bulk-export mechanics in primary copy. */
 export const auditExportSectionSupportingLineBuyerPolished =
   "Download a CSV of the events shown above for the selected date range.";
 
 /** Audit CSV — button label when From/To are incomplete (export disabled before role checks). */
-export const auditExportCsvButtonLabelWindowIncomplete = "Export CSV (set From/To)";
+export const auditExportCsvButtonLabelWindowIncomplete = "Export audit trail (set From/To)";
 
 /** Audit CSV — button label when window is valid but principal lacks Auditor/Admin for bulk export (API). */
-export const auditExportCsvButtonLabelRoleRestricted = "Export CSV (Auditor/Admin)";
+export const auditExportCsvButtonLabelRoleRestricted = "Export audit trail (Auditor/Admin)";
 
 /** Policy packs — intro under “Compare versions” when caller can mutate (Execute+ in shell). */
 export const policyPacksCompareVersionsIntroOperator =

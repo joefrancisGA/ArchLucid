@@ -115,7 +115,7 @@ export function RunTrustEvidenceCardSection(props: { readonly card: RunTrustEvid
       <Card>
         <CardHeader>
           <h3 className="m-0 text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-            Evidence basis (operational)
+            {buyerPolishedShell ? "Evidence basis" : "Evidence basis (operational)"}
           </h3>
           <CardDescription className="text-neutral-600 dark:text-neutral-400">
             {card.selfAttestationNotice}
@@ -144,7 +144,7 @@ export function RunTrustEvidenceCardSection(props: { readonly card: RunTrustEvid
 
           <div>
             {buyerPolishedShell ? (
-              <CollapsibleSection title="API evidence routes (advanced)" defaultOpen={false}>
+              <CollapsibleSection title="Evidence API endpoints (advanced)" defaultOpen={false}>
                 <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-teal-800 dark:text-teal-300">
                   {card.links.map((l) => (
                     <li key={l.rel}>

@@ -22,9 +22,10 @@ using ArchLucid.Integrations.AzureDevOps;
 using ArchLucid.Notifications;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Alerts;
+using ArchLucid.Persistence.Alerts.Simulation;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Orchestration;
-using ArchLucid.Persistence.Simulation;
 
 using Microsoft.Extensions.Options;
 

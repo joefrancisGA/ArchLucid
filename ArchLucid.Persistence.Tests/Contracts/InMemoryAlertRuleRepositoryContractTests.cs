@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Persistence.Alerts;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 

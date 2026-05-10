@@ -7,7 +7,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>Dapper implementation of <see cref="IAlertRuleRepository"/> over <c>dbo.AlertRules</c>.</summary>
 /// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>

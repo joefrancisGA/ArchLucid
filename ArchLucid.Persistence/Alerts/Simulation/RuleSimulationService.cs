@@ -2,7 +2,7 @@ using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Simulation;
 
-namespace ArchLucid.Persistence.Simulation;
+namespace ArchLucid.Persistence.Alerts.Simulation;
 
 /// <summary>
 /// Default <see cref="IRuleSimulationService"/>: replays rules against contexts from <see cref="IAlertSimulationContextProvider"/> without persisting simple-rule alerts; composite path uses live suppression reads.

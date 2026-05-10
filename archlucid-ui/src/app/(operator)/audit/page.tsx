@@ -889,14 +889,26 @@ export default function AuditPage() {
               : auditResultsSectionHeadingOperator}
         </h3>
         <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
-          Each card is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
-          {" — "}
-          who acted, what changed, when it happened
-          {buyerPolishedShell
-            ? ", and which review it belongs to when one is recorded. Raw identifiers and payloads are in the technical appendix below."
-            : ", and review context when present"}.
-          {buyerPolishedShell ? "" : " Expand for technical payloads."}
+          {buyerPolishedShell ? (
+            <>
+              Each milestone is traceable to an actor, time, and review context. Raw identifiers and detailed payloads
+              are in the technical appendix below.
+            </>
+          ) : (
+            <>
+              Each card is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
+              {" — "}
+              who acted, what changed, when it happened
+              {", and review context when present"}.
+              {" "}Expand for technical payloads.
+            </>
+          )}
         </p>
+        {buyerPolishedShell && isNextPublicDemoMode() ? (
+          <p className="m-0 mb-2 max-w-2xl text-sm text-neutral-600 dark:text-neutral-400">
+            Sample timeline — illustrative dates for walkthrough.
+          </p>
+        ) : null}
         <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
           {formatAuditSummaryHeading(events.length, hasMoreResults)}.
           {buyerPolishedShell
@@ -990,12 +1002,12 @@ export default function AuditPage() {
                     {exporting
                       ? "Exporting…"
                       : csvExportUiAllowed
-                        ? "Export CSV"
+                        ? "Export audit trail"
                         : !exportDateRangeReady
                           ? auditExportCsvButtonLabelWindowIncomplete
                           : !exportRoleOk
                             ? auditExportCsvButtonLabelRoleRestricted
-                            : "Export CSV"}
+                            : "Export audit trail"}
                   </Button>
                 </div>
               ) : null}
@@ -1036,12 +1048,12 @@ export default function AuditPage() {
           {exporting
             ? "Exporting…"
             : csvExportUiAllowed
-              ? "Export CSV"
+              ? "Export audit trail"
               : !exportDateRangeReady
                 ? auditExportCsvButtonLabelWindowIncomplete
                 : !exportRoleOk
                   ? auditExportCsvButtonLabelRoleRestricted
-                  : "Export CSV"}
+                  : "Export audit trail"}
         </button>
       </section>
       ) : null}
