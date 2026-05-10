@@ -10,6 +10,7 @@ Establish a clear **cut line** between **system-plane** and **tenant-plane** dat
 - `TenantId`, `WorkspaceId`, and `ProjectId` remain on tenant-scoped rows for export integrity and application-layer scope enforcement.
 - In `SystemWithPerTenantCatalogs` mode the **database boundary is the primary and sufficient tenant isolation mechanism**. RLS is not required for defense-in-depth and ships disabled (`STATE = OFF`) by default. It is available as optional configuration but is not a production requirement.
 - Each **tenant catalog** still contains a **`dbo.Tenants` row (mirror)** so existing FKs (`TenantWorkspaces`, `TenantTrialSeatOccupants`, billing, SCIM links to runs, etc.) continue without a multi-year DDL rewrite in phase 1.
+- **Hosted trial and hosted commercial tenants share the same supported cut line:** each organization gets **its own product SQL catalog** (bindings + provisioning). **There is no supported model** where multiple trial tenants co-reside in **one shared product database** for isolation—that pattern is explicitly out of scope.
 
 ## Non-goals (this pass)
 

@@ -1,3 +1,4 @@
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 
@@ -165,6 +166,10 @@ export function findingInspectNarrativeFields(payload: FindingInspectPayload): {
 
 export function findingDetailHeadingTitle(payload: FindingInspectPayload): string {
 
+  if (isPhiMinimizationSampleFinding(payload)) {
+    return "PHI Minimization Risk";
+  }
+
   const narrative = findingInspectNarrativeFields(payload);
 
   const titleCandidate = narrative.title?.trim();
@@ -223,6 +228,57 @@ export function findingWhyThisMattersText(payload: FindingInspectPayload): strin
     typedPayloadLookupString(payload, "businessImpact") ??
     typedPayloadLookupString(payload, "impact") ??
     null
+  );
+}
+
+/** Curated demo / seeded spine — stable identity for PHI minimization risk screens. */
+export function isPhiMinimizationSampleFinding(payload: FindingInspectPayload): boolean {
+  const id = payload.findingId?.trim().toLowerCase() ?? "";
+
+  if (id === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID.toLowerCase()) {
+    return true;
+  }
+
+  const cat =
+    typedPayloadLookupString(payload, "category") ??
+    typedPayloadLookupString(payload, "Category") ??
+    "";
+
+  return cat.toLowerCase().includes("phi");
+}
+
+/**
+ * Eyebrow label for finding **detail** — distinct from the parent review package frame.
+ */
+export function findingDetailPageEyebrow(payload: FindingInspectPayload): string {
+  if (isPhiMinimizationSampleFinding(payload)) {
+    return "PHI minimization risk";
+  }
+
+  return "Risk observation";
+}
+
+/**
+ * Eyebrow for **inspect / traceability** route — emphasizes evidence path, not the review summary.
+ */
+export function findingInspectPageEyebrow(payload: FindingInspectPayload): string {
+  if (isPhiMinimizationSampleFinding(payload)) {
+    return "Traceability — PHI minimization risk";
+  }
+
+  return "Traceability inspection";
+}
+
+/**
+ * Consequence + control + monitoring framing for the PHI sample (when payload lacks richer narrative).
+ */
+export function phiMinimizationBuyerConsequenceNarrative(): string {
+  return (
+    "If understated, PHI could accumulate in adapters or caches beyond the intended minimization boundary — " +
+    "expanding breach impact, audit scope, and downstream processing obligations. " +
+    "The review package documents classification at ingress, adapter boundaries, and retention controls; " +
+    "evidence snapshots and the evidence graph show how those controls tie to this observation. " +
+    "Ongoing monitoring should track exception paths, attachment volume, and OCR bypass rates after go-live."
   );
 }
 

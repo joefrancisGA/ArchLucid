@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useState, type ReactElement } from "react";
 
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import {
@@ -20,6 +23,8 @@ type PostCommitRetentionRailProps = {
   readonly runId: string;
   /** When false, hides compare — avoids a dead-end CTA when the workspace has only one review. */
   readonly showCompareCta?: boolean;
+  /** Curated demo spine — adds compact links for the polished buyer path (PHI risk, evidence graph, audit trail). */
+  readonly buyerShowcaseQuickLinks?: boolean;
 };
 
 /**
@@ -28,10 +33,13 @@ type PostCommitRetentionRailProps = {
 export function PostCommitRetentionRail({
   runId,
   showCompareCta = true,
+  buyerShowcaseQuickLinks = false,
 }: PostCommitRetentionRailProps): ReactElement {
   const canMutate: boolean = useEnterpriseMutationCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [revisedChooserOpen, setRevisedChooserOpen] = useState(false);
+  const showcaseSpine =
+    buyerShowcaseQuickLinks && canonicalizeDemoRunId(runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
 
   return (
     <Card className="border-teal-200 bg-teal-50/50 dark:border-teal-900 dark:bg-teal-950/20" data-testid="post-commit-retention-rail">
@@ -39,13 +47,16 @@ export function PostCommitRetentionRail({
         <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Recommended next steps</h2>
         <CardDescription className="text-neutral-700 dark:text-neutral-300">
           {buyerPolishedShell
-            ? "This review is finalized. Share the executive view with sponsors, route the finding through remediation, or start a revised review when scope changes."
+            ? "Finalized package — start with executive view, PHI minimization risk, or the evidence graph; use the audit trail for every event."
             : "You have a committed review package. Pick the next loop that fits your team—navigation stays inside this workspace."}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         {buyerPolishedShell ? (
           <>
+            <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
+              <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open executive view</Link>
+            </Button>
             <Button
               type="button"
               variant="default"
@@ -55,7 +66,7 @@ export function PostCommitRetentionRail({
                 setRevisedChooserOpen(true);
               }}
             >
-              Create revised review
+              Create revised review from this package
             </Button>
             <Dialog open={revisedChooserOpen} onOpenChange={setRevisedChooserOpen}>
               <DialogContent className="max-w-md">
@@ -125,6 +136,33 @@ export function PostCommitRetentionRail({
               </Link>
             </Button>
           </>
+        ) : null}
+        {buyerPolishedShell && showcaseSpine ? (
+          <div className="flex w-full flex-col gap-2 border-t border-teal-200/60 pt-3 text-sm dark:border-teal-900/50">
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              Polished path — sample review
+            </p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              <Link
+                className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+              >
+                PHI minimization risk
+              </Link>
+              <Link
+                className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                href={`/graph?runId=${encodeURIComponent(runId)}`}
+              >
+                {BUYER_SURFACE_VOCABULARY.evidenceGraph}
+              </Link>
+              <Link
+                className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                href={`/audit?runId=${encodeURIComponent(runId)}`}
+              >
+                {BUYER_SURFACE_VOCABULARY.auditTrail}
+              </Link>
+            </div>
+          </div>
         ) : null}
         {showCompareCta ? (
           <Button type="button" asChild variant="outline" size="sm" className="justify-center sm:justify-start">

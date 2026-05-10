@@ -9,7 +9,7 @@
 
 **Assumptions:** API exposes `GET /metrics` when `Observability:Prometheus:Enabled` is **true**; Grafana is wired from `infra/terraform-monitoring/grafana_dashboards.tf`; Alertmanager routes `severity=page` vs ticket-style labels per your org.
 
-**Constraints:** `archlucid_trial_expirations_total` increments only from **`TrialLifecycleTransitionEngine`** (typically **ArchLucid.Worker**). Live Playwright specs against **API-only** stacks will not emit that series unless the worker transitions a tenant.
+**Constraints:** Trials use **`SystemWithPerTenantCatalogs`**: **each tenant organization has its own product SQL catalog** (same supported model as paying tenants—not a pooled shared trial database); `TenantDatabaseBindings` provisioning must reach **Active** before product writes ([../library/TENANT_DATABASE_TOPOLOGY.md](../library/TENANT_DATABASE_TOPOLOGY.md)). **Estimated AOAI + fleet math** posture: [`TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md) **sections 3.1–3.2**. `archlucid_trial_expirations_total` increments only from **`TrialLifecycleTransitionEngine`** (typically **ArchLucid.Worker**). Live Playwright specs against **API-only** stacks will not emit that series unless the worker transitions a tenant.
 
 ---
 

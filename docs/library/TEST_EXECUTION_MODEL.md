@@ -132,6 +132,8 @@ dotnet test ArchLucid.sln
 
 **CI:** GitHub Actions runs this (Release configuration, with `ARCHLUCID_SQL_TEST` for Persistence tests). This is the **.NET release gate** alongside **Vitest** and **Playwright** UI jobs.
 
+**Optional live AOAI invoke (same workflow):** When repository variable **`ARCHLUCID_CI_REAL_AOAI_ENABLED`** is **`true`**, CI runs job **`dotnet-azure-openai-live-post-regression`** only after **`openapi-contract-snapshot`**, **`.NET: merge coverage + gates`**, and **Simmy chaos** are green (`RealAzureOpenAIEndToEndTests`). Configure secrets **`ARCHLUCID_CI_REAL_AOAI_ENDPOINT`** and **`ARCHLUCID_CI_REAL_AOAI_KEY`**; optional repo variable **`ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT`** (tests default **`gpt-4o`** when unset). Fork pull requests skip this job. Avoid listing this job under required checks unless AOAI outages or quota exhaustion should block merges.
+
 **Local parity:** `scripts/run-full-regression-docker-sql.ps1` / `.sh` starts Compose SQL and sets `ARCHLUCID_SQL_TEST` to the dev password from `docker-compose.yml` (see [BUILD.md](BUILD.md)).
 
 ---

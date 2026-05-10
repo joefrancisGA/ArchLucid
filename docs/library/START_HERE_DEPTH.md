@@ -17,12 +17,14 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 | **Buyer / evaluator / sponsor / customer** | The public site (`archlucid.net`), the in-product **operator UI** after sign-in, and the **Azure portal** only for your own tenant identity / billing artefacts. | **[`BUYER_FIRST_30_MINUTES.md`](../BUYER_FIRST_30_MINUTES.md)** (the canonical evaluator entry — five steps, no install) → **[`EXECUTIVE_SPONSOR_BRIEF.md`](../EXECUTIVE_SPONSOR_BRIEF.md)** → **[`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)**. The same five steps with screenshots live at the marketing route `archlucid.net/get-started`. | **No Docker. No SQL. No .NET / Node SDKs. No Terraform. No CLI.** If any doc tells you to install one of those, you are reading a **contributor** doc by mistake. |
 | **ArchLucid contributor / engineer / internal operator** | The repo, your local toolchain (Docker / SQL container / .NET / Node), the GitHub workflows, and (operator only) the production Azure subscription via OIDC. | The **five-document contributor spine** below. | None — this column is the one with the toolchain. |
 
+**Which subtree is "mine" when browsing blindly?** [DOCUMENTATION_BY_AUDIENCE.md](DOCUMENTATION_BY_AUDIENCE.md) — heuristic map of **`docs/`** folders that skew customer-visible vs contributor/vendor-internal.
+
 > **What about the buyer's first 30 minutes inside the product?** The buyer-facing equivalent of [`engineering/FIRST_30_MINUTES.md`](../engineering/FIRST_30_MINUTES.md) ships in two places: the repo stub at [`BUYER_FIRST_30_MINUTES.md`](../BUYER_FIRST_30_MINUTES.md) (consultative scaffold, q35 placeholders on owner-blocked sentences) and the marketing route `archlucid.net/get-started` (same five steps with placeholder screenshot slots until owner names the real-tenant `tenantId` / `runId` for capture). The cloud trial funnel itself (`archlucid.net/signup → /demo/preview → first sample run`) is wired in code but **not yet live in production** — see Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](../archive/root-superseded-2026-05-01/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md) §3 and [`runbooks/TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md).
 
 ## Assumptions
 
-- **Quick lookup:** [Doc Navigator](../NAVIGATOR.md) — one table, common tasks, each row links to a single best document.
-- **Persona copy-paste recipes:** [WORKFLOW_RECIPES_BY_PERSONA.md](WORKFLOW_RECIPES_BY_PERSONA.md) — architect, governance, procurement/security, platform engineer.
+- **Quick lookup:** [Doc Navigator](../NAVIGATOR.md) — **two tables** (**customer-facing** vs **contributor / engineering / ops**); each row links to one best-fit document.
+- **Persona copy-paste recipes:** [customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md](customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md) — architect, governance, procurement/security, platform engineer.
 - You self-identified above. The **buyer column never installs anything**; the **contributor column** uses the spine.
 - Incomplete requirements and imperfect teams are normal — this layout keeps the **default path narrow** and pushes depth into [`docs/library/`](.) and topic folders.
 

@@ -161,7 +161,9 @@ Real models can paraphrase text while still being â€œcorrectâ€ for prod
 
 **Adopted:** 2026-05-09 — planning baseline. These tiers are **not** merge-blocking CI numeric gates unless you separately wire automation to enforce them; pair with [`GOLDEN_COHORT_BUDGET.md`](./GOLDEN_COHORT_BUDGET.md) and [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md).
 
-**Canonical model:** **`gpt-4o`**. Set **`AzureOpenAI:DeploymentName`** (and secrets) to match the **deployment name** in Azure AI Foundry / Cognitive Services (often also **`gpt-4o`**).
+**Canonical model baseline — resolved (operator, 2026-05-11):** **`gpt-4o`**. Anything described as canonical **golden-cohort release quality**, drift interpretation, or agent-output cohort **green-bar** narratives assumes this SKU (**not** **`gpt-4o-mini`** and not ad‑hoc reasoning‑only substitutions for headline baselines unless a separate exec decision reopens calibration).
+
+Set **`AzureOpenAI:DeploymentName`** (secrets + **`appsettings`**) to whichever **deployment resource name Azure returns** — it must resolve to **`gpt-4o`**. (`tests/golden-cohort/budget.config.json` **`deploymentName`** mirrors the operator label Cost Management spreadsheets use — it carries **no** model semantics.)
 
 On the committed **release cohort** scenario set, use these targets:
 

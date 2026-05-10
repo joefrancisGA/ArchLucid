@@ -62,7 +62,7 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
     <Card className="mb-8 border-teal-200 bg-teal-50/40 dark:border-teal-900 dark:bg-teal-950/25">
       <CardHeader className="pb-2">
         <CardTitle className="text-base text-neutral-900 dark:text-neutral-50">
-          Approval status for this review
+          {approved ? "This package completed the approval path" : "Approval status for this review"}
         </CardTitle>
         <CardDescription>
           {governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)} · manifest{" "}

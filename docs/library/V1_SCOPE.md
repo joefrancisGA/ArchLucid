@@ -67,7 +67,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 #### 2.4 Deployability and supportability
 
 - **Container images** and **docker compose** profiles ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
-- **SQL Server** persistence via DbUp migrations; automatic on startup ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)). Optional **database-per-tenant** topology (`ArchLucid:SqlTopology`, `ConnectionStrings:ArchLucidSystem`) is supported for launch with control-plane bindings ([TENANT_DATABASE_TOPOLOGY.md](TENANT_DATABASE_TOPOLOGY.md)).
+- **SQL Server** persistence via DbUp migrations; automatic on startup ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)). **`SystemWithPerTenantCatalogs`** (**database-per-tenant** with **`TenantDatabaseBindings`** and a control-plane system catalog) is the **only supported multitenant isolation model for hosted workloads**, **including self-serve trial tenants** ([TENANT_DATABASE_TOPOLOGY.md](TENANT_DATABASE_TOPOLOGY.md)). **`SingleCatalog`** remains available for narrow **developer/CI ergonomics**, not as a substitute for tenant isolation on hosted SaaS.
 - **Health:** `/health/live`, `/health/ready`, `/health`; `GET /version` for support attribution.
 - **Correlation IDs**, **CLI diagnostics** (`doctor`, `support-bundle`), and **Troubleshooting** runbooks.
 - **Authentication modes:** development bypass, JWT bearer, API key ([README.md](../../README.md)).

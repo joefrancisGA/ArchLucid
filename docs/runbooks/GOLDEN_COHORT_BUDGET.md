@@ -17,7 +17,7 @@ Owner Q&A ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) items **15** / **25
 
 | File | Purpose |
 | ---- | ------- |
-| [`tests/golden-cohort/budget.config.json`](../../tests/golden-cohort/budget.config.json) | `monthlyTokenBudgetUsd` (cap), `warnThresholdPercent` (default **80** — Q15-conditional rule), `killSwitchThresholdPercent` (default **95** — Q15-conditional rule), `deploymentName` / `region` placeholders for humans (Cost Management filters by **resource ARM id**, not deployment name alone). |
+| [`tests/golden-cohort/budget.config.json`](../../tests/golden-cohort/budget.config.json) | `monthlyTokenBudgetUsd` (cap), `warnThresholdPercent` (default **80** — Q15-conditional rule), `killSwitchThresholdPercent` (default **95** — Q15-conditional rule), **`baselineModelSku`** (`gpt-4o`, operator decision 2026-05-11), `deploymentName` / `region` placeholders for humans (Cost Management filters by **resource ARM id**, not deployment name alone). Canonical narrative: **`GOLDEN_COHORT_REAL_LLM_GATE.md`** **section 10**. |
 
 **Raising the cap (owner-only PR):** edit `monthlyTokenBudgetUsd`, merge with security review, and align any buyer-facing narrative so the repo stays honest about spend. **Do not weaken `warnThresholdPercent` or `killSwitchThresholdPercent`** — those ratios are pinned at 80 / 95 by the CI guard and are the Q15-conditional rule that justifies the budget approval in the first place.
 
