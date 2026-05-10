@@ -77,7 +77,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         }`
       : run.hasArtifactBundle
         ? buyerPolished
-          ? "Deliverables are listed with the review package — use Open manifest or Deliverables below when available."
+          ? "Open the review package on the left to browse sponsor-ready deliverables and exports."
           : "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."
         : buyerPolished
           ? "No file bundle reported for this row yet."
@@ -205,7 +205,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         {buyerPolished ? (
           <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
             <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-              More ways to explore
+              Next steps
             </summary>
             <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
               {buyerSafePrimary ? (

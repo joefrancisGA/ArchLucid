@@ -63,7 +63,7 @@ import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/dem
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
-import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
+import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 function formatUtc(iso: string): string {
@@ -149,7 +149,7 @@ function BuyerAuditEventsTechnicalAppendix(props: { events: AuditEvent[] }) {
   return (
     <details className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
       <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
-        Technical appendix — identifiers and payloads for all events above
+        Identifiers and raw payloads (audit reference)
       </summary>
       <div className="mt-3 space-y-4">
         {events.map((ev) => (
@@ -214,6 +214,11 @@ function AuditTimelineEventCard(props: {
           {pipelineEventTypeFriendlyLabel(ev.eventType)}
         </span>
       </div>
+      {buyerPolishedShell ? (
+        <p className="m-0 mt-2 text-[13px] leading-snug text-neutral-600 dark:text-neutral-400">
+          {pipelineEventTypeBuyerMilestoneSubtitle(ev.eventType)}
+        </p>
+      ) : null}
       <div className="mt-1.5 text-sm">
         Actor: {buyerPolishedShell ? ev.actorUserName : `${ev.actorUserName} (${ev.actorUserId})`}
       </div>
@@ -690,7 +695,12 @@ export default function AuditPage() {
         <div className={cn(buyerPolishedShell && "order-2")}>
       <section
         aria-labelledby="audit-search-heading"
-        className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-4 bg-white dark:bg-neutral-950"
+        className={cn(
+          "rounded-lg p-3 mb-4 bg-white dark:bg-neutral-950 border",
+          buyerPolishedShell
+            ? "border-dashed border-neutral-300/80 dark:border-neutral-600"
+            : "border-neutral-200 dark:border-neutral-700",
+        )}
       >
         <h3 id="audit-search-heading" className="mt-0 mb-3 text-base">
           {buyerPolishedShell
@@ -699,6 +709,12 @@ export default function AuditPage() {
               ? auditSearchEventsSectionHeadingReader
               : auditSearchEventsSectionHeadingOperator}
         </h3>
+        {buyerPolishedShell ? (
+          <p className="m-0 mb-3 max-w-2xl text-xs text-neutral-600 dark:text-neutral-400">
+            Optional — open filters only when you need to narrow events. The audit timeline below is the primary
+            walkthrough.
+          </p>
+        ) : null}
         {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority && !buyerPolishedShell ? (
           <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
             {auditSearchSectionLeadReaderLine}
@@ -891,8 +907,8 @@ export default function AuditPage() {
         <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
           {buyerPolishedShell ? (
             <>
-              Each milestone is traceable to an actor, time, and review context. Raw identifiers and detailed payloads
-              are in the technical appendix below.
+              Each milestone is traceable to an actor, time, and review context. For audit forensics, expand
+              Identifiers and raw payloads below when you need full correlation IDs and payloads.
             </>
           ) : (
             <>

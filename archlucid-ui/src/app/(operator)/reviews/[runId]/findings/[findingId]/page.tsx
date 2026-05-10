@@ -28,6 +28,7 @@ import {
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { findingLinkedManifestDetailHrefForRun } from "@/lib/finding-linked-manifest-href";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 
@@ -64,6 +65,8 @@ export default async function RunFindingExplainPage({
   const runExecutionFootnote = await tryLoadRunExecutionFootnote(runId);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  const linkedManifestHref = findingLinkedManifestDetailHrefForRun(runId);
 
   const labels = inspectPayload !== null ? findingInspectPrimaryLabels(inspectPayload) : null;
 
@@ -121,6 +124,21 @@ export default async function RunFindingExplainPage({
                   </Badge>
                 ) : null}
               </div>
+            ) : null}
+
+            {linkedManifestHref !== null ? (
+              <p className="m-0 mt-3 text-sm leading-relaxed">
+                <Link
+                  className="font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                  href={linkedManifestHref}
+                >
+                  Open linked manifest decision record
+                </Link>
+                <span className="text-neutral-600 dark:text-neutral-400">
+                  {" "}
+                  — ties this observation to the finalized package your team approves.
+                </span>
+              </p>
             ) : null}
 
             {inspectPayload !== null ? (

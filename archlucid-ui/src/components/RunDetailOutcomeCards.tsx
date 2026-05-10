@@ -81,7 +81,25 @@ function buyerFindingSeveritySignal(
     return "Medium risk posture";
   }
 
-  return `${raw} risk`;
+  if (key === "controlled") {
+    return "Mitigated and monitored";
+  }
+
+  if (key === "acceptable" || key === "accepted") {
+    return "Residual risk accepted with documented controls";
+  }
+
+  if (key === "elevated") {
+    return "Elevated — prioritize sponsor review";
+  }
+
+  if (key === "monitored") {
+    return "Monitored pending validation";
+  }
+
+  const capitalized = `${raw.charAt(0).toUpperCase()}${raw.slice(1).toLowerCase()}`;
+
+  return `${capitalized} posture — confirm meaning with approvals`;
 }
 
 function stripSegmentLabelClass(): string {

@@ -328,6 +328,9 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
       description:
         "Unstructured intake attachments can bypass minimization controls during peak load — monitor exceptions, reinforce " +
         "ingress classification, and keep privacy-office review on a weekly cadence for this modernization path.",
+      whyThisMatters:
+        "If PHI volume or retention slips outside the minimization boundary, breach impact, audit scope, and downstream " +
+        "processing obligations expand materially — this finding keeps sponsor sign-off tied to observable controls.",
       severity: "Warning",
       category: "Compliance",
       status: "Triaged",
