@@ -405,15 +405,28 @@ function AskPageContent() {
               Your conversation history
             </CardTitle>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              Your saved conversations for this account. Start <strong>New conversation</strong> and select a review, or
-              open one below to continue with its saved context.
+              {buyerPolishedShell ? (
+                <>
+                  Open a saved thread below to continue, or start a fresh thread when you need a clean question
+                  list—link a review first.
+                </>
+              ) : (
+                <>
+                  Your saved conversations for this account. Start <strong>New conversation</strong> and select a review,
+                  or open one below to continue with its saved context.
+                </>
+              )}
             </p>
           </CardHeader>
           <CardContent className="space-y-3 p-4 pt-0">
             <Button
               type="button"
-              variant="outline"
-              className="w-full border-neutral-300 text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-800"
+              variant={buyerPolishedShell ? "ghost" : "outline"}
+              className={
+                buyerPolishedShell
+                  ? "h-auto w-full justify-center py-1.5 text-sm font-normal text-teal-800 underline-offset-2 hover:bg-transparent hover:text-teal-900 hover:underline dark:text-teal-300 dark:hover:text-teal-200"
+                  : "w-full border-neutral-300 text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-800"
+              }
               onClick={() => {
                 setSelectedThreadId("");
                 setMessages([]);
@@ -427,7 +440,7 @@ function AskPageContent() {
                 }
               }}
             >
-              New conversation
+              {buyerPolishedShell ? "Start fresh thread" : "New conversation"}
             </Button>
             <ul className="m-0 list-none space-y-1 p-0">
               {threads.map((thread) => (
