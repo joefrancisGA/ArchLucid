@@ -15,7 +15,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/CORE_PILOT.md#new-run",
   },
   "runs-list-overview": {
-    text: "Each row is one architecture review. Open a row to inspect the manifest, findings, pipeline timeline, and exports for that review.",
+    text: "Each row is one architecture review. Open a row to review its manifest, evidence, findings, deliverables, and pipeline timeline.",
     learnMoreUrl: "/docs/CORE_PILOT.md",
   },
   "run-pipeline-status": {
@@ -31,7 +31,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/CORE_PILOT.md#manifest-review",
   },
   "governance-gate": {
-    text: "When enabled, the governance gate checks findings against severity thresholds before allowing finalization.",
+    text: "When enabled, governance approval rules check findings against severity thresholds before allowing finalization.",
     learnMoreUrl: "/docs/CORE_PILOT.md#governance-gate",
   },
   "alerts-inbox": {
@@ -57,7 +57,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
   },
   "architecture-graph": {
-    text: "Review trail graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh.",
+    text: "Evidence graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh.",
     learnMoreUrl: "/docs/KNOWLEDGE_GRAPH.md",
   },
   "audit-log": {

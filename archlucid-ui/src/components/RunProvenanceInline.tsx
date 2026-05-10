@@ -25,10 +25,10 @@ function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
 
   if (buyerPolished && stage.key === "graph") {
     if (!stage.present) {
-      return "Evidence map · …";
+      return "Evidence graph · …";
     }
 
-    return "Evidence map ready";
+    return "Evidence graph ready";
   }
 
   if (!stage.present) {
@@ -53,7 +53,13 @@ function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
   }
 }
 
-function stagesForRun(run: RunSummary): StageDef[] {
+function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
+  const graphTooltip = buyerPolished
+    ? "Evidence graph — structured linkage snapshot for this review (provenance and relationships). " +
+      (run.hasGraphSnapshot === true ? "Present." : "Not yet generated.")
+    : "Graph — structured architecture / linkage snapshot. " +
+      (run.hasGraphSnapshot === true ? "Present." : "Not yet generated.");
+
   return [
     {
       key: "context",
@@ -67,9 +73,7 @@ function stagesForRun(run: RunSummary): StageDef[] {
       key: "graph",
       label: "Graph",
       present: run.hasGraphSnapshot === true,
-      tooltip:
-        "Graph — structured architecture / linkage snapshot. " +
-        (run.hasGraphSnapshot === true ? "Present." : "Not yet generated."),
+      tooltip: graphTooltip,
     },
     {
       key: "findings",
@@ -100,8 +104,9 @@ export type RunProvenanceInlineProps = {
  * Compact pipeline-stage strip for dense run rows (context → graph → findings → manifest) as readable pill chips.
  */
 export function RunProvenanceInline({ run, buyerPolished = false }: RunProvenanceInlineProps) {
-  const stages = stagesForRun(run);
+  const stages = stagesForRun(run, buyerPolished);
   const presentCount = stages.filter((s) => s.present).length;
+  const stageCount = stages.length;
 
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -138,8 +143,10 @@ export function RunProvenanceInline({ run, buyerPolished = false }: RunProvenanc
         data-testid="run-provenance-inline-summary"
       >
         {buyerPolished
-          ? `Progress ${presentCount} of ${stages.length}`
-          : `Review trail ${presentCount}/${stages.length} complete`}
+          ? presentCount >= stageCount
+            ? "Review package complete"
+            : `Progress ${presentCount} of ${stageCount}`
+          : `Review trail ${presentCount}/${stageCount} complete`}
       </span>
     </div>
   );

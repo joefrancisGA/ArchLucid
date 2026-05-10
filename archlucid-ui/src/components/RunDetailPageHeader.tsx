@@ -93,7 +93,9 @@ export function RunDetailPageHeader({
           </p>
           <CommitRunButton runId={runId} disabled={hasGoldenManifest} />
           <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-            <span className="whitespace-nowrap">Governance gate</span>
+            <span className="whitespace-nowrap">
+              {buyerPolishedShell ? "Governance approval" : "Governance gate"}
+            </span>
             <ContextualHelp helpKey="governance-gate" placement="left" />
           </p>
         </div>

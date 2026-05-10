@@ -57,8 +57,9 @@ public static class ArchLucidConfigurationRules
         if (environment.IsStaging())
             ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
 
-        if (ProductionDangerousMisconfigurationLint.AppliesDangerousFailFast(environment.EnvironmentName, configuration))
-            errors.AddRange(ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(configuration, environment.EnvironmentName).Select(finding => $"[{finding.RuleName}] {finding.Message}"));
+        errors.AddRange(
+            ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(configuration, environment.EnvironmentName)
+                .Select(finding => $"[{finding.RuleName}] {finding.Message}"));
 
         if (!environment.IsProduction())
             return errors;

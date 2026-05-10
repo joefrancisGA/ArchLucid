@@ -243,8 +243,8 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     enterpriseFootnote: "Configuration tabs appear when your role allows.",
   },
   graph: {
-    layerBadge: "Pilot proof",
-    headline: "Review trail graph for the sample package.",
+    layerBadge: "Evidence trail",
+    headline: "Evidence graph for the sample package.",
     useWhen: "Walk the same milestones sponsors see in the manifest and audit trail—now as a connected picture.",
     firstPilotNote: null,
   },

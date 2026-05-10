@@ -19,4 +19,20 @@ describe("RunProvenanceInline", () => {
 
     expect(list.querySelectorAll("li")).toHaveLength(4);
   });
+
+  it("shows Review package complete when buyer polished and all stages present", () => {
+    render(
+      <RunProvenanceInline
+        buyerPolished
+        run={minimalRun({
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: true,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("run-provenance-inline-summary")).toHaveTextContent("Review package complete");
+  });
 });

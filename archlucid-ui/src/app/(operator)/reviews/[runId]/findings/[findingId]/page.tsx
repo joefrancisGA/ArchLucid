@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
@@ -31,6 +31,17 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { findingLinkedManifestDetailHrefForRun } from "@/lib/finding-linked-manifest-href";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
+import { metadataForFindingDetailRoute } from "@/lib/finding-route-metadata";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ runId: string; findingId: string }>;
+}): Promise<Metadata> {
+  const { runId, findingId } = await params;
+
+  return metadataForFindingDetailRoute(runId, findingId);
+}
 
 /**
  * Finding detail: severity and narrative first; technical identifiers and export tools collapsed.

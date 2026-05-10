@@ -692,7 +692,7 @@ Gaps: (1) LLM cost estimation options exist but the accuracy of cost projections
 
 **Information needed:** Nothing further for deployment identity — use **`AZURE_OPENAI_API_KEY`** (GitHub secret) and **`AZURE_OPENAI_ENDPOINT`** (GitHub variable); never commit the key.
 
-**Owner guidance (2026-05-10):** Use deployment name **`gpt-4o`**. Treat nightly real-LLM CI as capped at **`USD 5`** spend (cost budget for that tier; the budget probe’s **`monthlyTokenBudgetUsd`** in **`tests/golden-cohort/budget.config.json`** may still reflect the older **`$50`** Q15 cap — align in a dedicated change if you want Cost Management kill-switch to match **`$5`**). Endpoint for the dev/project-aligned gate: **`https://oai-archlucid-dev.services.ai.azure.com/api/projects/proj-default`** — set this as repository variable **`AZURE_OPENAI_ENDPOINT`**.
+**Owner guidance (2026-05-10):** Use deployment name **`gpt-4o`**. Treat nightly real-LLM CI as capped at **`USD 5`** spend (cost budget for that tier; the budget probe’s **`monthlyTokenBudgetUsd`** in **`tests/golden-cohort/budget.config.json`** may still reflect the older **`$50`** Q15 cap — align in a dedicated change if you want Cost Management kill-switch to match **`$5`**). Endpoint for the dev/project-aligned gate: **`https://oai-archlucid-dev.services.ai.azure.com/api/projects/proj-default`** — set this as repository variable **`AZURE_OPENAI_ENDPOINT`**. **Branch protection:** real-LLM cohort path is **merge-blocking** once stable — require the relevant **`golden-cohort-nightly`** job(s) as status checks on **`main`** per **`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`** §2 (coordinate **`cohort-real-llm-preflight`** / live invoke policy with nightly vs PR triggers).
 
 **CI wiring (2026-05-10):** **`.github/workflows/golden-cohort-nightly.yml`**, job **`cohort-real-llm-live`**, step **Golden cohort drift (strict real + structural-only)**, passes **`secrets.AZURE_OPENAI_API_KEY`**, **`vars.AZURE_OPENAI_ENDPOINT`**, and **`AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o`** into the process environment. See **`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`** §2.
 
@@ -710,7 +710,7 @@ Gaps: (1) LLM cost estimation options exist but the accuracy of cost projections
 
 **Status:** COMPLETED (2026-05-10) — **`LlmMonthlyTenantDollarBudgetTracker`** / **`LlmDailyTenantBudgetTracker`** use **`ILlmTenantBudgetRepository`** with **`SqlLlmTenantBudgetRepository`** (optimistic concurrency, pre-call **`ReserveAsync`** / post-call **`SettleAsync`**) on **`dbo.LlmMonthlyTenantBudgetState`** and **`dbo.LlmDailyTenantTokenWindowState`** (not the prompt’s single `TenantLlmBudgetLedger` table name). DbUp **`154_LlmBudgetPreCallReservation.sql`**; concurrency coverage in **`SqlLlmTenantBudgetRepositoryConcurrencyIntegrationTests`**.
 
-**Cursor prompt:**
+**Product guidance (2026-05-10):** Budget enforcement may exceed the nominal cap by **at most roughly one LLM call** (assumed reservation vs actual settlement). **Strict zero overshoot is not required.** If **budget reservation** fails because **SQL is unavailable**, **allow the LLM call** and **log a warning** (fail-open on the guardrail path rather than blocking tenants during a DB incident).
 ```
 In the ArchLucid codebase, replace the per-process LLM budget trackers with SQL-backed durable trackers to close INV-004 (durable cost guardrails).
 
@@ -809,7 +809,9 @@ Do not change:
 
 **Reason:** Requires provisioning a Jira Cloud free-tier project and storing credentials as GitHub Actions secrets. Cannot be executed without a Jira Cloud account and GitHub Actions secret configuration.
 
-**Information needed:** (1) Should I use the existing joefrancisGA GitHub account's secrets, or a separate service account? (2) Is there an existing Jira Cloud project for this, or should a new free-tier project be created?
+**Information needed:** (Deferred) Jira Cloud **site/project** for nightly validation; GitHub Actions **secret** strategy (dedicated Atlassian user vs owner); Atlassian account ownership. Revisit when sandbox work is scheduled.
+
+**Owner guidance (2026-05-10):** **Deferred** — no Jira Cloud sandbox project or CI credential decision yet.
 
 ---
 
@@ -1746,18 +1748,18 @@ Do not change:
 
 ### Improvement 1 (Real-LLM Golden Cohort Gate)
 - **Answered (2026-05-10):** Azure OpenAI deployment for CI is **`gpt-4o`**. Nightly real-LLM CI cost budget cap: **`USD 5`**.
-- Should the real-LLM tier be merge-blocking or advisory-only initially?
+- **Answered (2026-05-10):** Real-LLM tier is **merge-blocking** on **`main`** once the gate is stable (required status checks; see **`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`** §2).
 
 ### Improvement 2 (Durable LLM Budget Trackers)
-- What is the acceptable budget overrun granularity? Is one LLM call worth of overshoot acceptable, or does the budget need to be strictly hard-capped?
-- Should budget reservation failures (SQL unavailable) fail the LLM call or proceed with a logged warning?
+- **Answered (2026-05-10):** **One LLM call’s worth** of overshoot past the configured cap is **acceptable** (reservation granularity); a strict zero-overshoot cap is **not** required.
+- **Answered (2026-05-10):** If reservation fails (e.g. **SQL unavailable**), **allow the LLM call** and **log a warning** (fail-open).
 
 ### Improvement 3 (Quick Scan)
 **Status (2026-05-10):** Implemented — **`POST /v1/architecture/quick-scan`** (see Improvement 3 in section 9). **`QuickScanService`** is functional end-to-end; results are **ephemeral** for this slice (no persistence / no new run lifecycle). *Open product follow-up:* whether to persist quick scans as lightweight runs in a future iteration.
 
 ### Improvement 4 (ITSM Vendor Sandbox)
-- Which Jira Cloud project should be used? Is there an existing Atlassian account?
-- Should the nightly CI use a dedicated service account or the owner's credentials?
+- **Deferred (2026-05-10):** Jira Cloud **project/site** and **Atlassian account** choice — **no decision yet**; revisit when live vendor CI is scheduled.
+- **Deferred (2026-05-10):** **Dedicated service account vs owner credentials** for nightly CI — **no decision yet**.
 
 ### Improvement 7 (INV-005 Startup Validator Parity)
 - Are there any development-only configuration keys that should be excluded from production validation by design (break-glass scenarios)?

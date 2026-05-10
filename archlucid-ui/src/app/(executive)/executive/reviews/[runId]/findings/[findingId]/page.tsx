@@ -1,10 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { FindingInspectFindingBody } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectFindingBody";
 import { sameAuthorityRunId } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectView";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { findingDetailHeadingTitle, findingDetailPageEyebrow } from "@/lib/finding-display-from-inspect";
+import { metadataForFindingDetailRoute } from "@/lib/finding-route-metadata";
 import {
   findingIdsAlignForInspectRoute,
   loadFindingInspectForRoute,
@@ -12,6 +14,16 @@ import {
 } from "@/lib/load-finding-inspect-for-route";
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ runId: string; findingId: string }>;
+}): Promise<Metadata> {
+  const { runId, findingId } = await params;
+
+  return metadataForFindingDetailRoute(runId, findingId);
+}
 
 /**
  * Executive finding detail: buyer-facing narrative via {@link FindingInspectFindingBody} (detail variant).

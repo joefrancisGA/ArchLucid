@@ -541,7 +541,7 @@ function GraphPageContent() {
           {buyerPolishedShell ? (
             <details className="mb-6 max-w-4xl rounded-lg border border-neutral-200 bg-white/40 dark:border-neutral-700 dark:bg-neutral-900/30">
               <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                Explore layout options — change review, filters, or reload
+                Graph view options — change review, filters, or reload
               </summary>
               <div className="border-t border-neutral-200 px-2 pb-3 pt-1 dark:border-neutral-700">{graphControls}</div>
             </details>
@@ -656,7 +656,7 @@ function GraphPageContent() {
           </ClientErrorBoundary>
           {demoUi && buyerPolishedShell ? (
             <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-              Expand explore options when you need a different finalized package. This view defaults to the curated sample
+              Expand graph view options when you need a different finalized package. This view defaults to the curated sample
               evidence graph.
             </p>
           ) : null}

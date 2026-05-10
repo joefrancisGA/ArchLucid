@@ -38,10 +38,9 @@ internal static class ConfigLintCommand
 
         List<string> errors = EvaluateAuthMisconfigurations(local, trimmedEnv);
 
-        if (ProductionDangerousMisconfigurationLint.AppliesDangerousFailFast(trimmedEnv, local))
-            errors.AddRange(
-                ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(local, trimmedEnv)
-                    .Select(static w => $"[{w.RuleName}] {w.Message}"));
+        errors.AddRange(
+            ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(local, trimmedEnv)
+                .Select(static w => $"[{w.RuleName}] {w.Message}"));
 
         if (hostingAdvisor)
         {

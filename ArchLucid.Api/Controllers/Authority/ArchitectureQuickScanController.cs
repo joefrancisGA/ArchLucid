@@ -1,7 +1,13 @@
+using System.Text.Json;
+
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
@@ -19,7 +25,11 @@ namespace ArchLucid.Api.Controllers.Authority;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class ArchitectureQuickScanController(IQuickScanService quickScanService) : ControllerBase
+public sealed class ArchitectureQuickScanController(
+    IQuickScanService quickScanService,
+    IActorContext actorContext,
+    IAuditService auditService,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>Runs a quick scan from minimal context (simulator-friendly by default).</summary>
     [HttpPost("quick-scan")]
@@ -36,14 +46,11 @@ public sealed class ArchitectureQuickScanController(IQuickScanService quickScanS
         string cloud = (request.CloudProvider).Trim();
         string description = (request.Description).Trim();
 
-
         if (string.IsNullOrWhiteSpace(systemName))
             return this.BadRequestProblem("systemName is required.", ProblemTypes.ValidationFailed);
 
-
         if (string.IsNullOrWhiteSpace(cloud))
             return this.BadRequestProblem("cloudProvider is required.", ProblemTypes.ValidationFailed);
-
 
         if (string.IsNullOrWhiteSpace(description))
             return this.BadRequestProblem("description is required.", ProblemTypes.ValidationFailed);
@@ -58,6 +65,33 @@ public sealed class ArchitectureQuickScanController(IQuickScanService quickScanS
         Dictionary<string, string> files = QuickScanMinimalContextBuilder.BuildFiles(normalized);
         QuickScanResult scan = await quickScanService.ScanAsync(files, cancellationToken).ConfigureAwait(false);
         ArchitectureQuickScanResponse body = ArchitectureQuickScanResponseMapper.Map(scan);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string auditActor = actorContext.GetActor();
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ArchitectureQuickScanExecuted,
+                ActorUserId = auditActor,
+                ActorUserName = auditActor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        normalized.SystemName,
+                        normalized.CloudProvider,
+                        descriptionLength = normalized.Description.Length,
+                        scan.ScanId,
+                        findingCount = scan.Findings.Count,
+                        summaryLength = scan.Summary.Length
+                    },
+                    AuditJsonSerializationOptions.Instance)
+            },
+            cancellationToken);
 
         return Ok(body);
     }
