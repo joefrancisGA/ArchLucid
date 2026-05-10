@@ -40,10 +40,8 @@ public sealed class InboundWebhookPipelineOrderIntegrationTests
 
         string oversizeBody = new('a', ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes + 1);
 
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/integrations/webhooks/jira")
-        {
-            Content = new StringContent(oversizeBody, Encoding.UTF8, "application/json"),
-        };
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/integrations/webhooks/jira");
+        request.Content = new StringContent(oversizeBody, Encoding.UTF8, "application/json");
 
         request.Headers.TryAddWithoutValidation("X-Jira-Token", JiraSecret);
 
@@ -67,10 +65,8 @@ public sealed class InboundWebhookPipelineOrderIntegrationTests
             not-json-but-small
             """;
 
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/integrations/webhooks/jira")
-        {
-            Content = new StringContent(garbageThatWouldFailParse, Encoding.UTF8, "application/json"),
-        };
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/integrations/webhooks/jira");
+        request.Content = new StringContent(garbageThatWouldFailParse, Encoding.UTF8, "application/json");
 
         request.Headers.TryAddWithoutValidation("X-Jira-Token", "wrong-secret");
 
