@@ -202,12 +202,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AdminConfigSummaryResponse> ConfigSummaryAsync();
+        System.Threading.Tasks.Task<AdminConfigSummaryResponse> ConfigSummaryAsync(bool? includeEffectiveValues);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AdminConfigSummaryResponse> ConfigSummaryAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AdminConfigSummaryResponse> ConfigSummaryAsync(bool? includeEffectiveValues, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4560,15 +4560,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AdminConfigSummaryResponse> ConfigSummaryAsync()
+        public virtual System.Threading.Tasks.Task<AdminConfigSummaryResponse> ConfigSummaryAsync(bool? includeEffectiveValues)
         {
-            return ConfigSummaryAsync(System.Threading.CancellationToken.None);
+            return ConfigSummaryAsync(includeEffectiveValues, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AdminConfigSummaryResponse> ConfigSummaryAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AdminConfigSummaryResponse> ConfigSummaryAsync(bool? includeEffectiveValues, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -4583,6 +4583,12 @@ namespace ArchLucid.Api.Client.Generated
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "v1/admin/config-summary"
                     urlBuilder_.Append("v1/admin/config-summary");
+                    urlBuilder_.Append('?');
+                    if (includeEffectiveValues != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("includeEffectiveValues")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(includeEffectiveValues, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -40679,8 +40685,17 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("configPath")]
         public string? ConfigPath { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("effectiveValue")]
+        public string? EffectiveValue { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("isSet")]
         public bool? IsSet { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("requirementKind")]
+        public string? RequirementKind { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("section")]
+        public string? Section { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

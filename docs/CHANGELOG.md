@@ -5,6 +5,8 @@
 
 # ArchLucid changelog
 
+**Buyer shorthand (rolling):** recent entries below also call out **security / audit**, **governance & exports**, **integrations / connectors**, and **operational controls** when they change — scan section headings for *Admin*, *Audit*, *Governance*, *OpenAPI*, *Terraform*, and *support bundle*.
+
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
 ## 2026-05-09 — Startup: **Real-mode deployment fingerprint** (Production / Staging hard fail)

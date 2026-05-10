@@ -613,7 +613,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    includeEffectiveValues?: boolean;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -20958,7 +20960,10 @@ export interface components {
         };
         ConfigSummaryKeyRow: {
             configPath?: null | string;
+            effectiveValue?: null | string;
             isSet?: boolean;
+            requirementKind?: null | string;
+            section?: null | string;
         };
         ConfigurationHealthCheckResult: {
             detail?: null | string;

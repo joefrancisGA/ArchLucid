@@ -6,19 +6,26 @@ namespace ArchLucid.Architecture.Tests;
 /// </summary>
 public static class SingleCompositionRootArchitectureTestConstants
 {
+    /// <summary>
+    ///     Product libraries that must not expose public static <see cref="Microsoft.Extensions.DependencyInjection.IServiceCollection" />
+    ///     registration entry points outside the composition root (INV-006). Sorted for stable diffs.
+    /// </summary>
     public static readonly string[] CompositionRootScannedProductAssemblyNames =
     [
-        "ArchLucid.Application",
-        "ArchLucid.Decisioning",
         "ArchLucid.AgentRuntime",
-        "ArchLucid.Persistence",
+        "ArchLucid.Application",
+        "ArchLucid.ArtifactSynthesis",
+        "ArchLucid.Capabilities.Cost",
+        "ArchLucid.ContextIngestion",
+        "ArchLucid.Contracts",
         "ArchLucid.Core",
+        "ArchLucid.Decisioning",
+        "ArchLucid.Integrations.AzureDevOps",
         "ArchLucid.KnowledgeGraph",
+        "ArchLucid.Notifications",
+        "ArchLucid.Persistence",
         "ArchLucid.Provenance",
         "ArchLucid.Retrieval",
-        "ArchLucid.ContextIngestion",
-        "ArchLucid.ArtifactSynthesis",
-        "ArchLucid.Notifications",
     ];
 
     public static readonly string[] ServiceCollectionExtensionAllowListedAssemblyNames =

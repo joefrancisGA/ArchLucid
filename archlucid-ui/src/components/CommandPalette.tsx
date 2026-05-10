@@ -17,6 +17,7 @@ import {
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
+import { DOCUMENTATION_SEARCH_ITEMS, documentationSearchOpenUrl } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -36,7 +37,24 @@ function curatedPaletteVisibilityHref(href: string): string {
   return href.slice(0, i);
 }
 
-function CommandPaletteCuratedTasks({
+function CommandPaletteDocumentationSearch() {
+  return (
+    <CommandGroup heading="Documentation">
+      {DOCUMENTATION_SEARCH_ITEMS.map((row) => (
+        <CommandItem
+          key={row.relativeDocsPath}
+          value={`doc ${row.title} ${row.description} ${row.category} ${row.relativeDocsPath}`}
+          onSelect={() => {
+            documentationSearchOpenUrl(row.relativeDocsPath);
+          }}
+        >
+          <span className="font-medium">{row.title}</span>
+          <span className="ml-2 text-xs text-neutral-500">{row.category}</span>
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  );
+}
   visibleHrefs,
   onNavigate,
 }: {
@@ -277,6 +295,7 @@ export function CommandPalette() {
         <CommandInput placeholder={polishedShell ? "Find a page…" : "Search pages or paste a review ID…"} />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!polishedShell} />
+          <CommandPaletteDocumentationSearch />
           <CommandPaletteCuratedTasks visibleHrefs={visibleHrefs} onNavigate={navigate} />
           <CommandEmpty>
             {polishedShell
