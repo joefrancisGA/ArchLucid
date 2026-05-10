@@ -8,11 +8,6 @@ public static class DapperRowExpect
 {
     public static T Required<T>(T? row, string notFoundMessage) where T : class?
     {
-        if (row is null)
-        {
-            throw new InvalidOperationException(notFoundMessage);
-        }
-
-        return row;
+        return row ?? throw new InvalidOperationException(notFoundMessage);
     }
 }
