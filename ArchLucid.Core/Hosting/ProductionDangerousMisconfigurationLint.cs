@@ -11,6 +11,10 @@ namespace ArchLucid.Core.Hosting;
 /// </summary>
 public static class ProductionDangerousMisconfigurationLint
 {
+    /// <summary>Keys consulted by <see cref="DescribeFailFastFindings" />; kept aligned with <see cref="ConfigurationKeyCatalog" /> guard metadata.</summary>
+    public static IReadOnlySet<string> MonitoredConfigurationKeys =>
+        ProductionProfileFailFastMonitoredConfigurationPaths.KeysConsultedByDescribeFailFastFindings;
+
     /// <summary>
     ///     True when ASP.NET Core is Production, <c>ARCHLUCID_ENVIRONMENT=Production</c>, or
     ///     <c>ProductionValidation:Strict=true</c> with Staging (ASP.NET or ArchLucid environment name).
@@ -60,7 +64,7 @@ public static class ProductionDangerousMisconfigurationLint
 
         List<HostingMisconfigurationWarning> findings = [];
 
-        if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
+        if (configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.AuthenticationApiKeyDevelopmentBypassAll, false))
         {
             findings.Add(
                 new HostingMisconfigurationWarning(
@@ -69,7 +73,7 @@ public static class ProductionDangerousMisconfigurationLint
                     + "(ASP.NET Core Production, ARCHLUCID_ENVIRONMENT=Production, or ProductionValidation:Strict with Staging)."));
         }
 
-        string? mode = configuration[$"{ArchLucidAuthSection}:Mode"]?.Trim();
+        string? mode = configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ArchLucidAuthMode]?.Trim();
 
         if (!IsWellKnownAuthMode(mode))
         {
@@ -90,8 +94,11 @@ public static class ProductionDangerousMisconfigurationLint
         }
         else if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
         {
-            string? pemPath = configuration[$"{ArchLucidAuthSection}:JwtSigningPublicKeyPemPath"]?.Trim();
-            string? authority = configuration[$"{ArchLucidAuthSection}:Authority"]?.Trim();
+            string? pemPath =
+                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ArchLucidAuthJwtSigningPublicKeyPemPath]
+                    ?.Trim();
+            string? authority =
+                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ArchLucidAuthAuthority]?.Trim();
 
             if (productionNamedProfile && !string.IsNullOrWhiteSpace(pemPath))
             {
@@ -111,7 +118,7 @@ public static class ProductionDangerousMisconfigurationLint
             }
         }
         else if (string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase)
-                 && !configuration.GetValue("Authentication:ApiKey:Enabled", false))
+                 && !configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.AuthenticationApiKeyEnabled, false))
         {
             findings.Add(
                 new HostingMisconfigurationWarning(
@@ -120,12 +127,13 @@ public static class ProductionDangerousMisconfigurationLint
                     + "configure API keys or switch ArchLucidAuth:Mode."));
         }
 
-        string? agentMode = configuration["AgentExecution:Mode"]?.Trim();
+        string? agentMode = configuration[ProductionProfileFailFastMonitoredConfigurationPaths.AgentExecutionMode]?.Trim();
         bool realMode = string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase);
 
         if (realMode)
         {
-            string? completionClient = configuration["AgentExecution:CompletionClient"]?.Trim();
+            string? completionClient =
+                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.AgentExecutionCompletionClient]?.Trim();
             bool echo = string.Equals(completionClient, "Echo", StringComparison.OrdinalIgnoreCase);
 
             if (!echo)
@@ -145,24 +153,32 @@ public static class ProductionDangerousMisconfigurationLint
             }
         }
 
-        if (configuration.GetValue("ProductionValidation:RequireTelemetryExport", false))
+        if (configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.ProductionValidationRequireTelemetryExport, false))
         {
-            string? otlpEndpointRaw = configuration["Observability:Otlp:Endpoint"]?.Trim();
+            string? otlpEndpointRaw =
+                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityOtlpEndpoint]?.Trim();
             bool otlpEndpointPresent = !string.IsNullOrWhiteSpace(otlpEndpointRaw);
-            bool? otlpEnabled = configuration.GetValue<bool?>("Observability:Otlp:Enabled");
+            bool? otlpEnabled =
+                configuration.GetValue<bool?>(ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityOtlpEnabled);
             bool otlpActive = otlpEndpointPresent && (!otlpEnabled.HasValue || otlpEnabled.Value);
 
-            string? applicationInsightsConnectionString = configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]?.Trim();
-
-            if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
-                applicationInsightsConnectionString = configuration["ApplicationInsights:ConnectionString"]?.Trim();
+            string? applicationInsightsConnectionString =
+                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ApplicationInsightsConnectionStringEnv]?.Trim();
 
             if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
                 applicationInsightsConnectionString =
-                    configuration["Observability:AzureMonitor:ApplicationInsightsConnectionString"]?.Trim();
+                    configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ApplicationInsightsConnectionString]?.Trim();
+
+            if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
+                applicationInsightsConnectionString =
+                    configuration[
+                            ProductionProfileFailFastMonitoredConfigurationPaths
+                                .ObservabilityAzureMonitorApplicationInsightsConnectionString]
+                        ?.Trim();
 
             bool applicationInsightsOk = !string.IsNullOrWhiteSpace(applicationInsightsConnectionString);
-            bool prometheusOk = configuration.GetValue("Observability:Prometheus:Enabled", false);
+            bool prometheusOk =
+                configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityPrometheusEnabled, false);
 
             if (!otlpActive && !applicationInsightsOk && !prometheusOk)
             {
@@ -202,6 +218,4 @@ public static class ProductionDangerousMisconfigurationLint
         return string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase)
                || string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase);
     }
-
-    private const string ArchLucidAuthSection = "ArchLucidAuth";
 }

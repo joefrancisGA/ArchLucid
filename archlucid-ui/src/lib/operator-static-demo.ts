@@ -353,7 +353,13 @@ export function tryStaticDemoFindingInspect(runId: string, findingId: string): F
   const effectiveRunId = canonicalizeDemoRunId(runId);
   const fid = findingId.trim();
 
-  if (fid !== SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID) {
+  // Accept exact match or slug-prefixed IDs (e.g. "phi-minimization-risk-<guid>") so that
+  // real finding IDs with appended GUIDs still resolve to the curated demo payload.
+  const isKnownFinding =
+    fid === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID ||
+    fid.startsWith(`${SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID}-`);
+
+  if (!isKnownFinding) {
     return null;
   }
 
@@ -361,7 +367,11 @@ export function tryStaticDemoFindingInspect(runId: string, findingId: string): F
     return null;
   }
 
-  return buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId);
+  const base = buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId);
+
+  // Align the returned findingId with the URL token so route-alignment checks in
+  // loadFindingInspectForRoute and FindingInspectView both pass cleanly.
+  return { ...base, findingId: fid };
 }
 
 export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummary | null {

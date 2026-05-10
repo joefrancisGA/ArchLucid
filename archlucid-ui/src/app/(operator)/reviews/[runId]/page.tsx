@@ -456,9 +456,8 @@ export default async function RunDetailPage({
         { id: "manifest-summary", label: "Outcome", available: Boolean(manifestSummary) },
         { id: "trust-evidence", label: "Evidence", available: Boolean(resolvedDetail.trustEvidenceCard) },
         { id: "run-explanation", label: "Review narrative", available: Boolean(manifestId) },
-        { id: "run-metadata", label: "Review", available: true },
         { id: "pipeline-timeline", label: "Activity", available: true },
-        { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
+        { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
         { id: "run-actions", label: "Next steps", available: true },
       ]
     : [
@@ -645,10 +644,6 @@ export default async function RunDetailPage({
         <RunProgressTracker runId={runId} initialSummary={progressForPipelineUi} />
       ) : null}
 
-      {showPilotScorecardPackageCta && manifestId ? (
-        <EmailRunToSponsorBanner runId={runId} manifestId={manifestId} />
-      ) : null}
-
       <RunDetailSectionNav sections={runDetailNavSections} />
 
       {manifestId && resolvedDetail.trustEvidenceCard ? (
@@ -668,34 +663,7 @@ export default async function RunDetailPage({
 
       {buyerPolishedArtifactTable ? explanationSection : null}
 
-      {buyerPolishedArtifactTable ? (
-        <section id="run-metadata" className="scroll-mt-24">
-          <CollapsibleSection title="Review details" defaultOpen={false}>
-            <Card className="border-0 shadow-none">
-              <CardHeader className="px-0 pt-0">
-                <h3 className={sectionHeadingClass}>Review</h3>
-                <CardDescription>
-                  Manifest summary and artifacts appear below when <GlossaryTooltip termKey="run">this review</GlossaryTooltip>{" "}
-                  has a <GlossaryTooltip termKey="golden_manifest">reviewed manifest</GlossaryTooltip> (after finalization).
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 px-0 text-sm text-neutral-700 dark:text-neutral-300">
-                <RunTraceViewerLink traceId={runDetailTraceId} />
-                {resolvedDetail.run.otelTraceId ? (
-                  <p className="m-0">
-                    <span className="font-medium text-neutral-800 dark:text-neutral-200">Creation trace:</span>{" "}
-                    <RunTraceViewerLink traceId={resolvedDetail.run.otelTraceId} />
-                  </p>
-                ) : null}
-                <p className="m-0">
-                  <span className="font-medium text-neutral-800 dark:text-neutral-200">Description:</span>{" "}
-                  {resolvedDetail.run.description ?? ""}
-                </p>
-              </CardContent>
-            </Card>
-          </CollapsibleSection>
-        </section>
-      ) : (
+      {buyerPolishedArtifactTable ? null : (
         <section id="run-metadata" className="scroll-mt-24">
           <Card>
             <CardHeader>
@@ -1078,6 +1046,10 @@ export default async function RunDetailPage({
       )}
 
       {!buyerPolishedArtifactTable ? explanationSection : null}
+
+      {showPilotScorecardPackageCta && manifestId ? (
+        <EmailRunToSponsorBanner runId={runId} manifestId={manifestId} />
+      ) : null}
 
       {manifestId && <BeforeAfterDeltaPanel variant="inline" runId={runId} />}
 

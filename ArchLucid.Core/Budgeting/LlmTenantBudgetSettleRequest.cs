@@ -61,5 +61,5 @@ public sealed class LlmTenantBudgetSettleRequest
     {
         get;
         init;
-    } = Array.Empty<byte>();
+    } = [];
 }

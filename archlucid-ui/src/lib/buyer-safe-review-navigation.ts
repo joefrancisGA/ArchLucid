@@ -21,6 +21,11 @@ export function getShowcaseManifestHref(): string {
   return `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
 }
 
+/** Executive view (concise risk summary and outcomes) for the Claims Intake static spine. */
+export function getShowcaseExecutiveHref(): string {
+  return `/executive/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+}
+
 /**
  * Buyer-safe demo builds: curated spine IDs can use manifest/walkthrough shortcuts instead of workspace detail first.
  */

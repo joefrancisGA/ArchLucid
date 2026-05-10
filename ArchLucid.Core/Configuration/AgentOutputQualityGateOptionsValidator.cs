@@ -10,13 +10,9 @@ public sealed class AgentOutputQualityGateOptionsValidator : IValidateOptions<Ag
     /// <inheritdoc />
     public ValidateOptionsResult Validate(string? name, AgentOutputQualityGateOptions options)
     {
-        if (options is null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
+        if (options is null) throw new ArgumentNullException(nameof(options));
 
-        if (options.Mode == AgentOutputQualityGateMode.PilotStrict
-            && options.PilotStrictMinAgentResultFaithfulnessSupportRatio is null)
+        if (options is { Mode: AgentOutputQualityGateMode.PilotStrict, PilotStrictMinAgentResultFaithfulnessSupportRatio: null })
         {
             return ValidateOptionsResult.Fail(
                 $"{AgentOutputQualityGateOptions.SectionPath}: {nameof(AgentOutputQualityGateOptions.Mode)} "

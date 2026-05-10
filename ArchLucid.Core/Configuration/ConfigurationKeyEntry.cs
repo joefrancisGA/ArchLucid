@@ -8,7 +8,8 @@ public sealed record ConfigurationKeyEntry(
     string? Default,
     string RequiredSummary,
     string Description,
-    ConfigKeyRequirementKind Requirement);
+    ConfigKeyRequirementKind Requirement,
+    ConfigurationKeyProductionProfileGuardKind ProductionProfileGuardKind = ConfigurationKeyProductionProfileGuardKind.None);
 
 public enum ArchLucidConfigHostingRole
 {

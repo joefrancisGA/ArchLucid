@@ -3,7 +3,11 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
+import {
+  getShowcaseExecutiveHref,
+  getShowcaseManifestHref,
+  getShowcaseWalkthroughHref,
+} from "@/lib/buyer-safe-review-navigation";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -84,18 +88,11 @@ export function SampleFirstReviewPackageCard() {
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               {buyerPolished ? (
-                <>
-                  <Button asChild variant="primary" className="h-9">
-                    <Link href={getShowcaseManifestHref()} onClick={recordSampleOpened}>
-                      View manifest summary
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline" className="h-9">
-                    <Link href={getShowcaseWalkthroughHref()} onClick={recordSampleOpened}>
-                      Read-only walkthrough
-                    </Link>
-                  </Button>
-                </>
+                <Button asChild variant="primary" className="h-9">
+                  <Link href={getShowcaseExecutiveHref()} onClick={recordSampleOpened}>
+                    Open executive view
+                  </Link>
+                </Button>
               ) : (
                 <>
                   <Button asChild variant="primary" className="h-9">
@@ -110,16 +107,27 @@ export function SampleFirstReviewPackageCard() {
               )}
             </div>
             {buyerPolished ? (
-              <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
-                <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                  Ready to connect your own workspace?{" "}
-                  <Link
-                    href="/reviews/new"
-                    className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                  >
-                    Start your own review →
-                  </Link>
-                </p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-neutral-200 pt-2 dark:border-neutral-700">
+                <Link
+                  href={getShowcaseManifestHref()}
+                  onClick={recordSampleOpened}
+                  className="text-sm text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                >
+                  Manifest summary
+                </Link>
+                <Link
+                  href={getShowcaseWalkthroughHref()}
+                  onClick={recordSampleOpened}
+                  className="text-sm text-neutral-600 underline underline-offset-2 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200"
+                >
+                  Guided walkthrough
+                </Link>
+                <Link
+                  href="/reviews/new"
+                  className="text-sm text-neutral-500 hover:text-neutral-800 dark:text-neutral-500 dark:hover:text-neutral-300"
+                >
+                  Connect your own workspace →
+                </Link>
               </div>
             ) : null}
           </div>
