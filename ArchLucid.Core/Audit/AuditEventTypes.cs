@@ -107,6 +107,11 @@ public static class AuditEventTypes
     public const string ArchitectureAnalysisReportGenerated = "ArchitectureAnalysisReportGenerated";
 
     /// <summary>
+    ///     Emitted when <c>POST /v1/architecture/quick-scan</c> completes successfully (single-pass LLM; ephemeral result).
+    /// </summary>
+    public const string ArchitectureQuickScanExecuted = "ArchitectureQuickScanExecuted";
+
+    /// <summary>
     ///     Emitted when the architecture-package DOCX export completes successfully (
     ///     <c>GET .../docx/runs/{{runId}}/architecture-package</c>).
     /// </summary>
