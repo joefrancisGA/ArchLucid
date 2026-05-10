@@ -1,9 +1,11 @@
+using ArchLucid.Decisioning.Validation;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchLucid.Decisioning.Validation;
+namespace ArchLucid.Host.Composition.Startup;
 
-public static class ServiceCollectionExtensions
+public static partial class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSchemaValidation(
         this IServiceCollection services,

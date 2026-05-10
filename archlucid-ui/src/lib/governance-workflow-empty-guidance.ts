@@ -14,7 +14,7 @@ export const governanceWorkflowIdleGettingStartedReader: EmptyStateGettingStarte
   heading: "What this page shows",
   steps: [
     "Operators pick a review and load approval requests, promotions, and activations for that review.",
-    "Submitting, approving, promoting, and activating require Execute+ where your tenant expects it.",
+    "Each step follows your organization's role policy for who may submit, approve, promote, and activate.",
     "Use Findings or Reviews for context — this timeline stays inspection-first at your rank.",
   ],
 };

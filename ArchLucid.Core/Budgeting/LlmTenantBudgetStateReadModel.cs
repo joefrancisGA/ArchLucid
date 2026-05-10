@@ -37,7 +37,7 @@ public sealed class LlmTenantBudgetStateReadModel
     {
         get;
         init;
-    } = Array.Empty<byte>();
+    } = [];
 
     public long TotalTokenPressure => TokensConsumed + ReservedTokens;
 

@@ -49,5 +49,5 @@ public sealed class LlmTenantBudgetReserveRequest
     {
         get;
         init;
-    } = Array.Empty<byte>();
+    } = [];
 }

@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Validation;
+using ArchLucid.Host.Composition.Startup;
 
 using FluentAssertions;
 

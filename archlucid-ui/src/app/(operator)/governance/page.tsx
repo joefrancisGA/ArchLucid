@@ -174,19 +174,33 @@ function GovernanceWorkflowPageInner() {
     tryStaticDemoGovernanceApprovalRequests(SHOWCASE_STATIC_DEMO_RUN_ID) !== null;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
-  const [submitRunId, setSubmitRunId] = useState("");
-  const [submitManifestVersion, setSubmitManifestVersion] = useState("");
+  // Pre-seed demo state synchronously so the first render already shows the approval
+  // outcome card rather than the empty / instruction-first state that appears before
+  // the useEffect hydration cycle completes.
+  const isDemoShell = isStaticDemoFallbackActiveForShowcase || buyerPolishedShell;
+  const initialDemoApprovals = isDemoShell
+    ? (tryStaticDemoGovernanceApprovalRequests(SHOWCASE_STATIC_DEMO_RUN_ID) ?? [])
+    : [];
+  const initialDemoPromotions = isDemoShell
+    ? (tryStaticDemoGovernancePromotions(SHOWCASE_STATIC_DEMO_RUN_ID) ?? [])
+    : [];
+  const initialDemoActiveRunId: string | null = isDemoShell ? SHOWCASE_STATIC_DEMO_RUN_ID : null;
+
+  const [submitRunId, setSubmitRunId] = useState(isDemoShell ? SHOWCASE_STATIC_DEMO_RUN_ID : "");
+  const [submitManifestVersion, setSubmitManifestVersion] = useState(isDemoShell ? "3.4.1" : "");
   const [submitSource, setSubmitSource] = useState<string>("dev");
   const [submitTarget, setSubmitTarget] = useState<string>("test");
   const [submitComment, setSubmitComment] = useState("");
   const [submitBusy, setSubmitBusy] = useState(false);
 
-  const [queryRunId, setQueryRunId] = useState("");
-  const [activeRunId, setActiveRunId] = useState<string | null>(null);
+  const [queryRunId, setQueryRunId] = useState(isDemoShell ? SHOWCASE_STATIC_DEMO_RUN_ID : "");
+  const [activeRunId, setActiveRunId] = useState<string | null>(initialDemoActiveRunId);
   const [workflowActor, setWorkflowActor] = useState("");
 
-  const [approvals, setApprovals] = useState<GovernanceApprovalRequest[]>([]);
-  const [promotions, setPromotions] = useState<GovernancePromotionRecord[]>([]);
+  const [approvals, setApprovals] = useState<GovernanceApprovalRequest[]>(initialDemoApprovals);
+  const [promotions, setPromotions] = useState<GovernancePromotionRecord[]>(
+    sortGovernancePromotions(initialDemoPromotions),
+  );
   const [activations, setActivations] = useState<GovernanceEnvironmentActivation[]>([]);
   const [listsLoading, setListsLoading] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
@@ -373,6 +387,8 @@ function GovernanceWorkflowPageInner() {
 
     if (queryRunId.trim().length > 0) {
       demoPrefillRanRef.current = true;
+      // State was pre-seeded synchronously; still try the API to replace demo data with live data.
+      void loadLists(queryRunId.trim());
 
       return;
     }

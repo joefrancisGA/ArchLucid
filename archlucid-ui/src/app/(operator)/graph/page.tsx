@@ -538,22 +538,31 @@ function GraphPageContent() {
       {graph ? (
         <>
           {graphControls}
+          {buyerPolishedShell ? (
+            <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+              Analysis and captured evidence converge on key risks. Risks determine the architecture
+              decisions recorded in the final package, which produces the sponsor and audit deliverables.
+              Select any highlighted node to see its role in this review.
+            </p>
+          ) : null}
           <div className="mb-3 flex flex-wrap items-center gap-3">
-            <label>
-              Filter by type{" "}
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="ml-2 p-1.5"
-              >
-                <option value="">All types</option>
-                {nodeTypes.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {!buyerPolishedShell ? (
+              <label>
+                Filter by type{" "}
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="ml-2 p-1.5"
+                >
+                  <option value="">All types</option>
+                  {nodeTypes.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
             <span className="text-neutral-500 dark:text-neutral-400 text-sm">
               {buyerPolishedShell
                 ? `${graph.nodes.length} nodes in this view`
