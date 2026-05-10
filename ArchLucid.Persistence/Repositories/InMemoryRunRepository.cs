@@ -268,7 +268,10 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
             archived.Add(new ArchivedRunScopeRow
             {
-                RunId = run.RunId, TenantId = run.TenantId, WorkspaceId = run.WorkspaceId, ScopeProjectId = run.ScopeProjectId
+                RunId = run.RunId,
+                TenantId = run.TenantId,
+                WorkspaceId = run.WorkspaceId,
+                ScopeProjectId = run.ScopeProjectId
             });
 
             run.ArchivedUtc = stamp;
@@ -277,7 +280,9 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
         return Task.FromResult(new RunArchiveByIdsResult
         {
-            SucceededRunIds = archived.Select(static r => r.RunId).ToList(), ArchivedRuns = archived, Failed = failed
+            SucceededRunIds = archived.Select(static r => r.RunId).ToList(),
+            ArchivedRuns = archived,
+            Failed = failed
         });
     }
 
@@ -311,17 +316,12 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         // Null/empty statuses are treated as active — safer than falsely releasing lifecycle while status is uninitialized.
         if (string.IsNullOrWhiteSpace(legacyRunStatus))
             return true;
-
         if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
             return false;
-
         if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Failed), StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected), StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        return true;
+        return !string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected), StringComparison.OrdinalIgnoreCase);
     }
 
     private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)
