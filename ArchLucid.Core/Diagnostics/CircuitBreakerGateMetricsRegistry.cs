@@ -8,7 +8,7 @@ namespace ArchLucid.Core.Diagnostics;
 /// </summary>
 public static class CircuitBreakerGateMetricsRegistry
 {
-    private static readonly object Sync = new();
+    private static readonly Lock Sync = new();
 
     private static readonly Dictionary<string, CircuitBreakerGate> Gates = new(StringComparer.Ordinal);
 
