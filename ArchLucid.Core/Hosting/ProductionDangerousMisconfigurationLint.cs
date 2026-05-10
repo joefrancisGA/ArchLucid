@@ -39,10 +39,7 @@ public static class ProductionDangerousMisconfigurationLint
         if (aspNetProd || archProd)
             return true;
 
-        if (strict && (aspNetStaging || archStaging))
-            return true;
-
-        return false;
+        return strict && (aspNetStaging || archStaging);
     }
 
     /// <summary>Returns stable <see cref="HostingMisconfigurationWarning.RuleName" /> values and operator text.</summary>
@@ -153,45 +150,45 @@ public static class ProductionDangerousMisconfigurationLint
             }
         }
 
-        if (configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.ProductionValidationRequireTelemetryExport, false))
+        if (!configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.ProductionValidationRequireTelemetryExport, false))
+            return findings;
+
+        string? otlpEndpointRaw =
+            configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityOtlpEndpoint]?.Trim();
+        bool otlpEndpointPresent = !string.IsNullOrWhiteSpace(otlpEndpointRaw);
+        bool? otlpEnabled =
+            configuration.GetValue<bool?>(ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityOtlpEnabled);
+        bool otlpActive = otlpEndpointPresent && (!otlpEnabled.HasValue || otlpEnabled.Value);
+
+        string? applicationInsightsConnectionString =
+            configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ApplicationInsightsConnectionStringEnv]?.Trim();
+
+        if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
+            applicationInsightsConnectionString =
+                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ApplicationInsightsConnectionString]?.Trim();
+
+        if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
+            applicationInsightsConnectionString =
+                configuration[
+                        ProductionProfileFailFastMonitoredConfigurationPaths
+                            .ObservabilityAzureMonitorApplicationInsightsConnectionString]
+                    ?.Trim();
+
+        bool applicationInsightsOk = !string.IsNullOrWhiteSpace(applicationInsightsConnectionString);
+        bool prometheusOk =
+            configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityPrometheusEnabled, false);
+
+        if (!otlpActive && !applicationInsightsOk && !prometheusOk)
         {
-            string? otlpEndpointRaw =
-                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityOtlpEndpoint]?.Trim();
-            bool otlpEndpointPresent = !string.IsNullOrWhiteSpace(otlpEndpointRaw);
-            bool? otlpEnabled =
-                configuration.GetValue<bool?>(ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityOtlpEnabled);
-            bool otlpActive = otlpEndpointPresent && (!otlpEnabled.HasValue || otlpEnabled.Value);
-
-            string? applicationInsightsConnectionString =
-                configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ApplicationInsightsConnectionStringEnv]?.Trim();
-
-            if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
-                applicationInsightsConnectionString =
-                    configuration[ProductionProfileFailFastMonitoredConfigurationPaths.ApplicationInsightsConnectionString]?.Trim();
-
-            if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
-                applicationInsightsConnectionString =
-                    configuration[
-                            ProductionProfileFailFastMonitoredConfigurationPaths
-                                .ObservabilityAzureMonitorApplicationInsightsConnectionString]
-                        ?.Trim();
-
-            bool applicationInsightsOk = !string.IsNullOrWhiteSpace(applicationInsightsConnectionString);
-            bool prometheusOk =
-                configuration.GetValue(ProductionProfileFailFastMonitoredConfigurationPaths.ObservabilityPrometheusEnabled, false);
-
-            if (!otlpActive && !applicationInsightsOk && !prometheusOk)
-            {
-                findings.Add(
-                    new HostingMisconfigurationWarning(
-                        ProductionLikeHostingMisconfigurationAdvisorRuleNames.TelemetryExportRequiredMissing,
-                        "ProductionValidation:RequireTelemetryExport is true but no telemetry sink is configured. "
-                        + "Set Observability:Otlp:Endpoint (with Observability:Otlp:Enabled=true or omit), "
-                        + "an Application Insights connection string "
-                        + "(APPLICATIONINSIGHTS_CONNECTION_STRING, ApplicationInsights:ConnectionString, or "
-                        + "Observability:AzureMonitor:ApplicationInsightsConnectionString), "
-                        + "or Observability:Prometheus:Enabled=true."));
-            }
+            findings.Add(
+                new HostingMisconfigurationWarning(
+                    ProductionLikeHostingMisconfigurationAdvisorRuleNames.TelemetryExportRequiredMissing,
+                    "ProductionValidation:RequireTelemetryExport is true but no telemetry sink is configured. "
+                    + "Set Observability:Otlp:Endpoint (with Observability:Otlp:Enabled=true or omit), "
+                    + "an Application Insights connection string "
+                    + "(APPLICATIONINSIGHTS_CONNECTION_STRING, ApplicationInsights:ConnectionString, or "
+                    + "Observability:AzureMonitor:ApplicationInsightsConnectionString), "
+                    + "or Observability:Prometheus:Enabled=true."));
         }
 
         return findings;

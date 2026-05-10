@@ -36,7 +36,11 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    /** Git must include `*-snapshots/*-chromium-visual-linux.png`; regenerate on Linux/Docker (`scripts/update-visual-snapshots-docker.ps1`). */
+    /**
+     * Snapshots are OS-specific (`*-chromium-visual-win32.png` vs `*-linux.png`). CI must use the same OS as the
+     * committed baselines (see `ui-playwright-mock-smoke` in ci.yml) or you must regenerate Linux goldens via Docker
+     * (`scripts/update-visual-snapshots-docker.ps1`) and run mock E2E on Linux.
+     */
     {
       name: "chromium-visual",
       testDir: "tests/e2e",
