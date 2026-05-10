@@ -113,22 +113,27 @@ export function SampleFirstReviewPackageCard() {
               )}
             </div>
             {buyerPolished ? (
-              <div className="mt-2 flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                  <Link
-                    href={getShowcaseWalkthroughHref()}
-                    onClick={recordSampleOpened}
-                    className="text-sm text-neutral-600 underline underline-offset-2 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200"
-                  >
-                    Optional guided walkthrough
-                  </Link>
-                </div>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <Link
+                  href={getShowcaseWalkthroughHref()}
+                  onClick={recordSampleOpened}
+                  className="text-sm text-neutral-600 underline underline-offset-2 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200"
+                >
+                  Optional guided walkthrough
+                </Link>
+              </div>
+            ) : null}
+            {buyerPolished ? (
+              <div className="mt-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
                 <p className="m-0 text-xs leading-snug text-neutral-500 dark:text-neutral-500">
-                  After the sample,{" "}
-                  <Link href="/reviews/new" className="font-medium text-neutral-700 underline dark:text-neutral-400">
+                  Outside the frozen sample,{" "}
+                  <Link
+                    href="/reviews/new"
+                    className="font-medium text-neutral-700 underline decoration-neutral-400/70 underline-offset-2 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100"
+                  >
                     connect your own workspace
                   </Link>{" "}
-                  — conversion path; not part of the frozen evaluation spine.
+                  when you are ready for a real-input review.
                 </p>
               </div>
             ) : null}
