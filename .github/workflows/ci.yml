@@ -1726,7 +1726,9 @@ jobs:
   ui-playwright-mock-smoke:
     name: "Operator UI: Playwright mock smoke (mock API)"
     needs: gitleaks
-    runs-on: ubuntu-latest
+    # Visual baselines are Playwright snapshots with an OS suffix (e.g. *-chromium-visual-win32.png).
+    # The repo currently commits Windows goldens; match the runner here or add *-linux.png and use ubuntu-latest.
+    runs-on: windows-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5

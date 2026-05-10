@@ -10,10 +10,7 @@ public static class TimeProviderExtensions
     /// <remarks>Keep using <see cref="TimeProvider.GetUtcNow" /> here; do not call this extension from inside itself.</remarks>
     public static DateTime UtcNowDateTime(this TimeProvider provider)
     {
-        if (provider is null)
-            throw new ArgumentNullException(nameof(provider));
-
-        return provider.GetUtcNow().UtcDateTime;
+        return provider is null ? throw new ArgumentNullException(nameof(provider)) : provider.GetUtcNow().UtcDateTime;
     }
 
     /// <summary>UTC calendar date for the provider clock.</summary>

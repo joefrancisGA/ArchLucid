@@ -54,19 +54,13 @@ public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> op
 
         LlmPromptRedactionOptions opts = _options.CurrentValue;
 
-        if (!opts.Enabled)
-            return new PromptRedactionOutcome(input, ImmutableDictionary<string, int>.Empty);
-
-        return ApplyDenyList(input, opts);
+        return !opts.Enabled ? new PromptRedactionOutcome(input, ImmutableDictionary<string, int>.Empty) : ApplyDenyList(input, opts);
     }
 
     /// <inheritdoc />
     public PromptRedactionOutcome RedactAlways(string? input)
     {
-        if (string.IsNullOrEmpty(input))
-            return new PromptRedactionOutcome(input ?? string.Empty, ImmutableDictionary<string, int>.Empty);
-
-        return ApplyDenyList(input, _options.CurrentValue);
+        return string.IsNullOrEmpty(input) ? new PromptRedactionOutcome(input ?? string.Empty, ImmutableDictionary<string, int>.Empty) : ApplyDenyList(input, _options.CurrentValue);
     }
 
     private PromptRedactionOutcome ApplyDenyList(string input, LlmPromptRedactionOptions opts)
