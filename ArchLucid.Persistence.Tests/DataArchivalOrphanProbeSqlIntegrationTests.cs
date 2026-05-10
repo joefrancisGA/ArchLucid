@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 
+using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tests.Support;

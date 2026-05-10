@@ -1,6 +1,7 @@
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
