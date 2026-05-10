@@ -66,7 +66,7 @@ public sealed class PilotReportCard
         get;
         init;
     }
-        = Array.Empty<PilotReportCardFindingSeverity>();
+        = [];
 
     public int GovernanceApprovalActions
     {

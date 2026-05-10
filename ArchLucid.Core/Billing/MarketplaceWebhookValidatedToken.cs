@@ -14,7 +14,7 @@ public sealed class MarketplaceWebhookValidatedToken
 
         foreach (Claim claim in claims)
         {
-            if (claim is null || string.IsNullOrEmpty(claim.Type) || string.IsNullOrEmpty(claim.Value))
+            if (string.IsNullOrEmpty(claim.Type) || string.IsNullOrEmpty(claim.Value))
                 continue;
 
             if (!_firstClaimByType.ContainsKey(claim.Type))
@@ -24,9 +24,6 @@ public sealed class MarketplaceWebhookValidatedToken
 
     public string? FindFirstClaimValue(string claimType)
     {
-        if (string.IsNullOrWhiteSpace(claimType))
-            return null;
-
-        return _firstClaimByType.TryGetValue(claimType, out string? value) ? value : null;
+        return string.IsNullOrWhiteSpace(claimType) ? null : _firstClaimByType.GetValueOrDefault(claimType);
     }
 }
