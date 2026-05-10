@@ -250,6 +250,7 @@ public sealed class LlmDailyTenantBudgetTracker(
     private static string DailyPeriodKey(DateOnly utcDay) =>
         utcDay.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
+    [InformationalAudit]
     private static void TryScheduleWarnAudit(
         IScopeContextProvider scopeProvider,
         IAuditService auditService,

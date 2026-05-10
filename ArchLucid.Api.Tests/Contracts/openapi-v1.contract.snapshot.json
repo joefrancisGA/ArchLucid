@@ -1992,6 +1992,9 @@
           "realModeFellBackToSimulator": {
             "type": "boolean"
           },
+          "structuralExecutionMode": {
+            "$ref": "#/components/schemas/StructuralExecutionMode"
+          },
           "requestId": {
             "type": "string"
           },
@@ -2012,7 +2015,8 @@
           "createdUtc",
           "requestId",
           "runId",
-          "status"
+          "status",
+          "structuralExecutionMode"
         ],
         "type": "object"
       },
@@ -2092,6 +2096,14 @@
       },
       "ArchitectureRunStatus": {
         "type": "integer"
+      },
+      "StructuralExecutionMode": {
+        "enum": [
+          "Simulator",
+          "Real",
+          "Fallback",
+          "Mixed"
+        ]
       },
       "ArchitectureTraceTimelineEntry": {
         "properties": {
@@ -12943,6 +12955,9 @@
           },
           "realModeFellBackToSimulator": {
             "type": "boolean"
+          },
+          "structuralExecutionMode": {
+            "$ref": "#/components/schemas/StructuralExecutionMode"
           },
           "retryCount": {
             "format": "int32",

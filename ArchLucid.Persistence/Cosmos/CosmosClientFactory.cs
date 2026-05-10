@@ -153,12 +153,7 @@ public sealed class CosmosClientFactory : IDisposable
         if (IsEmulatorConnection(opts.ConnectionString))
 
             // Emulator uses a self-signed certificate; safe only for localhost emulator endpoints.
-            clientOptions.HttpClientFactory = () =>
-            {
-                HttpClientHandler handler = new() { ServerCertificateCustomValidationCallback = static (_, _, _, _) => true };
-
-                return new HttpClient(handler);
-            };
+            clientOptions.HttpClientFactory = CosmosEmulatorHttpClientFactory.Create;
 
         CosmosClient client = new(opts.ConnectionString, clientOptions);
 

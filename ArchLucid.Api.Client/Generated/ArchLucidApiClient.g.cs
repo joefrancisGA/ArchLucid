@@ -39360,6 +39360,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("realModeFellBackToSimulator")]
         public bool? RealModeFellBackToSimulator { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("structuralExecutionMode")]
+        public StructuralExecutionMode StructuralExecutionMode { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("requestId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string RequestId { get; set; } = default!;
@@ -39449,6 +39452,24 @@ namespace ArchLucid.Api.Client.Generated
             get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
             set { _additionalProperties = value; }
         }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum StructuralExecutionMode
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Simulator")]
+        Simulator = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Real")]
+        Real = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Fallback")]
+        Fallback = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Mixed")]
+        Mixed = 3,
 
     }
 
@@ -50439,6 +50460,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("realModeFellBackToSimulator")]
         public bool? RealModeFellBackToSimulator { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("structuralExecutionMode")]
+        public StructuralExecutionMode? StructuralExecutionMode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("retryCount")]
         public int? RetryCount { get; set; } = default!;

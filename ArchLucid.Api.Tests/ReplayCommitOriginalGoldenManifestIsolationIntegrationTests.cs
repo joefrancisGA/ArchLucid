@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -20,12 +21,11 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
     [SkippableFact]
     public async Task CommitReplay_leaves_original_run_golden_manifest_payload_unchanged_and_uses_distinct_replay_run_id()
     {
-        JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-INV013-REPLAY-001")));
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -48,7 +48,7 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
                 commitReplay = true, executionMode = "Current", manifestVersionOverride = replayManifestVersion
             }));
         replayResponse.EnsureSuccessStatusCode();
-        ReplayRunResponseDto? replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(jsonOptions);
+        ReplayRunResponseDto? replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload!.ReplayRunId.Should().NotBe(runId);
 
         HttpResponseMessage detailAfterReplay = await Client.GetAsync($"/v1/authority/runs/{runId}");
@@ -71,12 +71,5 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
         byte[] utf8 = Encoding.UTF8.GetBytes(golden.GetRawText());
 
         return Convert.ToHexString(SHA256.HashData(utf8));
-    }
-
-    private static StringContent JsonContent(object value)
-    {
-        JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
-
-        return new StringContent(JsonSerializer.Serialize(value, options), Encoding.UTF8, "application/json");
     }
 }
