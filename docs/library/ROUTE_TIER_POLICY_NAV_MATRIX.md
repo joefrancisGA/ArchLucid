@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:111 -->
+<!-- route-tier-policy-nav-registry-count:112 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -76,6 +76,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Analytics/RoiAnalyticsController.cs` | `/v1/analytics` | none | ReadAuthority |  |  |
 | `Auth/TrialLocalIdentityAuthController.cs` | `/v1/auth/trial/local` | none | AllowAnonymous |  | trial_local_identity_auth |
 | `Authority/AnalysisReportsController.cs` | `/v1/architecture` | standard | ExecuteAuthority |  |  |
+| `Authority/ArchitectureQuickScanController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/ArtifactExportController.cs` | `/v1/artifacts` | standard | ReadAuthority |  |  |
 | `Authority/AuthorityCompareController.cs` | `/v1/authority/compare` | standard | ReadAuthority |  |  |
 | `Authority/AuthorityQueryController.cs` | `/v1/authority` | none | ReadAuthority |  |  |
