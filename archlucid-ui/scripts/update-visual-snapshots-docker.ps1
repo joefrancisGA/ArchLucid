@@ -7,6 +7,7 @@
 # UiRoot="$(pwd)"
 # docker run --rm -v "${UiRoot}:/ui" -w /ui mcr.microsoft.com/playwright:v1.58.2-jammy \
 #   bash -lc 'npm ci && npm run build && npx playwright test tests/e2e/visual-regression.spec.ts --project=chromium-visual --update-snapshots -c playwright.mock.config.ts'
+param(
     [ValidateNotNullOrEmpty()]
     [string] $UiRoot = $(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 )

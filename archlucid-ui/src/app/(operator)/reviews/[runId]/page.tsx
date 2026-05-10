@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement } from "react";
 
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -93,55 +93,6 @@ import type { RunExplanationSummary } from "@/types/explanation";
 
 const sectionHeadingClass =
   "m-0 text-lg font-semibold tracking-tight text-neutral-900 border-b border-neutral-200 pb-2 dark:border-neutral-700 dark:text-neutral-100";
-
-const runActionsInlineLinkClass =
-  "font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200";
-
-function buyerPolishedRunActionsDescription(options: {
-  manifestSummary: ManifestSummary | null;
-  governanceGateLabel: string | null;
-  runId: string;
-}): ReactNode {
-  const { manifestSummary, governanceGateLabel, runId } = options;
-
-  if (manifestSummary !== null && governanceGateLabel === "Pending") {
-    return (
-      <>
-        This review is awaiting governance approval. Submit the approval request or follow up with your approver.{" "}
-        <Link className={runActionsInlineLinkClass} href="/governance">
-          Open Governance
-        </Link>
-      </>
-    );
-  }
-
-  if (
-    manifestSummary !== null &&
-    isManifestCommittedForPilotScorecardPackage(manifestSummary) &&
-    (governanceGateLabel === "Passed" || governanceGateLabel === "Not required")
-  ) {
-    return (
-      <>
-        This review is ready for sponsor distribution. Start with the{" "}
-        <Link className={runActionsInlineLinkClass} href={`/executive/reviews/${encodeURIComponent(runId)}`}>
-          executive view
-        </Link>{" "}
-        or{" "}
-        <Link className={runActionsInlineLinkClass} href="#artifacts-exports">
-          download the sponsor package
-        </Link>
-        .
-      </>
-    );
-  }
-
-  return (
-    <>
-      Sponsor scorecard generation when eligible. Primary sponsor downloads are in{" "}
-      <strong>Deliverables &amp; exports</strong> above.
-    </>
-  );
-}
 
 function ManifestSummarySection({
   manifestSummary,
@@ -458,7 +409,6 @@ export default async function RunDetailPage({
         { id: "run-explanation", label: "Review narrative", available: Boolean(manifestId) },
         { id: "pipeline-timeline", label: "Activity", available: true },
         { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
-        { id: "run-actions", label: "Next steps", available: true },
       ]
     : [
         { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
@@ -604,8 +554,7 @@ export default async function RunDetailPage({
               Sponsor-ready view
             </CardTitle>
             <CardDescription>
-              Concise risk summary and outcomes — no operator scaffolding. Start here for executive and sponsor
-              distribution.
+              Concise executive summary and outcomes. Start here for a board-ready view before sharing deliverables.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 pt-0">
@@ -702,7 +651,7 @@ export default async function RunDetailPage({
             <CardDescription>
               {buyerPolishedArtifactTable ? (
                 <>
-                  Key milestones for this review. Full event-level detail is in{" "}
+                  Major milestones only — granular audit events and timestamps live in{" "}
                   <Link
                     className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                     href={`/audit?runId=${encodeURIComponent(runId)}`}
@@ -1053,7 +1002,7 @@ export default async function RunDetailPage({
 
       {manifestId && <BeforeAfterDeltaPanel variant="inline" runId={runId} />}
 
-      {manifestId ? (
+      {!buyerPolishedArtifactTable && manifestId ? (
         <section id="advanced-analysis" className="scroll-mt-24">
           <CollapsibleSection title="Technical analysis" defaultOpen={false}>
             <PostCommitAdvancedAnalysisHint runId={runId} embeddedInCollapsible />
@@ -1063,32 +1012,20 @@ export default async function RunDetailPage({
 
       {!buyerPolishedArtifactTable ? <RunAgentForensicsSection runId={runId} /> : null}
 
-      <section id="run-actions" className="scroll-mt-24">
-        <Card>
-          <CardHeader>
-            <h3 className={sectionHeadingClass}>Actions</h3>
-            <CardDescription>
-              {buyerPolishedArtifactTable ? (
-                buyerPolishedRunActionsDescription({
-                  manifestSummary,
-                  governanceGateLabel,
-                  runId: resolvedDetail.run.runId,
-                })
-              ) : (
+      {!buyerPolishedArtifactTable ? (
+        <section id="run-actions" className="scroll-mt-24">
+          <Card>
+            <CardHeader>
+              <h3 className={sectionHeadingClass}>Actions</h3>
+              <CardDescription>
                 <>
                   Exports and sponsor-facing bundles sit in <strong>Deliverables & exports</strong> above. Use this card
                   for scorecard generation, traceability ZIP, and optional compare shortcuts.
                 </>
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {buyerPolishedArtifactTable ? (
-              showPilotScorecardPackageCta ? null : <GenerateSponsorValueReportButton />
-            ) : manifestId ? (
-              <GenerateSponsorValueReportButton />
-            ) : null}
-            {!buyerPolishedArtifactTable ? (
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {manifestId ? <GenerateSponsorValueReportButton /> : null}
               <div className="flex flex-wrap gap-3">
                 <Button variant="secondary" size="sm" asChild>
                   <FunnelTelemetryExportAnchor href={getTraceabilityBundleDownloadUrl(resolvedDetail.run.runId)}>
@@ -1108,8 +1045,6 @@ export default async function RunDetailPage({
                   </Button>
                 ) : null}
               </div>
-            ) : null}
-            {!buyerPolishedArtifactTable ? (
               <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
                 <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="#agent-forensics">
                   Pipeline diagnostics
@@ -1117,10 +1052,10 @@ export default async function RunDetailPage({
                 {" — "}
                 optional detail for operators troubleshooting pipeline steps.
               </p>
-            ) : null}
-          </CardContent>
-        </Card>
-      </section>
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
 
       {!buyerPolishedArtifactTable ? (
         <>

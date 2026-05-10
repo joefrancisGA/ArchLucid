@@ -356,7 +356,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
             </>
           )}
           <a className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="#artifacts-exports">
-            {buyerPolishedShell ? "More downloads on this review page" : "Artifacts &amp; exports on this page"}
+            {buyerPolishedShell ? "More export options on this review page" : "Artifacts &amp; exports on this page"}
           </a>
         </li>
       </ul>

@@ -16,7 +16,7 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 
   return {
     executionFlavorBuyerSummary:
-      "Sample walkthrough — curated inputs so evaluators see the same finished review package. Production uses your tenant's configured analysis path. See Evidence basis below for exports and audit correlation.",
+      "Completed sample review — representative inputs so every evaluator sees the same finished review package. In production, analysis follows your tenant configuration.",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,
@@ -42,7 +42,7 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 export function fixtureRunDetail(): RunDetail {
   return {
     executionFlavorBuyerSummary:
-      "Sample walkthrough — curated inputs so evaluators see the same finished review package. Production uses your tenant's configured analysis path. See Evidence basis below for exports and audit correlation.",
+      "Completed sample review — representative inputs so every evaluator sees the same finished review package. In production, analysis follows your tenant configuration.",
     run: {
       runId: FIXTURE_RUN_ID,
       projectId: FIXTURE_PROJECT_ID,
