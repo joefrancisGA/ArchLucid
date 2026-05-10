@@ -479,47 +479,40 @@ public sealed class AuthorityRunOrchestrator(
         return trimmed.Length == 0 ? fallback : trimmed;
     }
 
-    private async Task<Guid?> TryResolvePreviousCommittedGoldenRunIdAsync(ScopeContext scope, RunRecord run, CancellationToken ct)
+    private Task<Guid?> TryResolvePreviousCommittedGoldenRunIdAsync(ScopeContext scope, RunRecord run, CancellationToken ct)
     {
-        ArgumentNullException.ThrowIfNull(scope);
-        ArgumentNullException.ThrowIfNull(run);
-
-        // Tests and degenerate mocks may return a null Task or a completed Task with a null list; treat both as empty.
-        IReadOnlyList<RunRecord> recent = Array.Empty<RunRecord>();
-
-        Task<IReadOnlyList<RunRecord>>? listTask =
-            _runRepository.ListByProjectAsync(scope, run.ProjectId ?? string.Empty, 100, ct);
-
-        if (listTask is not null)
+        try
         {
-            IReadOnlyList<RunRecord>? materialized = await listTask;
+            ArgumentNullException.ThrowIfNull(scope);
+            ArgumentNullException.ThrowIfNull(run);
 
-            if (materialized is not null)
-                recent = materialized;
+            // Tests and degenerate mocks may return a null Task or a completed Task with a null list; treat both as empty.
+            IReadOnlyList<RunRecord> recent = [];
+
+            _runRepository.ListByProjectAsync(scope, run.ProjectId, 100, ct);
+
+            int count = recent.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                RunRecord candidate = recent[i];
+
+                if (candidate.RunId == run.RunId)
+                    continue;
+                if (candidate.ArchivedUtc is not null)
+                    continue;
+                if (candidate.GoldenManifestId is null)
+                    continue;
+
+                return Task.FromResult<Guid?>(candidate.RunId);
+            }
+
+            return Task.FromResult<Guid?>(null);
         }
-
-        int count = recent.Count;
-
-        for (int i = 0; i < count; i++)
+        catch (Exception exception)
         {
-            RunRecord? candidate = recent[i];
-
-            if (candidate is null)
-                continue;
-
-            if (candidate.RunId == run.RunId)
-                continue;
-
-            if (candidate.ArchivedUtc is not null)
-                continue;
-
-            if (candidate.GoldenManifestId is null)
-                continue;
-
-            return candidate.RunId;
+            return Task.FromException<Guid?>(exception);
         }
-
-        return null;
     }
 
     /// <summary>Per-finding deep links for integration consumers (webhooks, SIEM enrichment).</summary>

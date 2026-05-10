@@ -33,7 +33,7 @@ public sealed class WebhookOutboundHttpRetryPolicyTests
 
         factory.Should().NotBeNull();
 
-        using HttpClient http = factory!.CreateClient(HttpWebhookPoster.WebhookHttpClientName);
+        using HttpClient http = factory.CreateClient(HttpWebhookPoster.WebhookHttpClientName);
 
         using HttpResponseMessage response =
             await http.PostAsync(new Uri("https://archlucid.test/webhook-hook"), new StringContent("{}"));
