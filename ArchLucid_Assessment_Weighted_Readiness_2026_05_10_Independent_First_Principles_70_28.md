@@ -975,7 +975,7 @@ Do not change:
 
 **Affected qualities:** Testability, Trustworthiness, Marketability, Supportability
 
-**Status:** Actionable now
+**Status:** COMPLETED (2026-05-10) — **`.coverage-floor`** + **`scripts/ci/assert_coverage_floor_ratchet.py`** (merged Cobertura root line **≥ baseline − 2%** after existing merge gates); **`scripts/ci/fetch_coverage_badge_shields_svg.py`** (shields.io SVG); **`.github/workflows/ci.yml`** **`dotnet-coverage-merge`**: ratchet in merge step; on **`main`/`master` `push`** only — badge artifact, **`peaceiris/actions-gh-pages@v4`** → **`badges/coverage.svg`**; **`README.md`** coverage badge (GitHub Pages URL). **`pytest`**: **`scripts/ci/tests/test_assert_coverage_floor_ratchet.py`**.
 
 **Cursor prompt:**
 ```
@@ -1786,7 +1786,7 @@ Do not change:
 ### General
 - **Answered (2026-05-10):** **V1.1 commerce un-hold** (Stripe live keys + Marketplace publish) **target: 2026-06-15**.
 - **Answered (2026-05-10):** **SOC 2 Type I readiness** (self-assessment / gap work): **yes** — **internal labor only** (no separate external CPA budget called out here); **complete before production release**.
-- What is the expected tenant count at V1 GA — single digits, tens, or hundreds? This affects whether the scaling gaps are urgent.
+- **Answered (2026-05-10):** Expected **tenant count at V1 GA:** **single digits** (order-of-magnitude planning assumption for scale/readiness).
 
 ---
 
