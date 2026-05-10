@@ -239,6 +239,9 @@ public static class AuditEventTypes
     /// <summary>Optional structured pilot closeout (<c>POST /v1/pilots/closeout</c>).</summary>
     public const string PilotCloseoutRecorded = "PilotCloseoutRecorded";
 
+    /// <summary>Core Pilot team checklist step upsert (<c>PUT …/tenant/core-pilot-checklist</c>).</summary>
+    public const string CorePilotTeamChecklistUpdated = "CorePilotTeamChecklistUpdated";
+
     public const string GovernanceApprovalRejected = "GovernanceApprovalRejected";
 
     /// <summary>

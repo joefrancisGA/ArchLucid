@@ -1,7 +1,10 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
@@ -20,10 +23,14 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [Route("v{version:apiVersion}/tenant/core-pilot-checklist")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class CorePilotTeamChecklistController(
+    IAuditService auditService,
     ICorePilotTeamChecklistRepository repository,
     IScopeContextProvider scopeProvider,
     IActorContext actorContext) : ControllerBase
 {
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly ICorePilotTeamChecklistRepository _repository =
         repository ?? throw new ArgumentNullException(nameof(repository));
 
@@ -83,6 +90,24 @@ public sealed class CorePilotTeamChecklistController(
                 actor,
                 cancellationToken)
             .ConfigureAwait(false);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.CorePilotTeamChecklistUpdated,
+                ActorUserId = actor,
+                ActorUserName = User.Identity?.Name ?? actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        stepIndex = body.StepIndex,
+                        isCompleted = body.IsCompleted
+                    })
+            },
+            cancellationToken);
 
         return NoContent();
     }
