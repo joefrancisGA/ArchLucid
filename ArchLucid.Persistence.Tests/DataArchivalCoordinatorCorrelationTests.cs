@@ -2,7 +2,9 @@ using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -33,11 +35,19 @@ public sealed class DataArchivalCoordinatorCorrelationTests
             .ReturnsAsync(new RunArchiveBatchResult { UpdatedCount = 0, ArchivedRuns = [] });
         Mock<IArchitectureDigestRepository> digests = new();
         Mock<IConversationThreadRepository> threads = new();
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces.Setup(
+                t => t.HardDeleteTracesArchivedBeforeAsync(
+                    It.IsAny<DateTimeOffset>(),
+                    It.IsAny<int>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
 
         DataArchivalCoordinator sut = new(
             runs.Object,
             digests.Object,
             threads.Object,
+            traces.Object,
             NullLogger<DataArchivalCoordinator>.Instance);
 
         DataArchivalOptions options = new()
@@ -82,12 +92,20 @@ public sealed class DataArchivalCoordinatorCorrelationTests
                 });
         Mock<IArchitectureDigestRepository> digests = new();
         Mock<IConversationThreadRepository> threads = new();
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces.Setup(
+                t => t.HardDeleteTracesArchivedBeforeAsync(
+                    It.IsAny<DateTimeOffset>(),
+                    It.IsAny<int>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
         Mock<ILogger<DataArchivalCoordinator>> logger = new();
 
         DataArchivalCoordinator sut = new(
             runs.Object,
             digests.Object,
             threads.Object,
+            traces.Object,
             logger.Object);
 
         await sut.RunOnceAsync(

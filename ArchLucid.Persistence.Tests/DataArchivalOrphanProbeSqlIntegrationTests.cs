@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
 
 using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tests.Support;
 
@@ -164,6 +166,7 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
             runRepo,
             new InMemoryArchitectureDigestRepository(),
             new InMemoryConversationThreadRepository(),
+            new InMemoryAgentExecutionTraceRepository(),
             NullLogger<DataArchivalCoordinator>.Instance);
 
         await coordinator.RunOnceAsync(

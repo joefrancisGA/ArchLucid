@@ -1,3 +1,5 @@
+> **Scope:** Contributors and GTM aligning on offline demo exports and sanitized sample artifacts; not hosted SaaS buyer documentation or live tenant procedures.
+
 # Product demo pack
 
 Contributor-facing **offline** materials live under **`docs/demo/sample-pack/`** (manifest fragments, a sample finding, timeline skeleton).

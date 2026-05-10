@@ -76,7 +76,7 @@ public static class ProductLearningSignalAggregations
     {
         List<FeedbackAggregate> list = scoped
             .GroupBy(r => BuildAggregateKey(r.PatternKey, r.SubjectType, r.ArtifactHint))
-            .Select(g => MapGroupToFeedbackAggregate(g))
+            .Select(MapGroupToFeedbackAggregate)
             .OrderByDescending(static a => a.LastSignalRecordedUtc)
             .ThenBy(static a => a.AggregateKey, StringComparer.Ordinal)
             .Take(maxAggregates < 1 ? 1 : Math.Min(maxAggregates, 500))
@@ -309,10 +309,6 @@ public static class ProductLearningSignalAggregations
 
     private static string TruncateHint(string value, int maxChars)
     {
-        if (value.Length <= maxChars)
-            return value;
-
-
-        return value[..maxChars];
+        return value.Length <= maxChars ? value : value[..maxChars];
     }
 }

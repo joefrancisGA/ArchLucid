@@ -16,54 +16,9 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
 
         HashSet<string> usedKeys = new(StringComparer.Ordinal);
         List<(int BadScore, string SortKey, ImprovementOpportunity Model)> work = [];
+        work.AddRange(from aggregate in snapshot.FeedbackRollups where aggregate.TotalSignalCount >= options.MinSignalsPerAggregate let badScore = ProductLearningOpportunityScoring.ComputeAggregateBadScore(aggregate) let passesThreshold = badScore >= options.MinAggregateBadScoreForOpportunity || aggregate.RejectedCount + aggregate.NeedsFollowUpCount >= 2 || aggregate.RevisedCount >= 2 where passesThreshold where usedKeys.Add(aggregate.AggregateKey) let sortKey = "a:" + aggregate.AggregateKey select (badScore, sortKey, ProductLearningOpportunityScoring.MapAggregateToOpportunity(aggregate, badScore, 0)));
 
-        foreach (FeedbackAggregate aggregate in snapshot.FeedbackRollups)
-        {
-            if (aggregate.TotalSignalCount < options.MinSignalsPerAggregate)
-                continue;
-
-
-            int badScore = ProductLearningOpportunityScoring.ComputeAggregateBadScore(aggregate);
-            bool passesThreshold =
-                badScore >= options.MinAggregateBadScoreForOpportunity ||
-                aggregate.RejectedCount + aggregate.NeedsFollowUpCount >= 2 ||
-                aggregate.RevisedCount >= 2;
-
-            if (!passesThreshold)
-                continue;
-
-
-            if (!usedKeys.Add(aggregate.AggregateKey))
-                continue;
-
-
-            string sortKey = "a:" + aggregate.AggregateKey;
-            work.Add((badScore, sortKey,
-                ProductLearningOpportunityScoring.MapAggregateToOpportunity(aggregate, badScore, 0)));
-        }
-
-        foreach (ArtifactOutcomeTrend trend in snapshot.ArtifactTrends)
-        {
-            if (ProductLearningOpportunityScoring.TotalTrendSignals(trend) < options.MinSignalsPerAggregate)
-                continue;
-
-
-            int negative = ProductLearningOpportunityScoring.ComputeTrendNegativeMass(trend);
-
-            if (negative < options.MinNegativeOutcomesOnArtifactTrend)
-                continue;
-
-
-            string dedupeKey = "trend:" + trend.TrendKey;
-
-            if (!usedKeys.Add(dedupeKey))
-                continue;
-
-
-            int badScore = negative * 3 + trend.RejectionCount;
-            string sortKey = "t:" + trend.TrendKey;
-            work.Add((badScore, sortKey, ProductLearningOpportunityScoring.MapTrendToOpportunity(trend, badScore, 0)));
-        }
+        work.AddRange(from trend in snapshot.ArtifactTrends where ProductLearningOpportunityScoring.TotalTrendSignals(trend) >= options.MinSignalsPerAggregate let negative = ProductLearningOpportunityScoring.ComputeTrendNegativeMass(trend) where negative >= options.MinNegativeOutcomesOnArtifactTrend let dedupeKey = "trend:" + trend.TrendKey where usedKeys.Add(dedupeKey) let badScore = negative * 3 + trend.RejectionCount let sortKey = "t:" + trend.TrendKey select (badScore, sortKey, ProductLearningOpportunityScoring.MapTrendToOpportunity(trend, badScore, 0)));
 
         int max = options.MaxImprovementOpportunities < 1 ? 1 : Math.Min(options.MaxImprovementOpportunities, 100);
 
@@ -76,11 +31,7 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
             .ToList();
 
         List<ImprovementOpportunity> ranked = new(ordered.Count);
-
-        for (int i = 0; i < ordered.Count; i++)
-
-            ranked.Add(WithPriorityRank(ordered[i], i + 1));
-
+        ranked.AddRange(ordered.Select((t, i) => WithPriorityRank(t, i + 1)));
 
         return Task.FromResult<IReadOnlyList<ImprovementOpportunity>>(ranked);
     }

@@ -102,25 +102,23 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
                 return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
             }
 
-            if (request.Period == LlmBudgetPeriod.Monthly)
-            {
-                if (request.ReserveUsd <= 0m)
-                    return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
+            if (request.Period != LlmBudgetPeriod.Monthly) throw new ArgumentOutOfRangeException(nameof(request), request.Period, null);
 
-                if (request.HardCapUsd is null)
-                    throw new ArgumentException("HardCapUsd is required for monthly reserve.", nameof(request));
-
-                if (row.CommittedUsd + row.ReservedUsd + request.ReserveUsd > request.HardCapUsd.Value)
-                    return Task.FromResult(
-                        new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = ToModel(row) });
-
-                row.ReservedUsd += request.ReserveUsd;
-                row.Version++;
-
+            if (request.ReserveUsd <= 0m)
                 return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
-            }
 
-            throw new ArgumentOutOfRangeException(nameof(request), request.Period, null);
+            if (request.HardCapUsd is null)
+                throw new ArgumentException("HardCapUsd is required for monthly reserve.", nameof(request));
+
+            if (row.CommittedUsd + row.ReservedUsd + request.ReserveUsd > request.HardCapUsd.Value)
+                return Task.FromResult(
+                    new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = ToModel(row) });
+
+            row.ReservedUsd += request.ReserveUsd;
+            row.Version++;
+
+            return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
+
         }
     }
 
@@ -141,10 +139,7 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
 
         lock (gate)
         {
-            if (!_rows.TryGetValue(key, out Row? row))
-                return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });
-
-            if (!row.RowVersionBytes.AsSpan().SequenceEqual(request.ExpectedRowVersion))
+            if (!_rows.TryGetValue(key, out Row? row) || !row.RowVersionBytes.AsSpan().SequenceEqual(request.ExpectedRowVersion))
                 return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });
 
             if (request.Period == LlmBudgetPeriod.Daily)
@@ -152,7 +147,7 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
                 if (request.ReleaseReservedTokens > row.ReservedTokens)
                     return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });
 
-                if (request.ActualTokens == 0 && request.ReleaseReservedTokens == 0)
+                if (request is { ActualTokens: 0, ReleaseReservedTokens: 0 })
                     return Task.FromResult(new LlmTenantBudgetSettleResult { NewState = ToModel(row) });
 
                 long oldTotal = row.TokensConsumed;
@@ -174,12 +169,12 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
                     new LlmTenantBudgetSettleResult { NewState = ToModel(row), ShouldEmitWarnAudit = shouldAudit });
             }
 
-            if (request.Period == LlmBudgetPeriod.Monthly)
+            if (request.Period != LlmBudgetPeriod.Monthly) throw new ArgumentOutOfRangeException(nameof(request), request.Period, null);
             {
                 if (request.ReleaseReservedUsd > row.ReservedUsd)
                     return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });
 
-                if (request.ActualUsd == 0m && request.ReleaseReservedUsd == 0m)
+                if (request is { ActualUsd: 0m, ReleaseReservedUsd: 0m })
                     return Task.FromResult(new LlmTenantBudgetSettleResult { NewState = ToModel(row) });
 
                 decimal oldSpent = row.CommittedUsd;
@@ -199,7 +194,6 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
                     new LlmTenantBudgetSettleResult { NewState = ToModel(row), ShouldEmitWarnAudit = shouldAudit });
             }
 
-            throw new ArgumentOutOfRangeException(nameof(request), request.Period, null);
         }
     }
 

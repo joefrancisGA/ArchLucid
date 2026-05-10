@@ -121,4 +121,13 @@ public interface IAgentExecutionTraceRepository
     Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
         IReadOnlyList<string> runIds,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Hard-deletes up to <paramref name="maxRows" /> rows with <c>ArchivedUtc</c> strictly before
+    ///     <paramref name="archivedBeforeUtc" />. Returns the delete count (SQL); Cosmos/in-memory may return 0.
+    /// </summary>
+    Task<int> HardDeleteTracesArchivedBeforeAsync(
+        DateTimeOffset archivedBeforeUtc,
+        int maxRows,
+        CancellationToken cancellationToken = default);
 }

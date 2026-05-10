@@ -32,6 +32,7 @@ The API registers an ASP.NET Core health check named **`data_archival`** (readin
 2. **Read the health payload** — `GET` the readiness endpoint you use in production (for example `/health/ready` if mapped that way) and inspect the `data_archival` entry description for the exception type and message fragment.
 3. **Check application logs** — correlate timestamps with `DataArchivalHostedService` / `DataArchivalCoordinator` errors (SQL timeouts, permission denied, invalid retention, etc.).
 4. **Check SQL** — archival touches soft-archive columns on authority-related tables; verify connectivity, RLS/session context if applicable, and that migrations defining `ArchivedUtc` (or equivalent) are applied.
+5. **Agent trace hard-delete (optional)** — when `DataArchival:PurgeArchivedAgentExecutionTracesAfterDays` is greater than zero, the coordinator issues batched `DELETE TOP` against `dbo.AgentExecutionTraces` for rows already soft-archived (`ArchivedUtc` set) and older than the cutoff. **Blob objects** under `agent-traces` are not deleted by this path; use storage lifecycle policies for orphan cleanup if required.
 
 ## Recovery
 

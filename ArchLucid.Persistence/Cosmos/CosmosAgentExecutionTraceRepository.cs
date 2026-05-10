@@ -334,4 +334,17 @@ public sealed class CosmosAgentExecutionTraceRepository(
         return JsonSerializer.Deserialize<AgentExecutionTrace>(doc.TraceJson, ContractJson.Default)
                ?? throw new InvalidOperationException("Trace document deserialized to null.");
     }
+
+    /// <inheritdoc />
+    public Task<int> HardDeleteTracesArchivedBeforeAsync(
+        DateTimeOffset archivedBeforeUtc,
+        int maxRows,
+        CancellationToken cancellationToken = default)
+    {
+        _ = archivedBeforeUtc;
+        _ = maxRows;
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(0);
+    }
 }

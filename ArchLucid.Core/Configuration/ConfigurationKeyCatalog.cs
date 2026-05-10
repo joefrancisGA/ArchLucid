@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(148)
+        return new List<ConfigurationKeyEntry>(152)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -341,6 +341,13 @@ public static class ConfigurationKeyCatalog
                 "Orphan count threshold to page operators.", ConfigKeyRequirementKind.None),
             E("DataConsistency", "DataConsistency:Enforcement:AutoQuarantine", M("appsettings", "env"), "false", "—",
                 "If true, auto quarantine (must be off until approved).", ConfigKeyRequirementKind.None),
+            E("DataArchival", "DataArchival:PurgeArchivedAgentExecutionTracesAfterDays", M("appsettings", "env"), "0", "—",
+                "Hard-delete SQL agent execution traces soft-archived longer than N days; 0 disables (Cosmos uses TTL).",
+                ConfigKeyRequirementKind.None),
+            E("DataArchival", "DataArchival:PurgeArchivedAgentExecutionTracesBatchSize", M("appsettings", "env"), "500",
+                "When trace purge on",
+                "DELETE TOP batch size per iteration (validated 1–10000 when purge enabled).",
+                ConfigKeyRequirementKind.None),
             E("AzureDevOps", "AzureDevOps:Enabled", M("appsettings", "env"), "false", "—",
                 "Enables work-item / PR status integration.", ConfigKeyRequirementKind.None),
             E("AzureDevOps", "AzureDevOps:Organization", M("appsettings", "env", "KeyVault ref"), "empty", "If ADO on",

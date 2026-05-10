@@ -3,6 +3,7 @@ using System.Diagnostics;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -17,8 +18,14 @@ public sealed class DataArchivalCoordinator(
     IRunRepository runRepository,
     IArchitectureDigestRepository digestRepository,
     IConversationThreadRepository conversationThreadRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
     ILogger<DataArchivalCoordinator> logger) : IDataArchivalCoordinator
 {
+    private const int MaxAgentTracePurgeBatchesPerPass = 40;
+
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
     private readonly IConversationThreadRepository _conversationThreadRepository =
         conversationThreadRepository ?? throw new ArgumentNullException(nameof(conversationThreadRepository));
 
@@ -86,6 +93,38 @@ public sealed class DataArchivalCoordinator(
                 "Data archival: archived {Count} conversation threads last updated before {Cutoff:O}.",
                 n,
                 cutoff);
+        }
+
+        if (options.PurgeArchivedAgentExecutionTracesAfterDays > 0)
+        {
+            DateTimeOffset traceCutoff = now.AddDays(-options.PurgeArchivedAgentExecutionTracesAfterDays);
+            int batchSize = options.PurgeArchivedAgentExecutionTracesBatchSize > 0
+                ? Math.Clamp(options.PurgeArchivedAgentExecutionTracesBatchSize, 1, 10_000)
+                : 500;
+            int totalPurged = 0;
+
+            for (int i = 0; i < MaxAgentTracePurgeBatchesPerPass; i++)
+            {
+                int deleted =
+                    await _agentExecutionTraceRepository.HardDeleteTracesArchivedBeforeAsync(
+                        traceCutoff,
+                        batchSize,
+                        ct);
+
+                totalPurged += deleted;
+
+
+                if (deleted == 0)
+                    break;
+            }
+
+            if (totalPurged > 0)
+            {
+                _logger.LogInformation(
+                    "Data archival: hard-deleted {Count} archived agent execution trace rows with ArchivedUtc before {Cutoff:O}.",
+                    totalPurged,
+                    traceCutoff);
+            }
         }
     }
 }

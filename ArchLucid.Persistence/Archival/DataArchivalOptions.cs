@@ -41,4 +41,21 @@ public sealed class DataArchivalOptions
         get;
         set;
     } = 24;
+
+    /// <summary>
+    ///     When &gt; 0, hard-deletes <c>dbo.AgentExecutionTraces</c> rows whose <c>ArchivedUtc</c> is older than this many
+    ///     days (SQL storage only — Cosmos uses TTL). 0 disables (default).
+    /// </summary>
+    public int PurgeArchivedAgentExecutionTracesAfterDays
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Rows per <c>DELETE TOP</c> batch when purging archived traces (clamped by the repository).</summary>
+    public int PurgeArchivedAgentExecutionTracesBatchSize
+    {
+        get;
+        set;
+    } = 500;
 }

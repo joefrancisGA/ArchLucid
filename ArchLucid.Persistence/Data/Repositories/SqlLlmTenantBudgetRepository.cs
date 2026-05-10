@@ -195,7 +195,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                     sql,
                     new
                     {
-                        TenantId = request.TenantId,
+                        request.TenantId,
                         UtcDay = utcDayDate,
                         Add = request.ReserveTokens,
                         RowVersion = request.ExpectedRowVersion,
@@ -204,22 +204,21 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                     cancellationToken: cancellationToken))
             .ConfigureAwait(false);
 
-        if (affected == 1)
-        {
-            LlmTenantBudgetStateReadModel model =
-                await SelectDailyAsync(connection, request.TenantId, utcDay, cancellationToken).ConfigureAwait(false)
-                ?? throw new InvalidOperationException("Daily budget row missing after reserve.");
+        if (affected != 1)
+            return await ClassifyDailyReserveFailureAsync(
+                request.TenantId,
+                utcDay,
+                request.ExpectedRowVersion,
+                request.ReserveTokens,
+                request.HardCapTokens.Value,
+                cancellationToken).ConfigureAwait(false);
+        
+        LlmTenantBudgetStateReadModel model =
+            await SelectDailyAsync(connection, request.TenantId, utcDay, cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException("Daily budget row missing after reserve.");
 
-            return new LlmTenantBudgetReserveResult { NewState = model };
-        }
+        return new LlmTenantBudgetReserveResult { NewState = model };
 
-        return await ClassifyDailyReserveFailureAsync(
-            request.TenantId,
-            utcDay,
-            request.ExpectedRowVersion,
-            request.ReserveTokens,
-            request.HardCapTokens.Value,
-            cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<LlmTenantBudgetReserveResult> ReserveMonthlyAsync(
@@ -263,7 +262,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                     sql,
                     new
                     {
-                        TenantId = request.TenantId,
+                        request.TenantId,
                         UtcYear = utcYear,
                         UtcMonth = utcMonth,
                         Add = request.ReserveUsd,
@@ -273,24 +272,23 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                     cancellationToken: cancellationToken))
             .ConfigureAwait(false);
 
-        if (affected == 1)
-        {
-            LlmTenantBudgetStateReadModel model =
-                await SelectMonthlyAsync(connection, request.TenantId, utcYear, utcMonth, cancellationToken)
-                    .ConfigureAwait(false)
-                ?? throw new InvalidOperationException("Monthly budget row missing after reserve.");
+        if (affected != 1)
+            return await ClassifyMonthlyReserveFailureAsync(
+                request.TenantId,
+                utcYear,
+                utcMonth,
+                request.ExpectedRowVersion,
+                request.ReserveUsd,
+                request.HardCapUsd.Value,
+                cancellationToken).ConfigureAwait(false);
+        
+        LlmTenantBudgetStateReadModel model =
+            await SelectMonthlyAsync(connection, request.TenantId, utcYear, utcMonth, cancellationToken)
+                .ConfigureAwait(false)
+            ?? throw new InvalidOperationException("Monthly budget row missing after reserve.");
 
-            return new LlmTenantBudgetReserveResult { NewState = model };
-        }
+        return new LlmTenantBudgetReserveResult { NewState = model };
 
-        return await ClassifyMonthlyReserveFailureAsync(
-            request.TenantId,
-            utcYear,
-            utcMonth,
-            request.ExpectedRowVersion,
-            request.ReserveUsd,
-            request.HardCapUsd.Value,
-            cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<LlmTenantBudgetReserveResult> ClassifyDailyReserveFailureAsync(
@@ -312,10 +310,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
         if (!current.RowVersion.AsSpan().SequenceEqual(expectedRowVersion))
             return new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
 
-        if (current.TotalTokenPressure + addTokens > hardCap)
-            return new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = current };
-
-        return new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
+        return current.TotalTokenPressure + addTokens > hardCap ? new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = current } : new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
     }
 
     private async Task<LlmTenantBudgetReserveResult> ClassifyMonthlyReserveFailureAsync(
@@ -338,10 +333,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
         if (!current.RowVersion.AsSpan().SequenceEqual(expectedRowVersion))
             return new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
 
-        if (current.TotalUsdPressure + addUsd > hardCap)
-            return new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = current };
-
-        return new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
+        return current.TotalUsdPressure + addUsd > hardCap ? new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = current } : new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
     }
 
     private async Task<LlmTenantBudgetSettleResult> SettleDailyAsync(
@@ -351,7 +343,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
         DateOnly utcDay = DateOnly.ParseExact(request.PeriodKey, "yyyy-MM-dd", CultureInfo.InvariantCulture);
         DateTime utcDayDate = utcDay.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
-        if (request.ActualTokens == 0 && request.ReleaseReservedTokens == 0)
+        if (request is { ActualTokens: 0, ReleaseReservedTokens: 0 })
         {
             using IDbConnection c = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             LlmTenantBudgetStateReadModel? cur =
@@ -391,7 +383,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                     sql,
                     new
                     {
-                        TenantId = request.TenantId,
+                        request.TenantId,
                         UtcDay = utcDayDate,
                         Actual = request.ActualTokens,
                         Release = request.ReleaseReservedTokens,
@@ -426,7 +418,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
         (int utcYear, int utcMonth) = ParseUtcYearMonth(request.PeriodKey);
         ValidateUtcYearMonth(utcYear, utcMonth);
 
-        if (request.ActualUsd == 0m && request.ReleaseReservedUsd == 0m)
+        if (request is { ActualUsd: 0m, ReleaseReservedUsd: 0m })
         {
             using IDbConnection c = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             LlmTenantBudgetStateReadModel? cur =
@@ -467,7 +459,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                     sql,
                     new
                     {
-                        TenantId = request.TenantId,
+                        request.TenantId,
                         UtcYear = utcYear,
                         UtcMonth = utcMonth,
                         Actual = request.ActualUsd,

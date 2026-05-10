@@ -2,11 +2,16 @@ using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 
 using Microsoft.Extensions.Logging.Abstractions;
+
+using Moq;
 
 namespace ArchLucid.Persistence.Tests;
 
@@ -25,6 +30,7 @@ public sealed class DataArchivalCoordinatorTests
             runs,
             digests,
             threads,
+            new InMemoryAgentExecutionTraceRepository(),
             NullLogger<DataArchivalCoordinator>.Instance);
 
         DateTime old = TimeProvider.System.UtcNowDateTime().AddDays(-400);
@@ -72,6 +78,7 @@ public sealed class DataArchivalCoordinatorTests
             runs,
             digests,
             threads,
+            new InMemoryAgentExecutionTraceRepository(),
             NullLogger<DataArchivalCoordinator>.Instance);
 
         DateTime old = TimeProvider.System.UtcNowDateTime().AddDays(-400);
@@ -141,5 +148,46 @@ public sealed class DataArchivalCoordinatorTests
             await threads.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, 10,
                 CancellationToken.None);
         threadList.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RunOnceAsync_hard_deletes_archived_traces_until_batch_returns_zero()
+    {
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.ArchiveRunsCreatedBeforeAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunArchiveBatchResult { UpdatedCount = 0, ArchivedRuns = [] });
+        Mock<IArchitectureDigestRepository> digests = new();
+        Mock<IConversationThreadRepository> threads = new();
+        Mock<IAgentExecutionTraceRepository> traceRepo = new();
+        traceRepo.SetupSequence(
+                t => t.HardDeleteTracesArchivedBeforeAsync(
+                    It.IsAny<DateTimeOffset>(),
+                    500,
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(100)
+            .ReturnsAsync(50)
+            .ReturnsAsync(0);
+
+        DataArchivalCoordinator coordinator = new(
+            runs.Object,
+            digests.Object,
+            threads.Object,
+            traceRepo.Object,
+            NullLogger<DataArchivalCoordinator>.Instance);
+
+        await coordinator.RunOnceAsync(
+            new DataArchivalOptions
+            {
+                RunsRetentionDays = 0,
+                DigestsRetentionDays = 0,
+                ConversationsRetentionDays = 0,
+                PurgeArchivedAgentExecutionTracesAfterDays = 30,
+                PurgeArchivedAgentExecutionTracesBatchSize = 500
+            },
+            CancellationToken.None);
+
+        traceRepo.Verify(
+            t => t.HardDeleteTracesArchivedBeforeAsync(It.IsAny<DateTimeOffset>(), 500, It.IsAny<CancellationToken>()),
+            Times.Exactly(3));
     }
 }

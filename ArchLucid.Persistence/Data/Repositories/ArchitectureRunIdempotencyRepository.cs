@@ -35,9 +35,7 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
                              AND IdempotencyKeyHash = @IdempotencyKeyHash;
                            """;
 
-        using IDbConnection connection = await connectionFactory
-                .CreateOpenConnectionAsync(cancellationToken)
-            ;
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         ArchitectureRunIdempotencyRow? row = await connection
                 .QueryFirstOrDefaultAsync<ArchitectureRunIdempotencyRow>(
@@ -47,10 +45,7 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
                         cancellationToken: cancellationToken))
             ;
 
-        if (row is null)
-            return null;
-
-        return new ArchitectureRunIdempotencyLookup { RunId = row.RunId, RequestFingerprint = row.RequestFingerprint ?? [] };
+        return row is null ? null : new ArchitectureRunIdempotencyLookup { RunId = row.RunId, RequestFingerprint = row.RequestFingerprint ?? [] };
     }
 
     /// <inheritdoc />
