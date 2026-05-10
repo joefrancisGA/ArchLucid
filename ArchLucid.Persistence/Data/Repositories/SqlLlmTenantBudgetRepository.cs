@@ -100,7 +100,11 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                 .ExecuteAsync(
                     new CommandDefinition(
                         insert,
-                        new { TenantId = tenantId, UtcDay = utcDayDate },
+                        new
+                        {
+                            TenantId = tenantId,
+                            UtcDay = utcDayDate
+                        },
                         cancellationToken: cancellationToken))
                 .ConfigureAwait(false);
         }
@@ -142,7 +146,12 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                 .ExecuteAsync(
                     new CommandDefinition(
                         insert,
-                        new { TenantId = tenantId, UtcYear = utcYear, UtcMonth = utcMonth },
+                        new
+                        {
+                            TenantId = tenantId,
+                            UtcYear = utcYear,
+                            UtcMonth = utcMonth
+                        },
                         cancellationToken: cancellationToken))
                 .ConfigureAwait(false);
         }
@@ -212,7 +221,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                 request.ReserveTokens,
                 request.HardCapTokens.Value,
                 cancellationToken).ConfigureAwait(false);
-        
+
         LlmTenantBudgetStateReadModel model =
             await SelectDailyAsync(connection, request.TenantId, utcDay, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException("Daily budget row missing after reserve.");
@@ -281,7 +290,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                 request.ReserveUsd,
                 request.HardCapUsd.Value,
                 cancellationToken).ConfigureAwait(false);
-        
+
         LlmTenantBudgetStateReadModel model =
             await SelectMonthlyAsync(connection, request.TenantId, utcYear, utcMonth, cancellationToken)
                 .ConfigureAwait(false)
@@ -507,7 +516,11 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
                            """;
 
         return connection.QuerySingleOrDefaultAsync<LlmTenantBudgetStateReadModel>(
-            new CommandDefinition(sel, new { TenantId = tenantId, UtcDay = utcDayDate }, cancellationToken: cancellationToken));
+            new CommandDefinition(sel, new
+            {
+                TenantId = tenantId,
+                UtcDay = utcDayDate
+            }, cancellationToken: cancellationToken));
     }
 
     private static Task<LlmTenantBudgetStateReadModel?> SelectMonthlyAsync(
@@ -531,7 +544,12 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
         return connection.QuerySingleOrDefaultAsync<LlmTenantBudgetStateReadModel>(
             new CommandDefinition(
                 sel,
-                new { TenantId = tenantId, UtcYear = utcYear, UtcMonth = utcMonth },
+                new
+                {
+                    TenantId = tenantId,
+                    UtcYear = utcYear,
+                    UtcMonth = utcMonth
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -559,23 +577,47 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
 
     private sealed class DailySettleOutput
     {
-        public long NewTotal { get; set; }
+        public long NewTotal
+        {
+            get; init;
+        }
 
-        public bool NewWarned { get; set; }
+        public bool NewWarned
+        {
+            get; init;
+        }
 
-        public long OldTotal { get; set; }
+        public long OldTotal
+        {
+            get; init;
+        }
 
-        public bool OldWarned { get; set; }
+        public bool OldWarned
+        {
+            get; init;
+        }
     }
 
     private sealed class MonthlySettleOutput
     {
-        public decimal NewSpent { get; set; }
+        public decimal NewSpent
+        {
+            get; init;
+        }
 
-        public bool NewWarned { get; set; }
+        public bool NewWarned
+        {
+            get; init;
+        }
 
-        public decimal OldSpent { get; set; }
+        public decimal OldSpent
+        {
+            get; init;
+        }
 
-        public bool OldWarned { get; set; }
+        public bool OldWarned
+        {
+            get; init;
+        }
     }
 }

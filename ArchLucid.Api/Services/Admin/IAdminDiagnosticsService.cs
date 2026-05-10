@@ -1,5 +1,5 @@
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Api.Services.Admin;

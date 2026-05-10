@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.IntegrationOutbox;
 
 /// <summary>Drains <see cref="IIntegrationEventOutboxRepository"/> and publishes via <see cref="ArchLucid.Core.Integration.IIntegrationEventPublisher"/>.</summary>
 public interface IIntegrationEventOutboxProcessor

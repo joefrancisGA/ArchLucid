@@ -1,6 +1,6 @@
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Integration;
-using ArchLucid.Persistence;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using Microsoft.Extensions.Logging;
 

@@ -1,4 +1,6 @@
-﻿namespace ArchLucid.Persistence.Tests;
+using ArchLucid.Persistence.IntegrationOutbox;
+
+namespace ArchLucid.Persistence.Tests;
 
 public sealed class IntegrationEventOutboxRetryCalculatorTests
 {

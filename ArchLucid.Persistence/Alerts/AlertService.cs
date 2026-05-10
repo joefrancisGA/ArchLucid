@@ -8,6 +8,7 @@ using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Alerts.Helpers;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;

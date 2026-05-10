@@ -9,6 +9,8 @@ import {
   getArtifactBusinessLabel,
   getArtifactFormatLabel,
   sponsorArtifactAudienceLine,
+  sponsorArtifactDownloadActionLabel,
+  sponsorArtifactOpenActionLabel,
   sponsorArtifactSecondaryCaption,
 } from "@/lib/artifact-review-helpers";
 
@@ -57,7 +59,6 @@ export function ArtifactListTable(props: {
   const sorted = [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
   const hidePilotFeedbackOnArtifacts = isBuyerPolishedOperatorShellEnv();
   const artifactColumnLabel = sponsorMode ? "Output" : "Artifact";
-  const previewLinkLabel = sponsorMode ? "View" : "Preview";
   const createdColumnLabel = sponsorMode ? "Generated" : "Created";
 
   return (
@@ -75,6 +76,8 @@ export function ArtifactListTable(props: {
           {sorted.map((artifact) => {
             const reviewHref = reviewHrefForArtifact(manifestId, artifact.artifactId, runId);
             const businessLabel = getArtifactBusinessLabel(artifact.artifactType);
+            const openActionLabel = sponsorMode ? sponsorArtifactOpenActionLabel(artifact.artifactType) : "Preview";
+            const downloadActionLabel = sponsorMode ? sponsorArtifactDownloadActionLabel(artifact.artifactType) : "Download";
             const sponsorAudience =
               sponsorMode === true ? sponsorArtifactAudienceLine(artifact.artifactType) : null;
             const sponsorCaption =
@@ -113,10 +116,10 @@ export function ArtifactListTable(props: {
                   {formatDate(artifact.createdUtc)}
                 </td>
                 <td className="px-2 py-2.5">
-                  <Link href={reviewHref}>{previewLinkLabel}</Link>
+                  <Link href={reviewHref}>{openActionLabel}</Link>
                   <span className="mx-2 text-neutral-300 dark:text-neutral-600">|</span>
                   <FunnelTelemetryExportAnchor href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>
-                    Download
+                    {downloadActionLabel}
                   </FunnelTelemetryExportAnchor>
                   {runId && !hidePilotFeedbackOnArtifacts ? (
                     <div className="mt-2 max-w-xs">

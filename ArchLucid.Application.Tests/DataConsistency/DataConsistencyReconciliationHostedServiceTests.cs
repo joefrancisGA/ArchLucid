@@ -1,7 +1,7 @@
 using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Integration;
-using ArchLucid.Persistence;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using FluentAssertions;
 

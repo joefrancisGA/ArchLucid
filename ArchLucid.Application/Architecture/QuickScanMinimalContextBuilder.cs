@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Application.Architecture;
 
@@ -11,9 +10,9 @@ public static class QuickScanMinimalContextBuilder
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        string systemName = (request.SystemName ?? string.Empty).Trim();
-        string cloud = (request.CloudProvider ?? string.Empty).Trim();
-        string description = (request.Description ?? string.Empty).Trim();
+        string systemName = (request.SystemName).Trim();
+        string cloud = (request.CloudProvider).Trim();
+        string description = (request.Description).Trim();
 
         string cloudLine = string.IsNullOrEmpty(cloud) ? "Unspecified" : cloud;
         string body =

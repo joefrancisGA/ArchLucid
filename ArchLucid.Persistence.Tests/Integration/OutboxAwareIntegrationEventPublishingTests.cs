@@ -1,6 +1,7 @@
-﻿using System.Data;
+using System.Data;
 
 using ArchLucid.Core.Integration;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;

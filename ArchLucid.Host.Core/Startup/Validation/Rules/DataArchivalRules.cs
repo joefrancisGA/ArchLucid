@@ -30,8 +30,7 @@ internal static class DataArchivalRules
             errors.Add(
                 $"DataArchival:PurgeArchivedAgentExecutionTracesAfterDays must be between 0 and {maxDays} (0 disables trace hard-delete).");
 
-        if (opts.PurgeArchivedAgentExecutionTracesAfterDays > 0 &&
-            opts.PurgeArchivedAgentExecutionTracesBatchSize is < 1 or > 10_000)
+        if (opts is { PurgeArchivedAgentExecutionTracesAfterDays: > 0, PurgeArchivedAgentExecutionTracesBatchSize: < 1 or > 10_000 })
 
             errors.Add(
                 "DataArchival:PurgeArchivedAgentExecutionTracesBatchSize must be between 1 and 10000 when trace purge is enabled.");
