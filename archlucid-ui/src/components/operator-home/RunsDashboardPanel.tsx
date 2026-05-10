@@ -23,6 +23,7 @@ import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import {
   getBuyerSafeReviewsTableLink,
   getCanonicalReviewWorkspaceHref,
+  getShowcaseExecutiveHref,
   getShowcaseManifestHref,
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
@@ -267,8 +268,9 @@ export function RunsDashboardPanel() {
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     {buyerSafeHighlight ? (
                       <>
-                        Start with the manifest summary and evidence graph. Optional read-only walkthrough below — open
-                        workspace detail from the review title in the recent list when you need the full console.
+                        <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Recommended:</strong>{" "}
+                        manifest summary (sealed package), then evidence graph. For sponsor-ready brevity, use executive
+                        summary. Read-only walkthrough is optional.
                       </>
                     ) : (
                       <>
@@ -289,8 +291,11 @@ export function RunsDashboardPanel() {
                         </Button>
                       ) : null}
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button asChild variant="outline" size="sm" className="h-8">
+                    <div className={cn("grid gap-2 sm:grid-cols-2")}>
+                      <Button asChild variant="outline" size="sm" className="h-8 w-full">
+                        <Link href={getShowcaseExecutiveHref()}>Executive summary</Link>
+                      </Button>
+                      <Button asChild variant="outline" size="sm" className="h-8 w-full">
                         <Link href={getShowcaseWalkthroughHref()}>Read-only walkthrough</Link>
                       </Button>
                     </div>
@@ -337,7 +342,7 @@ export function RunsDashboardPanel() {
                     ) : (
                       <>
                         <Button asChild variant="primary" size="sm" className="h-8">
-                          <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Open review</Link>
+                          <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Review package</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
                           <Link

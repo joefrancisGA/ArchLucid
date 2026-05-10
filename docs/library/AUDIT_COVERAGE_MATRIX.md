@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:174 -->
+<!-- audit-core-const-count:175 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -88,6 +88,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Pre-commit governance warn | `ArchitectureRunCommitOrchestrator` | `GovernancePreCommitWarned` | RunId when parseable | `reason`, `warnings`, `blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity` |
 | Recommendation learning rebuild | `RecommendationLearningController` | `RecommendationLearningProfileRebuilt` | — | profile id |
 | Product learning pilot signal captured | `ProductLearningController` (`POST /v1/product-learning/signals`) | `ProductLearningPilotSignalRecorded` | Tenant/Workspace/Project from ambient scope | `{ subjectType, disposition, patternKey? }` — `ArtifactHint`, `CommentShort`, and `DetailJson` are **not** included to avoid logging free-form user text |
+| 59R planning drafts materialized (ranked pilot feedback) | `LearningController` (`POST /v1/learning/planning/materialize`) | `ProductLearningPlanningMaterialized` | Tenant/Workspace/Project from ambient scope | `{ sinceUtc, maxPlansToMaterialize, themesInserted, plansInserted, skippedExistingThemeKeys, signalLinksInserted }` — mirrors JSON response counters |
 | Artifact / bundle / run export download | `ArtifactExportController` | `ArtifactDownloaded`, `BundleDownloaded`, `RunExported` | RunId (+ artifact when applicable) | format, byte counts, etc. |
 | Architecture analysis report (primary JSON build) | `AnalysisReportsController` | `ArchitectureAnalysisReportGenerated` | RunId when parseable | section flags, `manifestVersion`, `warningCount` |
 | Architecture DOCX exports (package download; consulting analysis metadata row; async DOCX jobs) | `DocxExportController`; `RunExportAuditService` (sync consulting path; not export-replay persist); `BackgroundJobWorkUnitExecutor` | `ArchitectureDocxExportGenerated` | RunId, ManifestId when known | `runId`, `compareWithRunId` / `exportRecordId` / `exportChannel`, `byteCount` |
@@ -270,6 +271,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `RecommendationImplemented` | `RecommendationImplemented` | `AdvisoryController` |
 | `RecommendationLearningProfileRebuilt` | `RecommendationLearningProfileRebuilt` | `RecommendationLearningController` |
 | `ProductLearningPilotSignalRecorded` | `ProductLearningPilotSignalRecorded` | `ProductLearningController` (`POST /v1/product-learning/signals`) |
+| `ProductLearningPlanningMaterialized` | `ProductLearningPlanningMaterialized` | `LearningController` (`POST /v1/learning/planning/materialize`) |
 | `AdvisoryScanScheduled` | `AdvisoryScanScheduled` | `AdvisoryScanRunner`, `AdvisorySchedulingController`, `AdvisoryController` |
 | `AdvisoryScanExecuted` | `AdvisoryScanExecuted` | `AdvisoryScanRunner`, `AdvisoryController` |
 | `ArchitectureDigestGenerated` | `ArchitectureDigestGenerated` | `AdvisoryScanRunner`, `AdvisoryController` |

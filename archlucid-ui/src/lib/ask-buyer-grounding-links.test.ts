@@ -8,8 +8,10 @@ describe("buyerAskGroundingLinksForRun", () => {
     const links = buyerAskGroundingLinksForRun(SHOWCASE_STATIC_DEMO_RUN_ID);
 
     expect(links).not.toBeNull();
-    expect(links!.length).toBe(4);
-    expect(links![0]?.href).toContain(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
+    expect(links!.length).toBe(5);
+    expect(links![0]?.label).toBe("Executive summary");
+    expect(links![0]?.href).toContain("/executive/reviews/");
+    expect(links![1]?.href).toContain(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
     expect(links!.some((l) => l.href.includes("/findings/phi-minimization-risk"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/graph?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/audit?"))).toBe(true);

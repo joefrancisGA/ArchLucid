@@ -36,7 +36,8 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
           "Mitigation:\n\n" +
           "Align adapters to the minimization posture documented in the review package before sign-off.\n\n" +
           "Validation:\n\n" +
-          "Confirm checklist completion on the findings panel and manifest summary before go-live.",
+          "Confirm checklist completion on the findings panel and manifest summary before go-live.\n\n" +
+          "Sources: use the quick links under this reply to open the executive summary, manifest package, primary risk finding, evidence graph, and audit trail.",
         createdUtc: "2026-01-12T10:06:12.000Z",
         metadataJson: "{}",
       },
@@ -65,7 +66,8 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
           "Mitigation:\n\n" +
           "Document flows, subprocessors touching PHI, and monitoring proof before legal review completes.\n\n" +
           "Validation:\n\n" +
-          "Check that each legal question maps to an artifact or finding with a clear owner.",
+          "Check that each legal question maps to an artifact or finding with a clear owner.\n\n" +
+          "Sources: use the quick links under this reply to open the executive summary, manifest package, primary risk finding, evidence graph, and audit trail.",
         createdUtc: "2026-01-10T14:25:18.000Z",
         metadataJson: "{}",
       },

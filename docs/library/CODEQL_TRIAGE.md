@@ -74,15 +74,16 @@ Several endpoints bind identifiers as **`[FromRoute] string`** (not **`Guid`**) 
 
 If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the extension pack is loaded (see workflow **`config-file`**), route **`LogWarning`** + user string through **`LogWarningWithSanitizedUserArg`** (see § boxing above), or refactor to **`Guid`** + **`{param:guid}`** and dismiss value-type cases per above.
 
-### Coordinator lease names and `cs/exposure-of-sensitive-information`
+### Operational keys and `cs/exposure-of-sensitive-information`
 
-**`cs/exposure-of-sensitive-information`** may treat well-known **coordinator lease strings** (for example **`HostElectionLeaseNames.TrialLifecycleEmailPolling`**) as private when they flow into **`ILogger`**, even though they are **stable operational keys** (not passwords, tokens, or PII).
+**`cs/exposure-of-sensitive-information`** may treat well-known **coordinator lease strings** (for example **`HostElectionLeaseNames.TrialLifecycleEmailPolling`**) or **`IntegrationEventTypes`** canonical URNs (for example **`TrialLifecycleEmailV1`**) as private when they flow into **`ILogger`**, even though they are **stable operational keys** (not passwords, tokens, or PII).
 
-**Mitigation:** route lease/instance logs through **`SanitizedLoggerHostLeaderElectionExtensions`** (sanitization + **`// codeql`** on the **`ILogger`** sink in Core). The built-in query may still anchor SARIF at the **`HostLeaderElectionCoordinator`** argument line passing **`leaseName`**; place **`// codeql[cs/exposure-of-sensitive-information]`** immediately **above** those extension calls when that happens (or dismiss in code scanning with: *operational lease identifiers, sanitized; not credentials*).
+**Mitigation:** route lease/instance logs through **`SanitizedLoggerHostLeaderElectionExtensions`** and integration-event publish logs through **`SanitizedLoggerWarningExtensions`** (sanitization + **`// codeql`** on the **`ILogger`** sink in Core). The built-in query may still anchor SARIF at the **caller** line passing the value; place **`// codeql[cs/exposure-of-sensitive-information]`** as a **trailing comment on the flagged line** (or dismiss in code scanning with: *operational identifiers, sanitized; not credentials*).
 
 | Location | Notes |
 | -------- | ----- |
-| **`ArchLucid.Host.Core/Hosted/HostLeaderElectionCoordinator.cs`** | Use **`SanitizedLoggerHostLeaderElectionExtensions`** at call sites. Core holds sink suppressions; if CodeQL highlights the **`leaseName`** argument line here, duplicate **`// codeql[cs/exposure-of-sensitive-information]`** on the line immediately **above** the extension call (**`TrialLifecycleEmailPolling`** and peers are operational keys only). |
+| **`ArchLucid.Host.Core/Hosted/HostLeaderElectionCoordinator.cs`** | Use **`SanitizedLoggerHostLeaderElectionExtensions`** at call sites. Core holds sink suppressions; if CodeQL highlights the **`leaseName`** argument line here, add **`// codeql[cs/exposure-of-sensitive-information]`** trailing on the extension call (**`TrialLifecycleEmailPolling`** and peers are operational keys only). |
+| **`ArchLucid.Host.Core/Integration/AzureServiceBusIntegrationEventPublisher.cs`** | **`eventType`** flows from **`IntegrationEventTypes`** canonical URNs (e.g. **`TrialLifecycleEmailV1`** = `com.archlucid.notifications.trial-lifecycle-email.v1`). Sanitized inside **`LogWarningIntegrationEventServiceBusPublishFailed`**; trailing **`// codeql[cs/exposure-of-sensitive-information]`** on the call site. Dismiss with: *canonical integration event URN taxonomy, sanitized; not credentials or PII*. |
 
 
 ---
