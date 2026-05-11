@@ -5,7 +5,9 @@
 
 # CAIQ Lite — ArchLucid (2026 pre-fill)
 
-**Source alignment:** CSA Consensus Assessment Initiative Questionnaire (CAIQ) **Lite** themes. Download the authoritative **CAIQ v4** spreadsheet from [Cloud Security Alliance](https://cloudsecurityalliance.org/) and map row IDs when submitting through a STAR registry.
+**Source alignment:** CSA Consensus Assessment Initiative Questionnaire (CAIQ) **Lite** themes. Download the authoritative **CAIQ v4** spreadsheet from [Cloud Security Alliance](https://cloudsecurityalliance.org/) and **map each row’s official CAIQ control ID** when submitting through a STAR registry — the tables below use **internal theme codes** (for example **GOV**, **HRS**) for navigation; they are **not** substitutes for spreadsheet row IDs.
+
+**Dry-run note (procurement):** Rows marked **Partial** include an explicit **Gap / next step** in this file or in linked evidence (not silent N/A). Owner must still transpose answers into the buyer’s CAIQ workbook cell-for-cell.
 
 **Product context:** ArchLucid SaaS (API + SQL authority plane + optional Azure OpenAI). Identity: Microsoft Entra ID. Data: Azure SQL with row-level security.
 
