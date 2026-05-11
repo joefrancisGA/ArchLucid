@@ -41,7 +41,7 @@ test.describe("operator shell smoke", () => {
   test("new request page renders without generic error boundary", async ({ page }) => {
     await page.goto("/runs/new");
 
-    await expect(page.getByRole("heading", { name: /new architecture request/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /new architecture review/i })).toBeVisible();
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
   });
 });
