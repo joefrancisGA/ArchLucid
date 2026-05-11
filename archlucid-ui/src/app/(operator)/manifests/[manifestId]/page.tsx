@@ -438,19 +438,29 @@ export default async function ManifestDetailPage({
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 && (
             <OperatorEmptyState title={buyerPolishedLayout ? "No deliverables listed yet" : "No artifacts listed for this manifest"}>
-              <p className="m-0">
-                {buyerPolishedLayout ? (
-                  <>
+              {buyerPolishedLayout ? (
+                <>
+                  <p className="m-0">
                     The overview loaded, but no individual files are listed yet. Try the ZIP if your workspace publishes a
                     bundle for this review.
-                  </>
-                ) : (
-                  <>
+                  </p>
+                  <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                    This is a <strong>valid empty result</strong> (the deliverables list succeeded with zero items), not an
+                    artifact-list failure. <strong>Bundle ZIP may return 404</strong> when no packaged bundle exists yet.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="m-0">
                     The summary loaded, but the artifact descriptor list is empty. Bundle download may be available when
                     there is a bundle.
-                  </>
-                )}
-              </p>
+                  </p>
+                  <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                    This is a <strong>valid empty result</strong> (HTTP 200 with an empty list), not a failed artifact-list
+                    request. <strong>Bundle ZIP may return 404</strong> when no packaged bundle exists yet.
+                  </p>
+                </>
+              )}
             </OperatorEmptyState>
           )}
 

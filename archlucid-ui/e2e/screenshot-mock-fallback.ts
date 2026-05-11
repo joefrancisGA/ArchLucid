@@ -239,7 +239,7 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
         projectId: u.searchParams.get("projectId") ?? "default",
         description: "Mock",
         createdUtc: iso,
-        goldenManifestId: "e2e-fixture-manifest-001",
+        goldenManifestId: "f0000001-0000-4000-8000-000000000001",
       },
     ];
   }

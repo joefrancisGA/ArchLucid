@@ -13,11 +13,12 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 {
     /// <summary>
     ///     Default <see cref="HttpClient.Timeout" /> is 100s; create-run idempotency uses <c>sp_getapplock</c> with a
-    ///     wait budget up to <c>CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c> (1500s in greenfield SQL tests).
-    ///     Parallel POSTs serialize on that lock; cold CI SQL + greenfield create-run can keep contenders blocked well
-    ///     beyond the default <see cref="HttpClient.Timeout" /> (100s) unless the client and per-burst token are raised.
+    ///     wait budget up to <c>CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c> (25 minutes in greenfield SQL tests).
+    ///     A single <c>POST /v1/architecture/request</c> can therefore spend ~25 minutes waiting on the lock
+    ///     <strong>and then</strong> run the authority pipeline; the burst/operation token must exceed
+    ///     lock wait + pipeline, and host <see cref="HttpClient.Timeout" /> must be higher still (see test factories).
     /// </summary>
-    internal static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(25);
+    internal static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(55);
 
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
