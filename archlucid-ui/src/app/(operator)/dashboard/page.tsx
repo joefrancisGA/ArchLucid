@@ -15,6 +15,7 @@ const MOCK_COMPLIANCE_POSTURE_PERCENT = 92;
 export default function ExecutiveRoiDashboardPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <OperatorWelcomeOnboarding />
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
           Executive summary

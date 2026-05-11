@@ -35,6 +35,7 @@ export default function HomePage() {
   return (
     <OperatorHomeGate>
     <TrialWelcomeRunDeepLink />
+    <OperatorWelcomeOnboarding />
     <div className="space-y-6">
       {buyerPolishedShell ? null : <OperatorCoArchitectHomeStrip />}
       <WelcomeBanner />
