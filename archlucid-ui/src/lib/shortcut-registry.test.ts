@@ -64,7 +64,7 @@ describe("shortcut-registry", () => {
     expect(byMixed?.route).toBe("/reviews/new");
 
     const help = findShortcutByKey("Shift+?");
-    expect(help?.label).toBe("Help");
+    expect(help?.label).toBe("Documentation search");
 
     expect(findShortcutByKey("not-a-real-combo")).toBeUndefined();
   });
