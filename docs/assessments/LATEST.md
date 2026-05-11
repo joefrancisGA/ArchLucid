@@ -462,8 +462,9 @@ Acceptance Criteria:
 - **Why it matters:** Reduces adoption friction and time-to-value by eliminating the "blank slate" problem.
 - **Expected impact:** Directly improves Adoption Friction (+10-15 pts), Time-to-Value (+10-15 pts), Template and Accelerator Richness (+30-40 pts). Weighted readiness impact: +1.5-2.0%.
 - **Affected qualities:** Adoption Friction, Time-to-Value, Template and Accelerator Richness, Usability.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** Complete (embedded `ArchitectureRequest` JSON presets; catalog via API; wizard/autofill from catalog not required by original scope).
+- **Delivered:** `ArchLucid.Application/Templates/webapp-sql.json`, `serverless-api.json`, `microservices-aks.json` (embedded resources); `TemplateProvider.cs` loads bodies and exposes summaries; `GET /v1/architecture/templates` returns `{ id, name, description }` (`TemplatesController`, `ArchitectureRequestTemplateSummary`); `TemplateProvider` registered in `ServiceCollectionExtensions.AddArchLucidApplicationServices`; OpenAPI snapshot and generated clients/types updated. Create-run flow still uses client-supplied bodies; selecting a template in UI can call `TemplateProvider.TryGetArchitectureRequest` in a follow-up.
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the ArchLucid codebase, add a set of predefined architectural templates that users can select when creating a new project.
 
@@ -504,8 +505,9 @@ Acceptance Criteria:
 - **Why it matters:** Users need to trust the AI's evaluations. Hiding the reasoning makes the system look like a black box, increasing the risk of unverified hallucinations and making debugging difficult. Exposing the staged critic's evaluation builds trust.
 - **Expected impact:** Directly improves Explainability (+10-15 pts), Trustworthiness (+5-10 pts), Supportability (+5-10 pts). Weighted readiness impact: +0.6-0.9%.
 - **Affected qualities:** Explainability, Trustworthiness, Supportability, Usability.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** Complete (per-finding explainability on review run detail plus inspect-only raw trace and JSON payloads).
+- **Delivered:** Run detail (`archlucid-ui/src/app/(operator)/reviews/[runId]/page.tsx`): **Per-finding explainability** table — `RunFindingExplainabilityTable` with **View trace** → Radix `FindingExplainabilityDialog` + `FindingExplainPanel` (server-backed trace narrative and completeness); **Why?** / **Explain** links to inspect and sponsor detail paths. Inspect route: `FindingInspectReasoningPayloadDetails` collapsibles **View AI Reasoning** (`reasoningTrace`, `pre`/`whitespace-pre-wrap`) and **AI Audit Inspection** (`FindingInspectJsonPayload` typed dump), composed from `FindingInspectFindingBody` under `/reviews/[runId]/findings/[findingId]/inspect`.
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the `archlucid-ui` Next.js application, add a "View Evaluation Details" panel to the Run Detail page to expose the LLM's reasoning.
 
@@ -793,8 +795,9 @@ Acceptance Criteria:
 - **Why it matters:** Accelerates time-to-value for regulated industries by providing starting points that already map to specific compliance frameworks.
 - **Expected impact:** Directly improves Time-to-Value (+5-10 pts), Compliance Readiness (+10-15 pts). Weighted readiness impact: +0.3-0.5%.
 - **Affected qualities:** Time-to-Value, Compliance Readiness, Template and Accelerator Richness.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** Complete (HIPAA and PCI DSS–oriented embedded presets; descriptions state how the footprint supports each framework for assessor conversations).
+- **Delivered:** `ArchLucid.Application/Templates/hipaa-compliant-api.json` (APIM, VNet App Service, Azure SQL TDE + HIPAA narrative); `pci-dss-payment-gateway.json` (Front Door + WAF, Container Apps, Key Vault + PCI DSS / CDE narrative); both registered in `TemplateProvider` catalog; `GET /v1/architecture/templates` returns five summaries.
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the `ArchLucid.Application/Templates/` directory (created in an earlier improvement), add compliance-focused templates.
 
@@ -959,8 +962,8 @@ Acceptance Criteria:
 ## Prompt Batching Guidance
 - **COMPLETED = Batch 1 (UI & Value Visibility):** Run Improvement 1 (Executive ROI Dashboard) and Improvement 8 (Scaffold Self-Serve Billing). These establish the commercial and value-driven UI patterns.
 - **COMPLETED = Batch 2 (UX & Adoption Friction):** Improvements **6** (Progressive Disclosure), **7** (Onboarding Modal), and **22** (Accessibility Navigation) are complete. These frontend changes drastically reduce the learning curve and improve compliance.
-- **Batch 3 (Backend & Templates):** Run Improvement 2 (Quick Start Templates) and Improvement 17 (Compliance Templates). This provides the data structure for reducing adoption friction.
-- **Batch 4 (Backend & Performance):** Run Improvement 5 (Expose LLM Reasoning) and Improvement 9 (Semantic Caching). These address core engineering and explainability concerns.
+- **COMPLETED = Batch 3 (Backend & Templates):** Improvements **2** (Quick Start Templates) and **17** (Compliance Templates) are complete. They provide embedded `ArchitectureRequest` presets and the `GET /v1/architecture/templates` catalog for regulated and general footprints.
+- **COMPLETED partial = Batch 4 (Backend & Performance):** Improvement **5** (Expose LLM Reasoning / per-finding explainability in UI) is complete. **Remaining:** Improvement **9** (Semantic Caching). These address core engineering and explainability concerns.
 - **Batch 5 (Security & CI):** Run Improvement 10 (Gitleaks) and Improvement 16 (Roslyn Analyzer). These enforce security invariants at compile and commit time.
 - **Batch 6 (Enterprise Audit & Data):** Run Improvement 11 (CSV Export), Improvement 15 (Mute Finding), and Improvement 23 (Soft Delete). These address core enterprise data management requirements.
 - **Batch 7 (Observability & Health):** Run Improvement 14 (Deep Health Check) and Improvement 18 (Serilog). These improve SaaS deployability and monitoring.

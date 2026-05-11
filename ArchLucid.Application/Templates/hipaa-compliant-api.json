@@ -1,0 +1,35 @@
+{
+  "requestId": "TEMPLATE-HIPAA-API",
+  "systemName": "HipaaCompliantApiReference",
+  "description": "Design or review an Azure HIPAA-minded API surface for workloads that ingest, store, or disclose electronic protected health information (ePHI). This pattern helps teams document how Azure API Management (APIM) exposes HTTPS-only, policy-governed routes; App Service workloads run integrated with your virtual network so private subnets reach Azure SQL without advertising the database on the internet; and Transparent Data Encryption (TDE) on Azure SQL satisfies encryption-at-rest expectations that HIPAA Security Rule reviewers routinely ask auditors to demonstrate. Naming APIM + VNet integration + SQL TDE in the footprint makes minimum-necessary segmentation, PHI boundary drawings, and BAA-aligned subprocess contracts easier to articulate to assessors—even though HIPAA is ultimately organizational and procedural, not purely technical.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Azure SQL logical server never accepts traffic from arbitrary public IPs; connectivity only via private endpoints or VNet-integrated data paths reviewed with security stakeholders.",
+    "All client-to-api traffic enters through Azure API Management with TLS enforced; APIM serves as explicit policy choke point for quotas, JWT validation, and audit-friendly routing metadata.",
+    "TDE must remain enabled on every Azure SQL database holding or potentially holding ePHI; key ownership (service-managed vs customer-managed) decided with compliance sign-off."
+  ],
+  "requiredCapabilities": [
+    "Azure API Management as the external API façade with logging and policy layers suitable for access review evidence",
+    "Azure App Service with VNet integration (or equivalent private egress) for application tier isolation",
+    "Azure SQL Database with TDE enabled and documented backup/restore retention aligned to policy",
+    "Entra ID or equivalent for workforce and machine identity with conditional access for privileged roles"
+  ],
+  "assumptions": [
+    "Business Associate Agreements cover Azure as a subprocessor where ePHI transits or rests in the listed services.",
+    "Audit logging for API access and schema changes is centralized (e.g., Log Analytics) with retention meeting policy."
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "North-south: internet -> APIM -> private App Service -> private Azure SQL; document each hop for HIPAA risk analysis.",
+    "Separate non-production environments from production PHI; mask or synthetic data only in lower environments unless exception is approved."
+  ],
+  "securityBaselineHints": [
+    "Document minimum necessary access for APIM operators, App Service deployment principals, and SQL admin roles.",
+    "Defender for Cloud and Azure Policy checks on public exposure, weak TLS, and missing private endpoints support HIPAA audit narratives."
+  ],
+  "infrastructureDeclarations": []
+}

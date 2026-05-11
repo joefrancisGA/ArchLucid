@@ -39710,17 +39710,17 @@ namespace ArchLucid.Api.Client.Generated
     public partial class ArchitectureRequestTemplateSummary
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("shortDescription")]
+        [System.Text.Json.Serialization.JsonPropertyName("description")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ShortDescription { get; set; } = default!;
+        public string Description { get; set; } = default!;
 
-        [System.Text.Json.Serialization.JsonPropertyName("templateId")]
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string TemplateId { get; set; } = default!;
+        public string Id { get; set; } = default!;
 
-        [System.Text.Json.Serialization.JsonPropertyName("title")]
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Title { get; set; } = default!;
+        public string Name { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

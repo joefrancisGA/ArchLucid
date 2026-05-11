@@ -405,7 +405,7 @@ public sealed class ArchitectureControllerTests
     }
 
     [SkippableFact]
-    public async Task GetArchitectureRequestTemplates_ReturnsThreeSummariesWithExpectedIds()
+    public async Task GetArchitectureRequestTemplates_ReturnsCatalogSummariesWithExpectedIds()
     {
         await RunWithIsolatedFactory(async client =>
         {
@@ -417,10 +417,15 @@ public sealed class ArchitectureControllerTests
                 await response.Content.ReadFromJsonAsync<List<ArchitectureRequestTemplateSummary>>(JsonOptions);
 
             items.Should().NotBeNull();
-            items.Should().HaveCount(3);
+            items.Should().HaveCount(5);
 
             string[] ids = items!.Select(i => i.Id).OrderBy(s => s).ToArray();
-            ids.Should().Equal("microservices-aks", "serverless-api", "webapp-sql");
+            ids.Should().Equal(
+                "hipaa-compliant-api",
+                "microservices-aks",
+                "pci-dss-payment-gateway",
+                "serverless-api",
+                "webapp-sql");
 
             items.Select(i => i.Id).Should().OnlyHaveUniqueItems();
         });

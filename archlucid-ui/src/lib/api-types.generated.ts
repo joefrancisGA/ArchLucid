@@ -20723,9 +20723,9 @@ export interface components {
             topologyHints?: string[];
         };
         ArchitectureRequestTemplateSummary: {
-            shortDescription: string;
-            templateId: string;
-            title: string;
+            description: string;
+            id: string;
+            name: string;
         };
         ArchitectureRun: {
             /** Format: uuid */
@@ -22056,6 +22056,7 @@ export interface components {
             manifestVersion?: null | string;
             modelDeploymentName?: null | string;
             promptTemplateVersion?: null | string;
+            reasoningSummary?: null | string;
             recommendedActions?: string[];
             /** Format: uuid */
             runId?: string;

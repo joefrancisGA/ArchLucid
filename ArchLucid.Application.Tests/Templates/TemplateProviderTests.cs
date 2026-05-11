@@ -11,17 +11,19 @@ namespace ArchLucid.Application.Tests.Templates;
 public sealed class TemplateProviderTests
 {
     [Fact]
-    public void Constructor_loads_three_templates_with_valid_request_shape()
+    public void Constructor_loads_all_templates_with_valid_request_shape()
     {
         TemplateProvider provider = new();
 
         IReadOnlyList<ArchitectureRequestTemplateSummary> summaries = provider.GetSummaries();
 
-        summaries.Should().HaveCount(3);
+        summaries.Should().HaveCount(5);
         summaries.Select(s => s.Id).Should().OnlyHaveUniqueItems();
         summaries.Should().Contain(s => s.Id == "webapp-sql");
         summaries.Should().Contain(s => s.Id == "serverless-api");
         summaries.Should().Contain(s => s.Id == "microservices-aks");
+        summaries.Should().Contain(s => s.Id == "hipaa-compliant-api");
+        summaries.Should().Contain(s => s.Id == "pci-dss-payment-gateway");
 
         foreach (ArchitectureRequestTemplateSummary s in summaries)
         {
@@ -30,7 +32,10 @@ public sealed class TemplateProviderTests
             s.Description.Should().NotBeNullOrWhiteSpace();
         }
 
-        foreach (string id in new[] { "webapp-sql", "serverless-api", "microservices-aks" })
+        foreach (string id in new[]
+                 {
+                     "webapp-sql", "serverless-api", "microservices-aks", "hipaa-compliant-api", "pci-dss-payment-gateway"
+                 })
         {
             bool found = provider.TryGetArchitectureRequest(id, out ArchitectureRequest? request);
             found.Should().BeTrue();
