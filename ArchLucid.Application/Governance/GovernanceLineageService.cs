@@ -91,7 +91,7 @@ public sealed class GovernanceLineageService(
                 EngineType = f.EngineType,
                 Severity = f.Severity.ToString(),
                 TraceCompletenessRatio = score.CompletenessRatio,
-                SourceAgentExecutionTraceId = f.Trace.SourceAgentExecutionTraceId
+                SourceAgentExecutionTraceId = f.AgentExecutionTraceId ?? f.Trace?.SourceAgentExecutionTraceId
             });
 
         return new GovernanceLineageResult

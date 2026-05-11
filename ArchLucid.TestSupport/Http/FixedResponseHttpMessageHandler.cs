@@ -4,20 +4,11 @@ using System.Text;
 namespace ArchLucid.TestSupport.Http;
 
 /// <summary>Returns a fixed status and body for every request (no real network).</summary>
-public sealed class FixedResponseHttpMessageHandler : HttpMessageHandler
+public sealed class FixedResponseHttpMessageHandler(HttpStatusCode statusCode, string? body, string mediaType = "application/json") : HttpMessageHandler
 {
-    private readonly HttpStatusCode _statusCode;
-    private readonly string _body;
-    private readonly string _mediaType;
-
-    public FixedResponseHttpMessageHandler(HttpStatusCode statusCode, string? body, string mediaType = "application/json")
-    {
-        _statusCode = statusCode;
-        _body = body ?? string.Empty;
-        _mediaType = mediaType;
-    }
+    private readonly string _body = body ?? string.Empty;
 
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
         Task.FromResult(
-            new HttpResponseMessage(_statusCode) { Content = new StringContent(_body, Encoding.UTF8, _mediaType) });
+            new HttpResponseMessage(statusCode) { Content = new StringContent(_body, Encoding.UTF8, mediaType) });
 }

@@ -9,21 +9,16 @@ namespace ArchLucid.Persistence.Cosmos;
 
 /// <summary>Lazy-initializes <see cref="CosmosClient" /> and shared containers for polyglot persistence.</summary>
 [ExcludeFromCodeCoverage(Justification = "Requires live Cosmos account or emulator.")]
-public sealed class CosmosClientFactory : IDisposable
+public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> optionsMonitor, ILogger<CosmosClientFactory> logger)
+    : IDisposable
 {
     private readonly ConcurrentDictionary<string, Container> _containers = new(StringComparer.Ordinal);
     private readonly SemaphoreSlim _initLock = new(1, 1);
-    private readonly ILogger<CosmosClientFactory> _logger;
-    private readonly IOptionsMonitor<CosmosDbOptions> _optionsMonitor;
+    private readonly ILogger<CosmosClientFactory> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IOptionsMonitor<CosmosDbOptions> _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
     private CosmosClient? _client;
     private Database? _database;
     private bool _disposed;
-
-    public CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> optionsMonitor, ILogger<CosmosClientFactory> logger)
-    {
-        _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
 
     public void Dispose()
     {

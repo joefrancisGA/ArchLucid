@@ -1,17 +1,14 @@
 namespace ArchLucid.TestSupport.Http;
 
 /// <summary>Records the last outbound request and optional body for provider conformance assertions.</summary>
-public sealed class RecordingHttpMessageHandler : HttpMessageHandler
+public sealed class RecordingHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> responder) : HttpMessageHandler
 {
-    private readonly Func<HttpRequestMessage, HttpResponseMessage> _responder;
+    private readonly Func<HttpRequestMessage, HttpResponseMessage> _responder = responder ?? throw new ArgumentNullException(nameof(responder));
 
     public RecordingHttpMessageHandler(HttpResponseMessage fixedResponse)
         : this(_ => fixedResponse)
     {
     }
-
-    public RecordingHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> responder) =>
-        _responder = responder ?? throw new ArgumentNullException(nameof(responder));
 
     public HttpRequestMessage? LastRequest
     {

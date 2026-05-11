@@ -62,7 +62,7 @@ public sealed class TrialTenantBootstrapService(
                     _logger.LogInformation(
                         "Skipping trial bootstrap for tenant {TenantId}: email verification policy blocked provisioning for {Email}.",
                         result.TenantId,
-                        auditActorEmail);
+                        LogSanitizer.Sanitize(auditActorEmail)); // codeql[cs/log-forging]: Email placeholder sanitized via LogSanitizer; TenantId is a Guid (non-injectable); params boxing breaks barrier at ILogger sinks (docs/library/CODEQL_TRIAGE.md).
                 ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
                 await _auditService.LogAsync(
                     new AuditEvent

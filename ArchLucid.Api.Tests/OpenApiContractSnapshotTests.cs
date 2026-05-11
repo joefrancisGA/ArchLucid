@@ -7,13 +7,12 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) drifts from the committed
-///     snapshot
-///     after <see cref="OpenApiJsonCanonicalizer" /> (stable across Windows/Linux reflection ordering).
-///     Swashbuckle <c>/swagger/v1/swagger.json</c> is covered by generation smoke tests; this snapshot uses the Microsoft
-///     OpenAPI document for stable contract diffing.
-///     Regenerate: <c>ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo
-///     root, or run <c>scripts/ci/check_openapi_contract_snapshot.sh</c> / <c>.ps1</c> with the same env var.
+///     Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) introduces breaking
+///     drift relative to <c>Contracts/openapi-v1.contract.snapshot.json</c> after <see cref="OpenApiJsonCanonicalizer" />.
+///     Breaking means removed endpoints, parameters, documented media types/schema fields incompatible with snapshot types/enums/required markers.
+///     Additive-only API changes (extra paths/properties/widened unions) remain compatible and no longer force a snapshot rewrite.
+///     Regenerate baseline JSON when intentional:
+///     <c>ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo root, or run <c>scripts/ci/check_openapi_contract_snapshot.sh</c> / <c>.ps1</c> with the same env var.
 ///     Optional: install <c>scripts/git-hooks</c> pre-push (<c>Install-GitHooks.ps1</c> / <c>install-git-hooks.sh</c>) to fail locally before CI when API-contract paths drift.
 ///     CI also runs job openapi-contract-snapshot before the full solution corset build.
 /// </summary>
@@ -25,7 +24,7 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
     private const string SnapshotFileName = "openapi-v1.contract.snapshot.json";
 
     [SkippableFact]
-    public async Task OpenApi_v1_json_matches_committed_snapshot()
+    public async Task OpenApi_v1_json_is_backward_compatible_with_committed_snapshot()
     {
         using HttpClient client = factory.CreateClient(
             new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
@@ -64,12 +63,13 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         JsonNode canonicalActual = OpenApiJsonCanonicalizer.Canonicalize(actualNode);
         JsonNode canonicalExpected = OpenApiJsonCanonicalizer.Canonicalize(expectedNode);
 
-        if (!JsonNode.DeepEquals(canonicalActual, canonicalExpected))
-        {
-            Assert.Fail(
-                $"OpenAPI document drifted from Contracts/{SnapshotFileName}. " +
-                "Review API changes, then regenerate with ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1.");
-        }
+        if (canonicalExpected is not JsonObject baselineObject || canonicalActual is not JsonObject actualObject)
+            Assert.Fail("Canonical OpenAPI root must deserialize as JsonObject.");
+
+        OpenApiContractBackwardCompatibilityChecker.ThrowIfUnreadable(canonicalExpected, "snapshot baseline");
+        OpenApiContractBackwardCompatibilityChecker.ThrowIfUnreadable(canonicalActual, "generated /openapi/v1.json");
+
+        OpenApiContractBackwardCompatibilityChecker.AssertAdditiveCompatible(baselineObject, actualObject);
     }
 
     private static string ResolveSourceSnapshotPath()

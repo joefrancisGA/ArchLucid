@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace ArchLucid.Application.Import;
 
 /// <summary>
