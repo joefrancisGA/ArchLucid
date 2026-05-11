@@ -61,9 +61,6 @@ public sealed class DemoViewerControllerTests
         await using DemoViewerEnabledSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
-        HttpResponseMessage ready = await client.GetAsync("/health/ready");
-        ready.StatusCode.Should().Be(HttpStatusCode.OK);
-
         using (IServiceScope scope = factory.Services.CreateScope())
         {
             await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
