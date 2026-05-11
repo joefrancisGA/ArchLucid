@@ -1124,6 +1124,13 @@ jobs:
 
   # Non-slow full regression: split Api.Tests (WebApplicationFactory + HTTP-heavy) from other test assemblies so
   # wall time stays under GitHub job limits; mirrors the Category=Slow Api vs domain split. Merged in dotnet-coverage-merge.
+  dotnet-full-regression-core-api:
+    name: ".NET: full regression — Api.Tests shard (SQL, Category!=Slow)"
+    needs:
+      - dotnet-fast-core
+      - api-greenfield-boot
+      - sql-dbup-empty-catalog
+    runs-on: ubuntu-latest
     timeout-minutes: 210
     services:
       sqlserver:
