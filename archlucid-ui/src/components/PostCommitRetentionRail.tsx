@@ -5,6 +5,7 @@ import { useState, type ReactElement } from "react";
 
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -187,7 +188,7 @@ export function PostCommitRetentionRail({
         ) : null}
         {showCompareCta ? (
           <Button type="button" asChild variant="outline" size="sm" className="justify-center sm:justify-start">
-            <Link href={`/compare?leftRunId=${encodeURIComponent(runId)}`} title="Compare this review to another finalized review">
+            <Link href={comparePageHrefAdaptive(runId)} title="Compare this review to another finalized review">
               Compare with another review
             </Link>
           </Button>

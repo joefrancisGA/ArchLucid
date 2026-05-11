@@ -5,6 +5,7 @@ import Link from "next/link";
 import { pickPriorForSameRequest } from "@/components/BeforeAfterDelta/pick-prior-for-same-request";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { Button } from "@/components/ui/button";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 
@@ -32,9 +33,7 @@ export function PostCommitAdvancedAnalysisHint({
     current !== undefined && data !== null ? pickPriorForSameRequest(current, data.items) : null;
 
   const compareWithPriorHref =
-    prior !== null
-      ? `/compare?leftRunId=${encodeURIComponent(prior.runId)}&rightRunId=${encodeURIComponent(runId)}`
-      : null;
+    prior !== null ? comparePageHrefAdaptive(prior.runId, runId) : null;
 
   const encoded = encodeURIComponent(runId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -93,7 +92,7 @@ export function PostCommitAdvancedAnalysisHint({
         <li>
           <Link
             className="text-teal-800 underline dark:text-teal-300"
-            href={`/compare?leftRunId=${encoded}&rightRunId=`}
+            href={comparePageHrefAdaptive(runId)}
           >
             Compare
           </Link>

@@ -1,6 +1,6 @@
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import {
-  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+  SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
@@ -182,7 +182,7 @@ function labelForSegment(
   if (buyer === true && segment === SHOWCASE_STATIC_DEMO_RUN_ID && prev === "reviews") {
 
 
-    return SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
+    return SHOWCASE_BUYER_REVIEW_TITLE;
   }
 
 

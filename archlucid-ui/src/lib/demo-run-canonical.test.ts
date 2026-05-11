@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   canonicalizeDemoRunId,
   demoRunUrlRequiresCanonicalRedirect,
+  isShowcaseStaticDemoRunId,
   normalizeRunSummaryForDemoPicker,
 } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -12,6 +13,12 @@ describe("demo-run-canonical", () => {
   it("maps legacy demo run URL aliases to the showcase id", () => {
     expect(canonicalizeDemoRunId("claims-intake-modernization-run")).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
     expect(canonicalizeDemoRunId(` ${SHOWCASE_STATIC_DEMO_RUN_ID} `)).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+  });
+
+  it("treats legacy showcase aliases as showcase ids via isShowcaseStaticDemoRunId", () => {
+    expect(isShowcaseStaticDemoRunId("claims-intake-modernization-run")).toBe(true);
+    expect(isShowcaseStaticDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
+    expect(isShowcaseStaticDemoRunId("claims-intake-run-v1")).toBe(false);
   });
 
   it("maps legacy workspace slug aliases to the showcase id", () => {

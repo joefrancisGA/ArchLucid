@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import type { RunSummary } from "@/types/authority";
 
 export type WizardStepTrackProps = {
@@ -90,7 +91,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
             </Link>
             <Link
               className="text-teal-800 underline dark:text-teal-200"
-              href={`/compare?leftRunId=${encodeURIComponent(runId)}`}
+              href={comparePageHrefAdaptive(runId)}
             >
               Compare reviews
             </Link>

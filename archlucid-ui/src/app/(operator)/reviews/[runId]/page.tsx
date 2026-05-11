@@ -25,6 +25,7 @@ import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
@@ -1078,7 +1079,7 @@ export default async function RunDetailPage({
                       {canShowCompareReviewButton ? (
                         <Button variant="outline" size="sm" asChild>
                           <Link
-                            href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
+                            href={comparePageHrefAdaptive(resolvedDetail.run.runId)}
                             className="no-underline"
                           >
                             Compare with another review
@@ -1101,7 +1102,7 @@ export default async function RunDetailPage({
                     </Button>
                     <Button variant="outline" size="sm" asChild>
                       <Link
-                        href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}
+                        href={comparePageHrefAdaptive(resolvedDetail.run.runId)}
                         className={buyerPolishedArtifactTable ? "no-underline" : undefined}
                       >
                         Compare with another review
@@ -1172,7 +1173,7 @@ export default async function RunDetailPage({
                   </FunnelTelemetryExportAnchor>
                 </Button>
                 <Button variant="outline" size="sm" asChild>
-                  <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
+                  <Link href={comparePageHrefAdaptive(resolvedDetail.run.runId)}>
                     Compare two reviews (baseline = this review)
                   </Link>
                 </Button>

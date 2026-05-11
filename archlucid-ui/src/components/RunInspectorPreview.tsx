@@ -22,6 +22,7 @@ import {
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { cn } from "@/lib/utils";
 import {
@@ -64,7 +65,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       ? "Sample finalized (illustrative)"
       : formatInstantForLocale(run.createdUtc)
     : formatInstantForLocale(run.createdUtc);
-  const compareHref = `/compare?leftRunId=${encodeURIComponent(run.runId)}`;
+  const compareHref = comparePageHrefAdaptive(run.runId);
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
   const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
   const findingHref = showcaseStory

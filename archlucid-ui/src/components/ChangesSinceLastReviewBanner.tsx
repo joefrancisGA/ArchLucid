@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 
 export type ChangesSinceLastReviewBannerProps = {
   readonly priorReviewDateLabel: string;
@@ -12,9 +13,7 @@ export type ChangesSinceLastReviewBannerProps = {
 
 /** Collapsible read-only delta banner vs the prior committed review on the same project. */
 export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBannerProps): ReactElement {
-  const compareHref = `/compare?leftRunId=${encodeURIComponent(props.priorRunId)}&rightRunId=${encodeURIComponent(
-    props.currentRunId,
-  )}`;
+  const compareHref = comparePageHrefAdaptive(props.priorRunId, props.currentRunId);
 
   return (
     <details
