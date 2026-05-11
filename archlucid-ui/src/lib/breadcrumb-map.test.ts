@@ -38,6 +38,13 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps executive ROI dashboard as Home / Executive summary", () => {
+    expect(getBreadcrumbs("/dashboard")).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Executive summary" },
+    ]);
+  });
+
   it("uses policy-pack registry trail for governance-scoped pack routes (no workflow parent link)", () => {
     expect(getBreadcrumbs("/governance/policy-packs/undefined")).toEqual([
       { label: "Home", href: "/" },

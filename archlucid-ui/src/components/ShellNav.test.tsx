@@ -61,6 +61,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
         "Start a new architecture review — guided wizard through pipeline tracking (Alt+N)",
       );
       expect(within(nav).getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
+      expect(within(nav).getByRole("link", { name: "Executive Summary" })).toHaveAttribute("href", "/dashboard");
 
       expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Compare two reviews" })).toBeNull();
