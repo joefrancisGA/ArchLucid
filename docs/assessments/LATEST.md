@@ -505,8 +505,8 @@ Acceptance Criteria:
 - **Why it matters:** Users need to trust the AI's evaluations. Hiding the reasoning makes the system look like a black box, increasing the risk of unverified hallucinations and making debugging difficult. Exposing the staged critic's evaluation builds trust.
 - **Expected impact:** Directly improves Explainability (+10-15 pts), Trustworthiness (+5-10 pts), Supportability (+5-10 pts). Weighted readiness impact: +0.6-0.9%.
 - **Affected qualities:** Explainability, Trustworthiness, Supportability, Usability.
-- **Status:** Complete (per-finding explainability on review run detail plus inspect-only raw trace and JSON payloads).
-- **Delivered:** Run detail (`archlucid-ui/src/app/(operator)/reviews/[runId]/page.tsx`): **Per-finding explainability** table — `RunFindingExplainabilityTable` with **View trace** → Radix `FindingExplainabilityDialog` + `FindingExplainPanel` (server-backed trace narrative and completeness); **Why?** / **Explain** links to inspect and sponsor detail paths. Inspect route: `FindingInspectReasoningPayloadDetails` collapsibles **View AI Reasoning** (`reasoningTrace`, `pre`/`whitespace-pre-wrap`) and **AI Audit Inspection** (`FindingInspectJsonPayload` typed dump), composed from `FindingInspectFindingBody` under `/reviews/[runId]/findings/[findingId]/inspect`.
+- **Status:** **Complete** — run detail and inspect paths expose reasoning and evaluation payloads; assessment action closed.
+- **Delivered:** Run detail (`archlucid-ui/src/app/(operator)/reviews/[runId]/page.tsx`): **Quick decision summary** (`QuickDecisionSummary`) — **View AI reasoning** per top finding → Radix `FindingAiReasoningDialog` (evaluation signals when present, reasoning trace, raw `ArchitectureFinding` JSON from run detail via `extractQuickDecisionFindingsFromRunDetail` / `FindingWireSnapshot`). **Per-finding explainability** — `RunFindingExplainabilityTable` with `findingWireSnapshots` from `buildFindingWireSnapshotsByFindingId`; **View trace** → `FindingExplainabilityDialog` + `FindingExplainPanel`; **View AI reasoning** → same `FindingAiReasoningDialog` when a wire snapshot exists for that id. **Why?** / **Explain** links unchanged. Inspect route (`/reviews/[runId]/findings/[findingId]/inspect`): `FindingInspectReasoningPayloadDetails` (**View AI Reasoning**, `reasoningTrace`) and **AI Audit Inspection** (`FindingInspectJsonPayload`), from `FindingInspectFindingBody`.
 - **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the `archlucid-ui` Next.js application, add a "View Evaluation Details" panel to the Run Detail page to expose the LLM's reasoning.
@@ -634,24 +634,8 @@ Acceptance Criteria:
 - **Why it matters:** Prevents accidental credential leakage in the repository, which is a critical security control for enterprise trustworthiness.
 - **Expected impact:** Directly improves Security (+5-10 pts), Trustworthiness (+5-10 pts). Weighted readiness impact: +0.3-0.5%.
 - **Affected qualities:** Security, Trustworthiness, Compliance Readiness.
-- **Status:** Actionable now.
-- **Cursor prompt:**
-```
-In the `.github/workflows/ci.yml` file, add a step to run Gitleaks for secret scanning.
-
-Scope:
-1. Locate the existing CI workflow file.
-2. Add a new job or step (preferably early in the pipeline) that uses the official `zricethezav/gitleaks-action` GitHub Action.
-3. Configure it to scan the repository for hardcoded secrets.
-
-Constraints:
-- Do not break existing build or test steps.
-- Ensure the step fails the build if secrets are found.
-
-Acceptance Criteria:
-- The CI pipeline includes a Gitleaks scanning step.
-- The step executes successfully on clean code.
-```
+- **Status:** **Already satisfied in-repo.** Tier 0 in `.github/workflows/ci.yml` defines job `gitleaks` (`gacts/gitleaks@v1.3.2`, pinned CLI, **`fetch-depth: 0`**, **`.gitleaks.toml`**). Downstream CI jobs **`needs: gitleaks`**. Separate workflow **`.github/workflows/security-scan.yml`** also runs **`gitleaks/gitleaks-action@v2`**. See **`docs/library/TEST_EXECUTION_MODEL.md`** and **`docs/engineering/BUILD.md`**.
+- **Note:** The repo intentionally uses **`gacts/gitleaks`** on the main CI path (workflow comment: Node 24–aligned action vs. **`gitleaks/gitleaks-action`** deprecation noise), not **`zricethezav/gitleaks-action`**.
 
 ### 11. Implement CSV Export for Audit Logs
 - **Why it matters:** Enterprise compliance and security teams require the ability to export audit logs for offline analysis and retention in their own SIEM tools.
@@ -963,8 +947,8 @@ Acceptance Criteria:
 - **COMPLETED = Batch 1 (UI & Value Visibility):** Run Improvement 1 (Executive ROI Dashboard) and Improvement 8 (Scaffold Self-Serve Billing). These establish the commercial and value-driven UI patterns.
 - **COMPLETED = Batch 2 (UX & Adoption Friction):** Improvements **6** (Progressive Disclosure), **7** (Onboarding Modal), and **22** (Accessibility Navigation) are complete. These frontend changes drastically reduce the learning curve and improve compliance.
 - **COMPLETED = Batch 3 (Backend & Templates):** Improvements **2** (Quick Start Templates) and **17** (Compliance Templates) are complete. They provide embedded `ArchitectureRequest` presets and the `GET /v1/architecture/templates` catalog for regulated and general footprints.
-- **COMPLETED partial = Batch 4 (Backend & Performance):** Improvement **5** (Expose LLM Reasoning / per-finding explainability in UI) is complete. **Remaining:** Improvement **9** (Semantic Caching). These address core engineering and explainability concerns.
-- **Batch 5 (Security & CI):** Run Improvement 10 (Gitleaks) and Improvement 16 (Roslyn Analyzer). These enforce security invariants at compile and commit time.
+- **COMPLETED partial = Batch 4 (Backend & Performance):** Implemented Improvement **5** — LLM reasoning / critic visibility: per-finding explainability, inspect **View AI Reasoning**, plus run-detail **View AI reasoning** (`FindingAiReasoningDialog`) with raw `ArchitectureFinding` JSON from run detail (`QuickDecisionSummary`, `RunFindingExplainabilityTable`, `quick-decision-summary-derive`). **Remaining:** Improvement **9** (Semantic Caching). These address core engineering and explainability concerns.
+- **Batch 5 (Security & CI):** Improvement 10 (Gitleaks) is already in CI; focus Improvement 16 (Roslyn Analyzer) and other remaining items. These enforce security invariants at compile and commit time.
 - **Batch 6 (Enterprise Audit & Data):** Run Improvement 11 (CSV Export), Improvement 15 (Mute Finding), and Improvement 23 (Soft Delete). These address core enterprise data management requirements.
 - **Batch 7 (Observability & Health):** Run Improvement 14 (Deep Health Check) and Improvement 18 (Serilog). These improve SaaS deployability and monitoring.
 - **Batch 8 (CLI & Integrations):** Run Improvement 20 (CLI Cost Estimate) and Improvement 21 (Import API). These expand the tool's ecosystem boundaries.

@@ -5,17 +5,21 @@ import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 
 import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
+import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityDialog";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import type { FindingWireSnapshot } from "@/lib/quick-decision-summary-derive";
 import { truncateForList } from "@/lib/truncate-for-list";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 
 export type RunFindingExplainabilityTableProps = {
   runId: string;
   rows: FindingTraceConfidenceDto[];
+  /** Wire snapshots from run detail findings (optional); used for View AI reasoning. */
+  findingWireSnapshots?: Record<string, FindingWireSnapshot> | null;
 };
 
 function gapsSummary(row: FindingTraceConfidenceDto): string {
@@ -69,9 +73,16 @@ const rowGridClass =
 /**
  * Lists findings with trace completeness from the aggregate explanation payload; opens per-finding explainability.
  */
-export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplainabilityTableProps) {
+export function RunFindingExplainabilityTable({
+  runId,
+  rows,
+  findingWireSnapshots = null,
+}: RunFindingExplainabilityTableProps) {
   const [open, setOpen] = useState(false);
   const [activeFindingId, setActiveFindingId] = useState<string | null>(null);
+  const [reasoningOpen, setReasoningOpen] = useState(false);
+  const [reasoningFindingId, setReasoningFindingId] = useState<string | null>(null);
+  const [reasoningTitle, setReasoningTitle] = useState("");
   const [confidenceSortReversed, setConfidenceSortReversed] = useState(false);
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -217,6 +228,19 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
                     >
                       View trace
                     </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => {
+                        setReasoningFindingId(row.findingId);
+                        setReasoningTitle(titleFull === "(no title)" ? "" : titleFull);
+                        setReasoningOpen(true);
+                      }}
+                    >
+                      View AI reasoning
+                    </Button>
                     <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" asChild>
                       <Link href={`/reviews/${runId}/findings/${encodeURIComponent(row.findingId)}/inspect`}>Why?</Link>
                     </Button>
@@ -258,6 +282,27 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
         }}
         runId={runId}
         findingId={activeFindingId}
+      />
+
+      <FindingAiReasoningDialog
+        open={reasoningOpen}
+        onOpenChange={(next) => {
+          setReasoningOpen(next);
+
+          if (!next) {
+            setReasoningFindingId(null);
+            setReasoningTitle("");
+          }
+        }}
+        findingId={reasoningFindingId}
+        findingTitle={reasoningTitle}
+        snapshot={
+          reasoningFindingId !== null &&
+          findingWireSnapshots !== null &&
+          findingWireSnapshots !== undefined
+            ? findingWireSnapshots[reasoningFindingId] ?? null
+            : null
+        }
       />
     </div>
   );
