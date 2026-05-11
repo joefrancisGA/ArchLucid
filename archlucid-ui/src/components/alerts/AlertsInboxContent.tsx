@@ -379,14 +379,24 @@ export function AlertsInboxContent() {
 
       <div className="grid gap-3">
         {loading && failure === null && alerts.length === 0 ? (
-          <OperatorLoadingNotice>
-            <strong>Loading alerts.</strong>
-            {buyerPolishedShell ? null : (
+          buyerPolishedShell === true ? (
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-6 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+              <p className="m-0 font-medium text-neutral-900 dark:text-neutral-50">
+                Alerts surface for tenant-backed workspaces
+              </p>
+              <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
+                This polished demo inbox preview loads without a live alerting backend. Operational alerts populate here
+                when your tenant connects notification sources.
+              </p>
+            </div>
+          ) : (
+            <OperatorLoadingNotice>
+              <strong>Loading alerts.</strong>
               <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
                 {ALERTS_PAGE_SIZE} per page; empty means no rows for this filter.
               </p>
-            )}
-          </OperatorLoadingNotice>
+            </OperatorLoadingNotice>
+          )
         ) : null}
 
         {!loading && failure === null && alerts.length === 0 ? <EmptyState {...emptyFilteredProps} /> : null}

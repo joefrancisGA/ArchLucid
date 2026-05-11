@@ -252,8 +252,8 @@ export function GraphViewer({
           <div className="rounded-md border border-slate-200 bg-slate-50/90 p-3 text-sm dark:border-slate-700 dark:bg-slate-900/40">
             <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Legend</p>
             <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">
-              This is an evidence-to-decision trail: context and analysis nodes feed flagship risks (highlighted) that
-              anchor the finalized manifest and bundled deliverables.
+              This is an evidence-to-decision trail: context and analysis nodes feed prioritized risk findings
+              (highlighted) that anchor the finalized manifest and bundled deliverables.
             </p>
           </div>
         )}
@@ -276,7 +276,7 @@ export function GraphViewer({
               ) : null}
 
               <p>
-                <strong>{buyerTrailPanel ? "Step" : "Label"}:</strong> {selectedNode.label}
+                <strong>{buyerTrailPanel ? "Finding" : "Label"}:</strong> {selectedNode.label}
               </p>
 
               {!buyerTrailPanel ? (

@@ -1,5 +1,5 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 /**
@@ -9,7 +9,7 @@ export function buyerFacingReviewLinkLabelFromRunId(runId: string): string {
   const id = canonicalizeDemoRunId(runId.trim());
 
   if (id === SHOWCASE_STATIC_DEMO_RUN_ID) {
-    return "Claims Intake Modernization Review";
+    return SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
   }
 
   const trimmed = runId.trim();
@@ -22,7 +22,7 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
   const id = canonicalizeDemoRunId(run.runId);
 
   if (id === SHOWCASE_STATIC_DEMO_RUN_ID) {
-    return "Claims Intake Modernization Review";
+    return SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
   }
 
   const displayName = run.displayName?.trim() ?? "";

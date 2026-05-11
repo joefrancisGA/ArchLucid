@@ -121,7 +121,7 @@ function ManifestSummarySection({
         <CardHeader>
           <h3 className={sectionHeadingClass}>
             {buyerPolishedShell ? (
-              <>Review package summary</>
+              <>Final review record</>
             ) : (
               <>
                 Review package summary (<GlossaryTooltip termKey="architecture_manifest">manifest</GlossaryTooltip>)
@@ -599,6 +599,11 @@ export default async function RunDetailPage({
         headline={headline}
         hasGoldenManifest={Boolean(manifestId)}
         executionFlavorBuyerSummary={resolvedDetail.executionFlavorBuyerSummary}
+        buyerGovernanceLine={
+          buyerPolishedArtifactTable === true && manifestSummary !== null
+            ? `Governance approval: ${governanceGateLabelFromManifestStatus(manifestSummary.status)}`
+            : null
+        }
       />
 
       {usedStaticDemoRun && !buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
@@ -616,7 +621,7 @@ export default async function RunDetailPage({
           <CardContent className="space-y-3 pt-0">
             <Button type="button" variant="primary" asChild>
               <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>
-                Open executive view
+                Open Executive Summary
               </Link>
             </Button>
             <p className="m-0">
@@ -1174,7 +1179,7 @@ export default async function RunDetailPage({
                 {manifestId ? (
                   <Button variant="outline" size="sm" asChild>
                     <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>
-                      Open executive view
+                      Open Executive Summary
                     </Link>
                   </Button>
                 ) : null}

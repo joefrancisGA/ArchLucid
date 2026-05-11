@@ -31,7 +31,7 @@ export function getDemoSampleAuditTrailEvents(): AuditEvent[] {
     },
     {
       eventId: "demo-audit-context",
-      occurredUtc: "2026-01-14T21:42:10.000Z",
+      occurredUtc: "2026-01-13T16:22:41.000Z",
       eventType: "context.snapshot.created",
       actorUserId: "pipeline",
       actorUserName: "ArchLucid automation",
@@ -46,7 +46,7 @@ export function getDemoSampleAuditTrailEvents(): AuditEvent[] {
     },
     {
       eventId: "demo-audit-graph",
-      occurredUtc: "2026-01-14T21:51:33.000Z",
+      occurredUtc: "2026-01-18T14:09:07.000Z",
       eventType: "graph.snapshot.created",
       actorUserId: "pipeline",
       actorUserName: "ArchLucid automation",
@@ -61,7 +61,7 @@ export function getDemoSampleAuditTrailEvents(): AuditEvent[] {
     },
     {
       eventId: "demo-audit-findings",
-      occurredUtc: "2026-01-14T22:03:18.000Z",
+      occurredUtc: "2026-01-24T11:41:53.000Z",
       eventType: "findings.snapshot.created",
       actorUserId: "pipeline",
       actorUserName: "ArchLucid automation",
@@ -76,7 +76,7 @@ export function getDemoSampleAuditTrailEvents(): AuditEvent[] {
     },
     {
       eventId: "demo-audit-manifest",
-      occurredUtc: "2026-01-14T22:07:58.000Z",
+      occurredUtc: "2026-01-31T21:52:06.000Z",
       eventType: "finalize.run",
       actorUserId: "demo-taylor",
       actorUserName: "Taylor Morgan",
@@ -91,7 +91,7 @@ export function getDemoSampleAuditTrailEvents(): AuditEvent[] {
     },
     {
       eventId: "demo-audit-bundle",
-      occurredUtc: "2026-01-14T22:09:44.000Z",
+      occurredUtc: "2026-02-03T09:07:44.000Z",
       eventType: "artifact.bundle.created",
       actorUserId: "pipeline",
       actorUserName: "ArchLucid automation",

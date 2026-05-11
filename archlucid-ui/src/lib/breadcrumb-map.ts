@@ -1,4 +1,9 @@
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+import {
+  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
 
 export type BreadcrumbItem = {
   label: string;
@@ -109,7 +114,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     }
 
     const allSegments = ["governance", "policy-packs", idSegment];
-    const lastLabel = labelForSegment(idSegment, allSegments, 2);
+    const lastLabel = labelForSegment(idSegment, allSegments, 2, options);
 
     return [
       ...items,
@@ -125,7 +130,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     cumulative += `/${segment}`;
     const isLast = i === rawSegments.length - 1;
 
-    const label = labelForSegment(segment, rawSegments, i);
+    const label = labelForSegment(segment, rawSegments, i, options);
 
     if (isLast) {
       items.push({ label });
@@ -144,6 +149,7 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "e2e-fixture-right-run": "Target architecture run (compare)",
   "f0000001-0000-4000-8000-000000000001": "Sample finalized manifest",
   "f0000002-0000-4000-8000-000000000002": "Manifest (artifacts pending)",
+  [SHOWCASE_STATIC_DEMO_MANIFEST_ID]: "Claims Intake package manifest",
   "claims-intake-modernization": "Claims Intake Modernization",
   "e2e-plan-001": "Demonstration plan",
   "e2e-finding-001": "Demonstration finding",
@@ -155,8 +161,30 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "healthcare-claims-v3-pack": "Healthcare claims policy pack (demonstration)",
 };
 
-function labelForSegment(segment: string, allSegments: string[], index: number): string {
+function labelForSegment(
+  segment: string,
+  allSegments: string[],
+  index: number,
+  options?: GetBreadcrumbsOptions,
+): string {
   const prev = index > 0 ? allSegments[index - 1] : "";
+  const buyer = options?.buyerPolishedShell === true;
+
+  if (buyer && segment === "inspect") {
+    return "Evidence trace";
+  }
+
+  if (buyer && segment === "findings") {
+    return "Finding";
+  }
+
+
+  if (buyer === true && segment === SHOWCASE_STATIC_DEMO_RUN_ID && prev === "reviews") {
+
+
+    return SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
+  }
+
 
   if (prev === "policy-packs" && isInvalidDynamicRouteToken(segment)) {
     return "Policy pack detail";
@@ -174,6 +202,10 @@ function labelForSegment(segment: string, allSegments: string[], index: number):
       prev === "approval-requests" ||
       prev === "policy-packs")
   ) {
+    if (buyer && segment === "phi-minimization-risk") {
+      return "High severity: PHI minimization risk";
+    }
+
     return demoTitle;
   }
 
@@ -205,7 +237,25 @@ function labelForSegment(segment: string, allSegments: string[], index: number):
 
   const mapped = SEGMENT_LABELS[segment];
 
-  if (mapped) {
+  if (mapped !== undefined && mapped !== null) {
+
+    if (buyer === true && segment === "reviews") {
+
+      return "Reviews";
+    }
+
+
+    if (buyer === true && segment === "audit") {
+
+      return "Audit Trail";
+    }
+
+
+    if (buyer === true && segment === "graph") {
+
+      return "Evidence graph";
+    }
+
     return mapped;
   }
 

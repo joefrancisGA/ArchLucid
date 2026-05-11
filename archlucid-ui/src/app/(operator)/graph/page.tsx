@@ -369,7 +369,7 @@ function GraphPageContent() {
         ...GRAPH_IDLE,
         title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
         description:
-          "The Claims Intake sample traces evidence from captured context through flagship risks to the finalized package and deliverables. The graph loads automatically — if the canvas stays empty, expand explore options below and choose Load graph.",
+          "The Claims Intake sample traces evidence from captured context through primary risk findings to the finalized package and deliverables. The graph loads automatically — if the canvas stays empty, expand advanced controls below and choose Load graph.",
       };
     }
 
@@ -378,7 +378,7 @@ function GraphPageContent() {
 
   const leadIntro =
     demoUi || buyerPolishedShell
-      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. The sample emphasizes evidence → PHI minimization risk → mitigation decisions → sealed manifest outputs.`
+      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. The sample emphasizes evidence → prioritized risk findings → mitigation decisions → sealed manifest outputs.`
       : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
   const pageTitle = buyerPolishedShell ? "Decision traceability graph" : BUYER_SURFACE_VOCABULARY.evidenceGraph;
@@ -567,22 +567,34 @@ function GraphPageContent() {
       {graph ? (
         <>
           {buyerPolishedShell ? (
+            <div className="mb-6 max-w-4xl space-y-3">
+              <div>
+                <p className="m-0 mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                  What this graph proves
+                </p>
+                <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                  Captured evidence and analysis feed primary risk findings that anchor the governed architecture
+                  decisions sealed in the manifest and reflected in sponsor and audit deliverables. Select any highlighted
+                  node to read how it participates in this trace.
+                </p>
+              </div>
+              {graph !== null && graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
+                <GraphReviewTrailLegendChips buyerPolished />
+              ) : (
+                <GraphNodeKindLegendChips />
+              )}
+            </div>
+          ) : null}
+          {buyerPolishedShell ? (
             <details className="mb-6 max-w-4xl rounded-lg border border-neutral-200 bg-white/40 dark:border-neutral-700 dark:bg-neutral-900/30">
               <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                Graph view options — change review, filters, or reload
+                Advanced view controls — change review, filters, or reload
               </summary>
               <div className="border-t border-neutral-200 px-2 pb-3 pt-1 dark:border-neutral-700">{graphControls}</div>
             </details>
           ) : (
             graphControls
           )}
-          {buyerPolishedShell ? (
-            <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-              Captured evidence and review outcomes converge on flagship risks. Those risks anchor the architecture
-              decisions recorded in the final package, which produces the sponsor and audit deliverables.
-              Select any highlighted node to see its role in this review.
-            </p>
-          ) : null}
           <div className="mb-3 flex flex-wrap items-center gap-3">
             {!buyerPolishedShell ? (
               <label>
@@ -666,22 +678,16 @@ function GraphPageContent() {
             </div>
             ) : null}
           </div>
+          {!buyerPolishedShell ? (
           <div className="mb-3 max-w-4xl">
-            <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">
-              {buyerPolishedShell ? "What this graph proves" : "Legend"}
-            </p>
-            {buyerPolishedShell ? (
-              <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-                This graph shows how source context, analysis steps, findings, and deliverables connect to the final
-                signed manifest.
-              </p>
-            ) : null}
+            <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Legend</p>
             {graph !== null && graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
               <GraphReviewTrailLegendChips />
             ) : (
               <GraphNodeKindLegendChips />
             )}
           </div>
+          ) : null}
           <ClientErrorBoundary title="Graph viewer failed to render">
             <div
               data-testid="graph-canvas-ready"

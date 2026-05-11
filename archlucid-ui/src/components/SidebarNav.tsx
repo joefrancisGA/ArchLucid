@@ -481,7 +481,7 @@ export function SidebarNav() {
             >
               <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
                 <span id={`sidebar-group-trigger-title-${group.id}`}>
-                  {group.id === "pilot" && buyerPolishedShell ? "Review package" : group.label}
+                  {group.id === "pilot" && buyerPolishedShell ? "All reviews" : group.label}
                 </span>
                 {group.id === "operate-governance" ? (
                   <span id="sidebar-governance-nav-hint-slot">
@@ -615,10 +615,10 @@ export function SidebarNav() {
         <div
           className="px-2 py-2"
           data-testid="sidebar-quick-actions"
-          aria-label={buyerPolishedShell ? "Review package guided path" : "Quick actions"}
+          aria-label={buyerPolishedShell ? "Review journey" : "Quick actions"}
         >
           <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
-            {buyerPolishedShell ? "Review package path" : "Quick actions"}
+            {buyerPolishedShell ? "Review journey" : "Quick actions"}
           </p>
           <nav
             className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
