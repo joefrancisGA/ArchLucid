@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
@@ -14,13 +15,21 @@ public sealed class ExecutiveSummaryService(IRunRepository runRepository, IRunDe
 
     public async Task<ExecutiveSummaryResponse> GenerateSummaryAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.Empty, ProjectId = Guid.Empty };
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Empty,
+            ProjectId = Guid.Empty
+        };
         IReadOnlyList<RunRecord> recentRuns = await _runRepository.ListRecentInScopeAsync(scope, 1, cancellationToken);
         if (recentRuns.Count == 0)
         {
             return new ExecutiveSummaryResponse
             {
-                TenantId = tenantId.ToString("N"), SecurityPostureScore = 100, TechDebtRiskScore = 100, ComplianceAlignmentScore = 100
+                TenantId = tenantId.ToString("N"),
+                SecurityPostureScore = 100,
+                TechDebtRiskScore = 100,
+                ComplianceAlignmentScore = 100
             };
         }
 
@@ -42,9 +51,10 @@ public sealed class ExecutiveSummaryService(IRunRepository runRepository, IRunDe
         int securityScore = 100;
         int techDebtScore = 100;
         int complianceScore = 100;
-        foreach (var result in detail.Results)
+
+        foreach (AgentResult result in detail.Results)
         {
-            foreach (var finding in result.Findings)
+            foreach (ArchitectureFinding finding in result.Findings)
             {
                 int penalty = finding.Severity switch
                 {
