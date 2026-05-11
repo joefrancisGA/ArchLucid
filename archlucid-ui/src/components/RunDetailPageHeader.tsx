@@ -17,11 +17,15 @@ export type RunDetailPageHeaderProps = {
   headline: string;
   hasGoldenManifest: boolean;
   executionFlavorBuyerSummary?: string | null;
+  /**
+   * Buyer-polished finalized runs: aligns header governance hint with downstream summary tiles
+   * (e.g., `Governance approval: Passed`).
+   */
+  buyerGovernanceLine?: string | null;
 };
 
 /**
- * Flagship run detail header: title, pipeline {@link RunStatusBadge}, metadata row, primary finalize action.
- * Compare / Replay stay in the Actions section per shell layout rules.
+ * Run detail header: title, derived pipeline cues, finalize affordance (operators), buyer read-only finalization cues.
  */
 export function RunDetailPageHeader({
   runSummary,
@@ -29,10 +33,12 @@ export function RunDetailPageHeader({
   headline,
   hasGoldenManifest,
   executionFlavorBuyerSummary,
+  buyerGovernanceLine,
 }: RunDetailPageHeaderProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const finalizedBuyerChrome = buyerPolishedShell === true && hasGoldenManifest === true;
   const showExecutionFlavorOperator =
-    Boolean(executionFlavorBuyerSummary) && !buyerPolishedShell;
+    Boolean(executionFlavorBuyerSummary) && buyerPolishedShell !== true;
 
   return (
     <header className="mb-6 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
@@ -50,10 +56,10 @@ export function RunDetailPageHeader({
               />
             </div>
           </div>
-          {buyerPolishedShell && executionFlavorBuyerSummary ? (
+          {buyerPolishedShell === true && executionFlavorBuyerSummary ? (
             <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
               <Badge variant="secondary" className="me-2 align-middle font-normal">
-                Sample review package
+                Example package
               </Badge>
               {executionFlavorBuyerSummary}{" "}
               <Link
@@ -69,36 +75,63 @@ export function RunDetailPageHeader({
               {executionFlavorBuyerSummary}
             </p>
           ) : null}
-          <div className="flex flex-wrap items-center gap-2">
-            <RunStatusBadge run={runSummary} />
-            {runSummary.runDegradedExecution ? (
-              <Badge
-                variant="outline"
-                className="font-normal text-amber-900 dark:text-amber-200"
-                title={
-                  runSummary.degradedExecutionAgents?.length
-                    ? `Resource-level LLM fallback on: ${runSummary.degradedExecutionAgents.join(", ")}`
-                    : "Run used simulator substitution and/or degraded LLM execution path."
-                }
-              >
-                Degraded execution
-              </Badge>
-            ) : null}
+          {buyerPolishedShell !== true || finalizedBuyerChrome !== true ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <RunStatusBadge run={runSummary} />
+              {runSummary.runDegradedExecution === true ? (
+                <Badge
+                  variant="outline"
+                  className="font-normal text-amber-900 dark:text-amber-200"
+                  title={
+                    runSummary.degradedExecutionAgents?.length
+                      ? `Resource-level LLM fallback on: ${runSummary.degradedExecutionAgents.join(", ")}`
+                      : "Run used simulator substitution and/or degraded LLM execution path."
+                  }
+                >
+                  Degraded execution
+                </Badge>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+        {buyerPolishedShell === true ? (
+          finalizedBuyerChrome === true ? (
+            <div className="flex shrink-0 flex-col gap-2 text-right">
+              <p className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-50">
+                Finalized review package
+              </p>
+              {buyerGovernanceLine !== null && buyerGovernanceLine !== undefined && buyerGovernanceLine.length > 0 ? (
+                <p className="m-0 text-sm font-semibold leading-snug text-teal-900 dark:text-teal-200">
+                  {buyerGovernanceLine}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <div className="flex shrink-0 flex-col gap-1.5">
+              <p className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                Finalize package
+                <ContextualHelp helpKey="commit-manifest" />
+              </p>
+              <CommitRunButton runId={runId} disabled={hasGoldenManifest} />
+              <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+                <span className="whitespace-nowrap">Governance approval</span>
+                <ContextualHelp helpKey="governance-gate" placement="left" />
+              </p>
+            </div>
+          )
+        ) : (
+          <div className="flex shrink-0 flex-col gap-1.5">
+            <p className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+              Finalize
+              <ContextualHelp helpKey="commit-manifest" />
+            </p>
+            <CommitRunButton runId={runId} disabled={hasGoldenManifest} />
+            <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+              <span className="whitespace-nowrap">Governance gate</span>
+              <ContextualHelp helpKey="governance-gate" placement="left" />
+            </p>
           </div>
-        </div>
-        <div className="flex shrink-0 flex-col gap-1.5">
-          <p className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
-            Finalize
-            <ContextualHelp helpKey="commit-manifest" />
-          </p>
-          <CommitRunButton runId={runId} disabled={hasGoldenManifest} />
-          <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-            <span className="whitespace-nowrap">
-              {buyerPolishedShell ? "Governance approval" : "Governance gate"}
-            </span>
-            <ContextualHelp helpKey="governance-gate" placement="left" />
-          </p>
-        </div>
+        )}
       </div>
     </header>
   );

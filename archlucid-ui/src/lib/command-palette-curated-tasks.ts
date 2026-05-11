@@ -20,7 +20,7 @@ export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
   { label: "Semantic search", href: "/search", searchValue: "task I want search find architecture" },
   { label: "Alerts inbox", href: "/alerts", searchValue: "task I want alerts triage inbox" },
   { label: "Alert rules (configure)", href: "/alerts?tab=rules", searchValue: "task I want alert rules configure" },
-  { label: "Audit log", href: "/audit", searchValue: "task I want audit compliance csv export evidence" },
+  { label: "Audit Trail", href: "/audit", searchValue: "task I want audit compliance csv export evidence" },
   { label: "Digests & subscriptions", href: "/digests", searchValue: "task I want digest email subscriptions" },
   { label: "Policy packs", href: "/policy-packs", searchValue: "task I want policy governance rules" },
   { label: "Governance workflow", href: "/governance", searchValue: "task I want governance approval promotion" },

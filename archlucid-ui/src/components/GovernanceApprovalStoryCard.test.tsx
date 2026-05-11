@@ -24,10 +24,11 @@ describe("GovernanceApprovalStoryCard", () => {
     render(<GovernanceApprovalStoryCard row={row} />);
 
     expect(screen.getByText(/This package completed the approval path/i)).toBeInTheDocument();
-    expect(screen.getByText("Submitted")).toBeInTheDocument();
-    expect(screen.getByText("Reviewed")).toBeInTheDocument();
-    expect(screen.getByText("Approved")).toBeInTheDocument();
-    expect(screen.getByText("Ready to promote")).toBeInTheDocument();
+    expect(screen.getByText("Submitted for review")).toBeInTheDocument();
+    expect(screen.getByText("Architecture review completed")).toBeInTheDocument();
+    // Label and detail use the same copy when the step is complete.
+    expect(screen.getAllByText("Governance approval recorded")).toHaveLength(2);
+    expect(screen.getByText("Eligible for controlled use")).toBeInTheDocument();
     expect(screen.getByText("Eligible promotion path: Development → Staging")).toBeInTheDocument();
   });
 });

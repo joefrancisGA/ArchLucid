@@ -35,13 +35,63 @@ export type LayerContextStripProps = {
   className?: string;
   /** Buyer demo shell: softer label instead of “Advanced operations” on operate-analysis routes. */
   polishedOperateAnalysisLabel?: string;
+  /**
+   * Buyer-polished shell only: replaces the generic layer question strip with stable page orientation.
+   */
+  buyerRouteOrientation?: {
+    readonly label: string;
+    readonly line: string;
+  };
 };
 
 /**
  * Persistent one-line product-layer cue under the app header: layer label, guiding question, optional
  * return link on Operate routes. Styling stays subtle (orientation, not a second hero).
  */
-export function LayerContextStrip({ layerId, className, polishedOperateAnalysisLabel }: LayerContextStripProps) {
+export function LayerContextStrip({
+  layerId,
+  className,
+  polishedOperateAnalysisLabel,
+  buyerRouteOrientation,
+}: LayerContextStripProps) {
+  const orientation = buyerRouteOrientation;
+
+  if (orientation !== undefined && orientation.line.trim().length > 0 && orientation.label.trim().length > 0) {
+    const baseStrip = LAYER_COPY[layerId];
+    const isOperateOriented =
+      layerId === "operate-analysis" || layerId === "operate-governance" || layerId === "operator-admin";
+
+    return (
+      <div
+        aria-labelledby="operator-layer-context-text"
+        className={cn("min-h-9 w-full", baseStrip.strip, className)}
+        data-layer-context-strip=""
+        data-testid="layer-context-strip"
+        role="region"
+      >
+        <div className="mx-auto flex h-full min-h-9 max-w-[1600px] flex-wrap items-center gap-x-2 gap-y-0.5 px-4 py-1.5 text-sm font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6">
+          <p className="m-0 min-w-0 flex-1 text-sm" id="operator-layer-context-text">
+            <span className={cn("font-medium", baseStrip.labelClass)}>{orientation.label}</span>
+            <span className="text-neutral-500 dark:text-neutral-400" aria-hidden>
+              {" "}
+              —{" "}
+            </span>
+            <span className="font-normal text-neutral-800 dark:text-neutral-200">{orientation.line}</span>
+          </p>
+          {isOperateOriented ? (
+            <Link
+              className="shrink-0 text-sm font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-2 transition hover:text-neutral-900 focus-visible:outline focus-visible:ring-2 focus-visible:ring-offset-1 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-100"
+              data-testid="layer-context-back-pilot"
+              href="/"
+            >
+              Back to home
+            </Link>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
   const baseCopy = LAYER_COPY[layerId];
   const copy =
     layerId === "operate-analysis" && polishedOperateAnalysisLabel !== undefined && polishedOperateAnalysisLabel.length > 0

@@ -1102,6 +1102,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Tenancy/TenantWorkspacesController.cs",
+      "class_name": "TenantWorkspacesController",
+      "route_template": "v{version:apiVersion}/tenant/workspaces",
+      "normalized_prefix": "/v1/tenant/workspaces",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "ValueReports/ValueReportController.cs",
       "class_name": "ValueReportController",
       "route_template": "v{version:apiVersion}/value-report",

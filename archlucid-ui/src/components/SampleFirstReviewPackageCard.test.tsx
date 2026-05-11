@@ -72,31 +72,41 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     vi.clearAllMocks();
   });
 
-  it("uses primary manifest summary, outline walkthrough, and separated own-workspace link", () => {
+  it("uses executive-first CTA plus secondary links for the buyer journey", () => {
     render(<SampleFirstReviewPackageCard />);
 
-    expect(screen.getByRole("heading", { name: "Sample architecture review package" })).toBeInTheDocument();
-    expect(screen.getByText(/Start with executive view — it is the clearest board-ready summary/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Claims Intake Modernization Review Package/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/from the sidebar/i)).toBeInTheDocument();
+    expect(screen.getByText("Review journey", { selector: "strong" })).toBeInTheDocument();
     expect(
       screen.getByText(/Includes manifest outputs, PHI minimization risk with traceability/i),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open executive view" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Start Executive Summary" })).toHaveAttribute(
       "href",
       "/executive/reviews/claims-intake-modernization",
+    );
+    expect(screen.getByRole("link", { name: "Open review package record" })).toHaveAttribute(
+      "href",
+      "/reviews/claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Manifest summary" })).toHaveAttribute(
       "href",
       "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
     );
-    expect(screen.getByRole("link", { name: "Optional guided walkthrough" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Evidence-to-decision graph" })).toHaveAttribute(
+      "href",
+      "/graph?runId=claims-intake-modernization",
+    );
+    expect(screen.getByRole("link", { name: "Guided walkthrough" })).toHaveAttribute(
       "href",
       "/showcase/claims-intake-modernization",
     );
-    expect(screen.queryByRole("link", { name: "Open full review detail" })).toBeNull();
-    expect(screen.getByRole("link", { name: "connect your own workspace" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: /connect your own workspace/i })).toHaveAttribute("href", "/reviews/new");
   });
 
-  it("records review-output telemetry when the sample review package is opened", () => {
+  it("records review-output telemetry when the tertiary manifest link opens", () => {
     render(<SampleFirstReviewPackageCard />);
 
     fireEvent.click(screen.getByRole("link", { name: /manifest summary/i }));

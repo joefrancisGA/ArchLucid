@@ -29,6 +29,7 @@ import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
 import { isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 import {
+  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -37,18 +38,6 @@ import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/a
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
-
-function manifestScenarioSubtitle(m: ManifestSummary): string | null {
-  if (m.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
-    return "Claims Intake Modernization Review";
-  }
-
-  if (canonicalizeDemoRunId(m.runId?.trim() ?? "") === SHOWCASE_STATIC_DEMO_RUN_ID) {
-    return "Claims Intake Modernization Review";
-  }
-
-  return null;
-}
 
 /** Server-rendered manifest detail page. Shows manifest summary, artifacts table, and download links. */
 export default async function ManifestDetailPage({
@@ -220,12 +209,14 @@ export default async function ManifestDetailPage({
     );
   }
 
-  const manifestSubtitle = manifestScenarioSubtitle(summary);
   const manifestFooterExecution = await tryLoadRunExecutionFootnote(summary.runId.trim());
 
   const showcasePackage =
     summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID ||
     canonicalizeDemoRunId(summary.runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID;
+
+  const showcaseBuyerManifestHeadline =
+    buyerPolishedLayout === true && showcasePackage === true;
 
   const primaryFindingHref = showcasePackage
     ? `/reviews/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
@@ -264,9 +255,11 @@ export default async function ManifestDetailPage({
         </Link>
         {" · "}
         <Link className="text-teal-800 underline dark:text-teal-300" href={`/reviews/${summary.runId}`}>
-          Open review
+          {buyerPolishedLayout === true && showcasePackage === true
+            ? SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE
+            : "Open review"}
         </Link>
-        {showcasePackage ? (
+        {showcasePackage === true && buyerPolishedLayout !== true ? (
           <>
             {" · "}
             <Link
@@ -284,18 +277,17 @@ export default async function ManifestDetailPage({
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-            {buyerPolishedLayout ? "Architecture review package" : "Finalized Architecture Manifest"}
+            {showcaseBuyerManifestHeadline === true
+              ? SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE
+              : buyerPolishedLayout
+                ? "Architecture review package"
+                : "Finalized Architecture Manifest"}
           </h1>
-          {manifestSubtitle ? (
-            <p className="m-0 mt-1 text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              {manifestSubtitle}
-            </p>
-          ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="primary" size="sm" asChild>
             <a href={getBundleDownloadUrl(manifestId)}>
-              {buyerPolishedLayout ? "Download full package (ZIP)" : "Export manifest bundle"}
+              {buyerPolishedLayout ? "Download evidence package (ZIP)" : "Export manifest bundle"}
             </a>
           </Button>
         </div>
@@ -346,7 +338,7 @@ export default async function ManifestDetailPage({
             {buyerPolishedLayout && primaryFindingHref ? (
                 <div className="mt-3 space-y-2 rounded-lg border border-amber-200/90 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
                   <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-950/90 dark:text-amber-100/90">
-                    PHI minimization risk · sample package
+                    PHI minimization — monitored control
                   </p>
                   <p className="m-0 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
                     <strong>Severity:</strong> High — expanded breach and audit scope if minimization is understated.{" "}
@@ -363,7 +355,7 @@ export default async function ManifestDetailPage({
                     primaryFindingHref ?? `/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
                   }
                 >
-                  {primaryFindingHref ? "Open PHI risk finding" : buyerPolishedLayout ? "View findings on review" : "Open review findings"}
+                  {primaryFindingHref ? "High severity — open PHI minimization finding" : buyerPolishedLayout ? "View findings on review" : "Open review findings"}
                 </Link>
               </Button>
             </div>
@@ -386,7 +378,7 @@ export default async function ManifestDetailPage({
           <div>
             <Button variant={buyerPolishedLayout ? "primary" : "outline"} size="sm" asChild>
               <a href={getBundleDownloadUrl(manifestId)}>
-                {buyerPolishedLayout ? "Download all files (ZIP)" : "Download bundle (ZIP)"}
+                {buyerPolishedLayout ? "Download evidence package (ZIP)" : "Download bundle (ZIP)"}
               </a>
             </Button>
           </div>

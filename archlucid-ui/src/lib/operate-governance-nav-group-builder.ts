@@ -57,8 +57,8 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/audit",
-          label: "Audit log",
-          title: "Audit log — search and export scoped audit events",
+          label: "Audit Trail",
+          title: "Audit Trail — search and export scoped audit events",
           icon: FileSearch,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",

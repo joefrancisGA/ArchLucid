@@ -20,6 +20,8 @@ using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Startup.Diagnostics;
 using ArchLucid.Host.Core.Startup.Validation;
 
+using Serilog;
+
 namespace ArchLucid.Api;
 
 [ExcludeFromCodeCoverage(Justification =
@@ -56,6 +58,7 @@ public partial class Program
         ArchLucidHostingRole hostingRole = HostingRoleResolver.Resolve(builder.Configuration);
 
         // Add services to the container.
+        builder.Services.AddHealthChecks();
 
         builder.Services.AddArchLucidMvc();
 
@@ -66,7 +69,8 @@ public partial class Program
                    logging.AddConsole();
                }))
         {
-            ILogger authSafetyLogger = authSafetyLoggerFactory.CreateLogger("AuthSafetyGuard");
+            Microsoft.Extensions.Logging.ILogger authSafetyLogger =
+                authSafetyLoggerFactory.CreateLogger("AuthSafetyGuard");
             AuthSafetyGuard.GuardAllDevelopmentBypasses(builder.Configuration, builder.Environment, authSafetyLogger);
         }
 
@@ -164,7 +168,9 @@ public partial class Program
 
             app.Logger.LogInformation("ArchLucid API starting request pipeline.");
 
-        app.UseArchLucidPipeline();
+        app.UseArchLucidPipelineBeforeSerilogRequestLogging();
+        app.UseSerilogRequestLogging(ArchLucidSerilogRequestLogging.ConfigureRequestLogging);
+        app.UseArchLucidPipelineAfterSerilogRequestLogging();
         app.Run();
     }
 }

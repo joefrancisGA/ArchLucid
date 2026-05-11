@@ -3,6 +3,11 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 /** Public-marketing slug for demos and screenshots — no fixture-style token. */
 export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
 
+/**
+ * Buyer-facing H1/link title for the curated sample — includes “Review Package” so it matches procurement language.
+ */
+export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = "Claims Intake Modernization Review Package";
+
 /** Canonical manifest UUID for the static showcase payload (matches operator mock + marketing body). */
 export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
 
@@ -43,7 +48,7 @@ export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = [
 
 /** Single curated warning matching `manifest.warningCount` for the static showcase. */
 export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = [
-  "Some unstructured intake attachments may not receive full PHI minimization coverage during peak exception volume; monitor exception volume weekly.",
+  "Unstructured intake attachments require weekly exception-volume monitoring to maintain PHI minimization coverage.",
 ];
 
 const GENERATED_UTC = "2026-04-23T09:15:00.000Z";
@@ -62,7 +67,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
     run: {
       runId,
       projectId: "claims-intake-sample-workspace",
-      description: "Claims Intake Modernization Review",
+      description: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
       createdUtc: "2026-01-10T09:15:22.000Z",
     },
     manifest: {
@@ -124,35 +129,35 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
       },
       {
         eventId: "evt-pipeline-context",
-        occurredUtc: "2026-01-14T21:42:10.000Z",
+        occurredUtc: "2026-01-13T16:22:41.000Z",
         eventType: "context.snapshot.created",
         actorUserName: "ArchLucid automation",
         correlationId: "corr-intake-demo-ctx",
       },
       {
         eventId: "evt-pipeline-graph",
-        occurredUtc: "2026-01-14T21:51:33.000Z",
+        occurredUtc: "2026-01-18T14:09:07.000Z",
         eventType: "graph.snapshot.created",
         actorUserName: "ArchLucid automation",
         correlationId: "corr-intake-demo-graph",
       },
       {
         eventId: "evt-pipeline-findings",
-        occurredUtc: "2026-01-14T22:03:18.000Z",
+        occurredUtc: "2026-01-24T11:41:53.000Z",
         eventType: "findings.snapshot.created",
         actorUserName: "ArchLucid automation",
         correlationId: "corr-intake-demo-findings",
       },
       {
         eventId: "evt-pipeline-manifest-finalized",
-        occurredUtc: "2026-01-14T22:07:58.000Z",
+        occurredUtc: "2026-01-31T21:52:06.000Z",
         eventType: "finalize.run",
         actorUserName: "Taylor Morgan",
         correlationId: "corr-intake-demo-manifest",
       },
       {
         eventId: "evt-pipeline-bundle",
-        occurredUtc: "2026-01-14T22:09:44.000Z",
+        occurredUtc: "2026-02-03T09:07:44.000Z",
         eventType: "artifact.bundle.created",
         actorUserName: "ArchLucid automation",
         correlationId: "corr-intake-demo-bundle",

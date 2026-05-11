@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { apiGet } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import {
   semanticSearchPageDeploymentNoteDev,
@@ -32,6 +32,7 @@ type RetrievalHit = {
 
 export default function SearchPage() {
   const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+  const buyerShell = isBuyerPolishedOperatorShellEnv();
 
   const [query, setQuery] = useState("");
   const [runId, setRunId] = useState("");
@@ -73,7 +74,7 @@ export default function SearchPage() {
   return (
     <div className="max-w-4xl">
       <OperatorPageHeader
-        title="Semantic Search"
+        title={buyerShell === true ? "Search review evidence" : "Semantic Search"}
         helpKey="semantic-search"
         subtitle={semanticSearchPageSubtitleOperator}
       />

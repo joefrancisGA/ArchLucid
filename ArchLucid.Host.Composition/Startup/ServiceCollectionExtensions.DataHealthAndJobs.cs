@@ -13,6 +13,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using Azure.Core;
 using Azure.Storage.Queues;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
@@ -31,11 +32,11 @@ public static partial class ServiceCollectionExtensions
             .AddCheck(
                 "liveness",
                 () => HealthCheckResult.Healthy("ArchLucid API process is running."),
-                tags: [ReadinessTags.Live])
-            .AddCheck<SqlConnectionHealthCheck>(
-                "database",
-                failureStatus: HealthStatus.Unhealthy,
-                tags: [ReadinessTags.Ready])
+                tags: [ReadinessTags.Live]);
+
+        AddArchLucidSqlServerDatabaseHealthCheck(builder, configuration);
+
+        builder
             .AddCheck<SqlSystemPlaneHealthCheck>(
                 "sql_system_plane",
                 failureStatus: HealthStatus.Unhealthy,
@@ -71,6 +72,50 @@ public static partial class ServiceCollectionExtensions
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready]);
 
+    }
+
+    /// <summary>
+    ///     Deep SQL reachability probe via <c>AspNetCore.HealthChecks.SqlServer</c> (replaces custom
+    ///     <see cref="SqlConnectionHealthCheck" /> for persistence readiness). InMemory storage skips the probe.
+    /// </summary>
+    private static void AddArchLucidSqlServerDatabaseHealthCheck(
+        IHealthChecksBuilder builder,
+        IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+
+        if (ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.StorageProvider))
+        {
+            builder.AddCheck(
+                "database",
+                () => HealthCheckResult.Healthy(
+                    "Database readiness skipped: storage is InMemory (no SQL persistence)."),
+                tags: [ReadinessTags.Ready]);
+
+            return;
+        }
+
+        string? connectionString = configuration.GetConnectionString("ArchLucid");
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            builder.AddCheck(
+                "database",
+                static () =>
+                    HealthCheckResult.Unhealthy("ConnectionStrings:ArchLucid is not configured."),
+                tags: [ReadinessTags.Ready]);
+
+            return;
+        }
+
+        builder.AddSqlServer(
+            connectionString,
+            name: "database",
+            failureStatus: HealthStatus.Unhealthy,
+            tags: [ReadinessTags.Ready]);
     }
 
     private static void RegisterDataConsistencyReconciliation(

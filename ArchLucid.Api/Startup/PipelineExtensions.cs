@@ -18,7 +18,12 @@ namespace ArchLucid.Api.Startup;
 
 internal static class PipelineExtensions
 {
-    public static WebApplication UseArchLucidPipeline(this WebApplication app)
+    /// <summary>
+    ///     Middleware through <c>UseCors</c> (includes <c>UseRouting</c>).
+    ///     Call <c>UseSerilogRequestLogging</c> in <c>Program.cs</c> immediately after this, then
+    ///     <see cref="UseArchLucidPipelineAfterSerilogRequestLogging" />.
+    /// </summary>
+    public static WebApplication UseArchLucidPipelineBeforeSerilogRequestLogging(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
         // Before auth or body-reading middleware: correlate first, then safe structured lifecycle logs only.
@@ -101,7 +106,14 @@ internal static class PipelineExtensions
         if (AspNetCoreHostingUrls.ShouldUseHttpsRedirection(app.Configuration))
             app.UseHttpsRedirection();
         app.UseResponseCompression();
+        app.UseRouting();
         app.UseCors("ArchLucid");
+        return app;
+    }
+
+    /// <summary>Authentication, authorization, metering, health maps, and controllers (endpoint execution).</summary>
+    public static WebApplication UseArchLucidPipelineAfterSerilogRequestLogging(this WebApplication app)
+    {
         app.UseAuthentication();
         app.UseRateLimiter();
         app.UseMiddleware<TrialSeatReservationMiddleware>();

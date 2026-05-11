@@ -729,7 +729,7 @@ export default function AuditPage() {
     <div className="max-w-4xl">
       <LayerHeader pageKey="audit" />
       <OperatorPageHeader
-        title="Audit log"
+        title={buyerPolishedShell ? "Audit Trail" : "Audit log"}
         helpKey="audit-log"
         actions={
           <HelpLink

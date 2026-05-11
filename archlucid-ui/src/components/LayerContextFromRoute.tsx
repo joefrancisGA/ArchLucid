@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
+import { buyerPolishedRouteOrientation } from "@/lib/buyer-polished-route-orientation";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getLayerForRoute } from "@/lib/getLayerForRoute";
 
@@ -11,6 +12,7 @@ import { LayerContextStrip } from "./LayerContextStrip";
 export function LayerContextFromRoute() {
   const pathname = usePathname() ?? "/";
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerRouteOrientation = buyerPolishedShell ? buyerPolishedRouteOrientation(pathname) : null;
 
   // Home already carries pilot context in the hero; avoid a second mission strip that reads like a weak breadcrumb.
   // New request is the primary create flow — keep the header uncluttered like home.
@@ -22,6 +24,7 @@ export function LayerContextFromRoute() {
     <LayerContextStrip
       layerId={getLayerForRoute(pathname)}
       polishedOperateAnalysisLabel={buyerPolishedShell ? "Analysis" : undefined}
+      buyerRouteOrientation={buyerRouteOrientation ?? undefined}
     />
   );
 }
