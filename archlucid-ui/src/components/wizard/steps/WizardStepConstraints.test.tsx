@@ -51,16 +51,21 @@ describe("WizardStepConstraints", () => {
     );
 
     const adds = screen.getAllByRole("button", { name: "Add" });
-    expect(adds).toHaveLength(3);
+    expect(adds).toHaveLength(1);
+
+    fireEvent.click(screen.getByRole("button", { name: /advanced options/i }));
+
+    const addsOpen = screen.getAllByRole("button", { name: "Add" });
+    expect(addsOpen).toHaveLength(3);
 
     fireEvent.change(screen.getByLabelText("Required capabilities"), {
       target: { value: "HTTPS only" },
     });
-    fireEvent.click(adds[1]);
+    fireEvent.click(addsOpen[1]);
     expect(screen.getByText("HTTPS only")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Assumptions"), { target: { value: "Team knows Azure" } });
-    fireEvent.click(adds[2]);
+    fireEvent.click(addsOpen[2]);
     expect(screen.getByText("Team knows Azure")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Remove Team knows Azure" }));

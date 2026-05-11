@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
 import { OperatorNextActionsCard } from "@/components/OperatorNextActionsCard";
+import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import { OperatorStickinessSnapshotCard } from "@/components/OperatorStickinessSnapshotCard";
 import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
 import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
@@ -101,7 +102,7 @@ export default function HomePage() {
             </section>
             )}
 
-            {buyerPolishedShell ? null : <BeforeAfterDeltaPanel />}
+            <BeforeAfterDeltaPanel />
 
             {buyerPolishedShell ? null : <HomeMaturityLayerCards />}
           </OperationalMetricsGate>

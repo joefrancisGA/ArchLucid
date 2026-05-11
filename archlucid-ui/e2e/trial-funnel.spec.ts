@@ -142,7 +142,7 @@ test.describe("trial funnel — mocked end-to-end", () => {
     await expect(page.getByTestId("before-after-delta-panel")).toBeVisible();
     await expect(page.getByTestId("before-after-delta-baseline-hours")).toHaveText("16.00 h");
     await expect(page.getByTestId("before-after-delta-measured-hours")).toHaveText("4.00 h");
-    await expect(page.getByTestId("before-after-delta-summary")).toContainText("12.00 h saved per run");
+    await expect(page.getByTestId("before-after-delta-summary")).toContainText("12.00 h saved per finalized review");
     await expect(page.getByTestId("before-after-delta-summary")).toContainText("75.0% improvement");
   });
 });

@@ -529,8 +529,9 @@ Acceptance Criteria:
 - **Why it matters:** The current configuration UI is dense and requires a steep learning curve. Hiding advanced configuration options by default reduces cognitive load for new users while preserving power for advanced users.
 - **Expected impact:** Directly improves Usability (+10-15 pts), Cognitive Load (+15-20 pts), Adoption Friction (+5-10 pts). Weighted readiness impact: +0.7-1.1%.
 - **Affected qualities:** Usability, Cognitive Load, Adoption Friction.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** Complete (Radix-backed `AdvancedOptionsAccordion` progressive disclosure on the full new-run wizard and shared quick-start steps; optional fields keep schema defaults when collapsed).
+- **Delivered:** `WizardStepIdentity` (prior manifest baseline), `WizardStepDescription` (inline requirements), `WizardStepConstraints` (required capabilities + assumptions), and `WizardStepAdvanced` (policy/topology/security hints, documents, infrastructure declarations) default-hidden behind **Advanced Options**; removed redundant Basic/Advanced view-mode toggle on the advanced step. Implementation: `archlucid-ui/src/components/wizard/steps/*.tsx` + `AdvancedOptionsAccordion.tsx` (Radix Collapsible).
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the `archlucid-ui` Next.js application, implement progressive disclosure on the architecture definition/configuration forms.
 
@@ -955,7 +956,7 @@ Acceptance Criteria:
 
 ## Prompt Batching Guidance
 - **Batch 1 (UI & Value Visibility):** Run Improvement 1 (Executive ROI Dashboard) and Improvement 8 (Scaffold Self-Serve Billing). These establish the commercial and value-driven UI patterns.
-- **Batch 2 (UX & Adoption Friction):** Run Improvement 6 (Progressive Disclosure), Improvement 7 (Onboarding Modal), and Improvement 22 (Accessibility Navigation). These frontend changes drastically reduce the learning curve and improve compliance.
+- **Batch 2 (UX & Adoption Friction):** Improvement 6 (Progressive Disclosure) is **complete**. Run Improvement 7 (Onboarding Modal) and Improvement 22 (Accessibility Navigation). These frontend changes drastically reduce the learning curve and improve compliance.
 - **Batch 3 (Backend & Templates):** Run Improvement 2 (Quick Start Templates) and Improvement 17 (Compliance Templates). This provides the data structure for reducing adoption friction.
 - **Batch 4 (Backend & Performance):** Run Improvement 5 (Expose LLM Reasoning) and Improvement 9 (Semantic Caching). These address core engineering and explainability concerns.
 - **Batch 5 (Security & CI):** Run Improvement 10 (Gitleaks) and Improvement 16 (Roslyn Analyzer). These enforce security invariants at compile and commit time.

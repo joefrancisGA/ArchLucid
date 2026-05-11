@@ -22,6 +22,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import { listRunsByProjectPaged } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
 

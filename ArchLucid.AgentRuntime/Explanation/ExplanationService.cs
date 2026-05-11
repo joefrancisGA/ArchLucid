@@ -121,14 +121,7 @@ public sealed class ExplanationService(
 
         string trimmed = json.Trim();
 
-        if (!trimmed.StartsWith("{", StringComparison.Ordinal))
-        {
-            ArchLucidInstrumentation.RecordExplanationSchemaValidation("run", "skipped");
-
-            return json;
-        }
-
-        if (!TryGetRunExplanationSchemaVersion(trimmed, out int ver) || ver != 1)
+        if (!trimmed.StartsWith("{", StringComparison.Ordinal) || !TryGetRunExplanationSchemaVersion(trimmed, out int ver) || ver != 1)
         {
             ArchLucidInstrumentation.RecordExplanationSchemaValidation("run", "skipped");
 

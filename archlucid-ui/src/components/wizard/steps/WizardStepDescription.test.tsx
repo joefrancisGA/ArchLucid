@@ -44,6 +44,7 @@ describe("WizardStepDescription", () => {
 
     expect(screen.queryByRole("button", { name: "Remove" })).not.toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: /advanced options/i }));
     fireEvent.click(screen.getByRole("button", { name: "Add requirement" }));
     const textareas = screen.getAllByRole("textbox");
     const inlineTa = textareas.find((el) => el !== screen.getByLabelText("Description"));

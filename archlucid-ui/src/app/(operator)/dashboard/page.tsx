@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = {

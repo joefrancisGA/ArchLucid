@@ -2,15 +2,11 @@ import type { NavLinkItem } from "@/lib/nav-config";
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review (`CurrentPrincipal.hasCommittedArchitectureReview`).
- * Allowed: Home, Reviews list/new, active review detail under `/reviews/...`.
+ * Allowed: Home, Reviews list/new, active review detail under `/reviews/...`. Executive summary (`/dashboard`) stays gated until
+ * the first commit so the shell stays on architecture-review essentials only.
  */
 export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWithoutQuery: string): boolean {
   if (pathWithoutQuery === "/" || pathWithoutQuery === "/reviews") {
-    return true;
-  }
-
-  // Sponsor-facing ROI snapshot uses mock data only — safe to surface before the first golden-manifest commit.
-  if (pathWithoutQuery === "/dashboard") {
     return true;
   }
 

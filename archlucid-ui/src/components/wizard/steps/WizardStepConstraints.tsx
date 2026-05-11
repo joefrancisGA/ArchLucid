@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
+import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,20 +119,21 @@ export function WizardStepConstraints() {
           hint="Hard limits the proposed architecture must not violate (budget, regions, compliance, etc.)."
           inputId="wizard-constraints-draft"
         />
-        <Separator />
-        <ChipListBlock
-          fieldName="requiredCapabilities"
-          label="Required capabilities"
-          hint="What the system must support — e.g. HTTPS ingress, managed database, observability."
-          inputId="wizard-capabilities-draft"
-        />
-        <Separator />
-        <ChipListBlock
-          fieldName="assumptions"
-          label="Assumptions"
-          hint="Statements agents may treat as true unless contradicted by evidence (team skills, timelines)."
-          inputId="wizard-assumptions-draft"
-        />
+        <AdvancedOptionsAccordion className="mt-2">
+          <ChipListBlock
+            fieldName="requiredCapabilities"
+            label="Required capabilities"
+            hint="What the system must support — e.g. HTTPS ingress, managed database, observability."
+            inputId="wizard-capabilities-draft"
+          />
+          <Separator />
+          <ChipListBlock
+            fieldName="assumptions"
+            label="Assumptions"
+            hint="Statements agents may treat as true unless contradicted by evidence (team skills, timelines)."
+            inputId="wizard-assumptions-draft"
+          />
+        </AdvancedOptionsAccordion>
       </div>
     </WizardStepPanel>
   );

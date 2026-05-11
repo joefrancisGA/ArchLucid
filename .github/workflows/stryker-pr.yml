@@ -1,5 +1,5 @@
 # Differential mutation testing on pull requests (Stryker --since). Full matrix remains
-# weekly in stryker-scheduled.yml. See docs/MUTATION_TESTING_STRYKER.md § Per-PR differential.
+# weekly in stryker-scheduled.yml. See docs/library/MUTATION_TESTING_STRYKER.md § Per-PR differential.
 name: Stryker (PR differential)
 
 on:

@@ -2,12 +2,12 @@
 """
 Plan which Stryker.NET configs to run on a pull request by diffing base...head.
 
-Maps changed paths to the seven scheduled targets (Persistence, Application, AgentRuntime,
-Coordinator, Decisioning, PersistenceCoordination, Api). Emits GitHub Actions outputs:
+Maps changed paths to scheduled Stryker targets (same labels as **`FULL_MATRIX`** in this file).
+Emits GitHub Actions outputs:
   run=true|false
   matrix_include=JSON array of {"label","config"} for strategy.matrix.include
 
-See docs/MUTATION_TESTING_STRYKER.md § Per-PR differential.
+See docs/library/MUTATION_TESTING_STRYKER.md § Per-PR differential.
 """
 from __future__ import annotations
 
@@ -29,6 +29,10 @@ FULL_MATRIX: list[tuple[str, str]] = [
     ("Api", "stryker-config.api.json"),
     ("DecisioningMerge", "stryker-config.decisioning-merge.json"),
     ("ApplicationGovernance", "stryker-config.application-governance.json"),
+    (
+        "ApplicationCommitCriticalPaths",
+        "stryker-config.application-commit-critical-paths.json",
+    ),
 ]
 
 # Paths that should run the full matrix (config / CI / tool pins).
@@ -110,10 +114,26 @@ def _targets_for_path(path: str) -> list[tuple[str, str]]:
         return [
             ("Application", "stryker-config.application.json"),
             ("ApplicationGovernance", "stryker-config.application-governance.json"),
+            ("ApplicationCommitCriticalPaths", "stryker-config.application-commit-critical-paths.json"),
         ]
 
     if p.startswith("ArchLucid.Application/Governance/"):
-        return [("ApplicationGovernance", "stryker-config.application-governance.json")]
+        return [
+            ("ApplicationGovernance", "stryker-config.application-governance.json"),
+            ("ApplicationCommitCriticalPaths", "stryker-config.application-commit-critical-paths.json"),
+        ]
+
+    if p.startswith("ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator"):
+        return [
+            ("Application", "stryker-config.application.json"),
+            ("ApplicationCommitCriticalPaths", "stryker-config.application-commit-critical-paths.json"),
+        ]
+
+    if p.startswith("ArchLucid.Application/Runs/Finalization/ManifestFinalizationService"):
+        return [
+            ("Application", "stryker-config.application.json"),
+            ("ApplicationCommitCriticalPaths", "stryker-config.application-commit-critical-paths.json"),
+        ]
 
     if p.startswith("ArchLucid.Application/"):
         return [("Application", "stryker-config.application.json")]
@@ -204,6 +224,13 @@ def _self_test() -> None:
     ]
     assert plan_matrix(["ArchLucid.Application/Governance/x.cs"]) == [
         ("ApplicationGovernance", "stryker-config.application-governance.json"),
+        ("ApplicationCommitCriticalPaths", "stryker-config.application-commit-critical-paths.json"),
+    ]
+    assert plan_matrix(
+        ["ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs"],
+    ) == [
+        ("Application", "stryker-config.application.json"),
+        ("ApplicationCommitCriticalPaths", "stryker-config.application-commit-critical-paths.json"),
     ]
 
 
