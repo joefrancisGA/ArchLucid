@@ -12,7 +12,8 @@
 #   Tier 2d — Optional live Azure OpenAI (`RealAzureOpenAIEndToEndTests`) after OpenAPI snapshot + merged coverage gates + chaos;
 #           — opt-in repo var `ARCHLUCID_CI_REAL_AOAI_ENABLED`; secrets `ARCHLUCID_CI_REAL_AOAI_ENDPOINT` / `ARCHLUCID_CI_REAL_AOAI_KEY` (same-repo PRs/push only).
 #   Tier 2c — k6: operator-path API smoke after full regression (native k6; merge-blocking) + k6 CI smoke read+write (after Tier 1)
-#   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact; lint/typecheck/build (`ui-static-quality`); mock smoke (`ui-playwright-mock-smoke`; optional full-page screenshot goldens via `npm run test:e2e:mock:visual` locally when updating baselines)
+#   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact; lint/typecheck/build (`ui-static-quality`); mock journeys (`ui-playwright-mock-smoke`);
+#             axe WCAG 2.1 A/AA (`ui-playwright-accessibility`, mock-backed); optional full-page screenshot goldens via `npm run test:e2e:mock:visual` locally when updating baselines
 #   Tier 3b — Operator UI e2e (Playwright live API + SQL; PR omits extended live-a11y route matrix — see nightly / manual workflow_dispatch)
 #
 # Re-run failed jobs from the Actions tab. Local equivalents: test-fast-core.*, test-full.*,
@@ -2007,7 +2008,7 @@ jobs:
   ui-playwright-mock-smoke:
     name: "Operator UI: Playwright mock functional (mock API)"
     needs: gitleaks
-    # Mock journey specs (`e2e/`, `chromium` project). Optional visual goldens: `npm run test:e2e:mock:visual` — see playwright.mock.config.ts.
+    # Mock journey specs (`e2e/`, `chromium` project). Accessibility scans: job `ui-playwright-accessibility`. Optional visual goldens: `npm run test:e2e:mock:visual` — see playwright.mock.config.ts.
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -2048,6 +2049,52 @@ jobs:
         if: always()
         with:
           name: ui-mock-smoke-blob-report
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+  ui-playwright-accessibility:
+    name: "Operator UI: axe-core WCAG 2.1 A/AA (mock)"
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Playwright accessibility (axe-core, mock server)
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run build
+          npx playwright install --with-deps chromium
+          npm run test:e2e:accessibility
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: ui-accessibility-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: ui-accessibility-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: ui-accessibility-blob-report
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
@@ -2884,6 +2931,7 @@ jobs:
       - ui-axe-components
       - ui-static-quality
       - ui-playwright-mock-smoke
+      - ui-playwright-accessibility
       - ui-e2e-live
       - ui-e2e-live-apikey
       - ui-e2e-live-jwt
