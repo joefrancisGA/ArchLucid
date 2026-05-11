@@ -23,6 +23,7 @@ describe("QuickDecisionSummary", () => {
         recommendation: "Later.",
         severityValue: 0,
         findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
       },
       {
         findingId: "f-high",
@@ -30,6 +31,7 @@ describe("QuickDecisionSummary", () => {
         recommendation: "Fix immediately. Then verify.",
         severityValue: 2,
         findingOrder: 1,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
       },
       {
         findingId: "f-critical",
@@ -37,6 +39,7 @@ describe("QuickDecisionSummary", () => {
         recommendation: "Stop rollout.",
         severityValue: 3,
         findingOrder: 2,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
       },
       {
         findingId: "f-extra",
@@ -44,6 +47,7 @@ describe("QuickDecisionSummary", () => {
         recommendation: "Extra.",
         severityValue: 1,
         findingOrder: 3,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
       },
     ];
 
@@ -69,6 +73,7 @@ describe("QuickDecisionSummary", () => {
         recommendation: "Do thing.",
         severityValue: 3,
         findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
       },
     ];
 

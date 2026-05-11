@@ -1,5 +1,15 @@
 import type { RunDetail } from "@/types/authority";
 
+/**
+ * Persisted architecture finding wire snapshot for "AI reasoning" deep-dive UI.
+ * Extends automatically when the API adds Staged Critic / evaluation fields — payload is full JSON.
+ */
+export type FindingWireSnapshot = {
+  /** Pretty-printed `ArchitectureFinding` (or superset) as returned on the run detail wire. */
+  wireJson: string;
+  reasoningTrace: string;
+};
+
 /** Inputs derived only from GET run detail `results[].findings` (ArchitectureFinding). */
 export type QuickDecisionFinding = {
   findingId: string;
@@ -9,6 +19,8 @@ export type QuickDecisionFinding = {
   severityValue: number;
   /** Stable order within the flattened results/findings traversal. */
   findingOrder: number;
+  /** Full finding record JSON + reasoning trace for optional Staged Critic / evaluation panel. */
+  aiReasoning: FindingWireSnapshot;
 };
 
 export function firstRecommendationSentence(text: string): string {
@@ -107,6 +119,14 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
           ? fr.reasoningTrace.trim()
           : "";
 
+      let wireJson: string;
+
+      try {
+        wireJson = JSON.stringify(fr, null, 2);
+      } catch {
+        wireJson = '{"error":"finding_payload_not_json_serializable"}';
+      }
+
       const severityRaw = fr.severity;
       const severityValue =
         typeof severityRaw === "number" && Number.isFinite(severityRaw)
@@ -119,11 +139,24 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         recommendation: reasoning,
         severityValue,
         findingOrder: order++,
+        aiReasoning: { wireJson, reasoningTrace: reasoning },
       });
     }
   }
 
   return out;
+}
+
+/** Map of finding id → wire snapshot for any row that lists findings (e.g. explainability table). */
+export function buildFindingWireSnapshotsByFindingId(detail: RunDetail): Record<string, FindingWireSnapshot> {
+  const extracted = extractQuickDecisionFindingsFromRunDetail(detail);
+  const record: Record<string, FindingWireSnapshot> = {};
+
+  for (const row of extracted) {
+    record[row.findingId] = row.aiReasoning;
+  }
+
+  return record;
 }
 
 /** Highest severity first, then original finding order. */

@@ -2,6 +2,7 @@ import type { RunDetail } from "@/types/authority";
 import { describe, expect, it } from "vitest";
 
 import {
+  buildFindingWireSnapshotsByFindingId,
   extractQuickDecisionFindingsFromRunDetail,
   firstRecommendationSentence,
   sortQuickDecisionFindings,
@@ -55,6 +56,7 @@ describe("quick-decision-summary-derive", () => {
 
     expect(extracted).toHaveLength(3);
     expect(extracted[0]?.findingId).toBe("a");
+    expect(extracted[0]?.aiReasoning.wireJson).toContain('"findingId": "a"');
     expect(extracted[1]?.findingId).toBe("b");
 
     const sorted = sortQuickDecisionFindings(extracted);
@@ -62,6 +64,31 @@ describe("quick-decision-summary-derive", () => {
     expect(sorted[0]?.findingId).toBe("b");
     expect(sorted[1]?.findingId).toBe("c");
     expect(sorted[2]?.findingId).toBe("a");
+  });
+
+  it("buildFindingWireSnapshotsByFindingId maps ids to wire snapshots", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [
+        {
+          findings: [
+            {
+              findingId: "x",
+              message: "Hello",
+              reasoningTrace: "Step one.\nStep two.",
+              evaluationConfidenceScore: 42,
+              severity: 1,
+            },
+          ],
+        },
+      ],
+    } as unknown as RunDetail;
+
+    const snaps = buildFindingWireSnapshotsByFindingId(detail);
+
+    expect(snaps.x).toBeDefined();
+    expect(snaps.x?.reasoningTrace).toContain("Step one");
+    expect(snaps.x?.wireJson).toContain("evaluationConfidenceScore");
   });
 
   it("extractQuickDecisionFindingsFromRunDetail skips rows without findingId", () => {

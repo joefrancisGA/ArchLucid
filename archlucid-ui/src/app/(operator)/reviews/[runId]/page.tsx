@@ -89,7 +89,10 @@ import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import { findPriorCommittedRun } from "@/lib/find-prior-committed-run";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import { extractQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-summary-derive";
+import {
+  buildFindingWireSnapshotsByFindingId,
+  extractQuickDecisionFindingsFromRunDetail,
+} from "@/lib/quick-decision-summary-derive";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
 import type {
   ArtifactDescriptor,
@@ -496,6 +499,7 @@ export default async function RunDetailPage({
     manifestSummary !== null ? governanceGateLabelFromManifestStatus(manifestSummary.status) : null;
 
   const quickDecisionFindings = extractQuickDecisionFindingsFromRunDetail(resolvedDetail);
+  const findingWireSnapshots = buildFindingWireSnapshotsByFindingId(resolvedDetail);
 
   const sampleReviewPackageSummaryEl =
     usedStaticDemoRun ? (
@@ -551,7 +555,13 @@ export default async function RunDetailPage({
                   return null;
                 }
 
-                return <RunFindingExplainabilityTable runId={runId} rows={traceRows} />;
+                return (
+                  <RunFindingExplainabilityTable
+                    runId={runId}
+                    rows={traceRows}
+                    findingWireSnapshots={findingWireSnapshots}
+                  />
+                );
               })()}
             </>
           )}
