@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.Configuration.Summary;
 
-/// <summary>Server response for <c>GET /v1/admin/config-summary</c> — presence; optional effective values (secrets redacted).</summary>
+/// <summary>Server response for admin configuration summary routes — presence; optional effective values (secrets redacted).</summary>
 public sealed class AdminConfigSummaryResponse
 {
     public IReadOnlyList<ConfigSummaryKeyRow>? Keys
@@ -38,9 +38,23 @@ public sealed class ConfigSummaryKeyRow
         set;
     }
 
+    /// <summary>Operator-facing description from <see cref="ArchLucid.Core.Configuration.ConfigurationKeyCatalog" />.</summary>
+    public string? Description
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Declared sources for the key (e.g. appsettings, env, Key Vault), from the catalog.</summary>
+    public IReadOnlyList<string>? Sources
+    {
+        get;
+        set;
+    }
+
     /// <summary>
-    ///     Populated only when <c>includeEffectiveValues=true</c> on <c>GET /v1/admin/config-summary</c>; secrets return
-    ///     <c>***</c>.
+    ///     Populated only when <c>includeEffectiveValues=true</c>; sensitive values return <c>***</c> per
+    ///     <see cref="ConfigurationEffectiveValueResolver" />.
     /// </summary>
     public string? EffectiveValue
     {

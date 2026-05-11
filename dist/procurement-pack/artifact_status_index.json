@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-05-07T01:16:01.087843+00:00",
+  "generated_utc": "2026-05-11T01:57:44.122611+00:00",
   "files": [
     {
       "pack_path": "SECURITY.md",
@@ -115,6 +115,11 @@
       "pack_path": "ENTERPRISE_COMPARISON_ONE_PAGE.md",
       "artifact_status": "Evidence",
       "description": "Enterprise comparison one-pager (Markdown; PDF via GET /v1/marketing/enterprise-comparison.pdf)"
+    },
+    {
+      "pack_path": "COMPETITIVE_COMPARISON.md",
+      "artifact_status": "Evidence",
+      "description": "Category-level competitive comparison matrix for procurement (no vendor-specific assertions)"
     },
     {
       "pack_path": "DSAR_PROCESS.md",

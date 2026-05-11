@@ -58,4 +58,13 @@ public sealed class RunDetailsResponse
         get;
         set;
     }
+
+    /// <summary>
+    ///     Summed token usage and USD estimate from persisted <see cref="AgentExecutionTrace" /> rows for this run.
+    /// </summary>
+    public RunAgentLlmCostEstimateResponse? AgentExecutionLlmCostEstimate
+    {
+        get;
+        set;
+    }
 }

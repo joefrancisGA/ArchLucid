@@ -10,6 +10,7 @@ using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Persistence.Coordination.Compare;
 
@@ -36,6 +37,8 @@ public sealed class DemoViewerController(
     IArchitectureRunProvenanceService architectureRunProvenanceService,
     IAuthorityCompareService authorityCompareService,
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    ILlmCostEstimator llmCostEstimator,
     IConfiguration configuration) : ControllerBase
 {
     private readonly IArchitectureRunProvenanceService _architectureRunProvenanceService =
@@ -55,6 +58,12 @@ public sealed class DemoViewerController(
 
     private readonly IRunTrustEvidenceCardBuilder _trustEvidenceCardBuilder =
         trustEvidenceCardBuilder ?? throw new ArgumentNullException(nameof(trustEvidenceCardBuilder));
+
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly ILlmCostEstimator _llmCostEstimator =
+        llmCostEstimator ?? throw new ArgumentNullException(nameof(llmCostEstimator));
 
     /// <summary>Lists recent runs in the Contoso demo scope.</summary>
     [HttpGet("runs")]
@@ -122,6 +131,13 @@ public sealed class DemoViewerController(
                 _configuration["AgentExecution:Mode"],
                 cancellationToken);
         }
+
+        await RunAgentExecutionLlmCostEstimateAppender.AppendAsync(
+            response,
+            runId,
+            _agentExecutionTraceRepository,
+            _llmCostEstimator,
+            cancellationToken);
 
         return Ok(response);
     }

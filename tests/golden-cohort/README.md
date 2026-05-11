@@ -6,6 +6,8 @@ This directory holds the **fixed cohort definition** used for nightly drift dete
 
 **`usage-mtd.json`** is an append-only ledger populated when the budget probe runs with `--usage-ledger` (see `.github/workflows/golden-cohort-nightly.yml`); CI uploads it as an artifact rather than auto-committing repo changes.
 
+**Simulator vs real LLM drift (measure-only):** run the manual GitHub Actions workflow **`golden-cohort-simulator-real-drift`** (or execute **`SimulatorVsRealDriftTests`** locally with `ARCHLUCID_REAL_AOAI_TEST_*`). Outputs land under **`drift-reports/`** (gitignored `*-drift.json`), append **`drift-trend.jsonl`**, and regenerate **`DRIFT_SUMMARY.md`** — see **`drift-reports/README.md`**.
+
 ## Selection rationale
 
 The 20 scenarios span common enterprise architecture patterns ArchLucid sees in pilots:

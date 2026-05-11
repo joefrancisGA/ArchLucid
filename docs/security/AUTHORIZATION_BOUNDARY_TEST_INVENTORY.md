@@ -33,9 +33,10 @@ dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter "Suite=Core&
 | 3 | `Reader_key_cannot_POST_demo_seed_returns_403` | `POST /v1/demo/seed` | **403** | Same; Development host may also return 404 if demo disabled (403 first if policy runs) |
 | 4 | `Reader_key_GET_run_returns_200_or_404_not_403` | `GET /v1/architecture/run/{runId}` | **200** or **404**, not **403** | `ReadAuthority`; missing run is 404 |
 | 5 | `Reader_key_cannot_GET_admin_config_summary_returns_403` | `GET /v1/admin/config-summary` | **403** | `AdminAuthority` only |
-| 6 | `No_api_key_on_protected_list_runs_returns_401` | `GET /v1/architecture/runs?limit=1` | **401** | Unauthenticated in ApiKey mode |
-| 7 | `Valid_reader_api_key_on_health_ready_returns_200` | `GET /health/ready` | **200** | Liveness is public; key still allowed |
-| 8 | `Valid_reader_api_key_on_detailed_health_returns_200` | `GET /health` | **200** | Reader has `ReadAuthority` for full health (see [HealthEndpointSecurityIntegrationTests](../../ArchLucid.Api.Tests/HealthEndpointSecurityIntegrationTests.cs)) |
+| 6 | `Reader_key_cannot_GET_admin_configuration_summary_returns_403` | `GET /v1/admin/configuration/summary` | **403** | `AdminAuthority` only |
+| 7 | `No_api_key_on_protected_list_runs_returns_401` | `GET /v1/architecture/runs?limit=1` | **401** | Unauthenticated in ApiKey mode |
+| 8 | `Valid_reader_api_key_on_health_ready_returns_200` | `GET /health/ready` | **200** | Liveness is public; key still allowed |
+| 9 | `Valid_reader_api_key_on_detailed_health_returns_200` | `GET /health` | **200** | Reader has `ReadAuthority` for full health (see [HealthEndpointSecurityIntegrationTests](../../ArchLucid.Api.Tests/HealthEndpointSecurityIntegrationTests.cs)) |
 
 ## Tenant isolation (`TenantIsolationSmokeTests`)
 

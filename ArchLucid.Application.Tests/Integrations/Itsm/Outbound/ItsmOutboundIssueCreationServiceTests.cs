@@ -36,6 +36,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
         {
             FindingId = findingId,
             RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            Severity = severity,
             TypedPayload = JsonSerializer.SerializeToElement(
                 new ArchitectureFinding { FindingId = findingId, Severity = severity, Message = "Hello" },
                 options: new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
@@ -135,6 +136,66 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             c => c.RegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task Jira_When_typed_payload_absent_uses_record_severity_for_priority()
+    {
+        RecordingHandler handler = new(_ =>
+            new HttpResponseMessage(HttpStatusCode.Created)
+            {
+                Content = new StringContent("{\"id\":\"9\",\"key\":\"DP-42\"}", Encoding.UTF8, "application/json")
+            });
+
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "x", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FindingInspectResponse
+                {
+                    FindingId = "x",
+                    RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                    Severity = FindingSeverity.Warning,
+                    TypedPayload = null,
+                    HumanReviewStatus = FindingHumanReviewStatus.Pending,
+                    Evidence = [],
+                    RecommendedActions = []
+                });
+
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.RegisterAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                "x",
+                "Jira",
+                "DP-42",
+                "9",
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ItsmOutboundIssueCreationService sut = new(
+            findings.Object,
+            correlations.Object,
+            Mock.Of<ITenantItsmOutboundSettingsRepository>(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IArchitectureRequestRepository>(),
+            Monitor(OutboundJiraConfigured()).Object,
+            JiraClient(handler),
+            new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHttpMessageHandler()),
+                NullLogger<ServiceNowOutboundIncidentClient>.Instance));
+
+        ItsmOutboundIssueCreationResult r = await sut.TryCreateForFindingAsync(
+            ItsmOutboundIssueProvider.Jira,
+            Scope(),
+            "x",
+            CancellationToken.None);
+
+        r.Kind.Should().Be(ItsmOutboundCreateTerminalKind.Succeeded);
+        handler.RequestCount.Should().Be(1);
+        string body = handler.LastBody!;
+        body.Should().Contain("\"name\":\"Medium\"");
     }
 
     [Fact]
@@ -381,6 +442,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 {
                     FindingId = "f1",
                     RunId = runId,
+                    Severity = FindingSeverity.Critical,
                     TypedPayload = JsonSerializer.SerializeToElement(
                         new ArchitectureFinding { Severity = FindingSeverity.Critical, Message = "Z" },
                         new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),

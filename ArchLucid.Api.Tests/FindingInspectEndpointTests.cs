@@ -97,6 +97,8 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
         body.DecisionRuleId.Should().Be("demo-seed-rule");
 
+        body.Severity.Should().Be(FindingSeverity.Warning);
+
         body.Evidence.Should().NotBeNull();
     }
 

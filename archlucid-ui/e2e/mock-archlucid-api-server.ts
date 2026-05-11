@@ -289,24 +289,18 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       if (req.method === "GET" && runsPagedMatchV1) {
         const pageNum = Math.max(1, Number.parseInt(u.searchParams.get("page") ?? "1", 10) || 1);
         const pageSize = Math.min(200, Math.max(1, Number.parseInt(u.searchParams.get("pageSize") ?? "20", 10) || 20));
-        const projectId = runsPagedMatchV1[1];
+        /**
+         * Empty page keeps **demo / mock E2E** aligned with `tryStaticDemoRunSummariesPaged`:
+         * `/reviews` SSR injects the Claims Intake showcase row + `OperatorDemoStaticBanner` when
+         * `NEXT_PUBLIC_DEMO_MODE` / static-operator flags are on. Returning a non-empty "live" page skips that path,
+         * shrinks the document (~full-page screenshots), and breaks `chromium-visual` goldens.
+         *
+         * Client pickers use `loadProjectRunsMergedWithDemoFallback` (`afterEmptyLiveList`); executive/admin SSR uses
+         * demo fallback when the live list is empty and demo mode is enabled.
+         */
         sendJson(res, 200, {
-          items: [
-            {
-              runId: SHOWCASE_DEMO_RUN_ID,
-              projectId,
-              description: "Claims Intake Modernization Review",
-              createdUtc: "2026-01-10T09:15:22.000Z",
-              goldenManifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-              hasGoldenManifest: true,
-              hasFindingsSnapshot: true,
-              hasGraphSnapshot: true,
-              hasContextSnapshot: true,
-              hasArtifactBundle: true,
-              hasDecisionTrace: true,
-            },
-          ],
-          totalCount: 1,
+          items: [],
+          totalCount: 0,
           page: pageNum,
           pageSize,
           hasMore: false,

@@ -78,7 +78,7 @@ public sealed class ItsmOutboundIssueCreationService(
         }
 
         TenantItsmOutboundSettings? tenantRow = await _tenantItsmOutboundSettings.TryGetAsync(scope.TenantId, ct).ConfigureAwait(false);
-        FindingSeverity severity = ItsmFindingAuthorityPayloadMapper.TryGetSeverity(inspect.TypedPayload);
+        FindingSeverity severity = ItsmFindingAuthorityPayloadMapper.TryGetSeverity(inspect.TypedPayload, inspect.Severity);
         (string summary, string description) = ItsmFindingAuthorityPayloadMapper.BuildSummaryAndDescription(inspect.FindingId, inspect.RunId,
             inspect.TypedPayload, inspect.DecisionRuleName, inspect.RecommendedActions);
         return provider switch

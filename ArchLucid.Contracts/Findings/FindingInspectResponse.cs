@@ -21,6 +21,16 @@ public sealed class FindingInspectResponse
         init;
     }
 
+    /// <summary>
+    ///     Coarse severity persisted on the finding record (relational <c>Severity</c> or snapshot model). Used as a fallback
+    ///     when <see cref="TypedPayload" /> omits or cannot be mapped to <c>ArchitectureFinding</c> severity.
+    /// </summary>
+    public FindingSeverity Severity
+    {
+        get;
+        init;
+    }
+
     /// <summary>Primary rule identifier (first applied rule id from authority decisioning trace, else first trace rule text).</summary>
     public string? DecisionRuleId
     {

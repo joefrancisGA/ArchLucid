@@ -139,6 +139,12 @@
       "artifact_status": "Evidence"
     },
     {
+      "pack_path": "COMPETITIVE_COMPARISON.md",
+      "source_repo_path": "docs/go-to-market/COMPETITIVE_COMPARISON.md",
+      "description": "Category-level competitive comparison matrix for procurement (no vendor-specific assertions)",
+      "artifact_status": "Evidence"
+    },
+    {
       "pack_path": "DSAR_PROCESS.md",
       "source_repo_path": "docs/security/DSAR_PROCESS.md",
       "description": "GDPR Data Subject Access Request process — PII map, fulfillment steps, erasure constraints",

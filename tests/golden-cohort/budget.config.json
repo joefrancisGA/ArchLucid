@@ -4,5 +4,6 @@
   "killSwitchThresholdPercent": 95,
   "deploymentName": "archlucid-golden-cohort",
   "region": "eastus",
-  "baselineModelSku": "gpt-4o"
+  "baselineModelSku": "gpt-4o",
+  "driftRunMaxTotalPromptCompletionTokens": 180000
 }

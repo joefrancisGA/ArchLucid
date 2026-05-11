@@ -1,12 +1,23 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { SectionCard } from "@/components/SectionCard";
 import { ShortcutHint } from "@/components/ShortcutHint";
 
 expect.extend(toHaveNoViolations);
+
+beforeAll(() => {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+
+    unobserve(): void {}
+
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+});
 
 describe("operator shell components — axe (Vitest)", () => {
   it("SectionCard has no accessibility violations", async () => {
@@ -59,5 +70,13 @@ describe("operator shell components — axe (Vitest)", () => {
     });
 
     expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("HelpSearchPanel has no accessibility violations when open", async () => {
+    const { baseElement } = render(
+      <HelpSearchPanel open onOpenChange={() => {}} onOpenGuidesPanel={() => {}} />,
+    );
+
+    expect(await axe(baseElement)).toHaveNoViolations();
   });
 });

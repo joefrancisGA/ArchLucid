@@ -157,6 +157,7 @@ describe("filterNavLinksForOperatorShell", () => {
     );
 
     expect(visible.some((l) => l.href === "/admin/health")).toBe(true);
+    expect(visible.some((l) => l.href === "/admin/configuration")).toBe(true);
   });
 
   /**

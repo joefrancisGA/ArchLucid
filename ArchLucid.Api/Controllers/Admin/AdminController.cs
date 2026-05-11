@@ -43,7 +43,16 @@ public sealed class AdminController(
     /// </summary>
     [HttpGet("config-summary")]
     [ProducesResponseType(typeof(AdminConfigSummaryResponse), StatusCodes.Status200OK)]
-    public ActionResult<AdminConfigSummaryResponse> GetConfigSummary([FromQuery] bool includeEffectiveValues = false)
+    public ActionResult<AdminConfigSummaryResponse> GetConfigSummary([FromQuery] bool includeEffectiveValues = false) =>
+        Ok(BuildAdminConfigSummary(includeEffectiveValues));
+
+    /// <inheritdoc cref="GetConfigSummary" />
+    [HttpGet("configuration/summary")]
+    [ProducesResponseType(typeof(AdminConfigSummaryResponse), StatusCodes.Status200OK)]
+    public ActionResult<AdminConfigSummaryResponse> GetConfigurationSummary([FromQuery] bool includeEffectiveValues = false)
+        => Ok(BuildAdminConfigSummary(includeEffectiveValues));
+
+    private AdminConfigSummaryResponse BuildAdminConfigSummary(bool includeEffectiveValues)
     {
         List<ConfigSummaryKeyRow> keys = new(ConfigurationKeyCatalog.All.Count);
 
@@ -55,7 +64,9 @@ public sealed class AdminController(
                 Section = entry.Section,
                 ConfigPath = entry.ConfigPath,
                 IsSet = isSet,
-                RequirementKind = entry.Requirement.ToString()
+                RequirementKind = entry.Requirement.ToString(),
+                Description = entry.Description,
+                Sources = entry.ConfigurationSources
             };
 
             if (includeEffectiveValues)
@@ -66,7 +77,7 @@ public sealed class AdminController(
             keys.Add(row);
         }
 
-        return Ok(new AdminConfigSummaryResponse { Keys = keys });
+        return new AdminConfigSummaryResponse { Keys = keys };
     }
 
     /// <summary>Pending asynchronous authority and retrieval indexing work.</summary>

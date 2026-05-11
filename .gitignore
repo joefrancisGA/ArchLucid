@@ -77,6 +77,10 @@ _api_build_out/
 _api_out_verify/
 _arch_test_out/
 
+# Golden cohort simulator-vs-real drift (manual workflow / local AOAI runs)
+tests/golden-cohort/drift-reports/*-drift.json
+tests/golden-cohort/drift-trend.jsonl
+
 # Benchmark JSON outputs under repo root (regenerate with BenchmarkDotNet locally)
 artifacts-bench/results/
 

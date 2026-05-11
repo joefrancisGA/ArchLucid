@@ -32,7 +32,9 @@ Merge-blocking **Schemathesis light** runs on every PR after full .NET regressio
 - **`ArchLucid.Api/appsettings.Development.json`** (merged when **`ASPNETCORE_ENVIRONMENT=Development`**, including CI and local **`dotnet run`**): sets **`ArchLucidAuth:Mode`** back to **`DevelopmentBypass`** for frictionless local and test factories. **`Authentication:ApiKey:DevelopmentBypassAll`** stays **`false`** so the “open API key path” bypass is not the default even in Development.
 - **`appsettings.Production.json`** / **`appsettings.Staging.json`** continue to set **`JwtBearer`** with Entra-style placeholders; **`docker-compose.yml`** still sets **`ArchLucidAuth__Mode=DevelopmentBypass`** explicitly for the compose dev stack.
 
-**Optional Entra-only production (regulated SaaS):** set **`ArchLucidAuth:RequireJwtBearerInProduction=true`**. When **`ASPNETCORE_ENVIRONMENT=Production`**, **`ArchLucidConfigurationRules`** then requires **`ArchLucidAuth:Mode=JwtBearer`** (API keys are rejected at startup). Default is **`false`** so pilots may keep **`ApiKey`** in production until they cut over to Entra.
+**Optional JWT bearer-only production (regulated SaaS):** set **`ArchLucidAuth:RequireJwtBearerInProduction=true`**. When **`ASPNETCORE_ENVIRONMENT=Production`**, **`ArchLucidConfigurationRules`** then requires **`ArchLucidAuth:Mode=JwtBearer`** (API keys are rejected at startup). Default is **`false`** so pilots may keep **`ApiKey`** in production until they cut over to **OIDC / JWT bearer** (**Entra** or another issuer — **[V1_SCOPE.md](V1_SCOPE.md) §2.12**).
+
+**OIDC issuers beyond Entra (V1 GA):** **`JwtBearer`** accepts tokens from **configurable OIDC authorities** when **`ArchLucidAuth:Authority`** targets a standards-compliant issuer (discovery + JWKS). Claim mapping into **`ArchLucidRoles`** is operator-owned — capture buyer IdP shapes in procurement questionnaires (**[PROCUREMENT_FAQ.md](../go-to-market/PROCUREMENT_FAQ.md)**).
 
 ## DevelopmentBypass production guard
 

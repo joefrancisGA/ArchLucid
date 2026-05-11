@@ -11,7 +11,7 @@ This document explains how ArchLucid balances **ease of use** (simple URLs, stan
 
 ## 1. Objective
 
-- Give integrators and operators a **straightforward** path: one HTTPS entry point, familiar **Microsoft Entra** sign-in where possible, and documented configuration samples.
+- Give integrators and operators a **straightforward** path: one HTTPS entry point, **`JwtBearer`** against **Microsoft Entra ID** (reference IaC) or **another OIDC issuer** per **[V1_SCOPE.md](V1_SCOPE.md) §2.12**, and documented configuration samples.
 - Make **serious security posture** achievable in Azure: **WAF** at the edge, **private endpoints** for SQL and blob data plane, and **tokens** instead of only long-lived API keys.
 
 ---
@@ -34,7 +34,7 @@ This document explains how ArchLucid balances **ease of use** (simple URLs, stan
 
 ## 4. Architecture overview
 
-**Nodes:** Browser or integrator → optional **Front Door + WAF** → optional **APIM** → **ArchLucid.Api** → **Azure SQL** / **Blob** (optionally via **private endpoints**). **Entra ID** issues tokens validated by the API.
+**Nodes:** Browser or integrator → optional **Front Door + WAF** → optional **APIM** → **ArchLucid.Api** → **Azure SQL** / **Blob** (optionally via **private endpoints**). The **configured OIDC issuer** (commonly **Entra ID**; see **[V1_SCOPE.md](V1_SCOPE.md) §2.12**) issues JWTs validated by the API.
 
 **Edges:** TLS at the edge; JWT validation at the API; SQL and blob over private connectivity when the private stack is enabled.
 

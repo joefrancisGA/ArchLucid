@@ -42,6 +42,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/recommendation-learning": "hidden",
   "/digest-subscriptions": "advanced-only",
   "/admin/health": "admin-only",
+  "/admin/configuration": "admin-only",
   "/admin/support": "admin-only",
   "/admin/users": "admin-only",
   "/settings/tenant": "admin-only",

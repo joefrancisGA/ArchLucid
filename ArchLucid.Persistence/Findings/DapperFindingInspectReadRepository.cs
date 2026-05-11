@@ -37,6 +37,7 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         const string sql = """
                            SELECT TOP 1
                                fr.FindingId,
+                               fr.Severity,
                                fr.PayloadJson,
                                fr.ModelDeploymentName,
                                fr.PromptTemplateVersion,
@@ -161,10 +162,12 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             .ToList();
 
         JsonElement? typed = TryParsePayloadJson(row.PayloadJson);
+        FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
 
         return new FindingInspectResponse
         {
             FindingId = row.FindingId,
+            Severity = recordSeverity,
             TypedPayload = typed,
             DecisionRuleId = ruleId,
             DecisionRuleName = ruleName ?? ruleId,
@@ -226,6 +229,12 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
     private sealed class MainRow
     {
         public string FindingId
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string Severity
         {
             get;
             init;

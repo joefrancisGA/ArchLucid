@@ -18,9 +18,9 @@ ArchLucid is built so that **security, privacy, and operational transparency** a
 
 ## Security overview at a glance
 
-- **Identity:** Microsoft **Entra ID** (OIDC / JWT) with **app roles** (**Admin**, **Operator**, **Reader**, **Auditor**) and optional **API keys** for automation; see [../SECURITY.md](../library/SECURITY.md) and [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md).
+- **Identity:** Microsoft **Entra ID** or **other OIDC issuers** (JWT bearer — **[V1_SCOPE.md](../library/V1_SCOPE.md) §2.12**) with **app roles** (**Admin**, **Operator**, **Reader**, **Auditor**) and optional **API keys** for automation; see [../SECURITY.md](../library/SECURITY.md) and [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md).
 - **Network:** Optional **Azure Front Door + WAF**, optional **API Management**, **TLS** to the API, and **private endpoints** for **Azure SQL** and **Blob** when the private stack is enabled; **no public SMB (port 445)** for tenant data paths (see [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)).
-- **Data isolation:** **Database-per-tenant** SQL catalogs (`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`) with **`TenantDatabaseBindings`** routing — the database boundary is the primary tenant isolation mechanism. Application-layer scope enforcement (`IScopeContextProvider`, policies) provides authorization within a tenant. Row-level security is available as optional configuration but is not a required production control; see [TENANT_ISOLATION.md](TENANT_ISOLATION.md), [../library/TENANT_DATABASE_TOPOLOGY.md](../library/TENANT_DATABASE_TOPOLOGY.md), and [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md).
+- **Data isolation:** **Database-per-tenant** SQL catalogs (`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`) with **`TenantDatabaseBindings`** routing — **self-serve trial organizations use the same per-tenant product catalog pattern as paying tenants**; the database boundary is the primary tenant isolation mechanism. Application-layer scope enforcement (`IScopeContextProvider`, policies) provides authorization within a tenant. Row-level security is available as optional configuration but is not a required production control; see [TENANT_ISOLATION.md](TENANT_ISOLATION.md), [../library/TENANT_DATABASE_TOPOLOGY.md](../library/TENANT_DATABASE_TOPOLOGY.md), and [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md).
 - **Secrets:** **Azure Key Vault** references for application configuration in hosted deployments (see [../CONFIGURATION_KEY_VAULT.md](../library/CONFIGURATION_KEY_VAULT.md)).
 - **Auditability:** Durable **append-only** audit trail in SQL (`dbo.AuditEvents`) with a **typed event catalog** and correlation identifiers; see [../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) and [../SECURITY.md](../library/SECURITY.md) (PII / exports).
 - **Testing in CI:** **OWASP ZAP** baseline on the API image, **Schemathesis** contract checks, and documented rate limiting / RBAC — see [../SECURITY.md](../library/SECURITY.md).
@@ -41,6 +41,27 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 ---
 
+## Data residency and sovereignty
+
+**Single-region SaaS footprint (primary):** ArchLucid’s hosted environments are designed so the **primary** control-plane and data-plane resources for a deployment land in **one Azure region** chosen per environment. The region is **configurable in Terraform** via **`location`** (and related variables) for the stacks you apply. **Documented defaults vary by module:** **`infra/terraform-container-apps/variables.tf`** sets a default **`location`** of **`centralus`** for that Container Apps–oriented module; **`infra/terraform/terraform.tfvars.example`** illustrates **`eastus2`** for the example root footprint; **`infra/terraform/variables.tf`** leaves **`location`** empty until an operator sets it for resource-group creation. Use the **committed Terraform variables and examples** for your deployment as the source of truth for the selected region.
+
+| Data class | Where it resides |
+|------------|------------------|
+| Architecture run data | **Azure SQL** in the deployment region |
+| Agent execution traces | **Azure SQL** in the deployment region |
+| Audit events | **Azure SQL** in the deployment region |
+| Uploaded Azure extractor packages | **Azure Blob Storage** in the deployment region (artifact storage account aligned with the hosted stack) |
+| LLM completions | Processed by **Azure OpenAI** in the **configured** region for the Cognitive Services account (**[SUBPROCESSORS.md](SUBPROCESSORS.md)**). Under **Microsoft’s Data Processing Agreement** for **Azure OpenAI**, customer prompts and completions are **not stored** for reuse in **training** foundation models (inference-time processing only — confirm exact wording in current **Microsoft** product terms) |
+| Tenant configuration | **Azure SQL** in the deployment region for durable catalog state, plus **Azure Key Vault** in the deployment region for secret material referenced by configuration |
+
+**Geo-redundancy and cross-region copies:** ArchLucid **does not** replicate customer **primary** tenant data to a **secondary Azure region** unless the **operator explicitly enables** cross-region or failover options in shipped IaC—e.g. **`secondary_region_stack_enabled`** and related variables in **`infra/terraform-container-apps/variables.tf`**, and/or **`enable_sql_failover_group`** with a configured geo-secondary SQL server in **`infra/terraform-sql-failover`**. When those controls are **off**, data stays in the **primary** region’s provisioned SQL, Blob, and Key Vault resources.
+
+**Region availability:** Customers requiring a **specific Azure region** (SKU, capacity, or sovereignty alignment) should confirm **regional availability** with their **ArchLucid account contact** before finalizing procurement.
+
+**Contractual commitments:** For data-processing terms at signature, start from **[DPA_TEMPLATE.md](DPA_TEMPLATE.md)** (template — requires legal review before use), consistent with the procurement pack table below.
+
+---
+
 ## Penetration testing and security assessments
 
 **Owner-conducted (V1):** **V1** penetration-style testing and related evidence are **owner-led** (not a third-party attestation). Track progress in [`../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md). **Independent quality assessments must not** penalize V1 for lacking an **external** third-party pen test — see [`../library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c (owner 2026-05-01).
@@ -58,6 +79,7 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 - [CAIQ Lite pre-fill (2026)](../security/CAIQ_LITE_2026.md) — map to CSA CAIQ v4 spreadsheet for STAR submissions
 - [SIG Core pre-fill (2026)](../security/SIG_CORE_2026.md) — map to Shared Assessments SIG Core workbook
+- **VPAT:** working draft [**`VPAT_2_5_WCAG_2_1_AA.md`**](../security/VPAT_2_5_WCAG_2_1_AA.md) — procurement-facing accessibility disclosure; pair with public **`/accessibility`** marketing route and root **`ACCESSIBILITY.md`**
 
 ---
 
@@ -77,7 +99,9 @@ This table lists **engagement metadata only** — not redacted findings, not cus
 
 ### Hosted staging probes (internal rollup)
 
-Scheduled **`hosted-saas-probe`** workflow results can be rolled into a **30-day internal summary** for reliability conversations. Do **not** treat staging curl probes as a buyer-facing production SLO without separate policy — see [`../runbooks/HOSTED_AVAILABILITY_ROLLUP.md`](../runbooks/HOSTED_AVAILABILITY_ROLLUP.md).
+Scheduled **`hosted-saas-probe`** workflow results can be rolled into a **30-day internal summary** with `scripts/ops/summarize_hosted_probe_artifacts.py`. Methodology, artifact **storage**, and **buyer-safe vs internal-only** rules: [`../runbooks/HOSTED_AVAILABILITY_ROLLUP.md`](../runbooks/HOSTED_AVAILABILITY_ROLLUP.md).
+
+Do **not** treat **staging** probes as **production** availability evidence. Rollup text **disclaims contractual SLA**. Published **99.9%** targets in [`../library/API_SLOS.md`](../library/API_SLOS.md) and [`SLA_TARGETS.md`](../library/SLA_TARGETS.md) are engineering **targets**, not an assertion that a specific probe window met a **negotiated production** commitment unless **production** `baseUrl` values and an owner-reviewed rollup support that claim.
 
 ---
 
@@ -136,6 +160,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 
 | Item | Status | Notes |
 |------|--------|--------|
+| **Accessibility Conformance Report (draft)** — VPAT® **2.4 Rev**, WCAG **2.1** A / AA (**Operator UI**) | **Draft** — automated axe-core evidence + honesty on manual gaps | [VPAT_2_4_WCAG_2_1_DRAFT.md](../security/VPAT_2_4_WCAG_2_1_DRAFT.md) mirrors CI posture (`jest-axe`, Playwright axe); **manual** conformance work remains for criteria marked Not Evaluated. |
 | **SOC 2** (Type I / II) | **Deferred** — interim self-assessment + Trust Center honesty until trigger is reached | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). SOC 2 Type I engagement planned when ArchLucid reaches **$250K ARR** or upon a **binding procurement requirement from a contracted customer**, whichever is earlier; until then, we publish a self-attested security and compliance summary. (Directional, not contractual — see `docs/PENDING_QUESTIONS.md` *Resolved 2026-05-05 (SOC 2 ARR trigger)*.) External readiness consultant + CPA firm selection paused until that threshold; G-001 in the self-assessment captures the resumption checklist. |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
 | **ISO 27001** | Not claimed | Roadmap timing tied to SOC 2 program (date not yet set). |

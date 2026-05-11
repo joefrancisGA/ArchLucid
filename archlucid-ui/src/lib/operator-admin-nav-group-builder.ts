@@ -1,4 +1,4 @@
-import { BarChart3, Building2, HeartPulse, LifeBuoy, Users, Wallet } from "lucide-react";
+import { BarChart3, Building2, HeartPulse, LifeBuoy, Settings2, Users, Wallet } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 
@@ -18,6 +18,14 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           label: "System health",
           title: "System health — readiness, circuit breakers, onboarding funnel metrics",
           icon: HeartPulse,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
+          href: "/admin/configuration",
+          label: "Configuration",
+          title: "Configuration — catalog-aligned effective settings (read-only; secrets masked)",
+          icon: Settings2,
           tier: "advanced",
           requiredAuthority: "AdminAuthority",
         },
