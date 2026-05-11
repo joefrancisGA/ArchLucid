@@ -21,6 +21,8 @@ namespace ArchLucid.Api.Tests.Security;
 [Trait("Category", "Integration")]
 public sealed class TenantIsolationSmokeTests
 {
+    private static readonly TimeSpan WarmCreateRunRetryHeadroom = TimeSpan.FromMinutes(5);
+
     // Unlike idempotent-create SQL tests, this one requires *explicit* SQL (env var). Windows+localhost only is too easy
     // to misconfigure and caused long host-build hangs; CI sets the standard variables (see docs/BUILD.md).
     private const string SqlExplicitUnavailable =
@@ -356,10 +358,11 @@ public sealed class TenantIsolationSmokeTests
         string idempotencyKey = "tenant-iso-smoke-" + Guid.NewGuid().ToString("N");
         int delayMs = 250;
 
-        // Time-bounded retries only: a fixed max-attempt loop can exhaust (~9 minutes of backoff with cap 4000ms)
-        // before the CTS below, wasting minutes of unused budget and flaking CI when DbUp/create-run settles late.
-        // Cold shared CI SQL + DbUp can produce many fast 503s until the authority write path is warm.
-        using CancellationTokenSource totalBudget = new(TimeSpan.FromMinutes(15));
+        // Keep retry budget above the shared create-run request timeout so a final accepted POST is not canceled mid-flight
+        // after cold-start 503s consume part of the warmup window.
+        using CancellationTokenSource totalBudget = new(
+            ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout
+            + WarmCreateRunRetryHeadroom);
 
         try
         {
