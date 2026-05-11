@@ -153,7 +153,7 @@ public sealed class TenantIsolationSmokeTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await WarmSqlAuthorityPipelineAsync(primer);
+            await WarmSqlAuthorityPipelineAsync(primer, includePostCreateRunWarmup: false);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -290,13 +290,18 @@ public sealed class TenantIsolationSmokeTests
     }
 
     /// <summary>
-    ///     DbUp + cold CI SQL can return 503 until migrations and first queries settle; combine readiness + list + POST
-    ///     probes so the full authority write path is warmed before test assertions begin.
+    ///     DbUp + cold CI SQL can return 503 until migrations and first queries settle; combine readiness + list, and
+    ///     optionally POST so the full authority write path is warmed before tests that create runs. Read-only tenant
+    ///     checks can skip POST to avoid cold-path create runs that may exceed CI wall clocks or cancel mid-response.
     /// </summary>
-    private static async Task WarmSqlAuthorityPipelineAsync(HttpClient client)
+    private static async Task WarmSqlAuthorityPipelineAsync(HttpClient client, bool includePostCreateRunWarmup = true)
     {
         await WarmHealthReadyPathAsync(client);
         await WarmListRunsPathAsync(client);
+
+        if (!includePostCreateRunWarmup)
+            return;
+
         await WarmPostCreateRunPathAsync(client);
     }
 
