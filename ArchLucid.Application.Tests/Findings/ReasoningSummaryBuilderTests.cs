@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Findings;
-using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
 
@@ -103,7 +102,12 @@ public sealed class ReasoningSummaryBuilderTests
     [Fact]
     public void TryBuild_WhenCategoryOmitted_UsesFallbackRiskPhrase()
     {
-        ArchitectureFinding finding = new() { Category = "", Message = "Fix it.", Severity = FindingSeverity.Critical };
+        ArchitectureFinding finding = new()
+        {
+            Category = "",
+            Message = "Fix it.",
+            Severity = FindingSeverity.Critical
+        };
 
         FindingInspectResponse inspect = new()
         {

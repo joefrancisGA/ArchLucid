@@ -1,10 +1,8 @@
 using System.Diagnostics;
 using System.Net;
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations.Itsm.Outbound;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -35,7 +33,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
             HttpListenerResponse response = context.Response;
             response.StatusCode = 201;
             response.ContentType = "application/json; charset=utf-8";
-            byte[] body = Encoding.UTF8.GetBytes("""{"id":"10042","key":"MOCK-7"}""");
+            byte[] body = """{"id":"10042","key":"MOCK-7"}"""u8.ToArray();
 
             await response.OutputStream.WriteAsync(body, cancellationToken).ConfigureAwait(false);
             response.Close();
@@ -134,7 +132,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
 
         AuditEvent audit = result.AuditEvents.Single();
         audit.EventType.Should().Be(AuditEventTypes.IntegrationJiraIssueCreateFailed);
-        JsonDocument doc = JsonDocument.Parse(audit.DataJson ?? "{}");
+        JsonDocument doc = JsonDocument.Parse(audit.DataJson);
         doc.RootElement.GetProperty("statusCode").GetInt32().Should().Be(401);
     }
 
@@ -163,7 +161,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
 
             response.StatusCode = 201;
             response.ContentType = "application/json; charset=utf-8";
-            byte[] body = Encoding.UTF8.GetBytes("""{"id":"20001","key":"MOCK-RL-2"}""");
+            byte[] body = """{"id":"20001","key":"MOCK-RL-2"}"""u8.ToArray();
 
             await response.OutputStream.WriteAsync(body, cancellationToken).ConfigureAwait(false);
             response.Close();
@@ -194,7 +192,8 @@ public sealed class JiraOutboundMockServerIntegrationTests
         HttpMessageHandler socketHandler = new HttpClientHandler();
         JiraOutboundRateLimitRetryDelegatingHandler resilience = new(socketHandler, maxAttempts: 3);
 
-        using HttpClient httpForJira = new(resilience) { Timeout = TimeSpan.FromSeconds(8) };
+        using HttpClient httpForJira = new(resilience);
+        httpForJira.Timeout = TimeSpan.FromSeconds(8);
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,
@@ -216,7 +215,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
     [Fact]
     public async Task CreateIssue_when_upstream_stalls_respects_http_client_timeout_without_hanging()
     {
-        await using JiraIssueCreateInProcessMockServer server = await JiraIssueCreateInProcessMockServer.StartAsync(async (context, cancellationToken) =>
+        await using JiraIssueCreateInProcessMockServer server = await JiraIssueCreateInProcessMockServer.StartAsync(async (_, cancellationToken) =>
             {
                 await Task.Delay(TimeSpan.FromMinutes(2), cancellationToken).ConfigureAwait(false);
             });
@@ -230,7 +229,8 @@ public sealed class JiraOutboundMockServerIntegrationTests
         IntegrationsItsmOutboundOptions options = OutboundJiraConfigured();
         options.Jira.CloudBaseUrl = server.BaseUrl;
 
-        using HttpClient httpForJira = new(new HttpClientHandler()) { Timeout = TimeSpan.FromMilliseconds(800) };
+        using HttpClient httpForJira = new(new HttpClientHandler());
+        httpForJira.Timeout = TimeSpan.FromMilliseconds(800);
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,

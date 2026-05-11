@@ -27,7 +27,7 @@ internal static class GoldenCohortDriftSignalExtractor
                     summary.NormalizedTitles.Add(titleFp);
             }
 
-            foreach (string fp in (result.Claims ?? []).Select(NormalizeFingerprint).Where(fp => fp.Length > 0))
+            foreach (string fp in (result.Claims).Select(NormalizeFingerprint).Where(fp => fp.Length > 0))
             {
                 summary.NormalizedRecommendations.Add(fp);
             }

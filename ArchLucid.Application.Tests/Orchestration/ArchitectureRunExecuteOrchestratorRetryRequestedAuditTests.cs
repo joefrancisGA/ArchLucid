@@ -56,7 +56,12 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
-        ArchitectureRequest request = new() { RequestId = "req-retry-audit", Description = new string('x', 12), SystemName = "RetryAudit", };
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-retry-audit",
+            Description = new string('x', 12),
+            SystemName = "RetryAudit",
+        };
 
         Mock<IRunRepository> runRepo = new();
         runRepo
@@ -126,7 +131,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
             Microsoft.Extensions.Options.Options.Create(new AgentExecutionOptions()),
-            Microsoft.Extensions.Options.Options.Create(new ArchLucid.Core.Configuration.AgentOutputQualityGateOptions()),
+            Microsoft.Extensions.Options.Options.Create(new AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);
@@ -165,7 +170,12 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
-        ArchitectureRequest request = new() { RequestId = "req-retry-audit-sql", Description = new string('x', 12), SystemName = "RetryAuditSql", };
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-retry-audit-sql",
+            Description = new string('x', 12),
+            SystemName = "RetryAuditSql",
+        };
 
         Mock<IRunRepository> runRepo = new();
         runRepo
@@ -233,7 +243,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
             Microsoft.Extensions.Options.Options.Create(new AgentExecutionOptions()),
-            Microsoft.Extensions.Options.Options.Create(new ArchLucid.Core.Configuration.AgentOutputQualityGateOptions()),
+            Microsoft.Extensions.Options.Options.Create(new AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);

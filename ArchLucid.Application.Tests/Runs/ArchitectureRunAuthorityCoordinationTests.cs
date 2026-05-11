@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Runs.Coordination;
+using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Tests.TestDoubles;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
@@ -25,7 +25,12 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
     [SkippableFact]
     public async Task CreateRun_Should_CreateRunAndStarterTasks_When_RequestIsValid()
     {
-        ArchitectureRequest request = new() { RequestId = "REQ-001", SystemName = "TestSystem", Description = "Design a secure Azure system." };
+        ArchitectureRequest request = new()
+        {
+            RequestId = "REQ-001",
+            SystemName = "TestSystem",
+            Description = "Design a secure Azure system."
+        };
 
         Mock<IRunRepository> runRepo = new();
         runRepo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -34,7 +39,9 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         });
 
         ArchitectureRunAuthorityCoordination service = new(
@@ -64,7 +71,10 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
 
         ArchitectureRequest request = new()
         {
-            RequestId = "REQ-002", SystemName = "TestSystem", Description = "Design a secure Azure system.", RequiredCapabilities = ["Basic compute"],
+            RequestId = "REQ-002",
+            SystemName = "TestSystem",
+            Description = "Design a secure Azure system.",
+            RequiredCapabilities = ["Basic compute"],
         };
 
         Mock<IRunRepository> runRepo = new();
@@ -113,7 +123,9 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         });
 
         ArchitectureRunAuthorityCoordination service = new(
@@ -131,7 +143,7 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
 
         Assert.NotNull(cost);
 
-        Assert.Contains("Inventory citation:", cost!.Objective, StringComparison.Ordinal);
+        Assert.Contains("Inventory citation:", cost.Objective, StringComparison.Ordinal);
 
         Assert.Contains("azure-extractor-zip", cost.AllowedSources, StringComparer.Ordinal);
     }

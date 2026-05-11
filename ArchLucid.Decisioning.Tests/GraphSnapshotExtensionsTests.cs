@@ -68,6 +68,6 @@ public sealed class GraphSnapshotExtensionsTests
             .Should()
             .BeEmpty();
 
-        graph.GetOutgoingTargets("a", "PROTECTS", 0).Should().ContainSingle();
+        graph.GetOutgoingTargets("a", "PROTECTS").Should().ContainSingle();
     }
 }

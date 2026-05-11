@@ -57,7 +57,12 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
         };
 
-        ArchitectureRequest request = new() { RequestId = "req-promote-audit", Description = new string('x', 12), SystemName = "PromoteAudit", };
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-promote-audit",
+            Description = new string('x', 12),
+            SystemName = "PromoteAudit",
+        };
 
         Mock<IRunRepository> runRepo = new();
         runRepo
@@ -171,7 +176,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             new NoOpEvidencePackageInjectionMitigator(),
             contentSafety.Object,
             Microsoft.Extensions.Options.Options.Create(new AgentExecutionOptions()),
-            Microsoft.Extensions.Options.Options.Create(new ArchLucid.Core.Configuration.AgentOutputQualityGateOptions()),
+            Microsoft.Extensions.Options.Options.Create(new AgentOutputQualityGateOptions()),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);
