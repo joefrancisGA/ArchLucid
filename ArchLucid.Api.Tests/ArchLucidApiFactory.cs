@@ -104,8 +104,8 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
     {
         base.ConfigureClient(client);
 
-        // Parallel create-run idempotency can block on SQL far longer than HttpClient's default 100s (see ArchitectureRequestConcurrencyTestSupport).
-        client.Timeout = TimeSpan.FromMinutes(25);
+        // Align with ArchitectureRequestBurstHttpTimeout + lock/pipeline slack (see ArchitectureRequestConcurrencyTestSupport).
+        client.Timeout = TimeSpan.FromMinutes(65);
     }
 
     /// <summary>Drops the per-factory SQL database when the host is disposed (best-effort).</summary>
