@@ -225,6 +225,9 @@ PublishScripts/
 *.snupkg
 # The packages folder can be ignored because of Package Restore
 **/[Pp]ackages/*
+# Operator UI npm workspaces (`workspace:*`); must stay tracked — omitting them breaks `npm ci` on CI.
+!archlucid-ui/packages/
+!archlucid-ui/packages/**
 # except build/, which is used as an MSBuild target.
 !**/[Pp]ackages/build/
 # Uncomment if necessary however generally it will be regenerated when needed
