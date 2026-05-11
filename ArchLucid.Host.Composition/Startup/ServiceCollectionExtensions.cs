@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Templates;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Configuration;
@@ -27,6 +28,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         services.AddSingleton<StartupMigrationHealthState>();
+        services.AddSingleton<TemplateProvider>();
         services.AddSingleton(TimeProvider.System);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
         services.AddHttpClient(nameof(ConfigurationHealthProbe), static client =>

@@ -146,21 +146,7 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
                 return new QueuedBackgroundJobPrepareResult(false, true, true, null);
             }
 
-            if (IsTerminalJobState(row.State))
-            {
-                transaction.Commit();
-
-                return new QueuedBackgroundJobPrepareResult(false, true, false, null);
-            }
-
-            if (string.Equals(row.State, "Running", StringComparison.OrdinalIgnoreCase))
-            {
-                transaction.Commit();
-
-                return new QueuedBackgroundJobPrepareResult(false, true, false, null);
-            }
-
-            if (!string.Equals(row.State, "Pending", StringComparison.OrdinalIgnoreCase))
+            if (IsTerminalJobState(row.State) || string.Equals(row.State, "Running", StringComparison.OrdinalIgnoreCase) || !string.Equals(row.State, "Pending", StringComparison.OrdinalIgnoreCase))
             {
                 transaction.Commit();
 

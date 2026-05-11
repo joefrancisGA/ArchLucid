@@ -38,8 +38,7 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
     public async Task ExecuteAsync_OnPersistent503_InvokesHandlerFourTimes_before_returning_terminal_503()
     {
         StatusSequenceHandler capturing = new(HttpStatusCode.ServiceUnavailable, successAfterAttemptInclusive: 999);
-        using HttpClient httpClient = new(capturing);
-        httpClient.Timeout = TimeSpan.FromSeconds(30);
+        using HttpMessageInvoker invoker = new(capturing, disposeHandler: true);
 
         ResiliencePipeline<HttpResponseMessage> pipeline =
             GovernanceSlaEscalationWebhookRetryPipeline.Create(
@@ -51,7 +50,7 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
             async ct =>
             {
                 using HttpRequestMessage req = new(HttpMethod.Post, "https://example.test/governance/sla");
-                return await httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+                return await invoker.SendAsync(req, ct);
             },
             CancellationToken.None);
 
@@ -64,8 +63,7 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
     {
         StatusSequenceHandler capturing =
             new(HttpStatusCode.InternalServerError, successAfterAttemptInclusive: 2);
-        using HttpClient httpClient = new(capturing);
-        httpClient.Timeout = TimeSpan.FromSeconds(30);
+        using HttpMessageInvoker invoker = new(capturing, disposeHandler: true);
 
         ResiliencePipeline<HttpResponseMessage> pipeline =
             GovernanceSlaEscalationWebhookRetryPipeline.Create(NullLogger.Instance, "tid", static _ => TimeSpan.Zero);
@@ -75,7 +73,7 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
             {
                 using HttpRequestMessage req = new(HttpMethod.Post, "https://example.test/webhook");
 
-                return await httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+                return await invoker.SendAsync(req, ct);
             },
             CancellationToken.None);
 
@@ -88,8 +86,7 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
     public async Task ExecuteAsync_On400_does_not_retry()
     {
         StatusSequenceHandler capturing = new(HttpStatusCode.BadRequest, successAfterAttemptInclusive: 999);
-        using HttpClient httpClient = new(capturing);
-        httpClient.Timeout = TimeSpan.FromSeconds(30);
+        using HttpMessageInvoker invoker = new(capturing, disposeHandler: true);
 
         ResiliencePipeline<HttpResponseMessage> pipeline =
             GovernanceSlaEscalationWebhookRetryPipeline.Create(NullLogger.Instance, "bad", static _ => TimeSpan.Zero);
@@ -99,7 +96,7 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
             {
                 using HttpRequestMessage req = new(HttpMethod.Post, "https://example.test/x");
 
-                return await httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+                return await invoker.SendAsync(req, ct);
             },
             CancellationToken.None);
 

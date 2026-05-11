@@ -1,0 +1,34 @@
+{
+  "requestId": "TEMPLATE-WEBAPP-SQL",
+  "systemName": "WebAppSqlStarter",
+  "description": "Design or review a standard Azure-hosted web application with a transactional SQL backend. The workload serves browser or mobile clients over HTTPS, persists authoritative domain state in Azure SQL with private connectivity from the compute tier, and uses managed identities for Azure service authentication where possible.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Azure SQL must not expose a public endpoint; use private endpoints or tightly scoped firewall rules aligned to workload subnets.",
+    "Application secrets must be sourced from Azure Key Vault or managed identity equivalents—no long-lived passwords in configuration files.",
+    "External client traffic terminates with TLS 1.2 or higher."
+  ],
+  "requiredCapabilities": [
+    "Azure App Service or Azure Container Apps for HTTP workloads",
+    "Azure SQL Database or elastic pool as the system of record",
+    "Managed identity–based authentication to backing Azure resources",
+    "Backup, point-in-time restore, and basic high-availability options for Azure SQL documented"
+  ],
+  "assumptions": [
+    "Initial capacity fits a single primary SQL database schema with clear bounded-context ownership documented.",
+    "Team can evolve toward read replicas or caches after baseline availability is proven."
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Three-tier-style separation: edge/web tier, stateless application tier, and relational persistence with owned schema boundaries."
+  ],
+  "securityBaselineHints": [
+    "Microsoft Defender for Cloud enabled on subscriptions hosting compute and SQL.",
+    "Entra ID for interactive operators; Conditional Access considerations for privileged roles."
+  ],
+  "infrastructureDeclarations": []
+}

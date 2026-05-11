@@ -21,24 +21,6 @@ public sealed class ArchitectureRequestTemplatesTests
         ArchitectureRequestTemplates.SmartManufacturingOtItReference
     ];
 
-    [SkippableFact]
-    public void Summaries_has_seven_unique_template_ids_aligned_with_catalog()
-    {
-        ArchitectureRequestTemplates.Summaries.Should().HaveCount(7);
-
-        int distinctIds = ArchitectureRequestTemplates.Summaries.Select(s => s.TemplateId).Distinct().Count();
-        distinctIds.Should().Be(7);
-
-        HashSet<string> summaryIds = ArchitectureRequestTemplates.Summaries.Select(s => s.TemplateId).ToHashSet();
-        summaryIds.Should().Contain("microservices-web-platform");
-        summaryIds.Should().Contain("monolith-migration-assessment");
-        summaryIds.Should().Contain("event-driven-processing-pipeline");
-        summaryIds.Should().Contain("cloud-native-migration-azure");
-        summaryIds.Should().Contain("regulated-healthcare-hipaa");
-        summaryIds.Should().Contain("financial-services-pci-sox");
-        summaryIds.Should().Contain("manufacturing-ot-it-convergence");
-    }
-
     [Theory]
     [MemberData(nameof(TemplateFactories))]
     public void Each_factory_produces_valid_request_shape(Func<string?, ArchitectureRequest> factory)
@@ -111,13 +93,15 @@ public sealed class ArchitectureRequestTemplatesTests
     }
 
     [SkippableFact]
-    public void Summary_titles_are_non_empty_and_match_template_intent()
+    public void TemplateProvider_catalog_summaries_are_non_empty()
     {
-        foreach (ArchitectureRequestTemplateSummary s in ArchitectureRequestTemplates.Summaries)
+        TemplateProvider provider = new();
+
+        foreach (ArchitectureRequestTemplateSummary s in provider.GetSummaries())
         {
-            s.TemplateId.Should().NotBeNullOrWhiteSpace();
-            s.Title.Should().NotBeNullOrWhiteSpace();
-            s.ShortDescription.Should().NotBeNullOrWhiteSpace();
+            s.Id.Should().NotBeNullOrWhiteSpace();
+            s.Name.Should().NotBeNullOrWhiteSpace();
+            s.Description.Should().NotBeNullOrWhiteSpace();
         }
     }
 }

@@ -30,16 +30,11 @@ public sealed class InMemoryEvolutionCandidateChangeSetRepository : IEvolutionCa
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row))
-            return Task.FromResult<EvolutionCandidateChangeSetRecord?>(null);
-
-
-        if (row.TenantId != scope.TenantId ||
+        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row) ||
+            row.TenantId != scope.TenantId ||
             row.WorkspaceId != scope.WorkspaceId ||
             row.ProjectId != scope.ProjectId)
-
             return Task.FromResult<EvolutionCandidateChangeSetRecord?>(null);
-
 
         return Task.FromResult<EvolutionCandidateChangeSetRecord?>(row);
     }
@@ -74,16 +69,11 @@ public sealed class InMemoryEvolutionCandidateChangeSetRepository : IEvolutionCa
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row))
-            return Task.CompletedTask;
-
-
-        if (row.TenantId != scope.TenantId ||
+        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row) ||
+            row.TenantId != scope.TenantId ||
             row.WorkspaceId != scope.WorkspaceId ||
             row.ProjectId != scope.ProjectId)
-
             return Task.CompletedTask;
-
 
         EvolutionCandidateChangeSetRecord updated = new()
         {

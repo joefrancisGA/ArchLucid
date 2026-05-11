@@ -26,6 +26,11 @@
     <EmbeddedResource Include="Notifications\Email\Templates\*.cshtml" />
   </ItemGroup>
 
+  <!-- Architecture presets for GET /v1/architecture/templates and future wizard hydration. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\*.json" />
+  </ItemGroup>
+
   <!--
     Trust Center evidence-pack source files.
     Embedded so the ZIP endpoint works in WebApplicationFactory integration tests

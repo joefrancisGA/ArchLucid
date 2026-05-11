@@ -38,9 +38,9 @@ export default defineConfig({
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     /**
-     * Snapshots are OS-specific (`*-chromium-visual-win32.png` vs `*-linux.png`). CI must use the same OS as the
-     * committed baselines (see `ui-playwright-mock-visual` in ci.yml — Windows runner) or regenerate Linux
-     * goldens via Docker (`scripts/update-visual-snapshots-docker.ps1`) and match CI to `ubuntu-latest`.
+     * Full-page screenshot goldens (`tests/e2e/visual-regression.spec.ts`). Snapshots are OS-specific
+     * (`*-chromium-visual-win32.png` vs `*-linux.png`). Not run in merge-blocking CI — run locally or in Docker
+     * (`scripts/update-visual-snapshots-docker.ps1`) when updating baselines.
      */
     {
       name: "chromium-visual",
