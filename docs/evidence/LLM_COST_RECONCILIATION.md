@@ -1,4 +1,4 @@
-> **Evidence:** LLM cost estimator vs Azure billing — dev AOAI resource (`oai-archlucid-dev`). Not legal/financial advice; numbers depend on subscription discounts, region, deployment SKU, and Cost Management latency.
+> **Scope:** Engineering evidence for reconciling LLM cost estimates with Azure billing on the dev AOAI resource (`oai-archlucid-dev`); for operators and reviewers assessing telemetry vs Cost Management—not legal/financial advice; figures depend on subscription discounts, region, deployment SKU, and Cost Management latency.
 
 ## 1. Objective
 
