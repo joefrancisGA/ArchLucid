@@ -8506,6 +8506,10 @@ export interface paths {
                 query?: {
                     fromUtc?: string;
                     toUtc?: string;
+                    eventType?: string;
+                    correlationId?: string;
+                    actorUserId?: string;
+                    runId?: string;
                     maxRows?: number | string;
                     format?: string;
                 };

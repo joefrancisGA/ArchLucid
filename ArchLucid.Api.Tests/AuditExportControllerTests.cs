@@ -42,13 +42,11 @@ public sealed class AuditExportControllerTests
         };
 
         repo
-            .Setup(r => r.GetExportAsync(
+            .Setup(r => r.GetFilteredExportAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<int>(),
+                It.IsAny<AuditEventFilter>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([evt]);
 
@@ -87,13 +85,11 @@ public sealed class AuditExportControllerTests
         };
 
         repo
-            .Setup(r => r.GetExportAsync(
+            .Setup(r => r.GetFilteredExportAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<int>(),
+                It.IsAny<AuditEventFilter>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([evt]);
 
@@ -139,13 +135,11 @@ public sealed class AuditExportControllerTests
         };
 
         repo
-            .Setup(r => r.GetExportAsync(
+            .Setup(r => r.GetFilteredExportAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<int>(),
+                It.IsAny<AuditEventFilter>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([evt]);
 
@@ -195,13 +189,11 @@ public sealed class AuditExportControllerTests
         HttpClient client = await CreateEnterpriseAuditClientAsync(factory);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
         repo
-            .Setup(r => r.GetExportAsync(
+            .Setup(r => r.GetFilteredExportAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<int>(),
+                It.IsAny<AuditEventFilter>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
@@ -210,13 +202,51 @@ public sealed class AuditExportControllerTests
 
         response.EnsureSuccessStatusCode();
         repo.Verify(
-            r => r.GetExportAsync(
+            r => r.GetFilteredExportAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<DateTime>(),
-                10_000,
+                It.Is<AuditEventFilter>(f => f.Take == 10_000),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task ExportAudit_PassesOptionalSearchFilters_ToRepository()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = await CreateEnterpriseAuditClientAsync(factory);
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+
+        repo
+            .Setup(r => r.GetFilteredExportAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Guid run = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
+        Uri uri = new(
+            $"/v1/audit/export?fromUtc=2026-01-01T00:00:00.0000000Z&toUtc=2026-01-02T00:00:00.0000000Z&eventType=RunCreated&correlationId=c1&actorUserId=u1&runId={run:D}",
+            UriKind.Relative);
+
+        HttpResponseMessage response = await client.GetAsync(uri);
+        response.EnsureSuccessStatusCode();
+
+        repo.Verify(
+            r => r.GetFilteredExportAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f =>
+                    f.EventType == "RunCreated"
+                    && f.CorrelationId == "c1"
+                    && f.ActorUserId == "u1"
+                    && f.RunId == run
+                    && f.FromUtc.HasValue
+                    && f.ToUtc.HasValue),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

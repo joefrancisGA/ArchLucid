@@ -7,6 +7,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { fetchOperatorStickinessSnapshot } from "@/lib/api";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import type { OperatorStickinessSnapshotDto } from "@/types/operate-rhythm";
@@ -15,6 +16,7 @@ import type { OperatorStickinessSnapshotDto } from "@/types/operate-rhythm";
  * Customer-success stickiness cockpit: funnel + habit metrics with links to next actions.
  */
 export function OperatorStickinessSnapshotCard(): ReactElement | null {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [data, setData] = useState<OperatorStickinessSnapshotDto | null>(null);
   const [problem, setProblem] = useState<{
     problem: ApiProblemDetails | null;
@@ -148,7 +150,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
               Pending approvals: <span className="font-medium">{data.pendingGovernanceApprovals}</span>
             </p>
             <Link className="text-xs font-medium text-teal-800 underline dark:text-teal-300" href="/governance">
-              Open governance workflow
+              {buyerPolishedShell ? "View governance approval" : "Open governance workflow"}
             </Link>
           </CardContent>
         </Card>

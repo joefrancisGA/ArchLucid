@@ -216,6 +216,57 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
         return rows.ToList();
     }
 
+    public async Task<IReadOnlyList<AuditEvent>> GetFilteredExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+
+        if (!filter.FromUtc.HasValue || !filter.ToUtc.HasValue)
+        {
+            throw new ArgumentException(
+                "FromUtc and ToUtc are required for filtered export.",
+                nameof(filter));
+        }
+
+        if (filter.BeforeUtc.HasValue || filter.BeforeEventId.HasValue)
+        {
+            throw new ArgumentException(
+                "Filtered export does not support keyset cursor fields.",
+                nameof(filter));
+        }
+
+        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
+        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScope);
+        DynamicParameters parameters = new();
+        parameters.Add("TenantId", tenantId);
+        parameters.Add("WorkspaceId", workspaceId);
+        parameters.Add("ProjectId", projectId);
+        parameters.Add("Take", take);
+        AppendSharedAuditFilterClauses(sql, parameters, filter);
+        sql.AppendLine();
+        sql.Append(HotPathRelationalQueryShapes.AuditEventsFilteredOrderByOccurredUtcEventIdAsc.Trim());
+        Stopwatch sw = Stopwatch.StartNew();
+
+        try
+        {
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
+                new CommandDefinition(sql.ToString(), parameters, cancellationToken: ct));
+
+            return rows.ToList();
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.ListAuditEventsFiltered,
+                sw.Elapsed.TotalMilliseconds);
+        }
+    }
+
     private static void AppendSharedAuditFilterClauses(StringBuilder sql, DynamicParameters parameters, AuditEventFilter filter)
     {
         if (!string.IsNullOrWhiteSpace(filter.EventType))

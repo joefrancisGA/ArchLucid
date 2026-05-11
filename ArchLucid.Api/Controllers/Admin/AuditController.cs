@@ -165,9 +165,16 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
         return Ok(types);
     }
 
-    /// <summary>Exports audit events in the current scope for a UTC date range as JSON or CSV.</summary>
-    /// <param name="fromUtc">Inclusive range start (UTC).</param>
-    /// <param name="toUtc">Exclusive range end (UTC).</param>
+    /// <summary>
+    ///     Exports audit events in the current scope as JSON, CSV, or CEF. Date bounds and optional facet filters match
+    ///     <see cref="SearchAudit" /> (<c>ToUtc</c> is inclusive for export; see <see cref="IAuditRepository.GetFilteredExportAsync" />).
+    /// </summary>
+    /// <param name="fromUtc">Range start (UTC), inclusive (<c>&gt;=</c>).</param>
+    /// <param name="toUtc">Range end (UTC), inclusive (<c>&lt;=</c>) — same semantics as audit search.</param>
+    /// <param name="eventType">Optional event-type filter (same as search).</param>
+    /// <param name="correlationId">Optional correlation id filter (same as search).</param>
+    /// <param name="actorUserId">Optional actor user id filter (same as search).</param>
+    /// <param name="runId">Optional run id filter (same as search).</param>
     /// <param name="maxRows">Maximum rows to return; repository clamps to 1–10,000 (default 10,000).</param>
     /// <param name="format">
     ///     Optional export shape: <c>csv</c>, <c>json</c>, or <c>cef</c> (ArcSight CEF lines). When omitted, the response
@@ -184,6 +191,10 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
     public async Task<IActionResult> ExportAudit(
         [FromQuery] DateTime fromUtc,
         [FromQuery] DateTime toUtc,
+        [FromQuery] string? eventType = null,
+        [FromQuery] string? correlationId = null,
+        [FromQuery] string? actorUserId = null,
+        [FromQuery] Guid? runId = null,
         [FromQuery] int maxRows = 10_000,
         [FromQuery] string? format = null,
         CancellationToken ct = default)
@@ -191,9 +202,9 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
         DateTime from = NormalizeExportInstant(fromUtc);
         DateTime to = NormalizeExportInstant(toUtc);
 
-        if (from >= to)
+        if (from > to)
             return this.BadRequestProblem(
-                "fromUtc must be strictly before toUtc.",
+                "fromUtc must not be after toUtc.",
                 ProblemTypes.ValidationFailed);
 
         if (to - from > TimeSpan.FromDays(90))
@@ -205,13 +216,22 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IReadOnlyList<AuditEvent> events = await repo.GetExportAsync(
+        AuditEventFilter exportFilter = new()
+        {
+            FromUtc = from,
+            ToUtc = to,
+            EventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim(),
+            CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? null : correlationId.Trim(),
+            ActorUserId = string.IsNullOrWhiteSpace(actorUserId) ? null : actorUserId.Trim(),
+            RunId = runId,
+            Take = exportMaxRows
+        };
+
+        IReadOnlyList<AuditEvent> events = await repo.GetFilteredExportAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
-            from,
-            to,
-            exportMaxRows,
+            exportFilter,
             ct);
 
         if (!string.IsNullOrWhiteSpace(format))

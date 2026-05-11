@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Api.Controllers;
 
 using FluentAssertions;
 

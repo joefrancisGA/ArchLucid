@@ -29,7 +29,6 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/audit",
   "/integrations/teams",
   "/integrations/operations",
-  "/governance/first-30-days",
   "/digests",
   "/digest-subscriptions",
   "/settings/tenant",

@@ -59,7 +59,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/SecurityTrustPublicationController.cs` | `/v1/admin/security-trust` | none | AdminAuthority | /workspace/security-trust |  |
 | `Admin/SupportBundleController.cs` | `/v1/admin` | none | none | /admin/support |  |
 | `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /admin/users |  |
-| `Admin/VersionController.cs` | `/version` | none | AllowAnonymous |  | unversioned_version_probe |
+| `VersionController.cs` | `/version` | none | AllowAnonymous |  | unversioned_version_probe |
 | `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /advisory |  |
 | `Advisory/AdvisorySchedulingController.cs` | `/v1/advisory-scheduling` | standard | ReadAuthority |  |  |
 | `Advisory/DigestSubscriptionsController.cs` | `/v1/digest-subscriptions` | standard | ReadAuthority | /digests |  |

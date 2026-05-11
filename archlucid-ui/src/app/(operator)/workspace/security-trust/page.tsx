@@ -17,6 +17,27 @@ export default function OperatorSecurityTrustPage() {
       <LayerHeader pageKey="security-trust" />
 
       <section
+        aria-label="Assurance summary"
+        className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+      >
+        <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Assurance summary</h2>
+        <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+          <li>
+            Security posture is communicated through the Trust Center (policies, subprocessors, CAIQ / SIG, SOC 2
+            self-assessment) — linked below — not through embedding assessment artifacts in-product.
+          </li>
+          <li>
+            Third-party pen-test summaries are <strong>NDA-gated only</strong>; this workspace view confirms engagement
+            posture without publishing redacted report bodies.
+          </li>
+          <li>
+            Procurement questions route to <strong>security@archlucid.net</strong>; badge meanings are defined in the legend
+            so labels are not overstated.
+          </li>
+        </ul>
+      </section>
+
+      <section
         aria-label="NDA-gated third-party security assessments"
         className="rounded-lg border border-sky-200 bg-sky-50/80 px-4 py-3 dark:border-sky-900 dark:bg-sky-950/40"
       >

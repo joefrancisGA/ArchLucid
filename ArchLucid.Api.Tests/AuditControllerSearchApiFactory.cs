@@ -34,6 +34,15 @@ public sealed class AuditControllerSearchApiFactory : ArchLucidApiFactory
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+
+        AuditRepositoryMock
+            .Setup(r => r.GetFilteredExportAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
     }
 
     public Mock<IAuditRepository> AuditRepositoryMock

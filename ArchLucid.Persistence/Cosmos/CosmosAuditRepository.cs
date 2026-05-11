@@ -207,6 +207,60 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         return list;
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<AuditEvent>> GetFilteredExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+
+        if (!filter.FromUtc.HasValue || !filter.ToUtc.HasValue)
+        {
+            throw new ArgumentException(
+                "FromUtc and ToUtc are required for filtered export.",
+                nameof(filter));
+        }
+
+        if (filter.BeforeUtc.HasValue || filter.BeforeEventId.HasValue)
+        {
+            throw new ArgumentException(
+                "Filtered export does not support keyset cursor fields.",
+                nameof(filter));
+        }
+
+        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
+        Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
+        string tid = tenantId.ToString("D");
+        string wid = workspaceId.ToString("D");
+        string pid = projectId.ToString("D");
+
+        QueryDefinition query = BuildSelectFilteredExportQuery(wid, pid, filter);
+
+        using FeedIterator<AuditEventDocument> iterator = container.GetItemQueryIterator<AuditEventDocument>(
+            query,
+            requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(tid), MaxItemCount = take });
+
+        List<AuditEvent> list = [];
+
+        while (iterator.HasMoreResults && list.Count < take)
+        {
+            FeedResponse<AuditEventDocument> page = await iterator.ReadNextAsync(ct);
+
+            foreach (AuditEventDocument doc in page)
+            {
+                list.Add(ToEvent(doc));
+
+                if (list.Count >= take)
+                    break;
+            }
+        }
+
+        return list;
+    }
+
     private static QueryDefinition BuildSelectFilteredQuery(string wid, string pid, AuditEventFilter filter)
     {
         StringBuilder sql = new(
@@ -223,6 +277,31 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
 
         AppendCosmosScopedFilterPredicates(sql, parameters, filter);
         sql.Append(" ORDER BY c.occurredUtc DESC, c.id DESC");
+
+        QueryDefinition query = new(sql.ToString());
+
+        foreach (KeyValuePair<string, object?> pair in parameters)
+            query = query.WithParameter(pair.Key, pair.Value!);
+
+        return query;
+    }
+
+    private static QueryDefinition BuildSelectFilteredExportQuery(string wid, string pid, AuditEventFilter filter)
+    {
+        StringBuilder sql = new(
+            """
+            SELECT * FROM c
+            WHERE c.workspaceId = @wid AND c.projectId = @pid
+            """);
+
+        List<KeyValuePair<string, object?>> parameters =
+        [
+            new("@wid", wid),
+            new("@pid", pid)
+        ];
+
+        AppendCosmosScopedFilterPredicates(sql, parameters, filter);
+        sql.Append(" ORDER BY c.occurredUtc ASC, c.id ASC");
 
         QueryDefinition query = new(sql.ToString());
 

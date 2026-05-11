@@ -172,16 +172,6 @@
       "nav_operator_href": "/admin/users"
     },
     {
-      "controller_file": "Admin/VersionController.cs",
-      "class_name": "VersionController",
-      "route_template": "version",
-      "normalized_prefix": "/version",
-      "commercial_tier": "none",
-      "class_policy": "AllowAnonymous",
-      "exemption": "unversioned_version_probe",
-      "nav_operator_href": null
-    },
-    {
       "controller_file": "Advisory/AdvisoryController.cs",
       "class_name": "AdvisoryController",
       "route_template": "v{version:apiVersion}/advisory",
@@ -1042,30 +1032,20 @@
       "nav_operator_href": null
     },
     {
-      "controller_file": "Tenancy/TenantIntegrationsOperationsController.cs",
-      "class_name": "TenantIntegrationsOperationsController",
-      "route_template": "v{version:apiVersion}/tenant/integrations/operations",
-      "normalized_prefix": "/v1/tenant/integrations/operations",
-      "commercial_tier": "standard",
-      "class_policy": "Authorize",
-      "exemption": null,
-      "nav_operator_href": "/integrations/operations"
-    },
-    {
-      "controller_file": "Tenancy/TenantWeeklyDigestHealthController.cs",
-      "class_name": "TenantWeeklyDigestHealthController",
-      "route_template": "v{version:apiVersion}/tenant/operate/weekly-digest-health",
-      "normalized_prefix": "/v1/tenant/operate/weekly-digest-health",
-      "commercial_tier": "standard",
-      "class_policy": "Authorize",
-      "exemption": null,
-      "nav_operator_href": "/digests"
-    },
-    {
       "controller_file": "Tenancy/TenantExecDigestPreferencesController.cs",
       "class_name": "TenantExecDigestPreferencesController",
       "route_template": "v{version:apiVersion}/tenant",
       "normalized_prefix": "/v1/tenant",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Tenancy/TenantIntegrationsOperationsController.cs",
+      "class_name": "TenantIntegrationsOperationsController",
+      "route_template": "v{version:apiVersion}/tenant/integrations/operations",
+      "normalized_prefix": "/v1/tenant/integrations/operations",
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
@@ -1102,6 +1082,16 @@
       "nav_operator_href": "/settings/tenant"
     },
     {
+      "controller_file": "Tenancy/TenantWeeklyDigestHealthController.cs",
+      "class_name": "TenantWeeklyDigestHealthController",
+      "route_template": "v{version:apiVersion}/tenant/operate/weekly-digest-health",
+      "normalized_prefix": "/v1/tenant/operate/weekly-digest-health",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "ValueReports/ValueReportController.cs",
       "class_name": "ValueReportController",
       "route_template": "v{version:apiVersion}/value-report",
@@ -1110,6 +1100,16 @@
       "class_policy": "ExecuteAuthority",
       "exemption": null,
       "nav_operator_href": "/value-report"
+    },
+    {
+      "controller_file": "VersionController.cs",
+      "class_name": "VersionController",
+      "route_template": "version",
+      "normalized_prefix": "/version",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "unversioned_version_probe",
+      "nav_operator_href": null
     },
     {
       "controller_file": "Webhooks/OutboundWebhookDryRunController.cs",

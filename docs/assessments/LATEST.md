@@ -757,8 +757,9 @@ Acceptance Criteria:
 - **Why it matters:** Enforces security invariants at compile time, preventing developers from accidentally exposing unauthenticated API endpoints.
 - **Expected impact:** Directly improves Security (+10-15 pts), Maintainability (+10-15 pts). Weighted readiness impact: +0.4-0.6%.
 - **Affected qualities:** Security, Maintainability, Architectural Integrity.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** Complete (AL0001 warning on `ControllerBase` descendants without `[Authorize]` / `[AllowAnonymous]` at type or public action level, including base-type coverage; unit coverage via stubbed ASP.NET metadata.)
+- **Delivered:** `ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs`; `ArchLucid.Analyzers/Al0001Descriptor.cs`; `ArchLucid.Analyzers.Tests/RequireAuthorizationAnalyzerTests.cs`.
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the `ArchLucid.Analyzers` project, create a new Roslyn Analyzer that enforces authorization on API controllers.
 

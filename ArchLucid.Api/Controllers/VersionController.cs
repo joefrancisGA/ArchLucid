@@ -5,14 +5,15 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArchLucid.Api.Controllers.Admin;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 ///     Returns non-secret build and version identity for the running API process.
 ///     Intentionally <see cref="AllowAnonymousAttribute" /> so operators and automation
 ///     can discover version without credentials during pilot/support triage.
 ///     Marked <see cref="ApiVersionNeutralAttribute" /> because this is infrastructure,
-///     not a versioned domain endpoint.
+///     not a versioned domain endpoint. Placed under the Controllers root (not <c>Admin/</c>)
+///     so tooling does not classify this probe as part of authenticated admin APIs.
 /// </summary>
 [ApiController]
 [Route("version")]

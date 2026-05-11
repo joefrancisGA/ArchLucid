@@ -113,7 +113,9 @@ export default async function RunsPage({
   runs = runs.map(normalizeRunSummaryForDemoPicker);
 
   const projectTitle =
-    isPublicDemoModeEnv() && projectId === "default" ? "Claims Intake Demo Workspace" : `Project ${projectId}`;
+    projectId === "default" && (isPublicDemoModeEnv() || isBuyerPolishedOperatorShellEnv())
+      ? "Claims Intake Workspace"
+      : `Project ${projectId}`;
 
   if (loadFailure === null && malformedMessage === null && totalCount > 0 && !usedStaticRunsFallback) {
     const pages = Math.max(1, Math.ceil(totalCount / pageSize));

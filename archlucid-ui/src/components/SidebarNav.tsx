@@ -56,6 +56,9 @@ const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 const SIDEBAR_NAV_EXPAND_ALL_KEY = "archlucid-nav-expanded";
 const SIDEBAR_ADMIN_SECTION_OPEN_KEY = "archlucid-sidebar-admin-section-open";
 
+/** Pilot-group paths omitted in buyer-polished shell — golden path lives in quick actions and reviews index. */
+const BUYER_POLISHED_PILOT_OMIT_PATHS = new Set<string>(["/", "/onboarding", "/reviews/new"]);
+
 /** Buyer-demo golden path — uses canonical showcase run/manifest so quick actions work without workspace context. */
 const BUYER_POLISHED_QUICK_ACTION_LINKS: readonly {
   readonly href: string;
@@ -441,23 +444,16 @@ export function SidebarNav() {
             ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, true))
             : visibleLinks;
 
-        const linksForRender =
+        const linksAfterPilotBuyerFilter =
           buyerPolishedShell && group.id === "pilot"
-            ? [...linksAfterDemoFilter].sort((linkA, linkB) => {
-                const aNew = linkA.href === "/reviews/new";
-                const bNew = linkB.href === "/reviews/new";
+            ? linksAfterDemoFilter.filter((l) => {
+                const base = (l.href.split("?", 1)[0] ?? "").trim();
 
-                if (aNew && !bNew) {
-                  return 1;
-                }
-
-                if (!aNew && bNew) {
-                  return -1;
-                }
-
-                return 0;
+                return !BUYER_POLISHED_PILOT_OMIT_PATHS.has(base);
               })
             : linksAfterDemoFilter;
+
+        const linksForRender = linksAfterPilotBuyerFilter;
 
         const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
@@ -484,7 +480,9 @@ export function SidebarNav() {
               aria-describedby={group.id === "operate-governance" ? "sidebar-governance-nav-hint-slot" : undefined}
             >
               <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
-                <span id={`sidebar-group-trigger-title-${group.id}`}>{group.label}</span>
+                <span id={`sidebar-group-trigger-title-${group.id}`}>
+                  {group.id === "pilot" && buyerPolishedShell ? "Review package" : group.label}
+                </span>
                 {group.id === "operate-governance" ? (
                   <span id="sidebar-governance-nav-hint-slot">
                     <OperateCapabilityNavGroupHint />
@@ -521,7 +519,7 @@ export function SidebarNav() {
                         )}
                         title={
                           advancedDemo
-                            ? `${link.title} (Advanced — optional in demo mode)`
+                            ? `${link.title} (Advanced — optional)`
                             : link.title
                         }
                         aria-current={active ? "page" : undefined}
@@ -567,7 +565,7 @@ export function SidebarNav() {
                       )}
                       title={
                         advancedDemo
-                          ? `${link.title} (Advanced — optional in demo mode)`
+                          ? `${link.title} (Advanced — optional)`
                           : link.title
                       }
                       aria-current={active ? "page" : undefined}
@@ -642,7 +640,7 @@ export function SidebarNav() {
                           ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
                           : "text-neutral-900 dark:text-neutral-100",
                       )}
-                      title={advancedDemo ? `${row.label} (Advanced — optional in demo mode)` : row.label}
+                      title={advancedDemo ? `${row.label} (Advanced — optional)` : row.label}
                       aria-current={active ? "page" : undefined}
                     >
                       <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
@@ -668,7 +666,7 @@ export function SidebarNav() {
                       )}
                       title={
                         advancedDemo
-                          ? `${link.title} (Advanced — optional in demo mode)`
+                          ? `${link.title} (Advanced — optional)`
                           : link.title
                       }
                       aria-current={active ? "page" : undefined}

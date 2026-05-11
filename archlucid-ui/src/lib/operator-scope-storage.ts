@@ -122,7 +122,7 @@ export function defaultLabelsForScopeIds(
 ): { workspace: string; project: string } {
   const ws =
     workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID
-      ? "Claims Intake Demo Workspace"
+      ? "Claims Intake Workspace"
       : workspaceId.slice(0, 8) + "…";
   const pr =
     projectId.trim() === DEV_SCOPE_PROJECT_ID ? "Primary project" : projectId.slice(0, 8) + "…";

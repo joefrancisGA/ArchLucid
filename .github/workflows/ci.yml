@@ -6,7 +6,8 @@
 #   Tier 1a — Named agent gates (branch protection): prompt-injection regression (Python + dotnet test);
 #             offline agent regression (eval corpus + prompt JSON baseline); parallel after gitleaks
 #   Tier 1.5 — DbUp migrations on empty catalog (Docker SQL) + greenfield SQL boot (API process + /health/ready); after Tier 1
-#   Tier 2 — .NET full regression + SQL (parallel shards: Category!=Slow vs Category=Slow; merged in `dotnet-coverage-merge`)
+#   Tier 2 — .NET full regression + SQL (parallel shards: Category!=Slow split Api.Tests vs other test assemblies;
+#           Category=Slow split: Api.Tests vs AgentRuntime+Application+Decisioning; merged in `dotnet-coverage-merge`)
 #   Tier 2b — Simmy chaos (after Tier 2; no SQL)
 #   Tier 2d — Optional live Azure OpenAI (`RealAzureOpenAIEndToEndTests`) after OpenAPI snapshot + merged coverage gates + chaos;
 #           — opt-in repo var `ARCHLUCID_CI_REAL_AOAI_ENABLED`; secrets `ARCHLUCID_CI_REAL_AOAI_ENDPOINT` / `ARCHLUCID_CI_REAL_AOAI_KEY` (same-repo PRs/push only).
@@ -1121,9 +1122,67 @@ jobs:
           path: ${{ runner.temp }}/greenfield-boot.log
           if-no-files-found: warn
 
-  # Split into parallel jobs so neither shard can hit the 6-hour GitHub-hosted runner wall clock alone.
-  dotnet-full-regression-core:
-    name: ".NET: full regression — core shard (SQL, Category!=Slow)"
+  # Non-slow full regression: split Api.Tests (WebApplicationFactory + HTTP-heavy) from other test assemblies so
+  # wall time stays under GitHub job limits; mirrors the Category=Slow Api vs domain split. Merged in dotnet-coverage-merge.
+    timeout-minutes: 210
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore ArchLucid.sln
+
+      - name: Build (Release)
+        run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: Test — ArchLucid.Api.Tests (exclude Category=Slow)
+        env:
+          ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+        run: >
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release --settings coverage.runsettings
+          --filter "Category!=Slow"
+          --collect:"XPlat Code Coverage"
+          --results-directory "${{ runner.temp }}/coverage-full-core-api"
+          --logger "trx;LogFilePrefix=full-core-api-"
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-trx-full-core-api
+          path: ${{ runner.temp }}/coverage-full-core-api/**/*.trx
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: coverage-full-regression-core-api
+          path: ${{ runner.temp }}/coverage-full-core-api/**/coverage.cobertura.xml
+          if-no-files-found: warn
+
+  dotnet-full-regression-core-libs:
+    name: ".NET: full regression — core libraries shard (SQL, non-Api Category!=Slow)"
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
@@ -1163,31 +1222,50 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      - name: Test — solution (exclude Category=Slow)
+      # Resolves test projects from ArchLucid.sln (excluding Api.Tests → dotnet-full-regression-core-api).
+      - name: Test — non-Api test assemblies (exclude Category=Slow)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
-        run: >
-          dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings
-          --filter "Category!=Slow"
-          --collect:"XPlat Code Coverage"
-          --results-directory "${{ runner.temp }}/coverage-full-core"
-          --logger "trx;LogFilePrefix=full-core-"
+        run: |
+          set -euo pipefail
+          mapfile -t test_projects < <(dotnet sln ArchLucid.sln list | grep '\.Tests\.csproj$' | grep -v 'Api\.Tests' || true)
+          if [ "${#test_projects[@]}" -lt 1 ]; then
+            echo "::error::No non-Api *.Tests.csproj entries from dotnet sln list (expected at least one)."
+            exit 1
+          fi
+          dotnet test "${test_projects[@]}" \
+            --no-build -c Release --settings coverage.runsettings \
+            --filter "Category!=Slow" \
+            --collect:"XPlat Code Coverage" \
+            --results-directory "${{ runner.temp }}/coverage-full-core-libs" \
+            --logger "trx;LogFilePrefix=full-core-libs-"
 
       - uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: dotnet-trx-full-core
-          path: ${{ runner.temp }}/coverage-full-core/**/*.trx
+          name: dotnet-trx-full-core-libs
+          path: ${{ runner.temp }}/coverage-full-core-libs/**/*.trx
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
         with:
-          name: coverage-full-regression-core
-          path: ${{ runner.temp }}/coverage-full-core/**/coverage.cobertura.xml
+          name: coverage-full-regression-core-libs
+          path: ${{ runner.temp }}/coverage-full-core-libs/**/coverage.cobertura.xml
           if-no-files-found: warn
 
-  dotnet-full-regression-slow:
-    name: ".NET: full regression — slow shard (SQL, Category=Slow)"
+  dotnet-full-regression-core-complete:
+    name: ".NET: full regression — core shards complete (non-slow)"
+    needs:
+      - dotnet-full-regression-core-api
+      - dotnet-full-regression-core-libs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: echo "Non-slow regression shards finished."
+
+  # Slow SQL-backed tests split by project set so the Api.Tests workload cannot monopolize one 3h timeout alone.
+  dotnet-full-regression-slow-api:
+    name: ".NET: full regression — slow shard API (SQL, Api.Tests Category=Slow)"
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
@@ -1227,34 +1305,104 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      - name: Test — solution (Category=Slow only)
+      - name: Test — ArchLucid.Api.Tests (Category=Slow only)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         run: >
-          dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release --settings coverage.runsettings
           --filter "Category=Slow"
           --collect:"XPlat Code Coverage"
-          --results-directory "${{ runner.temp }}/coverage-full-slow"
-          --logger "trx;LogFilePrefix=full-slow-"
+          --results-directory "${{ runner.temp }}/coverage-full-slow-api"
+          --logger "trx;LogFilePrefix=full-slow-api-"
 
       - uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: dotnet-trx-full-slow
-          path: ${{ runner.temp }}/coverage-full-slow/**/*.trx
+          name: dotnet-trx-full-slow-api
+          path: ${{ runner.temp }}/coverage-full-slow-api/**/*.trx
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
         with:
-          name: coverage-full-regression-slow
-          path: ${{ runner.temp }}/coverage-full-slow/**/coverage.cobertura.xml
+          name: coverage-full-regression-slow-api
+          path: ${{ runner.temp }}/coverage-full-slow-api/**/coverage.cobertura.xml
+          if-no-files-found: warn
+
+  dotnet-full-regression-slow-domain:
+    name: ".NET: full regression — slow shard domain (SQL, AgentRuntime+Application+Decisioning Category=Slow)"
+    needs:
+      - dotnet-fast-core
+      - api-greenfield-boot
+      - sql-dbup-empty-catalog
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore ArchLucid.sln
+
+      - name: Build (Release)
+        run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: Test — domain test projects (Category=Slow only)
+        env:
+          ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+        run: >
+          dotnet test
+          ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
+          ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
+          ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj
+          --no-build -c Release --settings coverage.runsettings
+          --filter "Category=Slow"
+          --collect:"XPlat Code Coverage"
+          --results-directory "${{ runner.temp }}/coverage-full-slow-domain"
+          --logger "trx;LogFilePrefix=full-slow-domain-"
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-trx-full-slow-domain
+          path: ${{ runner.temp }}/coverage-full-slow-domain/**/*.trx
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: coverage-full-regression-slow-domain
+          path: ${{ runner.temp }}/coverage-full-slow-domain/**/coverage.cobertura.xml
           if-no-files-found: warn
 
   dotnet-coverage-merge:
     name: ".NET: merge coverage + gates"
     needs:
-      - dotnet-full-regression-core
-      - dotnet-full-regression-slow
+      - dotnet-full-regression-core-api
+      - dotnet-full-regression-core-libs
+      - dotnet-full-regression-slow-api
+      - dotnet-full-regression-slow-domain
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -1273,13 +1421,24 @@ jobs:
 
       - uses: actions/download-artifact@v6
         with:
-          name: coverage-full-regression-core
-          path: merge-cov/core
+          name: coverage-full-regression-core-api
+          path: merge-cov/core-api
 
       - uses: actions/download-artifact@v6
         with:
-          name: coverage-full-regression-slow
-          path: merge-cov/slow
+          name: coverage-full-regression-core-libs
+          path: merge-cov/core-libs
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: coverage-full-regression-slow-api
+          path: merge-cov/slow-api
+        continue-on-error: true
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: coverage-full-regression-slow-domain
+          path: merge-cov/slow-domain
         continue-on-error: true
 
       - name: Merge coverage (HTML + GitHub job summary) + enforce gates
@@ -1289,7 +1448,7 @@ jobs:
           dotnet tool restore
           OUT="${{ runner.temp }}/coverage-report-full"
           mkdir -p "${{ runner.temp }}/coverage-merged-input"
-          # Copy any downloaded Cobertura shards (slow shard may be absent if no Slow tests ran).
+          # Copy any downloaded Cobertura shards (slow shards may be absent if no matching tests ran).
           find merge-cov -type f -name 'coverage.cobertura.xml' -exec cp -t "${{ runner.temp }}/coverage-merged-input" {} +
           COV_DIR="${{ runner.temp }}/coverage-merged-input"
           if [ ! -d "$COV_DIR" ]; then
@@ -1391,8 +1550,9 @@ jobs:
   chaos-tests:
     name: "Resilience: Simmy chaos tests"
     needs:
-      - dotnet-full-regression-core
-      - dotnet-full-regression-slow
+      - dotnet-full-regression-core-complete
+      - dotnet-full-regression-slow-api
+      - dotnet-full-regression-slow-domain
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -1433,7 +1593,7 @@ jobs:
           if-no-files-found: warn
 
   # Live Azure invoke (budget on your AOAI quota). Runs only after the OpenAPI snapshot job, merged line/branch gates,
-  # and Simmy chaos are green — not in parallel with the slow regression shard alone.
+  # and Simmy chaos are green (scheduled after `dotnet-coverage-merge` + `chaos-tests`, not on slow shards alone).
   dotnet-azure-openai-live-post-regression:
     name: ".NET optional: live Azure OpenAI (post regression + chaos)"
     needs:
@@ -1888,8 +2048,9 @@ jobs:
   ui-e2e-live:
     name: "Operator UI: e2e live API + SQL (PR subset — full live-a11y matrix is nightly)"
     needs:
-      - dotnet-full-regression-core
-      - dotnet-full-regression-slow
+      - dotnet-full-regression-core-complete
+      - dotnet-full-regression-slow-api
+      - dotnet-full-regression-slow-domain
     runs-on: ubuntu-latest
     timeout-minutes: 120
     services:
@@ -2037,8 +2198,9 @@ jobs:
   ui-e2e-live-apikey:
     name: "Operator UI: live e2e (ApiKey subset)"
     needs:
-      - dotnet-full-regression-core
-      - dotnet-full-regression-slow
+      - dotnet-full-regression-core-complete
+      - dotnet-full-regression-slow-api
+      - dotnet-full-regression-slow-domain
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -2178,8 +2340,9 @@ jobs:
   ui-e2e-live-jwt:
     name: "Operator UI: live e2e (JWT subset)"
     needs:
-      - dotnet-full-regression-core
-      - dotnet-full-regression-slow
+      - dotnet-full-regression-core-complete
+      - dotnet-full-regression-slow-api
+      - dotnet-full-regression-slow-domain
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -2342,8 +2505,9 @@ jobs:
   k6-smoke-api:
     name: "Performance: k6 API smoke (operator path)"
     needs:
-      - dotnet-full-regression-core
-      - dotnet-full-regression-slow
+      - dotnet-full-regression-core-complete
+      - dotnet-full-regression-slow-api
+      - dotnet-full-regression-slow-domain
     runs-on: ubuntu-latest
     timeout-minutes: 35
     services:
@@ -2627,8 +2791,9 @@ jobs:
   api-schemathesis-light:
     name: "Security: Schemathesis light fuzz (PR)"
     needs:
-      - dotnet-full-regression-core
-      - dotnet-full-regression-slow
+      - dotnet-full-regression-core-complete
+      - dotnet-full-regression-slow-api
+      - dotnet-full-regression-slow-domain
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:
@@ -2701,8 +2866,9 @@ jobs:
       - saas-terraform-roots-validate
       - sql-dbup-empty-catalog
       - api-greenfield-boot
-      - dotnet-full-regression-core
-      - dotnet-full-regression-slow
+      - dotnet-full-regression-core-complete
+      - dotnet-full-regression-slow-api
+      - dotnet-full-regression-slow-domain
       - dotnet-coverage-merge
       - chaos-tests
       - docker-build-smoke

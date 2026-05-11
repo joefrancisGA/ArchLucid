@@ -46,7 +46,7 @@ describe("ScopeSwitcher", () => {
     render(<ScopeSwitcher />);
     const trigger = screen.getByTestId("operator-scope-switcher-trigger");
 
-    expect(trigger).toHaveTextContent("Claims Intake Demo Workspace");
+    expect(trigger).toHaveTextContent("Claims Intake Workspace");
     expect(trigger).toHaveTextContent("Primary project");
   });
 
