@@ -41,10 +41,7 @@ public sealed class InMemoryValueReportJobQueue(
 
     public ValueReportJobPollResult TryPoll(Guid jobId, Guid scopedTenantId)
     {
-        if (!_jobs.TryGetValue(jobId, out JobEntry? entry))
-            return new ValueReportJobPollResult(false, false, null, null, null);
-
-        if (entry.Request.TenantId != scopedTenantId)
+        if (!_jobs.TryGetValue(jobId, out JobEntry? entry) || entry.Request.TenantId != scopedTenantId)
             return new ValueReportJobPollResult(false, false, null, null, null);
 
         return entry.Phase switch

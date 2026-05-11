@@ -40,7 +40,9 @@ public static class RunStarterTaskFactory
         ArgumentNullException.ThrowIfNull(request);
         Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase)
         {
-            ["systemName"] = request.SystemName, ["environment"] = request.Environment, ["cloudProvider"] = request.CloudProvider.ToString()
+            ["systemName"] = request.SystemName,
+            ["environment"] = request.Environment,
+            ["cloudProvider"] = request.CloudProvider.ToString()
         };
         if (!string.IsNullOrWhiteSpace(request.PriorManifestVersion))
             metadata["priorManifestVersion"] = request.PriorManifestVersion;
@@ -181,13 +183,9 @@ public static class RunStarterTaskFactory
             $"Estimate cost posture and cost-sensitive design considerations for system '{request.SystemName}'. " +
             $"Required capabilities: {string.Join(", ", request.RequiredCapabilities)}";
 
-        if (!AzureExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle))
-
-            return baseText;
-
-        if (!evidenceBundle.Metadata.TryGetValue(AzureExtractorEvidenceBundleMerger.MetadataCostCitationKey, out string? cite) ||
+        if (!AzureExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle) ||
+            !evidenceBundle.Metadata.TryGetValue(AzureExtractorEvidenceBundleMerger.MetadataCostCitationKey, out string? cite) ||
             string.IsNullOrWhiteSpace(cite))
-
             return baseText;
 
         return baseText + " Inventory citation: " + cite;

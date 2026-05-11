@@ -102,10 +102,9 @@ public sealed class BackgroundJobWorkUnitExecutor(
 
     private static Guid? TryParseRunGuid(string runId)
     {
-        if (Guid.TryParseExact(runId, "N", out Guid guid))
+        if (Guid.TryParseExact(runId, "N", out Guid guid) || Guid.TryParse(runId, out guid))
             return guid;
-        if (Guid.TryParse(runId, out guid))
-            return guid;
+
         return null;
     }
 }

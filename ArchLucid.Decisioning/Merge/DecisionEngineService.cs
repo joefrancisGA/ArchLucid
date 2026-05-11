@@ -70,10 +70,7 @@ public sealed class DecisionEngineService : IDecisionEngineService
 
         List<AgentResult> validResults = _mergeInputGate.ValidateAndFilterResults(runId, results, output);
 
-        if (output.Errors.Count > 0)
-            return output;
-
-        if (!_mergeInputGate.ValidateAgentResultsAgainstSchema(validResults, output))
+        if (output.Errors.Count > 0 || !_mergeInputGate.ValidateAgentResultsAgainstSchema(validResults, output))
             return output;
 
         GoldenManifest manifest =
