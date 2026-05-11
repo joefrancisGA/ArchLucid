@@ -82,6 +82,26 @@ jobs:
       - name: Assert docs root .md count
         run: python scripts/ci/assert_docs_root_size.py
 
+  # Full history: last-touch dates for docs/*.md (advisory; merge-never).
+  docs-stale-code-refs-warn:
+    name: "Docs: stale code-path references (advisory)"
+    needs:
+      - gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Stale docs with code references (90d+, warn-only)
+        continue-on-error: true
+        run: python scripts/ci/detect_stale_docs.py
+
   docs-navigator-links:
     name: "Docs: NAVIGATOR + connector matrix link targets exist"
     needs:
@@ -2715,6 +2735,7 @@ jobs:
       - gitleaks
       - docs-root-size
       - docs-navigator-links
+      - docs-stale-code-refs-warn
       - two-layer-naming-lint
       - integrations-node-ado-pipeline-tasks
       - doc-markdown-links

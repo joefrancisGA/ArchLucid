@@ -109,7 +109,7 @@ ArchLucid's architecture is designed for extensibility:
 
 ## 4. Request an integration
 
-Contact **integrations@archlucid.dev** (placeholder) with your use case. Integration requests inform the connector roadmap.
+Contact your **ArchLucid account team** or the address on your **order form** with your use case. Integration requests inform the connector roadmap.
 
 ---
 
