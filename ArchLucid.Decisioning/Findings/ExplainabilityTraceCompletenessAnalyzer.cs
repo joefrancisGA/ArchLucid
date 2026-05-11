@@ -16,12 +16,15 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         // Trace is typed non-null on Finding, but object initializers, tests (Trace = null!), and some payloads leave it null at runtime.
         ExplainabilityTrace? trace = finding.Trace;
 
-        bool hasGraph = ListHasMeaningfulContent(trace?.GraphNodeIdsExamined);
-        bool hasRules = ListHasMeaningfulContent(trace?.RulesApplied);
-        bool hasDecisions = ListHasMeaningfulContent(trace?.DecisionsTaken);
-        bool hasAlt = ListHasMeaningfulContent(trace?.AlternativePathsConsidered);
-        bool hasNotes = ListHasMeaningfulContent(trace?.Notes);
-        bool hasCitations = ListHasMeaningfulContent(trace?.Citations);
+        if (trace is null)
+            return TraceCompletenessScoreForMissingTrace(finding);
+
+        bool hasGraph = ListHasMeaningfulContent(trace.GraphNodeIdsExamined);
+        bool hasRules = ListHasMeaningfulContent(trace.RulesApplied);
+        bool hasDecisions = ListHasMeaningfulContent(trace.DecisionsTaken);
+        bool hasAlt = ListHasMeaningfulContent(trace.AlternativePathsConsidered);
+        bool hasNotes = ListHasMeaningfulContent(trace.Notes);
+        bool hasCitations = ListHasMeaningfulContent(trace.Citations);
 
         int populated = 0;
 
@@ -111,6 +114,34 @@ public static class ExplainabilityTraceCompletenessAnalyzer
             .ToList();
 
         return new TraceCompletenessSummary { TotalFindings = findings.Count, OverallCompletenessRatio = overall, ByEngine = byEngine };
+    }
+
+    private static TraceCompletenessScore TraceCompletenessScoreForMissingTrace(Finding finding)
+    {
+        List<string> missing =
+        [
+            "Graph nodes examined",
+            "Rules applied",
+            "Decisions taken",
+            "Alternative paths considered",
+            "Notes",
+            "Citations",
+        ];
+
+        return new TraceCompletenessScore
+        {
+            FindingId = finding.FindingId,
+            EngineType = finding.EngineType,
+            HasGraphNodeIds = false,
+            HasRulesApplied = false,
+            HasDecisionsTaken = false,
+            HasAlternativePaths = false,
+            HasNotes = false,
+            HasCitations = false,
+            PopulatedFieldCount = 0,
+            CompletenessRatio = 0.0,
+            MissingTraceFields = missing,
+        };
     }
 
     private static bool ListHasMeaningfulContent(IReadOnlyList<string>? list)
