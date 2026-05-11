@@ -3,30 +3,23 @@ using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application;
 
-public sealed record GetRunResult
+public sealed record GetRunResult(ArchitectureRun Run, IReadOnlyList<AgentTask> Tasks, IReadOnlyList<AgentResult> Results)
 {
     public ArchitectureRun Run
     {
         get;
         init;
-    }
+    } = Run ?? throw new ArgumentNullException(nameof(Run));
 
     public IReadOnlyList<AgentTask> Tasks
     {
         get;
         init;
-    }
+    } = Tasks ?? throw new ArgumentNullException(nameof(Tasks));
 
     public IReadOnlyList<AgentResult> Results
     {
         get;
         init;
-    }
-
-    public GetRunResult(ArchitectureRun run, IReadOnlyList<AgentTask> tasks, IReadOnlyList<AgentResult> results)
-    {
-        Run = run ?? throw new ArgumentNullException(nameof(run));
-        Tasks = tasks ?? throw new ArgumentNullException(nameof(tasks));
-        Results = results ?? throw new ArgumentNullException(nameof(results));
-    }
+    } = Results ?? throw new ArgumentNullException(nameof(Results));
 }

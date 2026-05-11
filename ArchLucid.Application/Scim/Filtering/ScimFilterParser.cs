@@ -17,21 +17,15 @@ public static class ScimFilterParser
         return !c.Eof ? throw new ScimFilterParseException($"Unexpected trailing input at position {c.Position}.") : node;
     }
 
-    private ref struct ScimFilterCursor
+    private ref struct ScimFilterCursor(ReadOnlySpan<char> s)
     {
-        private readonly ReadOnlySpan<char> _s;
-
-        public ScimFilterCursor(ReadOnlySpan<char> s)
-        {
-            _s = s;
-            Position = 0;
-        }
+        private readonly ReadOnlySpan<char> _s = s;
 
         public int Position
         {
             get;
             private set;
-        }
+        } = 0;
 
         public bool Eof => Position >= _s.Length;
 

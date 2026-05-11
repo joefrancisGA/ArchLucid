@@ -7,30 +7,17 @@ namespace ArchLucid.Application.Pilots;
 ///     Operator-facing bundle: live process counters (same source as <see cref = "IWhyArchLucidSnapshotService"/>)
 ///     plus optional non-authoritative monthly spend band from <see cref = "ITenantCostEstimateService"/>.
 /// </summary>
-public sealed record TenantMeasuredRoiSummary
+public sealed record TenantMeasuredRoiSummary(WhyArchLucidSnapshotResponse ProcessSignals, TenantCostEstimate? MonthlyCostBand, string Disclaimer)
 {
     public WhyArchLucidSnapshotResponse ProcessSignals
     {
         get;
         init;
-    }
-
-    public TenantCostEstimate? MonthlyCostBand
-    {
-        get;
-        init;
-    }
+    } = ProcessSignals ?? throw new ArgumentNullException(nameof(ProcessSignals));
 
     public string Disclaimer
     {
         get;
         init;
-    }
-
-    public TenantMeasuredRoiSummary(WhyArchLucidSnapshotResponse processSignals, TenantCostEstimate? monthlyCostBand, string disclaimer)
-    {
-        ProcessSignals = processSignals ?? throw new ArgumentNullException(nameof(processSignals));
-        MonthlyCostBand = monthlyCostBand;
-        Disclaimer = disclaimer ?? throw new ArgumentNullException(nameof(disclaimer));
-    }
+    } = Disclaimer ?? throw new ArgumentNullException(nameof(Disclaimer));
 }

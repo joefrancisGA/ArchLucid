@@ -1,29 +1,22 @@
 namespace ArchLucid.Application.Jobs;
 
-public sealed record BackgroundJobFile
+public sealed record BackgroundJobFile(string FileName, string ContentType, byte[] Bytes)
 {
     public string FileName
     {
         get;
         init;
-    }
+    } = FileName ?? throw new ArgumentNullException(nameof(FileName));
 
     public string ContentType
     {
         get;
         init;
-    }
+    } = ContentType ?? throw new ArgumentNullException(nameof(ContentType));
 
     public byte[] Bytes
     {
         get;
         init;
-    }
-
-    public BackgroundJobFile(string fileName, string contentType, byte[] bytes)
-    {
-        FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
-        ContentType = contentType ?? throw new ArgumentNullException(nameof(contentType));
-        Bytes = bytes ?? throw new ArgumentNullException(nameof(bytes));
-    }
+    } = Bytes ?? throw new ArgumentNullException(nameof(Bytes));
 }

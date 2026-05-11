@@ -3,17 +3,12 @@ using ArchLucid.Decisioning.Validation;
 namespace ArchLucid.Application.Runs;
 
 /// <summary>Thrown when the projected golden manifest fails JSON Schema validation before persistence.</summary>
-public sealed class GoldenManifestSchemaValidationException : Exception
+public sealed class GoldenManifestSchemaValidationException(SchemaValidationResult result) : Exception(BuildMessage(result))
 {
-    public GoldenManifestSchemaValidationException(SchemaValidationResult result) : base(BuildMessage(result))
-    {
-        Result = result;
-    }
-
     public SchemaValidationResult Result
     {
         get;
-    }
+    } = result;
 
     private static string BuildMessage(SchemaValidationResult result)
     {

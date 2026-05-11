@@ -3,17 +3,12 @@ using ArchLucid.Contracts.Governance;
 namespace ArchLucid.Application.Runs;
 
 /// <summary>Thrown when optional pre-commit governance blocks manifest commit.</summary>
-public sealed class PreCommitGovernanceBlockedException : Exception
+public sealed class PreCommitGovernanceBlockedException(PreCommitGateResult result) : Exception(GetMessage(result))
 {
-    public PreCommitGovernanceBlockedException(PreCommitGateResult result) : base(GetMessage(result))
-    {
-        Result = result;
-    }
-
     public PreCommitGateResult Result
     {
         get;
-    }
+    } = result;
 
     private static string GetMessage(PreCommitGateResult result)
     {
