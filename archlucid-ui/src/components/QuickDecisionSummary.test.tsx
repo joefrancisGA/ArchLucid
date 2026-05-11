@@ -1,10 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 import { QuickDecisionSummary } from "./QuickDecisionSummary";
+
+vi.mock("next/navigation", () => ({
+  useRouter: (): { refresh: () => void } => ({ refresh: (): void => {} }),
+}));
 
 expect.extend(toHaveNoViolations);
 
@@ -43,6 +47,8 @@ describe("QuickDecisionSummary", () => {
         severityValue: 0,
         findingOrder: 0,
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
       },
       {
         findingId: "f-high",
@@ -51,6 +57,8 @@ describe("QuickDecisionSummary", () => {
         severityValue: 2,
         findingOrder: 1,
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
       },
       {
         findingId: "f-critical",
@@ -59,6 +67,8 @@ describe("QuickDecisionSummary", () => {
         severityValue: 3,
         findingOrder: 2,
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
       },
       {
         findingId: "f-extra",
@@ -67,6 +77,8 @@ describe("QuickDecisionSummary", () => {
         severityValue: 1,
         findingOrder: 3,
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
       },
     ];
 
@@ -93,6 +105,8 @@ describe("QuickDecisionSummary", () => {
         severityValue: 3,
         findingOrder: 0,
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
       },
     ];
 

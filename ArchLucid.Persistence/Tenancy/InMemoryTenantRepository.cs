@@ -811,6 +811,33 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             new TenantWorkspaceLink { WorkspaceId = row.Id, DefaultProjectId = row.DefaultProjectId });
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<TenantWorkspaceListItem>> ListWorkspacesAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
+            return Task.FromResult<IReadOnlyList<TenantWorkspaceListItem>>([]);
+
+        List<TenantWorkspaceListItem> copy;
+
+        lock (list)
+        {
+            copy = list.OrderBy(static w => w.CreatedUtc)
+                .Select(static w => new TenantWorkspaceListItem
+                {
+                    WorkspaceId = w.Id,
+                    TenantId = w.TenantId,
+                    Name = w.Name,
+                    DefaultProjectId = w.DefaultProjectId,
+                    CreatedUtc = w.CreatedUtc
+                })
+                .ToList();
+        }
+
+        return Task.FromResult<IReadOnlyList<TenantWorkspaceListItem>>(copy);
+    }
+
     /// <summary>
     ///     Integration test hosts using the in-memory tenant registry; mutates tier for commercial gate HTTP assertions.
     /// </summary>

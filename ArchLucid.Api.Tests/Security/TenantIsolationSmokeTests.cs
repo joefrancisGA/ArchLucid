@@ -282,6 +282,10 @@ public sealed class TenantIsolationSmokeTests
             IF NOT EXISTS (SELECT 1 FROM dbo.TenantWorkspaces WHERE Id = @Wid)
                 INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
                 VALUES (@Wid, @Tid, N'Workspace B', @Pid);
+            IF OBJECT_ID(N'dbo.Projects', N'U') IS NOT NULL
+               AND NOT EXISTS (SELECT 1 FROM dbo.Projects WHERE Id = @Pid)
+                INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, CreatedUtc, IsDeleted)
+                VALUES (@Pid, @Tid, @Wid, N'default', SYSUTCDATETIME(), 0);
             """;
         cmd.Parameters.AddWithValue("@Tid", tenantId);
         cmd.Parameters.AddWithValue("@Wid", workspaceId);

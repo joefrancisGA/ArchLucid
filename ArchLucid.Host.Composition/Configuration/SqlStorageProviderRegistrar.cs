@@ -218,6 +218,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IGraphSnapshotRepository, SqlGraphSnapshotRepository>();
         services.AddScoped<IFindingsSnapshotRepository, SqlFindingsSnapshotRepository>();
         services.AddScoped<IFindingInspectReadRepository, DapperFindingInspectReadRepository>();
+        services.AddScoped<IFindingRecordMuteRepository, DapperFindingRecordMuteRepository>();
         services.AddScoped<IDecisionTraceRepository, SqlDecisionTraceRepository>();
         ArchLucidStorageServiceCollectionExtensions.RegisterGoldenManifestRunAndPolicyPackRepositories(services, configuration);
 
@@ -279,6 +280,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPolicyPackChangeLogRepository, DapperPolicyPackChangeLogRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddScoped<ITenantRepository, DapperTenantRepository>();
+        services.AddScoped<IArchitectureProjectRepository, DapperArchitectureProjectRepository>();
         services.AddScoped<IScimTenantTokenRepository, DapperScimTenantTokenRepository>();
         services.AddScoped<IScimUserRepository, DapperScimUserRepository>();
         services.AddScoped<IAdminNotificationsRepository, DapperAdminNotificationsRepository>();

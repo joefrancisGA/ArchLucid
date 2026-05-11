@@ -433,6 +433,36 @@ public sealed class DapperTenantRepository(
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<TenantWorkspaceListItem>> ListWorkspacesAsync(Guid tenantId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                           SELECT Id AS WorkspaceId, TenantId, Name, DefaultProjectId, CreatedUtc
+                           FROM dbo.TenantWorkspaces
+                           WHERE TenantId = @TenantId
+                           ORDER BY CreatedUtc ASC;
+                           """;
+
+        IEnumerable<WorkspaceListRow> rows =
+            await connection.QueryAsync<WorkspaceListRow>(
+                new CommandDefinition(sql, new
+                {
+                    TenantId = tenantId
+                }, cancellationToken: ct));
+
+        return rows.Select(static r => new TenantWorkspaceListItem
+            {
+                WorkspaceId = r.WorkspaceId,
+                TenantId = r.TenantId,
+                Name = r.Name,
+                DefaultProjectId = r.DefaultProjectId,
+                CreatedUtc = r.CreatedUtc
+            })
+            .ToList();
+    }
+
+    /// <inheritdoc />
     public async Task TryIncrementActiveTrialRunAsync(
         Guid tenantId,
         CancellationToken ct,
@@ -1030,6 +1060,39 @@ public sealed class DapperTenantRepository(
         }
 
         public Guid DefaultProjectId
+        {
+            get;
+            init;
+        }
+    }
+
+    private sealed class WorkspaceListRow
+    {
+        public Guid WorkspaceId
+        {
+            get;
+            init;
+        }
+
+        public Guid TenantId
+        {
+            get;
+            init;
+        }
+
+        public string Name
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public Guid DefaultProjectId
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset CreatedUtc
         {
             get;
             init;

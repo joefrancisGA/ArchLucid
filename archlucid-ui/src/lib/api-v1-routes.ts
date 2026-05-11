@@ -16,6 +16,7 @@ export const ApiV1Routes = {
   tenantExecDigestPreferences: "v1/tenant/exec-digest-preferences",
   tenantCostEstimate: "v1/tenant/cost-estimate",
   tenantMeasuredRoi: "v1/tenant/measured-roi",
+  tenantWorkspaces: "v1/tenant/workspaces",
   /** Executive ROI dashboard aggregates (mocked upstream until analytics persistence lands). */
   analyticsRoi: "v1/analytics/roi",
   /** Sponsor evidence bundle (Standard tier): explainability completeness, deltas, governance counts. */

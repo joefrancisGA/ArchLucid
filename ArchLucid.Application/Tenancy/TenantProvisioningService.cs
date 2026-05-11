@@ -12,6 +12,7 @@ namespace ArchLucid.Application.Tenancy;
 /// <inheritdoc cref = "ITenantProvisioningService"/>
 public sealed class TenantProvisioningService(
     ITenantRepository tenantRepository,
+    IArchitectureProjectRepository architectureProjectRepository,
     IActorContext actorContext,
     IAuditService auditService,
     ILogger<TenantProvisioningService> logger,
@@ -21,6 +22,9 @@ public sealed class TenantProvisioningService(
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly ILogger<TenantProvisioningService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IArchitectureProjectRepository _architectureProjectRepository =
+        architectureProjectRepository ?? throw new ArgumentNullException(nameof(architectureProjectRepository));
 
     private readonly ITenantSqlCatalogProvisioner _tenantSqlCatalogProvisioner =
         tenantSqlCatalogProvisioner ?? throw new ArgumentNullException(nameof(tenantSqlCatalogProvisioner));
@@ -56,6 +60,7 @@ public sealed class TenantProvisioningService(
             {
                 await _tenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync(tenantId, TenantDatabaseNaming.SqlLogicalNameForTenant(tenantId), ct);
                 await _tenantRepository.InsertWorkspaceAsync(workspaceId, tenantId, "Default", projectId, ct);
+                await _architectureProjectRepository.InsertAsync(projectId, tenantId, workspaceId, "default", ct);
             }
             catch (Exception ex)
             {

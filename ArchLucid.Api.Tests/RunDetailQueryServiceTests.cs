@@ -27,6 +27,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class RunDetailQueryServiceTests
 {
     private readonly Mock<IDecisionTraceRepository> _authorityTraceRepo;
+    private readonly Mock<IFindingRecordMuteRepository> _muteRepo;
     private readonly Mock<IAgentResultRepository> _resultRepo;
 
     private readonly Guid _runGuid1 = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -51,6 +52,7 @@ public sealed class RunDetailQueryServiceTests
         _resultRepo = new Mock<IAgentResultRepository>();
         _unifiedManifestReader = new Mock<IUnifiedGoldenManifestReader>();
         _authorityTraceRepo = new Mock<IDecisionTraceRepository>();
+        _muteRepo = new Mock<IFindingRecordMuteRepository>();
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(_scope);
 
@@ -61,6 +63,7 @@ public sealed class RunDetailQueryServiceTests
             _resultRepo.Object,
             _unifiedManifestReader.Object,
             _authorityTraceRepo.Object,
+            _muteRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
     }
 

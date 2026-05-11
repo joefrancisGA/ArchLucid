@@ -3516,6 +3516,43 @@ END;
 
 GO
 
+IF OBJECT_ID(N'dbo.Projects', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.TenantWorkspaces', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
+BEGIN
+    CREATE TABLE dbo.Projects
+    (
+        Id           UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Projects PRIMARY KEY,
+        TenantId     UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId  UNIQUEIDENTIFIER NOT NULL,
+        Name         NVARCHAR(200)    NOT NULL,
+        CreatedUtc   DATETIMEOFFSET   NOT NULL CONSTRAINT DF_Projects_CreatedUtc2 DEFAULT SYSUTCDATETIME(),
+        IsDeleted    BIT              NOT NULL CONSTRAINT DF_Projects_IsDeleted2 DEFAULT (0),
+        CONSTRAINT FK_Projects_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT FK_Projects_TenantWorkspaces2 FOREIGN KEY (WorkspaceId) REFERENCES dbo.TenantWorkspaces (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_Projects_TenantId_Workspace_Active2
+        ON dbo.Projects (TenantId, WorkspaceId)
+        WHERE IsDeleted = 0;
+
+    CREATE UNIQUE NONCLUSTERED INDEX UX_Projects_Workspace_Name_Active2
+        ON dbo.Projects (WorkspaceId, Name)
+        WHERE IsDeleted = 0;
+
+    INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, CreatedUtc, IsDeleted)
+    SELECT tw.DefaultProjectId,
+           tw.TenantId,
+           tw.Id,
+           N'default',
+           tw.CreatedUtc,
+           0
+    FROM dbo.TenantWorkspaces tw
+    WHERE NOT EXISTS (SELECT 1 FROM dbo.Projects p WHERE p.Id = tw.DefaultProjectId);
+END;
+
+GO
+
 IF OBJECT_ID(N'dbo.UsageEvents', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.UsageEvents

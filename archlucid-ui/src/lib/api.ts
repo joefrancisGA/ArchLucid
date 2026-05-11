@@ -832,6 +832,20 @@ export async function postFindingFeedback(
   );
 }
 
+/** Mutes a finding for a run (ExecuteAuthority); persists to relational findings snapshot. */
+export async function postFindingMute(
+  runId: string,
+  findingId: string,
+  reason: string,
+): Promise<void> {
+  const encodedFinding = encodeURIComponent(findingId);
+
+  await apiPostJson(`/v1/findings/${encodedFinding}/mute`, {
+    runId,
+    reason,
+  });
+}
+
 /** Sends a natural-language question to the ArchLucid conversational AI endpoint. */
 export async function askArchLucid(payload: {
   threadId?: string;

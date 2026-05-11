@@ -642,6 +642,16 @@
       "nav_operator_href": "/governance/findings"
     },
     {
+      "controller_file": "Findings/FindingMuteController.cs",
+      "class_name": "FindingMuteController",
+      "route_template": "v{version:apiVersion}/findings",
+      "normalized_prefix": "/v1/findings",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": "/governance/findings"
+    },
+    {
       "controller_file": "Governance/GovernanceController.cs",
       "class_name": "GovernanceController",
       "route_template": "v{version:apiVersion}/governance",

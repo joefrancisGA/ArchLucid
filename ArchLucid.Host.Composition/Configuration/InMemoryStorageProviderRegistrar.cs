@@ -89,12 +89,14 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IContextSnapshotRepository, InMemoryContextSnapshotRepository>();
         services.AddSingleton<IGraphSnapshotRepository, InMemoryGraphSnapshotRepository>();
         services.AddSingleton<IFindingsSnapshotRepository, InMemoryFindingsSnapshotRepository>();
+        services.AddSingleton<IFindingRecordMuteRepository, InMemoryFindingRecordMuteRepository>();
         services.AddSingleton<IFindingInspectReadRepository>(sp =>
             new InMemoryFindingInspectReadRepository(sp.GetRequiredService<IAuthorityQueryService>()));
         services.AddSingleton<IDecisionTraceRepository, InMemoryDecisionTraceRepository>();
         services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
+        services.AddSingleton<IArchitectureProjectRepository, InMemoryArchitectureProjectRepository>();
         services.AddSingleton<IScimTenantTokenRepository, InMemoryScimTenantTokenRepository>();
         services.AddSingleton<IScimUserRepository, InMemoryScimUserRepository>();
         services.AddSingleton<IAdminNotificationsRepository, NoOpAdminNotificationsRepository>();

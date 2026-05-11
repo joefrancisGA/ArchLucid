@@ -918,8 +918,9 @@ Acceptance Criteria:
 - **Why it matters:** Prevents accidental data loss and maintains referential integrity in the database, improving reliability and data consistency.
 - **Expected impact:** Directly improves Data Consistency (+10-15 pts), Reliability (+5-10 pts). Weighted readiness impact: +0.3-0.5%.
 - **Affected qualities:** Data Consistency, Reliability.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** Complete (architecture projects persisted in **`dbo.Projects`** with soft-delete; list and delete APIs; name reuse via filtered unique index; acceptance criteria satisfied).
+- **Delivered:** Migration **`157_Projects_SoftDelete.sql`** (rollback **`R157_Projects_SoftDelete.sql`**); brownfield DDL in **`ArchLucid.sql`** / **`ArchLucid_Unified_Schema.sql`**; **`IArchitectureProjectRepository`** with **`DapperArchitectureProjectRepository`** / **`InMemoryArchitectureProjectRepository`** (reads exclude **`IsDeleted = 1`**); **`TenantWorkspacesController`** — **`GET /v1/tenant/workspaces`**, **`DELETE .../workspaces/{workspaceId}/projects/{projectId}`** (**`UPDATE IsDeleted = 1`**; blocks workspace default project); **`ITenantRepository.ListWorkspacesAsync`**; **`TenantProvisioningService`** + dev bootstrap insert default project rows; **`SqlTenantHardPurgeService`** deletes **`dbo.Projects`** before **`TenantWorkspaces`**; **`ScopeSwitcher`** / **`api-v1-routes.ts`** route alignment; audit **`ArchitectureProjectSoftDeleted`** and **`AUDIT_COVERAGE_MATRIX.md`** update; OpenAPI snapshot includes the new routes.
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the ArchLucid codebase, implement a soft-delete pattern for Architecture Projects.
 
@@ -951,7 +952,7 @@ Acceptance Criteria:
 - **COMPLETED = Batch 3 (Backend & Templates):** Improvements **2** (Quick Start Templates) and **17** (Compliance Templates) are complete. They provide embedded `ArchitectureRequest` presets and the `GET /v1/architecture/templates` catalog for regulated and general footprints.
 - **COMPLETED = Batch 4 (Backend & Performance):** Improvement **5** — LLM reasoning / critic visibility (`FindingAiReasoningDialog`, run-detail wire snapshots, inspect paths). Improvement **9** — semantic caching (`ISemanticCache`, `MemorySemanticCache`, `LlmCompletionResponseCache` on top, `CachingLlmCompletionClient`, `AgentRuntime:CompletionCache`). These address explainability, performance, and cost for agent completions.
 - **Batch 5 (Security & CI):** Improvement 10 (Gitleaks) is already in CI; focus Improvement 16 (Roslyn Analyzer) and other remaining items. These enforce security invariants at compile and commit time.
-- **Batch 6 (Enterprise Audit & Data):** Run Improvement 11 (CSV Export), Improvement 15 (Mute Finding), and Improvement 23 (Soft Delete). These address core enterprise data management requirements.
+- **Batch 6 (Enterprise Audit & Data):** Improvement **23** (Soft Delete for Architecture Projects) is **complete.** Run Improvement 11 (CSV Export) and Improvement 15 (Mute Finding). These address core enterprise data management requirements.
 - **Batch 7 (Observability & Health):** Run Improvement 14 (Deep Health Check) and Improvement 18 (Serilog). These improve SaaS deployability and monitoring.
 - **Batch 8 (CLI & Integrations):** Run Improvement 20 (CLI Cost Estimate) and Improvement 21 (Import API). These expand the tool's ecosystem boundaries.
 - **Batch 9 (Testing & Background Jobs):** Run Improvement 12 (Playwright Smoke Test) and Improvement 13 (Weekly Digest Job).

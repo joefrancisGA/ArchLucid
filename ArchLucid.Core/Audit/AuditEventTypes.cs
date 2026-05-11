@@ -63,6 +63,9 @@ public static class AuditEventTypes
     /// <summary>Privileged override applied after rejection.</summary>
     public const string FindingReviewOverridden = "FindingReviewOverridden";
 
+    /// <summary>Operator muted a finding for the active review (durable <c>dbo.FindingRecords</c> row).</summary>
+    public const string FindingMuted = "FindingMuted";
+
     public const string ReplayExecuted = "ReplayExecuted";
 
     /// <summary>Internal QA: POST <c>…/internal/architecture/runs/{{runId}}/determinism-check</c> completed.</summary>
@@ -346,6 +349,9 @@ public static class AuditEventTypes
     ///     flow).
     /// </summary>
     public const string TenantSelfRegistered = "TenantSelfRegistered";
+
+    /// <summary>Architecture project soft-deleted (<c>dbo.Projects.IsDeleted = 1</c>) via tenant API.</summary>
+    public const string ArchitectureProjectSoftDeleted = "ArchitectureProjectSoftDeleted";
 
     /// <summary>Self-service trial activated with sample data (demo seed + trial window metadata).</summary>
     public const string TrialProvisioned = "TrialProvisioned";

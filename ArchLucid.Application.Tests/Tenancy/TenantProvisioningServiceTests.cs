@@ -28,8 +28,11 @@ public sealed class TenantProvisioningServiceTests
             .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        InMemoryArchitectureProjectRepository projects = new();
+
         TenantProvisioningService sut = new(
             repo,
+            projects,
             actor.Object,
             audit.Object,
             NullLogger<TenantProvisioningService>.Instance,
@@ -73,6 +76,11 @@ public sealed class TenantProvisioningServiceTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IArchitectureProjectRepository> projects = new();
+        projects
+            .Setup(p => p.InsertAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("admin@test");
         Mock<IAuditService> audit = new();
@@ -83,6 +91,7 @@ public sealed class TenantProvisioningServiceTests
 
         TenantProvisioningService sut = new(
             repo.Object,
+            projects.Object,
             actor.Object,
             audit.Object,
             NullLogger<TenantProvisioningService>.Instance,
@@ -127,6 +136,11 @@ public sealed class TenantProvisioningServiceTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IArchitectureProjectRepository> projects = new();
+        projects
+            .Setup(p => p.InsertAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("admin@test");
         Mock<IAuditService> audit = new();
@@ -137,6 +151,7 @@ public sealed class TenantProvisioningServiceTests
 
         TenantProvisioningService sut = new(
             repo.Object,
+            projects.Object,
             actor.Object,
             audit.Object,
             NullLogger<TenantProvisioningService>.Instance,

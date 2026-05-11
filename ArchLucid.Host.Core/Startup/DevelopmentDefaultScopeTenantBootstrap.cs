@@ -67,6 +67,31 @@ public static class DevelopmentDefaultScopeTenantBootstrap
                 });
         }
 
+        int projectsTableExists = connection.QuerySingle<int>(
+            "SELECT CASE WHEN OBJECT_ID(N'dbo.Projects', N'U') IS NULL THEN 0 ELSE 1 END;");
+
+        if (projectsTableExists != 0)
+        {
+            int projectRow = connection.QuerySingle<int>(
+                "SELECT COUNT(1) FROM dbo.Projects WHERE Id = @ProjectId;",
+                new { ProjectId = ScopeIds.DefaultProject, });
+
+            if (projectRow == 0)
+            {
+                _ = connection.Execute(
+                    """
+                    INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, CreatedUtc, IsDeleted)
+                    VALUES (@ProjectId, @TenantId, @WorkspaceId, N'default', SYSUTCDATETIME(), 0);
+                    """,
+                    new
+                    {
+                        ProjectId = ScopeIds.DefaultProject,
+                        TenantId = ScopeIds.DefaultTenant,
+                        WorkspaceId = ScopeIds.DefaultWorkspace,
+                    });
+            }
+        }
+
         int verifyTenant = connection.QuerySingle<int>(
             "SELECT COUNT(1) FROM dbo.Tenants WHERE Id = @TenantId;",
             new { TenantId = ScopeIds.DefaultTenant, });

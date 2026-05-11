@@ -35,8 +35,8 @@ FILES_AND_MARKERS: list[tuple[str, tuple[str, ...]]] = [
         ),
     ),
     (
-        "ArchLucid.Api/Services/Admin/AdminDiagnosticsService.cs",
-        ("AuditEventTypes.ManifestArchived",),
+        "ArchLucid.Api/Controllers/Findings/FindingMuteController.cs",
+        ("AuditEventTypes.FindingMuted",),
     ),
     (
         "ArchLucid.Persistence/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs",

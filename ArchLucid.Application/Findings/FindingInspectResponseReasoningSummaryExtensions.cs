@@ -34,6 +34,8 @@ public static class FindingInspectResponseReasoningSummaryExtensions
             HumanReviewStatus = source.HumanReviewStatus,
             RecommendedActions = source.RecommendedActions,
             ReasoningSummary = reasoningSummary,
+            IsMuted = source.IsMuted,
+            MuteReason = source.MuteReason,
         };
     }
 }

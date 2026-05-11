@@ -1318,12 +1318,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> ExportAllAsync(System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, int? maxRows, string? format);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> ExportAllAsync(System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, string? eventType, string? correlationId, string? actorUserId, System.Guid? runId, int? maxRows, string? format);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> ExportAllAsync(System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, int? maxRows, string? format, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> ExportAllAsync(System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, string? eventType, string? correlationId, string? actorUserId, System.Guid? runId, int? maxRows, string? format, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -17836,15 +17836,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> ExportAllAsync(System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, int? maxRows, string? format)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> ExportAllAsync(System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, string? eventType, string? correlationId, string? actorUserId, System.Guid? runId, int? maxRows, string? format)
         {
-            return ExportAllAsync(fromUtc, toUtc, maxRows, format, System.Threading.CancellationToken.None);
+            return ExportAllAsync(fromUtc, toUtc, eventType, correlationId, actorUserId, runId, maxRows, format, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> ExportAllAsync(System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, int? maxRows, string? format, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> ExportAllAsync(System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, string? eventType, string? correlationId, string? actorUserId, System.Guid? runId, int? maxRows, string? format, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -17867,6 +17867,22 @@ namespace ArchLucid.Api.Client.Generated
                     if (toUtc != null)
                     {
                         urlBuilder_.Append(System.Uri.EscapeDataString("toUtc")).Append('=').Append(System.Uri.EscapeDataString(toUtc.Value.ToString("s", System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (eventType != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("eventType")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(eventType, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (correlationId != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("correlationId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(correlationId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (actorUserId != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("actorUserId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(actorUserId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (runId != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("runId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     if (maxRows != null)
                     {

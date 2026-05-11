@@ -21,8 +21,9 @@ import {
 } from "@/lib/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
+import { ApiV1Routes } from "@/lib/api-v1-routes";
 
-const WORKSPACES_PATH = "/api/proxy/v1/tenant/workspaces";
+const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
 
 type ProjectOption = { projectId: string; name: string };
 type WorkspaceOption = { workspaceId: string; name: string; projects: ProjectOption[] };

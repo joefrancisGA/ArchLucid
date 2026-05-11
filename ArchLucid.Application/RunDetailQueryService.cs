@@ -1,9 +1,11 @@
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
@@ -38,12 +40,16 @@ public sealed class RunDetailQueryService(
     IAgentResultRepository resultRepository,
     IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     IDecisionTraceRepository authorityDecisionTraceRepository,
+    IFindingRecordMuteRepository findingRecordMuteRepository,
     ILogger<RunDetailQueryService> logger) : IRunDetailQueryService
 {
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
 
     private readonly IDecisionTraceRepository _authorityDecisionTraceRepository =
         authorityDecisionTraceRepository ?? throw new ArgumentNullException(nameof(authorityDecisionTraceRepository));
+
+    private readonly IFindingRecordMuteRepository _findingRecordMuteRepository =
+        findingRecordMuteRepository ?? throw new ArgumentNullException(nameof(findingRecordMuteRepository));
 
     private readonly ILogger<RunDetailQueryService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -75,7 +81,16 @@ public sealed class RunDetailQueryService(
 
         IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
         ArchitectureRun run = RunRecordToArchitectureRunMapper.ToArchitectureRun(record, tasks.Select(t => t.TaskId).ToList());
-        IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        List<AgentResult> results = (await resultRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
+
+        if (record.FindingsSnapshotId is { } findingsSnapshotId)
+        {
+            IReadOnlyDictionary<string, FindingMuteFlag> flags =
+                await findingRecordMuteRepository.GetMuteFlagsAsync(findingsSnapshotId, scope, cancellationToken);
+
+            FindingMuteFlagApplier.Apply(results, flags);
+        }
+
         GoldenManifest? manifest = await unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
         List<DecisionTrace> decisionTraces = [];
         if (manifest is null)
@@ -95,7 +110,7 @@ public sealed class RunDetailQueryService(
         {
             Run = run,
             Tasks = tasks.ToList(),
-            Results = results.ToList(),
+            Results = results,
             Manifest = manifest,
             DecisionTraces = decisionTraces,
             HasBrokenManifestReference = !string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && manifest is null
