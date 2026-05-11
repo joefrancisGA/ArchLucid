@@ -1,0 +1,43 @@
+{
+  "name": "@archlucid/api-types",
+  "version": "1.0.0",
+  "description": "TypeScript types generated from the ArchLucid OpenAPI v1 contract snapshot (openapi-typescript).",
+  "license": "UNLICENSED",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "sync:from-ui": "node scripts/sync-from-ui.mjs",
+    "generate": "openapi-typescript ../../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json -o src/api-types.generated.ts",
+    "build": "node scripts/sync-from-ui.mjs && tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run generate && npm run build"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "archlucid": {
+    "openapiDocumentVersion": "3.1.1",
+    "contractInfoTitle": "ArchLucid.Api | v1",
+    "contractInfoVersion": "1.0.0",
+    "snapshotFile": "ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json"
+  }
+}
