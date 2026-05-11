@@ -86,7 +86,7 @@
     },
     {
       "pack_path": "PEN_TEST_SUMMARY.md",
-      "source_repo_path": "docs/go-to-market/PEN_TEST_SUMMARY_PROCUREMENT_PLACEHOLDER.md",
+      "source_repo_path": "docs/go-to-market/PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md",
       "description": "Penetration test summary pointer (third-party engagement pending)",
       "artifact_status": "Template"
     },

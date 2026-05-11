@@ -92,7 +92,7 @@
 | `go-to-market/OPERATIONAL_TRANSPARENCY.md` | 2026-04-22 | Y | N |  |
 | `go-to-market/ORDER_FORM_TEMPLATE.md` | 2026-04-22 | Y | N |  |
 | `go-to-market/OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md` | 2026-04-23 | Y | N |  |
-| `go-to-market/PEN_TEST_SUMMARY_PROCUREMENT_PLACEHOLDER.md` | 2026-04-22 | Y | Y |  |
+| `go-to-market/PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md` | 2026-04-22 | Y | Y |  |
 | `go-to-market/PILOT_SUCCESS_SCORECARD.md` | 2026-04-23 | Y | N |  |
 | `go-to-market/PMF_VALIDATION_TRACKER.md` | 2026-04-23 | Y | N |  |
 | `go-to-market/POSITIONING.md` | 2026-04-23 | Y | N |  |

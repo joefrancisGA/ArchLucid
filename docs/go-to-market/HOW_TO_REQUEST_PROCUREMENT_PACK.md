@@ -36,7 +36,7 @@ The command runs `scripts/build_procurement_pack.py`, verifies **every canonical
 python scripts/build_procurement_pack.py --dry-run
 ```
 
-### Release / buyer drop — placeholder strictness
+### Release / buyer drop — marker strictness
 
 For a **release** or **procurement** drop, run the builder with **`--strict`** (or set environment variable **`PROCUREMENT_PACK_STRICT=1`**) so **Evidence** and **Self-assessment** text files are scanned for buyer-unsafe markers (`TODO`, `TBD`, `placeholder-replace-before-launch`). **`Template`** and **`Deferred`** pack rows are excluded from this scan by design.
 

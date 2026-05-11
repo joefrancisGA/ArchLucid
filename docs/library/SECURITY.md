@@ -30,7 +30,7 @@ Merge-blocking **Schemathesis light** runs on every PR after full .NET regressio
 
 - **`ArchLucid.Api/appsettings.json`** (all environments unless overridden): **`ArchLucidAuth:Mode`** is **`ApiKey`**, with **`Authentication:ApiKey:Enabled`** **`false`** and **`DevelopmentBypassAll`** **`false`**. In that combination the API uses the API key authentication scheme but **rejects unauthenticated requests** until operators set **`Authentication:ApiKey:Enabled=true`** and configure **`AdminKey`** / **`ReadOnlyKey`** (or supply equivalent environment variables / Key Vault). This is **fail-closed** for accidental deployments that only ship base JSON.
 - **`ArchLucid.Api/appsettings.Development.json`** (merged when **`ASPNETCORE_ENVIRONMENT=Development`**, including CI and local **`dotnet run`**): sets **`ArchLucidAuth:Mode`** back to **`DevelopmentBypass`** for frictionless local and test factories. **`Authentication:ApiKey:DevelopmentBypassAll`** stays **`false`** so the “open API key path” bypass is not the default even in Development.
-- **`appsettings.Production.json`** / **`appsettings.Staging.json`** continue to set **`JwtBearer`** with Entra-style placeholders; **`docker-compose.yml`** still sets **`ArchLucidAuth__Mode=DevelopmentBypass`** explicitly for the compose dev stack.
+- **`appsettings.Production.json`** / **`appsettings.Staging.json`** continue to set **`JwtBearer`** with Entra-style **configuration samples** (non-secrets); **`docker-compose.yml`** still sets **`ArchLucidAuth__Mode=DevelopmentBypass`** explicitly for the compose dev stack.
 
 **Optional JWT bearer-only production (regulated SaaS):** set **`ArchLucidAuth:RequireJwtBearerInProduction=true`**. When **`ASPNETCORE_ENVIRONMENT=Production`**, **`ArchLucidConfigurationRules`** then requires **`ArchLucidAuth:Mode=JwtBearer`** (API keys are rejected at startup). Default is **`false`** so pilots may keep **`ApiKey`** in production until they cut over to **OIDC / JWT bearer** (**Entra** or another issuer — **[V1_SCOPE.md](V1_SCOPE.md) §2.12**).
 
@@ -86,7 +86,7 @@ When the host is **Production**, **Staging**, or **`ARCHLUCID_ENVIRONMENT`** is 
 
 ## Log injection (CWE-117)
 
-ArchLucid uses **Serilog** with **structured logging**: message templates use named placeholders (`{RunId}`, `{Path}`, etc.), and sinks such as JSON formatters emit parameters as **separate fields**. That layout reduces the impact of delimiter injection in **JSON** and similar structured sinks.
+ArchLucid uses **Serilog** with **structured logging**: message templates use **named parameters** (`{RunId}`, `{Path}`, etc.), and sinks such as JSON formatters emit parameters as **separate fields**. That layout reduces the impact of delimiter injection in **JSON** and similar structured sinks.
 
 **Plaintext sinks** (console, rolling file text, etc.) can still be abused if a logged **string** contains newlines or other control characters—an attacker can forge extra log lines or break parsers. For any **`string`-typed value that originates from user input** (request body, URL path, query string, header), pass it through **`LogSanitizer.Sanitize()`** from **`ArchLucid.Core.Diagnostics`** before it is passed to **`ILogger`** as a structured parameter.
 
