@@ -8,6 +8,8 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>ArchLucid.Application.Tests</RootNamespace>
     <PreserveCompilationContext>true</PreserveCompilationContext>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1608</WarningsNotAsErrors>
+    <RestoreNoWarn>$(RestoreNoWarn);NU1608</RestoreNoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +25,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
+    <PackageReference Include="WireMock.Net" />
     <PackageReference Include="xunit" />
     <PackageReference Include="Xunit.SkippableFact" />
     <PackageReference Include="xunit.runner.visualstudio" />
@@ -45,10 +48,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\tests\golden-cohort\cohort.json" CopyToOutputDirectory="PreserveNewest"
-          Link="golden-cohort\cohort.json" />
-    <None Include="..\tests\golden-cohort\usage-mtd.json" CopyToOutputDirectory="PreserveNewest"
-          Link="golden-cohort\usage-mtd.json" />
+    <None Include="..\tests\golden-cohort\cohort.json" CopyToOutputDirectory="PreserveNewest" Link="golden-cohort\cohort.json" />
+    <None Include="..\tests\golden-cohort\usage-mtd.json" CopyToOutputDirectory="PreserveNewest" Link="golden-cohort\usage-mtd.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -68,18 +69,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\templates\starter-proof-packs\regulated-saas-soc-procurement\architecture-request.json"
-          Link="templates\starter-proof-packs\regulated-saas-soc-procurement\architecture-request.json"
-          CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\templates\starter-proof-packs\healthcare-data-workflow\architecture-request.json"
-          Link="templates\starter-proof-packs\healthcare-data-workflow\architecture-request.json"
-          CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\templates\starter-proof-packs\azure-cost-governance\architecture-request.json"
-          Link="templates\starter-proof-packs\azure-cost-governance\architecture-request.json"
-          CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\templates\starter-proof-packs\ai-llm-workload\architecture-request.json"
-          Link="templates\starter-proof-packs\ai-llm-workload\architecture-request.json"
-          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\regulated-saas-soc-procurement\architecture-request.json" Link="templates\starter-proof-packs\regulated-saas-soc-procurement\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\healthcare-data-workflow\architecture-request.json" Link="templates\starter-proof-packs\healthcare-data-workflow\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\azure-cost-governance\architecture-request.json" Link="templates\starter-proof-packs\azure-cost-governance\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\ai-llm-workload\architecture-request.json" Link="templates\starter-proof-packs\ai-llm-workload\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

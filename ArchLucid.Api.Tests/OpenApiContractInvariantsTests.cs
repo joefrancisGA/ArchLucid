@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Small semantic checks on <c>/openapi/v1.json</c> that should hold even when the full snapshot is regenerated.
-///     Complements <see cref="OpenApiContractSnapshotTests" /> (canonical JSON equality after
+///     Small semantic checks on <c>/openapi/v1.json</c> that should hold even when the committed snapshot advances.
+///     Complements <see cref="OpenApiContractSnapshotTests" /> (additive-safe backward-compat diff after
 ///     <see cref="OpenApiJsonCanonicalizer" />).
 /// </summary>
 [Trait("Suite", "Core")]

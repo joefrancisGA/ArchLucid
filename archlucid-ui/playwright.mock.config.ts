@@ -41,6 +41,14 @@ export default defineConfig({
       testIgnore: ["**/live-api-*.spec.ts", "tests/e2e/**"],
       use: { ...devices["Desktop Chrome"] },
     },
+    /** axe-core + WCAG 2.1 A/AA tagging — `npm run test:e2e:accessibility` (CI job `ui-playwright-accessibility`). */
+    {
+      name: "chromium-accessibility",
+      testDir: "tests",
+      testMatch: ["accessibility.spec.ts"],
+      testIgnore: ["**/live-api-*.spec.ts"],
+      use: { ...devices["Desktop Chrome"] },
+    },
     /**
      * Full-page screenshot goldens (`tests/e2e/visual-regression.spec.ts`). Snapshots are OS-specific
      * (`*-chromium-visual-win32.png` vs `*-linux.png`). Not run in merge-blocking CI — run locally or in Docker

@@ -17,24 +17,17 @@ namespace ArchLucid.Persistence.Cosmos;
 ///     are shared when operators migrate workloads.
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification = "Requires Cosmos account or emulator.")]
-public sealed class AuditEventChangeFeedSingleBatchProcessor : IAuditEventChangeFeedSingleBatchRunner
+public sealed class AuditEventChangeFeedSingleBatchProcessor(
+    CosmosClientFactory clientFactory,
+    IOptionsMonitor<CosmosDbOptions> optionsMonitor,
+    IAuditEventChangeFeedHandler handler,
+    ILogger<AuditEventChangeFeedSingleBatchProcessor> logger)
+    : IAuditEventChangeFeedSingleBatchRunner
 {
-    private readonly CosmosClientFactory _clientFactory;
-    private readonly IAuditEventChangeFeedHandler _handler;
-    private readonly ILogger<AuditEventChangeFeedSingleBatchProcessor> _logger;
-    private readonly IOptionsMonitor<CosmosDbOptions> _optionsMonitor;
-
-    public AuditEventChangeFeedSingleBatchProcessor(
-        CosmosClientFactory clientFactory,
-        IOptionsMonitor<CosmosDbOptions> optionsMonitor,
-        IAuditEventChangeFeedHandler handler,
-        ILogger<AuditEventChangeFeedSingleBatchProcessor> logger)
-    {
-        _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
-        _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
-        _handler = handler ?? throw new ArgumentNullException(nameof(handler));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly CosmosClientFactory _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
+    private readonly IAuditEventChangeFeedHandler _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+    private readonly ILogger<AuditEventChangeFeedSingleBatchProcessor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IOptionsMonitor<CosmosDbOptions> _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
     /// <summary>Waits for one handler batch or returns when <paramref name="maxIdleWait" /> passes with no changes.</summary>
     public async Task RunSingleBatchOrIdleAsync(TimeSpan maxIdleWait, CancellationToken cancellationToken)

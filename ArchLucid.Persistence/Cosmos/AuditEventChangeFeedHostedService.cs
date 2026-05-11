@@ -14,24 +14,17 @@ namespace ArchLucid.Persistence.Cosmos;
 ///     <see cref="CosmosDbOptions.AuditEventsEnabled" /> is on.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Requires Cosmos account or emulator.")]
-public sealed class AuditEventChangeFeedHostedService : BackgroundService
+public sealed class AuditEventChangeFeedHostedService(
+    CosmosClientFactory clientFactory,
+    IOptionsMonitor<CosmosDbOptions> optionsMonitor,
+    IAuditEventChangeFeedHandler handler,
+    ILogger<AuditEventChangeFeedHostedService> logger)
+    : BackgroundService
 {
-    private readonly CosmosClientFactory _clientFactory;
-    private readonly IAuditEventChangeFeedHandler _handler;
-    private readonly ILogger<AuditEventChangeFeedHostedService> _logger;
-    private readonly IOptionsMonitor<CosmosDbOptions> _optionsMonitor;
-
-    public AuditEventChangeFeedHostedService(
-        CosmosClientFactory clientFactory,
-        IOptionsMonitor<CosmosDbOptions> optionsMonitor,
-        IAuditEventChangeFeedHandler handler,
-        ILogger<AuditEventChangeFeedHostedService> logger)
-    {
-        _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
-        _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
-        _handler = handler ?? throw new ArgumentNullException(nameof(handler));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly CosmosClientFactory _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
+    private readonly IAuditEventChangeFeedHandler _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+    private readonly ILogger<AuditEventChangeFeedHostedService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IOptionsMonitor<CosmosDbOptions> _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
