@@ -5,7 +5,7 @@ description: >-
   plugin marketplace, assistive-technology user testing as a headline gate,
   sales-engineer-led LLM onboarding as a hosted-SaaS gate for `(A)`, and similar
   out-of-scope items; penalize `(A)` only on in-contract gates.
-alwaysApply: true
+alwaysApply: false
 ---
 
 # ArchLucid assessment scope — headline V1.1 vs procurement realism

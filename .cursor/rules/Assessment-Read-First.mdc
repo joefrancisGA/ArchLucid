@@ -15,7 +15,7 @@ When the prompt is an **architecture / readiness / weighted / first-principles /
 
    Repo-root shorthand: **`docs/library/ASSESSMENT_INPUTS.md`**.
 
-2. **Follow** **`Assessment-Scope-V1_1.mdc`** (same `.cursor/rules/` folder) for `(A)` headline vs `(B)` procurement-realism separation.
+2. **Apply** **`Assessment-Scope-V1_1.mdc`** explicitly — it is **not** always-loaded. In Cursor, **`@Assessment-Scope-V1_1`** / **`@.cursor/rules/Assessment-Scope-V1_1.mdc`**, or read the file directly. `(A)` vs `(B)` scoring boundary is mandatory for these passes.
 3. **Write** the new assessment body to **`docs/assessments/LATEST.md`** (overwrite). Before overwriting, optional: copy the previous `LATEST.md` to **`docs/archive/assessments/`** with a dated filename.
 4. **Do not** treat **`docs/archive/assessments/**`** as mandatory context unless the user asks for historical comparison — that folder is excluded from default indexing in **`.cursorignore`** to reduce token burn on repeat passes.
 

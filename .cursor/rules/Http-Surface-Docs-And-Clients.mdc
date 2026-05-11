@@ -1,6 +1,9 @@
 ---
-description: When changing HTTP/OpenAPI surface, regenerate snapshots & clients and update docs.
-alwaysApply: true
+description: >-
+  Changing REST API controllers, Problem Details shapes, GET /openapi/v1.json,
+  ArchLucid.Api routes, Contracts DTOs on the wire, OpenAPI snapshots, NSwag /
+  Api.Client codegen, npm generate:api-types, or docs/library/API_CONTRACTS.md checklist.
+alwaysApply: false
 ---
 
 # HTTP surface — OpenAPI snapshot, generated clients, and docs

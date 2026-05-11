@@ -2,10 +2,11 @@
 
 # Assessment inputs (canonical read list)
 
-Read these **before** grepping broadly or opening large code regions. For scoring rules and out-of-scope procurement items, **`Assessment-Scope-V1_1.mdc`** applies (always applied in this repo).
+Read these **before** grepping broadly or opening large code regions. For scoring rules and out-of-scope procurement items, load **`Assessment-Scope-V1_1.mdc`** explicitly (**`@Assessment-Scope-V1_1`** in Cursor — it is not always injected).
 
 | Order | Document | Role |
 |------:|----------|------|
+| 0 | [`REPO_DIGEST.md`](REPO_DIGEST.md) *(regenerate via `python scripts/repo_digest/build_repo_digest.py`)* | Skim surface: project inventory, invariant pointer, doc anchors — **not** a substitute for V1 docs |
 | 1 | [`V1_SCOPE.md`](V1_SCOPE.md) | In-contract V1 / V1.1 engineering and product boundaries |
 | 2 | [`V1_DEFERRED.md`](V1_DEFERRED.md) | Explicit deferrals (what is **not** a headline gate) |
 | 3 | [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) | Trust / buyer-facing commitments |
