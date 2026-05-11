@@ -489,7 +489,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     ///     never match the version the client just received → 404. Copying the contract version onto
     ///     the authority row before persistence keeps the read path round-tripping.
     /// </summary>
-    private static void AlignAuthorityVersionToContract(Dm.ManifestDocument manifestModel, Cm.GoldenManifest contract)
+    internal static void AlignAuthorityVersionToContract(Dm.ManifestDocument manifestModel, Cm.GoldenManifest contract)
     {
         if (manifestModel is null)
             throw new ArgumentNullException(nameof(manifestModel));
@@ -500,7 +500,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         manifestModel.Metadata.Version = contract.Metadata.ManifestVersion;
     }
 
-    private async Task EvaluatePreCommitGovernanceGateOrThrowAsync(string runId, string actor, string goldenManifestWireJson,
+    internal async Task EvaluatePreCommitGovernanceGateOrThrowAsync(string runId, string actor, string goldenManifestWireJson,
         CancellationToken cancellationToken)
     {
         PreCommitGateResult gateResult = await _preCommitGovernanceGate.EvaluateAsync(runId, goldenManifestWireJson, cancellationToken);

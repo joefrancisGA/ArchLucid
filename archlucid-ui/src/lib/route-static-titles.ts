@@ -17,6 +17,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/audit": "Audit",
   "/planning": "Planning",
   "/onboarding": "Onboarding",
+  "/settings/billing": "Billing & plans",
   "/dashboard": "Executive summary",
   "/digests": "Digests",
   "/value-report/roi": "ROI summary",

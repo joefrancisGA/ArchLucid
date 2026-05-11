@@ -433,8 +433,9 @@ ArchLucid is an engineering marvel that is currently too difficult for the avera
 - **Why it matters:** Directly addresses the lack of executive value visibility and proof-of-ROI, which are critical monetization blockers.
 - **Expected impact:** Directly improves Executive Value Visibility (+15-20 pts), Proof-of-ROI Readiness (+10-15 pts), Marketability (+5-10 pts). Weighted readiness impact: +1.2-1.8%.
 - **Affected qualities:** Executive Value Visibility, Proof-of-ROI Readiness, Marketability, Decision Velocity.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** Complete (initial UI pattern shipped with mock KPIs; live metrics/API still outstanding).
+- **Delivered:** Operator route `/dashboard` (`archlucid-ui/src/app/(operator)/dashboard/page.tsx`) with three metric cards; **Executive Summary** link in Pilot sidebar nav (`pilot-nav-group-builder.ts`); Reader-accessible essential-tier nav; breadcrumbs and static title wired. Backend aggregation for these metrics not implemented.
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the `archlucid-ui` Next.js application, create an Executive ROI Dashboard.
 
@@ -577,8 +578,9 @@ Acceptance Criteria:
 - **Why it matters:** Removes friction from the purchasing process, directly addressing a top monetization blocker (Immature Self-Serve Billing).
 - **Expected impact:** Directly improves Commercial Packaging Readiness (+20-30 pts), Decision Velocity (+5-10 pts). Weighted readiness impact: +0.4-0.7%.
 - **Affected qualities:** Commercial Packaging Readiness, Decision Velocity.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** Complete (operator-facing tier comparison and CTAs; Stripe checkout and billing APIs not implemented).
+- **Delivered:** Route `/settings/billing` (`archlucid-ui/src/app/(operator)/settings/billing/page.tsx` + `OperatorBillingPlansClient.tsx`); Team / Professional / Enterprise cards driven by `public/pricing.json` with qualitative bullets in `billing-plan-tier-features.ts` (aligned with `PRICING_PHILOSOPHY.md`); **Upgrade to Team** uses in-app toast **Stripe Checkout Integration Pending**; Admin nav link **Billing & plans** (`operator-admin-nav-group-builder.ts`); breadcrumbs, route readiness, and static title wired.
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the `archlucid-ui` Next.js application, scaffold a self-serve billing and plan selection page.
 

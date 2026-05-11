@@ -45,6 +45,14 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps settings billing as Home / Settings / Billing & plans", () => {
+    expect(getBreadcrumbs("/settings/billing")).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Settings", href: "/settings" },
+      { label: "Billing & plans" },
+    ]);
+  });
+
   it("uses policy-pack registry trail for governance-scoped pack routes (no workflow parent link)", () => {
     expect(getBreadcrumbs("/governance/policy-packs/undefined")).toEqual([
       { label: "Home", href: "/" },

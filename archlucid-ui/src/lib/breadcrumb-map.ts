@@ -54,6 +54,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   signin: "Sign in",
   callback: "Callback",
   plans: "Plans",
+  settings: "Settings",
+  billing: "Billing & plans",
 };
 
 /**

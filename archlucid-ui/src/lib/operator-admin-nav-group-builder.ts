@@ -1,4 +1,4 @@
-import { BarChart3, Building2, HeartPulse, LifeBuoy, Settings2, Users, Wallet } from "lucide-react";
+import { BarChart3, Building2, CreditCard, HeartPulse, LifeBuoy, Settings2, Users, Wallet } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 
@@ -34,6 +34,14 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           label: "Tenant cost",
           title: "Tenant cost — estimated monthly spend band (Standard+)",
           icon: Wallet,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/settings/billing",
+          label: "Billing & plans",
+          title: "Billing & plans — Team, Professional, and Enterprise packaging",
+          icon: CreditCard,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
