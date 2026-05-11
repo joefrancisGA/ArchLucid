@@ -183,4 +183,18 @@ public class Finding
         get;
         set;
     }
+
+    /// <summary>When true, this finding is hidden from default operator review lists until un-muted (SQL-backed tenants).</summary>
+    public bool IsMuted
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Justification captured when the finding was muted.</summary>
+    public string? MuteReason
+    {
+        get;
+        set;
+    }
 }

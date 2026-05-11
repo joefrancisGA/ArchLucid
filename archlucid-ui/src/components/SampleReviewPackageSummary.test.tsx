@@ -30,7 +30,7 @@ describe("SampleReviewPackageSummary", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Claims Intake sample review package" })).toBeInTheDocument();
-    expect(screen.getByText(/This is demo data/i)).toBeInTheDocument();
+    expect(screen.getByText(/Numbers are illustrative only/i)).toBeInTheDocument();
     expect(screen.getByText("Demo only")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open sample manifest" })).toHaveAttribute("href", "/manifests/manifest-1");
     expect(screen.getByRole("link", { name: "Start a real review" })).toHaveAttribute("href", "/reviews/new");

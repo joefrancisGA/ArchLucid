@@ -68,6 +68,9 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             projectId,
             CancellationToken.None);
 
+        DapperArchitectureProjectRepository projects = new(factory);
+        await projects.InsertAsync(projectId, tenantId, workspaceId, "default", CancellationToken.None);
+
         TenantWorkspaceLink? link = await sut.GetFirstWorkspaceAsync(tenantId, CancellationToken.None);
         link!.WorkspaceId.Should().Be(workspaceId);
         link.DefaultProjectId.Should().Be(projectId);

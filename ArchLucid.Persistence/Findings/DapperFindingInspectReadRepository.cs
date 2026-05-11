@@ -45,6 +45,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                                fr.EvaluationConfidenceScore,
                                fr.EvaluationConfidenceLevel,
                                fr.HumanReviewStatus,
+                               fr.IsMuted,
+                               fr.MuteReason,
                                r.RunId,
                                r.CurrentManifestVersion,
                                r.GoldenManifestId,
@@ -181,7 +183,9 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             ConfidenceScore = row.ConfidenceScore,
             EvaluationConfidenceScore = row.EvaluationConfidenceScore,
             ConfidenceLevel = evaluationLevel,
-            HumanReviewStatus = humanReview
+            HumanReviewStatus = humanReview,
+            IsMuted = row.IsMuted,
+            MuteReason = row.MuteReason
         };
     }
 
@@ -301,6 +305,18 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         }
 
         public string? HumanReviewStatus
+        {
+            get;
+            init;
+        }
+
+        public bool IsMuted
+        {
+            get;
+            init;
+        }
+
+        public string? MuteReason
         {
             get;
             init;

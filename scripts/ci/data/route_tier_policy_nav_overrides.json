@@ -51,6 +51,7 @@
     "Diagnostics/ConfigurationHealthController.cs": "/admin/health",
     "Evolution/EvolutionController.cs": "/evolution-review",
     "Findings/FindingInspectController.cs": "/governance/findings",
+    "Findings/FindingMuteController.cs": "/governance/findings",
     "Governance/GovernanceController.cs": "/governance",
     "Governance/GovernanceResolutionController.cs": "/governance-resolution",
     "Governance/PolicyPacksController.cs": "/policy-packs",

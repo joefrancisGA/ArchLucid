@@ -135,4 +135,18 @@ public sealed class FindingInspectResponse
         get;
         init;
     }
+
+    /// <summary>When true, operators hid this finding from default review lists (<c>dbo.FindingRecords.IsMuted</c>).</summary>
+    public bool IsMuted
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Justification captured when the finding was muted.</summary>
+    public string? MuteReason
+    {
+        get;
+        init;
+    }
 }

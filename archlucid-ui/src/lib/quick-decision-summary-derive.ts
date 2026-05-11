@@ -22,6 +22,9 @@ export type QuickDecisionFinding = {
   findingOrder: number;
   /** Full finding record JSON + reasoning trace for optional Staged Critic / evaluation panel. */
   aiReasoning: FindingWireSnapshot;
+  /** When true, hidden from default quick-decision list until "Show muted" is enabled. */
+  isMuted: boolean;
+  muteReason: string | null;
 };
 
 export function firstRecommendationSentence(text: string): string {
@@ -164,6 +167,8 @@ function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto, order:
     severityValue: severityValueFromTraceRow(row),
     findingOrder: order,
     aiReasoning: { wireJson, reasoningTrace: recommendation },
+    isMuted: false,
+    muteReason: null,
   };
 }
 
@@ -232,6 +237,13 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const severityValue = coerceArchitectureFindingSeverity(fr.severity);
 
+      const isMuted = fr.isMuted === true;
+
+      const muteReasonRaw = fr.muteReason;
+
+      const muteReason =
+        typeof muteReasonRaw === "string" && muteReasonRaw.trim().length > 0 ? muteReasonRaw.trim() : null;
+
       out.push({
         findingId,
         title,
@@ -239,6 +251,8 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         severityValue,
         findingOrder: order++,
         aiReasoning: { wireJson, reasoningTrace: reasoning },
+        isMuted,
+        muteReason,
       });
     }
   }

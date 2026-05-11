@@ -34,6 +34,9 @@ public static class ApiV1Routes
 
     public const string TenantMeasuredRoi = "v1/tenant/measured-roi";
 
+    /// <summary>Workspaces + architecture projects for scope switcher (<c>GET /v1/tenant/workspaces</c>).</summary>
+    public const string TenantWorkspaces = "v1/tenant/workspaces";
+
     /// <summary>Mocked executive ROI aggregates until analytics persistence is wired.</summary>
     public const string AnalyticsRoi = "v1/analytics/roi";
 

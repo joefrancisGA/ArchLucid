@@ -195,6 +195,15 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
 
         totalDeleted += await DeleteLoopAsync(
             connection,
+            "DELETE TOP (@Cap) FROM dbo.Projects WHERE TenantId = @TenantId",
+            tenantId,
+            options.MaxRowsPerStatement,
+            counts,
+            "Projects",
+            cancellationToken);
+
+        totalDeleted += await DeleteLoopAsync(
+            connection,
             "DELETE TOP (@Cap) FROM dbo.TenantWorkspaces WHERE TenantId = @TenantId",
             tenantId,
             options.MaxRowsPerStatement,

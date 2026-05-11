@@ -105,7 +105,9 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             ConfidenceScore = match.ConfidenceScore,
             EvaluationConfidenceScore = match.EvaluationConfidenceScore,
             ConfidenceLevel = match.ConfidenceLevel,
-            HumanReviewStatus = match.HumanReviewStatus
+            HumanReviewStatus = match.HumanReviewStatus,
+            IsMuted = match.IsMuted,
+            MuteReason = match.MuteReason
         };
     }
 

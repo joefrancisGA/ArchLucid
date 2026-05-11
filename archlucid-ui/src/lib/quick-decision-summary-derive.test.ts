@@ -58,6 +58,8 @@ describe("quick-decision-summary-derive", () => {
 
     expect(extracted).toHaveLength(3);
     expect(extracted[0]?.findingId).toBe("a");
+    expect(extracted[0]?.isMuted).toBe(false);
+    expect(extracted[0]?.muteReason).toBeNull();
     expect(extracted[0]?.aiReasoning.wireJson).toContain('"findingId": "a"');
     expect(extracted[1]?.findingId).toBe("b");
 
@@ -114,6 +116,32 @@ describe("quick-decision-summary-derive", () => {
     expect(extracted[0]?.findingId).toBe("fid-1");
   });
 
+  it("extractQuickDecisionFindingsFromRunDetail maps isMuted and muteReason from wire", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [
+        {
+          findings: [
+            {
+              findingId: "m1",
+              message: "Muted issue",
+              reasoningTrace: "Later.",
+              severity: 1,
+              isMuted: true,
+              muteReason: "  noise  ",
+            },
+          ],
+        },
+      ],
+    } as unknown as RunDetail;
+
+    const extracted = extractQuickDecisionFindingsFromRunDetail(detail);
+
+    expect(extracted).toHaveLength(1);
+    expect(extracted[0]?.isMuted).toBe(true);
+    expect(extracted[0]?.muteReason).toBe("noise");
+  });
+
   it("resolveQuickDecisionFindingsForRunDetail falls back to explanation trace rows when detail findings missing", () => {
     const detail = {
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
@@ -156,6 +184,7 @@ describe("quick-decision-summary-derive", () => {
 
     expect(resolved).toHaveLength(1);
     expect(resolved[0]?.findingId).toBe("f-a");
+    expect(resolved[0]?.isMuted).toBe(false);
 
     const snaps = buildFindingWireSnapshotsForRunDetail(detail, summary);
 

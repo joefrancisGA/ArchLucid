@@ -30,6 +30,9 @@ public interface ITenantRepository
         Guid defaultProjectId,
         CancellationToken ct);
 
+    /// <summary>All workspaces for the tenant ordered by <c>CreatedUtc</c> (ascending).</summary>
+    Task<IReadOnlyList<TenantWorkspaceListItem>> ListWorkspacesAsync(Guid tenantId, CancellationToken ct);
+
     Task SuspendTenantAsync(Guid tenantId, CancellationToken ct);
 
     /// <summary>Oldest workspace for the tenant (default bootstrap workspace).</summary>

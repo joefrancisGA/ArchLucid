@@ -247,6 +247,9 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
 
     expect(progressLine()).toHaveTextContent(/Step 2:/);
 
+    const advancedTriggers = screen.getAllByRole("button", { name: /advanced options/i });
+    fireEvent.click(advancedTriggers[0]);
+
     const prior = screen.getByLabelText("Prior manifest version (optional)");
     fireEvent.change(prior, {
       target: { value: "not-a-uuid" },

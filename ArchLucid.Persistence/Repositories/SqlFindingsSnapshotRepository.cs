@@ -381,7 +381,8 @@ public sealed class SqlFindingsSnapshotRepository(
                                RequestInputRef, RunIdRef, AgentExecutionTraceId,
                                ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
                                ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
-                               HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes
+                               HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
+                               IsMuted, MuteReason
                            )
                            VALUES
                            (
@@ -392,7 +393,8 @@ public sealed class SqlFindingsSnapshotRepository(
                                @RequestInputRef, @RunIdRef, @AgentExecutionTraceId,
                                @ModelDeploymentName, @ModelVersion, @PromptTemplateId, @PromptTemplateVersion,
                                @ConfidenceScore, @EvaluationConfidenceScore, @EvaluationConfidenceLevel, @PolicyRuleId,
-                               @HumanReviewStatus, @ReviewedByUserId, @ReviewedAtUtc, @ReviewNotes
+                               @HumanReviewStatus, @ReviewedByUserId, @ReviewedAtUtc, @ReviewNotes,
+                               @IsMuted, @MuteReason
                            );
                            """;
 
@@ -428,7 +430,9 @@ public sealed class SqlFindingsSnapshotRepository(
             HumanReviewStatus = finding.HumanReviewStatus.ToString(),
             finding.ReviewedByUserId,
             finding.ReviewedAtUtc,
-            finding.ReviewNotes
+            finding.ReviewNotes,
+            finding.IsMuted,
+            finding.MuteReason
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));

@@ -62,6 +62,20 @@ public sealed class ArchitectureFinding
         set;
     }
 
+    /// <summary>When true, operators hid this finding from default review surfaces (SQL <c>dbo.FindingRecords.IsMuted</c>).</summary>
+    public bool IsMuted
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Operator justification when <see cref="IsMuted" /> is true.</summary>
+    public string? MuteReason
+    {
+        get;
+        set;
+    }
+
     public List<string> EvidenceRefs
     {
         get;

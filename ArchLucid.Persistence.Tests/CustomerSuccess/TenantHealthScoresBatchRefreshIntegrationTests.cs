@@ -45,6 +45,9 @@ public sealed class TenantHealthScoresBatchRefreshIntegrationTests(SqlServerPers
             projectId,
             CancellationToken.None);
 
+        DapperArchitectureProjectRepository projects = new(factory);
+        await projects.InsertAsync(projectId, tenantId, workspaceId, "default", CancellationToken.None);
+
         await sut.RefreshAllTenantHealthScoresAsync(CancellationToken.None);
 
         await using SqlConnection read = new(fixture.ConnectionString);

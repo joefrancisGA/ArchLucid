@@ -25,7 +25,8 @@ internal static class FindingsSnapshotRelationalRead
                                       RequestInputRef, RunIdRef, AgentExecutionTraceId,
                                       ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
                                       ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
-                                      HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes
+                                      HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
+                                      IsMuted, MuteReason
                                   FROM dbo.FindingRecords
                                   WHERE FindingsSnapshotId = @FindingsSnapshotId
                                   ORDER BY SortOrder;
@@ -108,6 +109,8 @@ internal static class FindingsSnapshotRelationalRead
                 ReviewedByUserId = rec.ReviewedByUserId,
                 ReviewedAtUtc = rec.ReviewedAtUtc is { } ra ? new DateTimeOffset(DateTime.SpecifyKind(ra, DateTimeKind.Utc)) : null,
                 ReviewNotes = rec.ReviewNotes,
+                IsMuted = rec.IsMuted,
+                MuteReason = rec.MuteReason,
                 Trace = new ExplainabilityTrace
                 {
                     SourceAgentExecutionTraceId = rec.AgentExecutionTraceId,
@@ -513,6 +516,18 @@ internal static class FindingsSnapshotRelationalRead
         }
 
         public string? ReviewNotes
+        {
+            get;
+            init;
+        }
+
+        public bool IsMuted
+        {
+            get;
+            init;
+        }
+
+        public string? MuteReason
         {
             get;
             init;
