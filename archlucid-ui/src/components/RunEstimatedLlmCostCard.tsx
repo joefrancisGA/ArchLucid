@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunAgentExecutionLlmCostEstimate } from "@/types/authority";
 
 function formatUsd(amount: number): string {
@@ -21,7 +22,7 @@ function formatTokens(n: number): string {
 /** Read-only run-level LLM cost estimate from summed agent execution traces (operator review detail). */
 export function RunEstimatedLlmCostCard(props: {
   readonly estimate: RunAgentExecutionLlmCostEstimate | null | undefined;
-}): ReactElement {
+}): ReactElement | null {
   const payload = props.estimate;
 
   const prompt = typeof payload?.tokenCounts?.prompt === "number" ? payload.tokenCounts.prompt : 0;
@@ -35,6 +36,10 @@ export function RunEstimatedLlmCostCard(props: {
     typeof rawCost === "number" && Number.isFinite(rawCost) && totalTokens > 0;
 
   const showPrimaryUnavailable = totalTokens <= 0;
+
+  if (isBuyerPolishedOperatorShellEnv() && showPrimaryUnavailable) {
+    return null;
+  }
 
   return (
     <Card className="rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950/30">

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Settings2 } from "lucide-react";
+import { ChevronDown, FileSearch, FileText, GitBranch, GitGraph, LayoutDashboard, Settings2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useMemo, useState, type ReactElement } from "react";
@@ -47,12 +47,46 @@ import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
 import { OPEN_COMMAND_PALETTE_EVENT, registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 const SIDEBAR_NAV_EXPAND_ALL_KEY = "archlucid-nav-expanded";
 const SIDEBAR_ADMIN_SECTION_OPEN_KEY = "archlucid-sidebar-admin-section-open";
+
+/** Buyer-demo golden path — uses canonical showcase run/manifest so quick actions work without workspace context. */
+const BUYER_POLISHED_QUICK_ACTION_LINKS: readonly {
+  readonly href: string;
+  readonly label: string;
+  readonly Icon: typeof LayoutDashboard;
+}[] = [
+  {
+    href: `/executive/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+    label: "Executive summary",
+    Icon: LayoutDashboard,
+  },
+  {
+    href: `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
+    label: "Manifest",
+    Icon: FileText,
+  },
+  {
+    href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+    label: "Evidence graph",
+    Icon: GitGraph,
+  },
+  {
+    href: `/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+    label: "Governance",
+    Icon: GitBranch,
+  },
+  {
+    href: `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+    label: "Audit trail",
+    Icon: FileSearch,
+  },
+];
 
 const OPERATOR_SHELL_PRESET_LABELS: Record<OperatorShellPresetId, string> = {
 
@@ -124,8 +158,7 @@ function SidebarRecentActivityCard() {
   return (
     <Collapsible open={open} onOpenChange={persist}>
       <CollapsibleTrigger
-        aria-label="Recent activity"
-        className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+        className="sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
         type="button"
       >
         <span>Recent activity</span>
@@ -335,9 +368,11 @@ export function SidebarNav() {
 
 
   const quickActionLinks = useMemo(() => {
-    const hrefs = buyerPolishedShell
-      ? (["/reviews/new"] as const)
-      : (["/reviews/new", "/alerts", "/audit"] as const);
+    if (buyerPolishedShell) {
+      return [] as NavLinkItem[];
+    }
+
+    const hrefs = ["/reviews/new", "/alerts", "/audit"] as const;
     const flat = flattenNavLinks();
     const candidates: NavLinkItem[] = hrefs
       .map((h) => flat.find((l) => (l.href.split("?", 1)[0] ?? "").trim() === h))
@@ -405,6 +440,24 @@ export function SidebarNav() {
             ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, true))
             : visibleLinks;
 
+        const linksForRender =
+          buyerPolishedShell && group.id === "pilot"
+            ? [...linksAfterDemoFilter].sort((linkA, linkB) => {
+                const aNew = linkA.href === "/reviews/new";
+                const bNew = linkB.href === "/reviews/new";
+
+                if (aNew && !bNew) {
+                  return 1;
+                }
+
+                if (!aNew && bNew) {
+                  return -1;
+                }
+
+                return 0;
+              })
+            : linksAfterDemoFilter;
+
         const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
           group,
@@ -423,14 +476,19 @@ export function SidebarNav() {
             }}
           >
             <CollapsibleTrigger
-              aria-label={group.label}
-              className="flex w-full items-start justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm font-semibold uppercase tracking-wide text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              className="sidebar-disclosure-trigger flex w-full items-start justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
               title={group.caption}
               type="button"
+              aria-labelledby={`sidebar-group-trigger-title-${group.id}`}
+              aria-describedby={group.id === "operate-governance" ? "sidebar-governance-nav-hint-slot" : undefined}
             >
               <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
-                <span>{group.label}</span>
-                {group.id === "operate-governance" ? <OperateCapabilityNavGroupHint /> : null}
+                <span id={`sidebar-group-trigger-title-${group.id}`}>{group.label}</span>
+                {group.id === "operate-governance" ? (
+                  <span id="sidebar-governance-nav-hint-slot">
+                    <OperateCapabilityNavGroupHint />
+                  </span>
+                ) : null}
               </span>
               <ChevronDown
                 className={cn("mt-0.5 h-4 w-4 shrink-0 transition-transform", isOpen ? "rotate-0" : "-rotate-90")}
@@ -442,7 +500,7 @@ export function SidebarNav() {
                 className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
                 aria-label="Governance — pinned links"
               >
-                {linksAfterDemoFilter
+                {linksForRender
                   .filter((link) => GOVERNANCE_PINNED_HREFS.has(link.href))
                   .map((link) => {
                     const active = isNavLinkActive(pathname, link.href);
@@ -458,8 +516,7 @@ export function SidebarNav() {
                           "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                           active
                             ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
-                            : "text-neutral-800 dark:text-neutral-200",
-                          advancedDemo ? "opacity-60" : null,
+                            : "text-neutral-900 dark:text-neutral-100",
                         )}
                         title={
                           advancedDemo
@@ -483,7 +540,7 @@ export function SidebarNav() {
                 className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
                 aria-label={group.label}
               >
-                {linksAfterDemoFilter
+                {linksForRender
                   .filter(
                     (link) =>
                       group.id !== "operate-governance" || !GOVERNANCE_PINNED_HREFS.has(link.href),
@@ -502,8 +559,10 @@ export function SidebarNav() {
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                         active
                           ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
-                          : "text-neutral-800 dark:text-neutral-200",
-                        advancedDemo ? "opacity-60" : null,
+                          : "text-neutral-900 dark:text-neutral-100",
+                        buyerPolishedShell && link.href === "/reviews/new"
+                          ? "font-normal text-neutral-500 dark:text-neutral-400"
+                          : null,
                       )}
                       title={
                         advancedDemo
@@ -525,8 +584,8 @@ export function SidebarNav() {
             {showProgressiveDisclosureChrome && hiddenByDisclosure > 0 ? (
               <button
                 type="button"
-                className="auth-panel-focus ml-2 mt-1 flex items-center gap-1 text-left text-xs font-medium text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
-                aria-label={`${hiddenByDisclosure} more in ${group.label}`}
+                className="auth-panel-focus sidebar-disclosure-trigger ml-2 mt-1 flex items-center gap-1 text-left text-xs font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100"
+                aria-label={`${hiddenByDisclosure} more destinations in ${group.label} — open Sidebar layout`}
                 onClick={() => {
                   setSettingsOpen(true);
                 }}
@@ -553,44 +612,70 @@ export function SidebarNav() {
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
       <SidebarRecentActivityCard />
 
-      {mounted && quickActionLinks.length > 0 ? (
+      {mounted && (buyerPolishedShell || quickActionLinks.length > 0) ? (
         <div className="px-2 py-2" data-testid="sidebar-quick-actions" aria-label="Quick actions">
-          <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
             Quick actions
           </p>
-          <nav className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700">
-            {quickActionLinks.map((link) => {
-              const active = isNavLinkActive(pathname, link.href);
-              const Icon = link.icon;
-              const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi || buyerPolishedShell);
+          <nav
+            className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
+            aria-label="Quick action destinations"
+          >
+            {buyerPolishedShell
+              ? BUYER_POLISHED_QUICK_ACTION_LINKS.map((row) => {
+                  const active = isNavLinkActive(pathname, row.href);
+                  const Icon = row.Icon;
+                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(row.href, demoUi || buyerPolishedShell);
 
-              return (
-                <Link
-                  key={`quick-${link.href}`}
-                  href={link.href}
-                  data-onboarding={onboardingTourAnchorForHref(link.href)}
-                  className={cn(
-                    "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                    active
-                      ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
-                      : "text-neutral-800 dark:text-neutral-200",
-                    advancedDemo ? "opacity-60" : null,
-                  )}
-                  title={
-                    advancedDemo
-                      ? `${link.title} (Advanced — optional in demo mode)`
-                      : link.title
-                  }
-                  aria-current={active ? "page" : undefined}
-                  aria-keyshortcuts={
-                    link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
-                  }
-                >
-                  {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                  {link.label}
-                </Link>
-              );
-            })}
+                  return (
+                    <Link
+                      key={row.href}
+                      href={row.href}
+                      className={cn(
+                        "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                        active
+                          ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                          : "text-neutral-900 dark:text-neutral-100",
+                      )}
+                      title={advancedDemo ? `${row.label} (Advanced — optional in demo mode)` : row.label}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
+                      {row.label}
+                    </Link>
+                  );
+                })
+              : quickActionLinks.map((link) => {
+                  const active = isNavLinkActive(pathname, link.href);
+                  const Icon = link.icon;
+                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi || buyerPolishedShell);
+
+                  return (
+                    <Link
+                      key={`quick-${link.href}`}
+                      href={link.href}
+                      data-onboarding={onboardingTourAnchorForHref(link.href)}
+                      className={cn(
+                        "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                        active
+                          ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                          : "text-neutral-900 dark:text-neutral-100",
+                      )}
+                      title={
+                        advancedDemo
+                          ? `${link.title} (Advanced — optional in demo mode)`
+                          : link.title
+                      }
+                      aria-current={active ? "page" : undefined}
+                      aria-keyshortcuts={
+                        link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
+                      }
+                    >
+                      {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
+                      {link.label}
+                    </Link>
+                  );
+                })}
           </nav>
         </div>
       ) : null}
@@ -601,7 +686,8 @@ export function SidebarNav() {
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
           <button
             type="button"
-            className="w-full rounded-md border border-neutral-200 bg-white px-2 py-2 text-left text-xs font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            className="sidebar-disclosure-trigger w-full rounded-md border border-neutral-200 bg-white px-2 py-2 text-left text-xs font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            aria-expanded={navAllFeaturesExpanded}
             onClick={() => {
               const next = !navAllFeaturesExpanded;
               setNavAllFeaturesExpanded(next);
@@ -639,8 +725,7 @@ export function SidebarNav() {
         >
           <Collapsible open={adminSectionOpen} onOpenChange={persistAdminSectionOpen}>
             <CollapsibleTrigger
-              aria-label="Administration — tenant and platform"
-              className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+              className="sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
               type="button"
             >
               <span>Administration</span>
@@ -660,7 +745,7 @@ export function SidebarNav() {
               </span>
             </CollapsibleTrigger>
             <CollapsibleContent className="pt-1">
-              <p className="m-0 px-2 pb-1 text-[10px] leading-snug text-neutral-500 dark:text-neutral-400">
+              <p className="m-0 px-2 pb-1 text-[10px] leading-snug text-neutral-600 dark:text-neutral-300">
                 Tenant cost, support bundles, system health — separate from architecture review navigation.
               </p>
               {adminNavRows.map((row) => renderNavCluster(row))}
@@ -675,8 +760,10 @@ export function SidebarNav() {
           type="button"
           variant="ghost"
           size="sm"
-          className="w-full justify-start gap-2 text-xs text-neutral-600 dark:text-neutral-400"
+          className="sidebar-disclosure-trigger w-full justify-start gap-2 text-xs text-neutral-800 dark:text-neutral-200"
           data-onboarding="tour-nav-settings"
+          aria-haspopup="dialog"
+          aria-expanded={settingsOpen}
           onClick={() => {
             setSettingsOpen(true);
           }}
@@ -699,7 +786,7 @@ export function SidebarNav() {
           type="button"
           variant="outline"
           size="sm"
-          className="mt-2 w-full justify-start px-3 py-2 text-left text-xs font-medium shadow-none hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+          className="sidebar-disclosure-trigger mt-2 w-full justify-start px-3 py-2 text-left text-xs font-medium text-neutral-900 shadow-none hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800"
           data-testid="sidebar-show-advanced-operations-toggle"
           aria-pressed={shellShowAdvanced}
           aria-label={
@@ -718,7 +805,7 @@ export function SidebarNav() {
         {mounted && !buyerPolishedShell ? (
           <button
             type="button"
-            className="mt-3 w-full rounded-md px-0.5 text-left text-[10px] leading-snug text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
+            className="sidebar-disclosure-trigger mt-3 w-full rounded-md px-0.5 text-left text-[10px] leading-snug text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100"
             aria-label="Open command palette (Ctrl+K or Meta+K)"
             onClick={() => {
               window.dispatchEvent(new CustomEvent(OPEN_COMMAND_PALETTE_EVENT));

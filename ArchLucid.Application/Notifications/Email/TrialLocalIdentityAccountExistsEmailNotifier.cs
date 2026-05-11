@@ -59,10 +59,17 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifier(
         {
             await _emailProvider.SendAsync(message, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)when (!cancellationToken.IsCancellationRequested)
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
+            string recipientCorrelation = TrialEmailCorrelationFingerprint.ComputeHexPrefix(trimmed);
+
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarningWithSanitizedUserArg(ex, "Trial local account-exists email send failed for {Email}.", trimmed);
+            {
+                _logger.LogWarningWithSanitizedUserArg(
+                    ex,
+                    "Trial local account-exists email send failed (recipientCorrelation={RecipientCorrelation}).",
+                    recipientCorrelation);
+            }
         }
     }
 }

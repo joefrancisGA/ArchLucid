@@ -45,6 +45,21 @@ body {
   border-radius: 0.125rem;
 }
 
+.dark .shell-nav-link:focus-visible {
+  outline-color: #60a5fa;
+}
+
+/* Sidebar / drawer section triggers — match teal accent, visible on neutral rail */
+.sidebar-disclosure-trigger:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}
+
+.dark .sidebar-disclosure-trigger:focus-visible {
+  outline-color: #2dd4bf;
+}
+
 /* Teal CTA-style links in the first-run panel */
 .workflow-primary-action:focus-visible {
   outline: 2px solid #0f172a;

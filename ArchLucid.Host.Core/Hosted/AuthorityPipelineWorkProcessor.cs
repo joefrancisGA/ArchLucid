@@ -83,7 +83,12 @@ public sealed class AuthorityPipelineWorkProcessor(
             return;
         }
 
-        ScopeContext jobScope = new() { TenantId = entry.TenantId, WorkspaceId = entry.WorkspaceId, ProjectId = entry.ProjectId };
+        ScopeContext jobScope = new()
+        {
+            TenantId = entry.TenantId,
+            WorkspaceId = entry.WorkspaceId,
+            ProjectId = entry.ProjectId
+        };
 
         using IDisposable _ = AmbientScopeContext.Push(jobScope);
         IAuthorityRunOrchestrator orchestrator =
@@ -120,13 +125,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         EvidenceBundle? evidenceBundle =
             await evidenceBundleRepository.GetByIdAsync(payload.EvidenceBundleId.Trim(), cancellationToken);
 
-        if (architectureRequest is null)
-
-            throw new InvalidOperationException(
-                $"Evidence bundle / architecture request not available after deferred authority pipeline for run '{entry.RunId:N}'.");
-
-        if (evidenceBundle is null)
-
+        if (architectureRequest is null || evidenceBundle is null)
             throw new InvalidOperationException(
                 $"Evidence bundle / architecture request not available after deferred authority pipeline for run '{entry.RunId:N}'.");
 
@@ -252,7 +251,10 @@ public sealed class AuthorityPipelineWorkProcessor(
 
         return new AuthorityPipelineWorkProcessorOptions
         {
-            LeaseDurationSeconds = lease, MaxAttemptsBeforeDeadLetter = maxAttempts, RetryBackoffBaseSeconds = baseSecs, RetryBackoffMaxSeconds = maxSecs,
+            LeaseDurationSeconds = lease,
+            MaxAttemptsBeforeDeadLetter = maxAttempts,
+            RetryBackoffBaseSeconds = baseSecs,
+            RetryBackoffMaxSeconds = maxSecs,
         };
     }
 

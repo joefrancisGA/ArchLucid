@@ -43,10 +43,10 @@ function renderMobileNavBlock(
 
     return (
       <div key={group.id}>
-        <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
           <span className="block">{group.label}</span>
           {group.caption ? (
-            <span className="mt-0.5 block text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-500 dark:text-neutral-400">
+            <span className="mt-0.5 block text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-600 dark:text-neutral-300">
               {group.caption}
             </span>
           ) : null}
@@ -66,7 +66,7 @@ function renderMobileNavBlock(
                   "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                   active
                     ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
-                    : "text-neutral-800 dark:text-neutral-200",
+                    : "text-neutral-900 dark:text-neutral-100",
                 )}
                 title={link.title}
                 aria-current={active ? "page" : undefined}
@@ -155,7 +155,7 @@ export function MobileNavDrawer() {
             })}
             {adminNavRows.length > 0 ? (
               <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
-                <p className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <p className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
                   Administration
                 </p>
                 {renderMobileNavBlock(adminNavRows, pathname, demoUi || buyerPolishedShell, () => {
@@ -168,7 +168,7 @@ export function MobileNavDrawer() {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="w-full justify-start px-3 py-2 text-left text-xs font-medium shadow-none"
+                className="sidebar-disclosure-trigger w-full justify-start px-3 py-2 text-left text-xs font-medium text-neutral-900 shadow-none dark:text-neutral-100"
                 aria-pressed={shellShowAdvanced}
                 aria-label={
                   shellShowAdvanced

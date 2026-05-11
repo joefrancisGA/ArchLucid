@@ -59,19 +59,27 @@ export function PostCommitRetentionRail({
       <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         {buyerPolishedShell ? (
           <>
-            <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
-              <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open executive view</Link>
+            <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
+              <Link href={`/governance?runId=${encodeURIComponent(runId)}`}>Open governance workflow</Link>
             </Button>
+            <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
+              <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open executive summary</Link>
+            </Button>
+            {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (
+              <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
+                <Link href={`/manifests/${encodeURIComponent(goldenManifestId.trim())}`}>Open decision record</Link>
+              </Button>
+            ) : null}
             <Button
               type="button"
-              variant="default"
+              variant="outline"
               size="sm"
               className="justify-center sm:justify-start"
               onClick={() => {
                 setRevisedChooserOpen(true);
               }}
             >
-              Create revised review from this package
+              Start a follow-on review
             </Button>
             <Dialog open={revisedChooserOpen} onOpenChange={setRevisedChooserOpen}>
               <DialogContent className="max-w-md">

@@ -103,7 +103,7 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
 
         try
         {
-            return JsonSerializer.Deserialize<ArchitectureFinding>(element, FindingJsonOptions);
+            return element.Deserialize<ArchitectureFinding>(FindingJsonOptions);
         }
         catch (JsonException)
         {
@@ -122,7 +122,7 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
         if (typedFinding is null)
             return null;
 
-        string message = typedFinding.Message?.Trim() ?? string.Empty;
+        string message = typedFinding.Message.Trim();
 
         return message.Length > 0 ? message : null;
     }
@@ -160,15 +160,12 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
     /// <summary>Prefer persisted <see cref="ArchitectureFinding.Category" />; otherwise a deterministic generic phrase.</summary>
     private static string ResolveRiskCategory(ArchitectureFinding? typedFinding)
     {
-        if (typedFinding is not null)
-        {
-            string raw = typedFinding.Category?.Trim() ?? string.Empty;
+        if (typedFinding is null)
+            return "the assessed architecture risk";
 
-            if (raw.Length > 0)
-                return raw;
-        }
+        string raw = typedFinding.Category.Trim() ?? string.Empty;
 
-        return "the assessed architecture risk";
+        return raw.Length > 0 ? raw : "the assessed architecture risk";
     }
 
     private static string HumanizeSeverity(FindingSeverity severity) => severity switch

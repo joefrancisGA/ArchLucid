@@ -42,7 +42,7 @@ export function OperateCapabilityNavGroupHint(): ReactNode {
   }
 
   return (
-    <span className="mt-0.5 block max-w-[14rem] text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-500 dark:text-neutral-500">
+    <span className="mt-0.5 block max-w-[14rem] text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-600 dark:text-neutral-300">
       {text}
     </span>
   );

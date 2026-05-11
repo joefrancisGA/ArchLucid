@@ -80,9 +80,8 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           ArchLucid runs a structured multi-agent Authority pipeline against every architecture request so findings,
           comparisons, manifests, and audit exports share one proven trace. Buyers still compare incumbent stack tools; the
-          adjacent-category table on this page summarizes the same buyer-safe landscape claims captured in{" "}
-          <code className="rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-900/60">docs/go-to-market/COMPETITIVE_LANDSCAPE.md</code>{" "}
-          §2.3—not a substitute for the symbol-scored hard-comparison grid further down.
+          adjacent-category table below summarizes the same qualitative landscape dimensions used in our internal
+          competitive assessment—not a substitute for the symbol-scored hard-comparison grid further down.
         </p>
       </section>
 
@@ -91,10 +90,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           Adjacent-category landscape (qualitative · three rows · five lenses)
         </h2>
         <p className="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
-          Summarized wording only — same sources as{" "}
-          <code className="rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800">docs/go-to-market/COMPETITIVE_LANDSCAPE.md</code>{" "}
-          §2.3; citations and benchmark detail live in that document and in the deterministic proof artefacts linked from
-          this page.
+          Summarized wording only — citations and benchmark detail are included in the proof pack linked from this page.
         </p>
         <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
           <table
@@ -152,14 +148,13 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       <section className="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
         <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Side-by-side proof pack</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Download a single PDF that bundles the same deterministic demo preview as the{" "}
+          Download a single PDF that bundles the same read-only sample output as the{" "}
           <a className="font-medium text-sky-800 underline underline-offset-2 dark:text-sky-300" href="/demo/preview">
             public demo preview
           </a>{" "}
-          (manifest excerpt, explanation, citations, timeline) plus the benchmarked differentiation narrative table
-          (five
-          detailed rows with citations — not the symbol-only front-door grid below). Requires demo mode on the API host
-          (otherwise the link returns 404 by design).
+          (manifest excerpt, explanation, citations, timeline) plus the benchmarked differentiation narrative table (five
+          detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in
+          your environment, use the contact path on the getting started page.
         </p>
         <p className="mt-3">
           <a
@@ -178,8 +173,8 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           See a real finalized-manifest page
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Anonymous read-only preview of the latest finalized demo-seed run (cached JSON + marketing UI). Same shape as
-          the operator finalize experience — no sign-in.
+          Anonymous read-only preview of a finalized sample review record—same layout as the product workspace, no
+          sign-in.
         </p>
         {showDemoEmbed ? (
           <div className="mt-4 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">

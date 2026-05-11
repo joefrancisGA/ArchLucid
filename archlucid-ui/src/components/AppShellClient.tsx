@@ -234,7 +234,7 @@ function AppShellInner({ children }: AppShellClientProps) {
           <div className="mx-auto flex w-full max-w-[1600px] flex-1">
             <nav
               data-testid="sidebar-nav"
-              aria-label="Primary"
+              aria-label="Primary navigation"
               className="hidden w-[15.5rem] shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block"
             >
               <SidebarNav />

@@ -381,7 +381,7 @@ function GraphPageContent() {
       ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. The sample emphasizes evidence → PHI minimization risk → mitigation decisions → sealed manifest outputs.`
       : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
-  const pageTitle = BUYER_SURFACE_VOCABULARY.evidenceGraph;
+  const pageTitle = buyerPolishedShell ? "Decision traceability graph" : BUYER_SURFACE_VOCABULARY.evidenceGraph;
 
   const loadButtonLabel = loading ? "Loading…" : "Load graph";
 
@@ -550,7 +550,7 @@ function GraphPageContent() {
 
       {showIdleCard ? (
         <div className="space-y-4">
-          <GraphIdleLegend />
+          <GraphIdleLegend buyerPolished={buyerPolishedShell} />
           <EmptyState {...graphIdlePreset} />
         </div>
       ) : null}
@@ -667,7 +667,15 @@ function GraphPageContent() {
             ) : null}
           </div>
           <div className="mb-3 max-w-4xl">
-            <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Legend</p>
+            <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+              {buyerPolishedShell ? "What this graph proves" : "Legend"}
+            </p>
+            {buyerPolishedShell ? (
+              <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+                This graph shows how source context, analysis steps, findings, and deliverables connect to the final
+                signed manifest.
+              </p>
+            ) : null}
             {graph !== null && graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
               <GraphReviewTrailLegendChips />
             ) : (
@@ -687,6 +695,15 @@ function GraphPageContent() {
               />
             </div>
           </ClientErrorBoundary>
+          {buyerPolishedShell ? (
+            <div className="mt-6 max-w-4xl">
+              <Button type="button" asChild variant="default" size="sm">
+                <Link href={`/governance?runId=${encodeURIComponent(runId.trim())}`}>
+                  Continue to governance approval
+                </Link>
+              </Button>
+            </div>
+          ) : null}
           {demoUi && buyerPolishedShell ? (
             <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
               Expand graph view options when you need a different finalized package. This view defaults to the curated sample
