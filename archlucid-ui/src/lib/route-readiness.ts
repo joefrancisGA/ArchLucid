@@ -48,6 +48,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/settings/tenant": "admin-only",
   "/settings/baseline": "advanced-only",
   "/settings/tenant-cost": "advanced-only",
+  "/settings/billing": "advanced-only",
   "/settings/exec-digest": "advanced-only",
 };
 

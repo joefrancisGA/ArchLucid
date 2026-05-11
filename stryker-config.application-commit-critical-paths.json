@@ -7,6 +7,7 @@
       "**/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs",
       "**/Runs/Finalization/ManifestFinalizationService.cs"
     ],
+    "test-case-filter": "(FullyQualifiedName~ArchLucid.Application.Tests.Governance)|(FullyQualifiedName~ArchLucid.Application.Tests.Runs.Finalization)|(FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestrator)",
     "reporters": ["progress", "html", "json"],
     "thresholds": {
       "high": 80,
