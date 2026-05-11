@@ -129,8 +129,12 @@ export default async function RunsPage({
         (typeof r.goldenManifestId === "string" && r.goldenManifestId.length > 0) || r.hasGoldenManifest === true,
     )?.runId ?? null;
 
+  const welcomeOnboardingEligible =
+    loadFailure === null && malformedMessage === null && totalCount === 0 && !usedStaticRunsFallback;
+
   return (
     <div>
+      <OperatorWelcomeOnboarding serverEligible={welcomeOnboardingEligible} />
       <OperatorPageHeader
         title="Architecture Reviews"
         metadata={<span>{projectTitle}</span>}
