@@ -1971,20 +1971,20 @@
       },
       "ArchitectureRequestTemplateSummary": {
         "properties": {
-          "shortDescription": {
+          "description": {
             "type": "string"
           },
-          "templateId": {
+          "id": {
             "type": "string"
           },
-          "title": {
+          "name": {
             "type": "string"
           }
         },
         "required": [
-          "shortDescription",
-          "templateId",
-          "title"
+          "description",
+          "id",
+          "name"
         ],
         "type": "object"
       },

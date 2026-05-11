@@ -47,6 +47,18 @@ public sealed class TemplateProvider
             Description:
             "Kubernetes microservices on AKS exchanging messages through Azure Service Bus with ingress, observability, and identity integration expectations.",
             ResourceName: "ArchLucid.Application.Templates.microservices-aks.json"),
+        new CatalogEntry(
+            Id: "hipaa-compliant-api",
+            Name: "HIPAA-minded API (APIM, App Service, Azure SQL TDE)",
+            Description:
+            "API Management + VNet-integrated App Service + TDE-protected Azure SQL—pattern teams use to document PHI boundaries, encryption, and audit-friendly routing for HIPAA assessments.",
+            ResourceName: "ArchLucid.Application.Templates.hipaa-compliant-api.json"),
+        new CatalogEntry(
+            Id: "pci-dss-payment-gateway",
+            Name: "PCI DSS–oriented payment gateway (Front Door WAF, Container Apps, Key Vault)",
+            Description:
+            "Front Door with WAF, Container Apps compute, and Key Vault for secrets—architecture framing for CDE scoping, edge protection, and key management under PCI DSS review.",
+            ResourceName: "ArchLucid.Application.Templates.pci-dss-payment-gateway.json"),
     ];
 
     private readonly ArchitectureRequestTemplateSummary[] _summaries;
