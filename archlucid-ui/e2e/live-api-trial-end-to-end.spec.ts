@@ -250,7 +250,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await page.goto(`/runs/new?sampleRunId=${encodeURIComponent(sampleRunId)}`);
 
-    await expect(page.getByRole("heading", { name: /new architecture request/i, level: 2 })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible({
       timeout: 60_000,
     });
 
