@@ -46,7 +46,8 @@ export function comparePageSubmitButton(page: Page) {
 
 /** Run detail for the standard mock-api run fixture (`e2e/mock-archlucid-api-server`). */
 export async function gotoRunDetailForMockFixtureRun(page: Page): Promise<void> {
-  await page.goto(`/runs/${encodeURIComponent(FIXTURE_RUN_ID)}`);
+  // Canonical route is `/reviews/*` (`next.config.ts` redirects `/runs/*`). Go direct to avoid redirect flake on CI.
+  await page.goto(`/reviews/${encodeURIComponent(FIXTURE_RUN_ID)}`);
 }
 
 /** Manifest detail for a known id (encode-safe). */
