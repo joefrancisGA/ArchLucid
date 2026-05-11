@@ -40,7 +40,7 @@ export function PostCommitRetentionRail({
 }: PostCommitRetentionRailProps): ReactElement {
   const canMutate: boolean = useEnterpriseMutationCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const [revisedChooserOpen, setRevisedChooserOpen] = useState(false);
+  const [nextCycleDialogOpen, setNextCycleDialogOpen] = useState(false);
   const showcaseSpine =
     buyerShowcaseQuickLinks && canonicalizeDemoRunId(runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
 
@@ -60,10 +60,10 @@ export function PostCommitRetentionRail({
         {buyerPolishedShell ? (
           <>
             <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
-              <Link href={`/governance?runId=${encodeURIComponent(runId)}`}>Open governance workflow</Link>
+              <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open executive summary</Link>
             </Button>
             <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
-              <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open executive summary</Link>
+              <Link href={`/governance?runId=${encodeURIComponent(runId)}`}>View governance approval</Link>
             </Button>
             {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (
               <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
@@ -76,18 +76,18 @@ export function PostCommitRetentionRail({
               size="sm"
               className="justify-center sm:justify-start"
               onClick={() => {
-                setRevisedChooserOpen(true);
+                setNextCycleDialogOpen(true);
               }}
             >
-              Start a follow-on review
+              Next-cycle actions
             </Button>
-            <Dialog open={revisedChooserOpen} onOpenChange={setRevisedChooserOpen}>
+            <Dialog open={nextCycleDialogOpen} onOpenChange={setNextCycleDialogOpen}>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Create a revised review</DialogTitle>
+                  <DialogTitle>Next-cycle actions</DialogTitle>
                   <DialogDescription>
-                    Pick how prior context carries forward. Both paths use the same wizard; backend lineage attachment is
-                    tenant-dependent.
+                    Start another review when you need a new governed package. Clone preserves lineage context where your
+                    tenant allows it; fresh starts a clean wizard without inheriting attachments by default.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-3 py-2">
@@ -95,20 +95,20 @@ export function PostCommitRetentionRail({
                     <Link
                       href={`/reviews/new?intent=revised-clone&cloneFromRunId=${encodeURIComponent(runId)}`}
                       onClick={() => {
-                        setRevisedChooserOpen(false);
+                        setNextCycleDialogOpen(false);
                       }}
                     >
                       Clone from this review
                     </Link>
                   </Button>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    Prefer when scope shifts but regulators expect continuity with this manifest package.
+                    Prefer when scope shifts but continuity with this manifest package is expected.
                   </p>
                   <Button asChild variant="outline" className="w-full">
                     <Link
                       href="/reviews/new?intent=revised-fresh"
                       onClick={() => {
-                        setRevisedChooserOpen(false);
+                        setNextCycleDialogOpen(false);
                       }}
                     >
                       Start fresh
@@ -119,7 +119,7 @@ export function PostCommitRetentionRail({
                   </p>
                 </div>
                 <DialogFooter>
-                  <Button type="button" variant="ghost" onClick={() => setRevisedChooserOpen(false)}>
+                  <Button type="button" variant="ghost" onClick={() => setNextCycleDialogOpen(false)}>
                     Cancel
                   </Button>
                 </DialogFooter>

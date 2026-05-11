@@ -626,17 +626,22 @@ export default function AuditPage() {
     setExporting(true);
     setFailure(null);
     try {
+      const filters = currentFilters();
       await downloadAuditExportCsv({
         fromUtcIso: new Date(fromUtc).toISOString(),
         toUtcIso: new Date(toUtc).toISOString(),
         maxRows: 10_000,
+        eventType: filters.eventType.trim() || undefined,
+        correlationId: filters.correlationId.trim() || undefined,
+        actorUserId: filters.actorUserId.trim() || undefined,
+        runId: filters.runId.trim() || undefined,
       });
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
       setExporting(false);
     }
-  }, [currentPrincipal.roleClaimValues, fromUtc, toUtc]);
+  }, [currentFilters, currentPrincipal.roleClaimValues, fromUtc, toUtc]);
 
   const exportDateRangeReady = canExportAuditCsv(fromUtc, toUtc);
   const exportRoleOk = principalRolesAllowAuditCsvExport(currentPrincipal.roleClaimValues);
@@ -1201,18 +1206,18 @@ export default function AuditPage() {
                         ? "Set From and To to enable export"
                         : !exportRoleOk
                           ? auditExportControlDisabledTitle
-                          : "Download audit evidence (CSV) for the current date range"
+                          : "Export to CSV using the current filters"
                     }
                   >
                     {exporting
                       ? "Exporting…"
                       : csvExportUiAllowed
-                        ? "Download audit evidence (CSV)"
+                        ? "Export to CSV"
                         : !exportDateRangeReady
                           ? auditExportCsvButtonLabelWindowIncomplete
                           : !exportRoleOk
                             ? auditExportCsvButtonLabelRoleRestricted
-                            : "Download audit evidence (CSV)"}
+                            : "Export to CSV"}
                   </Button>
                 </div>
               ) : null}
@@ -1247,18 +1252,18 @@ export default function AuditPage() {
               ? "Set From and To to enable export"
               : !exportRoleOk
                 ? auditExportControlDisabledTitle
-                : "Download CSV for the current date range"
+                : "Export to CSV using the current filters"
           }
         >
           {exporting
             ? "Exporting…"
             : csvExportUiAllowed
-              ? "Export audit trail"
+              ? "Export to CSV"
               : !exportDateRangeReady
                 ? auditExportCsvButtonLabelWindowIncomplete
                 : !exportRoleOk
                   ? auditExportCsvButtonLabelRoleRestricted
-                  : "Export audit trail"}
+                  : "Export to CSV"}
         </button>
       </section>
       ) : null}

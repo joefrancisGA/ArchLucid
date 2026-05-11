@@ -683,7 +683,14 @@ function GraphPageContent() {
             )}
           </div>
           <ClientErrorBoundary title="Graph viewer failed to render">
-            <div data-testid="graph-canvas-ready" key={graphSurfaceKey}>
+            <div
+              data-testid="graph-canvas-ready"
+              key={graphSurfaceKey}
+              className={cn(
+                "w-full min-h-[min(28rem,60vh)]",
+                buyerPolishedShell && "min-h-[min(32rem,65vh)]",
+              )}
+            >
               <GraphViewer
                 graph={graph}
                 typeFilter={typeFilter}
@@ -699,7 +706,7 @@ function GraphPageContent() {
             <div className="mt-6 max-w-4xl">
               <Button type="button" asChild variant="default" size="sm">
                 <Link href={`/governance?runId=${encodeURIComponent(runId.trim())}`}>
-                  Continue to governance approval
+                  View governance approval
                 </Link>
               </Button>
             </div>

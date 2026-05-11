@@ -164,6 +164,11 @@ public static class HotPathRelationalQueryShapes
                                                                            ORDER BY OccurredUtc DESC, EventId DESC;
                                                                            """;
 
+    /// <summary>Chronological ordering for filtered CSV/JSON audit export (<c>GetFilteredExportAsync</c>).</summary>
+    public const string AuditEventsFilteredOrderByOccurredUtcEventIdAsc = """
+                                                                          ORDER BY OccurredUtc ASC, EventId ASC;
+                                                                          """;
+
     /// <summary>Opening clause for <c>DapperAuditRepository.CountFilteredAsync</c>; dynamic filters append before terminator.</summary>
     public const string AuditEventsFilteredCountFromWhereScope = """
                                                                  SELECT COUNT(*)

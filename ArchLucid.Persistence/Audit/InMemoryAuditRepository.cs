@@ -129,4 +129,42 @@ public sealed class InMemoryAuditRepository : IAuditRepository
 
         return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
     }
+
+    public Task<IReadOnlyList<AuditEvent>> GetFilteredExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(filter);
+
+        if (!filter.FromUtc.HasValue || !filter.ToUtc.HasValue)
+        {
+            throw new ArgumentException(
+                "FromUtc and ToUtc are required for filtered export.",
+                nameof(filter));
+        }
+
+        if (filter.BeforeUtc.HasValue || filter.BeforeEventId.HasValue)
+        {
+            throw new ArgumentException(
+                "Filtered export does not support keyset cursor fields.",
+                nameof(filter));
+        }
+
+        int take = Math.Clamp(filter.Take <= 0 ? 10_000 : filter.Take, 1, 10_000);
+        List<AuditEvent> result;
+
+        lock (_gate)
+
+            result = AuditEventFilterEnumerable.WhereMatches(_events, tenantId, workspaceId, projectId, filter)
+                .OrderBy(x => x.OccurredUtc)
+                .ThenBy(x => x.EventId)
+                .Take(take)
+                .ToList();
+
+        return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
+    }
 }

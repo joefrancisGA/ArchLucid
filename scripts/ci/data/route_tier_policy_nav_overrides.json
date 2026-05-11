@@ -3,7 +3,7 @@
     "Admin/AuthDebugController.cs": "auth_debug_api",
     "Admin/DemoController.cs": "demo_tooling",
     "Admin/DocsController.cs": "static_operator_docs_html",
-    "Admin/VersionController.cs": "unversioned_version_probe",
+    "VersionController.cs": "unversioned_version_probe",
     "AgentExecution/AgentExecutionCostPreviewController.cs": "anonymous_wizard_cost_preview",
     "Auth/TrialLocalIdentityAuthController.cs": "trial_local_identity_auth",
     "Authority/AuthorityReplayController.cs": "internal_replay_diagnostics",

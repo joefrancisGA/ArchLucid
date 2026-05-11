@@ -1274,11 +1274,16 @@ export async function getAuditEventTypes(): Promise<string[]> {
 
 /**
  * Downloads `GET /v1/audit/export` as CSV (browser only). Requires UTC instants acceptable to the API.
+ * Optional filters match `GET /v1/audit/search`.
  */
 export async function downloadAuditExportCsv(params: {
   fromUtcIso: string;
   toUtcIso: string;
   maxRows?: number;
+  eventType?: string;
+  correlationId?: string;
+  actorUserId?: string;
+  runId?: string;
 }): Promise<void> {
   if (typeof window === "undefined") {
     throw new Error("downloadAuditExportCsv is only available in the browser.");
@@ -1287,6 +1292,22 @@ export async function downloadAuditExportCsv(params: {
   const query = new URLSearchParams();
   query.set("fromUtc", params.fromUtcIso);
   query.set("toUtc", params.toUtcIso);
+  if (params.eventType !== undefined && params.eventType.length > 0) {
+    query.set("eventType", params.eventType);
+  }
+
+  if (params.correlationId !== undefined && params.correlationId.length > 0) {
+    query.set("correlationId", params.correlationId);
+  }
+
+  if (params.actorUserId !== undefined && params.actorUserId.length > 0) {
+    query.set("actorUserId", params.actorUserId);
+  }
+
+  if (params.runId !== undefined && params.runId.length > 0) {
+    query.set("runId", params.runId);
+  }
+
   if (params.maxRows !== undefined) {
     query.set("maxRows", String(params.maxRows));
   }

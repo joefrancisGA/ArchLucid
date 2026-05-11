@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 
 /**
- * Surfaces query-string intent from {@link PostCommitRetentionRail} revised-review chooser — lineage attachment remains API-owned.
+ * Surfaces query-string intent from {@link PostCommitRetentionRail} next-cycle dialog — lineage attachment remains API-owned.
  */
 export function NewReviewIntentCallout() {
   const searchParams = useSearchParams();

@@ -8,7 +8,7 @@ internal static class Al0001Descriptor
     internal static DiagnosticDescriptor Rule { get; } = new(
         id: "AL0001",
         title: "API controller requires authorization attributes",
-        messageFormat: "AL0001: '{0}' must use [Authorize] or [AllowAnonymous] at the controller level (including a base type) or on this public action.",
+        messageFormat: "'{0}' must use [Authorize] or [AllowAnonymous] at the controller level (including a base type) or on this public action.",
         category: "ArchLucid.Security",
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,

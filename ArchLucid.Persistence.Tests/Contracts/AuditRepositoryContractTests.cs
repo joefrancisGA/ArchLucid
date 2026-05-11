@@ -486,6 +486,39 @@ public abstract class AuditRepositoryContractTests
         list.Should().HaveCount(25);
     }
 
+    [SkippableFact]
+    public async Task GetFilteredExportAsync_UsesInclusiveToUtc_AndOptionalEventType_LikeSearch()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+        Guid isolatedProjectId = Guid.NewGuid();
+        DateTime tStart = new(2026, 5, 10, 12, 0, 0, DateTimeKind.Utc);
+        AuditEvent match = NewEvent("ExportFilterMatch", tStart, isolatedProjectId);
+        AuditEvent otherType = NewEvent("OtherType", tStart, isolatedProjectId);
+        AuditEvent atEnd = NewEvent("ExportFilterMatch", tStart.AddMinutes(1), isolatedProjectId);
+
+        await repo.AppendAsync(match, CancellationToken.None);
+        await repo.AppendAsync(otherType, CancellationToken.None);
+        await repo.AppendAsync(atEnd, CancellationToken.None);
+
+        DateTime rangeEnd = tStart.AddMinutes(1);
+        AuditEventFilter filter = new()
+        {
+            FromUtc = tStart,
+            ToUtc = rangeEnd,
+            EventType = "ExportFilterMatch",
+            Take = 100
+        };
+
+        IReadOnlyList<AuditEvent> list =
+            await repo.GetFilteredExportAsync(TenantId, WorkspaceId, isolatedProjectId, filter, CancellationToken.None);
+
+        list.Should().HaveCount(2);
+        list.Select(e => e.EventId).Should().Contain(match.EventId);
+        list.Select(e => e.EventId).Should().Contain(atEnd.EventId);
+        list.Should().NotContain(x => x.EventId == otherType.EventId);
+    }
+
     /// <summary>Keyset pagination must not skip rows when multiple events share the same <see cref="AuditEvent.OccurredUtc"/>.</summary>
     [SkippableFact]
     public async Task GetFilteredAsync_KeysetSameOccurredUtc_WithBeforeEventId_pages_deterministically()
