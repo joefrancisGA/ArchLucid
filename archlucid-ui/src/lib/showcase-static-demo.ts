@@ -43,7 +43,7 @@ export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = [
 
 /** Single curated warning matching `manifest.warningCount` for the static showcase. */
 export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = [
-  "Unstructured attachments may still bypass the OCR path during peak; monitor exception volume weekly.",
+  "Some unstructured intake attachments may not receive full PHI minimization coverage during peak exception volume; monitor exception volume weekly.",
 ];
 
 const GENERATED_UTC = "2026-04-23T09:15:00.000Z";

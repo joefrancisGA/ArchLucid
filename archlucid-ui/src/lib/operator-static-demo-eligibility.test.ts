@@ -6,6 +6,7 @@ import {
   tryStaticDemoRunDetail,
   tryStaticDemoRunSummariesPaged,
 } from "@/lib/operator-static-demo";
+import { extractQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-summary-derive";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("operator-static-demo — showcase eligibility without demo env vars", () => {
@@ -26,6 +27,14 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
 
     expect(d).not.toBeNull();
     expect(d?.run.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+  });
+
+  it("tryStaticDemoRunDetail includes agent results with nine findings for quick decision summary", () => {
+    const d = tryStaticDemoRunDetail(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+    expect(d).not.toBeNull();
+    const quick = extractQuickDecisionFindingsFromRunDetail(d!);
+    expect(quick).toHaveLength(9);
   });
 
   it("tryStaticDemoRunSummariesPaged returns null without env when afterAuthorityListFailure is omitted", () => {

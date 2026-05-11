@@ -68,6 +68,6 @@ test.describe("operator journey — run detail to manifest and back", () => {
     await expect(deliverablesRegion.getByText("Markdown Narrative", { exact: true }).first()).toBeVisible();
     await expect(deliverablesRegion.getByText("Intake context diagram", { exact: true }).first()).toBeVisible();
 
-    await expect(page.getByRole("link", { name: "Download review package" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Download evidence package" })).toBeVisible();
   });
 });

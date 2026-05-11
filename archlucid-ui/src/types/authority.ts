@@ -144,6 +144,8 @@ export type RunDetail = {
   trustEvidenceCard?: RunTrustEvidenceCard | null;
   /** Summed trace tokens + USD estimate from GET /v1/authority/runs/{runId} when traces exist. */
   agentExecutionLlmCostEstimate?: RunAgentExecutionLlmCostEstimate | null;
+  /** Live API returns agent `results` with nested `findings`; static demo may inject the same shape. */
+  results?: unknown;
   run: {
     runId: string;
     projectId: string;

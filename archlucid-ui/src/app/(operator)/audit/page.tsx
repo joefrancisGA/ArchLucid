@@ -134,6 +134,29 @@ function tryFormatDataJson(dataJson: string): string {
   }
 }
 
+function auditBuyerActorRoleLine(actorName: string, eventType: string): string {
+  const name = actorName.trim();
+  const lower = name.toLowerCase();
+
+  if (lower.includes("archlucid automation") || lower.includes("automation")) {
+    return "System-recorded";
+  }
+
+  if (name === "Jordan Lee") {
+    return "Reviewer";
+  }
+
+  if (name === "Taylor Morgan") {
+    return "Approver";
+  }
+
+  if (eventType.trim().toLowerCase() === "finalize.run") {
+    return "Approver";
+  }
+
+  return "Participant";
+}
+
 interface AuditFilterFields {
   eventType: string;
   fromUtc: string;
@@ -220,7 +243,19 @@ function AuditTimelineEventCard(props: {
         </p>
       ) : null}
       <div className="mt-1.5 text-sm">
-        Actor: {buyerPolishedShell ? ev.actorUserName : `${ev.actorUserName} (${ev.actorUserId})`}
+        {buyerPolishedShell ? (
+          <div>
+            <span className="font-medium text-neutral-800 dark:text-neutral-200">{ev.actorUserName}</span>
+            <span className="text-neutral-600 dark:text-neutral-400">
+              {" "}
+              · {auditBuyerActorRoleLine(ev.actorUserName, ev.eventType)}
+            </span>
+          </div>
+        ) : (
+          <>
+            Actor: {ev.actorUserName} ({ev.actorUserId})
+          </>
+        )}
       </div>
       {buyerPolishedShell && !hideBuyerReviewLine ? (
         <div className="text-sm">
@@ -655,6 +690,36 @@ export default function AuditPage() {
     return allSame ? firstId : null;
   }, [displayEvents]);
 
+  const buyerAuditTrailSummaryLine = useMemo(() => {
+    if (!buyerPolishedShell || displayEvents.length === 0) {
+      return null;
+    }
+
+    const eventCount = displayEvents.length;
+    const distinctHumans = new Set<string>();
+    let systemRows = 0;
+
+    for (const ev of displayEvents) {
+      const name = (ev.actorUserName ?? "").trim();
+
+      if (name.length === 0) {
+        continue;
+      }
+
+      if (name.toLowerCase().includes("automation")) {
+        systemRows++;
+      } else {
+        distinctHumans.add(name);
+      }
+    }
+
+    const runKey =
+      uniformRunIdForDisplay ?? (runId.trim().length > 0 ? runId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID);
+    const reviewTitle = buyerFacingReviewLinkLabelFromRunId(runKey);
+
+    return `${eventCount} recorded events, ${distinctHumans.size} human actor${distinctHumans.size === 1 ? "" : "s"}, ${systemRows} system-recorded event${systemRows === 1 ? "" : "s"}, all tied to ${reviewTitle}.`;
+  }, [buyerPolishedShell, displayEvents, uniformRunIdForDisplay, runId]);
+
   return (
     <div className="max-w-4xl">
       <LayerHeader pageKey="audit" />
@@ -671,6 +736,14 @@ export default function AuditPage() {
       {buyerPolishedShell ? (
         <p className="mb-3 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
           {auditSearchSectionLeadBuyerPolishedLine}
+        </p>
+      ) : null}
+      {buyerPolishedShell && buyerAuditTrailSummaryLine !== null ? (
+        <p
+          className="mb-3 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm font-medium text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100"
+          data-testid="audit-buyer-summary-line"
+        >
+          {buyerAuditTrailSummaryLine}
         </p>
       ) : null}
 
@@ -697,10 +770,7 @@ export default function AuditPage() {
       <section
         aria-labelledby="audit-search-heading"
         className={cn(
-          "rounded-lg p-3 mb-4 bg-white dark:bg-neutral-950 border",
-          buyerPolishedShell
-            ? "border-dashed border-neutral-300/80 dark:border-neutral-600"
-            : "border-neutral-200 dark:border-neutral-700",
+          "rounded-lg p-3 mb-4 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700",
         )}
       >
         <h3 id="audit-search-heading" className="mt-0 mb-3 text-base">
@@ -1131,18 +1201,18 @@ export default function AuditPage() {
                         ? "Set From and To to enable export"
                         : !exportRoleOk
                           ? auditExportControlDisabledTitle
-                          : "Download audit evidence package (CSV) for the current date range"
+                          : "Download audit evidence (CSV) for the current date range"
                     }
                   >
                     {exporting
                       ? "Exporting…"
                       : csvExportUiAllowed
-                        ? "Download audit evidence"
+                        ? "Download audit evidence (CSV)"
                         : !exportDateRangeReady
                           ? auditExportCsvButtonLabelWindowIncomplete
                           : !exportRoleOk
                             ? auditExportCsvButtonLabelRoleRestricted
-                            : "Download audit evidence"}
+                            : "Download audit evidence (CSV)"}
                   </Button>
                 </div>
               ) : null}

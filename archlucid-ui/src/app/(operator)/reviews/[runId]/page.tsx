@@ -443,7 +443,7 @@ export default async function RunDetailPage({
     ? [
         { id: "manifest-summary", label: "Outcome", available: Boolean(manifestSummary) },
         { id: "trust-evidence", label: "Evidence", available: Boolean(resolvedDetail.trustEvidenceCard) },
-        { id: "run-explanation", label: "Review narrative", available: Boolean(manifestId) },
+        { id: "run-explanation", label: "Assessment", available: Boolean(manifestId) },
         { id: "pipeline-timeline", label: "Activity", available: true },
         { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
       ]
@@ -511,7 +511,7 @@ export default async function RunDetailPage({
     manifestId !== null ? (
       <section id="run-explanation" className="scroll-mt-24">
         <CollapsibleSection
-          title={buyerPolishedArtifactTable ? "Findings & review narrative" : "Architecture review summary"}
+          title={buyerPolishedArtifactTable ? "Findings & assessment" : "Architecture review summary"}
           defaultOpen={buyerPolishedArtifactTable}
         >
           <QuickDecisionSummary runId={runId} findings={quickDecisionFindings} />
@@ -918,7 +918,7 @@ export default async function RunDetailPage({
               {buyerPolishedArtifactTable ? (
                 <p className="m-0 mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
                   Outputs are grouped below by who typically consumes them. Open or download row-by-row; use{" "}
-                  <strong>Download review package</strong> or <strong>More formats</strong> for quick exports, and expand{" "}
+                  <strong>Download evidence package</strong> or <strong>More formats</strong> for quick exports, and expand{" "}
                   <strong>More export options</strong> for additional ZIPs and links. Optional operator tooling stays under{" "}
                   <strong>Advanced — package technical detail</strong>.
                 </p>
@@ -940,7 +940,7 @@ export default async function RunDetailPage({
                     {buyerPolishedArtifactTable ? (
                       <>
                         Try reloading, or return to the review. You can still use{" "}
-                        <strong>Download review package</strong> when the bundle is available.
+                        <strong>Download evidence package</strong> when the bundle is available.
                       </>
                     ) : (
                       <>
@@ -1011,7 +1011,7 @@ export default async function RunDetailPage({
                   <div className="flex flex-wrap items-center gap-3">
                     <Button variant="primary" size="sm" asChild>
                       <FunnelTelemetryExportAnchor href={getBundleDownloadUrl(manifestId)}>
-                        Download review package
+                        Download evidence package
                       </FunnelTelemetryExportAnchor>
                     </Button>
                     <GoldenManifestExportMenu

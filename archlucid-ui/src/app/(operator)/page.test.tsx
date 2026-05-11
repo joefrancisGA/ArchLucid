@@ -42,6 +42,10 @@ vi.mock("@/components/TrialWelcomeRunDeepLink", () => ({
   TrialWelcomeRunDeepLink: () => null,
 }));
 
+vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
+  OperatorWelcomeOnboarding: () => null,
+}));
+
 vi.mock("@/components/PilotOutcomeCard", () => ({
   PilotOutcomeCard: () => <div data-testid="pilot-outcome-mock" aria-hidden />,
 }));

@@ -165,6 +165,35 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
   const manifest = d.manifest;
   const chain = d.authorityChain;
 
+  const quickDecisionFindings = (() => {
+    const findings: Array<Record<string, unknown>> = [
+      {
+        findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+        message: "PHI minimization risk",
+        category: "Compliance",
+        severity: 2,
+        reasoningTrace:
+          "Confirm OCR bypass monitoring and alerting for unstructured attachment paths. Schedule sponsor + privacy review of exception volume before the next release train.",
+      },
+    ];
+
+    for (let i = 0; i < 8; i++) {
+      const synopsis = SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES[i];
+      const title =
+        typeof synopsis === "string" && synopsis.trim().length > 0 ? synopsis.trim() : `Architecture decision ${i + 2}`;
+
+      findings.push({
+        findingId: `${SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID}-${i + 2}`,
+        message: title,
+        category: "Architecture",
+        severity: 1,
+        reasoningTrace: "See finding detail for the decision context and evidence pointers.",
+      });
+    }
+
+    return findings;
+  })();
+
   return {
     executionFlavorBuyerSummary:
       "Finished architecture review package — curated sample with consistent inputs so every evaluator sees the same outcomes. In production, workflows and evidence sources follow your tenant configuration.",
@@ -191,6 +220,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
     decisionTrace: { demo: true },
     goldenManifest: { demo: true },
     artifactBundle: { demo: true },
+    results: [{ findings: quickDecisionFindings }],
   };
 }
 

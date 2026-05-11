@@ -35,26 +35,26 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
 
   const steps: { label: string; done: boolean; detail: string }[] = [
     {
-      label: "Submitted",
+      label: "Submitted for review",
       done: submitted,
       detail: submitted ? `Requested by ${row.requestedBy}` : "Awaiting submission",
     },
     {
-      label: "Reviewed",
+      label: "Architecture review completed",
       done: reviewed,
       detail: reviewed ? `Reviewer ${row.reviewedBy ?? "—"}` : "Pending reviewer action",
     },
     {
-      label: "Approved",
+      label: "Governance approval recorded",
       done: approved,
       detail: approved ? "Governance approval recorded" : row.status.trim() || "Not approved yet",
     },
     {
-      label: "Ready to promote",
+      label: "Eligible for controlled use",
       done: promoteReady,
       detail: promoteReady
         ? `Eligible promotion path: ${governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)}`
-        : "Complete approval before promotion",
+        : "Complete approval before handoff",
     },
   ];
 

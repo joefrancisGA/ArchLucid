@@ -73,7 +73,7 @@ export function OperatorEvidenceLimitsFooter({
       </p>
 
       <details className="m-0 mt-2 rounded-md border border-neutral-200 bg-white/60 p-2 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-950/40 dark:text-neutral-400">
-        <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">Technical scope</summary>
+        <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">Review scope and limitations</summary>
         <p className="m-0 mt-2 leading-relaxed">
           This strip reflects API-reported execution signals only; it does not assert production latency or external
           system health.

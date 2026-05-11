@@ -555,8 +555,9 @@ Acceptance Criteria:
 - **Why it matters:** Reduces reliance on external documentation and guides users to their first successful architecture run, accelerating time-to-value.
 - **Expected impact:** Directly improves Time-to-Value (+5-10 pts), Customer Self-Sufficiency (+10-15 pts), Adoption Friction (+5-10 pts). Weighted readiness impact: +0.5-0.8%.
 - **Affected qualities:** Time-to-Value, Customer Self-Sufficiency, Adoption Friction.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** Complete (Radix Dialog welcome tour; dismissal persisted under localStorage `hasSeenOnboarding`; gated to zero authoritative runs where data is known).
+- **Delivered:** `WelcomeModal` (`archlucid-ui/src/components/ui/welcome-modal.tsx`) — three-step flow with **Get started** → `/reviews/new`, **Quick Scan** → `/quick-start`, browse reviews link; `OperatorWelcomeOnboarding` mounts on operator **home** (`/`), **reviews list** `/reviews` (SSR `welcomeOnboardingEligible`: zero runs, no list error, no static demo fallback inflation), and **Executive summary** `/dashboard` (client run-count probe). Storage helpers: `operator-welcome-onboarding-storage.ts`. Home `page.test.tsx` mocks the host to avoid dialog noise when API returns empty.
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the `archlucid-ui` Next.js application, add a lightweight in-app onboarding sequence for first-time users.
 
@@ -903,8 +904,9 @@ Acceptance Criteria:
 - **Why it matters:** Unblocks enterprise procurement teams that require basic WCAG compliance for internal tools.
 - **Expected impact:** Directly improves Accessibility (+20-30 pts), Procurement Readiness (+5-10 pts). Weighted readiness impact: +0.3-0.5%.
 - **Affected qualities:** Accessibility, Procurement Readiness.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** Complete (desktop `SidebarNav` and `MobileNavDrawer` navigation surfaces now expose clearer labels, preserve keyboard-only traversal, and keep contrast/focus treatment within the existing visual design).
+- **Delivered:** `archlucid-ui/src/components/SidebarNav.tsx` adds labeled nav regions plus accessible disclosure/link metadata (`aria-labelledby`, `aria-describedby`, `aria-current`, `aria-keyshortcuts`) while keeping readable neutral text/focus-ring styling; `archlucid-ui/src/components/MobileNavDrawer.tsx` exposes explicit menu/disclosure labels such as **Open navigation menu** and advanced-toggle assistive labels; `archlucid-ui/src/components/ShellNav.test.tsx` exercises named navigation regions, labeled links, and disclosure behavior so the primary shell nav remains keyboard- and screen-reader-friendly.
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the `archlucid-ui` Next.js application, remediate basic accessibility issues in the main navigation sidebar.
 
@@ -955,8 +957,8 @@ Acceptance Criteria:
 - **Information needed:** Please specify whether we should build simple one-way webhooks or invest in a registered Slack/Teams application for bidirectional interaction.
 
 ## Prompt Batching Guidance
-- **Batch 1 (UI & Value Visibility):** Run Improvement 1 (Executive ROI Dashboard) and Improvement 8 (Scaffold Self-Serve Billing). These establish the commercial and value-driven UI patterns.
-- **Batch 2 (UX & Adoption Friction):** Improvement 6 (Progressive Disclosure) is **complete**. Run Improvement 7 (Onboarding Modal) and Improvement 22 (Accessibility Navigation). These frontend changes drastically reduce the learning curve and improve compliance.
+- **COMPLETED = Batch 1 (UI & Value Visibility):** Run Improvement 1 (Executive ROI Dashboard) and Improvement 8 (Scaffold Self-Serve Billing). These establish the commercial and value-driven UI patterns.
+- **COMPLETED = Batch 2 (UX & Adoption Friction):** Improvements **6** (Progressive Disclosure), **7** (Onboarding Modal), and **22** (Accessibility Navigation) are complete. These frontend changes drastically reduce the learning curve and improve compliance.
 - **Batch 3 (Backend & Templates):** Run Improvement 2 (Quick Start Templates) and Improvement 17 (Compliance Templates). This provides the data structure for reducing adoption friction.
 - **Batch 4 (Backend & Performance):** Run Improvement 5 (Expose LLM Reasoning) and Improvement 9 (Semantic Caching). These address core engineering and explainability concerns.
 - **Batch 5 (Security & CI):** Run Improvement 10 (Gitleaks) and Improvement 16 (Roslyn Analyzer). These enforce security invariants at compile and commit time.

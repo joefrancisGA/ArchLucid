@@ -6,18 +6,27 @@ import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips"
  * Lightweight stand-in when the graph canvas has not loaded — node-kind key and sample nodes
  * so the page does not read as an empty error state.
  */
-export function GraphIdleLegend() {
+export function GraphIdleLegend(props: { readonly buyerPolished?: boolean }) {
+  const buyerPolished = props.buyerPolished === true;
+
   return (
     <div
       className="mb-6 max-w-4xl rounded-lg border-2 border-dashed border-teal-400/85 bg-teal-50/55 p-4 shadow-sm ring-1 ring-teal-300/40 dark:border-teal-600/70 dark:bg-teal-950/35 dark:ring-teal-800/45"
       data-testid="graph-idle-legend"
     >
       <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Graph preview (sample)</p>
-      <p className="m-0 mt-1 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
-        Loaded graphs represent <strong>decisions</strong>, <strong>findings</strong>, <strong>artifacts</strong>,{" "}
-        <strong>review trail events</strong>, and <strong>architecture components</strong> as nodes, with edges for
-        provenance and flow. Use the review and mode controls to load or refresh the graph.
-      </p>
+      {buyerPolished ? (
+        <p className="m-0 mt-1 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+          This graph shows how source context, analysis steps, findings, and deliverables connect to the final signed
+          manifest.
+        </p>
+      ) : (
+        <p className="m-0 mt-1 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+          Loaded graphs represent <strong>decisions</strong>, <strong>findings</strong>, <strong>artifacts</strong>,{" "}
+          <strong>review trail events</strong>, and <strong>architecture components</strong> as nodes, with edges for
+          provenance and flow. Use the review and mode controls to load or refresh the graph.
+        </p>
+      )}
       <GraphNodeKindLegendChips className="mt-3" />
       <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-neutral-500 dark:text-neutral-400">
         <span className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-900">Review</span>

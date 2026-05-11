@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
@@ -573,15 +574,31 @@ function GovernanceWorkflowPageInner() {
         docsPageKey="/governance"
         subtitle={
           buyerPolishedShell
-            ? "The approval path decides whether a finalized review package may advance. After approval, the sealed package can move toward staging or production and go live in the target environment."
+            ? "The approval path records whether a finalized review package is authorized for governed use. After approval, the sealed record is eligible for controlled promotion or handoff per your enterprise change process—ArchLucid records the decision, not production deployment."
             : canMutateWorkflow
               ? governanceWorkflowPageLeadOperator
               : governanceWorkflowPageLeadReader
         }
         helpKey="governance-workflow"
       />
+      {buyerPolishedShell ? (
+        <p
+          className="mb-4 max-w-prose rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"
+          data-testid="governance-buyer-why-matters"
+        >
+          This confirms the review package has passed the required approval sequence before being used for downstream
+          decision-making and audit inquiries.
+        </p>
+      ) : null}
       {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
         <GovernanceApprovalStoryCard row={approvals[0]!} />
+      ) : null}
+      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
+        <div className="mb-6">
+          <Button type="button" asChild variant="outline" size="sm" className="mt-2">
+            <Link href={`/audit?runId=${encodeURIComponent(activeRunId)}`}>Open audit trail</Link>
+          </Button>
+        </div>
       ) : null}
       {!(buyerPolishedShell && approvals.length > 0 && activeRunId !== null) ? (
       <p
