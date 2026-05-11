@@ -13,12 +13,16 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 {
     /// <summary>
     ///     Default <see cref="HttpClient.Timeout" /> is 100s; create-run idempotency uses <c>sp_getapplock</c> with a
-    ///     wait budget up to <c>CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c> (25 minutes in greenfield SQL tests).
-    ///     A single <c>POST /v1/architecture/request</c> can therefore spend ~25 minutes waiting on the lock
-    ///     <strong>and then</strong> run the authority pipeline; the burst/operation token must exceed
-    ///     lock wait + pipeline, and host <see cref="HttpClient.Timeout" /> must be higher still (see test factories).
+    ///     wait budget up to configured <c>ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c>
+    ///     (~25 minutes in greenfield SQL tests). A single <see cref="PostSingleArchitectureRequestAsync" /> call can
+    ///     wait on the lock and then run the authority pipeline (~30-minute <c>AuthorityPipeline:PipelineTimeout</c>).
+    ///     Factories (<see cref="GreenfieldSqlApiFactory" />, <see cref="ArchLucidApiFactory" />) therefore set
+    ///     <see cref="HttpClient.Timeout" /> around <strong>65</strong> minutes for CI slack.
+    ///     Any per-operation CTS (e.g. transient 503 retry loops in integration tests) must meet or exceed that ceiling
+    ///     plus backoff headroom — never below the factory HTTP timeout or a hung first attempt cancels before the pipeline
+    ///     finishes despite the longer <see cref="HttpClient.Timeout" />.
     /// </summary>
-    internal static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(55);
+    internal static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(65);
 
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {

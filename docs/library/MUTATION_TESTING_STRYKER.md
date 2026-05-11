@@ -26,12 +26,13 @@ The repo includes **`stryker-config.persistence.json`** (and the equivalent root
 - **`stryker-config.api.json`** — `ArchLucid.Api` + `ArchLucid.Api.Tests` (scheduled workflow label **Api**, added 2026-04-20). HTTP wiring code is mutation-rich, so this config starts at an honest **`thresholds.break = 55`** floor and a baseline of **55.0**, not the **70** used by the older configs. The intent is to ratchet upward on every `refresh_stryker_baselines.py` run that follows a coverage uplift PR — see § "API target (advisory ratchet)" below.
 - **`stryker-config.decisioning-merge.json`** — mutates only **`ArchLucid.Decisioning/Merge/**/*.cs`** (label **DecisioningMerge**). Baseline **55.0** / **break 55** until CI establishes a measured ratchet (seven-improvements 2026-04-21).
 - **`stryker-config.application-governance.json`** — mutates only **`ArchLucid.Application/Governance/**/*.cs`** (label **ApplicationGovernance**). Same baseline policy as **DecisioningMerge**.
+- **`stryker-config.application-commit-critical-paths.json`** — mutates **`Governance/**/*.cs`**, **`AuthorityDrivenArchitectureRunCommitOrchestrator.cs`**, and **`ManifestFinalizationService.cs`** with a narrow **`test-case-filter`** (label **ApplicationCommitCriticalPaths**). Baseline **55.0** / **break 55**; narrative for procurement-readiness workstreams: **[`docs/testing/MUTATION_TESTING_CRITICAL_PATHS.md`](../testing/MUTATION_TESTING_CRITICAL_PATHS.md)**.
 
 Each config enables **`json`** alongside `progress` and `html` so CI can parse **`mutation-report.json`** (mutation-testing-elements schema).
 
 **Latest ratchet (2026-04-17):** committed **`stryker-baselines.json`** scores for **Persistence**, **Application**, **AgentRuntime**, **Coordinator**, **Decisioning**, and **PersistenceCoordination** were raised **+3.0** percentage points (**67.0 → 70.0**) toward the **75** stretch goal, without changing **`thresholds.break`** (**70**) in the Stryker configs.
 
-Scheduled CI runs all **nine** matrix targets (Persistence, Application, AgentRuntime, Coordinator, Decisioning, PersistenceCoordination, Api, DecisioningMerge, ApplicationGovernance) with **`-s ArchLucid.sln`** (avoids ambiguity when multiple `.sln` files exist), uploads **`StrykerOutput`** as an artifact, then runs **`scripts/ci/assert_stryker_score_vs_baseline.py`** against committed scores in **`scripts/ci/stryker-baselines.json`** (default tolerance **0.10** percentage points below baseline → fail). This is a **regression guard** on top of each config’s **`thresholds.break`** (mostly **70**; Api starts at **55** — see § API target).
+Scheduled CI runs all **ten** matrix targets (Persistence, Application, AgentRuntime, Coordinator, Decisioning, PersistenceCoordination, Api, DecisioningMerge, ApplicationGovernance, ApplicationCommitCriticalPaths) with **`-s ArchLucid.sln`** (avoids ambiguity when multiple `.sln` files exist), uploads **`StrykerOutput`** as an artifact, then runs **`scripts/ci/assert_stryker_score_vs_baseline.py`** against committed scores in **`scripts/ci/stryker-baselines.json`** (default tolerance **0.10** percentage points below baseline → fail). This is a **regression guard** on top of each config’s **`thresholds.break`** (mostly **70**; Api and scoped Application configs start at **55** — see § API target).
 
 **Why baselines should track observed scores:** When baseline and **`thresholds.break`** are equal (currently **70**), the assert script still enforces **baseline − 0.10** pp. Prefer **observed green scores** from **`refresh_stryker_baselines.py`** (rounded **down** to one decimal, e.g. 78.37 → **78.3**) so regressions inside the passing band are caught; ratchet **up** when measured scores justify it (e.g. **72**), never down without a product decision. See **`docs/STRYKER_RATchet_TARGET_72.md`** for a safe sequence to move baselines and **`thresholds.low` / `thresholds.break`** to **72** without breaking the scheduled workflow.
 
@@ -67,6 +68,7 @@ dotnet dotnet-stryker -f stryker-config.coordinator.json -s ArchLucid.sln
 dotnet dotnet-stryker -f stryker-config.decisioning.json -s ArchLucid.sln
 dotnet dotnet-stryker -f stryker-config.persistence-coordination.json -s ArchLucid.sln
 dotnet dotnet-stryker -f stryker-config.api.json -s ArchLucid.sln
+dotnet dotnet-stryker -f stryker-config.application-commit-critical-paths.json -s ArchLucid.sln
 ```
 
 ## API target (advisory ratchet)
@@ -94,7 +96,7 @@ Workflow **`.github/workflows/stryker-pr.yml`** runs on **`pull_request`** to **
 
 | Step | Behavior |
 |------|----------|
-| **Plan** | `scripts/ci/stryker_pr_plan.py` diffs `base.sha...head.sha` and maps touched paths to one or more Stryker configs (same **nine** targets as the weekly matrix, including **Api**, **DecisioningMerge**, and **ApplicationGovernance**). |
+| **Plan** | `scripts/ci/stryker_pr_plan.py` diffs `base.sha...head.sha` and maps touched paths to one or more Stryker configs (same **ten** targets as the weekly matrix, including **Api**, **DecisioningMerge**, **ApplicationGovernance**, and **ApplicationCommitCriticalPaths**). |
 | **Triggers full matrix** | Any `stryker-config*.json` at repo root, `stryker-baselines.json`, assert script, this planner, `stryker-pr.yml` / `stryker-scheduled.yml`, or `.config/dotnet-tools.json`. |
 | **Run** | For each selected target: `dotnet dotnet-stryker -f <config> -s ArchLucid.sln --since:<base_sha>` so only mutants in the PR diff are exercised (faster than a full run). |
 | **Assert** | Same `scripts/ci/assert_stryker_score_vs_baseline.py` as the weekly job, plus **`--allow-zero-denominator`** when the diff scope has no scored mutants (skip compare instead of failing at 0%). |
@@ -123,4 +125,4 @@ Current target: raise all modules to **70+** (aligned with **`thresholds.break`*
 
 Flaky tests will show as “survived” or inconsistent mutants. Fix test isolation before trusting mutation scores.
 
-On **Windows**, stop other **`dotnet test`** / **`testhost`** processes before local Stryker runs; locked **`bin\Debug\*.dll`** copies under unrelated test projects can make Stryker’s compile step fail with “file is being used by another process.”
+On **Windows**, stop other **`dotnet test`** / **`testhost`** processes before local Stryker runs; locked **`bin\Debug\*.dll`** copies under unrelated test projects can make Stryker’s compile step fail with “file is being used by another process.” Prefer **scheduled CI** or **`workflow_dispatch`** on **`.github/workflows/stryker-scheduled.yml`** for the heavy scoped target **`ApplicationCommitCriticalPaths`** — see **[`docs/testing/MUTATION_TESTING_CRITICAL_PATHS.md`](../testing/MUTATION_TESTING_CRITICAL_PATHS.md)**.

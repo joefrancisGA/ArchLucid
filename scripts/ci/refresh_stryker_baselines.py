@@ -41,6 +41,10 @@ STRYKER_TARGETS: list[tuple[str, str]] = [
     # Scoped namespaces (Quality Assessment seven-improvements 2026-04-21): ratchet via CI after first green run.
     ("DecisioningMerge", "stryker-config.decisioning-merge.json"),
     ("ApplicationGovernance", "stryker-config.application-governance.json"),
+    (
+        "ApplicationCommitCriticalPaths",
+        "stryker-config.application-commit-critical-paths.json",
+    ),
 ]
 
 

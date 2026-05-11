@@ -30,12 +30,16 @@ function IdentityHarness() {
 }
 
 describe("WizardStepIdentity", () => {
-  it("renders system name, environment, and cloud provider controls", () => {
+  it("renders system name, environment, cloud provider controls, and manifest baseline behind Advanced Options", () => {
     render(<IdentityHarness />);
 
     expect(screen.getByLabelText("System name")).toBeInTheDocument();
     expect(screen.getByText("Environment")).toBeInTheDocument();
     expect(screen.getByText("Cloud provider")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Prior manifest version (optional)")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /advanced options/i }));
+
     expect(screen.getByLabelText("Prior manifest version (optional)")).toBeInTheDocument();
   });
 

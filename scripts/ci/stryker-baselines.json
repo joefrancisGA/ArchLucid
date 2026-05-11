@@ -7,5 +7,6 @@
   "PersistenceCoordination": { "mutationScore": 70.0 },
   "Api": { "mutationScore": 55.0 },
   "DecisioningMerge": { "mutationScore": 55.0 },
-  "ApplicationGovernance": { "mutationScore": 55.0 }
+  "ApplicationGovernance": { "mutationScore": 55.0 },
+  "ApplicationCommitCriticalPaths": { "mutationScore": 55.0 }
 }

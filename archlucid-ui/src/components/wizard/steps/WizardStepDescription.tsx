@@ -2,6 +2,7 @@
 
 import { Controller, useFormContext } from "react-hook-form";
 
+import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
@@ -84,36 +85,38 @@ export function WizardStepDescription() {
           </p>
         </div>
 
-        <div>
-          <WizardFieldHint
-            htmlFor="wizard-inline-req-0"
-            label="Inline requirements"
-            hint="Supplementary requirements beyond the description. One per line item."
-          />
-          <WizardFieldError
-            id="err-wizard-inline-req"
-            message={inlineReqErr != null ? String(inlineReqErr) : undefined}
-          />
-          <div className="space-y-3">
-            {inlineRequirements.map((line, index) => (
-              <div key={`inline-${index}`} className="flex gap-2">
-                <Textarea
-                  id={index === 0 ? "wizard-inline-req-0" : undefined}
-                  rows={3}
-                  className="min-h-[72px] flex-1"
-                  value={line}
-                  onChange={(e) => updateInlineRequirement(index, e.target.value)}
-                />
-                <Button type="button" variant="outline" onClick={() => removeInlineRequirement(index)}>
-                  Remove
-                </Button>
-              </div>
-            ))}
-            <Button type="button" variant="secondary" onClick={appendInlineRequirement}>
-              Add requirement
-            </Button>
+        <AdvancedOptionsAccordion className="mt-2">
+          <div>
+            <WizardFieldHint
+              htmlFor="wizard-inline-req-0"
+              label="Inline requirements"
+              hint="Supplementary requirements beyond the description. One per line item."
+            />
+            <WizardFieldError
+              id="err-wizard-inline-req"
+              message={inlineReqErr != null ? String(inlineReqErr) : undefined}
+            />
+            <div className="space-y-3">
+              {inlineRequirements.map((line, index) => (
+                <div key={`inline-${index}`} className="flex gap-2">
+                  <Textarea
+                    id={index === 0 ? "wizard-inline-req-0" : undefined}
+                    rows={3}
+                    className="min-h-[72px] flex-1"
+                    value={line}
+                    onChange={(e) => updateInlineRequirement(index, e.target.value)}
+                  />
+                  <Button type="button" variant="outline" onClick={() => removeInlineRequirement(index)}>
+                    Remove
+                  </Button>
+                </div>
+              ))}
+              <Button type="button" variant="secondary" onClick={appendInlineRequirement}>
+                Add requirement
+              </Button>
+            </div>
           </div>
-        </div>
+        </AdvancedOptionsAccordion>
       </div>
     </WizardStepPanel>
   );

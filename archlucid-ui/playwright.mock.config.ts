@@ -45,6 +45,8 @@ export default defineConfig({
     {
       name: "chromium-visual",
       testDir: "tests/e2e",
+      /** Full-page screenshots + mock webServer warm-up can exceed the default 30s on busy agents. */
+      timeout: 60_000,
       use: { ...devices["Desktop Chrome"] },
       testMatch: "**/*.spec.ts",
     },

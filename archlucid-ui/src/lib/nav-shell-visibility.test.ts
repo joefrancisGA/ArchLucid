@@ -517,7 +517,6 @@ describe("committed architecture review gate — operator shell composition", ()
       "/",
       "/reviews/new",
       "/reviews?projectId=default",
-      "/dashboard",
     ]);
   });
 });

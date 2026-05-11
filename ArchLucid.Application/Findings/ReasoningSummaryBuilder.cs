@@ -58,10 +58,7 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
         if (!string.IsNullOrWhiteSpace(name))
             return name;
 
-        if (!string.IsNullOrWhiteSpace(id))
-            return $"rule '{id}' applied";
-
-        return null;
+        return !string.IsNullOrWhiteSpace(id) ? $"rule '{id}' applied" : null;
     }
 
     private static string? ResolveTopEvidenceSummary(IReadOnlyList<FindingInspectEvidenceItem> evidence)

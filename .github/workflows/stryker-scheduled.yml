@@ -1,8 +1,7 @@
 # Weekly mutation testing: Persistence, Application, AgentRuntime, Coordinator, Decisioning,
-# PersistenceCoordination, Api, DecisioningMerge, ApplicationGovernance — see docs/MUTATION_TESTING_STRYKER.md
-# (Stryker configs table). Api is the newest target (Quality Assessment 2026-04-20 § Improvement 4)
-# and uses an honest 55.0 floor; it stays in this matrix for visibility but is treated as advisory
-# until a coverage uplift PR ratchets the baseline.
+# PersistenceCoordination, Api, DecisioningMerge, ApplicationGovernance, ApplicationCommitCriticalPaths —
+# see docs/library/MUTATION_TESTING_STRYKER.md (Stryker configs table).
+# Api and scoped Application configs use honest 55.0 baseline floors where mutation density is high.
 name: Stryker (scheduled)
 
 on:
@@ -39,6 +38,8 @@ jobs:
             config: stryker-config.decisioning-merge.json
           - label: ApplicationGovernance
             config: stryker-config.application-governance.json
+          - label: ApplicationCommitCriticalPaths
+            config: stryker-config.application-commit-critical-paths.json
     steps:
       - uses: actions/checkout@v5
 

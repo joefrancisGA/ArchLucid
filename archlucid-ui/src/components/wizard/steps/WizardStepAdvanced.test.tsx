@@ -6,7 +6,7 @@ import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-util
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 describe("WizardStepAdvanced", () => {
-  it("keeps each advanced section collapsed by default", () => {
+  it("keeps the Radix Advanced Options panel closed by default", () => {
     const { container, getByRole } = render(
       <TooltipProvider delayDuration={0}>
         <WizardFormTestHarness>
@@ -15,8 +15,13 @@ describe("WizardStepAdvanced", () => {
       </TooltipProvider>,
     );
 
-    fireEvent.click(getByRole("button", { name: "Advanced" }));
+    const advancedTrigger = getByRole("button", { name: /advanced options/i });
+    expect(advancedTrigger.getAttribute("aria-expanded")).toBe("false");
 
+    // Nested <details> sections mount only when the outer Radix collapsible is open.
+    expect(container.querySelectorAll("details").length).toBe(0);
+
+    fireEvent.click(advancedTrigger);
     const details = container.querySelectorAll("details");
     expect(details.length).toBeGreaterThanOrEqual(5);
     details.forEach((el) => {
@@ -24,7 +29,7 @@ describe("WizardStepAdvanced", () => {
     });
   });
 
-  it("reveals the policy reference input area when the section is expanded", () => {
+  it("reveals nested policy reference input after opening Advanced Options and the policy section", () => {
     const { container, getByRole } = render(
       <TooltipProvider delayDuration={0}>
         <WizardFormTestHarness>
@@ -33,7 +38,7 @@ describe("WizardStepAdvanced", () => {
       </TooltipProvider>,
     );
 
-    fireEvent.click(getByRole("button", { name: "Advanced" }));
+    fireEvent.click(getByRole("button", { name: /advanced options/i }));
 
     const policyDetails = Array.from(container.querySelectorAll("details")).find((d) =>
       d.textContent?.includes("Policy references"),
@@ -58,7 +63,7 @@ describe("WizardStepAdvanced", () => {
       </TooltipProvider>,
     );
 
-    fireEvent.click(getByRole("button", { name: "Advanced" }));
+    fireEvent.click(getByRole("button", { name: /advanced options/i }));
 
     const policyDetails = Array.from(container.querySelectorAll("details")).find((d) =>
       d.textContent?.includes("Policy references"),

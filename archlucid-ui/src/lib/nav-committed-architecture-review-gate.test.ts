@@ -7,12 +7,12 @@ import {
 } from "@/lib/nav-committed-architecture-review-gate";
 
 describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
-  it("allows home, reviews, and sponsor ROI dashboard surfaces before first commit", () => {
+  it("allows home and review workflow surfaces before first commit, not executive summary", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/new")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/reviews/abc/def")).toBe(true);
-    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/dashboard")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/dashboard")).toBe(false);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/governance/findings")).toBe(false);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/onboarding")).toBe(false);
   });
@@ -42,6 +42,6 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
     expect(thin.every((l) => pathnameEligibleBeforeFirstCommittedArchitectureReview(l.href.split("?")[0] ?? ""))).toBe(
       true,
     );
-    expect(hrefs.every((h) => h === "/" || h === "/dashboard" || h.startsWith("/reviews"))).toBe(true);
+    expect(hrefs.every((h) => h === "/" || h.startsWith("/reviews"))).toBe(true);
   });
 });

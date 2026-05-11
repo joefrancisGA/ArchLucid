@@ -2,6 +2,7 @@
 
 import { Controller, useFormContext } from "react-hook-form";
 
+import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -141,25 +142,27 @@ export function WizardStepIdentity() {
 
         <Separator />
 
-        <div>
-          <WizardFieldHint
-            htmlFor="wizard-priorManifest"
-            label="Prior manifest version (optional)"
-            hint="Leave blank for greenfield. Enter a version string to use as baseline for incremental changes."
-          />
-          <Input
-            id="wizard-priorManifest"
-            autoComplete="off"
-            aria-invalid={priorErr != null && String(priorErr).length > 0}
-            aria-describedby={priorErr ? "err-wizard-priorManifest" : undefined}
-            {...register("priorManifestVersion", {
-              onChange: () => {
-                clearErrors("priorManifestVersion");
-              },
-            })}
-          />
-          <WizardFieldError id="err-wizard-priorManifest" message={priorErr != null ? String(priorErr) : undefined} />
-        </div>
+        <AdvancedOptionsAccordion>
+          <div>
+            <WizardFieldHint
+              htmlFor="wizard-priorManifest"
+              label="Prior manifest version (optional)"
+              hint="Leave blank for greenfield. Enter a version string to use as baseline for incremental changes."
+            />
+            <Input
+              id="wizard-priorManifest"
+              autoComplete="off"
+              aria-invalid={priorErr != null && String(priorErr).length > 0}
+              aria-describedby={priorErr ? "err-wizard-priorManifest" : undefined}
+              {...register("priorManifestVersion", {
+                onChange: () => {
+                  clearErrors("priorManifestVersion");
+                },
+              })}
+            />
+            <WizardFieldError id="err-wizard-priorManifest" message={priorErr != null ? String(priorErr) : undefined} />
+          </div>
+        </AdvancedOptionsAccordion>
       </div>
     </WizardStepPanel>
   );

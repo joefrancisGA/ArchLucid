@@ -127,6 +127,7 @@ Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config
 | `stryker-config.api.json` | `ArchLucid.Api` | `ArchLucid.Api.Tests` |
 | `stryker-config.decisioning-merge.json` | `ArchLucid.Decisioning` (`**/Merge/**/*.cs` only) | `ArchLucid.Decisioning.Tests` |
 | `stryker-config.application-governance.json` | `ArchLucid.Application` (`**/Governance/**/*.cs` only) | `ArchLucid.Application.Tests` |
+| `stryker-config.application-commit-critical-paths.json` | `ArchLucid.Application` (governance + commit orchestrator + manifest finalization — see [`docs/testing/MUTATION_TESTING_CRITICAL_PATHS.md`](../testing/MUTATION_TESTING_CRITICAL_PATHS.md)) | `ArchLucid.Application.Tests` |
 
 ### k6 performance smoke (Tier 2c — CI automated)
 
