@@ -7,6 +7,7 @@ using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
@@ -51,6 +52,7 @@ public sealed class RunQueryController(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IFindingEvidenceChainService findingEvidenceChainService,
     IFindingInspectReadRepository findingInspectReadRepository,
+    IReasoningSummaryBuilder reasoningSummaryBuilder,
     IScopeContextProvider scopeContextProvider,
     ITraceabilityBundleBuilder traceabilityBundleBuilder,
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
@@ -441,7 +443,7 @@ public sealed class RunQueryController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        return Ok(body);
+        return Ok(body.WithReasoningSummaryFromBuilder(reasoningSummaryBuilder));
     }
 
     /// <summary>ZIP bundle: run summary, audit slice for the run, and decision traces (size-capped).</summary>

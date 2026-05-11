@@ -13,6 +13,8 @@ export type FindingInspectPayload = {
   decisionRuleId: string | null;
   decisionRuleName: string | null;
   evidence: FindingInspectEvidence[];
+  /** Deterministic template-built narrative from inspect API when metadata is sufficient. */
+  reasoningSummary?: string | null;
   /** Ordered recommended actions from the finding engine. Empty array when none were produced. */
   recommendedActions: string[];
   auditRowId: string | null;

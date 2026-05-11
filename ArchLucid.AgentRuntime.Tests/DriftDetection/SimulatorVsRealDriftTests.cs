@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
 
-using ArchLucid.AgentRuntime;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
@@ -77,7 +76,7 @@ public sealed class SimulatorVsRealDriftTests
             List<AgentTask> tasksSim = GoldenCohortDriftScenarioFixtures.BuildStandardQuad(runSim);
 
             IReadOnlyList<AgentResult> simResults =
-                await simulator.ExecuteAsync(runSim, request, evidenceSim, tasksSim);
+                await simulator.ExecuteAsync(runSim, request, evidenceSim, tasksSim, cts.Token);
 
             GoldenCohortDriftFindingSummary simSummary = GoldenCohortDriftSignalExtractor.Extract(simResults);
 

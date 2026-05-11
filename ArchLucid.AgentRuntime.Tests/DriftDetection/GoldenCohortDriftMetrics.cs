@@ -38,7 +38,7 @@ internal static class GoldenCohortDriftMetrics
         if (left.Count == 0 && right.Count == 0)
             return 1d;
 
-        int inter = left.Count(x => right.Contains(x));
+        int inter = left.Count(right.Contains);
 
         int union = left.Count + right.Count - inter;
 

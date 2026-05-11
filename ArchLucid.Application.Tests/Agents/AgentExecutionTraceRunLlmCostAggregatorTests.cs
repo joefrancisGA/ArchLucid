@@ -36,7 +36,7 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
 
         List<AgentExecutionTrace> traces =
         [
-            new AgentExecutionTrace
+            new()
             {
                 ModelDeploymentName = AgentExecutionTraceModelMetadata.SimulatorDeploymentName,
                 InputTokenCount = null,
@@ -70,13 +70,13 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
 
         List<AgentExecutionTrace> traces =
         [
-            new AgentExecutionTrace
+            new()
             {
                 ModelDeploymentName = "dep-b",
                 InputTokenCount = 50,
                 OutputTokenCount = 10,
             },
-            new AgentExecutionTrace
+            new()
             {
                 ModelDeploymentName = "dep-a",
                 InputTokenCount = 100,
@@ -104,7 +104,7 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
 
         List<AgentExecutionTrace> traces =
         [
-            new AgentExecutionTrace
+            new()
             {
                 ModelDeploymentName = AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName,
                 InputTokenCount = 10,

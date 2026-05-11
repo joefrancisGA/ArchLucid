@@ -342,7 +342,16 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
     },
     decisionRuleId: "phi.minimization.intake",
     decisionRuleName: "PHI minimization at intake",
-    evidence: [],
+    evidence: [
+      {
+        artifactId: null,
+        lineRange: null,
+        excerpt:
+          "Claims intake subgraph retains qualifying attachment metadata used for downstream adjudication references.",
+      },
+    ],
+    reasoningSummary:
+      "This warning finding was triggered because PHI minimization at intake. The evidence shows Claims intake subgraph retains qualifying attachment metadata used for downstream adjudication references. The recommendation to Confirm OCR bypass monitoring and alerting for unstructured attachment paths. addresses Compliance.",
     recommendedActions: [
       "Confirm OCR bypass monitoring and alerting for unstructured attachment paths.",
       "Schedule sponsor + privacy review of exception volume before the next release train.",

@@ -41,7 +41,7 @@ internal sealed class JiraIssueCreateInProcessMockServer : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        _runCts.Cancel();
+        await _runCts.CancelAsync();
 
         try
         {

@@ -89,7 +89,7 @@ internal static class GoldenCohortDriftSummaryGenerator
 
         md.AppendLine("## Latest averages");
         md.AppendLine();
-        md.AppendLine($"| Metric | Average |");
+        md.AppendLine("| Metric | Average |");
         md.AppendLine("| --- | --- |");
         md.AppendLine($"| Severity divergence (0-1) | {avgSev.ToString("F4", CultureInfo.InvariantCulture)} |");
         md.AppendLine($"| Title overlap (Jaccard) | {avgTitle.ToString("F4", CultureInfo.InvariantCulture)} |");

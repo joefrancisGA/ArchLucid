@@ -1814,7 +1814,7 @@ jobs:
         run: |
           npm ci
           npm run lint
-          npx tsc --noEmit -p tsconfig.json
+          npm run typecheck
           npm run build
 
   ui-playwright-mock-smoke:

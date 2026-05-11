@@ -13,7 +13,7 @@ internal static class GoldenCohortDriftSignalExtractor
 
         foreach (AgentResult result in results)
         {
-            foreach (ArchitectureFinding finding in result.Findings ?? [])
+            foreach (ArchitectureFinding finding in result.Findings)
             {
                 summary.FindingCount++;
 
@@ -27,12 +27,9 @@ internal static class GoldenCohortDriftSignalExtractor
                     summary.NormalizedTitles.Add(titleFp);
             }
 
-            foreach (string claim in result.Claims ?? [])
+            foreach (string fp in (result.Claims ?? []).Select(NormalizeFingerprint).Where(fp => fp.Length > 0))
             {
-                string fp = NormalizeFingerprint(claim);
-
-                if (fp.Length > 0)
-                    summary.NormalizedRecommendations.Add(fp);
+                summary.NormalizedRecommendations.Add(fp);
             }
         }
 
