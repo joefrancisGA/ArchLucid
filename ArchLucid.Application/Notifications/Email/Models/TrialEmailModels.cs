@@ -1,145 +1,80 @@
 namespace ArchLucid.Application.Notifications.Email.Models;
 
-public sealed record TrialWelcomeEmailModel
+public sealed record TrialWelcomeEmailModel(string OrganizationHint, string ProductName, string? LogoImageUrl = null)
 {
     public string OrganizationHint
     {
         get;
         init;
-    }
+    } = OrganizationHint ?? throw new ArgumentNullException(nameof(OrganizationHint));
 
     public string ProductName
     {
         get;
         init;
-    }
-
-    public string? LogoImageUrl
-    {
-        get;
-        init;
-    }
-
-    public TrialWelcomeEmailModel(string organizationHint, string productName, string? logoImageUrl = null)
-    {
-        OrganizationHint = organizationHint ?? throw new ArgumentNullException(nameof(organizationHint));
-        ProductName = productName ?? throw new ArgumentNullException(nameof(productName));
-        LogoImageUrl = logoImageUrl;
-    }
+    } = ProductName ?? throw new ArgumentNullException(nameof(ProductName));
 }
 
-public sealed record TrialFirstRunEmailModel
+public sealed record TrialFirstRunEmailModel(string ProductName, string GettingStartedUrl, string? LogoImageUrl = null)
 {
     public string ProductName
     {
         get;
         init;
-    }
+    } = ProductName ?? throw new ArgumentNullException(nameof(ProductName));
 
     public string GettingStartedUrl
     {
         get;
         init;
-    }
-
-    public string? LogoImageUrl
-    {
-        get;
-        init;
-    }
-
-    public TrialFirstRunEmailModel(string productName, string gettingStartedUrl, string? logoImageUrl = null)
-    {
-        ProductName = productName ?? throw new ArgumentNullException(nameof(productName));
-        GettingStartedUrl = gettingStartedUrl ?? throw new ArgumentNullException(nameof(gettingStartedUrl));
-        LogoImageUrl = logoImageUrl;
-    }
+    } = GettingStartedUrl ?? throw new ArgumentNullException(nameof(GettingStartedUrl));
 }
 
-public sealed record TrialMidTrialEmailModel
+public sealed record TrialMidTrialEmailModel(string ProductName, string DashboardUrl, string? LogoImageUrl = null)
 {
     public string ProductName
     {
         get;
         init;
-    }
+    } = ProductName ?? throw new ArgumentNullException(nameof(ProductName));
 
     public string DashboardUrl
     {
         get;
         init;
-    }
-
-    public string? LogoImageUrl
-    {
-        get;
-        init;
-    }
-
-    public TrialMidTrialEmailModel(string productName, string dashboardUrl, string? logoImageUrl = null)
-    {
-        ProductName = productName ?? throw new ArgumentNullException(nameof(productName));
-        DashboardUrl = dashboardUrl ?? throw new ArgumentNullException(nameof(dashboardUrl));
-        LogoImageUrl = logoImageUrl;
-    }
+    } = DashboardUrl ?? throw new ArgumentNullException(nameof(DashboardUrl));
 }
 
 public sealed record TrialApproachingRunLimitEmailModel(string ProductName, int RunsUsed, int RunsLimit, string? LogoImageUrl = null);
 
 public sealed record TrialExpiringSoonEmailModel(string ProductName, int DaysRemaining, string? LogoImageUrl = null);
 
-public sealed record TrialExpiredEmailModel
+public sealed record TrialExpiredEmailModel(string ProductName, string ExportHelpUrl, string? LogoImageUrl = null)
 {
     public string ProductName
     {
         get;
         init;
-    }
+    } = ProductName ?? throw new ArgumentNullException(nameof(ProductName));
 
     public string ExportHelpUrl
     {
         get;
         init;
-    }
-
-    public string? LogoImageUrl
-    {
-        get;
-        init;
-    }
-
-    public TrialExpiredEmailModel(string productName, string exportHelpUrl, string? logoImageUrl = null)
-    {
-        ProductName = productName ?? throw new ArgumentNullException(nameof(productName));
-        ExportHelpUrl = exportHelpUrl ?? throw new ArgumentNullException(nameof(exportHelpUrl));
-        LogoImageUrl = logoImageUrl;
-    }
+    } = ExportHelpUrl ?? throw new ArgumentNullException(nameof(ExportHelpUrl));
 }
 
-public sealed record TrialConvertedEmailModel
+public sealed record TrialConvertedEmailModel(string ProductName, string Tier, string? LogoImageUrl = null)
 {
     public string ProductName
     {
         get;
         init;
-    }
+    } = ProductName ?? throw new ArgumentNullException(nameof(ProductName));
 
     public string Tier
     {
         get;
         init;
-    }
-
-    public string? LogoImageUrl
-    {
-        get;
-        init;
-    }
-
-    public TrialConvertedEmailModel(string productName, string tier, string? logoImageUrl = null)
-    {
-        ProductName = productName ?? throw new ArgumentNullException(nameof(productName));
-        Tier = tier ?? throw new ArgumentNullException(nameof(tier));
-        LogoImageUrl = logoImageUrl;
-    }
+    } = Tier ?? throw new ArgumentNullException(nameof(Tier));
 }

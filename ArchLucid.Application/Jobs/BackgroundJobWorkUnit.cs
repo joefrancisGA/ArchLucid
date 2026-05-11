@@ -11,61 +11,47 @@ namespace ArchLucid.Application.Jobs;
 public abstract record BackgroundJobWorkUnit;
 
 /// <summary>Standard analysis report exported as DOCX.</summary>
-public sealed record AnalysisReportDocxWorkUnit : BackgroundJobWorkUnit
+[method: JsonConstructor]
+public sealed record AnalysisReportDocxWorkUnit(AnalysisReportDocxJobPayload Payload, string FileName, string ContentType) : BackgroundJobWorkUnit
 {
     public AnalysisReportDocxJobPayload Payload
     {
         get;
         init;
-    }
+    } = Payload ?? throw new ArgumentNullException(nameof(Payload));
 
     public string FileName
     {
         get;
         init;
-    }
+    } = FileName ?? throw new ArgumentNullException(nameof(FileName));
 
     public string ContentType
     {
         get;
         init;
-    }
-
-    [JsonConstructor]
-    public AnalysisReportDocxWorkUnit(AnalysisReportDocxJobPayload payload, string fileName, string contentType)
-    {
-        Payload = payload ?? throw new ArgumentNullException(nameof(payload));
-        FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
-        ContentType = contentType ?? throw new ArgumentNullException(nameof(contentType));
-    }
+    } = ContentType ?? throw new ArgumentNullException(nameof(ContentType));
 }
 
 /// <summary>Consulting-style analysis report exported as DOCX.</summary>
-public sealed record ConsultingDocxWorkUnit : BackgroundJobWorkUnit
+[method: JsonConstructor]
+public sealed record ConsultingDocxWorkUnit(ConsultingDocxJobPayload Payload, string FileName, string ContentType) : BackgroundJobWorkUnit
 {
     public ConsultingDocxJobPayload Payload
     {
         get;
         init;
-    }
+    } = Payload ?? throw new ArgumentNullException(nameof(Payload));
 
     public string FileName
     {
         get;
         init;
-    }
+    } = FileName ?? throw new ArgumentNullException(nameof(FileName));
 
     public string ContentType
     {
         get;
         init;
-    }
-
-    [JsonConstructor]
-    public ConsultingDocxWorkUnit(ConsultingDocxJobPayload payload, string fileName, string contentType)
-    {
-        Payload = payload ?? throw new ArgumentNullException(nameof(payload));
-        FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
-        ContentType = contentType ?? throw new ArgumentNullException(nameof(contentType));
-    }
+    } = ContentType ?? throw new ArgumentNullException(nameof(ContentType));
 }
