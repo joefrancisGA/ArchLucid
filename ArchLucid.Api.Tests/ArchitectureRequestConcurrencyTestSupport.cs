@@ -1,4 +1,5 @@
 using System.Net;
+using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -16,7 +17,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     ///     Parallel POSTs serialize on that lock; cold CI SQL + greenfield create-run can keep contenders blocked well
     ///     beyond the default <see cref="HttpClient.Timeout" /> (100s) unless the client and per-burst token are raised.
     /// </summary>
-    private static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(25);
+    internal static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(25);
 
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -83,7 +84,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         string idempotencyKey,
         CancellationToken cancellationToken)
     {
-        HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
         {
             Content = JsonContent(body)
         };
@@ -93,9 +94,45 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         HttpResponseMessage response =
             await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
-        await response.Content.LoadIntoBufferAsync(cancellationToken);
+        try
+        {
+            await response.Content.LoadIntoBufferAsync(cancellationToken);
+            return response;
+        }
+        catch (Exception ex) when (ShouldTreatAsCanceledResponseBuffering(ex, cancellationToken))
+        {
+            response.Dispose();
+            throw new OperationCanceledException(
+                "Response buffering was aborted after the request cancellation token fired.",
+                ex,
+                cancellationToken);
+        }
+    }
 
-        return response;
+    private static bool ShouldTreatAsCanceledResponseBuffering(Exception ex, CancellationToken cancellationToken)
+    {
+        if (!cancellationToken.IsCancellationRequested)
+            return false;
+
+        return HasClientAbortedIOException(ex);
+    }
+
+    // TestServer can surface canceled response buffering as IOException("The client aborted the request.")
+    // wrapped by HttpRequestException instead of throwing OperationCanceledException directly.
+    private static bool HasClientAbortedIOException(Exception ex)
+    {
+        Exception? current = ex;
+
+        while (current is not null)
+        {
+            if (current is IOException ioException
+                && string.Equals(ioException.Message, "The client aborted the request.", StringComparison.Ordinal))
+                return true;
+
+            current = current.InnerException;
+        }
+
+        return false;
     }
 
     /// <summary>
