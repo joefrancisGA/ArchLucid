@@ -1,0 +1,27 @@
+---
+description: >-
+  Token/context discipline: prefer REPO_DIGEST for orientation, avoid redundant
+  full-file re-reads, batch with one preamble, prompt a fresh chat when context
+  is huge or the task domain changes.
+alwaysApply: true
+---
+
+# Session hygiene — context and cost
+
+## Orientation (start of multi-step or unfamiliar work)
+
+- Prefer **`docs/library/REPO_DIGEST.md`** for a quick project inventory and doc anchors before globbing or opening many top-level files.
+- Use **`@path`** or **`docs/library/ASSESSMENT_INPUTS.md`** when the user asks for assessments; attach **`@Assessment-Scope-V1_1`** for scoring rules (not always injected).
+
+## Reads and search
+
+- Do **not** re-read an entire file wholesale if its contents are already in this conversation unless the user asks, something changed on disk, or you need lines you never opened.
+- Prefer **scoped** reads (`Read` with offsets, `Grep`, `SemanticSearch`) over “list everything.”
+
+## Batch work
+
+- For a list of related tasks: treat the **first user message** as the shared preamble (scope, pointers, numbered list); work **one item at a time** unless the user says to parallelize against repo policy (`Do-The-Work-Yourself.mdc`).
+
+## When to suggest a new chat
+
+If the thread is **very long** (many substantive turns / huge prior tool output) **or** the user pivots to a **different subsystem** than the bulk of earlier context, briefly suggest **starting a fresh chat** so the next task is not billed on duplicated megatokens—unless they explicitly want this thread to continue.

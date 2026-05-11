@@ -48,7 +48,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
 
             decimal? slice = costEstimator.EstimateUsd(inTok, outTok, 0, deploymentForCost);
 
-            if (slice is decimal d)
+            if (slice is { } d)
             {
                 costAccum += d;
                 anyCost = true;

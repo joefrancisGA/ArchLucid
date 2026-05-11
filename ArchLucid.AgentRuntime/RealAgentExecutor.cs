@@ -425,10 +425,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 result.ReasoningTrace = result.ReasoningTrace.TrimEnd() + "\n\n---\n\n" + trimmed;
         }
 
-        if (!_archLucidLlmOptions.CurrentValue.RedactReasoningTrace)
-            return result;
-
-        if (string.IsNullOrWhiteSpace(result.ReasoningTrace))
+        if (!_archLucidLlmOptions.CurrentValue.RedactReasoningTrace || string.IsNullOrWhiteSpace(result.ReasoningTrace))
             return result;
 
         PromptRedactionOutcome outcome = _promptRedactor.RedactAlways(result.ReasoningTrace);

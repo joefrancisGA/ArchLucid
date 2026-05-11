@@ -74,6 +74,12 @@ dotnet build ArchLucid.Backend.slnf -c Release
 
 When you **add or rename** a tracked **`*.csproj`** under the repo root, update the **`projects`** list in affected **`*.slnf`** files. Agent-oriented notes: **`AGENTS.md`**, **`archlucid-ui/AGENTS.md`**.
 
+**Repo digest (`docs/library/REPO_DIGEST.md`):** Regenerate when the root **`ArchLucid.*`** project set changes (cheap inventory for agents):
+
+```bash
+python scripts/repo_digest/build_repo_digest.py
+```
+
 **Dev Container:** Optional VS Code / Cursor setup lives in **`.devcontainer/`** — .NET 10 + Node 22; start **`docker compose up -d`** on the host for SQL, Azurite, and Redis (see **`docs/engineering/DEVCONTAINER.md`**).
 
 **Finding-engine template:** Install the local template with **`dotnet new install ./templates/archlucid-finding-engine`**, then **`dotnet new archlucid-finding-engine -n MyFindingEngine`** (class library + xUnit tests).
