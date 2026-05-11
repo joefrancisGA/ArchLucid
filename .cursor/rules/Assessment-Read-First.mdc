@@ -1,0 +1,22 @@
+---
+description: >-
+  When the user asks for a weighted readiness, first-principles, or broad
+  repo assessment, read docs/library/ASSESSMENT_INPUTS.md first; write
+  output to docs/assessments/LATEST.md and archive prior snapshots under
+  docs/archive/assessments/.
+alwaysApply: false
+---
+
+# Assessment passes — read-first and output discipline
+
+When the prompt is an **architecture / readiness / weighted / first-principles / trust + product composite** assessment of this repository (not a narrow bugfix or single-feature change):
+
+1. **Read [`docs/library/ASSESSMENT_INPUTS.md`](../../docs/library/ASSESSMENT_INPUTS.md)** and treat its table as the default evidence set before scanning thousands of sources.
+
+   Repo-root shorthand: **`docs/library/ASSESSMENT_INPUTS.md`**.
+
+2. **Follow** **`Assessment-Scope-V1_1.mdc`** (same `.cursor/rules/` folder) for `(A)` headline vs `(B)` procurement-realism separation.
+3. **Write** the new assessment body to **`docs/assessments/LATEST.md`** (overwrite). Before overwriting, optional: copy the previous `LATEST.md` to **`docs/archive/assessments/`** with a dated filename.
+4. **Do not** treat **`docs/archive/assessments/**`** as mandatory context unless the user asks for historical comparison — that folder is excluded from default indexing in **`.cursorignore`** to reduce token burn on repeat passes.
+
+For code-specific claims after the canonical doc pass, open **targeted** source files (controllers, orchestrators, ADRs) rather than whole-project file lists.

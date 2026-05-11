@@ -70,7 +70,7 @@ If your process uses Checkout Session URLs copied from Dashboard/tests, ensure t
 
 ## Assessments — visibility rule
 
-**Independent quality assessments** (e.g. `docs/library/QUALITY_ASSESSMENT_*_INDEPENDENT_*.md`) that cite missing **live Stripe**, **self-serve checkout**, or **Commercial Packaging Readiness** gaps should link **this checklist** near the Executive Summary so owner work stays on the same page session-to-session.
+**Independent quality assessments** (e.g. `docs/archive/assessments/QUALITY_ASSESSMENT_*_INDEPENDENT_*.md`) that cite missing **live Stripe**, **self-serve checkout**, or **Commercial Packaging Readiness** gaps should link **this checklist** near the Executive Summary so owner work stays on the same page session-to-session.
 
 ---
 

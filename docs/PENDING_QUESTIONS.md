@@ -186,7 +186,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 ---
 
-## Resolved 2026-04-28 (Assessor B follow-up — `docs/library/QUALITY_ASSESSMENT_2026_04_27_INDEPENDENT_B_64_63.md` §9)
+## Resolved 2026-04-28 (Assessor B follow-up — `docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_27_INDEPENDENT_B_64_63.md` §9)
 
 | Sub-decision | Decision | Affects / notes |
 |---|---|---|
