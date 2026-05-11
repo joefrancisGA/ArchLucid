@@ -4,36 +4,14 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.Application.Templates;
 
 /// <summary>
-///     Pre-built <see cref = "ArchitectureRequest"/> payloads aligned with <c>POST /v1/architecture/request</c>.
-///     Each template records <c>templateId</c> as the first inline document named <c>ArchLucid.TemplateId</c> (
-///     <c>text/plain</c>)
-///     so clients can track catalog selection without extending the core request contract.
+///     Pre-built <see cref="ArchitectureRequest"/> payloads aligned with <c>POST /v1/architecture/request</c>.
+///     HTTP catalog metadata for operator starters is sourced from embedded JSON via <see cref="TemplateProvider"/>.
+///     Each legacy factory records <c>templateId</c> as the first inline document named <c>ArchLucid.TemplateId</c> (
+///     <c>text/plain</c>) so callers can correlate evidence packs without extending the core request contract.
 /// </summary>
 public static class ArchitectureRequestTemplates
 {
     private const string TemplateIdDocumentName = "ArchLucid.TemplateId";
-
-    /// <summary>Summaries for <c>GET /v1/architecture/templates</c> (fixed catalog).</summary>
-    public static IReadOnlyList<ArchitectureRequestTemplateSummary> Summaries
-    {
-        get;
-    } =
-    [
-        new("microservices-web-platform", "Microservices web platform",
-            "API gateway plus user, order, and notification services on Kubernetes with PostgreSQL, Redis, and HTTPS between services."),
-        new("monolith-migration-assessment", "Monolith migration assessment",
-            "Legacy .NET Framework monolith on SQL Server: scaling pain, deployment coupling, and service decomposition options."),
-        new("event-driven-processing-pipeline", "Event-driven processing pipeline",
-            "Hub-style ingestion, stream processing, multiple consumers, delivery semantics, and dead-letter handling."),
-        new("cloud-native-migration-azure", "Cloud-native migration (Azure)",
-            "On-premises VMs to Azure (App Service, Azure SQL, Blob) with security and compliance guardrails."),
-        new("regulated-healthcare-hipaa", "Regulated healthcare (HIPAA)",
-            "Patient-data system: HIPAA constraints, auditability, encryption, access control, and data residency."),
-        new("financial-services-pci-sox", "Finance — retail banking and payments (PCI/SOX-minded)",
-            "Scope CHD appropriately, hardened auth, postings and settlement integrity, AML/fraud adjacency, immutable audit narratives, Azure Key Vault and private connectivity."),
-        new("manufacturing-ot-it-convergence", "Manufacturing — OT/IT smart factory reference",
-            "MES and shop-floor telemetry, ERP handoff and historian pipelines, segmented OT/IT, safety-critical change discipline, latency and supplier integration.")
-    ];
 
     public static ArchitectureRequest MicroservicesWebPlatform(string? requestId = null)
     {

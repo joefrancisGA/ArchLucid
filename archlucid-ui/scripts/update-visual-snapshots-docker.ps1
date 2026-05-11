@@ -1,5 +1,5 @@
-# Regenerates Playwright chromium-visual goldens targeting Linux runners (Ubuntu CI).
-# Requires Docker Desktop (daemon running). Use when switching `ui-playwright-mock-visual` to ubuntu-latest. Output path:
+# Regenerates Playwright chromium-visual goldens targeting Linux filenames (Docker / Ubuntu-like Playwright image).
+# Requires Docker Desktop (daemon running). Output path:
 # tests/e2e/visual-regression.spec.ts-snapshots/*-chromium-visual-linux.png
 #
 # Bash equivalent (from archlucid-ui/):

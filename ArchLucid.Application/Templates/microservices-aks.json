@@ -1,0 +1,35 @@
+{
+  "requestId": "TEMPLATE-MICROSERVICES-AKS",
+  "systemName": "MicroservicesAksBus",
+  "description": "Outline a Kubernetes on Azure Kubernetes Service topology for loosely coupled microservices that coordinate through Azure Service Bus messaging. Cover pod identity to Azure APIs, segmentation of workloads using namespaces or mesh policies, observable async flows, dead-letter queues, and data ownership boundaries per service.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Inter-service coupling must favor asynchronous contracts via Service Bus over synchronous chatty chains.",
+    "Cluster ingress and east-west paths must encrypt sensitive traffic consistent with Kubernetes best practices.",
+    "No cluster-wide shared mutable databases without explicit transactional boundary documentation."
+  ],
+  "requiredCapabilities": [
+    "Azure Kubernetes Service as the workload orchestrator with autoscaling and upgrade strategy articulated",
+    "Azure Service Bus (topics and subscriptions or queues) for reliable messaging between services",
+    "Per-service deployable artifacts with independently versioned schemas or contracts",
+    "Centralized logging and metrics suitable for distributed tracing across message hops"
+  ],
+  "assumptions": [
+    "Platform team can operate AKS upgrades, node pools, and network policy or service mesh adoption in phases.",
+    "Message consumers implement idempotent processing to tolerate duplicate deliveries."
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Dedicated topics or queues per bounded context with explicit publish-subscribe contracts.",
+    "AKS identity integration (workload identity) for Azure-backed dependencies without static secrets."
+  ],
+  "securityBaselineHints": [
+    "Private cluster or locked-down API server access models evaluated against operator requirements.",
+    "Pod security constraints and image supply-chain scanning expected on the path to production."
+  ],
+  "infrastructureDeclarations": []
+}

@@ -21,9 +21,6 @@ public static class TrialEmailCorrelationFingerprint
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(normalized));
         string hex = Convert.ToHexString(hash).ToLowerInvariant();
 
-        if (hex.Length <= HexPrefixLength)
-            return hex;
-
-        return hex[..HexPrefixLength];
+        return hex.Length <= HexPrefixLength ? hex : hex[..HexPrefixLength];
     }
 }

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Application.Templates;
 
 /// <summary>
@@ -6,28 +8,31 @@ namespace ArchLucid.Application.Templates;
 /// </summary>
 public sealed record ArchitectureRequestTemplateSummary
 {
-    public string TemplateId
+    [JsonPropertyName("id")]
+    public string Id
     {
         get;
         init;
     }
 
-    public string Title
+    [JsonPropertyName("name")]
+    public string Name
     {
         get;
         init;
     }
 
-    public string ShortDescription
+    [JsonPropertyName("description")]
+    public string Description
     {
         get;
         init;
     }
 
-    public ArchitectureRequestTemplateSummary(string templateId, string title, string shortDescription)
+    public ArchitectureRequestTemplateSummary(string id, string name, string description)
     {
-        TemplateId = templateId ?? throw new ArgumentNullException(nameof(templateId));
-        Title = title ?? throw new ArgumentNullException(nameof(title));
-        ShortDescription = shortDescription ?? throw new ArgumentNullException(nameof(shortDescription));
+        Id = id ?? throw new ArgumentNullException(nameof(id));
+        Name = name ?? throw new ArgumentNullException(nameof(name));
+        Description = description ?? throw new ArgumentNullException(nameof(description));
     }
 }

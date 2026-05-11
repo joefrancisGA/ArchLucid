@@ -405,7 +405,7 @@ public sealed class ArchitectureControllerTests
     }
 
     [SkippableFact]
-    public async Task GetArchitectureRequestTemplates_ReturnsSevenSummaries()
+    public async Task GetArchitectureRequestTemplates_ReturnsThreeSummariesWithExpectedIds()
     {
         await RunWithIsolatedFactory(async client =>
         {
@@ -417,8 +417,12 @@ public sealed class ArchitectureControllerTests
                 await response.Content.ReadFromJsonAsync<List<ArchitectureRequestTemplateSummary>>(JsonOptions);
 
             items.Should().NotBeNull();
-            items.Should().HaveCount(7);
-            items.Select(i => i.TemplateId).Should().OnlyHaveUniqueItems();
+            items.Should().HaveCount(3);
+
+            string[] ids = items!.Select(i => i.Id).OrderBy(s => s).ToArray();
+            ids.Should().Equal("microservices-aks", "serverless-api", "webapp-sql");
+
+            items.Select(i => i.Id).Should().OnlyHaveUniqueItems();
         });
     }
 

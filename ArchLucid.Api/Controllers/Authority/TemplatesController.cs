@@ -18,13 +18,13 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
-public sealed class TemplatesController : ControllerBase
+public sealed class TemplatesController(TemplateProvider templateProvider) : ControllerBase
 {
-    /// <summary>Returns template ids, titles, and short descriptions for the New Run wizard.</summary>
+    /// <summary>Returns template ids, display names, and short descriptions for the New Run wizard.</summary>
     [HttpGet("templates")]
     [ProducesResponseType(typeof(IReadOnlyList<ArchitectureRequestTemplateSummary>), StatusCodes.Status200OK)]
     public ActionResult<IReadOnlyList<ArchitectureRequestTemplateSummary>> GetTemplates()
     {
-        return Ok(ArchitectureRequestTemplates.Summaries);
+        return Ok(templateProvider.GetSummaries());
     }
 }

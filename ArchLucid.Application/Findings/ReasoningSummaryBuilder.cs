@@ -163,7 +163,7 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
         if (typedFinding is null)
             return "the assessed architecture risk";
 
-        string raw = typedFinding.Category.Trim() ?? string.Empty;
+        string raw = typedFinding.Category.Trim();
 
         return raw.Length > 0 ? raw : "the assessed architecture risk";
     }
