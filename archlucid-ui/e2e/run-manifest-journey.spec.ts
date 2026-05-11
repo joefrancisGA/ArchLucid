@@ -2,6 +2,8 @@
  * Mock E2E uses buyer-polished shell by default (`playwright.mock.config.ts` → `NEXT_PUBLIC_DEMO_MODE`).
  * Buyer run detail uses {@link RunDetailOutcomeCards}’s `PackageStatusStrip`: the manifest deep link is under
  * **Review outcome** with visible text **Finalized** (not the full-operator “Open manifest detail” card).
+ * Do not assert `h2` **Run detail** here — that chrome is for full-operator / live API E2E only; buyer shell uses
+ * {@link RunDetailPageHeader} `h1` from `buyerFacingReviewTitleFromSummary` (fixture description text).
  */
 import { expect, test } from "@playwright/test";
 
@@ -15,7 +17,10 @@ test.describe("operator journey — run detail to manifest and back", () => {
     await expect(page).toHaveURL(new RegExp(encodeURIComponent(FIXTURE_RUN_ID)));
 
     await expect(
-      page.getByRole("heading", { level: 1, name: /Claims Intake Modernization/ }),
+      page.getByRole("heading", {
+        level: 1,
+        name: /Claims Intake Modernization — integration boundaries/i,
+      }),
     ).toBeVisible();
 
     const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
@@ -51,7 +56,10 @@ test.describe("operator journey — run detail to manifest and back", () => {
 
     await expect(page).toHaveURL(new RegExp(encodeURIComponent(FIXTURE_RUN_ID)));
     await expect(
-      page.getByRole("heading", { level: 1, name: /Claims Intake Modernization/ }),
+      page.getByRole("heading", {
+        level: 1,
+        name: /Claims Intake Modernization — integration boundaries/i,
+      }),
     ).toBeVisible();
 
     const deliverablesRegion = page.getByRole("region", { name: "Deliverables grouped by audience" });
