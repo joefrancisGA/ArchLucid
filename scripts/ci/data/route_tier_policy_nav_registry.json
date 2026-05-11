@@ -332,6 +332,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/ArchitectureDefinitionImportController.cs",
+      "class_name": "ArchitectureDefinitionImportController",
+      "route_template": "v{version:apiVersion}/architecture",
+      "normalized_prefix": "/v1/architecture",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/ArchitectureQuickScanController.cs",
       "class_name": "ArchitectureQuickScanController",
       "route_template": "v{version:apiVersion}/architecture",

@@ -46,7 +46,8 @@ export function CallbackClient() {
   useEffect(() => {
     let cancelled = false;
 
-    let slowHintTimer: ReturnType<typeof window.setTimeout> | undefined;
+    /** Browser timer id — use `number` so Node’s `Timeout` typing does not clash with `window.setTimeout`. */
+    let slowHintTimer: number | undefined;
 
     const clearSlowHintTimer = () => {
       if (slowHintTimer !== undefined) {
