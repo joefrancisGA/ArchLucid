@@ -242,10 +242,16 @@ export function RunFindingExplainabilityTable({
                       View AI reasoning
                     </Button>
                     <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" asChild>
-                      <Link href={`/reviews/${runId}/findings/${encodeURIComponent(row.findingId)}/inspect`}>Why?</Link>
+                      <Link
+                        href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}/inspect`}
+                      >
+                        Why?
+                      </Link>
                     </Button>
                     <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" asChild>
-                      <Link href={`/reviews/${runId}/findings/${encodeURIComponent(row.findingId)}`}>Explain</Link>
+                      <Link href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}>
+                        Explain
+                      </Link>
                     </Button>
                   </div>
                   <CopyTraceRowWorkItemButton row={row} runId={runId} />

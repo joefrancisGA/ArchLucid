@@ -500,14 +500,8 @@ public sealed class DapperTenantRepository(
                 Id = tenantId
             }, tran, cancellationToken: ct));
 
-        if (t is null)
-        {
-            await tran.CommitAsync(ct);
-
-            return;
-        }
-
-        if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+        if (t is null ||
+            !string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
             t.TrialSeatsLimit is null ||
             t.TrialSeatsLimit.Value < 1)
         {

@@ -151,9 +151,12 @@ public sealed class AzureOpenAiTooManyRequestsRetryTests
         {
             get;
         }
-        public override BinaryData BufferContent(CancellationToken cancellationToken) => BinaryData.Empty;
-        public override ValueTask<BinaryData> BufferContentAsync(CancellationToken cancellationToken) =>
+
+        public override BinaryData BufferContent(CancellationToken cancellationToken = default) => BinaryData.Empty;
+
+        public override ValueTask<BinaryData> BufferContentAsync(CancellationToken cancellationToken = default) =>
             ValueTask.FromResult(BinaryData.Empty);
+
         public override void Dispose()
         {
         }

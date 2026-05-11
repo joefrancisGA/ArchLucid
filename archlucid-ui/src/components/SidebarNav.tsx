@@ -42,6 +42,7 @@ import {
   type NavGroupWithVisibleLinks,
 } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
@@ -73,7 +74,7 @@ const BUYER_POLISHED_QUICK_ACTION_LINKS: readonly {
   },
   {
     href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-    label: "Evidence graph",
+    label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
     Icon: GitGraph,
   },
   {
@@ -83,7 +84,7 @@ const BUYER_POLISHED_QUICK_ACTION_LINKS: readonly {
   },
   {
     href: `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-    label: "Audit trail",
+    label: BUYER_SURFACE_VOCABULARY.auditTrail,
     Icon: FileSearch,
   },
 ];
@@ -613,9 +614,13 @@ export function SidebarNav() {
       <SidebarRecentActivityCard />
 
       {mounted && (buyerPolishedShell || quickActionLinks.length > 0) ? (
-        <div className="px-2 py-2" data-testid="sidebar-quick-actions" aria-label="Quick actions">
+        <div
+          className="px-2 py-2"
+          data-testid="sidebar-quick-actions"
+          aria-label={buyerPolishedShell ? "Review package guided path" : "Quick actions"}
+        >
           <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
-            Quick actions
+            {buyerPolishedShell ? "Review package path" : "Quick actions"}
           </p>
           <nav
             className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"

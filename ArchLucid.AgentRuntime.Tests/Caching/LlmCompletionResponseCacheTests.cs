@@ -39,9 +39,9 @@ public sealed class LlmCompletionResponseCacheTests
             TTLSeconds = 30, MaxEntries = 8
         });
 
-        using MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 8 });
-
-        using LlmCompletionResponseCache sut = new(backing, optionsMonitor);
+        MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 8 });
+        using MemorySemanticCache semantic = new(backing, optionsMonitor);
+        LlmCompletionResponseCache sut = new(semantic);
 
         LlmCompletionCacheKey key =
             new("t", "m", HashBytes(1), false, string.Empty);
@@ -51,7 +51,7 @@ public sealed class LlmCompletionResponseCacheTests
         LlmCompletionResult? hit = await sut.TryGetAsync(key, CancellationToken.None);
 
         hit.Should().NotBeNull();
-        hit.JsonBody.Should().Be("{\"x\":1}");
+        hit!.JsonBody.Should().Be("{\"x\":1}");
     }
 
     [SkippableFact]
@@ -60,9 +60,9 @@ public sealed class LlmCompletionResponseCacheTests
         MutableOptionsMonitor<LlmCompletionCacheOptions> optionsMonitor =
             new(new LlmCompletionCacheOptions { TTLSeconds = 1, MaxEntries = 8 });
 
-        using MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 8 });
-
-        using LlmCompletionResponseCache sut = new(backing, optionsMonitor);
+        MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 8 });
+        using MemorySemanticCache semantic = new(backing, optionsMonitor);
+        LlmCompletionResponseCache sut = new(semantic);
 
         LlmCompletionCacheKey key =
             new("t", "m", HashBytes(2), false, string.Empty);
@@ -106,9 +106,9 @@ public sealed class LlmCompletionResponseCacheTests
         MutableOptionsMonitor<LlmCompletionCacheOptions> optionsMonitor =
             new(new LlmCompletionCacheOptions { TTLSeconds = 3600, MaxEntries = 256 });
 
-        using MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 256 });
-
-        using LlmCompletionResponseCache sut = new(backing, optionsMonitor);
+        MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 256 });
+        using MemorySemanticCache semantic = new(backing, optionsMonitor);
+        LlmCompletionResponseCache sut = new(semantic);
 
         await Parallel.ForAsync(
             0,
@@ -132,7 +132,7 @@ public sealed class LlmCompletionResponseCacheTests
 
                 read.Should().NotBeNull();
 
-                read.JsonBody.Should().Be(expected);
+                read!.JsonBody.Should().Be(expected);
             });
     }
 

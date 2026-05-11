@@ -313,10 +313,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
         LlmTenantBudgetStateReadModel? current =
             await SelectDailyAsync(connection, tenantId, utcDay, cancellationToken).ConfigureAwait(false);
 
-        if (current is null)
-            return new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
-
-        if (!current.RowVersion.AsSpan().SequenceEqual(expectedRowVersion))
+        if (current is null || !current.RowVersion.AsSpan().SequenceEqual(expectedRowVersion))
             return new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
 
         return current.TotalTokenPressure + addTokens > hardCap ? new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = current } : new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
@@ -336,10 +333,7 @@ public sealed class SqlLlmTenantBudgetRepository(IDbConnectionFactory connection
         LlmTenantBudgetStateReadModel? current =
             await SelectMonthlyAsync(connection, tenantId, utcYear, utcMonth, cancellationToken).ConfigureAwait(false);
 
-        if (current is null)
-            return new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
-
-        if (!current.RowVersion.AsSpan().SequenceEqual(expectedRowVersion))
+        if (current is null || !current.RowVersion.AsSpan().SequenceEqual(expectedRowVersion))
             return new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };
 
         return current.TotalUsdPressure + addUsd > hardCap ? new LlmTenantBudgetReserveResult { HardCapBlocked = true, NewState = current } : new LlmTenantBudgetReserveResult { ConcurrencyConflict = true };

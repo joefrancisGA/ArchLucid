@@ -36,6 +36,10 @@ function severityBadgeClass(severityValue: number): string {
 export type QuickDecisionSummaryProps = {
   readonly runId: string;
   readonly findings: readonly QuickDecisionFinding[];
+  /** When true and headline counts disagree with extracted findings, show a finalized-review-safe narrative (buyer shell). */
+  readonly buyerPolishedShell?: boolean;
+  readonly headlineFindingCount?: number | null;
+  readonly headlineWarningCount?: number | null;
 };
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
@@ -43,8 +47,40 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const sorted = sortQuickDecisionFindings(props.findings);
   const top = sorted.slice(0, 3);
   const hasFindings = props.findings.length > 0;
+  const buyerPolishedShell = props.buyerPolishedShell === true;
+  const headlineFindingCount = props.headlineFindingCount;
+  const headlineWarningCount = props.headlineWarningCount;
   const [reasoningOpen, setReasoningOpen] = useState(false);
   const [activeReasoning, setActiveReasoning] = useState<QuickDecisionFinding | null>(null);
+
+  function renderEmptySummary(): ReactElement {
+    if (
+      buyerPolishedShell &&
+      typeof headlineFindingCount === "number" &&
+      Number.isFinite(headlineFindingCount) &&
+      Math.trunc(headlineFindingCount) > 0
+    ) {
+      const n = Math.trunc(headlineFindingCount);
+      const warningN =
+        typeof headlineWarningCount === "number" && Number.isFinite(headlineWarningCount)
+          ? Math.trunc(headlineWarningCount)
+          : 0;
+
+      const warningPhrase =
+        warningN > 0
+          ? " One monitored warning remains in the manifest—review severity and controls below."
+          : "";
+
+      return (
+        <p className="m-0 text-neutral-600 dark:text-neutral-400">
+          {`This finalized review records ${n} finding${n === 1 ? "" : "s"} with no unresolved blocking issues.`}
+          {warningPhrase}
+        </p>
+      );
+    }
+
+    return <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings to act on</p>;
+  }
 
   return (
     <>
@@ -59,7 +95,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         </CardHeader>
         <CardContent className="space-y-3 pt-0 text-sm text-neutral-700 dark:text-neutral-300">
           {!hasFindings ? (
-            <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings to act on</p>
+            renderEmptySummary()
           ) : (
             <ol className="m-0 list-decimal space-y-3 pl-5 marker:text-neutral-500 dark:marker:text-neutral-400">
               {top.map((f) => {

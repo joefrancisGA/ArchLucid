@@ -30,8 +30,8 @@ export function SampleReviewPackageSummary({
         Claims Intake sample review package
       </h2>
       <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed">
-        This is demo data. Use it to inspect the reviewed manifest, findings, evidence trail, and artifacts before
-        starting a real architecture review. Do not use these numbers as customer ROI evidence.
+        Example review package prepared for buyer demonstration—inspect the manifest, findings, evidence trail, and
+        artifacts. Numbers are illustrative only and do not represent customer ROI without a live workspace.
       </p>
 
       <dl className="mt-4 grid gap-2 sm:grid-cols-4">

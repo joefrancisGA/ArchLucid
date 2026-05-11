@@ -1,8 +1,8 @@
 namespace ArchLucid.AgentRuntime.Caching;
 
 /// <summary>
-///     In-process completion response cache (backed by
-///     <see cref="Microsoft.Extensions.Caching.Memory.IMemoryCache" />).
+///     Typed completion cache over <see cref="ISemanticCache" /> (composite keys: agent, model, SHA-256 prompts,
+///     simulator, optional scope).
 /// </summary>
 public interface ILlmCompletionResponseCache
 {

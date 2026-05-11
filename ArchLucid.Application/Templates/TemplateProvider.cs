@@ -29,31 +29,31 @@ public sealed class TemplateProvider
 
     private static readonly CatalogEntry[] CatalogEntries =
     [
-        new CatalogEntry(
+        new(
             Id: "webapp-sql",
             Name: "Web application with SQL",
             Description:
             "A conventional Azure web workload with HTTPS clients, compute tier scaling, and Azure SQL as the transactional store plus managed identity defaults.",
             ResourceName: "ArchLucid.Application.Templates.webapp-sql.json"),
-        new CatalogEntry(
+        new(
             Id: "serverless-api",
             Name: "Serverless API with Cosmos DB",
             Description:
             "Azure Functions for HTTP and async triggers with Azure Cosmos DB partitioning guidance and queues for resilient background processing.",
             ResourceName: "ArchLucid.Application.Templates.serverless-api.json"),
-        new CatalogEntry(
+        new(
             Id: "microservices-aks",
             Name: "Microservices on AKS with Service Bus",
             Description:
             "Kubernetes microservices on AKS exchanging messages through Azure Service Bus with ingress, observability, and identity integration expectations.",
             ResourceName: "ArchLucid.Application.Templates.microservices-aks.json"),
-        new CatalogEntry(
+        new(
             Id: "hipaa-compliant-api",
             Name: "HIPAA-minded API (APIM, App Service, Azure SQL TDE)",
             Description:
             "API Management + VNet-integrated App Service + TDE-protected Azure SQL—pattern teams use to document PHI boundaries, encryption, and audit-friendly routing for HIPAA assessments.",
             ResourceName: "ArchLucid.Application.Templates.hipaa-compliant-api.json"),
-        new CatalogEntry(
+        new(
             Id: "pci-dss-payment-gateway",
             Name: "PCI DSS–oriented payment gateway (Front Door WAF, Container Apps, Key Vault)",
             Description:
@@ -105,22 +105,17 @@ public sealed class TemplateProvider
     public bool TryGetArchitectureRequest(string templateId,
         [NotNullWhen(true)] out ArchitectureRequest? request)
     {
-        if (string.IsNullOrWhiteSpace(templateId))
-        {
-            request = null;
-            return false;
-        }
+        if (!string.IsNullOrWhiteSpace(templateId))
+            return _requestsById.TryGetValue(templateId.Trim(), out request);
 
-        return _requestsById.TryGetValue(templateId.Trim(), out request);
+        request = null;
+        return false;
     }
 
     private static Stream OpenTemplateStream(string resourceName)
     {
         Stream? stream = Assembly.GetManifestResourceStream(resourceName);
 
-        if (stream is null)
-            throw new InvalidOperationException($"Missing embedded template resource '{resourceName}'.");
-
-        return stream;
+        return stream ?? throw new InvalidOperationException($"Missing embedded template resource '{resourceName}'.");
     }
 }
