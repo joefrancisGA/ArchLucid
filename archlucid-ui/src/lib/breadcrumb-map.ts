@@ -67,6 +67,13 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: "Home" }];
   }
 
+  if (normalized === "/dashboard") {
+    return [
+      { label: "Home", href: "/" },
+      { label: "Executive summary" },
+    ];
+  }
+
   // Product path: skip the intermediate "Architecture reviews" crumb so first workflow reads Home / New request.
   if (normalized === "/reviews/new") {
     return [

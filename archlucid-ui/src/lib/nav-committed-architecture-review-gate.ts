@@ -9,6 +9,11 @@ export function pathnameEligibleBeforeFirstCommittedArchitectureReview(pathWitho
     return true;
   }
 
+  // Sponsor-facing ROI snapshot uses mock data only — safe to surface before the first golden-manifest commit.
+  if (pathWithoutQuery === "/dashboard") {
+    return true;
+  }
+
   if (pathWithoutQuery === "/reviews/new") {
     return true;
   }

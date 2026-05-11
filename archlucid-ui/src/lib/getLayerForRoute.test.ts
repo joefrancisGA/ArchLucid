@@ -5,6 +5,7 @@ import { getLayerForRoute } from "./getLayerForRoute";
 describe("getLayerForRoute", () => {
   it("returns pilot for the home path", () => {
     expect(getLayerForRoute("/")).toBe("pilot");
+    expect(getLayerForRoute("/dashboard")).toBe("pilot");
   });
 
   it("returns operate-analysis for a known analysis nav path", () => {

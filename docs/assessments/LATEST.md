@@ -1,3 +1,5 @@
+> **Scope:** Latest ArchLucid weighted-readiness assessment for executives, buyers, and internal owners; summarizes scores, themes, and gaps from the scoring rubric. **Not** a roadmap commitment, formal attestation, or exhaustive technical specification.
+
 # ArchLucid Assessment – Weighted Readiness 80.85%
 
 ## Executive Summary

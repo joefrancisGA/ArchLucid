@@ -3,6 +3,7 @@ import {
   BarChart3,
   ClipboardList,
   Home,
+  LayoutDashboard,
   LifeBuoy,
   ListOrdered,
   Rocket,
@@ -20,7 +21,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: "Review work",
       surface: "review-workflow",
       caption:
-        "Start here: home, onboarding, create a governed review package, browse reviews, findings, help, and pilot scorecard.",
+        "Start here: home, onboarding, executive summary, create a governed review package, browse reviews, findings, help, and pilot scorecard.",
       links: [
         {
           href: "/",
@@ -57,6 +58,14 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           title: this.shortcutTitle("Reviews — open review detail, architecture package, artifacts, exports", "alt+r"),
           keyShortcut: "alt+r",
           icon: ListOrdered,
+          tier: "essential",
+          defaultVisibleInCollapsedSidebar: true,
+        },
+        {
+          href: "/dashboard",
+          label: "Executive Summary",
+          title: "Executive summary — sponsor-facing ROI snapshot (illustrative metrics until API lands)",
+          icon: LayoutDashboard,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,
         },
