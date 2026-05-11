@@ -1,7 +1,11 @@
 /**
- * Mutable policy-pack graph for E2E mock API (assign + effective-content without a live ArchLucid API).
+ * Read-only fixtures for the mock E2E suite's `/policy-packs` page renders.
+ *
+ * Mock E2E builds force `NEXT_PUBLIC_DEMO_MODE=true` / `NEXT_PUBLIC_DEMO_STATIC_OPERATOR=true`, so the buyer-polished
+ * page hides operator-only Create/Publish/Assign controls and overlays static demo packs via
+ * `mergePolicyPacksStateWithStaticDemo` regardless of what these endpoints return. Live lifecycle mutations are
+ * covered by `live-api-policy-pack-lifecycle.spec.ts` against a real ArchLucid.Api.
  */
-import { randomUUID } from "node:crypto";
 
 export type MockPolicyPack = {
   policyPackId: string;
@@ -10,15 +14,6 @@ export type MockPolicyPack = {
   status: string;
   currentVersion: string;
   description: string;
-};
-
-export type MockAssignment = {
-  assignmentId: string;
-  policyPackId: string;
-  version: string;
-  scopeLevel: string;
-  isPinned: boolean;
-  archivedUtc: string | null;
 };
 
 const defaultEffectiveContent = {
@@ -30,47 +25,12 @@ const defaultEffectiveContent = {
   metadata: {} as Record<string, string>,
 };
 
-let packs: MockPolicyPack[] = [];
-let assignments: MockAssignment[] = [];
-
-export function resetPolicyPacksMockState(): void {
-  packs = [];
-  assignments = [];
-}
-
 export function listMockPacks(): MockPolicyPack[] {
-  return [...packs];
-}
-
-export function createMockPack(body: {
-  name?: string;
-  description?: string;
-  packType?: string;
-  initialContentJson?: string;
-}): MockPolicyPack {
-  const policyPackId = randomUUID();
-  const pack: MockPolicyPack = {
-    policyPackId,
-    name: body.name?.trim() || "Pack",
-    packType: body.packType || "ProjectCustom",
-    status: "Draft",
-    currentVersion: "1.0.0",
-    description: body.description?.trim() ?? "",
-  };
-  packs.push(pack);
-  return pack;
-}
-
-export function publishMockVersion(policyPackId: string, version: string, contentJson: string): void {
-  const pack = packs.find((p) => p.policyPackId === policyPackId);
-  if (!pack) return;
-  pack.status = "Active";
-  pack.currentVersion = version;
-  void contentJson;
+  return [];
 }
 
 /** Matches `PolicyPackVersion` fields the policy-packs UI reads (ids, labels, compare dropdowns). */
-export function listMockVersions(policyPackId: string): {
+export function listMockVersions(_policyPackId: string): {
   policyPackVersionId: string;
   policyPackId: string;
   version: string;
@@ -78,62 +38,13 @@ export function listMockVersions(policyPackId: string): {
   createdUtc: string;
   isPublished: boolean;
 }[] {
-  const pack = packs.find((p) => p.policyPackId === policyPackId);
-  if (!pack) return [];
-
-  return [
-    {
-      policyPackVersionId: randomUUID(),
-      policyPackId: pack.policyPackId,
-      version: pack.currentVersion,
-      contentJson: "{}",
-      createdUtc: new Date().toISOString(),
-      isPublished: pack.status === "Active",
-    },
-  ];
-}
-
-export function assignMockPack(
-  policyPackId: string,
-  version: string,
-  scopeLevel: string,
-  isPinned: boolean,
-): MockAssignment | null {
-  const pack = packs.find((p) => p.policyPackId === policyPackId);
-  if (!pack || pack.currentVersion !== version) return null;
-  const row: MockAssignment = {
-    assignmentId: randomUUID(),
-    policyPackId,
-    version,
-    scopeLevel: scopeLevel || "Project",
-    isPinned,
-    archivedUtc: null,
-  };
-  assignments.push(row);
-  return row;
-}
-
-export function archiveMockAssignment(assignmentId: string): boolean {
-  const row = assignments.find((a) => a.assignmentId === assignmentId && !a.archivedUtc);
-  if (!row) return false;
-  row.archivedUtc = new Date().toISOString();
-  return true;
+  return [];
 }
 
 export function getMockEffectivePacks(): { packs: { policyPackId: string; version: string }[] } {
-  const active = assignments.filter((a) => !a.archivedUtc);
-  return {
-    packs: active.map((a) => ({ policyPackId: a.policyPackId, version: a.version })),
-  };
+  return { packs: [] };
 }
 
 export function getMockEffectiveContent(): typeof defaultEffectiveContent {
-  const active = assignments.filter((a) => !a.archivedUtc);
-  if (active.length === 0) return { ...defaultEffectiveContent, complianceRuleKeys: [], metadata: {} };
-
-  return {
-    ...defaultEffectiveContent,
-    complianceRuleKeys: ["e2e-mock-rule"],
-    metadata: { e2eMock: "true" },
-  };
+  return { ...defaultEffectiveContent };
 }

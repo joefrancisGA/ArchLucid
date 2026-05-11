@@ -1,0 +1,14 @@
+{
+  "solution": {
+    "path": "ArchLucid.sln",
+    "projects": [
+      "ArchLucid.Application/ArchLucid.Application.csproj",
+      "ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj",
+      "ArchLucid.Contracts/ArchLucid.Contracts.csproj",
+      "ArchLucid.Contracts.Tests/ArchLucid.Contracts.Tests.csproj",
+      "ArchLucid.Core/ArchLucid.Core.csproj",
+      "ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj",
+      "ArchLucid.TestSupport/ArchLucid.TestSupport.csproj"
+    ]
+  }
+}
