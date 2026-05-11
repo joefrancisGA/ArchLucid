@@ -1,8 +1,8 @@
-> **Scope:** Penetration test summary — procurement placeholder (no engagement results implied).
+> **Scope:** Penetration test summary — procurement interim statement (no third-party test results claimed).
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
-# Penetration test summary — placeholder
+# Penetration test summary — interim statement
 
 **Status:** **Pending — Q2 2026 third-party engagement** (owner-funded external assessor per [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **20**).
 

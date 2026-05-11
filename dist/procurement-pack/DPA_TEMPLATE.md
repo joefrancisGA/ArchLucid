@@ -7,16 +7,16 @@
 
 **Important — not legal advice:** This document is a **working template** for negotiation with customers. It **does not** constitute legal advice. **Qualified legal counsel** must review and adapt it before execution.
 
-**Parties:** Fill in legal names and addresses.
+**Parties:** Complete legal names and registered addresses before execution (see §10A).
 
 | Role | Party |
 |------|--------|
-| **Controller** | [Customer legal entity] |
-| **Processor** | [ArchLucid vendor legal entity] |
+| **Controller** | `<<Controller legal name and address>>` |
+| **Processor** | `<<Processor legal name and address>>` |
 
-**Effective date:** [date]
+**Effective date:** `<<YYYY-MM-DD>>`
 
-**Reference:** [Subscription / order form ID]
+**Reference:** `<<Subscription or order form ID>>`
 
 ---
 
@@ -27,7 +27,7 @@
 - **“Sub-processor”** means a third party engaged by Processor to process Personal Data.
 - **“Services”** means the ArchLucid cloud service subscribed to by Controller.
 
-Capitalized terms not defined here follow the [Subscription Agreement / Terms of Service] unless otherwise stated.
+Capitalized terms not defined here follow the `<<Subscription Agreement or Terms of Service title>>` unless otherwise stated.
 
 ---
 
@@ -121,8 +121,8 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 
 ## 10A. Unresolved negotiation variables
 
-- Legal entity names and addresses in the parties table.
-- Effective date and subscription reference.
+- `<<Controller legal name and address>>` / `<<Processor legal name and address>>` in the parties table.
+- `<<YYYY-MM-DD>>` (effective date) and `<<Subscription or order form ID>>` (reference).
 - Transfer-mechanism specifics where regional law requires additional annex language.
 - Any stricter customer-requested cohort threshold above `k >= 5`.
 
@@ -132,9 +132,9 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 
 | Controller | Processor |
 |------------|-----------|
-| Name: | Name: |
-| Title: | Title: |
-| Date: | Date: |
+| Name: `<<Controller signatory>>` | Name: `<<Processor signatory>>` |
+| Title: `<<Controller signatory title>>` | Title: `<<Processor signatory title>>` |
+| Date: `<<YYYY-MM-DD>>` | Date: `<<YYYY-MM-DD>>` |
 
 ---
 
