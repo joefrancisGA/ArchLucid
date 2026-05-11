@@ -55,6 +55,25 @@ dotnet build
 dotnet test
 ```
 
+### Solution filters (partial `.NET` load)
+
+**`ArchLucid.sln`** remains canonical for CI and release. For faster IDE / CLI loops, use **`*.slnf`** next to it (filtered solution — see [filtered solutions](https://learn.microsoft.com/visualstudio/ide/filtered-solutions)):
+
+| File | Scope |
+|------|--------|
+| **`ArchLucid.Core.slnf`** | Contracts, Core, Application, **`ArchLucid.TestSupport`**, matching `*.Tests` |
+| **`ArchLucid.Backend.slnf`** | Full product + hosts + integrations + tests (**excludes** benchmarks and Roslyn **Analyzers**) |
+| **`ArchLucid.UI.slnf`** | **`ArchLucid.Contracts`** + **`ArchLucid.Api.Client`** (+ **`ArchLucid.Api.Client.Tests`**) for UI↔wire alignment; SPA source is **`archlucid-ui/`** |
+
+**Note:** **`dotnet build`** on a filter still compiles **ProjectReference** dependencies (for example, **`ArchLucid.Application`** references most domain libraries). **`*.slnf`** mainly limits **top-level** projects in the IDE and gives agents a **narrow entry**; CI and full regression stay on **`ArchLucid.sln`**.
+
+```bash
+dotnet build ArchLucid.Core.slnf -c Release
+dotnet build ArchLucid.Backend.slnf -c Release
+```
+
+When you **add or rename** a tracked **`*.csproj`** under the repo root, update the **`projects`** list in affected **`*.slnf`** files. Agent-oriented notes: **`AGENTS.md`**, **`archlucid-ui/AGENTS.md`**.
+
 **Dev Container:** Optional VS Code / Cursor setup lives in **`.devcontainer/`** — .NET 10 + Node 22; start **`docker compose up -d`** on the host for SQL, Azurite, and Redis (see **`docs/engineering/DEVCONTAINER.md`**).
 
 **Finding-engine template:** Install the local template with **`dotnet new install ./templates/archlucid-finding-engine`**, then **`dotnet new archlucid-finding-engine -n MyFindingEngine`** (class library + xUnit tests).

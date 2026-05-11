@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "ArchLucid.sln",
+    "projects": [
+      "ArchLucid.Api.Client/ArchLucid.Api.Client.csproj",
+      "ArchLucid.Api.Client.Tests/ArchLucid.Api.Client.Tests.csproj",
+      "ArchLucid.Contracts/ArchLucid.Contracts.csproj"
+    ]
+  }
+}
