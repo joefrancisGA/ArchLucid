@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Integration catalog - full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid — Integration catalog — buyer-facing narrative, roadmap table, and links. Per-connector **status, direction, auth, secrets, code entry points, tests, and smoke** live in [`../library/CONNECTOR_READINESS_MATRIX.md`](../library/CONNECTOR_READINESS_MATRIX.md).
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
@@ -11,22 +11,22 @@
 
 **Philosophy:** ArchLucid connects to your tools — you do not run our agents in your infrastructure. All integrations operate via the hosted API, webhooks, or managed connectors.
 
+**Connector readiness matrix (implementers):** [../library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md) — shipped vs recipe vs planned; **product** vs **customer-operated**; code paths and tests.
+
+**Smoke recipes (first-party connectors):** [../integrations/CONNECTOR_SMOKE_INDEX.md](../integrations/CONNECTOR_SMOKE_INDEX.md)
+
 ---
 
 ## 1. Available today (V1)
 
-| Integration | Type | Description |
-|-------------|------|-------------|
-| **REST API** | Outbound / Inbound | OpenAPI 3.0 contract (`/openapi/v1.json`). Full CRUD for runs, manifests, findings, governance, audit, comparisons, alerts. See [../API_CONTRACTS.md](../library/API_CONTRACTS.md). |
-| **.NET API client** | Client SDK | Generated NuGet package (`ArchLucid.Api.Client`) from NSwag / OpenAPI spec. |
-| **CLI** | Command-line | `archlucid` CLI for scripting, support bundles, and automation. See [../CLI_USAGE.md](../library/CLI_USAGE.md). |
-| **Webhook / CloudEvents** | Outbound | Configurable HTTP callbacks on run lifecycle, governance, and alert events. CloudEvents envelope format. |
-| **Service Bus** | Outbound | Optional Azure Service Bus integration events for async processing and downstream systems. |
-| **Microsoft Teams** | Outbound | Teams **Incoming Webhook** via Logic Apps Standard fan-out; operators register a **Key Vault secret name** per tenant (`GET/POST/DELETE /v1/integrations/teams/connections`). See [../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md](../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md). |
-| **Slack** | Outbound | First-party **Slack incoming webhook** notifications for alerts / digests / routing — **parity** with Teams: same **`EnabledTriggersJson`**, **Key Vault** secret-name discipline, canonical Authority-shaped payloads ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.14). **App Directory** listing and in-Slack **interactive** actions are **not** committed V1 unless owner promotes. |
-| **Confluence Cloud** | Outbound | First-party **page publish** (findings / run summaries) to a configured space — **MVP:** single fixed `Confluence:DefaultSpaceKey`, API token / basic auth ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.15). OAuth **follow-on** if buyer requires. **Atlassian tranche:** ship **before** **Jira**, **together** in the same V1 workstream. |
-| **Procurement ZIP (static)** | Artifact | Reproducible **`dist/procurement-pack.zip`** via **`scripts/build_procurement_pack.sh`** / **`.ps1`** (manifest + SHA-256). No hosted public download — distribute through your procurement portal. See [TRUST_CENTER.md](TRUST_CENTER.md) procurement note. |
-| **AsyncAPI** | Contract | Async event contract for webhook and Service Bus consumers. |
+**Surfaces in production scope** include **REST API**, **.NET client**, **CLI**, **webhooks / CloudEvents**, optional **Azure Service Bus** integration events, **SCIM**, **Teams**, **Slack**, **Confluence**, **Jira**, **ServiceNow**, **Azure DevOps** PR/manifest decoration, **Azure extractor ZIP ingest**, and contracts (**OpenAPI**, **AsyncAPI**). See the **[connector readiness matrix](../library/CONNECTOR_READINESS_MATRIX.md)** for direction, auth, secret handling, **source entry points**, **primary tests**, and **smoke/runbook** links.
+
+Also:
+
+| Item | Note |
+|------|------|
+| **Procurement ZIP** | Reproducible `dist/procurement-pack.zip` via `scripts/build_procurement_pack.sh` / `.ps1`. See [TRUST_CENTER.md](TRUST_CENTER.md). |
+| **AsyncAPI** | Async contract for webhook and Service Bus consumers (see matrix + [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)). |
 
 ### V1 committed — first-party ITSM connectors
 
@@ -37,17 +37,11 @@ Ship tracks **V1 GA** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13
 | **ServiceNow** | Finding → **`incident`** with correlation back-link; **basic auth** for V1 MVP (OAuth 2.0 follow-on per §2.13). **`cmdb_ci`** via **`cmdb_ci_appl`** name lookup on **`SystemName`** ([§ Sequencing and CMDB](#sequencing-and-cmdb) below). **Two-way** ServiceNow → ArchLucid **status-only** sync is **committed for V1 GA** (configurable mapping; see [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13). |
 | **Jira** | Finding → issue with correlation back-link; **bi-directional** Jira → ArchLucid status sync is **committed for V1 GA** (configurable mapping; see [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13). OAuth 2.0 / API token auth. **Atlassian tranche:** ships **after** **Confluence** in the **same** paired workstream. |
 
-### V1 committed — Slack (chat-ops)
+### V1 committed — Slack and Confluence
 
 | Surface | MVP commitment |
-|---------|------------------|
-| **Slack** | Outbound **incoming-webhook** notifications — parity with **Teams** (`EnabledTriggersJson`, **Key Vault** secret names, Authority-shaped payloads). See [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.14. **App Directory** listing / in-message **interactions**: not V1 unless promoted. |
-
-### V1 committed — Confluence (documentation)
-
-| Surface | MVP commitment |
-|---------|------------------|
-| **Confluence** | One-way **publish** to **`Confluence:DefaultSpaceKey`**; **API token + basic auth** for MVP; OAuth follow-on. See [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.15. **Before** **Jira** in the **paired Atlassian** workstream. |
+|---------|----------------|
+| **Slack**, **Confluence** | **V1 GA** per [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.14–§2.15 (notifications / page publish). **Code paths, tests, smoke:** [connector readiness matrix](../library/CONNECTOR_READINESS_MATRIX.md). |
 
 ### Sequencing and CMDB
 
@@ -87,11 +81,11 @@ Broader recipe hub: [ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPE
 | **Architecture import** | Structurizr DSL | Import architecture models from Structurizr workspace files | [Planned] |
 | **Architecture import** | ArchiMate XML | Import from TOGAF / ArchiMate modeling tools | [Planned] |
 | **Architecture import** | Terraform state | Parse `terraform show -json` output into ArchLucid context | [Planned] |
-| **ITSM / Atlassian** | Jira | Create Jira issues from findings; sync status back. **First-party outbound:** `POST /v1/integrations/itsm/outbound/issues` (ExecuteAuthority); configuration **`Integrations:ItsmOutbound`**; optional per-tenant **`dbo.TenantItsmOutboundSettings`**. | **Canonical scope:** **[V1 — committed]** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13). **V1 bridge (customer-operated, optional):** [`../../templates/integrations/jira/jira-webhook-bridge-recipe.md`](../../templates/integrations/jira/jira-webhook-bridge-recipe.md) — HMAC, CloudEvents (`com.archlucid.authority.run.completed` + GET run for findings, or `com.archlucid.alert.fired` direct), Jira REST v3, Logic App / Function outline. |
-| **Documentation / Atlassian** | Confluence | Publish architecture findings and run summaries to a Confluence space | **Canonical scope:** **[V1 — committed]** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.15). **MVP:** one-way publish to **`Confluence:DefaultSpaceKey`**; API token / basic auth; OAuth follow-on. Supersedes prior **V1.1-only** catalog row (*owner scope update 2026-05-05*). Design intent: [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) Improvement 3 (3a / 3b). [`../library/V1_DEFERRED.md` §6](../library/V1_DEFERRED.md). **Optional** Logic Apps recipe: [CONFLUENCE_PAGE_VIA_LOGIC_APPS.md](../integrations/recipes/CONFLUENCE_PAGE_VIA_LOGIC_APPS.md). |
-| **ITSM** | ServiceNow | Create ServiceNow `incident` records from findings; **`cmdb_ci`** via **`cmdb_ci_appl`** lookup on **`SystemName`** (see [§1](#1-available-today-v1) **Sequencing and CMDB**). **First-party outbound:** same `POST /v1/integrations/itsm/outbound/issues` surface with `provider: ServiceNow`; tenant flag **`ServiceNowAutoCreateCmdbCi`** maps to **`dbo.TenantItsmOutboundSettings.ServiceNowAutoCreateCmdbCi`**. | **Canonical scope:** **[V1 — committed]** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13). **V1 bridge (customer-operated, optional):** [`../../templates/integrations/servicenow/servicenow-incident-recipe.md`](../../templates/integrations/servicenow/servicenow-incident-recipe.md) — same event types, ServiceNow Table API, field mapping, Logic App outline. |
-| **ITSM** | Azure DevOps Work Items | Create work items from findings; sync status back | [Planned] |
-| **Chat-ops** | Slack | Outbound notification sink (**V1 — committed**) — parity with the shipped Microsoft Teams connector (same **`EnabledTriggersJson`**, **Key Vault** secrets, canonical payloads). See [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.14. **App Directory** / in-Slack **interactive** actions: not committed V1 unless promoted. |
+| **ITSM / Atlassian** | Jira | First-party ITSM (§2.13); optional Logic Apps / webhook bridges in templates. | **[V1 — committed]** — [matrix](../library/CONNECTOR_READINESS_MATRIX.md), [V1_SCOPE §2.13](../library/V1_SCOPE.md), [bridge template](../../templates/integrations/jira/jira-webhook-bridge-recipe.md) |
+| **Documentation / Atlassian** | Confluence | First-party publish (§2.15); optional Logic Apps recipe. | **[V1 — committed]** — [matrix](../library/CONNECTOR_READINESS_MATRIX.md), [V1_SCOPE §2.15](../library/V1_SCOPE.md), [PENDING_QUESTIONS Improvement 3](../PENDING_QUESTIONS.md), [V1_DEFERRED §6](../library/V1_DEFERRED.md), [CONFLUENCE_PAGE_VIA_LOGIC_APPS.md](../integrations/recipes/CONFLUENCE_PAGE_VIA_LOGIC_APPS.md) |
+| **ITSM** | ServiceNow | First-party ITSM (§2.13); optional bridge template. | **[V1 — committed]** — [matrix](../library/CONNECTOR_READINESS_MATRIX.md), [V1_SCOPE §2.13](../library/V1_SCOPE.md), [CMDB / sequencing §1](#sequencing-and-cmdb), [bridge template](../../templates/integrations/servicenow/servicenow-incident-recipe.md) |
+| **ITSM** | Azure DevOps Work Items | Native work-item connector (distinct from shipped PR decoration). | [Planned] — [matrix](../library/CONNECTOR_READINESS_MATRIX.md), [V1_DEFERRED](../library/V1_DEFERRED.md) |
+| **Chat-ops** | Slack | First-party chat-ops (§2.14). | **[V1 — committed]** — [matrix](../library/CONNECTOR_READINESS_MATRIX.md), [V1_SCOPE §2.14](../library/V1_SCOPE.md) |
 | **Observability** | SIEM export (CEF/syslog) | Native audit log export in SIEM-friendly formats | [Planned] — see [SIEM_EXPORT.md](SIEM_EXPORT.md) for current methods |
 | **CI/CD** | GitHub Actions | Architecture review as a PR check | [Example available] — see [../integrations/CICD_INTEGRATION.md](../integrations/CICD_INTEGRATION.md) |
 | **CI/CD** | Azure DevOps Pipelines | Architecture review as a pipeline task | [Example available] — see [../integrations/CICD_INTEGRATION.md](../integrations/CICD_INTEGRATION.md) |
@@ -123,6 +117,7 @@ Contact **integrations@archlucid.dev** (placeholder) with your use case. Integra
 
 | Doc | Use |
 |-----|-----|
+| [../library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md) | Shipped vs planned; auth/secrets; code + tests + smoke |
 | [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
 | [POSITIONING.md](POSITIONING.md) | Product positioning |
 | [../API_CONTRACTS.md](../library/API_CONTRACTS.md) | API surface detail |

@@ -15,6 +15,7 @@ using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -53,6 +54,7 @@ public sealed class RunQueryController(
     IScopeContextProvider scopeContextProvider,
     ITraceabilityBundleBuilder traceabilityBundleBuilder,
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
+    ILlmCostEstimator llmCostEstimator,
     IConfiguration configuration) : ControllerBase
 {
     /// <summary>
@@ -94,6 +96,13 @@ public sealed class RunQueryController(
                 configuration["AgentExecution:Mode"],
                 cancellationToken);
         }
+
+        await RunAgentExecutionLlmCostEstimateAppender.AppendAsync(
+            response,
+            runId,
+            agentExecutionTraceRepository,
+            llmCostEstimator,
+            cancellationToken);
 
         return Ok(response);
     }

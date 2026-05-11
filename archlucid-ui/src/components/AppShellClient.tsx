@@ -13,6 +13,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { CommandPalette } from "@/components/CommandPalette";
 import { HelpPanel } from "@/components/HelpPanel";
+import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { CorePilotWizardLauncher } from "@/components/CorePilotWizard";
@@ -55,7 +56,8 @@ export function AppShellClient({ children }: AppShellClientProps) {
 function AppShellInner({ children }: AppShellClientProps) {
   const pathname = usePathname();
   const chromeMode = useOperatorChromeMode();
-  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpGuidesOpen, setHelpGuidesOpen] = useState(false);
+  const [helpDocSearchOpen, setHelpDocSearchOpen] = useState(false);
   const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
 
@@ -141,9 +143,9 @@ function AppShellInner({ children }: AppShellClientProps) {
                       variant="ghost"
                       size="sm"
                       className="h-8 w-8 p-0"
-                      aria-label="Open help"
+                      aria-label="Open documentation search"
                       onClick={() => {
-                        setHelpOpen(true);
+                        setHelpDocSearchOpen(true);
                       }}
                     >
                       <HelpCircle className="h-4 w-4" aria-hidden />
@@ -156,7 +158,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <div data-testid="app-shell-main" className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6">
                 <KeyboardShortcutProvider
                   onHelpRequested={() => {
-                    setHelpOpen(true);
+                    setHelpDocSearchOpen(true);
                   }}
                 >
                   <main
@@ -173,7 +175,14 @@ function AppShellInner({ children }: AppShellClientProps) {
             </div>
             <AppToaster />
             <RouteAnnouncer />
-            <HelpPanel open={helpOpen} onOpenChange={setHelpOpen} />
+            <HelpSearchPanel
+              open={helpDocSearchOpen}
+              onOpenChange={setHelpDocSearchOpen}
+              onOpenGuidesPanel={() => {
+                setHelpGuidesOpen(true);
+              }}
+            />
+            <HelpPanel open={helpGuidesOpen} onOpenChange={setHelpGuidesOpen} />
           </TooltipProvider>
         </WorkspaceActiveRunProvider>
       </OperatorNavAuthorityProvider>
@@ -209,10 +218,10 @@ function AppShellInner({ children }: AppShellClientProps) {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="hidden h-8 w-8 p-0 sm:inline-flex"
-                  aria-label="Open help"
+                  className="h-8 w-8 p-0"
+                  aria-label="Open documentation search"
                   onClick={() => {
-                    setHelpOpen(true);
+                    setHelpDocSearchOpen(true);
                   }}
                 >
                   <HelpCircle className="h-4 w-4" aria-hidden />
@@ -234,7 +243,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               {pathname === "/" ? <TrialBanner /> : null}
               <KeyboardShortcutProvider
                 onHelpRequested={() => {
-                  setHelpOpen(true);
+                  setHelpDocSearchOpen(true);
                 }}
               >
                 <main
@@ -262,7 +271,14 @@ function AppShellInner({ children }: AppShellClientProps) {
         </div>
         <AppToaster />
         <RouteAnnouncer />
-        <HelpPanel open={helpOpen} onOpenChange={setHelpOpen} />
+        <HelpSearchPanel
+          open={helpDocSearchOpen}
+          onOpenChange={setHelpDocSearchOpen}
+          onOpenGuidesPanel={() => {
+            setHelpGuidesOpen(true);
+          }}
+        />
+        <HelpPanel open={helpGuidesOpen} onOpenChange={setHelpGuidesOpen} />
         <CorePilotWizardLauncher />
         <OnboardingTour />
       </TooltipProvider>

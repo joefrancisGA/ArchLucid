@@ -409,8 +409,8 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
       return { users: [] as unknown[] };
     }
 
-    if (pathname.includes("config-summary")) {
-      return { entries: [] as unknown[] } as unknown;
+    if (pathname.includes("config-summary") || pathname.includes("configuration/summary")) {
+      return { keys: [] as unknown[] } as unknown;
     }
 
     if (pathname.includes("support-bundle")) {

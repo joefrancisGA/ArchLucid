@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:168 -->
+<!-- audit-core-const-count:176 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -88,6 +88,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Pre-commit governance warn | `ArchitectureRunCommitOrchestrator` | `GovernancePreCommitWarned` | RunId when parseable | `reason`, `warnings`, `blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity` |
 | Recommendation learning rebuild | `RecommendationLearningController` | `RecommendationLearningProfileRebuilt` | — | profile id |
 | Product learning pilot signal captured | `ProductLearningController` (`POST /v1/product-learning/signals`) | `ProductLearningPilotSignalRecorded` | Tenant/Workspace/Project from ambient scope | `{ subjectType, disposition, patternKey? }` — `ArtifactHint`, `CommentShort`, and `DetailJson` are **not** included to avoid logging free-form user text |
+| 59R planning drafts materialized (ranked pilot feedback) | `LearningController` (`POST /v1/learning/planning/materialize`) | `ProductLearningPlanningMaterialized` | Tenant/Workspace/Project from ambient scope | `{ sinceUtc, maxPlansToMaterialize, themesInserted, plansInserted, skippedExistingThemeKeys, signalLinksInserted }` — mirrors JSON response counters |
 | Artifact / bundle / run export download | `ArtifactExportController` | `ArtifactDownloaded`, `BundleDownloaded`, `RunExported` | RunId (+ artifact when applicable) | format, byte counts, etc. |
 | Architecture analysis report (primary JSON build) | `AnalysisReportsController` | `ArchitectureAnalysisReportGenerated` | RunId when parseable | section flags, `manifestVersion`, `warningCount` |
 | Architecture DOCX exports (package download; consulting analysis metadata row; async DOCX jobs) | `DocxExportController`; `RunExportAuditService` (sync consulting path; not export-replay persist); `BackgroundJobWorkUnitExecutor` | `ArchitectureDocxExportGenerated` | RunId, ManifestId when known | `runId`, `compareWithRunId` / `exportRecordId` / `exportChannel`, `byteCount` |
@@ -107,6 +108,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Coordinator run execution succeeded (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunExecuteOrchestrator` → `Architecture.RunExecuteSucceeded`) | `AuditEventTypes.Run.ExecuteSucceeded` | RunId | `{ runId, resultCount }` |
 | Coordinator run commit completed (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunCommitOrchestrator` / `AuthorityDrivenArchitectureRunCommitOrchestrator` → `Architecture.RunCompleted`) | `AuditEventTypes.Run.CommitCompleted` | RunId | Coordinator path: `{ runId, manifestVersion, systemName }`; authority path adds `warningCount`, `commitPath` |
 | Coordinator run failed (baseline → durable) | `BaselineMutationAuditService` (orchestrators → `Architecture.RunFailed`) via `BaselineMutationAuditArchitectureDurableWriter` | `AuditEventTypes.Run.Failed` | RunId when parseable | `{ runId, reason }` (after baseline `Architecture.RunFailed`) |
+| Coordinator run quality gate rejected (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunExecuteOrchestrator` → `Architecture.RunQualityGateRejected`) via `BaselineMutationAuditArchitectureDurableWriter` | `AuditEventTypes.Run.QualityGateRejected` | RunId when parseable | `{ runId, traceId, agentLabel }` (after baseline `Architecture.RunQualityGateRejected`; agent-output quality gate) |
 | Coordinator run execute retry (`LegacyRunStatus` / contract status **Failed**) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.Run.RetryRequested` | RunId when `runId` parses as GUID | `{ runId, previousStatus: "Failed" }` — direct `IAuditService` before baseline `Architecture.RunStarted`; clarifies durable trail when operators re-invoke execute after a failed run |
 | Agent trace blob persistence failed or timed out | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceBlobPersistenceFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, failedBlobTypes? }` — emitted when inline blob writes after trace insert exhaust retries, time out, or throw unexpectedly; execute outcome elsewhere is unchanged. |
 | Agent trace mandatory inline fallback failed or forensic verification failed | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceInlineFallbackFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, exceptionDetail? }` — SQL inline patch threw, trace row missing on read, or blob+inline still missing non-empty prompt/response after patch; **`dbo.AgentExecutionTraces.InlineFallbackFailed`** set; execute outcome elsewhere is unchanged. |
@@ -127,6 +129,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Microsoft Teams incoming-webhook connection remove | `TeamsIncomingWebhookConnectionsController` (`DELETE /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields |
 | ITSM outbound issue/incident create (Jira / ServiceNow) | `ItsmOutboundIssuesController` (`POST /v1/integrations/itsm/outbound/issues`) | `IntegrationJiraIssueCreateSucceeded`, `IntegrationJiraIssueCreateFailed`, `IntegrationJiraIssueCreateSkipped`, `IntegrationServiceNowIncidentCreateSucceeded`, `IntegrationServiceNowIncidentCreateFailed`, `IntegrationServiceNowIncidentCreateSkipped` | RunId / finding id when parseable | finding id, provider label, external key / skip reason — **no** secrets, tokens, or full external URLs with query strings |
 | Weekly executive digest preferences upsert | `TenantExecDigestPreferencesController` (`POST …/tenant/exec-digest-preferences`) | `ExecDigestPreferencesUpdated` | Tenant + default workspace/project from scope | digest cadence / channel booleans (JSON) |
+| Core Pilot team checklist step upsert | `CorePilotTeamChecklistController` (`PUT …/tenant/core-pilot-checklist`) | `CorePilotTeamChecklistUpdated` | Tenant + default workspace/project from scope | `{ stepIndex, isCompleted }` JSON (indexes 0–3) |
 | Entra directory bound to tenant (commercial `tid` after paid conversion) | `TenantTrialController` (`POST …/tenant/link-entra`) | `TenantEntraDirectoryBound` | Tenant from ambient scope | `{ entraTenantId }` |
 | Trial local identity linked to Entra `oid` (optional; same request as directory bind when `LocalEmail` + `EntraOid` set) | `TenantTrialController` (`POST …/tenant/link-entra`) | `TrialLocalIdentityLinkedToEntra` | Tenant from ambient scope | `{ normalizedEmail }` |
 | Trial converted (billing integration stub) | `TenantTrialController` (`POST …/convert`) | `TenantTrialConverted` | Tenant from ambient scope | `{ targetTier }` from request body when present |
@@ -162,7 +165,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-**Last reviewed:** 2026-04-30.
+**Last reviewed:** 2026-05-10.
 
 ### Mutating / lifecycle — risk acceptance (verified in repository)
 
@@ -203,7 +206,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Metric | Approximate value |
 |--------|-------------------|
 | **Core `AuditEventTypes` `public const string` rows** | 154 (see CI marker above; includes nested `Baseline` and nested `Run`) |
-| **`await *auditService.LogAsync` production call sites** | ~44 (excluding tests; includes bridge) |
+| **`await *auditService.LogAsync` production call sites** | ~45 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Known-gap catalogued-only items** | 2 — `ManifestSuperseded` (no supersession writer), `FindingsListAccessed` (no list route wiring) — see **Known gaps** |
 
@@ -246,6 +249,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `SyntheticOperatorDemoPackInvoked` | `SyntheticOperatorDemoPack.Invoked` | `SyntheticOperatorDemoPackController` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `RunExported` | `RunExported` | `ArtifactExportController` |
 | `ArchitectureAnalysisReportGenerated` | `ArchitectureAnalysisReportGenerated` | `AnalysisReportsController` |
+| `ArchitectureQuickScanExecuted` | `ArchitectureQuickScanExecuted` | `ArchitectureQuickScanController` (`POST /v1/architecture/quick-scan`) |
 | `ArchitectureDocxExportGenerated` | `ArchitectureDocxExportGenerated` | `DocxExportController`, `RunExportAuditService`, `BackgroundJobWorkUnitExecutor` |
 | `ComparisonReplayPersisted` | `ComparisonReplayPersisted` | `ComparisonAuditService` |
 | `EndToEndComparisonPersisted` | `EndToEndComparisonPersisted` | `ComparisonAuditService` |
@@ -268,6 +272,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `RecommendationImplemented` | `RecommendationImplemented` | `AdvisoryController` |
 | `RecommendationLearningProfileRebuilt` | `RecommendationLearningProfileRebuilt` | `RecommendationLearningController` |
 | `ProductLearningPilotSignalRecorded` | `ProductLearningPilotSignalRecorded` | `ProductLearningController` (`POST /v1/product-learning/signals`) |
+| `ProductLearningPlanningMaterialized` | `ProductLearningPlanningMaterialized` | `LearningController` (`POST /v1/learning/planning/materialize`) |
 | `AdvisoryScanScheduled` | `AdvisoryScanScheduled` | `AdvisoryScanRunner`, `AdvisorySchedulingController`, `AdvisoryController` |
 | `AdvisoryScanExecuted` | `AdvisoryScanExecuted` | `AdvisoryScanRunner`, `AdvisoryController` |
 | `ArchitectureDigestGenerated` | `ArchitectureDigestGenerated` | `AdvisoryScanRunner`, `AdvisoryController` |
@@ -303,6 +308,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `GovernanceApprovalApproved` | `GovernanceApprovalApproved` | `GovernanceWorkflowService` |
 | `PilotScorecardBaselinesUpdated` | `PilotScorecardBaselinesUpdated` | `PilotInProductScorecardService` (`PUT /v1/pilots/scorecard/baselines`) |
 | `PilotCloseoutRecorded` | `PilotCloseoutRecorded` | `PilotsController` (`POST /v1/pilots/closeout`) |
+| `CorePilotTeamChecklistUpdated` | `CorePilotTeamChecklistUpdated` | `CorePilotTeamChecklistController` (`PUT …/tenant/core-pilot-checklist`) |
 | `GovernanceApprovalRejected` | `GovernanceApprovalRejected` | `GovernanceWorkflowService` |
 | `GovernanceSelfApprovalBlocked` | `GovernanceSelfApprovalBlocked` | `GovernanceWorkflowService` |
 | `GovernanceManifestPromoted` | `GovernanceManifestPromoted` | `GovernanceWorkflowService` |
@@ -357,6 +363,9 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `RunLegacyReadyForCommitPromoted` | `RunLegacyReadyForCommitPromoted` | `ArchitectureRunExecuteOrchestrator` (post-execute LegacyRunStatus promotion — ADR-0012) |
 | `IntegrationJiraIssueStatusSynced` | `Integration.JiraIssueStatusSynced` | `ItsmInboundWebhookSyncService` (Jira inbound webhook) |
 | `IntegrationServiceNowIncidentStatusSynced` | `Integration.ServiceNowIncidentStatusSynced` | `ItsmInboundWebhookSyncService` (ServiceNow inbound webhook) |
+| `IntegrationJiraInboundWebhookRejected` | `Integration.JiraInboundWebhookRejected` | `ItsmInboundWebhookSyncService` (Jira inbound validation / rejection) |
+| `IntegrationServiceNowInboundWebhookRejected` | `Integration.ServiceNowInboundWebhookRejected` | `ItsmInboundWebhookSyncService` (ServiceNow inbound validation / rejection) |
+| `IntegrationItsmInboundWebhookPayloadRejected` | `Integration.ItsmInboundWebhookPayloadRejected` | `ItsmInboundWebhookSyncService` / `ItsmInboundWebhooksController` (oversized webhook body) |
 | `IntegrationItsmFindingCorrelationRegistered` | `Integration.ItsmFindingCorrelationRegistered` | `ItsmCorrelationController` (`POST …/integrations/itsm/correlations`) |
 | `IntegrationJiraIssueCreateSucceeded` | `Integration.JiraIssueCreateSucceeded` | `ItsmOutboundIssuesController` (`POST …/integrations/itsm/outbound/issues`); `ItsmOutboundIssueCreationService` |
 | `IntegrationJiraIssueCreateFailed` | `Integration.JiraIssueCreateFailed` | same |
@@ -379,6 +388,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.ExecuteSucceeded` | `Run.ExecuteSucceeded` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunExecuteSucceeded`) |
 | `Run.CommitCompleted` | `Run.CommitCompleted` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunCompleted`) |
 | `Run.Failed` | `Run.Failed` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunFailed`) |
+| `Run.QualityGateRejected` | `Run.QualityGateRejected` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunQualityGateRejected`) |
 | `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
@@ -394,6 +404,7 @@ When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 | `Baseline.Architecture.RunExecuteSucceeded` | `Architecture.RunExecuteSucceeded` | `ArchitectureRunExecuteOrchestrator` |
 | `Baseline.Architecture.RunCompleted` | `Architecture.RunCompleted` | `ArchitectureRunCommitOrchestrator` |
 | `Baseline.Architecture.RunFailed` | `Architecture.RunFailed` | Architecture run orchestrators, `ArchitectureRunService` |
+| `Baseline.Architecture.RunQualityGateRejected` | `Architecture.RunQualityGateRejected` | `ArchitectureRunExecuteOrchestrator` (agent-output quality gate blocks execute completion) |
 | `Baseline.Governance.ApprovalRequestSubmitted` | `Governance.ApprovalRequestSubmitted` | `GovernanceWorkflowService` |
 | `Baseline.Governance.ApprovalRequestApproved` | `Governance.ApprovalRequestApproved` | `GovernanceWorkflowService` |
 | `Baseline.Governance.ApprovalRequestRejected` | `Governance.ApprovalRequestRejected` | `GovernanceWorkflowService` |

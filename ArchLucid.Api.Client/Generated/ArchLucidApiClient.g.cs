@@ -211,6 +211,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<AdminConfigSummaryResponse> SummaryGETAsync(bool? includeEffectiveValues);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<AdminConfigSummaryResponse> SummaryGETAsync(bool? includeEffectiveValues, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<OrphanComparisonRemediationResult> OrphanComparisonRecordsAsync(bool? dryRun, int? maxRows);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -733,12 +742,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ComparisonSummaryResponse> SummaryGETAsync(string comparisonRecordId);
+        System.Threading.Tasks.Task<ComparisonSummaryResponse> SummaryGET2Async(string comparisonRecordId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ComparisonSummaryResponse> SummaryGETAsync(string comparisonRecordId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ComparisonSummaryResponse> SummaryGET2Async(string comparisonRecordId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -778,12 +787,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string? leftVersion, string? rightVersion);
+        System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET3Async(string? leftVersion, string? rightVersion);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET3Async(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -841,12 +850,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships);
+        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET4Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET4Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -895,12 +904,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string? leftRunId, string? rightRunId);
+        System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET5Async(string? leftRunId, string? rightRunId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET5Async(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1372,12 +1381,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET5Async(System.Guid manifestId);
+        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET6Async(System.Guid manifestId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET5Async(System.Guid manifestId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET6Async(System.Guid manifestId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1489,12 +1498,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunSummaryResponse> SummaryGET6Async(System.Guid runId);
+        System.Threading.Tasks.Task<RunSummaryResponse> SummaryGET7Async(System.Guid runId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunSummaryResponse> SummaryGET6Async(System.Guid runId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RunSummaryResponse> SummaryGET7Async(System.Guid runId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2270,12 +2279,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string? maxThemes, string? maxPlans);
+        System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET8Async(string? maxThemes, string? maxPlans);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string? maxThemes, string? maxPlans, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET8Async(string? maxThemes, string? maxPlans, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2612,12 +2621,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string? since);
+        System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET9Async(string? since);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string? since, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET9Async(string? since, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4601,6 +4610,90 @@ namespace ArchLucid.Api.Client.Generated
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "v1/admin/config-summary"
                     urlBuilder_.Append("v1/admin/config-summary");
+                    urlBuilder_.Append('?');
+                    if (includeEffectiveValues != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("includeEffectiveValues")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(includeEffectiveValues, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<AdminConfigSummaryResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<AdminConfigSummaryResponse> SummaryGETAsync(bool? includeEffectiveValues)
+        {
+            return SummaryGETAsync(includeEffectiveValues, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<AdminConfigSummaryResponse> SummaryGETAsync(bool? includeEffectiveValues, System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "v1/admin/configuration/summary"
+                    urlBuilder_.Append("v1/admin/configuration/summary");
                     urlBuilder_.Append('?');
                     if (includeEffectiveValues != null)
                     {
@@ -10368,15 +10461,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ComparisonSummaryResponse> SummaryGETAsync(string comparisonRecordId)
+        public virtual System.Threading.Tasks.Task<ComparisonSummaryResponse> SummaryGET2Async(string comparisonRecordId)
         {
-            return SummaryGETAsync(comparisonRecordId, System.Threading.CancellationToken.None);
+            return SummaryGET2Async(comparisonRecordId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ComparisonSummaryResponse> SummaryGETAsync(string comparisonRecordId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ComparisonSummaryResponse> SummaryGET2Async(string comparisonRecordId, System.Threading.CancellationToken cancellationToken)
         {
             if (comparisonRecordId == null)
                 throw new System.ArgumentNullException("comparisonRecordId");
@@ -10887,15 +10980,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string? leftVersion, string? rightVersion)
+        public virtual System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET3Async(string? leftVersion, string? rightVersion)
         {
-            return SummaryGET2Async(leftVersion, rightVersion, System.Threading.CancellationToken.None);
+            return SummaryGET3Async(leftVersion, rightVersion, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET3Async(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -11570,15 +11663,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships)
+        public virtual System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET4Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships)
         {
-            return SummaryGET3Async(manifestVersion, format, includeRelationships, includeRequiredControls, includeTags, includeComponentControls, maxRelationships, System.Threading.CancellationToken.None);
+            return SummaryGET4Async(manifestVersion, format, includeRelationships, includeRequiredControls, includeTags, includeComponentControls, maxRelationships, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET4Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships, System.Threading.CancellationToken cancellationToken)
         {
             if (manifestVersion == null)
                 throw new System.ArgumentNullException("manifestVersion");
@@ -12271,15 +12364,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string? leftRunId, string? rightRunId)
+        public virtual System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET5Async(string? leftRunId, string? rightRunId)
         {
-            return SummaryGET4Async(leftRunId, rightRunId, System.Threading.CancellationToken.None);
+            return SummaryGET5Async(leftRunId, rightRunId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET5Async(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -18425,15 +18518,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET5Async(System.Guid manifestId)
+        public virtual System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET6Async(System.Guid manifestId)
         {
-            return SummaryGET5Async(manifestId, System.Threading.CancellationToken.None);
+            return SummaryGET6Async(manifestId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET5Async(System.Guid manifestId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET6Async(System.Guid manifestId, System.Threading.CancellationToken cancellationToken)
         {
             if (manifestId == null)
                 throw new System.ArgumentNullException("manifestId");
@@ -19879,15 +19972,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RunSummaryResponse> SummaryGET6Async(System.Guid runId)
+        public virtual System.Threading.Tasks.Task<RunSummaryResponse> SummaryGET7Async(System.Guid runId)
         {
-            return SummaryGET6Async(runId, System.Threading.CancellationToken.None);
+            return SummaryGET7Async(runId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RunSummaryResponse> SummaryGET6Async(System.Guid runId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RunSummaryResponse> SummaryGET7Async(System.Guid runId, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -29217,15 +29310,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string? maxThemes, string? maxPlans)
+        public virtual System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET8Async(string? maxThemes, string? maxPlans)
         {
-            return SummaryGET7Async(maxThemes, maxPlans, System.Threading.CancellationToken.None);
+            return SummaryGET8Async(maxThemes, maxPlans, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string? maxThemes, string? maxPlans, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET8Async(string? maxThemes, string? maxPlans, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -32958,15 +33051,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string? since)
+        public virtual System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET9Async(string? since)
         {
-            return SummaryGET8Async(since, System.Threading.CancellationToken.None);
+            return SummaryGET9Async(since, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string? since, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET9Async(string? since, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -41003,6 +41096,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("configPath")]
         public string? ConfigPath { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("description")]
+        public string? Description { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("effectiveValue")]
         public string? EffectiveValue { get; set; } = default!;
 
@@ -41014,6 +41110,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("section")]
         public string? Section { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("sources")]
+        public System.Collections.Generic.ICollection<string>? Sources { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -44358,6 +44457,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public System.Guid? RunId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("severity")]
+        public int? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("typedPayload")]
         public JsonElement? TypedPayload { get; set; } = default!;
@@ -50199,6 +50301,31 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunAgentLlmCostEstimateResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("estimatedCostUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? EstimatedCostUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("model")]
+        public string? Model { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("tokenCounts")]
+        public RunLlmTokenCountsResponse? TokenCounts { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RunArchiveBatchResult
     {
 
@@ -50392,6 +50519,9 @@ namespace ArchLucid.Api.Client.Generated
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RunDetailsResponse
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentExecutionLlmCostEstimate")]
+        public RunAgentLlmCostEstimateResponse? AgentExecutionLlmCostEstimate { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraces")]
         public System.Collections.Generic.ICollection<object>? DecisionTraces { get; set; } = default!;
@@ -50631,6 +50761,27 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("systemName")]
         public string? SystemName { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunLlmTokenCountsResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("completion")]
+        public int? Completion { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("prompt")]
+        public int? Prompt { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

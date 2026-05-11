@@ -96,6 +96,11 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     text: "System health shows API readiness checks, circuit breaker state, and onboarding milestone rates. For full metrics, connect Prometheus or Application Insights — see docs/library/OBSERVABILITY.md.",
     learnMoreUrl: "/docs/library/OBSERVABILITY.md",
   },
+  "admin-configuration": {
+    text:
+      "Catalog-aligned view of host configuration: which keys are set, declared sources from the operator reference, and redacted effective values. Mutation remains server-side only.",
+    learnMoreUrl: "/docs/library/CONFIGURATION_REFERENCE.md",
+  },
 };
 
 /**

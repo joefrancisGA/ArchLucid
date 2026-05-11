@@ -13,6 +13,7 @@ import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   coerceArtifactDescriptorList,
   coerceManifestSummary,
+  coerceRunComparison,
   coerceRunDetail,
 } from "@/lib/operator-response-guards";
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
@@ -30,15 +31,18 @@ import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
+import { ChangesSinceLastReviewBanner } from "@/components/ChangesSinceLastReviewBanner";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
+import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDetailSectionNav";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
+import { RunEstimatedLlmCostCard } from "@/components/RunEstimatedLlmCostCard";
 import { RunDetailTechnicalIdentifiersSection } from "@/components/RunDetailTechnicalIdentifiersSection";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
@@ -60,6 +64,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   type ApiResponseWithTrace,
+  compareRuns,
   getBundleDownloadUrl,
   getManifestSummary,
   getRunDetail,
@@ -81,7 +86,10 @@ import {
 } from "@/lib/operator-static-demo";
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
+import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
+import { findPriorCommittedRun } from "@/lib/find-prior-committed-run";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { extractQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-summary-derive";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
 import type {
   ArtifactDescriptor,
@@ -256,17 +264,45 @@ export default async function RunDetailPage({
   const resolvedDetail = envelope.value;
 
   let canShowCompareReviewButton = false;
+  let priorCommittedRun: RunSummary | null = null;
 
   try {
-    const projectRuns = await listRunsByProject(resolvedDetail.run.projectId, 2);
+    const projectRuns = await listRunsByProject(resolvedDetail.run.projectId, 60);
 
     canShowCompareReviewButton = projectRuns.length >= 2;
+    priorCommittedRun = findPriorCommittedRun(resolvedDetail.run.runId, projectRuns);
   } catch {
     canShowCompareReviewButton = false;
   }
 
   const buyerPolishedArtifactTable = isBuyerPolishedOperatorShellEnv();
   const manifestId = resolvedDetail.run.goldenManifestId;
+
+  let changesSinceLastReviewBannerEl: ReactElement | null = null;
+
+  if (manifestId !== undefined && manifestId !== null && manifestId.trim().length > 0 && priorCommittedRun !== null) {
+    try {
+      const rawCompare: unknown = await compareRuns(priorCommittedRun.runId, resolvedDetail.run.runId);
+      const coercedCmp = coerceRunComparison(rawCompare);
+
+      if (coercedCmp.ok) {
+        const copy = deriveChangesSinceLastReviewCopy(coercedCmp.value);
+
+        if (copy !== null) {
+          changesSinceLastReviewBannerEl = (
+            <ChangesSinceLastReviewBanner
+              priorReviewDateLabel={formatInstantForLocale(priorCommittedRun.createdUtc)}
+              priorRunId={priorCommittedRun.runId}
+              currentRunId={resolvedDetail.run.runId}
+              copy={copy}
+            />
+          );
+        }
+      }
+    } catch {
+      changesSinceLastReviewBannerEl = null;
+    }
+  }
   let goldenManifestJsonForExport: unknown | null = null;
 
   if (isUsableGoldenManifestExportJson(resolvedDetail.goldenManifest)) {
@@ -459,6 +495,8 @@ export default async function RunDetailPage({
   const governanceGateLabel =
     manifestSummary !== null ? governanceGateLabelFromManifestStatus(manifestSummary.status) : null;
 
+  const quickDecisionFindings = extractQuickDecisionFindingsFromRunDetail(resolvedDetail);
+
   const sampleReviewPackageSummaryEl =
     usedStaticDemoRun ? (
       <SampleReviewPackageSummary
@@ -476,6 +514,7 @@ export default async function RunDetailPage({
           title={buyerPolishedArtifactTable ? "Findings & review narrative" : "Architecture review summary"}
           defaultOpen={buyerPolishedArtifactTable}
         >
+          <QuickDecisionSummary runId={runId} findings={quickDecisionFindings} />
           {explanationFailure && (
             <>
               <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
@@ -587,6 +626,10 @@ export default async function RunDetailPage({
         aggregateRiskPosture={explanationSummary?.riskPosture ?? null}
         governanceGateLabel={governanceGateLabel}
       />
+
+      {changesSinceLastReviewBannerEl}
+
+      <RunEstimatedLlmCostCard estimate={resolvedDetail.agentExecutionLlmCostEstimate} />
 
       {usedStaticDemoRun && buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
 

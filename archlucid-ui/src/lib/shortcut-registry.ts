@@ -69,8 +69,8 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "shift+?",
-    label: "Help",
-    description: "Open help",
+    label: "Documentation search",
+    description: "Open curated documentation search (Shift+/)",
   },
 ];
 

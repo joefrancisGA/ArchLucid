@@ -122,6 +122,16 @@ export type ReplayResponse = {
   validationNoteCount?: number;
 };
 
+/** Aggregated LLM usage for a run (from persisted agent execution traces). */
+export type RunAgentExecutionLlmCostEstimate = {
+  estimatedCostUsd: number | null;
+  tokenCounts: {
+    prompt: number;
+    completion: number;
+  };
+  model: string;
+};
+
 /** Full run detail envelope containing the run summary and optional snapshot/manifest/trace/bundle data. */
 export type RunDetail = {
   /** Sponsor-safe agent execution line from GET /v1/authority/runs/{runId} (simulator vs live vs fallback). */
@@ -132,6 +142,8 @@ export type RunDetail = {
   degradedExecutionAgents?: string[] | null;
   /** Committed runs only — operational evidence summary (API 2026-05+). */
   trustEvidenceCard?: RunTrustEvidenceCard | null;
+  /** Summed trace tokens + USD estimate from GET /v1/authority/runs/{runId} when traces exist. */
+  agentExecutionLlmCostEstimate?: RunAgentExecutionLlmCostEstimate | null;
   run: {
     runId: string;
     projectId: string;

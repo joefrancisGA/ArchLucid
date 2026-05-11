@@ -187,7 +187,7 @@ export function MobileNavDrawer() {
             )}
             {buyerPolishedShell ? null : (
               <p className="text-xs text-neutral-600 dark:text-neutral-400" aria-keyshortcuts="Shift+?">
-                Press Shift+? for help and keyboard shortcuts
+                Press Shift+/ for documentation search; open Guides from the panel for shortcuts
               </p>
             )}
           </div>

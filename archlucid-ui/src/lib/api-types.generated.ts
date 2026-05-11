@@ -643,6 +643,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/configuration/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    includeEffectiveValues?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminConfigSummaryResponse"];
+                        "text/json": components["schemas"]["AdminConfigSummaryResponse"];
+                        "text/plain": components["schemas"]["AdminConfigSummaryResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/diagnostics/data-consistency/orphan-comparison-records": {
         parameters: {
             query?: never;
@@ -21107,10 +21146,12 @@ export interface components {
         };
         ConfigSummaryKeyRow: {
             configPath?: null | string;
+            description?: null | string;
             effectiveValue?: null | string;
             isSet?: boolean;
             requirementKind?: null | string;
             section?: null | string;
+            sources?: null | string[];
         };
         ConfigurationHealthCheckResult: {
             detail?: null | string;
@@ -22018,6 +22059,7 @@ export interface components {
             recommendedActions?: string[];
             /** Format: uuid */
             runId?: string;
+            severity?: components["schemas"]["FindingSeverity"];
             typedPayload?: null | components["schemas"]["JsonElement"];
         };
         FindingLlmAuditResult: {
@@ -23823,6 +23865,12 @@ export interface components {
             /** Format: int32 */
             wouldSuppressCount?: number;
         };
+        RunAgentLlmCostEstimateResponse: {
+            /** Format: double */
+            estimatedCostUsd?: null | number | string;
+            model?: string;
+            tokenCounts?: components["schemas"]["RunLlmTokenCountsResponse"];
+        };
         RunArchiveBatchResult: {
             archivedRuns?: components["schemas"]["ArchivedRunScopeRow"][];
             childCascade?: components["schemas"]["RunArchiveChildCascadeCounts"];
@@ -23882,6 +23930,7 @@ export interface components {
             runDegradedExecution?: boolean;
         };
         RunDetailsResponse: {
+            agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateResponse"];
             decisionTraces?: unknown[];
             executionFlavorBuyerSummary?: null | string;
             manifest?: null | components["schemas"]["GoldenManifest"];
@@ -23954,6 +24003,12 @@ export interface components {
             runId?: string;
             status?: string;
             systemName?: string;
+        };
+        RunLlmTokenCountsResponse: {
+            /** Format: int32 */
+            completion?: number;
+            /** Format: int32 */
+            prompt?: number;
         };
         RunMetadataDiffResult: {
             changedFields?: string[];

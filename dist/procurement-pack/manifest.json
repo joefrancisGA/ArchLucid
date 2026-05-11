@@ -1,25 +1,25 @@
 {
-  "generated_utc": "2026-05-07T01:16:00.923266+00:00",
+  "generated_utc": "2026-05-11T01:57:44.038627+00:00",
   "files": [
     {
       "pack_path": "SECURITY.md",
       "source_repo_path": "docs/library/SECURITY.md",
-      "bytes": 13232,
-      "sha256": "83082bed3a5a4e5608067f7d2367a963cb711a36d7fde92b4923b774f426d446",
+      "bytes": 13708,
+      "sha256": "fd043543165dcb768f9abcfda73e477233c394a26ec08b45e48da6e06f4e4536",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "README.md",
       "source_repo_path": "README.md",
-      "bytes": 34444,
-      "sha256": "0c3f6b5967b5311bb80858399b07cc8456bcc8774d72dcbb5aa49eada82dded8",
+      "bytes": 37469,
+      "sha256": "8139ba5742e5ca46e2f4f6ffd1deaa5fb7f918fc299f7898fb7efa6aa9081422",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "TRUST_CENTER.md",
       "source_repo_path": "docs/go-to-market/TRUST_CENTER.md",
-      "bytes": 19043,
-      "sha256": "2ac4e8b4c4110564fea51d2d942bd831e3bf257c928d048a8a680d42b212cb29",
+      "bytes": 23255,
+      "sha256": "e712f1ea9aaaa6c397fefef889bf3cab7ccab555c43f257d9f94c78ac5c6d097",
       "artifact_status": "Evidence"
     },
     {
@@ -60,15 +60,15 @@
     {
       "pack_path": "INTEGRATION_CATALOG.md",
       "source_repo_path": "docs/go-to-market/INTEGRATION_CATALOG.md",
-      "bytes": 15693,
-      "sha256": "e799eb6feecc21bbaf415d0be22d8d93eb0d536133e64220607a628872e00f49",
+      "bytes": 13882,
+      "sha256": "fbc14a2c9e4fda8f9b5095816f5248ed526f942e0e8382a607cb7d00c3fb987a",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "AUDIT_COVERAGE_MATRIX.md",
       "source_repo_path": "docs/library/AUDIT_COVERAGE_MATRIX.md",
-      "bytes": 56210,
-      "sha256": "e2aad24033186758232769c9ada2411c918d68542a13b5d2d9d2aa63dffcabfb",
+      "bytes": 58588,
+      "sha256": "3d28560613503a7fed98bf4b66ce22de221f1c6663602320166cc7b395ef348f",
       "artifact_status": "Evidence"
     },
     {
@@ -116,8 +116,8 @@
     {
       "pack_path": "API_CONTRACTS.md",
       "source_repo_path": "docs/library/API_CONTRACTS.md",
-      "bytes": 31262,
-      "sha256": "7208a7122a959e8a58b5ac3762db4f18dbcd57414a3a926248b228655e7b3b9c",
+      "bytes": 38470,
+      "sha256": "06b9a1f6c323e6733ea3316b885f5859c254cdb9d90eff8a3e182a75095827d8",
       "artifact_status": "Evidence"
     },
     {
@@ -130,15 +130,15 @@
     {
       "pack_path": "CUSTOMER_TRUST_AND_ACCESS.md",
       "source_repo_path": "docs/library/CUSTOMER_TRUST_AND_ACCESS.md",
-      "bytes": 5326,
-      "sha256": "ff4e36f31c73176f96e59c2c98b24e92d31cc13f54caa649198014b2b89d1703",
+      "bytes": 5489,
+      "sha256": "f37ed7d6c5753fdf8f9704e3e91ed94398a06d629dce3d91749dbcd1717a01b3",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "V1_SCOPE.md",
       "source_repo_path": "docs/library/V1_SCOPE.md",
-      "bytes": 31417,
-      "sha256": "010ba80c44a93976ea328eee24e014c5af11169aad88849e4d6e44c4ff909715",
+      "bytes": 37128,
+      "sha256": "3b22b94220d157419ac1076383ef6393c8954dddf19fc2c308f3d12c7ee02163",
       "artifact_status": "Evidence"
     },
     {
@@ -160,6 +160,13 @@
       "source_repo_path": "docs/go-to-market/ENTERPRISE_COMPARISON_ONE_PAGE.md",
       "bytes": 1537,
       "sha256": "e1bcc2038767a84e5db33c59c25c811e981ad102d041f79de08a30e3d8f211c0",
+      "artifact_status": "Evidence"
+    },
+    {
+      "pack_path": "COMPETITIVE_COMPARISON.md",
+      "source_repo_path": "docs/go-to-market/COMPETITIVE_COMPARISON.md",
+      "bytes": 9128,
+      "sha256": "8f204ab43df02fb7a5730162de1f34ca5e7284d6c9e1112aaeae00ecb8e1cc7f",
       "artifact_status": "Evidence"
     },
     {

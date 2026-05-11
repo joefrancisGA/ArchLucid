@@ -20,7 +20,8 @@ export type KeyboardShortcutProviderProps = {
 };
 
 /**
- * Global keyboard shortcuts; Shift+? opens either the parent help panel or a shortcuts-only dialog.
+ * Global keyboard shortcuts; Shift+/ (? symbol, aka Shift+?) opens either documentation search (parent shell)
+ * or a shortcuts-only dialog when no handler is supplied.
  */
 export function KeyboardShortcutProvider({ children, onHelpRequested }: KeyboardShortcutProviderProps) {
   const [helpOpen, setHelpOpen] = useState(false);

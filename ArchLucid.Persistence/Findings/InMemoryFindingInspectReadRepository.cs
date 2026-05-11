@@ -91,6 +91,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         return new FindingInspectResponse
         {
             FindingId = match.FindingId,
+            Severity = match.Severity,
             TypedPayload = typed,
             DecisionRuleId = ruleId,
             DecisionRuleName = ruleName,

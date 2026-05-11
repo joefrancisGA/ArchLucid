@@ -31,6 +31,7 @@ export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
   "alerts",
   "policy-packs",
   "system-health",
+  "admin-configuration",
   "pilot-feedback",
   "scope",
 ];
@@ -120,6 +121,15 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the shell.",
     docPath: "docs/library/OBSERVABILITY.md",
     routes: ["/admin/health"],
+  },
+  {
+    id: "admin-configuration",
+    title: "Configuration summary",
+    keywords: ["appsettings", "environment", "catalog", "admin", "secrets"],
+    summary:
+      "Read-only Effective configuration snapshot: catalog sections, declared sources, set flags, and masked values for sensitive keys.",
+    docPath: "docs/library/CONFIGURATION_REFERENCE.md",
+    routes: ["/admin/configuration"],
   },
   {
     id: "troubleshooting",

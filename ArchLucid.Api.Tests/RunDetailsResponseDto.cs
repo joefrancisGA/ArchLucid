@@ -1,3 +1,4 @@
+using ArchLucid.Api.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
@@ -45,6 +46,12 @@ public sealed class RunDetailsResponseDto
     } = [];
 
     public RunTrustEvidenceCard? TrustEvidenceCard
+    {
+        get;
+        set;
+    }
+
+    public RunAgentLlmCostEstimateResponse? AgentExecutionLlmCostEstimate
     {
         get;
         set;

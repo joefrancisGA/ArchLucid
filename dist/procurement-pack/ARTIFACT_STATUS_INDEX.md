@@ -27,5 +27,6 @@ Each row reflects `artifact_status` from the canonical procurement list (`script
 | `BREAKING_CHANGES.md` | **Evidence** | Breaking change policy and log |
 | `PROCUREMENT_PACK_COVER.md` | **Template** | Cover letter scaffold (owner completes before sending) |
 | `ENTERPRISE_COMPARISON_ONE_PAGE.md` | **Evidence** | Enterprise comparison one-pager (Markdown; PDF via GET /v1/marketing/enterprise-comparison.pdf) |
+| `COMPETITIVE_COMPARISON.md` | **Evidence** | Category-level competitive comparison matrix for procurement (no vendor-specific assertions) |
 | `DSAR_PROCESS.md` | **Evidence** | GDPR Data Subject Access Request process — PII map, fulfillment steps, erasure constraints |
 | `CURRENT_ASSURANCE_POSTURE.md` | **Self-assessment** | Current assurance posture summary — CI security checks, isolation model, audit, compliance status |

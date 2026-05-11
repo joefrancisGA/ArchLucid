@@ -71,6 +71,15 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
     }
 
     [SkippableFact]
+    public async Task Reader_key_cannot_GET_admin_configuration_summary_returns_403()
+    {
+        using HttpClient client = CreateReaderClient();
+        using HttpResponseMessage response = await client.GetAsync("/v1/admin/configuration/summary");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
     public async Task No_api_key_on_protected_list_runs_returns_401()
     {
         using HttpClient client = factory.CreateClient();

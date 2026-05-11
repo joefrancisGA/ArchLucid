@@ -53,6 +53,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
                 {
                     FindingId = "f1",
                     RunId = runId,
+                    Severity = FindingSeverity.Critical,
                     TypedPayload = JsonSerializer.SerializeToElement(
                         new ArchitectureFinding { Severity = FindingSeverity.Critical, Message = "Z" },
                         new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),

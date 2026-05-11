@@ -3395,6 +3395,12 @@
               "string"
             ]
           },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "effectiveValue": {
             "type": [
               "null",
@@ -3414,6 +3420,15 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
             ]
           }
         },
@@ -6605,6 +6620,9 @@
           "runId": {
             "format": "uuid",
             "type": "string"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/FindingSeverity"
           },
           "typedPayload": {
             "oneOf": [
@@ -12347,6 +12365,26 @@
         },
         "type": "object"
       },
+      "RunAgentLlmCostEstimateResponse": {
+        "properties": {
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "model": {
+            "type": "string"
+          },
+          "tokenCounts": {
+            "$ref": "#/components/schemas/RunLlmTokenCountsResponse"
+          }
+        },
+        "type": "object"
+      },
       "RunArchiveBatchResult": {
         "properties": {
           "archivedRuns": {
@@ -12566,6 +12604,16 @@
       },
       "RunDetailsResponse": {
         "properties": {
+          "agentExecutionLlmCostEstimate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunAgentLlmCostEstimateResponse"
+              }
+            ]
+          },
           "decisionTraces": {
             "type": "array"
           },
@@ -12867,6 +12915,19 @@
           },
           "systemName": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunLlmTokenCountsResponse": {
+        "properties": {
+          "completion": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "prompt": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -15489,6 +15550,45 @@
       }
     },
     "/v1/admin/config-summary": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "includeEffectiveValues",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminConfigSummaryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminConfigSummaryResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminConfigSummaryResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/v1/admin/configuration/summary": {
       "get": {
         "parameters": [
           {
