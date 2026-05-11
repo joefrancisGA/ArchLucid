@@ -9,7 +9,7 @@ alwaysApply: false
 
 - **Coding agents (repo-level)**: root **`AGENTS.md`** — monorepo map, **`*.slnf`** partial solution loads, assessments pointers; **`archlucid-ui/AGENTS.md`** for the Next.js app only.
 - **LLM-driven assessments (narrow read surface)**: `docs/library/ASSESSMENT_INPUTS.md` then `.cursor/rules/Assessment-Read-First.mdc` (when producing a readiness pass — output to `docs/assessments/LATEST.md`; snapshots in `docs/archive/assessments/`).
-- **Weighted readiness assessments (SOC 2 scoring boundary)**: `.cursor/rules/Assessment-Scope-V1_1.mdc` plus `docs/library/V1_DEFERRED.md` §6c — **`(A)` headline vs `(B)` procurement realism**.
+- **Weighted readiness assessments (SOC 2 scoring boundary)**: **`@Assessment-Scope-V1_1`** (`.cursor/rules/Assessment-Scope-V1_1.mdc` — not always injected; attach for assessment passes), plus `docs/library/V1_DEFERRED.md` §6c — **`(A)` headline vs `(B)` procurement realism**.
 - **Canonical buyer / operator spine**: `docs/START_HERE.md` (five-document table + journey; `docs/FIRST_5_DOCS.md` is a thin redirect).
 - **Persona workflow recipes (API / CLI / UI map)**: `docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md` (stub at `library/WORKFLOW_RECIPES_BY_PERSONA.md`).
 - **Contributor decision tree (what folder to open first)**: `docs/START_HERE.md` — use the persona table + links into the five-document spine.

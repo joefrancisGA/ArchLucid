@@ -1,6 +1,9 @@
 ---
-description: Code coverage measures product code only; test projects are excluded from Cobertura and gates.
-alwaysApply: true
+description: >-
+  Editing coverage gates, Cobertura, Directory.Build.props coverage exclusions,
+  Coverlet excludes, *.Tests exclusions, coverage.runsettings, or merge-blocking
+  coverage scripts — preserve product-only measurement (exclude TestSupport and tests).
+alwaysApply: false
 ---
 
 # Code coverage — product assemblies only
