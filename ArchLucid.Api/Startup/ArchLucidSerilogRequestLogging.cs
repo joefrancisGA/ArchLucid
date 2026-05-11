@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Primitives;
 
-using Serilog;
 using Serilog.AspNetCore;
 
 namespace ArchLucid.Api.Startup;
