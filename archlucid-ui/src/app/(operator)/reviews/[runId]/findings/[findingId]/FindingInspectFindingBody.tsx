@@ -10,6 +10,7 @@ import { findingInspectPrimaryLabels, findingWhyThisMattersText } from "@/lib/fi
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
 import { FindingInspectReasoningPayloadDetails } from "./FindingInspectReasoningPayloadDetails";
+import { FindingInspectReasoningSummarySection } from "./FindingInspectReasoningSummarySection";
 import { FindingInspectRecommendedActionSection } from "./FindingInspectRecommendedActionSection";
 import { FindingInspectWhyMattersSection } from "./FindingInspectWhyMattersSection";
 
@@ -54,6 +55,12 @@ export function FindingInspectFindingBody({
       whyThisMattersNarrative={whyThisMattersNarrative}
     />
   );
+
+  const reasoningSummaryText = payload.reasoningSummary?.trim() ?? "";
+  const reasoningSummaryBlock =
+    variant === "inspect" && reasoningSummaryText.length > 0 ? (
+      <FindingInspectReasoningSummarySection text={reasoningSummaryText} />
+    ) : null;
 
   const evidenceBlock = (
     <FindingInspectEvidenceSection
@@ -105,6 +112,7 @@ export function FindingInspectFindingBody({
   return (
     <>
       {whyBlock}
+      {reasoningSummaryBlock}
       {evidenceBlock}
       {recommendedBlock("inspect")}
       <FindingInspectReasoningPayloadDetails

@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -25,10 +26,14 @@ namespace ArchLucid.Api.Controllers.Findings;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class FindingInspectController(
     IFindingInspectReadRepository findingInspectReadRepository,
+    IReasoningSummaryBuilder reasoningSummaryBuilder,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
         findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
+
+    private readonly IReasoningSummaryBuilder _reasoningSummaryBuilder =
+        reasoningSummaryBuilder ?? throw new ArgumentNullException(nameof(reasoningSummaryBuilder));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -53,6 +58,6 @@ public sealed class FindingInspectController(
                 $"Finding '{findingId.Trim()}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
 
-        return Ok(body);
+        return Ok(body.WithReasoningSummaryFromBuilder(_reasoningSummaryBuilder));
     }
 }

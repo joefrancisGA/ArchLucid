@@ -5,6 +5,4 @@ namespace ArchLucid.AgentRuntime.Tests.DriftDetection;
 ///     with <see cref="GoldenCohortRealModeGate.CanRunRealModeDrift" /> — this attribute documents intent for CI filters.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class SkipIfNoRealModeAttribute : Attribute
-{
-}
+public sealed class SkipIfNoRealModeAttribute : Attribute;

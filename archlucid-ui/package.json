@@ -30,6 +30,7 @@
     "screenshots:demo": "playwright test --project=chromium e2e/live-api-demo-screenshots.spec.ts",
     "screenshots:all:prebuilt": "node ./scripts/run-screenshots-all-prebuilt.mjs",
     "test:e2e:live": "playwright test",
+    "typecheck": "npm run build:api-types && tsc --noEmit -p tsconfig.json",
     "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json",
     "generate:api-types": "openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json -o src/lib/api-types.generated.ts",
     "build:api-types": "npm run build -w @archlucid/api-types",

@@ -65,9 +65,11 @@ ENV NEXT_PUBLIC_DOCS_BASE_URL=${NEXT_PUBLIC_DOCS_BASE_URL}
 ENV NEXT_PUBLIC_DEMO_URL=${NEXT_PUBLIC_DEMO_URL}
 ENV NEXT_PUBLIC_ARCHLUCID_SITE_URL=${NEXT_PUBLIC_ARCHLUCID_SITE_URL}
 ENV NEXT_TELEMETRY_DISABLED=1
+# `next build` typechecks `import "@archlucid/api-types"` — that workspace package's `dist/` is not in git; build it first.
 RUN apk add --no-cache python3 \
     && mkdir -p public \
     && python3 /pricing-source/scripts/ci/generate_pricing_json.py --repo-root /pricing-source \
+    && npm run build:api-types \
     && npx next build
 
 # ── Stage 3: runtime ───────────────────────────────────────────────

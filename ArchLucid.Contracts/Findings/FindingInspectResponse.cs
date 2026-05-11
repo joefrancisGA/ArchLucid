@@ -125,4 +125,14 @@ public sealed class FindingInspectResponse
         get;
         init;
     } = [];
+
+    /// <summary>
+    ///     Deterministic 2–3 sentence explanation of why this finding was raised (template-built from persisted metadata;
+    ///     no LLM). Null when decision rule, evidence citations, or remediation text are too sparse to summarize.
+    /// </summary>
+    public string? ReasoningSummary
+    {
+        get;
+        init;
+    }
 }
