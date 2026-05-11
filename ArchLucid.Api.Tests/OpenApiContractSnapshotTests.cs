@@ -4,6 +4,8 @@ using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Mvc.Testing;
 
+using Xunit.Sdk;
+
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
@@ -63,14 +65,18 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         JsonNode canonicalActual = OpenApiJsonCanonicalizer.Canonicalize(actualNode);
         JsonNode canonicalExpected = OpenApiJsonCanonicalizer.Canonicalize(expectedNode);
 
-        if (canonicalExpected is not JsonObject baselineObject || canonicalActual is not JsonObject actualObject)
-            Assert.Fail("Canonical OpenAPI root must deserialize as JsonObject.");
+        JsonObject baselineObject = canonicalExpected as JsonObject ?? throw BuildOpenApiMustBeCanonicalObjectException();
+
+        JsonObject actualObject = canonicalActual as JsonObject ?? throw BuildOpenApiMustBeCanonicalObjectException();
 
         OpenApiContractBackwardCompatibilityChecker.ThrowIfUnreadable(canonicalExpected, "snapshot baseline");
         OpenApiContractBackwardCompatibilityChecker.ThrowIfUnreadable(canonicalActual, "generated /openapi/v1.json");
 
         OpenApiContractBackwardCompatibilityChecker.AssertAdditiveCompatible(baselineObject, actualObject);
     }
+
+    private static XunitException BuildOpenApiMustBeCanonicalObjectException() =>
+        new XunitException("Canonical OpenAPI root must deserialize as JsonObject.");
 
     private static string ResolveSourceSnapshotPath()
     {
