@@ -85,3 +85,10 @@ __pycache__/
 
 # ── Terraform provider cache ──────────────────────────────────────────────────
 infra/**/.terraform/
+
+# ── Historical assessment snapshots (large; not default agent context) ─────
+# Canonical "current pass" pointer: docs/assessments/LATEST.md (not ignored).
+docs/archive/assessments/
+
+# If a future assessment lands at repo root again, exclude it from indexing.
+ArchLucid_Assessment*.md

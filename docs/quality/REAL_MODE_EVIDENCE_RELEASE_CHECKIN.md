@@ -2,7 +2,7 @@
 
 # Real-mode agent evidence — release check-in (stub)
 
-**Purpose:** Satisfy the **“check-in Markdown summary”** gap called out in `docs/library/QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_76_76.md` §9 item 6 without inventing AOAI deployment names.
+**Purpose:** Satisfy the **“check-in Markdown summary”** gap called out in `docs/archive/assessments/QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_76_76.md` §9 item 6 without inventing AOAI deployment names.
 
 ## Before tagging a release candidate
 
