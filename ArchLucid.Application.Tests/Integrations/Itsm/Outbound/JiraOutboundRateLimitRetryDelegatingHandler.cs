@@ -1,5 +1,7 @@
 using System.Net;
 
+using ArchLucid.Application.Integrations.Itsm.Outbound;
+
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 
 /// <summary>
@@ -84,7 +86,8 @@ internal sealed class JiraOutboundRateLimitRetryDelegatingHandler : DelegatingHa
 
             Dictionary<string, List<string>>? contentHeaders = null;
 
-            if (request.Content is not null)
+            if (request.Content is null)
+                return new CachedRequestBody(request.Method, request.RequestUri, body, requestHeaders, contentHeaders);
             {
                 contentHeaders = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
@@ -127,7 +130,9 @@ internal sealed class JiraOutboundRateLimitRetryDelegatingHandler : DelegatingHa
             foreach (KeyValuePair<string, List<string>> h in RequestHeaders)
                 rebuilt.Headers.TryAddWithoutValidation(h.Key, h.Value);
 
-            if (Body is { Length: > 0 })
+            if (Body is not { Length: > 0 })
+                return rebuilt;
+
             {
                 ByteArrayContent content = new(Body);
 

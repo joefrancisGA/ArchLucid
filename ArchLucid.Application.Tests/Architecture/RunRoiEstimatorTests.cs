@@ -30,7 +30,7 @@ public sealed class RunRoiEstimatorTests
 
         IRunRoiEstimator sut = new RunRoiEstimator(Options.Create(opts));
 
-        var detail = new ArchitectureRunDetail
+        ArchitectureRunDetail detail = new()
         {
             Run = new ArchitectureRun { RunId = Guid.NewGuid().ToString("N"), RequestId = "req" },
             Results =

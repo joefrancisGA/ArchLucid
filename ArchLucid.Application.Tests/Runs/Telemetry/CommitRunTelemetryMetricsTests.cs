@@ -16,9 +16,15 @@ public sealed class CommitRunTelemetryMetricsTests
     public void FromCommitContext_maps_wall_clock_segments_and_estimated_hours_from_findings_and_warnings()
     {
         DateTime t0 = new(2026, 5, 1, 8, 0, 0, DateTimeKind.Utc);
-        RunRecord runHeader = new() { CreatedUtc = t0 };
+        RunRecord runHeader = new()
+        {
+            CreatedUtc = t0
+        };
 
-        AgentEvidencePackage evidence = new() { CreatedUtc = t0.AddMinutes(3) };
+        AgentEvidencePackage evidence = new()
+        {
+            CreatedUtc = t0.AddMinutes(3)
+        };
 
         AgentResult slower = new()
         {
@@ -30,12 +36,19 @@ public sealed class CommitRunTelemetryMetricsTests
             ]
         };
 
-        AgentResult faster = new() { CreatedUtc = t0.AddMinutes(5), Findings = [] };
+        AgentResult faster = new()
+        {
+            CreatedUtc = t0.AddMinutes(5),
+            Findings = []
+        };
 
         List<AgentResult> agentResults = [faster, slower];
         DateTime commitUtc = t0.AddMinutes(25);
 
-        ManifestDocument persisted = new() { Warnings = ["w1", "w2", "w3"] };
+        ManifestDocument persisted = new()
+        {
+            Warnings = ["w1", "w2", "w3"]
+        };
 
         CommitRunTelemetryMetrics metrics = CommitRunTelemetryMetrics.FromCommitContext(
             runHeader,
@@ -58,15 +71,24 @@ public sealed class CommitRunTelemetryMetricsTests
     public void FromCommitContext_clamps_minimum_and_maximum_estimated_hours()
     {
         DateTime t0 = TimeProvider.System.UtcNowDateTime();
-        RunRecord runHeader = new() { CreatedUtc = t0 };
-        AgentEvidencePackage evidence = new() { CreatedUtc = t0 };
+        RunRecord runHeader = new()
+        {
+            CreatedUtc = t0
+        };
+        AgentEvidencePackage evidence = new()
+        {
+            CreatedUtc = t0
+        };
 
-        ManifestDocument emptyWarnings = new() { Warnings = [] };
+        ManifestDocument emptyWarnings = new()
+        {
+            Warnings = []
+        };
 
         CommitRunTelemetryMetrics low = CommitRunTelemetryMetrics.FromCommitContext(
             runHeader,
             evidence,
-            Array.Empty<AgentResult>(),
+            [],
             t0,
             emptyWarnings);
 
@@ -78,7 +100,10 @@ public sealed class CommitRunTelemetryMetricsTests
 
             huge.Add(new AgentResult { Findings = [new ArchitectureFinding { Message = $"f{i}" }] });
 
-        ManifestDocument manyWarnings = new() { Warnings = [.. Enumerable.Range(0, 200).Select(static i => $"w{i}")] };
+        ManifestDocument manyWarnings = new()
+        {
+            Warnings = [.. Enumerable.Range(0, 200).Select(static i => $"w{i}")]
+        };
 
         CommitRunTelemetryMetrics high = CommitRunTelemetryMetrics.FromCommitContext(
             runHeader,
@@ -94,12 +119,24 @@ public sealed class CommitRunTelemetryMetricsTests
     public void FromCommitContext_normalizes_non_utc_DateTime_kinds()
     {
         DateTime t0 = new(2026, 5, 2, 12, 0, 0, DateTimeKind.Local);
-        RunRecord runHeader = new() { CreatedUtc = t0 };
-        AgentEvidencePackage evidence = new() { CreatedUtc = DateTime.SpecifyKind(t0.AddMinutes(1), DateTimeKind.Local) };
+        RunRecord runHeader = new()
+        {
+            CreatedUtc = t0
+        };
+        AgentEvidencePackage evidence = new()
+        {
+            CreatedUtc = DateTime.SpecifyKind(t0.AddMinutes(1), DateTimeKind.Local)
+        };
 
-        AgentResult r1 = new() { CreatedUtc = DateTime.SpecifyKind(t0.AddMinutes(2), DateTimeKind.Unspecified) };
+        AgentResult r1 = new()
+        {
+            CreatedUtc = DateTime.SpecifyKind(t0.AddMinutes(2), DateTimeKind.Unspecified)
+        };
 
-        AgentResult r2 = new() { CreatedUtc = DateTime.SpecifyKind(t0.AddMinutes(4), DateTimeKind.Local) };
+        AgentResult r2 = new()
+        {
+            CreatedUtc = DateTime.SpecifyKind(t0.AddMinutes(4), DateTimeKind.Local)
+        };
 
         CommitRunTelemetryMetrics metrics = CommitRunTelemetryMetrics.FromCommitContext(
             runHeader,

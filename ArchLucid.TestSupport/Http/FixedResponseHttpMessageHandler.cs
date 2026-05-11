@@ -10,7 +10,7 @@ public sealed class FixedResponseHttpMessageHandler : HttpMessageHandler
     private readonly string _body;
     private readonly string _mediaType;
 
-    public FixedResponseHttpMessageHandler(HttpStatusCode statusCode, string body, string mediaType = "application/json")
+    public FixedResponseHttpMessageHandler(HttpStatusCode statusCode, string? body, string mediaType = "application/json")
     {
         _statusCode = statusCode;
         _body = body ?? string.Empty;

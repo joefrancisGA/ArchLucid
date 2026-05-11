@@ -110,6 +110,6 @@ public sealed class AlertSlackWebhookVendorConformanceTests
 
         prop.Should().NotBeNull($"expected `{name}` on Slack webhook body projection");
 
-        return prop!.GetValue(target) as string ?? string.Empty;
+        return prop.GetValue(target) as string ?? string.Empty;
     }
 }

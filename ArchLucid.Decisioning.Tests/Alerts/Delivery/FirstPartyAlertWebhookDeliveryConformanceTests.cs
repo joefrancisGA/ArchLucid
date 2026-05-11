@@ -116,6 +116,6 @@ public sealed class FirstPartyAlertWebhookDeliveryConformanceTests
 
         prop.Should().NotBeNull($"property {propertyName} should exist on payload body");
 
-        return prop!.GetValue(target);
+        return prop.GetValue(target);
     }
 }

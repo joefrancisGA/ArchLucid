@@ -20,19 +20,19 @@ public sealed class StarterProofPackPolicyContextTests
         public string PolicyPackVerticalSlug
         {
             get;
-            set;
+            init;
         } = string.Empty;
 
         public string PolicyPackRelativePath
         {
             get;
-            set;
+            init;
         } = string.Empty;
 
         public string Intent
         {
             get;
-            set;
+            init;
         } = string.Empty;
     }
 
@@ -59,7 +59,7 @@ public sealed class StarterProofPackPolicyContextTests
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         ctx.Should().NotBeNull();
-        string slug = (ctx!.PolicyPackVerticalSlug ?? string.Empty).Trim();
+        string slug = (ctx.PolicyPackVerticalSlug).Trim();
         slug.Should().NotBeNullOrWhiteSpace();
 
         string compliancePath = Path.Combine(
@@ -91,7 +91,7 @@ public sealed class StarterProofPackPolicyContextTests
 
         effective.Should().NotBeNull();
 
-        ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(sourcePack, effective!);
+        ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(sourcePack, effective);
 
         filtered.Rules.Should().NotBeEmpty(
             "starter policy-context vertical must match policy-pack.json rule keys after governance filter");

@@ -1,7 +1,6 @@
 using ArchLucid.Core.Audit;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;

@@ -54,7 +54,7 @@ public sealed class ArchitectureRequestTemplatesTests
         request.SystemName.Length.Should().BeLessOrEqualTo(200);
         request.Environment.Should().NotBeNullOrWhiteSpace();
         request.Environment.Length.Should().BeLessOrEqualTo(50);
-        request.CloudProvider.Should().Be(Contracts.Common.CloudProvider.Azure);
+        request.CloudProvider.Should().Be(CloudProvider.Azure);
 
         request.Constraints.Should().NotBeNull();
         request.RequiredCapabilities.Should().NotBeNull();

@@ -1,10 +1,8 @@
-using System.Net.Http;
 using System.Text.Json;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Core;
 using ArchLucid.Core.Resilience;
 
 using FluentAssertions;

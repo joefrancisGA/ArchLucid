@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Identity;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
@@ -7,8 +7,6 @@ using ArchLucid.Core.Tenancy;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
-
-using Xunit;
 
 namespace ArchLucid.Application.Tests.Tenancy;
 
@@ -35,7 +33,10 @@ public sealed class TrialTenantBootstrapServiceTests
 
         TenantProvisioningResult result = new()
         {
-            TenantId = Guid.NewGuid(), DefaultWorkspaceId = Guid.NewGuid(), DefaultProjectId = Guid.NewGuid(), WasAlreadyProvisioned = true,
+            TenantId = Guid.NewGuid(),
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = true,
         };
 
         await sut.TryBootstrapAfterSelfRegistrationAsync(result, "a@b.com", null, null, CancellationToken.None);
@@ -114,7 +115,10 @@ public sealed class TrialTenantBootstrapServiceTests
 
         TenantProvisioningResult result = new()
         {
-            TenantId = tenantId, DefaultWorkspaceId = workspaceId, DefaultProjectId = projectId, WasAlreadyProvisioned = false,
+            TenantId = tenantId,
+            DefaultWorkspaceId = workspaceId,
+            DefaultProjectId = projectId,
+            WasAlreadyProvisioned = false,
         };
 
         await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", null, null, CancellationToken.None);
@@ -171,7 +175,10 @@ public sealed class TrialTenantBootstrapServiceTests
 
         TenantProvisioningResult result = new()
         {
-            TenantId = Guid.NewGuid(), DefaultWorkspaceId = Guid.NewGuid(), DefaultProjectId = Guid.NewGuid(), WasAlreadyProvisioned = false,
+            TenantId = Guid.NewGuid(),
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
         };
 
         await sut.TryBootstrapAfterSelfRegistrationAsync(result, "x@y.com", null, null, CancellationToken.None);
@@ -242,7 +249,7 @@ public sealed class TrialTenantBootstrapServiceTests
     [SkippableFact]
     public async Task TryBootstrapAfterSelfRegistrationAsync_persists_signup_baseline_before_demo_seed_when_capture_present()
     {
-        List<string> steps = new();
+        List<string> steps = [];
 
         Mock<IDemoSeedService> demo = new();
         demo.Setup(s => s.SeedAsync(It.IsAny<CancellationToken>()))
