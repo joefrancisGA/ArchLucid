@@ -15,6 +15,9 @@ WORKDIR /app
 
 # Paths are relative to the repo-root build context.
 COPY archlucid-ui/package.json archlucid-ui/package-lock.json ./
+# Workspace packages (`workspace:*` in the lockfile) must exist on disk before `npm ci`, or npm errors with
+# EUNSUPPORTEDPROTOCOL for `workspace:*`.
+COPY archlucid-ui/packages ./packages
 # `npm ci --ignore-scripts` skips sharp's install hook; Next then fails `next build` on Alpine with webpack
 # "Module not found" / sharp native resolution (sharp is next's optionalDependency; required for standalone image output).
 RUN npm ci --ignore-scripts && npm rebuild sharp
