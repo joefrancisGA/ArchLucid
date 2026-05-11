@@ -118,8 +118,12 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         return HasClientAbortedIOException(ex);
     }
 
-    // TestServer can surface canceled response buffering as IOException("The client aborted the request.")
-    // wrapped by HttpRequestException instead of throwing OperationCanceledException directly.
+    /// <summary>
+    ///     True when <paramref name="ex" /> matches TestHost/Sockets abort during response buffering (see
+    ///     <see cref="PostArchitectureRequestAndBufferAsync" />).
+    /// </summary>
+    internal static bool IndicatesClientAbortedResponseBuffering(Exception ex) => HasClientAbortedIOException(ex);
+
     private static bool HasClientAbortedIOException(Exception ex)
     {
         Exception? current = ex;

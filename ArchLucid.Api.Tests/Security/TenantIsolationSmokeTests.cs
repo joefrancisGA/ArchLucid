@@ -179,7 +179,7 @@ public sealed class TenantIsolationSmokeTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await WarmSqlAuthorityPipelineAsync(primer);
+            await WarmSqlAuthorityPipelineAsync(primer, includePostCreateRunWarmup: false);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -376,17 +376,32 @@ public sealed class TenantIsolationSmokeTests
                 CancellationToken ct = totalBudget.Token;
                 ct.ThrowIfCancellationRequested();
 
-                HttpResponseMessage response =
-                    await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
-                        client,
-                        body,
-                        idempotencyKey,
-                        ct);
+                try
+                {
+                    HttpResponseMessage response =
+                        await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
+                            client,
+                            body,
+                            idempotencyKey,
+                            ct);
 
-                if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
-                    return response;
+                    if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+                        return response;
 
-                response.Dispose();
+                    response.Dispose();
+                }
+                catch (HttpRequestException ex) when (!totalBudget.IsCancellationRequested
+                                                      && ArchitectureRequestConcurrencyTestSupport
+                                                          .IndicatesClientAbortedResponseBuffering(ex))
+                {
+                    // TestServer long POSTs can drop the response stream without signaling our CTS; retry like a cold-start blip.
+                }
+                catch (TaskCanceledException ex) when (!totalBudget.IsCancellationRequested
+                                                      && ex.InnerException is TimeoutException)
+                {
+                    // HttpClient.Timeout can surface here without linking to our operation token.
+                }
+
                 await Task.Delay(delayMs, ct);
                 delayMs = Math.Min(delayMs * 2, 4000);
             }
@@ -394,7 +409,7 @@ public sealed class TenantIsolationSmokeTests
         catch (OperationCanceledException) when (totalBudget.IsCancellationRequested)
         {
             throw new InvalidOperationException(
-                "POST /v1/architecture/request stayed 503 (host/SQL not ready). See "
+                "POST /v1/architecture/request exceeded retry budget (HTTP 503 or transient transport timeouts). See "
                 + nameof(WarmSqlAuthorityPipelineAsync) + ", "
                 + nameof(WarmListRunsPathAsync) + ", and "
                 + nameof(PostArchitectureRequestWithTransientRetryAsync) + ".");

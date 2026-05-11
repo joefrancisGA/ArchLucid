@@ -122,10 +122,10 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     {
         if (string.IsNullOrWhiteSpace(runId))
             return null;
-        if (Guid.TryParseExact(runId, "N", out Guid guid))
+
+        if (Guid.TryParseExact(runId, "N", out Guid guid) || Guid.TryParse(runId, out guid))
             return guid;
-        if (Guid.TryParse(runId, out guid))
-            return guid;
+
         return null;
     }
 }
