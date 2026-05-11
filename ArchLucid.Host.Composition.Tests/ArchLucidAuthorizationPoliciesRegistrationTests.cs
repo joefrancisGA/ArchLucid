@@ -33,6 +33,7 @@ public sealed class ArchLucidAuthorizationPoliciesRegistrationTests
         authorizationOptions.GetPolicy(ArchLucidPolicies.RequireOperatorRole).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.RequireAdmin).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.CanCommitRuns).Should().NotBeNull();
+        authorizationOptions.GetPolicy(ArchLucidPolicies.ArchitectureDefinitionImport).Should().NotBeNull();
 
         authorizationOptions.GetPolicy(ArchLucidPolicies.ExecuteAuthority)!.Requirements
             .OfType<TrialActiveRequirement>()
@@ -40,6 +41,11 @@ public sealed class ArchLucidAuthorizationPoliciesRegistrationTests
             .ContainSingle();
 
         authorizationOptions.GetPolicy(ArchLucidPolicies.AdminAuthority)!.Requirements
+            .OfType<TrialActiveRequirement>()
+            .Should()
+            .ContainSingle();
+
+        authorizationOptions.GetPolicy(ArchLucidPolicies.ArchitectureDefinitionImport)!.Requirements
             .OfType<TrialActiveRequirement>()
             .Should()
             .ContainSingle();

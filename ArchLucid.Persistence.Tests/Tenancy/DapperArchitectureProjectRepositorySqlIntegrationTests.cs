@@ -45,7 +45,7 @@ public sealed class DapperArchitectureProjectRepositorySqlIntegrationTests(SqlSe
 
         IReadOnlyList<ArchitectureProjectRecord> afterDelete =
             await projects.ListActiveByTenantAsync(tenantId, CancellationToken.None);
-        afterDelete.Should().ContainSingle(static p => p.Id == defaultProjectId);
+        afterDelete.Should().ContainSingle().Which.Id.Should().Be(defaultProjectId);
         afterDelete.Any(static r => r.Name == "orders-api").Should().BeFalse();
 
         Guid replacementId = Guid.NewGuid();

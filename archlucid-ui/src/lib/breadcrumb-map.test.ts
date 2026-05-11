@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "./showcase-static-demo";
+import { SHOWCASE_BUYER_REVIEW_TITLE } from "./showcase-static-demo";
 import { getBreadcrumbs } from "./breadcrumb-map";
 
 describe("getBreadcrumbs", () => {
@@ -84,7 +84,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("buyer-polished: showcase review uses Review Package title and inspect trail label", () => {
+  it("buyer-polished: showcase review uses stable buyer review title and inspect trail label", () => {
     expect(
       getBreadcrumbs(
         "/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect",
@@ -93,7 +93,7 @@ describe("getBreadcrumbs", () => {
     ).toEqual([
       { label: "Home", href: "/" },
       { label: "Reviews", href: "/reviews" },
-      { label: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, href: "/reviews/claims-intake-modernization" },
+      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/reviews/claims-intake-modernization" },
       { label: "Finding", href: "/reviews/claims-intake-modernization/findings" },
       {
         label: "High severity: PHI minimization risk",

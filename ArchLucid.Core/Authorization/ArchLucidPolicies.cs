@@ -44,4 +44,10 @@ public static class ArchLucidPolicies
 
     /// <summary>SCIM 2.0 inbound provisioning (dedicated <c>ScimBearer</c> scheme; IdP automation).</summary>
     public const string ScimWrite = "ScimWrite";
+
+    /// <summary>
+    ///     Dry-run import of external architecture definitions (CSV). Excludes <see cref="ArchLucidRoles.Reviewer" /> and
+    ///     <see cref="ArchLucidRoles.Reader" />; allows Operator-class and tenant/workspace admins.
+    /// </summary>
+    public const string ArchitectureDefinitionImport = "ArchitectureDefinitionImport";
 }

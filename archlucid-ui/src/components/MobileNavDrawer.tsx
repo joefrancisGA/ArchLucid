@@ -43,10 +43,12 @@ function renderMobileNavBlock(
 
     return (
       <div key={group.id}>
-        <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-          <span className="block">{group.label}</span>
+        <div className="mb-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+            {group.label}
+          </h3>
           {group.caption ? (
-            <span className="mt-0.5 block text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-600 dark:text-neutral-300">
+            <span className="mt-0.5 block text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-700 dark:text-neutral-300">
               {group.caption}
             </span>
           ) : null}
@@ -155,9 +157,9 @@ export function MobileNavDrawer() {
             })}
             {adminNavRows.length > 0 ? (
               <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
-                <p className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+                <h3 className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
                   Administration
-                </p>
+                </h3>
                 {renderMobileNavBlock(adminNavRows, pathname, demoUi || buyerPolishedShell, () => {
                   setOpen(false);
                 })}
@@ -186,7 +188,7 @@ export function MobileNavDrawer() {
               </Button>
             )}
             {buyerPolishedShell ? null : (
-              <p className="text-xs text-neutral-600 dark:text-neutral-400" aria-keyshortcuts="Shift+?">
+              <p className="text-xs text-neutral-700 dark:text-neutral-300" aria-keyshortcuts="Shift+?">
                 Press Shift+/ for documentation search; open Guides from the panel for shortcuts
               </p>
             )}

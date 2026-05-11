@@ -35,6 +35,7 @@ import { StructuredComparisonView } from "@/components/compare/StructuredCompari
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import { readCompareRunIdsFromSearchParams } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
 import type { GoldenManifestComparison } from "@/types/comparison";
@@ -190,10 +191,7 @@ function CompareForm() {
   }, []);
 
   useEffect(() => {
-    const leftParam = searchParams.get("leftRunId")?.trim() ?? "";
-    const fromParam = searchParams.get("fromRunId")?.trim() ?? "";
-    const left = leftParam.length > 0 ? leftParam : fromParam;
-    const right = searchParams.get("rightRunId")?.trim() ?? "";
+    const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);
 
     if (left.length > 0) {
       setLeftRunId(left);
@@ -213,12 +211,9 @@ function CompareForm() {
       return;
     }
 
-    const leftQ = searchParams.get("leftRunId")?.trim() ?? "";
-    const fromQ = searchParams.get("fromRunId")?.trim() ?? "";
-    const leftQEffective = leftQ.length > 0 ? leftQ : fromQ;
-    const rightQ = searchParams.get("rightRunId")?.trim() ?? "";
+    const { prior: priorQ, later: laterQ } = readCompareRunIdsFromSearchParams(searchParams);
 
-    if (leftQEffective.length > 0 || rightQ.length > 0) {
+    if (priorQ.length > 0 || laterQ.length > 0) {
       return;
     }
 
@@ -232,10 +227,7 @@ function CompareForm() {
   }, [searchParams, leftRunId, rightRunId]);
 
   useEffect(() => {
-    const leftQ = searchParams.get("leftRunId")?.trim() ?? "";
-    const fromQ = searchParams.get("fromRunId")?.trim() ?? "";
-    const left = leftQ.length > 0 ? leftQ : fromQ;
-    const right = searchParams.get("rightRunId")?.trim() ?? "";
+    const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);
 
     if (left.length === 0 || right.length === 0 || autoComparedFromUrlRef.current) {
       return;
@@ -760,14 +752,32 @@ function CompareForm() {
 
 /** Suspense fallback shown while the CompareForm client component is initializing (reading URL params). */
 function CompareSuspenseFallback() {
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+
   return (
     <div>
       <OperatorLoadingNotice>
         <strong>Loading compare.</strong>
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-          Reading <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">leftRunId</code> /{" "}
-          <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">rightRunId</code> from the URL so shared compare links open with
-          fields prefilled…
+          {buyerPolished ? (
+            <>
+              Reading shared link parameters (<code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">priorRunId</code> /{" "}
+              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">laterRunId</code>; also accepts{" "}
+              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">leftRunId</code> /{" "}
+              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">rightRunId</code>,{" "}
+              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">baselineRunId</code>,{" "}
+              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">targetRunId</code>) to prefill
+              selections…
+            </>
+          ) : (
+            <>
+              Reading <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">leftRunId</code> /{" "}
+              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">fromRunId</code> /{" "}
+              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">priorRunId</code> — and{" "}
+              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">rightRunId</code> / sibling keys — from the URL so
+              shared compare links open with fields prefilled…
+            </>
+          )}
         </p>
       </OperatorLoadingNotice>
     </div>

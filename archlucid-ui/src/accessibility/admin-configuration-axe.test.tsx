@@ -30,8 +30,15 @@ describe("AdminConfigurationPage — axe (Vitest)", () => {
   it(
     "has no serious axe violations when configuration summary loads",
     async () => {
-      const fetchMock = vi.fn(async (url: string | URL) => {
-        const s = String(url);
+      const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+        const s =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+              ? input.toString()
+              : input instanceof Request
+                ? input.url
+                : String(input);
 
         if (s.includes("/v1/admin/configuration/summary")) {
           return jsonResponse({

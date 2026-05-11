@@ -81,6 +81,16 @@ public static class ArchLucidAuthorizationPoliciesExtensions
             {
                 policy.AddAuthenticationSchemes(ScimBearerDefaults.AuthenticationScheme);
                 policy.RequireAuthenticatedUser();
+            })
+            .AddPolicy(ArchLucidPolicies.ArchitectureDefinitionImport, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireRole(
+                    ArchLucidRoles.Operator,
+                    ArchLucidRoles.Architect,
+                    ArchLucidRoles.WorkspaceAdmin,
+                    ArchLucidRoles.Admin);
+                policy.Requirements.Add(new TrialActiveRequirement());
             });
 
         return services;

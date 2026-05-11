@@ -3,8 +3,12 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 /** Public-marketing slug for demos and screenshots — no fixture-style token. */
 export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
 
+/** Stable buyer-facing name for review detail H1s, pickers, and breadcrumbs (matches marketing short form). */
+export const SHOWCASE_BUYER_REVIEW_TITLE = "Claims Intake Modernization Review";
+
 /**
- * Buyer-facing H1/link title for the curated sample — includes “Review Package” so it matches procurement language.
+ * Procurement-oriented label where “review package” wording is intentional (sample card headline, static demo
+ * description, narrative hooks).
  */
 export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = "Claims Intake Modernization Review Package";
 

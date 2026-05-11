@@ -162,8 +162,10 @@ function SidebarRecentActivityCard() {
   return (
     <Collapsible open={open} onOpenChange={persist}>
       <CollapsibleTrigger
-        className="sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+        className="sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
         type="button"
+        aria-expanded={open}
+        aria-controls="sidebar-recent-activity-content"
       >
         <span>Recent activity</span>
         <ChevronDown
@@ -171,7 +173,7 @@ function SidebarRecentActivityCard() {
           aria-hidden
         />
       </CollapsibleTrigger>
-      <CollapsibleContent>
+      <CollapsibleContent id="sidebar-recent-activity-content">
         <div data-testid="sidebar-recent-activity-card" className="px-2 py-2">
           <BeforeAfterDeltaPanel variant="sidebar" />
         </div>
@@ -476,6 +478,8 @@ export function SidebarNav() {
               className="sidebar-disclosure-trigger flex w-full items-start justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
               title={group.caption}
               type="button"
+              aria-expanded={isOpen}
+              aria-controls={`sidebar-group-${group.id}-content`}
               aria-labelledby={`sidebar-group-trigger-title-${group.id}`}
               aria-describedby={group.id === "operate-governance" ? "sidebar-governance-nav-hint-slot" : undefined}
             >
@@ -534,7 +538,7 @@ export function SidebarNav() {
                   })}
               </nav>
             ) : null}
-            <CollapsibleContent>
+            <CollapsibleContent id={`sidebar-group-${group.id}-content`}>
               <nav
                 className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
                 aria-label={group.label}
@@ -560,7 +564,7 @@ export function SidebarNav() {
                           ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
                           : "text-neutral-900 dark:text-neutral-100",
                         buyerPolishedShell && link.href === "/reviews/new"
-                          ? "font-normal text-neutral-500 dark:text-neutral-400"
+                          ? "font-normal text-neutral-600 dark:text-neutral-300"
                           : null,
                       )}
                       title={
@@ -583,7 +587,7 @@ export function SidebarNav() {
             {showProgressiveDisclosureChrome && hiddenByDisclosure > 0 ? (
               <button
                 type="button"
-                className="auth-panel-focus sidebar-disclosure-trigger ml-2 mt-1 flex items-center gap-1 text-left text-xs font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100"
+                className="auth-panel-focus sidebar-disclosure-trigger ml-2 mt-1 flex items-center gap-1 text-left text-xs font-medium text-neutral-700 hover:text-neutral-900 dark:text-neutral-200 dark:hover:text-neutral-50"
                 aria-label={`${hiddenByDisclosure} more destinations in ${group.label} — open Sidebar layout`}
                 onClick={() => {
                   setSettingsOpen(true);
@@ -617,7 +621,7 @@ export function SidebarNav() {
           data-testid="sidebar-quick-actions"
           aria-label={buyerPolishedShell ? "Review journey" : "Quick actions"}
         >
-          <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
+          <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
             {buyerPolishedShell ? "Review journey" : "Quick actions"}
           </p>
           <nav
@@ -689,7 +693,7 @@ export function SidebarNav() {
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
           <button
             type="button"
-            className="sidebar-disclosure-trigger w-full rounded-md border border-neutral-200 bg-white px-2 py-2 text-left text-xs font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            className="sidebar-disclosure-trigger w-full rounded-md border border-neutral-200 bg-white px-2 py-2 text-left text-xs font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50 dark:hover:bg-neutral-800"
             aria-expanded={navAllFeaturesExpanded}
             onClick={() => {
               const next = !navAllFeaturesExpanded;
@@ -728,10 +732,13 @@ export function SidebarNav() {
         >
           <Collapsible open={adminSectionOpen} onOpenChange={persistAdminSectionOpen}>
             <CollapsibleTrigger
-              className="sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              className="sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
               type="button"
+              aria-expanded={adminSectionOpen}
+              aria-controls="sidebar-administration-content"
+              aria-labelledby="sidebar-admin-section-heading"
             >
-              <span>Administration</span>
+              <span id="sidebar-admin-section-heading">Administration</span>
               <span className="flex items-center gap-1">
                 {adminLinkCount > 0 ? (
                   <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200">
@@ -747,8 +754,8 @@ export function SidebarNav() {
                 />
               </span>
             </CollapsibleTrigger>
-            <CollapsibleContent className="pt-1">
-              <p className="m-0 px-2 pb-1 text-[10px] leading-snug text-neutral-600 dark:text-neutral-300">
+            <CollapsibleContent id="sidebar-administration-content" className="pt-1">
+              <p className="m-0 px-2 pb-1 text-[10px] leading-snug text-neutral-700 dark:text-neutral-200">
                 Tenant cost, support bundles, system health — separate from architecture review navigation.
               </p>
               {adminNavRows.map((row) => renderNavCluster(row))}
@@ -775,13 +782,13 @@ export function SidebarNav() {
           Sidebar layout
         </Button>
         {mounted && shellPresetId !== "full" && !buyerPolishedShell ? (
-          <p className="m-0 mt-2 px-0.5 text-[10px] leading-snug text-neutral-600 dark:text-neutral-300">
+          <p className="m-0 mt-2 px-0.5 text-[10px] leading-snug text-neutral-700 dark:text-neutral-200">
             Navigation preset ({OPERATOR_SHELL_PRESET_LABELS[shellPresetId]}) hides some links — open{" "}
-            <strong className="font-semibold text-neutral-800 dark:text-neutral-100">Sidebar layout</strong>
+            <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Sidebar layout</strong>
             {" → "}
-            <strong className="font-semibold text-neutral-800 dark:text-neutral-100">Preset</strong>
+            <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Preset</strong>
             {" → "}
-            <strong className="font-semibold text-neutral-800 dark:text-neutral-100">Full navigator</strong> to show the full list.
+            <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Full navigator</strong> to show the full list.
           </p>
         ) : null}
 
@@ -808,14 +815,16 @@ export function SidebarNav() {
         {mounted && !buyerPolishedShell ? (
           <button
             type="button"
-            className="sidebar-disclosure-trigger mt-3 w-full rounded-md px-0.5 text-left text-[10px] leading-snug text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100"
-            aria-label="Open command palette (Ctrl+K or Meta+K)"
+            className="sidebar-disclosure-trigger mt-3 w-full rounded-md px-0.5 text-left text-[10px] leading-snug text-neutral-700 hover:text-neutral-900 dark:text-neutral-200 dark:hover:text-neutral-50"
+            aria-label="Open command palette to search pages. Keyboard shortcuts: Control+K or Command+K."
             onClick={() => {
               window.dispatchEvent(new CustomEvent(OPEN_COMMAND_PALETTE_EVENT));
             }}
           >
             Search pages — <kbd className="rounded border border-neutral-300 bg-neutral-100 px-1 font-mono text-[9px] dark:border-neutral-600 dark:bg-neutral-800">Ctrl+K</kbd>{" "}
-            <span className="text-neutral-400 dark:text-neutral-500">/</span>{" "}
+            <span className="text-neutral-600 dark:text-neutral-400" aria-hidden>
+              /
+            </span>{" "}
             <kbd className="rounded border border-neutral-300 bg-neutral-100 px-1 font-mono text-[9px] dark:border-neutral-600 dark:bg-neutral-800">⌘ K</kbd>
           </button>
         ) : null}
@@ -839,7 +848,7 @@ export function SidebarNav() {
               <legend className="px-1 text-xs font-semibold text-neutral-800 dark:text-neutral-100">
                 Navigation preset (UI only)
               </legend>
-              <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-300">
                 Presets prune visible routes for common personas — server policies still gate HTTP access.
               </p>
               <div className="flex flex-col gap-2">
@@ -864,7 +873,7 @@ export function SidebarNav() {
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-0.5">
                 <Label htmlFor="nav-extended">{NAV_DISCLOSURE.extended.show}</Label>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-neutral-600 dark:text-neutral-300">
                   <strong>Advanced Analysis:</strong> compare, replay, graph, architecture advisory, pilot feedback,
                   recommendation tuning.{" "}
                   <strong>Admin:</strong> tenant cost, baseline and tenant settings.{" "}
@@ -885,7 +894,7 @@ export function SidebarNav() {
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-0.5">
                 <Label htmlFor="nav-advanced">{NAV_DISCLOSURE.advanced.show}</Label>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-neutral-600 dark:text-neutral-300">
                   <strong>Enterprise Controls:</strong> audit log, Alerts hub, governance workflow, schedules, and deeper
                   trust surfaces — independent from analysis & investigation links.
                 </p>

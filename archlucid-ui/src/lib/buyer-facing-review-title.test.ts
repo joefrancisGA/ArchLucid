@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+  SHOWCASE_BUYER_REVIEW_TITLE,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 function summary(overrides: Partial<RunSummary>): RunSummary {
@@ -22,7 +26,7 @@ describe("buyerFacingReviewTitleFromSummary", () => {
       summary({ runId: SHOWCASE_STATIC_DEMO_RUN_ID, description: "Legacy description" }),
     );
 
-    expect(title).toBe("Claims Intake Modernization Review");
+    expect(title).toBe(SHOWCASE_BUYER_REVIEW_TITLE);
   });
 
   it("uses stable title for legacy demo run id aliases", () => {
@@ -30,7 +34,19 @@ describe("buyerFacingReviewTitleFromSummary", () => {
       buyerFacingReviewTitleFromSummary(
         summary({ runId: "claims-intake-modernization-run", description: "Claims Intake Modernization — sample case…" }),
       ),
-    ).toBe("Claims Intake Modernization Review");
+    ).toBe(SHOWCASE_BUYER_REVIEW_TITLE);
+  });
+
+  it("legacy alias ignores procurement-style package displayName from APIs", () => {
+    expect(
+      buyerFacingReviewTitleFromSummary(
+        summary({
+          runId: "claims-intake-modernization-run",
+          displayName: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+          description: "Fallback description",
+        }),
+      ),
+    ).toBe(SHOWCASE_BUYER_REVIEW_TITLE);
   });
 
   it("falls back to description then untitled", () => {

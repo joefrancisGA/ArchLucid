@@ -29,7 +29,7 @@ import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
 import { isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 import {
-  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+  SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -256,7 +256,7 @@ export default async function ManifestDetailPage({
         {" · "}
         <Link className="text-teal-800 underline dark:text-teal-300" href={`/reviews/${summary.runId}`}>
           {buyerPolishedLayout === true && showcasePackage === true
-            ? SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE
+            ? SHOWCASE_BUYER_REVIEW_TITLE
             : "Open review"}
         </Link>
         {showcasePackage === true && buyerPolishedLayout !== true ? (
@@ -278,7 +278,7 @@ export default async function ManifestDetailPage({
         <div>
           <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
             {showcaseBuyerManifestHeadline === true
-              ? SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE
+              ? SHOWCASE_BUYER_REVIEW_TITLE
               : buyerPolishedLayout
                 ? "Architecture review package"
                 : "Finalized Architecture Manifest"}

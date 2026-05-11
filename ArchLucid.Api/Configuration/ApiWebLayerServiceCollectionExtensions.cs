@@ -45,6 +45,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddSingleton<ILocalTrialJwtIssuer, LocalTrialJwtIssuer>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
+        services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
 
         services.AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
