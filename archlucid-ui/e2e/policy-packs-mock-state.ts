@@ -30,7 +30,7 @@ export function listMockPacks(): MockPolicyPack[] {
 }
 
 /** Matches `PolicyPackVersion` fields the policy-packs UI reads (ids, labels, compare dropdowns). */
-export function listMockVersions(_policyPackId: string): {
+export function listMockVersions(policyPackId: string): {
   policyPackVersionId: string;
   policyPackId: string;
   version: string;
@@ -38,6 +38,9 @@ export function listMockVersions(_policyPackId: string): {
   createdUtc: string;
   isPublished: boolean;
 }[] {
+  // Buyer-polished page does not enumerate per-pack versions; signature retained for the route handler.
+  void policyPackId;
+
   return [];
 }
 
