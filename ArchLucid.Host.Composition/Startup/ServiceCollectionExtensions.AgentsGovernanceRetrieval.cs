@@ -139,7 +139,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<LlmPromptRedactionOptions>(configuration.GetSection(LlmPromptRedactionOptions.SectionName));
         services.AddSingleton<IPostConfigureOptions<LlmPromptRedactionOptions>, LlmPromptRedactionProductionWarningPostConfigure>();
         services.Configure<LlmCompletionCacheOptions>(configuration.GetSection(LlmCompletionCacheOptions.SectionName));
-        services.AddSingleton<ILlmCompletionResponseCache>(sp =>
+        services.AddSingleton<ISemanticCache>(sp =>
         {
             IOptions<LlmCompletionCacheOptions> startupOpts =
                 sp.GetRequiredService<IOptions<LlmCompletionCacheOptions>>();
@@ -151,8 +151,10 @@ public static partial class ServiceCollectionExtensions
             IOptionsMonitor<LlmCompletionCacheOptions> monitor =
                 sp.GetRequiredService<IOptionsMonitor<LlmCompletionCacheOptions>>();
 
-            return new LlmCompletionResponseCache(memoryCache, monitor);
+            return new MemorySemanticCache(memoryCache, monitor);
         });
+        services.AddSingleton<ILlmCompletionResponseCache>(sp =>
+            new LlmCompletionResponseCache(sp.GetRequiredService<ISemanticCache>()));
         services.AddSingleton<IPromptRedactor, PromptRedactor>();
         services.AddOptions<AgentOutputLlmSemanticJudgeOptions>()
             .Bind(configuration.GetSection(AgentOutputLlmSemanticJudgeOptions.LegacySectionPath))

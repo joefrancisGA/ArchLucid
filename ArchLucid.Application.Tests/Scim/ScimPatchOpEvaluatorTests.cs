@@ -61,6 +61,7 @@ public sealed class ScimPatchOpEvaluatorTests
     [SkippableFact]
     public void Valid_guid_member_path_on_user_throws_not_implemented()
     {
+        // ReSharper disable once CollectionNeverUpdated.Local
         Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase);
         Guid id = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
         JsonElement patch = JsonDocument.Parse(

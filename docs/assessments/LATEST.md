@@ -608,8 +608,9 @@ Acceptance Criteria:
 - **Why it matters:** Reduces LLM latency and costs for repeated or highly similar architecture evaluations, addressing the potential LLM latency bottleneck.
 - **Expected impact:** Directly improves Performance (+10-15 pts), Cost-Effectiveness (+10-15 pts), Reliability (+5-10 pts). Weighted readiness impact: +0.4-0.6%.
 - **Affected qualities:** Performance, Cost-Effectiveness, Reliability.
-- **Status:** Actionable now.
-- **Cursor prompt:**
+- **Status:** **Complete** — in-process semantic cache (`IMemoryCache`) with SHA-256 prompt fingerprints; toggled via configuration; assessment action closed.
+- **Delivered:** `ArchLucid.AgentRuntime/Caching/ISemanticCache.cs` (`GetCachedResponseAsync` / `SetCachedResponseAsync`); `MemorySemanticCache.cs` (bounded `MemoryCache`, TTL from `LlmCompletionCacheOptions`); `LlmCompletionResponseCache` delegates to `ISemanticCache` with composite keys (agent, model, prompt hash, simulator, optional scope). **`CachingLlmCompletionClient`** (existing) checks cache before `IAgentCompletionClient.CompleteJsonAsync`; misses call Azure/simulator backends. Prompt hashing: **`LlmCompletionCacheFingerprint.ComputePromptHash`** (SHA-256). Configuration: **`AgentRuntime:CompletionCache`** (`Enabled`, `TTLMinutes` / `TTLSeconds`, `MaxEntries`, `PartitionByScope`); DI in **`ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`** registers `ISemanticCache` → `MemorySemanticCache` then `ILlmCompletionResponseCache`. Sample values in **`ArchLucid.Api/appsettings.Development.json`**. Tests: **`MemorySemanticCacheTests`**, updated **`LlmCompletionResponseCacheTests`** / **`CachingLlmCompletionClientTests`**.
+- **Cursor prompt:** *(original implementation brief — retained for reference)*
 ```
 In the `ArchLucid.AgentRuntime` project, implement a simple semantic caching interface for LLM calls.
 
@@ -947,7 +948,7 @@ Acceptance Criteria:
 - **COMPLETED = Batch 1 (UI & Value Visibility):** Run Improvement 1 (Executive ROI Dashboard) and Improvement 8 (Scaffold Self-Serve Billing). These establish the commercial and value-driven UI patterns.
 - **COMPLETED = Batch 2 (UX & Adoption Friction):** Improvements **6** (Progressive Disclosure), **7** (Onboarding Modal), and **22** (Accessibility Navigation) are complete. These frontend changes drastically reduce the learning curve and improve compliance.
 - **COMPLETED = Batch 3 (Backend & Templates):** Improvements **2** (Quick Start Templates) and **17** (Compliance Templates) are complete. They provide embedded `ArchitectureRequest` presets and the `GET /v1/architecture/templates` catalog for regulated and general footprints.
-- **COMPLETED partial = Batch 4 (Backend & Performance):** Implemented Improvement **5** — LLM reasoning / critic visibility: per-finding explainability, inspect **View AI Reasoning**, plus run-detail **View AI reasoning** (`FindingAiReasoningDialog`) with raw `ArchitectureFinding` JSON from run detail (`QuickDecisionSummary`, `RunFindingExplainabilityTable`, `quick-decision-summary-derive`). **Remaining:** Improvement **9** (Semantic Caching). These address core engineering and explainability concerns.
+- **COMPLETED = Batch 4 (Backend & Performance):** Improvement **5** — LLM reasoning / critic visibility (`FindingAiReasoningDialog`, run-detail wire snapshots, inspect paths). Improvement **9** — semantic caching (`ISemanticCache`, `MemorySemanticCache`, `LlmCompletionResponseCache` on top, `CachingLlmCompletionClient`, `AgentRuntime:CompletionCache`). These address explainability, performance, and cost for agent completions.
 - **Batch 5 (Security & CI):** Improvement 10 (Gitleaks) is already in CI; focus Improvement 16 (Roslyn Analyzer) and other remaining items. These enforce security invariants at compile and commit time.
 - **Batch 6 (Enterprise Audit & Data):** Run Improvement 11 (CSV Export), Improvement 15 (Mute Finding), and Improvement 23 (Soft Delete). These address core enterprise data management requirements.
 - **Batch 7 (Observability & Health):** Run Improvement 14 (Deep Health Check) and Improvement 18 (Serilog). These improve SaaS deployability and monitoring.

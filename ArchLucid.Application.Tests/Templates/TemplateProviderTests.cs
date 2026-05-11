@@ -40,7 +40,7 @@ public sealed class TemplateProviderTests
             bool found = provider.TryGetArchitectureRequest(id, out ArchitectureRequest? request);
             found.Should().BeTrue();
             request.Should().NotBeNull();
-            request!.RequestId.Should().NotBeNullOrWhiteSpace();
+            request.RequestId.Should().NotBeNullOrWhiteSpace();
             request.RequestId.Length.Should().BeLessOrEqualTo(64);
             request.Description.Length.Should().BeInRange(10, 4000);
             request.SystemName.Should().NotBeNullOrWhiteSpace();
@@ -79,7 +79,7 @@ public sealed class TemplateProviderTests
         ArchitectureRequest? restored = JsonSerializer.Deserialize<ArchitectureRequest>(json, ContractJson.CamelCaseIgnoreNullCompact);
 
         restored.Should().NotBeNull();
-        restored!.RequestId.Should().Be(original!.RequestId);
+        restored.RequestId.Should().Be(original.RequestId);
         restored.SystemName.Should().Be(original.SystemName);
     }
 }

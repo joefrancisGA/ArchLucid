@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { WelcomeModal } from "@/components/ui/welcome-modal";
 import { listRunsByProjectPaged } from "@/lib/api";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import {
   persistHasSeenWelcomeOnboarding,
@@ -30,6 +31,10 @@ export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps)
 
   useEffect(() => {
     if (typeof window === "undefined") {
+      return;
+    }
+
+    if (isBuyerPolishedOperatorShellEnv()) {
       return;
     }
 
@@ -82,5 +87,5 @@ export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps)
     setOpen(false);
   };
 
-  return <WelcomeModal open={open} onDismiss={dismiss} />;
+  return <WelcomeModal open={open} onDismiss={dismiss} buyerShell={isBuyerPolishedOperatorShellEnv()} />;
 }

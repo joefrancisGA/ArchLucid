@@ -1,4 +1,5 @@
 import type { RunDetail } from "@/types/authority";
+import type { FindingTraceConfidenceDto, RunExplanationSummary } from "@/types/explanation";
 
 /**
  * Persisted architecture finding wire snapshot for "AI reasoning" deep-dive UI.
@@ -71,6 +72,101 @@ function normalizedSeverity(severityValue: number): number {
   return n;
 }
 
+function coerceArchitectureFindingSeverity(raw: unknown): number {
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    return normalizedSeverity(raw);
+  }
+
+  if (typeof raw === "string") {
+    const parsed = Number.parseInt(raw, 10);
+
+    if (!Number.isNaN(parsed)) {
+      return normalizedSeverity(parsed);
+    }
+  }
+
+  return 0;
+}
+
+function findingTraceRowsFromSummary(summary: RunExplanationSummary | null): FindingTraceConfidenceDto[] {
+  if (summary === null) {
+    return [];
+  }
+
+  const top = summary.findingTraceConfidences;
+  const nested = summary.explanation?.findingTraceConfidences;
+
+  if (Array.isArray(top) && top.length > 0) {
+    return top;
+  }
+
+  if (Array.isArray(nested) && nested.length > 0) {
+    return nested;
+  }
+
+  return [];
+}
+
+function severityValueFromTraceRow(row: FindingTraceConfidenceDto): number {
+  const level = row.confidenceLevel;
+
+  if (level === "Low") {
+    return 2;
+  }
+
+  if (level === "Medium") {
+    return 1;
+  }
+
+  if (level === "High") {
+    return 0;
+  }
+
+  const score = row.evaluationConfidenceScore;
+
+  if (typeof score === "number" && Number.isFinite(score)) {
+    if (score < 0.35) {
+      return 2;
+    }
+
+    if (score < 0.65) {
+      return 1;
+    }
+  }
+
+  return 1;
+}
+
+function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto, order: number): QuickDecisionFinding | null {
+  const findingId = typeof row.findingId === "string" ? row.findingId.trim() : "";
+
+  if (findingId.length === 0) {
+    return null;
+  }
+
+  const titleRaw = typeof row.findingTitle === "string" ? row.findingTitle.trim() : "";
+  const title = titleRaw.length > 0 ? titleRaw : findingId;
+  const actions =
+    Array.isArray(row.recommendedActions) ? row.recommendedActions.filter((s) => typeof s === "string" && s.trim().length > 0) : [];
+  const recommendation = actions.join(" ");
+  let wireJson: string;
+
+  try {
+    wireJson = JSON.stringify(row, null, 2);
+  } catch {
+    wireJson = '{"error":"finding_trace_row_not_json_serializable"}';
+  }
+
+  return {
+    findingId,
+    title,
+    recommendation,
+    severityValue: severityValueFromTraceRow(row),
+    findingOrder: order,
+    aiReasoning: { wireJson, reasoningTrace: recommendation },
+  };
+}
+
 /**
  * Flattens agent results findings from run detail (no extra HTTP calls).
  * Title prefers `message`, then `category`, then finding id.
@@ -104,11 +200,18 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       }
 
       const fr = f as Record<string, unknown>;
-      const findingId = typeof fr.findingId === "string" ? fr.findingId.trim() : "";
+      const findingIdRaw =
+        typeof fr.findingId === "string"
+          ? fr.findingId.trim()
+          : typeof fr.id === "string"
+            ? fr.id.trim()
+            : "";
 
-      if (findingId.length === 0) {
+      if (findingIdRaw.length === 0) {
         continue;
       }
+
+      const findingId = findingIdRaw;
 
       const message = typeof fr.message === "string" ? fr.message.trim() : "";
       const category = typeof fr.category === "string" ? fr.category.trim() : "";
@@ -127,11 +230,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         wireJson = '{"error":"finding_payload_not_json_serializable"}';
       }
 
-      const severityRaw = fr.severity;
-      const severityValue =
-        typeof severityRaw === "number" && Number.isFinite(severityRaw)
-          ? normalizedSeverity(severityRaw)
-          : 0;
+      const severityValue = coerceArchitectureFindingSeverity(fr.severity);
 
       out.push({
         findingId,
@@ -147,6 +246,43 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
   return out;
 }
 
+/**
+ * Prefer flattened agent `results[].findings`; when that slice is empty but the aggregate explanation lists per-finding
+ * trace rows (common when run-detail findings omit ids), derive quick-decision rows from explanation.
+ */
+export function resolveQuickDecisionFindingsForRunDetail(
+  detail: RunDetail,
+  explanationSummary: RunExplanationSummary | null,
+): QuickDecisionFinding[] {
+  const fromDetail = extractQuickDecisionFindingsFromRunDetail(detail);
+
+  if (fromDetail.length > 0) {
+    return fromDetail;
+  }
+
+  const traces = findingTraceRowsFromSummary(explanationSummary);
+
+  if (traces.length === 0) {
+    return [];
+  }
+
+  const out: QuickDecisionFinding[] = [];
+  let order = 0;
+
+  for (const row of traces) {
+    const mapped = quickDecisionFindingFromTraceRow(row, order);
+
+    if (mapped === null) {
+      continue;
+    }
+
+    out.push(mapped);
+    order += 1;
+  }
+
+  return out;
+}
+
 /** Map of finding id → wire snapshot for any row that lists findings (e.g. explainability table). */
 export function buildFindingWireSnapshotsByFindingId(detail: RunDetail): Record<string, FindingWireSnapshot> {
   const extracted = extractQuickDecisionFindingsFromRunDetail(detail);
@@ -154,6 +290,23 @@ export function buildFindingWireSnapshotsByFindingId(detail: RunDetail): Record<
 
   for (const row of extracted) {
     record[row.findingId] = row.aiReasoning;
+  }
+
+  return record;
+}
+
+/** Wire snapshots from run detail findings, extended when quick-decision rows are synthesized from explanation traces. */
+export function buildFindingWireSnapshotsForRunDetail(
+  detail: RunDetail,
+  explanationSummary: RunExplanationSummary | null,
+): Record<string, FindingWireSnapshot> {
+  const record = buildFindingWireSnapshotsByFindingId(detail);
+  const resolved = resolveQuickDecisionFindingsForRunDetail(detail, explanationSummary);
+
+  for (const row of resolved) {
+    if (record[row.findingId] === undefined) {
+      record[row.findingId] = row.aiReasoning;
+    }
   }
 
   return record;

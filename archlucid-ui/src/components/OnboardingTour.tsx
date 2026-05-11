@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ARCHLUCID_ONBOARDING_TOUR_START_EVENT,
   readOnboardingTourCompleted,
@@ -20,7 +21,7 @@ type TourStep = {
   targetSelector?: string;
 };
 
-const STEPS: TourStep[] = [
+const OPERATOR_ONBOARDING_STEPS: TourStep[] = [
   {
     id: "welcome",
     title: "Welcome to ArchLucid",
@@ -64,6 +65,56 @@ const STEPS: TourStep[] = [
   },
 ];
 
+function onboardingTourSteps(): TourStep[] {
+  if (!isBuyerPolishedOperatorShellEnv()) {
+    return OPERATOR_ONBOARDING_STEPS;
+  }
+
+  return OPERATOR_ONBOARDING_STEPS.map((s) => {
+    if (s.id === "welcome") {
+      return {
+        ...s,
+        body:
+          "Explore how governed architecture reviews produce audit-ready packages—walk the checklist in order, or jump ahead when you already know the destination.",
+      };
+    }
+
+    if (s.id === "new-run") {
+      return {
+        ...s,
+        body:
+          "Authoring starts from captured architecture context. New request stays in the sidebar when you enable full operator workflows; polished demos emphasize opening completed packages first.",
+      };
+    }
+
+    if (s.id === "runs") {
+      return {
+        ...s,
+        body:
+          "Finalized reviews expose manifest summaries, traceability, governance posture, and exports—open the reviews list when you need every package in the workspace.",
+      };
+    }
+
+    if (s.id === "disclose") {
+      return {
+        ...s,
+        body:
+          "Use Sidebar layout to reveal deeper analysis when stakeholders ask for it—the default path stays buyer-safe until you opt into extended controls.",
+      };
+    }
+
+    if (s.id === "done") {
+      return {
+        ...s,
+        body:
+          "You can revisit this tour from Help anytime. When operators enable the full shell, follow the Core Pilot checklist for first-live manifests.",
+      };
+    }
+
+    return s;
+  });
+}
+
 function shouldSuppressAutoStart(): boolean {
   if (typeof window === "undefined") {
     return true;
@@ -94,9 +145,10 @@ export function OnboardingTour() {
   const [stepIndex, setStepIndex] = useState(0);
   const [highlight, setHighlight] = useState<Rect | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const step = STEPS[Math.min(stepIndex, STEPS.length - 1)];
+  const steps = onboardingTourSteps();
+  const step = steps[Math.min(stepIndex, steps.length - 1)];
 
-  const stepCount = STEPS.length;
+  const stepCount = steps.length;
 
   const targetSelector = step.targetSelector;
 
@@ -191,6 +243,10 @@ export function OnboardingTour() {
 
   useEffect(() => {
     if (pathname !== "/") {
+      return;
+    }
+
+    if (isBuyerPolishedOperatorShellEnv()) {
       return;
     }
 

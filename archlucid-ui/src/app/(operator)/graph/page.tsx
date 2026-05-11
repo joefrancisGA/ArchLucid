@@ -706,8 +706,8 @@ function GraphPageContent() {
           ) : null}
           {demoUi && buyerPolishedShell ? (
             <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-              Expand graph view options when you need a different finalized package. This view defaults to the curated sample
-              evidence graph.
+              Expand graph view options when you need a different finalized package. This view defaults to the example
+              evidence trace graph for the sample package.
             </p>
           ) : null}
           {demoUi && !buyerPolishedShell ? (

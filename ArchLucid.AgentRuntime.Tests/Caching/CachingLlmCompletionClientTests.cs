@@ -25,9 +25,10 @@ public sealed class CachingLlmCompletionClientTests
         MutableOptionsMonitor<LlmTelemetryLabelOptions> telemetry =
             new(new LlmTelemetryLabelOptions { ProviderId = "unit", ModelDeploymentLabel = "m1" });
 
-        using MemoryCache memCache = new(new MemoryCacheOptions { SizeLimit = 32 });
+        MemoryCache memCache = new(new MemoryCacheOptions { SizeLimit = 32 });
+        using MemorySemanticCache semanticCache = new(memCache, opts);
 
-        ILlmCompletionResponseCache cacheBackend = new LlmCompletionResponseCache(memCache, opts);
+        ILlmCompletionResponseCache cacheBackend = new LlmCompletionResponseCache(semanticCache);
 
         CachingLlmCompletionClient sut =
             new(
@@ -62,9 +63,10 @@ public sealed class CachingLlmCompletionClientTests
         MutableOptionsMonitor<LlmTelemetryLabelOptions> telemetry =
             new(new LlmTelemetryLabelOptions { ProviderId = "unit", ModelDeploymentLabel = "m1" });
 
-        using MemoryCache memCache = new(new MemoryCacheOptions { SizeLimit = 32 });
+        MemoryCache memCache = new(new MemoryCacheOptions { SizeLimit = 32 });
+        using MemorySemanticCache semanticCache = new(memCache, opts);
 
-        ILlmCompletionResponseCache cacheBackend = new LlmCompletionResponseCache(memCache, opts);
+        ILlmCompletionResponseCache cacheBackend = new LlmCompletionResponseCache(semanticCache);
 
         CachingLlmCompletionClient sut =
             new(
@@ -103,9 +105,10 @@ public sealed class CachingLlmCompletionClientTests
         MutableOptionsMonitor<LlmTelemetryLabelOptions> telemetry =
             new(new LlmTelemetryLabelOptions { ProviderId = "metric-agent", ModelDeploymentLabel = "m1" });
 
-        using MemoryCache memCache = new(new MemoryCacheOptions { SizeLimit = 32 });
+        MemoryCache memCache = new(new MemoryCacheOptions { SizeLimit = 32 });
+        using MemorySemanticCache semanticCache = new(memCache, opts);
 
-        ILlmCompletionResponseCache cacheBackend = new LlmCompletionResponseCache(memCache, opts);
+        ILlmCompletionResponseCache cacheBackend = new LlmCompletionResponseCache(semanticCache);
 
         CachingLlmCompletionClient sut =
             new(

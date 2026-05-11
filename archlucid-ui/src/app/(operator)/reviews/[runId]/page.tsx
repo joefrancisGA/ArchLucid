@@ -90,8 +90,8 @@ import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-revie
 import { findPriorCommittedRun } from "@/lib/find-prior-committed-run";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
-  buildFindingWireSnapshotsByFindingId,
-  extractQuickDecisionFindingsFromRunDetail,
+  buildFindingWireSnapshotsForRunDetail,
+  resolveQuickDecisionFindingsForRunDetail,
 } from "@/lib/quick-decision-summary-derive";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
 import type {
@@ -498,8 +498,8 @@ export default async function RunDetailPage({
   const governanceGateLabel =
     manifestSummary !== null ? governanceGateLabelFromManifestStatus(manifestSummary.status) : null;
 
-  const quickDecisionFindings = extractQuickDecisionFindingsFromRunDetail(resolvedDetail);
-  const findingWireSnapshots = buildFindingWireSnapshotsByFindingId(resolvedDetail);
+  const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
+  const findingWireSnapshots = buildFindingWireSnapshotsForRunDetail(resolvedDetail, explanationSummary);
 
   const sampleReviewPackageSummaryEl =
     usedStaticDemoRun ? (
@@ -518,7 +518,13 @@ export default async function RunDetailPage({
           title={buyerPolishedArtifactTable ? "Findings & assessment" : "Architecture review summary"}
           defaultOpen={buyerPolishedArtifactTable}
         >
-          <QuickDecisionSummary runId={runId} findings={quickDecisionFindings} />
+          <QuickDecisionSummary
+            runId={runId}
+            findings={quickDecisionFindings}
+            buyerPolishedShell={buyerPolishedArtifactTable}
+            headlineFindingCount={findingCountDisplay}
+            headlineWarningCount={warningCountDisplay}
+          />
           {explanationFailure && (
             <>
               <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
@@ -601,10 +607,10 @@ export default async function RunDetailPage({
         <Card className="rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950/30">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-              Sponsor-ready view
+              Executive summary
             </CardTitle>
             <CardDescription>
-              Concise executive summary and outcomes. Start here for a board-ready view before sharing deliverables.
+              Concise outcomes and posture in executive workspace. Start here before manifest detail and deliverables.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 pt-0">

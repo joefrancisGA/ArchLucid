@@ -20,8 +20,8 @@ export function OperatorDemoStaticBanner(): ReactElement {
       <strong className="font-medium">{demoMode ? "Sample data" : "Demonstration content"}</strong>
       {" — "}
       {demoMode
-        ? "Curated scenario aligned with the public completed example; connect a workspace for live data."
-        : "You are viewing a curated sample review aligned with the completed example showcase — connect a workspace for live data."}
+        ? "Example scenario aligned with the public completed review—connect a workspace for live tenant data."
+        : "You are viewing an example review package aligned with the completed showcase—connect a workspace for live data."}
     </div>
   );
 }

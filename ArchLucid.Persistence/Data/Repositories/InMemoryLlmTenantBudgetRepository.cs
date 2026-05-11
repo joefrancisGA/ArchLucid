@@ -81,10 +81,7 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
 
         lock (gate)
         {
-            if (!_rows.TryGetValue(key, out Row? row))
-                return Task.FromResult(new LlmTenantBudgetReserveResult { ConcurrencyConflict = true });
-
-            if (!row.RowVersionBytes.AsSpan().SequenceEqual(request.ExpectedRowVersion))
+            if (!_rows.TryGetValue(key, out Row? row) || !row.RowVersionBytes.AsSpan().SequenceEqual(request.ExpectedRowVersion))
                 return Task.FromResult(new LlmTenantBudgetReserveResult { ConcurrencyConflict = true });
 
             if (request.Period == LlmBudgetPeriod.Daily)
@@ -105,7 +102,8 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
                 return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
             }
 
-            if (request.Period != LlmBudgetPeriod.Monthly) throw new ArgumentOutOfRangeException(nameof(request), request.Period, null);
+            if (request.Period != LlmBudgetPeriod.Monthly)
+                throw new ArgumentOutOfRangeException(nameof(request), request.Period, null);
 
             if (request.ReserveUsd <= 0m)
                 return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
@@ -209,7 +207,8 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
                     new LlmTenantBudgetSettleResult { NewState = ToModel(row), ShouldEmitWarnAudit = shouldAudit });
             }
 
-            if (request.Period != LlmBudgetPeriod.Monthly) throw new ArgumentOutOfRangeException(nameof(request), request.Period, null);
+            if (request.Period != LlmBudgetPeriod.Monthly)
+                throw new ArgumentOutOfRangeException(nameof(request), request.Period, null);
             {
                 if (request.ReleaseReservedUsd > row.ReservedUsd)
                     return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });

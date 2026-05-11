@@ -1,10 +1,12 @@
 import type { RunDetail } from "@/types/authority";
+import type { RunExplanationSummary } from "@/types/explanation";
 import { describe, expect, it } from "vitest";
 
 import {
-  buildFindingWireSnapshotsByFindingId,
+  buildFindingWireSnapshotsForRunDetail,
   extractQuickDecisionFindingsFromRunDetail,
   firstRecommendationSentence,
+  resolveQuickDecisionFindingsForRunDetail,
   sortQuickDecisionFindings,
 } from "./quick-decision-summary-derive";
 
@@ -66,7 +68,7 @@ describe("quick-decision-summary-derive", () => {
     expect(sorted[2]?.findingId).toBe("a");
   });
 
-  it("buildFindingWireSnapshotsByFindingId maps ids to wire snapshots", () => {
+  it("buildFindingWireSnapshotsForRunDetail maps ids to wire snapshots", () => {
     const detail = {
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
       results: [
@@ -84,19 +86,80 @@ describe("quick-decision-summary-derive", () => {
       ],
     } as unknown as RunDetail;
 
-    const snaps = buildFindingWireSnapshotsByFindingId(detail);
+    const snaps = buildFindingWireSnapshotsForRunDetail(detail, null);
 
     expect(snaps.x).toBeDefined();
     expect(snaps.x?.reasoningTrace).toContain("Step one");
     expect(snaps.x?.wireJson).toContain("evaluationConfidenceScore");
   });
 
-  it("extractQuickDecisionFindingsFromRunDetail skips rows without findingId", () => {
+  it("extractQuickDecisionFindingsFromRunDetail skips rows without findingId or id", () => {
     const detail = {
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
       results: [{ findings: [{ findingId: "", message: "x" }] }],
     } as unknown as RunDetail;
 
     expect(extractQuickDecisionFindingsFromRunDetail(detail)).toHaveLength(0);
+  });
+
+  it("extractQuickDecisionFindingsFromRunDetail accepts legacy id when findingId missing", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [{ findings: [{ id: "fid-1", message: "Hello", severity: 2 }] }],
+    } as unknown as RunDetail;
+
+    const extracted = extractQuickDecisionFindingsFromRunDetail(detail);
+
+    expect(extracted).toHaveLength(1);
+    expect(extracted[0]?.findingId).toBe("fid-1");
+  });
+
+  it("resolveQuickDecisionFindingsForRunDetail falls back to explanation trace rows when detail findings missing", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [{ findings: [] }],
+    } as unknown as RunDetail;
+
+    const summary = {
+      explanation: {
+        summary: "",
+        keyDrivers: [],
+        riskImplications: [],
+        costImplications: [],
+        complianceImplications: [],
+        detailedNarrative: "",
+        rawText: "",
+        structured: null,
+        confidence: null,
+        provenance: null,
+      },
+      themeSummaries: [],
+      overallAssessment: "",
+      riskPosture: "",
+      findingCount: 1,
+      decisionCount: 0,
+      unresolvedIssueCount: 0,
+      complianceGapCount: 0,
+      findingTraceConfidences: [
+        {
+          findingId: "f-a",
+          traceCompletenessRatio: 1,
+          traceConfidenceLabel: "High",
+          findingTitle: "Title A",
+          recommendedActions: ["Do thing"],
+          confidenceLevel: "Medium",
+        },
+      ],
+    } as RunExplanationSummary;
+
+    const resolved = resolveQuickDecisionFindingsForRunDetail(detail, summary);
+
+    expect(resolved).toHaveLength(1);
+    expect(resolved[0]?.findingId).toBe("f-a");
+
+    const snaps = buildFindingWireSnapshotsForRunDetail(detail, summary);
+
+    expect(snaps["f-a"]).toBeDefined();
+    expect(snaps["f-a"]?.reasoningTrace).toContain("Do thing");
   });
 });

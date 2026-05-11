@@ -7,6 +7,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   isBuyerPolishedOperatorShellEnv,
   isBuyerSafeDemoMarketingChromeEnv,
@@ -164,7 +165,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </span>
           </li>
           <li className="flex justify-between gap-2">
-            <span>{buyerPolished ? "Evidence graph" : "Graph generated"}</span>
+            <span>{buyerPolished ? BUYER_SURFACE_VOCABULARY.evidenceGraph : "Graph generated"}</span>
             <span aria-label={run.hasGraphSnapshot ? "Graph snapshot present" : "Graph snapshot missing"}>
               {snapshotLabel(run.hasGraphSnapshot)}
             </span>

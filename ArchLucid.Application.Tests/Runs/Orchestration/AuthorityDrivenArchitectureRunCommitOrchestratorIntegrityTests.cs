@@ -10,22 +10,20 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Persistence.Models;
-
-using ContractManifestMetadata = ArchLucid.Contracts.Manifest.ManifestMetadata;
-using DecisionManifestMetadata = ArchLucid.Decisioning.Manifest.Sections.ManifestMetadata;
-using Dm = ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
+
+using ContractManifestMetadata = ArchLucid.Contracts.Manifest.ManifestMetadata;
+using DecisionManifestMetadata = ArchLucid.Decisioning.Manifest.Sections.ManifestMetadata;
+using Dm = ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Application.Tests.Runs.Orchestration;
 

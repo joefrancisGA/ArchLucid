@@ -196,7 +196,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "Finished architecture review package — curated sample with consistent inputs so every evaluator sees the same outcomes. In production, workflows and evidence sources follow your tenant configuration.",
+      "Finished example review package — consistent inputs so every evaluator sees the same outcomes. In production, workflows and evidence sources follow your tenant configuration.",
     agentExecutionLlmCostEstimate: {
       estimatedCostUsd: null,
       tokenCounts: { prompt: 0, completion: 0 },

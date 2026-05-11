@@ -1,64 +1,38 @@
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
-
 namespace ArchLucid.AgentRuntime.Caching;
 
-/// <summary>Dedicated bounded <see cref="MemoryCache" /> for LLM completion bodies.</summary>
-public sealed class LlmCompletionResponseCache : ILlmCompletionResponseCache, IDisposable
+/// <summary>Completion response cache built on <see cref="ISemanticCache" /> (composite keys including SHA-256 prompt fingerprints).</summary>
+public sealed class LlmCompletionResponseCache : ILlmCompletionResponseCache
 {
-    private readonly MemoryCache _cache;
-    private readonly IOptionsMonitor<LlmCompletionCacheOptions> _optionsMonitor;
+    private readonly ISemanticCache _semanticCache;
 
-    /// <summary>Creates the cache backed by <paramref name="cache" /> (caller owns dispose unless this instance disposes it).</summary>
-    public LlmCompletionResponseCache(MemoryCache cache, IOptionsMonitor<LlmCompletionCacheOptions> optionsMonitor)
+    /// <summary>Creates the cache.</summary>
+    public LlmCompletionResponseCache(ISemanticCache semanticCache)
     {
-        ArgumentNullException.ThrowIfNull(cache);
-        ArgumentNullException.ThrowIfNull(optionsMonitor);
+        ArgumentNullException.ThrowIfNull(semanticCache);
 
-        _cache = cache;
-        _optionsMonitor = optionsMonitor;
+        _semanticCache = semanticCache;
     }
 
     /// <inheritdoc />
-    public void Dispose()
+    public async Task<LlmCompletionResult?> TryGetAsync(LlmCompletionCacheKey key, CancellationToken cancellationToken)
     {
-        _cache.Dispose();
-    }
-
-    /// <inheritdoc />
-    public Task<LlmCompletionResult?> TryGetAsync(LlmCompletionCacheKey key, CancellationToken cancellationToken)
-    {
-        _ = cancellationToken;
-
         string memoryKey = ToMemoryKey(key);
+        string? body = await _semanticCache.GetCachedResponseAsync(memoryKey, cancellationToken);
 
-        if (_cache.TryGetValue(memoryKey, out object? value) && value is LlmCompletionResult hit)
-            return Task.FromResult<LlmCompletionResult?>(hit);
+        if (body is null)
+            return null;
 
-        return Task.FromResult<LlmCompletionResult?>(null);
+        return new LlmCompletionResult(body);
     }
 
     /// <inheritdoc />
     public Task SetAsync(LlmCompletionCacheKey key, LlmCompletionResult result, CancellationToken cancellationToken)
     {
-        _ = cancellationToken;
-
         ArgumentNullException.ThrowIfNull(result);
-
-        LlmCompletionCacheOptions options = _optionsMonitor.CurrentValue;
-
-        if (options.MaxEntries < 1)
-            throw new InvalidOperationException("LlmCompletionCacheOptions.MaxEntries must be at least 1.");
-
-        TimeSpan ttl = ResolveTtl(options);
-
-        MemoryCacheEntryOptions entryOptions = new() { AbsoluteExpirationRelativeToNow = ttl, Size = 1 };
 
         string memoryKey = ToMemoryKey(key);
 
-        _cache.Set(memoryKey, result, entryOptions);
-
-        return Task.CompletedTask;
+        return _semanticCache.SetCachedResponseAsync(memoryKey, result.JsonBody, cancellationToken);
     }
 
     internal static TimeSpan ResolveTtl(LlmCompletionCacheOptions options)

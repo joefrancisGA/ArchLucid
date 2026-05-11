@@ -15,6 +15,25 @@ describe("QuickDecisionSummary", () => {
     expect(screen.getByText("No findings to act on")).toBeInTheDocument();
   });
 
+  it("buyer-polished shell summarizes finalized posture when headline lists findings but quick rows are empty", () => {
+    render(
+      <QuickDecisionSummary
+        runId="run-1"
+        findings={[]}
+        buyerPolishedShell
+        headlineFindingCount={9}
+        headlineWarningCount={1}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        /This finalized review records 9 findings with no unresolved blocking issues\. One monitored warning remains in the manifest—review severity and controls below\./,
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("No findings to act on")).not.toBeInTheDocument();
+  });
+
   it("renders top three by severity with links to finding detail", () => {
     const findings: QuickDecisionFinding[] = [
       {

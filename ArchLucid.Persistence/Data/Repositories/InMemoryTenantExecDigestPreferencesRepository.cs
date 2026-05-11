@@ -68,10 +68,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
     {
         _ = cancellationToken;
 
-        if (!_store.TryGetValue(tenantId, out ExecDigestPreferencesResponse? existing))
-            return Task.FromResult(false);
-
-        if (!existing.EmailEnabled)
+        if (!_store.TryGetValue(tenantId, out ExecDigestPreferencesResponse? existing) || !existing.EmailEnabled)
             return Task.FromResult(false);
 
         ExecDigestPreferencesResponse updated = new()
