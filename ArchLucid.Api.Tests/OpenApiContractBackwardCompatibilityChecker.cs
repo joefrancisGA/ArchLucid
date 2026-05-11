@@ -238,7 +238,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
         if (baselineOp["requestBody"] is not JsonNode baselineBody)
             return;
 
-        if (!actualOp.TryGetPropertyValue("requestBody", out JsonNode? actualBody))
+        if (!actualOp.TryGetPropertyValue("requestBody", out JsonNode? actualBody) || actualBody is null)
         {
             violations.Add($"{operationLabel}: removed `requestBody` (present in snapshot).");
             return;
@@ -277,7 +277,8 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             if (responsePair.Value is not JsonNode baselineResponseNode)
                 continue;
 
-            if (!actualResponses.TryGetPropertyValue(status, out JsonNode? actualResponseNode))
+            if (!actualResponses.TryGetPropertyValue(status, out JsonNode? actualResponseNode)
+                || actualResponseNode is null)
             {
                 violations.Add($"{operationLabel}: removed HTTP `{status}` response (present in snapshot).");
                 continue;
@@ -329,11 +330,14 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                 continue;
             }
 
-            if (!actualMedia.TryGetPropertyValue("schema", out JsonNode? actualSchema))
+            if (!actualMedia.TryGetPropertyValue("schema", out JsonNode? actualSchema) || actualSchema is null)
             {
                 violations.Add($"{context}: media `{media}` is missing `schema` (snapshot has one).");
                 continue;
             }
+
+            if (baselineSchema is null)
+                continue;
 
             SchemaSubset.AssertSchemaCompatible(
                 violations,
@@ -529,16 +533,16 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                 }
             }
 
-            if (baseline.TryGetPropertyValue("items", out JsonNode? bItems))
+            if (baseline.TryGetPropertyValue("items", out JsonNode? bItems) && bItems is not null)
             {
-                if (!actual.TryGetPropertyValue("items", out JsonNode? aItems))
+                if (!actual.TryGetPropertyValue("items", out JsonNode? aItems) || aItems is null)
                 {
                     violations.Add($"{context}: removed `items` for array baseline schema.");
                     return;
                 }
 
-                AssertSchemaCompatible(violations, $"{context}.items", bItems, aItems!, baselineComponents, actualComponents,
-                    refsVisited);
+                AssertSchemaCompatible(violations, $"{context}.items", bItems, aItems, baselineComponents,
+                    actualComponents, refsVisited);
             }
 
             CompareCompositionBranch(violations, context + " → allOf", baseline, actual, baselineComponents,
@@ -558,10 +562,10 @@ internal static class OpenApiContractBackwardCompatibilityChecker
 
         private static void CompareTypeTokens(List<string> violations, string context, JsonObject baseline, JsonObject actual)
         {
-            if (!baseline.TryGetPropertyValue("type", out JsonNode? bTypeNode))
+            if (!baseline.TryGetPropertyValue("type", out JsonNode? bTypeNode) || bTypeNode is null)
                 return;
 
-            if (!actual.TryGetPropertyValue("type", out JsonNode? aTypeNode))
+            if (!actual.TryGetPropertyValue("type", out JsonNode? aTypeNode) || aTypeNode is null)
             {
                 violations.Add($"{context}: actual schema omits `type` while baseline documents it.");
                 return;
@@ -580,9 +584,12 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             }
         }
 
-        private static HashSet<string> NormalizeTypeTokens(JsonNode node)
+        private static HashSet<string> NormalizeTypeTokens(JsonNode? node)
         {
             HashSet<string> set = new(StringComparer.Ordinal);
+
+            if (node is null)
+                return set;
 
             switch (node)
             {
@@ -789,10 +796,10 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             JsonObject actualComponents,
             HashSet<string> refsVisited)
         {
-            if (!baseline.TryGetPropertyValue("additionalProperties", out JsonNode? bAdditional))
+            if (!baseline.TryGetPropertyValue("additionalProperties", out JsonNode? bAdditional) || bAdditional is null)
                 return;
 
-            if (!actual.TryGetPropertyValue("additionalProperties", out JsonNode? aAdditional))
+            if (!actual.TryGetPropertyValue("additionalProperties", out JsonNode? aAdditional) || aAdditional is null)
             {
                 violations.Add($"{context}: baseline constrained `additionalProperties` but actual removed the constraint.");
 
@@ -834,10 +841,10 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                 refsVisited);
         }
 
-        private static bool IsAdditionalPropertiesBooleanTrue(JsonNode node) =>
+        private static bool IsAdditionalPropertiesBooleanTrue(JsonNode? node) =>
             node is JsonValue v && string.Equals(TryGetPrimitiveString(v), "true", StringComparison.Ordinal);
 
-        private static bool IsAdditionalPropertiesBooleanFalse(JsonNode node) =>
+        private static bool IsAdditionalPropertiesBooleanFalse(JsonNode? node) =>
             node is JsonValue v && string.Equals(TryGetPrimitiveString(v), "false", StringComparison.Ordinal);
     }
 }
