@@ -25,8 +25,6 @@ const mockBaseUrl = `http://127.0.0.1:${mockE2ePort}`;
 const mockWebServerStartupTimeoutMs = 30 * 60 * 1_000;
 
 export default defineConfig({
-  testDir: "e2e",
-  testIgnore: "**/live-api-*.spec.ts",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
@@ -36,7 +34,13 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "chromium",
+      testDir: ".",
+      testMatch: ["e2e/**/*.spec.ts", "tests/quick-scan.spec.ts"],
+      testIgnore: ["**/live-api-*.spec.ts", "tests/e2e/**"],
+      use: { ...devices["Desktop Chrome"] },
+    },
     /**
      * Full-page screenshot goldens (`tests/e2e/visual-regression.spec.ts`). Snapshots are OS-specific
      * (`*-chromium-visual-win32.png` vs `*-linux.png`). Not run in merge-blocking CI — run locally or in Docker

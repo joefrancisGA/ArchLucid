@@ -154,7 +154,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
                   {buyerShell ? "Open sample executive summary" : "Get started — new review"}
                 </Button>
                 <Button type="button" variant="secondary" className="w-full" asChild>
-                  <Link href="/quick-start" onClick={onDismiss}>
+                  <Link href="/quick-scan" onClick={onDismiss}>
                     Try Quick Scan (no sign-in demo)
                   </Link>
                 </Button>
