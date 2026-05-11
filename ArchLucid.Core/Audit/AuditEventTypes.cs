@@ -115,6 +115,12 @@ public static class AuditEventTypes
     public const string ArchitectureQuickScanExecuted = "ArchitectureQuickScanExecuted";
 
     /// <summary>
+    ///     Emitted when <c>POST /v1/architecture/import</c> CSV dry-run completes (mapped golden manifest JSON or validation
+    ///     failure; no persistence).
+    /// </summary>
+    public const string ArchitectureDefinitionCsvImportDryRunExecuted = "ArchitectureDefinitionCsvImportDryRunExecuted";
+
+    /// <summary>
     ///     Emitted when the architecture-package DOCX export completes successfully (
     ///     <c>GET .../docx/runs/{{runId}}/architecture-package</c>).
     /// </summary>

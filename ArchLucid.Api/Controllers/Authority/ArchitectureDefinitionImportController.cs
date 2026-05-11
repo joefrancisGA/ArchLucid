@@ -1,7 +1,13 @@
+using System.Text.Json;
+
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Import;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
@@ -27,6 +33,9 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class ArchitectureDefinitionImportController(
     IArchitectureDefinitionCsvImportDryRunService csvImportDryRunService,
+    IActorContext actorContext,
+    IAuditService auditService,
+    IScopeContextProvider scopeContextProvider,
     ILogger<ArchitectureDefinitionImportController> logger) : ControllerBase
 {
     /// <summary>
@@ -48,6 +57,48 @@ public sealed class ArchitectureDefinitionImportController(
     {
         ArchitectureDefinitionCsvImportDryRunResult result =
             await csvImportDryRunService.ImportDryRunAsync(file, systemName, cancellationToken);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string auditActor = actorContext.GetActor();
+        string? uploadName = file?.FileName;
+        long? uploadLengthBytes = file is { Length: > 0 } ? file.Length : null;
+
+        object auditPayload = result switch
+        {
+            { Succeeded: true, Manifest: { } m } => new
+            {
+                succeeded = true,
+                systemName,
+                uploadName,
+                uploadLengthBytes,
+                manifestSystemName = m.SystemName,
+                serviceCount = m.Services.Count,
+                datastoreCount = m.Datastores.Count,
+                relationshipCount = m.Relationships.Count
+            },
+            _ => new
+            {
+                succeeded = false,
+                systemName,
+                uploadName,
+                uploadLengthBytes,
+                failureDetail = result.FailureDetail
+            }
+        };
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ArchitectureDefinitionCsvImportDryRunExecuted,
+                ActorUserId = auditActor,
+                ActorUserName = auditActor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(auditPayload, AuditJsonSerializationOptions.Instance)
+            },
+            cancellationToken);
 
         if (result is { Succeeded: true, Manifest: { } manifest })
             return Ok(manifest);
