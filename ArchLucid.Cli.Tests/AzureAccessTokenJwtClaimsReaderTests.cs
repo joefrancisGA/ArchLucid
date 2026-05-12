@@ -37,8 +37,8 @@ public sealed class AzureAccessTokenJwtClaimsReaderTests
     {
         static string B64Url(string utf8Text) =>
             Convert.ToBase64String(Encoding.UTF8.GetBytes(utf8Text)).TrimEnd('=')
-                .Replace('+', '-', StringComparison.Ordinal)
-                .Replace('/', '_', StringComparison.Ordinal);
+                .Replace("+", "-", StringComparison.Ordinal)
+                .Replace("/", "_", StringComparison.Ordinal);
 
         return $"{B64Url(@"{""alg"":""none"",""typ"":""JWT""}")}.{B64Url(payloadJson)}.sig";
     }

@@ -27,9 +27,9 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         ArgumentNullException.ThrowIfNull(systemName);
         if (string.IsNullOrWhiteSpace(systemName))
             return new ServiceNowCmdbCiResolveResult(false, null, null, null);
-        string encoded = Uri.EscapeDataString(systemName.Trim());
-        string root = instanceRoot.GetLeftPart(UriPartial.Authority).TrimEnd('/');
-        Uri uri = new($"{root}/api/now/table/cmdb_ci_appl?sysparm_limit=1&sysparm_query=name={encoded}");
+
+        string nameQuery = systemName.Trim();
+        Uri uri = ServiceNowCmdbCiApplTableApi.BuildLookupBySystemNameUri(instanceRoot, nameQuery);
         using HttpRequestMessage request = new(HttpMethod.Get, uri);
         ApplyBasicAuth(request, username, password);
         HttpResponseMessage response;
@@ -64,7 +64,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         if (!autoCreateWhenMissing)
             return new ServiceNowCmdbCiResolveResult(false, null, null, null);
 
-        return await TryCreateCmdbCiApplAsync(instanceRoot, username, password, systemName.Trim(), ct).ConfigureAwait(false);
+        return await TryCreateCmdbCiApplAsync(instanceRoot, username, password, nameQuery, ct).ConfigureAwait(false);
     }
 
     public async Task<ServiceNowIncidentHttpResult> CreateIncidentAsync(Uri incidentTableUri, string username, string password, string shortDescription,
@@ -135,8 +135,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
     private async Task<ServiceNowCmdbCiResolveResult> TryCreateCmdbCiApplAsync(Uri instanceRoot, string username, string password, string name,
         CancellationToken ct)
     {
-        string root = instanceRoot.GetLeftPart(UriPartial.Authority).TrimEnd('/');
-        Uri uri = new($"{root}/api/now/table/cmdb_ci_appl");
+        Uri uri = ServiceNowCmdbCiApplTableApi.BuildCreateUri(instanceRoot);
         object body = new
         {
             name
