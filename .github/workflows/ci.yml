@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -76,7 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
@@ -93,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
@@ -135,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
@@ -156,7 +156,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
@@ -177,7 +177,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
@@ -494,7 +494,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: hashicorp/setup-terraform@v4
         with:
@@ -533,7 +533,7 @@ jobs:
       matrix:
         directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: hashicorp/setup-terraform@v4
         with:
@@ -569,10 +569,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -593,14 +593,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -625,7 +625,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
@@ -652,12 +652,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -837,7 +837,7 @@ jobs:
           test -x "$CDX" || CDX="${RUNNER_TEMP}/cdx/dotnet-CycloneDX"
           "$CDX" ArchLucid.Api/ArchLucid.Api.csproj -o sbom-dotnet.json
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: sbom-dotnet
           path: sbom-dotnet.json
@@ -910,13 +910,13 @@ jobs:
           fi
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage-fast-core
           path: ${{ runner.temp }}/coverage-fast-core/**/coverage.cobertura.xml
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: success()
         with:
           name: coverage-report-fast-core-html
@@ -935,7 +935,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install PowerShell
         run: |
@@ -979,9 +979,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -1048,9 +1048,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -1121,7 +1121,7 @@ jobs:
 
       - name: Upload greenfield boot log
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: greenfield-boot-log
           path: ${{ runner.temp }}/greenfield-boot.log
@@ -1152,10 +1152,10 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -1180,14 +1180,14 @@ jobs:
           --results-directory "${{ runner.temp }}/coverage-full-core-api"
           --logger "trx;LogFilePrefix=full-core-api-"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: dotnet-trx-full-core-api
           path: ${{ runner.temp }}/coverage-full-core-api/**/*.trx
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage-full-regression-core-api
           path: ${{ runner.temp }}/coverage-full-core-api/**/coverage.cobertura.xml
@@ -1216,10 +1216,10 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -1256,14 +1256,14 @@ jobs:
               --logger "trx;LogFilePrefix=full-core-libs-"
           done
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: dotnet-trx-full-core-libs
           path: ${{ runner.temp }}/coverage-full-core-libs/**/*.trx
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage-full-regression-core-libs
           path: ${{ runner.temp }}/coverage-full-core-libs/**/coverage.cobertura.xml
@@ -1303,10 +1303,10 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -1331,14 +1331,14 @@ jobs:
           --results-directory "${{ runner.temp }}/coverage-full-slow-api"
           --logger "trx;LogFilePrefix=full-slow-api-"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: dotnet-trx-full-slow-api
           path: ${{ runner.temp }}/coverage-full-slow-api/**/*.trx
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage-full-regression-slow-api
           path: ${{ runner.temp }}/coverage-full-slow-api/**/coverage.cobertura.xml
@@ -1367,10 +1367,10 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -1403,14 +1403,14 @@ jobs:
               --logger "trx;LogFilePrefix=full-slow-domain-"
           done
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: dotnet-trx-full-slow-domain
           path: ${{ runner.temp }}/coverage-full-slow-domain/**/*.trx
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage-full-regression-slow-domain
           path: ${{ runner.temp }}/coverage-full-slow-domain/**/coverage.cobertura.xml
@@ -1428,9 +1428,9 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -1439,23 +1439,23 @@ jobs:
             global.json
             **/*.csproj
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           name: coverage-full-regression-core-api
           path: merge-cov/core-api
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           name: coverage-full-regression-core-libs
           path: merge-cov/core-libs
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           name: coverage-full-regression-slow-api
           path: merge-cov/slow-api
         continue-on-error: true
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           name: coverage-full-regression-slow-domain
           path: merge-cov/slow-domain
@@ -1505,28 +1505,28 @@ jobs:
           python3 scripts/ci/assert_coverage_floor_ratchet.py "${OUT}/Cobertura.xml"
           cp "${{ runner.temp }}/coverage-metrics.txt" "${ART_DIR}/coverage-metrics.txt"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: success()
         with:
           name: coverage-metrics
           path: ${{ runner.temp }}/coverage-metrics-artifact/**
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: success()
         with:
           name: coverage-merged-cobertura
           path: ${{ runner.temp }}/coverage-report-full/Cobertura.xml
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: success()
         with:
           name: coverage-full-regression-merged-cobertura-files
           path: ${{ runner.temp }}/coverage-merged-input/**
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: success()
         with:
           name: coverage-report-full-regression-html
@@ -1545,7 +1545,7 @@ jobs:
             "${COV_OUT}/Cobertura.xml" \
             "${BADGE_DIR}/coverage.svg"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
         with:
           name: coverage-line-badge-svg
@@ -1576,10 +1576,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -1605,7 +1605,7 @@ jobs:
           --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos"
           --logger "trx;LogFileName=chaos-persistence.trx"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: chaos-test-results
@@ -1630,10 +1630,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -1680,9 +1680,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -1703,7 +1703,7 @@ jobs:
             /p:SourceRevisionId=$(git rev-parse HEAD) \
             /p:ArchLucidApiClientPackageVersion=1.0.${{ github.run_number }}
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: archlucid-api-client-nupkg-ci
           path: ${{ runner.temp }}/nuget/*.nupkg
@@ -1746,16 +1746,16 @@ jobs:
             echo "post=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: steps.gate.outputs.post == 'true'
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         if: steps.gate.outputs.post == 'true'
         with:
           name: coverage-metrics
           path: head-metrics
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         if: steps.gate.outputs.post == 'true'
         with:
@@ -1765,7 +1765,7 @@ jobs:
       - name: Download base branch coverage metrics (optional)
         continue-on-error: true
         if: steps.gate.outputs.post == 'true'
-        uses: dawidd6/action-download-artifact@v6
+        uses: dawidd6/action-download-artifact@v21
         with:
           github_token: ${{ github.token }}
           workflow: ci.yml
@@ -1817,7 +1817,7 @@ jobs:
       # — fork PR workflows get a read-only token and fail if we always pass cache-to.
       actions: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Assert unique Next.js App Router paths (route-group collision guard)
         run: python3 scripts/ci/assert_archlucid_ui_app_router_unique_paths.py
@@ -1915,7 +1915,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Assert unique Next.js App Router paths (route-group collision guard)
         run: python3 scripts/ci/assert_archlucid_ui_app_router_unique_paths.py
@@ -1937,7 +1937,7 @@ jobs:
         working-directory: archlucid-ui
         run: npx --yes @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: sbom-npm
           path: archlucid-ui/sbom-npm.json
@@ -1948,7 +1948,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -1975,7 +1975,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -1998,7 +1998,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
@@ -2024,7 +2024,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
@@ -2043,21 +2043,21 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:e2e:mock:functional
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ui-mock-smoke-test-results
           path: archlucid-ui/test-results
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ui-mock-smoke-playwright-report
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ui-mock-smoke-blob-report
@@ -2070,7 +2070,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
@@ -2089,21 +2089,21 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:e2e:accessibility
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ui-accessibility-test-results
           path: archlucid-ui/test-results
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ui-accessibility-playwright-report
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: ui-accessibility-blob-report
@@ -2134,9 +2134,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -2231,7 +2231,7 @@ jobs:
 
       - name: Upload Playwright test-results (traces)
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-test-results
           path: archlucid-ui/test-results
@@ -2239,7 +2239,7 @@ jobs:
 
       - name: Upload Playwright blob report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-blob-report
           path: archlucid-ui/blob-report
@@ -2247,7 +2247,7 @@ jobs:
 
       - name: Upload live API log
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-api-log
           path: ${{ runner.temp }}/live-api.log
@@ -2255,7 +2255,7 @@ jobs:
 
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-playwright-report
           path: archlucid-ui/playwright-report
@@ -2284,9 +2284,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -2373,7 +2373,7 @@ jobs:
 
       - name: Upload live API log (ApiKey)
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-apikey-api-log
           path: ${{ runner.temp }}/live-api-apikey.log
@@ -2381,7 +2381,7 @@ jobs:
 
       - name: Upload Playwright report (ApiKey)
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-apikey-playwright-report
           path: archlucid-ui/playwright-report
@@ -2389,7 +2389,7 @@ jobs:
 
       - name: Upload Playwright test-results (ApiKey)
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-apikey-test-results
           path: archlucid-ui/test-results
@@ -2397,7 +2397,7 @@ jobs:
 
       - name: Upload Playwright blob report (ApiKey)
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-apikey-blob-report
           path: archlucid-ui/blob-report
@@ -2426,9 +2426,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -2536,7 +2536,7 @@ jobs:
 
       - name: Upload live API log (JwtBearer)
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-jwt-api-log
           path: ${{ runner.temp }}/live-api-jwt.log
@@ -2544,7 +2544,7 @@ jobs:
 
       - name: Upload Playwright report (JwtBearer)
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-jwt-playwright-report
           path: archlucid-ui/playwright-report
@@ -2552,7 +2552,7 @@ jobs:
 
       - name: Upload Playwright test-results (JwtBearer)
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-jwt-test-results
           path: archlucid-ui/test-results
@@ -2560,7 +2560,7 @@ jobs:
 
       - name: Upload Playwright blob report (JwtBearer)
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-jwt-blob-report
           path: archlucid-ui/blob-report
@@ -2591,9 +2591,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -2645,7 +2645,7 @@ jobs:
 
       - name: Upload k6 API smoke summary
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: k6-smoke-results
           path: ${{ runner.temp }}/k6-api-smoke-summary.json
@@ -2653,7 +2653,7 @@ jobs:
 
       - name: Upload k6 API log
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: k6-smoke-api-log
           path: ${{ runner.temp }}/k6-api.log
@@ -2688,9 +2688,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -2732,7 +2732,7 @@ jobs:
 
       - name: Upload k6 CI smoke summary
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: k6-ci-smoke-summary
           path: ${{ runner.temp }}/k6-ci-summary.json
@@ -2741,7 +2741,7 @@ jobs:
 
       - name: Upload k6 CI API log
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: k6-ci-smoke-api-log
           path: ${{ runner.temp }}/k6-ci-api.log
@@ -2753,9 +2753,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -2789,7 +2789,7 @@ jobs:
       contents: read
       actions: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -2865,7 +2865,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Prefetch Microsoft .NET base images (MCR + BuildKit HEAD 403 mitigation)
         run: bash scripts/ci/prefetch-docker-dotnet-base-images.sh

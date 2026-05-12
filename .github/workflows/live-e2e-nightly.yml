@@ -32,9 +32,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -111,28 +111,28 @@ jobs:
           npx playwright install --with-deps chromium
           npx playwright test
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nightly-live-e2e-developmentbypass-playwright-report
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nightly-live-e2e-developmentbypass-test-results
           path: archlucid-ui/test-results
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nightly-live-e2e-developmentbypass-blob-report
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: nightly-live-e2e-developmentbypass-log
@@ -159,9 +159,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -239,28 +239,28 @@ jobs:
           npx playwright install --with-deps chromium
           npx playwright test
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nightly-live-e2e-apikey-playwright-report
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nightly-live-e2e-apikey-test-results
           path: archlucid-ui/test-results
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nightly-live-e2e-apikey-blob-report
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: nightly-live-e2e-apikey-log
@@ -287,9 +287,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -388,28 +388,28 @@ jobs:
           npx playwright install --with-deps chromium
           npx playwright test
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nightly-live-e2e-jwt-playwright-report
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nightly-live-e2e-jwt-test-results
           path: archlucid-ui/test-results
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nightly-live-e2e-jwt-blob-report
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: nightly-live-e2e-jwt-log
