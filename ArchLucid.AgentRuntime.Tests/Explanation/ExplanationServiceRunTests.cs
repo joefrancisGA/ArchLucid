@@ -1,6 +1,6 @@
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Explanation;
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Validation;
 

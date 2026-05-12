@@ -4,6 +4,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers;
 
@@ -19,6 +20,7 @@ namespace ArchLucid.Api.Controllers;
 [Route("version")]
 [AllowAnonymous]
 [ApiVersionNeutral]
+[EnableRateLimiting("fixed")]
 public sealed class VersionController(IHostEnvironment environment) : ControllerBase
 {
     private static readonly BuildProvenance Provenance =

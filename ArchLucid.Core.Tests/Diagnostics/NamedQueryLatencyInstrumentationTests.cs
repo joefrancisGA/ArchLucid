@@ -46,7 +46,7 @@ public sealed class NamedQueryLatencyInstrumentationTests
 
         public static NamedQueryCapture Start() => new();
 
-        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
             if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
                 return;

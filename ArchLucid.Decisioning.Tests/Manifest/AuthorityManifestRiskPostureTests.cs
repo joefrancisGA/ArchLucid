@@ -1,5 +1,5 @@
 using ArchLucid.Decisioning.Manifest;
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;

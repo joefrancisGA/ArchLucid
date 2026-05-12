@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
@@ -17,15 +17,15 @@ public sealed class InMemoryTenantRepositoryEnterpriseScimSeatTests
             "slug-scim-seat",
             TenantTier.Enterprise,
             null,
-            default,
+            CancellationToken.None,
             2);
 
-        (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, default)).Should().BeTrue();
-        (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, default)).Should().BeTrue();
-        (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, default)).Should().BeFalse();
+        (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, CancellationToken.None)).Should().BeTrue();
+        (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, CancellationToken.None)).Should().BeTrue();
+        (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, CancellationToken.None)).Should().BeFalse();
 
-        await sut.DecrementEnterpriseScimSeatAsync(tenantId, default);
-        (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, default)).Should().BeTrue();
+        await sut.DecrementEnterpriseScimSeatAsync(tenantId, CancellationToken.None);
+        (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, CancellationToken.None)).Should().BeTrue();
     }
 
     [SkippableFact]
@@ -33,9 +33,9 @@ public sealed class InMemoryTenantRepositoryEnterpriseScimSeatTests
     {
         Guid tenantId = Guid.NewGuid();
         InMemoryTenantRepository sut = new();
-        await sut.InsertTenantAsync(tenantId, "Unlim", "slug-unlim", TenantTier.Free, null, default);
+        await sut.InsertTenantAsync(tenantId, "Unlim", "slug-unlim", TenantTier.Free, null, CancellationToken.None);
 
         for (int i = 0; i < 5; i++)
-            (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, default)).Should().BeTrue();
+            (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, CancellationToken.None)).Should().BeTrue();
     }
 }

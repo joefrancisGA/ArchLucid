@@ -1,6 +1,6 @@
-using ArchLucid.Decisioning.Models;
+using ArchLucid.Core.Manifest;
 
-namespace ArchLucid.Decisioning.Interfaces;
+namespace ArchLucid.Core.Manifest;
 
 /// <summary>
 ///     Computes a deterministic hash over canonical manifest content (shared by decision engine and authority replay).

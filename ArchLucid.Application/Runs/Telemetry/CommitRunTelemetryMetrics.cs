@@ -22,7 +22,7 @@ public sealed record CommitRunTelemetryMetrics(
         AgentEvidencePackage evidence,
         IReadOnlyList<AgentResult> agentResults,
         DateTime commitUtcUtc,
-        Dm.ManifestDocument persistedManifest)
+        ManifestDocument persistedManifest)
     {
         ArgumentNullException.ThrowIfNull(runHeader);
         ArgumentNullException.ThrowIfNull(evidence);

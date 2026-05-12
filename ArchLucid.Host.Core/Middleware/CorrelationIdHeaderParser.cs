@@ -27,7 +27,7 @@ public static class CorrelationIdHeaderParser
 
             return false;
 
-        string? raw = hv[0];
+        string? raw = hv[0]?.Trim();
 
         if (!IsValidCorrelationId(raw))
 

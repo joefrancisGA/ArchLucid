@@ -9,7 +9,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.Notifications;
@@ -22,7 +22,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-using DecisioningManifestMetadata = ArchLucid.Decisioning.Manifest.Sections.ManifestMetadata;
+using DecisioningManifestMetadata = ArchLucid.Core.Manifest.Sections.ManifestMetadata;
 
 namespace ArchLucid.Persistence.Tests;
 

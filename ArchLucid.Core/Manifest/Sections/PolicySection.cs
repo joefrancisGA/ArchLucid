@@ -1,7 +1,7 @@
-namespace ArchLucid.Decisioning.Manifest.Sections;
+namespace ArchLucid.Core.Manifest.Sections;
 
 /// <summary>
-///     First-class policy data for a <see cref="ArchLucid.Decisioning.Models.ManifestDocument" />.
+///     First-class policy data for a <see cref="ArchLucid.Core.Manifest.ManifestDocument" />.
 ///     Tracks resolved policy controls, violations, and exemptions rather than folding them
 ///     into <see cref="ComplianceSection" /> assumptions or warnings.
 /// </summary>

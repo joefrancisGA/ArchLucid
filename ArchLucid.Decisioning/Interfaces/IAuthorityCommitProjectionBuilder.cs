@@ -1,11 +1,9 @@
-using ArchLucid.Decisioning.Models;
-
 using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Interfaces;
 
 /// <summary>
-///     Maps an Authority pipeline <see cref="Models.ManifestDocument" /> to the operator / API
+///     Maps an Authority pipeline <see cref="ManifestDocument" /> to the operator / API
 ///     <see cref="Cm.GoldenManifest" /> shape (Coordinator contract).
 /// </summary>
 public interface IAuthorityCommitProjectionBuilder

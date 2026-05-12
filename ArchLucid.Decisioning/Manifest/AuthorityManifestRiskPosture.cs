@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Manifest;

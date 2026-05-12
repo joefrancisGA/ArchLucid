@@ -93,8 +93,9 @@ internal static class TemplatesListCommand
 
         try
         {
-            ReadOnlySpan<byte> utf8 = File.ReadAllBytes(filePath);
-            using JsonDocument doc = JsonDocument.Parse(utf8);
+            string jsonText = File.ReadAllText(filePath);
+
+            using JsonDocument doc = JsonDocument.Parse(jsonText);
 
             if (doc.RootElement.TryGetProperty("systemName", out JsonElement sn))
                 systemName = sn.GetString()?.Trim() ?? systemName;

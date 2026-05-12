@@ -135,11 +135,17 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/search");
-    await expect(page.getByRole("heading", { name: /Semantic Search/i })).toBeVisible();
+    // Buyer-polished shell labels this route "Search review evidence"; full operator shell uses "Semantic Search".
+    await expect(
+      page.getByRole("heading", {
+        level: 2,
+        name: /^(Semantic Search|Search review evidence)$/i,
+      }),
+    ).toBeVisible();
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/policy-packs");
-    await expect(page.getByRole("heading", { name: /Policy packs/i })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: /^Policy packs$/i })).toBeVisible();
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
   });
 });

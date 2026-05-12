@@ -7,6 +7,7 @@ Creates an Azure Storage account (blob only usage) and private containers aligne
 | `golden-manifests` | Consolidated golden manifest JSON envelope |
 | `artifact-bundles` | Combined artifacts + trace JSON per bundle |
 | `artifact-contents` | Per-artifact body when row content is offloaded |
+| `azure-extractor-chunk-upload` | Temporary staging for chunked extractor ZIP uploads (`AzureExtractorChunkUpload` pipeline) |
 
 ## Wiring
 

@@ -1,4 +1,4 @@
-namespace ArchLucid.Decisioning.Interfaces;
+namespace ArchLucid.Core.Manifest;
 
 /// <summary>
 ///     Keying and rule-set identity for persisting a coordinator-shaped <c>Contracts.Manifest.GoldenManifest</c> as

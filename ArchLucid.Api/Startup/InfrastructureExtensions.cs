@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.RateLimiting;
 
 using ArchLucid.Api.Filters;
+using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
@@ -47,6 +48,8 @@ internal static class InfrastructureExtensions
             {
                 HttpContext httpContext = context.HttpContext;
                 httpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+                ArchLucidRateLimitResponseHeaders.AttachRejectionHeaders(httpContext.Response, context.Lease);
 
                 if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan retryAfter))
                 {
@@ -217,7 +220,14 @@ internal static class InfrastructureExtensions
                 _ = policy.WithOrigins(origins)
                     .WithMethods(methods)
                     .WithHeaders(headers)
-                    .WithExposedHeaders("traceparent", "X-Trace-Id", "X-Correlation-ID");
+                    .WithExposedHeaders(
+                        "traceparent",
+                        "X-Trace-Id",
+                        "X-Correlation-ID",
+                        ArchLucidRateLimitResponseHeaders.Remaining,
+                        ArchLucidRateLimitResponseHeaders.Reset,
+                        ArchLucidRateLimitResponseHeaders.Policy,
+                        "Retry-After");
             });
         });
 

@@ -1,11 +1,11 @@
 using System.Data;
 
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Models;
+using ArchLucid.Core.Manifest;
 
 using Cm = ArchLucid.Contracts.Manifest;
 
-namespace ArchLucid.Decisioning.Interfaces;
+namespace ArchLucid.Core.Manifest;
 
 public interface IGoldenManifestRepository
 {

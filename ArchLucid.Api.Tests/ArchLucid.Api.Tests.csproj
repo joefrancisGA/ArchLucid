@@ -6,8 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1608</WarningsNotAsErrors>
-    <RestoreNoWarn>$(RestoreNoWarn);NU1608</RestoreNoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +19,8 @@
     <PackageReference Include="xunit" />
     <PackageReference Include="Xunit.SkippableFact" />
     <PackageReference Include="WireMock.Net" />
+    <PackageReference Include="Handlebars.Net.Helpers.Humanizer" />
+    <PackageReference Include="Humanizer" />
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
 
@@ -75,6 +75,7 @@
 
   <ItemGroup>
     <Using Include="ArchLucid.Core" />
+    <Using Include="ArchLucid.Core.Manifest" />
   </ItemGroup>
 
 </Project>

@@ -50,7 +50,7 @@ public sealed class ManifestFinalizationRequest
         init;
     }
 
-    public required Dm.ManifestDocument ManifestModel
+    public required ManifestDocument ManifestModel
     {
         get;
         init;

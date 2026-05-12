@@ -7,6 +7,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Security;
 
+using ArchLucid.Host.Core.Middleware;
+
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
@@ -43,6 +45,8 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Jira(CancellationToken ct)
     {
+        InboundWebhookCorrelationBinder.EnsureIncomingCorrelationTags(HttpContext);
+
         IntegrationsItsmInboundOptions o = _options.CurrentValue;
 
         if (string.IsNullOrWhiteSpace(o.JiraWebhookSecret))
@@ -90,6 +94,8 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ServiceNow(CancellationToken ct)
     {
+        InboundWebhookCorrelationBinder.EnsureIncomingCorrelationTags(HttpContext);
+
         IntegrationsItsmInboundOptions o = _options.CurrentValue;
 
         if (string.IsNullOrWhiteSpace(o.ServiceNowWebhookSecret))

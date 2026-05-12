@@ -56,7 +56,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<Di.IDecisionRuleProvider, Dr.InMemoryDecisionRuleProvider>();
         services.AddScoped<Di.IGoldenManifestBuilder, Dm.DefaultGoldenManifestBuilder>();
         services.AddSingleton<Di.IGoldenManifestValidator, Ds.GoldenManifestValidator>();
-        services.AddSingleton<Di.IManifestHashService, Ds.ManifestHashService>();
+        services.AddSingleton<IManifestHashService, Ds.ManifestHashService>();
         services.AddScoped<Di.IDecisionEngine, Ds.RuleBasedDecisionEngine>();
         services.AddSingleton<IProvenanceBuilder, ProvenanceBuilder>();
         services.AddScoped<Di.IAuthorityCommitProjectionBuilder, Decisioning.Manifest.AuthorityCommitProjectionBuilder>();

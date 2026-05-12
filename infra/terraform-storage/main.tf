@@ -93,3 +93,11 @@ resource "azurerm_storage_container" "artifact_contents" {
   storage_account_id    = azurerm_storage_account.artifacts[0].id
   container_access_type = "private"
 }
+
+resource "azurerm_storage_container" "azure_extractor_chunk_upload" {
+  count = local.enabled ? 1 : 0
+
+  name                  = "azure-extractor-chunk-upload"
+  storage_account_id    = azurerm_storage_account.artifacts[0].id
+  container_access_type = "private"
+}

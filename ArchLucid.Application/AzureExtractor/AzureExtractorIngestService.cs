@@ -50,15 +50,7 @@ public sealed class AzureExtractorIngestService(
                 uploadedBytes: null,
                 ct);
 
-        string safeName = string.IsNullOrWhiteSpace(file.FileName)
-            ? "package.zip"
-            : Path.GetFileName(file.FileName.Trim());
-
-        if (safeName.Length > 400)
-            safeName = safeName[..400];
-
-        if (!string.Equals(Path.GetExtension(safeName), ".zip", StringComparison.OrdinalIgnoreCase))
-            safeName += ".zip";
+        string safeName = NormalizeZipFileName(file.FileName);
 
         if (file.Length > MaxUploadedZipBytes)
 
@@ -94,6 +86,51 @@ public sealed class AzureExtractorIngestService(
                 null,
                 ct);
         }
+
+        return await IngestPreparedZipAsync(zipBytes, safeName, runId, correlationId, MaxUploadedZipBytes, ct);
+    }
+
+    public async Task<AzureExtractorIngestResult> IngestZipBytesAsync(
+        byte[] zipBytes,
+        string originalFileName,
+        Guid? runId,
+        CancellationToken ct,
+        string? correlationId,
+        long maxAcceptedZipBytes)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        ArgumentNullException.ThrowIfNull(zipBytes);
+
+        string safeName = NormalizeZipFileName(originalFileName);
+
+        return await IngestPreparedZipAsync(zipBytes, safeName, runId, correlationId, maxAcceptedZipBytes, ct);
+    }
+
+    private async Task<AzureExtractorIngestResult> IngestPreparedZipAsync(
+        byte[] zipBytes,
+        string safeName,
+        Guid? runId,
+        string? correlationId,
+        long maxAcceptedZipBytes,
+        CancellationToken ct)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        string actor = actorContext.GetActor();
+
+        if (zipBytes.LongLength > maxAcceptedZipBytes)
+
+            return await FailAsync(
+                AuditEventTypes.AzureExtractorPackageParseFailed,
+                $"ZIP exceeds maximum size of {maxAcceptedZipBytes} bytes.",
+                schemaRejection: false,
+                actor,
+                scope,
+                correlationId,
+                safeName,
+                zipBytes.LongLength,
+                ct);
 
         await auditService.LogAsync(
             new AuditEvent
@@ -233,6 +270,21 @@ public sealed class AzureExtractorIngestService(
             ct);
 
         return new AzureExtractorIngestResult { Succeeded = true, PackageId = packageId, IsSchemaRejection = false };
+    }
+
+    private static string NormalizeZipFileName(string? fileName)
+    {
+        string safeName = string.IsNullOrWhiteSpace(fileName)
+            ? "package.zip"
+            : Path.GetFileName(fileName.Trim());
+
+        if (safeName.Length > 400)
+            safeName = safeName[..400];
+
+        if (!string.Equals(Path.GetExtension(safeName), ".zip", StringComparison.OrdinalIgnoreCase))
+            safeName += ".zip";
+
+        return safeName;
     }
 
     private async Task TryAttachEvidenceBundleAsync(Guid runGuid, AzureExtractorPackageRecord record, CancellationToken ct)

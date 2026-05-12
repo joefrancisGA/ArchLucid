@@ -1,7 +1,5 @@
 > **Scope:** For architects, leadership, and evaluators: current ArchLucid weighted readiness assessment snapshot and prioritized gaps; not a procurement artifact, compliance attestation, or exhaustive implementation backlog.
 
-> **Scope:** For architects, leadership, and evaluators: current ArchLucid weighted readiness assessment snapshot and prioritized gaps; not a procurement artifact, compliance attestation, or exhaustive implementation backlog.
-
 # ArchLucid Assessment – Weighted Readiness 80.45%
 
 ## Executive Summary
@@ -16,61 +14,61 @@
 1. **Adoption Friction** | Score: 65 | Weight: 6 | Def: 210
    - **Justification:** Writing raw JSON for policy packs and manually configuring generic OIDC is tedious and error-prone.
    - **Tradeoffs:** UI complexity vs configuration flexibility.
-   - **Recommendations:** Implement visual builders for policy packs and CLI linting tools.
+   - **Recommendations:** Implement visual builders for policy packs and CLI linting tools. **→ Partial (May 2026):** CLI **policy-pack validate**, **templates list**, ingestion templates under `templates/context-ingestion/`; visual builder still open.
    - **Status:** Fixable in V1.
 
 2. **Correctness** | Score: 80 | Weight: 8 | Def: 160
    - **Justification:** Schema validations are strict and fail-closed, but lack auto-recovery for minor LLM JSON hallucinations, leading to batch failures.
    - **Tradeoffs:** Fail-closed strictness vs robust recovery.
-   - **Recommendations:** Implement a secondary "fix JSON" LLM pass before hard failures.
+   - **Recommendations:** Implement a secondary "fix JSON" LLM pass before hard failures. **→ Shipped (May 2026):** `LlmAgentSchemaCompletion` remediation path (see Top 25 item 3).
    - **Status:** Fixable in V1.
 
 3. **Marketability** | Score: 80 | Weight: 8 | Def: 160
    - **Justification:** High ROI, but lacks out-of-the-box accelerator templates to demonstrate diverse infrastructure architectures quickly.
    - **Tradeoffs:** Focus on core engine vs content generation.
-   - **Recommendations:** Build a quick-start JSON template library for context ingestion.
+   - **Recommendations:** Build a quick-start JSON template library for context ingestion. **→ Shipped (May 2026):** `templates/context-ingestion/` + `archlucid templates list`.
    - **Status:** Fixable in V1.
 
 4. **AI/Agent Readiness** | Score: 80 | Weight: 8 | Def: 160
    - **Justification:** Excellent architecture, but `StagedCriticEnabled` adds wall-clock latency; pattern-level **custom agent handler** documentation is **committed for V1 GA** ([`V1_SCOPE.md` §2.18](../library/V1_SCOPE.md)) and remains a delivery gap until published.
    - **Tradeoffs:** Execution speed vs thorough critic context.
-   - **Recommendations:** Surface agent stage latencies to operators to justify the wait.
+   - **Recommendations:** Surface agent stage latencies to operators to justify the wait. **→ Partial (May 2026):** forensics **Wall Δ** column (Observability #41); staged-critic sequencing unchanged.
    - **Status:** Fixable in V1.
 
 5. **Time-to-Value** | Score: 80 | Weight: 7 | Def: 140
-   - **Justification:** Core pilot is fast, but configuring surrounding context slows full realization.
+   - **Justification:** Core pilot is fast; **policy JSON** comprehension lagged without a first-class **human summary** path.
    - **Tradeoffs:** Simple default paths vs deep enterprise integration.
-   - **Recommendations:** Add an "Explain this Policy" endpoint to speed up understanding.
+   - **Recommendations:** Add an "Explain this Policy" endpoint to speed up understanding. **→ Shipped (May 2026):** `GET /v1/policy-packs/{id}/explain` (Markdown).
    - **Status:** Fixable in V1.
 
 6. **Usability** | Score: 70 | Weight: 3 | Def: 90
    - **Justification:** "Coordinator vs Authority" terminology leaks into the UX.
    - **Tradeoffs:** Accurate domain modeling vs user simplicity.
-   - **Recommendations:** Streamline operator shell UI terms to "Review Pipeline".
+   - **Recommendations:** Streamline operator shell UI terms to "Review Pipeline". **→ Partial (May 2026):** copy pass + **Access tier** column; exhaustive replacement (e.g. **Commit Engine**) not claimed complete.
    - **Status:** Fixable in V1.
 
 7. **Executive Value Visibility** | Score: 80 | Weight: 4 | Def: 80
-   - **Justification:** First-value PDF is great, but could better summarize cross-run trend lines.
+   - **Justification:** First-value **PDF** remains the sponsor artifact; **multi-run trend** context now appears in-operator via recent-deltas / header strip.
    - **Tradeoffs:** Report generation cost vs executive appeal.
-   - **Recommendations:** Pin ROI metrics directly to the primary operator dashboard.
+   - **Recommendations:** Pin ROI metrics directly to the primary operator dashboard. **→ Shipped (May 2026):** same proof-of-ROI surfaces as item 9 (header / deltas).
    - **Status:** Fixable in V1.
 
 8. **Differentiability** | Score: 80 | Weight: 4 | Def: 80
    - **Justification:** Unique approach, but competitors might copy "LLM for architecture".
    - **Tradeoffs:** Developing proprietary IP vs rapid iteration.
-   - **Recommendations:** Highlight the deterministic Golden Manifest merge in marketing UI.
+   - **Recommendations:** Highlight the deterministic Golden Manifest merge in marketing UI. **→ Partial (May 2026):** differentiation blurb in sample review package summary component.
    - **Status:** Fixable in V1.
 
 9. **Proof-of-ROI Readiness** | Score: 85 | Weight: 5 | Def: 75
-   - **Justification:** `PilotRunDeltasResponse` exists but lacks prominence.
+   - **Justification:** **`PilotRunDeltasResponse`** existed early; **cross-run** proof surfaces were easy to miss until header/recent-deltas work landed.
    - **Tradeoffs:** Dashboard clutter vs commercial visibility.
-   - **Recommendations:** Surface pilot run deltas proactively in the UI header.
+   - **Recommendations:** Surface pilot run deltas proactively in the UI header. **→ Shipped (May 2026):** proof strip + recent-deltas aggregates (incl. median LLM calls) in operator UI.
    - **Status:** Fixable in V1.
 
 10. **Workflow Embeddedness** | Score: 75 | Weight: 3 | Def: 75
-    - **Justification:** Status-only ITSM sync lacks deep evidence linking.
+    - **Justification:** In-ticket context was thin—operators still jump to ArchLucid for full traces, but outbound issues now carry **finding-level** deep links when configured.
     - **Tradeoffs:** Implementation speed vs deep integration.
-    - **Recommendations:** Enrich outbound payloads with specific trace deep-links.
+    - **Recommendations:** Enrich outbound payloads with specific trace deep-links. **→ Shipped (May 2026):** finding-level ArchLucid URLs on outbound Jira/ServiceNow issues when public site base URL is set.
     - **Status:** Fixable in V1.
 
 11. **Decision Velocity** | Score: 75 | Weight: 2 | Def: 50
@@ -86,9 +84,9 @@
     - **Status:** Blocked on user input.
 
 13. **Security** | Score: 85 | Weight: 3 | Def: 45
-    - **Justification:** Strong defaults, but Content Safety could fail silently on misconfig.
+    - **Justification:** Strong defaults; **misconfigured Content Safety** can otherwise fail silently at runtime—readiness now surfaces that class of config error when the feature is on.
     - **Tradeoffs:** Fail-closed strictness vs uptime.
-    - **Recommendations:** Add a dedicated health probe for Azure Content Safety.
+    - **Recommendations:** Add a dedicated health probe for Azure Content Safety. **→ Shipped (May 2026):** `ContentSafetyHealthCheck` on readiness when the feature is enabled.
     - **Status:** Fixable in V1.
 
 14. **Trustworthiness** | Score: 85 | Weight: 3 | Def: 45
@@ -98,15 +96,15 @@
     - **Status:** Better suited for V2.
 
 15. **Policy and Governance Alignment** | Score: 80 | Weight: 2 | Def: 40
-    - **Justification:** Robust rules, but lacks "Dry Run" capabilities.
+    - **Justification:** Robust rules; **dry-run** surfaced late in V1.1 prep—**`POST /v1/policy-packs/simulate`** now covers proposed pack content vs a committed run under scope.
     - **Tradeoffs:** Compute cost vs operator safety.
-    - **Recommendations:** Add a policy simulation endpoint.
+    - **Recommendations:** Add a policy simulation endpoint. **→ Shipped (May 2026):** `POST /v1/policy-packs/simulate` (+ governance dry-run core).
     - **Status:** Fixable in V1.
 
 16. **Compliance Readiness** | Score: 80 | Weight: 2 | Def: 40
-    - **Justification:** Strong self-assessment, but needs auto-purge for funnel events.
+    - **Justification:** Strong self-assessment; **per-tenant funnel telemetry** requires bounded retention—archival/purge now runs on a schedule when configured.
     - **Tradeoffs:** Data retention vs data minimization.
-    - **Recommendations:** Implement auto-purge for `FirstTenantFunnelEvents`.
+    - **Recommendations:** Implement auto-purge for `FirstTenantFunnelEvents`. **→ Shipped (May 2026):** `FirstTenantFunnelArchivalHostedService` + retention knobs under `ArchLucid:Retention:*`.
     - **Status:** Fixable in V1.
 
 17. **Interoperability** | Score: 80 | Weight: 2 | Def: 40
@@ -128,9 +126,9 @@
     - **Status:** Better suited for V1.1.
 
 20. **Explainability** | Score: 80 | Weight: 2 | Def: 40
-    - **Justification:** Excellent graph explanations, but raw JSON policies are opaque.
+    - **Justification:** Graph/run explain paths are strong; **pack-level JSON** was still opaque without a guided summary.
     - **Tradeoffs:** Determinism vs human readability.
-    - **Recommendations:** Add LLM-generated summaries for policy packs.
+    - **Recommendations:** Add LLM-generated summaries for policy packs. **→ Shipped (May 2026):** policy pack **explain** endpoint (Markdown).
     - **Status:** Fixable in V1.
 
 21. **Cognitive Load** | Score: 65 | Weight: 1 | Def: 35
@@ -148,14 +146,14 @@
 23. **Template and Accelerator Richness** | Score: 65 | Weight: 1 | Def: 35
     - **Justification:** Missing out-of-the-box templates for rapid pilot ingestion.
     - **Tradeoffs:** Product focus vs content library.
-    - **Recommendations:** Ship a default templates folder with standard architectures.
+    - **Recommendations:** Ship a default templates folder with standard architectures. **→ Shipped (May 2026):** context-ingestion template pack + CLI listing (see Marketability).
     - **Status:** Fixable in V1.
 
 24. **Traceability** | Score: 90 | Weight: 3 | Def: 30
     - **Justification:** State-of-the-art graph and decision traces.
     - **Tradeoffs:** Storage cost vs auditability.
-    - **Recommendations:** Passthrough TraceIds to inbound webhooks.
-    - **Status:** Fixable in V1.
+    - **Recommendations:** Passthrough TraceIds to inbound webhooks. **→ Shipped (May 2026):** inbound Jira/ServiceNow routes reinforce `correlation.id` on `Activity` + trimmed `X-Correlation-ID` parsing (`InboundWebhookCorrelationBinder`, `CorrelationIdHeaderParser`).
+    - **Status:** Maintain.
 
 25. **Architectural Integrity** | Score: 90 | Weight: 3 | Def: 30
     - **Justification:** Highly disciplined strangler pattern and modularity.
@@ -172,7 +170,7 @@
 27. **Customer Self-Sufficiency** | Score: 75 | Weight: 1 | Def: 25
     - **Justification:** High reliance on documentation rather than in-app guidance.
     - **Tradeoffs:** UX complexity vs capability.
-    - **Recommendations:** Enhance UI tooltips and linting dashboards.
+    - **Recommendations:** Enhance UI tooltips and linting dashboards. **→ Partial:** config-lint admin surfacing; broader tooltip pass still open.
     - **Status:** Fixable in V1.
 
 28. **Stickiness** | Score: 75 | Weight: 1 | Def: 25
@@ -202,13 +200,13 @@
 32. **Azure Compatibility and SaaS Deployment** | Score: 90 | Weight: 2 | Def: 20
     - **Justification:** Native fit for Azure Container Apps and SQL.
     - **Tradeoffs:** Vendor lock-in vs depth of integration.
-    - **Recommendations:** Add Terraform format checking to advisory outputs.
+    - **Recommendations:** Add Terraform format checking to advisory outputs. **→ Shipped (May 2026):** `terraform fmt` integration in `ArchLucid.ArtifactSynthesis` packaging.
     - **Status:** Fixable in V1.
 
 33. **Change Impact Clarity** | Score: 80 | Weight: 1 | Def: 20
-    - **Justification:** Drift analysis is good, but lacks predictive "what-if" models.
+    - **Justification:** Drift analysis is strong; **per-run policy what-if** was a gap until simulate shipped—portfolio-wide predictive models remain out of scope.
     - **Tradeoffs:** Compute overhead vs operator confidence.
-    - **Recommendations:** Implement policy simulation endpoint.
+    - **Recommendations:** Implement policy simulation endpoint. **→ Shipped (May 2026):** same as Policy/Governance item 15 (`/v1/policy-packs/simulate`); portfolio-wide what-if remains future scope.
     - **Status:** Fixable in V1.
 
 34. **Availability** | Score: 80 | Weight: 1 | Def: 20
@@ -230,9 +228,9 @@
     - **Status:** Fixable in V1.
 
 37. **Manageability** | Score: 80 | Weight: 1 | Def: 20
-    - **Justification:** Configuration is exhaustive but lacks UI visibility.
+    - **Justification:** Configuration surface area is large; operators needed **in-app visibility** into lint/config health—not only CLI/docs.
     - **Tradeoffs:** CLI focus vs UI ease.
-    - **Recommendations:** Implement Config Linting Dashboard.
+    - **Recommendations:** Implement Config Linting Dashboard. **→ Shipped (May 2026):** admin health card + `GET /v1/admin/config-lint` (shared with CLI `config lint`).
     - **Status:** Fixable in V1.
 
 38. **Cost-Effectiveness** | Score: 80 | Weight: 1 | Def: 20
@@ -244,8 +242,8 @@
 39. **Supportability** | Score: 85 | Weight: 1 | Def: 15
     - **Justification:** Correlation IDs are well-implemented.
     - **Tradeoffs:** Log volume vs debuggability.
-    - **Recommendations:** Push TraceIds to inbound webhooks.
-    - **Status:** Fixable in V1.
+    - **Recommendations:** Push TraceIds to inbound webhooks. **→ Shipped (May 2026):** same inbound ITSM correlation reinforcement as weighted Traceability (Top 25 #23).
+    - **Status:** Maintain.
 
 40. **Deployability** | Score: 85 | Weight: 1 | Def: 15
     - **Justification:** Docker and Terraform are solid.
@@ -256,7 +254,7 @@
 41. **Observability** | Score: 85 | Weight: 1 | Def: 15
     - **Justification:** OTLP and Prometheus integrations are strong.
     - **Tradeoffs:** Metric cardinality vs visibility.
-    - **Recommendations:** Surface agent stage latencies in UI.
+    - **Recommendations:** Surface agent stage latencies in UI. **→ Partial (May 2026):** run forensics **Wall Δ (prior agent)** column; pipeline timeline durations still optional.
     - **Status:** Fixable in V1.
 
 42. **Modularity** | Score: 85 | Weight: 1 | Def: 15
@@ -296,7 +294,7 @@
 3. Complex domain nomenclature ("Coordinator", "Authority", "Golden Manifest") leaking into operator UX.
 4. Blocked commercial self-service due to deferred Stripe/Marketplace activation.
 5. Missing out-of-the-box template libraries for quick-start context ingestion. **→ Mitigated:** `templates/context-ingestion/` + `archlucid templates list` (still not a visual builder).
-6. Shallow ITSM integration (status-only) that fails to leverage deep reasoning trace data.
+6. Shallow ITSM integration (status-only) that fails to leverage deep reasoning trace data. **→ Mitigated:** outbound tickets include a **finding deep link** (`PublicSite:BaseUrl`) — trace-node-level URLs remain a follow-up.
 7. Cognitive load on contributors due to dual repository patterns (Decisioning vs Persistence).
 8. Lack of "Dry Run" capabilities for evaluating the impact of policy changes on past architectures. **→ Mitigated:** `POST /v1/policy-packs/simulate` (governance dry-run parity).
 9. Absence of a **published** custom agent handler guide — **in V1 GA documentation scope** ([`V1_SCOPE.md` §2.18](../library/V1_SCOPE.md)); advanced integrators still rely on reading source until it ships.
@@ -313,10 +311,10 @@
 ## Top 6 Enterprise Adoption Blockers
 1. Missing SOC 2 Type I/II CPA attestation (despite strong self-assessment), adding InfoSec friction.
 2. Lack of a user-friendly UI for defining and testing Governance Policy Packs. **→ Partial:** explain + simulate + CLI validate shrink risk; authoring remains JSON-first.
-3. Manual configuration required for generic OIDC integration, slowing down SSO onboarding.
+3. Manual configuration required for generic OIDC integration, slowing down SSO onboarding. **→ Partial:** read-only **Identity providers** settings page surfaces current `ArchLucidAuth:*` values; interactive SSO setup remains future work.
 4. Accessibility compliance (VPAT) is draft-only and relies on manual evaluations.
 5. No "What-If" impact analysis for deploying new governance rules across existing architecture runs. **→ Partial:** `POST /v1/policy-packs/simulate` covers proposed pack content vs a run under scope; broader portfolio “what-if” may still be out of scope.
-6. Status-only Jira/ServiceNow sync means developers must context-switch into ArchLucid to read findings.
+6. Status-only Jira/ServiceNow sync means developers must context-switch into ArchLucid to read findings. **→ Partial:** outbound issues carry an ArchLucid **finding** deep link when public site base URL is configured; full in-ticket trace graphs remain out of scope.
 
 ## Top 6 Engineering Risks
 1. Strict schema parsing for Agent Results fails the entire batch if the LLM hallucinates JSON. **→ Mitigated** by remediation / secondary completion attempts (`LlmAgentSchemaCompletion`); batch failure risk is reduced, not eliminated.
@@ -324,7 +322,7 @@
 3. The 52MB file size limit on Azure Extractor ZIP uploads is a cliff for very large Azure subscriptions.
 4. Dual data access interfaces (Decisioning vs Persistence) risk drift and implementation errors.
 5. `StagedCriticEnabled` sequentially blocks the final critic agent, increasing wall-clock latency.
-6. The absence of automated `terraform fmt` checking for advisory snippets could lead to un-apply-able recommendations.
+6. The absence of automated `terraform fmt` checking for advisory snippets could lead to un-apply-able recommendations. **→ Mitigated:** advisory packaging runs `terraform fmt` when available (`TerraformHclFormatHelper`).
 
 ## Most Important Truth
 ArchLucid is architecturally pristine and technically ready for early adopters, but its commercial velocity is artificially constrained by pending owner actions (Stripe/Marketplace un-hold) and a steep configuration learning curve that trades user-friendly onboarding for enterprise flexibility.
@@ -332,7 +330,7 @@ ArchLucid is architecturally pristine and technically ready for early adopters, 
 ## Top 25 Improvement Opportunities
 *(Ranked in order of highest leverage)*
 
-**Engineering status (May 2026):** Items **2, 3, 5, 6, 7, 12, 13, 14, 17, 18, 20,** and **24** are **completed in-repo** (see bullets below). **19** and **25** are **partially** addressed (terminology / forensics UX); remaining numbered items are still actionable unless marked **DEFERRED** or **V1.1**.
+**Engineering status (May 2026):** Items **2, 3, 5, 6, 7, 12, 13, 14, 17, 18, 20, 23,** and **24** are **completed in-repo** (see bullets below). **19** and **25** are **partially** addressed (terminology / forensics UX); remaining numbered items are still actionable unless marked **DEFERRED** or **V1.1**.
 
 1. **DEFERRED Un-hold Commerce Rails (Stripe & Marketplace)**
    - **Why it matters:** Blocks self-serve revenue.
@@ -466,11 +464,11 @@ ArchLucid is architecturally pristine and technically ready for early adopters, 
     - **Affected qualities:** Trustworthiness.
     - **DEFERRED:** Requires engaging a vendor and completing the SoW.
 
-23. **Add TraceId Passthrough to Inbound ITSM Webhooks**
+23. **Add TraceId Passthrough to Inbound ITSM Webhooks** — **✅ COMPLETED**
     - **Why it matters:** End-to-end debugging.
     - **Expected impact:** Supportability. Directly improves Supportability (+4-6 pts), Observability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
     - **Affected qualities:** Supportability, Observability.
-    - **Actionable:** Update `JiraWebhookController` and `ServiceNowWebhookController` to read `X-Correlation-ID` from the incoming request and push it into the ambient `TraceContext` or Serilog `LogContext`.
+    - **Shipped:** Global `CorrelationIdMiddleware` already echoes validated inbound `X-Correlation-ID` on responses and Serilog `LogContext`; `CorrelationIdHeaderParser` now **trims** header values before validation. `ItsmInboundWebhooksController` (`POST …/integrations/webhooks/jira` and `…/servicenow`) calls `InboundWebhookCorrelationBinder.EnsureIncomingCorrelationTags` so `correlation.id` is stamped on `Activity.Current` after ASP.NET Core / OTel may have swapped the active span. Tests: `InboundWebhookCorrelationBinderTests`, trim regression on `CorrelationIdHeaderParserTests`, integration strip on `InboundWebhookPipelineOrderIntegrationTests`.
 
 24. **Streamline Generic OIDC Configuration in UI** — **✅ COMPLETED**
     - **Why it matters:** Currently requires raw JSON/env config.
@@ -487,7 +485,7 @@ ArchLucid is architecturally pristine and technically ready for early adopters, 
 ## Prompt Batching Guidance
 - **Batch 1 (Quick UI & Feedback wins):** ~~12~~ ✅, 15, ~~18~~ ✅, ~~19~~ ✅ (partial), ~~24~~ ✅, ~~25~~ ✅ (partial). *(Core deltas / terminology / identity / forensics timing landed; rate-limit headers still open.)*
 - **Batch 2 (API Resilience & Scaling):** ~~3~~ ✅, ~~6~~ ✅, 8, ~~14~~ ✅. (**Opportunity 21** is V1.1 Redis/coherence—partial startup warning only until shared cache ships.)
-- **Batch 3 (Governance & Tooling):** ~~2, 5, 7~~ ✅, ~~17~~ ✅, 11, ~~13~~ ✅, ~~20~~ ✅, 23. *(Remaining: §2.18 handler guide, inbound webhook TraceId passthrough.)*
+- **Batch 3 (Governance & Tooling):** ~~2, 5, 7~~ ✅, ~~17~~ ✅, 11, ~~13~~ ✅, ~~20~~ ✅, ~~23~~ ✅. *(Remaining: §2.18 handler guide.)*
 
 ## Pending Questions for Later
 - **DEFERRED Un-hold Commerce Rails:** Have the Stripe Partner Center verification, tax profile, and payout accounts been finalized to un-block this?

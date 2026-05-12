@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchLucid.Decisioning.Manifest.Sections;
+namespace ArchLucid.Core.Manifest.Sections;
 
 /// <summary>A policy control that has been explicitly exempted for this manifest.</summary>
 [ExcludeFromCodeCoverage(Justification = "Manifest section DTO; no logic.")]

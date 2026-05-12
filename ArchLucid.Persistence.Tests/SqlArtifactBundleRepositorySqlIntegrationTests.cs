@@ -1,7 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
