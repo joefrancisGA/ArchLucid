@@ -40,6 +40,7 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<IConfiguration>(),
                 sp.GetService<Persistence.Connections.ISqlConnectionFactory>(),
                 sp.GetRequiredService<IHttpClientFactory>()));
+        RegisterAzureArmAndRetailPricesHttpClients(services);
         services.AddScoped<Application.Diagnostics.ISyntheticOperatorDemoPackWriter,
             Application.Diagnostics.SyntheticOperatorDemoPackWriter>();
         services.AddScoped<Application.Authority.IAuthorityCommittedManifestChainWriter,

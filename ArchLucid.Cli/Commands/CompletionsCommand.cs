@@ -29,6 +29,7 @@ public static class CompletionsCommand
         "commit",
         "seed",
         "artifacts",
+        "az-roles",
         "az-token-test",
         "buyer-proof-pack",
         "first-value-report",
