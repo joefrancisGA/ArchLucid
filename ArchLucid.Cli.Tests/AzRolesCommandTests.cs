@@ -48,8 +48,9 @@ public sealed class AzRolesCommandTests
             Guid sub = Guid.Parse("AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE");
             await AzRolesCommand.RunAsync(["--subscription", $"{sub:D}", "--assignee", "it's-a-test", "--shell", "bash"]);
 
-            string expected = "--assignee 'it'" + "\"" + "'" + "\"" + "'" + "'s-a-test'";
-            outWriter.ToString().Should().Contain(expected);
+            // POSIX-safe single-quote wrap: literal ' cannot appear inside '..'; split as 'it' "'" 's-a-test'.
+            string bashAssigneeQuoted = "'" + "it" + "'" + "\"" + "'" + "\"" + "'" + "s-a-test" + "'";
+            outWriter.ToString().Should().Contain("--assignee " + bashAssigneeQuoted);
         }
         finally
         {
