@@ -4,7 +4,6 @@ import { Controller, useFormContext } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -68,9 +67,11 @@ export function WizardStepIdentity() {
         </div>
 
         <div>
-          <Label className="mb-1 block" htmlFor="wizard-environment">
-            Environment
-          </Label>
+          <WizardFieldHint
+            htmlFor="wizard-environment"
+            label="Environment"
+            hint="Lifecycle stage for this request (sandbox through production). Agents use it to judge blast radius and rollout risk."
+          />
           <Controller
             name="environment"
             control={control}
@@ -102,9 +103,11 @@ export function WizardStepIdentity() {
         </div>
 
         <div>
-          <Label className="mb-1 block" htmlFor="wizard-cloud-provider">
-            Cloud provider
-          </Label>
+          <WizardFieldHint
+            htmlFor="wizard-cloud-provider"
+            label="Cloud provider"
+            hint="Where baseline services must exist; only Microsoft Azure executes pipelines today, with other clouds shown as roadmap placeholders."
+          />
           <Controller
             name="cloudProvider"
             control={control}

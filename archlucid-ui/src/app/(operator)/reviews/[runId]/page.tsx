@@ -44,6 +44,7 @@ import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChrome
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDetailSectionNav";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
+import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
 import { RunEstimatedLlmCostCard } from "@/components/RunEstimatedLlmCostCard";
 import { RunDetailTechnicalIdentifiersSection } from "@/components/RunDetailTechnicalIdentifiersSection";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
@@ -625,6 +626,8 @@ export default async function RunDetailPage({
             : null
         }
       />
+
+      <CompareToBaselineCta currentRunId={resolvedDetail.run.runId} />
 
       {usedStaticDemoRun && !buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
 

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { InspectorPanel } from "@/components/InspectorPanel";
 import { RunInspectorPreview } from "@/components/RunInspectorPreview";
 import { RunProvenanceInline } from "@/components/RunProvenanceInline";
+import { RunsRowBaselineMenu } from "@/components/RunsRowBaselineMenu";
 import { RunTableRowErrorBoundary } from "@/components/RunTableRowErrorBoundary";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
+import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { cn } from "@/lib/utils";
@@ -521,15 +523,20 @@ export function RunsListClient({
                                   {displayRelativeCreated(run)}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 align-top">
-                                  <Link
-                                    href={primaryExplore.href}
-                                    className="font-medium text-teal-800 underline dark:text-teal-300"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                    }}
-                                  >
-                                    {primaryExplore.label}
-                                  </Link>
+                                  <div className="flex flex-col items-start gap-1.5">
+                                    <Link
+                                      href={primaryExplore.href}
+                                      className="font-medium text-teal-800 underline dark:text-teal-300"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                      }}
+                                    >
+                                      {primaryExplore.label}
+                                    </Link>
+                                    {isRunCommittedForBaseline(run) ? (
+                                      <RunsRowBaselineMenu runId={run.runId} />
+                                    ) : null}
+                                  </div>
                                 </td>
                               </tr>
                             </RunTableRowErrorBoundary>

@@ -71,7 +71,7 @@ describe("RunInspectorPreview", () => {
 
     expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
       "href",
-      "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+      "/reviews/claims-intake-modernization/manifest",
     );
     fireEvent.click(screen.getByText("Next steps"));
 

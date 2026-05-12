@@ -179,7 +179,7 @@ export function WizardStepAdvanced() {
           <AdvancedChipList
             fieldName="topologyHints"
             title="Topology hints"
-            hint="Patterns to prefer or avoid (e.g. hub-spoke, strangler, regional pairs)."
+            hint="Optional patterns to prefer or avoid (for example hub-spoke, strangler, regional pairs) to steer topology agents."
             inputId="wizard-topology-draft"
           />
         </CollapsibleSection>
@@ -188,12 +188,16 @@ export function WizardStepAdvanced() {
           <AdvancedChipList
             fieldName="securityBaselineHints"
             title="Security baseline hints"
-            hint="Expected controls: encryption, identity, network segmentation, logging."
+            hint="Short control expectations—encryption, identity, segmentation, logging—that reviewers want honored in the proposal."
             inputId="wizard-security-draft"
           />
         </CollapsibleSection>
 
         <CollapsibleSection title="Documents" count={documents.filter((d) => d.name.trim() || d.content.trim()).length}>
+          <WizardFieldHint
+            label="Documents"
+            hint="Each row is a named UTF-8 attachment (name, content type, body) merged into agent context alongside the main brief."
+          />
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Reference files (ADRs, RFCs) inlined as UTF-8 text for agent context.
           </p>
@@ -280,6 +284,10 @@ export function WizardStepAdvanced() {
           title="Infrastructure declarations (Raw JSON Editors)"
           count={infrastructureDeclarations.filter((d) => d.name.trim() || d.content.trim()).length}
         >
+          <WizardFieldHint
+            label="Infrastructure declarations"
+            hint="Raw JSON or simple-Terraform snippets describe estate in place so agents diff against truth instead of assuming greenfield."
+          />
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Existing IaC or config snippets agents should reason about.
           </p>

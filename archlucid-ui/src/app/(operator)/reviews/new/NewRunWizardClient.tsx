@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
+import { ArchitectureRequestWizardHelpDrawer } from "@/components/wizard/ArchitectureRequestWizardHelpDrawer";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
@@ -397,7 +398,10 @@ export function NewRunWizardClient() {
               Step {stepIndex + 1}: {WIZARD_STEP_DEFINITIONS[stepIndex].label}
             </p>
             </div>
-            {stepIndex === 0 ? <ContextualHelp helpKey="new-run-wizard" placement="left" /> : null}
+            <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+              {stepIndex === 0 ? <ContextualHelp helpKey="new-run-wizard" placement="left" /> : null}
+              <ArchitectureRequestWizardHelpDrawer />
+            </div>
           </div>
 
           <WizardStepper
