@@ -27,6 +27,8 @@ internal static class AzRolesCommand
             return Task.FromResult(CliExitCode.UsageError);
         }
 
+        ArgumentNullException.ThrowIfNull(opts);
+
         WriteOutput(opts);
 
         return Task.FromResult(CliExitCode.Success);
@@ -167,7 +169,7 @@ internal static class AzRolesCommand
 
             scope = NormalizeArmScope(scope!.Trim());
 
-            if (!scope.StartsWith('/', StringComparison.Ordinal))
+            if (!scope.StartsWith("/", StringComparison.Ordinal))
 
             {
 
@@ -420,8 +422,8 @@ internal static class AzRolesCommand
         CultureInfo invariant = CultureInfo.InvariantCulture;
 
         StringBuilder sb = new();
-        sb.AppendLine(invariant, "# Tier-2 Azure Extractor RBAC — Reader + Cost Management Reader (read-only only)");
-        sb.AppendLine(invariant, "# References: docs/library/V1_SCOPE.md (Tier 2 continuous extractor principals).");
+        sb.AppendLine("# Tier-2 Azure Extractor RBAC — Reader + Cost Management Reader (read-only only)");
+        sb.AppendLine("# References: docs/library/V1_SCOPE.md (Tier 2 continuous extractor principals).");
 
         sb.Append(invariant,
 
@@ -456,8 +458,8 @@ internal static class AzRolesCommand
         CultureInfo invariant = CultureInfo.InvariantCulture;
 
         StringBuilder sb = new();
-        sb.AppendLine(invariant, "# Tier-2 Azure Extractor RBAC — Reader + Cost Management Reader (read-only only)");
-        sb.AppendLine(invariant, "# References: docs/library/V1_SCOPE.md (Tier 2 continuous extractor principals).");
+        sb.AppendLine("# Tier-2 Azure Extractor RBAC — Reader + Cost Management Reader (read-only only)");
+        sb.AppendLine("# References: docs/library/V1_SCOPE.md (Tier 2 continuous extractor principals).");
 
         sb.Append(invariant,
 

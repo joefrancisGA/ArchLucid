@@ -12,16 +12,16 @@ public sealed class ArchLucidConfigTests
     public void LoadConfig_ValidJsonAndFilesExist_ReturnsConfig()
     {
         using TempDirectory temp = new();
-        string validJson = """
-                           {
-                             "schemaVersion": "1.0",
-                             "projectName": "TestProject",
-                             "inputs": { "brief": "inputs/brief.md" },
-                             "outputs": { "localCacheDir": "outputs" },
-                             "plugins": { "lockFile": "plugins/plugin-lock.json" },
-                             "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
-                           }
-                           """;
+        const string validJson = """
+                                 {
+                                   "schemaVersion": "1.0",
+                                   "projectName": "TestProject",
+                                   "inputs": { "brief": "inputs/brief.md" },
+                                   "outputs": { "localCacheDir": "outputs" },
+                                   "plugins": { "lockFile": "plugins/plugin-lock.json" },
+                                   "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
+                                 }
+                                 """;
         File.WriteAllText(Path.Combine(temp.Path, ArchLucidProjectScaffolder.CliManifestFileName), validJson);
         Directory.CreateDirectory(Path.Combine(temp.Path, "inputs"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "plugins"));
@@ -44,14 +44,14 @@ public sealed class ArchLucidConfigTests
     public void LoadConfig_when_plugins_and_infra_omitted_validates_brief_and_outputs_only()
     {
         using TempDirectory temp = new();
-        string minimalJson = """
-                             {
-                               "schemaVersion": "1.0",
-                               "projectName": "Minimal",
-                               "inputs": { "brief": "inputs/brief.md" },
-                               "outputs": { "localCacheDir": "outputs" }
-                             }
-                             """;
+        const string minimalJson = """
+                                   {
+                                     "schemaVersion": "1.0",
+                                     "projectName": "Minimal",
+                                     "inputs": { "brief": "inputs/brief.md" },
+                                     "outputs": { "localCacheDir": "outputs" }
+                                   }
+                                   """;
         File.WriteAllText(Path.Combine(temp.Path, ArchLucidProjectScaffolder.CliManifestFileName), minimalJson);
         Directory.CreateDirectory(Path.Combine(temp.Path, "inputs"));
         File.WriteAllText(Path.Combine(temp.Path, "inputs", "brief.md"),
@@ -92,16 +92,16 @@ public sealed class ArchLucidConfigTests
     public void LoadConfig_MissingBriefFile_Throws()
     {
         using TempDirectory temp = new();
-        string validJson = """
-                           {
-                             "schemaVersion": "1.0",
-                             "projectName": "TestProject",
-                             "inputs": { "brief": "inputs/brief.md" },
-                             "outputs": { "localCacheDir": "outputs" },
-                             "plugins": { "lockFile": "plugins/plugin-lock.json" },
-                             "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
-                           }
-                           """;
+        const string validJson = """
+                                 {
+                                   "schemaVersion": "1.0",
+                                   "projectName": "TestProject",
+                                   "inputs": { "brief": "inputs/brief.md" },
+                                   "outputs": { "localCacheDir": "outputs" },
+                                   "plugins": { "lockFile": "plugins/plugin-lock.json" },
+                                   "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
+                                 }
+                                 """;
         File.WriteAllText(Path.Combine(temp.Path, ArchLucidProjectScaffolder.CliManifestFileName), validJson);
         Directory.CreateDirectory(Path.Combine(temp.Path, "plugins"));
         File.WriteAllText(Path.Combine(temp.Path, "plugins", "plugin-lock.json"), "{}");
