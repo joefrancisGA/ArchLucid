@@ -128,7 +128,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   const buyerPolishedArtifactTable = isBuyerPolishedOperatorShellEnv();
   const manifestId = resolvedDetail.run.goldenManifestId;
 
-  let changesSinceLastReviewBanner: RunDetailPageModel["changesSinceLastReviewBanner"] = null;
+  let changesSinceLastReviewBanner: RunDetailChangesSinceLastReviewBanner | null = null;
 
   if (manifestId !== undefined && manifestId !== null && manifestId.trim().length > 0 && priorCommittedRun !== null) {
     try {
@@ -183,11 +183,11 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let artifactsMalformed: string | null = null;
   let explanationSummary: RunExplanationSummary | null = null;
   let explanationFailure: ApiLoadFailureState | null = null;
-  let _pipelineTimelineUnused: PipelineTimelineItem[] | null = null;
+  let pipelineTimeline: PipelineTimelineItem[] | null = null;
   let pipelineTimelineFailure: ApiLoadFailureState | null = null;
 
   try {
-    _pipelineTimelineUnused = await getRunPipelineTimeline(runId);
+    pipelineTimeline = await getRunPipelineTimeline(runId);
   } catch (e) {
     pipelineTimelineFailure = toApiLoadFailure(e);
 
@@ -195,13 +195,11 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       const staticTimeline = tryStaticDemoPipelineTimeline(runId);
 
       if (staticTimeline !== null && staticTimeline.length > 0) {
-        _pipelineTimelineUnused = staticTimeline;
+        pipelineTimeline = staticTimeline;
         pipelineTimelineFailure = null;
       }
     }
   }
-
-  let pipelineTimeline = _pipelineTimelineUnused;
 
   if (pipelineTimeline === null || pipelineTimeline.length === 0) {
     const staticTimeline = tryStaticDemoPipelineTimeline(runId);
