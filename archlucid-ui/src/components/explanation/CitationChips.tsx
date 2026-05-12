@@ -11,11 +11,16 @@ export type CitationChipsProps = {
   runId: string;
 };
 
-function citationHref(c: CitationReference, runId: string): string {
+function citationHref(c: CitationReference, runId: string, buyerPolishedShell: boolean): string {
   switch (c.kind) {
     case "Manifest":
       return `/manifests/${encodeURIComponent(c.id)}`;
     case "Finding":
+
+      if (buyerPolishedShell) {
+        return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(c.id)}`;
+      }
+
       return `/reviews/${encodeURIComponent(runId)}#finding-${encodeURIComponent(c.id)}`;
     case "DecisionTrace":
     case "GraphSnapshot":
@@ -43,7 +48,7 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
       </h4>
       <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
         {citations.map((c) => {
-          const href = citationHref(c, runId);
+          const href = citationHref(c, runId, buyerPolished);
           const kindLabel = citationKindBuyerLabel(c.kind);
 
           return (

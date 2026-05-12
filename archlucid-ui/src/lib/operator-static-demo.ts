@@ -516,6 +516,18 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
       {
 
+        id: "n-policy",
+
+        type: "PolicyPack",
+
+        referenceId: "demo-healthcare-claims-pack",
+
+        name: policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"),
+
+      },
+
+      {
+
         id: "n-graph",
 
         type: "GraphSnapshot",
@@ -575,7 +587,9 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
       { id: "e-run-ctx", type: "produced", fromNodeId: "n-run", toNodeId: "n-ctx" },
 
-      { id: "e-ctx-graph", type: "next", fromNodeId: "n-ctx", toNodeId: "n-graph" },
+      { id: "e-ctx-policy", type: "next", fromNodeId: "n-ctx", toNodeId: "n-policy" },
+
+      { id: "e-policy-graph", type: "next", fromNodeId: "n-policy", toNodeId: "n-graph" },
 
       { id: "e-graph-find", type: "next", fromNodeId: "n-graph", toNodeId: "n-find" },
 

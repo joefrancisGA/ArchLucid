@@ -13,7 +13,7 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
         string correlationId = CorrelationIdHeaderParser.TryGetValidIncomingCorrelationId(
                 context.Request.Headers,
                 out string? fromHeader)
-            ? fromHeader!
+            ? fromHeader
             : context.TraceIdentifier;
 
         context.Response.Headers[CorrelationIdHeaderParser.HeaderName] = correlationId;

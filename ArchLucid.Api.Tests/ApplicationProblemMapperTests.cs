@@ -1,5 +1,3 @@
-using System.Threading;
-
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 

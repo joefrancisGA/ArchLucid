@@ -26,4 +26,13 @@ public sealed class MockAzureMonthlyCostEstimatorTests
     {
         MockAzureMonthlyCostEstimator.EstimateUsdPerMonth(platform).Should().Be(expectedUsd);
     }
+
+    [Theory]
+    [InlineData(RuntimePlatform.AppService, "Azure App Service")]
+    [InlineData(RuntimePlatform.SqlServer, "Azure SQL")]
+    [InlineData(RuntimePlatform.Unknown, "Azure (unspecified)")]
+    public void FormatIllustrativeAzureProduct_matches_contract(RuntimePlatform platform, string expected)
+    {
+        MockAzureMonthlyCostEstimator.FormatIllustrativeAzureProduct(platform).Should().Be(expected);
+    }
 }

@@ -132,10 +132,19 @@ export function RunExplanationSection({
     const showModelConfidenceBlock =
       confRaw !== null && confRaw !== undefined && Number.isFinite(confRaw);
     const items: DocumentTocItem[] = [{ id: "doc-explanation-assessment", label: "Assessment" }];
+    const citationCount = summary.citations?.length ?? 0;
+
+    if (citationCount > 0) {
+      items.push({ id: "doc-explanation-evidence-cited", label: "Evidence cited" });
+    }
+
     const traces = summary.findingTraceConfidences;
 
     if (traces !== null && traces !== undefined && traces.length > 0) {
-      items.push({ id: "doc-explanation-traces", label: "Finding trace confidence" });
+      items.push({
+        id: "doc-explanation-traces",
+        label: buyerPolishedShell ? "Trace confidence" : "Finding trace confidence",
+      });
     }
 
     if (showModelConfidenceBlock) {
@@ -260,7 +269,13 @@ export function RunExplanationSection({
         </p>
       ) : null}
 
-      <CitationChips citations={summary.citations ?? []} runId={runId} />
+      {(summary.citations?.length ?? 0) > 0 ? (
+        <div id="doc-explanation-evidence-cited">
+          <CitationChips citations={summary.citations} runId={runId} />
+        </div>
+      ) : (
+        <CitationChips citations={summary.citations ?? []} runId={runId} />
+      )}
 
       {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (
         <div className="mb-4">

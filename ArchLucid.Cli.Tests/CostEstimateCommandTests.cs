@@ -55,6 +55,8 @@ public sealed class CostEstimateCommandTests
             output.Should().Contain("Datastore");
             output.Should().Contain("api");
             output.Should().Contain("orders");
+            output.Should().Contain("Azure App Service");
+            output.Should().Contain("Azure SQL");
             output.Should().Contain("$45");
             output.Should().Contain("$15");
             output.Should().Contain("Total (mock):");
@@ -85,7 +87,7 @@ public sealed class CostEstimateCommandTests
             line.Should().StartWith("{");
             line.Should().Contain("\"ok\":true");
             line.Should().Contain("\"totalUsdPerMonth\":60");
-            line.Should().Contain("\"lineItems\"");
+            line.Should().Contain("\"azureProduct\"");
             errWriter.ToString().Should().BeEmpty();
         }
         finally

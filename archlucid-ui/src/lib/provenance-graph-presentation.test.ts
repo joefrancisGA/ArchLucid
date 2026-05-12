@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildStaticDemoProvenanceGraphFromShowcase } from "@/lib/operator-static-demo";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   applyBuyerLabelsToProvenanceGraphViewModel,
   buyerLabelForProvenanceNode,
@@ -25,5 +26,9 @@ describe("provenance graph presentation", () => {
     const phi = relabeled.nodes.find((n) => n.id === "n-phi");
     expect(phi?.label).toBe("PHI minimization risk");
     expect(phi?.type).toBe("Finding");
+
+    const policy = relabeled.nodes.find((n) => n.id === "n-policy");
+    expect(policy?.type).toBe("PolicyPack");
+    expect(policy?.label).toBe(policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"));
   });
 });

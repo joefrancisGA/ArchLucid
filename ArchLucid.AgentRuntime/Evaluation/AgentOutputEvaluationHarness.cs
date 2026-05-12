@@ -19,7 +19,7 @@ public sealed class AgentOutputEvaluationHarness(
         ArgumentNullException.ThrowIfNull(expected);
 
         List<string> failures = [];
-        string traceId = "harness";
+        const string traceId = "harness";
         string json = JsonSerializer.Serialize(actual, WebJson);
 
         AgentOutputEvaluationScore structural = structuralEvaluator.Evaluate(traceId, json, agentType);
@@ -65,9 +65,9 @@ public sealed class AgentOutputEvaluationHarness(
                         names.Add(p.Name);
 
                     failures.AddRange(from key in expected.RequiredJsonKeys
-                        where !string.IsNullOrWhiteSpace(key)
-                        where !names.Contains(key.Trim())
-                        select $"Required JSON key missing: '{key.Trim()}'.");
+                                      where !string.IsNullOrWhiteSpace(key)
+                                      where !names.Contains(key.Trim())
+                                      select $"Required JSON key missing: '{key.Trim()}'.");
                 }
             }
             catch (JsonException)

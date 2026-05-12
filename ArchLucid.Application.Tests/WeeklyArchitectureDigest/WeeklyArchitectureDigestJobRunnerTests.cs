@@ -1,5 +1,4 @@
 using ArchLucid.Application.WeeklyArchitectureDigest;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.WeeklyDigest;
 
 using FluentAssertions;

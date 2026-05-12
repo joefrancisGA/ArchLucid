@@ -85,7 +85,10 @@ import {
   tryStaticDemoPipelineTimeline,
   tryStaticDemoRunDetail,
 } from "@/lib/operator-static-demo";
-import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+  SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
+} from "@/lib/showcase-static-demo";
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
@@ -653,6 +656,16 @@ export default async function RunDetailPage({
         unresolvedIssueCountDisplay={manifestSummary?.unresolvedIssueCount ?? null}
         aggregateRiskPosture={explanationSummary?.riskPosture ?? null}
         governanceGateLabel={governanceGateLabel}
+        showcasePolicyPackStrip={
+          buyerPolishedArtifactTable &&
+          manifestSummaryForUi !== null &&
+          isShowcaseStaticDemoRunId(resolvedDetail.run.runId)
+            ? {
+                href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
+                label: policyPackBuyerLabel(manifestSummaryForUi.ruleSetId, manifestSummaryForUi.ruleSetVersion),
+              }
+            : null
+        }
       />
 
       {changesSinceLastReviewBannerEl}

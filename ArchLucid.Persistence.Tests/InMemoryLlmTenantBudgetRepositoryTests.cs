@@ -15,7 +15,7 @@ public sealed class InMemoryLlmTenantBudgetRepositoryTests
         InMemoryLlmTenantBudgetRepository sut = new();
         Guid tenant = Guid.NewGuid();
         string periodKey = new DateOnly(2026, 5, 8).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-        long warnAt = 10_000;
+        const long warnAt = 10_000;
 
         Task[] workers = new Task[20];
 

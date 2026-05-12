@@ -4,6 +4,7 @@ import type { GraphViewModel } from "@/types/graph";
 export const PROVENANCE_TRAIL_NODE_TYPES: ReadonlySet<string> = new Set([
   "ArchitectureRun",
   "ContextSnapshot",
+  "PolicyPack",
   "GraphSnapshot",
   "FindingsSnapshot",
   "GoldenManifest",

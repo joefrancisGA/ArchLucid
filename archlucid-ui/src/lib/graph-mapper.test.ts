@@ -94,6 +94,7 @@ describe("mapGraphToReactFlow", () => {
       nodes: [
         { id: "n-run", label: "Run", type: "ArchitectureRun" },
         { id: "n-ctx", label: "Context", type: "ContextSnapshot" },
+        { id: "n-policy", label: "Policy pack", type: "PolicyPack" },
         { id: "n-graph", label: "Graph", type: "GraphSnapshot" },
         { id: "n-find", label: "Findings snap", type: "FindingsSnapshot" },
         {
@@ -115,8 +116,8 @@ describe("mapGraphToReactFlow", () => {
     const phiPos = nodes.find((n) => n.id === "n-phi")?.position;
     const centerIdx = Math.floor(graph.nodes.length / 2);
     const columnCount = 4;
-    const cellW = 320;
-    const cellH = 196;
+    const cellW = 340;
+    const cellH = 220;
 
     expect(phiPos).toEqual({
       x: (centerIdx % columnCount) * cellW,

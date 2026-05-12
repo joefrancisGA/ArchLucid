@@ -6,6 +6,11 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { cn } from "@/lib/utils";
 
+export type ShowcasePolicyPackStripLink = {
+  readonly href: string;
+  readonly label: string;
+};
+
 type RunDetailOutcomeCardsProps = {
   readonly runId: string;
   /** When finalized, links the manifest outcome card to manifest detail. */
@@ -19,6 +24,8 @@ type RunDetailOutcomeCardsProps = {
   readonly governanceGateLabel?: string | null;
   /** Aggregate posture from explanation summary (buyer strip severity signal). */
   readonly aggregateRiskPosture?: string | null;
+  /** Buyer-polished strip only: prominent link to read-only pack detail (showcase demo). */
+  readonly showcasePolicyPackStrip?: ShowcasePolicyPackStripLink | null;
 };
 
 /**
@@ -41,7 +48,7 @@ function manifestWarningsSecondaryCopy(warningCountDisplay: number | null): stri
     return null;
   }
 
-    return `${n} review warning${n === 1 ? "" : "s"} (PHI minimization)`;
+  return `${n} review warning${n === 1 ? "" : "s"} (PHI minimization)`;
 }
 
 function buyerFindingSeveritySignal(
@@ -118,6 +125,7 @@ type PackageStatusStripProps = {
   aggregateRiskPosture: string | null | undefined;
   artifactCount: number;
   governanceGateLabel: string | null | undefined;
+  showcasePolicyPackStrip: ShowcasePolicyPackStripLink | null | undefined;
 };
 
 function PackageStatusStrip(props: PackageStatusStripProps) {
@@ -188,6 +196,24 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
         </div>
       </div>
 
+      {props.showcasePolicyPackStrip !== null &&
+      props.showcasePolicyPackStrip !== undefined &&
+      props.showcasePolicyPackStrip.href.trim().length > 0 &&
+      props.showcasePolicyPackStrip.label.trim().length > 0 ? (
+        <div className={segmentInner}>
+          <p className={stripSegmentLabelClass()}>Policy pack</p>
+          <div className="mt-1">
+            <Link
+              href={props.showcasePolicyPackStrip.href.trim()}
+              className="block rounded outline-none ring-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950"
+            >
+              <p className={valueClass}>{props.showcasePolicyPackStrip.label.trim()}</p>
+              <p className={detailClass}>Read-only pack rules and version</p>
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
       <div className={segmentInner}>
         <p className={stripSegmentLabelClass()}>Findings</p>
         <div className="mt-1">
@@ -242,6 +268,7 @@ export function RunDetailOutcomeCards({
   unresolvedIssueCountDisplay,
   governanceGateLabel,
   aggregateRiskPosture,
+  showcasePolicyPackStrip,
 }: RunDetailOutcomeCardsProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
@@ -256,6 +283,7 @@ export function RunDetailOutcomeCards({
           aggregateRiskPosture={aggregateRiskPosture}
           artifactCount={artifactCount}
           governanceGateLabel={governanceGateLabel}
+          showcasePolicyPackStrip={showcasePolicyPackStrip ?? null}
         />
         <ReviewOutcomeTaxonomyLegend />
       </div>

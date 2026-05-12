@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import {
   MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
+  RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN,
   SHOWCASE_DEMO_RUN_ID,
   SCREENSHOT_FINDING_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -17,7 +18,9 @@ test.describe("operator shell smoke", () => {
   test("runs list with default project shows a run row without generic error boundary @smoke", async ({ page }) => {
     await page.goto("/runs?projectId=default");
 
-    await expect(page.getByRole("heading", { name: /^Architecture reviews$/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+    ).toBeVisible();
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
     await expect(page.locator('[data-testid^="runs-row-"]').first()).toBeVisible();
   });
@@ -25,7 +28,9 @@ test.describe("operator shell smoke", () => {
   test("runs list renders without generic error boundary", async ({ page }) => {
     await page.goto("/runs");
 
-    await expect(page.getByRole("heading", { name: /^Architecture reviews$/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+    ).toBeVisible();
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
   });
 
@@ -57,7 +62,9 @@ test.describe("operator shell smoke — core proof path", () => {
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/runs?projectId=default");
-    await expect(page.getByRole("heading", { name: /^Architecture reviews$/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+    ).toBeVisible();
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto(`/runs/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);

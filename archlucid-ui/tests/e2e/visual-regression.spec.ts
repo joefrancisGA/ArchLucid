@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 
-import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "../../e2e/fixtures";
+import {
+  FIXTURE_LEFT_RUN_ID,
+  FIXTURE_RIGHT_RUN_ID,
+  RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN,
+} from "../../e2e/fixtures";
 import {
   expandCompareTechnicalDetails,
   gotoComparePageWithFixturePair,
@@ -19,7 +23,9 @@ test.describe("visual regression — operator UI", () => {
   test("main dashboard matches golden baseline", async ({ page }) => {
     await page.goto("/reviews?projectId=default");
 
-    await expect(page.getByRole("heading", { name: /^Architecture reviews$/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+    ).toBeVisible();
     await expect(page.locator('[data-testid^="runs-row-"]').first()).toBeVisible();
 
     await expect(page).toHaveScreenshot("main-dashboard.png", screenshotOptions);

@@ -16,6 +16,12 @@ export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = "Claims Intake Modernization 
 export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
 
 /**
+ * Governance deep link for the seeded Healthcare Claims demonstration pack (aligned with
+ * {@link tryStaticDemoPolicyPacksList} in operator static demo).
+ */
+export const SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF = "/governance/policy-packs/demo-healthcare-claims-pack";
+
+/**
  * Deterministic finding id for deep links from manifest “Related findings” (aligned with demo narrative;
  * resolves when the API seeds this finding for the showcase run).
  */

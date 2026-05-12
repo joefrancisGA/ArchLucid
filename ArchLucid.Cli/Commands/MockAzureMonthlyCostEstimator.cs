@@ -7,6 +7,29 @@ namespace ArchLucid.Cli.Commands;
 /// </summary>
 internal static class MockAzureMonthlyCostEstimator
 {
+    /// <summary>
+    ///     Human-facing Azure service name for tables (CLI UX only).
+    /// </summary>
+    internal static string FormatIllustrativeAzureProduct(RuntimePlatform platform)
+    {
+        return platform switch
+        {
+            RuntimePlatform.Unknown => "Azure (unspecified)",
+            RuntimePlatform.AppService => "Azure App Service",
+            RuntimePlatform.Functions => "Azure Functions",
+            RuntimePlatform.Aks => "Azure Kubernetes Service",
+            RuntimePlatform.Vm => "Azure Virtual Machines",
+            RuntimePlatform.ContainerApps => "Azure Container Apps",
+            RuntimePlatform.SqlServer => "Azure SQL",
+            RuntimePlatform.AzureAiSearch => "Azure AI Search",
+            RuntimePlatform.AzureOpenAi => "Azure OpenAI Service",
+            RuntimePlatform.Redis => "Azure Cache for Redis",
+            RuntimePlatform.BlobStorage => "Azure Blob Storage",
+            RuntimePlatform.KeyVault => "Azure Key Vault",
+            _ => "Azure workload",
+        };
+    }
+
     internal static decimal EstimateUsdPerMonth(RuntimePlatform platform)
     {
         return platform switch
