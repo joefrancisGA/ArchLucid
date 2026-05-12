@@ -109,7 +109,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
     public async Task GetOpenByDeduplicationKeyAsync_ignores_Resolved_and_wrong_scope()
     {
         InMemoryAlertRecordRepository repo = new();
-        string key = "dedupe-b";
+        const string key = "dedupe-b";
 
         await repo.CreateAsync(
             BuildAlert(Guid.Parse("21000000-0000-0000-0000-000000000001"), AlertStatus.Resolved, BaseUtc, key),

@@ -41,7 +41,7 @@ namespace Microsoft.AspNetCore.Authorization
     [Fact]
     public async Task Reports_public_action_without_authorization_when_controller_has_none()
     {
-        string testCode = AspNetCoreStubs +
+        const string testCode = AspNetCoreStubs +
             """
 
 namespace N
@@ -74,7 +74,7 @@ namespace N
     [Fact]
     public async Task Does_not_report_when_controller_has_Authorize()
     {
-        string testCode = AspNetCoreStubs +
+        const string testCode = AspNetCoreStubs +
             """
 
 namespace N
@@ -104,7 +104,7 @@ namespace N
     [Fact]
     public async Task Does_not_report_when_base_type_has_Authorize()
     {
-        string testCode = AspNetCoreStubs +
+        const string testCode = AspNetCoreStubs +
             """
 
 namespace N
@@ -138,7 +138,7 @@ namespace N
     [Fact]
     public async Task Reports_only_action_missing_authorization_when_another_action_is_Authorized()
     {
-        string testCode = AspNetCoreStubs +
+        const string testCode = AspNetCoreStubs +
             """
 
 namespace N
@@ -176,7 +176,7 @@ namespace N
     [Fact]
     public async Task Reports_controller_when_there_are_no_public_actions()
     {
-        string testCode = AspNetCoreStubs +
+        const string testCode = AspNetCoreStubs +
             """
 
 namespace N

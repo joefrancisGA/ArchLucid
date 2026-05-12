@@ -97,11 +97,11 @@ public sealed class AzureExtractorUploadController(
 
         if (body is null || string.IsNullOrWhiteSpace(body.FileName))
 
-            return BadRequest(new { detail = "fileName is required." });
+            return this.BadRequestProblem("fileName is required.", ProblemTypes.ValidationFailed);
 
         if (body.TotalChunks < 1)
 
-            return BadRequest(new { detail = "totalChunks must be at least 1." });
+            return this.BadRequestProblem("totalChunks must be at least 1.", ProblemTypes.ValidationFailed);
 
         Guid sessionId =
             await chunkedUpload.BeginSessionAsync(body.FileName.Trim(), body.TotalChunks, body.TotalBytes, cancellationToken);

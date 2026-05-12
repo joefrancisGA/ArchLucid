@@ -1496,7 +1496,7 @@ jobs:
           ART_DIR="${{ runner.temp }}/coverage-metrics-artifact"
           mkdir -p "${ART_DIR}"
           python3 scripts/ci/assert_merged_line_coverage_min.py \
-            "${OUT}/Cobertura.xml" 79 \
+            "${OUT}/Cobertura.xml" 95 \
             --min-branch-pct 63 \
             --min-package-line-pct 63 \
             --warn-below-package-line-pct 70 \

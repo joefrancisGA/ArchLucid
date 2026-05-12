@@ -103,7 +103,7 @@ public sealed class DataConsistencyCounterInstrumentationContractTests
 
         public static DataConsistencyCapture Start() => new();
 
-        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        static private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
             if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
                 return;

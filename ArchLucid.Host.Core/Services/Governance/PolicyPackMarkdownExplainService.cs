@@ -1,6 +1,8 @@
 using ArchLucid.AgentRuntime;
 
-namespace ArchLucid.Api.Services.Governance;
+using Microsoft.Extensions.Logging;
+
+namespace ArchLucid.Host.Core.Services.Governance;
 
 /// <summary>
 ///     LLM-backed Markdown explainer for raw policy pack JSON (<c>GET /v1/policy-packs/{id}/explain</c>).

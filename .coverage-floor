@@ -1,4 +1,4 @@
 # Merged Cobertura root line %% baseline (committed ratchet anchor).
 # Pass when merged line >= (baseline − 2.00%%).
-# Matches the enforced 79%% merged minimum at 81 − 2; bump this file when sustained coverage improves.
-81.00
+# Matches the enforced 95%% merged minimum at 97 − 2; bump this file when sustained coverage improves.
+97.00

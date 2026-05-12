@@ -438,7 +438,7 @@ internal static class AzRolesCommand
     }
 
     /// <remarks>Embeds POSIX <c>'...'</c> quoting; internal single-quotes split with <c>'"'"'</c> concatenation.</remarks>
-    private static string QuoteBashSingle(string value)
+    internal static string QuoteBashSingle(string value)
     {
 
         ArgumentNullException.ThrowIfNull(value);
