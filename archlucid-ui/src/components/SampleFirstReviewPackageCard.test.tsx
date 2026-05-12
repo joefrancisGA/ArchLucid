@@ -88,6 +88,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
       "href",
       "/reviews/claims-intake-modernization",
     );
+    expect(screen.getByRole("link", { name: "Start a new request" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: "open walkthrough" })).toHaveAttribute(
       "href",
       "/showcase/claims-intake-modernization",

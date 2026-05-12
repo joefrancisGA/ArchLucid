@@ -50,17 +50,14 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
         if (loopSymbol is null || loopSymbol.Kind != SymbolKind.Local)
             return null;
 
-        if (foreachSyntax.Statement is not BlockSyntax body)
+        if (!TryGetSingleForeachBodyStatement(foreachSyntax.Statement, out StatementSyntax loneStatement))
             return null;
 
-        if (!BodyIsSimpleEnough(body))
-            return null;
-
-        if (SyntaxContainsAwait(body) || ContainsAsyncAnonymousFunction(body))
+        if (SyntaxContainsAwait(foreachSyntax.Statement) || ContainsAsyncAnonymousFunction(foreachSyntax.Statement))
             return null;
 
         if (TryMatchSelectPattern(
-                body,
+                loneStatement,
                 semanticModel,
                 loopSymbol,
                 cancellationToken,
@@ -94,7 +91,7 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
         }
 
         if (TryMatchWherePattern(
-                body,
+                loneStatement,
                 semanticModel,
                 loopSymbol,
                 cancellationToken,
@@ -169,9 +166,27 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
             Al0002ForeachToLinqDescriptor.Create(foreachSyntax.ForEachKeyword.GetLocation(), summary));
     }
 
-    private static bool BodyIsSimpleEnough(BlockSyntax body)
+    private static bool TryGetSingleForeachBodyStatement(
+        StatementSyntax statement,
+        out StatementSyntax loneStatement)
     {
-        return body.Statements.Count == 1;
+        if (statement is BlockSyntax block)
+        {
+            if (block.Statements.Count != 1)
+            {
+                loneStatement = null!;
+
+                return false;
+            }
+
+            loneStatement = block.Statements[0];
+
+            return true;
+        }
+
+        loneStatement = statement;
+
+        return true;
     }
 
     private static bool SyntaxContainsAwait(SyntaxNode node) =>
@@ -182,7 +197,7 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
             static a => a.AsyncKeyword.IsKind(SyntaxKind.AsyncKeyword));
 
     private static bool TryMatchSelectPattern(
-        BlockSyntax body,
+        StatementSyntax bodyStatement,
         SemanticModel semanticModel,
         ILocalSymbol loopSymbol,
         CancellationToken cancellationToken,
@@ -192,7 +207,7 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
         addInvocation = null;
         listReceiver = null;
 
-        if (body.Statements[0] is not ExpressionStatementSyntax { Expression: InvocationExpressionSyntax inv })
+        if (bodyStatement is not ExpressionStatementSyntax { Expression: InvocationExpressionSyntax inv })
             return false;
 
         if (!TryGetListAddInvocation(inv, out ExpressionSyntax? recv))
@@ -208,7 +223,7 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
     }
 
     private static bool TryMatchWherePattern(
-        BlockSyntax body,
+        StatementSyntax bodyStatement,
         SemanticModel semanticModel,
         ILocalSymbol loopSymbol,
         CancellationToken cancellationToken,
@@ -220,15 +235,15 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
         listReceiver = null;
         predicate = null;
 
-        if (body.Statements[0] is not IfStatementSyntax ifStmt)
+        if (bodyStatement is not IfStatementSyntax ifStmt)
             return false;
 
-        if (ifStmt.ElseClause is not null)
+        if (ifStmt.Else is not null)
             return false;
 
         predicate = ifStmt.Condition;
 
-        if (!TryGetSingleAddStatement(ifStmt.Statement, out InvocationExpressionSyntax? inv))
+        if (!TryGetSingleAddStatement(ifStmt.Statement, out InvocationExpressionSyntax? inv) || inv is null)
             return false;
 
         if (!TryGetListAddInvocation(inv, out ExpressionSyntax? recv))

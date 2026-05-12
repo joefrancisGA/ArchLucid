@@ -39,7 +39,10 @@ public sealed class ForeachToLinqCodeFixProvider : CodeFixProvider
             if (foreachSyntax is null)
                 continue;
 
-            SemanticModel semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+            SemanticModel? semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+
+            if (semanticModel is null)
+                continue;
 
             ForeachToLinqMatch? matchOrNull =
                 ForeachToLinqAnalyzer.TryAnalyzeForeach(foreachSyntax, semanticModel, cancellationToken);
@@ -55,7 +58,7 @@ public sealed class ForeachToLinqCodeFixProvider : CodeFixProvider
                 CodeAction.Create(
                     title,
                     ct => ReplaceWithLinqBulkAddAsync(document, root, foreachSyntax, match, ct),
-                    nameof(ForeachToLinqCodeFixProvider)),
+                    equivalenceKey: nameof(ForeachToLinqCodeFixProvider) + ":" + match.Kind),
                 diagnostic);
         }
     }
@@ -93,22 +96,17 @@ public sealed class ForeachToLinqCodeFixProvider : CodeFixProvider
 
         if (updatedRoot is CompilationUnitSyntax compilationUnitSyntax && CompilationUnitUsesSystemLinq(compilationUnitSyntax) is false)
         {
-            NameSyntax parsed = SyntaxFactory.ParseName("System.Linq");
             UsingDirectiveSyntax usingDirective =
-                SyntaxFactory.UsingDirective(parsed).WithTrailingTrivia(SyntaxFactory.ElasticMarker);
+                SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System.Linq"))
+                    .WithTrailingTrivia(SyntaxFactory.ElasticMarker);
 
             updatedRoot =
                 compilationUnitSyntax.AddUsings(usingDirective.WithAdditionalAnnotations(Formatter.Annotation));
         }
 
-        SyntaxNode formattedRoot = Formatter.Format(
-            updatedRoot,
-            document.Project.Solution.Workspace,
-            cancellationToken: cancellationToken);
+        Document unformatted = document.WithSyntaxRoot(updatedRoot);
 
-        Document rewritten = document.WithSyntaxRoot(formattedRoot);
-
-        return Task.FromResult(rewritten);
+        return await Formatter.FormatAsync(unformatted, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     private static bool CompilationUnitUsesSystemLinq(CompilationUnitSyntax compilationUnitSyntax)
@@ -124,16 +122,19 @@ public sealed class ForeachToLinqCodeFixProvider : CodeFixProvider
 
     private static bool IsSystemLinqUsing(UsingDirectiveSyntax u)
     {
-        if (u.StaticKeyword.Kind() != SyntaxKind.None ||
-            u.Alias.Kind() != SyntaxKind.None ||
-            u.GlobalKeyword.Kind() != SyntaxKind.None)
+        if (!u.StaticKeyword.IsKind(SyntaxKind.None) ||
+            u.Alias is not null ||
+            !u.GlobalKeyword.IsKind(SyntaxKind.None))
         {
             return false;
         }
 
+        if (u.Name is null)
+            return false;
+
         return NamesEqual(u.Name.ToString(), "System.Linq");
 
-        static bool NamesEqual(string? leftName, string rightName) =>
+        static bool NamesEqual(string leftName, string rightName) =>
             string.Equals(leftName, rightName, StringComparison.Ordinal);
     }
 

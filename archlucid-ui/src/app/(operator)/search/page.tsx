@@ -63,10 +63,21 @@ export default function SearchPage() {
   }
 
   if (isDemo) {
+    // Same heading chrome as the live page so demo builds keep a recognizable route title below the shell.
     return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Semantic search not available in demo mode.</p>
-        <p className="m-0 mt-1">Full-text search across reviews requires a live API connection.</p>
+      <div className="max-w-4xl">
+        <OperatorPageHeader
+          title={buyerShell === true ? "Search review evidence" : "Semantic Search"}
+          helpKey="semantic-search"
+          subtitle={semanticSearchPageSubtitleOperator}
+        />
+
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+          <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">
+            Semantic search not available in demo mode.
+          </p>
+          <p className="m-0 mt-1">Full-text search across reviews requires a live API connection.</p>
+        </div>
       </div>
     );
   }

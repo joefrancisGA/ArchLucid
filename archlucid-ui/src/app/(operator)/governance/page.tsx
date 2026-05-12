@@ -5,43 +5,18 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
 
-import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
-import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { EmptyState } from "@/components/EmptyState";
-import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { StatusPill } from "@/components/StatusPill";
+import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { GovernanceInteractiveQuickstartCard } from "@/components/GovernanceInteractiveQuickstartCard";
-import { GovernanceQuickApproveButton } from "@/components/GovernanceQuickApproveButton";
 import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
-import { RunIdPicker } from "@/components/RunIdPicker";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import {
   activateEnvironment,
@@ -54,51 +29,12 @@ import {
   submitApprovalRequest,
 } from "@/lib/api";
 import { GOVERNANCE_WORKFLOW_IDLE, GOVERNANCE_WORKFLOW_IDLE_READER } from "@/lib/empty-state-presets";
-import {
-  governanceActivationsEmptyGettingStartedOperator,
-  governanceActivationsEmptyGettingStartedReader,
-  governanceNoApprovalsGettingStartedOperator,
-  governanceNoApprovalsGettingStartedReader,
-  governancePromotionsEmptyGettingStartedOperator,
-  governancePromotionsEmptyGettingStartedReader,
-} from "@/lib/governance-workflow-empty-guidance";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
-  enterpriseMutationControlDisabledTitle,
-  governanceWorkflowActivateButtonLabelReaderRank,
-  governanceWorkflowApprovalRequestsCardTitleOperator,
-  governanceWorkflowApprovalRequestsCardTitleReader,
-  governanceWorkflowApproveButtonLabelReaderRank,
-  governanceWorkflowActivationsSubheadingOperator,
-  governanceWorkflowActivationsSubheadingReader,
   governanceWorkflowPageLeadOperator,
   governanceWorkflowPageLeadReader,
-  governanceWorkflowActivationsEmptyOperatorHint,
-  governanceWorkflowActivationsEmptyReaderHint,
-  governanceWorkflowNoApprovalsOperatorHint,
-  governanceWorkflowNoApprovalsReaderHint,
   governanceWorkflowOutcomeBannerLine,
-  governanceWorkflowPromoteButtonLabelReaderRank,
-  governanceWorkflowPromotionsActivationsHeadingOperator,
-  governanceWorkflowPromotionsActivationsHeadingReader,
-  governanceWorkflowPromotionsActivationsSectionLeadOperator,
-  governanceWorkflowPromotionsActivationsSectionLeadReader,
-  governanceWorkflowPromotionsEmptyOperatorHint,
-  governanceWorkflowPromotionsEmptyReaderHint,
-  governanceWorkflowQueryCardDescriptionOperator,
-  governanceWorkflowQueryCardDescriptionReader,
-  governanceWorkflowQueryCardDescriptionBuyerPolished,
-  governanceWorkflowPendingReviewReaderNote,
-  governanceWorkflowPendingReviewReaderNoteBuyerPolished,
-  governanceWorkflowRejectButtonLabelReaderRank,
-  governanceWorkflowReviewSubmitButtonLabelReaderRank,
-  governanceWorkflowRefreshRunDataButtonLabel,
-  governanceWorkflowRefreshRunDataTitle,
-  governanceWorkflowSubmitCardDescriptionReader,
-  governanceWorkflowSubmitCardTitleOperator,
-  governanceWorkflowSubmitCardTitleReader,
-  governanceWorkflowSubmitForApprovalButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { cn } from "@/lib/utils";
@@ -109,67 +45,27 @@ import {
   tryStaticDemoGovernancePromotions,
 } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import type {
   GovernanceApprovalRequest,
   GovernanceEnvironmentActivation,
   GovernancePromotionRecord,
 } from "@/types/governance-workflow";
-
-/** API values (ArchLucid.Contracts.Governance.GovernanceEnvironment). */
-const ENV_OPTIONS = [
-  { value: "dev", label: "Development" },
-  { value: "test", label: "Staging" },
-  { value: "prod", label: "Production" },
-] as const;
-
-function governanceEnvironmentPairDisplay(source: string, target: string): string {
-  const src = ENV_OPTIONS.find((o) => o.value === source)?.label ?? source;
-  const tgt = ENV_OPTIONS.find((o) => o.value === target)?.label ?? target;
-
-  return `${src} → ${tgt}`;
-}
-
-function formatGovernanceBusinessInstant(iso: string): string {
-  try {
-    const d = new Date(iso);
-
-    if (Number.isNaN(d.getTime())) {
-      return iso;
-    }
-
-    return d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
-  } catch {
-    return iso;
-  }
-}
-
-function sortGovernancePromotions(rows: GovernancePromotionRecord[]): GovernancePromotionRecord[] {
-  return [...rows].sort((x, y) => (x.promotedUtc < y.promotedUtc ? 1 : x.promotedUtc > y.promotedUtc ? -1 : 0));
-}
-
-function sortGovernanceActivations(rows: GovernanceEnvironmentActivation[]): GovernanceEnvironmentActivation[] {
-  return [...rows].sort((x, y) => (x.activatedUtc < y.activatedUtc ? 1 : x.activatedUtc > y.activatedUtc ? -1 : 0));
-}
-
-function governanceApprovalCardTitle(row: GovernanceApprovalRequest): string {
-  const c = row.requestComment?.trim() ?? "";
-
-  if (c.length > 0) {
-    return c.length > 120 ? `${c.slice(0, 117)}…` : c;
-  }
-
-  return "Governance approval request";
-}
-
-type ToastState = { kind: "ok" | "err"; message: string } | null;
-
-type PendingReview = { approvalRequestId: string; mode: "approve" | "reject" };
+import { GovernanceWorkflowApprovalsList } from "./_sections/GovernanceWorkflowApprovalsList";
+import { GovernanceWorkflowDialogs } from "./_sections/GovernanceWorkflowDialogs";
+import { GovernanceWorkflowPromotionsActivationsSection } from "./_sections/GovernanceWorkflowPromotionsActivationsSection";
+import { GovernanceWorkflowQueryCard } from "./_sections/GovernanceWorkflowQueryCard";
+import { GovernanceWorkflowSubmitSection } from "./_sections/GovernanceWorkflowSubmitSection";
+import {
+  sortGovernanceActivations,
+  sortGovernancePromotions,
+  type GovernanceWorkflowPendingReview,
+  type GovernanceWorkflowToastState,
+} from "./_sections/governance-workflow-helpers";
 
 function GovernanceWorkflowPageInner() {
   const searchParams = useSearchParams();
   const canMutateWorkflow = useEnterpriseMutationCapability();
-  const [toast, setToast] = useState<ToastState>(null);
+  const [toast, setToast] = useState<GovernanceWorkflowToastState>(null);
   const isStaticDemoFallbackActiveForShowcase =
     isStaticDemoPayloadFallbackEnabled() ||
     tryStaticDemoGovernanceApprovalRequests(SHOWCASE_STATIC_DEMO_RUN_ID) !== null;
@@ -212,7 +108,7 @@ function GovernanceWorkflowPageInner() {
 
   const listsLoadingShowsBusyChrome = listsLoading && !(buyerPolishedShell && approvals.length > 0);
 
-  const [pendingReview, setPendingReview] = useState<PendingReview | null>(null);
+  const [pendingReview, setPendingReview] = useState<GovernanceWorkflowPendingReview | null>(null);
   const [reviewedBy, setReviewedBy] = useState("");
   const [reviewComment, setReviewComment] = useState("");
   const [reviewBusy, setReviewBusy] = useState(false);
@@ -664,446 +560,65 @@ function GovernanceWorkflowPageInner() {
           buyerPolishedShell || !canMutateWorkflow ? "flex-col-reverse" : "flex-col",
         )}
       >
-      {!buyerSuppressGovernanceSubmitChrome ? (
-      <section className="mb-10">
-        {buyerPolishedShell && !canMutateWorkflow ? (
-          <Card className="border border-teal-200/80 bg-teal-50/50 dark:border-teal-900/55 dark:bg-teal-950/35">
-            <CardHeader className="space-y-1">
-              <CardTitle>Governance submissions</CardTitle>
-              <CardDescription className="text-neutral-700 dark:text-neutral-300">
-                {governanceWorkflowSubmitCardDescriptionReader}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-                {hideGovernanceQueryLoadCard
-                  ? "Approval activity for this review appears below."
-                  : "Load a review in the approval section below to inspect approvals, promotions, and environment activity."}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-        <Card className={cn(!canMutateWorkflow && !buyerPolishedShell && "opacity-95")}>
-          <CardHeader>
-            <CardTitle>
-              {canMutateWorkflow ? governanceWorkflowSubmitCardTitleOperator : governanceWorkflowSubmitCardTitleReader}
-            </CardTitle>
-            <CardDescription>
-              {canMutateWorkflow ? (
-                <>
-                  Starts an approval request so reviewers can promote your finalized manifest from a source environment
-                  toward a target (for example staging to production).
-                </>
-              ) : (
-                governanceWorkflowSubmitCardDescriptionReader
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="grid gap-2">
-              <AskRunIdPicker
-                fieldId="gov-submit-run"
-                label="Review"
-                value={submitRunId}
-                onChange={setSubmitRunId}
-                selectedThreadId=""
-                preferAutoPick={canMutateWorkflow}
-                disabled={!canMutateWorkflow}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="gov-submit-version">
-                Manifest version (the{" "}
-                <GlossaryTooltip termKey="golden_manifest" pulseOnFirstSession={false}>
-                  reviewed manifest
-                </GlossaryTooltip>{" "}
-                label)
-              </Label>
-              <Input
-                id="gov-submit-version"
-                value={submitManifestVersion}
-                onChange={(e) => setSubmitManifestVersion(e.target.value)}
-                placeholder="e.g. v1.0.0"
-                autoComplete="off"
-                readOnly={!canMutateWorkflow}
-                title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-              />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="grid gap-2">
-                <Label htmlFor="gov-submit-source-env">Source environment</Label>
-                <Select value={submitSource} onValueChange={setSubmitSource} disabled={!canMutateWorkflow}>
-                  <SelectTrigger
-                    id="gov-submit-source-env"
-                    className="w-full"
-                    title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                  >
-                    <SelectValue placeholder="Source" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ENV_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="gov-submit-target-env">Target environment</Label>
-                <Select value={submitTarget} onValueChange={setSubmitTarget} disabled={!canMutateWorkflow}>
-                  <SelectTrigger
-                    id="gov-submit-target-env"
-                    className="w-full"
-                    title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                  >
-                    <SelectValue placeholder="Target" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ENV_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="gov-submit-comment">Request comment (optional)</Label>
-              <Textarea
-                id="gov-submit-comment"
-                value={submitComment}
-                onChange={(e) => setSubmitComment(e.target.value)}
-                rows={3}
-                placeholder="Context for reviewers"
-                readOnly={!canMutateWorkflow}
-                title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col items-stretch gap-3">
-            <Button
-              type="button"
-              data-testid="governance-submit-approval-button"
-              onClick={() => void onSubmitApproval()}
-              disabled={submitBusy || !canMutateWorkflow || submitRunId.trim().length === 0}
-              title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-            >
-              {submitBusy
-                ? "Submitting…"
-                : canMutateWorkflow
-                  ? "Submit for governance approval"
-                  : governanceWorkflowSubmitForApprovalButtonLabelReaderRank}
-            </Button>
-            {!canMutateWorkflow ? (
-              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" role="note">
-                {isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled() ? (
-                  <>
-                    This evaluation sample is read-only. Production tenants can submit governance approvals when their role
-                    allows.
-                  </>
-                ) : (
-                  <>
-                    Submitting for governance approval requires additional permissions on your account. You can still
-                    review approvals below — contact your administrator to enable governance submissions for your
-                    workspace.
-                  </>
-                )}
-              </p>
-            ) : null}
-          </CardFooter>
-        </Card>
-        )}
-      </section>
-      ) : null}
+      <GovernanceWorkflowSubmitSection
+        buyerPolishedShell={buyerPolishedShell}
+        buyerSuppressGovernanceSubmitChrome={buyerSuppressGovernanceSubmitChrome}
+        canMutateWorkflow={canMutateWorkflow}
+        hideGovernanceQueryLoadCard={hideGovernanceQueryLoadCard}
+        submitRunId={submitRunId}
+        setSubmitRunId={setSubmitRunId}
+        submitManifestVersion={submitManifestVersion}
+        setSubmitManifestVersion={setSubmitManifestVersion}
+        submitSource={submitSource}
+        setSubmitSource={setSubmitSource}
+        submitTarget={submitTarget}
+        setSubmitTarget={setSubmitTarget}
+        submitComment={submitComment}
+        setSubmitComment={setSubmitComment}
+        submitBusy={submitBusy}
+        onSubmitApproval={onSubmitApproval}
+      />
 
       <Separator className="mb-10" />
 
       <section className="mb-10">
-        {hideGovernanceQueryLoadCard && activeRunId !== null ? (
-          <p className="mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-            Showing governance workflow for{" "}
-            <strong>{buyerFacingReviewLinkLabelFromRunId(activeRunId)}</strong>.
-          </p>
-        ) : null}
-
-        {!hideGovernanceQueryLoadCard ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {canMutateWorkflow
-                ? governanceWorkflowApprovalRequestsCardTitleOperator
-                : governanceWorkflowApprovalRequestsCardTitleReader}
-            </CardTitle>
-            <CardDescription>
-              {buyerPolishedShell
-                ? governanceWorkflowQueryCardDescriptionBuyerPolished
-                : canMutateWorkflow
-                  ? governanceWorkflowQueryCardDescriptionOperator
-                  : governanceWorkflowQueryCardDescriptionReader}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-              <div className="grid min-w-0 flex-1 gap-2">
-                <RunIdPicker
-                  inputId="gov-query-run"
-                  label="Review"
-                  placeholder="Select a review from the list"
-                  value={queryRunId}
-                  useBuyerFacingRunLabels={buyerPolishedShell}
-                  onChange={setQueryRunId}
-                  onSelect={(id) => {
-                    setQueryRunId(id);
-                    setActiveRunId(id);
-                    void loadLists(id);
-                  }}
-                />
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" variant="secondary" onClick={onLoadRun} disabled={listsLoading}>
-                  {listsLoadingShowsBusyChrome ? "Loading…" : buyerPolishedShell ? "Load review" : "Load"}
-                </Button>
-                {activeRunId !== null ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => void refreshIfActive()}
-                    disabled={listsLoading}
-                    title={governanceWorkflowRefreshRunDataTitle}
-                  >
-                    {listsLoadingShowsBusyChrome
-                      ? "Refreshing…"
-                      : buyerPolishedShell
-                        ? "Refresh review data"
-                        : governanceWorkflowRefreshRunDataButtonLabel}
-                  </Button>
-                ) : null}
-              </div>
-            </div>
-            {canMutateWorkflow && !buyerPolishedShell ? (
-              <div className="grid gap-2">
-                <Label htmlFor="gov-workflow-actor">Your name for the audit trail (promote and activate)</Label>
-                <Input
-                  id="gov-workflow-actor"
-                  value={workflowActor}
-                  onChange={(e) => setWorkflowActor(e.target.value)}
-                  placeholder="Display name recorded with promote and activate actions"
-                  autoComplete="username"
-                  title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                />
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  This is stored with promotion and activation records alongside your signed-in account.
-                </p>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
-        ) : null}
-
-        <div className="mt-6 grid gap-4">
-          {listsLoading && activeRunId !== null && approvals.length === 0 ? (
-            <OperatorLoadingNotice>
-              <strong>Loading workflow data.</strong>
-              <p className="mt-2 text-sm">Loading approval history and workflow status for this review.</p>
-            </OperatorLoadingNotice>
-          ) : null}
-
-          {!listsLoading && activeRunId !== null && approvals.length === 0 && listFailure === null ? (
-            <OperatorEmptyState title="No approval requests for this review">
-              <div className="grid gap-3">
-                <p className="text-sm">
-                  {canMutateWorkflow
-                    ? governanceWorkflowNoApprovalsOperatorHint
-                    : governanceWorkflowNoApprovalsReaderHint}
-                </p>
-                <GettingStartedSteps
-                  {...(canMutateWorkflow
-                    ? governanceNoApprovalsGettingStartedOperator
-                    : governanceNoApprovalsGettingStartedReader)}
-                />
-              </div>
-            </OperatorEmptyState>
-          ) : null}
-
-          {buyerPolishedShell && approvals.length > 0 ? null : approvals.map((row) => (
-            <Card key={row.approvalRequestId}>
-              <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
-                <div className="min-w-0 flex-1">
-                  <CardTitle className="text-base font-semibold">{governanceApprovalCardTitle(row)}</CardTitle>
-                  <CardDescription>
-                    {governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)}
-                  </CardDescription>
-                  <p className="sr-only">Approval request id {row.approvalRequestId}</p>
-                </div>
-                <StatusPill status={row.status} domain="governance" className="text-xs" />
-              </CardHeader>
-              <CardContent className="grid gap-2 text-sm">
-                <div>
-                  <span className="text-neutral-500 dark:text-neutral-400">Requested by</span> {row.requestedBy}
-                </div>
-                <div>
-                  <span className="text-neutral-500 dark:text-neutral-400">Requested</span>{" "}
-                  {formatGovernanceBusinessInstant(row.requestedUtc)}
-                </div>
-                {row.requestComment ? (
-                  <div>
-                    <span className="text-neutral-500 dark:text-neutral-400">Comment</span> {row.requestComment}
-                  </div>
-                ) : null}
-                {row.reviewedBy ? (
-                  <div>
-                    <span className="text-neutral-500 dark:text-neutral-400">Reviewed by</span> {row.reviewedBy}
-                    {row.reviewedUtc ? ` · ${formatGovernanceBusinessInstant(row.reviewedUtc)}` : null}
-                  </div>
-                ) : null}
-                {row.reviewComment ? (
-                  <div>
-                    <span className="text-neutral-500 dark:text-neutral-400">Review comment</span> {row.reviewComment}
-                  </div>
-                ) : null}
-
-                {pendingReview?.approvalRequestId === row.approvalRequestId ? (
-                  <div className="mt-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
-                    <p className="mb-3 text-sm font-medium">
-                      {pendingReview.mode === "approve" ? "Approve request" : "Reject request"}
-                    </p>
-                    {!canMutateWorkflow ? (
-                      <p className="mb-3 text-xs text-neutral-600 dark:text-neutral-400" role="note">
-                        {buyerPolishedShell
-                          ? governanceWorkflowPendingReviewReaderNoteBuyerPolished
-                          : governanceWorkflowPendingReviewReaderNote}
-                      </p>
-                    ) : null}
-                    <div className="grid gap-3">
-                      <div className="grid gap-2">
-                        <Label htmlFor={`review-by-${row.approvalRequestId}`}>Reviewed by</Label>
-                        <Input
-                          id={`review-by-${row.approvalRequestId}`}
-                          value={reviewedBy}
-                          onChange={(e) => setReviewedBy(e.target.value)}
-                          autoComplete="username"
-                          readOnly={!canMutateWorkflow}
-                          title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor={`review-comment-${row.approvalRequestId}`}>Review comment (optional)</Label>
-                        <Textarea
-                          id={`review-comment-${row.approvalRequestId}`}
-                          value={reviewComment}
-                          onChange={(e) => setReviewComment(e.target.value)}
-                          rows={2}
-                          readOnly={!canMutateWorkflow}
-                          title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                        />
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant={canMutateWorkflow ? "default" : "outline"}
-                          onClick={() => void onConfirmReview()}
-                          disabled={reviewBusy || !canMutateWorkflow}
-                          title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                        >
-                          {reviewBusy
-                            ? "Saving…"
-                            : canMutateWorkflow
-                              ? "Submit"
-                              : governanceWorkflowReviewSubmitButtonLabelReaderRank}
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setPendingReview(null);
-                            setReviewedBy("");
-                            setReviewComment("");
-                          }}
-                          disabled={reviewBusy}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-
-              </CardContent>
-              <CardFooter className="flex flex-wrap gap-2">
-                {row.status === "Submitted" ? (
-                  <>
-                    <GovernanceQuickApproveButton
-                      approvalRequestId={row.approvalRequestId}
-                      status={row.status}
-                      canExecute={canMutateWorkflow}
-                      reviewedBy={workflowActor}
-                      onApproved={() => void refreshIfActive()}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={canMutateWorkflow ? "default" : "outline"}
-                      disabled={!canMutateWorkflow}
-                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                      onClick={() => {
-                        setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "approve" });
-                        setPendingPromote(null);
-                        pendingPromoteRequestRef.current = null;
-                      }}
-                    >
-                      {canMutateWorkflow ? "Approve" : governanceWorkflowApproveButtonLabelReaderRank}
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
-                      disabled={!canMutateWorkflow}
-                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                      onClick={() => {
-                        setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "reject" });
-                        setPendingPromote(null);
-                        pendingPromoteRequestRef.current = null;
-                      }}
-                    >
-                      {canMutateWorkflow ? "Reject" : governanceWorkflowRejectButtonLabelReaderRank}
-                    </Button>
-                  </>
-                ) : null}
-                {row.status === "Approved" ? (
-                  buyerPolishedShell ? null : (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={canMutateWorkflow ? "default" : "outline"}
-                      className={
-                        canMutateWorkflow
-                          ? "bg-violet-600 text-white hover:bg-violet-600/90 dark:bg-violet-600 dark:hover:bg-violet-600/90"
-                          : undefined
-                      }
-                      disabled={pendingPromote !== null || !canMutateWorkflow}
-                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                      onClick={() => {
-                        pendingPromoteRequestRef.current = row;
-                        setPendingPromote({
-                          manifestId: row.manifestVersion,
-                          targetEnv: row.targetEnvironment,
-                        });
-                        setPendingReview(null);
-                      }}
-                    >
-                      {canMutateWorkflow ? "Promote" : governanceWorkflowPromoteButtonLabelReaderRank}
-                    </Button>
-                  )
-                ) : null}
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        <GovernanceWorkflowQueryCard
+          hideGovernanceQueryLoadCard={hideGovernanceQueryLoadCard}
+          activeRunId={activeRunId}
+          buyerPolishedShell={buyerPolishedShell}
+          canMutateWorkflow={canMutateWorkflow}
+          queryRunId={queryRunId}
+          setQueryRunId={setQueryRunId}
+          setActiveRunId={setActiveRunId}
+          loadLists={loadLists}
+          onLoadRun={onLoadRun}
+          listsLoading={listsLoading}
+          listsLoadingShowsBusyChrome={listsLoadingShowsBusyChrome}
+          refreshIfActive={refreshIfActive}
+          workflowActor={workflowActor}
+          setWorkflowActor={setWorkflowActor}
+        />
+        <GovernanceWorkflowApprovalsList
+          buyerPolishedShell={buyerPolishedShell}
+          canMutateWorkflow={canMutateWorkflow}
+          listsLoading={listsLoading}
+          activeRunId={activeRunId}
+          approvals={approvals}
+          listFailure={listFailure}
+          pendingReview={pendingReview}
+          setPendingReview={setPendingReview}
+          reviewedBy={reviewedBy}
+          setReviewedBy={setReviewedBy}
+          reviewComment={reviewComment}
+          setReviewComment={setReviewComment}
+          reviewBusy={reviewBusy}
+          onConfirmReview={onConfirmReview}
+          workflowActor={workflowActor}
+          refreshIfActive={refreshIfActive}
+          pendingPromote={pendingPromote}
+          setPendingPromote={setPendingPromote}
+          pendingPromoteRequestRef={pendingPromoteRequestRef}
+        />
       </section>
       </div>
 
@@ -1112,186 +627,34 @@ function GovernanceWorkflowPageInner() {
           <Separator className="mb-10" />
 
           <AdvancedOptionsAccordion className="mb-10">
-            <section className="mb-0">
-              <h3 className="mb-4 text-lg font-semibold">
-                {canMutateWorkflow
-                  ? governanceWorkflowPromotionsActivationsHeadingOperator
-                  : governanceWorkflowPromotionsActivationsHeadingReader}
-              </h3>
-              <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-                {canMutateWorkflow
-                  ? governanceWorkflowPromotionsActivationsSectionLeadOperator
-                  : governanceWorkflowPromotionsActivationsSectionLeadReader}
-              </p>
-              <p className="mb-4 text-xs text-neutral-500 dark:text-neutral-500">
-                Selected review timeline · promotions newest first; activations follow.
-                {activeRunId ? <span className="sr-only"> Technical review id {activeRunId}</span> : null}
-              </p>
-
-              {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
-                <OperatorEmptyState title="No promotions recorded yet">
-                  <div className="grid gap-3">
-                    <p className="text-sm">
-                      {canMutateWorkflow
-                        ? governanceWorkflowPromotionsEmptyOperatorHint
-                        : governanceWorkflowPromotionsEmptyReaderHint}
-                    </p>
-                    <GettingStartedSteps
-                      {...(canMutateWorkflow
-                        ? governancePromotionsEmptyGettingStartedOperator
-                        : governancePromotionsEmptyGettingStartedReader)}
-                    />
-                  </div>
-                </OperatorEmptyState>
-              ) : null}
-
-              <div className="mb-8 grid gap-3">
-                {promotions.map((p) => (
-                  <Card key={p.promotionRecordId} className="border-l-4 border-l-violet-500">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base">Promotion · {formatGovernanceBusinessInstant(p.promotedUtc)}</CardTitle>
-                      <p className="sr-only">Promotion record id {p.promotionRecordId}</p>
-                    </CardHeader>
-                    <CardContent className="grid gap-1 text-sm">
-                      <div>
-                        {p.sourceEnvironment} → <strong>{p.targetEnvironment}</strong> · manifest{" "}
-                        <code className="text-xs">{p.manifestVersion}</code>
-                      </div>
-                      <div>By {p.promotedBy}</div>
-                      {p.notes ? <div>Notes: {p.notes}</div> : null}
-                    </CardContent>
-                    <CardFooter>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="inline-block">
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="secondary"
-                              disabled={
-                                pendingActivate !== null ||
-                                activateBusyId === p.promotionRecordId ||
-                                !workflowActor.trim() ||
-                                !canMutateWorkflow
-                              }
-                              title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-                              onClick={() => {
-                                pendingActivatePromotionRef.current = p;
-                                setPendingActivate({
-                                  activationId: p.promotionRecordId,
-                                  env: p.targetEnvironment,
-                                });
-                              }}
-                            >
-                              {activateBusyId === p.promotionRecordId
-                                ? "Activating…"
-                                : canMutateWorkflow
-                                  ? "Activate"
-                                  : governanceWorkflowActivateButtonLabelReaderRank}
-                            </Button>
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-xs">
-                          {!canMutateWorkflow
-                            ? enterpriseMutationControlDisabledTitle
-                            : !workflowActor.trim()
-                              ? "Enter your name for the audit trail to enable activation."
-                              : "POST activation for this manifest on the promotion’s target environment."}
-                        </TooltipContent>
-                      </Tooltip>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-
-              <h4 className="mb-3 text-base font-semibold">
-                {canMutateWorkflow
-                  ? governanceWorkflowActivationsSubheadingOperator
-                  : governanceWorkflowActivationsSubheadingReader}
-              </h4>
-
-              {!listsLoading && activeRunId !== null && activations.length === 0 && listFailure === null ? (
-                <OperatorEmptyState title="No activations recorded yet">
-                  <div className="grid gap-3">
-                    <p className="text-sm">
-                      {canMutateWorkflow
-                        ? governanceWorkflowActivationsEmptyOperatorHint
-                        : governanceWorkflowActivationsEmptyReaderHint}
-                    </p>
-                    <GettingStartedSteps
-                      {...(canMutateWorkflow
-                        ? governanceActivationsEmptyGettingStartedOperator
-                        : governanceActivationsEmptyGettingStartedReader)}
-                    />
-                  </div>
-                </OperatorEmptyState>
-              ) : null}
-
-              <div className="grid gap-3">
-                {activations.map((a) => (
-                  <Card key={a.activationId} className="border-l-4 border-l-teal-500">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base">Activation · {formatGovernanceBusinessInstant(a.activatedUtc)}</CardTitle>
-                      <p className="sr-only">Activation id {a.activationId}</p>
-                    </CardHeader>
-                    <CardContent className="grid gap-1 text-sm">
-                      <div>
-                        Environment <strong>{a.environment}</strong> · manifest <code className="text-xs">{a.manifestVersion}</code>
-                      </div>
-                      <div>Active: {a.isActive ? "yes" : "no"}</div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </section>
+            <GovernanceWorkflowPromotionsActivationsSection
+              canMutateWorkflow={canMutateWorkflow}
+              listsLoading={listsLoading}
+              activeRunId={activeRunId}
+              promotions={promotions}
+              activations={activations}
+              listFailure={listFailure}
+              workflowActor={workflowActor}
+              pendingActivate={pendingActivate}
+              setPendingActivate={setPendingActivate}
+              pendingActivatePromotionRef={pendingActivatePromotionRef}
+              activateBusyId={activateBusyId}
+            />
           </AdvancedOptionsAccordion>
         </>
       )}
 
-      <ConfirmationDialog
-        open={pendingPromote !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setPendingPromote(null);
-            pendingPromoteRequestRef.current = null;
-          }
-        }}
-        title="Promote manifest?"
-        description={
-          pendingPromote !== null
-            ? `Promoting manifest ${pendingPromote.manifestId} to ${pendingPromote.targetEnv}. This will replace the current active manifest in that environment.`
-            : ""
-        }
-        variant="default"
-        confirmLabel="Promote"
-        busy={promoteBusy}
-        onConfirm={() => {
-          void onConfirmPromote();
-        }}
-      />
-
-      <ConfirmationDialog
-        open={pendingActivate !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setPendingActivate(null);
-            pendingActivatePromotionRef.current = null;
-          }
-        }}
-        title="Activate environment?"
-        description={
-          pendingActivate !== null
-            ? `Activating governance pack in ${pendingActivate.env}. This will apply the pack's rules to all future governed changes.`
-            : ""
-        }
-        variant="default"
-        confirmLabel="Activate"
-        busy={
-          pendingActivate !== null && activateBusyId === pendingActivate.activationId
-        }
-        onConfirm={() => {
-          void onConfirmActivateFromPromotion();
-        }}
+      <GovernanceWorkflowDialogs
+        pendingPromote={pendingPromote}
+        setPendingPromote={setPendingPromote}
+        pendingPromoteRequestRef={pendingPromoteRequestRef}
+        promoteBusy={promoteBusy}
+        onConfirmPromote={onConfirmPromote}
+        pendingActivate={pendingActivate}
+        setPendingActivate={setPendingActivate}
+        pendingActivatePromotionRef={pendingActivatePromotionRef}
+        activateBusyId={activateBusyId}
+        onConfirmActivateFromPromotion={onConfirmActivateFromPromotion}
       />
     </div>
     </TooltipProvider>
