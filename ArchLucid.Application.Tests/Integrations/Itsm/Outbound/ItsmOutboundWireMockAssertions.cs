@@ -29,7 +29,7 @@ internal static class ItsmOutboundWireMockAssertions
         actualJson.Should().NotBeNullOrWhiteSpace(reason);
 
         JsonNode? expectedNode = JsonNode.Parse(expectedJson);
-        JsonNode? actualNode = JsonNode.Parse(actualJson!);
+        JsonNode? actualNode = JsonNode.Parse(actualJson);
 
         JsonNode.DeepEquals(expectedNode, actualNode).Should().BeTrue("{0}{1}expected:{2}{1}actual:{3}", reason,
             Environment.NewLine, expectedJson, actualJson);
@@ -39,7 +39,7 @@ internal static class ItsmOutboundWireMockAssertions
     {
         contentType.Should().NotBeNull();
 
-        contentType!.Contains("application/json", StringComparison.OrdinalIgnoreCase)
+        contentType.Contains("application/json", StringComparison.OrdinalIgnoreCase)
             .Should()
             .BeTrue("Content-Type header should advertise JSON; actual: {0}", contentType);
     }
@@ -51,7 +51,7 @@ internal static class ItsmOutboundWireMockAssertions
         string? authorization = TryReadFirstHeaderValue(request.Headers, "Authorization");
         authorization.Should().NotBeNull();
 
-        authorization = authorization!.Trim();
+        authorization = authorization.Trim();
         string[] segments = authorization.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
 
         segments.Length.Should().Be(2);
@@ -65,9 +65,6 @@ internal static class ItsmOutboundWireMockAssertions
 
     internal static string? TryReadFirstHeaderValue(IDictionary<string, WireMockList<string>>? headers, string name)
     {
-        if (headers is null)
-            return null;
-
-        return headers.Where(pair => string.Equals(pair.Key, name, StringComparison.OrdinalIgnoreCase)).SelectMany(pair => pair.Value).FirstOrDefault();
+        return headers is null ? null : headers.Where(pair => string.Equals(pair.Key, name, StringComparison.OrdinalIgnoreCase)).SelectMany(pair => pair.Value).FirstOrDefault();
     }
 }

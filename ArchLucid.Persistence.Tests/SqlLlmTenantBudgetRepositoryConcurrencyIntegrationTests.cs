@@ -27,6 +27,19 @@ public sealed class SqlLlmTenantBudgetRepositoryConcurrencyIntegrationTests(SqlS
         int reserveSuccess = 0;
         int hardCapHits = 0;
 
+        await Task.WhenAll(WorkerAsync(), WorkerAsync());
+
+        reserveSuccess.Should().Be(1);
+        hardCapHits.Should().Be(1);
+
+        LlmTenantBudgetStateReadModel final =
+            await sut.GetOrCreateAsync(tenant, LlmBudgetPeriod.Daily, periodKey, CancellationToken.None);
+
+        final.ReservedTokens.Should().Be(600);
+
+        await SettleReleaseAsync(sut, tenant, periodKey);
+        return;
+
         async Task WorkerAsync()
         {
             for (int i = 0; i < 40; i++)
@@ -65,18 +78,6 @@ public sealed class SqlLlmTenantBudgetRepositoryConcurrencyIntegrationTests(SqlS
                 return;
             }
         }
-
-        await Task.WhenAll(WorkerAsync(), WorkerAsync());
-
-        reserveSuccess.Should().Be(1);
-        hardCapHits.Should().Be(1);
-
-        LlmTenantBudgetStateReadModel final =
-            await sut.GetOrCreateAsync(tenant, LlmBudgetPeriod.Daily, periodKey, CancellationToken.None);
-
-        final.ReservedTokens.Should().Be(600);
-
-        await SettleReleaseAsync(sut, tenant, periodKey);
     }
 
     private static async Task SettleReleaseAsync(

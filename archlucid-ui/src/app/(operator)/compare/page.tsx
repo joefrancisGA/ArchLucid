@@ -31,6 +31,7 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
+import { CompareRawManifestDiffSection } from "@/components/compare/CompareRawManifestDiffSection";
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
@@ -646,6 +647,11 @@ function CompareForm() {
                 <a href="#compare-structured">Manifest comparison summary</a>
               </li>
             )}
+            {golden !== null && (
+              <li>
+                <a href="#compare-raw-manifest-diff">Raw manifest line diff</a>
+              </li>
+            )}
             {result !== null && (
               <li>
                 <a href="#compare-technical">Technical details (supplementary diff)</a>
@@ -668,6 +674,15 @@ function CompareForm() {
             updatedPickedSummary={rightPickedSummary}
           />
         )}
+
+        {golden !== null ? (
+          <CompareRawManifestDiffSection
+            baselineRunId={golden.baseRunId}
+            updatedRunId={golden.targetRunId}
+            baselinePickedSummary={leftPickedSummary}
+            updatedPickedSummary={rightPickedSummary}
+          />
+        ) : null}
 
         {result !== null ? (
             <details

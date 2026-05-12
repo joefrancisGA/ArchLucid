@@ -7,6 +7,8 @@ import type { ArtifactDescriptor, ManifestSummary, RunComparison, RunDetail } fr
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import {
   fixtureArtifactDescriptorsNonEmpty,
+  fixtureCompareLeftRunManifestDocument,
+  fixtureCompareRightRunManifestDocument,
   fixtureComparisonExplanation,
   fixtureConversationThreads,
   fixtureGoldenManifestComparison,
@@ -23,6 +25,7 @@ import {
   backendApiPath,
   matchesArtifactBundleGet,
   matchesArtifactListGet,
+  matchesAuthorityRunManifestGet,
   matchesCompareExplainGet,
   matchesLegacyCompareRunsGet,
   matchesManifestSummaryGet,
@@ -54,6 +57,11 @@ export type StructuredCompareRouteSpec = {
   body: GoldenManifestComparison;
 };
 
+export type AuthorityRunManifestRouteSpec = {
+  runId: string;
+  body: unknown;
+};
+
 export type CompareExplanationRouteSpec = {
   baseRunId: string;
   targetRunId: string;
@@ -74,6 +82,7 @@ export type OperatorJourneyRouteConfig = {
   artifactList?: ArtifactListRouteSpec | null;
   legacyCompare?: LegacyCompareRouteSpec | null;
   structuredCompare?: StructuredCompareRouteSpec | null;
+  authorityRunManifests?: readonly AuthorityRunManifestRouteSpec[] | null;
   compareExplanation?: CompareExplanationRouteSpec | null;
   artifactBundle?: ArtifactBundleRouteSpec | null;
 };
@@ -138,6 +147,15 @@ export async function registerOperatorJourneyApiRoutes(
         return true;
       }
 
+      if (config.authorityRunManifests && method === "GET") {
+        for (const spec of config.authorityRunManifests) {
+          if (matchesAuthorityRunManifestGet(url, spec.runId)) {
+            await fulfillJson(route, 200, spec.body);
+            return true;
+          }
+        }
+      }
+
       if (
         config.compareExplanation &&
         method === "GET" &&
@@ -181,7 +199,7 @@ export async function registerOperatorJourneyApiRoutes(
 /** Legacy + structured compare for the default E2E left/right run IDs (no AI explain route). */
 function defaultFixturePairLegacyStructuredConfig(): Pick<
   OperatorJourneyRouteConfig,
-  "legacyCompare" | "structuredCompare"
+  "legacyCompare" | "structuredCompare" | "authorityRunManifests"
 > {
   return {
     legacyCompare: {
@@ -194,6 +212,10 @@ function defaultFixturePairLegacyStructuredConfig(): Pick<
       targetRunId: FIXTURE_RIGHT_RUN_ID,
       body: fixtureGoldenManifestComparison(),
     },
+    authorityRunManifests: [
+      { runId: FIXTURE_LEFT_RUN_ID, body: fixtureCompareLeftRunManifestDocument() },
+      { runId: FIXTURE_RIGHT_RUN_ID, body: fixtureCompareRightRunManifestDocument() },
+    ],
   };
 }
 

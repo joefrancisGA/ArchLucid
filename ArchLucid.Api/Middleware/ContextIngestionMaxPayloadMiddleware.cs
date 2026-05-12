@@ -30,10 +30,7 @@ public sealed class ContextIngestionMaxPayloadMiddleware(
 
         long? len = context.Request.ContentLength;
 
-        if (len is null or <= 0)
-            return next(context);
-
-        if (len <= _max)
+        if (len is null or <= 0 || len <= _max)
             return next(context);
 
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()

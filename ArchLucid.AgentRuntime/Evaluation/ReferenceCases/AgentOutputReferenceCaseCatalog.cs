@@ -9,7 +9,11 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 
 /// <summary>Loads <see cref="AgentOutputReferenceCaseDefinition" /> from a JSON file (lazy, thread-safe).</summary>
-public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseCatalog
+public sealed class AgentOutputReferenceCaseCatalog(
+    IOptionsMonitor<AgentExecutionReferenceEvaluationOptions> options,
+    string contentRootPath,
+    ILogger<AgentOutputReferenceCaseCatalog> logger)
+    : IAgentOutputReferenceCaseCatalog
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -18,25 +22,15 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
         AllowTrailingCommas = true
     };
 
-    private readonly string _contentRootPath;
+    private readonly string _contentRootPath = contentRootPath ?? throw new ArgumentNullException(nameof(contentRootPath));
 
     private readonly Lock _loadGate = new();
 
-    private readonly ILogger<AgentOutputReferenceCaseCatalog> _logger;
+    private readonly ILogger<AgentOutputReferenceCaseCatalog> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    private readonly IOptionsMonitor<AgentExecutionReferenceEvaluationOptions> _options;
+    private readonly IOptionsMonitor<AgentExecutionReferenceEvaluationOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
 
     private volatile bool _loadAttempted;
-
-    public AgentOutputReferenceCaseCatalog(
-        IOptionsMonitor<AgentExecutionReferenceEvaluationOptions> options,
-        string contentRootPath,
-        ILogger<AgentOutputReferenceCaseCatalog> logger)
-    {
-        _options = options ?? throw new ArgumentNullException(nameof(options));
-        _contentRootPath = contentRootPath ?? throw new ArgumentNullException(nameof(contentRootPath));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
 
     /// <inheritdoc />
     public IReadOnlyList<AgentOutputReferenceCaseDefinition> Cases

@@ -271,7 +271,7 @@ export function RunExplanationSection({
 
       {(summary.citations?.length ?? 0) > 0 ? (
         <div id="doc-explanation-evidence-cited">
-          <CitationChips citations={summary.citations} runId={runId} />
+          <CitationChips citations={summary.citations ?? []} runId={runId} />
         </div>
       ) : (
         <CitationChips citations={summary.citations ?? []} runId={runId} />
