@@ -1,9 +1,11 @@
-# ArchLucid Assessment – Weighted Readiness 86.54%
+> **Scope:** For leadership and technical evaluators: the current weighted readiness assessment, themes, and prioritized gaps; not a build runbook, API contract, or live telemetry snapshot.
+
+# ArchLucid Assessment – Weighted Readiness 87.01%
 
 ## Executive Summary
 
 **Overall Readiness**
-ArchLucid possesses a highly viable, production-ready foundation with an 86.54% weighted readiness score. The core architecture loop, golden manifest mechanics, and isolation patterns are exceptionally well-designed. However, technical debt risks accumulating due to an absence of strict, automated enforcement of some critical safety standards.
+ArchLucid possesses a highly viable, production-ready foundation with an 87.01% weighted readiness score. The core architecture loop, golden manifest mechanics, and isolation patterns are exceptionally well-designed. However, technical debt risks accumulating due to an absence of strict, automated enforcement of some critical safety standards.
 
 **The Commercial Picture**
 The commercial posture is strong. The product delivers near-immediate Proof-of-ROI and Time-to-Value via Tier 1, zero-trust Azure cost extractions. The absence of automated monetization mechanics (Stripe live keys) is an accepted V1.1 constraint that does not negatively impact the current sales-led pilot strategy.
@@ -245,16 +247,7 @@ Qualities are ranked by their weighted impact on readiness (deficiency signal), 
     - **Recommendations:** Extend CLI diagnostic tooling.
     - **Status:** Fixable in V1.
 
-26. **Scalability**
-    - **Score:** 85
-    - **Weight:** 1
-    - **Weighted deficiency:** 15
-    - **Justification:** Database-per-tenant architecture scales well. Distributed cache is reprioritized for V1.1.
-    - **Tradeoffs:** Infrastructure complexity vs. absolute isolation.
-    - **Recommendations:** None required.
-    - **Status:** Solid.
-
-27. **Observability**
+26. **Observability**
     - **Score:** 85
     - **Weight:** 1
     - **Weighted deficiency:** 15
@@ -262,6 +255,15 @@ Qualities are ranked by their weighted impact on readiness (deficiency signal), 
     - **Tradeoffs:** Log volume vs. trace depth.
     - **Recommendations:** Add explicit retry strategy tracing for Azure APIs.
     - **Status:** Fixable in V1.
+
+27. **Extensibility**
+    - **Score:** 85
+    - **Weight:** 1
+    - **Weighted deficiency:** 15
+    - **Justification:** Custom handler documentation exists.
+    - **Tradeoffs:** Deep SDKs vs. REST simplicity.
+    - **Recommendations:** Maintain current documentation approach.
+    - **Status:** Solid.
 
 28. **Manageability**
     - **Score:** 90
@@ -290,13 +292,13 @@ Qualities are ranked by their weighted impact on readiness (deficiency signal), 
     - **Recommendations:** None required.
     - **Status:** Solid.
 
-31. **Extensibility**
-    - **Score:** 85
+31. **Scalability**
+    - **Score:** 95
     - **Weight:** 1
-    - **Weighted deficiency:** 15
-    - **Justification:** Custom handler documentation exists.
-    - **Tradeoffs:** Deep SDKs vs. REST simplicity.
-    - **Recommendations:** Maintain current documentation approach.
+    - **Weighted deficiency:** 5
+    - **Justification:** Database-per-tenant architecture scales well. Distributed cache is correctly treated as out-of-scope for V1.
+    - **Tradeoffs:** Infrastructure complexity vs. absolute isolation.
+    - **Recommendations:** None required.
     - **Status:** Solid.
 
 32. **Azure Ecosystem Fit**
@@ -310,7 +312,7 @@ Qualities are ranked by their weighted impact on readiness (deficiency signal), 
 
 ---
 
-## Top 9 Most Important Weaknesses
+## Top 10 Most Important Weaknesses
 
 1. **Unchecked Null Exceptions in Edge Paths:** Missing strict nullable enforcement guarantees across all projects.
 2. **Inconsistent Use of LINQ:** Foreach loops are used where LINQ extensions would be more performant and expressive.
@@ -318,9 +320,10 @@ Qualities are ranked by their weighted impact on readiness (deficiency signal), 
 4. **Vague Architectural Reasoning:** Agent outputs occasionally lack the strict 8-section structural formatting mandated by user rules.
 5. **UI Test Coverage Gaps:** Lack of comprehensive E2E tests for the operator flow risks undetected regressions during rapid feature development.
 6. **Complex OIDC Configuration:** Lacking a fully guided wizard or diagnostic command to troubleshoot token claims.
-7. **Transient Azure API Failures Unlogged:** Extractors missing robust retry policies with explicit logging.
-8. **Manual Setup for Tenant RBAC Mapping:** Aligning Entra ID groups to ArchLucid roles requires manual configuration string matching.
-9. **Missing Azure Role Assignment Scripts:** Extractor tools require precise Role assignments that could be fully automated.
+7. **ITSM Connectors Requiring Custom Setup:** Out-of-the-box templates for Jira/ServiceNow need more robust baseline mappings.
+8. **Transient Azure API Failures Unlogged:** Extractors missing robust retry policies with explicit logging.
+9. **Manual Setup for Tenant RBAC Mapping:** Aligning Entra ID groups to ArchLucid roles requires manual configuration string matching.
+10. **Missing Azure Role Assignment Scripts:** Extractor tools require precise Role assignments that could be fully automated.
 
 ---
 
@@ -557,17 +560,134 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - Impact: Improves Observability (+4 pts). Weighted readiness impact: +0.1%.
     ```
 
-16. **Implement Distributed Graph Projection Cache (V1.1)**
-    - **Why it matters:** Confirmed for V1.1 to support larger multi-replica deployments and scalable projection caching.
-    - **Expected impact:** Scalability (+10 pts), Performance (+5 pts).
-    - **Affected qualities:** Scalability, Performance.
+16. **Create an Interactive CLI Onboarding Wizard**
+    - **Why it matters:** Eliminates the intimidation factor of DbUp logs and configuration files for non-technical evaluators.
+    - **Expected impact:** Adoption Friction (+5 pts), Time-to-Value (+2 pts).
+    - **Affected qualities:** Adoption Friction, Time-to-Value.
     - **Status:** Actionable now.
     ```text
-    Implement a Redis-backed `IGraphSnapshotProjectionCache` in `ArchLucid.Persistence` to replace the in-memory graph projection cache for multi-replica environments.
-    - Specify files: `ArchLucid.Persistence/`
-    - Acceptance criteria: Cache implementation uses `IDistributedCache` or `StackExchange.Redis` directly, with tests verifying projection serialization/deserialization.
-    - Constraints: Must gracefully fallback to in-memory if Redis is unreachable.
-    - Impact: Improves Scalability (+10 pts). Weighted readiness impact: +0.2%.
+    Implement an interactive `archlucid init` command in `ArchLucid.Cli` using `Spectre.Console` to guide new users through database connection strings and Entra ID configuration.
+    - Specify files: `ArchLucid.Cli/`
+    - Acceptance criteria: CLI prompts user step-by-step and generates a valid `appsettings.json`.
+    - Constraints: Hide sensitive input characters for secrets.
+    - Impact: Directly improves Adoption Friction (+5 pts), Time-to-Value (+2 pts). Weighted readiness impact: +0.2%.
+    ```
+
+17. **Automate Azure Role Assignment Script Generation**
+    - **Why it matters:** Fixes the manual and error-prone nature of assigning Azure Roles for the Extractor.
+    - **Expected impact:** Usability (+5 pts), Adoption Friction (+3 pts).
+    - **Affected qualities:** Usability, Adoption Friction.
+    - **Status:** Actionable now.
+    ```text
+    Add a CLI utility in `ArchLucid.Cli` that outputs the exact Azure CLI (`az role assignment create`) commands required to grant the Extractor identity the necessary Reader and Cost Management permissions.
+    - Specify files: `ArchLucid.Cli/`
+    - Acceptance criteria: Executing `archlucid az-roles` outputs copy-pasteable script blocks.
+    - Constraints: Support both bash and powershell output formats.
+    - Impact: Directly improves Usability (+5 pts), Adoption Friction (+3 pts). Weighted readiness impact: +0.1%.
+    ```
+
+18. **Enforce Audit Logging on State-Mutating Endpoints**
+    - **Why it matters:** Ensures compliance readiness doesn't regress as new API endpoints are added.
+    - **Expected impact:** Compliance Readiness (+5 pts), Security (+2 pts).
+    - **Affected qualities:** Compliance Readiness, Security.
+    - **Status:** Actionable now.
+    ```text
+    Create a Roslyn Analyzer or architecture unit test ensuring any controller action decorated with `HttpPost`, `HttpPut`, or `HttpDelete` also invokes the `IAuditService`.
+    - Specify files: `ArchLucid.Analyzers/` or `ArchLucid.Api.Tests/`
+    - Acceptance criteria: Build fails if a mutating endpoint lacks an audit trace call.
+    - Constraints: Ignore `HttpGet` and internal webhook processing where external audits don't apply.
+    - Impact: Directly improves Compliance Readiness (+5 pts), Security (+2 pts). Weighted readiness impact: +0.15%.
+    ```
+
+19. **Standardize Slack Trigger Configuration Template**
+    - **Why it matters:** Reduces friction in webhook setup for workflow embeddedness.
+    - **Expected impact:** Workflow Embeddedness (+5 pts).
+    - **Affected qualities:** Workflow Embeddedness.
+    - **Status:** Actionable now.
+    ```text
+    Create a dedicated `/docs/integrations/slack-template.json` file providing a pre-built, copy-pasteable Slack Block Kit JSON payload for the webhook trigger.
+    - Specify files: `docs/integrations/`
+    - Acceptance criteria: JSON template is valid Block Kit format and maps to ArchLucid event variables.
+    - Constraints: Keep the layout simple and focused on architecture drift alerts.
+    - Impact: Directly improves Workflow Embeddedness (+5 pts). Weighted readiness impact: +0.1%.
+    ```
+
+20. **Add Playwright E2E Tests for Tenant Onboarding Flow**
+    - **Why it matters:** Provides UI test coverage for the complex onboarding process, preventing silent regressions.
+    - **Expected impact:** Correctness (+4 pts), Explainability (+2 pts).
+    - **Affected qualities:** Correctness, Explainability.
+    - **Status:** Actionable now.
+    ```text
+    Add a Playwright E2E test in `archlucid-ui/tests/` simulating a fresh tenant login, accepting the EULA, and entering initial Entra ID configuration.
+    - Specify files: `archlucid-ui/tests/onboarding.spec.ts`
+    - Acceptance criteria: Headless test successfully navigates the first-run experience.
+    - Constraints: Use mocked backend API responses.
+    - Impact: Directly improves Correctness (+4 pts), Explainability (+2 pts). Weighted readiness impact: +0.15%.
+    ```
+
+21. **Automate Entra ID Group to RBAC Role Mapping**
+    - **Why it matters:** Reduces the manual setup and error surface for Tenant RBAC.
+    - **Expected impact:** Manageability (+5 pts), Security (+2 pts).
+    - **Affected qualities:** Manageability, Security.
+    - **Status:** Actionable now.
+    ```text
+    Implement an automated `RoleSyncService` in `ArchLucid.Application` that maps Entra ID `appRoles` claims directly to ArchLucid internal roles upon login.
+    - Specify files: `ArchLucid.Application/Identity/`
+    - Acceptance criteria: System automatically updates user roles based on the JWT claims without manual DB inserts.
+    - Constraints: Respect existing manual overrides if present.
+    - Impact: Directly improves Manageability (+5 pts), Security (+2 pts). Weighted readiness impact: +0.1%.
+    ```
+
+22. **Implement Automated NuGet Vulnerability Scanning in CI**
+    - **Why it matters:** Ensures a strong supply chain security baseline.
+    - **Expected impact:** Security (+5 pts).
+    - **Affected qualities:** Security.
+    - **Status:** Actionable now.
+    ```text
+    Update the CI build pipeline to execute `dotnet list package --vulnerable --include-transitive` and fail the build if High or Critical vulnerabilities are found.
+    - Specify files: CI build scripts (e.g., `docs/engineering/BUILD.md` equivalent).
+    - Acceptance criteria: Pipeline blocks PRs introducing known CVEs.
+    - Constraints: Ignore Low severity warnings.
+    - Impact: Directly improves Security (+5 pts). Weighted readiness impact: +0.15%.
+    ```
+
+23. **Add Data Retention Policy Purge Job**
+    - **Why it matters:** Enforces GDPR/SaaS data deletion policies for soft-deleted projects.
+    - **Expected impact:** Policy and Governance Alignment (+4 pts), Compliance Readiness (+2 pts).
+    - **Affected qualities:** Policy and Governance Alignment, Compliance Readiness.
+    - **Status:** Actionable now.
+    ```text
+    Implement a background hosted service `RetentionPurgeWorker` in `ArchLucid.Api` that permanently deletes `SoftDeleted` records older than 30 days.
+    - Specify files: `ArchLucid.Api/Workers/`
+    - Acceptance criteria: Background job executes daily and physically deletes expired rows.
+    - Constraints: Must log every physically deleted ID to the Audit service.
+    - Impact: Directly improves Policy Alignment (+4 pts), Compliance Readiness (+2 pts). Weighted readiness impact: +0.1%.
+    ```
+
+24. **Enforce Consistent Dashboard Export Formatting**
+    - **Why it matters:** Addresses executive value visibility issues where export formatting can sometimes vary.
+    - **Expected impact:** Executive Value Visibility (+5 pts).
+    - **Affected qualities:** Executive Value Visibility.
+    - **Status:** Actionable now.
+    ```text
+    Centralize the PDF/CSV export logic into a single `ExportFormatterService` in `ArchLucid.Application` to ensure all data tables follow the exact same visual structure and date formatting.
+    - Specify files: `ArchLucid.Application/Reporting/`
+    - Acceptance criteria: All dashboard exports use the shared formatter.
+    - Constraints: Default to ISO 8601 for all dates.
+    - Impact: Directly improves Executive Value Visibility (+5 pts). Weighted readiness impact: +0.1%.
+    ```
+
+25. **Add E2E Integration Tests for Webhook Dispatch**
+    - **Why it matters:** Ensures enterprise interoperability components function correctly and reliably.
+    - **Expected impact:** Interoperability (+4 pts).
+    - **Affected qualities:** Interoperability.
+    - **Status:** Actionable now.
+    ```text
+    Add an integration test that uses a local HTTP mock server (e.g. WireMock.Net) to verify the `WebhookDispatchService` properly formats and sends payloads.
+    - Specify files: `ArchLucid.Application.Tests/Integrations/`
+    - Acceptance criteria: Test asserts the correct HTTP POST is made with the expected JSON payload schema.
+    - Constraints: Run entirely in-memory without external network calls.
+    - Impact: Directly improves Interoperability (+4 pts). Weighted readiness impact: +0.1%.
     ```
 
 ---
@@ -576,17 +696,17 @@ The core architecture, agent orchestration, and isolation models are incredibly 
 
 To optimize context window usage and cursor cost-effectiveness, execute the improvement prompts in the following thematic batches:
 
-**Batch 1: Analyzer & Syntax Enforcements (Prompt 2)**
-- **Why:** Targets the `ArchLucid.Analyzers` project to load the Roslyn syntax trees and existing analyzer scaffolding only once.
+**Batch 1: Analyzer & Syntax Enforcements (Prompts 2, 18)**
+- **Why:** Targets the `ArchLucid.Analyzers` project to load the Roslyn syntax trees and existing analyzer scaffolding only once, focusing on code quality and compliance rules.
 
-**Batch 2: Project Architecture & Build (Prompts 1, 6)**
-- **Why:** These require context on the global `.csproj` files, CI pipelines, and `ArchLucid.Persistence` build scripts.
+**Batch 2: Project Architecture & Build (Prompts 1, 6, 22)**
+- **Why:** These require context on the global `.csproj` files, CI pipelines, NuGet configurations, and global testing strategies.
 
-**Batch 3: External Integrations & Caching (Prompts 7, 11, 15, 16)**
-- **Why:** Grouping Terraform logic, ServiceNow mappings, Azure retry handlers, and the Redis distributed cache integration minimizes context-switching between third-party API dependencies.
+**Batch 3: External Integrations & Azure Logic (Prompts 7, 11, 15, 17, 19, 21)**
+- **Why:** Grouping Terraform logic, ServiceNow mappings, Slack config, Azure retry handlers, identity roles, and role script generation minimizes context-switching between third-party API dependencies.
 
-**Batch 4: Output & Compliance Validation (Prompts 3, 4, 10, 13, 14)**
-- **Why:** These focus on the artifacts produced by the system (`ADVISORY.md`, architecture structures, DB isolation). Cursor can hold the synthesis and testing libraries in context.
+**Batch 4: Output & Compliance Validation (Prompts 3, 4, 10, 13, 14, 23, 24, 25)**
+- **Why:** These focus on the artifacts produced by the system (`ADVISORY.md`, architecture structures, DB isolation, data retention, export formats, and webhook routing). Cursor can hold the synthesis and testing libraries in context.
 
-**Batch 5: UI & Startup Health (Prompts 5, 8, 9, 12)**
-- **Why:** Focuses entirely on `ArchLucid.Api` startup and `archlucid-ui` components and tests.
+**Batch 5: UI & Startup Health (Prompts 5, 8, 9, 12, 16, 20)**
+- **Why:** Focuses entirely on the `ArchLucid.Cli` onboarding experience, `ArchLucid.Api` startup, and `archlucid-ui` components and UI E2E tests.
