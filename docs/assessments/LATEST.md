@@ -590,7 +590,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Ensures compliance readiness doesn't regress as new API endpoints are added.
     - **Expected impact:** Compliance Readiness (+5 pts), Security (+2 pts).
     - **Affected qualities:** Compliance Readiness, Security.
-    - **Status:** Actionable now.
+    - **Status:** Completed — `ArchLucid.Analyzers` diagnostic **AL0003** on `ArchLucid.Api` mutating actions; opt-out via `[MutatingAuditExcluded]`, `controller_action_audit_allowlist.txt`, or actions without `HttpPost`/`HttpPut`/`HttpDelete`.
     ```text
     Create a Roslyn Analyzer or architecture unit test ensuring any controller action decorated with `HttpPost`, `HttpPut`, or `HttpDelete` also invokes the `IAuditService`.
     - Specify files: `ArchLucid.Analyzers/` or `ArchLucid.Api.Tests/`
@@ -696,7 +696,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
 
 To optimize context window usage and cursor cost-effectiveness, execute the improvement prompts in the following thematic batches:
 
-**Batch 1: Analyzer & Syntax Enforcements (Prompts 2, 18)**
+**Batch 1: Analyzer & Syntax Enforcements (Prompt 2; Prompt 18 completed)**
 - **Why:** Targets the `ArchLucid.Analyzers` project to load the Roslyn syntax trees and existing analyzer scaffolding only once, focusing on code quality and compliance rules.
 
 **Batch 2: Project Architecture & Build (Prompts 1, 6, 22)**

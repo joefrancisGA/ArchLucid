@@ -1,16 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HelpLink } from "@/components/HelpLink";
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   useNavCallerAuthorityRank,
   useOperatorNavAuthority,
@@ -32,30 +27,20 @@ import {
   groupAuditEventsByLifecycleStage,
   principalRolesAllowAuditCsvExport,
 } from "@/app/(operator)/audit/audit-ui-helpers";
+import { AuditBuyerHeaderMetrics } from "@/app/(operator)/audit/_sections/AuditBuyerHeaderMetrics";
+import { AuditOperatorExportSection } from "@/app/(operator)/audit/_sections/AuditOperatorExportSection";
+import { AuditResultsSection } from "@/app/(operator)/audit/_sections/AuditResultsSection";
+import { AuditSearchSection } from "@/app/(operator)/audit/_sections/AuditSearchSection";
 import {
-  auditExportControlDisabledTitle,
-  auditExportCsvButtonLabelRoleRestricted,
-  auditExportCsvButtonLabelWindowIncomplete,
+  AUDIT_PAGE_SIZE,
+  type AuditFilterFields,
+  toDatetimeLocalInputValue,
+} from "@/app/(operator)/audit/_sections/audit-page-helpers";
+import {
   auditExportExecuteRankAuditorRoleNote,
-  auditExportSectionSupportingLine,
-  auditClearFiltersButtonLabelReaderRank,
-  auditLoadMoreButtonTitleOperator,
-  auditLoadMoreButtonTitleReader,
-  auditResultsSectionHeadingOperator,
-  auditResultsSectionHeadingReader,
-  auditResultsSectionHeadingBuyerPolished,
-  auditSearchEventsButtonLabelReaderRank,
-  auditSearchEventsButtonTitleOperator,
-  auditSearchEventsButtonTitleReader,
-  auditSearchEventsSectionHeadingOperator,
-  auditSearchEventsSectionHeadingReader,
-  auditSearchEventsSectionHeadingBuyerPolished,
   auditSearchNoResultsBuyerPolishedLine,
   auditSearchNoResultsOperatorLine,
   auditSearchNoResultsReaderLine,
-  auditSearchSectionLeadBuyerPolishedLine,
-  auditSearchSectionLeadReaderLine,
-  auditExportSectionSupportingLineBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -65,256 +50,8 @@ import {
 } from "@/lib/demo-audit-sample-events";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
-import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-
-function formatUtc(iso: string): string {
-  try {
-    const d = new Date(iso);
-
-    return d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "medium" });
-  } catch {
-    return iso;
-  }
-}
-
-const AUDIT_PAGE_SIZE = 200;
-
-function toDatetimeLocalInputValue(d: Date): string {
-  const pad = (n: number) => n.toString().padStart(2, "0");
-
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function auditRunIdInputDisplayValue(buyerPolishedShell: boolean, runIdState: string): string {
-  if (!buyerPolishedShell) {
-    return runIdState;
-  }
-
-  const t = runIdState.trim();
-
-  if (t.length === 0) {
-    return "";
-  }
-
-  return buyerFacingReviewLinkLabelFromRunId(runIdState);
-}
-
-function auditRunIdParseInputValue(buyerPolishedShell: boolean, raw: string): string {
-  if (!buyerPolishedShell) {
-    return raw;
-  }
-
-  const t = raw.trim();
-
-  if (t.length === 0) {
-    return "";
-  }
-
-  const showcaseFriendly = buyerFacingReviewLinkLabelFromRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
-
-  if (t === showcaseFriendly) {
-    return SHOWCASE_STATIC_DEMO_RUN_ID;
-  }
-
-  const canon = canonicalizeDemoRunId(t);
-
-  if (canon === SHOWCASE_STATIC_DEMO_RUN_ID) {
-    return SHOWCASE_STATIC_DEMO_RUN_ID;
-  }
-
-  return t;
-}
-
-function tryFormatDataJson(dataJson: string): string {
-  try {
-    const parsed: unknown = JSON.parse(dataJson);
-
-    return JSON.stringify(parsed, null, 2);
-  } catch {
-    return dataJson;
-  }
-}
-
-function auditBuyerActorRoleLine(actorName: string, eventType: string): string {
-  const name = actorName.trim();
-
-  if (auditBuyerEventIsSystemRecordedActor(name)) {
-    return "System-recorded";
-  }
-
-  if (name === "Jordan Lee") {
-    return "Reviewer";
-  }
-
-  if (name === "Taylor Morgan") {
-    return "Approver";
-  }
-
-  if (eventType.trim().toLowerCase() === "finalize.run") {
-    return "Approver";
-  }
-
-  return "Participant";
-}
-
-interface AuditFilterFields {
-  eventType: string;
-  fromUtc: string;
-  toUtc: string;
-  correlationId: string;
-  actorUserId: string;
-  runId: string;
-}
-
-function BuyerAuditEventsTechnicalAppendix(props: { events: AuditEvent[] }) {
-  const { events } = props;
-
-  return (
-    <details className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
-        Technical correlation appendix
-      </summary>
-      <div className="mt-3 space-y-4">
-        {events.map((ev) => (
-          <div
-            key={ev.eventId}
-            className="border-t border-neutral-200 pt-4 first:border-t-0 first:pt-0 dark:border-neutral-700"
-          >
-            <p className="m-0 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-              {formatUtc(ev.occurredUtc)} · {pipelineEventTypeFriendlyLabel(ev.eventType)}
-            </p>
-            <div className="mt-2 space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
-              <div>
-                <span className="font-medium text-neutral-600 dark:text-neutral-400">User id</span>{" "}
-                <span className="font-mono text-xs">{ev.actorUserId}</span>
-              </div>
-              <div>
-                <span className="font-medium text-neutral-600 dark:text-neutral-400">Correlation ID</span>{" "}
-                <span className="font-mono text-xs">
-                  {(ev.correlationId ?? "").trim().length > 0 ? ev.correlationId : "—"}
-                </span>
-              </div>
-              {ev.otelTraceId ? (
-                <div>
-                  <span className="font-medium text-neutral-600 dark:text-neutral-400">Trace</span>{" "}
-                  <code title={ev.otelTraceId} className="text-xs">
-                    {ev.otelTraceId.slice(0, 16)}…
-                  </code>
-                </div>
-              ) : null}
-              <div>
-                <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Payload</p>
-                <pre className="mt-1 max-h-48 overflow-auto rounded-md bg-neutral-50/90 p-2 text-xs dark:bg-neutral-900/50">
-                  {tryFormatDataJson(ev.dataJson)}
-                </pre>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </details>
-  );
-}
-
-function AuditTimelineEventCard(props: {
-  ev: AuditEvent;
-  buyerPolishedShell: boolean;
-  uniformRunId: string | null;
-}) {
-  const { ev, buyerPolishedShell, uniformRunId } = props;
-  const runKey = ev.runId?.trim() ?? "";
-  const hideBuyerReviewLine =
-    buyerPolishedShell &&
-    uniformRunId !== null &&
-    runKey.length > 0 &&
-    uniformRunId === runKey;
-
-  return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950">
-      <div className="flex flex-wrap items-center gap-2">
-        <strong>{formatUtc(ev.occurredUtc)}</strong>
-        <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-900 dark:bg-indigo-900/50 dark:text-indigo-300">
-          {pipelineEventTypeFriendlyLabel(ev.eventType)}
-        </span>
-      </div>
-      {buyerPolishedShell ? (
-        <p className="m-0 mt-2 text-[13px] leading-snug text-neutral-600 dark:text-neutral-400">
-          {pipelineEventTypeBuyerMilestoneSubtitle(ev.eventType)}
-        </p>
-      ) : null}
-      <div className="mt-1.5 text-sm">
-        {buyerPolishedShell ? (
-          <div>
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">{ev.actorUserName}</span>
-            <span className="text-neutral-600 dark:text-neutral-400">
-              {" "}
-              · {auditBuyerActorRoleLine(ev.actorUserName, ev.eventType)}
-            </span>
-          </div>
-        ) : (
-          <>
-            Actor: {ev.actorUserName} ({ev.actorUserId})
-          </>
-        )}
-      </div>
-      {buyerPolishedShell && !hideBuyerReviewLine ? (
-        <div className="text-sm">
-          Review:{" "}
-          {ev.runId ? (
-            <Link href={`/reviews/${ev.runId}`} title="Open review">
-              {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
-            </Link>
-          ) : (
-            "—"
-          )}
-        </div>
-      ) : null}
-      {!buyerPolishedShell ? (
-        <>
-          <div className="text-sm">Correlation: {ev.correlationId ?? "—"}</div>
-          {ev.otelTraceId ? (
-            <div className="text-sm">
-              Trace:{" "}
-              <code title={ev.otelTraceId} className="text-xs">
-                {ev.otelTraceId.slice(0, 16)}…
-              </code>
-            </div>
-          ) : null}
-          <div className="text-sm">
-            Review:{" "}
-            {ev.runId ? (
-              <Link href={`/reviews/${ev.runId}`} title="Open review">
-                {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
-              </Link>
-            ) : (
-              "—"
-            )}
-          </div>
-        </>
-      ) : null}
-      {ev.runId ? (
-        buyerPolishedShell ? null : (
-          <div className="mt-0.5 text-[13px]">
-            <Link href={`/reviews/${ev.runId}#agent-traces`} className="text-xs">
-              View agent traces →
-            </Link>
-          </div>
-        )
-      ) : null}
-      {!buyerPolishedShell ? (
-        <details className="mt-2.5">
-          <summary className="cursor-pointer">Data JSON</summary>
-          <pre className="mt-2 overflow-auto rounded-md bg-neutral-50/90 p-2 text-xs dark:bg-neutral-900/50">
-            {tryFormatDataJson(ev.dataJson)}
-          </pre>
-        </details>
-      ) : null}
-    </div>
-  );
-}
 
 export default function AuditPage() {
   const { currentPrincipal } = useOperatorNavAuthority();
@@ -734,57 +471,12 @@ export default function AuditPage() {
         }
       />
       {buyerPolishedShell ? (
-        <p className="mb-3 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-          {auditSearchSectionLeadBuyerPolishedLine}
-        </p>
-      ) : null}
-      {buyerPolishedShell && buyerAuditTrailSummaryLine !== null ? (
-        <p
-          className="mb-3 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm font-medium text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100"
-          data-testid="audit-buyer-summary-line"
-        >
-          {buyerAuditTrailSummaryLine}
-        </p>
-      ) : null}
-      {buyerPolishedShell && buyerAuditTrailMetrics !== null ? (
-        <div
-          className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3"
-          data-testid="audit-buyer-metric-tiles"
-        >
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Recorded events
-            </p>
-            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-              {buyerAuditTrailMetrics.eventCount}
-            </p>
-          </div>
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Human actors
-            </p>
-            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-              {buyerAuditTrailMetrics.humanActorCount}
-            </p>
-          </div>
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              System-recorded
-            </p>
-            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-              {buyerAuditTrailMetrics.systemRecordedCount}
-            </p>
-          </div>
-        </div>
-      ) : null}
-      {buyerPolishedShell && displayEvents.length > 0 ? (
-        <p
-          className="mb-3 max-w-prose text-xs text-neutral-600 dark:text-neutral-400"
-          data-testid="audit-buyer-csv-eligibility-line"
-        >
-          <span>{auditExportSectionSupportingLineBuyerPolished}</span>{" "}
-          {!exportRoleOk ? <span>{auditExportExecuteRankAuditorRoleNote}</span> : null}
-        </p>
+        <AuditBuyerHeaderMetrics
+          buyerAuditTrailSummaryLine={buyerAuditTrailSummaryLine}
+          buyerAuditTrailMetrics={buyerAuditTrailMetrics}
+          displayEventCount={displayEvents.length}
+          exportRoleOk={exportRoleOk}
+        />
       ) : null}
 
       <AuditLogRankCue className="mb-2" />
@@ -807,500 +499,68 @@ export default function AuditPage() {
 
       <div className={cn(buyerPolishedShell && "flex flex-col")}>
         <div className={cn(buyerPolishedShell && "order-2")}>
-      <section
-        aria-labelledby="audit-search-heading"
-        className={cn(
-          "rounded-lg p-3 mb-4 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700",
-        )}
-      >
-        <h3 id="audit-search-heading" className="mt-0 mb-3 text-base">
-          {buyerPolishedShell
-            ? auditSearchEventsSectionHeadingBuyerPolished
-            : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-              ? auditSearchEventsSectionHeadingReader
-              : auditSearchEventsSectionHeadingOperator}
-        </h3>
-        {buyerPolishedShell ? (
-          <p className="m-0 mb-3 max-w-2xl text-xs text-neutral-600 dark:text-neutral-400">
-            Optional — open filters only when you need to narrow events. The audit timeline below is the primary
-            walkthrough.
-          </p>
-        ) : null}
-        {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority && !buyerPolishedShell ? (
-          <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
-            {auditSearchSectionLeadReaderLine}
-          </p>
-        ) : null}
-        <div className="mb-3 flex flex-wrap gap-2">
-          {buyerPolishedShell ? (
-            <p
-              className="m-0 inline-flex flex-wrap items-center gap-x-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200"
-              data-testid="audit-buyer-sample-timeline-chip"
-            >
-              <span className="text-neutral-600 dark:text-neutral-400">Showing:</span>
-              <strong className="font-semibold text-neutral-900 dark:text-neutral-100">
-                {buyerFacingReviewLinkLabelFromRunId(
-                  runId.trim().length > 0 ? runId : SHOWCASE_STATIC_DEMO_RUN_ID,
-                )}
-              </strong>
-              <span className="text-neutral-600 dark:text-neutral-400">— full lifecycle</span>
-            </p>
-          ) : (
-            <>
-              <button
-                type="button"
-                className={cn(
-                  "rounded border px-2 py-1 text-xs font-medium transition-colors",
-                  auditDatePreset === "24h"
-                    ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
-                    : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
-                )}
-                disabled={searching || loadingTypes}
-                onClick={() => {
-                  void applyAuditDatePreset("24h");
-                }}
-              >
-                Last 24 hours
-              </button>
-              <button
-                type="button"
-                className={cn(
-                  "rounded border px-2 py-1 text-xs font-medium transition-colors",
-                  auditDatePreset === "7d"
-                    ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
-                    : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
-                )}
-                disabled={searching || loadingTypes}
-                onClick={() => {
-                  void applyAuditDatePreset("7d");
-                }}
-              >
-                Last 7 days
-              </button>
-              {auditDatePreset !== null || fromUtc.length > 0 || toUtc.length > 0 ? (
-                <button
-                  type="button"
-                  className="rounded border border-neutral-300 bg-neutral-50 px-2 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900"
-                  disabled={searching}
-                  onClick={() => {
-                    void clearDateRangeAndSearch();
-                  }}
-                >
-                  Clear date range
-                </button>
-              ) : null}
-            </>
-          )}
-        </div>
-        {buyerPolishedShell ? (
-          <Collapsible
-            open={buyerPrimaryFiltersOpen}
-            onOpenChange={setBuyerPrimaryFiltersOpen}
-            className="mt-1"
-          >
-            <CollapsibleTrigger
-              type="button"
-              className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-sm font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
-            >
-              Optional filters — event type, review scope, and search actions
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 shrink-0 transition-transform",
-                  buyerPrimaryFiltersOpen ? "rotate-0" : "-rotate-90",
-                )}
-                aria-hidden
-              />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-3 pt-3">
-              <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-                <label>
-                  Event type{" "}
-                  <select
-                    value={eventType}
-                    onChange={(e) => setEventType(e.target.value)}
-                    disabled={loadingTypes}
-                    className="mt-1 w-full"
-                  >
-                    <option value="">Any</option>
-                    {eventTypes.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Linked review{" "}
-                  <input
-                    value={auditRunIdInputDisplayValue(buyerPolishedShell, runId)}
-                    onChange={(e) => setRunId(auditRunIdParseInputValue(buyerPolishedShell, e.target.value))}
-                    className="mt-1 w-full"
-                  />
-                </label>
-              </div>
-              <Collapsible
-                open={advancedAuditFiltersOpen}
-                onOpenChange={setAdvancedAuditFiltersOpen}
-                className="mt-2"
-              >
-                <CollapsibleTrigger
-                  type="button"
-                  className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left text-xs font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
-                >
-                  Advanced filters
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 shrink-0 transition-transform",
-                      advancedAuditFiltersOpen ? "rotate-0" : "-rotate-90",
-                    )}
-                    aria-hidden
-                  />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="pt-2">
-                  <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-                    <label>
-                      Correlation ID{" "}
-                      <input
-                        value={correlationId}
-                        onChange={(e) => setCorrelationId(e.target.value)}
-                        className="mt-1 w-full"
-                      />
-                    </label>
-                    <label>
-                      Actor user id{" "}
-                      <input
-                        value={actorUserId}
-                        onChange={(e) => setActorUserId(e.target.value)}
-                        className="mt-1 w-full"
-                      />
-                    </label>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => void runSearch()}
-                  disabled={searching || loadingTypes}
-                  title={
-                    callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-                      ? auditSearchEventsButtonTitleReader
-                      : auditSearchEventsButtonTitleOperator
-                  }
-                >
-                  {searching ? "Searching…" : canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void clearFiltersAndSearch()}
-                  disabled={searching}
-                  title={
-                    canMutateEnterpriseShell
-                      ? "Clear filter fields and run search with empty criteria"
-                      : "Clear fields and re-run search (GET only; export rules unchanged)"
-                  }
-                >
-                  {canMutateEnterpriseShell ? "Clear filters" : auditClearFiltersButtonLabelReaderRank}
-                </button>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        ) : (
-          <>
-            <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-              <label>
-                Event type{" "}
-                <select
-                  value={eventType}
-                  onChange={(e) => setEventType(e.target.value)}
-                  disabled={loadingTypes}
-                  className="mt-1 w-full"
-                >
-                  <option value="">Any</option>
-                  {eventTypes.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <>
-                <label>
-                  From (local){" "}
-                  <input
-                    type="datetime-local"
-                    value={fromUtc}
-                    onChange={(e) => setFromUtc(e.target.value)}
-                    className="mt-1 w-full"
-                  />
-                </label>
-                <label>
-                  To (local){" "}
-                  <input
-                    type="datetime-local"
-                    value={toUtc}
-                    onChange={(e) => setToUtc(e.target.value)}
-                    className="mt-1 w-full"
-                  />
-                </label>
-              </>
-              <label>
-                Review ID{" "}
-                <input
-                  value={auditRunIdInputDisplayValue(buyerPolishedShell, runId)}
-                  onChange={(e) => setRunId(auditRunIdParseInputValue(buyerPolishedShell, e.target.value))}
-                  className="mt-1 w-full"
-                />
-                {runId.trim().length > 0 ? (
-                  <span className="mt-1 block text-xs text-neutral-600 dark:text-neutral-400">
-                    Showing events for <strong>{buyerFacingReviewLinkLabelFromRunId(runId)}</strong>.
-                  </span>
-                ) : null}
-              </label>
-            </div>
-            <Collapsible open={advancedAuditFiltersOpen} onOpenChange={setAdvancedAuditFiltersOpen} className="mt-2">
-              <CollapsibleTrigger
-                type="button"
-                className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left text-xs font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
-              >
-                Advanced filters
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 shrink-0 transition-transform",
-                    advancedAuditFiltersOpen ? "rotate-0" : "-rotate-90",
-                  )}
-                  aria-hidden
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-2">
-                <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-                  <label>
-                    Correlation ID{" "}
-                    <input
-                      value={correlationId}
-                      onChange={(e) => setCorrelationId(e.target.value)}
-                      className="mt-1 w-full"
-                    />
-                  </label>
-                  <label>
-                    Actor user id{" "}
-                    <input
-                      value={actorUserId}
-                      onChange={(e) => setActorUserId(e.target.value)}
-                      className="mt-1 w-full"
-                    />
-                  </label>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => void runSearch()}
-                disabled={searching || loadingTypes}
-                title={
-                  callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-                    ? auditSearchEventsButtonTitleReader
-                    : auditSearchEventsButtonTitleOperator
-                }
-              >
-                {searching ? "Searching…" : canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}
-              </button>
-              <button
-                type="button"
-                onClick={() => void clearFiltersAndSearch()}
-                disabled={searching}
-                title={
-                  canMutateEnterpriseShell
-                    ? "Clear filter fields and run search with empty criteria"
-                    : "Clear fields and re-run search (GET only; export rules unchanged)"
-                }
-              >
-                {canMutateEnterpriseShell ? "Clear filters" : auditClearFiltersButtonLabelReaderRank}
-              </button>
-            </div>
-          </>
-        )}
-      </section>
+          <AuditSearchSection
+            buyerPolishedShell={buyerPolishedShell}
+            callerAuthorityRank={callerAuthorityRank}
+            canMutateEnterpriseShell={canMutateEnterpriseShell}
+            advancedAuditFiltersOpen={advancedAuditFiltersOpen}
+            setAdvancedAuditFiltersOpen={setAdvancedAuditFiltersOpen}
+            buyerPrimaryFiltersOpen={buyerPrimaryFiltersOpen}
+            setBuyerPrimaryFiltersOpen={setBuyerPrimaryFiltersOpen}
+            eventTypes={eventTypes}
+            eventType={eventType}
+            setEventType={setEventType}
+            fromUtc={fromUtc}
+            setFromUtc={setFromUtc}
+            toUtc={toUtc}
+            setToUtc={setToUtc}
+            correlationId={correlationId}
+            setCorrelationId={setCorrelationId}
+            actorUserId={actorUserId}
+            setActorUserId={setActorUserId}
+            runId={runId}
+            setRunId={setRunId}
+            searching={searching}
+            loadingTypes={loadingTypes}
+            auditDatePreset={auditDatePreset}
+            applyAuditDatePreset={applyAuditDatePreset}
+            clearDateRangeAndSearch={clearDateRangeAndSearch}
+            runSearch={runSearch}
+            clearFiltersAndSearch={clearFiltersAndSearch}
+          />
         </div>
 
         <div className={cn(buyerPolishedShell && "order-1")}>
-      <section aria-labelledby="audit-results-heading">
-        <h3 id="audit-results-heading" className="mt-0 mb-2 text-base">
-          {buyerPolishedShell
-            ? auditResultsSectionHeadingBuyerPolished
-            : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-              ? auditResultsSectionHeadingReader
-              : auditResultsSectionHeadingOperator}
-        </h3>
-        <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
-          {buyerPolishedShell ? (
-            <>
-              Each milestone is traceable to an actor, time, and review context. For deeper verification, expand the
-              technical appendix below for technical audit metadata when your procurement or IT team needs it.
-            </>
-          ) : (
-            <>
-              Each card is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
-              {" — "}
-              who acted, what changed, when it happened
-              {", and review context when present"}.
-              {" "}Expand for technical payloads.
-            </>
-          )}
-        </p>
-        {buyerPolishedShell && isNextPublicDemoMode() ? (
-          <p className="m-0 mb-2 max-w-2xl text-sm text-neutral-600 dark:text-neutral-400">
-            Sample timeline — illustrative dates for walkthrough.
-          </p>
-        ) : null}
-        <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
-          {formatAuditSummaryHeading(events.length, hasMoreResults)}.
-          {buyerPolishedShell
-            ? displayEventGroups !== null
-              ? " Oldest-first review sequence; grouped by lifecycle stage."
-              : " Oldest-first review sequence for this view."
-            : " Newest first; use Load more for older entries."}
-        </p>
-        {buyerPolishedShell && uniformRunIdForDisplay !== null ? (
-          <p className="mb-2 mt-1 max-w-2xl text-sm text-neutral-700 dark:text-neutral-300">
-            All events in this view belong to{" "}
-            <Link
-              className="font-medium text-teal-800 underline dark:text-teal-300"
-              href={`/reviews/${encodeURIComponent(uniformRunIdForDisplay)}`}
-            >
-              {buyerFacingReviewLinkLabelFromRunId(uniformRunIdForDisplay)}
-            </Link>
-            .
-          </p>
-        ) : null}
-
-        <div className="mt-3">
-          {events.length === 0 ? (
-            <p className="text-neutral-500 dark:text-neutral-400">{auditSearchEmptyLine}</p>
-          ) : (
-            <>
-              {displayEventGroups !== null ? (
-                <div className="space-y-8">
-                  {displayEventGroups.map((group) => (
-                    <div key={group.stage} className="space-y-3">
-                      <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                        {group.stage}
-                      </h3>
-                      <div className="grid gap-3">
-                        {group.events.map((ev) => (
-                          <AuditTimelineEventCard
-                            key={ev.eventId}
-                            ev={ev}
-                            buyerPolishedShell={buyerPolishedShell}
-                            uniformRunId={uniformRunIdForDisplay}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid gap-3">
-                  {displayEvents.map((ev) => (
-                    <AuditTimelineEventCard
-                      key={ev.eventId}
-                      ev={ev}
-                      buyerPolishedShell={buyerPolishedShell}
-                      uniformRunId={uniformRunIdForDisplay}
-                    />
-                  ))}
-                </div>
-              )}
-              {events.length > 0 && hasMoreResults ? (
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={() => void loadMore()}
-                    disabled={loadingMore || searching}
-                    title={
-                      callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-                        ? auditLoadMoreButtonTitleReader
-                        : auditLoadMoreButtonTitleOperator
-                    }
-                  >
-                    {loadingMore ? "Loading…" : "Load more"}
-                  </button>
-                </div>
-              ) : null}
-              {buyerPolishedShell && events.length > 0 ? (
-                <div className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-700">
-                  <Button
-                    type="button"
-                    variant={csvExportUiAllowed ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => void onExportCsv()}
-                    disabled={!csvExportUiAllowed || exporting || searching}
-                    title={
-                      !exportDateRangeReady
-                        ? "Set From and To to enable export"
-                        : !exportRoleOk
-                          ? auditExportControlDisabledTitle
-                          : "Download audit trail as CSV using the current filters"
-                    }
-                  >
-                    {exporting
-                      ? "Exporting…"
-                      : csvExportUiAllowed
-                        ? "Download audit trail (CSV)"
-                        : !exportDateRangeReady
-                          ? auditExportCsvButtonLabelWindowIncomplete
-                          : !exportRoleOk
-                            ? auditExportCsvButtonLabelRoleRestricted
-                            : "Download audit trail (CSV)"}
-                  </Button>
-                </div>
-              ) : null}
-              {buyerPolishedShell ? <BuyerAuditEventsTechnicalAppendix events={displayEvents} /> : null}
-            </>
-          )}
-        </div>
-      </section>
+          <AuditResultsSection
+            buyerPolishedShell={buyerPolishedShell}
+            callerAuthorityRank={callerAuthorityRank}
+            events={events}
+            displayEvents={displayEvents}
+            displayEventGroups={displayEventGroups}
+            hasMoreResults={hasMoreResults}
+            loadingMore={loadingMore}
+            searching={searching}
+            uniformRunIdForDisplay={uniformRunIdForDisplay}
+            auditSearchEmptyLine={auditSearchEmptyLine}
+            loadMore={loadMore}
+            csvExportUiAllowed={csvExportUiAllowed}
+            exporting={exporting}
+            exportDateRangeReady={exportDateRangeReady}
+            exportRoleOk={exportRoleOk}
+            onExportCsv={onExportCsv}
+          />
         </div>
       </div>
 
       {events.length > 0 && !buyerPolishedShell ? (
-      <section
-        aria-labelledby="audit-export-heading"
-        className={cn(
-          "border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mt-5 bg-neutral-50 dark:bg-neutral-950",
-          !csvExportUiAllowed && "opacity-90",
-        )}
-      >
-        <h3 id="audit-export-heading" className="mt-0 mb-2 text-base">
-          {csvExportUiAllowed ? "Export" : "Export (restricted)"}
-        </h3>
-        <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-xl mt-0 mb-3">
-          {auditExportSectionSupportingLine}
-        </p>
-        <button
-          type="button"
-          onClick={() => void onExportCsv()}
-          disabled={!csvExportUiAllowed || exporting || searching}
-          title={
-            !exportDateRangeReady
-              ? "Set From and To to enable export"
-              : !exportRoleOk
-                ? auditExportControlDisabledTitle
-                : "Export to CSV using the current filters"
-          }
-        >
-          {exporting
-            ? "Exporting…"
-            : csvExportUiAllowed
-              ? "Export to CSV"
-              : !exportDateRangeReady
-                ? auditExportCsvButtonLabelWindowIncomplete
-                : !exportRoleOk
-                  ? auditExportCsvButtonLabelRoleRestricted
-                  : "Export to CSV"}
-        </button>
-      </section>
+        <AuditOperatorExportSection
+          csvExportUiAllowed={csvExportUiAllowed}
+          exporting={exporting}
+          searching={searching}
+          exportDateRangeReady={exportDateRangeReady}
+          exportRoleOk={exportRoleOk}
+          onExportCsv={onExportCsv}
+        />
       ) : null}
     </div>
   );
