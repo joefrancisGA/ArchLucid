@@ -282,10 +282,7 @@ internal static class TryCommand
             {
                 last = observed.Value;
 
-                if (last == ArchitectureRunStatus.Failed)
-                    return last;
-
-                if (last is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
+                if (last == ArchitectureRunStatus.Failed || last is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
                     return last;
             }
 

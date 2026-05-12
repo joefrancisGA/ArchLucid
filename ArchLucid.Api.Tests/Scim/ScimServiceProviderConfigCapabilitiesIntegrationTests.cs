@@ -7,19 +7,12 @@ namespace ArchLucid.Api.Tests.Scim;
 
 /// <summary>RFC 7644 §4 discovery assertions beyond smoke coverage — patch/filter/authentication schemes.</summary>
 [Trait("Suite", "Core")]
-public sealed class ScimServiceProviderConfigCapabilitiesIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
+public sealed class ScimServiceProviderConfigCapabilitiesIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
-    private readonly JwtLocalSigningWebAppFactory _factory;
-
-    public ScimServiceProviderConfigCapabilitiesIntegrationTests(JwtLocalSigningWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task ServiceProviderConfig_documents_patch_filter_and_oauth_bearer_scheme()
     {
-        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(_factory);
+        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(factory);
 
         using HttpResponseMessage response = await http.GetAsync("/scim/v2/ServiceProviderConfig");
 

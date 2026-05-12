@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Marketing;
+using ArchLucid.Application.Marketing;
 using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
@@ -18,9 +18,9 @@ public sealed class SyntheticCaseStudyDataProviderTests
         raw.TenantBaselineReviewCycleHours.Should().Be(SyntheticCaseStudyDataProvider.BaselineReviewCycleHours);
         raw.MeasuredAverageReviewCycleHoursForWindow.Should().Be(SyntheticCaseStudyDataProvider.PostArchlucidReviewCycleHours);
 
-        decimal baseline = SyntheticCaseStudyDataProvider.BaselineReviewCycleHours;
-        decimal post = SyntheticCaseStudyDataProvider.PostArchlucidReviewCycleHours;
-        decimal roiPct = (baseline - post) / baseline * 100m;
+        const decimal baseline = SyntheticCaseStudyDataProvider.BaselineReviewCycleHours;
+        const decimal post = SyntheticCaseStudyDataProvider.PostArchlucidReviewCycleHours;
+        const decimal roiPct = (baseline - post) / baseline * 100m;
 
         roiPct.Should().BeApproximately(70m, 0.001m);
     }
@@ -28,15 +28,15 @@ public sealed class SyntheticCaseStudyDataProviderTests
     [SkippableFact]
     public void GetContosoRetailSyntheticMetrics_iteration_and_evidence_deltas_are_internally_consistent()
     {
-        decimal iterBase = SyntheticCaseStudyDataProvider.BaselineReviewIterations;
-        decimal iterPost = SyntheticCaseStudyDataProvider.PostArchlucidReviewIterations;
-        decimal iterRoi = (iterBase - iterPost) / iterBase * 100m;
+        const decimal iterBase = SyntheticCaseStudyDataProvider.BaselineReviewIterations;
+        const decimal iterPost = SyntheticCaseStudyDataProvider.PostArchlucidReviewIterations;
+        const decimal iterRoi = (iterBase - iterPost) / iterBase * 100m;
 
         iterRoi.Should().BeApproximately(50m, 0.001m);
 
-        decimal evBase = SyntheticCaseStudyDataProvider.BaselineEvidenceAssemblyHours;
-        decimal evPost = SyntheticCaseStudyDataProvider.PostArchlucidEvidenceAssemblyHours;
-        decimal evRoi = (evBase - evPost) / evBase * 100m;
+        const decimal evBase = SyntheticCaseStudyDataProvider.BaselineEvidenceAssemblyHours;
+        const decimal evPost = SyntheticCaseStudyDataProvider.PostArchlucidEvidenceAssemblyHours;
+        const decimal evRoi = (evBase - evPost) / evBase * 100m;
 
         evRoi.Should().BeApproximately(75m, 0.001m);
     }

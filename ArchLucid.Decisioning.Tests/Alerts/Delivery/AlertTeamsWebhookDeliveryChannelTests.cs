@@ -26,7 +26,7 @@ public sealed class AlertTeamsWebhookDeliveryChannelTests
     public async Task SendAsync_PostsJsonToSubscriptionDestination()
     {
         Mock<IWebhookPoster> poster = new();
-        string expectedUrl = "https://outlook.office.com/webhook/test";
+        const string expectedUrl = "https://outlook.office.com/webhook/test";
 
         poster
             .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))

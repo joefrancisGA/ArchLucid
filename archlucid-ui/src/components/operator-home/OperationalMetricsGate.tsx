@@ -9,8 +9,9 @@ type Phase = "loading" | "ready";
 /**
  * Hides tertiary operator-home surfaces until at least one committed manifest exists for the tenant (trial-status
  * anchor or golden manifest on a run row). Used for value realization, CS next actions, stickiness, operational metrics,
- * before/after deltas, and maturity-layer cards. Fails open on resolution errors so transient API issues do not strip the
- * dashboard for returning operators.
+ * and maturity-layer cards. The review-cycle before/after delta card (`BeforeAfterDeltaPanel`) lives outside this gate so
+ * trial baselines stay visible even when commit-context resolution is still empty. Fails open on resolution errors so
+ * transient API issues do not strip the dashboard for returning operators.
  */
 export function OperationalMetricsGate({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<Phase>("loading");

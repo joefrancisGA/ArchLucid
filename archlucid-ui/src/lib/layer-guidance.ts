@@ -230,9 +230,9 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   Record<LayerGuidancePageKey, Partial<LayerGuidanceBlock>>
 > = {
   audit: {
-    headline: "Approval and action history for your workspace.",
+    headline: "Audit trail for finalized review activity.",
     useWhen:
-      "See who approved what, when, and why. Filter by time and review; export when your role allows.",
+      "See who acted, when, and why — filter when needed; download CSV when your role allows.",
     firstPilotNote: null,
     enterpriseFootnote: "Exports follow your organization’s roles.",
   },
@@ -244,8 +244,9 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   },
   graph: {
     layerBadge: "Evidence trail",
-    headline: "Evidence graph for the sample package.",
-    useWhen: "Walk the same milestones sponsors see in the manifest and audit trail—now as a connected picture.",
+    headline: "Decision traceability graph for the Claims Intake review package.",
+    useWhen:
+      "Walk the same milestones as the signed manifest and audit trail — as a connected decision trace.",
     firstPilotNote: null,
   },
   compare: {
@@ -256,7 +257,9 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     firstPilotNote: null,
   },
   "governance-workflow": {
-    useWhen: "Choose a review and follow submission, approval, and promotion in order.",
+    headline: "Governance approval completed for this review package.",
+    useWhen:
+      "Review the recorded approval path and how this package is authorized for governed downstream use.",
     firstPilotNote: null,
   },
 };

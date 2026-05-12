@@ -16,19 +16,12 @@ using Microsoft.IdentityModel.Tokens;
 namespace ArchLucid.Api.Tests.Billing;
 
 [Trait("Suite", "Core")]
-public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigningWebAppFactory>
+public sealed class BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
-    private readonly JwtLocalSigningWebAppFactory _factory;
-
-    public BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task Checkout_without_bearer_returns_401()
     {
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             "/v1/tenant/billing/checkout",
@@ -48,13 +41,13 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
     public async Task Checkout_with_reader_jwt_returns_403()
     {
         string token = MintJwt(
-            _factory.PrivatePemForTests,
+            factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "ReaderUser",
             [ArchLucidRoles.Reader]);
 
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
@@ -75,13 +68,13 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
     public async Task Checkout_with_admin_jwt_returns_200()
     {
         string token = MintJwt(
-            _factory.PrivatePemForTests,
+            factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "AdminUser",
             [ArchLucidRoles.Admin]);
 
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         HttpResponseMessage response = await client.PostAsJsonAsync(

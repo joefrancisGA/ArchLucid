@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Explanation;
@@ -20,19 +20,12 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
-public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchLucidApiFactory>
+public sealed class WhyArchlucidMarketingPackEndpointTests(ArchLucidApiFactory factory) : IClassFixture<ArchLucidApiFactory>
 {
-    private readonly ArchLucidApiFactory _factory;
-
-    public WhyArchlucidMarketingPackEndpointTests(ArchLucidApiFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task GetWhyArchlucidPackPdf_returns_404_when_demo_not_enabled()
     {
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         HttpResponseMessage response = await client.GetAsync("/v1/marketing/why-archlucid-pack.pdf");
@@ -43,7 +36,7 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
     [SkippableFact]
     public async Task GetWhyArchlucidPackPdf_returns_404_when_demo_enabled_but_preview_unavailable()
     {
-        WebApplicationFactory<Program> enabled = _factory.WithWebHostBuilder(builder =>
+        WebApplicationFactory<Program> enabled = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
                 new Dictionary<string, string?> { ["Demo:Enabled"] = "true" }));
@@ -68,7 +61,7 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
     {
         StubPreviewClient stub = new();
 
-        WebApplicationFactory<Program> enabled = _factory.WithWebHostBuilder(builder =>
+        WebApplicationFactory<Program> enabled = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
                 new Dictionary<string, string?> { ["Demo:Enabled"] = "true" }));

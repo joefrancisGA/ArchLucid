@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Net;
 using System.Text.Json;
 
@@ -32,7 +31,7 @@ public sealed class AdminConfigurationSummaryEndpointTests(ApiKeyReaderAndAdminA
         AdminConfigSummaryResponse? parsed = JsonSerializer.Deserialize<AdminConfigSummaryResponse>(body, JsonOptions);
 
         parsed.Should().NotBeNull();
-        parsed!.Keys.Should().NotBeNull();
+        parsed.Keys.Should().NotBeNull();
         parsed.Keys!.Count.Should().BeGreaterThan(0);
 
         ConfigSummaryKeyRow first = parsed.Keys[0];
@@ -59,7 +58,7 @@ public sealed class AdminConfigurationSummaryEndpointTests(ApiKeyReaderAndAdminA
 
         parsed.Should().NotBeNull();
         ConfigSummaryKeyRow? conn =
-            parsed!.Keys?.FirstOrDefault(k => k.ConfigPath?.Contains("ConnectionString", StringComparison.Ordinal) == true);
+            parsed.Keys?.FirstOrDefault(k => k.ConfigPath?.Contains("ConnectionString", StringComparison.Ordinal) == true);
 
         if (conn is null || !conn.IsSet)
             return;

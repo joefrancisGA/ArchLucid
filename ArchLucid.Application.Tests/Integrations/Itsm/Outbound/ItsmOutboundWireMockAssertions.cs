@@ -6,7 +6,6 @@ using FluentAssertions;
 using WireMock;
 using WireMock.Server;
 using WireMock.Types;
-using WireMock.Util;
 
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 
@@ -69,17 +68,6 @@ internal static class ItsmOutboundWireMockAssertions
         if (headers is null)
             return null;
 
-        foreach (KeyValuePair<string, WireMockList<string>> pair in headers)
-        {
-            if (!string.Equals(pair.Key, name, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            WireMockList<string> list = pair.Value;
-
-            foreach (string value in list)
-                return value;
-        }
-
-        return null;
+        return headers.Where(pair => string.Equals(pair.Key, name, StringComparison.OrdinalIgnoreCase)).SelectMany(pair => pair.Value).FirstOrDefault();
     }
 }

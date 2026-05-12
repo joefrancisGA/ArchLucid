@@ -81,6 +81,10 @@ function buyerFindingSeveritySignal(
     return "Medium risk posture";
   }
 
+  if (key === "approved with monitoring") {
+    return "Approved with monitoring";
+  }
+
   if (key === "controlled") {
     return "Mitigated and monitored";
   }

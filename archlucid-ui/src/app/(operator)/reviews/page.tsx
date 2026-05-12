@@ -27,7 +27,7 @@ import { listRunsByProjectPaged } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
 
 export const metadata: Metadata = {
-  title: "Architecture Reviews",
+  title: "Reviews",
 };
 
 /** Server-rendered run list page. Fetches a page of runs and validates via coerceRunSummaryPaged. */

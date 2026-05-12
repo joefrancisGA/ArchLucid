@@ -29,6 +29,6 @@ describe("GovernanceApprovalStoryCard", () => {
     // Label and detail use the same copy when the step is complete.
     expect(screen.getAllByText("Governance approval recorded")).toHaveLength(2);
     expect(screen.getByText("Eligible for controlled use")).toBeInTheDocument();
-    expect(screen.getByText("Eligible promotion path: Development → Staging")).toBeInTheDocument();
+    expect(screen.getByText(/Approved use boundary: Development → Staging/)).toBeInTheDocument();
   });
 });

@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 
 using ArchLucid.AgentRuntime.Caching;
 
@@ -36,7 +36,8 @@ public sealed class LlmCompletionResponseCacheTests
     {
         MutableOptionsMonitor<LlmCompletionCacheOptions> optionsMonitor = new(new LlmCompletionCacheOptions
         {
-            TTLSeconds = 30, MaxEntries = 8
+            TTLSeconds = 30,
+            MaxEntries = 8
         });
 
         MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 8 });
@@ -51,7 +52,7 @@ public sealed class LlmCompletionResponseCacheTests
         LlmCompletionResult? hit = await sut.TryGetAsync(key, CancellationToken.None);
 
         hit.Should().NotBeNull();
-        hit!.JsonBody.Should().Be("{\"x\":1}");
+        hit.JsonBody.Should().Be("{\"x\":1}");
     }
 
     [SkippableFact]
@@ -79,7 +80,11 @@ public sealed class LlmCompletionResponseCacheTests
     [SkippableFact]
     public void ResolveTtl_prefers_TTL_seconds_when_positive()
     {
-        LlmCompletionCacheOptions options = new() { TTLSeconds = 42, TTLMinutes = 1 };
+        LlmCompletionCacheOptions options = new()
+        {
+            TTLSeconds = 42,
+            TTLMinutes = 1
+        };
 
         LlmCompletionResponseCache.ResolveTtl(options).Should().Be(TimeSpan.FromSeconds(42));
     }
@@ -87,7 +92,11 @@ public sealed class LlmCompletionResponseCacheTests
     [SkippableFact]
     public void ResolveTtl_derives_from_TTLMinutes_when_TTL_seconds_unset()
     {
-        LlmCompletionCacheOptions options = new() { TTLSeconds = 0, TTLMinutes = 30 };
+        LlmCompletionCacheOptions options = new()
+        {
+            TTLSeconds = 0,
+            TTLMinutes = 30
+        };
 
         LlmCompletionResponseCache.ResolveTtl(options).Should().Be(TimeSpan.FromSeconds(1800));
     }
@@ -95,7 +104,11 @@ public sealed class LlmCompletionResponseCacheTests
     [SkippableFact]
     public void ResolveTtl_floor_is_one_second()
     {
-        LlmCompletionCacheOptions options = new() { TTLSeconds = 0, TTLMinutes = 0 };
+        LlmCompletionCacheOptions options = new()
+        {
+            TTLSeconds = 0,
+            TTLMinutes = 0
+        };
 
         LlmCompletionResponseCache.ResolveTtl(options).Should().Be(TimeSpan.FromSeconds(1));
     }
@@ -132,7 +145,7 @@ public sealed class LlmCompletionResponseCacheTests
 
                 read.Should().NotBeNull();
 
-                read!.JsonBody.Should().Be(expected);
+                read.JsonBody.Should().Be(expected);
             });
     }
 

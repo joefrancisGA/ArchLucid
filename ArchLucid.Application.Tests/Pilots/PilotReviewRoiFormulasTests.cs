@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Pilots;
 
 using FluentAssertions;
 
@@ -9,9 +9,9 @@ public sealed class PilotReviewRoiFormulasTests
     [SkippableFact]
     public void Annual_savings_is_half_of_status_quo_at_fifty_percent_hour_reduction()
     {
-        decimal q = 12;
-        decimal h = 40;
-        decimal c = 150m;
+        const decimal q = 12;
+        const decimal h = 40;
+        const decimal c = 150m;
         decimal status = PilotReviewRoiFormulas.AnnualReviewCostStatusQuo(q, h, c);
         decimal savings = PilotReviewRoiFormulas.AnnualReviewSavings(q, h, c);
 

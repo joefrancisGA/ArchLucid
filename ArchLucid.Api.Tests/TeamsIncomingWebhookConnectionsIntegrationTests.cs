@@ -16,34 +16,30 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests;
 
-public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
+public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true
     };
 
-    private readonly JwtLocalSigningWebAppFactory _factory;
-
-    public TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSigningWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task Post_connections_with_reader_jwt_returns_forbidden()
     {
         string token = MintJwt(
-            _factory.PrivatePemForTests,
+            factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "ReaderUser",
             [ArchLucidRoles.Reader]);
 
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        TeamsIncomingWebhookConnectionUpsertRequest body = new() { KeyVaultSecretName = "teams-incoming-webhook-demo" };
+        TeamsIncomingWebhookConnectionUpsertRequest body = new()
+        {
+            KeyVaultSecretName = "teams-incoming-webhook-demo"
+        };
 
         HttpResponseMessage res = await client.PostAsJsonAsync(
             new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative),
@@ -56,13 +52,13 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
     public async Task Post_connections_with_https_body_returns_bad_request()
     {
         string token = MintJwt(
-            _factory.PrivatePemForTests,
+            factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "OperatorUser",
             [ArchLucidRoles.Operator]);
 
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         TeamsIncomingWebhookConnectionUpsertRequest body = new()
@@ -81,13 +77,13 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
     public async Task Get_post_delete_round_trip_with_operator_jwt()
     {
         string token = MintJwt(
-            _factory.PrivatePemForTests,
+            factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "OperatorUser",
             [ArchLucidRoles.Operator]);
 
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         HttpResponseMessage get0 =
@@ -138,13 +134,13 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
     public async Task Post_connections_with_unknown_trigger_returns_bad_request()
     {
         string token = MintJwt(
-            _factory.PrivatePemForTests,
+            factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "OperatorUser",
             [ArchLucidRoles.Operator]);
 
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         TeamsIncomingWebhookConnectionUpsertRequest body = new()
@@ -166,13 +162,13 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
     public async Task Get_triggers_catalog_returns_v1_default_set()
     {
         string token = MintJwt(
-            _factory.PrivatePemForTests,
+            factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "ReaderUser",
             [ArchLucidRoles.Reader]);
 
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         HttpResponseMessage res = await client.GetAsync(

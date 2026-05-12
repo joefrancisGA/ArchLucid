@@ -1,5 +1,6 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
 
+import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import { backendApiPath } from "./helpers/route-match";
 
 /**
@@ -19,7 +20,6 @@ import { backendApiPath } from "./helpers/route-match";
 const TRIAL_TENANT_ID = "11111111-1111-1111-1111-111111111111";
 const TRIAL_WORKSPACE_ID = "22222222-2222-2222-2222-222222222222";
 const TRIAL_PROJECT_ID = "33333333-3333-3333-3333-333333333333";
-const TRIAL_WELCOME_RUN_ID = "44444444-4444-4444-4444-444444444444";
 const FIRST_COMMIT_UTC = "2026-04-15T12:00:00.000Z";
 
 type RegisterRequestBody = {
@@ -79,7 +79,7 @@ async function installFunnelMocks(page: Page, capture: RegisterCapture): Promise
         trialRunsLimit: 5,
         trialSeatsUsed: 1,
         trialSeatsLimit: 3,
-        trialWelcomeRunId: TRIAL_WELCOME_RUN_ID,
+        trialWelcomeRunId: MOCK_TRIAL_WELCOME_RUN_ID,
         firstCommitUtc: FIRST_COMMIT_UTC,
         baselineReviewCycleHours: 16,
         baselineReviewCycleSource: "team estimate",
@@ -88,7 +88,7 @@ async function installFunnelMocks(page: Page, capture: RegisterCapture): Promise
       return;
     }
 
-    if (method === "GET" && path === `/v1/pilots/runs/${TRIAL_WELCOME_RUN_ID}/pilot-run-deltas`) {
+    if (method === "GET" && path === `/v1/pilots/runs/${MOCK_TRIAL_WELCOME_RUN_ID}/pilot-run-deltas`) {
       await fulfillJson(route, 200, {
         timeToCommittedManifestTotalSeconds: 4 * 3600,
         manifestCommittedUtc: FIRST_COMMIT_UTC,

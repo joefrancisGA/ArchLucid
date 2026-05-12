@@ -13,29 +13,30 @@ public static class ProblemDetailsExtensions
 {
     private const string ProblemJsonMediaType = ApplicationProblemMapper.ProblemJsonMediaType;
 
-    /// <summary>
-    ///     Returns 400 Bad Request with a Problem Details body.
-    /// </summary>
-    public static IActionResult BadRequestProblem(
-        this ControllerBase controller,
-        string detail,
-        string? type = null,
-        string? instance = null,
-        IReadOnlyDictionary<string, object?>? extensions = null)
+    extension(ControllerBase controller)
     {
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        /// <summary>
+        ///     Returns 400 Bad Request with a Problem Details body.
+        /// </summary>
+        public IActionResult BadRequestProblem(string detail,
+            string? type = null,
+            string? instance = null,
+            IReadOnlyDictionary<string, object?>? extensions = null)
         {
-            Type = type ?? ProblemTypes.BadRequest,
-            Title = "Bad Request",
-            Status = StatusCodes.Status400BadRequest,
-            Detail = detail,
-            Instance = instance ?? controller.Request.Path
-        };
-        ApplyOptionalProblemExtensions(problem, extensions);
-        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
-        ProblemCorrelation.Attach(problem, controller.HttpContext);
-        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+            Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+            {
+                Type = type ?? ProblemTypes.BadRequest,
+                Title = "Bad Request",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = detail,
+                Instance = instance ?? controller.Request.Path
+            };
+            ApplyOptionalProblemExtensions(problem, extensions);
+            ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+            ProblemSupportHints.AttachForProblemType(problem);
+            ProblemCorrelation.Attach(problem, controller.HttpContext);
+            return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+        }
     }
 
     /// <summary>

@@ -10,21 +10,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests.Scim;
 
 [Trait("Suite", "Core")]
-public sealed class ScimDiscoveryAuthenticatedIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
+public sealed class ScimDiscoveryAuthenticatedIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
-    private readonly JwtLocalSigningWebAppFactory _factory;
-
-    public ScimDiscoveryAuthenticatedIntegrationTests(JwtLocalSigningWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task ServiceProviderConfig_returns_application_scim_json_when_scim_bearer_accepted()
     {
-        HttpClient http = _factory.CreateClient();
+        HttpClient http = factory.CreateClient();
 
-        using (IServiceScope scope = _factory.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+        using (IServiceScope scope = factory.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
         {
             IScimTokenIssuer issuer = scope.ServiceProvider.GetRequiredService<IScimTokenIssuer>();
             ScimTokenIssueResult minted = await issuer.IssueTokenAsync(Guid.NewGuid(), CancellationToken.None);
@@ -44,9 +37,9 @@ public sealed class ScimDiscoveryAuthenticatedIntegrationTests : IClassFixture<J
     [SkippableFact]
     public async Task ResourceTypes_lists_user_and_group_endpoints()
     {
-        HttpClient http = _factory.CreateClient();
+        HttpClient http = factory.CreateClient();
 
-        using (IServiceScope scope = _factory.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+        using (IServiceScope scope = factory.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
         {
             IScimTokenIssuer issuer = scope.ServiceProvider.GetRequiredService<IScimTokenIssuer>();
             ScimTokenIssueResult minted = await issuer.IssueTokenAsync(Guid.NewGuid(), CancellationToken.None);

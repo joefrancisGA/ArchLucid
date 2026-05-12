@@ -4,8 +4,6 @@ using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Reader;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
@@ -56,24 +54,21 @@ internal static class OpenApiContractBackwardCompatibilityChecker
 
         ComparePaths(violations, baselineCanonicalRoot, actualCanonicalRoot, baselineComponents, actualComponents);
 
-        if (violations.Count > 0)
-        {
-            StringBuilder sb = new();
-            sb.AppendLine("OpenAPI breaking change(s) versus committed snapshot baseline (additive changes are permitted):");
+        if (violations.Count <= 0)
+            return;
 
-            foreach (string violation in violations)
-                sb.Append(" - ").AppendLine(violation);
+        StringBuilder sb = new();
+        sb.AppendLine("OpenAPI breaking change(s) versus committed snapshot baseline (additive changes are permitted):");
 
-            Assert.Fail(sb.ToString());
-        }
+        foreach (string violation in violations)
+            sb.Append(" - ").AppendLine(violation);
+
+        Assert.Fail(sb.ToString());
     }
 
     private static JsonObject GetComponentsObjectOrEmpty(JsonObject root)
     {
-        if (root["components"] is not JsonObject components)
-            return [];
-
-        return components;
+        return root["components"] as JsonObject ?? [];
     }
 
     private static void ComparePaths(
@@ -199,7 +194,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                 continue;
             }
 
-            if (baselineParam["schema"] is JsonNode baselineSchema && match["schema"] is JsonNode actualSchema)
+            if (baselineParam["schema"] is { } baselineSchema && match["schema"] is { } actualSchema)
             {
                 SchemaSubset.AssertSchemaCompatible(
                     violations,
@@ -215,16 +210,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
 
     private static JsonObject? FindParameter(IReadOnlyList<JsonObject> parameters, string name, string location)
     {
-        foreach (JsonObject param in parameters)
-        {
-            string? n = param["name"]?.GetValue<string>();
-            string? l = param["in"]?.GetValue<string>();
-
-            if (string.Equals(n, name, StringComparison.Ordinal) && string.Equals(l, location, StringComparison.Ordinal))
-                return param;
-        }
-
-        return null;
+        return (from param in parameters let n = param["name"]?.GetValue<string>() let l = param["in"]?.GetValue<string>() where string.Equals(n, name, StringComparison.Ordinal) && string.Equals(l, location, StringComparison.Ordinal) select param).FirstOrDefault();
     }
 
     private static void CompareRequestBody(
@@ -235,7 +221,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
         JsonObject baselineComponents,
         JsonObject actualComponents)
     {
-        if (baselineOp["requestBody"] is not JsonNode baselineBody)
+        if (baselineOp["requestBody"] is not { } baselineBody)
             return;
 
         if (!actualOp.TryGetPropertyValue("requestBody", out JsonNode? actualBody) || actualBody is null)
@@ -274,7 +260,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
         {
             string status = responsePair.Key;
 
-            if (responsePair.Value is not JsonNode baselineResponseNode)
+            if (responsePair.Value is not { } baselineResponseNode)
                 continue;
 
             if (!actualResponses.TryGetPropertyValue(status, out JsonNode? actualResponseNode)
@@ -391,48 +377,46 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             bool baseline,
             out JsonObject result)
         {
-            if (node is JsonObject obj)
+            if (node is not JsonObject obj)
+                return Fail(out result);
+
+            if (obj.TryGetPropertyValue("$ref", out JsonNode? refNode) && refNode is JsonValue refVal)
             {
-                if (obj.TryGetPropertyValue("$ref", out JsonNode? refNode) && refNode is JsonValue refVal)
+                string pointer = refVal.GetValue<string>();
+
+                if (string.IsNullOrWhiteSpace(pointer))
                 {
-                    string pointer = refVal.GetValue<string>() ?? "";
-
-                    if (string.IsNullOrWhiteSpace(pointer))
-                    {
-                        result = null!;
-                        return false;
-                    }
-
-                    string refTag = (baseline ? "b:" : "a:") + pointer;
-
-                    if (!refsVisited.Add(refTag))
-                    {
-                        result = null!;
-                        return false;
-                    }
-
-                    try
-                    {
-                        JsonObject comps = baseline ? baselineComponents : actualComponents;
-
-                        if (!TryResolveJsonPointer(comps, pointer, out JsonNode? resolved) || resolved is not JsonObject target)
-                            return Fail(out result);
-
-                        JsonObject flattened = InlineRefShallowMerge(obj, target);
-
-                        return TryNormalizeToObject(flattened, baselineComponents, actualComponents, refsVisited, baseline, out result);
-                    }
-                    finally
-                    {
-                        _ = refsVisited.Remove(refTag);
-                    }
+                    result = null!;
+                    return false;
                 }
 
-                result = obj;
-                return true;
+                string refTag = (baseline ? "b:" : "a:") + pointer;
+
+                if (!refsVisited.Add(refTag))
+                {
+                    result = null!;
+                    return false;
+                }
+
+                try
+                {
+                    JsonObject comps = baseline ? baselineComponents : actualComponents;
+
+                    if (!TryResolveJsonPointer(comps, pointer, out JsonNode? resolved) || resolved is not JsonObject target)
+                        return Fail(out result);
+
+                    JsonObject flattened = InlineRefShallowMerge(obj, target);
+
+                    return TryNormalizeToObject(flattened, baselineComponents, actualComponents, refsVisited, baseline, out result);
+                }
+                finally
+                {
+                    _ = refsVisited.Remove(refTag);
+                }
             }
 
-            return Fail(out result);
+            result = obj;
+            return true;
 
             static bool Fail(out JsonObject r)
             {
@@ -464,7 +448,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
         }
 
         /// <summary>Resolves <c>#/components/schemas/&lt;name&gt;</c> only.</summary>
-        internal static bool TryResolveJsonPointer(JsonObject components, string pointer, out JsonNode? target)
+        private static bool TryResolveJsonPointer(JsonObject components, string pointer, out JsonNode? target)
         {
             target = null;
 
@@ -478,10 +462,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
             if (string.IsNullOrEmpty(name))
                 return false;
 
-            if (components["schemas"] is not JsonObject schemas)
-                return false;
-
-            return schemas.TryGetPropertyValue(name, out target);
+            return components["schemas"] is JsonObject schemas && schemas.TryGetPropertyValue(name, out target);
         }
 
         private static void CompareSchemaObjects(
@@ -519,7 +500,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                         continue;
                     }
 
-                    if (propPair.Value is not JsonNode baselinePropSchema)
+                    if (propPair.Value is not { } baselinePropSchema)
                         continue;
 
                     AssertSchemaCompatible(
@@ -661,22 +642,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                 return;
             }
 
-            foreach (JsonNode? expected in baselineEnum)
-            {
-                bool found = false;
-
-                foreach (JsonNode? candidate in actualEnum)
-                {
-                    if (JsonNode.DeepEquals(candidate, expected))
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found)
-                    violations.Add($"{context}: baseline enum entry `{expected}` missing from actual (breaking for clients relying on discriminator values).");
-            }
+            violations.AddRange(from expected in baselineEnum let found = actualEnum.Any(candidate => JsonNode.DeepEquals(candidate, expected)) where !found select $"{context}: baseline enum entry `{expected}` missing from actual (breaking for clients relying on discriminator values).");
         }
 
         private static void CompareRequiredSubset(List<string> violations, string context, JsonObject baseline, JsonObject actual)
@@ -697,16 +663,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                     continue;
                 }
 
-                bool kept = false;
-
-                foreach (JsonNode? requirement in actualReq)
-                {
-                    if (string.Equals(requirement?.GetValue<string>(), name, StringComparison.Ordinal))
-                    {
-                        kept = true;
-                        break;
-                    }
-                }
+                bool kept = actualReq.Any(requirement => string.Equals(requirement?.GetValue<string>(), name, StringComparison.Ordinal));
 
                 if (!kept)
                     violations.Add($"{context}: baseline property `{name}` was required but is no longer required (breaking consumer writes).");
@@ -744,7 +701,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
 
             for (int i = 0; i < baselineBranches.Count; i++)
             {
-                if (baselineBranches[i] is not JsonNode bChild)
+                if (baselineBranches[i] is not { } bChild)
                     continue;
 
                 bool matched = false;
@@ -754,7 +711,7 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                     if (consumed[j])
                         continue;
 
-                    if (actualBranches[j] is not JsonNode aChild)
+                    if (actualBranches[j] is not { } aChild)
                         continue;
 
                     HashSet<string> trialRefs = new(refsVisited, StringComparer.Ordinal);
@@ -769,12 +726,12 @@ internal static class OpenApiContractBackwardCompatibilityChecker
                         actualComponents,
                         trialRefs);
 
-                    if (trial.Count == 0)
-                    {
-                        consumed[j] = true;
-                        matched = true;
-                        break;
-                    }
+                    if (trial.Count != 0)
+                        continue;
+
+                    consumed[j] = true;
+                    matched = true;
+                    break;
                 }
 
                 if (!matched)

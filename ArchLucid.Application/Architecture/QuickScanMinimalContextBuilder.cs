@@ -10,7 +10,7 @@ public static class QuickScanMinimalContextBuilder
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        string systemName = (request.SystemName).Trim();
+        string systemName = request.SystemName.Trim();
         string cloud = (request.CloudProvider).Trim();
         string description = (request.Description).Trim();
 

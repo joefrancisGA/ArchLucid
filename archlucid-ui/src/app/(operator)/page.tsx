@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 
 import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
@@ -69,6 +70,18 @@ export default function HomePage() {
       >
         <div className="min-w-0 space-y-6">
           <RunsDashboardPanel />
+          {buyerPolishedShell ? (
+            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+              Ready for tenant-backed reviews?{" "}
+              <Link
+                href="/reviews/new"
+                className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+              >
+                Connect your workspace
+              </Link>
+              .
+            </p>
+          ) : null}
           {buyerPolishedShell ? null : <OperatorCorePilotDiagnosticsChecklist />}
           {buyerPolishedShell ? null : <AfterCorePilotChecklistHint />}
 
@@ -103,10 +116,10 @@ export default function HomePage() {
             </section>
             )}
 
-            <BeforeAfterDeltaPanel />
-
             {buyerPolishedShell ? null : <HomeMaturityLayerCards />}
           </OperationalMetricsGate>
+
+          <BeforeAfterDeltaPanel />
         </div>
 
         {buyerPolishedShell ? null : (

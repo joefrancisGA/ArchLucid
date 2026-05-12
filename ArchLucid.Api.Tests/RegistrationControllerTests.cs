@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -16,19 +16,12 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 [Collection("ArchLucidEnvMutation")]
-public sealed class RegistrationControllerTests : IClassFixture<GreenfieldSqlApiFactory>
+public sealed class RegistrationControllerTests(GreenfieldSqlApiFactory fixture) : IClassFixture<GreenfieldSqlApiFactory>
 {
-    private readonly GreenfieldSqlApiFactory _fixture;
-
-    public RegistrationControllerTests(GreenfieldSqlApiFactory fixture)
-    {
-        _fixture = fixture;
-    }
-
     [SkippableFact]
     public async Task Register_creates_tenant_then_returns_conflict_for_same_organization()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
         string organizationName = "Reg Org " + Guid.NewGuid().ToString("N");
 
         using HttpResponseMessage created = await client.PostAsync(
@@ -47,7 +40,7 @@ public sealed class RegistrationControllerTests : IClassFixture<GreenfieldSqlApi
     [SkippableFact]
     public async Task Register_then_trial_status_returns_active_with_sample_run()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
         string organizationName = "Trial Org " + Guid.NewGuid().ToString("N");
 
         using HttpResponseMessage created = await client.PostAsync(
@@ -72,7 +65,8 @@ public sealed class RegistrationControllerTests : IClassFixture<GreenfieldSqlApi
     {
         Dictionary<string, string?> payload = new()
         {
-            ["organizationName"] = organizationName, ["adminEmail"] = adminEmail
+            ["organizationName"] = organizationName,
+            ["adminEmail"] = adminEmail
         };
 
         if (!string.IsNullOrWhiteSpace(displayName))

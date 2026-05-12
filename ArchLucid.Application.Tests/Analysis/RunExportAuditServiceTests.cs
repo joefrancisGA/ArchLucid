@@ -18,7 +18,7 @@ public sealed class RunExportAuditServiceTests
         Mock<IRunExportRecordRepository> repo = new();
         Mock<IAuditService> audit = new();
         RunExportAuditService sut = new(repo.Object, audit.Object);
-        string runId = "deadbeefdeadbeefdeadbeefdeadbeef";
+        const string runId = "deadbeefdeadbeefdeadbeefdeadbeef";
 
         RunExportRecord row = await sut.RecordAsync(
             runId,

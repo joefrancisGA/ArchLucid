@@ -15,13 +15,8 @@ namespace ArchLucid.Api.Tests;
 /// <summary>HTTP coverage for <c>POST /v1/findings/{findingId}/mute</c> (ExecuteAuthority).</summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
-public sealed class FindingMuteEndpointTests : IntegrationTestBase
+public sealed class FindingMuteEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    public FindingMuteEndpointTests(ArchLucidApiFactory factory)
-        : base(factory)
-    {
-    }
-
     private static string DemoPrimaryFindingId =>
         $"finding-demo-{ContosoRetailDemoIdentifiers.AuthorityRunBaselineId:N}-primary";
 

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Bootstrap;
@@ -20,16 +20,9 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
-public sealed class FindingInspectEndpointTests : IntegrationTestBase
+public sealed class FindingInspectEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 
 {
-    public FindingInspectEndpointTests(ArchLucidApiFactory factory)
-        : base(factory)
-
-    {
-    }
-
-
     private static string DemoPrimaryFindingId =>
         $"finding-demo-{ContosoRetailDemoIdentifiers.AuthorityRunBaselineId:N}-primary";
 

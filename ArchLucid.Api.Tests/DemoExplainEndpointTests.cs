@@ -38,20 +38,13 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
-public sealed class DemoExplainEndpointTests : IClassFixture<ArchLucidApiFactory>
+public sealed class DemoExplainEndpointTests(ArchLucidApiFactory factory) : IClassFixture<ArchLucidApiFactory>
 {
-    private readonly ArchLucidApiFactory _factory;
-
-    public DemoExplainEndpointTests(ArchLucidApiFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task GetDemoExplain_returns_404_when_demo_not_enabled_on_deployment()
     {
         // Factory defaults leave Demo:Enabled unset (false). The FeatureGateFilter must hide the route entirely.
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         HttpResponseMessage response = await client.GetAsync("/v1/demo/explain");
@@ -62,7 +55,7 @@ public sealed class DemoExplainEndpointTests : IClassFixture<ArchLucidApiFactory
     [SkippableFact]
     public async Task GetDemoExplain_returns_404_when_demo_enabled_but_no_committed_demo_run()
     {
-        WebApplicationFactory<Program> enabled = _factory.WithWebHostBuilder(builder =>
+        WebApplicationFactory<Program> enabled = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
                 new Dictionary<string, string?> { ["Demo:Enabled"] = "true" }));
@@ -81,7 +74,7 @@ public sealed class DemoExplainEndpointTests : IClassFixture<ArchLucidApiFactory
     {
         StubDemoReadModelClient stub = new();
 
-        WebApplicationFactory<Program> enabled = _factory.WithWebHostBuilder(builder =>
+        WebApplicationFactory<Program> enabled = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
                 new Dictionary<string, string?> { ["Demo:Enabled"] = "true" }));

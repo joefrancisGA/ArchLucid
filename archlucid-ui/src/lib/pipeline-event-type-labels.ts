@@ -55,15 +55,17 @@ export function pipelineEventTypeFriendlyLabel(eventType: string): string {
 
 /** One-line “why this milestone matters” for buyer-polished audit cards (falls back to generic). */
 const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
-  RunStarted: "Opens the architecture review record and clocks pipeline work.",
+  RunStarted: "Creates the review record and starts the evidence capture timeline.",
   RunCompleted: "Closes the run with a durable outcome snapshot for governance and audit.",
   RunSubmitted: "Hands off the review package for formal review or governance steps.",
   ManifestGenerated: "Produces the versioned architecture manifest backing decisions and exports.",
-  ManifestFinalized: "Pins the authoritative reviewed manifest for sign-off and downstream promotion.",
+  ManifestFinalized:
+    "Seals the reviewed manifest as the authoritative record for decisions, deliverables, and audit.",
   FindingsSnapshotSealed: "Freezes finding text and severities for traceability and remediation tickets.",
   ArtifactsGenerated: "Materializes sponsor and compliance deliverables attached to the manifest.",
-  GovernanceApprovalRequested: "Creates an auditable governance checkpoint before environment promotion.",
-  "finalize.run": "Pins the authoritative reviewed manifest for sign-off and downstream promotion.",
+  GovernanceApprovalRequested:
+    "Creates an auditable governance checkpoint before any governed downstream handoff.",
+  "finalize.run": "Seals the reviewed manifest as the authoritative record for decisions, deliverables, and audit.",
   "run.finalized": "Closes the run with a durable outcome snapshot for governance and audit.",
   "context.snapshot.created": "Captures the ingested context used to justify findings and graph evidence.",
   "graph.snapshot.created": "Persists the architecture relationship graph used in the evidence trail.",
@@ -75,9 +77,12 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   graph_snapshot: "Persists the architecture relationship graph used in the evidence trail.",
   findings_snapshot: "Persists generated findings before final manifest packaging.",
   "com.archlucid.authority.run.completed": "Closes the run with a durable outcome snapshot for governance and audit.",
-  "com.archlucid.manifest.finalized.v1": "Pins the authoritative reviewed manifest for sign-off and downstream promotion.",
-  "com.archlucid.governance.approval.submitted": "Creates an auditable governance checkpoint before environment promotion.",
-  "com.archlucid.governance.promotion.activated": "Records that an approved package advanced toward the target environment.",
+  "com.archlucid.manifest.finalized.v1":
+    "Seals the reviewed manifest as the authoritative record for decisions, deliverables, and audit.",
+  "com.archlucid.governance.approval.submitted":
+    "Creates an auditable governance checkpoint before any governed downstream handoff.",
+  "com.archlucid.governance.promotion.activated":
+    "Records that an approved package was authorized to advance within the governed change boundary.",
 };
 
 export function pipelineEventTypeBuyerMilestoneSubtitle(eventType: string): string {

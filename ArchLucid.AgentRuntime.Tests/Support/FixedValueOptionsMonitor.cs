@@ -6,11 +6,12 @@ namespace ArchLucid.AgentRuntime.Tests.Support;
 public sealed class FixedValueOptionsMonitor<TOptions>(TOptions value) : IOptionsMonitor<TOptions>
     where TOptions : class
 {
-    private readonly TOptions _value = value ?? throw new ArgumentNullException(nameof(value));
+    public TOptions CurrentValue
+    {
+        get;
+    } = value ?? throw new ArgumentNullException(nameof(value));
 
-    public TOptions CurrentValue => _value;
-
-    public TOptions Get(string? name) => _value;
+    public TOptions Get(string? name) => CurrentValue;
 
     public IDisposable OnChange(Action<TOptions, string?> listener) => NullOptionsChangeDisposable.Instance;
 

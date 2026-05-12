@@ -497,23 +497,17 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             Task.FromException<HttpResponseMessage>(new InvalidOperationException("Unexpected HTTP call."));
     }
 
-    private sealed class RecordingHandler : HttpMessageHandler
+    private sealed class RecordingHandler(Func<HttpRequestMessage, HttpResponseMessage> onRequest) : HttpMessageHandler
     {
-        private readonly Func<HttpRequestMessage, HttpResponseMessage> _onRequest;
         internal int RequestCount;
         internal string? LastBody;
-
-        public RecordingHandler(Func<HttpRequestMessage, HttpResponseMessage> onRequest)
-        {
-            _onRequest = onRequest;
-        }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             RequestCount++;
             LastBody = request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken);
 
-            return _onRequest(request);
+            return onRequest(request);
         }
     }
 }

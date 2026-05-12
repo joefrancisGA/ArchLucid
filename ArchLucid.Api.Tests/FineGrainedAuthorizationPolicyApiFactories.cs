@@ -29,7 +29,7 @@ public sealed class ReaderRoleArchLucidApiFactory : ArchLucidApiFactory
 ///     Like <see cref="ArchLucidRoleClaimsTransformation" /> but drops one <c>permission</c> for the Operator role (tests
 ///     fine-grained policies).
 /// </summary>
-internal sealed class OmitOnePermissionForOperatorClaimsTransformation : IClaimsTransformation
+internal sealed class OmitOnePermissionForOperatorClaimsTransformation(string omitPermission) : IClaimsTransformation
 {
     private static readonly string[] AdminPermissions =
     [
@@ -49,13 +49,6 @@ internal sealed class OmitOnePermissionForOperatorClaimsTransformation : IClaims
         "replay:comparisons",
         "replay:diagnostics"
     ];
-
-    private readonly string _omitPermission;
-
-    public OmitOnePermissionForOperatorClaimsTransformation(string omitPermission)
-    {
-        _omitPermission = omitPermission;
-    }
 
     public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
@@ -86,7 +79,7 @@ internal sealed class OmitOnePermissionForOperatorClaimsTransformation : IClaims
         {
             foreach (string p in OperatorPermissions)
             {
-                if (!string.Equals(p, _omitPermission, StringComparison.Ordinal))
+                if (!string.Equals(p, omitPermission, StringComparison.Ordinal))
                     AddPermission(p);
             }
         }
@@ -94,7 +87,7 @@ internal sealed class OmitOnePermissionForOperatorClaimsTransformation : IClaims
         {
             foreach (string p in OperatorPermissions)
             {
-                if (!string.Equals(p, _omitPermission, StringComparison.Ordinal))
+                if (!string.Equals(p, omitPermission, StringComparison.Ordinal))
                     AddPermission(p);
             }
         }

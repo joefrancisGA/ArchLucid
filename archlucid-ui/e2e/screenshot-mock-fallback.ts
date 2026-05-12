@@ -3,6 +3,8 @@
  * so operator pages render empty states instead of transport errors.
  */
 
+import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
+
 const emptyPaged = { items: [], totalCount: 0, page: 1, pageSize: 20, hasMore: false };
 
 const policyPackContent = {
@@ -226,6 +228,42 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
 
   if (pathname === "/v1/pilots/runs/recent-deltas") {
     return { deltas: [] as unknown[] };
+  }
+
+  const pilotRunDeltasMatch = /^\/v1\/pilots\/runs\/([^/]+)\/pilot-run-deltas$/.exec(pathname);
+
+  if (pilotRunDeltasMatch) {
+    return {
+      timeToCommittedManifestTotalSeconds: 4 * 3600,
+      manifestCommittedUtc: "2026-04-15T12:00:00.000Z",
+      runCreatedUtc: "2026-04-15T08:00:00.000Z",
+      findingsBySeverity: [] as unknown[],
+      auditRowCount: 12,
+      auditRowCountTruncated: false,
+      llmCallCount: 0,
+      topFindingSeverity: null,
+      topFindingId: null,
+      topFindingEvidenceChain: null,
+      isDemoTenant: true,
+    };
+  }
+
+  if (pathname === "/v1/tenant/trial-status") {
+    return {
+      status: "Active",
+      trialStartUtc: "2026-04-14T12:00:00.000Z",
+      trialExpiresUtc: "2026-04-28T12:00:00.000Z",
+      daysRemaining: 7,
+      trialRunsUsed: 1,
+      trialRunsLimit: 5,
+      trialSeatsUsed: 1,
+      trialSeatsLimit: 3,
+      trialWelcomeRunId: MOCK_TRIAL_WELCOME_RUN_ID,
+      firstCommitUtc: "2026-04-15T12:00:00.000Z",
+      baselineReviewCycleHours: 16,
+      baselineReviewCycleSource: "team estimate",
+      baselineReviewCycleCapturedUtc: "2026-04-14T12:00:00.000Z",
+    };
   }
 
   if (pathname === "/v1/pilots/runs/roi-bulletin") {
