@@ -64,7 +64,7 @@ namespace Microsoft.AspNetCore.Mvc
     [Fact]
     public async Task AL0003_reports_when_HttpPost_action_lacks_IAudit_LogAsync()
     {
-        string testCode = AuditAndMvcStubs +
+        const string testCode = AuditAndMvcStubs +
             """
 
 namespace ArchLucid.Api.Probe
@@ -174,7 +174,7 @@ public sealed class ListedController(IAuditService auditService) : ControllerBas
     [Fact]
     public async Task Mutating_audit_excluded_attribute_suppresses_AL0003()
     {
-        string testCode = AuditAndMvcStubs +
+        const string testCode = AuditAndMvcStubs +
             """
 
 namespace ArchLucid.Api.Probe
@@ -205,7 +205,7 @@ public sealed class ExcludedController : ControllerBase
     [Fact]
     public async Task Http_Get_actions_do_not_require_audit()
     {
-        string testCode = AuditAndMvcStubs +
+        const string testCode = AuditAndMvcStubs +
             """
 
 namespace ArchLucid.Api.Probe

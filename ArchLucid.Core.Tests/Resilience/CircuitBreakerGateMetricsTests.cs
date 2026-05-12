@@ -19,7 +19,11 @@ public sealed class CircuitBreakerGateMetricsTests
 
         using MeasurementCapture capture = MeasurementCapture.Start();
 
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 10 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 10
+        };
         CircuitBreakerGate gate = new("test-gate", options);
         gate.RecordFailure();
 
@@ -41,7 +45,11 @@ public sealed class CircuitBreakerGateMetricsTests
 
         using MeasurementCapture capture = MeasurementCapture.Start();
 
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 10 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 10
+        };
         CircuitBreakerGate gate = new("reject-gate", options);
         gate.RecordFailure();
 
@@ -64,7 +72,11 @@ public sealed class CircuitBreakerGateMetricsTests
         using MeasurementCapture capture = MeasurementCapture.Start();
 
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 30 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30
+        };
         CircuitBreakerGate gate = new("probe-gate", options, new DelegateTimeProvider(clock.ToFunc()));
 
         gate.RecordFailure();
@@ -130,7 +142,7 @@ public sealed class CircuitBreakerGateMetricsTests
             return new MeasurementCapture();
         }
 
-        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        static private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
             if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
             {
