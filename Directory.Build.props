@@ -1,5 +1,8 @@
 <Project>
   <PropertyGroup>
+    <!-- Nullable reference types: strict in analysis; promote nullable diagnostic set to errors (see also WarningsAsErrors). -->
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>$(WarningsAsErrors);nullable</WarningsAsErrors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AnalysisLevel>latest</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
