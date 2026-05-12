@@ -63,7 +63,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         ItsmInboundWebhookSyncService sut =
             new(correlations.Object, monitor.Object, NullLogger<ItsmInboundWebhookSyncService>.Instance);
 
-        string json =
+        const string json =
             """
             {"issue":{"key":"KEY-1","fields":{"status":{"name":"Blocked"}}}}
             """;

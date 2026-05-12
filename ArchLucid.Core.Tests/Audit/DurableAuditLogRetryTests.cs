@@ -156,7 +156,7 @@ public sealed class DurableAuditLogRetryTests
 
         public static AuditWriteFailureCapture Start() => new();
 
-        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        static private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
             if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
                 return;

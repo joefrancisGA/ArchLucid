@@ -5,7 +5,7 @@
 ## Executive Summary
 
 **Overall Readiness**
-ArchLucid possesses a highly viable, production-ready foundation with an 87.01% weighted readiness score. The core architecture loop, golden manifest mechanics, and isolation patterns are exceptionally well-designed. Nullable reference settings, core pilot UI E2E, and NuGet vulnerability gating are now automated in CI; other enforcement gaps (coverage floors, additional journeys) still warrant attention to limit long-run maintenance friction.
+ArchLucid possesses a highly viable, production-ready foundation with an 87.01% weighted readiness score. The core architecture loop, golden manifest mechanics, and isolation patterns are exceptionally well-designed. Nullable reference settings, core pilot UI E2E, NuGet vulnerability gating, and strict merged coverage gates (95% line floor + ratchet in CI) are now automated; other enforcement gaps (additional journeys) still warrant attention to limit long-run maintenance friction.
 
 **The Commercial Picture**
 The commercial posture is strong. The product delivers near-immediate Proof-of-ROI and Time-to-Value via Tier 1, zero-trust Azure cost extractions. The absence of automated monetization mechanics (Stripe live keys) is an accepted V1.1 constraint that does not negatively impact the current sales-led pilot strategy.
@@ -434,7 +434,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** "try for 100% code coverage with unit tests".
     - **Expected impact:** Correctness (+3 pts).
     - **Affected qualities:** Correctness.
-    - **Status:** Actionable now.
+    - **Status:** Complete — **`.github/workflows/ci.yml`** (`assert_merged_line_coverage_min.py` **95%** merged line; **63%** branch / per-package); **`.coverage-floor`** (97% ratchet → **95%** floor with 2% slack); **`coverage.runsettings`** (generated excludes + note on DTOs); docs **`docs/library/coverage-exclusions.md`**, **`docs/library/CODE_COVERAGE.md`**, **`docs/engineering/BUILD.md`**.
     ```text
     Modify the CI build pipeline script (e.g. `docs/engineering/BUILD.md` equivalent `build.ps1`) to fail the build if unit test coverage drops below 95%.
     - Specify files: `coverage.runsettings`, build scripts.

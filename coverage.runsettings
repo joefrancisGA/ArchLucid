@@ -12,6 +12,7 @@
                minimum would fail projects that only exercise a slice of the solution. Prefer merged Cobertura + ReportGenerator
                (see CI "Merge coverage" step) and/or a dedicated script on the merged XML when you want a repo-wide gate. -->
           <!-- Tier 5: generated / external-HTTP surfaces not meaningfully unit-tested -->
+          <!-- Pure contract/DTO assemblies: exclude only when types are [ExcludeFromCodeCoverage] per docs/library/coverage-exclusions.md (assembly-wide omit would skew merge %). -->
           <Exclude>[ArchLucid.Cli]*ArchLucidApiClient*</Exclude>
           <Exclude>[ArchLucid.Api]Microsoft.AspNetCore.OpenApi.Generated*</Exclude>
           <ExcludeByFile>**/obj/**/OpenApiXmlCommentSupport.generated.cs,**/obj/**/LoggerMessage.g.cs,**/ArchLucid.Api.Client/Generated/**,**/RegexGenerator.g.cs</ExcludeByFile>

@@ -19,8 +19,12 @@ public sealed class ServiceNowCmdbCiApplTableApiTests
         uri.Query.Should().Contain("sysparm_limit=1");
 
         uri.Query.Should().Contain("sysparm_query=");
-        uri.ToString().Should().Contain(Uri.EscapeDataString("Billing & Co"));
         uri.Query.Should().Contain("name=");
+
+        string expectedEscapedNameSegment = Uri.EscapeDataString("Billing & Co");
+        ServiceNowCmdbCiApplTableApi.BuildLookupQueryString("Billing & Co")
+            .Should()
+            .Contain(expectedEscapedNameSegment, because: "ServiceNow receives name= encoded via EscapeDataString");
     }
 
     [Fact]

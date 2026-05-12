@@ -91,7 +91,7 @@ public sealed class SchemaValidationIntegrationTests
         });
         ISchemaValidationService service = services.BuildServiceProvider().GetRequiredService<ISchemaValidationService>();
 
-        string validJson = """
+        const string validJson = """
                            {
                                "resultId": "res-1",
                                "taskId": "task-1",

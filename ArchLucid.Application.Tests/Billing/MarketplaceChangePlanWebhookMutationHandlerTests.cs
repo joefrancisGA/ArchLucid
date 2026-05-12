@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
@@ -21,7 +21,8 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
     {
         BillingOptions billing = new()
         {
-            Provider = BillingProviderNames.AzureMarketplace, AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
+            Provider = BillingProviderNames.AzureMarketplace,
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
         };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
@@ -48,7 +49,8 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
     {
         BillingOptions billing = new()
         {
-            Provider = BillingProviderNames.AzureMarketplace, AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
+            Provider = BillingProviderNames.AzureMarketplace,
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
         };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
@@ -63,7 +65,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
             NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
 
         Guid tenantId = Guid.NewGuid();
-        string raw = "{\"planId\":\"x-enterprise\"}";
+        const string raw = "{\"planId\":\"x-enterprise\"}";
         using JsonDocument doc = JsonDocument.Parse(raw);
 
         MarketplaceWebhookMutationOutcome outcome =
@@ -77,7 +79,11 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
     [SkippableFact]
     public async Task Stripe_provider_applies_change_plan_when_azure_marketplace_ga_disabled()
     {
-        BillingOptions billing = new() { Provider = BillingProviderNames.Stripe, AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false }, };
+        BillingOptions billing = new()
+        {
+            Provider = BillingProviderNames.Stripe,
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
+        };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
         Mock<IBillingLedger> ledger = new();

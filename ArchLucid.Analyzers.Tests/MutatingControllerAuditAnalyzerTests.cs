@@ -101,7 +101,7 @@ public sealed class IgnoresAuditController(IAuditService auditService) : Control
     [Fact]
     public async Task AL0003_is_absent_when_LogAsync_is_awaited()
     {
-        string testCode = AuditAndMvcStubs +
+        const string testCode = AuditAndMvcStubs +
             """
 
 namespace ArchLucid.Api.Probe
@@ -135,7 +135,7 @@ public sealed class AuditedController(IAuditService auditService) : ControllerBa
     [Fact]
     public async Task Allowlist_additional_text_suppresses_AL0003()
     {
-        string testCode = AuditAndMvcStubs +
+        const string testCode = AuditAndMvcStubs +
             """
 
 namespace ArchLucid.Api.Probe

@@ -10,15 +10,25 @@ internal static class ServiceNowCmdbCiApplTableApi
     internal const string TablePathSegment = "cmdb_ci_appl";
 
     /// <remarks><paramref name="systemNameForQuery"/> must already be trimmed; caller validates non-empty.</remarks>
+    internal static string BuildLookupQueryString(string systemNameForQuery)
+    {
+        ArgumentNullException.ThrowIfNull(systemNameForQuery);
+
+        string encodedName = Uri.EscapeDataString(systemNameForQuery);
+
+        return $"sysparm_limit=1&sysparm_query=name={encodedName}";
+    }
+
+    /// <remarks><paramref name="systemNameForQuery"/> must already be trimmed; caller validates non-empty.</remarks>
     internal static Uri BuildLookupBySystemNameUri(Uri instanceRoot, string systemNameForQuery)
     {
         ArgumentNullException.ThrowIfNull(instanceRoot);
         ArgumentNullException.ThrowIfNull(systemNameForQuery);
 
         string root = instanceRoot.GetLeftPart(UriPartial.Authority).TrimEnd('/');
-        string encodedName = Uri.EscapeDataString(systemNameForQuery);
+        string query = BuildLookupQueryString(systemNameForQuery);
 
-        return new Uri($"{root}/api/now/table/{TablePathSegment}?sysparm_limit=1&sysparm_query=name={encodedName}");
+        return new Uri($"{root}/api/now/table/{TablePathSegment}?{query}");
     }
 
     internal static Uri BuildCreateUri(Uri instanceRoot)
