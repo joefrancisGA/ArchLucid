@@ -41,9 +41,10 @@ on:
         type: boolean
 
 # Opt into Node 24 for JavaScript actions (GitHub default June 2026). Docker Buildx / build-push use
-# setup-buildx-action@v4 + build-push-action@v7 (Node 24 runtimes; runner ≥ v2.327.1). Other third-party
-# actions may still declare node20 until republished. Tier-0 secret scan uses
-# gacts/gitleaks (node24-native) instead of gitleaks/gitleaks-action to avoid Node 20 deprecation noise.
+# setup-buildx-action@v4 + build-push-action@v7 (Node 24 runtimes; runner ≥ v2.327.1). Prefer
+# `actions/setup-python@v6` here (matches Node 24; v5 targeted Node 20). Other third-party actions may still
+# declare node20 until republished. Tier-0 secret scan uses gacts/gitleaks (node24-native) instead of
+# gitleaks/gitleaks-action to avoid Node 20 deprecation noise.
 # Trivy: pin `aquasecurity/trivy-action` to a **commit** (org allow-lists). `setup-trivy@3fb12ec` runs
 # `contrib/install.sh` (godownloader) which scrapes `GET https://github.com/.../releases/<tag>` as JSON.
 # **v0.70.0** can fail on that path (`crit unable to find 'v0.70.0'`) even when the tag exists; pin **v0.69.3**
@@ -77,7 +78,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -96,7 +97,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -114,7 +115,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -136,7 +137,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -178,7 +179,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -594,7 +595,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -626,7 +627,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -950,7 +951,7 @@ jobs:
         with:
           terraform_wrapper: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -2436,7 +2437,7 @@ jobs:
             global.json
             **/*.csproj
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 

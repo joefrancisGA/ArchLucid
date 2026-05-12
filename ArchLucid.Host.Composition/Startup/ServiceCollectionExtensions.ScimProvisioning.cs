@@ -2,6 +2,7 @@ using ArchLucid.Application.Scim;
 using ArchLucid.Application.Scim.RoleMapping;
 using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Host.Core.Auth.Services;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -15,6 +16,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IScimBearerTokenAuthenticator, ScimBearerTokenAuthenticator>();
         services.AddScoped<IScimUserService, ScimUserService>();
         services.AddScoped<IScimGroupService, ScimGroupService>();
+        services.AddScoped<IRoleSyncService, RoleSyncService>();
         services.AddHostedService<ScimTokenRotationReminderJob>();
     }
 }
