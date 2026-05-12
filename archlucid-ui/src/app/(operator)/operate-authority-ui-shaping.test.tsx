@@ -70,6 +70,7 @@ const apiHoisted = vi.hoisted(() => ({
   listDigestSubscriptions: vi.fn(),
   listAdvisorySchedules: vi.fn(),
   listRunsByProjectPaged: vi.fn(),
+  simulateAlertRule: vi.fn(),
 }));
 
 /**
@@ -105,6 +106,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
     listDigestSubscriptions: apiHoisted.listDigestSubscriptions,
     listAdvisorySchedules: apiHoisted.listAdvisorySchedules,
     listRunsByProjectPaged: apiHoisted.listRunsByProjectPaged,
+    simulateAlertRule: apiHoisted.simulateAlertRule,
   };
 });
 
@@ -215,6 +217,16 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       page: 1,
       pageSize: 50,
       hasMore: false,
+    });
+    apiHoisted.simulateAlertRule.mockResolvedValue({
+      ruleKind: "Simple",
+      simulatedUtc: "2026-01-01T00:00:00Z",
+      evaluatedRunCount: 2,
+      matchedCount: 1,
+      wouldCreateCount: 1,
+      wouldSuppressCount: 0,
+      summaryNotes: [] as string[],
+      outcomes: [] as import("@/types/alert-simulation").SimulatedAlertOutcome[],
     });
   });
 
@@ -406,6 +418,51 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
+    });
+  });
+
+  const sampleListedRule: import("@/types/alerts").AlertRule = {
+    ruleId: "r-ui-simulate",
+    tenantId: "t-ui-shape",
+    workspaceId: "w-ui-shape",
+    projectId: "p-ui-shape",
+    name: "Simulate-able rule",
+    ruleType: "CriticalRecommendationCount",
+    severity: "Warning",
+    thresholdValue: 2,
+    isEnabled: true,
+    targetChannelType: "DigestOnly",
+    metadataJson: "{}",
+    createdUtc: "2024-01-01T00:00:00Z",
+  };
+
+  it("Alert rules: Simulate runs POST simulation and headlines when alerts would fire", async () => {
+    mutateCapability.current = true;
+    apiHoisted.listAlertRules.mockResolvedValue([sampleListedRule]);
+
+    render(<AlertRulesContent />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Simulate alert rule Simulate-able rule/ })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Simulate alert rule Simulate-able rule/ }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: /Simulate: Simulate-able rule/ })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("alert-rule-simulate-run"));
+
+    await waitFor(() => {
+      expect(apiHoisted.simulateAlertRule).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId("alert-rule-simulate-verdict")).toHaveTextContent("Alert would fire");
+
+      const arg = apiHoisted.simulateAlertRule.mock.calls[0]![0] as Record<string, unknown>;
+
+      expect(arg.ruleKind).toBe("Simple");
+
+      expect(arg.simpleRule).toMatchObject({ ruleId: "r-ui-simulate", thresholdValue: 2 });
     });
   });
 

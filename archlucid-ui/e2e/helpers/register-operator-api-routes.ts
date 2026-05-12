@@ -305,7 +305,10 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
 
       return;
     }
+
+    if (apiPath === "/v1/tenant/cost-estimate") {
       await fulfillJson(route, 200, fixtureTenantCostEstimate());
+
       return;
     }
 
