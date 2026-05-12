@@ -42,6 +42,7 @@ public sealed class CompletionsCommandTests
             text.Should().Contain("deployment-evidence");
             text.Should().Contain("explain-operator-model");
             text.Should().Contain("az-token-test");
+            text.Should().Contain("az-roles");
         }
         finally
         {
