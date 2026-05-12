@@ -34,6 +34,10 @@ ArchLucid.Api.Controllers.Authority.ExportsController.ReplayExportRecordMetadata
 ArchLucid.Api.Controllers.Authority.ImportRequestFileController.ImportAsync
 # Durable audit: AzureExtractorIngestService logs AzureExtractorPackageUploaded / ParseFailed / SchemaRejected / IngestSucceeded via IAuditService.LogAsync.
 ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController.UploadAsync
+# Chunk bytes are staged only; per-chunk controller audit would flood dbo.AuditEvents — durable ingest audit runs on CompleteChunkUploadAsync via IngestZipBytesAsync (same as UploadAsync).
+ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController.UploadChunkAsync
+# Durable audit: AzureExtractorIngestService.IngestZipBytesAsync (same LogAsync sequence as UploadAsync).
+ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController.CompleteChunkUploadAsync
 ArchLucid.Api.Controllers.Authority.RunComparisonController.CompareRunsEndToEndSummary
 ArchLucid.Api.Controllers.Authority.RunsController.CommitRun
 ArchLucid.Api.Controllers.Authority.RunsController.CreateRun
