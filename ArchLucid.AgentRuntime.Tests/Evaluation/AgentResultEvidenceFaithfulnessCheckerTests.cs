@@ -43,10 +43,9 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
             ],
         };
 
-        string json =
-            """
-            {"claims":[{"detail":"Front Door terminates TLS per pattern-front-door guidance for cat-app-service deployments.","evidenceRefs":["pattern-front-door","cat-app-service"]}],"findings":[{"severity":"Low","category":"Topology","description":"Azure Front Door terminates HTTPS before requests reach App Service compute.","recommendation":"Keep managed rules enabled on Azure Front Door edge profiles annually."}]}
-            """;
+        const string json = """
+                            {"claims":[{"detail":"Front Door terminates TLS per pattern-front-door guidance for cat-app-service deployments.","evidenceRefs":["pattern-front-door","cat-app-service"]}],"findings":[{"severity":"Low","category":"Topology","description":"Azure Front Door terminates HTTPS before requests reach App Service compute.","recommendation":"Keep managed rules enabled on Azure Front Door edge profiles annually."}]}
+                            """;
 
         AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
 

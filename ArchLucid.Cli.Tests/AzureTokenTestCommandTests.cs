@@ -26,7 +26,7 @@ public sealed class AzureTokenTestCommandTests
 
             SeededJwtCredential credential = new(secretJwt);
 
-            string scope = AzureTokenTestCommand.DefaultManagementScope;
+            const string scope = AzureTokenTestCommand.DefaultManagementScope;
 
             int code = await AzureTokenTestCommand.RunCoreAsync(credential, scope, CancellationToken.None);
 

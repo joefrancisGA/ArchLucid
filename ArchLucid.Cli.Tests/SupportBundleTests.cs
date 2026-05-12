@@ -48,7 +48,7 @@ public sealed class SupportBundleTests
     [Fact]
     public void RedactSensitivePatterns_strips_jwt_openai_sk_json_keys_and_long_content_fields()
     {
-        string markerJwt = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIiJ9.BADMARKERPAYLOADSIGNATUREZZZZ.BADMARKERSIGTOKENZZZZZ";
+        const string markerJwt = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIiJ9.BADMARKERPAYLOADSIGNATUREZZZZ.BADMARKERSIGTOKENZZZZZ";
         const string markerSk = "sk-proj-ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEF";
         const string markerCompact = "{\"apiKey\":\"K_COMPACT_SECRET_LEAK_xx\"}";
         string markerPromptPad = "{\"content\":\"" + "PROMPT_UNIQUE_PAD_" + new string('z', 450) + "\"}";
@@ -185,7 +185,10 @@ public sealed class SupportBundleTests
     [Fact]
     public void WriteDirectoryWithRedaction_manifest_records_pattern_rules_and_redacts_bearer_in_log_excerpt()
     {
-        SupportBundleLogsSection logs = new() { LocalLogExcerpt = "Authorization: Bearer supersecret\r\nok" };
+        SupportBundleLogsSection logs = new()
+        {
+            LocalLogExcerpt = "Authorization: Bearer supersecret\r\nok"
+        };
 
         SupportBundlePayload payload = new(
             new SupportBundleManifest { CreatedUtc = "2026-01-01T00:00:00Z", CliWorkingDirectory = "/tmp" },

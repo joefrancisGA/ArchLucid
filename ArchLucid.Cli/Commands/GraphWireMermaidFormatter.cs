@@ -17,7 +17,7 @@ internal static class GraphWireMermaidFormatter
             vm.Nodes
                 .Where(static n => !string.IsNullOrWhiteSpace(n.Id))
                 .GroupBy(static n => n.Id.Trim(), StringComparer.Ordinal)
-                .ToDictionary(static g => g.Key, static g => (GraphNodeWire?)g.First(), StringComparer.Ordinal);
+                .ToDictionary(static g => g.Key, static GraphNodeWire? (g) => g.First(), StringComparer.Ordinal);
 
         HashSet<string> edgeReferenced = [];
 

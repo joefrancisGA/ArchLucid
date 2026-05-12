@@ -12,7 +12,7 @@ public sealed class RunSupportPacketCommandTests
     public async Task RunCoreAsync_when_run_missing_writes_failure_and_returns_operation_failed()
     {
         StringWriter output = new();
-        string runId = "missing-run";
+        const string runId = "missing-run";
 
         int code = await RunSupportPacketCommand.RunCoreAsync(
             runId,
@@ -29,7 +29,7 @@ public sealed class RunSupportPacketCommandTests
     public async Task RunCoreAsync_when_present_writes_support_banner()
     {
         StringWriter output = new();
-        string runId = "rid-full";
+        const string runId = "rid-full";
 
         int code = await RunSupportPacketCommand.RunCoreAsync(
             runId,
