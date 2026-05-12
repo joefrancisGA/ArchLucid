@@ -101,8 +101,8 @@ public sealed class AzureTokenTestCommandTests
         {
             static string B64Url(string utf8Text) =>
                 Convert.ToBase64String(Encoding.UTF8.GetBytes(utf8Text)).TrimEnd('=')
-                    .Replace("+", "-", StringComparison.Ordinal)
-                    .Replace("/", "_", StringComparison.Ordinal);
+                    .Replace('+', '-')
+                    .Replace('/', '_');
 
             return $"{B64Url(@"{""alg"":""none"",""typ"":""JWT""}")}.{B64Url(payloadJson)}.signature";
         }
