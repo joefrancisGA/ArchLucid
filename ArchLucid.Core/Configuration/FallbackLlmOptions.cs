@@ -11,6 +11,13 @@ public sealed class FallbackLlmOptions
         set;
     }
 
+    /// <summary>Ordered regional / DR targets tried after the primary Azure OpenAI call fails (429 / 5xx).</summary>
+    public List<FallbackLlmEndpointOptions>? Endpoints
+    {
+        get;
+        set;
+    }
+
     public string? Endpoint
     {
         get;

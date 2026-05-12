@@ -5,6 +5,26 @@ import {
   ReviewAuditLifecycleStage,
   type ReviewAuditLifecycleStageValue,
 } from "@/lib/audit-event-presentation";
+import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+/**
+ * True when the buyer-polished audit row should treat the actor as system-recorded (aligned with card subtitles).
+ */
+export function auditBuyerEventIsSystemRecordedActor(actorUserName: string): boolean {
+  const lower = actorUserName.trim().toLowerCase();
+
+  if (lower.length === 0) {
+    return false;
+  }
+
+  return (
+    lower.includes("archlucid automation") ||
+    lower.includes("archlucid system") ||
+    lower.includes("automation") ||
+    lower.includes("recorded by archlucid")
+  );
+}
 
 export function formatAuditSummaryHeading(count: number, hasMore: boolean): string {
   if (count === 0) {
@@ -179,4 +199,39 @@ export function groupAuditEventsByLifecycleStage<T extends { eventType: string }
   }
 
   return result;
+}
+
+/** Buyer-polished audit ribbon above the timeline — counts aligned with {@link auditBuyerEventIsSystemRecordedActor}. */
+export function formatBuyerAuditTrailSummaryLine(
+  events: ReadonlyArray<{ readonly actorUserName?: string | null; readonly runId?: string | null }>,
+  uniformRunId: string | null,
+  filterRunId: string,
+): string | null {
+  if (events.length === 0) {
+    return null;
+  }
+
+  const distinctHumans = new Set<string>();
+  let systemRows = 0;
+
+  for (const ev of events) {
+    const name = (ev.actorUserName ?? "").trim();
+
+    if (name.length === 0) {
+      continue;
+    }
+
+    if (auditBuyerEventIsSystemRecordedActor(name)) {
+      systemRows++;
+    } else {
+      distinctHumans.add(name);
+    }
+  }
+
+  const runKey =
+    uniformRunId ?? (filterRunId.trim().length > 0 ? filterRunId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID);
+  const reviewTitle = buyerFacingReviewLinkLabelFromRunId(runKey);
+  const eventCount = events.length;
+
+  return `${eventCount} recorded events, ${distinctHumans.size} human actor${distinctHumans.size === 1 ? "" : "s"}, ${systemRows} system-recorded event${systemRows === 1 ? "" : "s"}, all tied to ${reviewTitle}.`;
 }

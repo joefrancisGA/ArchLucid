@@ -57,6 +57,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
       authorityRank: AUTHORITY_RANK.ReadAuthority,
       hasEnterpriseOperatorSurfaces: false,
       hasCommittedArchitectureReview: true,
+      permissionClaimValues: [],
     },
   }),
   useNavCallerAuthorityRank: () => AUTHORITY_RANK.ReadAuthority,

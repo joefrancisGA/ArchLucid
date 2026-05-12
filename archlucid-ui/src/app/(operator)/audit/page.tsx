@@ -22,10 +22,12 @@ import type { AuditEvent, CursorPagedResponse } from "@/lib/api";
 import { downloadAuditExportCsv, getAuditEventTypes, searchAuditEvents } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
+  auditBuyerEventIsSystemRecordedActor,
   auditEventLifecycleSortKey,
   auditEventsAreLifecycleOnlyForGrouping,
   canExportAuditCsv,
   formatAuditSummaryHeading,
+  formatBuyerAuditTrailSummaryLine,
   groupAuditEventsByLifecycleStage,
   principalRolesAllowAuditCsvExport,
 } from "@/app/(operator)/audit/audit-ui-helpers";
@@ -136,14 +138,8 @@ function tryFormatDataJson(dataJson: string): string {
 
 function auditBuyerActorRoleLine(actorName: string, eventType: string): string {
   const name = actorName.trim();
-  const lower = name.toLowerCase();
 
-  if (
-    lower.includes("archlucid automation") ||
-    lower.includes("archlucid system") ||
-    lower.includes("automation") ||
-    lower.includes("recorded by archlucid")
-  ) {
+  if (auditBuyerEventIsSystemRecordedActor(name)) {
     return "System-recorded";
   }
 
@@ -705,29 +701,7 @@ export default function AuditPage() {
       return null;
     }
 
-    const eventCount = displayEvents.length;
-    const distinctHumans = new Set<string>();
-    let systemRows = 0;
-
-    for (const ev of displayEvents) {
-      const name = (ev.actorUserName ?? "").trim();
-
-      if (name.length === 0) {
-        continue;
-      }
-
-      if (name.toLowerCase().includes("automation")) {
-        systemRows++;
-      } else {
-        distinctHumans.add(name);
-      }
-    }
-
-    const runKey =
-      uniformRunIdForDisplay ?? (runId.trim().length > 0 ? runId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID);
-    const reviewTitle = buyerFacingReviewLinkLabelFromRunId(runKey);
-
-    return `${eventCount} recorded events, ${distinctHumans.size} human actor${distinctHumans.size === 1 ? "" : "s"}, ${systemRows} system-recorded event${systemRows === 1 ? "" : "s"}, all tied to ${reviewTitle}.`;
+    return formatBuyerAuditTrailSummaryLine(displayEvents, uniformRunIdForDisplay, runId);
   }, [buyerPolishedShell, displayEvents, uniformRunIdForDisplay, runId]);
 
   return (
@@ -1113,7 +1087,7 @@ export default function AuditPage() {
           {buyerPolishedShell ? (
             <>
               Each milestone is traceable to an actor, time, and review context. For deeper verification, expand the
-              technical correlation appendix below for correlation IDs and stored event payloads.
+              technical appendix below for technical audit metadata when your procurement or IT team needs it.
             </>
           ) : (
             <>
@@ -1134,8 +1108,8 @@ export default function AuditPage() {
           {formatAuditSummaryHeading(events.length, hasMoreResults)}.
           {buyerPolishedShell
             ? displayEventGroups !== null
-              ? " Oldest-first pipeline order; grouped by lifecycle stage."
-              : " Oldest-first lifecycle order for this view."
+              ? " Oldest-first review sequence; grouped by lifecycle stage."
+              : " Oldest-first review sequence for this view."
             : " Newest first; use Load more for older entries."}
         </p>
         {buyerPolishedShell && uniformRunIdForDisplay !== null ? (

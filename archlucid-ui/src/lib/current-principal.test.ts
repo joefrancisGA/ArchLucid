@@ -6,6 +6,19 @@ import { AUTHORITY_RANK, requiredAuthorityFromRank } from "@/lib/nav-authority";
 
 /** Guards the `/me` → `CurrentPrincipal` seam used by `OperatorNavAuthorityProvider` (rank + enterprise surfacing flag). */
 describe("normalizeAuthMeResponse", () => {
+  it("collects permission claims from /me", () => {
+    const principal = normalizeAuthMeResponse({
+      claims: [
+        { type: "roles", value: "Operator" },
+        { type: "permission", value: "export:consulting-docx" },
+        { type: "permission", value: "commit:run" },
+      ],
+    });
+
+    expect(principal.permissionClaimValues).toEqual(["export:consulting-docx", "commit:run"]);
+    expect(principal.authorityRank).toBe(AUTHORITY_RANK.ExecuteAuthority);
+  });
+
   it("maps Operator role to Execute rank and enables enterprise operator surfacing", () => {
     const principal = normalizeAuthMeResponse({
       name: "ops",

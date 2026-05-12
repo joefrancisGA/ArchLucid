@@ -102,7 +102,7 @@ export function enforceProxyRateLimit(request: NextRequest): NextResponse | null
       type: "about:blank",
       title: "Too many requests",
       status: 429,
-      detail: `Too many requests through the operator proxy. Try again in ${retryAfterSec} second(s).`,
+      detail: `Too many requests. Try again in ${retryAfterSec} second(s).`,
       correlationId,
     },
     {

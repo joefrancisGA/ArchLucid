@@ -170,6 +170,61 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
         };
     }
 
+    public ArtifactPackage BuildTerraformAdvisoryPlaceholderExport(Guid runId)
+    {
+        using MemoryStream memoryStream = new();
+
+        using (ZipArchive archive = new(memoryStream, ZipArchiveMode.Create, true))
+        {
+            StringBuilder readme = new StringBuilder()
+                .AppendLine(TerraformAdvisoryExportCopy.DisclaimerLine)
+                .AppendLine()
+                .AppendLine("ArchLucid Terraform advisory export (placeholder)")
+                .AppendLine("==========================================")
+                .AppendLine()
+                .AppendLine($"Run ID: {runId:D}")
+                .AppendLine()
+                .AppendLine(
+                    "This ZIP is advisory-only. ArchLucid does not run terraform apply or terraform destroy on your behalf.")
+                .AppendLine()
+                .AppendLine(
+                    "Server-side export currently ships a placeholder bundle. To generate Terraform from an Azure resource group ")
+                .AppendLine("using Microsoft aztfexport, run the ArchLucid CLI locally:")
+                .AppendLine()
+                .AppendLine("  archlucid azure terraform-export --subscription <subscriptionId> --resource-group <name> --out bundle.zip")
+                .AppendLine()
+                .AppendLine("See docs/runbooks/AZURE_EXTRACTOR_INGEST.md (Terraform export).")
+                .AppendLine()
+                .AppendLine("Contents:")
+                .AppendLine("  README.txt              — this file")
+                .AppendLine("  advisory-placeholder.tf — advisory-only stub (not applyable)")
+                .AppendLine("  package-metadata.json   — export metadata");
+
+            WriteTextEntry(archive, "README.txt", readme.ToString());
+
+            const string placeholderTf = """
+                # ArchLucid advisory – review before apply
+                # Placeholder export: use `archlucid azure terraform-export` for aztfexport-backed bundles.
+                """;
+
+            WriteTextEntry(archive, "advisory-placeholder.tf", placeholderTf.Trim());
+
+            WritePackageMetadata(
+                archive,
+                new
+                {
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    RunId = runId,
+                    ExportKind = "terraform-advisory-placeholder"
+                });
+        }
+
+        return new ArtifactPackage
+        {
+            PackageFileName = $"archlucid-terraform-advisory-{runId:N}.zip", Content = memoryStream.ToArray()
+        };
+    }
+
     private static void WriteTextEntry(ZipArchive archive, string entryName, string content)
     {
         ZipArchiveEntry entry = archive.CreateEntry(entryName.Replace('\\', '/'), CompressionLevel.Fastest);

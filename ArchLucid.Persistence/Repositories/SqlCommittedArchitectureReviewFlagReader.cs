@@ -24,7 +24,7 @@ public sealed class SqlCommittedArchitectureReviewFlagReader(IAuthorityRunListCo
         authorityRunListConnectionFactory
         ?? throw new ArgumentNullException(nameof(authorityRunListConnectionFactory));
 
-    private static readonly string CommittedLegacyStatus = nameof(ArchitectureRunStatus.Committed);
+    private const string CommittedLegacyStatus = nameof(ArchitectureRunStatus.Committed);
 
     /// <inheritdoc />
     public async Task<bool> TenantHasCommittedArchitectureReviewAsync(ScopeContext scope, CancellationToken cancellationToken)

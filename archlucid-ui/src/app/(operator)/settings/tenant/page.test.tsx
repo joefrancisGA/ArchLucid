@@ -18,6 +18,8 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
       maxAuthority: "ExecuteAuthority" as const,
       authorityRank: 2,
       hasEnterpriseOperatorSurfaces: true,
+      hasCommittedArchitectureReview: true,
+      permissionClaimValues: [],
     },
     callerAuthorityRank: 2,
     isAuthorityLoading: false,

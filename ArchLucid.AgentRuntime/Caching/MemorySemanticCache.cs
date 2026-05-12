@@ -40,7 +40,7 @@ public sealed class MemorySemanticCache : ISemanticCache, IDisposable
 
         string key = KeyPrefix + promptHash;
 
-        if (_cache.TryGetValue(key, out object? value) && value is string hit && hit.Length > 0)
+        if (_cache.TryGetValue(key, out object? value) && value is string { Length: > 0 } hit)
             return Task.FromResult<string?>(hit);
 
         return Task.FromResult<string?>(null);

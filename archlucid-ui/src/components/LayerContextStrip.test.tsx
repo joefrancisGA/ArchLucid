@@ -49,4 +49,38 @@ describe("LayerContextStrip", () => {
     expect((strip.textContent ?? "").replace(/\s+/g, " ")).toContain("Analysis");
     unmount();
   });
+
+  it("renders buyer satellite back link when provided on pilot orientation routes", () => {
+    const { getByTestId, unmount } = render(
+      <LayerContextStrip
+        layerId="pilot"
+        buyerRouteOrientation={{ label: "Signed manifest", line: "Demo manifest copy." }}
+        buyerOperateBackLink={{ label: "Back to review package", href: "/reviews/demo-run" }}
+      />,
+    );
+
+    const link = getByTestId("layer-context-back-pilot");
+    expect(link).toHaveTextContent("Back to review package");
+    expect(link).toHaveAttribute("href", "/reviews/demo-run");
+    unmount();
+  });
+
+  it("renders buyer journey stepper when orientation and journey nav are provided", () => {
+    const { getByTestId, unmount } = render(
+      <LayerContextStrip
+        layerId="pilot"
+        buyerRouteOrientation={{ label: "Evidence graph", line: "Demo orientation." }}
+        buyerGoldenJourneyNav={{
+          summaryLine: "Step 3 of 5 · Evidence graph",
+          prev: { label: "Signed manifest", href: "/reviews/x/manifest" },
+          next: { label: "Governance approval", href: "/governance" },
+        }}
+      />,
+    );
+
+    expect(getByTestId("buyer-golden-journey-stepper")).toBeInTheDocument();
+    expect(getByTestId("buyer-journey-prev")).toHaveAttribute("href", "/reviews/x/manifest");
+    expect(getByTestId("buyer-journey-next")).toHaveAttribute("href", "/governance");
+    unmount();
+  });
 });

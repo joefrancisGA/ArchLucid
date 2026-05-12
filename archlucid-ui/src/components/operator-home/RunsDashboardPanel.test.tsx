@@ -216,10 +216,6 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-showcase-demo-banner")).toBeInTheDocument();
       });
-      expect(screen.getByRole("link", { name: "Signed manifest summary" })).toHaveAttribute(
-        "href",
-        "/reviews/claims-intake-modernization/manifest",
-      );
       expect(screen.getByRole("link", { name: "Start Executive Summary" })).toHaveAttribute(
         "href",
         "/executive/reviews/claims-intake-modernization",
@@ -228,6 +224,11 @@ describe("RunsDashboardPanel", () => {
         "href",
         "/showcase/claims-intake-modernization",
       );
+      expect(screen.getByRole("link", { name: "View full review package" })).toHaveAttribute(
+        "href",
+        "/reviews/claims-intake-modernization",
+      );
+      expect(screen.queryByRole("link", { name: "Signed manifest summary" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Open full reviews list" })).toBeNull();
     } finally {

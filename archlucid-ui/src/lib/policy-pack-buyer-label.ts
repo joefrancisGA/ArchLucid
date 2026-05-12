@@ -19,3 +19,16 @@ export function policyPackBuyerLabel(ruleSetId: string, ruleSetVersion: string):
 
   return "—";
 }
+
+/**
+ * When the manifest references a pack we route with a sponsor narrative, return that governance detail path.
+ */
+export function policyPackBuyerGovernanceDetailHref(ruleSetId: string): string | null {
+  const id = ruleSetId.trim();
+
+  if (id === "healthcare-claims-v3") {
+    return "/governance/policy-packs/healthcare-claims-v3-pack";
+  }
+
+  return null;
+}

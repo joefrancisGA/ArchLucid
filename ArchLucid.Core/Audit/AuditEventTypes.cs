@@ -104,6 +104,12 @@ public static class AuditEventTypes
     public const string RunExported = "RunExported";
 
     /// <summary>
+    ///     Operator downloaded the advisory Terraform placeholder ZIP (
+    ///     <c>GET /v1/artifacts/runs/{{runId}}/terraform-advisory-export</c>).
+    /// </summary>
+    public const string TerraformAdvisoryExportDownloaded = "TerraformAdvisoryExportDownloaded";
+
+    /// <summary>
     ///     Emitted when a structured architecture analysis report is built via the primary analysis-report API (
     ///     <c>POST .../analysis-report</c>).
     /// </summary>

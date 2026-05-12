@@ -306,4 +306,31 @@ public sealed class ArtifactExportController(
 
         return File(package.Content, package.ContentType, package.PackageFileName);
     }
+
+    /// <summary>
+    ///     Advisory Terraform ZIP for a run (placeholder README + stub file; CLI aztfexport wrapping is documented in README).
+    /// </summary>
+    [HttpGet("runs/{runId:guid}/terraform-advisory-export")]
+    [Produces("application/zip")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DownloadTerraformAdvisoryExport(
+        Guid runId,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        ArtifactPackage package = artifactPackagingService.BuildTerraformAdvisoryPlaceholderExport(runId);
+
+        await auditService.LogAsync(
+            new AuditEvent { EventType = AuditEventTypes.TerraformAdvisoryExportDownloaded, RunId = runId },
+            ct);
+
+        return File(package.Content, package.ContentType, package.PackageFileName);
+    }
 }

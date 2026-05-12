@@ -46,8 +46,7 @@ public sealed class TenantDatabaseResolverUnitTests
             });
 
         IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
-        string template =
-            "Server=localhost;Database=__placeholder;User Id=x;Password=y;Encrypt=True;TrustServerCertificate=True;";
+        const string template = "Server=localhost;Database=__placeholder;User Id=x;Password=y;Encrypt=True;TrustServerCertificate=True;";
         IOptionsMonitor<SqlTopologyOptions> topology = new StubOptionsMonitor<SqlTopologyOptions>(
             new SqlTopologyOptions
             {

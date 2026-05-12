@@ -36,6 +36,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { GovernanceInteractiveQuickstartCard } from "@/components/GovernanceInteractiveQuickstartCard";
+import { GovernanceQuickApproveButton } from "@/components/GovernanceQuickApproveButton";
 import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -204,8 +205,7 @@ function GovernanceWorkflowPageInner() {
   const [activations, setActivations] = useState<GovernanceEnvironmentActivation[]>([]);
   const [listsLoading, setListsLoading] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
-  const hideGovernanceQueryLoadCard =
-    buyerPolishedShell && approvals.length > 0 && !listsLoading;
+  const hideGovernanceQueryLoadCard = buyerPolishedShell && approvals.length > 0;
 
   const buyerSuppressGovernanceSubmitChrome =
     buyerPolishedShell && activeRunId !== null && approvals.length > 0;
@@ -664,21 +664,9 @@ function GovernanceWorkflowPageInner() {
           buyerPolishedShell || !canMutateWorkflow ? "flex-col-reverse" : "flex-col",
         )}
       >
+      {!buyerSuppressGovernanceSubmitChrome ? (
       <section className="mb-10">
-        {buyerSuppressGovernanceSubmitChrome ? (
-          <details className="m-0 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 dark:border-neutral-700 dark:bg-neutral-900/50">
-            <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-              Need to submit a new approval request?
-            </summary>
-            <p className="m-0 border-t border-neutral-200 px-3 py-2 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-400">
-              Your workspace administrator can use the full governance tools for your tenant.{" "}
-              <strong className="font-medium text-neutral-800 dark:text-neutral-200">
-                This is a read-only sample approval path
-              </strong>{" "}
-              for this evaluation package.
-            </p>
-          </details>
-        ) : buyerPolishedShell && !canMutateWorkflow ? (
+        {buyerPolishedShell && !canMutateWorkflow ? (
           <Card className="border border-teal-200/80 bg-teal-50/50 dark:border-teal-900/55 dark:bg-teal-950/35">
             <CardHeader className="space-y-1">
               <CardTitle>Governance submissions</CardTitle>
@@ -828,6 +816,7 @@ function GovernanceWorkflowPageInner() {
         </Card>
         )}
       </section>
+      ) : null}
 
       <Separator className="mb-10" />
 
@@ -1047,6 +1036,13 @@ function GovernanceWorkflowPageInner() {
               <CardFooter className="flex flex-wrap gap-2">
                 {row.status === "Submitted" ? (
                   <>
+                    <GovernanceQuickApproveButton
+                      approvalRequestId={row.approvalRequestId}
+                      status={row.status}
+                      canExecute={canMutateWorkflow}
+                      reviewedBy={workflowActor}
+                      onApproved={() => void refreshIfActive()}
+                    />
                     <Button
                       type="button"
                       size="sm"

@@ -9,9 +9,12 @@ export function ReviewOutcomeTaxonomyLegend(): ReactElement {
       className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400"
       data-testid="review-outcome-taxonomy-legend"
     >
-      Findings are architecture review outcomes linked to evidence. Review warnings flag policy or completeness gaps on
-      the finalized record. Approval status reflects the governance path for this package — separate from finding
-      severity.
+      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Finding</strong> — architecture review
+      outcome tied to cited evidence (severity is not approval).{" "}
+      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Warning</strong> — non-blocking policy or
+      completeness gap on the sealed record.{" "}
+      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Approval status</strong> — governance
+      disposition for this package (not production deployment authority).
     </p>
   );
 }

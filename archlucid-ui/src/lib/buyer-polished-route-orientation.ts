@@ -27,7 +27,7 @@ export function buyerPolishedRouteOrientation(pathname: string): {
   if (riskFinding !== null) {
     return {
       label: "Risk finding",
-      line: "Severity, impact, mitigation, and trace links into the finalized review package record.",
+      line: "Severity, impact, mitigation, and trace links into the finalized review package.",
     };
   }
 
@@ -92,7 +92,7 @@ export function buyerPolishedRouteOrientation(pathname: string): {
   if (path.startsWith(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)) {
     return {
       label: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-      line: "Final review record — findings, sealed manifest, evidence graph, governance disposition, and deliverables.",
+      line: "Finalized decision record — findings, sealed manifest, evidence graph, governance disposition, and deliverables.",
     };
   }
 

@@ -97,7 +97,7 @@ function GraphFitViewSync({
     const outer = window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         if (!cancelled) {
-          void fitView({ padding, maxZoom, duration: 220 });
+          void fitView({ padding, maxZoom, duration: 260 });
         }
       });
     });
@@ -166,8 +166,8 @@ export function GraphViewer({
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
 
-  const fitPadding = buyerTrailPanel ? 0.12 : 0.08;
-  const fitMaxZoom = buyerTrailPanel ? 2.85 : 1.52;
+  const fitPadding = buyerTrailPanel ? 0.15 : 0.08;
+  const fitMaxZoom = buyerTrailPanel ? 2.35 : 1.52;
 
   useEffect(() => {
     if (filtered.nodes.length === 0) {
@@ -248,8 +248,8 @@ export function GraphViewer({
             edges={edges as Edge[]}
             fitView
             fitViewOptions={{ padding: fitPadding, maxZoom: fitMaxZoom }}
-            minZoom={0.2}
-            maxZoom={buyerTrailPanel ? 2.18 : 1.72}
+            minZoom={buyerTrailPanel ? 0.18 : 0.2}
+            maxZoom={buyerTrailPanel ? 2.45 : 1.72}
             onlyRenderVisibleElements
             nodesDraggable={!compactChrome}
             nodesConnectable={!compactChrome}
@@ -298,8 +298,8 @@ export function GraphViewer({
           <div className="rounded-md border border-slate-200 bg-slate-50/90 p-3 text-sm dark:border-slate-700 dark:bg-slate-900/40">
             <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Legend</p>
             <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">
-              This is an evidence-to-decision trail: context and analysis nodes feed prioritized risk findings
-              (highlighted) that anchor the finalized manifest and bundled deliverables.
+              Evidence-to-decision trail: snapshot nodes mark packaged sources and linkage before findings; the highlighted
+              finding anchors the signed manifest and deliverables bundle.
             </p>
           </div>
         ) : null}

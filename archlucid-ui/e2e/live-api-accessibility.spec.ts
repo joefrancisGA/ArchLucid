@@ -89,6 +89,7 @@ const PAGES = [
   { name: "Demo explain", path: "/demo/explain" },
   { name: "Microsoft Teams integration", path: "/integrations/teams" },
   { name: "Admin users", path: "/admin/users" },
+  { name: "Role management", path: "/settings/roles" },
   { name: "Admin support", path: "/admin/support" },
   { name: "Admin health", path: "/admin/health" },
   { name: "Admin configuration", path: "/admin/configuration" },

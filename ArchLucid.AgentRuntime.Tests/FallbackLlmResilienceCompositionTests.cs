@@ -4,6 +4,8 @@ using System.Net;
 
 using ArchLucid.Core.Resilience;
 
+using Azure;
+
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
@@ -208,6 +210,64 @@ public sealed class FallbackLlmResilienceCompositionTests
         secondary.Verify(
             c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task Primary_RequestFailedException_503_then_fallback_succeeds()
+    {
+        Mock<IAgentCompletionClient> primaryInner = new();
+        primaryInner.SetupGet(c => c.Descriptor).Returns(PrimaryDescriptor);
+        primaryInner
+            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+            .Returns(Task.FromException<string>(new RequestFailedException(503, "Service unavailable", null, null)));
+
+        Mock<IAgentCompletionClient> secondary = new();
+        secondary.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("fb", "fb"));
+        secondary.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>())).ReturnsAsync("ok");
+
+        using CircuitBreakingAgentCompletionClient primaryChain = CreatePrimaryWithRetry(primaryInner.Object, maxRetryAttempts: 0);
+
+        using FallbackAgentCompletionClient sut = new(
+            primaryChain,
+            secondary.Object,
+            NullLogger<FallbackAgentCompletionClient>.Instance);
+
+        string result = await sut.CompleteJsonAsync("s", "u");
+
+        result.Should().Be("ok");
+    }
+
+    [SkippableFact]
+    public async Task Ordered_fallbacks_prior_entries_may_fail_before_later_succeeds()
+    {
+        Mock<IAgentCompletionClient> primaryInner = new();
+        primaryInner.SetupGet(c => c.Descriptor).Returns(PrimaryDescriptor);
+        primaryInner
+            .Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+            .Returns(Task.FromException<string>(new RequestFailedException(503, "primary", null, null)));
+
+        Mock<IAgentCompletionClient> fb0 = new();
+        fb0.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("a", "a"));
+        fb0.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
+            .Returns(Task.FromException<string>(new RequestFailedException(503, "fb0", null, null)));
+
+        Mock<IAgentCompletionClient> fb1 = new();
+        fb1.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("b", "b"));
+        fb1.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>())).ReturnsAsync("final");
+
+        using CircuitBreakingAgentCompletionClient primaryChain = CreatePrimaryWithRetry(primaryInner.Object, maxRetryAttempts: 0);
+
+        using FallbackAgentCompletionClient sut = new(
+            primaryChain,
+            new[] { fb0.Object, fb1.Object },
+            NullLogger<FallbackAgentCompletionClient>.Instance);
+
+        string result = await sut.CompleteJsonAsync("s", "u");
+
+        result.Should().Be("final");
+
+        fb0.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()), Times.Once);
+        fb1.Verify(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static CircuitBreakingAgentCompletionClient CreatePrimaryWithRetry(

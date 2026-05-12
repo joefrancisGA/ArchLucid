@@ -1,14 +1,51 @@
 import { describe, expect, it } from "vitest";
 
+import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
+
 import {
+  auditBuyerEventIsSystemRecordedActor,
   auditEventLifecycleSortKey,
   auditEventLifecycleStageLabel,
   auditEventsAreLifecycleOnlyForGrouping,
   canExportAuditCsv,
   formatAuditSummaryHeading,
+  formatBuyerAuditTrailSummaryLine,
   groupAuditEventsByLifecycleStage,
   principalRolesAllowAuditCsvExport,
 } from "./audit-ui-helpers";
+
+describe("auditBuyerEventIsSystemRecordedActor", () => {
+  it("returns true for ArchLucid system and automation-style actors", () => {
+    expect(auditBuyerEventIsSystemRecordedActor("ArchLucid system")).toBe(true);
+    expect(auditBuyerEventIsSystemRecordedActor("ArchLucid Automation")).toBe(true);
+    expect(auditBuyerEventIsSystemRecordedActor("Recorded by ArchLucid")).toBe(true);
+  });
+
+  it("returns false for named human reviewers", () => {
+    expect(auditBuyerEventIsSystemRecordedActor("Jordan Lee")).toBe(false);
+    expect(auditBuyerEventIsSystemRecordedActor("Taylor Morgan")).toBe(false);
+  });
+
+  it("returns false for blank names", () => {
+    expect(auditBuyerEventIsSystemRecordedActor("")).toBe(false);
+    expect(auditBuyerEventIsSystemRecordedActor("   ")).toBe(false);
+  });
+});
+
+describe("formatBuyerAuditTrailSummaryLine", () => {
+  it("counts ArchLucid system rows as system-recorded (demo spine parity)", () => {
+    const demo = getDemoSampleAuditTrailEvents();
+    const line = formatBuyerAuditTrailSummaryLine(demo, "claims-intake-modernization", "");
+
+    expect(line).toContain("6 recorded events");
+    expect(line).toContain("2 human actors");
+    expect(line).toContain("4 system-recorded events");
+  });
+
+  it("returns null for an empty list", () => {
+    expect(formatBuyerAuditTrailSummaryLine([], null, "")).toBeNull();
+  });
+});
 
 describe("formatAuditSummaryHeading", () => {
   it("formats zero", () => {

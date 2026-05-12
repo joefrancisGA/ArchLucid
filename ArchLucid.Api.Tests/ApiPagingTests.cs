@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
@@ -45,7 +45,7 @@ public sealed class ApiPagingTests
     public void TryParseUtcTicksIdCursor_valid_cursor_round_trips()
     {
         DateTimeOffset expected = DateTimeOffset.Parse("2026-01-02T03:04:05Z");
-        string idPart = "rec-42";
+        const string idPart = "rec-42";
         string cursor = $"{expected.UtcTicks}:{idPart}";
 
         bool ok = ApiPaging.TryParseUtcTicksIdCursor(cursor, out DateTime? createdUtc, out string? id,

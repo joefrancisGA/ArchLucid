@@ -34,6 +34,16 @@ public sealed class ContentSafetyOptions
         set;
     }
 
+    /// <summary>
+    ///     Optional list of additional Content Safety endpoints (e.g. secondary region). Not yet used by enforcement —
+    ///     binds from configuration for forward-compatible ops templates.
+    /// </summary>
+    public List<ContentSafetyEndpointOptions>? AdditionalEndpoints
+    {
+        get;
+        set;
+    }
+
     /// <summary>Optional API key name in Key Vault / user-secrets (not read by the null/stub guards).</summary>
     public string? ApiKey
     {
