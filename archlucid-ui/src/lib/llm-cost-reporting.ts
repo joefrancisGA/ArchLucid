@@ -212,7 +212,16 @@ function pickString(
 function pickFiniteNumber(
   o: Record<string, unknown>,
   keys: readonly string[],
-  defaultValue: number | null = null,
+  defaultValue: number,
+): number;
+function pickFiniteNumber(
+  o: Record<string, unknown>,
+  keys: readonly string[],
+): number | null;
+function pickFiniteNumber(
+  o: Record<string, unknown>,
+  keys: readonly string[],
+  defaultValue?: number,
 ): number | null {
   for (const key of keys) {
     const v = o[key];
@@ -222,5 +231,9 @@ function pickFiniteNumber(
     }
   }
 
-  return defaultValue;
+  if (defaultValue !== undefined) {
+    return defaultValue;
+  }
+
+  return null;
 }
