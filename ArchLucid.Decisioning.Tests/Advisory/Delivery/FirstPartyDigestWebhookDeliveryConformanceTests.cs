@@ -33,7 +33,7 @@ public sealed class FirstPartyDigestWebhookDeliveryConformanceTests
                     captured = msg)
             .Returns(Task.CompletedTask);
 
-        string destination = "https://hooks.slack.com/services/DIGEST/FAKE/URL";
+        const string destination = "https://hooks.slack.com/services/DIGEST/FAKE/URL";
 
         DigestSlackWebhookDeliveryChannel sut = new(delivery.Object);
         await sut.SendAsync(CreateDigestPayload(destination, DigestDeliveryChannelType.SlackWebhook), CancellationToken.None);

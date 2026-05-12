@@ -1,5 +1,3 @@
-using ArchLucid.Core;
-
 using FluentAssertions;
 
 namespace ArchLucid.Core.Tests;
@@ -54,7 +52,7 @@ public sealed class ArgumentExtensionsTests
     [Fact]
     public void ThrowIfNull_WorksWithStringType()
     {
-        string value = "hello";
+        const string value = "hello";
 
         string result = value.ThrowIfNull();
 
@@ -78,7 +76,9 @@ public sealed class ArgumentExtensionsTests
 
     private sealed class FakeDisposable : IDisposable
     {
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
     }
 
     private sealed class ServiceUnderTest(IDisposable dependency)

@@ -28,10 +28,9 @@ public sealed class ScimUsersPatchEntraProvisioningIntegrationTests(JwtLocalSign
         created.StatusCode.Should().Be(HttpStatusCode.Created);
         Guid userId = Guid.Parse(JsonDocument.Parse(await created.Content.ReadAsStringAsync()).RootElement.GetProperty("id").GetString() ?? "");
 
-        string patchBody =
-            """
-            {"schemas":["urn:ietf:params:scim:api:messages:2.0:PatchOp"],"Operations":[{"op":"replace","path":"displayName","value":"Entra Patch Display"},{"op":"replace","path":"active","value":false}]}
-            """;
+        const string patchBody = """
+                                 {"schemas":["urn:ietf:params:scim:api:messages:2.0:PatchOp"],"Operations":[{"op":"replace","path":"displayName","value":"Entra Patch Display"},{"op":"replace","path":"active","value":false}]}
+                                 """;
 
         using HttpResponseMessage patched =
             await http.PatchAsync($"/scim/v2/Users/{userId:D}",

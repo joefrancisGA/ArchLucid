@@ -1,8 +1,6 @@
 using System.Text;
 using System.Text.Json.Nodes;
 
-using ArchLucid.Cli;
-
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
@@ -35,11 +33,11 @@ public sealed class AzureAccessTokenJwtClaimsReaderTests
 
     private static string BuildJwt(string payloadJson)
     {
+        return $"{B64Url(@"{""alg"":""none"",""typ"":""JWT""}")}.{B64Url(payloadJson)}.sig";
+
         static string B64Url(string utf8Text) =>
             Convert.ToBase64String(Encoding.UTF8.GetBytes(utf8Text)).TrimEnd('=')
                 .Replace('+', '-')
                 .Replace('/', '_');
-
-        return $"{B64Url(@"{""alg"":""none"",""typ"":""JWT""}")}.{B64Url(payloadJson)}.sig";
     }
 }

@@ -35,7 +35,7 @@ public sealed class FirstPartyAlertWebhookDeliveryConformanceTests
                     captured = msg)
             .Returns(Task.CompletedTask);
 
-        string destination = "https://hooks.slack.com/services/TEST/FAKE/URLTOKEN";
+        const string destination = "https://hooks.slack.com/services/TEST/FAKE/URLTOKEN";
 
         AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
         await sut.SendAsync(CreateAlertPayload(destination, AlertRoutingChannelType.SlackWebhook), CancellationToken.None);
@@ -65,8 +65,7 @@ public sealed class FirstPartyAlertWebhookDeliveryConformanceTests
                     captured = msg)
             .Returns(Task.CompletedTask);
 
-        string destination =
-            "https://outlook.office.com/webhook/00000000-0000-0000-0000-000000000000@00000000-0000-0000-0000-000000000000/IncomingWebhook/fake";
+        const string destination = "https://outlook.office.com/webhook/00000000-0000-0000-0000-000000000000@00000000-0000-0000-0000-000000000000/IncomingWebhook/fake";
 
         AlertTeamsWebhookDeliveryChannel sut = new(delivery.Object);
         await sut.SendAsync(CreateAlertPayload(destination, AlertRoutingChannelType.TeamsWebhook), CancellationToken.None);
@@ -96,7 +95,7 @@ public sealed class FirstPartyAlertWebhookDeliveryConformanceTests
                 body = b)
             .Returns(Task.CompletedTask);
 
-        string destination = "https://pager.example.com/inbound/fake-token-path";
+        const string destination = "https://pager.example.com/inbound/fake-token-path";
         Guid runId = Guid.Parse("11111111-2222-3333-4444-555555555555");
 
         AlertOnCallWebhookDeliveryChannel sut = new(poster.Object);

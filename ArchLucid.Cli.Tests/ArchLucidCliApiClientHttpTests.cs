@@ -22,7 +22,10 @@ public sealed class ArchLucidApiClientHttpTests
     private static ArchLucidApiClient CreateClient(HttpResponseMessage response)
     {
         MockHttpMessageHandler handler = new(response);
-        HttpClient http = new(handler) { BaseAddress = new Uri("http://localhost") };
+        HttpClient http = new(handler)
+        {
+            BaseAddress = new Uri("http://localhost")
+        };
         return new ArchLucidApiClient(http);
     }
 
@@ -40,7 +43,7 @@ public sealed class ArchLucidApiClientHttpTests
     [Fact]
     public async Task CreateRunAsync_On201_ReturnsSuccessAndRunId()
     {
-        string runId = "run-abc-123";
+        const string runId = "run-abc-123";
         string json = JsonSerializer.Serialize(
             new
             {
@@ -54,7 +57,10 @@ public sealed class ArchLucidApiClientHttpTests
                 },
                 tasks = Array.Empty<object>()
             }, SJsonCamelCase);
-        HttpResponseMessage response = new(HttpStatusCode.Created) { Content = new StringContent(json) };
+        HttpResponseMessage response = new(HttpStatusCode.Created)
+        {
+            Content = new StringContent(json)
+        };
         response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
@@ -69,8 +75,14 @@ public sealed class ArchLucidApiClientHttpTests
     [Fact]
     public async Task CreateRunAsync_On400_ReturnsFailureWithParsedError()
     {
-        string json = JsonSerializer.Serialize(new { detail = "Validation failed" });
-        HttpResponseMessage response = new(HttpStatusCode.BadRequest) { Content = new StringContent(json) };
+        string json = JsonSerializer.Serialize(new
+        {
+            detail = "Validation failed"
+        });
+        HttpResponseMessage response = new(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent(json)
+        };
         response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
@@ -99,7 +111,10 @@ public sealed class ArchLucidApiClientHttpTests
                 tasks = Array.Empty<object>(),
                 results = Array.Empty<object>()
             }, SJsonCamelCase);
-        HttpResponseMessage response = new(HttpStatusCode.OK) { Content = new StringContent(json) };
+        HttpResponseMessage response = new(HttpStatusCode.OK)
+        {
+            Content = new StringContent(json)
+        };
         response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
@@ -131,11 +146,19 @@ public sealed class ArchLucidApiClientHttpTests
             {
                 manifest = new
                 {
-                    runId = "run-1", systemName = "Test", metadata = new { manifestVersion = version }
+                    runId = "run-1",
+                    systemName = "Test",
+                    metadata = new
+                    {
+                        manifestVersion = version
+                    }
                 },
                 warnings = Array.Empty<string>()
             }, SJsonCamelCase);
-        HttpResponseMessage response = new(HttpStatusCode.OK) { Content = new StringContent(json) };
+        HttpResponseMessage response = new(HttpStatusCode.OK)
+        {
+            Content = new StringContent(json)
+        };
         response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
@@ -150,8 +173,14 @@ public sealed class ArchLucidApiClientHttpTests
     [Fact]
     public async Task CommitRunAsync_On409_ReturnsFailureWithHttpStatusCode()
     {
-        string json = JsonSerializer.Serialize(new { detail = "Conflict with current state." });
-        HttpResponseMessage response = new(HttpStatusCode.Conflict) { Content = new StringContent(json) };
+        string json = JsonSerializer.Serialize(new
+        {
+            detail = "Conflict with current state."
+        });
+        HttpResponseMessage response = new(HttpStatusCode.Conflict)
+        {
+            Content = new StringContent(json)
+        };
         response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
