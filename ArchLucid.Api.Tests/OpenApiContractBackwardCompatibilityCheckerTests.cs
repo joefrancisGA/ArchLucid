@@ -1,7 +1,5 @@
 using System.Text.Json.Nodes;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Focused examples for semantic OpenAPI drift rules (additive vs breaking).</summary>

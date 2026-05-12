@@ -4,25 +4,19 @@ namespace ArchLucid.Core.Tenancy;
 ///     Thrown when a mutating operation is blocked because the tenant is on an active self-service trial that has
 ///     expired, exhausted included runs, or exceeded seat capacity.
 /// </summary>
-public sealed class TrialLimitExceededException : Exception
+public sealed class TrialLimitExceededException(TrialLimitReason reason, int daysRemaining, string? message = null)
+    : Exception(message ?? BuildDefaultMessage(reason))
 {
-    public TrialLimitExceededException(TrialLimitReason reason, int daysRemaining, string? message = null)
-        : base(message ?? BuildDefaultMessage(reason))
-    {
-        Reason = reason;
-        DaysRemaining = daysRemaining;
-    }
-
     public TrialLimitReason Reason
     {
         get;
-    }
+    } = reason;
 
     /// <summary>Whole days remaining until <c>TrialExpiresUtc</c> when still active; <c>0</c> when expired or unknown.</summary>
     public int DaysRemaining
     {
         get;
-    }
+    } = daysRemaining;
 
     private static string BuildDefaultMessage(TrialLimitReason reason)
     {

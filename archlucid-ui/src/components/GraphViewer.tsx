@@ -25,8 +25,15 @@ import { useBasicAdvancedToggle } from "@/hooks/useBasicAdvancedToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-node-explanation";
+import {
+  findingIdForGraphDeepLink,
+  graphFindingDetailHref,
+  graphFindingInspectHref,
+} from "@/lib/graph-finding-deep-links";
 import { graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
+import Link from "next/link";
 
 function pickHeroNodeId(graph: GraphViewModel, preferredId: string | undefined): GraphNodeVm | null {
   const trimmed = preferredId?.trim() ?? "";
@@ -146,8 +153,8 @@ export function GraphViewer({
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
 
-  const fitPadding = buyerTrailPanel ? 0.07 : 0.08;
-  const fitMaxZoom = buyerTrailPanel ? 2.08 : 1.52;
+  const fitPadding = buyerTrailPanel ? 0.12 : 0.08;
+  const fitMaxZoom = buyerTrailPanel ? 2.28 : 1.52;
 
   useEffect(() => {
     if (filtered.nodes.length === 0) {
@@ -336,7 +343,8 @@ export function GraphViewer({
               ) : null}
 
               <p>
-                <strong>{buyerTrailPanel ? "Finding" : "Label"}:</strong> {selectedNode.label}
+                <strong>{buyerTrailPanel ? (selectedNode.type === "Finding" ? "Finding" : "Node") : "Label"}:</strong>{" "}
+                {selectedNode.label}
               </p>
 
               {!buyerTrailPanel ? (
@@ -402,6 +410,35 @@ export function GraphViewer({
                     </>
                   );
                 })()
+              ) : null}
+
+              {buyerTrailPanel && runId.trim().length > 0 && selectedNode.type === "Finding" ? (
+                <div className="mt-3 flex flex-col gap-2">
+                  {(() => {
+                    const fid = findingIdForGraphDeepLink(selectedNode);
+
+                    if (fid === null) {
+                      return (
+                        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                          Finding-level pages need a persisted finding reference on this node.
+                        </p>
+                      );
+                    }
+
+                    const rid = canonicalizeDemoRunId(runId.trim());
+
+                    return (
+                      <>
+                        <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
+                          <Link href={graphFindingDetailHref(rid, fid)}>Open finding detail</Link>
+                        </Button>
+                        <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
+                          <Link href={graphFindingInspectHref(rid, fid)}>Inspect evidence trail</Link>
+                        </Button>
+                      </>
+                    );
+                  })()}
+                </div>
               ) : null}
 
               {runId.trim().length > 0 && selectedNode !== null && !buyerTrailPanel ? (

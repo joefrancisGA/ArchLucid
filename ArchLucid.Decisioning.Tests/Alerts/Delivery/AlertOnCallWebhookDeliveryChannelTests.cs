@@ -26,7 +26,7 @@ public sealed class AlertOnCallWebhookDeliveryChannelTests
     public async Task SendAsync_PostsJsonToSubscriptionDestination()
     {
         Mock<IWebhookPoster> poster = new();
-        string expectedUrl = "https://pager.example.com/ingest";
+        const string expectedUrl = "https://pager.example.com/ingest";
 
         poster
             .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))

@@ -9,7 +9,7 @@ using Moq;
 namespace ArchLucid.Decisioning.Tests.Alerts.Delivery;
 
 /// <summary>
-///     Fake-provider style conformance for Slack alert webhooks (no hooks.slack.com calls — poster is mocked).
+///     Fake-provider style conformance for Slack alert webhooks (no hooks.slack.com calls — delivery is mocked).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class AlertSlackWebhookVendorConformanceTests
@@ -20,19 +20,26 @@ public sealed class AlertSlackWebhookVendorConformanceTests
         const string destination = "https://hooks.slack.com/services/FAKE/ONLY/UNITTEST";
 
         string? postedUrl = null;
-        object? body = null;
+        ChatOpsWebhookMessage? captured = null;
 
-        Mock<IWebhookPoster> poster = new();
-        poster
-            .Setup(p => p.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
-            .Callback<string, object, CancellationToken, WebhookPostOptions?>((url, b, _, _) =>
-            {
-                postedUrl = url;
-                body = b;
-            })
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+
+        delivery
+            .Setup(p => p.DeliverAsync(
+                It.IsAny<ChatOpsWebhookTarget>(),
+                It.IsAny<string>(),
+                It.IsAny<ChatOpsWebhookMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, url, msg, _, _) =>
+                {
+                    postedUrl = url;
+                    captured = msg;
+                })
             .Returns(Task.CompletedTask);
 
-        AlertSlackWebhookDeliveryChannel sut = new(poster.Object);
+        AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
 
         AlertDeliveryPayload payload = CreatePayload(
             destination,
@@ -45,8 +52,12 @@ public sealed class AlertSlackWebhookVendorConformanceTests
         await sut.SendAsync(payload, CancellationToken.None);
 
         postedUrl.Should().Be(destination, because: "Slack incoming webhooks require POSTing to the customer-provided URL.");
-        body.Should().NotBeNull();
-        string text = GetStringProperty(body!, "text");
+
+        captured.Should().NotBeNull();
+
+        object body = ChatOpsIncomingWebhookBodies.ForSlack(captured!);
+        string text = GetStringProperty(body, "text");
+
         text.Should().Contain("[Warning]", because: "Severity must be visible for on-call triage.");
         text.Should().Contain("Latency regression");
         text.Should().Contain("SLO");
@@ -55,14 +66,20 @@ public sealed class AlertSlackWebhookVendorConformanceTests
     }
 
     [Fact]
-    public async Task SendAsync_when_poster_fails_propagates_exception()
+    public async Task SendAsync_when_delivery_fails_propagates_exception()
     {
-        Mock<IWebhookPoster> poster = new();
-        poster
-            .Setup(p => p.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+
+        delivery
+            .Setup(p => p.DeliverAsync(
+                It.IsAny<ChatOpsWebhookTarget>(),
+                It.IsAny<string>(),
+                It.IsAny<ChatOpsWebhookMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<WebhookPostOptions?>()))
             .ThrowsAsync(new HttpRequestException("simulated transport failure"));
 
-        AlertSlackWebhookDeliveryChannel sut = new(poster.Object);
+        AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
         AlertDeliveryPayload payload = CreatePayload(
             "https://hooks.slack.com/services/FAKE/ONLY/UNITTEST",
             title: "T",
@@ -106,7 +123,8 @@ public sealed class AlertSlackWebhookVendorConformanceTests
     private static string GetStringProperty(object target, string name)
     {
         System.Reflection.PropertyInfo? prop =
-            target.GetType().GetProperty(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            target.GetType().GetProperty(name,
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
 
         prop.Should().NotBeNull($"expected `{name}` on Slack webhook body projection");
 

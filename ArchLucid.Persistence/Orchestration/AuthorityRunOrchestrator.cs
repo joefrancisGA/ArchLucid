@@ -19,6 +19,7 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration.Pipeline;
 using ArchLucid.Persistence.Serialization;
+using ArchLucid.Notifications;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -46,6 +47,7 @@ public sealed class AuthorityRunOrchestrator(
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     IGraphSnapshotProjectionCache graphSnapshotProjectionCache,
+    IAuthorityRunCommittedChatOpsHook authorityRunCommittedChatOpsHook,
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
     private readonly IRunRepository _runRepository =
@@ -458,6 +460,18 @@ public sealed class AuthorityRunOrchestrator(
 
 
         ArchLucidInstrumentation.AuthorityRunsCompletedTotal.Add(1);
+
+        await authorityRunCommittedChatOpsHook.NotifyAsync(
+            new AuthorityRunCommittedChatOpsNotice
+            {
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = run.RunId,
+                FindingCount = findingsSnapshot.Findings.Count,
+                Description = run.Description,
+            },
+            ct);
 
         return run;
     }

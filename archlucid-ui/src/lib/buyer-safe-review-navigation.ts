@@ -2,7 +2,6 @@ import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import {
-  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 
@@ -16,9 +15,9 @@ export function getShowcaseWalkthroughHref(): string {
   return `/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 }
 
-/** Finalized manifest for the Claims Intake static spine. */
+/** Finalized manifest for the Claims Intake static spine (human-friendly path rewrites to manifest detail). */
 export function getShowcaseManifestHref(): string {
-  return `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
+  return `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}/manifest`;
 }
 
 /** Executive view (concise risk summary and outcomes) for the Claims Intake static spine. */

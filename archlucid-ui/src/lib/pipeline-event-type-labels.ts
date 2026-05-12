@@ -16,14 +16,14 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   "finalize.run": "Manifest finalized",
   "run.finalized": "Review finalized",
   "context.snapshot.created": "Context captured",
-  "graph.snapshot.created": "Architecture graph created",
+  "graph.snapshot.created": "Evidence graph created",
   "findings.snapshot.created": "Findings generated",
   "manifest.committed": "Architecture package approved",
   "artifact.bundle.created": "Deliverables ready",
   "audit.pipeline.step": "Pipeline step recorded",
   Commit: "Review submitted",
   context_snapshot: "Context captured",
-  graph_snapshot: "Architecture graph created",
+  graph_snapshot: "Evidence graph created",
   findings_snapshot: "Findings generated",
 
   // Canonical integration events (see ArchLucid.Core.Integration.IntegrationEventTypes)

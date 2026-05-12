@@ -147,10 +147,10 @@ export function mapGraphToReactFlow(
   const heroId = isBuyerTrail ? layoutNodes.find((n) => isBuyerTrailPhiHeroNode(n))?.id : undefined;
 
   const columnCount = isBuyerTrail ? 4 : 5;
-  const cellW = isBuyerTrail ? 320 : 240;
-  const cellH = isBuyerTrail ? 196 : 140;
-  const nodeWidth = isBuyerTrail ? 288 : 180;
-  const heroNodeWidth = isBuyerTrail ? 324 : nodeWidth;
+  const cellW = isBuyerTrail ? 340 : 240;
+  const cellH = isBuyerTrail ? 220 : 140;
+  const nodeWidth = isBuyerTrail ? 300 : 180;
+  const heroNodeWidth = isBuyerTrail ? 336 : nodeWidth;
   const fontSize = isBuyerTrail ? 16 : 12;
   const heroFontSize = isBuyerTrail ? 17 : fontSize;
 

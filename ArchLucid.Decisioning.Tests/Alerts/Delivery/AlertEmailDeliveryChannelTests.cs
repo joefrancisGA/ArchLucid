@@ -24,7 +24,7 @@ public sealed class AlertEmailDeliveryChannelTests
     public async Task SendAsync_CallsEmailSenderWithSubscriptionDestination()
     {
         Mock<IEmailSender> sender = new();
-        string expectedTo = "ops@example.com";
+        const string expectedTo = "ops@example.com";
 
         sender
             .Setup(x => x.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -52,7 +52,7 @@ public sealed class AlertEmailDeliveryChannelTests
             .Callback<string, string, string, CancellationToken>((_, _, body, _) => capturedBody = body)
             .Returns(Task.CompletedTask);
 
-        string destination = "ops-not-a-url@example.com";
+        const string destination = "ops-not-a-url@example.com";
 
         AlertEmailDeliveryChannel sut = new(sender.Object);
         AlertDeliveryPayload payload = CreatePayload(destination);

@@ -5,17 +5,29 @@ using ArchLucid.Notifications;
 namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>Delivers an <see cref="ArchitectureDigest" /> to a Slack channel via an incoming webhook.</summary>
-public sealed class DigestSlackWebhookDeliveryChannel(IWebhookPoster webhookPoster) : IDigestDeliveryChannel
+public sealed class DigestSlackWebhookDeliveryChannel(IChatOpsWebhookDeliveryService chatOpsWebhookDelivery)
+    : IDigestDeliveryChannel
 {
+    private readonly IChatOpsWebhookDeliveryService _chatOpsWebhookDelivery =
+        chatOpsWebhookDelivery ?? throw new ArgumentNullException(nameof(chatOpsWebhookDelivery));
+
+    /// <inheritdoc />
     public string ChannelType => DigestDeliveryChannelType.SlackWebhook;
 
+    /// <inheritdoc />
     public Task SendAsync(DigestDeliveryPayload payload, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(payload);
 
-        object body = new { text = $"*{payload.Digest.Title}*\n{payload.Digest.Summary}\n\n{payload.Digest.ContentMarkdown}" };
+        ChatOpsWebhookMessage body = new()
+        {
+            Title = payload.Digest.Title,
+            SupportingParagraph = payload.Digest.Summary,
+            Body = payload.Digest.ContentMarkdown,
+        };
 
-        return webhookPoster.PostJsonAsync(
+        return _chatOpsWebhookDelivery.DeliverAsync(
+            ChatOpsWebhookTarget.Slack,
             payload.Subscription.Destination,
             body,
             ct);

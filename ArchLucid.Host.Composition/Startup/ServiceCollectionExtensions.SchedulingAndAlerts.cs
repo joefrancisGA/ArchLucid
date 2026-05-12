@@ -132,6 +132,8 @@ public static partial class ServiceCollectionExtensions
     private static void RegisterDigestDelivery(IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<WebhookDeliveryOptions>(configuration.GetSection(WebhookDeliveryOptions.SectionName));
+        services.Configure<ChatOpsIncomingWebhooksOptions>(
+            configuration.GetSection(ChatOpsIncomingWebhooksOptions.SectionName));
         services.AddSingleton<IEmailSender, FakeEmailSender>();
         services
             .AddHttpClient(
@@ -151,6 +153,8 @@ public static partial class ServiceCollectionExtensions
 
             return new WebhookHmacEnvelopePoster(monitor, withOptionalCloudEvents);
         });
+        services.AddSingleton<IChatOpsWebhookDeliveryService, ChatOpsWebhookDeliveryService>();
+        services.AddSingleton<IAuthorityRunCommittedChatOpsHook, AuthorityRunCommittedChatOpsHook>();
         services.AddScoped<IDigestDeliveryChannel, DigestEmailDeliveryChannel>();
         services.AddScoped<IDigestDeliveryChannel, DigestTeamsWebhookDeliveryChannel>();
         services.AddScoped<IDigestDeliveryChannel, DigestSlackWebhookDeliveryChannel>();

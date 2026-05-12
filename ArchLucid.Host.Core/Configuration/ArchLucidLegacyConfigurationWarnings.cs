@@ -13,12 +13,9 @@ public static class ArchLucidLegacyConfigurationWarnings
     /// Until then behavior is log-warning only; confirm with <c>docs/CONFIG_BRIDGE_SUNSET.md</c> before enforcing.
     /// </summary>
     public const string LegacyConfigurationKeysHardEnforcementNoEarlierThan = "2027-07-01";
-
-    private static readonly string LegacyConnectionStringName = "Archi" + "Forge";
-
-    private static readonly string LegacyProductSection = "Archi" + "Forge";
-
-    private static readonly string LegacyAuthSection = "Archi" + "Forge" + "Auth";
+    private const string LegacyConnectionStringName = "Archi" + "Forge";
+    private const string LegacyProductSection = "Archi" + "Forge";
+    private const string LegacyAuthSection = "Archi" + "Forge" + "Auth";
 
     /// <summary>
     /// Emits a single warning if any ignored legacy keys are present.

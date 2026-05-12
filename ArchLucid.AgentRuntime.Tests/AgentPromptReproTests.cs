@@ -1,4 +1,4 @@
-﻿using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
@@ -13,8 +13,8 @@ public sealed class AgentPromptReproTests
     [SkippableFact]
     public void CanonicalHasher_ignores_crlf_vs_lf()
     {
-        string a = "line1\nline2";
-        string b = "line1\r\nline2";
+        const string a = "line1\nline2";
+        const string b = "line1\r\nline2";
 
         AgentPromptCanonicalHasher.Sha256HexUtf8Normalized(a)
             .Should()
@@ -24,7 +24,10 @@ public sealed class AgentPromptReproTests
     [SkippableFact]
     public void CachedCatalog_applies_release_label_from_options()
     {
-        AgentPromptCatalogOptions opts = new() { Versions = { [AgentTypeKeys.Topology] = "pilot-a" } };
+        AgentPromptCatalogOptions opts = new()
+        {
+            Versions = { [AgentTypeKeys.Topology] = "pilot-a" }
+        };
         IAgentSystemPromptCatalog catalog = AgentPromptCatalogTestFactory.Create(opts);
 
         ResolvedSystemPrompt r = catalog.Resolve(AgentType.Topology);

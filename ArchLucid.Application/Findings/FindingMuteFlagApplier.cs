@@ -18,11 +18,10 @@ public static class FindingMuteFlagApplier
         {
             foreach (ArchitectureFinding finding in result.Findings)
             {
-                if (flags.TryGetValue(finding.FindingId, out FindingMuteFlag flag))
-                {
-                    finding.IsMuted = flag.IsMuted;
-                    finding.MuteReason = flag.MuteReason;
-                }
+                if (!flags.TryGetValue(finding.FindingId, out FindingMuteFlag flag))
+                    continue;
+                finding.IsMuted = flag.IsMuted;
+                finding.MuteReason = flag.MuteReason;
             }
         }
     }
