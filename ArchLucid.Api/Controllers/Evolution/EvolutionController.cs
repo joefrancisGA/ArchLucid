@@ -26,6 +26,7 @@ namespace ArchLucid.Api.Controllers.Evolution;
 ///     60R controlled evolution: candidate change sets from 59R plans and read-only shadow evaluation (simulation only).
 /// </summary>
 [ApiController]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/evolution")]
 [EnableRateLimiting("fixed")]

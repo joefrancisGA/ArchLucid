@@ -29,6 +29,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 ///     producer if ZIP size materially grows beyond the diagnostic JSON snapshots.
 /// </remarks>
 [ApiController]
+[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin")]
 [EnableRateLimiting("expensive")]
@@ -45,7 +46,6 @@ public sealed class SupportBundleController(
     /// <summary>Downloads a freshly-assembled, redacted support bundle ZIP.</summary>
     /// <returns>200 OK with <c>application/zip</c> body and a content-disposition file name.</returns>
     [HttpPost("support-bundle")]
-    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
