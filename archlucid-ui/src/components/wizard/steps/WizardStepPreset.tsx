@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Textarea } from "@/components/ui/textarea";
+import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { applySecondRunPasteToWizard } from "@/lib/second-run-paste";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -364,6 +365,11 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
+              <WizardFieldHint
+                htmlFor="second-run-paste-textarea"
+                label="Prepared request payload"
+                hint="Paste JSON or TOML that matches SECOND_RUN or repo templates; ArchLucid validates and maps fields before you continue."
+              />
               <Textarea
                 data-testid="second-run-paste-textarea"
                 value={secondRunPaste}

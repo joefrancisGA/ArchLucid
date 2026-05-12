@@ -16,6 +16,8 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+
 import { SampleReviewPackageSummary } from "./SampleReviewPackageSummary";
 
 describe("SampleReviewPackageSummary", () => {
@@ -32,7 +34,7 @@ describe("SampleReviewPackageSummary", () => {
     expect(screen.getByRole("heading", { name: "Claims Intake sample review package" })).toBeInTheDocument();
     expect(screen.getByText(/Numbers are illustrative only/i)).toBeInTheDocument();
     expect(screen.getByText("Demo only")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open sample manifest" })).toHaveAttribute("href", "/manifests/manifest-1");
+    expect(screen.getByRole("link", { name: "Open signed manifest" })).toHaveAttribute("href", getShowcaseManifestHref());
     expect(screen.getByRole("link", { name: "Start a real review" })).toHaveAttribute("href", "/reviews/new");
   });
 });

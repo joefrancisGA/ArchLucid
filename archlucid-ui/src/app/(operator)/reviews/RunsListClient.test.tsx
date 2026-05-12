@@ -96,4 +96,17 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByRole("heading", { name: /^in progress$/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /^finalized$/i })).toBeInTheDocument();
   });
+
+  it("shows Set as baseline menu only for committed runs", () => {
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000aa",
+      hasGoldenManifest: true,
+    };
+
+    render(<RunsListClient runs={[sampleRun, committed]} projectId="default" page={1} pageSize={20} totalCount={2} />);
+
+    expect(screen.queryByTestId(`runs-row-baseline-menu-${sampleRun.runId}`)).toBeNull();
+    expect(screen.getByTestId(`runs-row-baseline-menu-${committed.runId}`)).toBeInTheDocument();
+  });
 });
