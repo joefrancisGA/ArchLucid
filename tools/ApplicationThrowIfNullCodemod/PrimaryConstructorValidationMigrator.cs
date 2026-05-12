@@ -100,7 +100,7 @@ internal sealed class PrimaryConstructorValidationMigrator(SemanticModel semanti
                 return ImmutableHashSet<string>.Empty;
 
             ImmutableHashSet<string>.Builder builder =
-                ImmutableHashSet.CreateBuilder(StringComparer.Ordinal);
+                ImmutableHashSet.CreateBuilder<string>(StringComparer.Ordinal);
 
             ImmutableArray<string> vNames =
                 vParams.Select(static p => p.Identifier.ValueText).ToImmutableArray();
@@ -404,7 +404,7 @@ internal sealed class PrimaryConstructorValidationMigrator(SemanticModel semanti
             MethodDeclarationSyntax validator)
         {
             ImmutableHashSet<string>.Builder builder =
-                ImmutableHashSet.CreateBuilder(StringComparer.Ordinal);
+                ImmutableHashSet.CreateBuilder<string>(StringComparer.Ordinal);
 
             if (validator.Body is null)
                 return builder.ToImmutable();
