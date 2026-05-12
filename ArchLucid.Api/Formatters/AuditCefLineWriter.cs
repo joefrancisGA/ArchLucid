@@ -35,7 +35,7 @@ public static class AuditCefLineWriter
     {
         string signature = EscapeCefHeaderField(e.EventType);
         string name = EscapeCefHeaderField(e.EventType);
-        int severity = 3;
+        const int severity = 3;
         string ext = BuildExtension(e);
 
         return $"{HeaderPrefix}{signature}|{name}|{severity}|{ext}";

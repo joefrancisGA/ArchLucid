@@ -11,28 +11,21 @@ namespace ArchLucid.Api.Hosting;
 ///     When <c>Demo:Enabled=true</c>, periodically GETs <c>/v1/demo/preview</c> (same precomposed bundle the trial
 ///     funnel and marketing use) to verify the read path is healthy. Does not use Stripe or production-only keys.
 /// </summary>
-public sealed class TrialFunnelHealthProbe : BackgroundService
+public sealed class TrialFunnelHealthProbe(
+    IHttpClientFactory httpClientFactory,
+    IHostApplicationLifetime lifetime,
+    ILogger<TrialFunnelHealthProbe> logger,
+    IServer server)
+    : BackgroundService
 {
     public const string HttpClientName = "TrialFunnelHealthProbe";
     public const string DemoPreviewRelativePath = "/v1/demo/preview";
     private static readonly TimeSpan ProbeInterval = TimeSpan.FromMinutes(5);
 
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IHostApplicationLifetime _lifetime;
-    private readonly ILogger<TrialFunnelHealthProbe> _logger;
-    private readonly IServer _server;
-
-    public TrialFunnelHealthProbe(
-        IHttpClientFactory httpClientFactory,
-        IHostApplicationLifetime lifetime,
-        ILogger<TrialFunnelHealthProbe> logger,
-        IServer server)
-    {
-        _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-        _lifetime = lifetime ?? throw new ArgumentNullException(nameof(lifetime));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _server = server ?? throw new ArgumentNullException(nameof(server));
-    }
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+    private readonly IHostApplicationLifetime _lifetime = lifetime ?? throw new ArgumentNullException(nameof(lifetime));
+    private readonly ILogger<TrialFunnelHealthProbe> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IServer _server = server ?? throw new ArgumentNullException(nameof(server));
 
     /// <summary>Builds a loopback base URL from a Kestrel listen address (internal for unit tests).</summary>
     internal static string? TryMapToLoopbackBase(string? address)

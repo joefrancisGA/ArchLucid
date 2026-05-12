@@ -30,6 +30,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
+import { ArchitectureGraphViewer } from "@/components/ArchitectureGraphViewer";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { ChangesSinceLastReviewBanner } from "@/components/ChangesSinceLastReviewBanner";
@@ -453,6 +454,11 @@ export default async function RunDetailPage({
         { id: "trust-evidence", label: "Evidence", available: Boolean(resolvedDetail.trustEvidenceCard) },
         { id: "run-explanation", label: "Assessment", available: Boolean(manifestId) },
         { id: "pipeline-timeline", label: "Activity", available: true },
+        {
+          id: "architecture-graph",
+          label: "Architecture graph",
+          available: Boolean(resolvedDetail.run.graphSnapshotId),
+        },
         { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
       ]
     : [
@@ -460,6 +466,11 @@ export default async function RunDetailPage({
         { id: "trust-evidence", label: "Evidence card", available: Boolean(resolvedDetail.trustEvidenceCard) },
         { id: "run-metadata", label: "Review", available: true },
         { id: "pipeline-timeline", label: "Timeline", available: true },
+        {
+          id: "architecture-graph",
+          label: "Architecture graph",
+          available: Boolean(resolvedDetail.run.graphSnapshotId),
+        },
         { id: "authority-chain", label: "Review trail", available: true },
         { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
         { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
@@ -785,6 +796,23 @@ export default async function RunDetailPage({
           </CardContent>
         </Card>
       </section>
+
+      {resolvedDetail.run.graphSnapshotId ? (
+        <section id="architecture-graph" className="scroll-mt-24">
+          <Card>
+            <CardHeader>
+              <h3 className={sectionHeadingClass}>Architecture graph</h3>
+              <CardDescription>
+                Component and relationship view derived from the architecture graph API for this review (read-only on this
+                page). Open the graph explorer for review-trail layouts, filters, and exports.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ArchitectureGraphViewer runId={runId} />
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
 
       {!buyerPolishedArtifactTable ? (
       <section id="authority-chain" className="scroll-mt-24">

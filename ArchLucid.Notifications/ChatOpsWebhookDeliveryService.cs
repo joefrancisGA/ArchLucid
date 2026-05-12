@@ -31,9 +31,6 @@ public sealed class ChatOpsWebhookDeliveryService(IWebhookPoster webhookPoster) 
         if (target is ChatOpsWebhookTarget.Slack)
             return ChatOpsIncomingWebhookBodies.ForSlack(message);
 
-        if (target is ChatOpsWebhookTarget.Teams)
-            return ChatOpsIncomingWebhookBodies.ForTeams(message);
-
-        throw new ArgumentOutOfRangeException(nameof(target));
+        return target is ChatOpsWebhookTarget.Teams ? ChatOpsIncomingWebhookBodies.ForTeams(message) : throw new ArgumentOutOfRangeException(nameof(target));
     }
 }

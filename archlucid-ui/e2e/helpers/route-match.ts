@@ -21,6 +21,13 @@ export function matchesRunDetailGet(url: URL, runId: string): boolean {
   );
 }
 
+export function matchesAuthorityRunManifestGet(url: URL, runId: string): boolean {
+  return (
+    url.search === "" &&
+    backendApiPath(url) === `/v1/authority/runs/${encodeURIComponent(runId)}/manifest`
+  );
+}
+
 export function matchesManifestSummaryGet(url: URL, manifestId: string): boolean {
   return (
     url.search === "" &&

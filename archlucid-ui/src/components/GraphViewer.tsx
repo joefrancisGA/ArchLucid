@@ -122,6 +122,7 @@ export function GraphViewer({
   presentation = "operator",
   defaultSelectedNodeId,
   onInteractiveSurfaceReady,
+  compactChrome = false,
 }: {
   graph: GraphViewModel;
   typeFilter?: string;
@@ -132,6 +133,11 @@ export function GraphViewer({
   defaultSelectedNodeId?: string;
   /** Fires once the React Flow canvas has initialized (used to avoid “nodes in view” copy before pixels exist). */
   onInteractiveSurfaceReady?: () => void;
+  /**
+   * When true, hides graph settings/advanced controls, disables drag/connect authoring affordances,
+   * and uses a shorter canvas — for embedded run-detail architecture previews.
+   */
+  compactChrome?: boolean;
 }) {
   const filtered = useMemo(() => graphViewModelFilteredByNodeType(graph, typeFilter), [graph, typeFilter]);
 
@@ -218,12 +224,22 @@ export function GraphViewer({
   }
 
   return (
-    <div className={buyerTrailPanel ? "grid grid-cols-[1fr_minmax(280px,340px)] gap-4" : "grid grid-cols-[1fr_320px] gap-4"}>
+    <div
+      className={
+        buyerTrailPanel
+          ? "grid grid-cols-[1fr_minmax(280px,340px)] gap-4"
+          : compactChrome
+            ? "grid grid-cols-1 gap-4 lg:grid-cols-[1fr_280px]"
+            : "grid grid-cols-[1fr_320px] gap-4"
+      }
+    >
       <div
         className={
           buyerTrailPanel
             ? "h-[min(88vh,960px)] min-h-[520px] w-full rounded-xl border-2 border-slate-200 bg-slate-50/80 shadow-inner dark:border-slate-700 dark:bg-slate-950/50"
-            : "h-[70vh] w-full border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
+            : compactChrome
+              ? "h-[min(55vh,520px)] min-h-[300px] w-full border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
+              : "h-[70vh] w-full border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
         }
       >
         <ReactFlowProvider>
@@ -235,6 +251,8 @@ export function GraphViewer({
             minZoom={0.2}
             maxZoom={buyerTrailPanel ? 2.18 : 1.72}
             onlyRenderVisibleElements
+            nodesDraggable={!compactChrome}
+            nodesConnectable={!compactChrome}
             proOptions={{ hideAttribution: true }}
             onNodeClick={(_, node) => {
               setExplainStatusLine("");
@@ -249,9 +267,12 @@ export function GraphViewer({
               padding={fitPadding}
               maxZoom={fitMaxZoom}
             />
-            {buyerTrailPanel ? null : <MiniMap />}
+            {buyerTrailPanel ? null : compactChrome ? null : <MiniMap />}
 
-            <Controls showInteractive={!buyerTrailPanel} className={buyerTrailPanel ? "shadow-md" : undefined} />
+            <Controls
+              showInteractive={!buyerTrailPanel && !compactChrome}
+              className={buyerTrailPanel ? "shadow-md" : undefined}
+            />
 
             <Background
               id="archlucid-graph-bg"
@@ -268,10 +289,21 @@ export function GraphViewer({
         className={
           buyerTrailPanel
             ? "max-h-[min(88vh,960px)] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
-            : "max-h-[70vh] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+            : compactChrome
+              ? "max-h-[min(55vh,520px)] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950 lg:max-h-[min(55vh,520px)]"
+              : "max-h-[70vh] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
         }
       >
-        {!buyerTrailPanel ? (
+        {buyerTrailPanel ? (
+          <div className="rounded-md border border-slate-200 bg-slate-50/90 p-3 text-sm dark:border-slate-700 dark:bg-slate-900/40">
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Legend</p>
+            <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">
+              This is an evidence-to-decision trail: context and analysis nodes feed prioritized risk findings
+              (highlighted) that anchor the finalized manifest and bundled deliverables.
+            </p>
+          </div>
+        ) : null}
+        {!buyerTrailPanel && !compactChrome ? (
           <div>
             <div className="mb-4 flex items-center justify-between">
               <h3 className="m-0">Graph Settings</h3>
@@ -322,15 +354,7 @@ export function GraphViewer({
               </div>
             ) : null}
           </div>
-        ) : (
-          <div className="rounded-md border border-slate-200 bg-slate-50/90 p-3 text-sm dark:border-slate-700 dark:bg-slate-900/40">
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Legend</p>
-            <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">
-              This is an evidence-to-decision trail: context and analysis nodes feed prioritized risk findings
-              (highlighted) that anchor the finalized manifest and bundled deliverables.
-            </p>
-          </div>
-        )}
+        ) : null}
 
         <div className="flex-1">
           <h3 className="mt-0">Node detail</h3>
@@ -448,7 +472,7 @@ export function GraphViewer({
                 })()
               ) : null}
 
-              {runId.trim().length > 0 && selectedNode !== null && !buyerTrailPanel ? (
+              {runId.trim().length > 0 && selectedNode !== null && !buyerTrailPanel && !compactChrome ? (
                 <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
                   <h4 className="mt-0">Explain this node</h4>
                   <p className="text-[11px] text-neutral-600 dark:text-neutral-400">

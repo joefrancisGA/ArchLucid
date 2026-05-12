@@ -638,6 +638,11 @@ export async function compareGoldenManifestRuns(
   );
 }
 
+/** Latest authority manifest document JSON for a run (`GET /v1/authority/runs/{runId}/manifest`). */
+export async function getAuthorityRunManifest(runId: string): Promise<unknown> {
+  return apiGet<unknown>(`/v1/authority/runs/${encodeURIComponent(runId)}/manifest`);
+}
+
 /** Requests an AI-generated narrative explanation of the differences between two runs. */
 export async function explainComparisonRuns(
   baseRunId: string,

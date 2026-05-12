@@ -36,10 +36,9 @@ public sealed class AgentResultParserTests
     [SkippableFact]
     public void ParseAndValidate_when_ids_mismatch_throws()
     {
-        string json =
-            """
-            {"runId":"other","taskId":"task","agentType":"Topology","resultId":"r","claims":[],"evidenceRefs":[],"confidence":0.5,"createdUtc":"2026-01-01T00:00:00Z"}
-            """;
+        const string json = """
+                            {"runId":"other","taskId":"task","agentType":"Topology","resultId":"r","claims":[],"evidenceRefs":[],"confidence":0.5,"createdUtc":"2026-01-01T00:00:00Z"}
+                            """;
 
         Action act = () => _sut.ParseAndValidate(json, "run", "task", AgentType.Topology);
 
@@ -49,10 +48,9 @@ public sealed class AgentResultParserTests
     [SkippableFact]
     public void ParseAndValidate_when_valid_returns_result()
     {
-        string json =
-            """
-            {"runId":"run1","taskId":"task1","agentType":"Topology","resultId":"res1","claims":["c"],"evidenceRefs":["e"],"confidence":0.75,"createdUtc":"2026-01-01T00:00:00Z"}
-            """;
+        const string json = """
+                            {"runId":"run1","taskId":"task1","agentType":"Topology","resultId":"res1","claims":["c"],"evidenceRefs":["e"],"confidence":0.75,"createdUtc":"2026-01-01T00:00:00Z"}
+                            """;
 
         AgentResult result = _sut.ParseAndValidate(json, "run1", "task1", AgentType.Topology);
 
@@ -64,10 +62,9 @@ public sealed class AgentResultParserTests
     [SkippableFact]
     public void ParseAndValidate_when_confidence_out_of_range_throws_AgentResultValidationException()
     {
-        string json =
-            """
-            {"runId":"r","taskId":"t","agentType":"Compliance","resultId":"x","claims":[],"evidenceRefs":[],"confidence":2,"createdUtc":"2026-01-01T00:00:00Z"}
-            """;
+        const string json = """
+                            {"runId":"r","taskId":"t","agentType":"Compliance","resultId":"x","claims":[],"evidenceRefs":[],"confidence":2,"createdUtc":"2026-01-01T00:00:00Z"}
+                            """;
 
         Action act = () => _sut.ParseAndValidate(json, "r", "t", AgentType.Compliance);
 
@@ -84,10 +81,9 @@ public sealed class AgentResultParserTests
             Options.Create(new AgentResultSchemaValidationOptions { EnforceOnParse = true }),
             logger.Object);
 
-        string json =
-            """
-            {"runId":"r","taskId":"t","agentType":"Topology","resultId":"x","evidenceRefs":[],"confidence":0.5,"createdUtc":"2026-01-01T00:00:00Z"}
-            """;
+        const string json = """
+                            {"runId":"r","taskId":"t","agentType":"Topology","resultId":"x","evidenceRefs":[],"confidence":0.5,"createdUtc":"2026-01-01T00:00:00Z"}
+                            """;
 
         Action act = () => sut.ParseAndValidate(json, "r", "t", AgentType.Topology);
 
@@ -106,10 +102,9 @@ public sealed class AgentResultParserTests
             Options.Create(new AgentResultSchemaValidationOptions { EnforceOnParse = false }),
             logger.Object);
 
-        string json =
-            """
-            {"runId":"r","taskId":"t","agentType":"Topology","resultId":"x","evidenceRefs":[],"confidence":0.5,"createdUtc":"2026-01-01T00:00:00Z"}
-            """;
+        const string json = """
+                            {"runId":"r","taskId":"t","agentType":"Topology","resultId":"x","evidenceRefs":[],"confidence":0.5,"createdUtc":"2026-01-01T00:00:00Z"}
+                            """;
 
         AgentResult result = sut.ParseAndValidate(json, "r", "t", AgentType.Topology);
 
@@ -133,10 +128,9 @@ public sealed class AgentResultParserTests
             Options.Create(new AgentResultSchemaValidationOptions()),
             Mock.Of<ILogger<AgentResultParser>>());
 
-        string json =
-            """
-            {"runId":"r1","taskId":"t1","agentType":"Topology","resultId":"rid","claims":["a"],"evidenceRefs":["b"],"confidence":0.5,"createdUtc":"2026-01-01T00:00:00Z"}
-            """;
+        const string json = """
+                            {"runId":"r1","taskId":"t1","agentType":"Topology","resultId":"rid","claims":["a"],"evidenceRefs":["b"],"confidence":0.5,"createdUtc":"2026-01-01T00:00:00Z"}
+                            """;
 
         AgentResult result = sut.ParseAndValidate(json, "r1", "t1", AgentType.Topology);
 

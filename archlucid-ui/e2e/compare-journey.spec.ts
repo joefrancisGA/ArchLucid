@@ -47,6 +47,7 @@ test.describe("operator journey — compare query prefill and review order", () 
     const reviewNav = page.getByRole("navigation", { name: "Comparison results outline" });
     await expect(reviewNav.getByText("Review order", { exact: true })).toBeVisible();
     await expect(reviewNav.getByRole("link", { name: "Manifest comparison summary" })).toBeVisible();
+    await expect(reviewNav.getByRole("link", { name: "Raw manifest line diff" })).toBeVisible();
     await expect(reviewNav.getByRole("link", { name: "Technical details (supplementary diff)" })).toBeVisible();
 
     await expandComparisonRequestOutcome(page);
