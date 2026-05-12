@@ -41,6 +41,7 @@ public sealed class CompletionsCommandTests
             text.Should().Contain("second-run");
             text.Should().Contain("deployment-evidence");
             text.Should().Contain("explain-operator-model");
+            text.Should().Contain("az-token-test");
         }
         finally
         {
