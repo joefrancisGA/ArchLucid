@@ -57,9 +57,8 @@ internal static class AzureAccessTokenJwtClaimsReader
     /// <remarks>JWT uses unpadded Base64 URL encoding.</remarks>
     private static byte[] DecodeBase64Url(string segment)
     {
-        string padded = segment
-            .Replace('-', '+', StringComparison.Ordinal)
-            .Replace('_', '/', StringComparison.Ordinal);
+        string padded = segment.Replace("-", "+", StringComparison.Ordinal)
+            .Replace("_", "/", StringComparison.Ordinal);
         int mod4 = padded.Length % 4;
 
         if (mod4 == 2)

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using Azure;
 using Azure.Core;
 using Azure.Identity;
 
