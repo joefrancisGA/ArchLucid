@@ -64,6 +64,15 @@ internal static class ItsmOutboundConnectorTestFixture
         return monitor;
     }
 
+    // Named Monitor for call-site brevity in tests; prevents binding to System.Threading.Monitor when imported via using static.
+    public static Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> Monitor(IntegrationsItsmOutboundOptions options)
+    {
+        Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> monitor = new();
+        monitor.Setup(x => x.CurrentValue).Returns(options);
+
+        return monitor;
+    }
+
     public static JiraOutboundIssueClient JiraClient(HttpMessageHandler handler) =>
         new(new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(5) }, NullLogger<JiraOutboundIssueClient>.Instance);
 

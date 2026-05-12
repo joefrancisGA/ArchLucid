@@ -89,9 +89,9 @@ public sealed class AuthorityChainRunForeignKeyPreventionSqlIntegrationTests(Sql
             GraphSnapshotId = graphId,
             FindingsSnapshotId = findingsId,
             DecisionTraceId = traceId,
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId
+            TenantId,
+            WorkspaceId,
+            ProjectId
         };
 
         Func<Task> act = async () =>
