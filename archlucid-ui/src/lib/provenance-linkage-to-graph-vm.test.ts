@@ -9,6 +9,7 @@ describe("provenanceLinkageToGraphViewModel", () => {
     const prov = buildStaticDemoProvenanceGraphFromShowcase(SHOWCASE_STATIC_DEMO_RUN_ID);
     const vm = provenanceLinkageToGraphViewModel(prov);
 
+    expect(prov.nodes.some((n) => n.type === "PolicyPack")).toBe(true);
     expect(vm.nodes.length).toBeGreaterThan(0);
     expect(vm.edges.length).toBeGreaterThan(0);
     expect(vm.nodes[0]?.label.length).toBeGreaterThan(0);

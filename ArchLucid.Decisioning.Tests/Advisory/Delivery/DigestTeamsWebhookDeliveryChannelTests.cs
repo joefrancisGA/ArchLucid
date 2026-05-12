@@ -26,7 +26,7 @@ public sealed class DigestTeamsWebhookDeliveryChannelTests
     public async Task SendAsync_PostsJsonToSubscriptionDestination()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();
-        string expectedUrl = "https://outlook.office.com/webhook/digest";
+        const string expectedUrl = "https://outlook.office.com/webhook/digest";
 
         delivery.Setup(x =>
                 x.DeliverAsync(

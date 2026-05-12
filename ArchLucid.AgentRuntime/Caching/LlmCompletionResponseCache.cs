@@ -19,10 +19,7 @@ public sealed class LlmCompletionResponseCache : ILlmCompletionResponseCache
         string memoryKey = ToMemoryKey(key);
         string? body = await _semanticCache.GetCachedResponseAsync(memoryKey, cancellationToken);
 
-        if (body is null)
-            return null;
-
-        return new LlmCompletionResult(body);
+        return body is null ? null : new LlmCompletionResult(body);
     }
 
     /// <inheritdoc />

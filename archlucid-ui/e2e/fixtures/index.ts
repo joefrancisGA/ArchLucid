@@ -32,6 +32,7 @@ export {
   fixtureManifestSummaryForShowcase,
 } from "./manifest-summary";
 export { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./manifest-detail-heading";
+export { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./runs-list-heading";
 export { fixtureRunDetail, fixtureRunDetailAlignedToShowcase } from "./run-detail";
 export { fixtureRunExplanationSummary } from "./run-explanation-summary";
 export { fixtureTenantCostEstimate } from "./tenant-cost-estimate";

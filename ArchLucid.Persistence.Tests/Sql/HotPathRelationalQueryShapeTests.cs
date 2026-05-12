@@ -1,4 +1,4 @@
-﻿using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Sql;
 
 namespace ArchLucid.Persistence.Tests.Sql;
 
@@ -12,7 +12,7 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Runs_list_by_project_retains_nolock_scope_archived_filter_and_created_order()
     {
-        string sql = HotPathRelationalQueryShapes.RunsListByProjectNoLock;
+        const string sql = HotPathRelationalQueryShapes.RunsListByProjectNoLock;
 
         sql.Should().Contain("SELECT TOP (@Take)");
         sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");

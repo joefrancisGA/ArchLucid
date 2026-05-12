@@ -27,8 +27,7 @@ public sealed class PromptInjectionPatternSignalsTests
     [Fact]
     public void Evaluate_allows_routine_architecture_description_without_timeout()
     {
-        string description =
-            "Design a three-tier workload on Azure with private endpoints, Key Vault, and least-privilege managed identity.";
+        const string description = "Design a three-tier workload on Azure with private endpoints, Key Vault, and least-privilege managed identity.";
 
         IReadOnlyList<string> reasons = PromptInjectionPatternSignals.Evaluate(description);
 

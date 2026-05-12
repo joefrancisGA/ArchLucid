@@ -12,7 +12,6 @@ public sealed class AgentOutputTraceEvaluationHook(AgentOutputEvaluationRecorder
     private readonly AgentOutputEvaluationRecorder _recorder =
         recorder ?? throw new ArgumentNullException(nameof(recorder));
 
-    /// <inheritdoc />
     public Task AfterSuccessfulExecuteAsync(string runId, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);

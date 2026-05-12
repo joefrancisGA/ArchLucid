@@ -2,8 +2,6 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Tests.Support;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Tenancy;
 
 [Collection(nameof(SqlServerPersistenceCollection))]

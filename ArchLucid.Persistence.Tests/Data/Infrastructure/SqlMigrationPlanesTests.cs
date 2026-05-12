@@ -8,8 +8,7 @@ public sealed class SqlMigrationPlanesTests
     [Fact]
     public void IsSystemPlaneScript_detects_embedded_system_folder()
     {
-        string name =
-            "ArchLucid.Persistence.Migrations.System.001_SystemTenantDirectory.sql";
+        const string name = "ArchLucid.Persistence.Migrations.System.001_SystemTenantDirectory.sql";
 
         SqlMigrationPlanes.IsSystemPlaneScript(name).Should().BeTrue();
         SqlMigrationPlanes.IsTenantPlaneScript(name).Should().BeFalse();

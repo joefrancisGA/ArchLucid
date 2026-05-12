@@ -21,9 +21,7 @@ public sealed class RunTrustEvidenceCardBuilder(
     IRunExplanationSummaryService runExplanationSummaryService,
     IScopeContextProvider scopeContextProvider) : IRunTrustEvidenceCardBuilder
 {
-    private static readonly string SelfNotice = "This card summarizes operational evidence ArchLucid stores for this review (audit events, trace metadata, " +
-                                                "exports). It is not a SOC 2 report, independent penetration test, or legal attestation—see your trust center " +
-                                                "for assurance boundaries.";
+    private const string SelfNotice = "This card summarizes operational evidence ArchLucid stores for this review (audit events, trace metadata, " + "exports). It is not a SOC 2 report, independent penetration test, or legal attestation—see your trust center " + "for assurance boundaries.";
 
     private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
 
@@ -177,7 +175,7 @@ public sealed class RunTrustEvidenceCardBuilder(
         CancellationToken cancellationToken)
     {
         TrustEvidenceFieldSnapshot audit;
-        
+
         if (runGuid is null)
         {
             audit = new TrustEvidenceFieldSnapshot
@@ -218,7 +216,7 @@ public sealed class RunTrustEvidenceCardBuilder(
         }
 
         TrustEvidenceFieldSnapshot traces;
-        
+
         try
         {
             (_, int total) = await _agentExecutionTraceRepository.GetPagedByRunIdAsync(runId, 0, 1, cancellationToken).ConfigureAwait(false);

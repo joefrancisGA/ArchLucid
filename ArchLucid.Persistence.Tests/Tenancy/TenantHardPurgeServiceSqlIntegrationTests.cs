@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
@@ -10,26 +10,19 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 
 [Trait("Category", "Integration")]
 [Collection(nameof(SqlServerPersistenceCollection))]
-public sealed class TenantHardPurgeServiceSqlIntegrationTests
+public sealed class TenantHardPurgeServiceSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    private readonly SqlServerPersistenceFixture _fixture;
-
-    public TenantHardPurgeServiceSqlIntegrationTests(SqlServerPersistenceFixture fixture)
-    {
-        _fixture = fixture;
-    }
-
     [SkippableFact]
     public async Task PurgeTenantAsync_removes_tenant_scoped_rows_and_retains_audit_events()
     {
-        Skip.IfNot(_fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
         Guid auditEventId = Guid.NewGuid();
 
-        await using (SqlConnection setup = new(_fixture.ConnectionString))
+        await using (SqlConnection setup = new(fixture.ConnectionString))
         {
             await setup.OpenAsync();
 
@@ -78,7 +71,7 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
             await auditCmd.ExecuteNonQueryAsync();
         }
 
-        SqlConnectionFactory factory = new(_fixture.ConnectionString);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlTenantHardPurgeService purge = new(factory);
 
         TenantHardPurgeResult result = await purge.PurgeTenantAsync(
@@ -88,7 +81,7 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
 
         result.RowsDeleted.Should().BeGreaterThan(0);
 
-        await using SqlConnection verify = new(_fixture.ConnectionString);
+        await using SqlConnection verify = new(fixture.ConnectionString);
         await verify.OpenAsync();
 
         await using SqlCommand tenantCount = verify.CreateCommand();

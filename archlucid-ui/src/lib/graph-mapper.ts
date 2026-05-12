@@ -35,6 +35,8 @@ function pickColor(type: string): string {
       return "#d1fae5";
     case "ArtifactBundle":
       return "#ede9fe";
+    case "PolicyPack":
+      return "#ecfccb";
     default:
       return "#f5f5f5";
   }

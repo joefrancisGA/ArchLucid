@@ -1,4 +1,4 @@
-﻿using ArchLucid.AgentRuntime.Evaluation;
+using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -22,10 +22,9 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
         options.Setup(o => o.CurrentValue).Returns(
             new AgentExecutionReferenceEvaluationOptions { Enabled = true });
 
-        string parsedJson =
-            """
-            {"resultId":"r1","taskId":"t1","runId":"run-1","agentType":"Topology","claims":[],"evidenceRefs":[],"confidence":0.5,"findings":[]}
-            """;
+        const string parsedJson = """
+                                  {"resultId":"r1","taskId":"t1","runId":"run-1","agentType":"Topology","claims":[],"evidenceRefs":[],"confidence":0.5,"findings":[]}
+                                  """;
 
         IReadOnlyList<AgentOutputReferenceCaseDefinition> cases =
         [
@@ -98,7 +97,10 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
 
         AgentExecutionTrace trace = new()
         {
-            TraceId = "tr1", AgentType = AgentType.Topology, ParseSucceeded = true, ParsedResultJson = "{}"
+            TraceId = "tr1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = "{}"
         };
 
         await sut.EvaluateTraceAsync(trace, "run-1", CancellationToken.None);

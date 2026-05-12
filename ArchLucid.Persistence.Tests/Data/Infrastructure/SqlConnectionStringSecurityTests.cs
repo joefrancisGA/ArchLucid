@@ -1,4 +1,4 @@
-﻿using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
 
@@ -10,7 +10,7 @@ public sealed class SqlConnectionStringSecurityTests
     [SkippableFact]
     public void EnsureSqlClientEncryptMandatory_TrimsAndSetsEncryptMandatory()
     {
-        string input = " Server=localhost; Database=Db; Integrated Security=true; TrustServerCertificate=true; ";
+        const string input = " Server=localhost; Database=Db; Integrated Security=true; TrustServerCertificate=true; ";
 
         string actual = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(input);
 

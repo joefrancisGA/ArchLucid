@@ -6,8 +6,6 @@ using System.Text.Json.Serialization;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
-using Humanizer;
-
 using Spectre.Console;
 
 namespace ArchLucid.Cli.Commands;
@@ -132,7 +130,7 @@ internal static class CostEstimateCommand
         Table table = new Table().Border(TableBorder.Rounded);
         table.AddColumn("Kind");
         table.AddColumn("Name");
-        table.AddColumn("Platform");
+        table.AddColumn("Azure product (mock)");
         table.AddColumn(new TableColumn("Est. USD/mo").RightAligned());
 
         CultureInfo us = CultureInfo.GetCultureInfo("en-US");
@@ -141,12 +139,12 @@ internal static class CostEstimateCommand
         foreach (CostRow row in rows)
         {
             total += row.EstimatedUsdPerMonth;
-            string platformLabel = row.RuntimePlatform.Humanize();
+            string azureProductLabel = MockAzureMonthlyCostEstimator.FormatIllustrativeAzureProduct(row.RuntimePlatform);
 
             table.AddRow(
                 Markup.Escape(row.Kind),
                 Markup.Escape(row.Name),
-                Markup.Escape(platformLabel),
+                Markup.Escape(azureProductLabel),
                 row.EstimatedUsdPerMonth.ToString("C0", us));
         }
 
@@ -180,6 +178,7 @@ internal static class CostEstimateCommand
                         kind = r.Kind,
                         name = r.Name,
                         runtimePlatform = r.RuntimePlatform.ToString(),
+                        azureProduct = MockAzureMonthlyCostEstimator.FormatIllustrativeAzureProduct(r.RuntimePlatform),
                         estimatedUsdPerMonth = r.EstimatedUsdPerMonth,
                     })
                 .ToArray(),

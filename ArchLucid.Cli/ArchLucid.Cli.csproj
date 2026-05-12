@@ -23,9 +23,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options" />
-    <PackageReference Include="Humanizer.Core">
-      <ExcludeAssets>analyzers</ExcludeAssets>
-    </PackageReference>
     <PackageReference Include="Json.More.Net" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Polly" />
