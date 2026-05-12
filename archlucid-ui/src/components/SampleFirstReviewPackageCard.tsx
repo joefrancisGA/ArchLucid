@@ -109,6 +109,13 @@ export function SampleFirstReviewPackageCard() {
                   View full review package
                 </Link>
                 <span className="text-neutral-500 dark:text-neutral-400"> · </span>
+                <Link
+                  href="/reviews/new"
+                  className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                >
+                  Start a new request
+                </Link>
+                <span className="text-neutral-500 dark:text-neutral-400"> · </span>
                 <details className="inline">
                   <summary className="cursor-pointer font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100">
                     Guided walkthrough
