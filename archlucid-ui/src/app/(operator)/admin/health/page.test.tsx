@@ -21,7 +21,7 @@ describe("AdminHealthPage", () => {
         if (s.includes("/version")) {
           return jsonResponse({ informationalVersion: "1.0.0+abc", commitSha: "abc123" });
         }
-        if (s.includes("/api/proxy/health") && !s.includes("ready") && !s.includes("live")) {
+        if (s.includes("/api/proxy/health/diagnostics")) {
           return jsonResponse({ status: "Healthy", entries: [] });
         }
         if (s.includes("operator-task-success-rates")) {
@@ -53,7 +53,7 @@ describe("AdminHealthPage", () => {
         if (s.includes("/version")) {
           return jsonResponse({});
         }
-        if (s.includes("/api/proxy/health") && !s.includes("ready") && !s.includes("live")) {
+        if (s.includes("/api/proxy/health/diagnostics")) {
           return jsonResponse({ status: "Healthy", entries: [] });
         }
         if (s.includes("operator-task-success-rates")) {
@@ -84,7 +84,7 @@ describe("AdminHealthPage", () => {
         if (s.includes("/version")) {
           return jsonResponse({});
         }
-        if (s.includes("/api/proxy/health") && !s.includes("ready") && !s.includes("live")) {
+        if (s.includes("/api/proxy/health/diagnostics")) {
           return new Response("forbidden", { status: 403 });
         }
         if (s.includes("operator-task-success-rates")) {
@@ -100,7 +100,7 @@ describe("AdminHealthPage", () => {
     vi.unstubAllGlobals();
   });
 
-  it("notes auth when /health returns 401", async () => {
+  it("notes auth when /health/diagnostics returns 401", async () => {
     const fetchMock = vi.fn(
       async (url: string | URL) => {
         const s = String(url);
@@ -110,7 +110,7 @@ describe("AdminHealthPage", () => {
         if (s.includes("/version")) {
           return jsonResponse({});
         }
-        if (s.includes("/api/proxy/health") && !s.includes("ready") && !s.includes("live")) {
+        if (s.includes("/api/proxy/health/diagnostics")) {
           return new Response("unauth", { status: 401 });
         }
         if (s.includes("operator-task-success-rates")) {
@@ -140,9 +140,10 @@ describe("AdminHealthPage", () => {
         if (s.includes("/version")) {
           return jsonResponse({});
         }
-        if (s.includes("/api/proxy/health") && !s.includes("ready") && !s.includes("live")) {
+        if (s.includes("/api/proxy/health/diagnostics")) {
           return jsonResponse({
             status: "Healthy",
+            totalDurationMs: 1,
             entries: [
               {
                 name: "circuit_breakers",
@@ -182,7 +183,7 @@ describe("AdminHealthPage", () => {
         if (s.includes("/version")) {
           return jsonResponse({ informationalVersion: "e2e-screenshots", commitSha: "e2e000abc" });
         }
-        if (s.includes("/api/proxy/health") && !s.includes("ready") && !s.includes("live")) {
+        if (s.includes("/api/proxy/health/diagnostics")) {
           return jsonResponse({ status: "Healthy", entries: [] });
         }
         if (s.includes("operator-task-success-rates")) {
@@ -213,7 +214,7 @@ describe("AdminHealthPage", () => {
         if (s.includes("/version")) {
           return jsonResponse({});
         }
-        if (s.includes("/api/proxy/health") && !s.includes("ready") && !s.includes("live")) {
+        if (s.includes("/api/proxy/health/diagnostics")) {
           return jsonResponse({ status: "Healthy", entries: [] });
         }
         if (s.includes("operator-task-success-rates")) {

@@ -39,6 +39,3 @@ export const SCREENSHOT_RIGHT_RUN_ID = "claims-intake-run-v2";
 
 /** Seeded welcome run for mocked trial-funnel Playwright + Node mock `trial-status` / `pilot-run-deltas` fallbacks. */
 export const MOCK_TRIAL_WELCOME_RUN_ID = "44444444-4444-4444-4444-444444444444";
-
-/** Seeded welcome run for mocked trial-funnel Playwright + Node mock `trial-status` / `pilot-run-deltas` fallbacks. */
-export const MOCK_TRIAL_WELCOME_RUN_ID = "44444444-4444-4444-4444-444444444444";

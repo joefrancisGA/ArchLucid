@@ -6,7 +6,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 namespace ArchLucid.Host.Core.Health;
 
 /// <summary>
-/// Surfaces keyed <see cref="CircuitBreakerGate"/> states for authenticated <c>/health</c> (no readiness/liveness tags).
+/// Surfaces keyed <see cref="CircuitBreakerGate"/> states for authenticated <c>/health/diagnostics</c> (no readiness/liveness tags).
 /// Missing gates (OpenAI not wired) are skipped; never returns <see cref="HealthStatus.Unhealthy"/>.
 /// </summary>
 public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) : IHealthCheck

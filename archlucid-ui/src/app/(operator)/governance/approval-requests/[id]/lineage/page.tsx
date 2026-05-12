@@ -22,7 +22,7 @@ import { Separator } from "@/components/ui/separator";
 import { getApprovalRequestLineage } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
   formatGovernanceLineageCompletenessPercent,
@@ -67,7 +67,7 @@ export default function GovernanceApprovalLineagePage() {
   }
 
   if (loading) {
-    if (isNextPublicDemoMode()) {
+    if (isNextPublicDemoMode() || isBuyerPolishedOperatorShellEnv()) {
       return (
         <OperatorLoadingNotice>Loading approval lineage…</OperatorLoadingNotice>
       );
@@ -81,15 +81,20 @@ export default function GovernanceApprovalLineagePage() {
     );
   }
 
-  const demoUnavailable =
-    isNextPublicDemoMode() && (failure !== null || data === null);
+  const nextDemo = isNextPublicDemoMode();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const lineageMissing = failure !== null || data === null;
 
-  if (demoUnavailable) {
+  if ((nextDemo || buyerPolishedShell) && lineageMissing) {
     return (
       <div className="space-y-4">
         <DemoUnavailableNotice
           title="Approval lineage"
-          description="Lineage detail is not available in this demo environment, or this approval id has no persisted lineage yet. Explore governance findings or a completed example review instead."
+          description={
+            nextDemo
+              ? "Lineage detail is not available in this demo environment, or this approval id has no persisted lineage yet. Explore governance findings or a completed example review instead."
+              : "Lineage detail is not available for this approval in the guided review experience yet, or the service returned no linkage. Explore governance findings or a completed example review instead."
+          }
           learnMoreHref="/governance/findings"
           learnMoreLabel="Governance findings"
         />

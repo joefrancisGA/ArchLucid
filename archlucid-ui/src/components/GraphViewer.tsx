@@ -7,6 +7,7 @@ import ReactFlow, {
   Controls,
   MiniMap,
   ReactFlowProvider,
+  useReactFlow,
   type Edge,
   type Node,
 } from "reactflow";
@@ -60,6 +61,49 @@ function pickHeroNodeId(graph: GraphViewModel, preferredId: string | undefined):
 }
 
 /**
+ * Re-runs fitView after node/edge or presentation changes so buyer and operator
+ * graphs stay framed when data loads or filters update (fitView on ReactFlow
+ * only applies on first mount).
+ */
+function GraphFitViewSync({
+  nodeCount,
+  edgeCount,
+  presentationKey,
+  padding,
+  maxZoom,
+}: {
+  nodeCount: number;
+  edgeCount: number;
+  presentationKey: string;
+  padding: number;
+  maxZoom: number;
+}) {
+  const { fitView } = useReactFlow();
+
+  useEffect(() => {
+    if (nodeCount === 0) {
+      return;
+    }
+
+    let cancelled = false;
+    const outer = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        if (!cancelled) {
+          void fitView({ padding, maxZoom, duration: 220 });
+        }
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(outer);
+    };
+  }, [nodeCount, edgeCount, presentationKey, padding, maxZoom, fitView]);
+
+  return null;
+}
+
+/**
  * Interactive graph viewer wrapping React Flow. Supports node type filtering
  * and a side panel for inspecting the selected node's metadata.
  */
@@ -101,6 +145,9 @@ export function GraphViewer({
   const [edgeInferenceThreshold, setEdgeInferenceThreshold] = useState("0.75");
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
+
+  const fitPadding = buyerTrailPanel ? 0.07 : 0.08;
+  const fitMaxZoom = buyerTrailPanel ? 2.08 : 1.52;
 
   useEffect(() => {
     if (filtered.nodes.length === 0) {
@@ -161,7 +208,7 @@ export function GraphViewer({
       <div
         className={
           buyerTrailPanel
-            ? "h-[min(85vh,880px)] min-h-[480px] w-full rounded-xl border-2 border-slate-200 bg-slate-50/80 shadow-inner dark:border-slate-700 dark:bg-slate-950/50"
+            ? "h-[min(88vh,960px)] min-h-[520px] w-full rounded-xl border-2 border-slate-200 bg-slate-50/80 shadow-inner dark:border-slate-700 dark:bg-slate-950/50"
             : "h-[70vh] w-full border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
         }
       >
@@ -170,9 +217,9 @@ export function GraphViewer({
             nodes={nodes as Node[]}
             edges={edges as Edge[]}
             fitView
-            fitViewOptions={{ padding: buyerTrailPanel ? 0.12 : 0.1, maxZoom: buyerTrailPanel ? 1.78 : 1.35 }}
+            fitViewOptions={{ padding: fitPadding, maxZoom: fitMaxZoom }}
             minZoom={0.2}
-            maxZoom={buyerTrailPanel ? 1.95 : 1.65}
+            maxZoom={buyerTrailPanel ? 2.18 : 1.72}
             onlyRenderVisibleElements
             proOptions={{ hideAttribution: true }}
             onNodeClick={(_, node) => {
@@ -181,6 +228,13 @@ export function GraphViewer({
               setSelectedNode((node.data.raw as GraphNodeVm) ?? null);
             }}
           >
+            <GraphFitViewSync
+              nodeCount={nodes.length}
+              edgeCount={edges.length}
+              presentationKey={flowPresentation}
+              padding={fitPadding}
+              maxZoom={fitMaxZoom}
+            />
             {buyerTrailPanel ? null : <MiniMap />}
 
             <Controls showInteractive={!buyerTrailPanel} className={buyerTrailPanel ? "shadow-md" : undefined} />
@@ -196,7 +250,13 @@ export function GraphViewer({
         </ReactFlowProvider>
       </div>
 
-      <aside className="max-h-[min(85vh,880px)] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950">
+      <aside
+        className={
+          buyerTrailPanel
+            ? "max-h-[min(88vh,960px)] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+            : "max-h-[70vh] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+        }
+      >
         {!buyerTrailPanel ? (
           <div>
             <div className="mb-4 flex items-center justify-between">

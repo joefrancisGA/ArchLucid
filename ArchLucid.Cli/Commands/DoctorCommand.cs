@@ -73,9 +73,9 @@ internal static class DoctorCommand
 
         bool readyOk = await PrintProbeAsync(client, "/health/ready", "Readiness (/health/ready)", ct);
 
-        (int aggregateCode, string aggregateBody) = await client.GetHealthProbeAsync("/health", ct);
+        (int aggregateCode, string aggregateBody) = await client.GetHealthProbeAsync("/health/diagnostics", ct);
         Console.WriteLine();
-        Console.WriteLine($"Detailed health (/health) HTTP {aggregateCode}");
+        Console.WriteLine($"Detailed health (/health/diagnostics) HTTP {aggregateCode}");
         Console.WriteLine(TruncateForDisplay(aggregateBody, 4000));
 
         if (!readyOk)
@@ -91,12 +91,12 @@ internal static class DoctorCommand
         {
             Console.WriteLine();
             Console.WriteLine(
-                "Detailed /health requires authentication (ReadAuthority). Set X-Api-Key (e.g. ARCHLUCID_API_KEY) for full JSON. Liveness and readiness above are sufficient for a basic pass.");
+                "Detailed /health/diagnostics requires authentication (ReadAuthority). Set X-Api-Key (e.g. ARCHLUCID_API_KEY) for full JSON. Liveness and readiness above are sufficient for a basic pass.");
         }
         else if (aggregateCode is < 200 or >= 300)
         {
             Console.WriteLine();
-            Console.WriteLine("Combined /health did not return 2xx; review JSON above.");
+            Console.WriteLine("Combined diagnostics (/health/diagnostics) did not return 2xx; review JSON above.");
             CliOperatorHints.WriteAfterReadinessFailed();
 
             return CliExitCode.OperationFailed;
@@ -105,8 +105,8 @@ internal static class DoctorCommand
         Console.WriteLine();
         Console.WriteLine(
             aggregateCode == 401
-                ? "Doctor finished: readiness OK (detailed /health skipped — no credentials)."
-                : "Doctor finished: readiness and detailed /health OK.");
+                ? "Doctor finished: readiness OK (detailed /health/diagnostics skipped — no credentials)."
+                : "Doctor finished: readiness and detailed /health/diagnostics OK.");
         Console.WriteLine();
         Console.WriteLine(
             "Stuck mid-pilot? Symptom index: " + SupportBundleDocLinks.PilotRescuePlaybookRelativePath +
@@ -216,7 +216,7 @@ internal static class DoctorCommand
         Console.WriteLine("| Check | Status | How to fix |");
         Console.WriteLine("| --- | --- | --- |");
         Console.WriteLine(
-            $"| `ARCHLUCID_API_KEY` for `/health` aggregate | {Cell(apiKey)} | Export a read-capable API key (see `docs/runbooks/API_KEY_ROTATION.md`). |");
+            $"| `ARCHLUCID_API_KEY` for `/health/diagnostics` aggregate | {Cell(apiKey)} | Export a read-capable API key (see `docs/runbooks/API_KEY_ROTATION.md`). |");
         Console.WriteLine(
             $"| SQL connection string | {Cell(sql)} | Set `ConnectionStrings__ArchLucid` or `ARCHLUCID__ConnectionStrings__ArchLucid` (see `docs/engineering/FIRST_30_MINUTES.md`). |");
         Console.WriteLine(

@@ -9,7 +9,7 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-///     Ensures support bundle collection probes the three health endpoints plus /version (56R).
+///     Ensures support bundle collection probes health endpoints plus /version (56R).
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -54,13 +54,13 @@ public sealed class SupportBundleHealthProbePathsTests
 
             payload.Health.Live.Path.Should().Be("/health/live");
             payload.Health.Ready.Path.Should().Be("/health/ready");
-            payload.Health.Combined.Path.Should().Be("/health");
+            payload.Health.Combined.Path.Should().Be("/health/diagnostics");
 
             string[] seen = paths.ToArray();
             seen.Should().Contain("/version");
             seen.Should().Contain("/health/live");
             seen.Should().Contain("/health/ready");
-            seen.Should().Contain("/health");
+            seen.Should().Contain("/health/diagnostics");
             seen.Should().Contain("/openapi/v1.json");
         }
         finally

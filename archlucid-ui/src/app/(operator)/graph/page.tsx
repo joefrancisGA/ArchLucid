@@ -123,6 +123,7 @@ function GraphPageContent() {
   const loadGenRef = useRef(0);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const graphMainColumnMaxClass = buyerPolishedShell ? "max-w-6xl" : "max-w-4xl";
 
   const graphSurfaceKey = useMemo(() => {
     if (graph === null) {
@@ -390,7 +391,8 @@ function GraphPageContent() {
   const graphControls = (
     <div
       className={cn(
-        "mb-6 flex max-w-4xl flex-nowrap items-end gap-3 overflow-x-auto rounded-lg border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/40",
+        "mb-6 flex flex-nowrap items-end gap-3 overflow-x-auto rounded-lg border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/40",
+        graphMainColumnMaxClass,
       )}
     >
       <div className="min-w-[12rem] flex-1 lg:max-w-sm">
@@ -472,7 +474,7 @@ function GraphPageContent() {
       {graph === null ? graphControls : null}
 
       {mode === "decision-subgraph" ? (
-        <div className="mb-3 max-w-4xl">
+        <div className={cn("mb-3", graphMainColumnMaxClass)}>
           <Label htmlFor="graph-decision-id">Decision ID</Label>
           <Input
             id="graph-decision-id"
@@ -485,7 +487,7 @@ function GraphPageContent() {
       ) : null}
 
       {mode === "node-neighborhood" ? (
-        <div className="mb-3 flex max-w-4xl flex-wrap items-end gap-3">
+        <div className={cn("mb-3 flex flex-wrap items-end gap-3", graphMainColumnMaxClass)}>
           <div className="min-w-0 flex-1 sm:max-w-md">
             <Label htmlFor="graph-node-id">Node ID</Label>
             <Input
@@ -557,7 +559,10 @@ function GraphPageContent() {
 
       {architectureGraphNote && (
         <div
-          className="mb-4 max-w-4xl rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+          className={cn(
+            "mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100",
+            graphMainColumnMaxClass,
+          )}
           role="status"
         >
           <strong>Large graph.</strong> {architectureGraphNote}
@@ -567,7 +572,7 @@ function GraphPageContent() {
       {graph ? (
         <>
           {buyerPolishedShell ? (
-            <div className="mb-6 max-w-4xl space-y-3">
+            <div className={cn("mb-6 space-y-3", graphMainColumnMaxClass)}>
               <div>
                 <p className="m-0 mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
                   What this graph proves
@@ -586,7 +591,12 @@ function GraphPageContent() {
             </div>
           ) : null}
           {buyerPolishedShell ? (
-            <details className="mb-6 max-w-4xl rounded-lg border border-neutral-200 bg-white/40 dark:border-neutral-700 dark:bg-neutral-900/30">
+            <details
+              className={cn(
+                "mb-6 rounded-lg border border-neutral-200 bg-white/40 dark:border-neutral-700 dark:bg-neutral-900/30",
+                graphMainColumnMaxClass,
+              )}
+            >
               <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
                 Advanced filters — change review, filters, or reload graph
               </summary>
@@ -679,7 +689,7 @@ function GraphPageContent() {
             ) : null}
           </div>
           {!buyerPolishedShell ? (
-          <div className="mb-3 max-w-4xl">
+          <div className={cn("mb-3", graphMainColumnMaxClass)}>
             <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Legend</p>
             {graph !== null && graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
               <GraphReviewTrailLegendChips />
@@ -694,7 +704,7 @@ function GraphPageContent() {
               key={graphSurfaceKey}
               className={cn(
                 "w-full min-h-[min(28rem,60vh)]",
-                buyerPolishedShell && "min-h-[min(32rem,65vh)]",
+                buyerPolishedShell && "min-h-[min(34rem,68vh)]",
               )}
             >
               <GraphViewer
@@ -709,7 +719,7 @@ function GraphPageContent() {
             </div>
           </ClientErrorBoundary>
           {buyerPolishedShell ? (
-            <div className="mt-6 max-w-4xl space-y-2">
+            <div className={cn("mt-6 space-y-2", graphMainColumnMaxClass)}>
               <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Next</p>
               <Button type="button" asChild variant="default" size="sm">
                 <Link href={`/governance?runId=${encodeURIComponent(runId.trim())}`}>Governance approval</Link>
@@ -741,7 +751,7 @@ export default function GraphPage() {
   return (
     <Suspense
       fallback={
-        <div className="max-w-4xl">
+        <div className={isBuyerPolishedOperatorShellEnv() ? "max-w-6xl" : "max-w-4xl"}>
           <OperatorLoadingNotice>
             <strong>Loading graph.</strong>
             <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">Reading review id from the URL…</p>

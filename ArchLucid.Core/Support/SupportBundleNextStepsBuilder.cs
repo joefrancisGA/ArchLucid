@@ -123,7 +123,7 @@ public static class SupportBundleNextStepsBuilder
                 Id = "health-ready-not-ready",
                 Severity = "action",
                 Message =
-                    $"Liveness is OK but readiness returned HTTP {healthReadyStatus}. Inspect health.json (ready + combined) for dependency failures.",
+                    $"Liveness is OK but readiness returned HTTP {healthReadyStatus}. Inspect health.json (ready + diagnostics) for dependency failures.",
                 DocReference = TroubleshootingDoc,
             };
 
@@ -138,7 +138,7 @@ public static class SupportBundleNextStepsBuilder
                 Id = "health-combined-degraded",
                 Severity = "warning",
                 Message =
-                    $"GET /health returned HTTP {healthCombinedStatus}. Use the combined body in health.json together with server logs (correlation ID).",
+                    $"GET /health/diagnostics returned HTTP {healthCombinedStatus}. Requires ReadAuthority; use the diagnostics body in health.json together with server logs (correlation ID).",
                 DocReference = TroubleshootingDoc,
             };
 
