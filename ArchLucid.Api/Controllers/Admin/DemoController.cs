@@ -14,6 +14,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Development-only endpoints for deterministic trusted-baseline demo data (Corrected 50R / 49R pass 2).</summary>
 [ApiController]
+[Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/demo")]
 [EnableRateLimiting("expensive")]
@@ -25,7 +26,6 @@ public sealed class DemoController(
     /// <summary>Runs the Contoso Retail Modernization demo seed. No-op for missing rows; safe to repeat.</summary>
     /// <remarks>Available only when <c>Demo:Enabled</c> is true and the host environment is Development.</remarks>
     [HttpPost("seed")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

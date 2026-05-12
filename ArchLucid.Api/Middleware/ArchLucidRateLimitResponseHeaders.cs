@@ -29,8 +29,9 @@ internal static class ArchLucidRateLimitResponseHeaders
 
         if (lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan retryAfter))
         {
-            long resetUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds() +
-                             Math.Max(1L, (long)Math.Ceiling(retryAfter.TotalSeconds));
+            long resetUnix =
+                TimeProvider.System.GetUtcNow().ToUnixTimeSeconds() +
+                Math.Max(1L, (long)Math.Ceiling(retryAfter.TotalSeconds));
 
             response.Headers[Reset] = resetUnix.ToString(NumberFormatInfo.InvariantInfo);
         }
