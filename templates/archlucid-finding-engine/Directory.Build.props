@@ -2,6 +2,8 @@
   <PropertyGroup>
     <!-- Template is developed inside the ArchLucid repo (CPM at root). Standalone installs omit this file or keep it. -->
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>$(WarningsAsErrors);nullable</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests'))">
     <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute" />
