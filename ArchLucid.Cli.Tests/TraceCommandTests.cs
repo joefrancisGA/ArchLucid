@@ -12,9 +12,9 @@ public sealed class TraceCommandTests
     public async Task RunCoreAsync_WhenOtelTraceIdAndTemplateSet_WritesEncodedTraceViewerUrl()
     {
         StringWriter output = new();
-        string runId = "a1b2c3d4e5f6789012345678901234ab";
-        string traceId = "trace+id/with special";
-        string template = "https://grafana.example.com/explore?traceId={traceId}&other={traceId}";
+        const string runId = "a1b2c3d4e5f6789012345678901234ab";
+        const string traceId = "trace+id/with special";
+        const string template = "https://grafana.example.com/explore?traceId={traceId}&other={traceId}";
 
         int exitCode = await TraceCommand.RunCoreAsync(
             runId,
@@ -37,7 +37,7 @@ public sealed class TraceCommandTests
     public async Task RunCoreAsync_WhenOtelTraceIdMissing_WritesNoTraceMessage()
     {
         StringWriter output = new();
-        string runId = "run-xyz";
+        const string runId = "run-xyz";
 
         int exitCode = await TraceCommand.RunCoreAsync(
             runId,
@@ -61,8 +61,8 @@ public sealed class TraceCommandTests
     public async Task RunCoreAsync_WhenTemplateUnset_WritesRawTraceIdAndInstructions()
     {
         StringWriter output = new();
-        string runId = "run-1";
-        string traceId = "deadbeefdeadbeefdeadbeefdeadbeef";
+        const string runId = "run-1";
+        const string traceId = "deadbeefdeadbeefdeadbeefdeadbeef";
 
         int exitCode = await TraceCommand.RunCoreAsync(
             runId,

@@ -11,7 +11,7 @@ public sealed class DeploymentEvidenceBodyPreviewTests
     [Fact]
     public void Format_redacts_connection_style_secret_before_truncation()
     {
-        string raw = """{"x":"Password=supersecret;"}""";
+        const string raw = """{"x":"Password=supersecret;"}""";
 
         string preview = DeploymentEvidenceBodyPreview.Format(raw, maxChars: 4096);
 
