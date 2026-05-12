@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:179 -->
+<!-- audit-core-const-count:180 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -89,7 +89,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Recommendation learning rebuild | `RecommendationLearningController` | `RecommendationLearningProfileRebuilt` | — | profile id |
 | Product learning pilot signal captured | `ProductLearningController` (`POST /v1/product-learning/signals`) | `ProductLearningPilotSignalRecorded` | Tenant/Workspace/Project from ambient scope | `{ subjectType, disposition, patternKey? }` — `ArtifactHint`, `CommentShort`, and `DetailJson` are **not** included to avoid logging free-form user text |
 | 59R planning drafts materialized (ranked pilot feedback) | `LearningController` (`POST /v1/learning/planning/materialize`) | `ProductLearningPlanningMaterialized` | Tenant/Workspace/Project from ambient scope | `{ sinceUtc, maxPlansToMaterialize, themesInserted, plansInserted, skippedExistingThemeKeys, signalLinksInserted }` — mirrors JSON response counters |
-| Artifact / bundle / run export download | `ArtifactExportController` | `ArtifactDownloaded`, `BundleDownloaded`, `RunExported` | RunId (+ artifact when applicable) | format, byte counts, etc. |
+| Artifact / bundle / run / Terraform advisory export download | `ArtifactExportController` | `ArtifactDownloaded`, `BundleDownloaded`, `RunExported`, `TerraformAdvisoryExportDownloaded` | RunId (+ artifact when applicable) | format, byte counts, etc. |
 | Architecture analysis report (primary JSON build) | `AnalysisReportsController` | `ArchitectureAnalysisReportGenerated` | RunId when parseable | section flags, `manifestVersion`, `warningCount` |
 | Architecture DOCX exports (package download; consulting analysis metadata row; async DOCX jobs) | `DocxExportController`; `RunExportAuditService` (sync consulting path; not export-replay persist); `BackgroundJobWorkUnitExecutor` | `ArchitectureDocxExportGenerated` | RunId, ManifestId when known | `runId`, `compareWithRunId` / `exportRecordId` / `exportChannel`, `byteCount` |
 | Architecture request file import (TOML/JSON draft) | `ImportRequestFileService` (`POST …/architecture/request/import`, `ImportRequestFileController`) | `RequestFileImported` | Tenant/Workspace/Project from ambient scope | `importId`, `requestId`, `format`, `sourceFileName` (JSON payload); correlation id when HTTP trace present |
@@ -249,6 +249,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `SyntheticOperatorDemoPackMarker` | `SyntheticOperatorDemoPack.Marker` | `SyntheticOperatorDemoPackWriter` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `SyntheticOperatorDemoPackInvoked` | `SyntheticOperatorDemoPack.Invoked` | `SyntheticOperatorDemoPackController` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `RunExported` | `RunExported` | `ArtifactExportController` |
+| `TerraformAdvisoryExportDownloaded` | `TerraformAdvisoryExportDownloaded` | `ArtifactExportController` |
 | `ArchitectureAnalysisReportGenerated` | `ArchitectureAnalysisReportGenerated` | `AnalysisReportsController` |
 | `ArchitectureDefinitionCsvImportDryRunExecuted` | `ArchitectureDefinitionCsvImportDryRunExecuted` | `ArchitectureDefinitionImportController` (`POST /v1/architecture/import` dry-run) |
 | `ArchitectureQuickScanExecuted` | `ArchitectureQuickScanExecuted` | `ArchitectureQuickScanController` (`POST /v1/architecture/quick-scan`) |
