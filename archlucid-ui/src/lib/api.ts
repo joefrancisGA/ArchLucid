@@ -1429,8 +1429,8 @@ export async function listCompositeAlertRules(): Promise<CompositeAlertRule[]> {
   return apiGet<CompositeAlertRule[]>(`/${ApiV1Routes.compositeAlertRules}`);
 }
 
-/** Simulates an alert rule against recent runs to preview what alerts would fire. */
-export async function simulateAlertRule(body: {
+/** POST `/${ApiV1Routes.alertSimulation}/simulate`: preview firing against recent architecture reviews. */
+export type SimulateAlertRuleRequestBody = {
   ruleKind: string;
   simpleRule?: Record<string, unknown> | null;
   compositeRule?: Record<string, unknown> | null;
@@ -1439,8 +1439,11 @@ export async function simulateAlertRule(body: {
   recentRunCount?: number;
   useHistoricalWindow?: boolean;
   runProjectSlug?: string;
-}): Promise<RuleSimulationResult> {
-  return apiPostJson<RuleSimulationResult>("/v1/alert-simulation/simulate", body);
+};
+
+/** Simulates an alert rule against recent runs to preview what alerts would fire. */
+export async function simulateAlertRule(body: SimulateAlertRuleRequestBody): Promise<RuleSimulationResult> {
+  return apiPostJson<RuleSimulationResult>(`/${ApiV1Routes.alertSimulation}/simulate`, body);
 }
 
 /** Lists all policy packs for the current scope. */

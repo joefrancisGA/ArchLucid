@@ -50,6 +50,8 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/settings/tenant-cost": "advanced-only",
   "/settings/billing": "advanced-only",
   "/settings/exec-digest": "advanced-only",
+  /** Alias to Alert rules hub (`/alerts?tab=rules`) for settings-style bookmarks. */
+  "/settings/alerts": "advanced-only",
 };
 
 /**

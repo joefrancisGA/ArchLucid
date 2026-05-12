@@ -6,6 +6,8 @@ import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
+import { Button } from "@/components/ui/button";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { createAlertRule, listAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -53,6 +55,7 @@ export function AlertRulesContent() {
   const [ruleType, setRuleType] = useState("CriticalRecommendationCount");
   const [severity, setSeverity] = useState("Warning");
   const [threshold, setThreshold] = useState(3);
+  const [simulateForRule, setSimulateForRule] = useState<AlertRule | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -151,7 +154,20 @@ export function AlertRulesContent() {
                   key={r.ruleId}
                   className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
                 >
-                  <strong>{r.name}</strong>
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <strong className="min-w-0 break-words">{r.name}</strong>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      title="Dry-run which reviews would trigger notifications for this rule"
+                      aria-label={`Simulate alert rule ${r.name}`}
+                      onClick={() => setSimulateForRule(r)}
+                    >
+                      Simulate
+                    </Button>
+                  </div>
                   <div className="mt-2 text-sm">
                     <div>Type: {r.ruleType}</div>
                     <div>Severity: {r.severity}</div>
@@ -247,6 +263,16 @@ export function AlertRulesContent() {
           </div>
         </section>
       </div>
+
+      <AlertRuleSimulateModal
+        rule={simulateForRule}
+        open={simulateForRule !== null}
+        onOpenChange={(next) => {
+          if (!next) {
+            setSimulateForRule(null);
+          }
+        }}
+      />
     </div>
   );
 }

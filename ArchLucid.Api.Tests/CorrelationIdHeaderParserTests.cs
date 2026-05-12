@@ -2,6 +2,8 @@ using ArchLucid.Host.Core.Middleware;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
+
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Regression: shared parser aligns Serilog enrichment with correlation middleware acceptance rules.</summary>
