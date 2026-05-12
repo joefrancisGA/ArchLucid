@@ -24,6 +24,9 @@ public sealed class SimmyChaosPipelineTests
     [SkippableFact]
     public async Task Timeout_rejects_slow_delegate_quickly()
     {
+        // Polly v8 timeout is optimistic (cooperative cancellation). On busy Linux CI hosts, a fixed
+        // short delay can finish before the timeout pipeline schedules cancellation — the delegate then
+        // returns successfully and the test flakes. An infinite wait relies only on ct cancellation.
         ResiliencePipeline<string> pipeline = new ResiliencePipelineBuilder<string>()
             .AddTimeout(TimeSpan.FromMilliseconds(80))
             .Build();
@@ -32,7 +35,8 @@ public sealed class SimmyChaosPipelineTests
             await pipeline.ExecuteAsync(
                 static async ct =>
                 {
-                    await Task.Delay(200, ct);
+                    await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+
                     return "ok";
                 },
                 CancellationToken.None);
