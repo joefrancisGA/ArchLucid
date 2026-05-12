@@ -84,7 +84,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
     public async Task GetOpenByDeduplicationKeyAsync_returns_newest_Open_or_Acknowledged_in_scope_only()
     {
         InMemoryAlertRecordRepository repo = new();
-        string key = "dedupe-a";
+        const string key = "dedupe-a";
 
         await repo.CreateAsync(
             BuildAlert(Guid.Parse("20000000-0000-0000-0000-000000000001"), AlertStatus.Open, BaseUtc, key),

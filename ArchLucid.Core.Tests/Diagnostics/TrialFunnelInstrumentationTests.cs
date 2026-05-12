@@ -198,7 +198,7 @@ public sealed class TrialFunnelInstrumentationTests
             return new TrialFunnelCapture();
         }
 
-        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        static private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
             if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
             {

@@ -143,7 +143,7 @@ public sealed class BusinessMetricsTests
             return new BusinessMeasurementCapture();
         }
 
-        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        static private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
             if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
             {
