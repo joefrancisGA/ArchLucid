@@ -19,7 +19,7 @@ namespace ArchLucid.Application.Support;
 /// </summary>
 /// <remarks>
 ///     <b>Why not call the CLI's <c>SupportBundleCollector</c>?</b> The CLI variant probes
-///     <c>/health</c>, <c>/version</c>, and <c>/openapi/v1.json</c> over HTTP using
+///     <c>/health</c>, <c>/health/diagnostics</c>, <c>/version</c>, and <c>/openapi/v1.json</c> over HTTP using
 ///     <c>ArchLucidApiClient</c>. Inside the host process we'd be calling ourselves over
 ///     the loopback adapter, doubling the HTTP plumbing for no signal gain. We instead
 ///     emit the host-side equivalents (build identity from <see cref = "Assembly"/>,
@@ -154,7 +154,8 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
                 new[]
                 {
                     "GET /version — build identity (no auth)", "GET /health/live — liveness", "GET /health/ready — readiness",
-                    "GET /health — combined detailed checks (ReadAuthority)", "GET /openapi/v1.json — OpenAPI document"
+                    "GET /health — anonymous SQL deep probe (summary)", "GET /health/diagnostics — full detailed checks (ReadAuthority)",
+                    "GET /openapi/v1.json — OpenAPI document"
                 },
             documentation = new[]
             {

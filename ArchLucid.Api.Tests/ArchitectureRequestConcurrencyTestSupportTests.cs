@@ -16,13 +16,9 @@ public sealed class ArchitectureRequestConcurrencyTestSupportTests
         using RecordingHttpMessageHandler handler = new(_ => CreateResponse(cancellationTokenSource, cancelBeforeThrow: true));
         using HttpClient client = CreateClient(handler);
 
-        Func<Task> act = async () => await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
-            client,
-            TestRequestFactory.CreateArchitectureRequest("REQ-BUFFER-CANCEL-001"),
-            "idem-buffer-cancel-001",
-            cancellationTokenSource.Token);
+        async Task Act() => await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest("REQ-BUFFER-CANCEL-001"), "idem-buffer-cancel-001", cancellationTokenSource.Token);
 
-        OperationCanceledException exception = await Assert.ThrowsAsync<OperationCanceledException>(act);
+        OperationCanceledException exception = await Assert.ThrowsAsync<OperationCanceledException>(Act);
         exception.CancellationToken.Should().Be(cancellationTokenSource.Token);
         exception.InnerException.Should().BeOfType<HttpRequestException>();
     }
@@ -43,7 +39,10 @@ public sealed class ArchitectureRequestConcurrencyTestSupportTests
     }
 
     private static HttpClient CreateClient(HttpMessageHandler handler) =>
-        new(handler) { BaseAddress = new Uri("http://localhost") };
+        new(handler)
+        {
+            BaseAddress = new Uri("http://localhost")
+        };
 
     private static HttpResponseMessage CreateResponse(
         CancellationTokenSource? cancellationTokenSource,

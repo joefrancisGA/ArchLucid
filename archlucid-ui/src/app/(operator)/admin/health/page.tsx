@@ -20,7 +20,8 @@ import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 
 /**
- * In-app diagnostics: readiness (`/health/ready`), authenticated circuit data (`/health`), build identity (`/version`),
+ * In-app diagnostics: readiness (`/health/ready`), authenticated circuit data (`/health/diagnostics`),
+ * build identity (`/version`),
  * and onboarding funnel counters (`/v1/diagnostics/operator-task-success-rates`).
  */
 export default function AdminHealthPage() {
@@ -49,7 +50,7 @@ export default function AdminHealthPage() {
       const [readyRes, versionRes, healthRes, ratesRes] = await Promise.all([
         fetch("/api/proxy/health/ready", jsonInit),
         fetch("/api/proxy/version", jsonInit),
-        fetch("/api/proxy/health", jsonInit),
+        fetch("/api/proxy/health/diagnostics", jsonInit),
         fetch("/api/proxy/v1/diagnostics/operator-task-success-rates", jsonInit),
       ]);
 

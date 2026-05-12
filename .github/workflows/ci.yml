@@ -1381,19 +1381,23 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
+      # Same as dotnet-full-regression-core-libs: SDK 10+ MSBuild rejects multiple projects in one dotnet test (MSB1008).
       - name: Test — domain test projects (Category=Slow only)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
-        run: >
-          dotnet test
-          ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
-          ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
-          ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj
-          --no-build -c Release --settings coverage.runsettings
-          --filter "Category=Slow"
-          --collect:"XPlat Code Coverage"
-          --results-directory "${{ runner.temp }}/coverage-full-slow-domain"
-          --logger "trx;LogFilePrefix=full-slow-domain-"
+        run: |
+          set -euo pipefail
+          for proj in \
+            ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj \
+            ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj \
+            ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj; do
+            dotnet test "$proj" \
+              --no-build -c Release --settings coverage.runsettings \
+              --filter "Category=Slow" \
+              --collect:"XPlat Code Coverage" \
+              --results-directory "${{ runner.temp }}/coverage-full-slow-domain" \
+              --logger "trx;LogFilePrefix=full-slow-domain-"
+          done
 
       - uses: actions/upload-artifact@v6
         if: always()

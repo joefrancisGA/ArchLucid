@@ -268,10 +268,23 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
     if (apiPath === "/health") {
       await fulfillJson(route, 200, {
         status: "Healthy",
+        entries: [{ name: "database", status: "Healthy" }],
+      });
+
+      return;
+    }
+
+    if (apiPath === "/health/diagnostics") {
+      await fulfillJson(route, 200, {
+        status: "Healthy",
+        totalDurationMs: 1,
+        version: "e2e-screenshots",
+        commitSha: "e2e000000000000000000000000000000000000",
         entries: [
           {
             name: "circuit_breakers",
             status: "Healthy",
+            durationMs: 1,
             data: {
               gates: [{ name: "completion", state: "Closed", breakDurationSeconds: 0 }],
             },
@@ -292,8 +305,6 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
 
       return;
     }
-
-    if (apiPath === "/v1/tenant/cost-estimate") {
       await fulfillJson(route, 200, fixtureTenantCostEstimate());
       return;
     }

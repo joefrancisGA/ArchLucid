@@ -102,7 +102,7 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
     public async Task Valid_reader_api_key_on_detailed_health_returns_200()
     {
         using HttpClient client = CreateReaderClient();
-        using HttpResponseMessage response = await client.GetAsync("/health");
+        using HttpResponseMessage response = await client.GetAsync("/health/diagnostics");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }

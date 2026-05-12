@@ -124,18 +124,12 @@ public sealed class AzureOpenAiTooManyRequestsRetryTests
     }
 
     /// <summary>Minimal <see cref="PipelineResponse" /> for exercising 429 header parsing without the live SDK.</summary>
-    private sealed class UnitPipelineResponse : PipelineResponse
+    private sealed class UnitPipelineResponse(int status, PipelineResponseHeaders headers) : PipelineResponse
     {
-        public UnitPipelineResponse(int status, PipelineResponseHeaders headers)
-        {
-            Status = status;
-            HeadersCore = headers;
-        }
-
         public override int Status
         {
             get;
-        }
+        } = status;
 
         public override string ReasonPhrase => "unit";
 
@@ -150,7 +144,7 @@ public sealed class AzureOpenAiTooManyRequestsRetryTests
         protected override PipelineResponseHeaders HeadersCore
         {
             get;
-        }
+        } = headers;
 
         public override BinaryData BufferContent(CancellationToken cancellationToken = default) => BinaryData.Empty;
 

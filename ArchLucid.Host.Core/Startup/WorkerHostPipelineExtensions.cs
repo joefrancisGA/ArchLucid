@@ -14,7 +14,7 @@ public static class WorkerHostPipelineExtensions
     /// </summary>
     /// <remarks>
     /// Worker has no API authentication stack. <c>/health/live</c> stays minimal; <c>/health/ready</c> and <c>/health</c> use
-    /// summary JSON only. For full diagnostic health (build version, exception text), call the API host <c>GET /health</c>
+    /// summary JSON only. For full diagnostic health (build version, exception text), call the API host <c>GET /health/diagnostics</c>
     /// with an authenticated principal that satisfies the API <c>ReadAuthority</c> policy.
     /// </remarks>
     public static WebApplication UseArchLucidWorkerPipeline(this WebApplication app)

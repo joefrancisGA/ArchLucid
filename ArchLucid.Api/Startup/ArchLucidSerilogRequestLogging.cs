@@ -1,12 +1,13 @@
-using Microsoft.Extensions.Primitives;
+using ArchLucid.Host.Core.Middleware;
 
 using Serilog.AspNetCore;
 
 namespace ArchLucid.Api.Startup;
 
 /// <summary>
-///     Serilog.AspNetCore request logging: excludes query strings from paths; enriches with
-///     <c>X-Correlation-ID</c> when the client sends that header (does not log bodies or Authorization).
+///     Serilog.AspNetCore request logging: excludes query strings from paths; attaches <c>XCorrelationId</c> when an
+///     inbound <c>X-Correlation-ID</c> validates (same rules as <see cref="CorrelationIdMiddleware" /> — no bodies /
+///     Authorization logged).
 /// </summary>
 internal static class ArchLucidSerilogRequestLogging
 {
@@ -19,23 +20,12 @@ internal static class ArchLucidSerilogRequestLogging
 
         options.EnrichDiagnosticContext = static (diagnosticContext, httpContext) =>
         {
-            if (!httpContext.Request.Headers.TryGetValue("X-Correlation-ID", out StringValues values))
+            if (!CorrelationIdHeaderParser.TryGetValidIncomingCorrelationId(
+                    httpContext.Request.Headers,
+                    out string? xCorrelationId))
                 return;
 
-            if (values.Count == 0)
-                return;
-
-            string? raw = values[0];
-
-            if (string.IsNullOrWhiteSpace(raw))
-                return;
-
-            string trimmed = raw.Trim();
-
-            if (trimmed.Length > 64)
-                trimmed = trimmed[..64];
-
-            diagnosticContext.Set("RequestCorrelationId", trimmed);
+            diagnosticContext.Set("XCorrelationId", xCorrelationId);
         };
     }
 }

@@ -6,8 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Regression: anonymous callers must not receive detailed health payloads on <c>/health/ready</c>; <c>/health</c>
-///     requires ReadAuthority.
+///     Regression: anonymous callers receive summary payloads on <c>/health/ready</c> and <c>/health</c> (SQL probe only).
+///     <c>/health/diagnostics</c> requires ReadAuthority.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurityApiFactory factory)
@@ -44,22 +44,53 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
     }
 
     [SkippableFact]
-    public async Task Health_anonymous_returns_401()
+    public async Task Health_anonymous_returns_database_summary_without_error_fields()
     {
         using HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync("/health");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        string body = await response.Content.ReadAsStringAsync();
+
+        using JsonDocument doc = JsonDocument.Parse(body);
+        JsonElement root = doc.RootElement;
+
+        root.GetProperty("status").GetString().Should().NotBeNullOrWhiteSpace();
+
+        JsonElement entries = root.GetProperty("entries");
+        entries.GetArrayLength().Should().Be(1);
+
+        JsonElement entry = entries[0];
+        entry.GetProperty("name").GetString().Should().Be("database");
+        root.TryGetProperty("version", out _).Should().BeFalse();
+        root.TryGetProperty("commitSha", out _).Should().BeFalse();
+
+        foreach (JsonElement e in entries.EnumerateArray())
+        {
+            e.TryGetProperty("error", out _).Should().BeFalse("summary entries must not expose exception text");
+            e.TryGetProperty("description", out _).Should().BeFalse();
+            e.TryGetProperty("durationMs", out _).Should().BeFalse();
+        }
+    }
+
+    [SkippableFact]
+    public async Task Health_diagnostics_anonymous_returns_401()
+    {
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response = await client.GetAsync("/health/diagnostics");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [SkippableFact]
-    public async Task Health_with_api_key_returns_detailed_payload()
+    public async Task Health_diagnostics_with_api_key_returns_detailed_payload()
     {
         using HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Add("X-Api-Key", HealthEndpointSecurityApiFactory.IntegrationTestAdminApiKey);
 
-        HttpResponseMessage response = await client.GetAsync("/health");
+        HttpResponseMessage response = await client.GetAsync("/health/diagnostics");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         string body = await response.Content.ReadAsStringAsync();
@@ -82,7 +113,7 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
         using HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Add("X-Api-Key", HealthEndpointSecurityApiFactory.IntegrationTestAdminApiKey);
 
-        HttpResponseMessage response = await client.GetAsync("/health");
+        HttpResponseMessage response = await client.GetAsync("/health/diagnostics");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         string body = await response.Content.ReadAsStringAsync();

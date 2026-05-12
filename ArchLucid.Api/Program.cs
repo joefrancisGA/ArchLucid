@@ -169,6 +169,8 @@ public partial class Program
 
             app.Logger.LogInformation("ArchLucid API starting request pipeline.");
 
+        // Serilog request completion events: wired after UseRouting/UseCors (see PipelineExtensions) and before
+        // authentication plus mapped endpoints so method/path/status/elapsed capture API handling downstream.
         app.UseArchLucidPipelineBeforeSerilogRequestLogging();
         app.UseSerilogRequestLogging(ArchLucidSerilogRequestLogging.ConfigureRequestLogging);
         app.UseArchLucidPipelineAfterSerilogRequestLogging();

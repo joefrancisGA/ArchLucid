@@ -97,7 +97,25 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       if (req.method === "GET" && u.pathname === "/health") {
         const acc = req.headers.accept ?? "";
         if (acc.includes("application/json")) {
-          sendJson(res, 200, { status: "Healthy", totalDurationMs: 0, entries: [] as { name: string; status: string }[] });
+          sendJson(res, 200, {
+            status: "Healthy",
+            entries: [{ name: "database", status: "Healthy" }],
+          });
+          return;
+        }
+        res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+        res.end("ok");
+        return;
+      }
+
+      if (req.method === "GET" && u.pathname === "/health/diagnostics") {
+        const acc = req.headers.accept ?? "";
+        if (acc.includes("application/json")) {
+          sendJson(res, 200, {
+            status: "Healthy",
+            totalDurationMs: 0,
+            entries: [{ name: "circuit_breakers", status: "Healthy", data: { gates: [] as unknown[] } }],
+          });
           return;
         }
         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });

@@ -1,5 +1,5 @@
 /**
- * JSON shapes from `GET /health/ready` (summary) and `GET /health` (detailed) — see
+ * JSON shapes from `GET /health/ready` (summary), anonymous `GET /health` (SQL summary), and `GET /health/diagnostics` (detailed) — see
  * `ArchLucid.Host.Core/Health/DetailedHealthCheckResponseWriter.cs` and
  * `ArchLucid.Api/Startup/PipelineExtensions.cs`.
  */

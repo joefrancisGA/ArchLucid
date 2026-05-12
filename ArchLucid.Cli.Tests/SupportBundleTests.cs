@@ -121,7 +121,7 @@ public sealed class SupportBundleTests
             payload.References.Documentation.Should()
                 .Contain(d => d.StartsWith(SupportBundleDocLinks.PilotRescuePlaybookRelativePath, StringComparison.Ordinal));
             payload.Health.AttemptedHealthRelativePaths.Should()
-                .Equal("/health/live", "/health/ready", "/health");
+                .Equal("/health/live", "/health/ready", "/health/diagnostics");
             payload.References.CorrelationTraceGuidance.Should().HaveCount(SupportBundleCorrelationTraceCatalog.GuidanceBullets.Count);
             payload.References.CorrelationTraceGuidance.Should()
                 .Contain(s => s.Contains("X-Correlation-ID", StringComparison.OrdinalIgnoreCase));

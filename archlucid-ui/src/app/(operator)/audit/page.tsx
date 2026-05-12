@@ -726,7 +726,7 @@ export default function AuditPage() {
   }, [buyerPolishedShell, displayEvents, uniformRunIdForDisplay, runId]);
 
   return (
-    <div className="max-w-4xl">
+    <div className={buyerPolishedShell ? "max-w-6xl" : "max-w-4xl"}>
       <LayerHeader pageKey="audit" />
       <OperatorPageHeader
         title={
