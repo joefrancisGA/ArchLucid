@@ -56,6 +56,13 @@
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
     <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
+    <ProjectReference Include="..\ArchLucid.Analyzers\ArchLucid.Analyzers.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\scripts\ci\controller_action_audit_allowlist.txt" Link="controller_action_audit_allowlist.txt" />
   </ItemGroup>
 
   <ItemGroup>

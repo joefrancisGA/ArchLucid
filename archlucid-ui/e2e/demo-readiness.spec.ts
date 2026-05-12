@@ -122,7 +122,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     page,
   }) => {
     await page.goto("/");
-    await expect(page.locator('a[href^="/reviews/new"]').first()).toBeVisible();
+    await expect(page.getByRole("main").locator('a[href^="/reviews/new"]').first()).toBeVisible();
 
     await page.goto("/reviews/new");
     await expect(page).toHaveURL(/\/reviews\/new/);
