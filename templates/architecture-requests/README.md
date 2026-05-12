@@ -2,7 +2,7 @@
 
 # Architecture request templates (scenario pack)
 
-Starter files for evaluations when teams need **scenario-named** payloads (distinct from pattern samples in [`../reference-architectures/README.md`](../reference-architectures/README.md)).
+Starter files for evaluations when teams need **scenario-named** payloads (distinct from pattern samples in [`../reference-architectures/README.md`](../reference-architectures/README.md)). For **context-ingestion-focused** snippets (`inlineRequirements`, `documents`, `policyReferences`, declarations), see [`../context-ingestion/README.md`](../context-ingestion/README.md).
 
 ## Usage
 

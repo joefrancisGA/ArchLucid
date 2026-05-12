@@ -58,6 +58,9 @@ export function OperatorEvidenceLimitsFooter({
   /** Buyer walkthrough shell: disclaimers cite internal APIs; static demo context is surfaced elsewhere (e.g. banner). */
   const showTechnicalExecutionDisclosures = !buyerPolishedShell;
 
+  const reviewSummaryLinkLabel = buyerPolishedShell ? "Findings & assessment (on review package)" : "Architecture review summary";
+  const provenanceLinkLabel = buyerPolishedShell ? "Structural provenance overview" : "Review trail";
+
   return (
     <footer
       className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-100"
@@ -85,9 +88,9 @@ export function OperatorEvidenceLimitsFooter({
           <Link
             className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
             href={provenanceHref}
-            aria-label="Review trail (provenance graph)"
+            aria-label={buyerPolishedShell ? "Structural provenance overview" : "Review trail (provenance graph)"}
           >
-            Review trail
+            {provenanceLinkLabel}
           </Link>
         </li>
 
@@ -96,9 +99,13 @@ export function OperatorEvidenceLimitsFooter({
             <Link
               className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
               href={explainHref}
-              aria-label="Architecture review summary (explain aggregate)"
+              aria-label={
+                buyerPolishedShell
+                  ? "Findings and assessment section on the review package"
+                  : "Architecture review summary (explain aggregate)"
+              }
             >
-              Architecture review summary
+              {reviewSummaryLinkLabel}
             </Link>
           </li>
         ) : null}

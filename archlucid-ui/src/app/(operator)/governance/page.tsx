@@ -574,7 +574,7 @@ function GovernanceWorkflowPageInner() {
         docsPageKey="/governance"
         subtitle={
           buyerPolishedShell && approvals.length > 0 && activeRunId !== null
-            ? "Governance approval completed for this review package. The path below records disposition for governed downstream use — not production deployment authority."
+            ? "Governance approval completed for this review package. The path below records disposition for citing this sealed package in architecture decisions and review-board evidence — not production deployment authority."
             : buyerPolishedShell
               ? "The approval path records whether a finalized review package is authorized for governed use. ArchLucid stores approvals and audit context; your enterprise change process governs any environment movement."
               : canMutateWorkflow
@@ -588,8 +588,8 @@ function GovernanceWorkflowPageInner() {
           className="mb-4 max-w-prose rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"
           data-testid="governance-buyer-why-matters"
         >
-          This confirms the review package has passed the required approval sequence before being used for downstream
-          decision-making and audit inquiries.
+          This confirms the review package has passed the required approval sequence before being used for architecture
+          decision support, review-board readouts, and audit inquiries.
         </p>
       ) : null}
       {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (

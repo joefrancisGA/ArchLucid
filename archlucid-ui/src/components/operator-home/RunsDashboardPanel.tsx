@@ -263,8 +263,7 @@ export function RunsDashboardPanel() {
                     {buyerSafeHighlight ? (
                       <>
                         <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Start here:</strong>{" "}
-                        Executive Summary, then the numbered <strong>Review journey</strong> on home (manifest through
-                        audit trail).
+                        <strong>View Executive Summary</strong>, then the <strong>Review journey</strong> on home.
                       </>
                     ) : (
                       <>Use the five-step journey on home, or open the manifest summary to walk the sealed package.</>
@@ -272,7 +271,7 @@ export function RunsDashboardPanel() {
                   </p>
                   <div className="space-y-2">
                     <Button asChild variant="primary" size="sm" className="h-8 w-full">
-                      <Link href={getShowcaseExecutiveHref()}>Start Executive Summary</Link>
+                      <Link href={getShowcaseExecutiveHref()}>View Executive Summary</Link>
                     </Button>
                     <div className="flex flex-wrap gap-2">
                       <Button asChild variant="outline" size="sm" className="h-8">
@@ -280,10 +279,21 @@ export function RunsDashboardPanel() {
                           View full review package
                         </Link>
                       </Button>
-                      <Button asChild variant="outline" size="sm" className="h-8">
-                        <Link href={getShowcaseWalkthroughHref()}>Guided walkthrough</Link>
-                      </Button>
                     </div>
+                    <details className="rounded-md border border-neutral-200/80 bg-white/50 px-2 py-1.5 text-xs dark:border-neutral-700 dark:bg-neutral-950/30">
+                      <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+                        Guided walkthrough (optional)
+                      </summary>
+                      <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
+                        <Link
+                          className="font-medium text-teal-800 underline dark:text-teal-300"
+                          href={getShowcaseWalkthroughHref()}
+                        >
+                          Open walkthrough
+                        </Link>{" "}
+                        — same package on the public page.
+                      </p>
+                    </details>
                   </div>
                 </div>
               ) : null}

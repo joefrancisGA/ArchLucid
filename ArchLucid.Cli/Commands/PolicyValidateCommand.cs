@@ -1,13 +1,17 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
+using ArchLucid.Cli.Validation;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-///     <c>archlucid policy validate &lt;file.json&gt;</c> — deserializes a <see cref="PolicyPackContentDocument" /> and
-///     reports structural issues (no YAML).
+///     <c>archlucid policy validate &lt;file.json&gt;</c> and <c>archlucid policy-pack validate &lt;file.json&gt;</c> —
+///     deserializes a <see cref="PolicyPackContentDocument" />, runs FluentValidation, and reports structural issues (no YAML).
 /// </summary>
 [ExcludeFromCodeCoverage(
     Justification = "Thin file I/O and JSON deserialization; exercised via CLI integration smoke if added.")]
@@ -17,13 +21,17 @@ internal static class PolicyValidateCommand
 
     private static readonly JsonSerializerOptions JsonOutCamel = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    public static Task<int> RunAsync(string jsonPath)
+    private static readonly PolicyPackContentDocumentValidator ContentValidator = new();
+
+    /// <param name="jsonPath">Path to policy pack content JSON.</param>
+    /// <param name="commandLabel">Printed in human-readable errors (e.g. <c>policy validate</c> vs <c>policy-pack validate</c>).</param>
+    public static Task<int> RunAsync(string jsonPath, string commandLabel = "policy validate")
     {
         string path = Path.GetFullPath(jsonPath.Trim());
 
         if (!File.Exists(path))
         {
-            WriteErr(CliExitCode.OperationFailed, $"File not found: {path}");
+            WriteErr(commandLabel, CliExitCode.OperationFailed, $"File not found: {path}");
 
             return Task.FromResult(CliExitCode.OperationFailed);
         }
@@ -31,14 +39,12 @@ internal static class PolicyValidateCommand
         string raw;
 
         try
-
         {
             raw = File.ReadAllText(path);
         }
         catch (Exception ex)
-
         {
-            WriteErr(CliExitCode.OperationFailed, $"Could not read file: {ex.Message}");
+            WriteErr(commandLabel, CliExitCode.OperationFailed, $"Could not read file: {ex.Message}");
 
             return Task.FromResult(CliExitCode.OperationFailed);
         }
@@ -47,7 +53,7 @@ internal static class PolicyValidateCommand
 
         if (trimmed.Length == 0)
         {
-            WriteErr(CliExitCode.UsageError, "File is empty.");
+            WriteErr(commandLabel, CliExitCode.UsageError, "File is empty.");
 
             return Task.FromResult(CliExitCode.UsageError);
         }
@@ -55,6 +61,7 @@ internal static class PolicyValidateCommand
         if (trimmed[0] is not '{')
         {
             WriteErr(
+                commandLabel,
                 CliExitCode.UsageError,
                 "Expected a JSON object (policy pack content uses JSON; use yaml-to-json tooling for YAML packs).");
 
@@ -64,27 +71,35 @@ internal static class PolicyValidateCommand
         PolicyPackContentDocument? doc;
 
         try
-
         {
             doc = JsonSerializer.Deserialize<PolicyPackContentDocument>(raw, Json);
         }
         catch (JsonException jx)
-
         {
-            WriteErr(CliExitCode.UsageError, $"Invalid JSON: {jx.Message}");
+            WriteErr(commandLabel, CliExitCode.UsageError, $"Invalid JSON: {jx.Message}");
 
             return Task.FromResult(CliExitCode.UsageError);
         }
 
         if (doc is null)
         {
-            WriteErr(CliExitCode.UsageError, "Deserialized document is null.");
+            WriteErr(commandLabel, CliExitCode.UsageError, "Deserialized document is null.");
+
+            return Task.FromResult(CliExitCode.UsageError);
+        }
+
+        ValidationResult fv = ContentValidator.Validate(doc);
+
+        if (!fv.IsValid)
+        {
+            string detail = string.Join("; ", fv.Errors.Select(static e => e.ErrorMessage));
+
+            WriteErr(commandLabel, CliExitCode.UsageError, detail);
 
             return Task.FromResult(CliExitCode.UsageError);
         }
 
         if (CliExecutionContext.JsonOutput)
-
         {
             Dictionary<string, object?> payload = new()
             {
@@ -98,7 +113,6 @@ internal static class PolicyValidateCommand
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonOutCamel));
         }
         else
-
         {
             Console.WriteLine(
                 $"Valid policy pack JSON: {path} " +
@@ -108,14 +122,13 @@ internal static class PolicyValidateCommand
         return Task.FromResult(CliExitCode.Success);
     }
 
-    private static void WriteErr(int exitCode, string message)
+    private static void WriteErr(string commandLabel, int exitCode, string message)
     {
+        string bracketLabel = $"[{commandLabel}]";
+
         if (CliExecutionContext.JsonOutput)
-
-            CliJson.WriteFailureLine(Console.Error, exitCode, "policy_validate", message);
-
+            CliJson.WriteFailureLine(Console.Error, exitCode, "policy_pack_validate", message);
         else
-
-            Console.Error.WriteLine($"[policy validate] {message}");
+            Console.Error.WriteLine($"{bracketLabel} {message}");
     }
 }

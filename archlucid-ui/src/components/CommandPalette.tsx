@@ -291,10 +291,10 @@ export function CommandPalette() {
             ⌘K
           </span>
         )}
-        <span>{polishedShell ? "Search docs" : "Search"}</span>
+        <span>{polishedShell ? "Search review evidence" : "Search"}</span>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder={polishedShell ? "Search docs or find a page…" : "Search pages or paste a review ID…"} />
+        <CommandInput placeholder={polishedShell ? "Search review evidence or find a page…" : "Search pages or paste a review ID…"} />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!polishedShell} />
           <CommandPaletteDocumentationSearch />

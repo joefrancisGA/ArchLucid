@@ -604,6 +604,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/config-lint": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    includeAdvisory?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminConfigLintResponse"];
+                        "text/json": components["schemas"]["AdminConfigLintResponse"];
+                        "text/plain": components["schemas"]["AdminConfigLintResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/config-summary": {
         parameters: {
             query?: never;
@@ -3960,6 +3999,84 @@ export interface paths {
                 };
                 /** @description Forbidden */
                 403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        systemName?: string;
+                    } & {
+                        file?: components["schemas"]["IFormFile"];
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GoldenManifest"];
+                        "text/json": components["schemas"]["GoldenManifest"];
+                        "text/plain": components["schemas"]["GoldenManifest"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -8352,6 +8469,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/artifacts/runs/{runId}/terraform-advisory-export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": unknown;
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/ask": {
         parameters: {
             query?: never;
@@ -12140,6 +12321,91 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/findings/{findingId}/mute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    findingId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["FindingMuteRequest"];
+                    "application/json": null | components["schemas"]["FindingMuteRequest"];
+                    "text/json": null | components["schemas"]["FindingMuteRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -17009,6 +17275,65 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/policy-packs/simulate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PolicyPackSimulateRequest"];
+                    "application/json": null | components["schemas"]["PolicyPackSimulateRequest"];
+                    "text/json": null | components["schemas"]["PolicyPackSimulateRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PolicyPackGovernanceDryRunResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/policy-packs/{policyPackId}/assign": {
         parameters: {
             query?: never;
@@ -17059,6 +17384,52 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/policy-packs/{policyPackId}/explain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    policyPackId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/markdown": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/markdown": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -19896,6 +20267,112 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/tenant/workspaces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantWorkspacesListResponse"];
+                        "text/json": components["schemas"]["TenantWorkspacesListResponse"];
+                        "text/plain": components["schemas"]["TenantWorkspacesListResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/tenant/workspaces/{workspaceId}/projects/{projectId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    workspaceId: string;
+                    projectId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/value-report/jobs/{jobId}/docx": {
         parameters: {
             query?: never;
@@ -20191,6 +20668,16 @@ export interface components {
         };
         AdminArchiveRunsByIdsRequest: {
             runIds?: string[];
+        };
+        AdminConfigLintFinding: {
+            message?: null | string;
+            ruleName?: null | string;
+        };
+        AdminConfigLintResponse: {
+            advisoryFindings?: null | components["schemas"]["AdminConfigLintFinding"][];
+            blockingFindings?: null | components["schemas"]["AdminConfigLintFinding"][];
+            hostingEnvironmentName?: null | string;
+            ok?: boolean;
         };
         AdminConfigSummaryResponse: {
             keys?: null | components["schemas"]["ConfigSummaryKeyRow"][];
@@ -20666,7 +21153,9 @@ export interface components {
             evaluationConfidenceScore?: null | number;
             evidenceRefs?: string[];
             findingId?: string;
+            isMuted?: boolean;
             message?: string;
+            muteReason?: null | string;
             reasoningTrace?: null | string;
             severity?: components["schemas"]["FindingSeverity"];
             sourceAgent?: components["schemas"]["AgentType"];
@@ -21958,8 +22447,10 @@ export interface components {
             findingSchemaVersion?: number;
             findingType?: string;
             humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
+            isMuted?: boolean;
             modelDeploymentName?: null | string;
             modelVersion?: null | string;
+            muteReason?: null | string;
             payload?: unknown;
             payloadType?: null | string;
             policyRuleId?: null | string;
@@ -22057,8 +22548,10 @@ export interface components {
             evidence?: components["schemas"]["FindingInspectEvidenceItem"][];
             findingId?: string;
             humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
+            isMuted?: boolean;
             manifestVersion?: null | string;
             modelDeploymentName?: null | string;
+            muteReason?: null | string;
             promptTemplateVersion?: null | string;
             reasoningSummary?: null | string;
             recommendedActions?: string[];
@@ -22078,6 +22571,11 @@ export interface components {
             systemPromptRedacted?: string;
             traceId?: string;
             userPromptRedacted?: string;
+        };
+        FindingMuteRequest: {
+            reason?: string;
+            /** Format: uuid */
+            runId?: string;
         };
         FindingRationale: {
             category?: string;
@@ -23327,6 +23825,15 @@ export interface components {
             targetManifestId?: null | string;
             warnings?: string[];
         };
+        PolicyPackSimulateRequest: {
+            /** Format: int32 */
+            blockCommitMinimumSeverity?: null | number;
+            blockCommitOnCritical?: null | boolean;
+            content?: components["schemas"]["PolicyPackContentDocument"];
+            /** Format: uuid */
+            proposedPolicyPackId?: null | string;
+            runId?: string;
+        };
         PolicyPackVersion: {
             contentJson?: string;
             /** Format: date-time */
@@ -23543,6 +24050,9 @@ export interface components {
         };
         RecentPilotRunDeltaSummaryResponse: {
             isDemoTenant?: boolean;
+            /** Format: int32 */
+            llmCallCount?: number;
+            llmCallCountResolved?: boolean;
             /** Format: date-time */
             manifestCommittedUtc?: null | string;
             requestId?: string;
@@ -23557,6 +24067,8 @@ export interface components {
         };
         RecentPilotRunDeltasResponse: {
             items?: components["schemas"]["RecentPilotRunDeltaSummaryResponse"][];
+            /** Format: double */
+            medianLlmCallCount?: null | number | string;
             /** Format: double */
             medianTimeToCommittedManifestTotalSeconds?: null | number | string;
             /** Format: double */
@@ -24497,6 +25009,22 @@ export interface components {
             tenantId?: string;
             /** Format: int64 */
             totalQuantity?: number | string;
+        };
+        TenantWorkspaceApiDto: {
+            displayName?: null | string;
+            name?: string;
+            projects?: components["schemas"]["TenantWorkspaceProjectApiDto"][];
+            /** Format: uuid */
+            workspaceId?: string;
+        };
+        TenantWorkspaceProjectApiDto: {
+            displayName?: null | string;
+            name?: string;
+            /** Format: uuid */
+            projectId?: string;
+        };
+        TenantWorkspacesListResponse: {
+            workspaces?: components["schemas"]["TenantWorkspaceApiDto"][];
         };
         ThresholdCandidate: {
             label?: string;

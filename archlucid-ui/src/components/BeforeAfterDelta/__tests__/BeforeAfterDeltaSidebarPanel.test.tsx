@@ -38,6 +38,7 @@ describe("BeforeAfterDeltaSidebarPanel", () => {
       returnedCount: 0,
       medianTotalFindings: null,
       medianTimeToCommittedManifestTotalSeconds: null,
+      medianLlmCallCount: null,
     });
 
     const { container } = render(<BeforeAfterDeltaSidebarPanel />);

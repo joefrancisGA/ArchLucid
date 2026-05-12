@@ -37,24 +37,39 @@ export const SHOWCASE_STATIC_DEMO_SPINE_COUNTS = {
   decisionCount: 12,
 } as const;
 
+/** Grouped decision bullets for manifest detail (synopses are {@link SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES}). */
+export type ShowcaseStaticDemoDecisionItem = {
+  readonly controlArea: string;
+  readonly text: string;
+};
+
 /**
  * Curated synopses for the static Claims Intake manifest detail page (no list API on summary).
  * Keep length aligned with `manifest.decisionCount` / `warningCount` in this payload.
  */
-export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = [
-  "Intake API remains system-of-record; channel adapters are stateless facades.",
-  "PHI is classified at ingress; audit lineage follows the member correlation ID.",
-  "Peak-load buffering uses bounded queues with explicit back-pressure to adjudication.",
-  "Manual rework queues are capped; overflow routes to a supervised exception path.",
-  "Third-party OCR is optional; human confirm gates apply before downstream commit.",
-  "Adjudication handoff uses signed event envelopes with idempotent consumers.",
-  "Retention aligns to enterprise policy; cold paths avoid negotiable shorter windows.",
-  "Observability spans intake latency, queue depth, and exception-rate SLOs.",
-  "Disaster recovery favors replay-from-journal over dual-active intake writers.",
-  "Feature flags scope rollout by cohort; kill switches are tested each release.",
-  "Data residency constraints are enforced at the storage account boundary.",
-  "Sponsor KPI pack ties modernization outcomes to defensible operational metrics.",
+export const SHOWCASE_STATIC_DEMO_DECISION_ITEMS: readonly ShowcaseStaticDemoDecisionItem[] = [
+  { controlArea: "Integration", text: "Intake API remains system-of-record; channel adapters are stateless facades." },
+  { controlArea: "PHI handling", text: "PHI is classified at ingress; audit lineage follows the member correlation ID." },
+  { controlArea: "Performance", text: "Peak-load buffering uses bounded queues with explicit back-pressure to adjudication." },
+  { controlArea: "Auditability", text: "Manual rework queues are capped; overflow routes to a supervised exception path." },
+  { controlArea: "PHI handling", text: "Third-party OCR is optional; human confirm gates apply before downstream commit." },
+  { controlArea: "Integration", text: "Adjudication handoff uses signed event envelopes with idempotent consumers." },
+  { controlArea: "PHI handling", text: "Retention aligns to enterprise policy; cold paths avoid negotiable shorter windows." },
+  { controlArea: "Auditability", text: "Observability spans intake latency, queue depth, and exception-rate SLOs." },
+  { controlArea: "Auditability", text: "Disaster recovery favors replay-from-journal over dual-active intake writers." },
+  { controlArea: "Integration", text: "Feature flags scope rollout by cohort; kill switches are tested each release." },
+  { controlArea: "Auditability", text: "Data residency constraints are enforced at the storage account boundary." },
+  { controlArea: "Sponsor evidence", text: "Sponsor KPI pack ties modernization outcomes to defensible operational metrics." },
 ];
+
+export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = SHOWCASE_STATIC_DEMO_DECISION_ITEMS.map(
+  (d) => d.text,
+);
+
+/** Buyer “at a glance” counts aligned with the demo graph and audit sample. */
+export const SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT = 8;
+
+export const SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT = 7;
 
 /** Single curated warning matching `manifest.warningCount` for the static showcase. */
 export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = [
@@ -166,6 +181,13 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
         correlationId: "corr-intake-demo-manifest",
       },
       {
+        eventId: "evt-pipeline-governance-approved",
+        occurredUtc: "2026-02-02T17:30:00.000Z",
+        eventType: "com.archlucid.governance.approval.recorded",
+        actorUserName: "Jordan Lee",
+        correlationId: "corr-intake-demo-governance",
+      },
+      {
         eventId: "evt-pipeline-bundle",
         occurredUtc: "2026-02-03T09:07:44.000Z",
         eventType: "artifact.bundle.created",
@@ -211,10 +233,15 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
         {
           kind: "GraphSnapshot",
           id: "graph-snapshot-01",
-          label: "Evidence graph — PHI minimization and control coverage",
+          label: "Evidence graph — PHI minimization controls",
           runId,
         },
-        { kind: "ContextSnapshot", id: "ctx-snapshot-01", label: "Reviewed source context — intake boundaries", runId },
+        {
+          kind: "ContextSnapshot",
+          id: "ctx-snapshot-01",
+          label: "Claims intake architecture brief — intake boundaries",
+          runId,
+        },
       ],
     },
   };

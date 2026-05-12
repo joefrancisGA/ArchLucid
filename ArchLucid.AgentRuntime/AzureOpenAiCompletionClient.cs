@@ -18,6 +18,12 @@ namespace ArchLucid.AgentRuntime;
 ///     Azure OpenAI chat client using JSON object response format and low temperature for deterministic structured
 ///     outputs. Optionally requests <c>json_schema</c> structured outputs for the <c>AgentResult</c> wire shape.
 /// </summary>
+/// <remarks>
+///     When model output fails JSON deserialization or <see cref="ArchLucid.Contracts.Agents.AgentResult" /> validation, handlers use
+///     <see cref="LlmAgentSchemaCompletion" /> to issue a follow-up completion with remediation instructions (bounded by
+///     <c>AgentExecution:SchemaRemediation:MaxCompletionAttempts</c>) — this client stays a thin transport and does not parse
+///     agent payloads.
+/// </remarks>
 [ExcludeFromCodeCoverage(Justification =
     "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
 public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient

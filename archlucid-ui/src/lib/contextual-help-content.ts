@@ -106,7 +106,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   },
   "admin-configuration": {
     text:
-      "Catalog-aligned view of host configuration: which keys are set, declared sources from the operator reference, and redacted effective values. Mutation remains server-side only.",
+      "Catalog-aligned view of host configuration: which keys are set, declared sources from the operator reference, and redacted effective values. The Environment health card calls GET /v1/admin/config-lint (archlucid config lint parity plus advisory warnings). Mutation remains server-side only.",
     learnMoreUrl: "/docs/library/CONFIGURATION_REFERENCE.md",
   },
 };

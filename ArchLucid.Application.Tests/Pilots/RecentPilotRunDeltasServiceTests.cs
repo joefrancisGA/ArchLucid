@@ -14,7 +14,7 @@ using Moq;
 namespace ArchLucid.Application.Tests.Pilots;
 
 /// <summary>
-///     Unit tests for <see cref="RecentPilotRunDeltasService" /> â€” the new aggregator behind
+///     Unit tests for <see cref="RecentPilotRunDeltasService" /> — the new aggregator behind
 ///     <c>GET /v1/pilots/runs/recent-deltas</c> that powers the BeforeAfterDeltaPanel top / sidebar variants.
 /// </summary>
 [Trait("Suite", "Core")]
@@ -52,6 +52,7 @@ public sealed class RecentPilotRunDeltasServiceTests
             "midcommit33333333333333333333dddd");
         response.MedianTotalFindings.Should().Be(4);
         response.MedianTimeToCommittedManifestTotalSeconds.Should().BeApproximately(82.5, 0.001);
+        response.MedianLlmCallCount.Should().Be(0);
     }
 
     [SkippableFact]
@@ -100,6 +101,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         response.ReturnedCount.Should().Be(0);
         response.MedianTotalFindings.Should().BeNull();
         response.MedianTimeToCommittedManifestTotalSeconds.Should().BeNull();
+        response.MedianLlmCallCount.Should().BeNull();
     }
 
     [SkippableFact]
@@ -200,7 +202,9 @@ public sealed class RecentPilotRunDeltasServiceTests
         Mock<IPilotRunDeltaComputer> deltaComputer,
         RunSummary summary,
         int findingsCount,
-        double secondsToCommit)
+        double secondsToCommit,
+        int llmCallCount = 0,
+        bool llmCallCountResolved = true)
     {
         ArchitectureRunDetail detail = BuildDetail(summary);
 
@@ -220,7 +224,8 @@ public sealed class RecentPilotRunDeltasServiceTests
                 FindingsBySeverity = BuildSeverityCounts(findingsCount),
                 AuditRowCount = 0,
                 AuditRowCountTruncated = false,
-                LlmCallCount = 0,
+                LlmCallCount = llmCallCount,
+                LlmCallCountResolved = llmCallCountResolved,
                 TopFindingSeverity = findingsCount > 0 ? "High" : null,
                 TopFindingId = findingsCount > 0 ? "f-1" : null,
                 TopFindingEvidenceChain = null,

@@ -68,6 +68,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(options).Object,
+            PublicSiteMonitor().Object,
             new JiraOutboundIssueClient(new HttpClient(new HttpClientHandler()) { Timeout = TimeSpan.FromSeconds(5) },
                 NullLogger<JiraOutboundIssueClient>.Instance),
             ServiceNowClient(new UnexpectedHttpCallMessageHandler()));
@@ -121,6 +122,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(options).Object,
+            PublicSiteMonitor().Object,
             new JiraOutboundIssueClient(new HttpClient(new HttpClientHandler()) { Timeout = TimeSpan.FromSeconds(5) },
                 NullLogger<JiraOutboundIssueClient>.Instance),
             ServiceNowClient(new UnexpectedHttpCallMessageHandler()));
@@ -202,6 +204,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(options).Object,
+            PublicSiteMonitor().Object,
             new JiraOutboundIssueClient(httpForJira, NullLogger<JiraOutboundIssueClient>.Instance),
             ServiceNowClient(new UnexpectedHttpCallMessageHandler()));
 
@@ -239,6 +242,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(options).Object,
+            PublicSiteMonitor().Object,
             new JiraOutboundIssueClient(httpForJira, NullLogger<JiraOutboundIssueClient>.Instance),
             ServiceNowClient(new UnexpectedHttpCallMessageHandler()));
 

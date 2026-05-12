@@ -1,0 +1,35 @@
+{
+  "requestId": "template-context-ingest-reqs-policies-001",
+  "systemName": "ContextIngestDemoRequirements",
+  "description": "Pilot template emphasizing structured requirements and policy hooks for an Azure-hosted internal API. Use this as a starting point when stakeholders already captured bullets in ticketing tools and want them mirrored into ArchLucid ingestion fields without attaching large files.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "All PII flows must stay in-region; no cross-border analytics without explicit exception"
+  ],
+  "requiredCapabilities": [
+    "Observable request path with correlation IDs end-to-end"
+  ],
+  "assumptions": [
+    "Workforce identity is OIDC-backed; no legacy LDAP bind in the happy path"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Document retention for audit logs must meet 7-year policy for finance data classes",
+    "Disaster recovery exercises must be runnable without production write access",
+    "Rate limits and quotas must be enforced at the edge before application code"
+  ],
+  "documents": [],
+  "policyReferences": [
+    "org-security-baseline-2026",
+    "data-classification-standard"
+  ],
+  "topologyHints": [
+    "Prefer hub-and-spoke network for shared services; isolate team sandboxes"
+  ],
+  "securityBaselineHints": [
+    "CIS Azure Foundations controls for logging and monitoring",
+    "No public storage accounts for application payloads"
+  ],
+  "infrastructureDeclarations": []
+}

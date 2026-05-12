@@ -4,6 +4,7 @@ using ArchLucid.Api.Middleware;
 using ArchLucid.Api.Services;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
+using ArchLucid.Api.Services.Governance;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Import;
@@ -47,6 +48,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
+        services.AddScoped<PolicyPackMarkdownExplainService>();
 
         services.AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
         {
@@ -59,6 +61,10 @@ public static class ApiWebLayerServiceCollectionExtensions
             tags: [ReadinessTags.Ready])
             .AddCheck<StartupDatabaseMigrationHealthCheck>(
                 "startup_database_migration",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<ContentSafetyHealthCheck>(
+                "azure_content_safety",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready]);
 

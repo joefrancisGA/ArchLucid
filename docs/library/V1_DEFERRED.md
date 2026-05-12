@@ -215,21 +215,20 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ---
 
-## 6h. Customer extensibility docs — custom agent handlers (V2) (product note 2026-05-10)
+## 6h. Customer extensibility docs — custom agent handlers (**V1 GA** — promoted 2026-05-12)
 
-**V1 / V1.1 stance:** **Hosted SaaS** delivery does **not** require customer-facing prose that teaches how to **author and wire a custom agent handler** into the execution surface. Existing **in-repo** patterns (registered handlers aligned with orchestration — e.g. compliance-class handlers) illustrate internal extensibility **without** implying a documented customer self-service path.
+**Supersedes:** product note 2026-05-10 that placed pattern-level custom handler documentation in **V2** only.
 
-**V2 commitment (documentation only — not a headline gate):**
+**Current stance:** **V1 GA** includes committed **documentation** (not necessarily a third-party plugin SDK or marketplace) for how an advanced integrator **authors and registers a custom agent handler** — expectations, prerequisites, boundaries, and a pattern-level workflow (registration, authority/safety posture, versioning) aligned to orchestration contracts. Canonical scope: [V1_SCOPE.md §2.18](V1_SCOPE.md).
 
-| Deliverable | V1 posture | V2 commitment |
-|-------------|------------|---------------|
-| **Documentation — how a customer would add a custom agent handler** | **Out of V1**; **not weighed in V1.1 headline readiness `(A)`**. Narrative gaps **must not** be read as MCP completeness or speculative-ecosystem debt. | **Document** expectations, prerequisites, boundaries, and a pattern-level workflow (registration, authority/safety posture, versioning) aligned to the product's orchestration contracts when this slice is prioritized. Scope is **guides and clarity**, not automatically a shipped **third-party plugin SDK**, marketplace listing, or new public HTTP contracts — those remain gated per [V1_SCOPE.md §3](V1_SCOPE.md) **speculative ecosystem** rows unless separately promoted. |
+| Deliverable | Posture |
+|-------------|---------|
+| **Documentation — how a customer would add a custom agent handler** | **In V1 GA documentation scope** ([V1_SCOPE.md §2.18](V1_SCOPE.md)). Scope remains **guides and clarity**; **public third-party plugin SDK**, marketplace listing, or new public HTTP contracts stay gated per [V1_SCOPE.md §3](V1_SCOPE.md) **speculative ecosystem** unless separately promoted. |
 
 **Rules:**
 
-- **Independent quality assessments must not** reduce **`(A)` V1/V1.1 headline readiness** solely because this documentation does not yet exist — same posture as MCP absence in V1 and **Assessment-Scope-V1_1** ecosystem non-gates.
-- **Do not** confuse this row with inbound **MCP** ([§6d](#6d-agent-ecosystem--mcp--v11-candidates-scope-documentation-2026-04-24)): MCP is a **V1.1** membrane over **existing** bounded tools; **custom handler** documentation speaks to customer-aligned **code-level** handler extension **patterns** scoped to **V2** narrative.
-- Promoting specifics or pinning dates requires [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+- **Do not** confuse this slice with inbound **MCP** ([§6d](#6d-agent-ecosystem--mcp--v11-candidates-scope-documentation-2026-04-24)): MCP is a **V1.1** membrane over **existing** bounded HTTP-backed tools; **custom handler** documentation addresses **code-level** handler extension in **forked / self-hosted** or advanced-integration scenarios aligned to in-repo registration patterns.
+- Until the guide ships, **Documentation** / **Extensibility** assessments may note a **delivery gap** against this **V1** commitment — distinct from the old rule that treated the absence as a non-scored deferral.
 
 ---
 
@@ -266,7 +265,7 @@ This file is **maintainer hygiene**. It is **not** a commitment to ship listed i
 - After a changelog entry marks something **“intentionally deferred”** or **“gap.”**
 - When **AUDIT_COVERAGE_MATRIX** gains or loses a **Known gaps** row.
 - When **Phase 7** rename items move (only with program approval).
-- When **V2 platform or V2 customer-documentation** items (§6e–§6h) or **`V1.1` buyer-visible documentation** commitments (e.g. §6i) are recorded, add or update the matching **`V1_SCOPE.md` §3** row in the same change.
+- When **V2 platform** items (§6e–§6f) or **`V1.1` buyer-visible documentation** commitments (e.g. §6i) are recorded, add or update the matching **`V1_SCOPE.md` §3** row in the same change. (**§6h** custom handler docs are **V1 GA** — track under [V1_SCOPE.md §2.18](V1_SCOPE.md), not §3 deferrals.)
 - When **identity scope** is promoted (see §6g pattern — update [V1_SCOPE.md](V1_SCOPE.md) §2.12 / §3 together / procurement FAQ as needed).
 
 **Change control:** Prefer updating **this file** and [V1_SCOPE.md](V1_SCOPE.md) §3 together so external messaging stays aligned.

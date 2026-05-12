@@ -30,6 +30,7 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   "com.archlucid.authority.run.completed": "Review finalized",
   "com.archlucid.manifest.finalized.v1": "Manifest finalized",
   "com.archlucid.governance.approval.submitted": "Governance approval requested",
+  "com.archlucid.governance.approval.recorded": "Governance approval recorded",
   "com.archlucid.governance.promotion.activated": "Governance promotion activated",
   "com.archlucid.alert.fired": "Alert fired",
   "com.archlucid.alert.resolved": "Alert resolved",
@@ -81,6 +82,8 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
     "Seals the reviewed manifest as the authoritative record for decisions, deliverables, and audit.",
   "com.archlucid.governance.approval.submitted":
     "Creates an auditable governance checkpoint before any governed downstream handoff.",
+  "com.archlucid.governance.approval.recorded":
+    "Records that the required governance approval sequence completed for this sealed package.",
   "com.archlucid.governance.promotion.activated":
     "Records that an approved package was authorized to advance within the governed change boundary.",
 };

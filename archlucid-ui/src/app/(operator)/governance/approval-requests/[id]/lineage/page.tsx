@@ -202,7 +202,7 @@ export default function GovernanceApprovalLineagePage() {
       {data.run ? (
         <Card>
           <CardHeader>
-            <CardTitle>Coordinator review</CardTitle>
+            <CardTitle>Review pipeline checkpoint</CardTitle>
             <CardDescription>Architecture review summary</CardDescription>
           </CardHeader>
           <CardContent className="text-sm">

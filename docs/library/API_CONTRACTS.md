@@ -128,6 +128,7 @@ Sponsor- and pilot-facing read models. All routes require **ReadAuthority** and 
 |--------|------|----------|-------|
 | `GET` | **`/v1/pilots/runs/{runId}/first-value-report`** | **`text/markdown`** | One-page Markdown summary (run metadata, findings counts, decision trace excerpt, synthetic baseline fields where metrics are not yet populated). **404** when the run id is unknown. |
 | `GET` | **`/v1/pilots/runs/{runId}/pilot-run-deltas`** | **`PilotRunDeltasResponse` (JSON)** | Proof-of-ROI numbers aligned with the first-value report (`timeToCommittedManifestTotalSeconds`, findings-by-severity, audit row count, **LLM call count** (workload / transparency signal, not invoice truth), `isDemoTenant`, optional evidence-chain pointers). **404** when the run id is unknown. |
+| `GET` | **`/v1/pilots/runs/recent-deltas`** | **`RecentPilotRunDeltasResponse` (JSON)** | Aggregated proof-of-ROI rows for the **most recent committed runs** in scope (newest first). Query **`count`** (optional, default **5**, clamped **[1, 25]**). Each item may include **`llmCallCount`** / **`llmCallCountResolved`**; response includes **`medianLlmCallCount`** over attested rows. **ReadAuthority**. |
 | `POST` | **`/v1/pilots/runs/{runId}/first-value-report.pdf`** | **`application/pdf`** | One-shot **sponsor-shareable PDF projection** of the same first-value-report Markdown body — same auth (`ReadAuthority`), same content (single source of truth), no Standard-tier gate. Backs the post-commit "Email this run to your sponsor" CTA on the operator-shell `/runs/[runId]` page. **404** when the run id is unknown. |
 
 CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evidence --run <runId> [--out <dir>] [--include-demo]` (see **`docs/CLI_USAGE.md`**). UI banner is `EmailRunToSponsorBanner` in `archlucid-ui/src/components/`; the operator-shell page renders it whenever the run has a golden manifest.
@@ -166,6 +167,14 @@ These return **200** with a JSON body that lists **per-id outcomes** (succeeded 
 | `POST` | **`/v1/alerts/acknowledge-batch`** | **ExecuteAuthority** | 100 alert ids | Body: **`{ "alertIds": ["…"], "comment": "…" }`**. Scope must match each alert. Response: **`AlertsAcknowledgeBatchResponse`**. |
 
 See also **`docs/CONTROLLER_AREA_MAP.md`**. Existing **`POST /v1/admin/runs/archive-batch`** (cutoff by **`createdBeforeUtc`**) remains available.
+
+## Admin configuration routes (`/v1/admin`)
+
+| Method | Path | Policy | Notes |
+|--------|------|--------|------|
+| `GET` | `/v1/admin/config-summary` | **AdminAuthority** | Catalog presence + optional **`includeEffectiveValues`** (masked secrets). |
+| `GET` | `/v1/admin/configuration/summary` | **AdminAuthority** | Alias of **`config-summary`**. |
+| `GET` | `/v1/admin/config-lint` | **AdminAuthority** | **`AdminConfigLintResponse`**: **`hostingEnvironmentName`**, **`ok`**, **`blockingFindings`**, optional **`advisoryFindings`** (omit advisory noise with **`includeAdvisory=false`**). Mirrors **`archlucid config lint`** / **`ProductionLikeHostingMisconfigurationAdvisor`**; never returns secrets. |
 
 ## Correlation ID
 
@@ -316,6 +325,8 @@ Governance is packaged as **versioned, assignable** bundles. Pack **content** is
 | `GET` | `/v1/policy-packs/{policyPackId}/versions` | List versions for a pack. |
 | `GET` | `/v1/policy-packs/effective` | Resolved **enabled** assignments → pack metadata + **ContentJson** per entry. |
 | `GET` | `/v1/policy-packs/effective-content` | **Merged** document: union of IDs (distinct), **advisoryDefaults** / **metadata** last-wins per key. |
+| `GET` | `/v1/policy-packs/{policyPackId}/explain` | Returns **`text/markdown`**: plain-English summary of the pack’s **current** version **`ContentJson`** (LLM-assisted; **advisory only**). **ReadAuthority**; **`expensive`** rate limit. **404** when the pack is out of scope, or when the current version has no content. |
+| `POST` | `/v1/policy-packs/simulate` | Typed façade over **`POST /v1/governance/policy-packs/dry-run`**: body **`runId`** + **`content`** (**`PolicyPackContentDocument`**) plus optional gate overrides. **ReadAuthority**; **`governancePolicyPackDryRun`** rate limit. **404** when the run is missing in scope. |
 
 **Validation:** Create / publish / assign bodies are validated with **FluentValidation**. Invalid JSON in `initialContentJson` or `contentJson`, unknown `packType`, or empty `version` returns **400** with problem details (same style as other validated endpoints).
 

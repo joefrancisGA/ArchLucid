@@ -37,7 +37,7 @@ describe("formatBuyerAuditTrailSummaryLine", () => {
     const demo = getDemoSampleAuditTrailEvents();
     const line = formatBuyerAuditTrailSummaryLine(demo, "claims-intake-modernization", "");
 
-    expect(line).toContain("6 recorded events");
+    expect(line).toContain("7 recorded events");
     expect(line).toContain("2 human actors");
     expect(line).toContain("4 system-recorded events");
   });
@@ -108,18 +108,18 @@ describe("audit lifecycle grouping", () => {
     expect(grouped[0]?.events[0]?.eventType).toBe("RunStarted");
   });
 
-  it("places governance handoff after manifest artifacts in canonical order", () => {
+  it("maps governance approval recorded to governance handoff grouping", () => {
+    expect(auditEventLifecycleStageLabel("com.archlucid.governance.approval.recorded")).toBe("Governance handoff");
+  });
+
+  it("orders manifest, governance handoff, then artifacts bundle in canonical lifecycle order", () => {
     const grouped = groupAuditEventsByLifecycleStage([
-      { eventType: "GovernanceApprovalRequested" },
-      { eventType: "RunStarted" },
-      { eventType: "ManifestGenerated" },
+      { eventType: "artifact.bundle.created" },
+      { eventType: "com.archlucid.governance.approval.recorded" },
+      { eventType: "finalize.run" },
     ]);
 
-    expect(grouped.map((g) => g.stage)).toEqual([
-      "Review started",
-      "Manifest finalized",
-      "Governance handoff",
-    ]);
+    expect(grouped.map((g) => g.stage)).toEqual(["Manifest finalized", "Governance handoff", "Artifacts bundled"]);
   });
 });
 

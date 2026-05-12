@@ -1,30 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
-function governanceEnvironmentPairDisplay(source: string, target: string): string {
-  const src =
-    source.trim().toLowerCase() === "dev"
-      ? "Development"
-      : source.trim().toLowerCase() === "test"
-        ? "Staging"
-        : source.trim().toLowerCase() === "prod"
-          ? "Production"
-          : source;
-  const tgt =
-    target.trim().toLowerCase() === "dev"
-      ? "Development"
-      : target.trim().toLowerCase() === "test"
-        ? "Staging"
-        : target.trim().toLowerCase() === "prod"
-          ? "Production"
-          : target;
-
-  return `${src} → ${tgt}`;
-}
-
 /**
- * Buyer-walkthrough summary: one card that narrates submit → review → approve → promote readiness
- * without surfacing internal approval IDs.
+ * Buyer-walkthrough summary: one card that narrates submit → review → approve → governed package readiness
+ * without surfacing internal approval IDs or environment-promotion framing.
  */
 export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApprovalRequest }) {
   const row = props.row;
@@ -50,11 +29,11 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
       detail: approved ? "Governance approval recorded" : row.status.trim() || "Not approved yet",
     },
     {
-      label: "Eligible for controlled use",
+      label: "Approved for governed use",
       done: promoteReady,
       detail: promoteReady
-        ? `Approved use boundary: ${governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)} — governed change scope, not production deployment authority.`
-        : "Complete approval before handoff",
+        ? "This sealed package may be cited for architecture decisions, review-board evidence, and audit inquiry — not as authority to move production workloads."
+        : "Complete approval before citing this package in downstream decisions.",
     },
   ];
 
@@ -65,9 +44,11 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
           {approved ? "This package completed the approval path" : "Approval status for this review"}
         </CardTitle>
         <CardDescription>
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">Approved use boundary:</span>{" "}
-          {governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)} · signed manifest{" "}
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">Sealed package:</span> manifest version{" "}
           <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.manifestVersion}</span>
+          {" — "}
+          authorized for professional review and audit evidence. Enterprise change management still governs deployment and
+          environment movement.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">

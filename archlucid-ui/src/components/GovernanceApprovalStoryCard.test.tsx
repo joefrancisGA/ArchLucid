@@ -28,7 +28,9 @@ describe("GovernanceApprovalStoryCard", () => {
     expect(screen.getByText("Architecture review completed")).toBeInTheDocument();
     // Label and detail use the same copy when the step is complete.
     expect(screen.getAllByText("Governance approval recorded")).toHaveLength(2);
-    expect(screen.getByText("Eligible for controlled use")).toBeInTheDocument();
-    expect(screen.getByText(/Approved use boundary: Development → Staging/)).toBeInTheDocument();
+    expect(screen.getByText("Approved for governed use")).toBeInTheDocument();
+    expect(screen.getByText(/manifest version/i)).toBeInTheDocument();
+    expect(screen.getByText(/3\.4\.1/)).toBeInTheDocument();
+    expect(screen.queryByText(/Development → Staging/)).toBeNull();
   });
 });

@@ -20,6 +20,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
 
     expect(nav?.summaryLine).toContain("Step 1 of 5");
     expect(nav?.summaryLine).toContain("Executive Summary");
+    expect(nav?.currentStepIndex).toBe(0);
     expect(nav?.prev).toBeNull();
     expect(nav?.next?.label).toBe("Signed manifest");
     expect(nav?.next?.href).toBe(getShowcaseManifestHref());
@@ -34,6 +35,8 @@ describe("resolveBuyerGoldenJourneyNav", () => {
 
     expect(navA?.summaryLine).toContain("Step 2 of 5");
     expect(navB?.summaryLine).toContain("Step 2 of 5");
+    expect(navA?.currentStepIndex).toBe(1);
+    expect(navB?.currentStepIndex).toBe(1);
     expect(navA?.prev?.label).toBe("Executive Summary");
     expect(navA?.next?.label).toBe("Evidence graph");
   });
@@ -41,14 +44,17 @@ describe("resolveBuyerGoldenJourneyNav", () => {
   it("resolves graph governance and audit sequence", () => {
     const graph = resolveBuyerGoldenJourneyNav("/graph");
     expect(graph?.summaryLine).toContain("Step 3 of 5");
+    expect(graph?.currentStepIndex).toBe(2);
     expect(graph?.prev?.label).toBe("Signed manifest");
     expect(graph?.next?.label).toBe("Governance approval");
 
     const gov = resolveBuyerGoldenJourneyNav("/governance");
     expect(gov?.summaryLine).toContain("Step 4 of 5");
+    expect(gov?.currentStepIndex).toBe(3);
 
     const audit = resolveBuyerGoldenJourneyNav("/audit");
     expect(audit?.summaryLine).toContain("Step 5 of 5");
+    expect(audit?.currentStepIndex).toBe(4);
     expect(audit?.next).toBeNull();
   });
 
@@ -56,6 +62,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     const nav = resolveBuyerGoldenJourneyNav(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`);
 
     expect(nav?.summaryLine).toContain("Review package overview");
+    expect(nav?.currentStepIndex).toBeNull();
     expect(nav?.prev?.href).toBe(BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[0].href);
     expect(nav?.next?.href).toBe(BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[1].href);
   });

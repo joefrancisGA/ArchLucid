@@ -70,6 +70,7 @@ export function auditEventLifecycleSortKey(eventType: string): number {
     "graph.snapshot.created": 20,
     "findings.snapshot.created": 30,
     "finalize.run": 40,
+    "com.archlucid.governance.approval.recorded": 45,
     "artifact.bundle.created": 50,
   };
 
@@ -90,8 +91,8 @@ export const AUDIT_EVENT_LIFECYCLE_STAGE_ORDER: ReadonlyArray<string> = [
   "Graph created",
   "Findings generated",
   "Manifest finalized",
-  "Artifacts bundled",
   "Governance handoff",
+  "Artifacts bundled",
 ];
 
 function lifecycleStageHeading(stage: ReviewAuditLifecycleStageValue): string | null {
@@ -148,6 +149,9 @@ export function auditEventLifecycleStageLabel(eventType: string): string | null 
 
     case "finalize.run":
       return "Manifest finalized";
+
+    case "com.archlucid.governance.approval.recorded":
+      return "Governance handoff";
 
     case "artifact.bundle.created":
       return "Artifacts bundled";
@@ -234,4 +238,36 @@ export function formatBuyerAuditTrailSummaryLine(
   const eventCount = events.length;
 
   return `${eventCount} recorded events, ${distinctHumans.size} human actor${distinctHumans.size === 1 ? "" : "s"}, ${systemRows} system-recorded event${systemRows === 1 ? "" : "s"}, all tied to ${reviewTitle}.`;
+}
+
+/** Metric tiles for buyer-polished audit header — same actor classification as {@link formatBuyerAuditTrailSummaryLine}. */
+export function buyerAuditTrailMetricCounts(
+  events: ReadonlyArray<{ readonly actorUserName?: string | null }>,
+): { eventCount: number; humanActorCount: number; systemRecordedCount: number } | null {
+  if (events.length === 0) {
+    return null;
+  }
+
+  const distinctHumans = new Set<string>();
+  let systemRows = 0;
+
+  for (const ev of events) {
+    const name = (ev.actorUserName ?? "").trim();
+
+    if (name.length === 0) {
+      continue;
+    }
+
+    if (auditBuyerEventIsSystemRecordedActor(name)) {
+      systemRows++;
+    } else {
+      distinctHumans.add(name);
+    }
+  }
+
+  return {
+    eventCount: events.length,
+    humanActorCount: distinctHumans.size,
+    systemRecordedCount: systemRows,
+  };
 }

@@ -4,6 +4,7 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { redirect } from "next/navigation";
 
+import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
 import { RunsListAggregateErrorBoundary } from "@/components/RunsListAggregateErrorBoundary";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
@@ -139,7 +140,12 @@ export default async function RunsPage({
       <OperatorWelcomeOnboarding serverEligible={welcomeOnboardingEligible} />
       <OperatorPageHeader
         title="Architecture Reviews"
-        metadata={<span>{projectTitle}</span>}
+        metadata={
+          <>
+            <span>{projectTitle}</span>
+            <RunsListProofHeadline />
+          </>
+        }
         helpKey="runs-list-overview"
         docsPageKey="/runs"
       />

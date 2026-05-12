@@ -17,6 +17,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutboundConnectorTestFixture;
+
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 
 [Trait("Suite", "Core")]
@@ -87,6 +89,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured(projectKey: "   ")).Object,
+            PublicSiteMonitor().Object,
             JiraClient(boom),
             new ServiceNowOutboundIncidentClient(new HttpClient(boom), NullLogger<ServiceNowOutboundIncidentClient>.Instance));
 
@@ -122,6 +125,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(boom),
             new ServiceNowOutboundIncidentClient(new HttpClient(boom), NullLogger<ServiceNowOutboundIncidentClient>.Instance));
 
@@ -182,6 +186,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(handler),
             new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHttpMessageHandler()),
                 NullLogger<ServiceNowOutboundIncidentClient>.Instance));
@@ -237,6 +242,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(handler),
             new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHttpMessageHandler()),
                 NullLogger<ServiceNowOutboundIncidentClient>.Instance));
@@ -276,6 +282,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(handler),
             new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHttpMessageHandler()),
                 NullLogger<ServiceNowOutboundIncidentClient>.Instance));
@@ -323,6 +330,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(handler),
             new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHttpMessageHandler()),
                 NullLogger<ServiceNowOutboundIncidentClient>.Instance));
@@ -355,6 +363,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(handler),
             new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHttpMessageHandler()),
                 NullLogger<ServiceNowOutboundIncidentClient>.Instance));
@@ -402,6 +411,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(handler),
             new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHttpMessageHandler()),
                 NullLogger<ServiceNowOutboundIncidentClient>.Instance));
@@ -468,6 +478,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             runs.Object,
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(outbound).Object,
+            PublicSiteMonitor().Object,
             new JiraOutboundIssueClient(new HttpClient(new BoomHttpMessageHandler()), NullLogger<JiraOutboundIssueClient>.Instance),
             new ServiceNowOutboundIncidentClient(new HttpClient(handler), NullLogger<ServiceNowOutboundIncidentClient>.Instance));
 

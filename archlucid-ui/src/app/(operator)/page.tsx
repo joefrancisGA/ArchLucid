@@ -48,16 +48,21 @@ export default function HomePage() {
       <SampleFirstReviewPackageCard />
 
       {buyerPolishedShell ? (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-              Ready to connect tenant-backed reviews?{" "}
-              <Link
-                href="/reviews/new"
-                className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-              >
-                Connect your workspace
-              </Link>{" "}
-              after you finish the proof path (Executive Summary → Audit trail).
-            </p>
+            <details className="rounded-lg border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
+              <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                Connect your workspace (after the proof path)
+              </summary>
+              <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                When you are ready for tenant-backed reviews,{" "}
+                <Link
+                  href="/reviews/new"
+                  className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                >
+                  start a new request
+                </Link>
+                . Finish Executive Summary through Audit trail first so evaluators see the governed package story.
+              </p>
+            </details>
       ) : null}
 
       {buyerPolishedShell ? null : (

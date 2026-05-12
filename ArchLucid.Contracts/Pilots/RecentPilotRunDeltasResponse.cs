@@ -35,6 +35,16 @@ public sealed class RecentPilotRunDeltasResponse
         init;
     }
 
+    /// <summary>
+    ///     Median of <c>LlmCallCount</c> across rows where <c>LlmCallCountResolved</c> is true;
+    ///     <see langword="null" /> when none qualify.
+    /// </summary>
+    public double? MedianLlmCallCount
+    {
+        get;
+        init;
+    }
+
     /// <summary>Median of <c>TotalFindings</c> across <see cref="Items" />; <see langword="null" /> when the list is empty.</summary>
     public double? MedianTotalFindings
     {

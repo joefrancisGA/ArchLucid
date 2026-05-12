@@ -549,6 +549,20 @@ public static partial class ServiceCollectionExtensions
                 if (systemPrompt.Contains(QuickScanLlmPrompts.ClientRoutingMarker, StringComparison.OrdinalIgnoreCase))
                     return FakeQuickScanCompletionJson.Build(userPrompt);
 
+                if (systemPrompt.Contains(PolicyPackExplainLlmPrompts.SimulatorRoutingMarker, StringComparison.Ordinal))
+                {
+                    return """
+                           ## Purpose
+                           Simulator stub — replace with a live LLM deployment for narrative summaries.
+
+                           ## Key rules
+                           - Advisory only; verify against the JSON in production.
+
+                           ## Operational impact
+                           None (offline completion).
+                           """;
+                }
+
                 string runId = "RUN-001";
                 string taskId = "TASK-TOPO-001";
 

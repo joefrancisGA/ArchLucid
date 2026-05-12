@@ -1,0 +1,33 @@
+{
+  "requestId": "template-context-ingest-terraform-sketch-001",
+  "systemName": "ContextIngestDemoTerraformSketch",
+  "description": "Pilot template pairing a **simple-terraform** declaration with topology and security hints. The declaration is intentionally minimal — it seeds the ingestion graph, not a full production module tree.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No secrets or access keys appear in declaration text"
+  ],
+  "requiredCapabilities": [],
+  "assumptions": [
+    "Terraform names are indicative; rename to match your workspace conventions"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Call out every static public IP requirement and justify it"
+  ],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Database tier should not share subnet with application instances"
+  ],
+  "securityBaselineHints": [
+    "Private endpoints for Azure SQL; deny public network access"
+  ],
+  "infrastructureDeclarations": [
+    {
+      "name": "sketch-app-database.tf",
+      "format": "simple-terraform",
+      "content": "resource \"azurerm_resource_group\" \"app\" {\n  name     = \"rg-contoso-api-dev\"\n  location = \"eastus2\"\n}\n\nresource \"azurerm_storage_account\" \"assets\" {\n  name                     = \"stcontosoassetsdev\"\n  resource_group_name      = azurerm_resource_group.app.name\n  location                 = azurerm_resource_group.app.location\n  account_tier             = \"Standard\"\n  account_replication_type = \"GRS\"\n}\n"
+    }
+  ]
+}

@@ -16,6 +16,29 @@ function clampNonNegativeInt(value: number | null | undefined): number | null {
 }
 
 /**
+ * Single headline sentence for buyer-polished review detail — plain language before the metric strip.
+ */
+export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDispositionInput): string | null {
+  if (!input.hasGoldenManifest) {
+    return null;
+  }
+
+  const postureRaw = (input.aggregateRiskPosture ?? "").trim().toLowerCase();
+  const warnings = clampNonNegativeInt(input.warningCountDisplay);
+  const unresolved = clampNonNegativeInt(input.unresolvedIssueCountDisplay);
+
+  if (postureRaw === "approved with monitoring" && warnings === 1 && (unresolved === null || unresolved === 0)) {
+    return "Approved with monitoring: one non-blocking PHI minimization item remains under weekly exception-volume review.";
+  }
+
+  if (postureRaw === "approved with monitoring") {
+    return "Approved with monitoring — proceed under the controls documented in this sealed package.";
+  }
+
+  return null;
+}
+
+/**
  * One buyer-facing sentence synthesizing finalized state, disposition posture, governance gate, findings, and warnings.
  */
 export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDispositionInput): string {

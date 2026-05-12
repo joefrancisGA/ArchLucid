@@ -7,7 +7,7 @@ import {
 } from "@/lib/showcase-static-demo";
 
 /**
- * Six milestone events aligned with the static Claims Intake pipeline timeline — shown when demo mode search
+ * Seven milestone events aligned with the static Claims Intake pipeline timeline — shown when demo mode search
  * returns zero rows so the audit surface matches manifest “review trail” messaging.
  */
 export function getDemoSampleAuditTrailEvents(): AuditEvent[] {
@@ -88,6 +88,21 @@ export function getDemoSampleAuditTrailEvents(): AuditEvent[] {
       artifactId: null,
       dataJson: "{}",
       correlationId: "corr-intake-demo-manifest",
+    },
+    {
+      eventId: "demo-audit-governance",
+      occurredUtc: "2026-02-02T17:30:00.000Z",
+      eventType: "com.archlucid.governance.approval.recorded",
+      actorUserId: "demo-jordan",
+      actorUserName: "Jordan Lee",
+      tenantId: "demo-tenant",
+      workspaceId: "demo-workspace",
+      projectId: "default",
+      runId,
+      manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+      artifactId: null,
+      dataJson: "{}",
+      correlationId: "corr-intake-demo-governance",
     },
     {
       eventId: "demo-audit-bundle",

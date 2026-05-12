@@ -5,6 +5,8 @@ using ArchLucid.Core.Configuration;
 
 using ArchLucid.Persistence.Telemetry;
 
+using Microsoft.Extensions.Options;
+
 using Azure.Storage.Blobs;
 
 namespace ArchLucid.Host.Core.Hosted;
@@ -39,28 +41,50 @@ public static class FirstTenantFunnelArchivalIteration
         using IServiceScope scope = scopeFactory.CreateScope();
         BlobServiceClient? blobClient = scope.ServiceProvider.GetService<BlobServiceClient>();
 
-        if (blobClient is null)
-        {
-            logger.LogWarning(
-                "FirstTenantFunnel archival skipped: BlobServiceClient is not registered (blob storage disabled?).");
-
-            return;
-        }
-
         IFirstTenantFunnelArchivalBatchStore store =
             scope.ServiceProvider.GetRequiredService<IFirstTenantFunnelArchivalBatchStore>();
 
-        int retentionDays = opts.ArchivalRetentionDays > 0 ? opts.ArchivalRetentionDays : 90;
+        IOptions<ArchLucidRetentionOptions>? retentionOpts =
+            scope.ServiceProvider.GetService<IOptions<ArchLucidRetentionOptions>>();
+        ArchLucidRetentionOptions retention = retentionOpts?.Value ?? new ArchLucidRetentionOptions();
+
+        int funnelRetentionDays = retention.FunnelEventsDays > 0
+            ? retention.FunnelEventsDays
+            : opts.ArchivalRetentionDays > 0
+                ? opts.ArchivalRetentionDays
+                : 90;
+
         int batchSize = opts.ArchivalBatchSize > 0 ? opts.ArchivalBatchSize : 1000;
 
         IReadOnlyList<FirstTenantFunnelArchiveRow> rows =
-            await store.TakeRowsOlderThanAsync(retentionDays, batchSize, ct).ConfigureAwait(false);
+            await store.TakeRowsOlderThanAsync(funnelRetentionDays, batchSize, ct).ConfigureAwait(false);
 
         if (rows.Count == 0)
         {
             if (logger.IsEnabled(LogLevel.Debug))
 
-                logger.LogDebug("FirstTenantFunnel archival: no rows older than {RetentionDays} days.", retentionDays);
+                logger.LogDebug("FirstTenantFunnel archival: no rows older than {RetentionDays} days.", funnelRetentionDays);
+
+            return;
+        }
+
+        if (blobClient is null)
+        {
+            if (!retention.FunnelEventsHardDeleteWithoutBlobArchive)
+            {
+                logger.LogWarning(
+                    "FirstTenantFunnel archival skipped: BlobServiceClient is not registered (blob storage disabled?).");
+
+                return;
+            }
+
+            IReadOnlyList<long> purgeIds = rows.Select(static r => r.EventId).ToList();
+
+            await store.DeleteByEventIdsAsync(purgeIds, ct).ConfigureAwait(false);
+
+            logger.LogWarning(
+                "FirstTenantFunnel: deleted {Count} aged SQL rows without blob archival (ArchLucid:Retention:FunnelEventsHardDeleteWithoutBlobArchive=true; no BlobServiceClient).",
+                rows.Count);
 
             return;
         }

@@ -1,5 +1,8 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Services.Governance;
+using ArchLucid.Application.Governance;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -12,6 +15,11 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+
+using System.Text.Json;
+
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Api.Controllers.Governance;
 
@@ -44,9 +52,16 @@ public sealed class PolicyPacksController(
     IPolicyPackVersionRepository versionRepository,
     IPolicyPackResolver resolver,
     IEffectiveGovernanceLoader governanceLoader,
-    IPolicyPacksAppService policyPacksApp)
+    IPolicyPacksAppService policyPacksApp,
+    IPolicyPackGovernanceDryRunService policyPackGovernanceDryRunService,
+    PolicyPackMarkdownExplainService policyPackMarkdownExplainService)
     : ControllerBase
 {
+    private readonly PolicyPackMarkdownExplainService _policyPackMarkdownExplainService =
+        policyPackMarkdownExplainService ?? throw new ArgumentNullException(nameof(policyPackMarkdownExplainService));
+
+    private readonly IPolicyPackGovernanceDryRunService _policyPackGovernanceDryRunService =
+        policyPackGovernanceDryRunService ?? throw new ArgumentNullException(nameof(policyPackGovernanceDryRunService));
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService" />.</remarks>
     [HttpPost]
@@ -200,6 +215,42 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>
+    ///     Plain-English Markdown summary of the pack&apos;s current version JSON (LLM-assisted; advisory only).
+    /// </summary>
+    [HttpGet("{policyPackId:guid}/explain")]
+    [EnableRateLimiting("expensive")]
+    [Produces("text/markdown")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExplainPack(Guid policyPackId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct);
+
+        if (pack is null ||
+            pack.TenantId != scope.TenantId ||
+            pack.WorkspaceId != scope.WorkspaceId ||
+            pack.ProjectId != scope.ProjectId)
+            return this.NotFoundProblem(
+                $"Policy pack '{policyPackId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+
+        string versionLabel = pack.CurrentVersion.Trim();
+        PolicyPackVersion? versionRow = await versionRepository.GetByPackAndVersionAsync(policyPackId, versionLabel, ct);
+
+        if (versionRow is null || string.IsNullOrWhiteSpace(versionRow.ContentJson))
+            return this.NotFoundProblem(
+                $"Policy pack '{policyPackId}' has no content for version '{versionLabel}'.",
+                ProblemTypes.PolicyPackVersionNotFound);
+
+        string markdown = await _policyPackMarkdownExplainService
+            .SummarizePackJsonAsync(pack.Name, versionRow.ContentJson, ct)
+            .ConfigureAwait(false);
+
+        return Content(markdown, "text/markdown; charset=utf-8");
+    }
+
+    /// <summary>
     ///     Returns each applicable enabled assignment as a separate <see cref="ResolvedPolicyPack" /> (raw <c>ContentJson</c>
     ///     per pack)—no merge.
     /// </summary>
@@ -244,5 +295,46 @@ public sealed class PolicyPacksController(
             ct);
 
         return Ok(doc);
+    }
+
+    /// <summary>
+    ///     Simulates proposed pack content against a single run's findings (pre-commit gate semantics) without persisting a pack.
+    /// </summary>
+    /// <remarks>
+    ///     Facade over <see cref="GovernanceController.DryRunProposedPolicyPack" /> with a typed
+    ///     <see cref="PolicyPackContentDocument" /> body. Persists the same redacted governance dry-run audit row as the governance route.
+    /// </remarks>
+    [HttpPost("simulate")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [EnableRateLimiting("governancePolicyPackDryRun")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(PolicyPackGovernanceDryRunResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Simulate(
+        [FromBody] PolicyPackSimulateRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        string policyPackContentJson =
+            JsonSerializer.Serialize(request.Content, ContractJson.CamelCaseIgnoreNullCompact);
+
+        PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
+            policyPackContentJson,
+            request.RunId.Trim(),
+            targetManifestId: null,
+            request.BlockCommitOnCritical,
+            request.BlockCommitMinimumSeverity,
+            request.ProposedPolicyPackId,
+            cancellationToken);
+
+        if (result is null)
+            return this.NotFoundProblem(
+                "The target run was not found in the current tenant/workspace/project scope.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(result);
     }
 }

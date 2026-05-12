@@ -137,7 +137,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Configuration reference",
     "sectionSlug": "",
     "sectionHeading": "Configuration reference — overview",
-    "excerpt": "This document lists operator-facing configuration keys (colon paths or environment names) recognized by `archlucid config check` and by `GET /v1/admin/config-summary` / `GET /v1/admin/configuration/summary` (presence plus optional redacted scalars; never raw secrets). The canonical registry is `ConfigurationKeyCatal…"
+    "excerpt": "This document lists operator-facing configuration keys (colon paths or environment names) recognized by `archlucid config check` and by `GET /v1/admin/config-summary` / `GET /v1/admin/configuration/summary` (presence plus optional redacted scalars; never raw secrets). `GET /v1/admin/config-lint` returns structured b…"
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
