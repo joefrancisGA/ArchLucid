@@ -1,3 +1,7 @@
+> **Scope:** For architects, leadership, and evaluators: current ArchLucid weighted readiness assessment snapshot and prioritized gaps; not a procurement artifact, compliance attestation, or exhaustive implementation backlog.
+
+> **Scope:** For architects, leadership, and evaluators: current ArchLucid weighted readiness assessment snapshot and prioritized gaps; not a procurement artifact, compliance attestation, or exhaustive implementation backlog.
+
 # ArchLucid Assessment – Weighted Readiness 80.45%
 
 ## Executive Summary
@@ -286,7 +290,7 @@
     - **Status:** Maintain.
 
 ## Top 11 Most Important Weaknesses
-*(Cross-cutting weaknesses ranked from most serious to least serious; multi-replica coherent caching is V1.1 scope and omitted here. Items **2, 5,** and **8** have engineering mitigations since this list was drafted—see §Top 25 **✅ COMPLETED** entries.)*
+*(Cross-cutting weaknesses ranked from most serious to least serious; multi-replica coherent caching is V1.1 scope and omitted here. Items **2, 5, 6,** and **8** have engineering mitigations since this list was drafted—see §Top 25 **✅ COMPLETED** entries.)*
 1. Lack of self-serve GUI for authoring complex JSON configurations (policy packs, infrastructure declarations).
 2. "Fail-closed" brittleness in LLM schema validations without auto-recovery or fallback loops. **→ Mitigated:** schema-completion remediation loop (not a substitute for UX/guardrail review).
 3. Complex domain nomenclature ("Coordinator", "Authority", "Golden Manifest") leaking into operator UX.
@@ -328,7 +332,7 @@ ArchLucid is architecturally pristine and technically ready for early adopters, 
 ## Top 25 Improvement Opportunities
 *(Ranked in order of highest leverage)*
 
-**Engineering status (May 2026):** Items **2, 3, 5, 7, 17,** and **18** are **completed in-repo** (see bullets below). Remaining numbered items below are still actionable unless marked **DEFERRED** or **V1.1**.
+**Engineering status (May 2026):** Items **2, 3, 5, 6, 7, 12, 13, 14, 17, 18, 20,** and **24** are **completed in-repo** (see bullets below). **19** and **25** are **partially** addressed (terminology / forensics UX); remaining numbered items are still actionable unless marked **DEFERRED** or **V1.1**.
 
 1. **DEFERRED Un-hold Commerce Rails (Stripe & Marketplace)**
    - **Why it matters:** Blocks self-serve revenue.
@@ -360,11 +364,11 @@ ArchLucid is architecturally pristine and technically ready for early adopters, 
    - **Affected qualities:** Template and Accelerator Richness, Time-to-Value.
    - **Shipped:** `templates/context-ingestion/` (README + sample JSON payloads) and `archlucid templates list` (`TemplatesListCommand`). Cross-link from `templates/architecture-requests/README.md`.
 
-6. **Enrich ITSM Outbound Webhooks with Trace Deep-Links**
+6. **Enrich ITSM Outbound Webhooks with Trace Deep-Links** — **✅ COMPLETED**
    - **Why it matters:** Developers need context, not just statuses.
    - **Expected impact:** Higher embeddedness. Directly improves Workflow Embeddedness (+8-12 pts). Weighted readiness impact: +0.2-0.3%.
    - **Affected qualities:** Workflow Embeddedness.
-   - **Actionable:** Update `ItsmOutboundService` to include a UI deep-link to the specific finding/trace node in the Jira/ServiceNow description using `ArchLucid:PublicSite:BaseUrl`.
+   - **Shipped:** Outbound Jira/ServiceNow descriptions append an ArchLucid **finding deep link** when `ArchLucid:PublicSite:BaseUrl` is configured (`ItsmOutboundArchLucidDeepLinkAppender`, `ItsmOutboundIssueCreationService`). Extend with richer trace-node URLs in a follow-up if product wants more than finding-level links.
 
 7. **Add "Dry Run" Endpoint for Policy Pack Assignments** — **✅ COMPLETED**
    - **Why it matters:** Operators need to safely test governance changes.
@@ -396,23 +400,23 @@ ArchLucid is architecturally pristine and technically ready for early adopters, 
     - **Affected qualities:** Extensibility, Documentation.
     - **Actionable:** Author `docs/library/` guide per [`V1_SCOPE.md` §2.18](../library/V1_SCOPE.md): prerequisites, orchestration alignment, DI registration expectations, authority/safety posture, versioning; reference in-repo handlers as examples; link from [`FIRST_5_DOCS.md`](../FIRST_5_DOCS.md) spine or [`Navigation.mdc`](../../.cursor/rules/Navigation.mdc). **Out of scope for this deliverable:** plugin marketplace, new public HTTP contracts — see **speculative ecosystem** row in [`V1_SCOPE.md` §3](../library/V1_SCOPE.md).
 
-12. **Pin ROI Metrics on the Operator Dashboard**
+12. **Pin ROI Metrics on the Operator Dashboard** — **✅ COMPLETED**
     - **Why it matters:** Keeps the value proposition visible.
     - **Expected impact:** Higher executive value visibility. Directly improves Proof-of-ROI Readiness (+5-8 pts), Executive Value Visibility (+5-8 pts). Weighted readiness impact: +0.6-0.8%.
     - **Affected qualities:** Proof-of-ROI Readiness, Executive Value Visibility.
-    - **Actionable:** Update the `archlucid-ui` `/runs` dashboard header to display `timeToCommittedManifestTotalSeconds` and LLM call counts prominently, fetched from `PilotRunDeltasResponse`.
+    - **Shipped:** Reviews/ROI header strip (`RunsListProofHeadline`, `/reviews`); Before/After delta panel shows **median LLM calls** and per-row counts from `GET /v1/pilots/runs/recent-deltas` + contract fields on delta summaries. Further dashboard polish is optional.
 
-13. **Implement Auto-Purge for `FirstTenantFunnelEvents`**
+13. **Implement Auto-Purge for `FirstTenantFunnelEvents`** — **✅ COMPLETED**
     - **Why it matters:** Data minimization hygiene.
     - **Expected impact:** Compliance. Directly improves Compliance Readiness (+4-6 pts), Manageability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
     - **Affected qualities:** Compliance Readiness, Manageability.
-    - **Actionable:** Create a background job `FirstTenantFunnelPurgeJob` in `ArchLucid.Worker` that hard deletes rows in `dbo.FirstTenantFunnelEvents` older than `ArchLucid:Retention:FunnelEventsDays`.
+    - **Shipped:** `FirstTenantFunnelArchivalHostedService` + persistence batch store archive/delete aged rows per `ArchLucid:Retention:FunnelEventsDays`; optional **hard delete without blob** when `ArchLucid:Retention:FunnelEventsHardDeleteWithoutBlobArchive` is set. *(Runs in API host schedulers, not a separate Worker-only binary.)*
 
-14. **Add Terraform Format Checking to Advisory Emissions**
+14. **Add Terraform Format Checking to Advisory Emissions** — **✅ COMPLETED**
     - **Why it matters:** Prevents invalid Terraform code from being suggested.
     - **Expected impact:** Reliability of outputs. Directly improves Correctness (+3-5 pts), Azure Ecosystem Fit (+2-4 pts). Weighted readiness impact: +0.3-0.5%.
     - **Affected qualities:** Correctness, Azure Compatibility.
-    - **Actionable:** Integrate a lightweight local `terraform fmt` shell call in `ArchLucid.ArtifactSynthesis` when emitting Terraform advisory snippets. If the format fails, wrap the output in a generic comment.
+    - **Shipped:** `TerraformHclFormatHelper` invokes `terraform fmt` (PATH) during packaging; on failure, advisory `.tf` placeholders get a safe comment prefix (`ArtifactPackagingService`).
 
 15. **Add `X-Rate-Limit-Remaining` Headers**
     - **Why it matters:** Improves API developer experience.
@@ -438,23 +442,23 @@ ArchLucid is architecturally pristine and technically ready for early adopters, 
    - **Affected qualities:** Usability, Explainability.
    - **Shipped:** `GET /v1/policy-packs/{policyPackId}/explain` returns Markdown (`PolicyPackMarkdownExplainService`). Tests: `PolicyPackExplainEndpointTests`.
 
-19. **Rename "Coordinator" to "Pipeline" in UI**
+19. **Rename "Coordinator" to "Pipeline" in UI** — **✅ COMPLETED (partial)**
     - **Why it matters:** Internal architecture terms confuse users.
     - **Expected impact:** Lower cognitive load for operators. Directly improves Usability (+5-8 pts), Cognitive Load (+10-15 pts). Weighted readiness impact: +0.2-0.4%.
     - **Affected qualities:** Cognitive Load, Usability.
-    - **Actionable:** Search `archlucid-ui` for instances of "Coordinator" and "Authority" visible in the DOM. Replace with "Review Pipeline" and "Commit Engine". Do not change API endpoints or code variables.
+    - **Shipped:** Operator/marketing copy moves toward **“Review pipeline”** (and related checkpoint wording); admin **Users** table uses **“Access tier”** instead of user-visible **“Authority”**. A full DOM-wide pass for every legacy term (including a consistent **“Commit Engine”** label everywhere **“Authority”** appeared) may still be warranted — search `archlucid-ui` before closing the item globally.
 
-20. **Add Health Probe for Azure Content Safety**
+20. **Add Health Probe for Azure Content Safety** — **✅ COMPLETED**
     - **Why it matters:** Fails fast on misconfiguration.
     - **Expected impact:** Better reliability. Directly improves Reliability (+3-5 pts), Security (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
     - **Affected qualities:** Reliability, Security.
-    - **Actionable:** Add an `IHealthCheck` implementation for `ArchLucid:ContentSafety`. It should ping the endpoint using the API key on startup to verify access and register in the `HealthChecks` builder.
+    - **Shipped:** `ContentSafetyHealthCheck` registered with readiness tags when Content Safety is enabled and configured (`ApiWebLayerServiceCollectionExtensions`); uses `Azure.AI.ContentSafety` client probe.
 
 21. **V1.1 — Multi-Replica Cache Coherence (Redis + Invalidation)**
     - **Why it matters:** Horizontal scale-out needs a shared cache or explicit invalidation; V1 targets supported topologies without scoring penalty for future multi-replica breadth.
     - **Expected impact:** Safe scale-out. Directly improves Scalability (+5-8 pts), Reliability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
     - **Affected qualities:** Scalability, Reliability.
-    - **Actionable (V1.1):** Introduce Azure Cache for Redis (or equivalent) for hot-path caching when replica count > 1; optionally log a startup warning if `HotPathCache:Provider=Memory` and replicas > 1 until Redis is configured. Document supported V1 vs V1.1 deployment models.
+    - **Actionable (V1.1):** Introduce Azure Cache for Redis (or equivalent) for hot-path caching when replica count is greater than one. **→ Partial (V1 advisory):** `HotPathMemoryReplicaCoherenceHostedLogger` warns when in-memory hot-path caching is used alongside **expected API replica count greater than one** until Redis/shared L2 is configured. Document supported V1 vs V1.1 deployment models.
 
 22. **DEFERRED Third-Party Pen Test Execution**
     - **Why it matters:** Enterprise trust.
@@ -468,22 +472,22 @@ ArchLucid is architecturally pristine and technically ready for early adopters, 
     - **Affected qualities:** Supportability, Observability.
     - **Actionable:** Update `JiraWebhookController` and `ServiceNowWebhookController` to read `X-Correlation-ID` from the incoming request and push it into the ambient `TraceContext` or Serilog `LogContext`.
 
-24. **Streamline Generic OIDC Configuration in UI**
+24. **Streamline Generic OIDC Configuration in UI** — **✅ COMPLETED**
     - **Why it matters:** Currently requires raw JSON/env config.
     - **Expected impact:** Enterprise adoption. Directly improves Manageability (+5-8 pts), Adoption Friction (+3-5 pts). Weighted readiness impact: +0.2-0.3%.
     - **Affected qualities:** Adoption Friction, Manageability.
-    - **Actionable:** Add an "Identity Providers" settings page in `archlucid-ui` that visualizes the current `ArchLucidAuth:Authority` and `ArchLucidAuth:Audience` settings. (Read-only initially).
+    - **Shipped:** Operator **Identity providers** page (`/settings/identity-providers`) surfaces read-only `ArchLucidAuth:*` fields from the admin configuration summary; nav wired via `operator-admin-nav-group-builder`.
 
-25. **Surface Agent Stage Latencies in UI**
+25. **Surface Agent Stage Latencies in UI** — **✅ COMPLETED (partial)**
     - **Why it matters:** Explains pipeline delays to users.
     - **Expected impact:** User trust and patience. Directly improves Usability (+4-6 pts), Observability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
     - **Affected qualities:** Observability, Usability.
-    - **Actionable:** Update the `archlucid-ui` Pipeline timeline component to display the wall-clock execution time for each agent stage based on the task start/end timestamps from the API.
+    - **Shipped:** Run detail **Agent forensics** table adds **“Wall Δ (prior agent)”** and stable ordering for trace rows (`RunAgentForensicsSection`). **Remaining:** optional enhancement — show per-stage duration directly on the **pipeline timeline** component if product wants that surface instead of/in addition to forensics.
 
 ## Prompt Batching Guidance
-- **Batch 1 (Quick UI & Feedback wins):** 12, 15, ~~18~~ ✅, 19, 24, 25. *(18 shipped—remove from batch when replanning.)*
-- **Batch 2 (API Resilience & Scaling):** ~~3~~ ✅, 6, 8, 14. (**Opportunity 21** is V1.1 multi-replica caching—schedule with scale-out milestone.)
-- **Batch 3 (Governance & Tooling):** ~~2, 5, 7~~ ✅, ~~17~~ ✅, 11, 13, 20, 23. *(2/5/7/17 shipped—remaining: §2.18 guide, purge job, health probe, webhook trace passthrough.)*
+- **Batch 1 (Quick UI & Feedback wins):** ~~12~~ ✅, 15, ~~18~~ ✅, ~~19~~ ✅ (partial), ~~24~~ ✅, ~~25~~ ✅ (partial). *(Core deltas / terminology / identity / forensics timing landed; rate-limit headers still open.)*
+- **Batch 2 (API Resilience & Scaling):** ~~3~~ ✅, ~~6~~ ✅, 8, ~~14~~ ✅. (**Opportunity 21** is V1.1 Redis/coherence—partial startup warning only until shared cache ships.)
+- **Batch 3 (Governance & Tooling):** ~~2, 5, 7~~ ✅, ~~17~~ ✅, 11, ~~13~~ ✅, ~~20~~ ✅, 23. *(Remaining: §2.18 handler guide, inbound webhook TraceId passthrough.)*
 
 ## Pending Questions for Later
 - **DEFERRED Un-hold Commerce Rails:** Have the Stripe Partner Center verification, tax profile, and payout accounts been finalized to un-block this?
