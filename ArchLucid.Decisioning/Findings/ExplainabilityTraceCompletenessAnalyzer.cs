@@ -17,6 +17,9 @@ public static class ExplainabilityTraceCompletenessAnalyzer
 
         ExplainabilityTrace? trace = finding.Trace;
 
+        if (trace is null)
+            return TraceCompletenessScoreForMissingTrace(finding);
+
         bool hasGraph = ListHasMeaningfulContent(trace.GraphNodeIdsExamined);
         bool hasRules = ListHasMeaningfulContent(trace.RulesApplied);
         bool hasDecisions = ListHasMeaningfulContent(trace.DecisionsTaken);
