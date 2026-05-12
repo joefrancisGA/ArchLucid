@@ -447,7 +447,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Diagnoses complex OIDC and Managed Identity failures quickly.
     - **Expected impact:** Supportability (+5 pts), Customer Self-Sufficiency (+5 pts).
     - **Affected qualities:** Customer Self-Sufficiency.
-    - **Status:** Actionable now.
+    - **Status:** Completed — CLI `az-token-test` (`ArchLucid.Cli/Commands/AzureTokenTestCommand.cs`, `AzureAccessTokenJwtClaimsReader.cs`; coverage in `ArchLucid.Cli.Tests`).
     ```text
     Add a command to `ArchLucid.Cli` named `az-token-test` that attempts to acquire an Azure default credential token and outputs the resulting claims/identity payload.
     - Specify files: `ArchLucid.Cli/`
@@ -499,7 +499,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Implements the required `ServiceNowAutoCreateCmdbCi` logic described in the V1_SCOPE document.
     - **Expected impact:** Interoperability (+5 pts).
     - **Affected qualities:** Interoperability.
-    - **Status:** Actionable now.
+    - **Status:** Completed — outbound ServiceNow resolves `cmdb_ci_appl` via `SystemName` → `name` with optional CI create (`ServiceNowAutoCreateCmdbCi`); see `ArchLucid.Application/Integrations/Itsm/Outbound/` and `ItsmOutboundServiceNowVendorHttpConformanceTests.cs`.
     ```text
     Implement the specific `cmdb_ci_appl` class matching logic in the ServiceNow outbound connector, mapping `SystemName` to CMDB `name`.
     - Specify files: `ArchLucid.Application/Integrations/Itsm/`
@@ -551,7 +551,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Ensures reliability during extraction operations.
     - **Expected impact:** Observability (+4 pts), Correctness (+2 pts).
     - **Affected qualities:** Observability.
-    - **Status:** Actionable now.
+    - **Status:** Completed — Polly-backed named clients + retry policy with warning logs (`ArchLucid.Host.Core/Http/AzureRmAndRetailPricesHttpRetryPolicy.cs`, `ArchLucidAzurePublicHttpClients.cs`, composition `ServiceCollectionExtensions.AzureArmHttpClients.cs`; tests `AzureRmAndRetailPricesHttpRetryPolicyTests.cs`).
     ```text
     Implement Polly `AsyncRetryPolicy` wrappers around all external HTTP calls made to the Azure ARM and Retail Prices APIs, with explicit `ILogger` tracing on retries.
     - Specify files: `ArchLucid.Api.Client/` or internal Azure SDK wrappers.
@@ -577,7 +577,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Fixes the manual and error-prone nature of assigning Azure Roles for the Extractor.
     - **Expected impact:** Usability (+5 pts), Adoption Friction (+3 pts).
     - **Affected qualities:** Usability, Adoption Friction.
-    - **Status:** Actionable now.
+    - **Status:** Completed — `archlucid az-roles` (`ArchLucid.Cli/Commands/AzRolesCommand.cs`; bash / PowerShell / JSON; `AzRolesCommandTests.cs`).
     ```text
     Add a CLI utility in `ArchLucid.Cli` that outputs the exact Azure CLI (`az role assignment create`) commands required to grant the Extractor identity the necessary Reader and Cost Management permissions.
     - Specify files: `ArchLucid.Cli/`
@@ -603,7 +603,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Reduces friction in webhook setup for workflow embeddedness.
     - **Expected impact:** Workflow Embeddedness (+5 pts).
     - **Affected qualities:** Workflow Embeddedness.
-    - **Status:** Actionable now.
+    - **Status:** Completed — `docs/integrations/slack-template.json` (Block Kit for `com.archlucid.compliance.drift.escalated` placeholder tokens aligned with `compliance-drift-escalated.v1.schema.json`).
     ```text
     Create a dedicated `/docs/integrations/slack-template.json` file providing a pre-built, copy-pasteable Slack Block Kit JSON payload for the webhook trigger.
     - Specify files: `docs/integrations/`

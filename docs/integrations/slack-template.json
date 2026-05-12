@@ -1,0 +1,70 @@
+{
+  "text": "ArchLucid: architecture / compliance drift escalated — metric {{metricKey}} (fallback for mobile & notifications)",
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "Architecture drift alert",
+        "emoji": true
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*Event type*: `com.archlucid.compliance.drift.escalated`\n_Drift exceeded the configured escalation threshold (policy pack staleness or related metric)._"
+      }
+    },
+    {
+      "type": "section",
+      "fields": [
+        {
+          "type": "mrkdwn",
+          "text": "*Metric key*\n`{{metricKey}}`"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Escalated (UTC)*\n`{{escalatedUtc}}`"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Observed value*\n`{{observedValue}}`"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Threshold*\n`{{thresholdValue}}`"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Drift signal id*\n`{{driftSignalId}}`"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Tenant id*\n`{{tenantId}}`"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Workspace id*\n`{{workspaceId}}`"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Project id*\n`{{projectId}}`"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Payload schema*\n`schemaVersion={{schemaVersion}}`"
+        }
+      ]
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "Template tokens match `schemas/integration-events/compliance-drift-escalated.v1.schema.json` (`thresholdValue` / `observedValue` optional). Replace `{{token}}` in your webhook bridge before POST."
+        }
+      ]
+    }
+  ]
+}
