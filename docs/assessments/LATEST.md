@@ -5,7 +5,7 @@
 ## Executive Summary
 
 **Overall Readiness**
-ArchLucid possesses a highly viable, production-ready foundation with an 87.01% weighted readiness score. The core architecture loop, golden manifest mechanics, and isolation patterns are exceptionally well-designed. However, technical debt risks accumulating due to an absence of strict, automated enforcement of some critical safety standards.
+ArchLucid possesses a highly viable, production-ready foundation with an 87.01% weighted readiness score. The core architecture loop, golden manifest mechanics, and isolation patterns are exceptionally well-designed. Nullable reference settings, core pilot UI E2E, and NuGet vulnerability gating are now automated in CI; other enforcement gaps (coverage floors, additional journeys) still warrant attention to limit long-run maintenance friction.
 
 **The Commercial Picture**
 The commercial posture is strong. The product delivers near-immediate Proof-of-ROI and Time-to-Value via Tier 1, zero-trust Azure cost extractions. The absence of automated monetization mechanics (Stripe live keys) is an accepted V1.1 constraint that does not negatively impact the current sales-led pilot strategy.
@@ -349,9 +349,9 @@ Qualities are ranked by their weighted impact on readiness (deficiency signal), 
 
 ## Top 5 Engineering Risks
 
-1. **Missing Null Checks:** Increases the likelihood of `NullReferenceExceptions` in deeply nested object graphs.
+1. **Missing Null Checks:** Largely mitigated by repo-wide nullable reference types and nullable-as-errors in MSBuild — residual risk remains where nullability is suppressed or APIs are ambiguous.
 2. **Inconsistent LINQ Usage:** `foreach` loops on large in-memory collections may degrade performance compared to optimized LINQ pipelines.
-3. **Missing Playwright E2E Coverage:** Lack of end-to-end testing for the operator UI could allow visual or workflow regressions.
+3. **Missing Playwright E2E Coverage:** Core pilot path is covered (mock + live); other operator flows still lack dedicated E2E and could regress visually or behaviorally.
 4. **Vague Architectural Reasoning Output:** Agents failing to output the 8 required structural sections could compromise architectural integrity.
 5. **Transient Azure API Failures Unlogged:** Extractors missing robust retry policies with explicit logging.
 
@@ -359,7 +359,7 @@ Qualities are ranked by their weighted impact on readiness (deficiency signal), 
 
 ## Most Important Truth
 
-The core architecture, agent orchestration, and isolation models are incredibly strong and commercially viable today; however, the lack of strict nullable reference types and comprehensive UI end-to-end tests will cause increasing maintenance friction as the user base scales.
+The core architecture, agent orchestration, and isolation models are incredibly strong and commercially viable today; strict nullable settings and a merge-blocking core pilot Playwright path are now in place, though broader UI E2E coverage and analyzer/build gates remain on the improvement backlog.
 
 ---
 
@@ -369,7 +369,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
    - **Why it matters:** Fulfills the "Always check nulls" user rule globally.
    - **Expected impact:** Correctness (+6 pts), Security (+3 pts).
    - **Affected qualities:** Correctness, Security.
-   - **Status:** Actionable now.
+   - **Status:** Complete — root and template `Directory.Build.props` set `<Nullable>enable</Nullable>` and `<WarningsAsErrors>$(WarningsAsErrors);nullable</WarningsAsErrors>`; `tools/ApplicationThrowIfNullCodemod` adjusted for nullable-as-error.
    ```text
    Update all `.csproj` files to ensure `<Nullable>enable</Nullable>` and `<WarningsAsErrors>nullable</WarningsAsErrors>` are set.
    - Specify files: All `*.csproj`
@@ -421,7 +421,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Prevents regressions in the core pilot and operator workflows.
     - **Expected impact:** Correctness (+5 pts), Explainability (+3 pts).
     - **Affected qualities:** Correctness, Explainability.
-    - **Status:** Actionable now.
+    - **Status:** Complete — `archlucid-ui/tests/core-pilot-path.spec.ts` (mock CI via `playwright.mock.config.ts`) and `archlucid-ui/e2e/live-api-core-pilot-path.spec.ts` (live API).
     ```text
     Add Playwright E2E tests covering the core 4-step pilot path in the operator UI.
     - Specify files: `archlucid-ui/tests/`
@@ -642,7 +642,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Ensures a strong supply chain security baseline.
     - **Expected impact:** Security (+5 pts).
     - **Affected qualities:** Security.
-    - **Status:** Actionable now.
+    - **Status:** Complete — `.github/workflows/ci.yml` runs `scripts/ci/assert_nuget_no_high_critical_vulnerabilities.py` (High/Critical blocking; Low non-blocking); documented in `docs/engineering/BUILD.md`.
     ```text
     Update the CI build pipeline to execute `dotnet list package --vulnerable --include-transitive` and fail the build if High or Critical vulnerabilities are found.
     - Specify files: CI build scripts (e.g., `docs/engineering/BUILD.md` equivalent).
@@ -699,7 +699,7 @@ To optimize context window usage and cursor cost-effectiveness, execute the impr
 **Batch 1: Analyzer & Syntax Enforcements (Prompt 2; Prompt 18 completed)**
 - **Why:** Targets the `ArchLucid.Analyzers` project to load the Roslyn syntax trees and existing analyzer scaffolding only once, focusing on code quality and compliance rules.
 
-**Batch 2: Project Architecture & Build (Prompts 1, 6, 22)**
+**Batch 2: Project Architecture & Build (Prompts 1, 22 completed; Prompt 6 remaining)**
 - **Why:** These require context on the global `.csproj` files, CI pipelines, NuGet configurations, and global testing strategies.
 
 **Batch 3: External Integrations & Azure Logic (Prompts 7, 11, 15, 17, 19, 21)**
@@ -708,5 +708,5 @@ To optimize context window usage and cursor cost-effectiveness, execute the impr
 **Batch 4: Output & Compliance Validation (Prompts 3, 4, 10, 13, 14, 23, 24, 25)**
 - **Why:** These focus on the artifacts produced by the system (`ADVISORY.md`, architecture structures, DB isolation, data retention, export formats, and webhook routing). Cursor can hold the synthesis and testing libraries in context.
 
-**Batch 5: UI & Startup Health (Prompts 5, 8, 9, 12, 16, 20)**
+**Batch 5: UI & Startup Health (Prompt 5 completed; Prompts 8, 9, 12, 16, 20 remaining)**
 - **Why:** Focuses entirely on the `ArchLucid.Cli` onboarding experience, `ArchLucid.Api` startup, and `archlucid-ui` components and UI E2E tests.

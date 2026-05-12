@@ -26,7 +26,7 @@ export type RunDetailPageModel = {
   readonly canShowCompareReviewButton: boolean;
   readonly changesSinceLastReviewBanner: RunDetailChangesSinceLastReviewBanner | null;
   readonly goldenManifestJsonForExport: unknown | null;
-  readonly progressForPipelineUi: RunSummary | null;
+  readonly progressForPipelineUi: RunSummary;
   readonly showProgressTracker: boolean;
   readonly manifestSummary: ManifestSummary | null;
   readonly manifestSummaryForUi: ManifestSummary | null;
@@ -44,7 +44,7 @@ export type RunDetailPageModel = {
   readonly warningCountDisplay: number | null;
   readonly showPilotScorecardPackageCta: boolean;
   readonly governanceGateLabel: string | null;
-  readonly quickDecisionFindings: readonly QuickDecisionFinding[];
+  readonly quickDecisionFindings: QuickDecisionFinding[];
   readonly findingWireSnapshots: Record<string, FindingWireSnapshot>;
   readonly adrGeneratorInput: AdrGeneratorRunInput;
 };
