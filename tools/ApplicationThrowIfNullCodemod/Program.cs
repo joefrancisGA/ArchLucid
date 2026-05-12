@@ -77,7 +77,7 @@ internal static class Program
 
         foreach (DocumentId docId in project.DocumentIds)
         {
-            Document doc = solution.GetDocument(docId) ?? project.GetDocument(docId);
+            Document? doc = solution.GetDocument(docId) ?? project.GetDocument(docId);
             if (doc is null || doc.FilePath is null)
                 continue;
 
