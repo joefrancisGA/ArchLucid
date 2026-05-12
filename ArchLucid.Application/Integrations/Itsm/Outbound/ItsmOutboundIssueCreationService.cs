@@ -22,6 +22,7 @@ public sealed class ItsmOutboundIssueCreationService(
     IRunRepository runRepository,
     IArchitectureRequestRepository architectureRequests,
     IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions,
+    IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     JiraOutboundIssueClient jiraClient,
     ServiceNowOutboundIncidentClient serviceNowClient)
 {
@@ -42,6 +43,9 @@ public sealed class ItsmOutboundIssueCreationService(
 
     private readonly IOptionsMonitor<IntegrationsItsmOutboundOptions> _outboundOptions =
         outboundOptions ?? throw new ArgumentNullException(nameof(outboundOptions));
+
+    private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions =
+        publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
 
     private readonly JiraOutboundIssueClient _jiraClient = jiraClient ?? throw new ArgumentNullException(nameof(jiraClient));
     private readonly ServiceNowOutboundIncidentClient _serviceNowClient = serviceNowClient ?? throw new ArgumentNullException(nameof(serviceNowClient));
@@ -133,7 +137,12 @@ public sealed class ItsmOutboundIssueCreationService(
         }
 
         string issueTypeName = ItsmJiraPriorityAndIssueTypeResolver.ResolveIssueTypeName(severity, tenantRow);
-        JsonElement adf = JiraAdfDescriptionBuilder.BuildDescriptionField(description);
+        string descriptionForVendor = ItsmOutboundArchLucidDeepLinkAppender.AppendFindingDeepLink(
+            description,
+            _publicSiteOptions.CurrentValue.BaseUrl,
+            inspect.RunId.ToString("D"),
+            inspect.FindingId);
+        JsonElement adf = JiraAdfDescriptionBuilder.BuildDescriptionField(descriptionForVendor);
         string baseUrl = jiraOpts.CloudBaseUrl.Trim().TrimEnd('/');
         Uri issueUri = new($"{baseUrl}/rest/api/3/issue");
         JiraOutboundIssueHttpResult http = await _jiraClient.CreateIssueAsync(issueUri, jiraOpts.ServiceAccountEmail.Trim(), jiraOpts.ApiToken,
@@ -278,8 +287,13 @@ public sealed class ItsmOutboundIssueCreationService(
         }
 
         Uri incidentUri = new($"{instanceRoot}/api/now/table/incident");
+        string descriptionForVendor = ItsmOutboundArchLucidDeepLinkAppender.AppendFindingDeepLink(
+            description,
+            _publicSiteOptions.CurrentValue.BaseUrl,
+            inspect.RunId.ToString("D"),
+            inspect.FindingId);
         ServiceNowIncidentHttpResult http = await _serviceNowClient
-            .CreateIncidentAsync(incidentUri, sn.Username, sn.Password, summary, description, urgency, impact, cmdb.SysId, ct).ConfigureAwait(false);
+            .CreateIncidentAsync(incidentUri, sn.Username, sn.Password, summary, descriptionForVendor, urgency, impact, cmdb.SysId, ct).ConfigureAwait(false);
         if (!http.Ok || string.IsNullOrWhiteSpace(http.SysId))
         {
             AuditEvent ev = new()

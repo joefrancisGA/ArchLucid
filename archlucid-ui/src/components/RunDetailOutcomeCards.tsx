@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
-import { buildBuyerReviewPackageDispositionLine } from "@/lib/review-buyer-disposition-line";
+import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
 import { cn } from "@/lib/utils";
 
 export type ShowcasePolicyPackStripLink = {
@@ -273,23 +273,40 @@ export function RunDetailOutcomeCards({
 }: RunDetailOutcomeCardsProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
-  if (buyerPolishedShell) {
-    return (
-      <div className="space-y-2">
+  if (buyerPolishedShell) {  
+  const statusHeadline = buildBuyerReviewPackagePlainStatusHeadline({
+    hasGoldenManifest,
+    findingCountDisplay,
+    warningCountDisplay,
+    unresolvedIssueCountDisplay,
+    governanceGateLabel,
+    aggregateRiskPosture,
+  });
+
+  return (
+    <div className="space-y-2">
+      {statusHeadline !== null ? (
         <p
-          className="m-0 rounded-lg border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm font-medium leading-snug text-neutral-900 dark:border-teal-900/55 dark:bg-teal-950/30 dark:text-neutral-100"
-          role="status"
-          data-testid="buyer-review-disposition-line"
+          className="m-0 rounded-lg border border-amber-200/90 bg-amber-50/70 px-3 py-2 text-sm font-semibold leading-snug text-neutral-950 dark:border-amber-900/55 dark:bg-amber-950/25 dark:text-neutral-50"
+          data-testid="buyer-review-status-headline"
         >
-          {buildBuyerReviewPackageDispositionLine({
-            hasGoldenManifest,
-            findingCountDisplay,
-            warningCountDisplay,
-            unresolvedIssueCountDisplay,
-            governanceGateLabel,
-            aggregateRiskPosture,
-          })}
+          {statusHeadline}
         </p>
+      ) : null}
+      <p
+        className="m-0 rounded-lg border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm font-medium leading-snug text-neutral-900 dark:border-teal-900/55 dark:bg-teal-950/30 dark:text-neutral-100"
+        role="status"
+        data-testid="buyer-review-disposition-line"
+      >
+        {buildBuyerReviewPackageDispositionLine({
+          hasGoldenManifest,
+          findingCountDisplay,
+          warningCountDisplay,
+          unresolvedIssueCountDisplay,
+          governanceGateLabel,
+          aggregateRiskPosture,
+        })}
+      </p>
         <PackageStatusStrip
           manifestId={manifestId}
           hasGoldenManifest={hasGoldenManifest}
@@ -406,15 +423,15 @@ export function RunDetailOutcomeCards({
 
       <Card className="border-neutral-200 dark:border-neutral-800">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Review trail</CardTitle>
-          <CardDescription>Pipeline + traceability</CardDescription>
+          <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">In-page activity</CardTitle>
+          <CardDescription>Shortcuts on this review — the authoritative timeline is the Audit trail.</CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
           <Link
             className="text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
             href="#authority-chain"
           >
-            Jump to review trail on this page
+            Jump to activity timeline on this page
           </Link>
           <Link
             className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"

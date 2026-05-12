@@ -184,8 +184,8 @@ export function mapGraphToReactFlow(
   const cellH = isBuyerTrail ? 220 : 140;
   const nodeWidth = isBuyerTrail ? 300 : 180;
   const heroNodeWidth = isBuyerTrail ? 336 : nodeWidth;
-  const fontSize = isBuyerTrail ? 16 : 12;
-  const heroFontSize = isBuyerTrail ? 17 : fontSize;
+  const fontSize = isBuyerTrail ? 17 : 12;
+  const heroFontSize = isBuyerTrail ? 18 : fontSize;
 
   const nodes: Node[] = layoutNodes.map((node, index) => {
     const hero = isBuyerTrail && isBuyerTrailPhiHeroNode(node);
@@ -241,7 +241,7 @@ export function mapGraphToReactFlow(
           }
         : { stroke: "#94a3b8", strokeWidth: 1.25 },
       labelStyle: isBuyerTrail
-        ? { fill: touchesHero ? "#9a3412" : "#0f172a", fontWeight: 700, fontSize: touchesHero ? 15 : 14 }
+        ? { fill: touchesHero ? "#9a3412" : "#0f172a", fontWeight: 700, fontSize: touchesHero ? 17 : 16 }
         : { fill: "#64748b", fontSize: 11 },
       labelBgStyle:
         isBuyerTrail

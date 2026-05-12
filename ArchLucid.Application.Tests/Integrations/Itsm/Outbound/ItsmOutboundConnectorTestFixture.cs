@@ -56,10 +56,10 @@ internal static class ItsmOutboundConnectorTestFixture
             ServiceNow = new ServiceNowItsmOutboundOptions { InstanceBaseUrl = instanceBaseUrl, Username = "u", Password = "p" }
         };
 
-    public static Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> Monitor(IntegrationsItsmOutboundOptions options)
+    public static Mock<IOptionsMonitor<PublicSiteOptions>> PublicSiteMonitor(string baseUrl = "")
     {
-        Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> monitor = new();
-        monitor.Setup(x => x.CurrentValue).Returns(options);
+        Mock<IOptionsMonitor<PublicSiteOptions>> monitor = new();
+        monitor.Setup(x => x.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = baseUrl });
 
         return monitor;
     }

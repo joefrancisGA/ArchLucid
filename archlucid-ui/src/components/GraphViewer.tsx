@@ -166,8 +166,8 @@ export function GraphViewer({
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
 
-  const fitPadding = buyerTrailPanel ? 0.15 : 0.08;
-  const fitMaxZoom = buyerTrailPanel ? 2.35 : 1.52;
+  const fitPadding = buyerTrailPanel ? 0.07 : 0.08;
+  const fitMaxZoom = buyerTrailPanel ? 2.95 : 1.52;
 
   useEffect(() => {
     if (filtered.nodes.length === 0) {

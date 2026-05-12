@@ -10,6 +10,7 @@ export function isTimelineMilestoneEvent(eventType: string): boolean {
     "artifact.bundle.created",
     "com.archlucid.authority.run.completed",
     "com.archlucid.manifest.finalized.v1",
+    "com.archlucid.governance.approval.recorded",
   ]);
 
   return milestones.has(key);

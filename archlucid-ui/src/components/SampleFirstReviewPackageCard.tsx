@@ -36,8 +36,8 @@ export function SampleFirstReviewPackageCard() {
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {buyerPolished === true ? (
               <>
-                <strong>Start Executive Summary</strong> for board-ready posture, then continue the five-step{" "}
-                <strong>Review journey</strong> in the sidebar (signed manifest through audit trail).
+                Use <strong>View Executive Summary</strong> first, then follow the numbered{" "}
+                <strong>Review journey</strong> in the sidebar.
               </>
             ) : (
               "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."
@@ -81,12 +81,7 @@ export function SampleFirstReviewPackageCard() {
                 <>
                   <Button asChild variant="primary" size="lg" className="h-11 min-h-[44px] px-7 text-base shadow-sm">
                     <Link href={getShowcaseExecutiveHref()} onClick={recordSampleOpened}>
-                      Start Executive Summary
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline" size="default" className="h-9">
-                    <Link href={sampleReviewHref} onClick={recordSampleOpened}>
-                      View full review package
+                      View Executive Summary
                     </Link>
                   </Button>
                 </>
@@ -105,17 +100,32 @@ export function SampleFirstReviewPackageCard() {
             </div>
 
             {buyerPolished === true ? (
-              <p className="m-0 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-                Optional:{" "}
+              <div className="m-0 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
                 <Link
-                  href={getShowcaseWalkthroughHref()}
+                  href={sampleReviewHref}
                   onClick={recordSampleOpened}
                   className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                 >
-                  Guided walkthrough
-                </Link>{" "}
-                of the same package.
-              </p>
+                  View full review package
+                </Link>
+                <span className="text-neutral-500 dark:text-neutral-400"> · </span>
+                <details className="inline">
+                  <summary className="cursor-pointer font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100">
+                    Guided walkthrough
+                  </summary>
+                  <span className="ms-1 text-neutral-600 dark:text-neutral-400">
+                    Same story on the public page —{" "}
+                    <Link
+                      href={getShowcaseWalkthroughHref()}
+                      onClick={recordSampleOpened}
+                      className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                    >
+                      open walkthrough
+                    </Link>
+                    .
+                  </span>
+                </details>
+              </div>
             ) : null}
           </div>
         </div>

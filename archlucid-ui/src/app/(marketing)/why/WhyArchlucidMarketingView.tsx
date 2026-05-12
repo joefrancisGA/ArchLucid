@@ -78,7 +78,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           Governed AI architecture reviews—not ad-hoc chat
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          ArchLucid runs a structured multi-agent Authority pipeline against every architecture request so findings,
+          ArchLucid runs a structured multi-agent review pipeline against every architecture request so findings,
           comparisons, manifests, and audit exports share one proven trace. Buyers still compare incumbent stack tools; the
           adjacent-category table below summarizes the same qualitative landscape dimensions used in our internal
           competitive assessment—not a substitute for the symbol-scored hard-comparison grid further down.

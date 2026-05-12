@@ -23,6 +23,11 @@ export function formatFindings(count: number | null | undefined): string {
   return Number.isInteger(count) ? String(count) : count.toFixed(1);
 }
 
+/** Median LLM call count — integer when whole, otherwise one decimal (matches findings formatting). */
+export function formatMedianLlmCalls(count: number | null | undefined): string {
+  return formatFindings(count);
+}
+
 /**
  * Symmetric percent-change between two non-negative quantities.
  * `prior` is the "before"; `current` is the "after". Positive percent => improvement

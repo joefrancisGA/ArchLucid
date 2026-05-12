@@ -22,6 +22,55 @@
         },
         "type": "object"
       },
+      "AdminConfigLintFinding": {
+        "properties": {
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ruleName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "AdminConfigLintResponse": {
+        "properties": {
+          "advisoryFindings": {
+            "items": {
+              "$ref": "#/components/schemas/AdminConfigLintFinding"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "blockingFindings": {
+            "items": {
+              "$ref": "#/components/schemas/AdminConfigLintFinding"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "hostingEnvironmentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ok": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "AdminConfigSummaryResponse": {
         "properties": {
           "keys": {
@@ -10615,6 +10664,37 @@
         },
         "type": "object"
       },
+      "PolicyPackSimulateRequest": {
+        "properties": {
+          "blockCommitMinimumSeverity": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "blockCommitOnCritical": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "content": {
+            "$ref": "#/components/schemas/PolicyPackContentDocument"
+          },
+          "proposedPolicyPackId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PolicyPackVersion": {
         "properties": {
           "contentJson": {
@@ -11287,6 +11367,13 @@
           "isDemoTenant": {
             "type": "boolean"
           },
+          "llmCallCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "llmCallCountResolved": {
+            "type": "boolean"
+          },
           "manifestCommittedUtc": {
             "format": "date-time",
             "type": [
@@ -11333,6 +11420,15 @@
               "$ref": "#/components/schemas/RecentPilotRunDeltaSummaryResponse"
             },
             "type": "array"
+          },
+          "medianLlmCallCount": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
           },
           "medianTimeToCommittedManifestTotalSeconds": {
             "format": "double",
@@ -15644,6 +15740,45 @@
         },
         "tags": [
           "ArchLucid.Api"
+        ]
+      }
+    },
+    "/v1/admin/config-lint": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "includeAdvisory",
+            "schema": {
+              "default": true,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminConfigLintResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminConfigLintResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminConfigLintResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Admin"
         ]
       }
     },
@@ -39479,6 +39614,85 @@
         ]
       }
     },
+    "/v1/policy-packs/simulate": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackSimulateRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackSimulateRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackSimulateRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackGovernanceDryRunResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "PolicyPacks"
+        ]
+      }
+    },
     "/v1/policy-packs/{policyPackId}/assign": {
       "post": {
         "parameters": [
@@ -39566,6 +39780,42 @@
                 }
               },
               "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "PolicyPacks"
+        ]
+      }
+    },
+    "/v1/policy-packs/{policyPackId}/explain": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "policyPackId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/markdown": {}
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }

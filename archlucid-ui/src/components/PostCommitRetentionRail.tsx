@@ -7,7 +7,8 @@ import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import {
@@ -60,22 +61,29 @@ export function PostCommitRetentionRail({
         {buyerPolishedShell ? (
           <>
             <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
-              <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open Executive Summary</Link>
+              <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>View Executive Summary</Link>
             </Button>
             <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
               <Link href={`/governance?runId=${encodeURIComponent(runId)}`}>View governance approval</Link>
             </Button>
             {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (
               <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
-                <Link href={`/manifests/${encodeURIComponent(goldenManifestId.trim())}`}>
-                  Open architecture decision record
+                <Link
+                  href={
+                    canonicalizeDemoRunId(runId) === SHOWCASE_STATIC_DEMO_RUN_ID &&
+                    goldenManifestId.trim() === SHOWCASE_STATIC_DEMO_MANIFEST_ID
+                      ? getShowcaseManifestHref()
+                      : `/manifests/${encodeURIComponent(goldenManifestId.trim())}`
+                  }
+                >
+                  View signed manifest
                 </Link>
               </Button>
             ) : null}
             {showcaseSpine ? null : (
               <details className="rounded-md border border-neutral-200 bg-white/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40">
                 <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                  Advanced — start another governed review cycle
+                  After this review — optional follow-up package
                 </summary>
                 <div className="mt-3 flex flex-col gap-3">
                   <Button

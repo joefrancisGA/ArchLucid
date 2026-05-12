@@ -19,6 +19,12 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 
+type AdminConfigLintPayload = {
+  hostingEnvironmentName?: string;
+  blockingFindings?: Array<{ ruleName?: string; message?: string }>;
+  advisoryFindings?: Array<{ ruleName?: string; message?: string }>;
+};
+
 /**
  * In-app diagnostics: readiness (`/health/ready`), authenticated circuit data (`/health/diagnostics`),
  * build identity (`/version`),
@@ -35,23 +41,27 @@ export default function AdminHealthPage() {
   const [circuitGates, setCircuitGates] = useState<CircuitGateRow[]>([]);
   const [rates, setRates] = useState<OperatorTaskSuccessRatesResponse | null>(null);
   const [ratesNote, setRatesNote] = useState<string | null>(null);
+  const [configLint, setConfigLint] = useState<AdminConfigLintPayload | null>(null);
+  const [configLintNote, setConfigLintNote] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     setReadyError(null);
     setCircuitNote(null);
     setRatesNote(null);
+    setConfigLintNote(null);
     const jsonInit = mergeRegistrationScopeForProxy({
       headers: { Accept: "application/json" },
       cache: "no-store",
     });
 
     try {
-      const [readyRes, versionRes, healthRes, ratesRes] = await Promise.all([
+      const [readyRes, versionRes, healthRes, ratesRes, lintRes] = await Promise.all([
         fetch("/api/proxy/health/ready", jsonInit),
         fetch("/api/proxy/version", jsonInit),
         fetch("/api/proxy/health/diagnostics", jsonInit),
         fetch("/api/proxy/v1/diagnostics/operator-task-success-rates", jsonInit),
+        fetch("/api/proxy/v1/admin/config-lint?includeAdvisory=true", jsonInit),
       ]);
 
       if (readyRes.ok) {
@@ -91,6 +101,17 @@ export default function AdminHealthPage() {
       } else {
         setRates(null);
         setRatesNote("Endpoint not yet available or not authorized — onboarding metrics require a successful `ReadAuthority` session.");
+      }
+      if (lintRes.ok) {
+        setConfigLint((await lintRes.json()) as AdminConfigLintPayload);
+        setConfigLintNote(null);
+      } else {
+        setConfigLint(null);
+        setConfigLintNote(
+          lintRes.status === 401 || lintRes.status === 403
+            ? "Config lint requires an Admin session — sign in with a tenant administrator account."
+            : `Config lint unavailable (HTTP ${lintRes.status}).`,
+        );
       }
     } catch (e) {
       setReadyError(e instanceof Error ? e.message : String(e));
@@ -221,6 +242,61 @@ export default function AdminHealthPage() {
           ) : (
             !readyError && <p className="m-0 text-sm text-neutral-500">No readiness entries.</p>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Environment health (config lint)</CardTitle>
+          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+            Parity with <code className="text-xs">archlucid config lint</code> — blocking findings and hosting advisor rows
+            (no secrets).
+          </p>
+        </CardHeader>
+        <CardContent>
+          {configLintNote !== null ? (
+            <p className="m-0 text-sm text-amber-900 dark:text-amber-100" data-testid="admin-health-config-lint-note">
+              {configLintNote}
+            </p>
+          ) : null}
+          {configLint !== null ? (
+            <div className="space-y-3 text-sm" data-testid="admin-health-config-lint-body">
+              <p className="m-0 text-neutral-600 dark:text-neutral-400">
+                Hosting profile:{" "}
+                <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                  {configLint.hostingEnvironmentName ?? "—"}
+                </span>
+              </p>
+              <div>
+                <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Blocking</p>
+                {configLint.blockingFindings && configLint.blockingFindings.length > 0 ? (
+                  <ul className="mt-1 list-disc space-y-1 ps-5 text-neutral-700 dark:text-neutral-300">
+                    {configLint.blockingFindings.map((f, i) => (
+                      <li key={`${f.ruleName ?? "rule"}-${String(i)}`}>
+                        <span className="font-mono text-xs">{f.ruleName}</span> — {f.message}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">None — config lint OK for this profile.</p>
+                )}
+              </div>
+              <div>
+                <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Advisory</p>
+                {configLint.advisoryFindings && configLint.advisoryFindings.length > 0 ? (
+                  <ul className="mt-1 list-disc space-y-1 ps-5 text-neutral-700 dark:text-neutral-300">
+                    {configLint.advisoryFindings.map((f, i) => (
+                      <li key={`${f.ruleName ?? "adv"}-${String(i)}`}>
+                        <span className="font-mono text-xs">{f.ruleName}</span> — {f.message}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">None returned.</p>
+                )}
+              </div>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 

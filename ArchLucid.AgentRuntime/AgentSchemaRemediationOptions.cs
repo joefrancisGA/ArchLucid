@@ -1,8 +1,8 @@
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-///     Controls how many sequential LLM completion attempts are permitted when structured output fails
-///     <see cref="AgentResultSchemaViolationException" /> parsing / schema enforcement.
+///     Controls how many sequential LLM completion attempts are permitted when structured output fails JSON
+///     deserialization, domain validation, or schema enforcement (<see cref="AgentResultSchemaViolationException" />).
 /// </summary>
 /// <remarks>Configuration path: <see cref="SectionPath" />.</remarks>
 public sealed class AgentSchemaRemediationOptions

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
+  SHOWCASE_STATIC_DEMO_DECISION_ITEMS,
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -62,6 +63,52 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
               {buyer ? "View on review" : "Open decisions on run"}
             </Link>
           </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (buyer) {
+    const sections: { area: string; lines: string[] }[] = [];
+    const indexByArea = new Map<string, number>();
+
+    for (const item of SHOWCASE_STATIC_DEMO_DECISION_ITEMS) {
+      const existingIdx = indexByArea.get(item.controlArea);
+
+      if (existingIdx === undefined) {
+        indexByArea.set(item.controlArea, sections.length);
+        sections.push({ area: item.controlArea, lines: [item.text] });
+      } else {
+        sections[existingIdx]!.lines.push(item.text);
+      }
+    }
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-semibold">Key decisions</CardTitle>
+          <CardDescription>
+            Grouped by control area — main architecture choices captured in this review package.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {sections.map((section) => (
+            <div key={section.area}>
+              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                {section.area}
+              </p>
+              <ul className="m-0 mt-2 list-none space-y-2 p-0">
+                {section.lines.map((line) => (
+                  <li
+                    key={line}
+                    className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200"
+                  >
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </CardContent>
       </Card>
     );

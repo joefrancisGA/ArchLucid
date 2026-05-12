@@ -3,12 +3,16 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
+  SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT,
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
+  SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
 } from "@/lib/showcase-static-demo";
 import type { ManifestSummary } from "@/types/authority";
@@ -48,10 +52,10 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
           At a glance
         </p>
-        {countsGridTiles(summary)}
+        {countsGridTiles(summary, { buyerPolishedLayout: true })}
       </div>
     ) : (
-      countsGridTiles(summary)
+      countsGridTiles(summary, { buyerPolishedLayout: false })
     );
 
   const policyLine = (
@@ -250,9 +254,23 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   );
 }
 
-function countsGridTiles(summary: ManifestSummary): ReactElement {
+type CountsGridTilesOptions = {
+  readonly buyerPolishedLayout: boolean;
+};
+
+function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptions): ReactElement {
+  const isCuratedDemo = summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
+  const includeShowcaseTrailTiles = options.buyerPolishedLayout && isCuratedDemo;
+
+  const gridClassName = includeShowcaseTrailTiles
+    ? "grid grid-cols-2 gap-3 sm:grid-cols-3"
+    : "grid grid-cols-2 gap-3 sm:grid-cols-4";
+
+  const graphHref = `/graph?runId=${encodeURIComponent(summary.runId)}`;
+  const auditHref = `/audit?runId=${encodeURIComponent(summary.runId)}`;
+
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div className={gridClassName}>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Status</p>
         <p className="m-0 mt-2">
@@ -279,6 +297,38 @@ function countsGridTiles(summary: ManifestSummary): ReactElement {
           {Number.isFinite(summary.unresolvedIssueCount) ? summary.unresolvedIssueCount : "—"}
         </p>
       </div>
+      {includeShowcaseTrailTiles ? (
+        <>
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              Evidence graph
+            </p>
+            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+              {SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT}
+            </p>
+            <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">Linked records in review trail layout</p>
+            <p className="m-0 mt-2 text-xs">
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={graphHref}>
+                Open interactive graph
+              </Link>
+            </p>
+          </div>
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              Audit trail
+            </p>
+            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+              {SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT}
+            </p>
+            <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">Milestone events in demo walkthrough</p>
+            <p className="m-0 mt-2 text-xs">
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={auditHref}>
+                Open full audit trail
+              </Link>
+            </p>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

@@ -153,11 +153,11 @@ describe("OperatorEvidenceLimitsFooter — buyer-polished operator shell", () =>
     expect(text).not.toContain("gpt-4o-internal");
     expect(text).not.toContain("finding-inspect-v12");
 
-    expect(screen.getByRole("link", { name: /review trail \(provenance graph\)/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /structural provenance overview/i })).toHaveAttribute(
       "href",
       "/reviews/demo-run/provenance",
     );
-    expect(screen.getByRole("link", { name: /architecture review summary/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /findings and assessment section on the review package/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /technical inspection trail/i })).toHaveAttribute(
       "href",
       "/reviews/demo-run/findings/f-1/inspect",

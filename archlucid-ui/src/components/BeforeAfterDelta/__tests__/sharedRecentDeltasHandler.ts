@@ -33,6 +33,8 @@ export function makeRow(overrides: FakeRow): RecentPilotRunDeltaRow {
     totalFindings: overrides.totalFindings ?? 3,
     topFindingSeverity: overrides.topFindingSeverity ?? "High",
     isDemoTenant: overrides.isDemoTenant ?? false,
+    llmCallCount: overrides.llmCallCount ?? 0,
+    llmCallCountResolved: overrides.llmCallCountResolved ?? true,
   };
 }
 
@@ -41,6 +43,10 @@ export function makePayload(rows: RecentPilotRunDeltaRow[]): RecentPilotRunDelta
   const seconds = rows
     .map((r) => r.timeToCommittedManifestTotalSeconds)
     .filter((s): s is number => s !== null && Number.isFinite(s));
+  const llmAttested = rows
+    .filter((r) => r.llmCallCountResolved === true)
+    .map((r) => (typeof r.llmCallCount === "number" ? r.llmCallCount : Number(r.llmCallCount)))
+    .filter((n) => Number.isFinite(n));
 
   return {
     items: rows,
@@ -48,6 +54,7 @@ export function makePayload(rows: RecentPilotRunDeltaRow[]): RecentPilotRunDelta
     returnedCount: rows.length,
     medianTotalFindings: rows.length === 0 ? null : median(findings),
     medianTimeToCommittedManifestTotalSeconds: seconds.length === 0 ? null : median(seconds),
+    medianLlmCallCount: llmAttested.length === 0 ? null : median(llmAttested),
   };
 }
 

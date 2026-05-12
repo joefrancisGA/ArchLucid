@@ -115,6 +115,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
             runs.Object,
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(options).Object,
+            PublicSiteMonitor().Object,
             JiraClient(new TestSupport.Http.UnexpectedHttpCallMessageHandler()),
             new ServiceNowOutboundIncidentClient(snowHttp, NullLogger<ServiceNowOutboundIncidentClient>.Instance));
 
@@ -190,6 +191,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
             runs.Object,
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(options).Object,
+            PublicSiteMonitor().Object,
             JiraClient(new TestSupport.Http.UnexpectedHttpCallMessageHandler()),
             new ServiceNowOutboundIncidentClient(snowHttp, NullLogger<ServiceNowOutboundIncidentClient>.Instance));
 
@@ -251,6 +253,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
             runs.Object,
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(options).Object,
+            PublicSiteMonitor().Object,
             JiraClient(new TestSupport.Http.UnexpectedHttpCallMessageHandler()),
             new ServiceNowOutboundIncidentClient(snowHttp, NullLogger<ServiceNowOutboundIncidentClient>.Instance));
 

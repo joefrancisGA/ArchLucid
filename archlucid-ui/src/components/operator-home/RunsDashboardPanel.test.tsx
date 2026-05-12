@@ -45,6 +45,7 @@ function stubFetchForDashboard() {
           returnedCount: 0,
           medianTotalFindings: null,
           medianTimeToCommittedManifestTotalSeconds: null,
+          medianLlmCallCount: null,
         }),
         { status: 200 },
       );
@@ -216,11 +217,11 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-showcase-demo-banner")).toBeInTheDocument();
       });
-      expect(screen.getByRole("link", { name: "Start Executive Summary" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "View Executive Summary" })).toHaveAttribute(
         "href",
         "/executive/reviews/claims-intake-modernization",
       );
-      expect(screen.getByRole("link", { name: "Guided walkthrough" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Open walkthrough" })).toHaveAttribute(
         "href",
         "/showcase/claims-intake-modernization",
       );

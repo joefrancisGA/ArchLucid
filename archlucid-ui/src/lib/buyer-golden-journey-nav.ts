@@ -28,6 +28,8 @@ export type ResolvedBuyerGoldenJourneyNav = {
   readonly summaryLine: string;
   readonly prev: BuyerGoldenJourneyNavLink | null;
   readonly next: BuyerGoldenJourneyNavLink | null;
+  /** 0-based index into {@link BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS} on numbered steps; null on hub routes. */
+  readonly currentStepIndex: number | null;
 };
 
 function normalizedPath(pathname: string): string {
@@ -68,6 +70,7 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
         summaryLine: "Review package overview — between Executive Summary and signed manifest",
         prev: { label: defs[0].label, href: defs[0].href },
         next: { label: defs[1].label, href: defs[1].href },
+        currentStepIndex: null,
       };
     }
 
@@ -80,5 +83,6 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
     summaryLine: `Step ${current.step} of ${defs.length} · ${current.label}`,
     prev: stepIdx > 0 ? { label: defs[stepIdx - 1].label, href: defs[stepIdx - 1].href } : null,
     next: stepIdx < defs.length - 1 ? { label: defs[stepIdx + 1].label, href: defs[stepIdx + 1].href } : null,
+    currentStepIndex: stepIdx,
   };
 }

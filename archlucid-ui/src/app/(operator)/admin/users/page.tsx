@@ -158,7 +158,7 @@ export default function AdminUsersPage() {
                   <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-700">
                     <th className="py-2 pr-3">Display name</th>
                     <th className="py-2 pr-3">Email</th>
-                    <th className="py-2 pr-3">Authority</th>
+                    <th className="py-2 pr-3">Access tier</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
+import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import { type LayerId } from "@/lib/getLayerForRoute";
 import { cn } from "@/lib/utils";
 
@@ -115,9 +116,10 @@ export function LayerContextStrip({
           {buyerGoldenJourneyNav !== null && buyerGoldenJourneyNav !== undefined ? (
             <nav
               aria-label="Review journey steps"
-              className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-neutral-200/70 pt-1.5 text-xs dark:border-neutral-700/80"
+              className="flex flex-col gap-2 border-t border-neutral-200/70 pt-1.5 dark:border-neutral-700/80"
               data-testid="buyer-golden-journey-stepper"
             >
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
               {buyerGoldenJourneyNav.prev !== null ? (
                 <Link
                   className="shrink-0 font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950 dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-50"
@@ -143,6 +145,39 @@ export function LayerContextStrip({
               ) : (
                 <span className="shrink-0 text-neutral-400 dark:text-neutral-500">End →</span>
               )}
+              </div>
+              <ol
+                className="m-0 flex list-none flex-wrap gap-1.5 p-0"
+                aria-label="Review journey step indicators"
+                data-testid="buyer-golden-journey-step-indicators"
+              >
+                {BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.map((def, idx) => {
+                  const cur = buyerGoldenJourneyNav.currentStepIndex;
+                  const done = cur !== null && idx < cur;
+                  const current = cur !== null && idx === cur;
+
+                  const chipClass = done
+                    ? "border-teal-300 bg-teal-50/90 text-teal-950 dark:border-teal-800 dark:bg-teal-950/45 dark:text-teal-100"
+                    : current
+                      ? "border-teal-600 bg-white font-semibold text-teal-950 shadow-sm ring-2 ring-teal-500/40 dark:border-teal-500 dark:bg-neutral-950 dark:text-teal-50"
+                      : "border-neutral-200 bg-white/75 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-950/55 dark:text-neutral-400";
+
+                  return (
+                    <li key={`${def.step}-${def.href}`}>
+                      <Link
+                        href={def.href}
+                        className={cn(
+                          "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium no-underline transition hover:opacity-95",
+                          chipClass,
+                        )}
+                      >
+                        <span className="tabular-nums text-neutral-500 dark:text-neutral-400">{def.step}.</span>
+                        <span>{def.label}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ol>
             </nav>
           ) : null}
         </div>

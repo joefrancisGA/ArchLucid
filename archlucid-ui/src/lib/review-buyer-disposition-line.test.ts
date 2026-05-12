@@ -1,6 +1,37 @@
 import { describe, expect, it } from "vitest";
 
-import { buildBuyerReviewPackageDispositionLine } from "./review-buyer-disposition-line";
+import {
+  buildBuyerReviewPackageDispositionLine,
+  buildBuyerReviewPackagePlainStatusHeadline,
+} from "./review-buyer-disposition-line";
+
+describe("buildBuyerReviewPackagePlainStatusHeadline", () => {
+  it("returns null before finalization", () => {
+    expect(
+      buildBuyerReviewPackagePlainStatusHeadline({
+        hasGoldenManifest: false,
+        findingCountDisplay: 9,
+        warningCountDisplay: 1,
+        unresolvedIssueCountDisplay: 0,
+        governanceGateLabel: "Passed",
+        aggregateRiskPosture: "Approved with monitoring",
+      }),
+    ).toBeNull();
+  });
+
+  it("uses the PHI monitoring headline for the showcase-shaped finalized package", () => {
+    expect(
+      buildBuyerReviewPackagePlainStatusHeadline({
+        hasGoldenManifest: true,
+        findingCountDisplay: 9,
+        warningCountDisplay: 1,
+        unresolvedIssueCountDisplay: 0,
+        governanceGateLabel: "Passed",
+        aggregateRiskPosture: "Approved with monitoring",
+      }),
+    ).toContain("PHI minimization");
+  });
+});
 
 describe("buildBuyerReviewPackageDispositionLine", () => {
   it("prompts finalization when manifest is not golden", () => {

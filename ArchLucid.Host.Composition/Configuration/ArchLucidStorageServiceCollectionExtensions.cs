@@ -87,6 +87,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
     {
         services.Configure<EmailNotificationOptions>(configuration.GetSection(EmailNotificationOptions.SectionName));
         services.Configure<PublicSiteOptions>(configuration.GetSection(PublicSiteOptions.SectionPath));
+        services.Configure<ArchLucidRetentionOptions>(configuration.GetSection(ArchLucidRetentionOptions.SectionPath));
 
         if (ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider))
         {
@@ -216,6 +217,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
         string provider = HotPathCacheProviderResolver.ResolveEffectiveProvider(snapshot);
 
+        if (string.Equals(provider, "Memory", StringComparison.OrdinalIgnoreCase) &&
+            snapshot.ExpectedApiReplicaCount > 1)
+            services.AddHostedService<HotPathMemoryReplicaCoherenceHostedLogger>();
+
         if (string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase))
         {
             string redis = snapshot.RedisConnectionString.Trim();
@@ -231,6 +236,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
         RegisterHybridCacheCore(services, snapshot);
         services.AddSingleton<IHotPathReadCache, HybridHotPathReadCache>();
+
+        if (string.Equals(provider, "Memory", StringComparison.OrdinalIgnoreCase) &&
+            snapshot.ExpectedApiReplicaCount > 1)
+            services.AddHostedService<HotPathMemoryReplicaCoherenceHostedLogger>();
     }
 
     private static void RegisterHybridCacheCore(IServiceCollection services, HotPathCacheOptions snapshot)

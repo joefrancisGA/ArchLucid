@@ -29,6 +29,7 @@
     <PackageReference Include="Spectre.Console" />
     <PackageReference Include="Tomlyn" />
     <PackageReference Include="JsonSchema.Net" />
+    <PackageReference Include="FluentValidation" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
   </ItemGroup>

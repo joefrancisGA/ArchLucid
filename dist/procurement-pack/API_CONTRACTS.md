@@ -167,6 +167,14 @@ These return **200** with a JSON body that lists **per-id outcomes** (succeeded 
 
 See also **`docs/CONTROLLER_AREA_MAP.md`**. Existing **`POST /v1/admin/runs/archive-batch`** (cutoff by **`createdBeforeUtc`**) remains available.
 
+## Admin configuration routes (`/v1/admin`)
+
+| Method | Path | Policy | Notes |
+|--------|------|--------|------|
+| `GET` | `/v1/admin/config-summary` | **AdminAuthority** | Catalog presence + optional **`includeEffectiveValues`** (masked secrets). |
+| `GET` | `/v1/admin/configuration/summary` | **AdminAuthority** | Alias of **`config-summary`**. |
+| `GET` | `/v1/admin/config-lint` | **AdminAuthority** | **`AdminConfigLintResponse`**: **`hostingEnvironmentName`**, **`ok`**, **`blockingFindings`**, optional **`advisoryFindings`** (omit advisory noise with **`includeAdvisory=false`**). Mirrors **`archlucid config lint`** / **`ProductionLikeHostingMisconfigurationAdvisor`**; never returns secrets. |
+
 ## Correlation ID
 
 - Optional request header **`X-Correlation-ID`**: if present, the API echoes it on the response and uses it for logging/tracing context; if absent, a value is generated (e.g. from the ASP.NET Core trace identifier).
@@ -316,6 +324,7 @@ Governance is packaged as **versioned, assignable** bundles. Pack **content** is
 | `GET` | `/v1/policy-packs/{policyPackId}/versions` | List versions for a pack. |
 | `GET` | `/v1/policy-packs/effective` | Resolved **enabled** assignments → pack metadata + **ContentJson** per entry. |
 | `GET` | `/v1/policy-packs/effective-content` | **Merged** document: union of IDs (distinct), **advisoryDefaults** / **metadata** last-wins per key. |
+| `POST` | `/v1/policy-packs/simulate` | Typed façade over **`POST /v1/governance/policy-packs/dry-run`**: body **`runId`** + **`content`** (**`PolicyPackContentDocument`**) plus optional gate overrides. **ReadAuthority**; **`governancePolicyPackDryRun`** rate limit. **404** when the run is missing in scope. |
 
 **Validation:** Create / publish / assign bodies are validated with **FluentValidation**. Invalid JSON in `initialContentJson` or `contentJson`, unknown `packType`, or empty `version` returns **400** with problem details (same style as other validated endpoints).
 

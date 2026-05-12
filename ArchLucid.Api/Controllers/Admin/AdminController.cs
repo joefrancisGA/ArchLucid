@@ -3,6 +3,7 @@ using ArchLucid.Api.Services.Admin;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Configuration.Summary;
+using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
@@ -14,6 +15,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 
 namespace ArchLucid.Api.Controllers.Admin;
@@ -25,17 +27,50 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Route("v{version:apiVersion}/admin")]
 public sealed class AdminController(
     IConfiguration configuration,
+    IHostEnvironment hostEnvironment,
     IAdminDiagnosticsService diagnostics,
     IFeatureManager featureManager) : ControllerBase
 {
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
 
+    private readonly IHostEnvironment _hostEnvironment =
+        hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
+
     private readonly IAdminDiagnosticsService _diagnostics =
         diagnostics ?? throw new ArgumentNullException(nameof(diagnostics));
 
     private readonly IFeatureManager _featureManager =
         featureManager ?? throw new ArgumentNullException(nameof(featureManager));
+
+    /// <summary>
+    ///     Production-profile blocking findings plus optional hosting advisor warnings (<c>archlucid config lint</c> parity).
+    /// </summary>
+    /// <remarks>No secrets are returned; findings mirror CLI/advisor rule names.</remarks>
+    [HttpGet("config-lint")]
+    [ProducesResponseType(typeof(AdminConfigLintResponse), StatusCodes.Status200OK)]
+    public ActionResult<AdminConfigLintResponse> GetConfigLint([FromQuery] bool includeAdvisory = true)
+    {
+        OperatorConfigurationLintSnapshot snapshot =
+            OperatorConfigurationLintEvaluator.Evaluate(_configuration, _hostEnvironment.EnvironmentName);
+
+        AdminConfigLintResponse response = new()
+        {
+            HostingEnvironmentName = snapshot.HostingEnvironmentName,
+            Ok = snapshot.Ok,
+            BlockingFindings = snapshot.BlockingFindings
+                .Select(static f => new AdminConfigLintFinding { RuleName = f.RuleName, Message = f.Message })
+                .ToList(),
+            AdvisoryFindings =
+                includeAdvisory
+                    ? snapshot.AdvisoryFindings
+                        .Select(static f => new AdminConfigLintFinding { RuleName = f.RuleName, Message = f.Message })
+                        .ToList()
+                    : []
+        };
+
+        return Ok(response);
+    }
 
     /// <summary>
     ///     Catalog-aligned key presence; set <paramref name="includeEffectiveValues" /> for redacted/effective scalars

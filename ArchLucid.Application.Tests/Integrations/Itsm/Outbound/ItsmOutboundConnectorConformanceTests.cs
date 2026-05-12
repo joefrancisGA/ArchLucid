@@ -42,6 +42,7 @@ public sealed class ItsmOutboundConnectorConformanceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(outbound).Object,
+            PublicSiteMonitor().Object,
             JiraClient(boom),
             ServiceNowClient(boom));
 
@@ -77,6 +78,7 @@ public sealed class ItsmOutboundConnectorConformanceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(boom),
             ServiceNowClient(boom));
 
@@ -113,6 +115,7 @@ public sealed class ItsmOutboundConnectorConformanceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(outbound).Object,
+            PublicSiteMonitor().Object,
             JiraClient(boom),
             ServiceNowClient(boom));
 

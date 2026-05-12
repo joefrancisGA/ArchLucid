@@ -59,6 +59,24 @@ public sealed class RecentPilotRunDeltaSummaryResponse
         init;
     }
 
+    /// <summary>
+    ///     LLM call count attested from execution traces (same semantics as per-run pilot-run-deltas).
+    /// </summary>
+    public int LlmCallCount
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     When <see langword="false" />, <see cref="LlmCallCount" /> is not attested for this row.
+    /// </summary>
+    public bool LlmCallCountResolved
+    {
+        get;
+        init;
+    }
+
     /// <summary>Run is a Contoso Retail demo seed; UI MUST surface a "demo tenant" banner so seeded numbers are not quoted as real outcomes.</summary>
     public bool IsDemoTenant
     {

@@ -41,6 +41,7 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(handler),
             ServiceNowClient(new UnexpectedHttpCallMessageHandler()));
 
@@ -89,6 +90,7 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(handler),
             ServiceNowClient(new UnexpectedHttpCallMessageHandler()));
 
@@ -125,6 +127,7 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
             Mock.Of<IRunRepository>(),
             Mock.Of<IArchitectureRequestRepository>(),
             Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
             JiraClient(handler),
             ServiceNowClient(new UnexpectedHttpCallMessageHandler()));
 

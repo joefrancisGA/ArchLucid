@@ -41,6 +41,30 @@ function ratioText(value: number | null | undefined): string {
   return value.toFixed(2);
 }
 
+function wallClockDeltaFromPriorAgent(prevIso: string | null, curIso: string): string {
+  if (!prevIso) {
+    return "—";
+  }
+
+  const prevMs = Date.parse(prevIso);
+  const curMs = Date.parse(curIso);
+
+  if (!Number.isFinite(prevMs) || !Number.isFinite(curMs) || curMs < prevMs) {
+    return "—";
+  }
+
+  const sec = Math.round((curMs - prevMs) / 1000);
+
+  if (sec < 60) {
+    return `${sec}s`;
+  }
+
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+
+  return `${m}m ${s}s`;
+}
+
 /** Tooltip: aligns with OTel `archlucid_agent_output_semantic_score` — heuristic / optional judge, not embeddings or truth. */
 const semanticOverallTooltip =
   "0–1 overall semantic score (same as telemetry archlucid_agent_output_semantic_score): deterministic checks on claims and findings in persisted JSON, optionally combined with an LLM rubric when enabled. Not embedding similarity and not a guarantee of factual correctness.";
@@ -156,7 +180,10 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
     evaluationFailure = toApiLoadFailure(e);
   }
 
-  const traces = tracesPayload?.traces ?? [];
+  const tracesRaw = tracesPayload?.traces ?? [];
+  const traces = [...tracesRaw].sort(
+    (a, b) => Date.parse(a.createdUtc) - Date.parse(b.createdUtc),
+  );
   const blobPersistFailed = traces.some((t) => t.blobUploadFailed === true);
 
 
@@ -223,6 +250,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
             <thead>
               <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
                 <th className="px-1.5 py-2">Agent</th>
+                <th className="px-1.5 py-2">Wall Δ (prior agent)</th>
                 <th className="px-1.5 py-2">Trace ID</th>
                 <th className="px-1.5 py-2">Parse OK</th>
                 <th className="px-1.5 py-2">Blob upload</th>
@@ -243,14 +271,19 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
               </tr>
             </thead>
             <tbody>
-              {traces.map((t) => {
+              {traces.map((t, index) => {
                 const sc = scoreForTrace(evaluationPayload?.scores, t.traceId);
                 const sem = sc?.semantic;
                 const rawNotes = notesPreview(sem?.llmJudgeNotes);
+                const prevCreated =
+                  index > 0 ? traces[index - 1]!.createdUtc : null;
 
                 return (
                   <tr key={t.traceId} className="border-b border-neutral-100 dark:border-neutral-800">
                     <td className="whitespace-nowrap px-1.5 py-2">{agentTypeLabel(t.agentType)}</td>
+                    <td className="whitespace-nowrap px-1.5 py-2 text-neutral-600 dark:text-neutral-400">
+                      {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}
+                    </td>
                     <td className="px-1.5 py-2 font-mono text-xs">{t.traceId}</td>
                     <td className="px-1.5 py-2">{t.parseSucceeded ? "yes" : "no"}</td>
                     <td className="px-1.5 py-2">

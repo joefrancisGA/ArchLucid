@@ -207,7 +207,14 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
                 # Placeholder export: use `archlucid azure terraform-export` for aztfexport-backed bundles.
                 """;
 
-            WriteTextEntry(archive, "advisory-placeholder.tf", placeholderTf.Trim());
+            string rawTf = placeholderTf.Trim();
+            string? formattedTf = TerraformHclFormatHelper.TryFormat(rawTf);
+
+            string tfBody = formattedTf is not null
+                ? formattedTf
+                : "# terraform fmt skipped (CLI unavailable or failed); advisory stub follows\n" + rawTf;
+
+            WriteTextEntry(archive, "advisory-placeholder.tf", tfBody);
 
             WritePackageMetadata(
                 archive,

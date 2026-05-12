@@ -14,4 +14,9 @@ internal static class CliJson
 
         writer.WriteLine(JsonSerializer.Serialize(payload, CompactCamelCase));
     }
+
+    internal static void WriteSuccessLine(TextWriter writer, object payload)
+    {
+        writer.WriteLine(JsonSerializer.Serialize(payload, CompactCamelCase));
+    }
 }

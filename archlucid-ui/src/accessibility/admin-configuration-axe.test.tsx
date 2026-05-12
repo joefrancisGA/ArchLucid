@@ -30,7 +30,7 @@ describe("AdminConfigurationPage — axe (Vitest)", () => {
   it(
     "has no serious axe violations when configuration summary loads",
     async () => {
-      const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+      const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
         const s =
           typeof input === "string"
             ? input
@@ -53,6 +53,15 @@ describe("AdminConfigurationPage — axe (Vitest)", () => {
                 effectiveValue: "Combined",
               },
             ],
+          });
+        }
+
+        if (s.includes("/v1/admin/config-lint")) {
+          return jsonResponse({
+            hostingEnvironmentName: "Development",
+            ok: true,
+            blockingFindings: [],
+            advisoryFindings: [],
           });
         }
 

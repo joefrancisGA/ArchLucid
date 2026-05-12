@@ -17,6 +17,9 @@ export type RecentPilotRunDeltaRow = {
   totalFindings: number;
   topFindingSeverity: string | null;
   isDemoTenant: boolean;
+  /** Persisted LLM completion rows when attested — same semantics as per-run pilot-run-deltas. */
+  llmCallCount?: number;
+  llmCallCountResolved?: boolean;
 };
 
 export type RecentPilotRunDeltasPayload = {
@@ -25,6 +28,7 @@ export type RecentPilotRunDeltasPayload = {
   returnedCount: number;
   medianTotalFindings: number | null;
   medianTimeToCommittedManifestTotalSeconds: number | null;
+  medianLlmCallCount: number | null;
 };
 
 /** Single-run delta payload (`GET /v1/pilots/runs/{runId}/pilot-run-deltas`) — only the fields the inline variant needs. */

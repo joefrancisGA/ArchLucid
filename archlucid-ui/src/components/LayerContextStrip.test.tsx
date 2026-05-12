@@ -74,6 +74,7 @@ describe("LayerContextStrip", () => {
           summaryLine: "Step 3 of 5 · Evidence graph",
           prev: { label: "Signed manifest", href: "/reviews/x/manifest" },
           next: { label: "Governance approval", href: "/governance" },
+          currentStepIndex: 2,
         }}
       />,
     );

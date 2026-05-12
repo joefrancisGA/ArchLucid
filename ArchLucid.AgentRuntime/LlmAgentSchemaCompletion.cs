@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagnostics;
@@ -13,9 +15,8 @@ namespace ArchLucid.AgentRuntime;
 public static class LlmAgentSchemaCompletion
 {
     /// <summary>
-    ///     Calls <paramref name="completionClient" />; on <see cref="AgentResultSchemaViolationException" /> retries with
-    ///     remediation
-    ///     text until attempts are exhausted or output validates.
+    ///     Calls <paramref name="completionClient" />; on schema violations, JSON parse failures, or post-parse validation
+    ///     errors retries with remediation text until attempts are exhausted or output validates.
     /// </summary>
     public static async Task<(string RawJson, AgentResult Parsed)> CompleteAsync(
         IAgentCompletionClient completionClient,
@@ -41,13 +42,13 @@ public static class LlmAgentSchemaCompletion
         if (maxAttempts > AgentSchemaRemediationOptions.MaxCompletionAttemptsCeiling)
             maxAttempts = AgentSchemaRemediationOptions.MaxCompletionAttemptsCeiling;
 
-        AgentResultSchemaViolationException? lastViolation = null;
+        RemediationState? lastRemediation = null;
 
         for (int attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex++)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            string userPrompt = BuildUserPrompt(baseUserPrompt, lastViolation);
+            string userPrompt = BuildUserPrompt(baseUserPrompt, lastRemediation);
 
             string rawJson = await completionClient
                 .CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken)
@@ -61,14 +62,30 @@ public static class LlmAgentSchemaCompletion
             }
             catch (AgentResultSchemaViolationException ex)
             {
-                bool moreAttemptsRemain = attemptIndex < maxAttempts - 1;
-
-                if (!moreAttemptsRemain)
+                if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
                     throw;
 
                 ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentType.ToString());
 
-                lastViolation = ex;
+                lastRemediation = RemediationState.FromSchemaViolation(ex);
+            }
+            catch (AgentResultValidationException ex)
+            {
+                if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
+                    throw;
+
+                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentType.ToString());
+
+                lastRemediation = RemediationState.FromPlainDetail(ex.Message);
+            }
+            catch (InvalidOperationException ex) when (IsRetryableAgentResultParseFailure(ex))
+            {
+                if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
+                    throw;
+
+                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentType.ToString());
+
+                lastRemediation = RemediationState.FromPlainDetail(BuildParseFailureDetail(ex));
             }
         }
 
@@ -76,15 +93,75 @@ public static class LlmAgentSchemaCompletion
             $"Unexpected exit from agent schema completion loop ({agentType}, maxAttempts={maxAttempts}).");
     }
 
-    private static string BuildUserPrompt(string baseUserPrompt, AgentResultSchemaViolationException? violation)
+    private static bool MoreAttemptsRemain(int attemptIndex, int maxAttempts)
     {
-        if (violation is null)
+        return attemptIndex < maxAttempts - 1;
+    }
+
+    private static bool IsRetryableAgentResultParseFailure(InvalidOperationException ex)
+    {
+        if (ex.InnerException is System.Text.Json.JsonException)
+            return true;
+
+        string msg = ex.Message;
+
+        if (msg.Contains("empty JSON", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (msg.Contains("null AgentResult", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (msg.Contains("deserialize AgentResult", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (msg.Contains("unsupported type mapping", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
+    private static string BuildParseFailureDetail(InvalidOperationException ex)
+    {
+        if (ex.InnerException is System.Text.Json.JsonException jx)
+            return "JSON parse error: " + jx.Message.Trim();
+
+        return ex.Message.Trim();
+    }
+
+    private static string BuildUserPrompt(string baseUserPrompt, RemediationState? remediation)
+    {
+        if (remediation is null)
             return baseUserPrompt;
 
-        IEnumerable<string> lines = violation.SchemaErrors.Select(static e =>
-            "- " + e.Trim());
+        StringBuilder sb = new();
 
-        return
-            $"{baseUserPrompt.TrimEnd()}\n\nRemediation: Correct the JSON ONLY. Previous output failed validation.\n{string.Join("\n", lines)}";
+        sb.Append(baseUserPrompt.TrimEnd());
+        sb.Append("\n\nRemediation: Correct the JSON ONLY. Previous output failed validation.\n");
+
+        if (remediation.SchemaViolation is { } sv)
+        {
+            foreach (string line in sv.SchemaErrors.Select(static e => "- " + e.Trim()))
+                sb.AppendLine(line);
+        }
+
+        if (!string.IsNullOrWhiteSpace(remediation.PlainTextDetail))
+            sb.AppendLine("- " + remediation.PlainTextDetail.Trim());
+
+        return sb.ToString();
+    }
+
+    private sealed record RemediationState(
+        AgentResultSchemaViolationException? SchemaViolation,
+        string? PlainTextDetail)
+    {
+        public static RemediationState FromSchemaViolation(AgentResultSchemaViolationException ex)
+        {
+            return new RemediationState(ex, null);
+        }
+
+        public static RemediationState FromPlainDetail(string detail)
+        {
+            return new RemediationState(null, detail);
+        }
     }
 }

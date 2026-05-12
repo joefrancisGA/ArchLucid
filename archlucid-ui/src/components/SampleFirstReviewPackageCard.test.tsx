@@ -78,10 +78,9 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     expect(
       screen.getByRole("heading", { name: /Claims Intake Modernization Review Package/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/in the sidebar/i)).toBeInTheDocument();
+
     expect(screen.getByText("Review journey", { selector: "strong" })).toBeInTheDocument();
-    expect(screen.getByText(/five-step/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start Executive Summary" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "View Executive Summary" })).toHaveAttribute(
       "href",
       "/executive/reviews/claims-intake-modernization",
     );
@@ -89,7 +88,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
       "href",
       "/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Guided walkthrough" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "open walkthrough" })).toHaveAttribute(
       "href",
       "/showcase/claims-intake-modernization",
     );

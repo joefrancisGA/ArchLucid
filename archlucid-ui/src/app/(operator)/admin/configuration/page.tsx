@@ -20,8 +20,12 @@ import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const SUMMARY_PATH = "/api/proxy/v1/admin/configuration/summary?includeEffectiveValues=true";
+const CONFIG_LINT_PATH = "/api/proxy/v1/admin/config-lint?includeAdvisory=true";
 
 type ConfigSummaryKeyRow = components["schemas"]["ConfigSummaryKeyRow"];
+
+type AdminConfigLintFinding = components["schemas"]["AdminConfigLintFinding"];
+type AdminConfigLintResponse = components["schemas"]["AdminConfigLintResponse"];
 
 type LoadState = "idle" | "loading" | "ok" | "forbidden" | "error" | "empty";
 
@@ -34,13 +38,16 @@ function normalizePath(s: string | null | undefined): string {
 }
 
 /**
- * Read-only catalog-aligned configuration summary (effective values redacted for sensitive keys on the API).
+ * Read-only catalog-aligned configuration summary (effective values redacted for sensitive keys on the API) plus structured
+ * config lint from GET /v1/admin/config-lint.
  */
 export default function AdminConfigurationPage() {
   const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [rows, setRows] = useState<ConfigSummaryKeyRow[]>([]);
+  const [lintState, setLintState] = useState<LoadState>("idle");
+  const [lint, setLint] = useState<AdminConfigLintResponse | null>(null);
   const [search, setSearch] = useState("");
   const [sectionFilter, setSectionFilter] = useState<string>("__all__");
 
@@ -85,13 +92,59 @@ export default function AdminConfigurationPage() {
     }
   }, []);
 
+  const loadLint = useCallback(async () => {
+    setLintState("loading");
+
+    try {
+      const res = await fetch(
+        CONFIG_LINT_PATH,
+        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" }),
+      );
+
+      if (res.status === 403) {
+        setLint(null);
+        setLintState("forbidden");
+
+        return;
+      }
+
+      if (!res.ok) {
+        setLint(null);
+        setLintState("error");
+
+        return;
+      }
+
+      const json: unknown = await res.json();
+      const parsed: AdminConfigLintResponse | null = parseConfigLintPayload(json);
+
+      if (parsed === null) {
+        setLint(null);
+        setLintState("empty");
+
+        return;
+      }
+
+      setLint(parsed);
+      setLintState("ok");
+    } catch {
+      setLint(null);
+      setLintState("error");
+    }
+  }, []);
+
+  const refreshAll = useCallback(async () => {
+    await Promise.all([load(), loadLint()]);
+  }, [load, loadLint]);
+
   useEffect(() => {
     if (isDemo) {
       return;
     }
 
     void load();
-  }, [isDemo, load]);
+    void loadLint();
+  }, [isDemo, load, loadLint]);
 
   const sections = useMemo(() => {
     const set = new Set<string>();
@@ -213,14 +266,79 @@ export default function AdminConfigurationPage() {
             type="button"
             variant="outline"
             size="sm"
-            disabled={loadState === "loading"}
+            disabled={loadState === "loading" || lintState === "loading"}
             data-testid="admin-configuration-refresh"
-            onClick={() => void load()}
+            onClick={() => void refreshAll()}
           >
-            {loadState === "loading" ? "Refreshing…" : "Refresh"}
+            {loadState === "loading" || lintState === "loading" ? "Refreshing…" : "Refresh"}
           </Button>
         </div>
       </div>
+
+      <Card data-testid="admin-configuration-env-health">
+        <CardHeader>
+          <CardTitle className="text-base">Environment health (config lint)</CardTitle>
+          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+            Parity with <span className="font-mono">archlucid config lint</span> plus hosting advisor warnings (
+            <span className="font-mono">includeAdvisory=true</span>). Blocking issues match fail-fast startup traps; no
+            secrets appear in this view.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-neutral-800 dark:text-neutral-200">
+          {lintState === "loading" ? (
+            <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="admin-configuration-env-health-loading">
+              Loading lint results…
+            </p>
+          ) : null}
+
+          {lintState === "forbidden" ? (
+            <p className="m-0 text-rose-800 dark:text-rose-200" role="alert" data-testid="admin-configuration-env-health-forbidden">
+              Config lint requires tenant administrator access (same as the catalog summary above).
+            </p>
+          ) : null}
+
+          {lintState === "error" ? (
+            <p className="m-0 text-rose-800 dark:text-rose-200" role="alert" data-testid="admin-configuration-env-health-error">
+              Could not load configuration lint. Check connectivity and try Refresh.
+            </p>
+          ) : null}
+
+          {lintState === "empty" ? (
+            <p className="m-0 text-neutral-600 dark:text-neutral-400">No structured lint payload was returned.</p>
+          ) : null}
+
+          {lintState === "ok" && lint !== null ? (
+            <>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-medium text-neutral-900 dark:text-neutral-100">Hosting environment</span>
+                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs dark:bg-neutral-900">
+                  {normalizePath(lint.hostingEnvironmentName ?? "").length > 0 ? lint.hostingEnvironmentName : "—"}
+                </span>
+                <span
+                  className={
+                    lint.ok === true
+                      ? "rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-950 dark:bg-emerald-950 dark:text-emerald-50"
+                      : "rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-950 dark:bg-amber-950 dark:text-amber-50"
+                  }
+                  data-testid="admin-configuration-env-health-status"
+                >
+                  {lint.ok === true ? "No blocking findings" : "Blocking findings"}
+                </span>
+              </div>
+
+              <div>
+                <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Blocking</p>
+                {renderLintFindingList(lint.blockingFindings)}
+              </div>
+
+              <div>
+                <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Advisory</p>
+                {renderLintFindingList(lint.advisoryFindings)}
+              </div>
+            </>
+          ) : null}
+        </CardContent>
+      </Card>
 
       {loadState === "forbidden" ? (
         <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert" data-testid="admin-configuration-forbidden">
@@ -297,6 +415,45 @@ export default function AdminConfigurationPage() {
       })}
     </div>
   );
+}
+
+function renderLintFindingList(rows: AdminConfigLintFinding[] | null | undefined) {
+  const items = rows ?? [];
+
+  if (items.length === 0) {
+    return <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">None.</p>;
+  }
+
+  return (
+    <ul className="m-0 mt-1 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300">
+      {items.map((f, i) => {
+        const rule = normalizePath(f.ruleName).length > 0 ? normalizePath(f.ruleName) : "—";
+        const msg = normalizePath(f.message).length > 0 ? normalizePath(f.message) : "—";
+
+        return (
+          <li key={`${rule}-${i}`}>
+            <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400">{rule}</span>
+            <span className="mx-1 text-neutral-400">—</span>
+            <span>{msg}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function parseConfigLintPayload(json: unknown): AdminConfigLintResponse | null {
+  if (typeof json !== "object" || json === null || !("ok" in json)) {
+    return null;
+  }
+
+  const rec = json as { ok?: unknown };
+
+  if (typeof rec.ok !== "boolean") {
+    return null;
+  }
+
+  return json as AdminConfigLintResponse;
 }
 
 function parseSummaryPayload(json: unknown): ConfigSummaryKeyRow[] {

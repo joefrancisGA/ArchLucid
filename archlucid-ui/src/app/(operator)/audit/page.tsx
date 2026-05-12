@@ -25,6 +25,7 @@ import {
   auditBuyerEventIsSystemRecordedActor,
   auditEventLifecycleSortKey,
   auditEventsAreLifecycleOnlyForGrouping,
+  buyerAuditTrailMetricCounts,
   canExportAuditCsv,
   formatAuditSummaryHeading,
   formatBuyerAuditTrailSummaryLine,
@@ -54,6 +55,7 @@ import {
   auditSearchNoResultsReaderLine,
   auditSearchSectionLeadBuyerPolishedLine,
   auditSearchSectionLeadReaderLine,
+  auditExportSectionSupportingLineBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
@@ -704,6 +706,14 @@ export default function AuditPage() {
     return formatBuyerAuditTrailSummaryLine(displayEvents, uniformRunIdForDisplay, runId);
   }, [buyerPolishedShell, displayEvents, uniformRunIdForDisplay, runId]);
 
+  const buyerAuditTrailMetrics = useMemo(() => {
+    if (!buyerPolishedShell || displayEvents.length === 0) {
+      return null;
+    }
+
+    return buyerAuditTrailMetricCounts(displayEvents);
+  }, [buyerPolishedShell, displayEvents]);
+
   return (
     <div className={buyerPolishedShell ? "max-w-6xl" : "max-w-4xl"}>
       <LayerHeader pageKey="audit" />
@@ -734,6 +744,46 @@ export default function AuditPage() {
           data-testid="audit-buyer-summary-line"
         >
           {buyerAuditTrailSummaryLine}
+        </p>
+      ) : null}
+      {buyerPolishedShell && buyerAuditTrailMetrics !== null ? (
+        <div
+          className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3"
+          data-testid="audit-buyer-metric-tiles"
+        >
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              Recorded events
+            </p>
+            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+              {buyerAuditTrailMetrics.eventCount}
+            </p>
+          </div>
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              Human actors
+            </p>
+            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+              {buyerAuditTrailMetrics.humanActorCount}
+            </p>
+          </div>
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              System-recorded
+            </p>
+            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+              {buyerAuditTrailMetrics.systemRecordedCount}
+            </p>
+          </div>
+        </div>
+      ) : null}
+      {buyerPolishedShell && displayEvents.length > 0 ? (
+        <p
+          className="mb-3 max-w-prose text-xs text-neutral-600 dark:text-neutral-400"
+          data-testid="audit-buyer-csv-eligibility-line"
+        >
+          <span>{auditExportSectionSupportingLineBuyerPolished}</span>{" "}
+          {!exportRoleOk ? <span>{auditExportExecuteRankAuditorRoleNote}</span> : null}
         </p>
       ) : null}
 

@@ -3,6 +3,7 @@
 import {
   formatFindings,
   formatHours,
+  formatMedianLlmCalls,
   formatPerRunFindingsLine,
   safeCommittedRunWindowCount,
 } from "./formatDelta";
@@ -52,7 +53,7 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
         report.
       </p>
 
-      <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
           <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
             Median findings per finalized review
@@ -75,6 +76,18 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
             {formatHours(data.medianTimeToCommittedManifestTotalSeconds)}
           </dd>
         </div>
+        <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
+          <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
+            Median LLM calls (attested rows)
+          </dt>
+          <dd
+            data-testid="delta-top-median-llm"
+            className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+            title="Median count of persisted agent execution traces per run when all window rows have attested counts."
+          >
+            {formatMedianLlmCalls(data.medianLlmCallCount)}
+          </dd>
+        </div>
       </dl>
 
       <ol
@@ -90,6 +103,11 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
             <span className="font-mono">{shortId}</span>
             <span>{formatPerRunFindingsLine(row.totalFindings)}</span>
             <span>{formatHours(row.timeToCommittedManifestTotalSeconds)}</span>
+            <span>
+              {row.llmCallCountResolved === false
+                ? "— traces"
+                : `${formatFindings(typeof row.llmCallCount === "number" ? row.llmCallCount : Number(row.llmCallCount))} traces`}
+            </span>
             {row.isDemoTenant ? (
               <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-900 dark:bg-amber-900/30 dark:text-amber-200">
                 demo

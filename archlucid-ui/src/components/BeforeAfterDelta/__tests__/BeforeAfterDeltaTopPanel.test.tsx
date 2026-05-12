@@ -39,6 +39,7 @@ describe("BeforeAfterDeltaTopPanel", () => {
       returnedCount: 0,
       medianTotalFindings: null,
       medianTimeToCommittedManifestTotalSeconds: null,
+      medianLlmCallCount: null,
     });
 
     const { container } = render(<BeforeAfterDeltaTopPanel />);
@@ -68,6 +69,7 @@ describe("BeforeAfterDeltaTopPanel", () => {
     expect(screen.getByTestId("delta-top-window")).toHaveTextContent("3");
     expect(screen.getByTestId("delta-top-median-findings")).toHaveTextContent("4");
     expect(screen.getByTestId("delta-top-median-time")).toHaveTextContent("0.75 h");
+    expect(screen.getByTestId("delta-top-median-llm")).toHaveTextContent("0");
     expect(screen.getByTestId("delta-top-rows").querySelectorAll("li")).toHaveLength(3);
   });
 
@@ -78,6 +80,7 @@ describe("BeforeAfterDeltaTopPanel", () => {
       returnedCount: Number.NaN,
       medianTotalFindings: 1,
       medianTimeToCommittedManifestTotalSeconds: 60,
+      medianLlmCallCount: 0,
     });
 
     const { container } = render(<BeforeAfterDeltaTopPanel />);
@@ -101,6 +104,7 @@ describe("BeforeAfterDeltaTopPanel", () => {
       returnedCount: 1,
       medianTotalFindings: null,
       medianTimeToCommittedManifestTotalSeconds: 30 * 60,
+      medianLlmCallCount: null,
     });
 
     render(<BeforeAfterDeltaTopPanel />);

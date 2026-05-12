@@ -36,16 +36,18 @@ internal static class ConfigLintCommand
 
         string trimmedEnv = envName.Trim();
 
-        List<string> errors = EvaluateAuthMisconfigurations(local, trimmedEnv);
+        OperatorConfigurationLintSnapshot lintSnapshot =
+            OperatorConfigurationLintEvaluator.Evaluate(local, trimmedEnv);
 
-        errors.AddRange(
-            ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(local, trimmedEnv)
-                .Select(static w => $"[{w.RuleName}] {w.Message}"));
+        List<string> errors = [];
+
+        foreach (HostingMisconfigurationWarning w in lintSnapshot.BlockingFindings)
+            errors.Add($"[{w.RuleName}] {w.Message}");
 
         if (hostingAdvisor)
         {
-            errors.AddRange(ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords(local, trimmedEnv)
-                .Select(w => $"[HostingMisconfiguration:{w.RuleName}] {w.Message}"));
+            foreach (HostingMisconfigurationWarning w in lintSnapshot.AdvisoryFindings)
+                errors.Add($"[HostingMisconfiguration:{w.RuleName}] {w.Message}");
         }
 
         bool ok = errors.Count == 0;
@@ -62,37 +64,6 @@ internal static class ConfigLintCommand
                 "config lint OK: no blocking findings (auth traps always; hosted advisor optional via --hosting-advisor).");
 
         return Task.FromResult(ok ? CliExitCode.Success : CliExitCode.OperationFailed);
-    }
-
-
-    private static List<string> EvaluateAuthMisconfigurations(IConfiguration cfg, string hostingEnvironmentName)
-    {
-        List<string> errors = [];
-
-        bool isDevelopment = hostingEnvironmentName.Equals(Environments.Development, StringComparison.OrdinalIgnoreCase);
-
-        string? archLucidEnv = cfg["ARCHLUCID_ENVIRONMENT"] ?? Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
-
-        bool envImpliesProductionLike =
-            HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike(hostingEnvironmentName)
-            || HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike(archLucidEnv ?? string.Empty);
-
-        bool nonDevelopmentHosting = !isDevelopment || envImpliesProductionLike;
-
-        string modeTrim =
-            cfg["ArchLucidAuth:Mode"]?.Trim() ?? string.Empty;
-
-        if (!nonDevelopmentHosting || modeTrim.Length <= 0)
-            return errors;
-
-        bool jwt = string.Equals(modeTrim, "JwtBearer", StringComparison.OrdinalIgnoreCase);
-
-        bool apiKey = string.Equals(modeTrim, "ApiKey", StringComparison.OrdinalIgnoreCase);
-
-        if (!jwt && !apiKey)
-            errors.Add("ArchLucidAuth:Mode must be JwtBearer or ApiKey when set for production-like hosting.");
-
-        return errors;
     }
 
 
