@@ -28,7 +28,6 @@ import {
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
@@ -174,11 +173,6 @@ export function RunsDashboardPanel() {
   const showcasePrimaryCta =
     showcaseDemoRun !== undefined ? getBuyerSafeReviewsTableLink(showcaseDemoRun.runId) : null;
 
-  const showcaseEvidenceGraph =
-    showcaseDemoRun !== undefined &&
-    (canonicalizeDemoRunId(showcaseDemoRun.runId) === SHOWCASE_STATIC_DEMO_RUN_ID ||
-      showcaseDemoRun.hasGraphSnapshot === true);
-
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const onlyShowcaseRunInBuyerPolishedWorkspace =
@@ -269,8 +263,8 @@ export function RunsDashboardPanel() {
                     {buyerSafeHighlight ? (
                       <>
                         <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Start here:</strong>{" "}
-                        Executive Summary (step 1 on home), then follow the numbered review journey — manifest, evidence
-                        graph, governance, audit trail.
+                        Executive Summary, then the numbered <strong>Review journey</strong> on home (manifest through
+                        audit trail).
                       </>
                     ) : (
                       <>Use the five-step journey on home, or open the manifest summary to walk the sealed package.</>
@@ -280,40 +274,16 @@ export function RunsDashboardPanel() {
                     <Button asChild variant="primary" size="sm" className="h-8 w-full">
                       <Link href={getShowcaseExecutiveHref()}>Start Executive Summary</Link>
                     </Button>
-                    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                      More:{" "}
-                      {showcasePrimaryCta ? (
-                        <Link
-                          className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                          href={showcasePrimaryCta.href}
-                        >
-                          Signed manifest summary
+                    <div className="flex flex-wrap gap-2">
+                      <Button asChild variant="outline" size="sm" className="h-8">
+                        <Link href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
+                          View full review package
                         </Link>
-                      ) : null}
-                      {showcasePrimaryCta && showcaseEvidenceGraph ? " · " : null}
-                      {showcaseEvidenceGraph ? (
-                        <Link
-                          className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                          href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
-                        >
-                          Evidence graph
-                        </Link>
-                      ) : null}
-                      {(showcasePrimaryCta || showcaseEvidenceGraph) ? " · " : null}
-                      <Link
-                        className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                        href={getShowcaseWalkthroughHref()}
-                      >
-                        Guided walkthrough
-                      </Link>
-                      {" · "}
-                      <Link
-                        className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                        href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
-                      >
-                        Open full review package
-                      </Link>
-                    </p>
+                      </Button>
+                      <Button asChild variant="outline" size="sm" className="h-8">
+                        <Link href={getShowcaseWalkthroughHref()}>Guided walkthrough</Link>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ) : null}

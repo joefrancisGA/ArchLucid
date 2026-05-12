@@ -1,24 +1,12 @@
 import Link from "next/link";
 
-import {
-  getShowcaseExecutiveHref,
-  getShowcaseManifestHref,
-} from "@/lib/buyer-safe-review-navigation";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-
-const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
+import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 
 /**
  * Compact five-step golden path for buyer-polished home — one primary narrative instead of many equal-weight CTAs.
  */
 export function BuyerGoldenJourneyStrip() {
-  const steps: { readonly step: number; readonly label: string; readonly href: string }[] = [
-    { step: 1, label: "Executive Summary", href: getShowcaseExecutiveHref() },
-    { step: 2, label: "Signed manifest", href: getShowcaseManifestHref() },
-    { step: 3, label: "Evidence graph", href: `/graph?runId=${showcaseRunEnc}` },
-    { step: 4, label: "Governance", href: `/governance?runId=${showcaseRunEnc}` },
-    { step: 5, label: "Audit trail", href: `/audit?runId=${showcaseRunEnc}` },
-  ];
+  const steps = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS;
 
   return (
     <section
@@ -27,6 +15,10 @@ export function BuyerGoldenJourneyStrip() {
     >
       <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
         Review journey
+      </p>
+      <p className="m-0 mt-2 max-w-prose text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+        Start at Executive Summary, then signed manifest, evidence graph, governance approval, and audit trail — the same
+        sequence as the sidebar Review journey.
       </p>
       <ol className="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-2 p-0 text-sm">
         {steps.map((item) => (

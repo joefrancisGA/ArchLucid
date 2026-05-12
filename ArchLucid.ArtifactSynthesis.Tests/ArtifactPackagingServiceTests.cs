@@ -118,4 +118,28 @@ public sealed class ArtifactPackagingServiceTests
         text.Should().Contain("/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         text.Should().Contain("manifest.json");
     }
+
+    [Fact]
+    public void BuildTerraformAdvisoryPlaceholderExport_writes_zip_with_disclaimer_and_stub()
+    {
+        ArtifactPackagingService sut = new(new FixedContentTypeResolver());
+        Guid runId = Guid.NewGuid();
+
+        ArtifactPackage package = sut.BuildTerraformAdvisoryPlaceholderExport(runId);
+
+        package.PackageFileName.Should().Be($"archlucid-terraform-advisory-{runId:N}.zip");
+        using MemoryStream stream = new(package.Content);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+        ZipArchiveEntry? readmeEntry = archive.GetEntry("README.txt");
+        readmeEntry.Should().NotBeNull();
+        using (StreamReader reader = new(readmeEntry!.Open(), Encoding.UTF8))
+        {
+            string text = reader.ReadToEnd();
+            text.Should().StartWith(TerraformAdvisoryExportCopy.DisclaimerLine);
+            text.Should().Contain(runId.ToString("D"));
+        }
+
+        archive.GetEntry("advisory-placeholder.tf").Should().NotBeNull();
+        archive.GetEntry("package-metadata.json").Should().NotBeNull();
+    }
 }

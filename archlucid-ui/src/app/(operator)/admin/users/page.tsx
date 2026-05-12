@@ -8,6 +8,7 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { parseAdminUsersDirectoryPayload } from "@/lib/admin-tenant-directory-parse";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -50,7 +51,14 @@ export default function AdminUsersPage() {
       }
 
       const json: unknown = await res.json();
-      const parsed = parseUsersPayload(json);
+      const parsed = parseAdminUsersDirectoryPayload(json).map(
+        (r): UserRow => ({
+          userId: r.userId,
+          displayName: r.displayName,
+          email: r.email,
+          authorityLabel: r.authorityLabel,
+        }),
+      );
 
       if (parsed.length === 0) {
         setRows([]);
@@ -171,47 +179,4 @@ export default function AdminUsersPage() {
       </Card>
     </div>
   );
-}
-
-function parseUsersPayload(json: unknown): UserRow[] {
-  if (json === null || typeof json !== "object") {
-    return [];
-  }
-
-  const root = json as { users?: unknown; items?: unknown };
-  const raw = Array.isArray(root.users) ? root.users : Array.isArray(root.items) ? root.items : null;
-
-  if (raw === null) {
-    return [];
-  }
-
-  const out: UserRow[] = [];
-
-  for (const u of raw) {
-    if (u === null || typeof u !== "object") {
-      continue;
-    }
-
-    const o = u as Record<string, unknown>;
-    const userId = String(o.userId ?? o.id ?? "");
-
-    if (userId.length === 0) {
-      continue;
-    }
-
-    const displayName = String(o.displayName ?? o.name ?? "—");
-    const email = String(o.email ?? "—");
-    const rank = o.authorityRank;
-    const role = o.role ?? o.maxAuthority;
-    const authorityLabel =
-      typeof role === "string" && role.length > 0
-        ? role
-        : typeof rank === "number" && Number.isFinite(rank)
-          ? `Rank ${rank}`
-          : "—";
-
-    out.push({ userId, displayName, email, authorityLabel });
-  }
-
-  return out;
 }

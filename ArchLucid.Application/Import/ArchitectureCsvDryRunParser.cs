@@ -54,9 +54,6 @@ internal static class ArchitectureCsvDryRunParser
 
             string[] cells = SplitCsvLine(line);
 
-            static string CellAt(string[] row, int idx) =>
-                idx < row.Length ? row[idx].Trim() : string.Empty;
-
             string name = CellAt(cells, nameIdx);
             string type = CellAt(cells, typeIdx);
             string desc = CellAt(cells, descIdx);
@@ -72,16 +69,18 @@ internal static class ArchitectureCsvDryRunParser
             }
 
             rows.Add(new ArchitectureCsvComponentRow(name, type, desc));
+            continue;
+
+            static string CellAt(string[] row, int idx) =>
+                idx < row.Length ? row[idx].Trim() : string.Empty;
         }
 
-        if (rows.Count == 0)
-        {
-            error = "CSV contained no data rows.";
+        if (rows.Count != 0)
+            return true;
 
-            return false;
-        }
+        error = "CSV contained no data rows.";
 
-        return true;
+        return false;
     }
 
     private static int IndexOfHeader(string[] headerCells, string expected)

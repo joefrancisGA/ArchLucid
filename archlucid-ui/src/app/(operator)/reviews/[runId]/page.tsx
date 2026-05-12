@@ -32,6 +32,7 @@ import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { ArchitectureGraphViewer } from "@/components/ArchitectureGraphViewer";
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { ConsultingDocxExportButton } from "@/components/ConsultingDocxExportButton";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { ChangesSinceLastReviewBanner } from "@/components/ChangesSinceLastReviewBanner";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -50,7 +51,9 @@ import { RunDetailTechnicalIdentifiersSection } from "@/components/RunDetailTech
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
+import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvisoryButton";
 import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
+import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
@@ -94,11 +97,13 @@ import {
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
+import { buildAdrGeneratorRunInput } from "@/lib/adr-from-run";
 import { findPriorCommittedRun } from "@/lib/find-prior-committed-run";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
   buildFindingWireSnapshotsForRunDetail,
   resolveQuickDecisionFindingsForRunDetail,
+  severityBadgeLabel,
 } from "@/lib/quick-decision-summary-derive";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
 import type {
@@ -457,7 +462,7 @@ export default async function RunDetailPage({
         { id: "pipeline-timeline", label: "Activity", available: true },
         {
           id: "architecture-graph",
-          label: "Architecture graph",
+          label: "Evidence graph",
           available: Boolean(resolvedDetail.run.graphSnapshotId),
         },
         { id: "artifacts-exports", label: "Deliverables", available: Boolean(manifestId) },
@@ -519,6 +524,29 @@ export default async function RunDetailPage({
 
   const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
   const findingWireSnapshots = buildFindingWireSnapshotsForRunDetail(resolvedDetail, explanationSummary);
+
+  const adrGeneratorInput = buildAdrGeneratorRunInput({
+    runId: resolvedDetail.run.runId,
+    projectId: resolvedDetail.run.projectId,
+    reviewTitle: headline,
+    createdUtc: resolvedDetail.run.createdUtc,
+    manifestStatusLabel: manifestSummaryForUi !== null ? manifestStatusForDisplay(manifestSummaryForUi.status) : null,
+    policyPackLabel:
+      manifestSummaryForUi !== null
+        ? policyPackBuyerLabel(manifestSummaryForUi.ruleSetId, manifestSummaryForUi.ruleSetVersion)
+        : null,
+    manifestCounts:
+      manifestSummaryForUi !== null
+        ? {
+            decisions: manifestSummaryForUi.decisionCount,
+            warnings: manifestSummaryForUi.warningCount,
+            unresolvedIssues: manifestSummaryForUi.unresolvedIssueCount,
+          }
+        : null,
+    explanationSummary,
+    quickDecisionFindings,
+    severityLabelForFinding: severityBadgeLabel,
+  });
 
   const sampleReviewPackageSummaryEl =
     usedStaticDemoRun ? (
@@ -627,6 +655,10 @@ export default async function RunDetailPage({
         }
       />
 
+      <div className="flex flex-wrap items-center gap-2">
+        <GenerateAdrFromRunModal input={adrGeneratorInput} />
+      </div>
+
       <CompareToBaselineCta currentRunId={resolvedDetail.run.runId} />
 
       {usedStaticDemoRun && !buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
@@ -635,7 +667,7 @@ export default async function RunDetailPage({
         <Card className="rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950/30">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-              Executive summary
+              Executive Summary
             </CardTitle>
             <CardDescription>
               Board-ready risk posture, evidence basis, and governance status. Start here before manifest detail and
@@ -786,7 +818,7 @@ export default async function RunDetailPage({
             pipelineTimelineForUi.length > 0 &&
             pipelineTimelineForUi.length < 3 ? (
               <p className="m-0 mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-                For the full {BUYER_SURFACE_VOCABULARY.auditTrail.toLowerCase()} with every pipeline event, open{" "}
+                For the full {BUYER_SURFACE_VOCABULARY.auditTrail.toLowerCase()} with every recorded milestone, open{" "}
                 <Link
                   className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                   href={`/audit?runId=${encodeURIComponent(runId)}`}
@@ -804,14 +836,36 @@ export default async function RunDetailPage({
         <section id="architecture-graph" className="scroll-mt-24">
           <Card>
             <CardHeader>
-              <h3 className={sectionHeadingClass}>Architecture graph</h3>
+              <h3 className={sectionHeadingClass}>
+                {buyerPolishedArtifactTable ? "Evidence graph" : "Architecture graph"}
+              </h3>
               <CardDescription>
-                Component and relationship view derived from the architecture graph API for this review (read-only on this
-                page). Open the graph explorer for review-trail layouts, filters, and exports.
+                {buyerPolishedArtifactTable ? (
+                  <>
+                    Interactive traceability lives on the dedicated evidence graph page so this package view stays fast
+                    during walkthroughs. Use it for finding drill-down, milestone nodes, and exports.
+                  </>
+                ) : (
+                  <>
+                    Component and relationship view derived from the architecture graph API for this review (read-only on this
+                    page). Open the graph explorer for review-trail layouts, filters, and exports.
+                  </>
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ArchitectureGraphViewer runId={runId} />
+              {buyerPolishedArtifactTable ? (
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+                    This review links to a persisted graph snapshot used for audit and evidence navigation.
+                  </p>
+                  <Button type="button" variant="default" size="sm" asChild>
+                    <Link href={`/graph?runId=${encodeURIComponent(runId)}`}>Open evidence graph</Link>
+                  </Button>
+                </div>
+              ) : (
+                <ArchitectureGraphViewer runId={runId} />
+              )}
             </CardContent>
           </Card>
         </section>
@@ -1093,6 +1147,8 @@ export default async function RunDetailPage({
                       manifestSummary={manifestSummaryForUi ?? manifestSummary}
                       trustEvidenceCard={resolvedDetail.trustEvidenceCard ?? null}
                     />
+                    <ConsultingDocxExportButton runId={resolvedDetail.run.runId} />
+                    <ExportTerraformAdvisoryButton runId={resolvedDetail.run.runId} />
                   </div>
                 ) : (
                   <div className="flex flex-wrap items-center gap-3">
@@ -1108,6 +1164,8 @@ export default async function RunDetailPage({
                         Download bundle (ZIP)
                       </FunnelTelemetryExportAnchor>
                     </Button>
+                    <ConsultingDocxExportButton runId={resolvedDetail.run.runId} />
+                    <ExportTerraformAdvisoryButton runId={resolvedDetail.run.runId} />
                   </div>
                 )}
                 {buyerPolishedArtifactTable ? (

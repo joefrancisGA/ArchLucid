@@ -73,63 +73,68 @@ export function PostCommitRetentionRail({
               </Button>
             ) : null}
             {showcaseSpine ? null : (
-              <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="justify-center sm:justify-start"
-                  onClick={() => {
-                    setNextCycleDialogOpen(true);
-                  }}
-                >
-                  After approval — start follow-up review
-                </Button>
-                <Dialog open={nextCycleDialogOpen} onOpenChange={setNextCycleDialogOpen}>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Start follow-up review</DialogTitle>
-                      <DialogDescription>
-                        Start another review when you need a new governed package. Clone preserves lineage context where
-                        your tenant allows it; fresh starts a clean wizard without inheriting attachments by default.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-3 py-2">
-                      <Button asChild variant="default" className="w-full">
-                        <Link
-                          href={`/reviews/new?intent=revised-clone&cloneFromRunId=${encodeURIComponent(runId)}`}
-                          onClick={() => {
-                            setNextCycleDialogOpen(false);
-                          }}
-                        >
-                          Clone from this review
-                        </Link>
-                      </Button>
-                      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                        Prefer when scope shifts but continuity with this manifest package is expected.
-                      </p>
-                      <Button asChild variant="outline" className="w-full">
-                        <Link
-                          href="/reviews/new?intent=revised-fresh"
-                          onClick={() => {
-                            setNextCycleDialogOpen(false);
-                          }}
-                        >
-                          Start fresh
-                        </Link>
-                      </Button>
-                      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                        Prefer when the next cycle should not inherit this review&apos;s attachments by default.
-                      </p>
-                    </div>
-                    <DialogFooter>
-                      <Button type="button" variant="ghost" onClick={() => setNextCycleDialogOpen(false)}>
-                        Cancel
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </>
+              <details className="rounded-md border border-neutral-200 bg-white/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40">
+                <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  Advanced — start another governed review cycle
+                </summary>
+                <div className="mt-3 flex flex-col gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="justify-center sm:justify-start"
+                    onClick={() => {
+                      setNextCycleDialogOpen(true);
+                    }}
+                  >
+                    Start follow-up review
+                  </Button>
+                  <Dialog open={nextCycleDialogOpen} onOpenChange={setNextCycleDialogOpen}>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Start follow-up review</DialogTitle>
+                        <DialogDescription>
+                          Start another review when you need a new governed package. Clone preserves lineage context where
+                          your tenant allows it; fresh starts a clean wizard without inheriting attachments by default.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-3 py-2">
+                        <Button asChild variant="default" className="w-full">
+                          <Link
+                            href={`/reviews/new?intent=revised-clone&cloneFromRunId=${encodeURIComponent(runId)}`}
+                            onClick={() => {
+                              setNextCycleDialogOpen(false);
+                            }}
+                          >
+                            Clone from this review
+                          </Link>
+                        </Button>
+                        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                          Prefer when scope shifts but continuity with this manifest package is expected.
+                        </p>
+                        <Button asChild variant="outline" className="w-full">
+                          <Link
+                            href="/reviews/new?intent=revised-fresh"
+                            onClick={() => {
+                              setNextCycleDialogOpen(false);
+                            }}
+                          >
+                            Start fresh
+                          </Link>
+                        </Button>
+                        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                          Prefer when the next cycle should not inherit this review&apos;s attachments by default.
+                        </p>
+                      </div>
+                      <DialogFooter>
+                        <Button type="button" variant="ghost" onClick={() => setNextCycleDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </details>
             )}
           </>
         ) : (

@@ -30,9 +30,10 @@ public sealed class ArchitectureRequestConcurrencyTestSupportTests
         using RecordingHttpMessageHandler handler = new(_ => CreateResponse(cancellationTokenSource: null, cancelBeforeThrow: false));
         using HttpClient client = CreateClient(handler);
 
-        async Task Act() => await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest("REQ-BUFFER-FAIL-001"), "idem-buffer-fail-001", CancellationToken.None);
-
         await Assert.ThrowsAsync<HttpRequestException>(Act);
+        return;
+
+        async Task Act() => await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest("REQ-BUFFER-FAIL-001"), "idem-buffer-fail-001", CancellationToken.None);
     }
 
     private static HttpClient CreateClient(HttpMessageHandler handler) =>

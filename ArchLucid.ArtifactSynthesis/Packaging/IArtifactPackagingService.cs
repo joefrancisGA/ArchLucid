@@ -17,4 +17,10 @@ public interface IArtifactPackagingService
         string manifestJson,
         string? traceJson = null,
         RunExportReadmeContext? readmeContext = null);
+
+    /// <summary>
+    ///     Advisory Terraform ZIP placeholder (README + stub <c>.tf</c>). Live <c>aztfexport</c> wrapping remains
+    ///     CLI-first until a host integration ships.
+    /// </summary>
+    ArtifactPackage BuildTerraformAdvisoryPlaceholderExport(Guid runId);
 }

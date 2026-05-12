@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { buildBuyerReviewPackageDispositionLine } from "@/lib/review-buyer-disposition-line";
 import { cn } from "@/lib/utils";
 
 export type ShowcasePolicyPackStripLink = {
@@ -275,6 +276,20 @@ export function RunDetailOutcomeCards({
   if (buyerPolishedShell) {
     return (
       <div className="space-y-2">
+        <p
+          className="m-0 rounded-lg border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm font-medium leading-snug text-neutral-900 dark:border-teal-900/55 dark:bg-teal-950/30 dark:text-neutral-100"
+          role="status"
+          data-testid="buyer-review-disposition-line"
+        >
+          {buildBuyerReviewPackageDispositionLine({
+            hasGoldenManifest,
+            findingCountDisplay,
+            warningCountDisplay,
+            unresolvedIssueCountDisplay,
+            governanceGateLabel,
+            aggregateRiskPosture,
+          })}
+        </p>
         <PackageStatusStrip
           manifestId={manifestId}
           hasGoldenManifest={hasGoldenManifest}

@@ -94,6 +94,7 @@ import {
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 import type {
   ComplianceDriftTrendPoint,
+  GovernanceBatchReviewResponse,
   GovernanceDashboardSummary,
   GovernanceLineageResult,
   GovernanceRationaleResult,
@@ -1570,6 +1571,21 @@ export async function rejectRequest(
   );
 }
 
+/** Batch approve/reject many governance approval requests (ExecuteAuthority — partial success per id). */
+export async function batchReviewGovernanceApprovalRequests(body: {
+  approvalRequestIds: string[];
+  decision: "approve" | "reject";
+  reviewComment?: string;
+  reviewedBy?: string;
+}): Promise<GovernanceBatchReviewResponse> {
+  return apiPostJson<GovernanceBatchReviewResponse>(`${governanceBase()}/approval-requests/batch-review`, {
+    approvalRequestIds: body.approvalRequestIds,
+    decision: body.decision,
+    reviewComment: body.reviewComment,
+    reviewedBy: body.reviewedBy,
+  });
+}
+
 /** Records promotion of a manifest from source to target environment (after approval when required). */
 export async function promoteManifest(body: {
   runId: string;
@@ -1804,6 +1820,56 @@ export function getBundleDownloadUrl(manifestId: string): string {
   return `/api/proxy/v1/artifacts/manifests/${manifestId}/bundle`;
 }
 
+/** Returns the proxy URL for the advisory Terraform placeholder export ZIP. */
+export function getTerraformAdvisoryExportDownloadUrl(runId: string): string {
+  return `/api/proxy/v1/artifacts/runs/${encodeURIComponent(runId)}/terraform-advisory-export`;
+}
+
+/**
+ * GET advisory Terraform ZIP (`ReadAuthority`, Standard+ tier on API). Browser-only download through the BFF proxy.
+ */
+export async function downloadTerraformAdvisoryExportZip(runId: string): Promise<void> {
+  if (!isBrowser()) {
+    throw new Error("downloadTerraformAdvisoryExportZip is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const url = getTerraformAdvisoryExportDownloadUrl(runId);
+  const headers = new Headers();
+  headers.set("Accept", "application/zip, application/json");
+  const bearer = getBearerToken();
+
+  if (bearer) {
+    headers.set("Authorization", `Bearer ${bearer}`);
+  }
+
+  const init = mergeRegistrationScopeForProxy({
+    method: "GET",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+  });
+  const h = new Headers(init.headers);
+  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
+  const response = await fetch(url, { ...init, method: "GET", headers: h });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throwApiRequestError(response, errText);
+  }
+
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `archlucid-terraform-advisory-${runId}.zip`;
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(objectUrl);
+}
+
 /** Returns the proxy URL for downloading the full run export ZIP. */
 export function getRunExportDownloadUrl(runId: string): string {
   return `/api/proxy/v1/artifacts/runs/${runId}/export`;
@@ -1812,6 +1878,58 @@ export function getRunExportDownloadUrl(runId: string): string {
 /** Returns the proxy URL for the traceability ZIP (run summary + audit slice + decision traces, size-capped on API). */
 export function getTraceabilityBundleDownloadUrl(runId: string): string {
   return `/api/proxy/v1/architecture/run/${encodeURIComponent(runId)}/traceability-bundle.zip`;
+}
+
+/**
+ * POST consulting-template architecture analysis DOCX (`CanExportConsultingDocx` / `export:consulting-docx`).
+ * Browser-only download; API returns `application/vnd.openxmlformats-officedocument.wordprocessingml.document`.
+ */
+export async function downloadConsultingArchitectureReportDocx(runId: string): Promise<void> {
+  if (!isBrowser()) {
+    throw new Error("downloadConsultingArchitectureReportDocx is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const path = `/v1/architecture/run/${encodeURIComponent(runId)}/analysis-report/export/docx/consulting`;
+  const url = `/api/proxy${path}`;
+  const headers = new Headers();
+  headers.set(
+    "Accept",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/json",
+  );
+  headers.set("Content-Type", "application/json");
+  const bearer = getBearerToken();
+
+  if (bearer) {
+    headers.set("Authorization", `Bearer ${bearer}`);
+  }
+
+  const init = mergeRegistrationScopeForProxy({
+    method: "POST",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+    body: JSON.stringify({}),
+  });
+  const h = new Headers(init.headers);
+  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
+  const response = await fetch(url, { ...init, method: "POST", headers: h });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throwApiRequestError(response, errText);
+  }
+
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `analysis-report-consulting-${runId}.docx`;
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(objectUrl);
 }
 
 /** DOCX package; optional compare + AI narrative flags. */

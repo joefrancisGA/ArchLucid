@@ -14,7 +14,10 @@ public static class ChatOpsIncomingWebhookBodies
 
         string text = CombineBlocks(headline, message.SupportingParagraph, message.Body);
 
-        return new { text };
+        return new
+        {
+            text
+        };
     }
 
     /// <summary>Teams legacy Office 365 Connector incoming webhook expects <c>title</c> and <c>text</c> fields.</summary>
@@ -33,7 +36,11 @@ public static class ChatOpsIncomingWebhookBodies
                     : message.SupportingParagraph!.Trim(),
                 message.Body.Trim());
 
-        return new { title, text };
+        return new
+        {
+            title,
+            text
+        };
     }
 
     private static string CombineBlocks(string paragraphHeadline, string? supporting, string body)
@@ -50,9 +57,6 @@ public static class ChatOpsIncomingWebhookBodies
     {
         body = body.Trim();
 
-        if (string.IsNullOrWhiteSpace(supporting))
-            return body;
-
-        return $"{supporting.Trim()}\n\n{body}";
+        return string.IsNullOrWhiteSpace(supporting) ? body : $"{supporting.Trim()}\n\n{body}";
     }
 }

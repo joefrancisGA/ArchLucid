@@ -122,9 +122,33 @@ export type CurrentPrincipal = {
    * review for the current scope — from `GET /api/auth/me` (`hasCommittedArchitectureReview`).
    */
   hasCommittedArchitectureReview: boolean;
+  /**
+   * Fine-grained `permission` claims from `/me` (e.g. `export:consulting-docx`). Empty when synthetic or not issued.
+   * Server policies remain authoritative.
+   */
+  permissionClaimValues: readonly string[];
 };
 
+/** Policy permission claim for consulting-template DOCX (`ArchLucidPolicies.CanExportConsultingDocx`). */
+export const CONSULTING_DOCX_EXPORT_PERMISSION = "export:consulting-docx";
+
+export function principalHasPermission(principal: CurrentPrincipal, permission: string): boolean {
+  return principal.permissionClaimValues.includes(permission);
+}
+
 const ME_PATH = "/api/proxy/api/auth/me";
+
+function collectPermissionClaimValues(claims: ReadonlyArray<{ type: string; value: string }>): readonly string[] {
+  const values: string[] = [];
+
+  for (const c of claims) {
+    if (c.type === "permission") {
+      values.push(c.value);
+    }
+  }
+
+  return values;
+}
 
 /**
  * Builds default `RequestInit` for `/api/proxy/api/auth/me` in the browser (bearer + registration scope merge).
@@ -160,6 +184,7 @@ function createSyntheticPrincipal(reason: CurrentPrincipalSyntheticReason): Curr
     authorityRank: AUTHORITY_RANK.ReadAuthority,
     hasEnterpriseOperatorSurfaces: false,
     hasCommittedArchitectureReview: preserveFullNavOnMeFailure,
+    permissionClaimValues: [],
   };
 }
 
@@ -177,6 +202,7 @@ export const shellBootstrapReadPrincipal: Readonly<CurrentPrincipal> = Object.fr
   authorityRank: AUTHORITY_RANK.ReadAuthority,
   hasEnterpriseOperatorSurfaces: false,
   hasCommittedArchitectureReview: false,
+  permissionClaimValues: [],
 });
 
 /**
@@ -193,6 +219,7 @@ export const operatorNavOutsideProviderPrincipal: Readonly<CurrentPrincipal> = O
   authorityRank: AUTHORITY_RANK.AdminAuthority,
   hasEnterpriseOperatorSurfaces: true,
   hasCommittedArchitectureReview: true,
+  permissionClaimValues: [CONSULTING_DOCX_EXPORT_PERMISSION],
 });
 
 function primaryAppRoleFromRank(rank: number, roleClaimValues: readonly string[]): ArchLucidAppRole | null {
@@ -225,6 +252,7 @@ export function normalizeAuthMeResponse(payload: AuthMeResponse): CurrentPrincip
   const claims = payload.claims ?? [];
   const authorityRank = maxAuthorityRankFromMeClaims(claims);
   const roleClaimValues = collectArchLucidRoleClaimValues(claims);
+  const permissionClaimValues = collectPermissionClaimValues(claims);
   const maxAuthority = requiredAuthorityFromRank(authorityRank);
 
   return {
@@ -236,6 +264,7 @@ export function normalizeAuthMeResponse(payload: AuthMeResponse): CurrentPrincip
     authorityRank,
     hasEnterpriseOperatorSurfaces: authorityRank >= AUTHORITY_RANK.ExecuteAuthority,
     hasCommittedArchitectureReview: payload.hasCommittedArchitectureReview === true,
+    permissionClaimValues,
   };
 }
 

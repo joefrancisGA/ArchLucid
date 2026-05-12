@@ -63,6 +63,46 @@ describe("mapGraphToReactFlow", () => {
     });
   });
 
+  it("tags buyerTrail snapshot nodes with evidence-source subtitles", () => {
+    const graph: GraphViewModel = {
+      nodes: [
+        {
+          id: "ctx",
+          label: "Reviewed source context",
+          type: "ContextSnapshot",
+        },
+        {
+          id: "g",
+          label: "Evidence graph",
+          type: "GraphSnapshot",
+        },
+      ],
+      edges: [],
+    };
+
+    const { nodes } = mapGraphToReactFlow(graph, "buyerTrail");
+
+    expect(nodes.find((n) => n.id === "ctx")?.data).toMatchObject({
+      label: "Reviewed source context\n· Evidence source · reviewed inputs",
+    });
+    expect(nodes.find((n) => n.id === "g")?.data).toMatchObject({
+      label: "Evidence graph\n· Evidence artifact · linkage snapshot",
+    });
+  });
+
+  it("maps validates edges for buyerTrail", () => {
+    const graph: GraphViewModel = {
+      nodes: [
+        { id: "a", label: "A", type: "Rule" },
+        { id: "b", label: "B", type: "Finding" },
+      ],
+      edges: [{ source: "a", target: "b", type: "validates" }],
+    };
+
+    const { edges } = mapGraphToReactFlow(graph, "buyerTrail");
+    expect(edges[0]?.label).toBe("Validated against");
+  });
+
   it("uses humanized edge labels in buyerTrail presentation", () => {
     const graph: GraphViewModel = {
       nodes: [

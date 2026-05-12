@@ -27,6 +27,7 @@ using ArchLucid.Core.Safety;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Validation;
+using ArchLucid.Host.Composition.AzureOpenAI;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Resilience;
 using ArchLucid.Host.Core.Services;
@@ -271,18 +272,10 @@ public static partial class ServiceCollectionExtensions
                     configuration.GetSection(FallbackLlmOptions.SectionName).Get<FallbackLlmOptions>()
                     ?? new FallbackLlmOptions();
 
-                if (fallbackOpts.Enabled)
-
-                    if (string.IsNullOrWhiteSpace(fallbackOpts.Endpoint)
-                        || string.IsNullOrWhiteSpace(fallbackOpts.ApiKey)
-                        || string.IsNullOrWhiteSpace(fallbackOpts.DeploymentName))
-
-                        throw new InvalidOperationException(
-                            "ArchLucid:FallbackLlm is enabled but Endpoint, ApiKey, and DeploymentName must all be configured.");
-
-
-
                 bool fallbackLlmEnabled = fallbackOpts.Enabled;
+
+                if (fallbackLlmEnabled)
+                    _ = FallbackLlmConfigurationResolver.ResolveOrderedEndpoints(fallbackOpts);
 
                 services.AddKeyedSingleton<CircuitBreakerGate>(
                     OpenAiCircuitBreakerKeys.Completion,
@@ -294,9 +287,11 @@ public static partial class ServiceCollectionExtensions
                         OpenAiCircuitBreakerKeys.CompletionFallback,
                         (sp, _) => CreateOpenAiCircuitBreakerGate(sp, OpenAiCircuitBreakerKeys.CompletionFallback));
 
-                    services.AddSingleton<FallbackAzureOpenAiInnerClientHolder>(sp =>
+                    services.AddSingleton<FallbackAzureOpenAiInnerClientsRegistry>(sp =>
                     {
                         FallbackLlmOptions fo = sp.GetRequiredService<IOptions<FallbackLlmOptions>>().Value;
+                        IReadOnlyList<(string Endpoint, string ApiKey, string DeploymentName)> ordered =
+                            FallbackLlmConfigurationResolver.ResolveOrderedEndpoints(fo);
                         IConfiguration cfg = sp.GetRequiredService<IConfiguration>();
                         int maxTokens = cfg.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
 
@@ -310,15 +305,14 @@ public static partial class ServiceCollectionExtensions
                         ILogger<AzureOpenAiCompletionClient> completionLogger =
                             sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
 
-                        AzureOpenAiCompletionClient client = new(
-                            fo.Endpoint!,
-                            fo.ApiKey!,
-                            fo.DeploymentName!,
-                            maxTokens,
-                            schema,
-                            completionLogger);
+                        List<AzureOpenAiCompletionClient> clients = new(ordered.Count);
 
-                        return new FallbackAzureOpenAiInnerClientHolder(client);
+                        foreach ((string ep, string key, string dep) in ordered)
+                        {
+                            clients.Add(new AzureOpenAiCompletionClient(ep, key, dep, maxTokens, schema, completionLogger));
+                        }
+
+                        return new FallbackAzureOpenAiInnerClientsRegistry { Clients = clients };
                     });
                 }
 
@@ -374,21 +368,29 @@ public static partial class ServiceCollectionExtensions
                             sp.GetRequiredService<ILlmCostEstimator>());
 
 
-                    FallbackAzureOpenAiInnerClientHolder holder = sp.GetRequiredService<FallbackAzureOpenAiInnerClientHolder>();
+                    FallbackAzureOpenAiInnerClientsRegistry registry =
+                        sp.GetRequiredService<FallbackAzureOpenAiInnerClientsRegistry>();
                     CircuitBreakerGate fallbackGate =
                         sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.CompletionFallback);
-                    FallbackLlmOptions fo = sp.GetRequiredService<IOptions<FallbackLlmOptions>>().Value;
 
-                    IAgentCompletionClient secondaryChain = BuildAzureOpenAiScopedCompletionChain(
-                        sp,
-                        holder.Client,
-                        fallbackGate,
-                        fo.DeploymentName!);
+                    List<IAgentCompletionClient> secondaryChains = new(registry.Clients.Count);
+
+                    foreach (AzureOpenAiCompletionClient fbInner in registry.Clients)
+                    {
+                        secondaryChains.Add(BuildAzureOpenAiScopedCompletionChain(
+                            sp,
+                            fbInner,
+                            fallbackGate,
+                            fbInner.Descriptor.ModelId));
+                    }
 
                     ILogger<FallbackAgentCompletionClient> fallbackLogger =
                         sp.GetRequiredService<ILogger<FallbackAgentCompletionClient>>();
 
-                    IAgentCompletionClient finalClient = new FallbackAgentCompletionClient(primaryChain, secondaryChain, fallbackLogger);
+                    IAgentCompletionClient finalClient = new FallbackAgentCompletionClient(
+                        primaryChain,
+                        secondaryChains,
+                        fallbackLogger);
 
                     return new CostGuardrailInterceptor(
                         finalClient,
@@ -779,15 +781,6 @@ public static partial class ServiceCollectionExtensions
             completionCacheOptionsMonitor,
             telemetryLabelOptionsMonitor,
             completionCacheLogger);
-    }
-
-    private sealed class FallbackAzureOpenAiInnerClientHolder(AzureOpenAiCompletionClient client)
-    {
-        public AzureOpenAiCompletionClient Client
-        {
-            get;
-        } =
-            client ?? throw new ArgumentNullException(nameof(client));
     }
 
     /// <summary>

@@ -92,6 +92,14 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     text: "Principals in this tenant and their effective authority rank. The API is authoritative; role changes need the admin user management endpoints to be available on your environment.",
     learnMoreUrl: "/docs/library/API_CONTRACTS.md",
   },
+  "settings-roles-page": {
+    text: "Assign ArchLucid application roles to human users and API keys. Writes go through admin endpoints when your API supports them; otherwise the UI records intent for operators.",
+    learnMoreUrl: "/docs/library/API_CONTRACTS.md",
+  },
+  "settings-cost-reporting-page": {
+    text: "Estimated LLM spend and token volumes from ArchLucid usage records — not an invoice. Use Azure Cost Management or your reseller statements for billing truth.",
+    learnMoreUrl: "/docs/library/API_CONTRACTS.md",
+  },
   "system-health": {
     text: "System health shows API readiness checks, circuit breaker state, and onboarding milestone rates. For full metrics, connect Prometheus or Application Insights — see docs/library/OBSERVABILITY.md.",
     learnMoreUrl: "/docs/library/OBSERVABILITY.md",

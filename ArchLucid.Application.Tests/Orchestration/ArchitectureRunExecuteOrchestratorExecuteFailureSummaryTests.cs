@@ -41,7 +41,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
     {
         Guid runGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
         string runId = runGuid.ToString("N");
-        string secret = "provider echo: sk-secret and raw completion text";
+        const string secret = "provider echo: sk-secret and raw completion text";
 
         RunRecord header = new()
         {

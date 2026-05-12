@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
-import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -61,13 +61,52 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
     </p>
   );
 
+  const buyerPolicyPackHref = policyPackBuyerGovernanceDetailHref(summary.ruleSetId);
+
+  const buyerPolicyPackCallout =
+    buyerPolishedLayout ?? false ? (
+      <section
+        aria-labelledby="manifest-policy-pack-heading"
+        data-testid="manifest-buyer-policy-pack-callout"
+        className="rounded-lg border border-teal-200/90 bg-teal-50/55 p-4 dark:border-teal-900/50 dark:bg-teal-950/35"
+      >
+        <h3 id="manifest-policy-pack-heading" className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          Policy pack — governance guardrails
+        </h3>
+        <p className="m-0 mt-2 text-base font-medium leading-snug text-neutral-900 dark:text-neutral-100">
+          {policyPackBuyerLabel(summary.ruleSetId, summary.ruleSetVersion)}
+        </p>
+        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          Defines the checks referenced during this review. Policy posture informs approvals — it does not replace deployment
+          or change-management authority.
+        </p>
+        {buyerPolicyPackHref !== null ? (
+          <p className="m-0 mt-3 text-sm">
+            <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={buyerPolicyPackHref}>
+              Open policy pack narrative
+            </Link>
+          </p>
+        ) : null}
+      </section>
+    ) : null;
+
+  const decisionsSummaryLabel =
+    buyerPolishedLayout ?? false
+      ? `Decisions in this package (${summary.decisionCount})`
+      : `Decisions recorded (${summary.decisionCount})`;
+
+  const warningsSummaryLabel =
+    buyerPolishedLayout ?? false
+      ? `Warnings in this package (${summary.warningCount})`
+      : `Warnings (${summary.warningCount})`;
+
   const decisionsBlock = (
     <details
       className="rounded-lg border border-neutral-200 dark:border-neutral-800"
       open={detailOpenDefault}
     >
       <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-        Decisions recorded ({summary.decisionCount})
+        {decisionsSummaryLabel}
       </summary>
       <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
         {decisionLinesPreview.length > 0 ? (
@@ -103,7 +142,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
       open={detailOpenDefault}
     >
       <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-        Warnings ({summary.warningCount})
+        {warningsSummaryLabel}
       </summary>
       <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
         {warningLines.length > 0 ? (
@@ -171,15 +210,28 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
       </section>
     ) : null;
 
+  const buyerRecordedOutcomes =
+    buyerPolishedLayout ?? false ? (
+      <section aria-labelledby="manifest-buyer-recorded-heading" className="space-y-3">
+        <h3
+          id="manifest-buyer-recorded-heading"
+          className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"
+        >
+          Recorded in this package
+        </h3>
+        {decisionsBlock}
+        {warningsBlock}
+      </section>
+    ) : null;
+
   if (buyerPolishedLayout ?? false) {
     return (
       <>
         {operatorSummary}
+        {buyerPolicyPackCallout}
         {relatedFinding}
-        {decisionsBlock}
-        {warningsBlock}
+        {buyerRecordedOutcomes}
         {countsGrid}
-        {policyLine}
         {auditIdentifiers}
       </>
     );

@@ -44,8 +44,28 @@ function pickColor(type: string): string {
 
 export type MapGraphPresentation = "operator" | "buyerTrail";
 
+/** Secondary line on buyer-trail nodes that represent packaged evidence inputs / linkage artifacts (not outcomes). */
+function buyerTrailEvidenceSourceSubtitle(nodeType: string): string | null {
+  switch (nodeType) {
+    case "ContextSnapshot":
+      return "· Evidence source · reviewed inputs";
+
+    case "GraphSnapshot":
+      return "· Evidence artifact · linkage snapshot";
+
+    default:
+      return null;
+  }
+}
+
 function nodeLabelForPresentation(node: GraphViewModel["nodes"][number], presentation: MapGraphPresentation): string {
   if (presentation === "buyerTrail") {
+    const subtitle = buyerTrailEvidenceSourceSubtitle(node.type);
+
+    if (subtitle !== null) {
+      return `${node.label}\n${subtitle}`;
+    }
+
     return node.label;
   }
 
@@ -73,6 +93,17 @@ function buyerTrailEdgeDisplayPhrase(edgeType: string): string {
     "recorded in": "Anchored in manifest",
     packaged: "Packaged as",
     precedes: "Comes before",
+    validates: "Validated against",
+    informs: "Informs next step",
+    references: "References",
+    derived: "Derived from",
+    "derived from": "Derived from",
+    depends: "Depends on",
+    "depends on": "Depends on",
+    depends_on: "Depends on",
+    supports: "Supports",
+    blocks: "Blocks",
+    implements: "Implements",
   };
 
   const mapped = phrases[key];

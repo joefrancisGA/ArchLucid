@@ -28,7 +28,7 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Runs_list_by_project_keyset_retains_cursor_predicate_and_run_id_tie_break()
     {
-        string sql = HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock;
+        const string sql = HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock;
 
         sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");
         sql.Should().Contain("SELECT TOP (@Fetch)");
@@ -41,7 +41,7 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Committed_architecture_review_exists_retains_scope_join_and_commit_predicate()
     {
-        string sql = HotPathRelationalQueryShapes.CommittedArchitectureReviewExistsNoLock;
+        const string sql = HotPathRelationalQueryShapes.CommittedArchitectureReviewExistsNoLock;
 
         sql.Should().Contain("CASE WHEN EXISTS");
         sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
@@ -56,7 +56,7 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Runs_list_recent_in_scope_retains_nolock_scope_archived_filter_and_created_order()
     {
-        string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock;
+        const string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock;
 
         sql.Should().Contain("SELECT TOP (@Take)");
         sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");
@@ -70,7 +70,7 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Runs_list_recent_in_scope_keyset_matches_project_keyset_cursor_pattern()
     {
-        string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock;
+        const string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock;
 
         sql.Should().Contain("FROM dbo.Runs WITH (NOLOCK)");
         sql.Should().Contain("SELECT TOP (@Fetch)");
@@ -82,7 +82,7 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Audit_get_by_scope_retains_scope_and_stable_occurred_event_order()
     {
-        string sql = HotPathRelationalQueryShapes.AuditEventsGetByScope;
+        const string sql = HotPathRelationalQueryShapes.AuditEventsGetByScope;
 
         sql.Should().Contain("FROM dbo.AuditEvents");
         sql.Should().Contain("SELECT TOP (@Take)");
@@ -95,8 +95,8 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Audit_filtered_shape_prefix_suffix_allow_dynamic_and_predicate_between()
     {
-        string prefix = HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScope;
-        string suffix = HotPathRelationalQueryShapes.AuditEventsFilteredOrderByOccurredUtcEventIdDesc;
+        const string prefix = HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScope;
+        const string suffix = HotPathRelationalQueryShapes.AuditEventsFilteredOrderByOccurredUtcEventIdDesc;
 
         prefix.Should().Contain("FROM dbo.AuditEvents");
         prefix.Should().Contain("TenantId = @TenantId");
@@ -112,7 +112,7 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Audit_count_shape_prefix_contains_count_star_and_scope_keys()
     {
-        string countShape = HotPathRelationalQueryShapes.AuditEventsFilteredCountFromWhereScope;
+        const string countShape = HotPathRelationalQueryShapes.AuditEventsFilteredCountFromWhereScope;
 
         countShape.Should().Contain("SELECT COUNT(*)");
         countShape.Should().Contain("FROM dbo.AuditEvents");
