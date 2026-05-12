@@ -57,6 +57,8 @@ ArchLucid.Api.Controllers.Governance.GovernanceController.SubmitApprovalRequest
 ArchLucid.Api.Controllers.Governance.GovernanceController.DryRunPolicyPack
 # Durable audit: IPolicyPackGovernanceDryRunService.EvaluateAsync logs GovernanceDryRunRequested (redacted proposed pack JSON) after evaluation.
 ArchLucid.Api.Controllers.Governance.GovernanceController.DryRunProposedPolicyPack
+# Same EvaluateAsync audit path as DryRunProposedPolicyPack (typed body facade over policy-packs/simulate).
+ArchLucid.Api.Controllers.Governance.PolicyPacksController.Simulate
 ArchLucid.Api.Controllers.Governance.GovernancePreviewController.CompareEnvironments
 ArchLucid.Api.Controllers.Governance.GovernancePreviewController.Preview
 ArchLucid.Api.Controllers.Governance.PolicyPacksController.ArchiveAssignment
