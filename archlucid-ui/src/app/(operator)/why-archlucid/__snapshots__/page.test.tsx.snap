@@ -240,14 +240,14 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
       >
         Generated 
         2026-04-28T01:02:03.456Z
-         · demo review 
+         · demo review
+         
         <code>
           6e8c4a102b1f4c9a9d3e10b2a4f0c501
         </code>
          · telemetry slice matches the process counters (
         7
-         
-        reviews tracked).
+         reviews tracked).
       </p>
       <div
         class="grid grid-cols-1 gap-3 sm:grid-cols-2"
@@ -695,8 +695,7 @@ Demo body.
     <code>
       GET /v1/tenant/measured-roi
     </code>
-    ,
-     
+    , 
     <code>
       GET /v1/pilots/sponsor-evidence-pack
     </code>
@@ -714,12 +713,12 @@ Demo body.
       6e8c4a102b1f4c9a9d3e10b2a4f0c501
       /aggregate
     </code>
-    . See repo
-     
+    . See repo 
     <code>
       docs/SPONSOR_ONE_PAGER.md
     </code>
-     and 
+     and
+     
     <code>
       docs/go-to-market/POSITIONING.md
     </code>

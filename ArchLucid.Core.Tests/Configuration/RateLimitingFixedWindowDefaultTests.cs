@@ -12,7 +12,7 @@ public sealed class RateLimitingFixedWindowDefaultTests
     [Fact]
     public void RateLimitingDefaults_FixedWindowPermitLimit_is_100()
     {
-        int expected = 100;
+        const int expected = 100;
 
         RateLimitingDefaults.FixedWindowPermitLimit.Should().Be(expected);
     }

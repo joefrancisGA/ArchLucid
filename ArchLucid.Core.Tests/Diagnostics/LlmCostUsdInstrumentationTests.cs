@@ -76,15 +76,8 @@ public sealed class LlmCostUsdInstrumentationTests
 
         private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
-            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
-            {
-                return;
-            }
-
-            if (instrument.Name == "archlucid_llm_cost_usd_total")
-            {
-                meterListener.EnableMeasurementEvents(instrument);
-            }
+            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName) return; }
+            if (instrument.Name == "archlucid_llm_cost_usd_total") meterListener.EnableMeasurementEvents(instrument); }
         }
 
         private void OnMeasurementDouble(
