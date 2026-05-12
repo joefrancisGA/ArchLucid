@@ -1,6 +1,12 @@
+using System.Text.Json;
+
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.Common;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Serialization;
 
 using static ArchLucid.Application.AzureExtractor.AzureExtractorUploadLimits;
 
@@ -23,6 +29,9 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed class AzureExtractorUploadController(
     IAzureExtractorIngestService ingestService,
     AzureExtractorChunkedUploadService chunkedUpload,
+    IActorContext actorContext,
+    IScopeContextProvider scopeContextProvider,
+    IAuditService auditService,
     ILogger<AzureExtractorUploadController> logger) : ControllerBase
 {
 
@@ -96,6 +105,32 @@ public sealed class AzureExtractorUploadController(
 
         Guid sessionId =
             await chunkedUpload.BeginSessionAsync(body.FileName.Trim(), body.TotalChunks, body.TotalBytes, cancellationToken);
+
+        string auditActor = actorContext.GetActor();
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.AzureExtractorPackageChunkSessionStarted,
+                ActorUserId = auditActor,
+                ActorUserName = auditActor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        sessionId,
+                        fileName = body.FileName.Trim(),
+                        body.TotalChunks,
+                        totalBytes = body.TotalBytes,
+                        maxChunkBytes = chunkedUpload.MaxConfiguredChunkUploadBytes
+                    },
+                    AuditJsonSerializationOptions.Instance)
+            },
+            cancellationToken);
 
         return Ok(new { sessionId, maxChunkBytes = chunkedUpload.MaxConfiguredChunkUploadBytes });
     }

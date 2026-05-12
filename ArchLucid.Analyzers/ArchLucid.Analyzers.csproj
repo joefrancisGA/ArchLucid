@@ -14,6 +14,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ArchLucid.Analyzers.Tests" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>

@@ -157,6 +157,13 @@ public static class AuditEventTypes
     public const string AzureExtractorPackageIngestSucceeded = "AzureExtractorPackage.IngestSucceeded";
 
     /// <summary>
+    ///     Chunked Azure extractor ingest session created (
+    ///     <c>POST /v1/azure-extractor/upload-sessions</c>); payload lists <c>sessionId</c>, declared chunk counts, and caps
+    ///     only.
+    /// </summary>
+    public const string AzureExtractorPackageChunkSessionStarted = "AzureExtractorPackage.ChunkSessionStarted";
+
+    /// <summary>
     ///     Architecture request draft imported from an uploaded TOML/JSON file (
     ///     <c>POST .../architecture/request/import</c>).
     /// </summary>
