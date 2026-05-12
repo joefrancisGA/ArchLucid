@@ -58,7 +58,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/ask",
-          label: "Ask",
+          label: "Ask this review",
           title: this.shortcutTitle("Ask — natural language Q&A over architecture context", "alt+a"),
           keyShortcut: "alt+a",
           icon: MessageSquare,
@@ -67,7 +67,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/search",
-          label: "Search",
+          label: "Search review evidence",
           title: "Search — indexed architecture content",
           icon: Search,
           tier: "advanced",

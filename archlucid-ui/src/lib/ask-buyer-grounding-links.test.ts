@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buyerAskGroundingLinksForRun } from "@/lib/ask-buyer-grounding-links";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("buyerAskGroundingLinksForRun", () => {
   it("returns deterministic workspace anchors for the canonical showcase run id", () => {
@@ -11,7 +11,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links!.length).toBe(5);
     expect(links![0]?.label).toBe("Executive summary");
     expect(links![0]?.href).toContain("/executive/reviews/");
-    expect(links![1]?.href).toContain(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
+    expect(links![1]?.href).toContain("/manifest");
     expect(links!.some((l) => l.href.includes("/findings/phi-minimization-risk"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/graph?"))).toBe(true);
     expect(links!.some((l) => l.href.includes("/audit?"))).toBe(true);

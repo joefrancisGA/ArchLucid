@@ -17,7 +17,7 @@ test.describe("operator shell smoke", () => {
   test("runs list with default project shows a run row without generic error boundary @smoke", async ({ page }) => {
     await page.goto("/runs?projectId=default");
 
-    await expect(page.getByRole("heading", { name: /^Architecture runs$/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Architecture reviews$/i })).toBeVisible();
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
     await expect(page.locator('[data-testid^="runs-row-"]').first()).toBeVisible();
   });
@@ -25,7 +25,7 @@ test.describe("operator shell smoke", () => {
   test("runs list renders without generic error boundary", async ({ page }) => {
     await page.goto("/runs");
 
-    await expect(page.getByRole("heading", { name: /^Architecture runs$/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Architecture reviews$/i })).toBeVisible();
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
   });
 
@@ -57,7 +57,7 @@ test.describe("operator shell smoke — core proof path", () => {
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/runs?projectId=default");
-    await expect(page.getByRole("heading", { name: /^Architecture runs$/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Architecture reviews$/i })).toBeVisible();
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto(`/runs/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
@@ -109,7 +109,13 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/governance");
-    await expect(page.getByRole("heading", { name: /Governance workflow/i })).toBeVisible();
+    // Buyer-polished shell uses "Governance approval"; full operator shell uses "Governance workflow" (see governance/page.tsx).
+    await expect(
+      page.getByRole("heading", {
+        level: 2,
+        name: /^(Governance workflow|Governance approval)$/i,
+      }),
+    ).toBeVisible();
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/advisory");

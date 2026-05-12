@@ -1,4 +1,5 @@
-﻿using ArchLucid.TestSupport;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -24,9 +25,16 @@ public sealed class ManifestFinalizationSqlProcedureSurfaceTests
             string.IsNullOrWhiteSpace(raw),
             "Set " + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable + " to run this SQL integration test.");
 
-        SqlConnectionStringBuilder builder = new(raw.Trim()) { Encrypt = SqlConnectionEncryptOption.Mandatory, TrustServerCertificate = true };
+        // CI provides a fresh SQL container: catalog does not exist until we create it and run DbUp (same as SqlServerPersistenceFixture).
+        string normalized = SqlServerIntegrationTestConnections.NormalizePersistenceConnectionString(
+            raw.Trim(),
+            "ArchLucidPersistenceTests");
 
-        await using SqlConnection connection = new(builder.ConnectionString);
+        await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(normalized, CancellationToken.None);
+
+        DatabaseMigrator.Run(normalized);
+
+        await using SqlConnection connection = new(normalized);
         await connection.OpenAsync();
 
         await using SqlCommand command = connection.CreateCommand();

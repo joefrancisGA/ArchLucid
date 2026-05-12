@@ -52,6 +52,15 @@ export function buyerPolishedRouteOrientation(pathname: string): {
     };
   }
 
+  const friendlyManifestPath = `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/manifest`.replace(/\/$/, "");
+
+  if (path.replace(/\/$/, "") === friendlyManifestPath) {
+    return {
+      label: "Signed manifest",
+      line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, warnings, and deliverables linkage.`,
+    };
+  }
+
   if (path.startsWith("/manifests/")) {
     return {
       label: "Architecture review manifest",
@@ -61,8 +70,8 @@ export function buyerPolishedRouteOrientation(pathname: string): {
 
   if (path.startsWith("/graph")) {
     return {
-      label: "Evidence-to-decision graph",
-      line: "Trace how source evidence feeds analysis nodes, findings, approvals, and final deliverables.",
+      label: "Evidence graph",
+      line: "Trace how reviewed source context and policy checks feed prioritized risk findings, decisions, the signed manifest, and deliverables.",
     };
   }
 
@@ -103,7 +112,7 @@ export function buyerPolishedRouteOrientation(pathname: string): {
 
   if (path.startsWith("/ask")) {
     return {
-      label: "Ask",
+      label: "Ask this review",
       line: `Pose questions scoped to persisted reviews; answers cite the manifest and evidence graph when available.`,
     };
   }

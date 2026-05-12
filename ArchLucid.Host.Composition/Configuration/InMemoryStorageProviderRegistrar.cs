@@ -73,6 +73,7 @@ using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Tenancy.Diagnostics;
 using ArchLucid.Persistence.Transactions;
 using ArchLucid.Persistence.Value;
+using ArchLucid.Persistence.WeeklyDigest;
 using ArchLucid.Provenance;
 
 namespace ArchLucid.Host.Composition.Configuration;
@@ -106,6 +107,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<ITenantNotificationChannelPreferencesRepository, InMemoryTenantNotificationChannelPreferencesRepository>();
         services.AddSingleton<ITenantTeamsIncomingWebhookConnectionRepository, InMemoryTenantTeamsIncomingWebhookConnectionRepository>();
         services.AddSingleton<ITenantExecDigestPreferencesRepository, InMemoryTenantExecDigestPreferencesRepository>();
+        services.AddSingleton<IWeeklyArchitectureCriticalFindingSummaryRepository,
+            InMemoryWeeklyArchitectureCriticalFindingSummaryRepository>();
         services.AddSingleton<ITenantHardPurgeService, NoOpTenantHardPurgeService>();
         services.AddSingleton<IBillingLedger, InMemoryBillingLedger>();
         services.AddSingleton<ITenantCustomerSuccessRepository, InMemoryTenantCustomerSuccessRepository>();

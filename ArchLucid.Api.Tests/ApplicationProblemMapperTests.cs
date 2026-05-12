@@ -1,3 +1,5 @@
+using System.Threading;
+
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 
@@ -167,6 +169,35 @@ public sealed class ApplicationProblemMapperTests
             new NotSupportedException(),
             http,
             out ObjectResult? result);
+
+        mapped.Should().BeFalse();
+        result.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public void TryMapUnhandledException_OperationCanceled_without_request_abort_maps_to_503()
+    {
+        OperationCanceledException ex = new();
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/request", "corr-oce");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.DatabaseTimeout);
+    }
+
+    [SkippableFact]
+    public void TryMapUnhandledException_OperationCanceled_when_request_aborted_is_unmapped()
+    {
+        OperationCanceledException ex = new();
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/request", "corr-abort");
+        CancellationTokenSource aborted = new();
+        aborted.Cancel();
+        http.RequestAborted = aborted.Token;
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
         mapped.Should().BeFalse();
         result.Should().BeNull();

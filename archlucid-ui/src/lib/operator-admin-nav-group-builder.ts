@@ -1,4 +1,14 @@
-import { BarChart3, Building2, CreditCard, HeartPulse, LifeBuoy, Settings2, Users, Wallet } from "lucide-react";
+import {
+  BarChart3,
+  Building2,
+  CreditCard,
+  HeartPulse,
+  LifeBuoy,
+  Settings2,
+  Users,
+  Wallet,
+  Webhook,
+} from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 
@@ -50,6 +60,14 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           label: "Baseline settings",
           title: "Baseline settings — ROI measurement inputs",
           icon: BarChart3,
+          tier: "extended",
+          requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/settings/webhooks",
+          label: "Webhooks",
+          title: "Webhooks — outbound HTTPS subscriptions, secrets, and connectivity tests",
+          icon: Webhook,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
         },

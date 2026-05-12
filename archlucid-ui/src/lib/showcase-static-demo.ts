@@ -179,7 +179,9 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
           "Auditability of intake-to-adjudication flow",
           "Latency under peak submission windows",
         ],
-        riskImplications: ["PHI egress controls must stay consistent during rollout."],
+        riskImplications: [
+          "PHI controls must remain consistent while throughput and channel parity improve.",
+        ],
         costImplications: ["Ops touch reduction on intake rework."],
         complianceImplications: ["HIPAA-aligned logging and segregation of duties."],
         detailedNarrative:

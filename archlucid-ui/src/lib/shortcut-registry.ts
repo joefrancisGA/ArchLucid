@@ -39,9 +39,9 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+a",
-    label: "Ask",
+    label: "Ask this review",
     route: "/ask",
-    description: "Open Ask",
+    description: "Open Ask (scoped Q&A)",
   },
   {
     key: "alt+g",

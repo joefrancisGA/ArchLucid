@@ -61,6 +61,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   plans: "Plans",
   settings: "Settings",
   billing: "Billing & plans",
+  webhooks: "Webhooks",
 };
 
 /**

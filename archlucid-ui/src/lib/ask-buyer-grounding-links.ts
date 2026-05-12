@@ -1,8 +1,7 @@
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
-  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
@@ -30,7 +29,7 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
     },
     {
       label: "Finalized manifest package",
-      href: `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
+      href: getShowcaseManifestHref(),
     },
     {
       label: BUYER_SURFACE_VOCABULARY.phiMinimizationRisk,

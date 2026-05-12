@@ -535,7 +535,7 @@ export const auditExportSectionSupportingLineBuyerPolished =
 export const auditExportCsvButtonLabelWindowIncomplete = "Export audit trail (set From/To)";
 
 /** Audit CSV — button label when window is valid but principal lacks Auditor/Admin for bulk export (API). */
-export const auditExportCsvButtonLabelRoleRestricted = "Export audit trail (Auditor/Admin)";
+export const auditExportCsvButtonLabelRoleRestricted = "Download audit trail CSV (Auditor/Admin)";
 
 /** Policy packs — intro under “Compare versions” when caller can mutate (Execute+ in shell). */
 export const policyPacksCompareVersionsIntroOperator =

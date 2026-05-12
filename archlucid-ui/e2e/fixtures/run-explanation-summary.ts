@@ -31,7 +31,7 @@ export function fixtureRunExplanationSummary(): RunExplanationSummary {
     themeSummaries: ["Intake experience", "Platform integration", "Compliance posture"],
 
     overallAssessment:
-      "Modernization preserves core intake guarantees while improving throughput and downstream traceability.",
+      "Proceed with claims intake modernization under monitored PHI minimization controls — no blocking findings remain open.",
     riskPosture: "Low",
     findingCount: 0,
     decisionCount: 1,

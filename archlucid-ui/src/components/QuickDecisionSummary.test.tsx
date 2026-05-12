@@ -32,7 +32,7 @@ describe("QuickDecisionSummary", () => {
 
     expect(
       screen.getByText(
-        /This finalized review records 9 findings with no unresolved blocking issues\. One monitored warning remains in the manifest—review severity and controls below\./,
+        /This finalized review records 9 findings with no unresolved blocking issues\. One monitored PHI minimization warning remains in the manifest—review severity and controls below\./,
       ),
     ).toBeInTheDocument();
     expect(screen.queryByText("No findings to act on")).not.toBeInTheDocument();

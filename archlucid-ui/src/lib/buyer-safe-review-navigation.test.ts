@@ -23,7 +23,7 @@ describe("buyer-safe-review-navigation", () => {
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
     expect(link.label).toBe("View manifest summary");
-    expect(link.href).toContain("/manifests/");
+    expect(link.href).toContain("/manifest");
   });
 
   it("uses manifest summary link for static spine IDs even when buyer chrome env is off", async () => {
@@ -36,7 +36,7 @@ describe("buyer-safe-review-navigation", () => {
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
     expect(link.label).toBe("View manifest summary");
-    expect(link.href).toContain("/manifests/");
+    expect(link.href).toContain("/manifest");
   });
 
   it("uses manifest summary for static spine IDs when static operator enables buyer-polished shell without DEMO_MODE", async () => {
@@ -47,7 +47,7 @@ describe("buyer-safe-review-navigation", () => {
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
     expect(link.label).toBe("View manifest summary");
-    expect(link.href).toContain("/manifests/");
+    expect(link.href).toContain("/manifest");
   });
 
   it("canonicalizes workspace href for alias demo IDs", async () => {
@@ -65,6 +65,6 @@ describe("buyer-safe-review-navigation", () => {
 
     const mod = await import("./buyer-safe-review-navigation");
 
-    expect(mod.getShowcaseManifestHref()).toContain("a1c2e3f4-a5b6-7890-abcd-ef1234567890");
+    expect(mod.getShowcaseManifestHref()).toBe("/reviews/claims-intake-modernization/manifest");
   });
 });

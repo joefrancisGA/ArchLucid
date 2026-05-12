@@ -48,7 +48,7 @@ export function FindingInspectView({
 
   if (failure || !payload) {
     return (
-      <div className="mx-auto max-w-3xl space-y-4 p-6">
+      <div className="mx-auto max-w-6xl space-y-4 p-6">
         <Link href={`/reviews/${encodeURIComponent(runId)}`} className="text-sm text-sky-700 underline dark:text-sky-300">
           ← Back to review
         </Link>
@@ -64,7 +64,7 @@ export function FindingInspectView({
 
   if (!sameAuthorityRunId(payload.runId, runId)) {
     return (
-      <div className="mx-auto max-w-3xl space-y-4 p-6">
+      <div className="mx-auto max-w-6xl space-y-4 p-6">
         <p className="text-sm text-neutral-700 dark:text-neutral-300">
           This finding belongs to run <span className="font-mono">{payload.runId}</span>, not the run in this URL.
         </p>
@@ -80,7 +80,7 @@ export function FindingInspectView({
 
   if (!findingIdsAlignForInspectRoute(decodedFindingId, payload.findingId)) {
     return (
-      <div className="mx-auto max-w-3xl space-y-4 p-6">
+      <div className="mx-auto max-w-6xl space-y-4 p-6">
         <p className="text-sm text-neutral-700 dark:text-neutral-300">
           This inspection payload corresponds to finding{" "}
           <span className="font-mono">{payload.findingId}</span>, not{" "}
@@ -100,7 +100,7 @@ export function FindingInspectView({
   const inspectHeroTitle = `${findingTitle} — evidence & trace`;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
+    <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
         <Link
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}`}

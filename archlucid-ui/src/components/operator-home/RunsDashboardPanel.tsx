@@ -263,42 +263,57 @@ export function RunsDashboardPanel() {
                   data-testid="operator-home-showcase-demo-banner"
                 >
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    Claims Intake — completed example review
+                    Claims Intake — completed review package
                   </p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     {buyerSafeHighlight ? (
                       <>
-                        <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Recommended:</strong>{" "}
-                        manifest summary (sealed package), then evidence graph. For sponsor-ready brevity, use executive
-                        summary. Read-only walkthrough is optional.
+                        <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Start here:</strong>{" "}
+                        Executive Summary (step 1 on home), then follow the numbered review journey — manifest, evidence
+                        graph, governance, audit trail.
                       </>
                     ) : (
-                      <>
-                        Preview the sample output: manifest summary, evidence graph, and optional walkthrough paths.
-                      </>
+                      <>Use the five-step journey on home, or open the manifest summary to walk the sealed package.</>
                     )}
                   </p>
                   <div className="space-y-2">
-                    <div className={cn("grid gap-2", showcaseEvidenceGraph ? "sm:grid-cols-2" : "")}>
+                    <Button asChild variant="primary" size="sm" className="h-8 w-full">
+                      <Link href={getShowcaseExecutiveHref()}>Start Executive Summary</Link>
+                    </Button>
+                    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                      More:{" "}
                       {showcasePrimaryCta ? (
-                        <Button asChild variant="primary" size="sm" className="h-8 w-full">
-                          <Link href={showcasePrimaryCta.href}>{showcasePrimaryCta.label}</Link>
-                        </Button>
+                        <Link
+                          className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                          href={showcasePrimaryCta.href}
+                        >
+                          Signed manifest summary
+                        </Link>
                       ) : null}
+                      {showcasePrimaryCta && showcaseEvidenceGraph ? " · " : null}
                       {showcaseEvidenceGraph ? (
-                        <Button asChild variant="outline" size="sm" className="h-8 w-full">
-                          <Link href="/graph">View evidence graph</Link>
-                        </Button>
+                        <Link
+                          className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                          href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+                        >
+                          Evidence graph
+                        </Link>
                       ) : null}
-                    </div>
-                    <div className={cn("grid gap-2 sm:grid-cols-2")}>
-                      <Button asChild variant="outline" size="sm" className="h-8 w-full">
-                        <Link href={getShowcaseExecutiveHref()}>Executive summary</Link>
-                      </Button>
-                      <Button asChild variant="outline" size="sm" className="h-8 w-full">
-                        <Link href={getShowcaseWalkthroughHref()}>Read-only walkthrough</Link>
-                      </Button>
-                    </div>
+                      {(showcasePrimaryCta || showcaseEvidenceGraph) ? " · " : null}
+                      <Link
+                        className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                        href={getShowcaseWalkthroughHref()}
+                      >
+                        Guided walkthrough
+                      </Link>
+                      {" · "}
+                      <Link
+                        className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                        href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+                      >
+                        Open full review package
+                      </Link>
+                    </p>
                   </div>
                 </div>
               ) : null}
@@ -346,7 +361,13 @@ export function RunsDashboardPanel() {
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
                           <Link
-                            href={`/manifests/${encodeURIComponent(showcaseDemoRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
+                            href={
+                              (showcaseDemoRun.goldenManifestId ?? "").trim() === SHOWCASE_STATIC_DEMO_MANIFEST_ID
+                                ? getShowcaseManifestHref()
+                                : `/manifests/${encodeURIComponent(
+                                    showcaseDemoRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+                                  )}`
+                            }
                           >
                             Finalized manifest
                           </Link>

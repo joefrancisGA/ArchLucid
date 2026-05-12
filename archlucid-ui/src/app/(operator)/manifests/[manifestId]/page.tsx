@@ -220,7 +220,7 @@ export default async function ManifestDetailPage({
     buyerPolishedLayout === true && showcasePackage === true;
 
   const primaryFindingHref = showcasePackage
-    ? `/reviews/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
+    ? `/reviews/${encodeURIComponent(canonicalizeDemoRunId(summary.runId.trim()))}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
     : null;
 
   const overviewSummaryCard = (
