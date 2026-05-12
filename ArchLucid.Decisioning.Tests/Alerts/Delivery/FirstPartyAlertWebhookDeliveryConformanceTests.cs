@@ -20,21 +20,29 @@ public sealed class FirstPartyAlertWebhookDeliveryConformanceTests
     {
         const string connectorName = "Alert Slack incoming webhook";
 
-        Mock<IWebhookPoster> poster = new();
-        object? body = null;
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
 
-        poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
-            .Callback<string, object, CancellationToken, WebhookPostOptions?>((_, b, _, _) => body = b)
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    It.IsAny<ChatOpsWebhookTarget>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
             .Returns(Task.CompletedTask);
 
         string destination = "https://hooks.slack.com/services/TEST/FAKE/URLTOKEN";
 
-        AlertSlackWebhookDeliveryChannel sut = new(poster.Object);
+        AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
         await sut.SendAsync(CreateAlertPayload(destination, AlertRoutingChannelType.SlackWebhook), CancellationToken.None);
 
-        body.Should().NotBeNull();
-        WebhookPostJsonBodyOutboundConnectorConformance.AssertBodyJsonDoesNotEchoDestination(connectorName, body!, destination);
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForSlack(captured!);
+        WebhookPostJsonBodyOutboundConnectorConformance.AssertBodyJsonDoesNotEchoDestination(connectorName, body, destination);
     }
 
     [Fact]
@@ -42,21 +50,31 @@ public sealed class FirstPartyAlertWebhookDeliveryConformanceTests
     {
         const string connectorName = "Alert Microsoft Teams incoming webhook";
 
-        Mock<IWebhookPoster> poster = new();
-        object? body = null;
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
 
-        poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
-            .Callback<string, object, CancellationToken, WebhookPostOptions?>((_, b, _, _) => body = b)
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    It.IsAny<ChatOpsWebhookTarget>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
             .Returns(Task.CompletedTask);
 
-        string destination = "https://outlook.office.com/webhook/00000000-0000-0000-0000-000000000000@00000000-0000-0000-0000-000000000000/IncomingWebhook/fake";
+        string destination =
+            "https://outlook.office.com/webhook/00000000-0000-0000-0000-000000000000@00000000-0000-0000-0000-000000000000/IncomingWebhook/fake";
 
-        AlertTeamsWebhookDeliveryChannel sut = new(poster.Object);
+        AlertTeamsWebhookDeliveryChannel sut = new(delivery.Object);
         await sut.SendAsync(CreateAlertPayload(destination, AlertRoutingChannelType.TeamsWebhook), CancellationToken.None);
 
-        body.Should().NotBeNull();
-        WebhookPostJsonBodyOutboundConnectorConformance.AssertBodyJsonDoesNotEchoDestination(connectorName, body!, destination);
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForTeams(captured!);
+
+        WebhookPostJsonBodyOutboundConnectorConformance.AssertBodyJsonDoesNotEchoDestination(connectorName, body, destination);
     }
 
     [Fact]
@@ -68,8 +86,14 @@ public sealed class FirstPartyAlertWebhookDeliveryConformanceTests
         object? body = null;
 
         poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
-            .Callback<string, object, CancellationToken, WebhookPostOptions?>((_, b, _, _) => body = b)
+            .Setup(x =>
+                x.PostJsonAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<string, object, CancellationToken, WebhookPostOptions?>((_, b, _, _) =>
+                body = b)
             .Returns(Task.CompletedTask);
 
         string destination = "https://pager.example.com/inbound/fake-token-path";

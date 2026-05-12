@@ -9,7 +9,7 @@ namespace ArchLucid.AgentRuntime.Caching;
 /// </summary>
 public sealed class MemorySemanticCache : ISemanticCache, IDisposable
 {
-    private static readonly string KeyPrefix = "al:semantic:v1:";
+    private const string KeyPrefix = "al:semantic:v1:";
 
     private readonly IMemoryCache _cache;
 
@@ -55,7 +55,11 @@ public sealed class MemorySemanticCache : ISemanticCache, IDisposable
 
         LlmCompletionCacheOptions options = _optionsMonitor.CurrentValue;
         TimeSpan ttl = LlmCompletionResponseCache.ResolveTtl(options);
-        MemoryCacheEntryOptions entryOptions = new() { AbsoluteExpirationRelativeToNow = ttl, Size = 1 };
+        MemoryCacheEntryOptions entryOptions = new()
+        {
+            AbsoluteExpirationRelativeToNow = ttl,
+            Size = 1
+        };
         string key = KeyPrefix + promptHash;
 
         _cache.Set(key, response, entryOptions);

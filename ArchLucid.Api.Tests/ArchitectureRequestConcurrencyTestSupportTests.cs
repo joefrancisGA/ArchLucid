@@ -16,11 +16,12 @@ public sealed class ArchitectureRequestConcurrencyTestSupportTests
         using RecordingHttpMessageHandler handler = new(_ => CreateResponse(cancellationTokenSource, cancelBeforeThrow: true));
         using HttpClient client = CreateClient(handler);
 
-        async Task Act() => await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest("REQ-BUFFER-CANCEL-001"), "idem-buffer-cancel-001", cancellationTokenSource.Token);
-
         OperationCanceledException exception = await Assert.ThrowsAsync<OperationCanceledException>(Act);
         exception.CancellationToken.Should().Be(cancellationTokenSource.Token);
         exception.InnerException.Should().BeOfType<HttpRequestException>();
+        return;
+
+        async Task Act() => await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest("REQ-BUFFER-CANCEL-001"), "idem-buffer-cancel-001", cancellationTokenSource.Token);
     }
 
     [Fact]
@@ -29,13 +30,9 @@ public sealed class ArchitectureRequestConcurrencyTestSupportTests
         using RecordingHttpMessageHandler handler = new(_ => CreateResponse(cancellationTokenSource: null, cancelBeforeThrow: false));
         using HttpClient client = CreateClient(handler);
 
-        Func<Task> act = async () => await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(
-            client,
-            TestRequestFactory.CreateArchitectureRequest("REQ-BUFFER-FAIL-001"),
-            "idem-buffer-fail-001",
-            CancellationToken.None);
+        async Task Act() => await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest("REQ-BUFFER-FAIL-001"), "idem-buffer-fail-001", CancellationToken.None);
 
-        await Assert.ThrowsAsync<HttpRequestException>(act);
+        await Assert.ThrowsAsync<HttpRequestException>(Act);
     }
 
     private static HttpClient CreateClient(HttpMessageHandler handler) =>

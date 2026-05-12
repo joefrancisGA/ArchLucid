@@ -16,8 +16,8 @@ public sealed class AlertSlackWebhookDeliveryChannelTests
     [Fact]
     public void ChannelType_ReturnsSlackWebhook()
     {
-        Mock<IWebhookPoster> poster = new();
-        AlertSlackWebhookDeliveryChannel sut = new(poster.Object);
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
 
         sut.ChannelType.Should().Be(AlertRoutingChannelType.SlackWebhook);
     }
@@ -25,38 +25,58 @@ public sealed class AlertSlackWebhookDeliveryChannelTests
     [Fact]
     public async Task SendAsync_PostsJsonToSubscriptionDestination()
     {
-        Mock<IWebhookPoster> poster = new();
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
         const string expectedUrl = "https://hooks.slack.com/services/test";
         string? capturedUrl = null;
 
-        poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
-            .Callback<string, object, CancellationToken, WebhookPostOptions?>((url, _, _, _) => capturedUrl = url)
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Slack,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, url, _, _, _) =>
+                    capturedUrl = url)
             .Returns(Task.CompletedTask);
 
-        AlertSlackWebhookDeliveryChannel sut = new(poster.Object);
+        AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
         AlertDeliveryPayload payload = CreatePayload(expectedUrl);
 
         await sut.SendAsync(payload, CancellationToken.None);
 
         capturedUrl.Should().Be(expectedUrl);
-        poster.Verify(
-            x => x.PostJsonAsync(expectedUrl, It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()),
+
+        delivery.Verify(
+            x => x.DeliverAsync(
+                    ChatOpsWebhookTarget.Slack,
+                    expectedUrl,
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()),
             Times.Once);
     }
 
     [Fact]
-    public async Task SendAsync_BodyText_IncludesSeverityTitleCategoryTriggerAndDescription()
+    public async Task SendAsync_Message_IncludesSeverityTitleCategoryTriggerAndDescription()
     {
-        Mock<IWebhookPoster> poster = new();
-        object? capturedBody = null;
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
 
-        poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
-            .Callback<string, object, CancellationToken, WebhookPostOptions?>((_, body, _, _) => capturedBody = body)
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Slack,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
             .Returns(Task.CompletedTask);
 
-        AlertSlackWebhookDeliveryChannel sut = new(poster.Object);
+        AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
         AlertDeliveryPayload payload = CreatePayload("https://hooks.slack.com/x");
         payload.Alert.Severity = "Critical";
         payload.Alert.Title = "Disk full";
@@ -66,31 +86,40 @@ public sealed class AlertSlackWebhookDeliveryChannelTests
 
         await sut.SendAsync(payload, CancellationToken.None);
 
-        capturedBody.Should().NotBeNull();
-        string text = GetStringProperty(capturedBody!, "text");
+        captured.Should().NotBeNull();
 
-        text.Should().Contain("*[Critical]* Disk full");
-        text.Should().Contain("Category: Infrastructure");
-        text.Should().Contain("Trigger: 98%");
-        text.Should().Contain("Expand volume or prune.");
+        captured!.SeverityLabel.Should().Be("Critical");
+        captured.Title.Should().Be("Disk full");
+        captured.SupportingParagraph.Should().Be("Category: Infrastructure\nTrigger: 98%");
+        captured.Body.Should().Be("Expand volume or prune.");
     }
 
     [Fact]
     public async Task SendAsync_ForwardsCancellationToken()
     {
-        Mock<IWebhookPoster> poster = new();
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
         CancellationToken expected = new(canceled: true);
 
-        poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    It.IsAny<ChatOpsWebhookTarget>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
             .Returns(Task.CompletedTask);
 
-        AlertSlackWebhookDeliveryChannel sut = new(poster.Object);
+        AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
 
         await sut.SendAsync(CreatePayload("https://hooks.slack.com/x"), expected);
 
-        poster.Verify(
-            x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), expected, It.IsAny<WebhookPostOptions?>()),
+        delivery.Verify(
+            x => x.DeliverAsync(
+                It.IsAny<ChatOpsWebhookTarget>(),
+                It.IsAny<string>(),
+                It.IsAny<ChatOpsWebhookMessage>(),
+                expected,
+                It.IsAny<WebhookPostOptions?>()),
             Times.Once);
     }
 
@@ -113,17 +142,5 @@ public sealed class AlertSlackWebhookDeliveryChannelTests
                 ChannelType = AlertRoutingChannelType.SlackWebhook,
             },
         };
-    }
-
-    private static string GetStringProperty(object target, string propertyName)
-    {
-        PropertyInfo? prop = target.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
-
-        prop.Should().NotBeNull($"property {propertyName} should exist on payload body");
-        object? value = prop.GetValue(target);
-
-        value.Should().NotBeNull();
-
-        return value.ToString()!;
     }
 }

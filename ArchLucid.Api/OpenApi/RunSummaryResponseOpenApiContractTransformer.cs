@@ -16,13 +16,7 @@ public sealed class RunSummaryResponseOpenApiContractTransformer : IOpenApiDocum
         _ = context;
         _ = cancellationToken;
 
-        if (document.Components?.Schemas is null)
-            return Task.CompletedTask;
-
-        if (!document.Components.Schemas.TryGetValue(RunSummarySchemaKey, out IOpenApiSchema? schema))
-            return Task.CompletedTask;
-
-        if (schema is not OpenApiSchema mutable)
+        if (document.Components?.Schemas is null || !document.Components.Schemas.TryGetValue(RunSummarySchemaKey, out IOpenApiSchema? schema) || schema is not OpenApiSchema mutable)
             return Task.CompletedTask;
 
         mutable.Properties ??= new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal);

@@ -196,7 +196,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "Finalized example package with consistent evidence, findings, governance status, and audit trail. In production, workflows follow your tenant configuration.",
+      "Finalized review package with traceable evidence, findings, governance outcomes, and audit-ready history.",
     agentExecutionLlmCostEstimate: {
       estimatedCostUsd: null,
       tokenCounts: { prompt: 0, completion: 0 },
@@ -826,7 +826,7 @@ export function tryStaticDemoGovernanceApprovalRequests(runId: string): Governan
       status: "Approved",
       requestedBy: "Taylor Morgan",
       reviewedBy: "Jordan Lee",
-      requestComment: "Promote finalized intake manifest after privacy review.",
+      requestComment: "Request governed use of the finalized intake manifest after privacy review.",
       reviewComment: "Approved — maintain weekly monitoring on unstructured attachment volume.",
       requestedUtc: "2026-01-14T21:00:00.000Z",
       reviewedUtc: "2026-01-14T22:05:00.000Z",
@@ -854,7 +854,7 @@ export function tryStaticDemoGovernancePromotions(runId: string): GovernanceProm
       targetEnvironment: "test",
       promotedBy: "Taylor Morgan",
       approvalRequestId: "claims-intake-approval-001",
-      notes: "Sample promotion aligned with the Claims Intake showcase.",
+      notes: "Sample governed-use record aligned with the Claims Intake showcase.",
       promotedUtc: "2026-01-14T22:06:00.000Z",
     },
   ];

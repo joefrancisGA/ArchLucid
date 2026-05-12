@@ -1,4 +1,4 @@
-﻿using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -20,78 +20,78 @@ public sealed class TopologyAgentHandlerTests
     [SkippableFact]
     public async Task ExecuteAsync_ShouldReturnParsedTopologyAgentResult()
     {
-        string json = """
-                      {
-                        "resultId": "RES-TOPO-001",
-                        "taskId": "TASK-TOPO-001",
-                        "runId": "RUN-001",
-                        "agentType": "Topology",
-                        "claims": [
-                          "Use App Service for the API.",
-                          "Use Azure AI Search for retrieval."
-                        ],
-                        "evidenceRefs": [
-                          "request",
-                          "catalog:azure-ai-search"
-                        ],
-                        "confidence": 0.91,
-                        "findings": [
-                          {
-                            "findingId": "FIND-001",
-                            "sourceAgent": "Topology",
-                            "severity": "Info",
-                            "category": "Topology",
-                            "message": "Managed Azure services fit the MVP.",
-                            "evidenceRefs": [ "request" ]
-                          }
-                        ],
-                        "proposedChanges": {
-                          "proposalId": "PROP-TOPO-001",
-                          "sourceAgent": "Topology",
-                          "addedServices": [
+        const string json = """
                             {
-                              "serviceId": "svc-api",
-                              "serviceName": "rag-api",
-                              "serviceType": "Api",
-                              "runtimePlatform": "AppService",
-                              "purpose": "Primary API"
-                            },
-                            {
-                              "serviceId": "svc-search",
-                              "serviceName": "rag-search",
-                              "serviceType": "SearchService",
-                              "runtimePlatform": "AzureAiSearch",
-                              "purpose": "Retrieval layer"
+                              "resultId": "RES-TOPO-001",
+                              "taskId": "TASK-TOPO-001",
+                              "runId": "RUN-001",
+                              "agentType": "Topology",
+                              "claims": [
+                                "Use App Service for the API.",
+                                "Use Azure AI Search for retrieval."
+                              ],
+                              "evidenceRefs": [
+                                "request",
+                                "catalog:azure-ai-search"
+                              ],
+                              "confidence": 0.91,
+                              "findings": [
+                                {
+                                  "findingId": "FIND-001",
+                                  "sourceAgent": "Topology",
+                                  "severity": "Info",
+                                  "category": "Topology",
+                                  "message": "Managed Azure services fit the MVP.",
+                                  "evidenceRefs": [ "request" ]
+                                }
+                              ],
+                              "proposedChanges": {
+                                "proposalId": "PROP-TOPO-001",
+                                "sourceAgent": "Topology",
+                                "addedServices": [
+                                  {
+                                    "serviceId": "svc-api",
+                                    "serviceName": "rag-api",
+                                    "serviceType": "Api",
+                                    "runtimePlatform": "AppService",
+                                    "purpose": "Primary API"
+                                  },
+                                  {
+                                    "serviceId": "svc-search",
+                                    "serviceName": "rag-search",
+                                    "serviceType": "SearchService",
+                                    "runtimePlatform": "AzureAiSearch",
+                                    "purpose": "Retrieval layer"
+                                  }
+                                ],
+                                "addedDatastores": [
+                                  {
+                                    "datastoreId": "ds-metadata",
+                                    "datastoreName": "rag-metadata",
+                                    "datastoreType": "Sql",
+                                    "runtimePlatform": "SqlServer",
+                                    "purpose": "Metadata storage",
+                                    "privateEndpointRequired": false,
+                                    "encryptionAtRestRequired": true
+                                  }
+                                ],
+                                "addedRelationships": [
+                                  {
+                                    "relationshipId": "REL-001",
+                                    "sourceId": "svc-api",
+                                    "targetId": "svc-search",
+                                    "relationshipType": "Calls",
+                                    "description": "API queries search"
+                                  }
+                                ],
+                                "requiredControls": [],
+                                "warnings": [
+                                  "Simple topology selected."
+                                ]
+                              },
+                              "createdUtc": "2026-03-15T14:00:00Z"
                             }
-                          ],
-                          "addedDatastores": [
-                            {
-                              "datastoreId": "ds-metadata",
-                              "datastoreName": "rag-metadata",
-                              "datastoreType": "Sql",
-                              "runtimePlatform": "SqlServer",
-                              "purpose": "Metadata storage",
-                              "privateEndpointRequired": false,
-                              "encryptionAtRestRequired": true
-                            }
-                          ],
-                          "addedRelationships": [
-                            {
-                              "relationshipId": "REL-001",
-                              "sourceId": "svc-api",
-                              "targetId": "svc-search",
-                              "relationshipType": "Calls",
-                              "description": "API queries search"
-                            }
-                          ],
-                          "requiredControls": [],
-                          "warnings": [
-                            "Simple topology selected."
-                          ]
-                        },
-                        "createdUtc": "2026-03-15T14:00:00Z"
-                      }
-                      """;
+                            """;
 
         StubAgentCompletionClient completionClient = new(json);
         AgentResultParser parser = new();

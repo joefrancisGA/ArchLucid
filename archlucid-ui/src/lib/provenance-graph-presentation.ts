@@ -12,12 +12,12 @@ export const PROVENANCE_TRAIL_NODE_TYPES: ReadonlySet<string> = new Set([
 
 /** Buyer-facing labels for internal provenance node types (avoid leaking data-model names). */
 export const PROVENANCE_TYPE_BUSINESS_LABEL: Readonly<Record<string, string>> = {
-  ArchitectureRun: "Review started",
-  ContextSnapshot: "Context captured",
-  GraphSnapshot: "Evidence graph created",
-  FindingsSnapshot: "Findings captured",
-  GoldenManifest: "Manifest finalized",
-  ArtifactBundle: "Artifacts bundled",
+  ArchitectureRun: "Review kickoff",
+  ContextSnapshot: "Reviewed source context",
+  GraphSnapshot: "Evidence graph",
+  FindingsSnapshot: "Findings recorded",
+  GoldenManifest: "Signed manifest",
+  ArtifactBundle: "Deliverables packaged",
 };
 
 export function isProvenanceTrailCoordinatorType(nodeType: string): boolean {

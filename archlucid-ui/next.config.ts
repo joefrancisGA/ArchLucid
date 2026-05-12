@@ -84,6 +84,15 @@ const nextConfig: NextConfig = {
       { source: "/alert-tuning", destination: "/alerts?tab=simulation", permanent: false },
     ];
   },
+  async rewrites() {
+    return [
+      // Friendly demo URL while reusing manifest detail implementation (`SHOWCASE_STATIC_DEMO_*`).
+      {
+        source: "/reviews/claims-intake-modernization/manifest",
+        destination: "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

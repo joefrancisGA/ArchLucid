@@ -18,22 +18,17 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
         string trimmed = name.Trim();
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
-        if (!_byId.TryAdd(
-                id,
-                new ProjectRow
-                {
-                    Id = id,
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    Name = trimmed,
-                    CreatedUtc = now,
-                    IsDeleted = false
-                }))
-        {
-            throw new InvalidOperationException($"Architecture project id '{id:D}' already exists.");
-        }
-
-        return Task.CompletedTask;
+        return !_byId.TryAdd(
+            id,
+            new ProjectRow
+            {
+                Id = id,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                Name = trimmed,
+                CreatedUtc = now,
+                IsDeleted = false
+            }) ? throw new InvalidOperationException($"Architecture project id '{id:D}' already exists.") : Task.CompletedTask;
     }
 
     /// <inheritdoc />

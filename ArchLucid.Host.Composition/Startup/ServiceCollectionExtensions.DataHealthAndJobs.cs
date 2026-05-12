@@ -13,7 +13,6 @@ using ArchLucid.Persistence.Data.Repositories;
 using Azure.Core;
 using Azure.Storage.Queues;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 

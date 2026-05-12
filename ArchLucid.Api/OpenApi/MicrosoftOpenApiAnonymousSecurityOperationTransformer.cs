@@ -20,13 +20,7 @@ public sealed class MicrosoftOpenApiAnonymousSecurityOperationTransformer(IConfi
     {
         _ = cancellationToken;
 
-        if (string.IsNullOrEmpty(SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration)))
-            return Task.CompletedTask;
-
-        if (context.Description.ActionDescriptor is not ControllerActionDescriptor cad)
-            return Task.CompletedTask;
-
-        if (!OpenApiAuthAnonymousDetection.AllowsAnonymous(cad))
+        if (string.IsNullOrEmpty(SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration)) || context.Description.ActionDescriptor is not ControllerActionDescriptor cad || !OpenApiAuthAnonymousDetection.AllowsAnonymous(cad))
             return Task.CompletedTask;
 
         operation.Security = [];

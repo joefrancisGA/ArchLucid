@@ -6,21 +6,14 @@ namespace ArchLucid.Core;
 ///     <see cref="Configuration.AgentOutputQualityGateOptions.BlockRunOnReject" /> so the execute orchestrator marks the
 ///     run <c>ExecutionCompletedQualityRejected</c> and surfaces this exception to API callers.
 /// </summary>
-public sealed class AgentOutputQualityGateRejectedException : Exception
+public sealed class AgentOutputQualityGateRejectedException(string runId, string traceId, string agentLabel)
+    : Exception($"Agent output quality gate rejected trace '{traceId}' (agent={agentLabel}) for run '{runId}'.")
 {
-    public AgentOutputQualityGateRejectedException(string runId, string traceId, string agentLabel)
-        : base($"Agent output quality gate rejected trace '{traceId}' (agent={agentLabel}) for run '{runId}'.")
-    {
-        RunId = runId;
-        TraceId = traceId;
-        AgentLabel = agentLabel;
-    }
+    public string RunId { get; } = runId;
 
-    public string RunId { get; }
+    public string TraceId { get; } = traceId;
 
-    public string TraceId { get; }
-
-    public string AgentLabel { get; }
+    public string AgentLabel { get; } = agentLabel;
 
     /// <summary>Safe, non-diagnostic copy for HTTP problem details.</summary>
     public const string UserFacingDetail =

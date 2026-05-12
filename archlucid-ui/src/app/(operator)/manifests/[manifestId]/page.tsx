@@ -260,6 +260,12 @@ export default async function ManifestDetailPage({
             ? SHOWCASE_BUYER_REVIEW_TITLE
             : "Open review"}
         </Link>
+        {" · "}
+        <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
+          {buyerPolishedLayout === true && showcasePackage === true
+            ? "Signed manifest for this package"
+            : "Manifest"}
+        </span>
         {showcasePackage === true && buyerPolishedLayout !== true ? (
           <>
             {" · "}
@@ -279,7 +285,7 @@ export default async function ManifestDetailPage({
         <div>
           <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
             {showcaseBuyerManifestHeadline === true
-              ? "Claims Intake Modernization — signed manifest"
+              ? "Signed manifest — Claims Intake Modernization Review Package"
               : buyerPolishedLayout
                 ? "Architecture review package"
                 : "Finalized Architecture Manifest"}

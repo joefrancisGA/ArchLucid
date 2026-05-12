@@ -16,8 +16,8 @@ public sealed class AlertTeamsWebhookDeliveryChannelTests
     [Fact]
     public void ChannelType_ReturnsTeamsWebhook()
     {
-        Mock<IWebhookPoster> poster = new();
-        AlertTeamsWebhookDeliveryChannel sut = new(poster.Object);
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        AlertTeamsWebhookDeliveryChannel sut = new(delivery.Object);
 
         sut.ChannelType.Should().Be(AlertRoutingChannelType.TeamsWebhook);
     }
@@ -25,34 +25,51 @@ public sealed class AlertTeamsWebhookDeliveryChannelTests
     [Fact]
     public async Task SendAsync_PostsJsonToSubscriptionDestination()
     {
-        Mock<IWebhookPoster> poster = new();
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
         const string expectedUrl = "https://outlook.office.com/webhook/test";
 
-        poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Teams,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
             .Returns(Task.CompletedTask);
 
-        AlertTeamsWebhookDeliveryChannel sut = new(poster.Object);
+        AlertTeamsWebhookDeliveryChannel sut = new(delivery.Object);
 
         await sut.SendAsync(CreatePayload(expectedUrl), CancellationToken.None);
 
-        poster.Verify(
-            x => x.PostJsonAsync(expectedUrl, It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()),
+        delivery.Verify(
+            x => x.DeliverAsync(
+                ChatOpsWebhookTarget.Teams,
+                expectedUrl,
+                It.IsAny<ChatOpsWebhookMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<WebhookPostOptions?>()),
             Times.Once);
     }
 
     [Fact]
     public async Task SendAsync_Body_HasTitleAndTextWithExpectedContent()
     {
-        Mock<IWebhookPoster> poster = new();
-        object? capturedBody = null;
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
 
-        poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
-            .Callback<string, object, CancellationToken, WebhookPostOptions?>((_, body, _, _) => capturedBody = body)
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Teams,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
             .Returns(Task.CompletedTask);
 
-        AlertTeamsWebhookDeliveryChannel sut = new(poster.Object);
+        AlertTeamsWebhookDeliveryChannel sut = new(delivery.Object);
         AlertDeliveryPayload payload = CreatePayload("https://outlook.office.com/webhook/x");
         payload.Alert.Severity = "High";
         payload.Alert.Title = "Latency spike";
@@ -62,9 +79,10 @@ public sealed class AlertTeamsWebhookDeliveryChannelTests
 
         await sut.SendAsync(payload, CancellationToken.None);
 
-        capturedBody.Should().NotBeNull();
-        string title = GetStringProperty(capturedBody!, "title");
-        string text = GetStringProperty(capturedBody!, "text");
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForTeams(captured!);
+        string title = GetStringProperty(body, "title");
+        string text = GetStringProperty(body, "text");
 
         title.Should().Be("[High] Latency spike");
         text.Should().Contain("Category: Performance");
@@ -75,19 +93,29 @@ public sealed class AlertTeamsWebhookDeliveryChannelTests
     [Fact]
     public async Task SendAsync_ForwardsCancellationToken()
     {
-        Mock<IWebhookPoster> poster = new();
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
         CancellationToken expected = new(canceled: true);
 
-        poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    It.IsAny<ChatOpsWebhookTarget>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
             .Returns(Task.CompletedTask);
 
-        AlertTeamsWebhookDeliveryChannel sut = new(poster.Object);
+        AlertTeamsWebhookDeliveryChannel sut = new(delivery.Object);
 
         await sut.SendAsync(CreatePayload("https://outlook.office.com/webhook/x"), expected);
 
-        poster.Verify(
-            x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), expected, It.IsAny<WebhookPostOptions?>()),
+        delivery.Verify(
+            x => x.DeliverAsync(
+                It.IsAny<ChatOpsWebhookTarget>(),
+                It.IsAny<string>(),
+                It.IsAny<ChatOpsWebhookMessage>(),
+                expected,
+                It.IsAny<WebhookPostOptions?>()),
             Times.Once);
     }
 

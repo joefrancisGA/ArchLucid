@@ -22,7 +22,7 @@ internal static class ComplianceReportAuditLiveSampleFetcher
 
         try
         {
-            int take = PaginationDefaults.MaxListingTake;
+            const int take = PaginationDefaults.MaxListingTake;
             using HttpResponseMessage response =
                 await http.GetAsync($"v1/audit?take={take}", cancellationToken);
 

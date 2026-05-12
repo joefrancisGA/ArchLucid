@@ -31,7 +31,7 @@ import {
   mergeArchitectureGraphPages,
 } from "@/lib/graph-api";
 import { isApiRequestError } from "@/lib/api-request-error";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled, tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
 import {
   downloadBrowserTextFile,
@@ -369,8 +369,7 @@ function GraphPageContent() {
       return {
         ...GRAPH_IDLE,
         title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
-        description:
-          "The Claims Intake sample traces evidence from captured context through primary risk findings to the finalized package and deliverables. The graph loads automatically — if the canvas stays empty, expand advanced controls below and choose Load graph.",
+        description: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} traces evidence from captured context through prioritized risk findings to the signed manifest and deliverables. The graph loads automatically — if the canvas stays empty, expand advanced controls below and choose Load graph.`,
       };
     }
 
@@ -379,7 +378,7 @@ function GraphPageContent() {
 
   const leadIntro =
     demoUi || buyerPolishedShell
-      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. The sample emphasizes evidence → prioritized risk findings → mitigation decisions → sealed manifest outputs.`
+      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Emphasis: evidence → prioritized risk findings → mitigation decisions → sealed manifest outputs for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
       : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
   const pageTitle = buyerPolishedShell ? "Decision traceability graph" : BUYER_SURFACE_VOCABULARY.evidenceGraph;
@@ -626,7 +625,7 @@ function GraphPageContent() {
             <span className="text-neutral-500 dark:text-neutral-400 text-sm">
               {buyerPolishedShell
                 ? graphInteractiveReady && !loading
-                  ? `${graph.nodes.length} nodes in this view`
+                  ? `${graph.nodes.length} linked evidence and decision records in this view`
                   : "Rendering interactive graph…"
                 : `${graph.nodes.length} nodes, ${graph.edges.length} edges (before filter)`}
             </span>
@@ -729,7 +728,7 @@ function GraphPageContent() {
           {demoUi && buyerPolishedShell ? (
             <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
               Expand advanced filters when you need a different finalized package. This view defaults to the{" "}
-              {BUYER_SURFACE_VOCABULARY.evidenceGraphNav.toLowerCase()} for the Claims Intake review package.
+              {BUYER_SURFACE_VOCABULARY.evidenceGraphNav.toLowerCase()} for {SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.
             </p>
           ) : null}
           {demoUi && !buyerPolishedShell ? (

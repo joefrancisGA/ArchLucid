@@ -12,9 +12,11 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Caching;
+using ArchLucid.Notifications;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Orchestration;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -167,6 +169,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
             NonCachingGraphSnapshotProjectionCache.Instance,
+            CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -371,6 +374,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
             NonCachingGraphSnapshotProjectionCache.Instance,
+            CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -486,6 +490,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
             NonCachingGraphSnapshotProjectionCache.Instance,
+            CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -675,6 +680,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
             NonCachingGraphSnapshotProjectionCache.Instance,
+            CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -780,6 +786,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
             NonCachingGraphSnapshotProjectionCache.Instance,
+            CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -901,6 +908,7 @@ public sealed class AuthorityRunOrchestratorTests
             pipelineOpts.Object,
             CreatePublicSiteOptionsMonitor().Object,
             NonCachingGraphSnapshotProjectionCache.Instance,
+            CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -915,6 +923,15 @@ public sealed class AuthorityRunOrchestratorTests
 
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static Mock<IAuthorityRunCommittedChatOpsHook> CreatePassiveChatOpsHook()
+    {
+        Mock<IAuthorityRunCommittedChatOpsHook> mock = new();
+        mock.Setup(h => h.NotifyAsync(It.IsAny<AuthorityRunCommittedChatOpsNotice>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        return mock;
     }
 
     private static Mock<IOptionsMonitor<PublicSiteOptions>> CreatePublicSiteOptionsMonitor()

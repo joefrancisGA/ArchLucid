@@ -18,21 +18,29 @@ public sealed class FirstPartyDigestWebhookDeliveryConformanceTests
     {
         const string connectorName = "Advisory digest Slack incoming webhook";
 
-        Mock<IWebhookPoster> poster = new();
-        object? body = null;
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
 
-        poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
-            .Callback<string, object, CancellationToken, WebhookPostOptions?>((_, b, _, _) => body = b)
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    It.IsAny<ChatOpsWebhookTarget>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
             .Returns(Task.CompletedTask);
 
         string destination = "https://hooks.slack.com/services/DIGEST/FAKE/URL";
 
-        DigestSlackWebhookDeliveryChannel sut = new(poster.Object);
+        DigestSlackWebhookDeliveryChannel sut = new(delivery.Object);
         await sut.SendAsync(CreateDigestPayload(destination, DigestDeliveryChannelType.SlackWebhook), CancellationToken.None);
 
-        body.Should().NotBeNull();
-        WebhookPostJsonBodyOutboundConnectorConformance.AssertBodyJsonDoesNotEchoDestination(connectorName, body!, destination);
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForSlack(captured!);
+        WebhookPostJsonBodyOutboundConnectorConformance.AssertBodyJsonDoesNotEchoDestination(connectorName, body, destination);
     }
 
     [Fact]
@@ -40,21 +48,30 @@ public sealed class FirstPartyDigestWebhookDeliveryConformanceTests
     {
         const string connectorName = "Advisory digest Microsoft Teams incoming webhook";
 
-        Mock<IWebhookPoster> poster = new();
-        object? body = null;
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
 
-        poster
-            .Setup(x => x.PostJsonAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>(), It.IsAny<WebhookPostOptions?>()))
-            .Callback<string, object, CancellationToken, WebhookPostOptions?>((_, b, _, _) => body = b)
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    It.IsAny<ChatOpsWebhookTarget>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
             .Returns(Task.CompletedTask);
 
         string destination = "https://outlook.office.com/webhook/digest-fake";
 
-        DigestTeamsWebhookDeliveryChannel sut = new(poster.Object);
+        DigestTeamsWebhookDeliveryChannel sut = new(delivery.Object);
         await sut.SendAsync(CreateDigestPayload(destination, DigestDeliveryChannelType.TeamsWebhook), CancellationToken.None);
 
-        body.Should().NotBeNull();
-        WebhookPostJsonBodyOutboundConnectorConformance.AssertBodyJsonDoesNotEchoDestination(connectorName, body!, destination);
+        captured.Should().NotBeNull();
+
+        object body = ChatOpsIncomingWebhookBodies.ForTeams(captured!);
+        WebhookPostJsonBodyOutboundConnectorConformance.AssertBodyJsonDoesNotEchoDestination(connectorName, body, destination);
     }
 
     private static DigestDeliveryPayload CreateDigestPayload(string destination, string channelType)

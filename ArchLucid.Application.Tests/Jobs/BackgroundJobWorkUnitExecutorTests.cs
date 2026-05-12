@@ -17,7 +17,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
     [Fact]
     public async Task ExecuteAsync_AnalysisDocx_LogsArchitectureDocxExportGenerated()
     {
-        string runId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string runId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail.Setup(r => r.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
@@ -64,7 +64,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
     [Fact]
     public async Task ExecuteAsync_ConsultingDocx_LogsArchitectureDocxExportGenerated()
     {
-        string runId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        const string runId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
         Mock<IRunDetailQueryService> runDetail = new();
         runDetail.Setup(r => r.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
