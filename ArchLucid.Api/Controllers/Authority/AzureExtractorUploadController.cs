@@ -22,6 +22,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class AzureExtractorUploadController(
     IAzureExtractorIngestService ingestService,
+    AzureExtractorChunkedUploadService chunkedUpload,
     ILogger<AzureExtractorUploadController> logger) : ControllerBase
 {
 
@@ -56,6 +57,109 @@ public sealed class AzureExtractorUploadController(
         if (logger.IsEnabled(LogLevel.Information))
 
             logger.LogInformation("Azure extractor ingest rejected: {Detail}", detail);
+
+        return this.UnprocessableEntityProblem(detail);
+
+    }
+
+    /// <summary>
+    ///     Starts a chunked extractor ingest session (requires ArtifactLargePayload BlobProvider AzureBlob or Local).
+    ///     Upload raw ZIP fragments with <see cref="UploadChunkAsync" />, then call <see cref="CompleteChunkUploadAsync" />.
+    /// </summary>
+    [HttpPost("upload-sessions")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<IActionResult> BeginChunkUploadAsync(
+        [FromBody] AzureExtractorChunkUploadStartBody body,
+        CancellationToken cancellationToken)
+    {
+        if (!chunkedUpload.ChunkedPipelineAvailable)
+
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new
+                {
+                    detail =
+                        "Chunked Azure extractor uploads require ArtifactLargePayload BlobProvider AzureBlob or Local with a writable staging path."
+                });
+
+        if (body is null || string.IsNullOrWhiteSpace(body.FileName))
+
+            return BadRequest(new { detail = "fileName is required." });
+
+        if (body.TotalChunks < 1)
+
+            return BadRequest(new { detail = "totalChunks must be at least 1." });
+
+        Guid sessionId =
+            await chunkedUpload.BeginSessionAsync(body.FileName.Trim(), body.TotalChunks, body.TotalBytes, cancellationToken);
+
+        return Ok(new { sessionId, maxChunkBytes = chunkedUpload.MaxConfiguredChunkUploadBytes });
+    }
+
+    /// <summary>Uploads one zero-based chunk of the extractor ZIP as raw octet-stream.</summary>
+    [HttpPut("upload-sessions/{sessionId:guid}/chunks/{chunkIndex:int}")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Consumes("application/octet-stream")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    [RequestSizeLimit(ChunkUploadHttpEnvelopeBudgetBytes)]
+    public async Task<IActionResult> UploadChunkAsync(
+        Guid sessionId,
+        int chunkIndex,
+        CancellationToken cancellationToken)
+    {
+        if (!chunkedUpload.ChunkedPipelineAvailable)
+
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new
+                {
+                    detail =
+                        "Chunked Azure extractor uploads require ArtifactLargePayload BlobProvider AzureBlob or Local with a writable staging path."
+                });
+
+        await chunkedUpload.UploadChunkAsync(sessionId, chunkIndex, Request.Body, cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Assembles staged chunks and runs the same ingest pipeline as <see cref="UploadAsync" />.</summary>
+    [HttpPost("upload-sessions/{sessionId:guid}/complete")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<IActionResult> CompleteChunkUploadAsync(
+        Guid sessionId,
+        [FromQuery] Guid? runId,
+        CancellationToken cancellationToken)
+    {
+        if (!chunkedUpload.ChunkedPipelineAvailable)
+
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new
+                {
+                    detail =
+                        "Chunked Azure extractor uploads require ArtifactLargePayload BlobProvider AzureBlob or Local with a writable staging path."
+                });
+
+        AzureExtractorIngestResult result =
+            await chunkedUpload.CompleteSessionAsync(sessionId, runId, cancellationToken, HttpContext.TraceIdentifier);
+
+        if (result.Succeeded)
+
+            return Accepted(new { packageId = result.PackageId });
+
+        string detail = result.FailureDetail ?? "Ingest failed.";
+
+        if (logger.IsEnabled(LogLevel.Information))
+
+            logger.LogInformation("Azure extractor chunked ingest rejected: {Detail}", detail);
 
         return this.UnprocessableEntityProblem(detail);
 

@@ -53,6 +53,7 @@
 
   <ItemGroup>
     <Using Include="ArchLucid.Core" />
+    <Using Include="ArchLucid.Core.Manifest" />
   </ItemGroup>
 
 </Project>

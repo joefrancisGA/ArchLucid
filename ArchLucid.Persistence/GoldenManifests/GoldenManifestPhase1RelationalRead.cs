@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;

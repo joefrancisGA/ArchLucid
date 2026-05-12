@@ -6,7 +6,7 @@ using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.DependencyInjection;
 
-using AuthorityGoldenManifestRepository = ArchLucid.Decisioning.Interfaces.IGoldenManifestRepository;
+using AuthorityGoldenManifestRepository = ArchLucid.Core.Manifest.IGoldenManifestRepository;
 
 namespace ArchLucid.Api.Tests;
 

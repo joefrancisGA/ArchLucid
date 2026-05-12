@@ -2,7 +2,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 
 using Cm = ArchLucid.Contracts.Manifest;
-using DmSec = ArchLucid.Decisioning.Manifest.Sections;
+using DmSec = ArchLucid.Core.Manifest.Sections;
 
 namespace ArchLucid.Decisioning.Manifest;
 

@@ -8,7 +8,7 @@ using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Services;
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 using DocumentFormat.OpenXml;

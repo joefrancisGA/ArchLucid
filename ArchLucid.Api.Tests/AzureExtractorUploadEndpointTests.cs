@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Net.Http.Headers;
+using System.Text;
 
 using FluentAssertions;
 
@@ -91,6 +92,25 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
         Guid packageId = doc.RootElement.GetProperty("packageId").GetGuid();
 
         await AssertPackageStoredAsync(packageId);
+
+    }
+
+    [SkippableFact]
+
+    public async Task Chunked_begin_when_staging_disabled_returns503()
+    {
+        using HttpClient client = fixture.CreateClient();
+
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        using HttpResponseMessage response = await client.PostAsync(
+            "/v1/azure-extractor/upload-sessions",
+            new StringContent(
+                "{\"fileName\":\"azure-package.zip\",\"totalChunks\":2,\"totalBytes\":100}",
+                Encoding.UTF8,
+                "application/json"));
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.ServiceUnavailable);
 
     }
 

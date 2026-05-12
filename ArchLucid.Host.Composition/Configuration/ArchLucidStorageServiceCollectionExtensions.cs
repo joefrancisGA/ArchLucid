@@ -12,6 +12,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Startup;
+using ArchLucid.Persistence.AzureExtractorChunkUpload;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Connections;
@@ -321,11 +322,17 @@ public static class ArchLucidStorageServiceCollectionExtensions
     {
         services.Configure<ArtifactLargePayloadOptions>(
             configuration.GetSection(ArtifactLargePayloadOptions.SectionName));
+        services.Configure<AzureExtractorChunkUploadOptions>(
+            configuration.GetSection(AzureExtractorChunkUploadOptions.SectionName));
 
         ArtifactLargePayloadOptions snapshot = configuration
                                                    .GetSection(ArtifactLargePayloadOptions.SectionName)
                                                    .Get<ArtifactLargePayloadOptions>()
                                                ?? new ArtifactLargePayloadOptions();
+
+        AzureExtractorChunkUploadOptions chunkSnapshot =
+            configuration.GetSection(AzureExtractorChunkUploadOptions.SectionName).Get<AzureExtractorChunkUploadOptions>()
+            ?? new AzureExtractorChunkUploadOptions();
 
         string provider = snapshot.BlobProvider;
 
@@ -348,18 +355,37 @@ public static class ArchLucidStorageServiceCollectionExtensions
                     sp.GetRequiredService<BlobServiceClient>(),
                     sp.GetRequiredService<TokenCredential>(),
                     sp.GetRequiredService<IScopeContextProvider>()));
+            services.AddScoped<IAzureExtractorChunkSessionStore, AzureBlobAzureExtractorChunkSessionStore>();
         }
         else if (string.Equals(provider, "Local", StringComparison.OrdinalIgnoreCase))
         {
-            string root = string.IsNullOrWhiteSpace(snapshot.LocalRootPath)
-                ? Path.Combine(AppContext.BaseDirectory, "blob-store")
-                : snapshot.LocalRootPath;
+            string resolvedRoot = Path.GetFullPath(
+                string.IsNullOrWhiteSpace(snapshot.LocalRootPath)
+                    ? Path.Combine(AppContext.BaseDirectory, "blob-store")
+                    : snapshot.LocalRootPath);
+
+            string stagingRelative = string.IsNullOrWhiteSpace(chunkSnapshot.LocalStagingRelativeDirectory)
+                ? "azure-extractor-chunk-upload"
+                : chunkSnapshot.LocalStagingRelativeDirectory.Trim();
+
+            string stagingRoot = Path.Combine(resolvedRoot, stagingRelative);
+
             services.AddSingleton<IArtifactBlobStore>(sp =>
-                new LocalFileArtifactBlobStore(root, sp.GetRequiredService<IScopeContextProvider>()));
+                new LocalFileArtifactBlobStore(resolvedRoot, sp.GetRequiredService<IScopeContextProvider>()));
+
+            services.AddScoped<IAzureExtractorChunkSessionStore>(sp =>
+                new LocalAzureExtractorChunkSessionStore(
+                    stagingRoot,
+                    sp.GetRequiredService<IScopeContextProvider>(),
+                    sp.GetRequiredService<IOptions<AzureExtractorChunkUploadOptions>>()));
         }
         else
 
+        {
             services.AddSingleton<IArtifactBlobStore, NullArtifactBlobStore>();
+
+            services.AddSingleton<IAzureExtractorChunkSessionStore, NullAzureExtractorChunkSessionStore>();
+        }
 
     }
 }

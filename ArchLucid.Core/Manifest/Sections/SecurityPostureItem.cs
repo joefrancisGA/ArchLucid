@@ -1,4 +1,4 @@
-namespace ArchLucid.Decisioning.Manifest.Sections;
+namespace ArchLucid.Core.Manifest.Sections;
 
 public class SecurityPostureItem
 {

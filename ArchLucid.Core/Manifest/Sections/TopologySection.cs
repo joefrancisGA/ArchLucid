@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Manifest;
 
-namespace ArchLucid.Decisioning.Manifest.Sections;
+namespace ArchLucid.Core.Manifest.Sections;
 
 public class TopologySection
 {

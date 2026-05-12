@@ -4,7 +4,7 @@ using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
-using ManifestDocument = ArchLucid.Decisioning.Models.ManifestDocument;
+using ManifestDocument = ArchLucid.Core.Manifest.ManifestDocument;
 
 namespace ArchLucid.Application.Tests.Runs.Telemetry;
 

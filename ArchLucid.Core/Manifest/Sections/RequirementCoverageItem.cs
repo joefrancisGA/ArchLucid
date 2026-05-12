@@ -1,26 +1,26 @@
-namespace ArchLucid.Decisioning.Manifest.Sections;
+namespace ArchLucid.Core.Manifest.Sections;
 
-public class ManifestIssue
+public class RequirementCoverageItem
 {
-    public string IssueType
+    public string RequirementName
     {
         get;
         set;
     } = null!;
 
-    public string Title
+    public string RequirementText
     {
         get;
         set;
     } = null!;
 
-    public string Description
+    public bool IsMandatory
     {
         get;
         set;
-    } = null!;
+    }
 
-    public string Severity
+    public string CoverageStatus
     {
         get;
         set;

@@ -1,6 +1,6 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 

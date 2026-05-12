@@ -81,6 +81,29 @@ public sealed class InboundWebhookPipelineOrderIntegrationTests
         payload.IndexOf("JsonException", StringComparison.OrdinalIgnoreCase).Should().Be(-1);
     }
 
+    [Fact]
+    public async Task Jira_webhook_response_echoes_trimmed_x_correlation_id_header()
+    {
+        await using WebApplicationFactory<Program> factory = CreateFactory();
+        using HttpClient client = factory.CreateClient();
+
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/integrations/webhooks/jira");
+        request.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+
+        request.Headers.TryAddWithoutValidation("X-Jira-Token", "wrong-secret");
+        request.Headers.TryAddWithoutValidation("X-Correlation-ID", "  inbound-it-sm-corr-hdr-1  ");
+
+        using HttpResponseMessage response = await client.SendAsync(request);
+
+        IEnumerable<string>? correlationHeaders =
+            response.Headers.TryGetValues("X-Correlation-ID", out IEnumerable<string>? values)
+                ? values
+                : null;
+
+        correlationHeaders.Should().NotBeNull();
+        correlationHeaders!.Should().ContainSingle().Which.Should().Be("inbound-it-sm-corr-hdr-1");
+    }
+
     private static WebApplicationFactory<Program> CreateFactory() =>
         new OpenApiContractWebAppFactory().WithWebHostBuilder(builder =>
             builder.ConfigureAppConfiguration(

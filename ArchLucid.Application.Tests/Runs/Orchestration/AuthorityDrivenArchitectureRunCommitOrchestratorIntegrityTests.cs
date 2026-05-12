@@ -22,7 +22,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 using ContractManifestMetadata = ArchLucid.Contracts.Manifest.ManifestMetadata;
-using DecisionManifestMetadata = ArchLucid.Decisioning.Manifest.Sections.ManifestMetadata;
+using DecisionManifestMetadata = ArchLucid.Core.Manifest.Sections.ManifestMetadata;
 using Dm = ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Application.Tests.Runs.Orchestration;
@@ -193,7 +193,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
     [SkippableFact]
     public void AlignAuthorityVersionToContract_copies_contract_manifest_version_onto_model()
     {
-        Dm.ManifestDocument model = new()
+        ManifestDocument model = new()
         {
             Metadata = new DecisionManifestMetadata { Version = "before" },
         };
@@ -210,7 +210,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
     [SkippableFact]
     public void AlignAuthorityVersionToContract_when_contract_version_blank_leaves_model_version_unchanged()
     {
-        Dm.ManifestDocument model = new()
+        ManifestDocument model = new()
         {
             Metadata = new DecisionManifestMetadata { Version = "stable" },
         };
@@ -240,7 +240,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTes
     [SkippableFact]
     public void AlignAuthorityVersionToContract_null_contract_throws()
     {
-        Dm.ManifestDocument model = new();
+        ManifestDocument model = new();
 
         Action act = () => AuthorityDrivenArchitectureRunCommitOrchestrator.AlignAuthorityVersionToContract(model, null!);
 

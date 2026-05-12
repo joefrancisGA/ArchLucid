@@ -116,6 +116,7 @@ internal static class PipelineExtensions
     {
         app.UseAuthentication();
         app.UseRateLimiter();
+        app.UseMiddleware<ArchLucidRateLimitTelemetryHeadersMiddleware>();
         app.UseMiddleware<TrialSeatReservationMiddleware>();
         app.UseAuthorization();
         app.UseMiddleware<ApiRequestMeteringMiddleware>();

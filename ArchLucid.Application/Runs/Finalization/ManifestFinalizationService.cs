@@ -133,7 +133,7 @@ public sealed class ManifestFinalizationService(
 
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();
         await decisionTraceRepository.SaveAsync(request.Trace, cancellationToken, connection, transaction);
-        Dm.ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
+        ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
             cancellationToken, connection, transaction, request.ManifestModel);
         DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         Guid auditEventId = Guid.NewGuid();
@@ -224,7 +224,7 @@ public sealed class ManifestFinalizationService(
         }
 
         await decisionTraceRepository.SaveAsync(request.Trace, cancellationToken);
-        Dm.ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
+        ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
             cancellationToken, authorityPersistBody: request.ManifestModel);
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);

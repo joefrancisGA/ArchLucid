@@ -74,7 +74,7 @@ public sealed class LlmCostUsdInstrumentationTests
             return new DoubleMeasurementCapture();
         }
 
-        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        private static void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
             if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
             {

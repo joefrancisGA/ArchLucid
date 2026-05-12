@@ -55,4 +55,17 @@ public sealed class CorrelationIdHeaderParserTests
             .Should()
             .BeFalse();
     }
+
+    [Fact]
+    public void TryGetValidIncomingCorrelationId_trims_whitespace_before_validation()
+    {
+        IHeaderDictionary headers = new HeaderDictionary();
+        headers[CorrelationIdHeaderParser.HeaderName] = "  vendor-it-sm-corr-9  ";
+
+        bool ok =
+            CorrelationIdHeaderParser.TryGetValidIncomingCorrelationId(headers, out string? correlationId);
+
+        ok.Should().BeTrue();
+        correlationId.Should().Be("vendor-it-sm-corr-9");
+    }
 }

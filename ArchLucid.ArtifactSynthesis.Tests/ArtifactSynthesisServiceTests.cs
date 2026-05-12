@@ -1,7 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Services;
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;

@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Interfaces;
 
 using FluentAssertions;

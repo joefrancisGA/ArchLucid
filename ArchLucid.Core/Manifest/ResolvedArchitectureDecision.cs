@@ -1,4 +1,4 @@
-namespace ArchLucid.Decisioning.Models;
+namespace ArchLucid.Core.Manifest;
 
 public class ResolvedArchitectureDecision
 {

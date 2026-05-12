@@ -1,6 +1,6 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 using Cm = ArchLucid.Contracts.Manifest;
@@ -9,7 +9,7 @@ namespace ArchLucid.Decisioning.Manifest.Mapping;
 
 /// <summary>
 ///     Maps a coordinator-shaped <see cref="Cm.GoldenManifest" /> into an authority
-///     <see cref="Models.ManifestDocument" /> for persistence.
+///     <see cref="ManifestDocument" /> for persistence.
 /// </summary>
 public static class ContractGoldenManifestMapper
 {

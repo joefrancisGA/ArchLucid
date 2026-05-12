@@ -1,6 +1,6 @@
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 
-namespace ArchLucid.Decisioning.Models;
+namespace ArchLucid.Core.Manifest;
 
 public class ManifestDocument
 {

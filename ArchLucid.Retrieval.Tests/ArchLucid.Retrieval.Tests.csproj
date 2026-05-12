@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Using Include="ArchLucid.Core" />
+    <Using Include="ArchLucid.Core.Manifest" />
     <Using Include="Xunit" />
   </ItemGroup>
 

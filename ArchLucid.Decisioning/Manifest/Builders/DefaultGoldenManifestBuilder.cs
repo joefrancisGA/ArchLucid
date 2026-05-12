@@ -6,7 +6,7 @@ using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;

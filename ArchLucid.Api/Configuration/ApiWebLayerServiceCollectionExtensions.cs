@@ -48,6 +48,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
+        services.AddScoped<AzureExtractorChunkedUploadService>();
         services.AddScoped<PolicyPackMarkdownExplainService>();
 
         services.AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>

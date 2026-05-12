@@ -35,7 +35,7 @@ public sealed class UnifiedGoldenManifestReaderTests
                     It.IsAny<ScopeContext>(),
                     It.IsAny<string>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Dm.ManifestDocument?)null);
+                .ReturnsAsync((ManifestDocument?)null);
         }
 
         projection ??= new Mock<IAuthorityCommitProjectionBuilder>();
@@ -113,7 +113,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             .ReturnsAsync(run);
 
         string expectedVersion = $"v1-{runId:N}";
-        Dm.ManifestDocument authorityByVersion = NewAuthorityRow(scope, runId);
+        ManifestDocument authorityByVersion = NewAuthorityRow(scope, runId);
 
         Mock<IGoldenManifestRepository> authority = new();
         authority.Setup(a => a.GetByContractManifestVersionAsync(
@@ -133,7 +133,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         Mock<IAuthorityCommitProjectionBuilder> projection = new();
         projection
             .Setup(p => p.BuildAsync(
-                It.IsAny<Dm.ManifestDocument>(),
+                It.IsAny<ManifestDocument>(),
                 It.IsAny<AuthorityCommitProjectionInput>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(projected);
@@ -177,7 +177,7 @@ public sealed class UnifiedGoldenManifestReaderTests
                 It.IsAny<ScopeContext>(),
                 "v2",
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Dm.ManifestDocument?)null);
+            .ReturnsAsync((ManifestDocument?)null);
 
         UnifiedGoldenManifestReader sut = CreateSut(runs, authority);
 
@@ -226,7 +226,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             Metadata = new Cm.ManifestMetadata { ManifestVersion = "v1" }
         };
 
-        Dm.ManifestDocument authorityRow = NewAuthorityRow(scope, runId, manifestId);
+        ManifestDocument authorityRow = NewAuthorityRow(scope, runId, manifestId);
 
         Mock<IGoldenManifestRepository> authority = new();
         authority.Setup(a => a.GetByIdAsync(scope, manifestId, It.IsAny<CancellationToken>()))
@@ -235,7 +235,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         Mock<IAuthorityCommitProjectionBuilder> projection = new();
         projection
             .Setup(p => p.BuildAsync(
-                It.IsAny<Dm.ManifestDocument>(),
+                It.IsAny<ManifestDocument>(),
                 It.Is<AuthorityCommitProjectionInput>(i => i.SystemName == "SysZ"),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(projected);
@@ -258,9 +258,9 @@ public sealed class UnifiedGoldenManifestReaderTests
         manifest.SystemName.Should().Be("FromAuthority");
     }
 
-    private static Dm.ManifestDocument NewAuthorityRow(ScopeContext scope, Guid runId, Guid? manifestId = null)
+    private static ManifestDocument NewAuthorityRow(ScopeContext scope, Guid runId, Guid? manifestId = null)
     {
-        return new Dm.ManifestDocument
+        return new ManifestDocument
         {
             ManifestId = manifestId ?? Guid.NewGuid(),
             RunId = runId,

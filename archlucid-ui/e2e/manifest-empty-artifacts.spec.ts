@@ -43,7 +43,7 @@ test.describe("operator journey — manifest empty artifact list", () => {
 
     const bundleLink = page
       .getByRole("link", {
-        name: /^(Download bundle \(ZIP\)|Download all files \(ZIP\)|Download full package \(ZIP\))$/,
+        name: /^(Download bundle \(ZIP\)|Download evidence package \(ZIP\)|Download all files \(ZIP\)|Download full package \(ZIP\))$/,
       })
       .first();
     await expect(bundleLink).toBeVisible();

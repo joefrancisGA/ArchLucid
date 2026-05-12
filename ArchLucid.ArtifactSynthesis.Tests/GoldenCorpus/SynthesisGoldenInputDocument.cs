@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Core.Manifest.Sections;
 
 namespace ArchLucid.ArtifactSynthesis.Tests.GoldenCorpus;
 
@@ -96,7 +96,7 @@ internal sealed class SynthesisGoldenIssue
 
 internal static class SynthesisGoldenManifestBuilder
 {
-    public static ArchLucid.Decisioning.Models.ManifestDocument Build(SynthesisGoldenInputDocument input)
+    public static ArchLucid.Core.Manifest.ManifestDocument Build(SynthesisGoldenInputDocument input)
     {
         List<RequirementCoverageItem> covered = input.CoveredRequirementNames
             .Select(
@@ -131,7 +131,7 @@ internal static class SynthesisGoldenManifestBuilder
                 })
             .ToList();
 
-        return new ArchLucid.Decisioning.Models.ManifestDocument
+        return new ArchLucid.Core.Manifest.ManifestDocument
         {
             RunId = input.RunId,
             ManifestId = input.ManifestId,

@@ -31,7 +31,7 @@ using Microsoft.Extensions.Logging;
 
 using Cm = ArchLucid.Contracts.Manifest;
 using DecisioningIdTraceRepository = ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository;
-using DecisioningIGoldenManifestRepository = ArchLucid.Decisioning.Interfaces.IGoldenManifestRepository;
+using DecisioningIGoldenManifestRepository = ArchLucid.Core.Manifest.IGoldenManifestRepository;
 using Dm = ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Application.Runs.Orchestration;
@@ -212,7 +212,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
-        Dm.ManifestDocument manifestModel;
+        ManifestDocument manifestModel;
         DecisionTrace trace;
         Cm.GoldenManifest contract;
         AgentEvidencePackage? evidencePackageForTelemetry;
@@ -291,7 +291,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             throw;
         }
 
-        Dm.ManifestDocument persisted =
+        ManifestDocument persisted =
             finalization.PersistedManifest ?? throw new InvalidOperationException("Manifest finalization returned no persisted model.");
         await EnsureDecisionEngineV2NodesMaterializedAsync(runId, request, cancellationToken);
         await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunCompleted, actor, runId,
@@ -343,7 +343,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         return new CommitRunResult { Manifest = contract, DecisionTraces = [trace], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
     }
 
-    private static SaveContractsManifestOptions BuildSaveContractsManifestOptions(Dm.ManifestDocument manifestModel, DecisionTrace trace)
+    private static SaveContractsManifestOptions BuildSaveContractsManifestOptions(ManifestDocument manifestModel, DecisionTrace trace)
     {
         RuleAuditTracePayload audit = trace.RequireRuleAudit();
         return new SaveContractsManifestOptions
@@ -370,7 +370,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         if (run.DecisionTraceId is not { } traceId)
             throw new ConflictException($"Run '{runId}' is already committed (architecture run) but DecisionTraceId is missing on the run record.");
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        Dm.ManifestDocument? manifestModel = await _goldenManifestRepository.GetByIdAsync(scope, goldenId, cancellationToken);
+        ManifestDocument? manifestModel = await _goldenManifestRepository.GetByIdAsync(scope, goldenId, cancellationToken);
         if (manifestModel is null)
             throw new ConflictException(
                 $"Run '{runId}' is already committed but the golden manifest '{goldenId:D}' could not be loaded for idempotent replay.");
@@ -472,7 +472,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         audit.ProjectId = scope.ProjectId;
     }
 
-    private static void ApplyAuthorityManifestScope(Dm.ManifestDocument manifest, ScopeContext scope)
+    private static void ApplyAuthorityManifestScope(ManifestDocument manifest, ScopeContext scope)
     {
         manifest.TenantId = scope.TenantId;
         manifest.WorkspaceId = scope.WorkspaceId;
@@ -489,7 +489,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     ///     never match the version the client just received → 404. Copying the contract version onto
     ///     the authority row before persistence keeps the read path round-tripping.
     /// </summary>
-    internal static void AlignAuthorityVersionToContract(Dm.ManifestDocument manifestModel, Cm.GoldenManifest contract)
+    internal static void AlignAuthorityVersionToContract(ManifestDocument manifestModel, Cm.GoldenManifest contract)
     {
         if (manifestModel is null)
             throw new ArgumentNullException(nameof(manifestModel));
