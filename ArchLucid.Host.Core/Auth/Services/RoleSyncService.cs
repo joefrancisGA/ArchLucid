@@ -3,7 +3,7 @@ using System.Security.Claims;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 
-namespace ArchLucid.Application.Identity;
+namespace ArchLucid.Host.Core.Auth.Services;
 
 /// <inheritdoc cref="IRoleSyncService" />
 public sealed class RoleSyncService(IScimUserRepository scimUsers) : IRoleSyncService
@@ -71,7 +71,6 @@ public sealed class RoleSyncService(IScimUserRepository scimUsers) : IRoleSyncSe
     private static void StripInboundRoleClaims(ClaimsIdentity identity)
     {
         foreach (Claim c in identity.Claims.Where(IsInboundRoleClaim).ToList())
-
             identity.TryRemoveClaim(c);
     }
 

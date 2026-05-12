@@ -629,7 +629,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Reduces the manual setup and error surface for Tenant RBAC.
     - **Expected impact:** Manageability (+5 pts), Security (+2 pts).
     - **Affected qualities:** Manageability, Security.
-    - **Status:** Actionable now.
+    - **Status:** Completed — `IRoleSyncService` / `RoleSyncService` at `ArchLucid.Host.Core/Auth/Services/` (INV-001: no `ClaimsPrincipal` in `ArchLucid.Application`); JWT / Entra `roles` + manual SCIM `ResolvedRoleOrigin.Manual` override; wired in `ArchLucidRoleClaimsTransformation`; composition `RegisterScimProvisioning`; tests `ArchLucid.Host.Composition.Tests/Services/Auth/RoleSyncServiceTests.cs`.
     ```text
     Implement an automated `RoleSyncService` in `ArchLucid.Application` that maps Entra ID `appRoles` claims directly to ArchLucid internal roles upon login.
     - Specify files: `ArchLucid.Application/Identity/`
@@ -702,7 +702,7 @@ To optimize context window usage and cursor cost-effectiveness, execute the impr
 **Batch 2: Project Architecture & Build (Prompts 1, 22 completed; Prompt 6 remaining)**
 - **Why:** These require context on the global `.csproj` files, CI pipelines, NuGet configurations, and global testing strategies.
 
-**Batch 3: External Integrations & Azure Logic (Prompts 7, 11, 15, 17, 19, 21)**
+**Batch 3: External Integrations & Azure Logic (Prompts 7, 11, 15, 17, 19, 21 completed)**
 - **Why:** Grouping Terraform logic, ServiceNow mappings, Slack config, Azure retry handlers, identity roles, and role script generation minimizes context-switching between third-party API dependencies.
 
 **Batch 4: Output & Compliance Validation (Prompts 3, 4, 10, 13, 14, 23, 24, 25)**
