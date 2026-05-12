@@ -597,7 +597,7 @@ function GovernanceWorkflowPageInner() {
       ) : null}
       {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
         <div className="mb-6">
-          <Button type="button" asChild variant="primary" size="sm" className="mt-2">
+          <Button type="button" asChild variant="primary" size="lg" className="mt-2">
             <Link href={`/audit?runId=${encodeURIComponent(activeRunId)}`}>Open audit trail</Link>
           </Button>
         </div>

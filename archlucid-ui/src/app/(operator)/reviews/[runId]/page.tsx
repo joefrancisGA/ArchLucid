@@ -19,7 +19,7 @@ import {
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
-import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect } from "@/lib/demo-run-canonical";
+import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect, isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
@@ -85,6 +85,7 @@ import {
   tryStaticDemoPipelineTimeline,
   tryStaticDemoRunDetail,
 } from "@/lib/operator-static-demo";
+import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
 import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
@@ -122,7 +123,7 @@ function ManifestSummarySection({
         <CardHeader>
           <h3 className={sectionHeadingClass}>
             {buyerPolishedShell ? (
-              <>Final review record</>
+              <>Finalized decision record</>
             ) : (
               <>
                 Review package summary (<GlossaryTooltip termKey="architecture_manifest">manifest</GlossaryTooltip>)
@@ -485,7 +486,9 @@ export default async function RunDetailPage({
         };
 
   const headline = buyerPolishedArtifactTable
-    ? buyerFacingReviewTitleFromSummary(resolvedDetail.run as RunSummary)
+    ? isShowcaseStaticDemoRunId(resolvedDetail.run.runId)
+      ? SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE
+      : buyerFacingReviewTitleFromSummary(resolvedDetail.run as RunSummary)
     : descriptionTrimmed.length > 0
       ? descriptionTrimmed
       : `Review ${resolvedDetail.run.runId}`;
@@ -577,7 +580,9 @@ export default async function RunDetailPage({
     ) : null;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
+    <div
+      className={`mx-auto space-y-6 px-1 py-2 sm:px-0 ${buyerPolishedArtifactTable ? "max-w-6xl" : "max-w-4xl"}`}
+    >
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
         <Link className="text-teal-800 underline dark:text-teal-300" href="/">
           Home

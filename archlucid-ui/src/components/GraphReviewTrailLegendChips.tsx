@@ -76,9 +76,9 @@ export function GraphReviewTrailLegendChips(props: {
           )}
           title={x.role}
         >
-          <span className="text-[10px] font-semibold uppercase tracking-wide">{x.k}</span>
+          <span className="text-[11px] font-semibold uppercase tracking-wide">{x.k}</span>
           {showRoles ? (
-            <span className="text-[10px] font-normal normal-case tracking-normal opacity-75">
+            <span className="text-[11px] font-normal normal-case tracking-normal opacity-75">
               — {x.role}
             </span>
           ) : null}

@@ -77,6 +77,7 @@ using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Tenancy.Diagnostics;
 using ArchLucid.Persistence.Transactions;
 using ArchLucid.Persistence.Value;
+using ArchLucid.Persistence.WeeklyDigest;
 using ArchLucid.Provenance;
 
 using Microsoft.Extensions.Caching.Memory;
@@ -155,6 +156,9 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
     {
         services.AddSingleton<SqlConnectionFactory>(
             _ => new SqlConnectionFactory(connectionString));
+
+        services.AddSingleton<IWeeklyArchitectureCriticalFindingSummaryRepository,
+            DapperWeeklyArchitectureCriticalFindingSummaryRepository>();
 
         services.AddScoped<ScopedRoutingSqlConnectionFactory>(sp =>
             new ScopedRoutingSqlConnectionFactory(

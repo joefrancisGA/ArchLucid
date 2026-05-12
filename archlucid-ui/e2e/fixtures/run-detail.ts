@@ -16,7 +16,7 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 
   return {
     executionFlavorBuyerSummary:
-      "Finished example review package — consistent inputs so every evaluator sees the same outcomes. In production, workflows and evidence sources follow your tenant configuration.",
+      "Sealed review package with traceable evidence, governed outcomes, and audit-ready deliverables.",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,
@@ -42,7 +42,7 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 export function fixtureRunDetail(): RunDetail {
   return {
     executionFlavorBuyerSummary:
-      "Finished example review package — consistent inputs so every evaluator sees the same outcomes. In production, workflows and evidence sources follow your tenant configuration.",
+      "Sealed review package with traceable evidence, governed outcomes, and audit-ready deliverables.",
     run: {
       runId: FIXTURE_RUN_ID,
       projectId: FIXTURE_PROJECT_ID,

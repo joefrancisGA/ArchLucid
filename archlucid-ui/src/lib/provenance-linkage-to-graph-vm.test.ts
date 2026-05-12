@@ -20,7 +20,7 @@ describe("provenanceLinkageToGraphViewModel", () => {
     const prov = buildStaticDemoProvenanceGraphFromShowcase(SHOWCASE_STATIC_DEMO_RUN_ID);
     const vm = provenanceLinkageToGraphViewModel(prov, { buyerFacingLabels: true });
 
-    expect(vm.nodes.find((n) => n.id === "n-run")?.label).toBe("Review started");
+    expect(vm.nodes.find((n) => n.id === "n-run")?.label).toBe("Review kickoff");
     expect(vm.nodes.find((n) => n.id === "n-phi")?.label).toBe("PHI minimization risk");
   });
 });

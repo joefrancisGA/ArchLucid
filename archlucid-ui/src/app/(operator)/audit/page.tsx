@@ -138,7 +138,12 @@ function auditBuyerActorRoleLine(actorName: string, eventType: string): string {
   const name = actorName.trim();
   const lower = name.toLowerCase();
 
-  if (lower.includes("archlucid automation") || lower.includes("automation") || lower.includes("recorded by archlucid")) {
+  if (
+    lower.includes("archlucid automation") ||
+    lower.includes("archlucid system") ||
+    lower.includes("automation") ||
+    lower.includes("recorded by archlucid")
+  ) {
     return "System-recorded";
   }
 

@@ -10,7 +10,7 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("provenance graph presentation", () => {
   it("maps coordinator types to business labels", () => {
-    expect(buyerLabelForProvenanceNode("ArchitectureRun", "x")).toBe("Review started");
+    expect(buyerLabelForProvenanceNode("ArchitectureRun", "x")).toBe("Review kickoff");
     expect(buyerLabelForProvenanceNode("Unknown", "Fallback")).toBe("Fallback");
   });
 
@@ -20,7 +20,7 @@ describe("provenance graph presentation", () => {
     const relabeled = applyBuyerLabelsToProvenanceGraphViewModel(vm);
 
     const runNode = relabeled.nodes.find((n) => n.id === "n-run");
-    expect(runNode?.label).toBe("Review started");
+    expect(runNode?.label).toBe("Review kickoff");
 
     const phi = relabeled.nodes.find((n) => n.id === "n-phi");
     expect(phi?.label).toBe("PHI minimization risk");

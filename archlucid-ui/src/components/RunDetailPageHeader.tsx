@@ -59,10 +59,10 @@ export function RunDetailPageHeader({
           {buyerPolishedShell === true && executionFlavorBuyerSummary ? (
             <>
               <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                <Badge variant="secondary" className="me-2 align-middle font-normal">
-                  Example
-                </Badge>
                 {executionFlavorBuyerSummary}
+              </p>
+              <p className="m-0 mt-1 max-w-3xl text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+                In production, workflows and evidence sources follow your tenant configuration.
               </p>
               <p className="m-0 mt-2 inline-flex max-w-3xl flex-wrap items-center gap-2 rounded-md border border-teal-200 bg-teal-50/80 px-3 py-2 text-sm font-medium text-teal-950 dark:border-teal-900 dark:bg-teal-950/30 dark:text-teal-100">
                 <span>Traceable evidence and audit-ready history</span>

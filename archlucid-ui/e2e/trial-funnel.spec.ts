@@ -137,6 +137,17 @@ test.describe("trial funnel — mocked end-to-end", () => {
     expect(capture.body?.baselineReviewCycleHours).toBe(16);
     expect(capture.body?.baselineReviewCycleSource).toBe("team estimate");
 
+    /**
+     * `TrialWelcomeRunDeepLink` normally redirects first-time home visitors to `/reviews/{trialWelcomeRunId}`.
+     * Prime sessionStorage so we stay on `/` and assert the dashboard cycle panel (`before-after-delta-panel`).
+     */
+    await page.addInitScript(
+      ([storageKey, welcomeRunId]: [string, string]) => {
+        sessionStorage.setItem(storageKey, welcomeRunId);
+      },
+      ["archlucid_trial_welcome_home_redirect_v1", MOCK_TRIAL_WELCOME_RUN_ID],
+    );
+
     await page.goto("/");
 
     await expect(page.getByTestId("before-after-delta-panel")).toBeVisible();

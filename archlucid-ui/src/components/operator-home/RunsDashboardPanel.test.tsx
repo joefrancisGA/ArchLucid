@@ -216,15 +216,15 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-showcase-demo-banner")).toBeInTheDocument();
       });
-      expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Signed manifest summary" })).toHaveAttribute(
         "href",
-        "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+        "/reviews/claims-intake-modernization/manifest",
       );
-      expect(screen.getByRole("link", { name: "Executive summary" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Start Executive Summary" })).toHaveAttribute(
         "href",
         "/executive/reviews/claims-intake-modernization",
       );
-      expect(screen.getByRole("link", { name: "Read-only walkthrough" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Guided walkthrough" })).toHaveAttribute(
         "href",
         "/showcase/claims-intake-modernization",
       );
@@ -262,7 +262,7 @@ describe("RunsDashboardPanel", () => {
       ).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
         "href",
-        "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+        "/reviews/claims-intake-modernization/manifest",
       );
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {

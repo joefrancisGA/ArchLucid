@@ -73,7 +73,9 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.goto(claimsShowcasePath);
     await page.getByRole("link", { name: SHOWCASE_MANIFEST_DEEP_LINK }).first().click();
     await expect(page).toHaveURL(
-      new RegExp(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}`),
+      new RegExp(
+        `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}/manifest)`,
+      ),
     );
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
   });
@@ -83,7 +85,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/",
       "/reviews?projectId=default",
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
-      `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
+      `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/manifest`,
       "/governance",
       "/help",
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent("phi-minimization-risk")}`,
@@ -132,11 +134,11 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(claimsTableRow).toBeVisible();
     await claimsTableRow.getByRole("link").click();
     const afterListClickUrl = new RegExp(
-      `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}|/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")})`,
+      `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}/manifest|/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")})`,
     );
     await expect(page).toHaveURL(afterListClickUrl);
 
-    if (page.url().includes("/manifests/")) {
+    if (page.url().includes("/manifests/") || page.url().includes("/manifest")) {
       await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
       await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     }
@@ -144,7 +146,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
 
-    await page.goto(`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`);
+    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/manifest`);
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
 
     await page.goto(

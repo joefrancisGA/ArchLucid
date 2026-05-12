@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 
 type SampleReviewPackageSummaryProps = {
@@ -59,7 +60,7 @@ export function SampleReviewPackageSummary({
       <div className="mt-4 flex flex-wrap gap-2">
         {manifestId ? (
           <Button asChild variant="outline" className="h-9 border-amber-300 bg-white/80 text-amber-950 hover:bg-white dark:border-amber-700 dark:bg-neutral-950/60 dark:text-amber-100">
-            <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Open sample manifest</Link>
+            <Link href={getShowcaseManifestHref()}>Open signed manifest</Link>
           </Button>
         ) : null}
         <Button asChild variant="outline" className="h-9 border-amber-300 bg-white/80 text-amber-950 hover:bg-white dark:border-amber-700 dark:bg-neutral-950/60 dark:text-amber-100">

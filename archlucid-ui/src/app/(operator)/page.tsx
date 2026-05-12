@@ -20,6 +20,7 @@ import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityL
 import { HelpLink } from "@/components/HelpLink";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboard";
+import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
@@ -42,6 +43,7 @@ export default function HomePage() {
       <WelcomeBanner />
 
       {buyerPolishedShell ? <CorePilotBuyerStepHint /> : null}
+      {buyerPolishedShell ? <BuyerGoldenJourneyStrip /> : null}
 
       {buyerPolishedShell ? null : (
         <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
@@ -70,18 +72,6 @@ export default function HomePage() {
       >
         <div className="min-w-0 space-y-6">
           <RunsDashboardPanel />
-          {buyerPolishedShell ? (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-              Ready for tenant-backed reviews?{" "}
-              <Link
-                href="/reviews/new"
-                className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-              >
-                Connect your workspace
-              </Link>
-              .
-            </p>
-          ) : null}
           {buyerPolishedShell ? null : <OperatorCorePilotDiagnosticsChecklist />}
           {buyerPolishedShell ? null : <AfterCorePilotChecklistHint />}
 
@@ -120,6 +110,18 @@ export default function HomePage() {
           </OperationalMetricsGate>
 
           <BeforeAfterDeltaPanel />
+          {buyerPolishedShell ? (
+            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+              Ready to connect tenant-backed reviews?{" "}
+              <Link
+                href="/reviews/new"
+                className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+              >
+                Connect your workspace
+              </Link>{" "}
+              after you finish the proof path (Executive Summary → Audit trail).
+            </p>
+          ) : null}
         </div>
 
         {buyerPolishedShell ? null : (

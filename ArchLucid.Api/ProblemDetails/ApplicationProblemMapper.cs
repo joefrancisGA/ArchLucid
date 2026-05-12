@@ -88,6 +88,12 @@ public static class ApplicationProblemMapper
         if (TryMapDatabaseException(ex, instance, httpContext, out result))
             return true;
 
+        // Authority pipeline uses CancellationTokenSource.CancelAfter(PipelineTimeout); that surfaces as
+        // OperationCanceledException (same as TaskCanceledException). Without mapping, MVC yields HTTP 500 via the
+        // generic handler while integration tests only retry HTTP 503 for cold-start SQL / transient outages.
+        if (TryMapRetryableOperationCanceled(ex, httpContext, instance, out result))
+            return true;
+
         if (ex is CircuitBreakerOpenException cbo)
         {
             result = CreateProblemResult(
@@ -312,6 +318,36 @@ public static class ApplicationProblemMapper
             "Database Unavailable",
             "The database is currently unreachable. The request may succeed on retry.",
             ProblemTypes.DatabaseUnavailable,
+            instance,
+            httpContext);
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Maps internal timeouts that surface as <see cref="OperationCanceledException" /> (including
+    ///     <see cref="TaskCanceledException" />) to HTTP 503 when the transport request was not aborted by the caller.
+    /// </summary>
+    private static bool TryMapRetryableOperationCanceled(
+        Exception ex,
+        HttpContext httpContext,
+        string? instance,
+        out ObjectResult? result)
+    {
+        result = null;
+
+        if (ex is not OperationCanceledException)
+            return false;
+
+        // Caller disconnected — avoid emitting application-layer 503 Problem Details for an aborted transport.
+        if (httpContext.RequestAborted.IsCancellationRequested)
+            return false;
+
+        result = CreateProblemResult(
+            StatusCodes.Status503ServiceUnavailable,
+            "Request Timeout",
+            "An operation timed out or was canceled before completion. The request may succeed on retry.",
+            ProblemTypes.DatabaseTimeout,
             instance,
             httpContext);
 

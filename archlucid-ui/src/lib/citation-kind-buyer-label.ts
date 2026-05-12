@@ -10,11 +10,11 @@ export function citationKindBuyerLabel(kind: CitationReference["kind"]): string 
     case "GraphSnapshot":
       return BUYER_SURFACE_VOCABULARY.evidenceGraph;
     case "ContextSnapshot":
-      return "Context snapshot";
+      return "Reviewed source context";
     case "DecisionTrace":
       return "Decision record";
     case "Manifest":
-      return "Reviewed manifest";
+      return "Signed manifest";
     case "Finding":
       return "Finding";
     case "EvidenceBundle":
