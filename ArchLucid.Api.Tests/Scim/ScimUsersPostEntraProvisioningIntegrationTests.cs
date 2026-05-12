@@ -8,19 +8,12 @@ namespace ArchLucid.Api.Tests.Scim;
 
 /// <summary>Entra-shaped POST User — exercised against <see cref="JwtLocalSigningWebAppFactory" /> (in-memory catalog).</summary>
 [Trait("Suite", "Core")]
-public sealed class ScimUsersPostEntraProvisioningIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
+public sealed class ScimUsersPostEntraProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
-    private readonly JwtLocalSigningWebAppFactory _factory;
-
-    public ScimUsersPostEntraProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task Post_users_accepts_entra_style_payload_and_returns_user_resource()
     {
-        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(_factory);
+        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(factory);
         string suffix = Guid.NewGuid().ToString("N")[..8];
         string userName = $"scim.post.{suffix}@example.com";
 

@@ -17,7 +17,7 @@ public sealed class RunRepositoryCommittedArchitectureReviewFlagReader(IRunRepos
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
-    private static readonly string CommittedLegacyStatus = nameof(ArchitectureRunStatus.Committed);
+    private const string CommittedLegacyStatus = nameof(ArchitectureRunStatus.Committed);
 
     /// <inheritdoc />
     public async Task<bool> TenantHasCommittedArchitectureReviewAsync(

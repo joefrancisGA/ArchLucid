@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -123,23 +123,17 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         return (manifestVersion, runId, commit);
     }
 
-    private readonly struct StepTiming
+    private readonly struct StepTiming(string name)
     {
-        public StepTiming(string name)
-        {
-            Name = name;
-            Sw = new Stopwatch();
-        }
-
         private string Name
         {
             get;
-        }
+        } = name;
 
         public Stopwatch Sw
         {
             get;
-        }
+        } = new();
 
         public override string ToString() => $"{Name}={Sw.ElapsedMilliseconds}ms";
     }

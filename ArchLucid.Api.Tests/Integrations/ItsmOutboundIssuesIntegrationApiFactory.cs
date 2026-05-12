@@ -14,17 +14,11 @@ namespace ArchLucid.Api.Tests.Integrations;
 ///     Hosts the API with deterministic outbound ITSM HTTP (<see cref="OutboundHttp" />), optional outbound configuration keys,
 ///     and <see cref="CapturingAuditRepository" /> so integration tests can assert durable audit append payloads.
 /// </summary>
-public sealed class ItsmOutboundIssuesIntegrationApiFactory : ArchLucidApiFactory
+public sealed class ItsmOutboundIssuesIntegrationApiFactory(TimeSpan? jiraHttpTimeout = null, TimeSpan? serviceNowHttpTimeout = null) : ArchLucidApiFactory
 {
-    private readonly TimeSpan _jiraHttpTimeout;
+    private readonly TimeSpan _jiraHttpTimeout = jiraHttpTimeout ?? TimeSpan.FromMinutes(1);
 
-    private readonly TimeSpan _serviceNowHttpTimeout;
-
-    public ItsmOutboundIssuesIntegrationApiFactory(TimeSpan? jiraHttpTimeout = null, TimeSpan? serviceNowHttpTimeout = null)
-    {
-        _jiraHttpTimeout = jiraHttpTimeout ?? TimeSpan.FromMinutes(1);
-        _serviceNowHttpTimeout = serviceNowHttpTimeout ?? TimeSpan.FromMinutes(1);
-    }
+    private readonly TimeSpan _serviceNowHttpTimeout = serviceNowHttpTimeout ?? TimeSpan.FromMinutes(1);
 
     public RecordingOutboundHttpHandler OutboundHttp { get; } = new();
 

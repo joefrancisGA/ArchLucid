@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { citationKindBuyerLabel } from "@/lib/citation-kind-buyer-label";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { CitationReference } from "@/types/explanation";
 
 export type CitationChipsProps = {
@@ -33,9 +34,13 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
     return null;
   }
 
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+
   return (
     <div className="mb-3">
-      <h4 className="mb-1.5 text-[13px] font-semibold text-neutral-700 dark:text-neutral-300">Citations</h4>
+      <h4 className="mb-1.5 text-[13px] font-semibold text-neutral-700 dark:text-neutral-300">
+        {buyerPolished ? "Evidence cited" : "Citations"}
+      </h4>
       <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
         {citations.map((c) => {
           const href = citationHref(c, runId);

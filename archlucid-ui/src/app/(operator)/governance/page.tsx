@@ -570,18 +570,20 @@ function GovernanceWorkflowPageInner() {
     <div className="mx-auto max-w-4xl">
       <LayerHeader pageKey="governance-workflow" />
       <OperatorPageHeader
-        title="Governance workflow"
+        title={buyerPolishedShell ? "Governance approval" : "Governance workflow"}
         docsPageKey="/governance"
         subtitle={
-          buyerPolishedShell
-            ? "The approval path records whether a finalized review package is authorized for governed use. After approval, the sealed record is eligible for controlled promotion or handoff per your enterprise change process—ArchLucid records the decision, not production deployment."
-            : canMutateWorkflow
-              ? governanceWorkflowPageLeadOperator
-              : governanceWorkflowPageLeadReader
+          buyerPolishedShell && approvals.length > 0 && activeRunId !== null
+            ? "Governance approval completed for this review package. The path below records disposition for governed downstream use — not production deployment authority."
+            : buyerPolishedShell
+              ? "The approval path records whether a finalized review package is authorized for governed use. ArchLucid stores approvals and audit context; your enterprise change process governs any environment movement."
+              : canMutateWorkflow
+                ? governanceWorkflowPageLeadOperator
+                : governanceWorkflowPageLeadReader
         }
         helpKey="governance-workflow"
       />
-      {buyerPolishedShell ? (
+      {buyerPolishedShell && !(approvals.length > 0 && activeRunId !== null) ? (
         <p
           className="mb-4 max-w-prose rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"
           data-testid="governance-buyer-why-matters"
@@ -595,7 +597,7 @@ function GovernanceWorkflowPageInner() {
       ) : null}
       {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
         <div className="mb-6">
-          <Button type="button" asChild variant="outline" size="sm" className="mt-2">
+          <Button type="button" asChild variant="primary" size="sm" className="mt-2">
             <Link href={`/audit?runId=${encodeURIComponent(activeRunId)}`}>Open audit trail</Link>
           </Button>
         </div>

@@ -1,10 +1,8 @@
 using System.Net;
-using System.Net.Http;
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -58,11 +56,20 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
         {
             fields = new
             {
-                project = new { key = "DP" },
+                project = new
+                {
+                    key = "DP"
+                },
                 summary,
                 description = descriptionAdf,
-                issuetype = new { name = "Task" },
-                priority = new { name = "High" },
+                issuetype = new
+                {
+                    name = "Task"
+                },
+                priority = new
+                {
+                    name = "High"
+                },
             },
         };
 
@@ -90,7 +97,10 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
         IntegrationsItsmOutboundOptions options = OutboundJiraConfigured();
         options.Jira.CloudBaseUrl = server.Url!.TrimEnd('/');
 
-        using HttpClient jiraHttp = new() { Timeout = TimeSpan.FromSeconds(25) };
+        using HttpClient jiraHttp = new()
+        {
+            Timeout = TimeSpan.FromSeconds(25)
+        };
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,
@@ -152,7 +162,10 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
         IntegrationsItsmOutboundOptions options = OutboundJiraConfigured();
         options.Jira.CloudBaseUrl = server.Url!.TrimEnd('/');
 
-        using HttpClient jiraHttp = new() { Timeout = TimeSpan.FromSeconds(15) };
+        using HttpClient jiraHttp = new()
+        {
+            Timeout = TimeSpan.FromSeconds(15)
+        };
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,
@@ -192,7 +205,8 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
         IntegrationsItsmOutboundOptions options = OutboundJiraConfigured();
         options.Jira.CloudBaseUrl = server.Url!.TrimEnd('/');
 
-        using HttpClient jiraHttp = new() { Timeout = TimeSpan.FromSeconds(15) };
+        using HttpClient jiraHttp = new();
+        jiraHttp.Timeout = TimeSpan.FromSeconds(15);
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,

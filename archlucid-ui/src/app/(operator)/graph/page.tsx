@@ -588,7 +588,7 @@ function GraphPageContent() {
           {buyerPolishedShell ? (
             <details className="mb-6 max-w-4xl rounded-lg border border-neutral-200 bg-white/40 dark:border-neutral-700 dark:bg-neutral-900/30">
               <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                Advanced view controls — change review, filters, or reload
+                Advanced filters — change review, filters, or reload graph
               </summary>
               <div className="border-t border-neutral-200 px-2 pb-3 pt-1 dark:border-neutral-700">{graphControls}</div>
             </details>
@@ -709,18 +709,17 @@ function GraphPageContent() {
             </div>
           </ClientErrorBoundary>
           {buyerPolishedShell ? (
-            <div className="mt-6 max-w-4xl">
+            <div className="mt-6 max-w-4xl space-y-2">
+              <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Next</p>
               <Button type="button" asChild variant="default" size="sm">
-                <Link href={`/governance?runId=${encodeURIComponent(runId.trim())}`}>
-                  View governance approval
-                </Link>
+                <Link href={`/governance?runId=${encodeURIComponent(runId.trim())}`}>Governance approval</Link>
               </Button>
             </div>
           ) : null}
           {demoUi && buyerPolishedShell ? (
             <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-              Expand graph view options when you need a different finalized package. This view defaults to the example
-              evidence trace graph for the sample package.
+              Expand advanced filters when you need a different finalized package. This view defaults to the{" "}
+              {BUYER_SURFACE_VOCABULARY.evidenceGraphNav.toLowerCase()} for the Claims Intake review package.
             </p>
           ) : null}
           {demoUi && !buyerPolishedShell ? (

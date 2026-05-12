@@ -2,16 +2,10 @@ using System.Net;
 
 namespace ArchLucid.Api.Tests;
 
-internal sealed class FaultingBufferHttpContent : HttpContent
+internal sealed class FaultingBufferHttpContent(Exception exception, CancellationTokenSource? cancellationTokenSource = null) : HttpContent
 {
-    private readonly CancellationTokenSource? _cancellationTokenSource;
-    private readonly Exception _exception;
-
-    public FaultingBufferHttpContent(Exception exception, CancellationTokenSource? cancellationTokenSource = null)
-    {
-        _exception = exception ?? throw new ArgumentNullException(nameof(exception));
-        _cancellationTokenSource = cancellationTokenSource;
-    }
+    private readonly CancellationTokenSource? _cancellationTokenSource = cancellationTokenSource;
+    private readonly Exception _exception = exception ?? throw new ArgumentNullException(nameof(exception));
 
     protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
     {

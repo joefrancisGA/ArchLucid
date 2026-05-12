@@ -29,14 +29,7 @@ public sealed class TrialSeatReservationMiddleware(RequestDelegate next)
     /// <summary>Invokes seat reservation then the rest of the pipeline.</summary>
     public async Task InvokeAsync(HttpContext context)
     {
-        if (SkipSeatAccounting(context.Request.Path))
-        {
-            await next(context);
-
-            return;
-        }
-
-        if (context.User.Identity?.IsAuthenticated != true)
+        if (SkipSeatAccounting(context.Request.Path) || context.User.Identity?.IsAuthenticated != true)
         {
             await next(context);
 

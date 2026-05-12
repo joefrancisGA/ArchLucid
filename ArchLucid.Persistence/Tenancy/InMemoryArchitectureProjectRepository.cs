@@ -63,10 +63,7 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(projectId, out ProjectRow? row) || row.TenantId != tenantId || row.WorkspaceId != workspaceId)
-            return Task.FromResult(false);
-
-        if (row.IsDeleted)
+        if (!_byId.TryGetValue(projectId, out ProjectRow? row) || row.TenantId != tenantId || row.WorkspaceId != workspaceId || row.IsDeleted)
             return Task.FromResult(false);
 
         row.IsDeleted = true;

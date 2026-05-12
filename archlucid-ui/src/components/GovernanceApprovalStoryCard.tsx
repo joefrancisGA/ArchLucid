@@ -53,7 +53,7 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
       label: "Eligible for controlled use",
       done: promoteReady,
       detail: promoteReady
-        ? `Eligible promotion path: ${governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)}`
+        ? `Approved use boundary: ${governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)} — governed change scope, not production deployment authority.`
         : "Complete approval before handoff",
     },
   ];
@@ -65,7 +65,8 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
           {approved ? "This package completed the approval path" : "Approval status for this review"}
         </CardTitle>
         <CardDescription>
-          {governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)} · manifest{" "}
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">Approved use boundary:</span>{" "}
+          {governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)} · signed manifest{" "}
           <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.manifestVersion}</span>
         </CardDescription>
       </CardHeader>

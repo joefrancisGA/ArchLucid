@@ -19,7 +19,7 @@ public sealed class GraphSnapshotExtensionsTests
             Nodes =
             [
                 new GraphNode { NodeId = "a", NodeType = "SecurityBaseline", Label = "sec", Properties = new() },
-                new GraphNode { NodeId = "t", NodeType = "TopologyResource", Label = "net", Properties = new() }
+                new GraphNode { NodeId = "t", NodeType = "TopologyResource", Label = "net", Properties = new Dictionary<string, string>() }
             ],
             Edges =
             [

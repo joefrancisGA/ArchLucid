@@ -17,31 +17,24 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>Separate fixture from read tests so InMemory preferences store starts empty (singleton repo per host).</summary>
 public sealed class
-    CustomerNotificationChannelPreferencesWriteIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
+    CustomerNotificationChannelPreferencesWriteIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true
     };
 
-    private readonly JwtLocalSigningWebAppFactory _factory;
-
-    public CustomerNotificationChannelPreferencesWriteIntegrationTests(JwtLocalSigningWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task Put_customer_channel_preferences_with_reader_jwt_returns_forbidden()
     {
         string token = MintJwt(
-            _factory.PrivatePemForTests,
+            factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "ReaderUser",
             [ArchLucidRoles.Reader]);
 
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         TenantNotificationChannelPreferencesUpsertRequest body = new()
@@ -62,13 +55,13 @@ public sealed class
     public async Task Put_customer_channel_preferences_with_operator_jwt_then_get_returns_configured_row()
     {
         string token = MintJwt(
-            _factory.PrivatePemForTests,
+            factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "OperatorUser",
             [ArchLucidRoles.Operator]);
 
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         TenantNotificationChannelPreferencesUpsertRequest putBody = new()

@@ -616,7 +616,8 @@ export default async function RunDetailPage({
               Executive summary
             </CardTitle>
             <CardDescription>
-              Concise outcomes and posture in executive workspace. Start here before manifest detail and deliverables.
+              Board-ready risk posture, evidence basis, and governance status. Start here before manifest detail and
+              deliverables.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 pt-0">

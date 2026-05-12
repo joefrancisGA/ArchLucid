@@ -16,8 +16,8 @@ namespace ArchLucid.Cli.Commands;
 ///     Operator-facing readiness diagnostics: CLI build identity, local project layout,
 ///     optional Azure Key Vault connectivity (when <c>ArchLucid:Secrets:KeyVaultUri</c> is configured),
 ///     a <b>quick-start readiness</b> table (local SQL, auth mode, optional OpenAI probe, ConfigurationKeyCatalog requirements),
-///     API <c>GET /version</c>, and API <c>/health/live</c>, <c>/health/ready</c>, and optional combined <c>/health</c>
-///     (requires API key or JWT with read authority).
+///     API <c>GET /version</c>, <c>/health/live</c>, <c>/health/ready</c>, anonymous <c>/health</c> (SQL deep probe),
+///     and optional combined <c>/health/diagnostics</c> (requires API key or JWT with read authority).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification =
     "CLI doctor orchestrates HTTP probes via ArchLucidApiClient (excluded from coverage); exercised manually against a running API.")]

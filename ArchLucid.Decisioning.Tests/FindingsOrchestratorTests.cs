@@ -271,18 +271,11 @@ public sealed class FindingsOrchestratorTests
         snapshot.EngineFailures[0].OccurredUtc.Should().Be(fixedUtc.UtcDateTime);
     }
 
-    private sealed class FakeTimeProviderForOrchestrator : TimeProvider
+    private sealed class FakeTimeProviderForOrchestrator(DateTimeOffset utcNow) : TimeProvider
     {
-        private readonly DateTimeOffset _utcNow;
-
-        public FakeTimeProviderForOrchestrator(DateTimeOffset utcNow)
-        {
-            _utcNow = utcNow;
-        }
-
         public override DateTimeOffset GetUtcNow()
         {
-            return _utcNow;
+            return utcNow;
         }
     }
 

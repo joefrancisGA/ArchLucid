@@ -8,19 +8,12 @@ namespace ArchLucid.Api.Tests.Scim;
 
 /// <summary>PATCH User with flat replace operations — matches typical Entra soft-disable + display name refresh shape.</summary>
 [Trait("Suite", "Core")]
-public sealed class ScimUsersPatchEntraProvisioningIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
+public sealed class ScimUsersPatchEntraProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
-    private readonly JwtLocalSigningWebAppFactory _factory;
-
-    public ScimUsersPatchEntraProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task Patch_users_replace_displayName_and_active_entra_shape_updates_resource()
     {
-        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(_factory);
+        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(factory);
         string suffix = Guid.NewGuid().ToString("N")[..8];
         string userName = $"scim.patch.{suffix}@example.com";
 

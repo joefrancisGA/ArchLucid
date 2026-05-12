@@ -114,12 +114,12 @@ function fallbackSeverity(payload: FindingInspectPayload | null, findingId: stri
     }
 
     if (isPhiMinimizationSampleFinding(payload)) {
-      return "Medium severity";
+      return "High severity";
     }
   }
 
   if (isPhiMinimizationFindingId(findingId)) {
-    return "Medium severity";
+    return "High severity";
   }
 
   return "Severity pending";

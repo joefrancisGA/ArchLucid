@@ -143,7 +143,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                       variant="ghost"
                       size="sm"
                       className="h-8 w-8 p-0"
-                      aria-label="Open documentation search"
+                      aria-label="Search documentation and help"
                       onClick={() => {
                         setHelpDocSearchOpen(true);
                       }}
@@ -219,7 +219,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0"
-                  aria-label="Open documentation search"
+                      aria-label="Search documentation and help"
                   onClick={() => {
                     setHelpDocSearchOpen(true);
                   }}

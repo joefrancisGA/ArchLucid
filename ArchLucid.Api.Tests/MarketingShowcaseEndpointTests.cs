@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -19,24 +19,18 @@ namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
-public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiFactory>
+public sealed class MarketingShowcaseEndpointTests(ArchLucidApiFactory factory) : IClassFixture<ArchLucidApiFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter(null) }
     };
-
-    private readonly ArchLucidApiFactory _factory;
-
-    public MarketingShowcaseEndpointTests(ArchLucidApiFactory factory)
-    {
-        _factory = factory;
-    }
 
     [SkippableFact]
     public async Task GetShowcase_returns_404_when_stub_returns_null()
     {
-        WebApplicationFactory<Program> app = _factory.WithWebHostBuilder(builder =>
+        WebApplicationFactory<Program> app = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureTestServices(services =>
             {
@@ -56,7 +50,7 @@ public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiF
     [SkippableFact]
     public async Task GetShowcase_returns_200_when_stub_returns_payload()
     {
-        WebApplicationFactory<Program> app = _factory.WithWebHostBuilder(builder =>
+        WebApplicationFactory<Program> app = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureTestServices(services =>
             {

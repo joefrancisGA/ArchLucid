@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 using ArchLucid.Api.Hosting;
 
@@ -111,13 +111,9 @@ public sealed class TrialFunnelHealthProbeTests
         }
     }
 
-    private sealed class TestHttpMessageHandler : HttpMessageHandler
+    private sealed class TestHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> onSend) : HttpMessageHandler
     {
-        private readonly Func<HttpRequestMessage, HttpResponseMessage> _onSend;
-
-        public TestHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> onSend) => _onSend = onSend;
-
         protected override Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage request, CancellationToken cancellationToken) => Task.FromResult(_onSend(request));
+            HttpRequestMessage request, CancellationToken cancellationToken) => Task.FromResult(onSend(request));
     }
 }

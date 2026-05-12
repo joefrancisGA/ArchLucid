@@ -26,7 +26,7 @@ public sealed class AlertSlackWebhookDeliveryChannelTests
     public async Task SendAsync_PostsJsonToSubscriptionDestination()
     {
         Mock<IWebhookPoster> poster = new();
-        string expectedUrl = "https://hooks.slack.com/services/test";
+        const string expectedUrl = "https://hooks.slack.com/services/test";
         string? capturedUrl = null;
 
         poster

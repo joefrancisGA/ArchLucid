@@ -72,44 +72,33 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     vi.clearAllMocks();
   });
 
-  it("uses executive-first CTA plus secondary links for the buyer journey", () => {
+  it("uses executive-first CTA plus compact buyer journey copy", () => {
     render(<SampleFirstReviewPackageCard />);
 
     expect(
       screen.getByRole("heading", { name: /Claims Intake Modernization Review Package/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/from the sidebar/i)).toBeInTheDocument();
+    expect(screen.getByText(/in the sidebar/i)).toBeInTheDocument();
     expect(screen.getByText("Review journey", { selector: "strong" })).toBeInTheDocument();
-    expect(
-      screen.getByText(/Includes manifest outputs, PHI minimization risk with traceability/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/five-step/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start Executive Summary" })).toHaveAttribute(
       "href",
       "/executive/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Open review package record" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "View full review package" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
-    );
-    expect(screen.getByRole("link", { name: "Manifest summary" })).toHaveAttribute(
-      "href",
-      "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
-    );
-    expect(screen.getByRole("link", { name: "Evidence-to-decision graph" })).toHaveAttribute(
-      "href",
-      "/graph?runId=claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "Guided walkthrough" })).toHaveAttribute(
       "href",
       "/showcase/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: /connect your own workspace/i })).toHaveAttribute("href", "/reviews/new");
   });
 
-  it("records review-output telemetry when the tertiary manifest link opens", () => {
+  it("records review-output telemetry when the full package link opens", () => {
     render(<SampleFirstReviewPackageCard />);
 
-    fireEvent.click(screen.getByRole("link", { name: /manifest summary/i }));
+    fireEvent.click(screen.getByRole("link", { name: "View full review package" }));
 
     expect(recordCorePilotRailChecklistStep).toHaveBeenCalledWith(3);
   });

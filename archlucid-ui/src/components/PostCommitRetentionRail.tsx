@@ -4,11 +4,10 @@ import Link from "next/link";
 import { useState, type ReactElement } from "react";
 
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import {
@@ -52,8 +51,8 @@ export function PostCommitRetentionRail({
         <CardDescription className="text-neutral-700 dark:text-neutral-300">
           {buyerPolishedShell
             ? showcaseSpine
-              ? "Finalized sample package — confirm PHI mitigation on the finding, read the manifest decision record, walk the evidence graph, and use the audit trail for the timeline."
-              : "Finalized package — start with executive view, PHI minimization risk, or the evidence graph; use the audit trail for every event."
+              ? "Continue the proof path: Executive Summary, signed manifest, evidence graph, governance approval, then the full audit trail."
+              : "Finalized package — use Executive Summary, then manifest, graph, governance, and audit trail in order."
             : "You have a committed review package. Pick the next loop that fits your team—navigation stays inside this workspace."}
         </CardDescription>
       </CardHeader>
@@ -61,71 +60,77 @@ export function PostCommitRetentionRail({
         {buyerPolishedShell ? (
           <>
             <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
-              <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open executive summary</Link>
+              <Link href={`/executive/reviews/${encodeURIComponent(runId)}`}>Open Executive Summary</Link>
             </Button>
             <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
               <Link href={`/governance?runId=${encodeURIComponent(runId)}`}>View governance approval</Link>
             </Button>
             {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (
               <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">
-                <Link href={`/manifests/${encodeURIComponent(goldenManifestId.trim())}`}>Open decision record</Link>
+                <Link href={`/manifests/${encodeURIComponent(goldenManifestId.trim())}`}>
+                  Open architecture decision record
+                </Link>
               </Button>
             ) : null}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="justify-center sm:justify-start"
-              onClick={() => {
-                setNextCycleDialogOpen(true);
-              }}
-            >
-              Next-cycle actions
-            </Button>
-            <Dialog open={nextCycleDialogOpen} onOpenChange={setNextCycleDialogOpen}>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Next-cycle actions</DialogTitle>
-                  <DialogDescription>
-                    Start another review when you need a new governed package. Clone preserves lineage context where your
-                    tenant allows it; fresh starts a clean wizard without inheriting attachments by default.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-3 py-2">
-                  <Button asChild variant="default" className="w-full">
-                    <Link
-                      href={`/reviews/new?intent=revised-clone&cloneFromRunId=${encodeURIComponent(runId)}`}
-                      onClick={() => {
-                        setNextCycleDialogOpen(false);
-                      }}
-                    >
-                      Clone from this review
-                    </Link>
-                  </Button>
-                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    Prefer when scope shifts but continuity with this manifest package is expected.
-                  </p>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link
-                      href="/reviews/new?intent=revised-fresh"
-                      onClick={() => {
-                        setNextCycleDialogOpen(false);
-                      }}
-                    >
-                      Start fresh
-                    </Link>
-                  </Button>
-                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    Prefer when the next cycle should not inherit this review&apos;s attachments by default.
-                  </p>
-                </div>
-                <DialogFooter>
-                  <Button type="button" variant="ghost" onClick={() => setNextCycleDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            {showcaseSpine ? null : (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="justify-center sm:justify-start"
+                  onClick={() => {
+                    setNextCycleDialogOpen(true);
+                  }}
+                >
+                  After approval — start follow-up review
+                </Button>
+                <Dialog open={nextCycleDialogOpen} onOpenChange={setNextCycleDialogOpen}>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Start follow-up review</DialogTitle>
+                      <DialogDescription>
+                        Start another review when you need a new governed package. Clone preserves lineage context where
+                        your tenant allows it; fresh starts a clean wizard without inheriting attachments by default.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-3 py-2">
+                      <Button asChild variant="default" className="w-full">
+                        <Link
+                          href={`/reviews/new?intent=revised-clone&cloneFromRunId=${encodeURIComponent(runId)}`}
+                          onClick={() => {
+                            setNextCycleDialogOpen(false);
+                          }}
+                        >
+                          Clone from this review
+                        </Link>
+                      </Button>
+                      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                        Prefer when scope shifts but continuity with this manifest package is expected.
+                      </p>
+                      <Button asChild variant="outline" className="w-full">
+                        <Link
+                          href="/reviews/new?intent=revised-fresh"
+                          onClick={() => {
+                            setNextCycleDialogOpen(false);
+                          }}
+                        >
+                          Start fresh
+                        </Link>
+                      </Button>
+                      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                        Prefer when the next cycle should not inherit this review&apos;s attachments by default.
+                      </p>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" variant="ghost" onClick={() => setNextCycleDialogOpen(false)}>
+                        Cancel
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </>
+            )}
           </>
         ) : (
           <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
@@ -150,41 +155,6 @@ export function PostCommitRetentionRail({
               </Link>
             </Button>
           </>
-        ) : null}
-        {buyerPolishedShell && showcaseSpine ? (
-          <div className="flex w-full flex-col gap-2 border-t border-teal-200/60 pt-3 text-sm dark:border-teal-900/50">
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Polished path — sample review
-            </p>
-            <div className="flex flex-wrap gap-x-4 gap-y-1">
-              {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (
-                <Link
-                  className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-                  href={`/manifests/${encodeURIComponent(goldenManifestId.trim())}`}
-                >
-                  Manifest package
-                </Link>
-              ) : null}
-              <Link
-                className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-                href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
-              >
-                PHI minimization risk
-              </Link>
-              <Link
-                className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-                href={`/graph?runId=${encodeURIComponent(runId)}`}
-              >
-                {BUYER_SURFACE_VOCABULARY.evidenceGraph}
-              </Link>
-              <Link
-                className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-                href={`/audit?runId=${encodeURIComponent(runId)}`}
-              >
-                {BUYER_SURFACE_VOCABULARY.auditTrail}
-              </Link>
-            </div>
-          </div>
         ) : null}
         {showCompareCta ? (
           <Button type="button" asChild variant="outline" size="sm" className="justify-center sm:justify-start">

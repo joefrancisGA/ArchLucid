@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 
 using FluentAssertions;
@@ -9,14 +9,10 @@ namespace ArchLucid.Api.Tests;
 ///     Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanCommitRuns" /> when the
 ///     <c>commit:run</c> permission claim is absent (Operator role otherwise).
 /// </summary>
-public sealed class CommitRunRequiresCommitPermissionTests : IClassFixture<OperatorWithoutCommitRunPermissionApiFactory>
+public sealed class CommitRunRequiresCommitPermissionTests(OperatorWithoutCommitRunPermissionApiFactory factory)
+    : IClassFixture<OperatorWithoutCommitRunPermissionApiFactory>
 {
-    private readonly HttpClient _client;
-
-    public CommitRunRequiresCommitPermissionTests(OperatorWithoutCommitRunPermissionApiFactory factory)
-    {
-        _client = factory.CreateClient();
-    }
+    private readonly HttpClient _client = factory.CreateClient();
 
     [SkippableFact]
     public async Task CommitRun_returns_403_when_commit_run_permission_claim_missing()
@@ -34,14 +30,10 @@ public sealed class CommitRunRequiresCommitPermissionTests : IClassFixture<Opera
 ///     consulting DOCX routes.
 /// </summary>
 public sealed class
-    ConsultingDocxRequiresExportPermissionTests : IClassFixture<OperatorWithoutConsultingDocxPermissionApiFactory>
+    ConsultingDocxRequiresExportPermissionTests(OperatorWithoutConsultingDocxPermissionApiFactory factory)
+    : IClassFixture<OperatorWithoutConsultingDocxPermissionApiFactory>
 {
-    private readonly HttpClient _client;
-
-    public ConsultingDocxRequiresExportPermissionTests(OperatorWithoutConsultingDocxPermissionApiFactory factory)
-    {
-        _client = factory.CreateClient();
-    }
+    private readonly HttpClient _client = factory.CreateClient();
 
     [SkippableFact]
     public async Task DownloadConsultingDocx_returns_403_when_export_consulting_docx_claim_missing()
@@ -70,14 +62,9 @@ public sealed class
 ///     Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanExportConsultingDocx" /> on architecture
 ///     package DOCX (Reader satisfies read policy only).
 /// </summary>
-public sealed class ArchitecturePackageDocxRequiresExportPermissionTests : IClassFixture<ReaderRoleArchLucidApiFactory>
+public sealed class ArchitecturePackageDocxRequiresExportPermissionTests(ReaderRoleArchLucidApiFactory factory) : IClassFixture<ReaderRoleArchLucidApiFactory>
 {
-    private readonly HttpClient _client;
-
-    public ArchitecturePackageDocxRequiresExportPermissionTests(ReaderRoleArchLucidApiFactory factory)
-    {
-        _client = factory.CreateClient();
-    }
+    private readonly HttpClient _client = factory.CreateClient();
 
     [SkippableFact]
     public async Task ExportRunDocx_returns_403_when_export_consulting_docx_claim_missing()

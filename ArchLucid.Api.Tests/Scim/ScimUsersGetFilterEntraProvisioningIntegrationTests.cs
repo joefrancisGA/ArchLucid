@@ -8,19 +8,12 @@ namespace ArchLucid.Api.Tests.Scim;
 
 /// <summary>GET Users with Entra-style <c>filter</c> literals (URL-encoded).</summary>
 [Trait("Suite", "Core")]
-public sealed class ScimUsersGetFilterEntraProvisioningIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
+public sealed class ScimUsersGetFilterEntraProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
-    private readonly JwtLocalSigningWebAppFactory _factory;
-
-    public ScimUsersGetFilterEntraProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task Get_users_filter_userName_eq_entra_literal_returns_single_resource()
     {
-        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(_factory);
+        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(factory);
         string suffix = Guid.NewGuid().ToString("N")[..8];
         string userName = $"scim.filter.un.{suffix}@example.com";
 
@@ -50,7 +43,7 @@ public sealed class ScimUsersGetFilterEntraProvisioningIntegrationTests : IClass
     [SkippableFact]
     public async Task Get_users_filter_emails_work_value_eq_entra_literal_returns_single_resource()
     {
-        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(_factory);
+        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(factory);
         string suffix = Guid.NewGuid().ToString("N")[..8];
         string userName = $"scim.filter.em.{suffix}@example.com";
 

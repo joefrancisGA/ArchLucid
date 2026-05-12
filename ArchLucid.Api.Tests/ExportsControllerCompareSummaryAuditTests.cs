@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
@@ -24,9 +24,9 @@ public sealed class ExportsControllerCompareSummaryAuditTests
     [SkippableFact]
     public async Task CompareExportRecordsSummary_WhenPersistTrue_LogsComparisonSummaryPersisted()
     {
-        string leftId = "exp-left";
-        string rightId = "exp-right";
-        string comparisonId = "cmp-99";
+        const string leftId = "exp-left";
+        const string rightId = "exp-right";
+        const string comparisonId = "cmp-99";
 
         Mock<IRunExportRecordRepository> runExports = new();
         runExports.Setup(r => r.GetByIdAsync(leftId, It.IsAny<CancellationToken>()))
@@ -86,8 +86,8 @@ public sealed class ExportsControllerCompareSummaryAuditTests
     [SkippableFact]
     public async Task CompareExportRecordsSummary_WhenPersistFalse_DoesNotLogComparisonSummaryPersisted()
     {
-        string leftId = "exp-a";
-        string rightId = "exp-b";
+        const string leftId = "exp-a";
+        const string rightId = "exp-b";
 
         Mock<IRunExportRecordRepository> runExports = new();
         runExports.Setup(r => r.GetByIdAsync(leftId, It.IsAny<CancellationToken>()))

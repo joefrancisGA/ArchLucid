@@ -8,19 +8,12 @@ namespace ArchLucid.Api.Tests.Scim;
 
 /// <summary>DELETE User triggers ArchLucid SCIM soft-deprovision semantics (inactive directory row).</summary>
 [Trait("Suite", "Core")]
-public sealed class ScimUsersDeleteProvisioningIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
+public sealed class ScimUsersDeleteProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
-    private readonly JwtLocalSigningWebAppFactory _factory;
-
-    public ScimUsersDeleteProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task Delete_users_returns_204_then_get_returns_scim_not_found()
     {
-        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(_factory);
+        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(factory);
         string suffix = Guid.NewGuid().ToString("N")[..8];
         string userName = $"scim.delete.{suffix}@example.com";
 

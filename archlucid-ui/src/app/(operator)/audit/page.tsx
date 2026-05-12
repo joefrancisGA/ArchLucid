@@ -138,7 +138,7 @@ function auditBuyerActorRoleLine(actorName: string, eventType: string): string {
   const name = actorName.trim();
   const lower = name.toLowerCase();
 
-  if (lower.includes("archlucid automation") || lower.includes("automation")) {
+  if (lower.includes("archlucid automation") || lower.includes("automation") || lower.includes("recorded by archlucid")) {
     return "System-recorded";
   }
 
@@ -729,7 +729,13 @@ export default function AuditPage() {
     <div className="max-w-4xl">
       <LayerHeader pageKey="audit" />
       <OperatorPageHeader
-        title={buyerPolishedShell ? "Audit Trail" : "Audit log"}
+        title={
+          buyerPolishedShell
+            ? `Audit trail for ${buyerFacingReviewLinkLabelFromRunId(
+                runId.trim().length > 0 ? runId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID,
+              )}`
+            : "Audit log"
+        }
         helpKey="audit-log"
         actions={
           <HelpLink
@@ -1197,7 +1203,7 @@ export default function AuditPage() {
                 <div className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-700">
                   <Button
                     type="button"
-                    variant="outline"
+                    variant={csvExportUiAllowed ? "default" : "outline"}
                     size="sm"
                     onClick={() => void onExportCsv()}
                     disabled={!csvExportUiAllowed || exporting || searching}
@@ -1206,18 +1212,18 @@ export default function AuditPage() {
                         ? "Set From and To to enable export"
                         : !exportRoleOk
                           ? auditExportControlDisabledTitle
-                          : "Export to CSV using the current filters"
+                          : "Download audit trail as CSV using the current filters"
                     }
                   >
                     {exporting
                       ? "Exporting…"
                       : csvExportUiAllowed
-                        ? "Export to CSV"
+                        ? "Download audit trail (CSV)"
                         : !exportDateRangeReady
                           ? auditExportCsvButtonLabelWindowIncomplete
                           : !exportRoleOk
                             ? auditExportCsvButtonLabelRoleRestricted
-                            : "Export to CSV"}
+                            : "Download audit trail (CSV)"}
                   </Button>
                 </div>
               ) : null}

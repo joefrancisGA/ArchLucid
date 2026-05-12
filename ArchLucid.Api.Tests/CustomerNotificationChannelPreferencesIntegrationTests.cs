@@ -19,31 +19,24 @@ namespace ArchLucid.Api.Tests;
 ///     JWT + in-memory storage: <see cref="CustomerNotificationChannelPreferencesController" /> returns defaults when
 ///     no SQL row.
 /// </summary>
-public sealed class CustomerNotificationChannelPreferencesIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
+public sealed class CustomerNotificationChannelPreferencesIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true
     };
 
-    private readonly JwtLocalSigningWebAppFactory _factory;
-
-    public CustomerNotificationChannelPreferencesIntegrationTests(JwtLocalSigningWebAppFactory factory)
-    {
-        _factory = factory;
-    }
-
     [SkippableFact]
     public async Task Get_customer_channel_preferences_with_reader_jwt_returns_unconfigured_defaults()
     {
         string token = MintJwt(
-            _factory.PrivatePemForTests,
+            factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "ReaderUser",
             [ArchLucidRoles.Reader]);
 
-        HttpClient client = _factory.CreateClient();
+        HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         HttpResponseMessage res =

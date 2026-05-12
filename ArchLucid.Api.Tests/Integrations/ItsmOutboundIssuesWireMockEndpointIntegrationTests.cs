@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 
@@ -8,7 +7,6 @@ using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
@@ -37,7 +35,7 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
     [SkippableFact]
     public async Task Post_Jira_issues_hits_wire_mock_with_mapper_aligned_payload_and_basic_auth()
     {
-        using ItsmOutboundIssuesWireMockApiFactory factory = new();
+        await using ItsmOutboundIssuesWireMockApiFactory factory = new();
         WireMockServer wireMock = factory.UpstreamWireMock;
         wireMock.Reset();
 
@@ -80,11 +78,20 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
         {
             fields = new
             {
-                project = new { key = "DP" },
+                project = new
+                {
+                    key = "DP"
+                },
                 summary,
                 description = descriptionAdf,
-                issuetype = new { name = issueType },
-                priority = new { name = priorityName },
+                issuetype = new
+                {
+                    name = issueType
+                },
+                priority = new
+                {
+                    name = priorityName
+                },
             },
         };
 
@@ -108,7 +115,7 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
     [SkippableFact]
     public async Task Post_ServiceNow_issues_hits_wire_mock_with_mapper_aligned_payload_and_basic_auth()
     {
-        using ItsmOutboundIssuesWireMockApiFactory factory = new();
+        await using ItsmOutboundIssuesWireMockApiFactory factory = new();
         WireMockServer wireMock = factory.UpstreamWireMock;
         wireMock.Reset();
 
@@ -149,7 +156,13 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
             ItsmFindingAuthorityPayloadMapper.BuildSummaryAndDescription(DemoPrimaryFindingId, runGuid, inspect.TypedPayload,
                 inspect.DecisionRuleName, inspect.RecommendedActions);
 
-        object expectedIncident = new { short_description = summary, description, urgency = urgency, impact = impact };
+        object expectedIncident = new
+        {
+            short_description = summary,
+            description,
+            urgency,
+            impact
+        };
 
         string expectedJson = JsonSerializer.Serialize(expectedIncident, ContractJson.CamelCaseIgnoreNullCompact);
 
@@ -183,7 +196,7 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
 
         inspect.Should().NotBeNull();
 
-        return inspect!;
+        return inspect;
     }
 
     private static ScopeContext SqlIntegrationScope =>

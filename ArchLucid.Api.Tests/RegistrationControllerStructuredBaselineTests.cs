@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -12,19 +12,12 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 [Trait("Category", "StructuredBaseline")]
 [Collection("ArchLucidEnvMutation")]
-public sealed class RegistrationControllerStructuredBaselineTests : IClassFixture<GreenfieldSqlApiFactory>
+public sealed class RegistrationControllerStructuredBaselineTests(GreenfieldSqlApiFactory fixture) : IClassFixture<GreenfieldSqlApiFactory>
 {
-    private readonly GreenfieldSqlApiFactory _fixture;
-
-    public RegistrationControllerStructuredBaselineTests(GreenfieldSqlApiFactory fixture)
-    {
-        _fixture = fixture;
-    }
-
     [SkippableFact]
     public async Task Register_rejects_invalid_company_size()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
         string org = "Co Bad " + Guid.NewGuid().ToString("N");
 
         Dictionary<string, object?> body = new()
@@ -45,7 +38,7 @@ public sealed class RegistrationControllerStructuredBaselineTests : IClassFixtur
     [SkippableFact]
     public async Task Register_rejects_non_positive_architecture_team_size()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
         string org = "Team Bad " + Guid.NewGuid().ToString("N");
 
         Dictionary<string, object?> body = new()
@@ -66,7 +59,7 @@ public sealed class RegistrationControllerStructuredBaselineTests : IClassFixtur
     [SkippableFact]
     public async Task Register_rejects_other_industry_without_free_text()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
         string org = "Ind Other " + Guid.NewGuid().ToString("N");
 
         Dictionary<string, object?> body = new()
@@ -87,12 +80,14 @@ public sealed class RegistrationControllerStructuredBaselineTests : IClassFixtur
     [SkippableFact]
     public async Task Register_succeeds_without_new_fields_backward_compatible()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
         string org = "Legacy " + Guid.NewGuid().ToString("N");
 
         Dictionary<string, object?> body = new()
         {
-            ["organizationName"] = org, ["adminEmail"] = "legacy@example.com", ["adminDisplayName"] = "U"
+            ["organizationName"] = org,
+            ["adminEmail"] = "legacy@example.com",
+            ["adminDisplayName"] = "U"
         };
 
         using HttpResponseMessage res = await client.PostAsync(
@@ -105,7 +100,7 @@ public sealed class RegistrationControllerStructuredBaselineTests : IClassFixtur
     [SkippableFact]
     public async Task Register_persists_structured_baseline_on_valid_request()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
         string org = "Full " + Guid.NewGuid().ToString("N");
 
         Dictionary<string, object?> body = new()

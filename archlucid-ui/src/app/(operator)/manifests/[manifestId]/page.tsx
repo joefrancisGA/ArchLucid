@@ -18,6 +18,7 @@ import {
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
@@ -278,7 +279,7 @@ export default async function ManifestDetailPage({
         <div>
           <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
             {showcaseBuyerManifestHeadline === true
-              ? SHOWCASE_BUYER_REVIEW_TITLE
+              ? "Claims Intake Modernization — signed manifest"
               : buyerPolishedLayout
                 ? "Architecture review package"
                 : "Finalized Architecture Manifest"}
@@ -296,8 +297,17 @@ export default async function ManifestDetailPage({
       <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
         {buyerPolishedLayout ? (
           <>
-            This is the reviewed, versioned record for the architecture review: decisions, findings, and the files you can
-            open or download.
+            {showcasePackage === true ? (
+              <>
+                This <strong>signed, versioned manifest</strong> is the reviewed architecture record for this package —
+                decisions, findings, and downloadable deliverables.
+              </>
+            ) : (
+              <>
+                This is the reviewed, versioned record for the architecture review: decisions, findings, and the files you can
+                open or download.
+              </>
+            )}
           </>
         ) : (
           <>
@@ -336,16 +346,27 @@ export default async function ManifestDetailPage({
                 : "Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence rows are available."}
             </p>
             {buyerPolishedLayout && primaryFindingHref ? (
-                <div className="mt-3 space-y-2 rounded-lg border border-amber-200/90 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
-                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-950/90 dark:text-amber-100/90">
-                    PHI minimization — monitored control
-                  </p>
-                  <p className="m-0 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
-                    <strong>Severity:</strong> High — expanded breach and audit scope if minimization is understated.{" "}
-                    <strong>Mitigation:</strong> classification at ingress, adapter boundaries, retention controls tied to
-                    evidence in this package. <strong>Validation:</strong> trace exception paths and attachment volume
-                    through go-live monitoring.
-                  </p>
+                <div className="mt-3 space-y-3 rounded-lg border border-amber-200/90 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge className="bg-amber-700 text-white hover:bg-amber-700">High severity</Badge>
+                    <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-950/90 dark:text-amber-100/90">
+                      PHI minimization — monitored control
+                    </p>
+                  </div>
+                  <ul className="m-0 list-none space-y-2 p-0 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
+                    <li>
+                      <strong className="text-neutral-900 dark:text-neutral-100">Risk:</strong> expanded breach and audit
+                      scope if minimization is understated.
+                    </li>
+                    <li>
+                      <strong className="text-neutral-900 dark:text-neutral-100">Mitigation:</strong> classification at
+                      ingress, adapter boundaries, retention controls tied to evidence in this package.
+                    </li>
+                    <li>
+                      <strong className="text-neutral-900 dark:text-neutral-100">Validation:</strong> trace exception paths
+                      and attachment volume through go-live monitoring.
+                    </li>
+                  </ul>
                 </div>
             ) : null}
             <div className="mt-4">
@@ -355,7 +376,11 @@ export default async function ManifestDetailPage({
                     primaryFindingHref ?? `/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
                   }
                 >
-                  {primaryFindingHref ? "High severity — open PHI minimization finding" : buyerPolishedLayout ? "View findings on review" : "Open review findings"}
+                  {primaryFindingHref
+                    ? "High severity · PHI minimization · open finding detail"
+                    : buyerPolishedLayout
+                      ? "View findings on review"
+                      : "Open review findings"}
                 </Link>
               </Button>
             </div>

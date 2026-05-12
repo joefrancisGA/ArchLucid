@@ -1,10 +1,8 @@
 using System.Net;
-using System.Net.Http;
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -105,7 +103,10 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
         ScopeContext scope = Scope();
         IntegrationsItsmOutboundOptions options = OutboundServiceNowConfigured(server.Url!.TrimEnd('/'));
 
-        using HttpClient snowHttp = new() { Timeout = TimeSpan.FromSeconds(25) };
+        using HttpClient snowHttp = new()
+        {
+            Timeout = TimeSpan.FromSeconds(25)
+        };
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,
@@ -179,7 +180,8 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
 
         IntegrationsItsmOutboundOptions options = OutboundServiceNowConfigured(server.Url!.TrimEnd('/'));
 
-        using HttpClient snowHttp = new() { Timeout = TimeSpan.FromSeconds(15) };
+        using HttpClient snowHttp = new();
+        snowHttp.Timeout = TimeSpan.FromSeconds(15);
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,
@@ -239,7 +241,8 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
 
         IntegrationsItsmOutboundOptions options = OutboundServiceNowConfigured(server.Url!.TrimEnd('/'));
 
-        using HttpClient snowHttp = new() { Timeout = TimeSpan.FromSeconds(15) };
+        using HttpClient snowHttp = new();
+        snowHttp.Timeout = TimeSpan.FromSeconds(15);
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,

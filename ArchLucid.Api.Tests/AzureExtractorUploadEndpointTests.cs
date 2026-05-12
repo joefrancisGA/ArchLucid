@@ -11,15 +11,8 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]
-public sealed class AzureExtractorUploadEndpointTests : IClassFixture<GreenfieldSqlApiFactory>
+public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fixture) : IClassFixture<GreenfieldSqlApiFactory>
 {
-    private readonly GreenfieldSqlApiFactory _fixture;
-
-    public AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fixture)
-    {
-        _fixture = fixture;
-    }
-
     [SkippableFact]
 
     public async Task Upload_withoutExecuteAuthority_returns403()
@@ -45,7 +38,7 @@ public sealed class AzureExtractorUploadEndpointTests : IClassFixture<Greenfield
     public async Task Upload_missingManifest_returns422()
     {
 
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
 
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
@@ -63,7 +56,7 @@ public sealed class AzureExtractorUploadEndpointTests : IClassFixture<Greenfield
     public async Task Upload_unknownSchema_returns422()
     {
 
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
 
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
@@ -81,7 +74,7 @@ public sealed class AzureExtractorUploadEndpointTests : IClassFixture<Greenfield
     public async Task Upload_valid_returns202_andPersistedRow()
     {
 
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
 
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
@@ -118,7 +111,7 @@ public sealed class AzureExtractorUploadEndpointTests : IClassFixture<Greenfield
 
     private async Task AssertPackageStoredAsync(Guid packageId)
     {
-        await using SqlConnection conn = new(_fixture.SqlConnectionString);
+        await using SqlConnection conn = new(fixture.SqlConnectionString);
 
         await conn.OpenAsync();
 

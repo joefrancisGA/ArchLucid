@@ -86,8 +86,10 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/graph");
+    // OperatorPageHeader uses <h2>; idle EmptyState can reuse buyer vocabulary as an <h3> and would also match a broad name regex.
     await expect(
       page.getByRole("main").getByRole("heading", {
+        level: 2,
         name:
           /Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
       }),

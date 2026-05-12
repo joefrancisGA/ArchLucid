@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -10,19 +10,12 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 [Collection("ArchLucidEnvMutation")]
-public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<GreenfieldSqlApiFactory>
+public sealed class RegistrationControllerBaselineCaptureTests(GreenfieldSqlApiFactory fixture) : IClassFixture<GreenfieldSqlApiFactory>
 {
-    private readonly GreenfieldSqlApiFactory _fixture;
-
-    public RegistrationControllerBaselineCaptureTests(GreenfieldSqlApiFactory fixture)
-    {
-        _fixture = fixture;
-    }
-
     [SkippableFact]
     public async Task Register_with_baseline_persists_to_trial_status()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
         string organizationName = "Baseline Org " + Guid.NewGuid().ToString("N");
 
         using HttpResponseMessage created = await client.PostAsync(
@@ -54,7 +47,7 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
     [SkippableFact]
     public async Task Register_without_baseline_allows_trial_status()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
         string organizationName = "No Baseline Org " + Guid.NewGuid().ToString("N");
 
         using HttpResponseMessage created = await client.PostAsync(
@@ -78,7 +71,7 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
     [SkippableFact]
     public async Task Register_rejects_baseline_out_of_range()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
 
         using HttpResponseMessage bad = await client.PostAsync(
             "/v1/register",
@@ -90,7 +83,7 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
     [SkippableFact]
     public async Task Register_rejects_source_without_hours()
     {
-        using HttpClient client = _fixture.CreateClient();
+        using HttpClient client = fixture.CreateClient();
 
         Dictionary<string, object?> payload = new()
         {
@@ -115,7 +108,8 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
     {
         Dictionary<string, object?> payload = new()
         {
-            ["organizationName"] = organizationName, ["adminEmail"] = adminEmail
+            ["organizationName"] = organizationName,
+            ["adminEmail"] = adminEmail
         };
 
         if (!string.IsNullOrWhiteSpace(displayName))

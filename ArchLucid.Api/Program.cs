@@ -57,7 +57,8 @@ public partial class Program
 
         ArchLucidHostingRole hostingRole = HostingRoleResolver.Resolve(builder.Configuration);
 
-        // Add services to the container.
+        // Add services to the container. Health check registrations (including AddSqlServer for SQL storage)
+        // are completed in AddArchLucidApplicationServices via ArchLucid.Host.Composition.
         builder.Services.AddHealthChecks();
 
         builder.Services.AddArchLucidMvc();

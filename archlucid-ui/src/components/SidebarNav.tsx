@@ -61,31 +61,37 @@ const BUYER_POLISHED_PILOT_OMIT_PATHS = new Set<string>(["/", "/onboarding", "/r
 
 /** Buyer-demo golden path — uses canonical showcase run/manifest so quick actions work without workspace context. */
 const BUYER_POLISHED_QUICK_ACTION_LINKS: readonly {
+  readonly step: number;
   readonly href: string;
   readonly label: string;
   readonly Icon: typeof LayoutDashboard;
 }[] = [
   {
+    step: 1,
     href: `/executive/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     label: "Executive summary",
     Icon: LayoutDashboard,
   },
   {
+    step: 2,
     href: `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
-    label: "Manifest",
+    label: "Signed manifest",
     Icon: FileText,
   },
   {
+    step: 3,
     href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-    label: BUYER_SURFACE_VOCABULARY.evidenceGraph,
+    label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
     Icon: GitGraph,
   },
   {
+    step: 4,
     href: `/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-    label: "Governance",
+    label: "Governance approval",
     Icon: GitBranch,
   },
   {
+    step: 5,
     href: `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     label: BUYER_SURFACE_VOCABULARY.auditTrail,
     Icon: FileSearch,
@@ -625,7 +631,7 @@ export function SidebarNav() {
             {buyerPolishedShell ? "Review journey" : "Quick actions"}
           </p>
           <nav
-            className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
+            className="flex flex-col gap-0.5 border-l-2 border-teal-200 py-1 pl-2 dark:border-teal-900/60"
             aria-label="Quick action destinations"
           >
             {buyerPolishedShell
@@ -633,6 +639,7 @@ export function SidebarNav() {
                   const active = isNavLinkActive(pathname, row.href);
                   const Icon = row.Icon;
                   const advancedDemo = isOperatorNavLinkAdvancedInDemo(row.href, demoUi || buyerPolishedShell);
+                  const stepLabel = `${row.step}. ${row.label}`;
 
                   return (
                     <Link
@@ -644,9 +651,15 @@ export function SidebarNav() {
                           ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
                           : "text-neutral-900 dark:text-neutral-100",
                       )}
-                      title={advancedDemo ? `${row.label} (Advanced — optional)` : row.label}
+                      title={advancedDemo ? `${stepLabel} (Advanced — optional)` : stepLabel}
                       aria-current={active ? "page" : undefined}
                     >
+                      <span
+                        className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-800 dark:bg-neutral-700 dark:text-neutral-100"
+                        aria-hidden
+                      >
+                        {row.step}
+                      </span>
                       <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
                       {row.label}
                     </Link>

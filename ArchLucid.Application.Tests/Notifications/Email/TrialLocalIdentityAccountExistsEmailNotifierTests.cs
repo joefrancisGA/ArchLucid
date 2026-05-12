@@ -19,7 +19,7 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifierTests
     [Fact]
     public async Task NotifyAccountAlreadyExistsAsync_when_send_fails_logs_fingerprint_not_raw_address()
     {
-        string rawRecipient = "PrivateVictim@Example.COM";
+        const string rawRecipient = "PrivateVictim@Example.COM";
         string fingerprint = TrialEmailCorrelationFingerprint.ComputeHexPrefix(rawRecipient);
 
         Mock<IEmailProvider> email = new();

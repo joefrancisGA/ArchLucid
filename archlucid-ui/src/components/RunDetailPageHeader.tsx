@@ -57,18 +57,23 @@ export function RunDetailPageHeader({
             </div>
           </div>
           {buyerPolishedShell === true && executionFlavorBuyerSummary ? (
-            <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-              <Badge variant="secondary" className="me-2 align-middle font-normal">
-                Example package
-              </Badge>
-              {executionFlavorBuyerSummary}{" "}
-              <Link
-                href={`/reviews/${encodeURIComponent(runId)}#trust-evidence`}
-                className="font-medium text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600"
-              >
-                Traceable evidence and audit-ready history
-              </Link>
-            </p>
+            <>
+              <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                <Badge variant="secondary" className="me-2 align-middle font-normal">
+                  Example
+                </Badge>
+                {executionFlavorBuyerSummary}
+              </p>
+              <p className="m-0 mt-2 inline-flex max-w-3xl flex-wrap items-center gap-2 rounded-md border border-teal-200 bg-teal-50/80 px-3 py-2 text-sm font-medium text-teal-950 dark:border-teal-900 dark:bg-teal-950/30 dark:text-teal-100">
+                <span>Traceable evidence and audit-ready history</span>
+                <Link
+                  href={`/reviews/${encodeURIComponent(runId)}#trust-evidence`}
+                  className="text-sm font-semibold text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-50"
+                >
+                  View evidence basis
+                </Link>
+              </p>
+            </>
           ) : null}
           {showExecutionFlavorOperator ? (
             <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
@@ -97,14 +102,13 @@ export function RunDetailPageHeader({
         {buyerPolishedShell === true ? (
           finalizedBuyerChrome === true ? (
             <div className="flex shrink-0 flex-col gap-2 text-right">
-              <p className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-50">
-                Finalized review package
-              </p>
               {buyerGovernanceLine !== null && buyerGovernanceLine !== undefined && buyerGovernanceLine.length > 0 ? (
                 <p className="m-0 text-sm font-semibold leading-snug text-teal-900 dark:text-teal-200">
                   {buyerGovernanceLine}
                 </p>
-              ) : null}
+              ) : (
+                <p className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-50">Finalized package</p>
+              )}
             </div>
           ) : (
             <div className="flex shrink-0 flex-col gap-1.5">
