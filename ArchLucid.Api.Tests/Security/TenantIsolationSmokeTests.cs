@@ -23,6 +23,17 @@ public sealed class TenantIsolationSmokeTests
 {
     private static readonly TimeSpan WarmCreateRunRetryHeadroom = TimeSpan.FromMinutes(5);
 
+    /// <summary>
+    ///     Outer wall clock for <see cref="PostArchitectureRequestWithTransientRetryAsync" />: two full create-run attempts
+    ///     (each may run up to <see cref="ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout" />)
+    ///     plus jitter/backoff. A single shared CTS for both “total retries” and “one POST” lets the first 65m attempt
+    ///     Starve all later attempts (matches ~70m CI failures).
+    /// </summary>
+    private static readonly TimeSpan PostArchitectureTransientRetryOuterBudget =
+        ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout
+        + ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout
+        + WarmCreateRunRetryHeadroom;
+
     // Unlike idempotent-create SQL tests, this one requires *explicit* SQL (env var). Windows+localhost only is too easy
     // to misconfigure and caused long host-build hangs; CI sets the standard variables (see docs/BUILD.md).
     private const string SqlExplicitUnavailable =
@@ -367,18 +378,22 @@ public sealed class TenantIsolationSmokeTests
         string idempotencyKey = "tenant-iso-smoke-" + Guid.NewGuid().ToString("N");
         int delayMs = 250;
 
-        // Keep retry budget above the shared create-run request timeout so a final accepted POST is not canceled mid-flight
-        // after cold-start 503s consume part of the warmup window.
-        using CancellationTokenSource totalBudget = new(
-            ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout
-            + WarmCreateRunRetryHeadroom);
+        // Outer budget: enough for multiple full POSTs; each attempt gets its own CancelAfter(BurstHttpTimeout) so one
+        // long pipeline cannot consume the entire outer window and leave no time for a second try after 503s/timeouts.
+        using CancellationTokenSource outerBudget = new(PostArchitectureTransientRetryOuterBudget);
 
         try
         {
             while (true)
             {
-                CancellationToken ct = totalBudget.Token;
-                ct.ThrowIfCancellationRequested();
+                outerBudget.Token.ThrowIfCancellationRequested();
+
+                using CancellationTokenSource attemptBudget =
+                    CancellationTokenSource.CreateLinkedTokenSource(outerBudget.Token);
+                attemptBudget.CancelAfter(
+                    ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout);
+
+                CancellationToken ct = attemptBudget.Token;
 
                 try
                 {
@@ -394,23 +409,31 @@ public sealed class TenantIsolationSmokeTests
 
                     response.Dispose();
                 }
-                catch (HttpRequestException ex) when (!totalBudget.IsCancellationRequested
+                catch (HttpRequestException ex) when (!outerBudget.IsCancellationRequested
                                                       && ArchitectureRequestConcurrencyTestSupport
                                                           .IndicatesClientAbortedResponseBuffering(ex))
                 {
                     // TestServer long POSTs can drop the response stream without signaling our CTS; retry like a cold-start blip.
                 }
-                catch (TaskCanceledException ex) when (!totalBudget.IsCancellationRequested
+                catch (TaskCanceledException ex) when (!outerBudget.IsCancellationRequested
                                                       && ex.InnerException is TimeoutException)
                 {
                     // HttpClient.Timeout can surface here without linking to our operation token.
                 }
+                catch (TaskCanceledException) when (!outerBudget.IsCancellationRequested)
+                {
+                    // Per-attempt CTS (or HttpClient) canceled while outer budget remains — retry with backoff.
+                }
+                catch (OperationCanceledException) when (!outerBudget.IsCancellationRequested)
+                {
+                    // Same as TaskCanceled for completion-token paths without subclass.
+                }
 
-                await Task.Delay(delayMs, ct);
+                await Task.Delay(delayMs, outerBudget.Token);
                 delayMs = Math.Min(delayMs * 2, 4000);
             }
         }
-        catch (OperationCanceledException) when (totalBudget.IsCancellationRequested)
+        catch (OperationCanceledException) when (outerBudget.IsCancellationRequested)
         {
             throw new InvalidOperationException(
                 "POST /v1/architecture/request exceeded retry budget (HTTP 503 or transient transport timeouts). See "
