@@ -1,15 +1,18 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Reporting;
+
 namespace ArchLucid.Application.Pilots;
 
-/// <summary>
-///     Markdown export for sponsor / executive sharing (pairs with JSON from the same <see cref="PilotValueReport" />
-///     ).
-/// </summary>
-public static class PilotValueReportMarkdown
+/// <inheritdoc cref="IPilotValueReportMarkdownFormatter" />
+public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exportFormatter) : IPilotValueReportMarkdownFormatter
 {
-    public static string Format(PilotValueReport r)
+    private readonly ExportFormatterService _exportFormatter =
+        exportFormatter ?? throw new ArgumentNullException(nameof(exportFormatter));
+
+    /// <inheritdoc />
+    public string Format(PilotValueReport r)
     {
         ArgumentNullException.ThrowIfNull(r);
 
@@ -17,11 +20,11 @@ public static class PilotValueReportMarkdown
 
         sb.AppendLine("# ArchLucid pilot value report");
         sb.AppendLine();
-        sb.AppendLine("| Field | Value |");
-        sb.AppendLine("| --- | --- |");
+        _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Field", "Value");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Tenant | `{r.TenantId}` |");
-        sb.AppendLine(CultureInfo.InvariantCulture,
-            $"| Window (UTC) | `{r.FromUtc:O}` inclusive → `{r.ToUtc:O}` exclusive |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Window (UTC) | `{_exportFormatter.FormatIso8601Utc(r.FromUtc)}` inclusive → `{_exportFormatter.FormatIso8601Utc(r.ToUtc)}` exclusive |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Committed runs | {r.TotalRunsCommitted} |");
         sb.AppendLine(CultureInfo.InvariantCulture,
             $"| Run-detail cap | {r.RunDetailCap} (truncated: {r.RunDetailsTruncated}) |");
@@ -30,8 +33,7 @@ public static class PilotValueReportMarkdown
 
         sb.AppendLine("## Summary");
         sb.AppendLine();
-        sb.AppendLine("| Metric | Value |");
-        sb.AppendLine("| --- | --- |");
+        _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Metric", "Value");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Total findings | {r.TotalFindings} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
@@ -49,8 +51,7 @@ public static class PilotValueReportMarkdown
 
         sb.AppendLine("## Findings by severity");
         sb.AppendLine();
-        sb.AppendLine("| Severity | Count |");
-        sb.AppendLine("| --- | --- |");
+        _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Severity", "Count");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Critical | {r.FindingsBySeverity.Critical} |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| High | {r.FindingsBySeverity.High} |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Medium | {r.FindingsBySeverity.Medium} |");
@@ -67,16 +68,15 @@ public static class PilotValueReportMarkdown
 
         sb.AppendLine("## Committed runs (sample loaded for detail)");
         sb.AppendLine();
-        sb.AppendLine("| Run | Created (UTC) | Committed (UTC) | System |");
-        sb.AppendLine("| --- | --- | --- | --- |");
+        _exportFormatter.AppendMarkdownFourColumnTableStart(sb, "Run", "Created (UTC)", "Committed (UTC)", "System");
 
         foreach (PilotValueReportRunTimelinePoint row in r.CommittedRunsTimeline)
         {
-            string c = row.CommittedUtc is { } cu ? $"`{cu:O}`" : "—";
+            string committedCell = _exportFormatter.FormatIso8601UtcMarkdownQuotedCell(row.CommittedUtc);
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| `{row.RunId}` | `{row.CreatedUtc:O}` | {c} | {EscapeCell(row.SystemName)} |");
+                $"| `{row.RunId}` | {_exportFormatter.FormatIso8601UtcMarkdownQuotedCell(row.CreatedUtc)} | {committedCell} | {EscapeCell(row.SystemName)} |");
         }
 
         sb.AppendLine();

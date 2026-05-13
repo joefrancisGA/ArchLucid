@@ -17,7 +17,7 @@ public sealed class AzureDevOpsRequestBodyParityWithPipelineTaskTests
     [Fact]
     public void SerializeThreadCreate_matches_pipeline_task_golden_fixture()
     {
-        string markdown = "## ArchLucid sample markdown\n\n- line\n";
+        const string markdown = "## ArchLucid sample markdown\n\n- line\n";
         string actual = AzureDevOpsPullRequestWireFormat.SerializeThreadCreate(markdown);
         string expected = Fixture("thread-create.sample.json").Trim();
 

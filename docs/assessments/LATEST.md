@@ -395,7 +395,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
    - **Why it matters:** Fulfills the rule `.cursor/rules/architecture-outputs.mdc` requiring 8 specific structural sections.
    - **Expected impact:** Explainability (+8 pts), Compliance Readiness (+4 pts).
    - **Affected qualities:** Explainability, Compliance Readiness.
-   - **Status:** Actionable now.
+   - **Status:** Completed — `ArchitectureMarkdownSectionValidator` + `ArtifactBundleValidator` in `ArchLucid.ArtifactSynthesis/Validation/`; tests `ArchLucid.ArtifactSynthesis.Tests/ArchitectureMarkdownSectionValidatorTests.cs`.
    ```text
    Create a unit test or prompt validator in `ArchLucid.ArtifactSynthesis` that asserts all generated markdown architecture outputs contain the 8 mandated headers (Objective, Assumptions, Constraints, Architecture Overview, Component Breakdown, Data Flow, Security Model, Operational Considerations).
    - Specify files: `ArchLucid.ArtifactSynthesis/`
@@ -408,7 +408,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Fulfills rule "When making architectural decisions, include reasoning or evidence: Trade-offs, Constraints, Expected impact".
     - **Expected impact:** Documentation (+8 pts), Workflow Embeddedness (+2 pts).
     - **Affected qualities:** Documentation, Workflow Embeddedness.
-    - **Status:** Actionable now.
+    - **Status:** Completed — `docs/adr/template.md` (strict `## Trade-offs`, `## Constraints`, `## Expected impact`); optional long skeleton `docs/adr/adr-template-full.md`; spine links in `docs/adr/README.md`.
     ```text
     Update or create an ADR markdown template in `docs/adr/template.md` that strictly requires 'Trade-offs', 'Constraints', and 'Expected impact' sections.
     - Specify files: `docs/adr/template.md`
@@ -486,7 +486,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Guarantees generated advisory Terraform is structurally sound.
     - **Expected impact:** Correctness (+4 pts).
     - **Affected qualities:** Correctness.
-    - **Status:** Actionable now.
+    - **Status:** Completed — unit probe writes a minimal `main.tf`, runs `terraform init -backend=false`, `terraform fmt -check`, and `terraform validate`; see `ArchLucid.ArtifactSynthesis.Tests/TerraformSnapshotTests.cs`.
     ```text
     Add a unit test in `ArchLucid.ArtifactSynthesis.Tests` that generates a sample Terraform snippet and executes the `terraform fmt -check` and `terraform validate` binaries against it.
     - Specify files: `ArchLucid.ArtifactSynthesis.Tests/`
@@ -652,10 +652,10 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     ```
 
 23. **Add Data Retention Policy Purge Job**
-    - **Why it matters:** Enforces GDPR/SaaS data deletion policies for soft-deleted projects.
-    - **Expected impact:** Policy and Governance Alignment (+4 pts), Compliance Readiness (+2 pts).
-    - **Affected qualities:** Policy and Governance Alignment, Compliance Readiness.
-    - **Status:** Actionable now.
+   - **Why it matters:** Enforces GDPR/SaaS data deletion policies for soft-deleted projects.
+   - **Expected impact:** Policy and Governance Alignment (+4 pts), Compliance Readiness (+2 pts).
+   - **Affected qualities:** Policy and Governance Alignment, Compliance Readiness.
+   - **Status:** Completed — `RetentionPurgeWorker` in `ArchLucid.Api/Workers/` (API role); shared purge + per-id audit in `ArchitectureProjectRetentionPurgeBackgroundWork` (`ArchLucid.Host.Core/Hosted/`); tests `ArchLucid.Api.Tests/Workers/ArchitectureProjectRetentionPurgeBackgroundWorkTests.cs`.
     ```text
     Implement a background hosted service `RetentionPurgeWorker` in `ArchLucid.Api` that permanently deletes `SoftDeleted` records older than 30 days.
     - Specify files: `ArchLucid.Api/Workers/`
@@ -665,10 +665,10 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     ```
 
 24. **Enforce Consistent Dashboard Export Formatting**
-    - **Why it matters:** Addresses executive value visibility issues where export formatting can sometimes vary.
-    - **Expected impact:** Executive Value Visibility (+5 pts).
-    - **Affected qualities:** Executive Value Visibility.
-    - **Status:** Actionable now.
+   - **Why it matters:** Addresses executive value visibility issues where export formatting can sometimes vary.
+   - **Expected impact:** Executive Value Visibility (+5 pts).
+   - **Affected qualities:** Executive Value Visibility.
+   - **Status:** Completed — `ExportFormatterService` in `ArchLucid.Application/Reporting/` (ISO-8601 dates, shared markdown table layout); `IPilotValueReportMarkdownFormatter` / `PilotValueReportMarkdownFormatter`; tests `ArchLucid.Application.Tests/ExportFormatterServiceTests.cs`, `ArchLucid.Application.Tests/Pilots/PilotValueReportMarkdownFormatterTests.cs`.
     ```text
     Centralize the PDF/CSV export logic into a single `ExportFormatterService` in `ArchLucid.Application` to ensure all data tables follow the exact same visual structure and date formatting.
     - Specify files: `ArchLucid.Application/Reporting/`
@@ -678,10 +678,10 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     ```
 
 25. **Add E2E Integration Tests for Webhook Dispatch**
-    - **Why it matters:** Ensures enterprise interoperability components function correctly and reliably.
-    - **Expected impact:** Interoperability (+4 pts).
-    - **Affected qualities:** Interoperability.
-    - **Status:** Actionable now.
+   - **Why it matters:** Ensures enterprise interoperability components function correctly and reliably.
+   - **Expected impact:** Interoperability (+4 pts).
+   - **Affected qualities:** Interoperability.
+   - **Status:** Completed — WireMock tests `ArchLucid.Application.Tests/Integrations/WebhookPosterWireMockIntegrationTests.cs` for `HttpWebhookPoster` / `IWebhookPoster`: POST, `application/json` + UTF-8, JSON Schema body; HMAC header `X-ArchLucid-Webhook-Signature`; shared `IntegrationEventJsonSchemaAssert.PayloadTextValidatesInlineSchema`.
     ```text
     Add an integration test that uses a local HTTP mock server (e.g. WireMock.Net) to verify the `WebhookDispatchService` properly formats and sends payloads.
     - Specify files: `ArchLucid.Application.Tests/Integrations/`
@@ -705,7 +705,7 @@ To optimize context window usage and cursor cost-effectiveness, execute the impr
 **Batch 3: External Integrations & Azure Logic (Prompts 7, 11, 15, 17, 19, 21 completed)**
 - **Why:** Grouping Terraform logic, ServiceNow mappings, Slack config, Azure retry handlers, identity roles, and role script generation minimizes context-switching between third-party API dependencies.
 
-**Batch 4: Output & Compliance Validation (Prompts 3, 4, 10, 13, 14, 23, 24, 25)**
+**Batch 4: Output & Compliance Validation (Prompts 3, 4, 23, 24, 25 completed; Prompts 10, 13, 14 remaining)**
 - **Why:** These focus on the artifacts produced by the system (`ADVISORY.md`, architecture structures, DB isolation, data retention, export formats, and webhook routing). Cursor can hold the synthesis and testing libraries in context.
 
 **Batch 5: UI & Startup Health (Prompt 5 completed; Prompts 8, 9, 12, 16, 20 remaining)**

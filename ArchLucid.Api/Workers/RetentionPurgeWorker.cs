@@ -1,19 +1,22 @@
 using ArchLucid.Core.Configuration;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Host.Core.Hosting;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Host.Core.Hosted;
+namespace ArchLucid.Api.Workers;
 
 /// <summary>
-///     Leader-elected daily loop that permanently deletes soft-deleted <c>dbo.Projects</c> past retention and audits each
-///     removed id.
+///     API-role retention worker: hard-deletes <c>dbo.Projects</c> that were soft-deleted longer than
+///     <see cref="ArchitectureProjectRetentionPurgeOptions.RetentionDays" /> ago (default 30), on the same schedule as
+///     <see cref="ArchitectureProjectRetentionPurgeHostedService" />. Registered only when <c>Hosting:Role</c> is
+///     <see cref="ArchLucidHostingRole.Api" /> so Combined/Worker hosts do not double-run the loop.
 /// </summary>
-public sealed class ArchitectureProjectRetentionPurgeHostedService(
+public sealed class RetentionPurgeWorker(
     IServiceScopeFactory scopeFactory,
     IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions> optionsMonitor,
-    ILogger<ArchitectureProjectRetentionPurgeHostedService> logger,
+    ILogger<RetentionPurgeWorker> logger,
     HostLeaderElectionCoordinator electionCoordinator) : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory =
@@ -22,7 +25,7 @@ public sealed class ArchitectureProjectRetentionPurgeHostedService(
     private readonly IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
-    private readonly ILogger<ArchitectureProjectRetentionPurgeHostedService> _logger =
+    private readonly ILogger<RetentionPurgeWorker> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     private readonly HostLeaderElectionCoordinator _electionCoordinator =

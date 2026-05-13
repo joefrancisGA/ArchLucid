@@ -11,6 +11,6 @@ Governance draft: **`docs/adr/0035-architecture-invariant-catalog.md`** (flip **
 
 Implementation backlog: **`docs/library/TECH_BACKLOG.md`** — **`TB-009`** (documentation / ADR acceptance), **`TB-010`**–**`TB-012`** (enforcement waves).
 
-ADR authoring skeleton (not itself an ADR): **`docs/adr/TEMPLATE.md`**.
+ADR authoring skeleton (not itself an ADR): **`docs/adr/adr-template-full.md`** (strict rules: **`docs/adr/template.md`**).
 
 **Invariant audit vs TB-001:** **`INV-003`** does **not** require synchronous failure on informational async audit paths shipped under **`TB-001`** unless a superseding backlog item merges.

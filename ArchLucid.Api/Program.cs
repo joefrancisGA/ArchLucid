@@ -7,6 +7,7 @@ using ArchLucid.Api.Configuration;
 using ArchLucid.Api.Demo;
 using ArchLucid.Api.Hosting;
 using ArchLucid.Api.Startup;
+using ArchLucid.Api.Workers;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -92,6 +93,10 @@ public partial class Program
         builder.Services.Configure<ArchitectureRunCreationPayloadLimitsOptions>(
             builder.Configuration.GetSection(ArchitectureRunCreationPayloadLimitsOptions.SectionName));
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);
+
+        if (hostingRole == ArchLucidHostingRole.Api)
+            builder.Services.AddHostedService<RetentionPurgeWorker>();
+
         builder.Services.AddArchLucidApiWebLayerServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
         builder.Services.AddScoped<QuickStartService>();

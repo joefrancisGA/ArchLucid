@@ -1,31 +1,35 @@
-> **Scope:** Strict ADR skeleton for contributors — enforces Trade-offs, Constraints, and Expected impact on every new numbered ADR; meta-doc, not an immutable ADR.
+> **Scope:** ADR template enforcement — `Trade-offs`, `Constraints`, and `Expected impact` are merge-blocking for new numbered ADRs; meta-doc, not an ADR.
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
 
-# ADR template (mandatory reasoning sections)
+# ADR template — strict sections (canonical)
 
-**How to use:** Copy into `docs/adr/NNNN-short-slug-kebab-case.md` per [README.md](README.md). Replace every `⌈placeholder⌉`. Remove optional blocks only when they truly do not apply—**never** remove the three mandated sections below.
+**Use:** Copy the block below into `docs/adr/NNNN-short-slug-kebab-case.md` per [README.md](README.md). Replace every `⌈placeholder⌉`.
 
 **Immutability:** Once **Accepted**, do not rewrite; supersede with another ADR.
 
----
-
-## Enforcement rules (MUST)
-
-The following **MUST** appear as top-level `##` headings (exact titles) with substantive prose—not empty, not placeholder-only, not a single vague sentence.
-
-1. **`## Trade-offs`** — You **MUST** name what you are trading away for this decision (performance, cost, flexibility, operational load, security surface, time to ship, etc.) and what you gain.
-2. **`## Constraints`** — You **MUST** list constraints the decision operates under (org policy, budget, platform, compliance, staffing, dependencies, deadlines).
-3. **`## Expected impact`** — You **MUST** describe expected impact on the system, security posture, operations, cost, and teams (concrete, falsifiable where possible).
-
-If any of the three are missing or non-substantive, treat the ADR as **not ready to merge** until fixed.
+**Longer skeleton** (optional blocks, tables, links): [adr-template-full.md](adr-template-full.md).
 
 ---
 
-## Paste below into your new ADR file
+## Enforcement rules (organizational MUST)
+
+These rules are **merge-blocking** unless an exception is recorded in the PR and in the ADR **Context**:
+
+1. The ADR **must** contain three top-level Markdown headings with **exact** titles (case and wording as shown): `## Trade-offs`, `## Constraints`, `## Expected impact`.
+2. Each of those sections **must** hold **substantive prose**: multiple sentences that a reviewer can argue with. **Forbidden:** empty sections, placeholder-only text (`TBD`, `⌈⌉` left unfilled), or a single vague sentence with no concrete trade-offs, constraints, or impacts.
+3. **`## Trade-offs`** **must** name what the decision gives up (latency, cost, flexibility to change, operational burden, security surface, time to market, etc.) and what it gains.
+4. **`## Constraints`** **must** list real boundaries (policy, budget, platform, compliance, staffing, vendor lock-in, deadlines, upstream dependencies).
+5. **`## Expected impact`** **must** state expected effects on the system, **security posture**, **operations**, **cost**, and **teams**, with falsifiable or observable statements where possible.
+
+If any rule above fails, the ADR is **not ready to merge**.
+
+---
+
+## Paste into your new ADR file
 
 ```markdown
-> **Scope:** ADR ⌈NNNN⌉ — ⌈short title⌉ — full detail in sections below.
+> **Scope:** ADR ⌈NNNN⌉ — ⌈short title⌉.
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
 
@@ -44,15 +48,15 @@ If any of the three are missing or non-substantive, treat the ADR as **not ready
 
 ## Trade-offs
 
-⌈MANDATORY: explicit gains vs sacrifices⌉.
+⌈MANDATORY: explicit gains vs sacrifices — merge-blocking if empty or non-substantive⌉.
 
 ## Constraints
 
-⌈MANDATORY: boundaries the decision must respect⌉.
+⌈MANDATORY: real boundaries — merge-blocking if empty or non-substantive⌉.
 
 ## Expected impact
 
-⌈MANDATORY: system, security, ops, cost, team effects⌉.
+⌈MANDATORY: system, security, ops, cost, team effects — merge-blocking if empty or non-substantive⌉.
 
 ## Consequences
 
@@ -61,6 +65,4 @@ If any of the three are missing or non-substantive, treat the ADR as **not ready
 - **Follow-ups:** ⌈⌉
 ```
 
-Deeper architecture structure (objective, data flow, etc.) lives in `.cursor/rules/architecture-outputs.mdc` and MAY be added as additional `##` sections when the ADR is large.
-
-**Full longer skeleton:** [TEMPLATE.md](TEMPLATE.md)
+Additional `##` sections are allowed when needed; they **do not** replace the three mandated sections above.

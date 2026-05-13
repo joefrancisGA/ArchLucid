@@ -44,4 +44,31 @@ internal static class IntegrationEventJsonSchemaAssert
             detail,
             errors);
     }
+
+    internal static void PayloadTextValidatesInlineSchema(string schemaJson, string payloadText, string? contextLabel = null)
+    {
+        if (string.IsNullOrWhiteSpace(schemaJson))
+            throw new ArgumentException("Schema JSON is required.", nameof(schemaJson));
+
+        JsonSchema schema = JsonSchema.FromText(schemaJson);
+
+        using JsonDocument payloadDoc = JsonDocument.Parse(payloadText);
+
+        EvaluationOptions evaluationOptions = new() { OutputFormat = OutputFormat.Hierarchical };
+
+        EvaluationResults result = schema.Evaluate(payloadDoc.RootElement, evaluationOptions);
+
+        if (result.IsValid)
+            return;
+
+        string detail = JsonSerializer.Serialize(payloadDoc.RootElement, PrettyJson);
+        string errors = JsonSerializer.Serialize(result.ToJsonDocument().RootElement, PrettyJson);
+        string label = string.IsNullOrWhiteSpace(contextLabel) ? "inline schema" : contextLabel;
+
+        result.IsValid.Should().BeTrue(
+            "payload for {0} must validate. Payload:\n{1}\nEvaluation:\n{2}",
+            label,
+            detail,
+            errors);
+    }
 }

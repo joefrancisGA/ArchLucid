@@ -16,10 +16,15 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/tenant")]
 [EnableRateLimiting("fixed")]
-public sealed class TenantPilotValueReportController(IPilotValueReportService pilotValueReportService) : ControllerBase
+public sealed class TenantPilotValueReportController(
+    IPilotValueReportService pilotValueReportService,
+    IPilotValueReportMarkdownFormatter pilotValueReportMarkdownFormatter) : ControllerBase
 {
     private readonly IPilotValueReportService _pilotValueReportService =
         pilotValueReportService ?? throw new ArgumentNullException(nameof(pilotValueReportService));
+
+    private readonly IPilotValueReportMarkdownFormatter _pilotValueReportMarkdownFormatter =
+        pilotValueReportMarkdownFormatter ?? throw new ArgumentNullException(nameof(pilotValueReportMarkdownFormatter));
 
     /// <summary>
     ///     Pilot value report: committed-run aggregates, findings, audit-backed governance/recommendation tallies, and a
@@ -52,7 +57,7 @@ public sealed class TenantPilotValueReportController(IPilotValueReportService pi
         string accept = Request.Headers.Accept.ToString();
 
         if (accept.Contains("text/markdown", StringComparison.OrdinalIgnoreCase))
-            return Content(PilotValueReportMarkdown.Format(report), "text/markdown; charset=utf-8");
+            return Content(_pilotValueReportMarkdownFormatter.Format(report), "text/markdown; charset=utf-8");
 
         return Ok(report);
     }

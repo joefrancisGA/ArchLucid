@@ -31,7 +31,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-009 — Architecture invariant catalog + ADR 0035
 
-**Status:** **Documentation landed** (2026-05-09) — [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (IDs `INV-001`–`INV-015`), authoring skeleton [`docs/adr/TEMPLATE.md`](../adr/TEMPLATE.md), governance ADR **`docs/adr/0035-architecture-invariant-catalog.md`** (**Status: Proposed** — flip to Accepted when owner reviews).
+**Status:** **Documentation landed** (2026-05-09) — [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (IDs `INV-001`–`INV-015`), authoring skeleton [`docs/adr/adr-template-full.md`](../adr/adr-template-full.md), governance ADR **`docs/adr/0035-architecture-invariant-catalog.md`** (**Status: Proposed** — flip to Accepted when owner reviews).
 
 **What remains:**
 

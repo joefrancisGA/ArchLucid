@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Reporting;
 
 using FluentAssertions;
 
@@ -14,6 +15,8 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class TenantPilotValueReportControllerTests
 {
+    private static readonly IPilotValueReportMarkdownFormatter MarkdownFormatter =
+        new PilotValueReportMarkdownFormatter(new ExportFormatterService());
     [SkippableFact]
     public async Task GetPilotValueReport_returns_json_by_default()
     {
@@ -30,7 +33,7 @@ public sealed class TenantPilotValueReportControllerTests
         svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(body);
 
-        TenantPilotValueReportController sut = new(svc.Object)
+        TenantPilotValueReportController sut = new(svc.Object, MarkdownFormatter)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -48,7 +51,7 @@ public sealed class TenantPilotValueReportControllerTests
         svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((PilotValueReport?)null);
 
-        TenantPilotValueReportController sut = new(svc.Object)
+        TenantPilotValueReportController sut = new(svc.Object, MarkdownFormatter)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -92,7 +95,7 @@ public sealed class TenantPilotValueReportControllerTests
         DefaultHttpContext http = new();
         http.Request.Headers.Accept = "text/markdown";
 
-        TenantPilotValueReportController sut = new(svc.Object)
+        TenantPilotValueReportController sut = new(svc.Object, MarkdownFormatter)
         {
             ControllerContext = new ControllerContext { HttpContext = http }
         };
