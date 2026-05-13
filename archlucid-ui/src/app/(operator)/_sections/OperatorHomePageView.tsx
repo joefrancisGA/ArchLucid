@@ -1,0 +1,145 @@
+import Link from "next/link";
+
+import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
+import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
+import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
+import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
+import { CorePilotChecklist } from "@/components/CorePilotChecklist";
+import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
+import { HelpLink } from "@/components/HelpLink";
+import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
+import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityLayerCards";
+import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
+import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPanel";
+import { OperatorCoArchitectHomeStrip } from "@/components/OperatorCoArchitectHomeStrip";
+import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCorePilotDiagnosticsChecklist";
+import { OperatorHomeGate } from "@/components/OperatorHomeGate";
+import { OperatorNextActionsCard } from "@/components/OperatorNextActionsCard";
+import { OperatorStickinessSnapshotCard } from "@/components/OperatorStickinessSnapshotCard";
+import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
+import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
+import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
+import { SampleFirstReviewPackageCard } from "@/components/SampleFirstReviewPackageCard";
+import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
+import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboard";
+import { WelcomeBanner } from "@/components/WelcomeBanner";
+
+import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
+
+type OperatorHomePageViewProps = {
+  model: OperatorHomePageViewModel;
+};
+
+/** Landing page: hero CTA, action cards, workflow checklist, and operational metrics. */
+export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
+  const buyerPolishedShell = model.buyerPolishedShell;
+
+  return (
+    <OperatorHomeGate>
+      <TrialWelcomeRunDeepLink />
+      <OperatorWelcomeOnboarding />
+      <div className="space-y-6">
+        {buyerPolishedShell ? null : <OperatorCoArchitectHomeStrip />}
+        <WelcomeBanner />
+
+        {buyerPolishedShell ? <CorePilotBuyerStepHint /> : null}
+        {buyerPolishedShell ? <BuyerGoldenJourneyStrip /> : null}
+
+        <SampleFirstReviewPackageCard />
+
+        {buyerPolishedShell ? (
+          <details className="rounded-lg border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
+            <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+              Connect your workspace (after the proof path)
+            </summary>
+            <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+              When you are ready for tenant-backed reviews,{" "}
+              <Link
+                href="/reviews/new"
+                className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+              >
+                start a new request
+              </Link>
+              . Finish Executive Summary through Audit trail first so evaluators see the governed package story.
+            </p>
+          </details>
+        ) : null}
+
+        {buyerPolishedShell ? null : (
+          <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
+            Get started
+          </h2>
+        )}
+
+        {buyerPolishedShell ? null : <CorePilotNextStepsCard />}
+
+        {buyerPolishedShell ? null : <CorePilotChecklist />}
+
+        {buyerPolishedShell ? null : (
+          <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
+            Your reviews
+          </h2>
+        )}
+
+        <div
+          className={
+            buyerPolishedShell
+              ? "min-w-0 space-y-6"
+              : "grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start"
+          }
+        >
+          <div className="min-w-0 space-y-6">
+            <RunsDashboardPanel />
+            {buyerPolishedShell ? null : <OperatorCorePilotDiagnosticsChecklist />}
+            {buyerPolishedShell ? null : <AfterCorePilotChecklistHint />}
+
+            <OperationalMetricsGate>
+              {buyerPolishedShell ? null : (
+                <div className="space-y-6" data-testid="operator-home-post-commit-surfaces">
+                  <ValueRealizationDashboard />
+                  <OperatorNextActionsCard />
+                  <OperatorStickinessSnapshotCard />
+                </div>
+              )}
+
+              {buyerPolishedShell ? null : (
+                <section aria-labelledby="operational-metrics-heading">
+                  <div className="mb-3 flex flex-wrap items-center gap-2">
+                    <h3
+                      id="operational-metrics-heading"
+                      className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
+                    >
+                      Operational metrics
+                    </h3>
+
+                    <HelpLink
+                      docPath="/docs/CORE_PILOT.md"
+                      label="Open the core pilot guide on GitHub (new tab)"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    <PilotOutcomeCard />
+                    <OperatorTaskSuccessTile />
+                  </div>
+                </section>
+              )}
+
+              {buyerPolishedShell ? null : <HomeMaturityLayerCards />}
+            </OperationalMetricsGate>
+
+            <BeforeAfterDeltaPanel />
+          </div>
+
+          {buyerPolishedShell ? null : (
+            <aside
+              className="min-w-0 space-y-3 pt-0 lg:sticky lg:top-20 lg:self-start"
+              aria-label="Explore completed output and first-review checklist"
+            >
+              <HomeFirstRunWorkflowGate />
+            </aside>
+          )}
+        </div>
+      </div>
+    </OperatorHomeGate>
+  );
+}
