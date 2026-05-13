@@ -5,6 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { isDemoStrictNavigationRedirectsActive } from "@/lib/demo-ui-env";
 
+/**
+ * Demo-only guard: redirects blocked operator prefixes (see buyer demo allowlist discussion) back to Home while keeping
+ * sponsor-safe routes reachable without server middleware.
+ *
+ * `/onboarding` (and legacy `/onboard`) are not blocked: post-registration trial handoff and mock E2E depend on them even
+ * when demo static-operator / demo mode enables this gate.
+ */
 const DEMO_NAVIGATION_BLOCKED_PREFIXES: readonly string[] = [
   "/admin",
   "/search",
@@ -17,14 +24,8 @@ const DEMO_NAVIGATION_BLOCKED_PREFIXES: readonly string[] = [
   "/product-learning",
   "/recommendation-learning",
   "/evolution-review",
-  "/onboarding",
-  "/onboard",
 ];
 
-/**
- * Demo-only guard: redirects blocked operator prefixes (see buyer demo allowlist discussion) back to Home while keeping
- * sponsor-safe routes reachable without server middleware.
- */
 export function DemoStrictNavigationGate() {
   const pathname = usePathname();
   const router = useRouter();
