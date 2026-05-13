@@ -15,11 +15,9 @@ namespace ArchLucid.Analyzers;
 public sealed class ForeachToLinqCodeFixProvider : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds =>
-        ImmutableArray.Create(Al0002ForeachToLinqDescriptor.Rule.Id);
-
-    public override FixAllProvider? GetFixAllProvider() =>
+        [Al0002ForeachToLinqDescriptor.Rule.Id];
+    public override FixAllProvider GetFixAllProvider() =>
         WellKnownFixAllProviders.BatchFixer;
-
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         Document document = context.Document;
@@ -129,10 +127,7 @@ public sealed class ForeachToLinqCodeFixProvider : CodeFixProvider
             return false;
         }
 
-        if (u.Name is null)
-            return false;
-
-        return NamesEqual(u.Name.ToString(), "System.Linq");
+        return u.Name is not null && NamesEqual(u.Name.ToString(), "System.Linq");
 
         static bool NamesEqual(string leftName, string rightName) =>
             string.Equals(leftName, rightName, StringComparison.Ordinal);

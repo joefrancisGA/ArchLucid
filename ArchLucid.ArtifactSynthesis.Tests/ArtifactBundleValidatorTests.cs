@@ -44,6 +44,34 @@ public sealed class ArtifactBundleValidatorTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*content*");
     }
 
+    [Theory]
+    [InlineData(ArtifactType.ArchitectureNarrative)]
+    [InlineData(ArtifactType.ReferenceArchitectureMarkdown)]
+    public void Validate_when_architecture_missing_headers_throws(string artifactType)
+    {
+        ArtifactBundle bundle = ValidBundle();
+        bundle.Artifacts[0].ArtifactType = artifactType;
+        bundle.Artifacts[0].Content = "Missing headers";
+
+        Action act = () => new ArtifactBundleValidator().Validate(bundle);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*missing required header*");
+    }
+
+    [Theory]
+    [InlineData(ArtifactType.ArchitectureNarrative)]
+    [InlineData(ArtifactType.ReferenceArchitectureMarkdown)]
+    public void Validate_when_architecture_has_all_headers_passes(string artifactType)
+    {
+        ArtifactBundle bundle = ValidBundle();
+        bundle.Artifacts[0].ArtifactType = artifactType;
+        bundle.Artifacts[0].Content = "Objective Assumptions Constraints Architecture Overview Component Breakdown Data Flow Security Model Operational Considerations";
+
+        Action act = () => new ArtifactBundleValidator().Validate(bundle);
+
+        act.Should().NotThrow();
+    }
+
     private static ArtifactBundle ValidBundle()
     {
         return new ArtifactBundle

@@ -113,19 +113,16 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
     private static bool ShouldTreatAsCanceledResponseBuffering(Exception ex, CancellationToken cancellationToken)
     {
-        if (!cancellationToken.IsCancellationRequested)
-            return false;
-
-        return HasClientAbortedIOException(ex);
+        return cancellationToken.IsCancellationRequested && HasClientAbortedIoException(ex);
     }
 
     /// <summary>
     ///     True when <paramref name="ex" /> matches TestHost/Sockets abort during response buffering (see
     ///     <see cref="PostArchitectureRequestAndBufferAsync" />).
     /// </summary>
-    internal static bool IndicatesClientAbortedResponseBuffering(Exception ex) => HasClientAbortedIOException(ex);
+    internal static bool IndicatesClientAbortedResponseBuffering(Exception ex) => HasClientAbortedIoException(ex);
 
-    private static bool HasClientAbortedIOException(Exception ex)
+    private static bool HasClientAbortedIoException(Exception ex)
     {
         Exception? current = ex;
 

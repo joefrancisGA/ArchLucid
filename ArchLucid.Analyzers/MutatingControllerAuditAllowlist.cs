@@ -17,16 +17,8 @@ internal static class MutatingControllerAuditAllowlist
         ImmutableHashSet<string>.Builder merged =
             ImmutableHashSet.CreateBuilder(StringComparer.Ordinal);
 
-        foreach (AdditionalText additionalText in analyzerOptions.AdditionalFiles)
+        foreach (var text in (from additionalText in analyzerOptions.AdditionalFiles where IsAllowlistAdditionalFile(additionalText.Path) select additionalText.GetText(cancellationToken)).OfType<SourceText>())
         {
-            if (!IsAllowlistAdditionalFile(additionalText.Path))
-                continue;
-
-            SourceText? text = additionalText.GetText(cancellationToken);
-
-            if (text is null)
-                continue;
-
             AppendAllowlistFqLines(text, merged);
         }
 

@@ -36,6 +36,27 @@ public class ArtifactBundleValidator : IArtifactBundleValidator
 
             if (string.IsNullOrWhiteSpace(artifact.ContentHash))
                 throw new InvalidOperationException("Artifact content hash is required.");
+
+            if (artifact.ArtifactType is Models.ArtifactType.ArchitectureNarrative or Models.ArtifactType.ReferenceArchitectureMarkdown)
+            {
+                string[] requiredHeaders =
+                [
+                    "Objective",
+                    "Assumptions",
+                    "Constraints",
+                    "Architecture Overview",
+                    "Component Breakdown",
+                    "Data Flow",
+                    "Security Model",
+                    "Operational Considerations"
+                ];
+
+                foreach (string header in requiredHeaders)
+                {
+                    if (!artifact.Content.Contains(header, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException($"Architecture artifact {artifact.ArtifactType} is missing required header: {header}");
+                }
+            }
         }
     }
 }

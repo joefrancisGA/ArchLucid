@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Scim.Filtering;
+using ArchLucid.Application.Scim.Filtering;
 using ArchLucid.Core.Scim.Filtering;
 
 using FluentAssertions;
@@ -18,7 +18,9 @@ public sealed class ScimFilterParserTests
     [SkippableFact]
     public void Parse_simple_eq()
     {
-        ScimFilterNode? n = ScimFilterParser.Parse(@"userName eq ""alice""");
+        ScimFilterNode? n = ScimFilterParser.Parse("""
+                                                   userName eq "alice"
+                                                   """);
         ScimComparisonNode c = n.Should().BeOfType<ScimComparisonNode>().Subject;
         c.AttributePath.Should().Be("userName");
         c.Operator.Should().Be("eq");

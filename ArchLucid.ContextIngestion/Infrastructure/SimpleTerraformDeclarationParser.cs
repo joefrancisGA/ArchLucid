@@ -8,7 +8,9 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
 {
     /// <summary>Lightweight line-based match for <c>resource "type" "name"</c> blocks (not full HCL).</summary>
     private static readonly Regex ResourceRegex = new(
-        @"resource\s+""(?<type>[^""]+)""\s+""(?<name>[^""]+)""",
+        """
+        resource\s+"(?<type>[^"]+)"\s+"(?<name>[^"]+)"
+        """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     public bool CanParse(string format)

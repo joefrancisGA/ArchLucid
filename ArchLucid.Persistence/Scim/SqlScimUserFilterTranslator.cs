@@ -13,26 +13,15 @@ internal static class SqlScimUserFilterTranslator
 
     private static string Build(ScimFilterNode node, DynamicParameters parameters, ref int nextParam)
     {
-        switch (node)
+        return node switch
         {
-            case ScimNotNode n:
-                return $"NOT ({Build(n.Inner, parameters, ref nextParam)})";
-
-            case ScimAndNode a:
-                return $"({Build(a.Left, parameters, ref nextParam)}) AND ({Build(a.Right, parameters, ref nextParam)})";
-
-            case ScimOrNode o:
-                return $"({Build(o.Left, parameters, ref nextParam)}) OR ({Build(o.Right, parameters, ref nextParam)})";
-
-            case ScimPresentNode p:
-                return $"{ColumnSql(p.AttributePath)} IS NOT NULL";
-
-            case ScimComparisonNode c:
-                return BuildComparison(c, parameters, ref nextParam);
-
-            default:
-                throw new InvalidOperationException($"Unsupported filter node {node.GetType().Name}.");
-        }
+            ScimNotNode n => $"NOT ({Build(n.Inner, parameters, ref nextParam)})",
+            ScimAndNode a => $"({Build(a.Left, parameters, ref nextParam)}) AND ({Build(a.Right, parameters, ref nextParam)})",
+            ScimOrNode o => $"({Build(o.Left, parameters, ref nextParam)}) OR ({Build(o.Right, parameters, ref nextParam)})",
+            ScimPresentNode p => $"{ColumnSql(p.AttributePath)} IS NOT NULL",
+            ScimComparisonNode c => BuildComparison(c, parameters, ref nextParam),
+            _ => throw new InvalidOperationException($"Unsupported filter node {node.GetType().Name}.")
+        };
     }
 
     private static string BuildComparison(ScimComparisonNode c, DynamicParameters parameters, ref int nextParam)

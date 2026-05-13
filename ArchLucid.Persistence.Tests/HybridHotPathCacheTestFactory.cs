@@ -11,7 +11,7 @@ internal static class HybridHotPathCacheTestFactory
 {
     public static HybridHotPathReadCache Create(HotPathCacheOptions options, bool addDistributedMemoryCache = false)
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
 
         services.AddLogging(static b =>
         {

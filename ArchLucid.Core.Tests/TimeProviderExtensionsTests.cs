@@ -5,13 +5,9 @@ namespace ArchLucid.Core.Tests;
 [Trait("Category", "Unit")]
 public sealed class TimeProviderExtensionsTests
 {
-    private sealed class FixedUtcOffsetTimeProvider : TimeProvider
+    private sealed class FixedUtcOffsetTimeProvider(DateTimeOffset utcNow) : TimeProvider
     {
-        private readonly DateTimeOffset _utcNow;
-
-        public FixedUtcOffsetTimeProvider(DateTimeOffset utcNow) => _utcNow = utcNow;
-
-        public override DateTimeOffset GetUtcNow() => _utcNow;
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 
     [Fact]

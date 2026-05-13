@@ -6,18 +6,13 @@ namespace ArchLucid.Host.Composition.Tests;
 /// <summary>
 ///     Minimal <see cref="IHostEnvironment" /> for composition DI tests (no generic host builder).
 /// </summary>
-public sealed class CompositionTestHostEnvironment : IHostEnvironment
+public sealed class CompositionTestHostEnvironment(string environmentName) : IHostEnvironment
 {
-    public CompositionTestHostEnvironment(string environmentName)
-    {
-        EnvironmentName = environmentName ?? throw new ArgumentNullException(nameof(environmentName));
-    }
-
     public string EnvironmentName
     {
         get;
         set;
-    }
+    } = environmentName ?? throw new ArgumentNullException(nameof(environmentName));
 
     public string ApplicationName
     {
