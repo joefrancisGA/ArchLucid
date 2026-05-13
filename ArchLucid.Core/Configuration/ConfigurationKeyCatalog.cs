@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(152)
+        return new List<ConfigurationKeyEntry>(154)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -354,6 +354,19 @@ public static class ConfigurationKeyCatalog
             E("DataArchival", "DataArchival:PurgeArchivedAgentExecutionTracesBatchSize", M("appsettings", "env"), "500",
                 "When trace purge on",
                 "DELETE TOP batch size per iteration (validated 1–10000 when purge enabled).",
+                ConfigKeyRequirementKind.None),
+            E("DataArchival", "DataArchival:PurgeUncommittedRunsAfterDays", M("appsettings", "env"), "0", "—",
+                "Hard-delete non-Committed dbo.Runs older than N days; 0 disables (worker DataArchival loop).",
+                ConfigKeyRequirementKind.None),
+            E("DataArchival", "DataArchival:PurgeUncommittedRunsBatchSize", M("appsettings", "env"), "500",
+                "When uncommitted run purge on",
+                "Batch size per dbo.Archival_PurgeStaleUncommittedRunsBatch call (validated 1–10000).",
+                ConfigKeyRequirementKind.None),
+            E("AzureExtractor", "AzureExtractor:AutoPull:Enabled", M("appsettings", "env"), "false", "—",
+                "Leader-only background pull for Azure cost/ARM extractor snapshots (Tier-2; scaffold until ingest ships).",
+                ConfigKeyRequirementKind.None),
+            E("AzureExtractor", "AzureExtractor:AutoPull:IntervalMinutes", M("appsettings", "env"), "360", "—",
+                "Cadence between pull attempts when enabled; clamped 15–10080 in hosted service.",
                 ConfigKeyRequirementKind.None),
             E("AzureDevOps", "AzureDevOps:Enabled", M("appsettings", "env"), "false", "—",
                 "Enables work-item / PR status integration.", ConfigKeyRequirementKind.None),

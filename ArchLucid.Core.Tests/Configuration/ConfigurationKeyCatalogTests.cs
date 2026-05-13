@@ -15,7 +15,7 @@ public sealed class ConfigurationKeyCatalogTests
         IReadOnlyList<ConfigurationKeyEntry> cli = ConfigurationKeyCatalog.CliLocalOnly;
         all.Count
           .Should()
-          .BeInRange(100, 150, "the prompt targets ~100–150 operator keys");
+          .BeInRange(100, 200, "the operator key registry grows with product surface area (see CONFIGURATION_REFERENCE parity test).");
         cli.Count
           .Should()
           .BeInRange(1, 10, "small CLI-only overlay");

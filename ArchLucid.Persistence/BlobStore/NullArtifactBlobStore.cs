@@ -13,4 +13,7 @@ public sealed class NullArtifactBlobStore : IArtifactBlobStore
     {
         return Task.FromResult<string?>(null);
     }
+
+    public Task<string?> TryGetExistingUriAsync(string containerName, string logicalBlobName, CancellationToken ct)
+        => Task.FromResult<string?>(null);
 }

@@ -10,4 +10,10 @@ public interface IArtifactBlobStore
 
     /// <summary>Reads payload previously written; returns null if missing or unreadable.</summary>
     Task<string?> ReadAsync(string blobUri, CancellationToken ct);
+
+    /// <summary>
+    ///     When a blob already exists at the tenant-prefixed <paramref name="logicalBlobName" />, returns the same style
+    ///     of URI as <see cref="WriteAsync" />; otherwise null. Used for content-addressed deduplication.
+    /// </summary>
+    Task<string?> TryGetExistingUriAsync(string containerName, string logicalBlobName, CancellationToken ct);
 }

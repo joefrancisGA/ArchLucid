@@ -32,6 +32,27 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
         return new Uri(fullPath).AbsoluteUri;
     }
 
+    public Task<string?> TryGetExistingUriAsync(string containerName, string logicalBlobName, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(logicalBlobName);
+
+        string safeContainer = SanitizeSegment(containerName);
+        string scopedLogical = ArtifactBlobTenantPaths.PrefixWithTenant(_scopeProvider, logicalBlobName);
+        string safeName = SanitizeBlobName(scopedLogical);
+        string dir = Path.Combine(_rootPath, safeContainer);
+        string fullPath = Path.Combine(dir, safeName);
+        string pathDir = Path.GetDirectoryName(fullPath)!;
+
+        if (!Directory.Exists(pathDir))
+            return Task.FromResult<string?>(null);
+
+        if (!File.Exists(fullPath))
+            return Task.FromResult<string?>(null);
+
+        return Task.FromResult<string?>(new Uri(fullPath).AbsoluteUri);
+    }
+
     public async Task<string?> ReadAsync(string blobUri, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(blobUri))

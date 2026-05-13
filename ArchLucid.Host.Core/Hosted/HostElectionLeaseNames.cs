@@ -32,4 +32,6 @@ public static class HostElectionLeaseNames
     public const string FirstTenantFunnelArchival = "hosted:first-tenant-funnel-archival";
 
     public const string ArchitectureProjectRetentionPurge = "hosted:architecture-project-retention-purge";
+
+    public const string AzureExtractorAutoPull = "hosted:azure-extractor-auto-pull";
 }

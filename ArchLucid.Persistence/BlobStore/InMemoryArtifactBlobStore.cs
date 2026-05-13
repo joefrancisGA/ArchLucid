@@ -14,6 +14,13 @@ public sealed class InMemoryArtifactBlobStore : IArtifactBlobStore
         return Task.FromResult(key);
     }
 
+    public Task<string?> TryGetExistingUriAsync(string containerName, string logicalBlobName, CancellationToken ct)
+    {
+        string key = $"memory://{containerName}/{logicalBlobName}";
+
+        return Task.FromResult(_blobs.ContainsKey(key) ? key : null);
+    }
+
     public Task<string?> ReadAsync(string blobUri, CancellationToken ct)
     {
         return string.IsNullOrWhiteSpace(blobUri)

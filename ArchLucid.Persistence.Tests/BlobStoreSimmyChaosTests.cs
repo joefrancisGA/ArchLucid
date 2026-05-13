@@ -61,6 +61,13 @@ public sealed class BlobStoreSimmyChaosTests
             return Task.FromResult($"mem:{key}");
         }
 
+        public Task<string?> TryGetExistingUriAsync(string containerName, string logicalBlobName, CancellationToken ct)
+        {
+            string key = $"{containerName}/{logicalBlobName}";
+
+            return Task.FromResult(_blobs.ContainsKey(key) ? $"mem:{key}" : null);
+        }
+
         public Task<string?> ReadAsync(string blobUri, CancellationToken ct)
         {
             if (!blobUri.StartsWith("mem:", StringComparison.Ordinal))

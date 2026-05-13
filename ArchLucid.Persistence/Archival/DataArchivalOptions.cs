@@ -58,4 +58,21 @@ public sealed class DataArchivalOptions
         get;
         set;
     } = 500;
+
+    /// <summary>
+    ///     When &gt; 0, hard-deletes non-committed <c>dbo.Runs</c> rows (and dependent authority data) with
+    ///     <c>CreatedUtc</c> older than this many days via <c>dbo.Archival_PurgeStaleUncommittedRunsBatch</c>. 0 disables.
+    /// </summary>
+    public int PurgeUncommittedRunsAfterDays
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Rows per stored-procedure batch when <see cref="PurgeUncommittedRunsAfterDays"/> is enabled.</summary>
+    public int PurgeUncommittedRunsBatchSize
+    {
+        get;
+        set;
+    } = 500;
 }

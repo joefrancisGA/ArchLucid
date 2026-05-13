@@ -1,5 +1,8 @@
-import { PolicyPacksPageMain } from "./_sections/PolicyPacksPageMain";
+import { PolicyPacksPageClient } from "./_sections/PolicyPacksPageClient";
+import { loadPolicyPacksPageData } from "./_sections/load-policy-packs-page-data";
 
-export default function PolicyPacksPage() {
-  return <PolicyPacksPageMain />;
+export default async function PolicyPacksPage() {
+  const loaded = await loadPolicyPacksPageData();
+
+  return <PolicyPacksPageClient loaded={loaded} />;
 }

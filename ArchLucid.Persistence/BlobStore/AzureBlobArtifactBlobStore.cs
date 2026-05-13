@@ -40,6 +40,21 @@ public sealed class AzureBlobArtifactBlobStore(
         return blob.Uri.ToString();
     }
 
+    public async Task<string?> TryGetExistingUriAsync(string containerName, string logicalBlobName, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(logicalBlobName);
+
+        string scopedBlobName = ArtifactBlobTenantPaths.PrefixWithTenant(_scopeProvider, logicalBlobName);
+        BlobContainerClient container = _serviceClient.GetBlobContainerClient(containerName.ToLowerInvariant());
+        BlobClient blob = container.GetBlobClient(scopedBlobName);
+
+        if (!await blob.ExistsAsync(ct))
+            return null;
+
+        return blob.Uri.ToString();
+    }
+
     public async Task<string?> ReadAsync(string blobUri, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(blobUri))

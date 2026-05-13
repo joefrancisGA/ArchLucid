@@ -8,6 +8,7 @@ import type {
   PolicyPackVersion,
 } from "@/types/policy-packs";
 
+/** Client view-model for {@link PolicyPacksPageView}; produced by {@link usePolicyPacksPage} after server hydration. */
 export type PolicyPacksPageViewModel = {
   readonly canMutatePacks: boolean;
   readonly buyerPolishedShell: boolean;

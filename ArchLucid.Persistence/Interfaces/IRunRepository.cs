@@ -127,4 +127,14 @@ public interface IRunRepository
         ScopeContext scope,
         string architectureRequestId,
         CancellationToken ct);
+
+    /// <summary>
+    ///     Hard-deletes up to <paramref name="batchSize" /> authority runs that are not committed (see
+    ///     <see cref="ArchLucid.Contracts.Common.ArchitectureRunStatus.Committed" />) and whose <c>CreatedUtc</c> is strictly
+    ///     before <paramref name="createdBeforeUtc" />, using <c>dbo.Archival_PurgeStaleUncommittedRunsBatch</c>.
+    /// </summary>
+    Task<RunStaleUncommittedPurgeBatchResult> HardDeleteStaleUncommittedRunsBatchAsync(
+        DateTimeOffset createdBeforeUtc,
+        int batchSize,
+        CancellationToken ct);
 }

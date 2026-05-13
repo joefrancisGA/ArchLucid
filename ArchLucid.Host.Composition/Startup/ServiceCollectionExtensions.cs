@@ -52,6 +52,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
         services.Configure<ApiDeprecationOptions>(configuration.GetSection(ApiDeprecationOptions.SectionName));
         services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));
+        services.Configure<AzureExtractorAutoPullOptions>(
+            configuration.GetSection(AzureExtractorAutoPullOptions.SectionName));
         services.Configure<ArchitectureProjectRetentionPurgeOptions>(
             configuration.GetSection(ArchitectureProjectRetentionPurgeOptions.SectionName));
         services.Configure<HostLeaderElectionOptions>(configuration.GetSection(HostLeaderElectionOptions.SectionName));
@@ -97,6 +99,7 @@ public static partial class ServiceCollectionExtensions
         RegisterDataArchivalHostedService(services, configuration, hostingRole);
         RegisterFirstTenantFunnelArchivalHostedService(services, configuration, hostingRole);
         RegisterArchitectureProjectRetentionPurgeHostedService(services, hostingRole);
+        RegisterAzureExtractorAutoPullHostedService(services, hostingRole);
         RegisterDataConsistencyReconciliation(services, configuration, hostingRole);
         RegisterArchLucidHealthChecks(services, configuration, hostingRole);
         RegisterCosmosPolyglotPersistence(services, configuration);

@@ -15,7 +15,6 @@ import {
 } from "@/lib/api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
-  isStaticDemoPayloadFallbackEnabled,
   mergePolicyPacksStateWithStaticDemo,
   staticDemoPolicyPacksFallbackBundle,
 } from "@/lib/operator-static-demo";
@@ -29,16 +28,19 @@ import type {
 } from "@/types/policy-packs";
 
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
+import type { PolicyPacksPageServerLoad } from "./load-policy-packs-page-data";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 
-export function usePolicyPacksPage(): PolicyPacksPageViewModel {
+export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): PolicyPacksPageViewModel {
   const canMutatePacks = useNavSurface("policy-packs").mutationCapability;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const [packs, setPacks] = useState<PolicyPack[]>([]);
-  const [effective, setEffective] = useState<EffectivePolicyPackSet | null>(null);
-  const [effectiveContent, setEffectiveContent] = useState<PolicyPackContentDocument | null>(null);
+  const [packs, setPacks] = useState<PolicyPack[]>(serverLoad.packs);
+  const [effective, setEffective] = useState<EffectivePolicyPackSet | null>(serverLoad.effective);
+  const [effectiveContent, setEffectiveContent] = useState<PolicyPackContentDocument | null>(
+    serverLoad.effectiveContent,
+  );
   const [loading, setLoading] = useState(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(serverLoad.failure);
 
   const [name, setName] = useState("Baseline governance");
   const [description, setDescription] = useState("");
@@ -92,10 +94,6 @@ export function usePolicyPacksPage(): PolicyPacksPageViewModel {
       setLoading(false);
     }
   }, [buyerPolishedShell]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   useEffect(() => {
     if (packs.length > 0 && !selectedPackId) {

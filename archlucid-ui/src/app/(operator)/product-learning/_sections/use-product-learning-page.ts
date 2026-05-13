@@ -1,25 +1,27 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { fetchProductLearningDashboard } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { fetchProductLearningDashboard } from "@/lib/api";
 import type { ProductLearningDashboardBundle } from "@/types/product-learning";
 
 import { sinceIsoForRange } from "./product-learning-page-helpers";
 import type { ProductLearningTimeRangeKey } from "./product-learning-types";
 import type { ProductLearningPageViewModel } from "./product-learning-view-model";
 
-export function useProductLearningPage(): ProductLearningPageViewModel {
-  const router = useRouter();
-  const demoMode = isNextPublicDemoMode();
+type UseProductLearningPageArgs = {
+  readonly initialBundle: ProductLearningDashboardBundle | null;
+  readonly initialFailure: ApiLoadFailureState | null;
+};
+
+export function useProductLearningPage(args: UseProductLearningPageArgs): ProductLearningPageViewModel {
   const [range, setRange] = useState<ProductLearningTimeRangeKey>("all");
-  const [bundle, setBundle] = useState<ProductLearningDashboardBundle | null>(null);
+  const [bundle, setBundle] = useState<ProductLearningDashboardBundle | null>(args.initialBundle);
   const [loading, setLoading] = useState(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(args.initialFailure);
+  const skipInitialRangeFetchRef = useRef(true);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -39,23 +41,16 @@ export function useProductLearningPage(): ProductLearningPageViewModel {
   }, [range]);
 
   useEffect(() => {
-    if (!demoMode) {
-      return;
-    }
+    if (skipInitialRangeFetchRef.current) {
+      skipInitialRangeFetchRef.current = false;
 
-    router.replace("/");
-  }, [demoMode, router]);
-
-  useEffect(() => {
-    if (demoMode) {
       return;
     }
 
     void load();
-  }, [demoMode, load]);
+  }, [load]);
 
   return {
-    demoMode,
     range,
     setRange,
     bundle,

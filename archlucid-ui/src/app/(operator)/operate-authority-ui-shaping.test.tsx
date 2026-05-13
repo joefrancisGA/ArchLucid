@@ -251,7 +251,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     "Policy packs: Create pack stays disabled when mutation capability is false",
     async () => {
       mutateCapability.current = false;
-      render(<PolicyPacksPage />);
+      const page = await PolicyPacksPage();
+      render(page);
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingReader })).toBeInTheDocument();
@@ -270,7 +271,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     "Policy packs: inventory headings show inspect framing when mutation capability is false",
     async () => {
       mutateCapability.current = false;
-      render(<PolicyPacksPage />);
+      const page = await PolicyPacksPage();
+      render(page);
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingReader })).toBeInTheDocument();
@@ -287,7 +289,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     "Policy packs: Create pack enables after load when mutation capability is true",
     async () => {
       mutateCapability.current = true;
-      render(<PolicyPacksPage />);
+      const page = await PolicyPacksPage();
+      render(page);
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingOperator })).toBeInTheDocument();

@@ -1,5 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
+using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -204,17 +206,19 @@ public sealed class SqlArtifactBundleRepository(
             if (persistContext is { } ctx
                 && LargePayloadOffloadEvaluator.ShouldOffloadArtifactContent(ctx.Options, content.Length))
             {
-                string logicalPath = ArtifactBlobTenantPaths.FormatArtifactContentRelativePath(
-                    bundle.WorkspaceId,
-                    bundle.ProjectId,
-                    bundle.ManifestId,
-                    a.ArtifactId,
-                    "content.txt");
-                contentBlobUri = await ctx.BlobStore.WriteAsync(
-                    "artifact-contents",
-                    logicalPath,
-                    content,
-                    ct);
+                string shaHex = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content))).ToLowerInvariant();
+                string dedupLogical = ArtifactBlobTenantPaths.FormatDedupArtifactContentRelativePath(shaHex);
+                contentBlobUri = await ctx.BlobStore.TryGetExistingUriAsync("artifact-contents", dedupLogical, ct);
+
+                if (contentBlobUri is null)
+                {
+                    contentBlobUri = await ctx.BlobStore.WriteAsync(
+                        "artifact-contents",
+                        dedupLogical,
+                        content,
+                        ct);
+                }
+
                 content = string.Empty;
             }
 

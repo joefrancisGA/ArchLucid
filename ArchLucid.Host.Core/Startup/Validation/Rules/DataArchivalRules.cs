@@ -35,6 +35,16 @@ internal static class DataArchivalRules
             errors.Add(
                 "DataArchival:PurgeArchivedAgentExecutionTracesBatchSize must be between 1 and 10000 when trace purge is enabled.");
 
+        if (opts.PurgeUncommittedRunsAfterDays is < 0 or > maxDays)
+
+            errors.Add(
+                $"DataArchival:PurgeUncommittedRunsAfterDays must be between 0 and {maxDays} (0 disables uncommitted run hard-delete).");
+
+        if (opts is { PurgeUncommittedRunsAfterDays: > 0, PurgeUncommittedRunsBatchSize: < 1 or > 10_000 })
+
+            errors.Add(
+                "DataArchival:PurgeUncommittedRunsBatchSize must be between 1 and 10000 when uncommitted run purge is enabled.");
+
         if (opts.IntervalHours is < 1 or > 168)
 
             errors.Add("DataArchival:IntervalHours must be between 1 and 168.");

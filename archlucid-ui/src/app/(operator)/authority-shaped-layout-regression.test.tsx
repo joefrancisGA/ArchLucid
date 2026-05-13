@@ -152,7 +152,8 @@ describe("authority-shaped layout regression", () => {
   /** Same inspect-first contract as workflow: current packs + JSON before lifecycle when reads cannot mutate. */
   it("Policy packs: inspect-first column order when mutation capability is false", async () => {
     mutateCapability.current = false;
-    const { container } = render(<PolicyPacksPage />);
+    const page = await PolicyPacksPage();
+    const { container } = render(page);
 
     await waitFor(() => {
       expect(container.querySelector(".flex.flex-col-reverse")).not.toBeNull();

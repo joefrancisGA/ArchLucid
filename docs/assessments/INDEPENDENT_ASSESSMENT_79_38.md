@@ -617,4 +617,15 @@ To optimize context window usage and ensure logical grouping of changes, execute
 - **Batch 3: Data Management, Performance & Extraction** (Items 2, 8, 21) - Focuses on Auto-Pull worker jobs, SQL `DELETE` batching, background hosted services, and Blob deduplication.
 - **Batch 4: API, Integrations & Diagnostics** (Items 4, 7, 10, 11, 12, 13, 14, 17, 18, 19, 20, 22, 24, 25) - Touches endpoints, Schema validation, Content Safety Polly policies, Webhooks, GitHub integration, API keys, Bypass mechanisms, and Slack integrations.
 
+### Implementation status (repo review, 2026-05-13)
+
+Statuses refer to whether the **batch theme** is substantially present in **`ArchLucid`** at review time, not to every sub-bullet in each numbered opportunity.
+
+| Batch | Status | Notes |
+|--------|--------|--------|
+| **1** — Core reliability, RBAC & idempotency | **Implemented** | Commit **`Idempotency-Key`** persistence (`CommitRunIdempotency`, commit orchestration); **`CircuitBreakingContentSafetyGuard`** for degraded content-safety handling; **`dbo.ProjectRoleAssignments`** / project-scoped RBAC (see migration **159**). |
+| **2** — UI, export & visualization | **Implemented** | Confluence **`Integrations:ConfluencePublishing:ProjectSpaceKeys`** + **`ConfluencePublishingSpaceKeyResolver`**; run export ZIP Mermaid PNG when **`ArchLucid:MermaidCli:Enabled`**; first-value report tenant branding (**`ITenantFirstValueReportBrandingRepository`** / PDF+MD builders); **`GET /v1/architecture/runs/{runId}/graph/interactive`** + Cytoscape mapper. |
+| **3** — Data management, performance & extraction | **Incomplete** | Tier-2 Azure extractor operator affordances exist (e.g. CLI **`az-roles`** path); **no** located hosted job matching opportunity **#8** (hard-delete uncommitted runs older than N days). Opportunity **#21** (upload-time evidence/blob dedupe by hash) **not verified** in this pass—confirm before marking done. |
+| **4** — API, integrations & diagnostics | **Incomplete** | Large mixed backlog; ship **per numbered opportunity** in **Top Improvement Opportunities** (e.g. Terraform PR export, admin cost-tuning, Slack interactivity). **Do not** treat this batch as a single “all shipped” unit without an item-by-item audit. |
+
 ---
