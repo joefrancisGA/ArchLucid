@@ -1,16 +1,13 @@
-"use client";
-
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-
-import type { UseTenantCostSettingsPageModel } from "./use-tenant-cost-settings-page";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import type { TenantCostEstimateResponse } from "@/types/tenant-cost-estimate";
 
 type TenantCostSettingsPageViewProps = {
-  model: UseTenantCostSettingsPageModel;
+  readonly estimate: TenantCostEstimateResponse | null;
+  readonly failure: ApiLoadFailureState | null;
 };
 
-export function TenantCostSettingsPageView({ model }: TenantCostSettingsPageViewProps) {
-  const { estimate, failure, loading } = model;
-
+export function TenantCostSettingsPageView({ estimate, failure }: TenantCostSettingsPageViewProps) {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
@@ -31,19 +28,7 @@ export function TenantCostSettingsPageView({ model }: TenantCostSettingsPageView
         </div>
       ) : null}
 
-      {loading ? (
-        <div className="space-y-3" aria-busy aria-label="Loading cost estimate">
-          <div className="h-4 w-56 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
-          <div className="space-y-2 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-            <div className="h-3 w-full max-w-md animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
-            <div className="mt-4 h-3 w-[90%] animate-pulse rounded bg-neutral-100 dark:bg-neutral-800" />
-            <div className="h-3 w-[85%] animate-pulse rounded bg-neutral-100 dark:bg-neutral-800" />
-            <div className="h-3 w-[72%] animate-pulse rounded bg-neutral-100 dark:bg-neutral-800" />
-          </div>
-        </div>
-      ) : estimate === null ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">No estimate loaded.</p>
-      ) : (
+      {failure === null && estimate !== null ? (
         <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Tier <span className="font-medium text-neutral-900 dark:text-neutral-100">{estimate.tier}</span> —{" "}
@@ -59,7 +44,7 @@ export function TenantCostSettingsPageView({ model }: TenantCostSettingsPageView
           </ul>
           <p className="mt-4 text-xs text-neutral-500 dark:text-neutral-400">{estimate.methodologyNote}</p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
