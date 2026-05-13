@@ -92,6 +92,44 @@ public sealed class SqlTopologyPlaneIsolationSqlIntegrationTests
     [SkippableFact]
     public async Task Tenant_scoped_connection_is_isolated_from_other_tenant_catalog_project_rows()
     {
+        await AssertTenantAScopedConnectionCannotSeeTenantBExclusiveProjectAsync();
+    }
+
+    /// <summary>
+    ///     Security boundary regression: in multi-catalog topology, a connection opened under Tenant A must not read rows
+    ///     that exist only in Tenant B&apos;s catalog. Runs only in CI/CD so local workflows are not blocked when SQL is absent.
+    /// </summary>
+    [SkippableFact]
+    [Trait("Category", "CiPipelineOnly")]
+    public async Task Tenant_A_connection_cannot_query_Tenant_B_catalog_rows_in_ci_pipeline_only()
+    {
+        Skip.IfNot(
+            IsCiCdPipelineEnvironment(),
+            "This boundary test runs in CI/CD (CI=true, GITHUB_ACTIONS, or TF_BUILD).");
+
+        await AssertTenantAScopedConnectionCannotSeeTenantBExclusiveProjectAsync();
+    }
+
+    private static bool IsCiCdPipelineEnvironment()
+    {
+        static bool IsTruthy(string? value) =>
+            string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "1", StringComparison.OrdinalIgnoreCase);
+
+        if (IsTruthy(Environment.GetEnvironmentVariable("CI")))
+            return true;
+
+        if (IsTruthy(Environment.GetEnvironmentVariable("GITHUB_ACTIONS")))
+            return true;
+
+        if (string.Equals(Environment.GetEnvironmentVariable("TF_BUILD"), "True", StringComparison.Ordinal))
+            return true;
+
+        return false;
+    }
+
+    private static async Task AssertTenantAScopedConnectionCannotSeeTenantBExclusiveProjectAsync()
+    {
         Guid tenantIdA = Guid.NewGuid();
         Guid tenantIdB = Guid.NewGuid();
 

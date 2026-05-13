@@ -37,11 +37,9 @@ public sealed class TerraformSnapshotTests
             }
         }
 
-        if (!terraformFound)
-        {
-            // Skip test if terraform is not installed
-            return;
-        }
+        terraformFound.Should()
+            .BeTrue(
+                "Terraform CLI must be on PATH for this test (install Terraform and ensure it is discoverable via PATH).");
 
         string hclBody = """
             variable "archlucid_terraform_snapshot_probe" {

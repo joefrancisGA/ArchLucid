@@ -41,7 +41,8 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0033](0033-first-real-value-single-env-var-flip.md) | First real value — `archlucid try --real` + **`ARCHLUCID_REAL_AOAI`** gate |
 | [0034](0034-segregation-of-duties-entra-oid-actor-keys.md) | Segregation of duties — Entra JWT `tid`/`oid` canonical actor keys + additive DB columns (**Status: Accepted**) |
 | [0035](0035-architecture-invariant-catalog.md) | Architecture invariant catalog — `INV-*` registry + enforcement waves via `TECH_BACKLOG` (**Status: Proposed**) |
-| [**Template**](TEMPLATE.md) | Skeleton for new numbered ADRs *(not an ADR)* |
+| [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
+| [**Template (full skeleton)**](TEMPLATE.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 
 **When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.
 
