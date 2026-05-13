@@ -19,8 +19,9 @@ vi.mock("@/lib/conversation-api", () => ({
 }));
 
 describe("SearchPage (operator shell)", () => {
-  it("renders heading, query field, and search control", () => {
-    render(<SearchPage />);
+  it("renders heading, query field, and search control", async () => {
+    const page = await SearchPage();
+    render(page);
 
     expect(screen.getByRole("heading", { name: /semantic search/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/^query$/i)).toBeInTheDocument();

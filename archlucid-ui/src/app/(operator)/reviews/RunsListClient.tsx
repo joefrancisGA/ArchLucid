@@ -18,7 +18,7 @@ import { formatRelativeTime } from "@/lib/relative-time";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { canonicalizeDemoRunId, dedupeRunSummariesByRunId } from "@/lib/demo-run-canonical";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
@@ -221,7 +221,7 @@ export function RunsListClient({
   nextCursor = null,
 }: RunsListClientProps) {
   const safeRuns = useMemo(() => {
-    return runs.filter((run) => {
+    const filtered = runs.filter((run) => {
       if (typeof run.runId !== "string" || run.runId.trim().length === 0) {
         return false;
       }
@@ -231,6 +231,8 @@ export function RunsListClient({
 
       return true;
     });
+
+    return dedupeRunSummariesByRunId(filtered);
   }, [runs]);
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();

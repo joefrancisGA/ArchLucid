@@ -5,28 +5,19 @@ import { useCallback, useState } from "react";
 import { apiGet } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
+import type { SearchPageViewModel } from "./search-page-view-model";
 import type { RetrievalHit } from "./retrieval-hit";
+import { SearchPageView } from "./SearchPageView";
 
-export type UseSearchPageModel = {
-  buyerShell: boolean;
-  failure: ApiLoadFailureState | null;
-  hasSearched: boolean;
-  isDemo: boolean;
-  loading: boolean;
-  onSearch: () => Promise<void>;
-  query: string;
-  results: RetrievalHit[];
-  runId: string;
-  setQuery: (next: string) => void;
-  setRunId: (next: string) => void;
+type SearchPageClientProps = {
+  readonly buyerShell: boolean;
+  readonly isDemo: boolean;
 };
 
-export function useSearchPage(): UseSearchPageModel {
-  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
-  const buyerShell = isBuyerPolishedOperatorShellEnv();
+export function SearchPageClient(props: SearchPageClientProps) {
+  const buyerShell = props.buyerShell;
+  const isDemo = props.isDemo;
 
   const [query, setQuery] = useState("");
   const [runId, setRunId] = useState("");
@@ -38,7 +29,9 @@ export function useSearchPage(): UseSearchPageModel {
   const onSearch = useCallback(async () => {
     const q = query.trim();
 
-    if (!q) return;
+    if (!q) {
+      return;
+    }
 
     setLoading(true);
     setFailure(null);
@@ -47,12 +40,14 @@ export function useSearchPage(): UseSearchPageModel {
       const params = new URLSearchParams();
       params.set("q", q);
 
-      if (runId.trim()) params.set("runId", runId.trim());
+      if (runId.trim()) {
+        params.set("runId", runId.trim());
+      }
 
       const data = await apiGet<RetrievalHit[]>(`/v1/retrieval/search?${params.toString()}`);
       setResults(data);
       setHasSearched(true);
-    } catch (e) {
+    } catch (e: unknown) {
       setFailure(toApiLoadFailure(e));
       setResults([]);
     } finally {
@@ -60,7 +55,7 @@ export function useSearchPage(): UseSearchPageModel {
     }
   }, [query, runId]);
 
-  return {
+  const model: SearchPageViewModel = {
     buyerShell,
     failure,
     hasSearched,
@@ -73,4 +68,6 @@ export function useSearchPage(): UseSearchPageModel {
     setQuery,
     setRunId,
   };
+
+  return <SearchPageView model={model} />;
 }

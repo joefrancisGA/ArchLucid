@@ -66,3 +66,34 @@ export function normalizeRunSummaryForDemoPicker(row: RunSummary): RunSummary {
 
   return { ...row, runId: canon };
 }
+
+/**
+ * Collapses duplicate rows that share the same {@link RunSummary.runId} (for example after
+ * {@link normalizeRunSummaryForDemoPicker} maps an alias row and a canonical row onto the same id).
+ * Prefers the row that already has {@link RunSummary.hasGoldenManifest} so work-queue grouping stays stable.
+ */
+export function dedupeRunSummariesByRunId(runs: readonly RunSummary[]): RunSummary[] {
+  const byId = new Map<string, RunSummary>();
+
+  for (const run of runs) {
+    const id = run.runId.trim();
+
+    if (id.length === 0) {
+      continue;
+    }
+
+    const prev = byId.get(id);
+
+    if (prev === undefined) {
+      byId.set(id, run);
+
+      continue;
+    }
+
+    const preferCurrent = run.hasGoldenManifest === true && prev.hasGoldenManifest !== true;
+
+    byId.set(id, preferCurrent ? run : prev);
+  }
+
+  return [...byId.values()];
+}

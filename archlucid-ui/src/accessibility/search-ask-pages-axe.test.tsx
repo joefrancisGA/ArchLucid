@@ -30,7 +30,8 @@ describe("search + ask operator pages — axe (Vitest)", () => {
   it(
     "SearchPage has no serious axe violations",
     async () => {
-      const { container } = render(<SearchPage />);
+      const page = await SearchPage();
+      const { container } = render(page);
 
       expect(await axe(container)).toHaveNoViolations();
     },

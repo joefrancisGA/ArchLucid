@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   canonicalizeDemoRunId,
+  dedupeRunSummariesByRunId,
   demoRunUrlRequiresCanonicalRedirect,
   isShowcaseStaticDemoRunId,
   normalizeRunSummaryForDemoPicker,
@@ -47,5 +48,31 @@ describe("demo-run-canonical", () => {
 
     expect(norm.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
     expect(norm.projectId).toBe("default");
+  });
+
+  it("dedupeRunSummariesByRunId collapses canonical + aliased showcase rows after normalization", () => {
+    const baseUtc = "2026-01-01T00:00:00.000Z";
+    const aliasRow: RunSummary = normalizeRunSummaryForDemoPicker({
+      runId: "claims-intake-modernization-run",
+      projectId: "default",
+      description: "Claims Intake Modernization Review",
+      createdUtc: baseUtc,
+      hasGoldenManifest: false,
+      hasFindingsSnapshot: true,
+    });
+    const canonRow: RunSummary = {
+      runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      projectId: "default",
+      description: "Claims Intake Modernization Review",
+      createdUtc: baseUtc,
+      hasGoldenManifest: true,
+      hasFindingsSnapshot: true,
+    };
+
+    const merged = dedupeRunSummariesByRunId([aliasRow, canonRow]);
+
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+    expect(merged[0]?.hasGoldenManifest).toBe(true);
   });
 });

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { listRunsByProjectPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
+import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
@@ -90,7 +90,7 @@ export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise
     }
   }
 
-  runs = runs.map(normalizeRunSummaryForDemoPicker);
+  runs = dedupeRunSummariesByRunId(runs.map(normalizeRunSummaryForDemoPicker));
 
   const projectTitle =
     projectId === "default" && (isPublicDemoModeEnv() || isBuyerPolishedOperatorShellEnv())
