@@ -3,7 +3,7 @@ import { axe, toHaveNoViolations } from "jest-axe";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), refresh: vi.fn() }),
   usePathname: () => "/value-report",
   useSearchParams: () => ({
     get: () => null,
@@ -120,6 +120,30 @@ vi.mock("@/components/planning/PlanningHubClient", () => ({
   PlanningHubClient: () => <div data-testid="stub-planning-hub">Planning</div>,
 }));
 
+vi.mock("@/app/(operator)/planning/_sections/load-planning-page-data", () => {
+  const summary = {
+    generatedUtc: "2026-01-01T00:00:00.000Z",
+    themeCount: 0,
+    planCount: 0,
+    totalThemeEvidenceSignals: 0,
+    maxPlanPriorityScore: 0,
+    totalLinkedSignalsAcrossPlans: 0,
+  };
+
+  return {
+    loadPlanningPageData: () =>
+      Promise.resolve({
+        kind: "data" as const,
+        summary,
+        themes: [],
+        plans: [],
+        generatedUtc: summary.generatedUtc,
+        usedPlanningDemoFallback: false,
+        failure: null,
+      }),
+  };
+});
+
 import ValueReportPage from "@/app/(operator)/value-report/page";
 import AdvisoryPage from "@/app/(operator)/advisory/page";
 import AdvisorySchedulingPage from "@/app/(operator)/advisory-scheduling/page";
@@ -183,7 +207,8 @@ describe("operator value + advisory pages — axe (Vitest)", () => {
   it(
     "PlanningPage has no serious axe violations",
     async () => {
-      const { container } = render(<PlanningPage />);
+      const page = await PlanningPage();
+      const { container } = render(page);
 
       expect(await axe(container)).toHaveNoViolations();
     },

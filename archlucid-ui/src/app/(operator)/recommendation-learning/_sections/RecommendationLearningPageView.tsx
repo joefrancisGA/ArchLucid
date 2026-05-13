@@ -1,7 +1,6 @@
 "use client";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 
 import type { RecommendationLearningPageViewModel } from "./recommendation-learning-page-view-model";
 
@@ -11,14 +10,6 @@ type Props = {
 
 export function RecommendationLearningPageView(props: Props) {
   const m = props.model;
-
-  if (m.demoMode) {
-    return (
-      <div className="max-w-4xl">
-        <OperatorLoadingNotice>Returning to home…</OperatorLoadingNotice>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-4xl">

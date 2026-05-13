@@ -1,5 +1,14 @@
-import { RecommendationLearningPageMain } from "./_sections/RecommendationLearningPageMain";
+import { redirect } from "next/navigation";
 
-export default function RecommendationLearningPage() {
-  return <RecommendationLearningPageMain />;
+import { RecommendationLearningPageClient } from "./_sections/RecommendationLearningPageClient";
+import { loadRecommendationLearningPageData } from "./_sections/load-recommendation-learning-page-data";
+
+export default async function RecommendationLearningPage() {
+  const loaded = await loadRecommendationLearningPageData();
+
+  if (loaded.kind === "redirect-demo") {
+    redirect("/");
+  }
+
+  return <RecommendationLearningPageClient initialProfile={loaded.profile} initialFailure={loaded.failure} />;
 }

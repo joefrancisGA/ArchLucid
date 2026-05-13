@@ -13,10 +13,10 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { SEARCH_EMPTY } from "@/lib/search-empty-preset";
 
-import type { UseSearchPageModel } from "./use-search-page";
+import type { SearchPageViewModel } from "./search-page-view-model";
 
 type SearchPageViewProps = {
-  model: UseSearchPageModel;
+  model: SearchPageViewModel;
 };
 
 export function SearchPageView({ model }: SearchPageViewProps) {

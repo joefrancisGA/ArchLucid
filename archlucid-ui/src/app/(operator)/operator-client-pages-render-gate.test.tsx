@@ -20,8 +20,46 @@ vi.mock("next/link", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: (): string => "/",
-  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
+  useRouter: (): { push: () => void; replace: () => void; refresh: () => void } => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+  }),
   useSearchParams: (): URLSearchParams => new URLSearchParams(),
+  redirect: vi.fn(),
+}));
+
+vi.mock("./planning/_sections/load-planning-page-data", () => {
+  const summary = {
+    generatedUtc: "2026-01-01T00:00:00.000Z",
+    themeCount: 0,
+    planCount: 0,
+    totalThemeEvidenceSignals: 0,
+    maxPlanPriorityScore: 0,
+    totalLinkedSignalsAcrossPlans: 0,
+  };
+
+  return {
+    loadPlanningPageData: () =>
+      Promise.resolve({
+        kind: "data" as const,
+        summary,
+        themes: [],
+        plans: [],
+        generatedUtc: summary.generatedUtc,
+        usedPlanningDemoFallback: false,
+        failure: null,
+      }),
+  };
+});
+
+vi.mock("./recommendation-learning/_sections/load-recommendation-learning-page-data", () => ({
+  loadRecommendationLearningPageData: () =>
+    Promise.resolve({
+      kind: "ready" as const,
+      profile: null,
+      failure: null,
+    }),
 }));
 
 import { AdvisoryScansContent } from "@/components/advisory/AdvisoryScansContent";
@@ -86,8 +124,9 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Advisory schedules" })).toBeInTheDocument();
   });
 
-  it("RecommendationLearningPage renders primary heading", () => {
-    render(<RecommendationLearningPage />);
+  it("RecommendationLearningPage renders primary heading", async () => {
+    const page = await RecommendationLearningPage();
+    render(page);
     expect(screen.getByRole("heading", { level: 2, name: "Recommendation tuning" })).toBeInTheDocument();
   });
 
@@ -96,8 +135,9 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Pilot feedback" })).toBeInTheDocument();
   });
 
-  it("PlanningPage renders primary heading", () => {
-    render(<PlanningPage />);
+  it("PlanningPage renders primary heading", async () => {
+    const page = await PlanningPage();
+    render(page);
     expect(screen.getByRole("heading", { level: 2, name: "Planning" })).toBeInTheDocument();
   });
 
@@ -126,8 +166,9 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Governance resolution" })).toBeInTheDocument();
   });
 
-  it("SearchPage renders primary heading and contextual help", () => {
-    render(<SearchPage />);
+  it("SearchPage renders primary heading and contextual help", async () => {
+    const page = await SearchPage();
+    render(page);
     expect(screen.getByRole("heading", { level: 2, name: "Semantic Search" })).toBeInTheDocument();
     expect(screen.getByLabelText(/more information: semantic-search/i)).toBeInTheDocument();
   });

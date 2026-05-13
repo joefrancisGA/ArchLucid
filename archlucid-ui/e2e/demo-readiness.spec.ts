@@ -130,7 +130,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.goto("/reviews?projectId=default");
     await expect(page.getByRole("heading", { name: /architecture reviews/i })).toBeVisible();
     // Showcase row primary action is "View manifest summary" (or "Open review"), not a title-shaped link.
-    const claimsTableRow = page.locator("tr").filter({ hasText: /Claims Intake Modernization/i });
+    const claimsTableRow = page.getByTestId(`runs-row-${SHOWCASE_DEMO_RUN_ID}`);
     await expect(claimsTableRow).toBeVisible();
     await claimsTableRow.getByRole("link").click();
     const afterListClickUrl = new RegExp(
