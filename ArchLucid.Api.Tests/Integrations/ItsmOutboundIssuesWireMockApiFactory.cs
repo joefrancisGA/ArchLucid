@@ -28,6 +28,9 @@ public sealed class ItsmOutboundIssuesWireMockApiFactory : ArchLucidApiFactory
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        // Host settings participate in configuration early; helps override CI env / appsettings for PublicSite.
+        builder.UseSetting("ArchLucid:PublicSite:BaseUrl", TestPublicSiteBaseUrl);
+
         base.ConfigureWebHost(builder);
 
         builder.ConfigureAppConfiguration(

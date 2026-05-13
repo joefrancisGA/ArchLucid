@@ -6,12 +6,14 @@ using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 using WireMock;
 using WireMock.RequestBuilders;
@@ -67,7 +69,8 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
             ItsmJiraPriorityAndIssueTypeResolver.TryJiraPriorityName(outboundSeverity, jiraSendInfoSeverity: false);
         priorityName.Should().NotBeNull();
 
-        (string summary, JsonElement descriptionAdf) = BuildExpectedJiraIssueDescriptionParts(inspect);
+        string publicSiteBase = ResolvePublicSiteBaseUrlForAssertions(factory.Services);
+        (string summary, JsonElement descriptionAdf) = BuildExpectedJiraIssueDescriptionParts(inspect, publicSiteBase);
 
         object expectedEnvelope = new
         {
@@ -149,9 +152,11 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
             ItsmFindingAuthorityPayloadMapper.BuildSummaryAndDescription(inspect.FindingId, inspect.RunId, inspect.TypedPayload,
                 inspect.DecisionRuleName, inspect.RecommendedActions);
 
+        string publicSiteBase = ResolvePublicSiteBaseUrlForAssertions(factory.Services);
+
         string descriptionForVendor = ItsmOutboundArchLucidDeepLinkAppender.AppendFindingDeepLink(
             description,
-            ItsmOutboundIssuesWireMockApiFactory.TestPublicSiteBaseUrl,
+            publicSiteBase,
             inspect.RunId.ToString("D"),
             inspect.FindingId);
 
@@ -207,7 +212,7 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
         };
 
     /// <summary>Mirrors <see cref="ItsmOutboundIssueCreationService" /> Jira description projection (mapper + deep link + ADF).</summary>
-    private static (string Summary, JsonElement DescriptionAdf) BuildExpectedJiraIssueDescriptionParts(FindingInspectResponse inspect)
+    private static (string Summary, JsonElement DescriptionAdf) BuildExpectedJiraIssueDescriptionParts(FindingInspectResponse inspect, string publicSiteBaseUrl)
     {
         ArgumentNullException.ThrowIfNull(inspect);
 
@@ -217,13 +222,24 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
 
         string descriptionForVendor = ItsmOutboundArchLucidDeepLinkAppender.AppendFindingDeepLink(
             description,
-            ItsmOutboundIssuesWireMockApiFactory.TestPublicSiteBaseUrl,
+            publicSiteBaseUrl,
             inspect.RunId.ToString("D"),
             inspect.FindingId);
 
         JsonElement descriptionAdf = JiraAdfDescriptionBuilder.BuildDescriptionField(descriptionForVendor);
 
         return (summary, descriptionAdf);
+    }
+
+    /// <summary>Uses the same <see cref="IOptionsMonitor{PublicSiteOptions}" /> instance as the hosted API (env/config may differ from <see cref="ItsmOutboundIssuesWireMockApiFactory.TestPublicSiteBaseUrl" />).</summary>
+    private static string ResolvePublicSiteBaseUrlForAssertions(IServiceProvider services)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        IOptionsMonitor<PublicSiteOptions> monitor = services.GetRequiredService<IOptionsMonitor<PublicSiteOptions>>();
+        string? raw = monitor.CurrentValue?.BaseUrl;
+
+        return string.IsNullOrWhiteSpace(raw) ? string.Empty : raw.Trim();
     }
 
     private static StringContent OutboundIssueBody(string provider, string findingId)
