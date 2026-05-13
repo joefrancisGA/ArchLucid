@@ -26,9 +26,7 @@ public sealed class DefaultEvidenceBuilderTests
 
         foreach (Action<ArchitectureRequest>? a in adjust)
         {
-            if (a is not null)
-
-                a(req);
+            a?.Invoke(req);
         }
 
         return req;

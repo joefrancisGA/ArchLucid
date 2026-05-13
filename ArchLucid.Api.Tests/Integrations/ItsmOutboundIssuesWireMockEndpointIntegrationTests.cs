@@ -72,7 +72,12 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
         (string summary, string description) =
             ItsmFindingAuthorityPayloadMapper.BuildSummaryAndDescription(DemoPrimaryFindingId, runGuid, inspect.TypedPayload,
                 inspect.DecisionRuleName, inspect.RecommendedActions);
-        JsonElement descriptionAdf = JiraAdfDescriptionBuilder.BuildDescriptionField(description);
+        string descriptionForVendor = ItsmOutboundArchLucidDeepLinkAppender.AppendFindingDeepLink(
+            description,
+            ItsmOutboundIssuesWireMockApiFactory.TestPublicSiteBaseUrl,
+            runGuid.ToString("D"),
+            DemoPrimaryFindingId);
+        JsonElement descriptionAdf = JiraAdfDescriptionBuilder.BuildDescriptionField(descriptionForVendor);
 
         object expectedEnvelope = new
         {
@@ -156,10 +161,16 @@ public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
             ItsmFindingAuthorityPayloadMapper.BuildSummaryAndDescription(DemoPrimaryFindingId, runGuid, inspect.TypedPayload,
                 inspect.DecisionRuleName, inspect.RecommendedActions);
 
+        string descriptionForVendor = ItsmOutboundArchLucidDeepLinkAppender.AppendFindingDeepLink(
+            description,
+            ItsmOutboundIssuesWireMockApiFactory.TestPublicSiteBaseUrl,
+            runGuid.ToString("D"),
+            DemoPrimaryFindingId);
+
         object expectedIncident = new
         {
             short_description = summary,
-            description,
+            description = descriptionForVendor,
             urgency,
             impact
         };
