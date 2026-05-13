@@ -1,5 +1,8 @@
-import { PilotScorecardPageMain } from "./_sections/PilotScorecardPageMain";
+import { PilotScorecardPageClient } from "./_sections/PilotScorecardPageClient";
+import { loadPilotScorecardPageData } from "./_sections/load-pilot-scorecard-page-data";
 
-export default function PilotScorecardPage() {
-  return <PilotScorecardPageMain />;
+export default async function PilotScorecardPage() {
+  const loaded = await loadPilotScorecardPageData();
+
+  return <PilotScorecardPageClient loaded={loaded} />;
 }

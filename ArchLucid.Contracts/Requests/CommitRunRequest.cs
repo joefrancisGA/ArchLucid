@@ -12,4 +12,14 @@ public sealed class CommitRunRequest
         get;
         init;
     }
+
+    /// <summary>
+    ///     When the optional pre-commit governance gate would block commit, a non-empty break-glass justification allows
+    ///     commit to proceed for callers with execute authority; emits <c>GovernanceBypassInvoked</c> audit with findings.
+    /// </summary>
+    public string? BypassJustification
+    {
+        get;
+        init;
+    }
 }

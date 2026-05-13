@@ -67,6 +67,9 @@ public static class ApplicationProblemMapper
                     d.Extensions["runId"] = qgx.RunId;
                     d.Extensions["traceId"] = qgx.TraceId;
                     d.Extensions["agentLabel"] = qgx.AgentLabel;
+                    if (!string.IsNullOrWhiteSpace(qgx.EvaluationReason))
+                        d.Extensions["evaluationReason"] = qgx.EvaluationReason!;
+
                     d.Extensions[ProblemDocumentationLinks.RunbookExtensionKey] =
                         ProblemDocumentationLinks.QualityGateRejectionRunbookRelativePath;
                 });

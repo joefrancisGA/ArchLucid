@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Requests;
+
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
@@ -6,4 +8,9 @@ namespace ArchLucid.Application.Runs.Orchestration;
 public interface IArchitectureRunCommitOrchestrator
 {
     Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Commits a run with optional <see cref="CommitRunRequest.BypassJustification" /> for pre-commit governance.
+    /// </summary>
+    Task<CommitRunResult> CommitRunAsync(string runId, CommitRunRequest? request, CancellationToken cancellationToken = default);
 }

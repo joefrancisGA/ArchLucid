@@ -1,4 +1,5 @@
-import { DemoExplainPageMain } from "./_sections/DemoExplainPageMain";
+import { DemoExplainPageClient } from "./_sections/DemoExplainPageClient";
+import { loadDemoExplainPageData } from "./_sections/load-demo-explain-page-data";
 
 /**
  * Public, read-only proof route. Renders the **provenance graph** and the **citations-bound aggregate
@@ -9,6 +10,8 @@ import { DemoExplainPageMain } from "./_sections/DemoExplainPageMain";
  * The route is gated on `Demo:Enabled=true` at the API; a 404 here covers both
  * "demo seed has not been applied" and "this deployment never exposes the demo surface".
  */
-export default function DemoExplainPage() {
-  return <DemoExplainPageMain />;
+export default async function DemoExplainPage() {
+  const loaded = await loadDemoExplainPageData();
+
+  return <DemoExplainPageClient loaded={loaded} />;
 }

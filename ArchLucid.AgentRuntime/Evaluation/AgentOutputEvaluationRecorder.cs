@@ -168,7 +168,11 @@ public sealed class AgentOutputEvaluationRecorder(
                         .ConfigureAwait(false);
 
                     if (_gateOptions.EnforceOnReject)
-                        throw new AgentOutputQualityGateRejectedException(runId, trace.TraceId, agentLabel);
+                        throw new AgentOutputQualityGateRejectedException(
+                            runId,
+                            trace.TraceId,
+                            agentLabel,
+                            evaluated.EvaluationReason);
                 }
 
                 else if (evaluated.GateOutcome == AgentOutputQualityGateOutcome.Warned)

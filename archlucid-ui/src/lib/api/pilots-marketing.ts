@@ -1,5 +1,6 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import type { DemoExplainResponse } from "@/types/demo-explain";
+import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 import type { TenantCostEstimateResponse } from "@/types/tenant-cost-estimate";
 import { apiGet, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
 
@@ -28,6 +29,11 @@ export type TenantMeasuredRoiPayload = {
   monthlyCostEstimate: TenantCostEstimateResponse | null;
   disclaimer: string;
 };
+
+/** GET `/v1/pilots/scorecard` — committed-run aggregates and ROI baseline slots for the active tenant scope. */
+export async function getPilotScorecard(): Promise<PilotScorecardJson> {
+  return apiGet<PilotScorecardJson>(`/${ApiV1Routes.pilotsScorecard}`);
+}
 
 /** GET `/v1/pilots/sponsor-evidence-pack` — aggregated sponsor-facing proof bundle (Standard tier). */
 export async function getSponsorEvidencePack(): Promise<SponsorEvidencePackPayload> {

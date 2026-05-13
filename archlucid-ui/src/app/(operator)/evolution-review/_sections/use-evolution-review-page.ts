@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   fetchEvolutionCandidates,
@@ -9,25 +9,42 @@ import {
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { parseEvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
 
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
+import type { EvolutionReviewPageServerLoad } from "./load-evolution-review-page-data";
 
-export function useEvolutionReviewPage(): EvolutionReviewPageViewModel {
-  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+export function useEvolutionReviewPage(serverLoad: EvolutionReviewPageServerLoad): EvolutionReviewPageViewModel {
+  const isDemo = serverLoad.mode === "demo";
 
-  const [candidates, setCandidates] = useState<EvolutionCandidateChangeSetResponse[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [detail, setDetail] = useState<EvolutionResultsResponse | null>(null);
+  const [candidates, setCandidates] = useState<EvolutionCandidateChangeSetResponse[]>(
+    serverLoad.mode === "live" ? serverLoad.candidates : [],
+  );
+  const [selectedId, setSelectedId] = useState<string | null>(
+    serverLoad.mode === "live" ? serverLoad.selectedId : null,
+  );
+  const [detail, setDetail] = useState<EvolutionResultsResponse | null>(
+    serverLoad.mode === "live" ? serverLoad.detail : null,
+  );
   const [listLoading, setListLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [simulateBusy, setSimulateBusy] = useState(false);
-  const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
-  const [detailFailure, setDetailFailure] = useState<ApiLoadFailureState | null>(null);
+  const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(
+    serverLoad.mode === "live" ? serverLoad.listFailure : null,
+  );
+  const [detailFailure, setDetailFailure] = useState<ApiLoadFailureState | null>(
+    serverLoad.mode === "live" ? serverLoad.detailFailure : null,
+  );
   const [simulateFailure, setSimulateFailure] = useState<ApiLoadFailureState | null>(null);
+
+  const skipInitialClientListFetchRef = useRef(serverLoad.mode === "live");
+  const skipInitialDetailFetchRef = useRef(
+    serverLoad.mode === "live" &&
+      serverLoad.selectedId !== null &&
+      serverLoad.selectedId !== "" &&
+      (serverLoad.detail !== null || serverLoad.detailFailure !== null),
+  );
 
   const loadList = useCallback(async () => {
     setListLoading(true);
@@ -75,6 +92,12 @@ export function useEvolutionReviewPage(): EvolutionReviewPageViewModel {
       return;
     }
 
+    if (skipInitialClientListFetchRef.current) {
+      skipInitialClientListFetchRef.current = false;
+
+      return;
+    }
+
     void loadList();
   }, [isDemo, loadList]);
 
@@ -85,6 +108,12 @@ export function useEvolutionReviewPage(): EvolutionReviewPageViewModel {
 
     if (selectedId === null || selectedId === "") {
       setDetail(null);
+
+      return;
+    }
+
+    if (skipInitialDetailFetchRef.current) {
+      skipInitialDetailFetchRef.current = false;
 
       return;
     }

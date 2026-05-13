@@ -74,6 +74,19 @@ public sealed class ApplicationProblemMapperTests
     }
 
     [SkippableFact]
+    public void TryMapUnhandledException_QualityGateRejected_includes_evaluationReason_when_present()
+    {
+        AgentOutputQualityGateRejectedException ex = new("run-1", "trace-1", "Topology", "missing_or_empty_citations");
+        DefaultHttpContext http = CreateHttpContext("/v1/architecture/run/run-1/execute", "corr-qg2");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        MvcProblemDetails p = result!.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Extensions["evaluationReason"].Should().Be("missing_or_empty_citations");
+    }
+
+    [SkippableFact]
     public void TryMapUnhandledException_RunNotFound_Returns404()
     {
         RunNotFoundException ex = new("missing");

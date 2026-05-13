@@ -13,10 +13,3 @@ export type DemoExplainPageState = {
   error: DemoExplainSectionError | null;
   loading: boolean;
 };
-
-export const demoExplainPageInitialState: DemoExplainPageState = {
-  payload: null,
-  notFound: false,
-  error: null,
-  loading: true,
-};

@@ -102,6 +102,18 @@ vi.mock("./policy-packs/_sections/load-policy-packs-page-data", () => ({
     }),
 }));
 
+vi.mock("./evolution-review/_sections/load-evolution-review-page-data", () => ({
+  loadEvolutionReviewPageData: () =>
+    Promise.resolve({
+      mode: "live" as const,
+      candidates: [],
+      selectedId: null,
+      detail: null,
+      listFailure: null,
+      detailFailure: null,
+    }),
+}));
+
 vi.mock("./product-learning/_sections/load-product-learning-page-data", () => {
   const generatedUtc = "2026-01-01T00:00:00.000Z";
   const bundle = {
@@ -213,8 +225,9 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Planning" })).toBeInTheDocument();
   });
 
-  it("EvolutionReviewPage renders primary heading", () => {
-    render(<EvolutionReviewPage />);
+  it("EvolutionReviewPage renders primary heading", async () => {
+    const page = await EvolutionReviewPage();
+    render(page);
     expect(screen.getByRole("heading", { level: 2, name: "Simulation review" })).toBeInTheDocument();
   });
 

@@ -116,7 +116,8 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     }
 
     [Fact]
-    public void AddArchLucidApplicationServices_resolves_AzureContentSafetyGuard_when_enabled_with_endpoint_and_key()
+    public void
+        AddArchLucidApplicationServices_resolves_CircuitBreakingContentSafetyGuard_when_enabled_with_endpoint_and_key()
     {
         Dictionary<string, string?> data = CreateRealAzureCompositionDictionary(false);
         data["ArchLucid:ContentSafety:Enabled"] = "true";
@@ -131,7 +132,8 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         using ServiceProvider provider = services.BuildServiceProvider();
         IContentSafetyGuard guard = provider.GetRequiredService<IContentSafetyGuard>();
 
-        guard.Should().BeOfType<AzureContentSafetyGuard>();
+        // AzureContentSafetyGuard is the inner implementation; host composition registers the circuit-breaking decorator.
+        guard.Should().BeOfType<CircuitBreakingContentSafetyGuard>();
     }
 
     [Fact]
