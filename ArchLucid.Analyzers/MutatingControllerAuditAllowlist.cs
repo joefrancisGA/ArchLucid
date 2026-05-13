@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
@@ -30,18 +29,8 @@ internal static class MutatingControllerAuditAllowlist
 
     private static void AppendAllowlistFqLines(SourceText contents, ImmutableHashSet<string>.Builder merged)
     {
-        foreach (TextLine line in contents.Lines)
+        foreach (string? raw in from line in contents.Lines select contents.ToString(line.Span).TrimEnd() into raw select TrimLineComment(raw.TrimStart()) into raw where raw.Length != 0 where raw[0] != '#' select raw)
         {
-            string raw = contents.ToString(line.Span).TrimEnd();
-
-            raw = TrimLineComment(raw.TrimStart());
-
-            if (raw.Length == 0)
-                continue;
-
-            if (raw[0] == '#')
-                continue;
-
             merged.Add(raw);
         }
     }

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Audit;
 
 using Microsoft.AspNetCore.Hosting;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 using WireMock.Server;
 
@@ -15,6 +17,9 @@ namespace ArchLucid.Api.Tests.Integrations;
 /// </summary>
 public sealed class ItsmOutboundIssuesWireMockApiFactory : ArchLucidApiFactory
 {
+    /// <summary>Deterministic <see cref="ArchLucid.Core.Configuration.PublicSiteOptions.BaseUrl" /> for WireMock assertions (deep-link block on outbound descriptions).</summary>
+    public const string TestPublicSiteBaseUrl = "https://itsm-outbound-wiremock.test";
+
     private readonly Lazy<WireMockServer> _upstreamLazy = new(static () => WireMockServer.Start());
 
     public CapturingAuditRepository AuditCapture { get; } = new();
@@ -33,6 +38,7 @@ public sealed class ItsmOutboundIssuesWireMockApiFactory : ArchLucidApiFactory
                 config.AddInMemoryCollection(
                     new Dictionary<string, string?>
                     {
+                        ["ArchLucid:PublicSite:BaseUrl"] = TestPublicSiteBaseUrl,
                         ["Integrations:ItsmOutbound:Jira:CloudBaseUrl"] = origin,
                         ["Integrations:ItsmOutbound:Jira:ServiceAccountEmail"] = "bot@example.com",
                         ["Integrations:ItsmOutbound:Jira:ApiToken"] = "fake-token",
@@ -46,6 +52,11 @@ public sealed class ItsmOutboundIssuesWireMockApiFactory : ArchLucidApiFactory
         builder.ConfigureTestServices(
             services =>
             {
+                // CI may set ArchLucid__PublicSite__BaseUrl; in-memory config alone can lose to env. Pin options for assertions.
+                services.RemoveAll<IOptionsMonitor<PublicSiteOptions>>();
+                services.AddSingleton<IOptionsMonitor<PublicSiteOptions>>(_ =>
+                    new FixedPublicSiteOptionsMonitor(TestPublicSiteBaseUrl));
+
                 services.RemoveAll<IAuditRepository>();
                 services.AddSingleton<IAuditRepository>(AuditCapture);
             });
@@ -59,5 +70,26 @@ public sealed class ItsmOutboundIssuesWireMockApiFactory : ArchLucidApiFactory
             return;
 
         _upstreamLazy.Value.Dispose();
+    }
+
+    private sealed class FixedPublicSiteOptionsMonitor : IOptionsMonitor<PublicSiteOptions>
+    {
+        public FixedPublicSiteOptionsMonitor(string baseUrl) =>
+            CurrentValue = new PublicSiteOptions { BaseUrl = baseUrl };
+
+        public PublicSiteOptions CurrentValue { get; }
+
+        public PublicSiteOptions Get(string? name) => CurrentValue;
+
+        public IDisposable OnChange(Action<PublicSiteOptions, string?> listener) => NoopDisposable.Instance;
+    }
+
+    private sealed class NoopDisposable : IDisposable
+    {
+        public static NoopDisposable Instance { get; } = new();
+
+        public void Dispose()
+        {
+        }
     }
 }
