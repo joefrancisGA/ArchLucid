@@ -140,6 +140,7 @@ public sealed class ArtifactPackagingServiceTests
         }
 
         archive.GetEntry("advisory-placeholder.tf").Should().NotBeNull();
+        archive.GetEntry("ADVISORY.md").Should().NotBeNull();
         archive.GetEntry("package-metadata.json").Should().NotBeNull();
     }
 }

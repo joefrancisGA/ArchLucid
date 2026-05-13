@@ -89,6 +89,123 @@ public sealed class SqlTopologyPlaneIsolationSqlIntegrationTests
         }
     }
 
+    [SkippableFact]
+    public async Task Tenant_scoped_connection_is_isolated_from_other_tenant_catalog_project_rows()
+    {
+        Guid tenantIdA = Guid.NewGuid();
+        Guid tenantIdB = Guid.NewGuid();
+
+        string sysName = "ArchLucidTopoSysIso" + Guid.NewGuid().ToString("N");
+        string tntAName = "ArchLucidTopoTntA" + Guid.NewGuid().ToString("N");
+        string tntBName = "ArchLucidTopoTntB" + Guid.NewGuid().ToString("N");
+
+        string systemCatalogConnectionString;
+        string tenantACatalogConnectionString;
+        string tenantBCatalogConnectionString;
+
+        try
+        {
+            systemCatalogConnectionString =
+                SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(sysName);
+            tenantACatalogConnectionString =
+                SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(tntAName);
+            tenantBCatalogConnectionString =
+                SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(tntBName);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Skip.If(true, ex.Message);
+            throw new InvalidOperationException("Unreachable: Skip.If should throw.", ex);
+        }
+
+        try
+        {
+            SqlServerTestCatalogCommands.EnsureCatalogExists(systemCatalogConnectionString);
+            SqlServerTestCatalogCommands.EnsureCatalogExists(tenantACatalogConnectionString);
+            SqlServerTestCatalogCommands.EnsureCatalogExists(tenantBCatalogConnectionString);
+            DatabaseMigrator.RunSystem(systemCatalogConnectionString);
+            DatabaseMigrator.RunTenant(tenantACatalogConnectionString);
+            DatabaseMigrator.RunTenant(tenantBCatalogConnectionString);
+        }
+        catch (Exception ex)
+        {
+            Skip.If(true, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason + " " + ex.Message);
+            throw new InvalidOperationException("Unreachable: Skip.If should throw.", ex);
+        }
+
+        SqlConnectionStringBuilder tenantBBuilder = new(tenantBCatalogConnectionString);
+        string logicalDbNameB = tenantBBuilder.InitialCatalog;
+
+        await SeedSystemTenantAndBindingAsync(systemCatalogConnectionString, tenantIdB, logicalDbNameB);
+
+        Guid workspaceB = Guid.NewGuid();
+        Guid defaultProjectB = Guid.NewGuid();
+        Guid markerProjectId = Guid.NewGuid();
+
+        await using (SqlConnection seedB = new(tenantBCatalogConnectionString))
+        {
+            await seedB.OpenAsync(CancellationToken.None);
+            await seedB.ExecuteAsync(
+                """
+                IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = @Tid)
+                    INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
+                    VALUES (@Tid, N'Tenant B iso', N'iso-b', N'Standard', NULL);
+                IF NOT EXISTS (SELECT 1 FROM dbo.TenantWorkspaces WHERE Id = @Wid)
+                    INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
+                    VALUES (@Wid, @Tid, N'Workspace B', @DPid);
+                IF NOT EXISTS (SELECT 1 FROM dbo.Projects WHERE Id = @DPid)
+                    INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, CreatedUtc, IsDeleted)
+                    VALUES (@DPid, @Tid, @Wid, N'default', SYSUTCDATETIME(), 0);
+                IF NOT EXISTS (SELECT 1 FROM dbo.Projects WHERE Id = @Marker)
+                    INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, CreatedUtc, IsDeleted)
+                    VALUES (@Marker, @Tid, @Wid, N'extra-b', SYSUTCDATETIME(), 0);
+                """,
+                new
+                {
+                    Tid = tenantIdB,
+                    Wid = workspaceB,
+                    DPid = defaultProjectB,
+                    Marker = markerProjectId,
+                });
+        }
+
+        SqlConnectionStringBuilder tenantABuilder = new(tenantACatalogConnectionString);
+        string logicalDbNameA = tenantABuilder.InitialCatalog;
+
+        await SeedSystemTenantAndBindingAsync(systemCatalogConnectionString, tenantIdA, logicalDbNameA);
+
+        SqlTopologyOptions topology = new()
+        {
+            Mode = SqlTopologyMode.SystemWithPerTenantCatalogs,
+            TenantCatalogConnectionStringTemplate = BuildMasterTemplateConnectionString(tenantABuilder),
+            TenantBindingCacheSeconds = 30,
+        };
+
+        IOptionsMonitor<SqlTopologyOptions> topologyMonitor = new StubOptionsMonitor(topology);
+        ISystemSqlConnectionFactory systemFactory =
+            new DedicatedSystemSqlConnectionFactory(systemCatalogConnectionString);
+        ITenantDatabaseBindingRepository bindings = new DapperTenantDatabaseBindingRepository(systemFactory);
+        IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        TenantDatabaseResolver resolver =
+            new(bindings, cache, topologyMonitor, systemCatalogConnectionString);
+
+        ScopedRoutingSqlConnectionFactory routingTenantA = new(
+            systemCatalogConnectionString,
+            systemFactory,
+            resolver,
+            new FixedScopeContextProvider(tenantIdA),
+            topologyMonitor);
+
+        await using (SqlConnection connA = await routingTenantA.CreateOpenConnectionAsync(CancellationToken.None))
+        {
+            int count = await connA.QuerySingleAsync<int>(
+                "SELECT COUNT(1) FROM dbo.Projects WHERE Id = @Id;",
+                new { Id = markerProjectId });
+
+            count.Should().Be(0);
+        }
+    }
+
     private sealed record PreparedTopologyDatabases(
         string SystemCatalogConnectionString,
         string TenantCatalogConnectionString,

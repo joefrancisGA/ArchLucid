@@ -53,6 +53,16 @@ public static partial class ServiceCollectionExtensions
 
     }
 
+    private static void RegisterArchitectureProjectRetentionPurgeHostedService(
+        IServiceCollection services,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        services.AddHostedService<ArchitectureProjectRetentionPurgeHostedService>();
+    }
+
     private static void RegisterFirstTenantFunnelArchivalHostedService(
         IServiceCollection services,
         IConfiguration configuration,

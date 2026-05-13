@@ -30,4 +30,6 @@ public static class HostElectionLeaseNames
     public const string DataConsistencyReconciliation = "hosted:data-consistency-reconciliation";
 
     public const string FirstTenantFunnelArchival = "hosted:first-tenant-funnel-archival";
+
+    public const string ArchitectureProjectRetentionPurge = "hosted:architecture-project-retention-purge";
 }

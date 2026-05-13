@@ -2,6 +2,7 @@
 using System.Text;
 
 using ArchLucid.Api.Formatters;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Core.Audit;
 
 using FluentAssertions;
@@ -16,7 +17,7 @@ public sealed class AuditEventCsvFormatterTests
     [SkippableFact]
     public async Task WriteResponseBodyAsync_WritesHeaderRow()
     {
-        AuditEventCsvFormatter formatter = new();
+        AuditEventCsvFormatter formatter = new(new ExportFormatterService());
         DefaultHttpContext httpContext = new();
         MemoryStream stream = new();
         httpContext.Response.Body = stream;
@@ -42,7 +43,7 @@ public sealed class AuditEventCsvFormatterTests
     [SkippableFact]
     public async Task WriteResponseBodyAsync_WritesIso8601Utc_ForOccurredUtc()
     {
-        AuditEventCsvFormatter formatter = new();
+        AuditEventCsvFormatter formatter = new(new ExportFormatterService());
         DefaultHttpContext httpContext = new();
         MemoryStream stream = new();
         httpContext.Response.Body = stream;

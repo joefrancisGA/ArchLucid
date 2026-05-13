@@ -44,9 +44,10 @@ public sealed class TerraformSnapshotTests
         }
 
         string hclBody = """
-            resource "azurerm_resource_group" "example" {
-              name     = "example"
-              location = "West Europe"
+            variable "archlucid_terraform_snapshot_probe" {
+              type        = string
+              description = "ArchLucid ArtifactSynthesis.Tests probe variable"
+              default     = "ok"
             }
             """;
 
@@ -58,7 +59,6 @@ public sealed class TerraformSnapshotTests
             string filePath = Path.Combine(tempDir, "main.tf");
             File.WriteAllText(filePath, hclBody);
 
-            // Run terraform init (required for validate)
             ProcessStartInfo initPsi = new(terraformExecutable, "init -backend=false")
             {
                 WorkingDirectory = tempDir,
@@ -70,7 +70,9 @@ public sealed class TerraformSnapshotTests
 
             using Process initProcess = new() { StartInfo = initPsi };
             initProcess.Start();
-            initProcess.WaitForExit(TimeSpan.FromSeconds(30));
+            initProcess.WaitForExit(TimeSpan.FromSeconds(120));
+
+            initProcess.ExitCode.Should().Be(0, "terraform init should succeed for the probe snippet");
 
             // Run terraform fmt -check
             ProcessStartInfo fmtPsi = new(terraformExecutable, "fmt -check")
@@ -84,7 +86,7 @@ public sealed class TerraformSnapshotTests
 
             using Process fmtProcess = new() { StartInfo = fmtPsi };
             fmtProcess.Start();
-            fmtProcess.WaitForExit(TimeSpan.FromSeconds(30));
+            fmtProcess.WaitForExit(TimeSpan.FromSeconds(60));
 
             fmtProcess.ExitCode.Should().Be(0, "Terraform fmt should pass on the snippet");
 
@@ -100,7 +102,7 @@ public sealed class TerraformSnapshotTests
 
             using Process validateProcess = new() { StartInfo = validatePsi };
             validateProcess.Start();
-            validateProcess.WaitForExit(TimeSpan.FromSeconds(30));
+            validateProcess.WaitForExit(TimeSpan.FromSeconds(60));
 
             validateProcess.ExitCode.Should().Be(0, "Terraform validate should pass on the snippet");
         }

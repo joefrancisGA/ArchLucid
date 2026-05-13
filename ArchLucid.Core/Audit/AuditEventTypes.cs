@@ -372,6 +372,9 @@ public static class AuditEventTypes
     /// <summary>Architecture project soft-deleted (<c>dbo.Projects.IsDeleted = 1</c>) via tenant API.</summary>
     public const string ArchitectureProjectSoftDeleted = "ArchitectureProjectSoftDeleted";
 
+    /// <summary>Retention job hard-deleted a soft-deleted <c>dbo.Projects</c> row (payload: project id).</summary>
+    public const string ArchitectureProjectHardPurgedRetention = "ArchitectureProjectHardPurgedRetention";
+
     /// <summary>Self-service trial activated with sample data (demo seed + trial window metadata).</summary>
     public const string TrialProvisioned = "TrialProvisioned";
 

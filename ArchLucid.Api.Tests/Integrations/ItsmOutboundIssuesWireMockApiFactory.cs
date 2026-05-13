@@ -54,8 +54,11 @@ public sealed class ItsmOutboundIssuesWireMockApiFactory : ArchLucidApiFactory
             {
                 // CI may set ArchLucid__PublicSite__BaseUrl; in-memory config alone can lose to env. Pin options for assertions.
                 services.RemoveAll<IOptionsMonitor<PublicSiteOptions>>();
+                services.RemoveAll<IOptions<PublicSiteOptions>>();
                 services.AddSingleton<IOptionsMonitor<PublicSiteOptions>>(_ =>
                     new FixedPublicSiteOptionsMonitor(TestPublicSiteBaseUrl));
+                services.AddSingleton<IOptions<PublicSiteOptions>>(_ =>
+                    Options.Create(new PublicSiteOptions { BaseUrl = TestPublicSiteBaseUrl }));
 
                 services.RemoveAll<IAuditRepository>();
                 services.AddSingleton<IAuditRepository>(AuditCapture);
