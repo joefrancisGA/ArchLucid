@@ -1,0 +1,105 @@
+import Link from "next/link";
+
+import { LayerHeader } from "@/components/LayerHeader";
+
+import { OPERATOR_SECURITY_TRUST_DOCS_REPO_BASE } from "./operator-security-trust-docs-repo-base";
+
+/** Procurement-oriented strip plus NDA-gated pen-test posture (operator shell). */
+export function OperatorSecurityTrustPageView() {
+  return (
+    <div className="space-y-6">
+      <LayerHeader pageKey="security-trust" />
+
+      <section
+        aria-label="Assurance summary"
+        className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+      >
+        <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Assurance summary</h2>
+        <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+          <li>
+            Security posture is communicated through the Trust Center (policies, subprocessors, CAIQ / SIG, SOC 2
+            self-assessment) — linked below — not through embedding assessment artifacts in-product.
+          </li>
+          <li>
+            Third-party pen-test summaries are <strong>NDA-gated only</strong>; this workspace view confirms engagement
+            posture without publishing redacted report bodies.
+          </li>
+          <li>
+            Procurement questions route to <strong>security@archlucid.net</strong>; badge meanings are defined in the legend
+            so labels are not overstated.
+          </li>
+        </ul>
+      </section>
+
+      <section
+        aria-label="NDA-gated third-party security assessments"
+        className="rounded-lg border border-sky-200 bg-sky-50/80 px-4 py-3 dark:border-sky-900 dark:bg-sky-950/40"
+      >
+        <p className="m-0 text-sm font-semibold text-sky-950 dark:text-sky-100">Third-party pen-test summaries</p>
+        <p className="m-0 mt-2 text-sm text-sky-950/90 dark:text-sky-100/90">
+          Pen-test redacted summaries are available <strong>under NDA only</strong>. The public{" "}
+          <Link
+            className="font-medium text-sky-800 underline underline-offset-2 hover:text-sky-950 dark:text-sky-300 dark:hover:text-sky-100"
+            href={`${OPERATOR_SECURITY_TRUST_DOCS_REPO_BASE}/docs/go-to-market/TRUST_CENTER.md`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Trust Center
+          </Link>{" "}
+          records engagement existence and high-level posture. To request the most recent redacted summary, email{" "}
+          <a
+            className="font-medium text-sky-800 underline underline-offset-2 hover:text-sky-950 dark:text-sky-300 dark:hover:text-sky-100"
+            href="mailto:security@archlucid.net"
+          >
+            security@archlucid.net
+          </a>
+          . (Owner decision 2026-04-22.)
+        </p>
+      </section>
+
+      <section aria-label="Security trust badges legend" className="space-y-2">
+        <h2 className="text-lg font-semibold">Badges legend</h2>
+        <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+          Operator-facing labels for security posture — none imply a <strong>public</strong> pen-test publication.
+        </p>
+        <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+          <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
+            <thead className="bg-neutral-100 dark:bg-neutral-900/60">
+              <tr>
+                <th className="border-b border-neutral-200 px-3 py-2 font-semibold dark:border-neutral-800">Label</th>
+                <th className="border-b border-neutral-200 px-3 py-2 font-semibold dark:border-neutral-800">Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border-b border-neutral-100 px-3 py-2 font-medium dark:border-neutral-800/80">
+                  NDA-gated security assessment
+                </td>
+                <td className="border-b border-neutral-100 px-3 py-2 text-neutral-700 dark:text-neutral-300 dark:border-neutral-800/80">
+                  Redacted third-party assessment material is shared under NDA; the marketing site and this page do not
+                  host the redacted report body.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-lg font-semibold">Repository trust center</h2>
+        <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+          Buyer-facing index (policies, DPA template, subprocessors, SOC 2 self-assessment, CAIQ / SIG): open the{" "}
+          <Link
+            className="text-sky-700 underline underline-offset-2 hover:text-sky-900 dark:text-sky-400 dark:hover:text-sky-200"
+            href={`${OPERATOR_SECURITY_TRUST_DOCS_REPO_BASE}/docs/go-to-market/TRUST_CENTER.md`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Trust Center (markdown)
+          </Link>
+          .
+        </p>
+      </section>
+    </div>
+  );
+}

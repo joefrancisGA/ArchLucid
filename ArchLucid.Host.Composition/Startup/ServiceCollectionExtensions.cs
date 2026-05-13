@@ -2,6 +2,7 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Templates;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Composition.Configuration;
@@ -28,6 +29,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         services.AddSingleton<StartupMigrationHealthState>();
+        services.AddSingleton<ExportFormatterService>();
         services.AddSingleton<TemplateProvider>();
         services.AddSingleton(TimeProvider.System);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));

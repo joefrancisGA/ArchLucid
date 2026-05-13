@@ -192,6 +192,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IFindingReviewTrailAppendService, FindingReviewTrailAppendService>();
         services.AddScoped<ISponsorEvidencePackService, SponsorEvidencePackService>();
         services.AddScoped<IPilotValueReportService, PilotValueReportService>();
+        services.AddScoped<IPilotValueReportMarkdownFormatter, PilotValueReportMarkdownFormatter>();
+        services.AddScoped<ValueReportSnapshotMarkdownFormatter>();
         services.AddScoped<ITenantMeasuredRoiService, TenantMeasuredRoiService>();
         services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();
         services.AddScoped<IDemoReadModelClient, DemoReadModelClient>();

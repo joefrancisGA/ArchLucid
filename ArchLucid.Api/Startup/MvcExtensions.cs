@@ -23,7 +23,6 @@ internal static class MvcExtensions
 {
     public static IServiceCollection AddArchLucidMvc(this IServiceCollection services)
     {
-        services.AddSingleton<ExportFormatterService>();
         services.AddSingleton<AuditEventCsvFormatter>();
         services.AddSingleton<IConfigureOptions<MvcOptions>, AuditCsvFormatterMvcOptionsConfigurer>();
 

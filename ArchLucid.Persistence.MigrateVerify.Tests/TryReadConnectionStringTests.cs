@@ -39,7 +39,7 @@ public sealed class TryReadConnectionStringTests : IDisposable
     [Fact]
     public void When_argument_has_initial_catalog_returns_true()
     {
-        string expected =
+        cstring expected =
             "Server=127.0.0.1,1433;User Id=sa;Password=test;Encrypt=True;TrustServerCertificate=True;"
             + "Initial Catalog=ArchLucidMigrateVerify";
 

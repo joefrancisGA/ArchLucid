@@ -24,6 +24,7 @@ public sealed class BoardPackPdfBuilder(
     IExecDigestComposer execDigestComposer,
     ValueReportBuilder valueReportBuilder,
     IScopeContextProvider scopeProvider,
+    ValueReportSnapshotMarkdownFormatter valueReportSnapshotMarkdownFormatter,
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor)
 {
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
@@ -32,6 +33,8 @@ public sealed class BoardPackPdfBuilder(
     private readonly IExecDigestComposer _execDigestComposer = execDigestComposer ?? throw new ArgumentNullException(nameof(execDigestComposer));
     private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
     private readonly ValueReportBuilder _valueReportBuilder = valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
+    private readonly ValueReportSnapshotMarkdownFormatter _valueReportSnapshotMarkdownFormatter =
+        valueReportSnapshotMarkdownFormatter ?? throw new ArgumentNullException(nameof(valueReportSnapshotMarkdownFormatter));
 
     /// <summary>Builds a PDF for the current tenant scope and requested quarter (UTC).</summary>
     public async Task<byte[]> BuildPdfAsync(int year, int quarter, DateTimeOffset? overrideStartUtc, DateTimeOffset? overrideEndUtc, string operatorBaseUrl,
@@ -47,7 +50,7 @@ public sealed class BoardPackPdfBuilder(
         ExecDigestComposition digest = await _execDigestComposer.ComposeAsync(scope.TenantId, digestStart, digestEnd, scope, operatorBase, cancellationToken);
         string digestMd = ExecDigestCompositionMarkdownFormatter.Format(digest);
         ValueReportSnapshot value = await _valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, qStart, qEnd, cancellationToken);
-        string valueMd = ValueReportSnapshotMarkdownFormatter.Format(value);
+        string valueMd = _valueReportSnapshotMarkdownFormatter.Format(value);
         StringBuilder combined = new();
         combined.AppendLine($"# ArchLucid board pack — Q{quarter.ToString(CultureInfo.InvariantCulture)} {year.ToString(CultureInfo.InvariantCulture)} (UTC)");
         combined.AppendLine();
