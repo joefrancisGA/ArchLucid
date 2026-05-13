@@ -140,6 +140,25 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     }
 
     /// <inheritdoc />
+    public async Task<RunStaleUncommittedPurgeBatchResult> HardDeleteStaleUncommittedRunsBatchAsync(
+        DateTimeOffset createdBeforeUtc,
+        int batchSize,
+        CancellationToken ct)
+    {
+        RunStaleUncommittedPurgeBatchResult result =
+            await _inner.HardDeleteStaleUncommittedRunsBatchAsync(createdBeforeUtc, batchSize, ct);
+
+        foreach (ArchivedRunScopeRow row in result.Deleted)
+        {
+            ScopeContext scope = new() { TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId };
+
+            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
+        }
+
+        return result;
+    }
+
+    /// <inheritdoc />
     public async Task SaveAsync(
         RunRecord run,
         CancellationToken ct,

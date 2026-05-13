@@ -85,6 +85,54 @@ vi.mock("./governance-resolution/_sections/load-governance-resolution-page-data"
     }),
 }));
 
+vi.mock("./policy-packs/_sections/load-policy-packs-page-data", () => ({
+  loadPolicyPacksPageData: () =>
+    Promise.resolve({
+      packs: [],
+      effective: { tenantId: "", workspaceId: "", projectId: "", packs: [] },
+      effectiveContent: {
+        complianceRuleIds: [],
+        complianceRuleKeys: [],
+        alertRuleIds: [],
+        compositeAlertRuleIds: [],
+        advisoryDefaults: {},
+        metadata: {},
+      },
+      failure: null,
+    }),
+}));
+
+vi.mock("./product-learning/_sections/load-product-learning-page-data", () => {
+  const generatedUtc = "2026-01-01T00:00:00.000Z";
+  const bundle = {
+    summary: {
+      generatedUtc,
+      tenantId: "",
+      workspaceId: "",
+      projectId: "",
+      totalSignalsInScope: 0,
+      distinctRunsTouched: 0,
+      topAggregateCount: 0,
+      artifactTrendCount: 0,
+      improvementOpportunityCount: 0,
+      triageQueueItemCount: 0,
+      summaryNotes: [],
+    },
+    opportunities: { generatedUtc, opportunities: [] },
+    trends: { generatedUtc, trends: [] },
+    triage: { generatedUtc, items: [] },
+  };
+
+  return {
+    loadProductLearningPageData: () =>
+      Promise.resolve({
+        kind: "ready" as const,
+        bundle,
+        failure: null,
+      }),
+  };
+});
+
 import { AdvisoryScansContent } from "@/components/advisory/AdvisoryScansContent";
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
@@ -153,8 +201,9 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Recommendation tuning" })).toBeInTheDocument();
   });
 
-  it("ProductLearningPage renders primary heading", () => {
-    render(<ProductLearningPage />);
+  it("ProductLearningPage renders primary heading", async () => {
+    const page = await ProductLearningPage();
+    render(page);
     expect(screen.getByRole("heading", { level: 2, name: "Pilot feedback" })).toBeInTheDocument();
   });
 
@@ -179,8 +228,9 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Digest subscriptions" })).toBeInTheDocument();
   });
 
-  it("PolicyPacksPage renders primary heading", () => {
-    render(<PolicyPacksPage />);
+  it("PolicyPacksPage renders primary heading", async () => {
+    const page = await PolicyPacksPage();
+    render(page);
     expect(screen.getByRole("heading", { level: 2, name: "Policy packs" })).toBeInTheDocument();
   });
 

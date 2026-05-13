@@ -64,6 +64,16 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<ArchitectureProjectRetentionPurgeHostedService>();
     }
 
+    private static void RegisterAzureExtractorAutoPullHostedService(
+        IServiceCollection services,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        services.AddHostedService<AzureExtractorAutoPullHostedService>();
+    }
+
     private static void RegisterFirstTenantFunnelArchivalHostedService(
         IServiceCollection services,
         IConfiguration configuration,

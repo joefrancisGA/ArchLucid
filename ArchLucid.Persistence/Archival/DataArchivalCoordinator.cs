@@ -23,6 +23,8 @@ public sealed class DataArchivalCoordinator(
 {
     private const int MaxAgentTracePurgeBatchesPerPass = 40;
 
+    private const int MaxUncommittedRunPurgeBatchesPerPass = 25;
+
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
 
@@ -124,6 +126,35 @@ public sealed class DataArchivalCoordinator(
                     "Data archival: hard-deleted {Count} archived agent execution trace rows with ArchivedUtc before {Cutoff:O}.",
                     totalPurged,
                     traceCutoff);
+            }
+        }
+
+        if (options.PurgeUncommittedRunsAfterDays > 0)
+        {
+            DateTimeOffset runCutoff = now.AddDays(-options.PurgeUncommittedRunsAfterDays);
+            int runBatchSize = options.PurgeUncommittedRunsBatchSize > 0
+                ? Math.Clamp(options.PurgeUncommittedRunsBatchSize, 1, 10_000)
+                : 500;
+            int totalPurgedRuns = 0;
+
+            for (int i = 0; i < MaxUncommittedRunPurgeBatchesPerPass; i++)
+            {
+                RunStaleUncommittedPurgeBatchResult batch =
+                    await _runRepository.HardDeleteStaleUncommittedRunsBatchAsync(runCutoff, runBatchSize, ct);
+
+                int deleted = batch.DeletedCount;
+                totalPurgedRuns += deleted;
+
+                if (deleted == 0)
+                    break;
+            }
+
+            if (totalPurgedRuns > 0)
+            {
+                _logger.LogInformation(
+                    "Data archival: hard-deleted {Count} stale uncommitted authority runs with CreatedUtc before {Cutoff:O}.",
+                    totalPurgedRuns,
+                    runCutoff);
             }
         }
     }

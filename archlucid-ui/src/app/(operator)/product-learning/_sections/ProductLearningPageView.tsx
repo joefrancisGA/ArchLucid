@@ -31,14 +31,6 @@ export function ProductLearningPageView(props: Props) {
   const m = props.model;
   const emptyDataset = m.bundle !== null && m.bundle.summary.totalSignalsInScope === 0;
 
-  if (m.demoMode) {
-    return (
-      <div className="max-w-5xl">
-        <OperatorLoadingNotice>Returning to home…</OperatorLoadingNotice>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-5xl">
       <h2 className="mt-0">Pilot feedback</h2>

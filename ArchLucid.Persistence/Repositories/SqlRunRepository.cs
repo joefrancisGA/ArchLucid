@@ -786,6 +786,35 @@ public sealed class SqlRunRepository(
         return count;
     }
 
+    /// <inheritdoc />
+    public async Task<RunStaleUncommittedPurgeBatchResult> HardDeleteStaleUncommittedRunsBatchAsync(
+        DateTimeOffset createdBeforeUtc,
+        int batchSize,
+        CancellationToken ct)
+    {
+        if (batchSize < 1)
+            throw new ArgumentOutOfRangeException(nameof(batchSize), batchSize, "Batch size must be at least 1.");
+
+        int safeBatch = Math.Clamp(batchSize, 1, 10_000);
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        IEnumerable<ArchivedRunScopeRow> rows = await connection.QueryAsync<ArchivedRunScopeRow>(
+            new CommandDefinition(
+                "dbo.Archival_PurgeStaleUncommittedRunsBatch",
+                new
+                {
+                    CutoffUtc = createdBeforeUtc.UtcDateTime,
+                    BatchSize = safeBatch
+                },
+                commandType: CommandType.StoredProcedure,
+                cancellationToken: ct));
+
+        List<ArchivedRunScopeRow> list = rows.AsList();
+
+        return new RunStaleUncommittedPurgeBatchResult { Deleted = list };
+    }
+
     private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)
     {
         if (cursorCreatedUtc.HasValue != cursorRunId.HasValue)

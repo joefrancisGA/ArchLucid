@@ -47,6 +47,26 @@ public static class ArtifactBlobTenantPaths
         return $"{workspaceId:D}/{projectId:D}/artifacts/{manifestId:D}/{artifactId:D}/{fileName}";
     }
 
+    /// <summary>Builds a tenant-agnostic logical segment <c>dedup/{sha256-hex}/payload.txt</c> for content-addressed blobs.</summary>
+    public static string FormatDedupArtifactContentRelativePath(string sha256HexLower)
+    {
+        if (sha256HexLower is null)
+            throw new ArgumentNullException(nameof(sha256HexLower));
+
+        string hex = sha256HexLower.Trim();
+
+        if (hex.Length != 64)
+            throw new ArgumentException("sha256HexLower must be 64 hex characters.", nameof(sha256HexLower));
+
+        foreach (char c in hex)
+        {
+            if (!char.IsAsciiHexDigit(c))
+                throw new ArgumentException("sha256HexLower must be hexadecimal.", nameof(sha256HexLower));
+        }
+
+        return $"dedup/{hex}/payload.txt";
+    }
+
     /// <summary>
     ///     Prefixes <paramref name="blobName" /> with the current tenant directory. Callers must pass a logical path
     ///     without an embedded tenant prefix (that would double-prefix or confuse audits).
