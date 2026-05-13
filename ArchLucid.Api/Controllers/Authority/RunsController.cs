@@ -15,9 +15,12 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
+
+using System.Security.Cryptography;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +55,7 @@ public sealed partial class RunsController(
     IActorContext actorContext,
     IAuditService auditService,
     ICommitSponsorEmailNotifier commitSponsorEmailNotifier,
+    ICommitRunIdempotencyRepository commitRunIdempotencyRepository,
     ILogger<RunsController> logger)
     : ControllerBase
 {
@@ -233,9 +237,22 @@ public sealed partial class RunsController(
     {
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string canonicalRunKey = ArchitectureRunRouteIds.NormalizeForScopeKey(runId);
+        byte[] requestFingerprint = ArchitectureRunIdempotencyHashing.FingerprintCommitRequest(request);
+
+        if (!TryParseCommitIdempotencyKeyHeader(out byte[]? idempotencyKeyHash, out IActionResult? badIdempotencyHeader))
+        {
+            ArgumentNullException.ThrowIfNull(badIdempotencyHeader);
+            return badIdempotencyHeader;
+        }
 
         try
         {
+            bool markIdempotencyReplayHeader = idempotencyKeyHash is not null &&
+                                               await PreviewCommitIdempotencyAsync(scope, canonicalRunKey, idempotencyKeyHash, requestFingerprint,
+                                                   cancellationToken);
+
             CommitRunResult result = await architectureRunCommitOrchestrator.CommitRunAsync(runId, cancellationToken);
 
             CommitRunResponse response = RunResponseMapper.ToCommitRunResponse(
@@ -243,8 +260,21 @@ public sealed partial class RunsController(
                 result.DecisionTraces,
                 result.Warnings);
 
+            if (idempotencyKeyHash is not null)
+            {
+                bool inserted =
+                    await commitRunIdempotencyRepository.TryInsertAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, canonicalRunKey,
+                        idempotencyKeyHash, requestFingerprint, cancellationToken);
+
+                if (!inserted)
+                    markIdempotencyReplayHeader = true;
+            }
+
+            if (markIdempotencyReplayHeader)
+                Response.Headers.Append("Idempotency-Replayed", "true");
+
             LogRunCommitted(
-                runId,
+                canonicalRunKey,
                 result.Manifest.Metadata.ManifestVersion,
                 result.Warnings.Count,
                 user,
@@ -253,11 +283,12 @@ public sealed partial class RunsController(
             if (request?.NotifySponsor != true)
                 return Ok(response);
 
-            Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
-
-            await commitSponsorEmailNotifier
-                .NotifyAfterCommitAsync(tenantId, runId, cancellationToken)
-                .ConfigureAwait(false);
+            if (!markIdempotencyReplayHeader)
+            {
+                await commitSponsorEmailNotifier
+                    .NotifyAfterCommitAsync(scope.TenantId, runId, cancellationToken)
+                    .ConfigureAwait(false);
+            }
 
             return Ok(response);
         }
@@ -288,6 +319,54 @@ public sealed partial class RunsController(
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+    }
+
+    private bool TryParseCommitIdempotencyKeyHeader(out byte[]? idempotencyKeyHash, out IActionResult? badRequest)
+    {
+        idempotencyKeyHash = null;
+        badRequest = null;
+
+        if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues keys))
+            return true;
+
+        string trimmed = keys.ToString().Trim();
+
+        if (string.IsNullOrEmpty(trimmed))
+            return true;
+
+        if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+        {
+            badRequest =
+                this.BadRequestProblem(
+                    $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
+                    ProblemTypes.ValidationFailed);
+
+            return false;
+        }
+
+        idempotencyKeyHash = ArchitectureRunIdempotencyHashing.HashIdempotencyKey(trimmed);
+
+        return true;
+    }
+
+    private async Task<bool> PreviewCommitIdempotencyAsync(
+        ScopeContext scope,
+        string canonicalRunKey,
+        byte[] idempotencyKeyHash,
+        byte[] requestFingerprint,
+        CancellationToken cancellationToken)
+    {
+        CommitRunIdempotencyLookup? lookup = await commitRunIdempotencyRepository
+            .TryGetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, canonicalRunKey, idempotencyKeyHash, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (lookup is null)
+            return false;
+
+        if (!CryptographicOperations.FixedTimeEquals(lookup.RequestFingerprint, requestFingerprint))
+            throw new ConflictException("Idempotency-Key was reused with a different request payload.");
+
+        return true;
     }
 
     /// <summary>

@@ -2,6 +2,7 @@ using System.Globalization;
 
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Models.Graph;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
@@ -22,6 +23,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -57,6 +59,7 @@ public sealed class RunQueryController(
     ITraceabilityBundleBuilder traceabilityBundleBuilder,
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
     ILlmCostEstimator llmCostEstimator,
+    IAuthorityQueryService authorityQueryService,
     IConfiguration configuration) : ControllerBase
 {
     /// <summary>
@@ -125,6 +128,32 @@ public sealed class RunQueryController(
         RunRoiScorecardDto estimate = runRoiEstimator.Estimate(detail);
 
         return Ok(estimate);
+    }
+
+    /// <summary>Knowledge-graph snapshot packaged for interactive Cytoscape.js renders.</summary>
+    [HttpGet("runs/{runId}/graph/interactive")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(CytoscapeInteractiveGraphResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetInteractiveGraphSnapshot(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("Run id is required.", ProblemTypes.ValidationFailed);
+
+        if (!TryParseRunId(runId, out Guid runGuid))
+            return this.BadRequestProblem("Run id must be a valid GUID.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+
+        if (detail?.GraphSnapshot is null)
+            return this.NotFoundProblem(
+                $"Interactive graph snapshot for run '{runGuid:D}' was not found.",
+                ProblemTypes.RunNotFound);
+
+        return Ok(GraphSnapshotCytoscapeMapper.ToInteractiveResponse(detail.GraphSnapshot));
     }
 
     /// <summary>Aggregates ROI telemetry across all runs in the current scope.</summary>

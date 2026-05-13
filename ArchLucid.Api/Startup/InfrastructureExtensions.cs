@@ -6,6 +6,7 @@ using ArchLucid.Api.Filters;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Host.Core.Authorization;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
 
@@ -27,6 +28,7 @@ internal static class InfrastructureExtensions
     public static IServiceCollection AddArchLucidAuthorization(this IServiceCollection services)
     {
         services.AddArchLucidAuthorizationPolicies();
+        services.AddScoped<IAuthorizationHandler, TenantOrProjectCapabilityAuthorizationHandler>();
         services.AddScoped<IAuthorizationHandler, TrialLimitAuthorizationHandler>();
         services.AddSingleton<IAuthorizationMiddlewareResultHandler, TrialLimitAuthorizationResultHandler>();
 
