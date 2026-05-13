@@ -8,7 +8,7 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 [Trait("Suite", "Core")]
 public sealed class TerraformSnapshotTests
 {
-    [Fact]
+    [SkippableFact]
     public void Generated_terraform_snippet_validates_successfully()
     {
         string terraformExecutable = OperatingSystem.IsWindows() ? "terraform.exe" : "terraform";
@@ -37,9 +37,7 @@ public sealed class TerraformSnapshotTests
             }
         }
 
-        terraformFound.Should()
-            .BeTrue(
-                "Terraform CLI must be on PATH for this test (install Terraform and ensure it is discoverable via PATH).");
+        Skip.IfNot(terraformFound, "Terraform CLI must be on PATH for this test (install Terraform and ensure it is discoverable via PATH).");
 
         string hclBody = """
             variable "archlucid_terraform_snapshot_probe" {

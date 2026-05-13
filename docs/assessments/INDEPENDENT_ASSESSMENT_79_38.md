@@ -246,9 +246,21 @@ Constraints: Use the existing `IScopeContextProvider` for isolation. Do NOT chan
 Impact: Directly improves Correctness (+8-10 pts). Weighted readiness impact: +0.6-0.8%.
 ```
 
-### 2. DEFERRED Implement Azure Extractor Auto-Pull
-- **Reason deferred:** Need to define the authentication strategy (Azure App Registration vs Managed Identity) and operational frequency (scheduled Worker job vs API trigger).
-- **Required input:** Please specify if we should build this as an OAuth-granted Service Principal that the user authorizes once, and whether the extraction should run on a CRON schedule inside the Worker.
+### 2. Implement Azure Extractor Auto-Pull
+- **Why it matters:** Manual PowerShell extraction is the single largest point of friction for continuous enterprise use.
+- **Expected impact:** Transforms ArchLucid from a point-in-time review tool into a continuous monitoring platform.
+- **Affected qualities:** Adoption Friction, Stickiness.
+- **Actionable now:** Yes.
+```text
+Implement a Tier 2 Auto-Pull capability for the Azure Extractor using Federated Identity Credentials.
+Files to modify: `ArchLucid.Worker` jobs, Azure configuration services, and the Tenant settings schema.
+Acceptance criteria:
+- Allow tenants to configure a `ClientId`, `TenantId`, and `SubscriptionId` mapping to a customer-provisioned Service Principal.
+- Implement an automated background CRON job in `ArchLucid.Worker` that assumes identity via OIDC (federated credentials) to pull ARM and Cost Management data.
+- The worker should automatically trigger a new `ArchitectureRequest` using the pulled data.
+Constraints: Do NOT use long-lived client secrets. Adhere to the Trust Center constraints: require only `Reader` and `Cost Management Reader` roles.
+Impact: Directly improves Adoption Friction (+10-15 pts) and Stickiness (+5-8 pts). Weighted readiness impact: +0.8-1.0%.
+```
 
 ### 3. Dynamic Confluence Space Routing
 - **Why it matters:** Large organizations use different Confluence spaces per team.
@@ -332,9 +344,21 @@ Constraints: Ensure the batch size is configurable via `DataArchival:PurgeUncomm
 Impact: Directly improves Compliance Readiness (+5-8 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 9. DEFERRED Project-Level RBAC
-- **Reason deferred:** Needs UX wireframes and SQL schema for project-level role assignments.
-- **Required input:** Provide the desired SQL schema layout for `dbo.ProjectRoleAssignments` and confirm if we need a new `ProjectAdmin` role.
+### 9. Project-Level RBAC
+- **Why it matters:** Large enterprises require different teams to manage their own projects within the same tenant without granting tenant-wide admin privileges.
+- **Expected impact:** Satisfies least-privilege enterprise requirements and unlocks multi-team deployments.
+- **Affected qualities:** Security, Workflow Embeddedness.
+- **Actionable now:** Yes.
+```text
+Implement project-level Role Based Access Control (RBAC).
+Files to modify: SQL migration scripts, Authorization policies, and Admin controllers.
+Acceptance criteria:
+- Create `dbo.ProjectRoleAssignments` with columns `TenantId`, `ProjectId`, `UserId`, `Role` (e.g., 'Reader', 'Operator', 'ProjectAdmin'), and enforce a unique constraint on `(TenantId, ProjectId, UserId)`.
+- Introduce a new `ProjectAdmin` role that can manage project-scoped Policy Packs and delegate project roles.
+- Update authorization handlers to combine JWT claims with `ProjectRoleAssignments` dynamically based on the requested `ProjectId` context.
+Constraints: Ensure `TenantId` is included in all queries to maintain strict RLS `SESSION_CONTEXT` isolation. Do not downgrade tenant-wide `Admin` capabilities.
+Impact: Directly improves Security (+5-8 pts). Weighted readiness impact: +0.2-0.3%.
+```
 
 ### 10. Custom Agent Handler UI Discovery
 - **Why it matters:** Admins cannot easily audit what custom agents are installed.
@@ -586,16 +610,9 @@ Impact: Directly improves Interoperability (+4-6 pts). Weighted readiness impact
 
 To optimize context window usage and ensure logical grouping of changes, execute the actionable prompts in the following batches:
 
-- **Batch 1: Core Reliability & Idempotency** (Items 1, 5) - Touches core controllers, `IArchitectureRunCommitOrchestrator`, and `DataConsistency` jobs.
+- **Batch 1: Core Reliability, RBAC & Idempotency** (Items 1, 5, 9) - Touches core controllers, authorization policies, `IArchitectureRunCommitOrchestrator`, and `DataConsistency` jobs.
 - **Batch 2: UI, Export, & Visualization** (Items 3, 15, 16, 23) - Focuses on presentation layer, Mermaid CLI, Confluence routing, and custom branding.
-- **Batch 3: Data Management & Performance** (Items 8, 21) - Focuses on SQL `DELETE` batching, background hosted services, and Blob deduplication.
+- **Batch 3: Data Management, Performance & Extraction** (Items 2, 8, 21) - Focuses on Auto-Pull worker jobs, SQL `DELETE` batching, background hosted services, and Blob deduplication.
 - **Batch 4: API, Integrations & Diagnostics** (Items 4, 7, 10, 11, 12, 13, 14, 17, 18, 19, 20, 22, 24, 25) - Touches endpoints, Schema validation, Content Safety Polly policies, Webhooks, GitHub integration, API keys, Bypass mechanisms, and Slack integrations.
 
 ---
-
-## Pending Questions for Later
-
-*Note: The following questions block DEFERRED items and require your input before implementation can begin.*
-
-- **Implement Azure Extractor Auto-Pull:** Should we build this as an OAuth-granted Service Principal that the user authorizes once, and should the extraction run on a CRON schedule inside the Worker?
-- **Project-Level RBAC:** What is the desired SQL schema layout for `dbo.ProjectRoleAssignments`, and do we need a new `ProjectAdmin` role?
