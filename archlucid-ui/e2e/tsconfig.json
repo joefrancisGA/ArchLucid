@@ -13,6 +13,13 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["./**/*.ts", "../tests/accessibility.spec.ts", "../tests/e2e/**/*.ts", "../tests/quick-scan.spec.ts"],
+  "include": [
+    "./**/*.ts",
+    "../tests/accessibility.spec.ts",
+    "../tests/compare.spec.ts",
+    "../tests/onboarding.spec.ts",
+    "../tests/e2e/**/*.ts",
+    "../tests/quick-scan.spec.ts"
+  ],
   "exclude": ["node_modules"]
 }

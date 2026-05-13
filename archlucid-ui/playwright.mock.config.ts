@@ -37,7 +37,13 @@ export default defineConfig({
     {
       name: "chromium",
       testDir: ".",
-      testMatch: ["e2e/**/*.spec.ts", "tests/quick-scan.spec.ts", "tests/core-pilot-path.spec.ts"],
+      testMatch: [
+        "e2e/**/*.spec.ts",
+        "tests/quick-scan.spec.ts",
+        "tests/core-pilot-path.spec.ts",
+        "tests/compare.spec.ts",
+        "tests/onboarding.spec.ts",
+      ],
       testIgnore: ["**/live-api-*.spec.ts", "tests/e2e/**"],
       use: { ...devices["Desktop Chrome"] },
     },

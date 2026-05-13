@@ -142,8 +142,8 @@ test.describe("trial funnel — mocked end-to-end", () => {
      * Prime sessionStorage so we stay on `/` and assert the dashboard cycle panel (`before-after-delta-panel`).
      */
     await page.addInitScript(
-      ([storageKey, welcomeRunId]: [string, string]) => {
-        sessionStorage.setItem(storageKey, welcomeRunId);
+      (args: string[]) => {
+        if (args.length >= 2) sessionStorage.setItem(args[0], args[1]);
       },
       ["archlucid_trial_welcome_home_redirect_v1", MOCK_TRIAL_WELCOME_RUN_ID],
     );

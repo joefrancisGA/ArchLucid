@@ -26,7 +26,7 @@ public sealed class RlsSessionContextInfrastructureHealthCheckTests
         HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         result.Status.Should().Be(HealthStatus.Healthy);
-        result.Description!.Should().Contain("InMemory", StringComparison.OrdinalIgnoreCase);
+        result.Description!.IndexOf("InMemory", StringComparison.OrdinalIgnoreCase).Should().BeGreaterThanOrEqualTo(0);
     }
 
     [Fact]
@@ -40,6 +40,6 @@ public sealed class RlsSessionContextInfrastructureHealthCheckTests
         HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         result.Status.Should().Be(HealthStatus.Unhealthy);
-        result.Description!.Should().Contain("ConnectionStrings", StringComparison.Ordinal);
+        result.Description!.Should().Contain("ConnectionStrings");
     }
 }

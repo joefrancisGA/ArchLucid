@@ -52,8 +52,7 @@ public sealed class TryReadConnectionStringTests : IDisposable
     [Fact]
     public void When_connection_string_missing_initial_catalog_returns_false()
     {
-        string missingCatalog =
-            "Server=127.0.0.1,1433;User Id=sa;Password=test;Encrypt=True;TrustServerCertificate=True";
+        const string missingCatalog = "Server=127.0.0.1,1433;User Id=sa;Password=test;Encrypt=True;TrustServerCertificate=True";
 
         bool ok = Program.TryReadConnectionString([missingCatalog], out string cs, out string err);
 
@@ -65,9 +64,8 @@ public sealed class TryReadConnectionStringTests : IDisposable
     [Fact]
     public void When_environment_provides_initial_catalog_even_if_arguments_empty_returns_true()
     {
-        string expected =
-            "Server=127.0.0.1,1433;User Id=sa;Password=test;Encrypt=True;TrustServerCertificate=True;"
-            + "Initial Catalog=FromEnv";
+        const string expected = "Server=127.0.0.1,1433;User Id=sa;Password=test;Encrypt=True;TrustServerCertificate=True;"
+                                + "Initial Catalog=FromEnv";
 
 
         Environment.SetEnvironmentVariable(

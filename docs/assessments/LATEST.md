@@ -512,7 +512,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Prevents regressions in the highly important manifest delta viewing experience.
     - **Expected impact:** Explainability (+5 pts).
     - **Affected qualities:** Explainability.
-    - **Status:** Actionable now.
+    - **Status:** Completed — `archlucid-ui/tests/compare.spec.ts` (mock chromium project): deterministic fixtures via `registerDefaultPairLegacyStructuredCompare`, asserts structured `#compare-structured` + legacy `#compare-legacy` diff rows.
     ```text
     Create a Playwright test in `archlucid-ui/tests/` that navigates to the `/compare` view, loads a mocked delta manifest, and asserts the diff renders correctly.
     - Specify files: `archlucid-ui/tests/compare.spec.ts`

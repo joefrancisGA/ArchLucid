@@ -73,13 +73,12 @@ internal static class RealLlmEvidenceSummarizeCommand
 
         if (simulatorOnly)
         {
-            string md =
-                """
-                ## Real-LLM session evidence — summary
+            const string md = """
+                              ## Real-LLM session evidence — summary
 
-                **Posture:** `SKIPPED` — release is marked **simulator-only**; do not imply hosted real-LLM validation for this cut.
+                              **Posture:** `SKIPPED` — release is marked **simulator-only**; do not imply hosted real-LLM validation for this cut.
 
-                """;
+                              """;
 
             return (CliExitCode.Success, md);
         }
