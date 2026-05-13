@@ -18,7 +18,11 @@ import { formatRelativeTime } from "@/lib/relative-time";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { canonicalizeDemoRunId, dedupeRunSummariesByRunId } from "@/lib/demo-run-canonical";
+import {
+  canonicalizeDemoRunId,
+  dedupeRunSummariesByRunId,
+  normalizeRunSummaryForDemoPicker,
+} from "@/lib/demo-run-canonical";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
@@ -298,12 +302,15 @@ export function RunsListClient({
       });
     }
 
-    return [...list].sort((left, right) => {
+    const sorted = [...list].sort((left, right) => {
       const leftTime = new Date(left.createdUtc).getTime();
       const rightTime = new Date(right.createdUtc).getTime();
 
       return sortOrder === "createdDesc" ? rightTime - leftTime : leftTime - rightTime;
     });
+
+    // Collapse alias + canonical showcase rows (same visible review) so `data-testid` and React keys stay unique.
+    return dedupeRunSummariesByRunId(sorted.map(normalizeRunSummaryForDemoPicker));
   }, [safeRuns, filterText, sortOrder]);
 
   const workQueueSections = useMemo(
