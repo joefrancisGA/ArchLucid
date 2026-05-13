@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Validation;
 
 namespace ArchLucid.ArtifactSynthesis.Services;
 
@@ -40,23 +41,12 @@ public class ArtifactBundleValidator : IArtifactBundleValidator
             if (string.Equals(artifact.ArtifactType, ArtifactType.ArchitectureNarrative, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(artifact.ArtifactType, ArtifactType.ReferenceArchitectureMarkdown, StringComparison.OrdinalIgnoreCase))
             {
-                string[] requiredHeaders =
-                [
-                    "Objective",
-                    "Assumptions",
-                    "Constraints",
-                    "Architecture Overview",
-                    "Component Breakdown",
-                    "Data Flow",
-                    "Security Model",
-                    "Operational Considerations"
-                ];
+                IReadOnlyList<string> missing = ArchitectureMarkdownSectionValidator.GetMissingSectionHeaders(artifact.Content);
 
-                foreach (string header in requiredHeaders)
-                {
-                    if (!artifact.Content.Contains(header, StringComparison.OrdinalIgnoreCase))
-                        throw new InvalidOperationException($"Architecture artifact {artifact.ArtifactType} is missing required header: {header}");
-                }
+                if (missing.Count > 0)
+                    throw new InvalidOperationException(
+                        $"Architecture artifact {artifact.ArtifactType} is missing required markdown ## headers: {string.Join(", ", missing)}. " +
+                        "Each must appear as a line starting with \"## \" (second-level atx heading only).");
             }
         }
     }
