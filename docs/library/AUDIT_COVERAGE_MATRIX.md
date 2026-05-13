@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:182 -->
+<!-- audit-core-const-count:183 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -102,6 +102,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Comparison replay persisted (new immutable row) | `ComparisonAuditService` (`ComparisonReplayService` when `PersistReplay`) | `ComparisonReplayPersisted` | RunId when left/right parseable | `comparisonRecordId`, `sourceComparisonRecordId`, `leftRunId`, `rightRunId`, `comparisonType` |
 | Data archival host failure | `DataArchivalHostIteration` | `DataArchivalHostLoopFailed` | — | exception summary |
 | OpenAI circuit breaker | `CircuitBreakerAuditBridge` (wired from `CircuitBreakerGate`) | `CircuitBreakerStateTransition`, `CircuitBreakerRejection`, `CircuitBreakerProbeOutcome` | Tenant/Workspace/Project from ambient scope | `{ gate, fromState, toState, probeOutcome? }` |
+| Azure AI Content Safety circuit degraded (local deny-list fallback) | `CircuitBreakingContentSafetyGuard` | `ContentSafetyCircuitDegradedFallback` | Empty GUID tenant/workspace/project; explicit system actor | `{ kind, denialCountsByCategory }` — emitted when the content-safety breaker allows via local redaction after the remote circuit is open/unhealthy; audit failures swallowed so the LLM path is not blocked. |
 | Security assessment published (trust center / procurement) | `SecurityTrustPublicationController` | `SecurityAssessmentPublished` | Tenant/Workspace/Project from ambient scope | `{ assessmentCode, summaryReference, assessorDisplayName? }` |
 | Agent result JSON failed schema validation (enforced parse) | `TopologyAgentHandler`, `ComplianceAgentHandler`, `CriticAgentHandler` → `AgentResultSchemaViolationAudit` | `AuditEventTypes.AgentResultSchemaViolation` | RunId / task context when parseable | schema errors, truncated JSON, agent type |
 | Coordinator run created (baseline → durable) | `BaselineMutationAuditService` (triggered by `ArchitectureRunCreateOrchestrator` baseline `Architecture.RunCreated`) | `AuditEventTypes.Run.Created` | RunId | `{ requestId, systemName }` |
@@ -324,6 +325,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `CircuitBreakerStateTransition` | `CircuitBreakerStateTransition` | `CircuitBreakerAuditBridge` |
 | `CircuitBreakerRejection` | `CircuitBreakerRejection` | `CircuitBreakerAuditBridge` |
 | `CircuitBreakerProbeOutcome` | `CircuitBreakerProbeOutcome` | `CircuitBreakerAuditBridge` |
+| `ContentSafetyCircuitDegradedFallback` | `ContentSafetyCircuitDegradedFallback` | `CircuitBreakingContentSafetyGuard` (degraded allow path; local deny-list after Azure Content Safety circuit unhealthy) |
 | `SecurityAssessmentPublished` | `SecurityAssessmentPublished` | `SecurityTrustPublicationController` |
 | `TenantProvisioned` | `TenantProvisioned` | `TenantProvisioningService` |
 | `TenantSelfRegistered` | `TenantSelfRegistered` | `RegistrationController` |
