@@ -62,6 +62,29 @@ vi.mock("./recommendation-learning/_sections/load-recommendation-learning-page-d
     }),
 }));
 
+vi.mock("./governance-resolution/_sections/load-governance-resolution-page-data", () => ({
+  loadGovernanceResolutionPageData: () =>
+    Promise.resolve({
+      data: {
+        tenantId: "",
+        workspaceId: "",
+        projectId: "",
+        effectiveContent: {
+          complianceRuleIds: [],
+          complianceRuleKeys: [],
+          alertRuleIds: [],
+          compositeAlertRuleIds: [],
+          advisoryDefaults: {},
+          metadata: {},
+        },
+        decisions: [],
+        conflicts: [],
+        notes: [],
+      },
+      failure: null,
+    }),
+}));
+
 import { AdvisoryScansContent } from "@/components/advisory/AdvisoryScansContent";
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
@@ -161,8 +184,9 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Policy packs" })).toBeInTheDocument();
   });
 
-  it("GovernanceResolutionPage renders primary heading", () => {
-    render(<GovernanceResolutionPage />);
+  it("GovernanceResolutionPage renders primary heading", async () => {
+    const page = await GovernanceResolutionPage();
+    render(page);
     expect(screen.getByRole("heading", { level: 2, name: "Governance resolution" })).toBeInTheDocument();
   });
 

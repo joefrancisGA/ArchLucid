@@ -14,7 +14,7 @@ export type AuditBuyerTrailMetrics = {
   readonly systemRecordedCount: number;
 };
 
-/** Props for the presentational audit layout; produced by `useAuditPage`. */
+/** Props for the presentational audit layout; produced by `useAuditPage(serverLoad)`. */
 export type AuditPageViewProps = {
   readonly buyerPolishedShell: boolean;
   readonly runId: string;

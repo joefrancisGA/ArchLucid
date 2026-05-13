@@ -2,15 +2,19 @@
 
 import { Suspense } from "react";
 
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-
+import type { ReplayPageServerLoadResult } from "./load-replay-page-data";
 import { ReplayForm } from "./ReplayForm";
 import { ReplayPageDemoShell } from "./ReplayPageDemoShell";
 import { ReplaySuspenseFallback } from "./ReplaySuspenseFallback";
 
-export function ReplayPageMain() {
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+type ReplayPageClientProps = {
+  readonly loaded: ReplayPageServerLoadResult;
+};
+
+export function ReplayPageClient(props: ReplayPageClientProps) {
+  const loaded = props.loaded;
+
+  if (loaded.kind === "demo") {
     return <ReplayPageDemoShell />;
   }
 

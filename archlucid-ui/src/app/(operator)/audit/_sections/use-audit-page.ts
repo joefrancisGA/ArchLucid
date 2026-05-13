@@ -29,6 +29,7 @@ import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample 
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import type { AuditPageViewProps } from "./audit-page-view-props";
+import type { AuditPageServerLoad } from "./load-audit-page-data";
 import {
   AUDIT_PAGE_SIZE,
   type AuditFilterFields,
@@ -37,14 +38,14 @@ import {
 import { resolveAuditSearchPageForUi, shouldInjectAuditDemoOnSearchError } from "./resolve-audit-search-page-for-ui";
 
 /** Page controller: audit filters, search/export, and derived buyer display state. */
-export function useAuditPage(): AuditPageViewProps {
+export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProps {
   const { currentPrincipal } = useOperatorNavAuthority();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canMutateEnterpriseShell = useEnterpriseMutationCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [advancedAuditFiltersOpen, setAdvancedAuditFiltersOpen] = useState(!buyerPolishedShell);
   const [buyerPrimaryFiltersOpen, setBuyerPrimaryFiltersOpen] = useState(false);
-  const [eventTypes, setEventTypes] = useState<string[]>([]);
+  const [eventTypes, setEventTypes] = useState<string[]>(serverLoad.eventTypes);
   const [eventType, setEventType] = useState<string>("");
   const [fromUtc, setFromUtc] = useState<string>("");
   const [toUtc, setToUtc] = useState<string>("");
@@ -58,7 +59,7 @@ export function useAuditPage(): AuditPageViewProps {
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [hasMoreResults, setHasMoreResults] = useState(false);
   const [auditNextCursor, setAuditNextCursor] = useState<string | null>(null);
-  const [loadingTypes, setLoadingTypes] = useState(true);
+  const [loadingTypes, setLoadingTypes] = useState(serverLoad.typesLoadFailure !== null);
   const [searching, setSearching] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -81,8 +82,12 @@ export function useAuditPage(): AuditPageViewProps {
   }, []);
 
   useEffect(() => {
+    if (serverLoad.typesLoadFailure === null) {
+      return;
+    }
+
     void loadTypes();
-  }, [loadTypes]);
+  }, [loadTypes, serverLoad.typesLoadFailure]);
 
   useEffect(() => {
     if (!buyerPolishedShell || events.length === 0) {
