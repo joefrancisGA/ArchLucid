@@ -7,6 +7,7 @@ namespace ArchLucid.Api.Tests.Scim;
 
 /// <summary>RFC 7644 §4 discovery assertions beyond smoke coverage — patch/filter/authentication schemes.</summary>
 [Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class ScimServiceProviderConfigCapabilitiesIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     [SkippableFact]

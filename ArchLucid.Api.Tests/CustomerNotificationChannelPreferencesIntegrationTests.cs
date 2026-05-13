@@ -19,6 +19,7 @@ namespace ArchLucid.Api.Tests;
 ///     JWT + in-memory storage: <see cref="CustomerNotificationChannelPreferencesController" /> returns defaults when
 ///     no SQL row.
 /// </summary>
+[Trait("Category", "Integration")]
 public sealed class CustomerNotificationChannelPreferencesIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)

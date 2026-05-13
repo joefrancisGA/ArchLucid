@@ -8,6 +8,7 @@ namespace ArchLucid.Api.Tests;
 ///     Smoke coverage for the explainability evidence-chain route (404 on unknown run is stable contract surface).
 /// </summary>
 [Trait("Suite", "Integration")]
+[Trait("Category", "Integration")]
 public sealed class FindingEvidenceChainEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [SkippableFact]

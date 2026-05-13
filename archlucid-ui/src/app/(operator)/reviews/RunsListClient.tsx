@@ -236,7 +236,7 @@ export function RunsListClient({
       return true;
     });
 
-    return dedupeRunSummariesByRunId(filtered);
+    return dedupeRunSummariesByRunId(filtered.map(normalizeRunSummaryForDemoPicker));
   }, [runs]);
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
@@ -302,15 +302,12 @@ export function RunsListClient({
       });
     }
 
-    const sorted = [...list].sort((left, right) => {
+    return [...list].sort((left, right) => {
       const leftTime = new Date(left.createdUtc).getTime();
       const rightTime = new Date(right.createdUtc).getTime();
 
       return sortOrder === "createdDesc" ? rightTime - leftTime : leftTime - rightTime;
     });
-
-    // Collapse alias + canonical showcase rows (same visible review) so `data-testid` and React keys stay unique.
-    return dedupeRunSummariesByRunId(sorted.map(normalizeRunSummaryForDemoPicker));
   }, [safeRuns, filterText, sortOrder]);
 
   const workQueueSections = useMemo(

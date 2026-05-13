@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 
 import { RunsListClient } from "./RunsListClient";
 
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
 import type { RunSummary } from "@/types/authority";
 
 const sampleRun: RunSummary = {
@@ -17,6 +19,29 @@ const sampleRun: RunSummary = {
 };
 
 describe("RunsListClient inspector", () => {
+  it("collapses showcase alias + canonical rows into one table row (unique data-testid)", () => {
+    const aliasRun: RunSummary = {
+      runId: "claims-intake-modernization-run",
+      projectId: "default",
+      description: "Claims Intake Modernization",
+      createdUtc: "2026-01-10T14:15:22.000Z",
+      hasContextSnapshot: true,
+      hasGraphSnapshot: true,
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+    const canonicalRun: RunSummary = {
+      ...aliasRun,
+      runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+    };
+
+    render(
+      <RunsListClient runs={[aliasRun, canonicalRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+    );
+
+    expect(screen.getAllByTestId(`runs-row-${SHOWCASE_STATIC_DEMO_RUN_ID}`)).toHaveLength(1);
+  });
+
   it("pre-selects the first run so the inspector shows a preview on load", () => {
     render(
       <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,

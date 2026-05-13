@@ -8,6 +8,7 @@ namespace ArchLucid.Api.Tests.Scim;
 
 /// <summary>DELETE User triggers ArchLucid SCIM soft-deprovision semantics (inactive directory row).</summary>
 [Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class ScimUsersDeleteProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     [SkippableFact]

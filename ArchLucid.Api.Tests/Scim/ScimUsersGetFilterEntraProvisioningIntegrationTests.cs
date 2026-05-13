@@ -8,6 +8,7 @@ namespace ArchLucid.Api.Tests.Scim;
 
 /// <summary>GET Users with Entra-style <c>filter</c> literals (URL-encoded).</summary>
 [Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class ScimUsersGetFilterEntraProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     [SkippableFact]
