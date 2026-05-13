@@ -21,16 +21,22 @@ namespace ArchLucid.Api.Tests.Security;
 [Trait("Category", "Integration")]
 public sealed class TenantIsolationSmokeTests
 {
-    private static readonly TimeSpan WarmCreateRunRetryHeadroom = TimeSpan.FromMinutes(5);
+    /// <summary>
+    ///     Backoff between transient POST retries plus slack so the outer CTS does not cancel mid-third-attempt when two
+    ///     prior attempts each consumed a full <see cref="ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout" />.
+    /// </summary>
+    private static readonly TimeSpan WarmCreateRunRetryHeadroom = TimeSpan.FromMinutes(10);
 
     /// <summary>
-    ///     Outer wall clock for <see cref="PostArchitectureRequestWithTransientRetryAsync" />: two full create-run attempts
+    ///     Outer wall clock for <see cref="PostArchitectureRequestWithTransientRetryAsync" />: three full create-run attempts
     ///     (each may run up to <see cref="ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout" />)
-    ///     plus jitter/backoff. A single shared CTS for both “total retries” and “one POST” lets the first 65m attempt
-    ///     Starve all later attempts (matches ~70m CI failures).
+    ///     plus <see cref="WarmCreateRunRetryHeadroom" />. Cold greenfield CI can burn two consecutive HttpClient timeouts
+    ///     (idempotency wait + pipeline) before the third POST succeeds; a two-burst outer budget left only ~5m for that
+    ///     third attempt and reproduced ~70m "retry budget exceeded" failures.
     /// </summary>
     private static readonly TimeSpan PostArchitectureTransientRetryOuterBudget =
         ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout
+        + ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout
         + ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout
         + WarmCreateRunRetryHeadroom;
 

@@ -6,8 +6,8 @@
 #   Tier 1a — Named agent gates (branch protection): prompt-injection regression (Python + dotnet test);
 #             offline agent regression (eval corpus + prompt JSON baseline); parallel after gitleaks
 #   Tier 1.5 — DbUp migrations on empty catalog (Docker SQL) + greenfield SQL boot (API process + /health/ready); after Tier 1
-#   Tier 2 — .NET full regression + SQL (parallel shards: Category!=Slow split Api.Tests vs other test assemblies;
-#           Category=Slow split: Api.Tests vs AgentRuntime+Application+Decisioning; merged in `dotnet-coverage-merge`)
+#   Tier 2 — .NET full regression + SQL (parallel shards: Category!=Slow split Api.Tests (Integration vs non-Integration)
+#           vs other test assemblies; Category=Slow split: Api.Tests vs AgentRuntime+Application+Decisioning; merged in `dotnet-coverage-merge`)
 #   Tier 2b — Simmy chaos (after Tier 2; no SQL)
 #   Tier 2d — Optional live Azure OpenAI (`RealAzureOpenAIEndToEndTests`) after OpenAPI snapshot + merged coverage gates + chaos;
 #           — opt-in repo var `ARCHLUCID_CI_REAL_AOAI_ENABLED`; secrets `ARCHLUCID_CI_REAL_AOAI_ENDPOINT` / `ARCHLUCID_CI_REAL_AOAI_KEY` (same-repo PRs/push only).
@@ -1127,10 +1127,10 @@ jobs:
           path: ${{ runner.temp }}/greenfield-boot.log
           if-no-files-found: warn
 
-  # Non-slow full regression: split Api.Tests (WebApplicationFactory + HTTP-heavy) from other test assemblies so
-  # wall time stays under GitHub job limits; mirrors the Category=Slow Api vs domain split. Merged in dotnet-coverage-merge.
-  dotnet-full-regression-core-api:
-    name: ".NET: full regression — Api.Tests shard (SQL, Category!=Slow)"
+  # Non-slow full regression: Api.Tests further split by Category (Integration vs non-Integration) so neither job
+  # hogs the GitHub timeout; together they match the former single --filter "Category!=Slow" slice. Merged in dotnet-coverage-merge.
+  dotnet-full-regression-core-api-integration:
+    name: ".NET: full regression — Api.Tests integration (SQL, Category!=Slow&Category=Integration)"
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
@@ -1170,27 +1170,91 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      - name: Test — ArchLucid.Api.Tests (exclude Category=Slow)
+      - name: Test — ArchLucid.Api.Tests (Integration, exclude Category=Slow)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         run: >
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release --settings coverage.runsettings
-          --filter "Category!=Slow"
+          --filter "Category!=Slow&Category=Integration"
           --collect:"XPlat Code Coverage"
-          --results-directory "${{ runner.temp }}/coverage-full-core-api"
-          --logger "trx;LogFilePrefix=full-core-api-"
+          --results-directory "${{ runner.temp }}/coverage-full-core-api-integration"
+          --logger "trx;LogFilePrefix=full-core-api-integration-"
 
       - uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: dotnet-trx-full-core-api
-          path: ${{ runner.temp }}/coverage-full-core-api/**/*.trx
+          name: dotnet-trx-full-core-api-integration
+          path: ${{ runner.temp }}/coverage-full-core-api-integration/**/*.trx
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
         with:
-          name: coverage-full-regression-core-api
-          path: ${{ runner.temp }}/coverage-full-core-api/**/coverage.cobertura.xml
+          name: coverage-full-regression-core-api-integration
+          path: ${{ runner.temp }}/coverage-full-core-api-integration/**/coverage.cobertura.xml
+          if-no-files-found: warn
+
+  dotnet-full-regression-core-api-unit:
+    name: ".NET: full regression — Api.Tests non-integration (SQL, Category!=Slow&Category!=Integration)"
+    needs:
+      - dotnet-fast-core
+      - api-greenfield-boot
+      - sql-dbup-empty-catalog
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore ArchLucid.sln
+
+      - name: Build (Release)
+        run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: Test — ArchLucid.Api.Tests (non-Integration, exclude Category=Slow)
+        env:
+          ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+        run: >
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release --settings coverage.runsettings
+          --filter "Category!=Slow&Category!=Integration"
+          --collect:"XPlat Code Coverage"
+          --results-directory "${{ runner.temp }}/coverage-full-core-api-unit"
+          --logger "trx;LogFilePrefix=full-core-api-unit-"
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-trx-full-core-api-unit
+          path: ${{ runner.temp }}/coverage-full-core-api-unit/**/*.trx
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: coverage-full-regression-core-api-unit
+          path: ${{ runner.temp }}/coverage-full-core-api-unit/**/coverage.cobertura.xml
           if-no-files-found: warn
 
   dotnet-full-regression-core-libs:
@@ -1234,7 +1298,7 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      # Resolves test projects from ArchLucid.sln (excluding Api.Tests → dotnet-full-regression-core-api).
+      # Resolves test projects from ArchLucid.sln (excluding Api.Tests → dotnet-full-regression-core-api-* shards).
       - name: Test — non-Api test assemblies (exclude Category=Slow)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
@@ -1272,7 +1336,8 @@ jobs:
   dotnet-full-regression-core-complete:
     name: ".NET: full regression — core shards complete (non-slow)"
     needs:
-      - dotnet-full-regression-core-api
+      - dotnet-full-regression-core-api-integration
+      - dotnet-full-regression-core-api-unit
       - dotnet-full-regression-core-libs
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -1435,7 +1500,8 @@ jobs:
   dotnet-coverage-merge:
     name: ".NET: merge coverage + gates"
     needs:
-      - dotnet-full-regression-core-api
+      - dotnet-full-regression-core-api-integration
+      - dotnet-full-regression-core-api-unit
       - dotnet-full-regression-core-libs
       - dotnet-full-regression-slow-api
       - dotnet-full-regression-slow-domain
@@ -1457,8 +1523,13 @@ jobs:
 
       - uses: actions/download-artifact@v6
         with:
-          name: coverage-full-regression-core-api
-          path: merge-cov/core-api
+          name: coverage-full-regression-core-api-integration
+          path: merge-cov/core-api-integration
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: coverage-full-regression-core-api-unit
+          path: merge-cov/core-api-unit
 
       - uses: actions/download-artifact@v6
         with:
