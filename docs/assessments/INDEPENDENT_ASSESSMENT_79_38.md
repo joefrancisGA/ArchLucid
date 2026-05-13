@@ -1,3 +1,5 @@
+> **Scope:** For leadership and technical evaluators: independent weighted readiness narrative (79.38%) with themes and prioritized gaps; not the canonical assessment index (LATEST), a build runbook, or live telemetry.
+
 # ArchLucid Assessment – Weighted Readiness 79.38%
 
 ## Executive Summary
