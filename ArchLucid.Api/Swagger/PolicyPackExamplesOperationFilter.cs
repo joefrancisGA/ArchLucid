@@ -54,10 +54,9 @@ public sealed class PolicyPackExamplesOperationFilter : IOperationFilter
             return;
 
         string block = "\n\n### Example request body (JSON)\n\n```json\n" + example.Trim() + "\n```\n";
-        string intro =
-            "**Policy pack content** (`initialContentJson` / `contentJson`) is JSON matching `PolicyPackContentDocument`: "
-            + "`complianceRuleIds`, `complianceRuleKeys`, `alertRuleIds`, `compositeAlertRuleIds`, `advisoryDefaults`, `metadata`. "
-            + "See `docs/API_CONTRACTS.md` § Policy packs.\n\n";
+        const string intro = "**Policy pack content** (`initialContentJson` / `contentJson`) is JSON matching `PolicyPackContentDocument`: "
+                             + "`complianceRuleIds`, `complianceRuleKeys`, `alertRuleIds`, `compositeAlertRuleIds`, `advisoryDefaults`, `metadata`. "
+                             + "See `docs/API_CONTRACTS.md` § Policy packs.\n\n";
 
         operation.Description = string.IsNullOrWhiteSpace(operation.Description)
             ? intro + block

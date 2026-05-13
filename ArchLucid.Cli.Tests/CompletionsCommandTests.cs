@@ -34,6 +34,7 @@ public sealed class CompletionsCommandTests
             text.Should().Contain("marketplace");
             text.Should().Contain("manifest");
             text.Should().Contain("golden-cohort");
+            text.Should().Contain("init");
             text.Should().Contain("procurement-pack");
             text.Should().Contain("reference-evidence");
             text.Should().Contain("proof-pack");

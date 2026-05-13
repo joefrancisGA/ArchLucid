@@ -253,6 +253,45 @@ public sealed class CommandLineTests
         }
     }
 
+    [Fact]
+    public async Task Init_with_global_json_flag_returns_usage_error()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["--json", "init"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            string combined = outWriter + errWriter.ToString();
+            combined.Should().Contain("--json");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task Init_with_unknown_flag_prints_usage()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["init", "--not-a-flag"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            string combined = outWriter + errWriter.ToString();
+            combined.Should().Contain("Usage");
+            combined.Should().Contain("init");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
     private static void RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
         out TextWriter prevErr)
     {

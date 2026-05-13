@@ -48,6 +48,7 @@ public static class CompletionsCommand
         "manifest",
         "marketplace",
         "golden-cohort",
+        "init",
         "procurement-pack",
         "deployment-evidence",
         "doctor",
