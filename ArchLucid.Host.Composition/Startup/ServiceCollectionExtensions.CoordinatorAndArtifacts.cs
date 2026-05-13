@@ -24,8 +24,14 @@ using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Reads;
+using ArchLucid.Persistence.Repositories;
+
+using Microsoft.Extensions.DependencyInjection;
+
+using ArchLucid.Host.Core.Hosted;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -56,6 +62,9 @@ public static partial class ServiceCollectionExtensions
         // Binds AgentExecution:LlmCostEstimation; option type defaults keep cost visibility on when the section is absent.
         services.Configure<LlmCostEstimationOptions>(
             configuration.GetSection(LlmCostEstimationOptions.SectionPath));
+
+        ArchLucidOptions coordinatorStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+        RegisterLlmCostEstimationUsdRateOverride(services, coordinatorStorage);
         services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
         services.AddSingleton<IDeterministicExplanationService, DeterministicExplanationService>();
         services.AddScoped<IExplanationService, ExplanationService>();
@@ -65,8 +74,6 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentEvaluationService, FindingsBackedAgentEvaluationService>();
         services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
-
-        ArchLucidOptions coordinatorStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         // ADR 0030 PR A3 (2026-04-24): ICoordinatorGoldenManifestRepository and ICoordinatorDecisionTraceRepository
         // were deleted along with their concretes (InMemoryCoordinator*, GoldenManifestRepository, DecisionTraceRepository).
@@ -126,6 +133,22 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<IHotPathReadCache>(),
             sp.GetRequiredService<IAuthorityQueryService>(),
             sp.GetRequiredService<ILogger<CachingRunExplanationSummaryService>>()));
+    }
+
+    private static void RegisterLlmCostEstimationUsdRateOverride(IServiceCollection services, ArchLucidOptions coordinatorStorage)
+    {
+        if (ArchLucidOptions.EffectiveIsInMemory(coordinatorStorage.StorageProvider))
+        {
+            services.AddSingleton<ILlmCostEstimationUsdRateOverride>(NoOpLlmCostEstimationUsdRateOverride.Instance);
+
+            return;
+        }
+
+        services.AddSingleton<LlmCostEstimationUsdRateOverrideCache>();
+        services.AddSingleton<ILlmCostEstimationUsdRateOverride>(static sp =>
+            sp.GetRequiredService<LlmCostEstimationUsdRateOverrideCache>());
+        services.AddSingleton<ILlmCostEstimationUsdRateOverrideRepository, SqlLlmCostEstimationUsdRateOverrideRepository>();
+        services.AddHostedService<LlmCostEstimationUsdRateOverrideWarmupHostedService>();
     }
 
     private static void RegisterArtifactSynthesis(IServiceCollection services)

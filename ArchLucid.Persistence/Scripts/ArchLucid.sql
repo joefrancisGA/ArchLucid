@@ -6333,6 +6333,24 @@ BEGIN
 END;
 GO
 
+/* 162: Host LLM cost USD/M overrides (see Migrations/162_HostLlmCostEstimationUsdRates.sql). */
+IF OBJECT_ID(N'dbo.HostLlmCostEstimationUsdRates', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.HostLlmCostEstimationUsdRates
+    (
+        SingletonKey              NCHAR(1)      NOT NULL,
+        InputUsdPerMillionTokens  DECIMAL(18, 8) NOT NULL,
+        OutputUsdPerMillionTokens DECIMAL(18, 8) NOT NULL,
+        UpdatedUtc                DATETIME2(7)  NOT NULL,
+        UpdatedBy                 NVARCHAR(256) NOT NULL,
+        CONSTRAINT PK_HostLlmCostEstimationUsdRates PRIMARY KEY (SingletonKey),
+        CONSTRAINT CK_HostLlmCostEstimationUsdRates_Singleton CHECK (SingletonKey = N'G'),
+        CONSTRAINT CK_HostLlmCostEstimationUsdRates_InputPositive CHECK (InputUsdPerMillionTokens > 0),
+        CONSTRAINT CK_HostLlmCostEstimationUsdRates_OutputPositive CHECK (OutputUsdPerMillionTokens > 0)
+    );
+END;
+GO
+
 /* 161: Hard-delete stale non-committed authority runs (see Migrations/161_Archival_PurgeStaleUncommittedRunsBatch.sql). */
 
 SET NOCOUNT ON;

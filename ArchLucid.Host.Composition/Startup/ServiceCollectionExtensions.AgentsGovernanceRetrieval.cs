@@ -9,6 +9,7 @@ using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Governance;
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -444,6 +445,7 @@ public static partial class ServiceCollectionExtensions
 
         services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<ILlmCompletionProvider>());
         services.AddScoped<IQuickScanService, QuickScanService>();
+        services.AddScoped<IRegisteredAgentHandlersInspector, RegisteredAgentHandlersInspector>();
     }
 
     private static void ConfigureLlmTelemetryLabels(

@@ -414,6 +414,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         services.AddSingleton(blobStore ?? new InMemoryArtifactBlobStore());
         services.AddSingleton(cost);
         services.AddSingleton(Options.Create(new AgentExecutionTraceStorageOptions()));
+        services.AddSingleton<ILlmCostEstimationUsdRateOverride>(NoOpLlmCostEstimationUsdRateOverride.Instance);
         services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
         services.AddSingleton<IAuditService>(_ => auditService ?? new NoOpAuditService());
         services.AddSingleton<IScopeContextProvider, FixedScopeProvider>();

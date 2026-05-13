@@ -481,6 +481,9 @@ public static class AuditEventTypes
     /// </summary>
     public const string LlmTenantMonthlyDollarBudgetApproaching = "LlmTenantMonthlyDollarBudgetApproaching";
 
+    /// <summary>Admin updated persisted LLM USD-per-token rates used for cost estimation (input/output).</summary>
+    public const string LlmCostTuningUpdated = "LlmCostTuningUpdated";
+
     public const string ScimTokenIssued = "ScimTokenIssued";
 
     public const string ScimTokenRevoked = "ScimTokenRevoked";
