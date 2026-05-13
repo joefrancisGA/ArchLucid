@@ -7,12 +7,15 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
+
+using Microsoft.Extensions.Configuration;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +42,9 @@ public sealed class ArtifactExportController(
     IAuthorityQueryService authorityQueryService,
     IArtifactPackagingService artifactPackagingService,
     IScopeContextProvider scopeProvider,
-    IAuditService auditService)
+    IAuditService auditService,
+    IDiagramImageRenderer diagramImageRenderer,
+    IConfiguration configuration)
     : ControllerBase
 {
     private static readonly JsonSerializerOptions ExportJsonOptions = new()
@@ -277,6 +282,16 @@ public sealed class ArtifactExportController(
             ? null
             : JsonSerializer.Serialize(runDetail.AuthorityTrace, ExportJsonOptions);
 
+        byte[]? renderedPng = null;
+
+        if (configuration.GetValue("ArchLucid:MermaidCli:Enabled", false))
+        {
+            string? mermaid = MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifacts);
+
+            if (!string.IsNullOrWhiteSpace(mermaid))
+                renderedPng = await diagramImageRenderer.RenderMermaidPngAsync(mermaid, ct);
+        }
+
         ManifestDocument golden = runDetail.GoldenManifest;
         string ruleSetLine = $"{golden.RuleSetId} {golden.RuleSetVersion}".Trim();
         RunExportReadmeContext readmeContext = new()
@@ -293,7 +308,8 @@ public sealed class ArtifactExportController(
             artifacts,
             manifestJson,
             traceJson,
-            readmeContext);
+            readmeContext,
+            renderedArchitectureDiagramPng: renderedPng);
 
         await auditService.LogAsync(
             new AuditEvent
