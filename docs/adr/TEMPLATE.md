@@ -4,7 +4,7 @@
 
 # ADR authoring template
 
-**How to use:** Copy this skeleton into **`docs/adr/NNNN-short-slug-kebab-case.md`** where **`NNNN`** is the next free integer listed in [`README.md`](README.md). Replace every `⌈placeholder⌋`. Remove sections you do not need; keep **Status**, **Date**, **Context**, **Decision**, **Consequences** at minimum.
+**How to use:** Copy this skeleton into **`docs/adr/NNNN-short-slug-kebab-case.md`** where **`NNNN`** is the next free integer listed in [`README.md`](README.md). Replace every `⌈placeholder⌋`. Remove sections you do not need; keep **Status**, **Date**, **Context**, **Decision**, **Trade-offs**, **Constraints**, **Expected impact**, **Consequences** at minimum.
 
 Immutability rule: once an ADR file is merged as **Accepted**, do not rewrite history—**supersede** with another ADR instead.
 
@@ -33,6 +33,18 @@ Structured architecture outputs (`Objective`, `Assumptions`, `Constraints`, `Arc
 ## Decision
 
 ⌈Single clear statement—what we will do⌉.
+
+## Trade-offs
+
+⌈Explicitly list the trade-offs being made with this decision⌉.
+
+## Constraints
+
+⌈Explicitly list the constraints surrounding this decision⌉.
+
+## Expected impact
+
+⌈Explicitly state the expected impact of this decision on the system, team, or product⌉.
 
 ## Consequences
 

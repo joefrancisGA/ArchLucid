@@ -104,6 +104,14 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine();
 
+        sb.AppendLine("## Objective");
+        sb.AppendLine("Not specified.");
+        sb.AppendLine();
+
+        sb.AppendLine("## Assumptions");
+        sb.AppendLine("Not specified.");
+        sb.AppendLine();
+
         sb.AppendLine("## Constraints");
         foreach (string item in manifest.Constraints.MandatoryConstraints)
 
@@ -117,6 +125,26 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
             sb.AppendLine("No constraints were recorded.");
 
+        sb.AppendLine();
+
+        sb.AppendLine("## Architecture Overview");
+        sb.AppendLine("Not specified.");
+        sb.AppendLine();
+
+        sb.AppendLine("## Component Breakdown");
+        sb.AppendLine("Not specified.");
+        sb.AppendLine();
+
+        sb.AppendLine("## Data Flow");
+        sb.AppendLine("Not specified.");
+        sb.AppendLine();
+
+        sb.AppendLine("## Security Model");
+        sb.AppendLine("Not specified.");
+        sb.AppendLine();
+
+        sb.AppendLine("## Operational Considerations");
+        sb.AppendLine("Not specified.");
         sb.AppendLine();
 
         sb.AppendLine("## Unresolved Issues");

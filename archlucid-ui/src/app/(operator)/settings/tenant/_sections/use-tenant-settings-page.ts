@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { getExecDigestPreferences, saveExecDigestPreferences } from "@/lib/api";
@@ -14,6 +13,7 @@ import { showError, showSuccess } from "@/lib/toast";
 import type { ExecDigestPreferencesResponse, ExecDigestPreferencesUpsertRequest } from "@/types/exec-digest-preferences";
 
 import type { TenantSettingsPageViewModel } from "./tenant-settings-page-view-model";
+import type { TenantTrialStatusPayload } from "./tenant-settings-types";
 
 export function useTenantSettingsPage(): TenantSettingsPageViewModel {
   const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();

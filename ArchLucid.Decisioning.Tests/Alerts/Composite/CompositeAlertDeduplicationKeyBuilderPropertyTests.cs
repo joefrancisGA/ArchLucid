@@ -14,8 +14,6 @@ public sealed class CompositeAlertDeduplicationKeyBuilderPropertyTests
     [Property(MaxTest = 120)]
     public void Build_is_deterministic_and_includes_rule_id_for_all_scopes(Guid ruleGuid, Guid? runId, Guid? comparedToRunId)
     {
-        Guid ruleId = ruleGuid;
-
         foreach (string dedupeScope in new[]
                  {
                      CompositeDedupeScope.RuleOnly,
@@ -25,7 +23,7 @@ public sealed class CompositeAlertDeduplicationKeyBuilderPropertyTests
         {
             CompositeAlertRule rule = new()
             {
-                CompositeRuleId = ruleId,
+                CompositeRuleId = ruleGuid,
                 DedupeScope = dedupeScope
             };
             AlertEvaluationContext context = new()
@@ -38,7 +36,7 @@ public sealed class CompositeAlertDeduplicationKeyBuilderPropertyTests
             string second = CompositeAlertDeduplicationKeyBuilder.Build(rule, context);
 
             first.Should().Be(second);
-            first.Should().Contain(ruleId.ToString());
+            first.Should().Contain(ruleGuid.ToString());
         }
     }
 
