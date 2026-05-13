@@ -43,9 +43,10 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
         ConfluencePublishingOptions o = _options.CurrentValue;
         if (!o.Enabled)
             return new PublishOutcome(false, null, ConfluencePublishFailureReason.BadResponse, "Confluence publishing is disabled in configuration.");
-        string spaceKey = o.SpaceKey.Trim();
+        string spaceKey = ConfluencePublishingSpaceKeyResolver.Resolve(o, request.ProjectId).Trim();
         if (spaceKey.Length is 0)
-            return new PublishOutcome(false, null, ConfluencePublishFailureReason.BadResponse, "Confluence SpaceKey is not configured.");
+            return new PublishOutcome(false, null, ConfluencePublishFailureReason.BadResponse,
+                "Confluence space key is not configured for this project (Integrations:ConfluencePublishing:SpaceKey or ProjectSpaceKeys).");
         string html = BuildStorageHtml(request.PayloadJson);
         object body = new
         {

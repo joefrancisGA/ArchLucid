@@ -30,4 +30,13 @@ public static class ArchitectureRunIdempotencyHashing
         string json = JsonSerializer.Serialize(request, ContractJson.Default);
         return SHA256.HashData(Encoding.UTF8.GetBytes(json));
     }
+
+    /// <summary>Stable SHA-256 over canonical <see cref="CommitRunRequest" /> JSON (same options as create-run fingerprints).</summary>
+    public static byte[] FingerprintCommitRequest(CommitRunRequest? request)
+    {
+        CommitRunRequest body = request ?? new CommitRunRequest();
+        string json = JsonSerializer.Serialize(body, ContractJson.Default);
+
+        return SHA256.HashData(Encoding.UTF8.GetBytes(json));
+    }
 }

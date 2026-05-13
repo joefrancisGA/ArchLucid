@@ -15,6 +15,9 @@ public static class ArchLucidPolicies
     /// <summary>Required for host administration and policy-pack lifecycle (see RBAC table in docs/SECURITY.md).</summary>
     public const string AdminAuthority = "AdminAuthority";
 
+    /// <summary>Policy-pack CRUD / publish / assign for tenant/workspace admins or <c>ProjectAdmin</c> overlays.</summary>
+    public const string PolicyPackMutationAuthority = "PolicyPackMutationAuthority";
+
     /// <summary>Same policy as <see cref="ReadAuthority" /> (alias for RBAC documentation).</summary>
     public const string RequireReadOnly = ReadAuthority;
 

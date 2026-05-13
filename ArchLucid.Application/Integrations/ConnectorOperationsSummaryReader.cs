@@ -237,7 +237,10 @@ public sealed class ConnectorOperationsSummaryReader(
 
         string url = _confluence.CloudBaseUrl.Trim();
         bool urlOk = TryValidateHttpsUrl(url);
-        bool spaceOk = !string.IsNullOrWhiteSpace(_confluence.SpaceKey.Trim());
+        bool spaceOk = !string.IsNullOrWhiteSpace(_confluence.SpaceKey.Trim()) ||
+                       (_confluence.ProjectSpaceKeys is not null &&
+                        _confluence.ProjectSpaceKeys.Keys.Any(k => !string.IsNullOrWhiteSpace(k)) &&
+                        _confluence.ProjectSpaceKeys.Values.Any(v => !string.IsNullOrWhiteSpace(v)));
         bool tokenOk = !string.IsNullOrWhiteSpace(_confluence.ApiToken.Trim());
         bool emailOk = !string.IsNullOrWhiteSpace(_confluence.ServiceAccountEmail.Trim());
 
@@ -245,7 +248,7 @@ public sealed class ConnectorOperationsSummaryReader(
             return (false, "Set Integrations:ConfluencePublishing:CloudBaseUrl to a valid https:// Atlassian URL.");
 
         if (!spaceOk)
-            return (false, "Set Integrations:ConfluencePublishing:SpaceKey for the target space.");
+            return (false, "Set Integrations:ConfluencePublishing:SpaceKey (default) or ProjectSpaceKeys for per-project routing.");
 
         if (!emailOk || !tokenOk)
             return (false, "Confluence requires service account email and API token fields.");

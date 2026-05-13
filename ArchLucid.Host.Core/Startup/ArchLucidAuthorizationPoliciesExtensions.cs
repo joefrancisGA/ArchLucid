@@ -22,30 +22,24 @@ public static class ArchLucidAuthorizationPoliciesExtensions
             .AddPolicy(ArchLucidPolicies.ReadAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
-                policy.RequireRole(
-                    ArchLucidRoles.Reader,
-                    ArchLucidRoles.Operator,
-                    ArchLucidRoles.Architect,
-                    ArchLucidRoles.Reviewer,
-                    ArchLucidRoles.WorkspaceAdmin,
-                    ArchLucidRoles.Admin,
-                    ArchLucidRoles.Auditor);
+                policy.Requirements.Add(new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.Read));
             })
             .AddPolicy(ArchLucidPolicies.ExecuteAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
-                policy.RequireRole(
-                    ArchLucidRoles.Operator,
-                    ArchLucidRoles.Architect,
-                    ArchLucidRoles.Reviewer,
-                    ArchLucidRoles.WorkspaceAdmin,
-                    ArchLucidRoles.Admin);
+                policy.Requirements.Add(new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.Execute));
                 policy.Requirements.Add(new TrialActiveRequirement());
             })
             .AddPolicy(ArchLucidPolicies.AdminAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
-                policy.RequireRole(ArchLucidRoles.Admin, ArchLucidRoles.WorkspaceAdmin);
+                policy.Requirements.Add(new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.TenantAdminOnly));
+                policy.Requirements.Add(new TrialActiveRequirement());
+            })
+            .AddPolicy(ArchLucidPolicies.PolicyPackMutationAuthority, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.Requirements.Add(new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.PolicyPackMutation));
                 policy.Requirements.Add(new TrialActiveRequirement());
             })
             .AddPolicy(ArchLucidPolicies.RequireAuditor, policy =>
@@ -57,7 +51,10 @@ public static class ArchLucidAuthorizationPoliciesExtensions
                     ArchLucidRoles.WorkspaceAdmin);
             })
             .AddPolicy(ArchLucidPolicies.CanCommitRuns, policy =>
-                policy.RequireClaim("permission", "commit:run"))
+            {
+                policy.RequireAuthenticatedUser();
+                policy.Requirements.Add(new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.CommitRun));
+            })
             .AddPolicy("CanSeedResults", policy =>
                 policy.RequireClaim("permission", "seed:results"))
             .AddPolicy(ArchLucidPolicies.CanExportConsultingDocx, policy =>
@@ -69,12 +66,7 @@ public static class ArchLucidAuthorizationPoliciesExtensions
             .AddPolicy(ArchLucidPolicies.RequireOperatorRole, policy =>
             {
                 policy.RequireAuthenticatedUser();
-                policy.RequireRole(
-                    ArchLucidRoles.Admin,
-                    ArchLucidRoles.WorkspaceAdmin,
-                    ArchLucidRoles.Operator,
-                    ArchLucidRoles.Architect,
-                    ArchLucidRoles.Reviewer);
+                policy.Requirements.Add(new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.Execute));
                 policy.Requirements.Add(new TrialActiveRequirement());
             })
             .AddPolicy(ArchLucidPolicies.ScimWrite, policy =>
@@ -85,11 +77,8 @@ public static class ArchLucidAuthorizationPoliciesExtensions
             .AddPolicy(ArchLucidPolicies.ArchitectureDefinitionImport, policy =>
             {
                 policy.RequireAuthenticatedUser();
-                policy.RequireRole(
-                    ArchLucidRoles.Operator,
-                    ArchLucidRoles.Architect,
-                    ArchLucidRoles.WorkspaceAdmin,
-                    ArchLucidRoles.Admin);
+                policy.Requirements.Add(
+                    new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.ArchitectureDefinitionImport));
                 policy.Requirements.Add(new TrialActiveRequirement());
             });
 

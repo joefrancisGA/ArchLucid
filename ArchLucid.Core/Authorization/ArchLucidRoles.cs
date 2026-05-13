@@ -20,6 +20,12 @@ public static class ArchLucidRoles
     /// <summary>Same HTTP capabilities as <see cref="Operator" />; IdP uses this label for architect personas (typically with <c>commit:run</c>).</summary>
     public const string Architect = "Architect";
 
+    /// <summary>
+    ///     Project-scoped admin overlay stored in <c>dbo.ProjectRoleAssignments</c> (not emitted by typical IdP JWT
+    ///     role claims unless explicitly modeled).
+    /// </summary>
+    public const string ProjectAdmin = "ProjectAdmin";
+
     /// <summary>Operator-equivalent role without <c>commit:run</c> in <see cref="ArchLucid.Api.Auth.Services.ArchLucidRoleClaimsTransformation" />.</summary>
     public const string Reviewer = "Reviewer";
 

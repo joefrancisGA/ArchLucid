@@ -83,7 +83,8 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
         IReadOnlyList<SynthesizedArtifact> artifacts,
         string manifestJson,
         string? traceJson = null,
-        RunExportReadmeContext? readmeContext = null)
+        RunExportReadmeContext? readmeContext = null,
+        byte[]? renderedArchitectureDiagramPng = null)
     {
         ArgumentNullException.ThrowIfNull(artifacts);
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestJson);
@@ -100,6 +101,13 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
                     RunExportReservedEntryNames);
                 string relative = $"artifacts/{AllocateUniqueEntryName(safeName, usedEntryNames)}";
                 WriteTextEntry(archive, relative, artifact.Content);
+            }
+
+            if (renderedArchitectureDiagramPng is { Length: > 0 })
+            {
+                ZipArchiveEntry pngEntry = archive.CreateEntry("artifacts/architecture-graph.png", CompressionLevel.Fastest);
+                using (Stream pngStream = pngEntry.Open())
+                    pngStream.Write(renderedArchitectureDiagramPng, 0, renderedArchitectureDiagramPng.Length);
             }
 
             WriteTextEntry(archive, "manifest.json", manifestJson);
@@ -143,11 +151,12 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             readme.AppendLine($"Artifact file count: {artifacts.Count}");
             readme.AppendLine();
             readme.AppendLine("Contents:");
-            readme.AppendLine("  manifest.json          — committed GoldenManifest (JSON)");
-            readme.AppendLine("  decision-trace.json    — authority decision trace when the API included one");
-            readme.AppendLine("  artifacts/             — synthesized artifact files (UTF-8 text)");
-            readme.AppendLine("  package-metadata.json  — export metadata (UTC timestamp, ids, counts)");
-            readme.AppendLine("  README.txt             — this file");
+            readme.AppendLine("  manifest.json             — committed GoldenManifest (JSON)");
+            readme.AppendLine("  decision-trace.json       — authority decision trace when the API included one");
+            readme.AppendLine("  artifacts/                — synthesized artifact files (UTF-8 text)");
+            readme.AppendLine("  artifacts/architecture-graph.png — optional raster of the bundled Mermaid diagram when Mermaid CLI is enabled");
+            readme.AppendLine("  package-metadata.json     — export metadata (UTC timestamp, ids, counts)");
+            readme.AppendLine("  README.txt                — this file");
             readme.AppendLine();
             readme.AppendLine(
                 "Regenerate Word packages or consulting reports from the API or operator shell when needed.");

@@ -463,6 +463,9 @@ public static class AuditEventTypes
     /// <summary>Tenant weekly executive digest preferences updated (<c>POST /v1/tenant/exec-digest-preferences</c>).</summary>
     public const string ExecDigestPreferencesUpdated = "ExecDigestPreferencesUpdated";
 
+    /// <summary>Azure AI Content Safety circuit is open/unhealthy; analyzer fell back to local deny-list redaction.</summary>
+    public const string ContentSafetyCircuitDegradedFallback = "ContentSafetyCircuitDegradedFallback";
+
     /// <summary>
     ///     Tenant crossed the configured warn threshold for the UTC-day combined LLM token budget (emitted at most once
     ///     per tenant per UTC day).
