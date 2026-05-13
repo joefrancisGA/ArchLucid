@@ -265,9 +265,21 @@ Constraints: Maintain the V1 MVP basic auth model. Do not introduce OAuth 2.0 ye
 Impact: Directly improves Interoperability (+5-7 pts) and Workflow Embeddedness (+3-5 pts). Weighted readiness impact: +0.2-0.4%.
 ```
 
-### 4. DEFERRED Terraform Pull Request Generation
-- **Reason deferred:** Requires alignment on the target SCM (GitHub vs Azure DevOps) and branching strategies.
-- **Required input:** Please specify which Source Control provider we should build the PR integration for first, and the naming convention for the generated branches.
+### 4. Terraform Pull Request Generation
+- **Why it matters:** Manual Terraform application disrupts modern GitOps pipelines and prevents continuous deployment.
+- **Expected impact:** High adoption in GitOps environments.
+- **Affected qualities:** Workflow Embeddedness, Interoperability.
+- **Actionable now:** Yes.
+```text
+Enhance the Terraform export feature to automatically create a Pull Request against a GitHub repository.
+Files to modify: The Terraform export service and GitHub integration services.
+Acceptance criteria:
+- Integrate with the GitHub API using an OAuth app or PAT.
+- Create a new branch named `archlucid/terraform-update-{runId}` (or similar sensible convention).
+- Commit the generated Terraform files to this branch and open a Pull Request against the repository's default branch.
+Constraints: Ensure the PR body clearly states this is an advisory export. Ensure credentials are not logged.
+Impact: Directly improves Workflow Embeddedness (+8-10 pts) and Interoperability (+3-5 pts). Weighted readiness impact: +0.4-0.6%.
+```
 
 ### 5. Content Safety Circuit Breaker Fallback
 - **Why it matters:** `FailClosedOnSdkError` halts the entire product if Azure Content Safety is down.
@@ -284,9 +296,11 @@ Constraints: Do not change the `BlockSeverityThreshold` logic. Ensure the fallba
 Impact: Directly improves AI/Agent Readiness (+5-8 pts). Weighted readiness impact: +0.4-0.6%.
 ```
 
-### 6. DEFERRED Move Orchestration to Durable Task Framework
-- **Reason deferred:** Major architectural shift requiring validation of DTF as a new dependency.
-- **Required input:** Confirm if Azure Durable Task Framework is acceptable as a core dependency and provide guidance on how to migrate active inflight runs.
+### 6. V2 DEFERRED: Move Orchestration to Durable Task Framework
+- **Why it matters:** As agent pipelines grow in complexity (e.g., fan-out/fan-in, human-in-the-loop, compensation), a custom orchestrator becomes a liability.
+- **Expected impact:** Transparent checkpointing, safe crash recovery, and offloading of bursty workloads to Container Apps Jobs.
+- **Affected qualities:** Correctness, Reliability, Performance.
+- **Actionable now:** No. This is explicitly deferred to V2 because the current custom state machine is intentional and well-tested. Replacing it would incur a massive refactoring and testing tax that is not justified by current V1 pipeline complexity.
 
 ### 7. LLM Cost Estimation Reconciliation API
 - **Why it matters:** Static token costs drift rapidly, breaking the Proof-of-ROI models.
@@ -367,9 +381,21 @@ Constraints: Require `ReadAuthority`. Ensure RLS prevents cross-tenant run loadi
 Impact: Directly improves Observability (+5-7 pts) and Usability (+3-5 pts). Weighted readiness impact: +0.1-0.3%.
 ```
 
-### 13. DEFERRED Governance Pre-Commit Bypass
-- **Reason deferred:** Needs InfoSec requirements on authorization (e.g., dual-auth).
-- **Required input:** How should the break-glass action be authorized? Does it require a second approver, or just an explicit justification string?
+### 13. Governance Pre-Commit Bypass
+- **Why it matters:** Missing break-glass governance bypass will cause production-blocker escalations.
+- **Expected impact:** Enables emergency interventions without full policy rewrites.
+- **Affected qualities:** Usability, Customer Self-Sufficiency.
+- **Actionable now:** Yes.
+```text
+Implement a break-glass bypass mechanism for the Governance Pre-Commit gate.
+Files to modify: The Governance gate evaluator and the architecture run commit controller.
+Acceptance criteria:
+- Allow the commit request to accept a `bypassJustification` string.
+- If the justification is provided and the user has `ExecuteAuthority`, bypass the critical finding block.
+- Log a high-severity `GovernanceBypassInvoked` audit event containing the justification.
+Constraints: A second approver is not required. Must clearly log the exact findings that were bypassed.
+Impact: Directly improves Usability (+4-6 pts) and Customer Self-Sufficiency (+2-4 pts). Weighted readiness impact: +0.2-0.4%.
+```
 
 ### 14. Orphan Probe Auto-Remediation
 - **Why it matters:** Reduces operator toil for trivial data inconsistencies.
@@ -416,9 +442,21 @@ Constraints: Ensure HTML sanitization on the inputs to prevent XSS in the PDF re
 Impact: Directly improves Proof-of-ROI Readiness (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 17. DEFERRED IdP Claim Mapping UI Diagnostics
-- **Reason deferred:** Needs UX design on securely storing failed JWT claims without logging PII.
-- **Required input:** What specific JWT claims are safe to store in the diagnostics table, and who should have access to this view?
+### 17. IdP Claim Mapping UI Diagnostics
+- **Why it matters:** Inability to easily trace IdP JWT mapping issues leads to failed SSO onboarding.
+- **Expected impact:** Reduces support tickets for enterprise integrations.
+- **Affected qualities:** Usability, Interoperability.
+- **Actionable now:** Yes.
+```text
+Add an admin diagnostic endpoint for troubleshooting failed JWT claim mappings during authentication.
+Files to modify: Authentication middleware and the Admin diagnostics controller.
+Acceptance criteria:
+- Capture failed JWT mapping attempts (e.g., missing role claims) into an in-memory ring buffer or temporary diagnostics table.
+- Filter out sensitive claims (like raw tokens or passwords) and retain only standard attributes (e.g., issuer, audience, missing claim names).
+- Expose this data via a `GET /v1/admin/auth-diagnostics` endpoint.
+Constraints: Must be gated by `AdminAuthority`. Ensure no PII or raw token signatures are persisted to durable storage.
+Impact: Directly improves Usability (+5-8 pts) and Interoperability (+2-4 pts). Weighted readiness impact: +0.2-0.3%.
+```
 
 ### 18. Trial Expiry Webhook/Email Warning
 - **Why it matters:** A hard 402 block is a terrible UX for a champion in the middle of a trial.
@@ -450,9 +488,21 @@ Constraints: Must run asynchronously and not block the API response. Log success
 Impact: Directly improves Interoperability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 20. DEFERRED API Key Rotation Enforcement
-- **Reason deferred:** Requires UX for notification strategy before forced expiry.
-- **Required input:** Should we enforce a 90-day hard expiry, and do we need a dedicated UI panel for generating secondary rolling keys?
+### 20. API Key Rotation Enforcement
+- **Why it matters:** Missing API key rotation enforcement violates many InfoSec policies.
+- **Expected impact:** Satisfies strict enterprise security audits.
+- **Affected qualities:** Security, Compliance Readiness.
+- **Actionable now:** Yes.
+```text
+Implement support for secondary rolling API keys in the admin panel and configuration.
+Files to modify: API Key authentication handler and the Admin configuration controller.
+Acceptance criteria:
+- Update the API key auth handler to support a list of valid keys per role (primary and secondary), rather than a single string.
+- Provide a dedicated UI panel (or API endpoints) for admins to generate a secondary key without invalidating the primary.
+- Add an `ExpiresAt` field to keys and reject expired keys during auth.
+Constraints: Ensure new keys are securely generated and only displayed once.
+Impact: Directly improves Security (+5-8 pts) and Compliance Readiness (+3-5 pts). Weighted readiness impact: +0.3-0.5%.
+```
 
 ### 21. Evidence Bundle Document Deduplication
 - **Why it matters:** Uploading the same architecture documents repeatedly inflates costs.
@@ -499,9 +549,21 @@ Constraints: Require `ReadAuthority`. Ensure it uses the existing cached snapsho
 Impact: Directly improves Executive Value Visibility (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 ```
 
-### 24. DEFERRED Slack Interactive Action Approvals
-- **Reason deferred:** Slack interactivity requires public endpoint hosting and strict token management.
-- **Required input:** Do we want to host the interactive Slack app centrally for all SaaS tenants, or force customers to create their own internal Slack App credentials?
+### 24. Slack Interactive Action Approvals
+- **Why it matters:** In-chat approvals drastically reduce the time to resolve governance blocks.
+- **Expected impact:** Faster decision velocity and tighter ChatOps adoption.
+- **Affected qualities:** Stickiness, Workflow Embeddedness.
+- **Actionable now:** Yes.
+```text
+Implement interactive Slack actions for governance approvals using customer-provided Slack App credentials.
+Files to modify: The Slack integration services and Webhook payload generators.
+Acceptance criteria:
+- Allow tenants to configure their own internal Slack App credentials (Signing Secret and Bot Token).
+- Update the outbound Slack webhook to include interactive "Approve" and "Reject" buttons for governance findings.
+- Expose a secure callback endpoint (e.g., `/v1/integrations/webhooks/slack/interactivity`) to process the button clicks.
+Constraints: Ensure the callback verifies the Slack signature using the tenant's specific signing secret before executing the approval.
+Impact: Directly improves Stickiness (+5-8 pts) and Workflow Embeddedness (+4-6 pts). Weighted readiness impact: +0.2-0.4%.
+```
 
 ### 25. Batch Architecture Run Endpoint
 - **Why it matters:** CI/CD pipelines need to submit multiple architectures at once.
@@ -527,7 +589,7 @@ To optimize context window usage and ensure logical grouping of changes, execute
 - **Batch 1: Core Reliability & Idempotency** (Items 1, 5) - Touches core controllers, `IArchitectureRunCommitOrchestrator`, and `DataConsistency` jobs.
 - **Batch 2: UI, Export, & Visualization** (Items 3, 15, 16, 23) - Focuses on presentation layer, Mermaid CLI, Confluence routing, and custom branding.
 - **Batch 3: Data Management & Performance** (Items 8, 21) - Focuses on SQL `DELETE` batching, background hosted services, and Blob deduplication.
-- **Batch 4: API, Integrations & Diagnostics** (Items 7, 10, 11, 12, 14, 18, 19, 22, 25) - Touches endpoints, Schema validation, Content Safety Polly policies, and Webhooks.
+- **Batch 4: API, Integrations & Diagnostics** (Items 4, 7, 10, 11, 12, 13, 14, 17, 18, 19, 20, 22, 24, 25) - Touches endpoints, Schema validation, Content Safety Polly policies, Webhooks, GitHub integration, API keys, Bypass mechanisms, and Slack integrations.
 
 ---
 
@@ -536,10 +598,4 @@ To optimize context window usage and ensure logical grouping of changes, execute
 *Note: The following questions block DEFERRED items and require your input before implementation can begin.*
 
 - **Implement Azure Extractor Auto-Pull:** Should we build this as an OAuth-granted Service Principal that the user authorizes once, and should the extraction run on a CRON schedule inside the Worker?
-- **Terraform Pull Request Generation:** Which Source Control provider (GitHub vs ADO) should we build the PR integration for first, and what is the branching naming convention?
-- **Move Orchestration to Durable Task Framework:** Is Azure Durable Task Framework acceptable as a core dependency, and what is the strategy for migrating active inflight runs?
 - **Project-Level RBAC:** What is the desired SQL schema layout for `dbo.ProjectRoleAssignments`, and do we need a new `ProjectAdmin` role?
-- **Governance Pre-Commit Bypass:** How should the break-glass action be authorized? Does it require a second approver, or just an explicit justification string?
-- **IdP Claim Mapping UI Diagnostics:** What specific JWT claims are safe to store in the diagnostics table, and who should have access to this view?
-- **API Key Rotation Enforcement:** Should we enforce a 90-day hard expiry, and do we need a dedicated UI panel for generating secondary rolling keys?
-- **Slack Interactive Action Approvals:** Do we want to host the interactive Slack app centrally for all SaaS tenants, or force customers to create their own internal Slack App credentials?
