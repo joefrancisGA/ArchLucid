@@ -37,7 +37,8 @@ public class ArtifactBundleValidator : IArtifactBundleValidator
             if (string.IsNullOrWhiteSpace(artifact.ContentHash))
                 throw new InvalidOperationException("Artifact content hash is required.");
 
-            if (artifact.ArtifactType is Models.ArtifactType.ArchitectureNarrative or Models.ArtifactType.ReferenceArchitectureMarkdown)
+            if (string.Equals(artifact.ArtifactType, ArtifactType.ArchitectureNarrative, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(artifact.ArtifactType, ArtifactType.ReferenceArchitectureMarkdown, StringComparison.OrdinalIgnoreCase))
             {
                 string[] requiredHeaders =
                 [

@@ -94,31 +94,28 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
 
         try
         {
-            try
-            {
-                int affected = await conn
-                        .ExecuteAsync(new CommandDefinition(
-                            sql,
-                            new
-                            {
-                                TenantId = tenantId,
-                                WorkspaceId = workspaceId,
-                                ProjectId = projectId,
-                                IdempotencyKeyHash = idempotencyKeyHash,
-                                RequestFingerprint = requestFingerprint,
-                                RunId = runId,
-                                CreatedUtc = createdUtc
-                            },
-                            transaction,
-                            cancellationToken: cancellationToken))
-                    ;
+            int affected = await conn
+                    .ExecuteAsync(new CommandDefinition(
+                        sql,
+                        new
+                        {
+                            TenantId = tenantId,
+                            WorkspaceId = workspaceId,
+                            ProjectId = projectId,
+                            IdempotencyKeyHash = idempotencyKeyHash,
+                            RequestFingerprint = requestFingerprint,
+                            RunId = runId,
+                            CreatedUtc = createdUtc
+                        },
+                        transaction,
+                        cancellationToken: cancellationToken))
+                ;
 
-                return affected > 0;
-            }
-            catch (SqlException ex) when (ex.Number is 2601 or 2627)
-            {
-                return false;
-            }
+            return affected > 0;
+        }
+        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        {
+            return false;
         }
         finally
         {
