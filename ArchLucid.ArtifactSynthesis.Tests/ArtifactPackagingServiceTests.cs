@@ -140,7 +140,15 @@ public sealed class ArtifactPackagingServiceTests
         }
 
         archive.GetEntry("advisory-placeholder.tf").Should().NotBeNull();
-        archive.GetEntry("ADVISORY.md").Should().NotBeNull();
+        ZipArchiveEntry? advisory = archive.GetEntry("ADVISORY.md");
+        advisory.Should().NotBeNull();
+        using (StreamReader advReader = new(advisory!.Open(), Encoding.UTF8))
+        {
+            string advisoryText = advReader.ReadToEnd();
+            advisoryText.Should().Contain("never applies or destroys");
+            advisoryText.Should().Contain("terraform apply");
+        }
+
         archive.GetEntry("package-metadata.json").Should().NotBeNull();
     }
 }

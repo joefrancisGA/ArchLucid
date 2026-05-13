@@ -217,12 +217,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
             WriteTextEntry(archive, "advisory-placeholder.tf", tfBody);
 
-            string advisoryMd = """
-                # Advisory
-
-                ArchLucid never applies or destroys resources. This Terraform export is strictly advisory.
-                """;
-            WriteTextEntry(archive, "ADVISORY.md", advisoryMd);
+            WriteTextEntry(archive, "ADVISORY.md", TerraformAdvisoryExportCopy.AdvisoryMarkdownBody);
 
             WritePackageMetadata(
                 archive,
