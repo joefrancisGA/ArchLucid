@@ -3538,6 +3538,23 @@ BEGIN
 END;
 GO
 
+/* 158: Projects DeletedUtc for retention hard purge (see Migrations/158_Projects_DeletedUtc.sql). */
+IF OBJECT_ID(N'dbo.Projects', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Projects', N'DeletedUtc') IS NULL
+BEGIN
+    ALTER TABLE dbo.Projects ADD DeletedUtc DATETIMEOFFSET NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.Projects', N'U') IS NOT NULL
+BEGIN
+    UPDATE dbo.Projects
+    SET DeletedUtc = CreatedUtc
+    WHERE IsDeleted = 1
+      AND DeletedUtc IS NULL;
+END;
+GO
+
 IF OBJECT_ID(N'dbo.UsageEvents', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.UsageEvents
