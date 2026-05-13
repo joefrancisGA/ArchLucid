@@ -52,7 +52,7 @@ public sealed class RoleSyncService(IScimUserRepository scimUsers) : IRoleSyncSe
     /// <summary>
     ///     Entra access tokens usually carry <c>oid</c>; some stacks emit the long objectidentifier claim URI only.
     /// </summary>
-    internal static string? TryDirectoryObjectKey(ClaimsPrincipal principal)
+    public static string? TryDirectoryObjectKey(ClaimsPrincipal principal)
     {
         string? oid = principal.FindFirst("oid")?.Value;
 

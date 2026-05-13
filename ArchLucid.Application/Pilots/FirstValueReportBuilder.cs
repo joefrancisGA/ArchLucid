@@ -12,6 +12,7 @@ using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -39,6 +40,7 @@ public sealed class FirstValueReportBuilder(
     IExecutionProvenanceFooterRenderer executionProvenanceFooter,
     IConfiguration configuration,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
+    ITenantFirstValueReportBrandingRepository tenantFirstValueReportBrandingRepository,
     ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -51,6 +53,9 @@ public sealed class FirstValueReportBuilder(
 
     private readonly IExecutionProvenanceFooterRenderer _executionProvenanceFooter =
         executionProvenanceFooter ?? throw new ArgumentNullException(nameof(executionProvenanceFooter));
+
+    private readonly ITenantFirstValueReportBrandingRepository _tenantFirstValueReportBrandingRepository =
+        tenantFirstValueReportBrandingRepository ?? throw new ArgumentNullException(nameof(tenantFirstValueReportBrandingRepository));
 
     private readonly ILogger<FirstValueReportBuilder> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
@@ -102,6 +107,9 @@ public sealed class FirstValueReportBuilder(
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid — first value report (pilot)");
         sb.AppendLine();
+        TenantFirstValueReportBrandingForExport? tenantBranding =
+            await TryResolveTenantBrandingAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        AppendTenantFirstValueBrandingMarkdown(sb, tenantBranding);
         sb.AppendLine(
             "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
         sb.AppendLine();
@@ -153,7 +161,40 @@ public sealed class FirstValueReportBuilder(
         return new FirstValueReportBuildResult(
             sb.ToString(),
             evidenceCompleteness,
-            SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate));
+            SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate),
+            tenantBranding);
+    }
+
+    private async Task<TenantFirstValueReportBrandingForExport?> TryResolveTenantBrandingAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        TenantFirstValueReportBrandingRow? raw =
+            await _tenantFirstValueReportBrandingRepository.TryGetAsync(tenantId, cancellationToken).ConfigureAwait(false);
+        if (raw is null)
+            return null;
+
+        return FirstValueReportBrandingSanitizer.TryBuildExportModel(raw.BrandingLogoUrl, raw.BrandingCompanyName);
+    }
+
+    private static void AppendTenantFirstValueBrandingMarkdown(
+        StringBuilder sb,
+        TenantFirstValueReportBrandingForExport? tenantBranding)
+    {
+        if (tenantBranding is null)
+            return;
+
+        if (!string.IsNullOrWhiteSpace(tenantBranding.CompanyDisplayName))
+        {
+            sb.AppendLine($"> Prepared for: {tenantBranding.CompanyDisplayName}");
+            sb.AppendLine();
+        }
+
+        if (!string.IsNullOrWhiteSpace(tenantBranding.LogoHttpsUrl))
+        {
+            sb.AppendLine($"![Tenant logo]({tenantBranding.LogoHttpsUrl})");
+            sb.AppendLine();
+        }
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)

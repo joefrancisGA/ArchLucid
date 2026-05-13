@@ -2857,6 +2857,61 @@ BEGIN
 END;
 GO
 
+/* ---- DbUp 159 parity: commit idempotency + project RBAC overlays ---- */
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'CommitRunIdempotency' AND schema_id = SCHEMA_ID('dbo'))
+BEGIN
+    CREATE TABLE dbo.CommitRunIdempotency
+    (
+        TenantId           UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId        UNIQUEIDENTIFIER NOT NULL,
+        ProjectId          UNIQUEIDENTIFIER NOT NULL,
+        RunId              NVARCHAR(64)     NOT NULL,
+        IdempotencyKeyHash VARBINARY(32)     NOT NULL,
+        RequestFingerprint VARBINARY(32)     NOT NULL,
+        CreatedUtc          DATETIME2(7)     NOT NULL CONSTRAINT DF_CommitRunIdempotency_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_CommitRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, RunId, IdempotencyKeyHash),
+        CONSTRAINT FK_CommitRunIdempotency_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT CK_CommitRunIdempotency_RunIdLen CHECK (LEN(RunId) > 0)
+    );
+END;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_CommitRunIdempotency_Scope_Key' AND object_id = OBJECT_ID(N'dbo.CommitRunIdempotency'))
+   AND OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_CommitRunIdempotency_Scope_Key
+        ON dbo.CommitRunIdempotency (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash);
+END;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'ProjectRoleAssignments' AND schema_id = SCHEMA_ID('dbo'))
+BEGIN
+    CREATE TABLE dbo.ProjectRoleAssignments
+    (
+        TenantId    UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId   UNIQUEIDENTIFIER NOT NULL,
+        UserId      UNIQUEIDENTIFIER NOT NULL,
+        Role        NVARCHAR(32)      NOT NULL,
+        CreatedUtc  DATETIME2(7)     NOT NULL CONSTRAINT DF_ProjectRoleAssignments_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_ProjectRoleAssignments PRIMARY KEY (TenantId, ProjectId, UserId),
+        CONSTRAINT FK_ProjectRoleAssignments_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT FK_ProjectRoleAssignments_ScimUsers FOREIGN KEY (UserId) REFERENCES dbo.ScimUsers (Id),
+        CONSTRAINT CK_ProjectRoleAssignments_Role CHECK (Role IN (N'Reader', N'Operator', N'ProjectAdmin'))
+    );
+END;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ProjectRoleAssignments_User_Scope' AND object_id = OBJECT_ID(N'dbo.ProjectRoleAssignments'))
+   AND OBJECT_ID(N'dbo.ProjectRoleAssignments', N'U') IS NOT NULL
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_ProjectRoleAssignments_User_Scope
+        ON dbo.ProjectRoleAssignments (TenantId, WorkspaceId, ProjectId, UserId)
+        INCLUDE (Role);
+END;
+GO
+
 IF NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_Runs_Scope_Project_CreatedUtc'
@@ -6266,6 +6321,15 @@ BEGIN
     ALTER TABLE dbo.Tenants ADD
         EnterpriseSeatsLimit INT NULL,
         EnterpriseSeatsUsed INT NOT NULL CONSTRAINT DF_Tenants_EnterpriseSeatsUsed113 DEFAULT (0);
+END;
+GO
+
+/* 160: First-value report branding (see Migrations/160_TenantFirstValueReportBranding.sql). */
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'BrandingLogoUrl') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD
+        BrandingLogoUrl NVARCHAR(2048) NULL,
+        BrandingCompanyName NVARCHAR(256) NULL;
 END;
 GO
 

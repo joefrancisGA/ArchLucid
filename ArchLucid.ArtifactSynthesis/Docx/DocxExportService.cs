@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Docx.Builders;
 using ArchLucid.ArtifactSynthesis.Docx.Helpers;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagrams;
@@ -420,30 +421,8 @@ public sealed class DocxExportService(
         return null;
     }
 
-    private static string? TryGetMermaidDiagramSource(IReadOnlyList<SynthesizedArtifact> artifacts)
-    {
-        foreach (SynthesizedArtifact a in artifacts)
-        {
-            if (string.IsNullOrWhiteSpace(a.Content))
-                continue;
-
-            bool isMermaidType = string.Equals(a.ArtifactType, ArtifactType.MermaidDiagram, StringComparison.Ordinal);
-            bool isMermaidFormat = a.Format.Equals("mermaid", StringComparison.OrdinalIgnoreCase);
-            bool isMmdName = a.Name.EndsWith(".mmd", StringComparison.OrdinalIgnoreCase);
-
-            if (!isMermaidType && !isMermaidFormat && !isMmdName)
-                continue;
-
-            string s = a.Content;
-
-            if (s.Length > MaxEmbeddedMermaidChars)
-                return s[..MaxEmbeddedMermaidChars] + "\n\n… (truncated for Word document size)";
-
-            return s;
-        }
-
-        return null;
-    }
+    private static string? TryGetMermaidDiagramSource(IReadOnlyList<SynthesizedArtifact> artifacts) =>
+        MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifacts, MaxEmbeddedMermaidChars);
 
     private static void AppendManifestTopologySummaryForDiagramFallback(Body body, ManifestDocument manifest)
     {

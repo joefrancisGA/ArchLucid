@@ -72,6 +72,16 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
                             .FontSize(11);
                     }
 
+                    TenantFirstValueReportBrandingForExport? tenantBranding = built.TenantFirstValueReportBranding;
+                    if (!string.IsNullOrWhiteSpace(tenantBranding?.CompanyDisplayName))
+                    {
+                        header.Item()
+                            .PaddingBottom(4)
+                            .Text(tenantBranding.CompanyDisplayName)
+                            .Bold()
+                            .FontSize(12);
+                    }
+
                     header.Item().Text("ArchLucid — first value report (pilot)").Bold().FontSize(14);
                 });
                 page.Content().Column(column => MarkdownPdfRenderer.Render(column, markdown));

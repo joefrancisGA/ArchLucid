@@ -6,4 +6,5 @@ namespace ArchLucid.Application.Pilots;
 public sealed record FirstValueReportBuildResult(
     string Markdown,
     FirstValueEvidenceCompletenessLevel EvidenceCompleteness,
-    SponsorProofReadinessClassification SponsorProofReadiness);
+    SponsorProofReadinessClassification SponsorProofReadiness,
+    TenantFirstValueReportBrandingForExport? TenantFirstValueReportBranding = null);

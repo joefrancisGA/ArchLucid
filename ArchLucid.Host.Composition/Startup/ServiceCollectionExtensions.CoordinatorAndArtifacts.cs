@@ -76,6 +76,8 @@ public static partial class ServiceCollectionExtensions
         {
             services.AddSingleton<IArchitectureRequestRepository, InMemoryArchitectureRequestRepository>();
             services.AddSingleton<IArchitectureRunIdempotencyRepository, InMemoryArchitectureRunIdempotencyRepository>();
+            services.AddSingleton<ICommitRunIdempotencyRepository, InMemoryCommitRunIdempotencyRepository>();
+            services.AddSingleton<IProjectRoleAssignmentRepository, InMemoryProjectRoleAssignmentRepository>();
             services.AddSingleton<IAgentTaskRepository, InMemoryAgentTaskRepository>();
             services.AddSingleton<IAgentResultRepository, InMemoryAgentResultRepository>();
             services.AddSingleton<IAgentEvaluationRepository, InMemoryAgentEvaluationRepository>();
@@ -92,6 +94,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDecisionNodeRepository, DecisionNodeRepository>();
         services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
         services.AddScoped<IArchitectureRunIdempotencyRepository, ArchitectureRunIdempotencyRepository>();
+        services.AddScoped<ICommitRunIdempotencyRepository, CommitRunIdempotencyRepository>();
+        services.AddScoped<IProjectRoleAssignmentRepository, ProjectRoleAssignmentRepository>();
         services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
         services.AddScoped<IAgentResultRepository, AgentResultRepository>();
         services.AddScoped<IUnifiedGoldenManifestReader, UnifiedGoldenManifestReader>();

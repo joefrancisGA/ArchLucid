@@ -35,12 +35,19 @@ public sealed class ArchLucidAuthorizationPoliciesRegistrationTests
         authorizationOptions.GetPolicy(ArchLucidPolicies.CanCommitRuns).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.ArchitectureDefinitionImport).Should().NotBeNull();
 
+        authorizationOptions.GetPolicy(ArchLucidPolicies.PolicyPackMutationAuthority).Should().NotBeNull();
+
         authorizationOptions.GetPolicy(ArchLucidPolicies.ExecuteAuthority)!.Requirements
             .OfType<TrialActiveRequirement>()
             .Should()
             .ContainSingle();
 
         authorizationOptions.GetPolicy(ArchLucidPolicies.AdminAuthority)!.Requirements
+            .OfType<TrialActiveRequirement>()
+            .Should()
+            .ContainSingle();
+
+        authorizationOptions.GetPolicy(ArchLucidPolicies.PolicyPackMutationAuthority)!.Requirements
             .OfType<TrialActiveRequirement>()
             .Should()
             .ContainSingle();

@@ -61,6 +61,13 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchLucidPersistenceOptions.SectionPath));
         services.Configure<ContentSafetyOptions>(configuration.GetSection(ContentSafetyOptions.SectionPath));
         services.AddSingleton<IPostConfigureOptions<ContentSafetyOptions>, ContentSafetyProductionLikePostConfigure>();
+        services.Configure<CircuitBreakerOptions>(
+            "ContentSafetyAzure",
+            configuration.GetSection($"{ContentSafetyOptions.SectionPath}:CircuitBreaker"));
+        services.PostConfigure<CircuitBreakerOptions>("ContentSafetyAzure", static opts => opts.ApplyDefaults());
+        services.AddKeyedSingleton<CircuitBreakerGate>(
+            "ContentSafetyAzure",
+            (sp, _) => CreateOpenAiCircuitBreakerGate(sp, "ContentSafetyAzure"));
         services.AddSingleton<IContentSafetyGuard>(sp =>
         {
             IHostEnvironment env = sp.GetRequiredService<IHostEnvironment>();
@@ -85,8 +92,20 @@ public static partial class ServiceCollectionExtensions
 
 
                 ILogger<AzureContentSafetyGuard> logger = sp.GetRequiredService<ILogger<AzureContentSafetyGuard>>();
+                ILogger<CircuitBreakingContentSafetyGuard> resilientLogger =
+                    sp.GetRequiredService<ILogger<CircuitBreakingContentSafetyGuard>>();
+                AzureContentSafetyGuard azure =
+                    new(endpoint, opts.ApiKey!, monitor, logger);
+                CircuitBreakerGate productionBreaker = sp.GetRequiredKeyedService<CircuitBreakerGate>("ContentSafetyAzure");
+                IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
 
-                return new AzureContentSafetyGuard(endpoint, opts.ApiKey!, monitor, logger);
+                return new CircuitBreakingContentSafetyGuard(
+                    azure,
+                    productionBreaker,
+                    promptRedactor,
+                    monitor,
+                    sp.GetRequiredService<IServiceScopeFactory>(),
+                    resilientLogger);
             }
 
             if (!opts.Enabled)
@@ -111,8 +130,18 @@ public static partial class ServiceCollectionExtensions
 
 
             ILogger<AzureContentSafetyGuard> devLogger = sp.GetRequiredService<ILogger<AzureContentSafetyGuard>>();
+            ILogger<CircuitBreakingContentSafetyGuard> resilientDevLogger =
+                sp.GetRequiredService<ILogger<CircuitBreakingContentSafetyGuard>>();
+            AzureContentSafetyGuard azureDev = new(endpointDev, opts.ApiKey!, monitor, devLogger);
+            CircuitBreakerGate developmentBreaker = sp.GetRequiredKeyedService<CircuitBreakerGate>("ContentSafetyAzure");
 
-            return new AzureContentSafetyGuard(endpointDev, opts.ApiKey!, monitor, devLogger);
+            return new CircuitBreakingContentSafetyGuard(
+                azureDev,
+                developmentBreaker,
+                sp.GetRequiredService<IPromptRedactor>(),
+                monitor,
+                sp.GetRequiredService<IServiceScopeFactory>(),
+                resilientDevLogger);
         });
 
         services.Configure<AgentPromptCatalogOptions>(

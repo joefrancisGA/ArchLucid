@@ -16,7 +16,8 @@ public interface IArtifactPackagingService
         IReadOnlyList<SynthesizedArtifact> artifacts,
         string manifestJson,
         string? traceJson = null,
-        RunExportReadmeContext? readmeContext = null);
+        RunExportReadmeContext? readmeContext = null,
+        byte[]? renderedArchitectureDiagramPng = null);
 
     /// <summary>
     ///     Advisory Terraform ZIP placeholder (README + stub <c>.tf</c>). Live <c>aztfexport</c> wrapping remains
