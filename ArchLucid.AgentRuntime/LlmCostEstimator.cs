@@ -5,10 +5,15 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime;
 
 /// <inheritdoc cref="ILlmCostEstimator" />
-public sealed class LlmCostEstimator(IOptions<LlmCostEstimationOptions> options) : ILlmCostEstimator
+public sealed class LlmCostEstimator(
+    IOptions<LlmCostEstimationOptions> options,
+    ILlmCostEstimationUsdRateOverride usdRateOverride) : ILlmCostEstimator
 {
     private readonly IOptions<LlmCostEstimationOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
+
+    private readonly ILlmCostEstimationUsdRateOverride _usdRateOverride =
+        usdRateOverride ?? throw new ArgumentNullException(nameof(usdRateOverride));
 
     /// <inheritdoc />
     public decimal? EstimateUsd(
@@ -27,6 +32,13 @@ public sealed class LlmCostEstimator(IOptions<LlmCostEstimationOptions> options)
 
         decimal inputRate = o.InputUsdPerMillionTokens;
         decimal outputRate = o.OutputUsdPerMillionTokens;
+
+        if (_usdRateOverride.TryGetUsdPerMillionRates(out decimal persistedIn, out decimal persistedOut))
+        {
+            inputRate = persistedIn;
+            outputRate = persistedOut;
+        }
+
         decimal reasoningRate =
             o.ReasoningUsdPerMillionTokens > 0m ? o.ReasoningUsdPerMillionTokens : outputRate;
 

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
@@ -96,6 +97,26 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
         using HttpResponseMessage response = await client.GetAsync("/v1/architecture/runs?limit=1");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [SkippableFact]
+    public async Task Reader_key_cannot_GET_admin_custom_handlers_returns_403()
+    {
+        using HttpClient client = CreateReaderClient();
+        using HttpResponseMessage response = await client.GetAsync("/v1/admin/custom-handlers");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task Reader_key_cannot_POST_admin_llm_cost_tuning_returns_403()
+    {
+        using HttpClient client = CreateReaderClient();
+        using HttpResponseMessage response = await client.PostAsJsonAsync(
+            "/v1/admin/llm-cost-tuning",
+            new { inputUsdPerMillionTokens = 1m, outputUsdPerMillionTokens = 2m });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [SkippableFact]

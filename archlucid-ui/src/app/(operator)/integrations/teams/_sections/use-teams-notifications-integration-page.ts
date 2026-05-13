@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import {
@@ -11,27 +11,56 @@ import {
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import type {
   TeamsIncomingWebhookConnectionResponse,
   TeamsIncomingWebhookConnectionUpsertRequest,
 } from "@/types/teams-incoming-webhook-connection";
 
+import type { TeamsNotificationsIntegrationPageServerLoad } from "./load-teams-notifications-integration-page-data";
 import type { TeamsNotificationsIntegrationPageViewModel } from "./teams-notifications-integration-view-model";
 
-export function useTeamsNotificationsIntegrationPage(): TeamsNotificationsIntegrationPageViewModel {
-  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+function seedFormFields(
+  connection: TeamsIncomingWebhookConnectionResponse | null,
+  triggers: string[],
+): { secretName: string; label: string; enabledTriggers: Set<string> } {
+  if (connection === null) {
+    return { secretName: "", label: "", enabledTriggers: new Set() };
+  }
+
+  return {
+    secretName: connection.keyVaultSecretName ?? "",
+    label: connection.label ?? "",
+    enabledTriggers: new Set(connection.enabledTriggers ?? triggers),
+  };
+}
+
+export function useTeamsNotificationsIntegrationPage(
+  serverLoad: TeamsNotificationsIntegrationPageServerLoad,
+): TeamsNotificationsIntegrationPageViewModel {
+  const isDemo = serverLoad.mode === "demo";
 
   const canMutate = useEnterpriseMutationCapability();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [conn, setConn] = useState<TeamsIncomingWebhookConnectionResponse | null>(null);
-  const [secretName, setSecretName] = useState("");
-  const [label, setLabel] = useState("");
-  const [catalog, setCatalog] = useState<string[]>([]);
-  const [enabledTriggers, setEnabledTriggers] = useState<Set<string>>(new Set());
+
+  const liveSeed =
+    serverLoad.mode === "live"
+      ? {
+          conn: serverLoad.conn,
+          catalog: serverLoad.catalog,
+          failure: serverLoad.failure,
+          form: seedFormFields(serverLoad.conn, serverLoad.catalog),
+        }
+      : null;
+
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(liveSeed?.failure ?? null);
+  const [conn, setConn] = useState<TeamsIncomingWebhookConnectionResponse | null>(liveSeed?.conn ?? null);
+  const [secretName, setSecretName] = useState(liveSeed?.form.secretName ?? "");
+  const [label, setLabel] = useState(liveSeed?.form.label ?? "");
+  const [catalog, setCatalog] = useState<string[]>(liveSeed?.catalog ?? []);
+  const [enabledTriggers, setEnabledTriggers] = useState<Set<string>>(() => liveSeed?.form.enabledTriggers ?? new Set());
+
+  const skipInitialClientLoadRef = useRef(serverLoad.mode === "live");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -57,6 +86,12 @@ export function useTeamsNotificationsIntegrationPage(): TeamsNotificationsIntegr
 
   useEffect(() => {
     if (isDemo) {
+      return;
+    }
+
+    if (skipInitialClientLoadRef.current) {
+      skipInitialClientLoadRef.current = false;
+
       return;
     }
 
@@ -86,7 +121,6 @@ export function useTeamsNotificationsIntegrationPage(): TeamsNotificationsIntegr
     setFailure(null);
 
     try {
-      // Preserve the catalog ordering when sending so the diff in the audit log is deterministic.
       const orderedTriggers = catalog.filter((t) => enabledTriggers.has(t));
       const body: TeamsIncomingWebhookConnectionUpsertRequest = {
         keyVaultSecretName: secretName.trim(),
