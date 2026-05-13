@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { getPilotScorecard } from "@/lib/api";
+import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
-import type { PilotScorecardJson } from "./pilot-scorecard-json";
+import type { PilotScorecardPageServerLoad } from "./load-pilot-scorecard-page-data";
 
 export type UsePilotScorecardPageModel = {
   canExecute: boolean;
@@ -20,26 +22,36 @@ export type UsePilotScorecardPageModel = {
   setReviews: (next: string) => void;
 };
 
-export function usePilotScorecardPage(): UsePilotScorecardPageModel {
+function baselineFieldsFromData(data: PilotScorecardJson | null): { hours: string; reviews: string; rate: string } {
+  if (data?.baselines === null || data?.baselines === undefined) {
+    return { hours: "", reviews: "", rate: "" };
+  }
+
+  return {
+    hours: data.baselines.baselineHoursPerReview?.toString() ?? "",
+    reviews: data.baselines.baselineReviewsPerQuarter?.toString() ?? "",
+    rate: data.baselines.baselineArchitectHourlyCost?.toString() ?? "",
+  };
+}
+
+export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): UsePilotScorecardPageModel {
   const canExecute = useOperateCapability();
-  const [data, setData] = useState<PilotScorecardJson | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [hours, setHours] = useState("");
-  const [reviews, setReviews] = useState("");
-  const [rate, setRate] = useState("");
+  const initialFields = baselineFieldsFromData(loaded.data);
+
+  const [data, setData] = useState<PilotScorecardJson | null>(loaded.data);
+  const [error, setError] = useState<string | null>(loaded.error);
+  const [hours, setHours] = useState(initialFields.hours);
+  const [reviews, setReviews] = useState(initialFields.reviews);
+  const [rate, setRate] = useState(initialFields.rate);
   const [saving, setSaving] = useState(false);
+
+  const skipMountRefetchRef = useRef(true);
 
   const load = useCallback(async () => {
     setError(null);
 
     try {
-      const res = await fetch("/api/proxy/v1/pilots/scorecard", { headers: { Accept: "application/json" } });
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      const json = (await res.json()) as PilotScorecardJson;
+      const json = await getPilotScorecard();
       setData(json);
 
       if (json.baselines) {
@@ -53,6 +65,12 @@ export function usePilotScorecardPage(): UsePilotScorecardPageModel {
   }, []);
 
   useEffect(() => {
+    if (skipMountRefetchRef.current) {
+      skipMountRefetchRef.current = false;
+
+      return;
+    }
+
     void load();
   }, [load]);
 

@@ -21,6 +21,8 @@ export const ApiV1Routes = {
   analyticsRoi: "v1/analytics/roi",
   /** Sponsor evidence bundle (Standard tier): explainability completeness, deltas, governance counts. */
   pilotsSponsorEvidencePack: "v1/pilots/sponsor-evidence-pack",
+  /** In-product pilot scorecard metrics + ROI baselines (`GET` / `PUT baselines`). */
+  pilotsScorecard: "v1/pilots/scorecard",
   teamsIncomingWebhookConnections: "v1/integrations/teams/connections",
   teamsNotificationTriggerCatalog: "v1/integrations/teams/triggers",
   integrationWebhooks: "v1/integrations/webhooks",

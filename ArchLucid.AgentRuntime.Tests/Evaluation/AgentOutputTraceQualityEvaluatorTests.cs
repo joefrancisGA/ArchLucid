@@ -85,7 +85,9 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
                 CancellationToken.None);
 
         r.Should().NotBeNull();
-        r.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r.EvaluationReason.Should().NotBeNullOrWhiteSpace();
+        r.EvaluationReason.Should().Contain("missing_or_empty_citations");
     }
 
     [Fact]

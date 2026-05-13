@@ -2975,6 +2975,10 @@
       },
       "CommitRunRequest": {
         "properties": {
+          "bypassJustification": {
+            "type": "string",
+            "nullable": true
+          },
           "notifySponsor": {
             "type": "boolean"
           }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -20,7 +21,8 @@ public static class AgentOutputTraceQualityEvaluator
         bool EmitQualityGateMetric,
         AgentOutputEvaluationScore Structural,
         AgentOutputSemanticScore Semantic,
-        AgentOutputQualityGateOutcome GateOutcome);
+        AgentOutputQualityGateOutcome GateOutcome,
+        string? EvaluationReason = null);
 
     /// <summary>
     ///     Computes histogram + gate outcome consistent with quality gate options.
@@ -103,7 +105,8 @@ public static class AgentOutputTraceQualityEvaluator
                             trace.AgentType,
                             cancellationToken)
                         .ConfigureAwait(false),
-                    AgentOutputQualityGateOutcome.Accepted);
+                    AgentOutputQualityGateOutcome.Accepted,
+                    null);
 
         AgentOutputSemanticScore semanticScore =
             await semanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
@@ -139,7 +142,18 @@ public static class AgentOutputTraceQualityEvaluator
 
         ApplyJudgeHeuristicDisagreementElevation(semanticScore, ref gateOutcome);
 
-        return new TraceQualityEvaluationResult(true, true, false, true, structuralScore, semanticScore, gateOutcome);
+        string? evaluationReason = gateOutcome == AgentOutputQualityGateOutcome.Rejected
+            ? BuildPublicRejectionSummary(
+                qualityGate,
+                options,
+                pilotStrict,
+                trace.ParsedResultJson,
+                structuralScore,
+                semanticScore,
+                gateOutcome)
+            : null;
+
+        return new TraceQualityEvaluationResult(true, true, false, true, structuralScore, semanticScore, gateOutcome, evaluationReason);
     }
 
     private static void ApplyAgentResultEvidenceFaithfulness(
@@ -209,7 +223,8 @@ public static class AgentOutputTraceQualityEvaluator
                         trace.AgentType,
                         cancellationToken)
                     .ConfigureAwait(false),
-                AgentOutputQualityGateOutcome.Accepted);
+                AgentOutputQualityGateOutcome.Accepted,
+                null);
 
         AgentOutputSemanticScore semanticScore =
             await semanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
@@ -219,7 +234,7 @@ public static class AgentOutputTraceQualityEvaluator
 
         ApplyJudgeHeuristicDisagreementElevation(semanticScore, ref outcome);
 
-        return new TraceQualityEvaluationResult(true, true, false, true, structuralScore, semanticScore, outcome);
+        return new TraceQualityEvaluationResult(true, true, false, true, structuralScore, semanticScore, outcome, null);
     }
 
     private static async Task<TraceQualityEvaluationResult> BuildPilotStrictUnparsedResultAsync(
@@ -238,7 +253,8 @@ public static class AgentOutputTraceQualityEvaluator
                 .ConfigureAwait(false);
 
         return new TraceQualityEvaluationResult(false, false, true, true, structuralScore, semanticScore,
-            AgentOutputQualityGateOutcome.Rejected);
+            AgentOutputQualityGateOutcome.Rejected,
+            "pilot_strict_unparsed_agent_output");
     }
 
     private static async Task<TraceQualityEvaluationResult> BuildPilotStrictEvaluatorParseFailureResultAsync(
@@ -255,7 +271,8 @@ public static class AgentOutputTraceQualityEvaluator
                 .ConfigureAwait(false);
 
         return new TraceQualityEvaluationResult(false, false, true, true, structuralScore, semanticScore,
-            AgentOutputQualityGateOutcome.Rejected);
+            AgentOutputQualityGateOutcome.Rejected,
+            "pilot_strict_structural_evaluator_parse_failure");
     }
 
     private static void ApplyPilotStrictScoreFloors(
@@ -284,6 +301,54 @@ public static class AgentOutputTraceQualityEvaluator
             return;
 
         gateOutcome = AgentOutputQualityGateOutcome.Warned;
+    }
+
+    private static string? BuildPublicRejectionSummary(
+        IAgentOutputQualityGate qualityGate,
+        AgentOutputQualityGateOptions options,
+        bool pilotStrict,
+        string? parsedResultJson,
+        AgentOutputEvaluationScore structural,
+        AgentOutputSemanticScore semantic,
+        AgentOutputQualityGateOutcome outcome)
+    {
+        if (outcome != AgentOutputQualityGateOutcome.Rejected)
+            return null;
+
+        ArgumentNullException.ThrowIfNull(qualityGate);
+        ArgumentNullException.ThrowIfNull(options);
+
+        List<string> parts = new();
+
+        if (qualityGate.Evaluate(structural, semantic) == AgentOutputQualityGateOutcome.Rejected)
+            parts.Add("quality_gate_threshold_reject");
+
+        if (pilotStrict)
+        {
+            if (structural.StructuralCompletenessRatio < options.PilotStrictMinStructuralCompleteness)
+                parts.Add("pilot_structural_completeness_below_floor");
+
+            if (semantic.OverallSemanticScore < options.PilotStrictMinSemanticScore)
+                parts.Add("pilot_semantic_score_below_floor");
+
+            string json = parsedResultJson ?? string.Empty;
+
+            if (!TryHasNonEmptyCitations(json))
+                parts.Add("missing_or_empty_citations");
+
+            if (options.PilotStrictMinEvidenceRefCount > 0 && !MeetsEvidenceRefFloor(json, options.PilotStrictMinEvidenceRefCount))
+                parts.Add("evidence_ref_count_below_floor");
+
+            if (options.PilotStrictMinAgentResultFaithfulnessSupportRatio is { } faithFloor &&
+                semantic.AgentResultFaithfulnessSupportRatio is { } faithRatio &&
+                faithRatio < faithFloor)
+                parts.Add("agent_result_faithfulness_below_floor");
+        }
+
+        if (parts.Count == 0)
+            parts.Add("quality_gate_rejected");
+
+        return string.Join(", ", parts);
     }
 
     private static void ApplyCitationOutcome(bool pilotStrict,

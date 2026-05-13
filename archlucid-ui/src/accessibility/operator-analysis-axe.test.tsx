@@ -23,6 +23,18 @@ vi.mock("@/lib/api", () => ({
   postEvolutionSimulate: vi.fn().mockResolvedValue({}),
 }));
 
+vi.mock("@/app/(operator)/evolution-review/_sections/load-evolution-review-page-data", () => ({
+  loadEvolutionReviewPageData: () =>
+    Promise.resolve({
+      mode: "live" as const,
+      candidates: [],
+      selectedId: null,
+      detail: null,
+      listFailure: null,
+      detailFailure: null,
+    }),
+}));
+
 vi.mock("@/lib/graph-api", () => ({
   getProvenanceGraph: vi.fn().mockResolvedValue({ nodes: [], edges: [] }),
   getDecisionSubgraph: vi.fn().mockResolvedValue({ nodes: [], edges: [] }),
@@ -77,7 +89,8 @@ describe("operator analysis pages — axe (Vitest)", () => {
   it(
     "EvolutionReviewPage has no serious axe violations",
     async () => {
-      const { container } = render(<EvolutionReviewPage />);
+      const page = await EvolutionReviewPage();
+      const { container } = render(page);
 
       expect(await axe(container)).toHaveNoViolations();
     },

@@ -275,6 +275,9 @@ public static class AuditEventTypes
     /// <summary>Emitted when optional pre-commit governance blocks manifest commit due to critical findings.</summary>
     public const string GovernancePreCommitBlocked = "GovernancePreCommitBlocked";
 
+    /// <summary>Emitted when pre-commit governance enforcement is overridden via commit-body break-glass justification.</summary>
+    public const string GovernanceBypassInvoked = "GovernanceBypassInvoked";
+
     /// <summary>Emitted when pre-commit governance warns but allows commit due to WarnOnly severity configuration.</summary>
     public const string GovernancePreCommitWarned = "GovernancePreCommitWarned";
 

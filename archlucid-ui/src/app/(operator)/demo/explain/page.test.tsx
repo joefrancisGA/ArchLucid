@@ -69,7 +69,8 @@ describe("DemoExplainPage (proof page snapshot)", () => {
   it("renders the side-by-side provenance + explanation layout for the demo tenant", async () => {
     demoExplainMock.mockResolvedValue(fixedPayload);
 
-    const { container } = render(<DemoExplainPage />);
+    const page = await DemoExplainPage();
+    const { container } = render(page);
 
     await waitFor(() => {
       expect(screen.getByTestId("demo-explain-status-banner")).toHaveTextContent(
@@ -87,7 +88,8 @@ describe("DemoExplainPage (proof page snapshot)", () => {
   it("renders the not-available notice when the API responds 404 (Demo:Enabled=false or no committed run)", async () => {
     demoExplainMock.mockResolvedValue(null);
 
-    render(<DemoExplainPage />);
+    const page = await DemoExplainPage();
+    render(page);
 
     await waitFor(() => {
       expect(screen.getByTestId("demo-explain-not-available")).toHaveTextContent(
@@ -102,7 +104,8 @@ describe("DemoExplainPage (proof page snapshot)", () => {
   it("renders the API problem callout when the upstream call rejects", async () => {
     demoExplainMock.mockRejectedValue(new Error("explain failed"));
 
-    render(<DemoExplainPage />);
+    const page = await DemoExplainPage();
+    render(page);
 
     await waitFor(() => {
       expect(screen.getByTestId("api-problem-mock")).toHaveTextContent("explain failed");

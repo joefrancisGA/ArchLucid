@@ -41596,6 +41596,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("notifySponsor")]
         public bool? NotifySponsor { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("bypassJustification")]
+        public string? BypassJustification { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]

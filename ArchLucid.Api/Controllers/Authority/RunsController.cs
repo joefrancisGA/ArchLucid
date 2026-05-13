@@ -253,7 +253,7 @@ public sealed partial class RunsController(
                                                await PreviewCommitIdempotencyAsync(scope, canonicalRunKey, idempotencyKeyHash, requestFingerprint,
                                                    cancellationToken);
 
-            CommitRunResult result = await architectureRunCommitOrchestrator.CommitRunAsync(runId, cancellationToken);
+            CommitRunResult result = await architectureRunCommitOrchestrator.CommitRunAsync(runId, request, cancellationToken);
 
             CommitRunResponse response = RunResponseMapper.ToCommitRunResponse(
                 result.Manifest,

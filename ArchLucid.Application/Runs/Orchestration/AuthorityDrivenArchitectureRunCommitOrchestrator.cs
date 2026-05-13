@@ -118,14 +118,18 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly ITrialFunnelCommitHook _trialFunnelCommitHook = trialFunnelCommitHook ?? throw new ArgumentNullException(nameof(trialFunnelCommitHook));
 
     /// <inheritdoc/>
-    public async Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default)
+    public Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default) =>
+        CommitRunAsync(runId, null, cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task<CommitRunResult> CommitRunAsync(string runId, CommitRunRequest? request, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         string actor = _actorContext.GetActor();
         for (int attempt = 1; attempt <= CommitRunTransientMaxAttempts; attempt++)
             try
             {
-                return await CommitRunCoreAsync(runId, actor, cancellationToken);
+                return await CommitRunCoreAsync(runId, actor, request, cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -170,7 +174,11 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         return await TryReturnAuthorityCommittedIdempotentAsync(runAgain, runId, cancellationToken);
     }
 
-    private async Task<CommitRunResult> CommitRunCoreAsync(string runId, string actor, CancellationToken cancellationToken)
+    private async Task<CommitRunResult> CommitRunCoreAsync(
+        string runId,
+        string actor,
+        CommitRunRequest? commitOptions,
+        CancellationToken cancellationToken)
     {
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Committing architecture run (authority): RunId={RunId}", LogSanitizer.Sanitize(runId));
@@ -242,7 +250,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             if (traceabilityGaps.Count > 0)
                 throw new InvalidOperationException("Committed manifest traceability (authority) invariant failed: " + string.Join("; ", traceabilityGaps));
             string contractWireJson = JsonSerializer.Serialize(contract, ContractJson.Default);
-            await EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, contractWireJson, cancellationToken);
+            await EvaluatePreCommitGovernanceGateOrThrowAsync(
+                runId,
+                actor,
+                contractWireJson,
+                NormalizeGovernanceBypassJustification(commitOptions?.BypassJustification),
+                cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -500,7 +513,11 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         manifestModel.Metadata.Version = contract.Metadata.ManifestVersion;
     }
 
-    internal async Task EvaluatePreCommitGovernanceGateOrThrowAsync(string runId, string actor, string goldenManifestWireJson,
+    internal async Task EvaluatePreCommitGovernanceGateOrThrowAsync(
+        string runId,
+        string actor,
+        string goldenManifestWireJson,
+        string? governanceBypassJustification,
         CancellationToken cancellationToken)
     {
         PreCommitGateResult gateResult = await _preCommitGovernanceGate.EvaluateAsync(runId, goldenManifestWireJson, cancellationToken);
@@ -512,6 +529,20 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         if (!gateResult.Blocked)
             return;
+
+        if (!string.IsNullOrEmpty(governanceBypassJustification))
+        {
+            await EmitGovernanceBypassInvokedAuditAsync(gateResult, runId, actor, governanceBypassJustification, cancellationToken);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "Pre-commit governance gate bypassed with operator justification — RunId={RunId}",
+                    LogSanitizer.Sanitize(runId));
+            }
+
+            return;
+        }
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid? runGuid = Guid.TryParse(runId, out Guid rid) ? rid : null;
         string dataJson = JsonSerializer.Serialize(new
@@ -530,6 +561,49 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         await _auditService.LogAsync(preCommitBlocked, cancellationToken);
         throw new PreCommitGovernanceBlockedException(gateResult);
+    }
+
+    private static string? NormalizeGovernanceBypassJustification(string? raw)
+    {
+        if (raw is null)
+            return null;
+
+        string trimmed = raw.Trim();
+        if (trimmed.Length == 0)
+            return null;
+
+        const int maxLen = 4000;
+        if (trimmed.Length <= maxLen)
+            return trimmed;
+
+        return trimmed[..maxLen];
+    }
+
+    private async Task EmitGovernanceBypassInvokedAuditAsync(
+        PreCommitGateResult gateResult,
+        string runId,
+        string actor,
+        string justification,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid? runGuid = Guid.TryParse(runId, out Guid rid) ? rid : null;
+        string dataJson = JsonSerializer.Serialize(new
+        {
+            justification,
+            blockingFindingIds = gateResult.BlockingFindingIds,
+            policyPackId = gateResult.PolicyPackId,
+            minimumBlockingSeverity = gateResult.MinimumBlockingSeverity?.ToString(),
+            gateReason = gateResult.Reason
+        });
+        AuditEvent bypass = scope.CreateAuditEvent(
+            AuditEventTypes.GovernanceBypassInvoked,
+            actor,
+            actor,
+            dataJson);
+        bypass.RunId = runGuid;
+
+        await _auditService.LogAsync(bypass, cancellationToken);
     }
 
     private async Task EmitPreCommitWarnedAuditAsync(PreCommitGateResult gateResult, string runId, string actor, CancellationToken cancellationToken)
