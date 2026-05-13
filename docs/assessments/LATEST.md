@@ -473,7 +473,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Increases the Accessibility score.
     - **Expected impact:** Accessibility (+15 pts).
     - **Affected qualities:** Accessibility.
-    - **Status:** Actionable now.
+    - **Status:** Completed — Radix-based `Dialog` close control uses `aria-label` + decorative `X` (`aria-hidden`); Vitest `jest-axe` suite covers Button + Dialog + AlertDialog (`src/accessibility/ui-base-components-axe.test.tsx`, `npm run test:axe-components`); route scans use `@axe-core/playwright` WCAG 2.1 A/AA (`tests/accessibility.spec.ts`, `npm run test:e2e:accessibility`, CI `ui-playwright-accessibility` / `ui-axe-components`).
     ```text
     Audit `archlucid-ui` base components (buttons, modals, dialogs) and add appropriate `aria-label`, `aria-hidden`, and `role` properties.
     - Specify files: `archlucid-ui/src/components/`
@@ -525,7 +525,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Enforces the explicit rule from V1_SCOPE Section 2.17.
     - **Expected impact:** Policy and Governance Alignment (+5 pts).
     - **Affected qualities:** Policy and Governance Alignment.
-    - **Status:** Actionable now.
+    - **Status:** Completed — Terraform advisory ZIP writes `ADVISORY.md` from `TerraformAdvisoryExportCopy.AdvisoryMarkdownBody` in `ArtifactPackagingService.BuildTerraformAdvisoryPlaceholderExport`; covered by `ArtifactPackagingServiceTests.BuildTerraformAdvisoryPlaceholderExport_writes_zip_with_disclaimer_and_stub`.
     ```text
     Modify the Terraform package generator in `ArchLucid.ArtifactSynthesis` to inject an `ADVISORY.md` file warning users that ArchLucid never applies or destroys resources.
     - Specify files: `ArchLucid.ArtifactSynthesis/`
@@ -538,7 +538,7 @@ The core architecture, agent orchestration, and isolation models are incredibly 
     - **Why it matters:** Validates that `SystemWithPerTenantCatalogs` is fully enforced for hosted tenants.
     - **Expected impact:** Security (+3 pts).
     - **Affected qualities:** Security.
-    - **Status:** Actionable now.
+    - **Status:** Completed — `SqlTopologyPlaneIsolationSqlIntegrationTests` provisions separate system + tenant catalogs, seeds a Tenant B–only `dbo.Projects` row, opens a Tenant A–scoped `ScopedRoutingSqlConnectionFactory` connection, and asserts `COUNT(*)` is `0`; CI-only gate: `Tenant_A_connection_cannot_query_Tenant_B_catalog_rows_in_ci_pipeline_only` (`Category=CiPipelineOnly`, `CI` / `GITHUB_ACTIONS` / `TF_BUILD`). Runs with full regression (`dotnet-full-regression-core-libs`) via `ARCHLUCID_SQL_TEST`.
     ```text
     Add an integration test that provisions a multi-tenant layout and verifies that connections originating from Tenant A explicitly fail to query the catalog of Tenant B.
     - Specify files: `ArchLucid.Persistence.Tests/`

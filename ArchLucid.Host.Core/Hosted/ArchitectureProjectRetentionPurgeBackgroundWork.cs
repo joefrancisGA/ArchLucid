@@ -50,20 +50,25 @@ public static class ArchitectureProjectRetentionPurgeBackgroundWork
 
             foreach (ArchitectureProjectPurgeDeletion d in deleted)
             {
-                await audit.LogAsync(
-                    new AuditEvent
-                    {
-                        EventType = AuditEventTypes.ArchitectureProjectHardPurgedRetention,
-                        TenantId = d.TenantId,
-                        WorkspaceId = d.WorkspaceId,
-                        ProjectId = d.ProjectId,
-                        ActorUserId = "system",
-                        ActorUserName = "architecture-project-retention",
-                        ExplicitActor = true,
-                        DataJson = JsonSerializer.Serialize(
-                            new { d.ProjectId, d.TenantId, d.WorkspaceId }),
-                    },
-                    cancellationToken);
+                await DurableAuditLogRetry.TryLogAsync(
+                    ct => audit.LogAsync(
+                        new AuditEvent
+                        {
+                            EventType = AuditEventTypes.ArchitectureProjectHardPurgedRetention,
+                            TenantId = d.TenantId,
+                            WorkspaceId = d.WorkspaceId,
+                            ProjectId = d.ProjectId,
+                            ActorUserId = "system",
+                            ActorUserName = "architecture-project-retention",
+                            ExplicitActor = true,
+                            DataJson = JsonSerializer.Serialize(
+                                new { d.ProjectId, d.TenantId, d.WorkspaceId }),
+                        },
+                        ct),
+                    logger,
+                    $"ArchitectureProjectHardPurgedRetention:{d.ProjectId:D}",
+                    cancellationToken,
+                    auditEventTypeForMetrics: AuditEventTypes.ArchitectureProjectHardPurgedRetention);
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
