@@ -1,6 +1,7 @@
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Health;
 using ArchLucid.Api.Middleware;
+using ArchLucid.Api.Startup;
 using ArchLucid.Api.Services;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
@@ -66,7 +67,8 @@ public static class ApiWebLayerServiceCollectionExtensions
             .AddCheck<ContentSafetyHealthCheck>(
                 "azure_content_safety",
                 failureStatus: HealthStatus.Unhealthy,
-                tags: [ReadinessTags.Ready]);
+                tags: [ReadinessTags.Ready])
+            .AddArchLucidRlsSessionContextInfrastructureProbe();
 
         return services;
     }
