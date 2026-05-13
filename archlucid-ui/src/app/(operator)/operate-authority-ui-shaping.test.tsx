@@ -547,7 +547,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
    */
   it("Governance resolution: Change related controls shows reader supplement when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<GovernanceResolutionPage />);
+    const page = await GovernanceResolutionPage();
+    render(page);
 
     await waitFor(() => {
       expect(apiHoisted.getGovernanceResolution).toHaveBeenCalled();
@@ -571,7 +572,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Governance resolution: Change related controls omits reader supplement when mutation capability is true", async () => {
     mutateCapability.current = true;
-    render(<GovernanceResolutionPage />);
+    const page = await GovernanceResolutionPage();
+    render(page);
 
     await waitFor(() => {
       expect(apiHoisted.getGovernanceResolution).toHaveBeenCalled();
@@ -583,7 +585,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   /** Readers refresh effective policy via GET; **`disabled`** must stay tied to **`loading`**, not mutation rank. */
   it("Governance resolution: Refresh stays enabled when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<GovernanceResolutionPage />);
+    const page = await GovernanceResolutionPage();
+    render(page);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();

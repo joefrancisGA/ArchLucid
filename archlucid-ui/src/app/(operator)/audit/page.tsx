@@ -1,5 +1,8 @@
-import { AuditPageMain } from "./_sections/AuditPageMain";
+import { AuditPageClient } from "./_sections/AuditPageClient";
+import { loadAuditPageData } from "./_sections/load-audit-page-data";
 
-export default function AuditPage() {
-  return <AuditPageMain />;
+export default async function AuditPage() {
+  const loaded = await loadAuditPageData();
+
+  return <AuditPageClient loaded={loaded} />;
 }

@@ -56,7 +56,8 @@ describe("operator analysis pages — axe (Vitest)", () => {
   it(
     "ReplayPage has no serious axe violations",
     async () => {
-      const { container } = render(<ReplayPage />);
+      const page = await ReplayPage();
+      const { container } = render(page);
 
       expect(await axe(container)).toHaveNoViolations();
     },

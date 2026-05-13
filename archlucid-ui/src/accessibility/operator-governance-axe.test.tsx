@@ -144,7 +144,8 @@ describe("operator governance pages — axe (Vitest)", () => {
   it(
     "GovernanceResolutionPage has no serious axe violations",
     async () => {
-      const { container } = render(<GovernanceResolutionPage />);
+      const page = await GovernanceResolutionPage();
+      const { container } = render(page);
 
       expect(await axe(container)).toHaveNoViolations();
     },
