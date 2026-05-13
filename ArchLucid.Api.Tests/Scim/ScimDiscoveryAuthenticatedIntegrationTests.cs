@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests.Scim;
 
 [Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class ScimDiscoveryAuthenticatedIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     [SkippableFact]

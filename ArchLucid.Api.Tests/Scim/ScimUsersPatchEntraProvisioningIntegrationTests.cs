@@ -8,6 +8,7 @@ namespace ArchLucid.Api.Tests.Scim;
 
 /// <summary>PATCH User with flat replace operations — matches typical Entra soft-disable + display name refresh shape.</summary>
 [Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class ScimUsersPatchEntraProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     [SkippableFact]

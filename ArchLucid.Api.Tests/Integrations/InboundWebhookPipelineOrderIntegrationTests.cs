@@ -28,6 +28,7 @@ namespace ArchLucid.Api.Tests.Integrations;
 ///         structural invariant here is <i>rejection before JSON parse</i>, not a specific status code.
 ///     </para>
 /// </remarks>
+[Trait("Category", "Integration")]
 public sealed class InboundWebhookPipelineOrderIntegrationTests
 {
     private const string JiraSecret = "integration-test-jira-webhook-secret";

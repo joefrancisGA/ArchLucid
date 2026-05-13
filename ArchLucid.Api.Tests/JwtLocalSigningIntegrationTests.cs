@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>JWT validation using <see cref="ArchLucidAuthOptions.JwtSigningPublicKeyPemPath" /> (CI / local E2E pattern).</summary>
+[Trait("Category", "Integration")]
 public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     [SkippableFact]

@@ -8,6 +8,7 @@ namespace ArchLucid.Api.Tests.Scim;
 
 /// <summary>Entra-shaped POST User — exercised against <see cref="JwtLocalSigningWebAppFactory" /> (in-memory catalog).</summary>
 [Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class ScimUsersPostEntraProvisioningIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     [SkippableFact]

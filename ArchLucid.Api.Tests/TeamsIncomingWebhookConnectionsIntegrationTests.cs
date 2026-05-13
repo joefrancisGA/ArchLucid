@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests;
 
+[Trait("Category", "Integration")]
 public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)

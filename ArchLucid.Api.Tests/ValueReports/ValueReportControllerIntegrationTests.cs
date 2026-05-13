@@ -20,6 +20,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests.ValueReports;
 
+[Trait("Category", "Integration")]
 public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
 {
     private readonly JwtLocalSigningWebAppFactory _baseFactory = new();

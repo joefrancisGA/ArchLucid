@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Separate fixture from read tests so InMemory preferences store starts empty (singleton repo per host).</summary>
+[Trait("Category", "Integration")]
 public sealed class
     CustomerNotificationChannelPreferencesWriteIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {

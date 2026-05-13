@@ -5,6 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests.Scim;
 
 [Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class ScimBearerSecurityIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     [SkippableFact]

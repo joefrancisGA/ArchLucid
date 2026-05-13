@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace ArchLucid.Api.Tests.Billing;
 
 [Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class BillingCheckoutControllerTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     [SkippableFact]
