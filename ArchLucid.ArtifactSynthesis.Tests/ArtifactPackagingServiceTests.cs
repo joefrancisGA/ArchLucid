@@ -120,6 +120,37 @@ public sealed class ArtifactPackagingServiceTests
     }
 
     [Fact]
+    public void BuildRunExportPackage_embeds_optional_architecture_png_beside_artifact_text_entries()
+    {
+        ArtifactPackagingService sut = new(new FixedContentTypeResolver());
+        Guid runId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        const string manifestJson = "{}";
+        byte[] fakePng = [0x89, (byte)'P', (byte)'N', (byte)'G'];
+
+        ArtifactPackage package = sut.BuildRunExportPackage(
+            runId,
+            manifestId,
+            [],
+            manifestJson,
+            traceJson: null,
+            readmeContext: null,
+            renderedArchitectureDiagramPng: fakePng);
+
+        using MemoryStream stream = new(package.Content);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+
+        ZipArchiveEntry? png = archive.GetEntry("artifacts/architecture-graph.png");
+
+        png.Should().NotBeNull();
+
+        using MemoryStream pngStream = new();
+
+        png!.Open().CopyTo(pngStream);
+        pngStream.ToArray().Should().Equal(fakePng);
+    }
+
+    [Fact]
     public void BuildTerraformAdvisoryPlaceholderExport_writes_zip_with_disclaimer_and_stub()
     {
         ArtifactPackagingService sut = new(new FixedContentTypeResolver());

@@ -77,7 +77,7 @@ public sealed class ConfluenceCloudPublisherConnectorTests
 
         outcome.Succeeded.Should().BeFalse();
         outcome.FailureReason.Should().Be(ConfluencePublishFailureReason.BadResponse);
-        outcome.ErrorMessage.Should().Contain("SpaceKey");
+        outcome.ErrorMessage.Should().Contain("space key");
     }
 
     [Fact]

@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
@@ -367,6 +368,11 @@ public sealed class FirstValueReportBuilderTests
         Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
         siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
 
+        Mock<ITenantFirstValueReportBrandingRepository> branding = new();
+        branding
+            .Setup(b => b.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantFirstValueReportBrandingRow?)null);
+
         return new FirstValueReportBuilder(
             query,
             deltas,
@@ -375,6 +381,7 @@ public sealed class FirstValueReportBuilderTests
             new ExecutionProvenanceFooterRenderer(),
             configuration,
             siteOpts.Object,
+            branding.Object,
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }

@@ -103,7 +103,9 @@ public sealed class AgentOutputQualityGateOptionsTests
 
         o.PerAgentTypeFloors["Cost"] = new AgentTypeQualityFloors { SemanticRejectBelow = 0.41 };
 
-        o.PerAgentTypeFloors.Should().ContainKeys("cost", "COST");
+        o.PerAgentTypeFloors.ContainsKey("cost").Should().BeTrue();
+        o.PerAgentTypeFloors.ContainsKey("COST").Should().BeTrue();
+        o.PerAgentTypeFloors["cost"].Should().BeSameAs(o.PerAgentTypeFloors["COST"]);
         o.PerAgentTypeFloors["cost"].SemanticRejectBelow.Should().Be(0.41);
     }
 
