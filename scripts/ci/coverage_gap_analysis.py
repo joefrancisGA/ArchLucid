@@ -29,6 +29,32 @@ def is_target_product_package(name: str) -> bool:
     return True
 
 
+def _recent_md_without_library_header(raw: str) -> str:
+    """
+    Strip docs/library/COVERAGE_GAP_ANALYSIS_RECENT.md front-matter blockquotes so the main
+    doc keeps a single top-level Scope/Spine header (merge-blocking doc-scope CI).
+    """
+    lines = raw.replace("\r\n", "\n").split("\n")
+    for i, line in enumerate(lines):
+        if line.strip().startswith("## Recent targeted tests"):
+            return "\n".join(lines[i:]).strip()
+
+    out: list[str] = []
+    skip_block = True
+    for line in lines:
+        stripped = line.strip()
+        if skip_block:
+            if not stripped:
+                continue
+            if stripped.startswith("> "):
+                continue
+            skip_block = False
+
+        out.append(line)
+
+    return "\n".join(out).strip()
+
+
 def uncovered_by_file(package_el: ET.Element) -> dict[str, int]:
     counts: dict[str, int] = defaultdict(int)
     for element in package_el.iter():
@@ -92,11 +118,18 @@ def main() -> int:
     packages.sort(key=lambda t: t[1])
 
     out_lines: list[str] = [
+        "> **Scope:** Coverage gap analysis (merged Cobertura) - tables from merged Cobertura; reflects whatever "
+        "test assemblies produced `coverage-gap-1a/**/coverage.cobertura.xml`, not implicitly a green full solution.",
+        ">",
+        "> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). "
+        "Read this file only if you have a specific reason beyond those five entry documents.",
+        "",
         "# Coverage gap analysis (merged Cobertura)",
         "",
-        f"**Generated:** from `{cobertura.relative_to(repo)}` (full `ArchLucid.sln` test run + ReportGenerator merge).",
+        f"**Generated:** from `{cobertura.relative_to(repo)}` "
+        "(ReportGenerator Cobertura merge of Coverlet outputs from `dotnet test` + `--collect:\"XPlat Code Coverage\"`).",
         "",
-        "**Scope:** Production `ArchLucid.*` assemblies only; excludes `*.Tests`, TestSupport, and Benchmarks.",
+        "**Measurement:** Production `ArchLucid.*` assemblies only; excludes `*.Tests`, TestSupport, and Benchmarks.",
         "",
         "## Bottom five assemblies by line coverage",
         "",
@@ -150,7 +183,7 @@ def main() -> int:
     out_lines.append("")
     recent_path = repo / "docs" / "library" / "COVERAGE_GAP_ANALYSIS_RECENT.md"
     if recent_path.is_file():
-        out_lines.append(recent_path.read_text(encoding="utf-8").strip())
+        out_lines.append(_recent_md_without_library_header(recent_path.read_text(encoding="utf-8")))
         out_lines.append("")
     out_lines.append("## How to refresh")
     out_lines.append("")

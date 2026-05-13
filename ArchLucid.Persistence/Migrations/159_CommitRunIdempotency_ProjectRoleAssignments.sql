@@ -51,7 +51,11 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (
+        SELECT 1
+        FROM sys.security_policies
+        WHERE name = N'ArchLucidTenantScope'
+          AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
@@ -60,15 +64,19 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'CommitRunIdempotency')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
         ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CommitRunIdempotency,
         ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CommitRunIdempotency AFTER INSERT,
         ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CommitRunIdempotency AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CommitRunIdempotency BEFORE DELETE;
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CommitRunIdempotency BEFORE DELETE;');
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (
+        SELECT 1
+        FROM sys.security_policies
+        WHERE name = N'ArchLucidTenantScope'
+          AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ProjectRoleAssignments', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
@@ -77,11 +85,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'ProjectRoleAssignments')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    EXEC (N'ALTER SECURITY POLICY rls.ArchLucidTenantScope
         ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProjectRoleAssignments,
         ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProjectRoleAssignments AFTER INSERT,
         ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProjectRoleAssignments AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProjectRoleAssignments BEFORE DELETE;
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProjectRoleAssignments BEFORE DELETE;');
 END;
 GO
 

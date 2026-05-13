@@ -24,14 +24,10 @@ namespace ArchLucid.Api.Controllers.Admin;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin")]
 public sealed class AdminLlmCostTuningController(
-    IServiceProvider serviceProvider,
     IActorContext actorContext,
     IAuditService auditService,
     IRegisteredAgentHandlersInspector handlersInspector) : ControllerBase
 {
-    private readonly IServiceProvider _serviceProvider =
-        serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -54,10 +50,10 @@ public sealed class AdminLlmCostTuningController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ILlmCostEstimationUsdRateOverrideRepository? repository =
-            _serviceProvider.GetService<ILlmCostEstimationUsdRateOverrideRepository>();
+            HttpContext.RequestServices.GetService<ILlmCostEstimationUsdRateOverrideRepository>();
 
         LlmCostEstimationUsdRateOverrideCache? cache =
-            _serviceProvider.GetService<LlmCostEstimationUsdRateOverrideCache>();
+            HttpContext.RequestServices.GetService<LlmCostEstimationUsdRateOverrideCache>();
 
 
         if (repository is null || cache is null)

@@ -12,6 +12,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminLlmCostTuningController.cs",
+      "class_name": "AdminLlmCostTuningController",
+      "route_template": "v{version:apiVersion}/admin",
+      "normalized_prefix": "/v1/admin",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": "/settings/tenant-cost"
+    },
+    {
       "controller_file": "Admin/AuditController.cs",
       "class_name": "AuditController",
       "route_template": "v{version:apiVersion}/audit",

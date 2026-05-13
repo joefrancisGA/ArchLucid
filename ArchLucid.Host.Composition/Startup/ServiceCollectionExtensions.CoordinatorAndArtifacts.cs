@@ -147,7 +147,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<LlmCostEstimationUsdRateOverrideCache>();
         services.AddSingleton<ILlmCostEstimationUsdRateOverride>(static sp =>
             sp.GetRequiredService<LlmCostEstimationUsdRateOverrideCache>());
-        services.AddSingleton<ILlmCostEstimationUsdRateOverrideRepository, SqlLlmCostEstimationUsdRateOverrideRepository>();
+        services.AddScoped<ILlmCostEstimationUsdRateOverrideRepository, SqlLlmCostEstimationUsdRateOverrideRepository>();
         services.AddHostedService<LlmCostEstimationUsdRateOverrideWarmupHostedService>();
     }
 

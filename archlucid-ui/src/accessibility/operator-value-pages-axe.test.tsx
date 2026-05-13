@@ -144,6 +144,10 @@ vi.mock("@/app/(operator)/planning/_sections/load-planning-page-data", () => {
   };
 });
 
+vi.mock("@/app/(operator)/value-report/_sections/load-value-report-page-data", () => ({
+  loadValueReportPageData: () => Promise.resolve({}),
+}));
+
 import ValueReportPage from "@/app/(operator)/value-report/page";
 import AdvisoryPage from "@/app/(operator)/advisory/page";
 import AdvisorySchedulingPage from "@/app/(operator)/advisory-scheduling/page";
@@ -157,7 +161,8 @@ describe("operator value + advisory pages — axe (Vitest)", () => {
   it(
     "ValueReportPage has no serious axe violations",
     async () => {
-      const { container } = render(<ValueReportPage />);
+      const page = await ValueReportPage();
+      const { container } = render(page);
 
       expect(await axe(container)).toHaveNoViolations();
     },
