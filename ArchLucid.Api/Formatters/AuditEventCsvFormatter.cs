@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Reporting;
 using ArchLucid.Core.Audit;
 
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -19,8 +20,13 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
     private const string HeaderLine =
         "EventId,OccurredUtc,EventType,ActorUserId,ActorUserName,RunId,ManifestId,CorrelationId,DataJson";
 
-    public AuditEventCsvFormatter()
+    private readonly ExportFormatterService _exportFormatter;
+
+    public AuditEventCsvFormatter(ExportFormatterService exportFormatter)
     {
+        ArgumentNullException.ThrowIfNull(exportFormatter);
+
+        _exportFormatter = exportFormatter;
         SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("text/csv"));
         SupportedEncodings.Add(Encoding.UTF8);
     }
@@ -65,7 +71,7 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
             string line = string.Join(
                 ',',
                 EscapeCsvField(auditEvent.EventId.ToString("D", CultureInfo.InvariantCulture)),
-                EscapeCsvField(FormatOccurredUtc(auditEvent.OccurredUtc)),
+                EscapeCsvField(_exportFormatter.FormatIso8601Utc(auditEvent.OccurredUtc)),
                 EscapeCsvField(auditEvent.EventType),
                 EscapeCsvField(auditEvent.ActorUserId),
                 EscapeCsvField(auditEvent.ActorUserName),
@@ -80,18 +86,6 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
         await writer.FlushAsync();
     }
 
-    private static string FormatOccurredUtc(DateTime occurredUtc)
-    {
-        DateTime utc = occurredUtc.Kind switch
-        {
-            DateTimeKind.Utc => occurredUtc,
-            DateTimeKind.Local => occurredUtc.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(occurredUtc, DateTimeKind.Utc)
-        };
-
-        return utc.ToString("O", CultureInfo.InvariantCulture);
-    }
-
     private static string FormatNullableGuid(Guid? value)
     {
         return !value.HasValue ? string.Empty : value.Value.ToString("D", CultureInfo.InvariantCulture);
@@ -100,20 +94,5 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
     /// <summary>
     ///     RFC 4180-style escaping: double quotes around fields that contain comma, quote, or newline; quotes doubled.
     /// </summary>
-    internal static string EscapeCsvField(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return string.Empty;
-
-        bool mustQuote =
-            value.Contains(',')
-            || value.Contains('"')
-            || value.Contains('\r')
-            || value.Contains('\n');
-
-        if (!mustQuote)
-            return value;
-
-        return "\"" + value.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
-    }
+    internal static string EscapeCsvField(string? value) => ExportFormatterService.EscapeCsvField(value);
 }

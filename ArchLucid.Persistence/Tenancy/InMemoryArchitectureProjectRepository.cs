@@ -62,6 +62,7 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
             return Task.FromResult(false);
 
         row.IsDeleted = true;
+        row.DeletedUtc = TimeProvider.System.GetUtcNow();
 
         return Task.FromResult(true);
     }
@@ -99,6 +100,12 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
         }
 
         public bool IsDeleted
+        {
+            get;
+            set;
+        }
+
+        public DateTimeOffset? DeletedUtc
         {
             get;
             set;

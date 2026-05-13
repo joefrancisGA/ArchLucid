@@ -98,6 +98,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
         services.AddSingleton<IArchitectureProjectRepository, InMemoryArchitectureProjectRepository>();
+        services.AddSingleton<IArchitectureProjectRetentionPurgeService, NoOpArchitectureProjectRetentionPurgeService>();
         services.AddSingleton<IScimTenantTokenRepository, InMemoryScimTenantTokenRepository>();
         services.AddSingleton<IScimUserRepository, InMemoryScimUserRepository>();
         services.AddSingleton<IAdminNotificationsRepository, NoOpAdminNotificationsRepository>();

@@ -197,6 +197,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
                 .AppendLine()
                 .AppendLine("Contents:")
                 .AppendLine("  README.txt              — this file")
+                .AppendLine("  ADVISORY.md             — non-apply advisory notice (ArchLucid never runs terraform apply/destroy)")
                 .AppendLine("  advisory-placeholder.tf — advisory-only stub (not applyable)")
                 .AppendLine("  package-metadata.json   — export metadata");
 

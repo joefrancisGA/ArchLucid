@@ -1,9 +1,9 @@
-using System.Globalization;
 using System.Reflection;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Formatters;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
@@ -33,7 +33,10 @@ namespace ArchLucid.Api.Controllers.Admin;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/audit")]
 [EnableRateLimiting("fixed")]
-public sealed class AuditController(IAuditRepository repo, IScopeContextProvider scopeProvider) : ControllerBase
+public sealed class AuditController(
+    IAuditRepository repo,
+    IScopeContextProvider scopeProvider,
+    ExportFormatterService exportFormatter) : ControllerBase
 {
     /// <remarks>
     ///     Returns newest-first audit events capped by <paramref name="take" />; pass <paramref name="cursor" /> from
@@ -199,8 +202,8 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
         [FromQuery] string? format = null,
         CancellationToken ct = default)
     {
-        DateTime from = NormalizeExportInstant(fromUtc);
-        DateTime to = NormalizeExportInstant(toUtc);
+        DateTime from = exportFormatter.NormalizeExportInstantUtc(fromUtc);
+        DateTime to = exportFormatter.NormalizeExportInstantUtc(toUtc);
 
         if (from > to)
             return this.BadRequestProblem(
@@ -248,41 +251,15 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
                 await using MemoryStream buffer = new();
                 await AuditCefLineWriter.WriteAllAsync(buffer, events, ct).ConfigureAwait(false);
                 byte[] utf8 = buffer.ToArray();
-                string cefName = BuildAuditExportCefFileName(from, to);
+                string cefName = exportFormatter.BuildAuditExportCefFileName(from, to);
 
                 return File(utf8, "text/plain", cefName);
             }
         }
 
-        string attachmentName = BuildAuditExportCsvFileName(from, to);
+        string attachmentName = exportFormatter.BuildAuditExportCsvFileName(from, to);
         HttpContext.Items[AuditEventCsvFormatter.CsvAttachmentFileNameItemKey] = attachmentName;
 
         return Ok(events);
-    }
-
-    private static string BuildAuditExportCefFileName(DateTime fromUtc, DateTime toUtc)
-    {
-        string fromPart = fromUtc.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
-        string toPart = toUtc.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
-
-        return $"audit-export-{fromPart}-{toPart}.cef";
-    }
-
-    private static DateTime NormalizeExportInstant(DateTime value)
-    {
-        return value.Kind switch
-        {
-            DateTimeKind.Utc => value,
-            DateTimeKind.Local => value.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
-        };
-    }
-
-    private static string BuildAuditExportCsvFileName(DateTime fromUtc, DateTime toUtc)
-    {
-        string fromPart = fromUtc.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
-        string toPart = toUtc.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
-
-        return $"audit-export-{fromPart}-{toPart}.csv";
     }
 }

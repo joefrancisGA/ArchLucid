@@ -5,7 +5,9 @@ using ArchLucid.Api.Filters;
 using ArchLucid.Api.Formatters;
 using ArchLucid.Api.OpenApi;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Startup;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application.Reporting;
 
 using Asp.Versioning;
 
@@ -13,6 +15,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Startup;
 
@@ -20,12 +23,15 @@ internal static class MvcExtensions
 {
     public static IServiceCollection AddArchLucidMvc(this IServiceCollection services)
     {
+        services.AddSingleton<ExportFormatterService>();
+        services.AddSingleton<AuditEventCsvFormatter>();
+        services.AddSingleton<IConfigureOptions<MvcOptions>, AuditCsvFormatterMvcOptionsConfigurer>();
+
         services.AddControllers(options =>
             {
                 options.Conventions.Add(new DefaultPublicApiRateLimitConvention());
                 options.Filters.Add<ApiProblemDetailsExceptionFilter>();
                 options.Filters.Add<TrialLimitExceededAuditFilter>();
-                options.OutputFormatters.Add(new AuditEventCsvFormatter());
             })
             .AddJsonOptions(options =>
             {

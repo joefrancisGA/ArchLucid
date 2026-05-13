@@ -69,7 +69,8 @@ public sealed class DapperArchitectureProjectRepository(ISqlConnectionFactory co
 
         const string sql = """
                            UPDATE dbo.Projects
-                           SET IsDeleted = 1
+                           SET IsDeleted = 1,
+                               DeletedUtc = SYSUTCDATETIME()
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
                              AND Id = @ProjectId
