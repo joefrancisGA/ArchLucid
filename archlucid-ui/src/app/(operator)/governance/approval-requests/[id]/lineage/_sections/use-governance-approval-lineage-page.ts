@@ -1,8 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-
-import { useParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getApprovalRequestLineage } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -10,7 +8,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
-import { resolveApprovalRequestIdFromParams } from "./resolve-approval-request-id-from-params";
+import type { GovernanceApprovalLineagePageServerLoad } from "./load-governance-approval-lineage-page-data";
 
 export type UseGovernanceApprovalLineagePageModel = {
   approvalRequestId: string;
@@ -22,13 +20,16 @@ export type UseGovernanceApprovalLineagePageModel = {
   nextDemo: boolean;
 };
 
-export function useGovernanceApprovalLineagePage(): UseGovernanceApprovalLineagePageModel {
-  const params = useParams<{ id: string }>();
-  const approvalRequestId = resolveApprovalRequestIdFromParams(params);
+export function useGovernanceApprovalLineagePage(
+  loaded: GovernanceApprovalLineagePageServerLoad,
+): UseGovernanceApprovalLineagePageModel {
+  const approvalRequestId = loaded.approvalRequestId;
 
-  const [data, setData] = useState<GovernanceLineageResult | null>(null);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<GovernanceLineageResult | null>(loaded.data);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(loaded.failure);
+  const [loading, setLoading] = useState(false);
+
+  const skipInitialClientFetchRef = useRef(true);
 
   const load = useCallback(async () => {
     if (!approvalRequestId) {
@@ -42,6 +43,7 @@ export function useGovernanceApprovalLineagePage(): UseGovernanceApprovalLineage
 
     try {
       const result = await getApprovalRequestLineage(approvalRequestId);
+
       setData(result);
     } catch (e: unknown) {
       setData(null);
@@ -52,6 +54,12 @@ export function useGovernanceApprovalLineagePage(): UseGovernanceApprovalLineage
   }, [approvalRequestId]);
 
   useEffect(() => {
+    if (skipInitialClientFetchRef.current) {
+      skipInitialClientFetchRef.current = false;
+
+      return;
+    }
+
     void load();
   }, [load]);
 

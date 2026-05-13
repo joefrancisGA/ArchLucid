@@ -6,9 +6,10 @@ import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation
 import { downloadBoardPackPdf, downloadValueReportDocx } from "@/lib/api";
 import { DEFAULT_DEV_TENANT_ID } from "@/lib/scope-defaults";
 
-import type { ValueReportActionError } from "./value-report-action-error";
+import type { ValueReportPageServerLoad } from "./load-value-report-page-data";
 import { resolveTenantIdFromMe } from "./resolve-tenant-id-from-me";
 import { toValueReportActionError } from "./to-value-report-action-error";
+import type { ValueReportActionError } from "./value-report-action-error";
 
 export type UseValueReportPageModel = {
   boardBusy: boolean;
@@ -23,7 +24,7 @@ export type UseValueReportPageModel = {
   toUtc: string;
 };
 
-export function useValueReportPage(): UseValueReportPageModel {
+export function useValueReportPage(_loaded: ValueReportPageServerLoad): UseValueReportPageModel {
   const canMutate = useEnterpriseMutationCapability();
   const [fromUtc, setFromUtc] = useState(() => {
     const d = new Date();

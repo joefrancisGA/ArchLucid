@@ -34,7 +34,9 @@
   "nav_operator_href_by_controller_file": {
     "Admin/AuditController.cs": "/audit",
     "Billing/BillingCheckoutController.cs": "/settings/tenant",
+    "Admin/AdminLlmCostTuningController.cs": "/settings/tenant-cost",
     "Admin/MeteringAdminController.cs": "/settings/tenant-cost",
+    "Admin/AdminLlmCostTuningController.cs": "/settings/tenant-cost",
     "Admin/SecurityTrustPublicationController.cs": "/workspace/security-trust",
     "Admin/SupportBundleController.cs": "/admin/support",
     "Admin/TenantsAdminController.cs": "/admin/users",
