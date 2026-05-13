@@ -55,7 +55,7 @@ public sealed class ArtifactBundleValidatorTests
 
         Action act = () => new ArtifactBundleValidator().Validate(bundle);
 
-        act.Should().Throw<InvalidOperationException>().WithMessage("*missing required header*");
+        act.Should().Throw<InvalidOperationException>().WithMessage("*missing required markdown*");
     }
 
     [Theory]
@@ -65,7 +65,16 @@ public sealed class ArtifactBundleValidatorTests
     {
         ArtifactBundle bundle = ValidBundle();
         bundle.Artifacts[0].ArtifactType = artifactType;
-        bundle.Artifacts[0].Content = "Objective Assumptions Constraints Architecture Overview Component Breakdown Data Flow Security Model Operational Considerations";
+        bundle.Artifacts[0].Content = string.Join(
+            Environment.NewLine,
+            "## Objective",
+            "## Assumptions",
+            "## Constraints",
+            "## Architecture Overview",
+            "## Component Breakdown",
+            "## Data Flow",
+            "## Security Model",
+            "## Operational Considerations");
 
         Action act = () => new ArtifactBundleValidator().Validate(bundle);
 
