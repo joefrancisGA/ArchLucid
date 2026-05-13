@@ -160,7 +160,13 @@ public sealed class CircuitBreakingContentSafetyGuard(
                 DataJson = JsonSerializer.Serialize(new { kind, denialCountsByCategory })
             };
 
-            await auditService.LogAsync(auditEvent, cancellationToken).ConfigureAwait(false);
+            await DurableAuditLogRetry.TryLogAsync(
+                    ct => auditService.LogAsync(auditEvent, ct),
+                    _logger,
+                    $"ContentSafetyCircuitDegradedFallback:{kind}",
+                    cancellationToken,
+                    auditEventTypeForMetrics: AuditEventTypes.ContentSafetyCircuitDegradedFallback)
+                .ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
