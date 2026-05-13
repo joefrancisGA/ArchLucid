@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:183 -->
+<!-- audit-core-const-count:185 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -268,6 +268,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `ReplayExportRecorded` | `ReplayExportRecorded` | `ExportsController` |
 | `ComparisonSummaryPersisted` | `ComparisonSummaryPersisted` | `ExportsController` |
 | `GovernancePreCommitBlocked` | `GovernancePreCommitBlocked` | `ArchitectureRunCommitOrchestrator` (optional pre-commit gate) |
+| `GovernanceBypassInvoked` | `GovernanceBypassInvoked` | `AuthorityDrivenArchitectureRunCommitOrchestrator` (pre-commit governance break-glass via commit justification) |
 | `GovernancePreCommitWarned` | `GovernancePreCommitWarned` | `ArchitectureRunCommitOrchestrator` (warn-only severity in pre-commit gate) |
 | `GovernancePreCommitSimulationEvaluated` | `GovernancePreCommitSimulationEvaluated` | `GovernancePreCommitSimulationController` (`POST /v1/governance/pre-commit/simulate`) |
 | `GovernanceApprovalSlaBreached` | `GovernanceApprovalSlaBreached` | `ApprovalSlaMonitor` (pending approval request past SLA deadline) |
@@ -358,6 +359,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `AgentTraceInlineFallbackFailed` | `AgentTraceInlineFallbackFailed` | `AgentExecutionTraceRecorder` |
 | `LlmTenantDailyBudgetApproaching` | `LlmTenantDailyBudgetApproaching` | `LlmDailyTenantBudgetTracker` (fire-and-forget; one row per tenant per UTC day) |
 | `LlmTenantMonthlyDollarBudgetApproaching` | `LlmTenantMonthlyDollarBudgetApproaching` | `LlmMonthlyTenantDollarBudgetTracker` (fire-and-forget; one row per tenant per UTC month) |
+| `LlmCostTuningUpdated` | `LlmCostTuningUpdated` | `AdminLlmCostTuningController` (persisted USD-per-token rates for cost estimation) |
 | `ScimTokenIssued` | `ScimTokenIssued` | `ScimTokensAdminController` |
 | `ScimTokenRevoked` | `ScimTokenRevoked` | `ScimTokensAdminController` |
 | `ScimUserProvisioned` | `ScimUserProvisioned` | `ScimUserService` |
