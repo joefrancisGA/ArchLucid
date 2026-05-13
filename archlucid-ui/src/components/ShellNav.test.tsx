@@ -69,7 +69,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
       fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
-      fireEvent.click(screen.getByRole("button", { name: "Close" }));
+      fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
 
       fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
 
@@ -102,7 +102,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
       fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
-      fireEvent.click(screen.getByRole("button", { name: "Close" }));
+      fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
 
       fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
 
