@@ -207,7 +207,9 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           manifestSummaryForUi={m.manifestSummaryForUi}
           manifestSummary={m.manifestSummary}
           trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
-          canShowCompareReviewButton={m.canShowCompareReviewButton}
+          samplePolicyPackContextLine={
+            m.usedStaticDemoRun === true ? "Sample healthcare claims policy pack used for this review." : null
+          }
         />
       ) : null}
 

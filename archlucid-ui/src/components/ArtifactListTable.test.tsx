@@ -158,4 +158,31 @@ describe("ArtifactListTable", () => {
     expect(screen.queryByText("Sponsor briefing — Claims Intake Modernization")).toBeNull();
     expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
   });
+
+  it("sponsor mode with audienceSections limits buckets when deliverablesBucketAllowlist is set", () => {
+    const artifacts = [
+      { ...sample, artifactId: "ev", artifactType: "EvidenceBundle", name: "ev.zip" },
+      {
+        ...sample,
+        artifactId: "md",
+        artifactType: "MarkdownReport",
+        name: "b.md",
+        format: "text/markdown",
+      },
+      { ...sample, artifactId: "jb", artifactType: "JsonBundle", name: "decisions.json" },
+    ];
+    render(
+      <ArtifactListTable
+        manifestId="manifest-1"
+        artifacts={artifacts}
+        sponsorMode
+        audienceSections
+        deliverablesBucketAllowlist={["sponsor", "shared"]}
+      />,
+    );
+
+    expect(screen.queryByRole("heading", { name: "Architecture review board" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Audit & compliance" })).toBeNull();
+    expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Executive & sponsor"]);
+  });
 });

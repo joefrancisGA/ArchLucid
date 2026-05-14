@@ -2,9 +2,10 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { BuyerDeliverablesArtifactTabs } from "@/components/BuyerDeliverablesArtifactTabs";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { ConsultingDocxExportButton } from "@/components/ConsultingDocxExportButton";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvisoryButton";
 import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
@@ -18,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import {
   getBundleDownloadUrl,
   getRunExportDownloadUrl,
-  getTraceabilityBundleDownloadUrl,
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
@@ -35,7 +35,8 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestSummaryForUi: ManifestSummary | null;
   readonly manifestSummary: ManifestSummary | null;
   readonly trustEvidenceCard: RunTrustEvidenceCard | null | undefined;
-  readonly canShowCompareReviewButton: boolean;
+  /** Curated demo: show policy-pack diligence line above the table. */
+  readonly samplePolicyPackContextLine: string | null;
 };
 
 export function RunDetailArtifactsExportsSection(
@@ -52,7 +53,7 @@ export function RunDetailArtifactsExportsSection(
     manifestSummaryForUi,
     manifestSummary,
     trustEvidenceCard,
-    canShowCompareReviewButton,
+    samplePolicyPackContextLine,
   } = props;
 
   return (
@@ -62,16 +63,26 @@ export function RunDetailArtifactsExportsSection(
           <ContextualHelp helpKey="manifest-review" placement="left" />
         </div>
         <CollapsibleSection
-          title={buyerPolishedArtifactTable ? "Deliverables by audience" : "Artifacts & exports"}
+          title={buyerPolishedArtifactTable ? "Deliverables" : "Artifacts & exports"}
           defaultOpen
         >
           {buyerPolishedArtifactTable ? (
-            <p className="m-0 mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-              Outputs are grouped below by who typically consumes them. Open or download row-by-row; use{" "}
-              <strong>Download evidence package</strong> or <strong>More formats</strong> for quick exports, and expand{" "}
-              <strong>More export options</strong> for additional ZIPs and links. Optional operator tooling stays under{" "}
-              <strong>Advanced — package technical detail</strong>.
-            </p>
+            <div className="m-0 mb-3 space-y-2">
+              {samplePolicyPackContextLine !== null && samplePolicyPackContextLine.trim().length > 0 ? (
+                <p className="m-0 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200">
+                  {samplePolicyPackContextLine.trim()}
+                </p>
+              ) : null}
+              <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+                Rows are organized by sponsor versus review-board consumers. Use{" "}
+                <strong className="text-neutral-800 dark:text-neutral-200">Download evidence package</strong> for the
+                diligence ZIP; optional <strong className="text-neutral-800 dark:text-neutral-200">Markdown summary</strong>{" "}
+                exports a lightweight narrative. Tenant-specific export channels (Teams routing, extra ZIPs, compare
+                tooling) are{" "}
+                <strong className="text-neutral-800 dark:text-neutral-200">available in a connected workspace</strong>{" "}
+                — not simulated in this sample.
+              </p>
+            </div>
           ) : null}
           {artifactsFailure ? (
             <>
@@ -87,8 +98,8 @@ export function RunDetailArtifactsExportsSection(
               <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
                 {buyerPolishedArtifactTable ? (
                   <>
-                    Try reloading, or return to the review. You can still use{" "}
-                    <strong>Download evidence package</strong> when the bundle is available.
+                    Try reloading, or return to the review. You can still use <strong>Download evidence package</strong> when
+                    the bundle is available.
                   </>
                 ) : (
                   <>
@@ -142,13 +153,17 @@ export function RunDetailArtifactsExportsSection(
           ) : null}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 ? (
-            <ArtifactListTable
-              manifestId={manifestId}
-              artifacts={artifacts}
-              runId={runId}
-              sponsorMode={buyerPolishedArtifactTable}
-              audienceSections={buyerPolishedArtifactTable}
-            />
+            buyerPolishedArtifactTable ? (
+              <BuyerDeliverablesArtifactTabs manifestId={manifestId} runId={runId} artifacts={artifacts} />
+            ) : (
+              <ArtifactListTable
+                manifestId={manifestId}
+                artifacts={artifacts}
+                runId={runId}
+                sponsorMode={buyerPolishedArtifactTable}
+                audienceSections={buyerPolishedArtifactTable}
+              />
+            )
           ) : null}
 
           <div className="mt-4 flex flex-col gap-3">
@@ -165,9 +180,8 @@ export function RunDetailArtifactsExportsSection(
                   goldenManifestJson={goldenManifestJsonForExport}
                   manifestSummary={manifestSummaryForUi ?? manifestSummary}
                   trustEvidenceCard={trustEvidenceCard ?? null}
+                  buyerMarkdownAsPrimaryButton
                 />
-                <ConsultingDocxExportButton runId={runId} />
-                <ExportTerraformAdvisoryButton runId={runId} />
               </div>
             ) : (
               <div className="flex flex-wrap items-center gap-3">
@@ -186,33 +200,11 @@ export function RunDetailArtifactsExportsSection(
               </div>
             )}
             {buyerPolishedArtifactTable ? (
-              <details className="rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
-                <summary className="cursor-pointer select-none text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                  More export options
-                </summary>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Button variant="outline" size="sm" asChild>
-                    <FunnelTelemetryExportAnchor href={getRunExportDownloadUrl(runId)}>
-                      Download review export (ZIP)
-                    </FunnelTelemetryExportAnchor>
-                  </Button>
-                  <Button variant="outline" size="sm" asChild>
-                    <FunnelTelemetryExportAnchor href={getTraceabilityBundleDownloadUrl(runId)}>
-                      Download audit package (ZIP)
-                    </FunnelTelemetryExportAnchor>
-                  </Button>
-                  {canShowCompareReviewButton ? (
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={comparePageHrefAdaptive(runId)} className="no-underline">
-                        Compare with another review
-                      </Link>
-                    </Button>
-                  ) : null}
-                  <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
-                    <Link href={`/ask?runId=${encodeURIComponent(runId)}`}>Ask about this review</Link>
-                  </Button>
-                </div>
-              </details>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button variant="ghost" size="sm" className="text-teal-800 dark:text-teal-300" asChild>
+                  <Link href={`/ask?runId=${encodeURIComponent(runId)}`}>Ask about this review package</Link>
+                </Button>
+              </div>
             ) : (
               <div className="flex flex-wrap items-center gap-3">
                 <Button variant="outline" size="sm" asChild>

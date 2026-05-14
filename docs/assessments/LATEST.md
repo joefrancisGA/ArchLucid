@@ -16,7 +16,7 @@
 - **Weighted deficiency signal:** 210
 - **Justification:** OIDC and advanced hosting settings still require editing JSON (`appsettings.json`). SQL connection strings and Azure OpenAI keys can be merged via `archlucid config bootstrap`, but trial operators still face a steep prerequisite curve overall.
 - **Tradeoffs:** Full enterprise control vs. fast time-to-first-run.
-- **Improvement recommendations:** ~~Build interactive CLI bootstrapping wizards~~ **Done — Improvement 7 (2026-05-14).** ~~Add Azure OpenAI reachability checks in operator lint~~ **Done — Improvement 11 (2026-05-14).** Surface OIDC diagnostic endpoints (Improvement 13).
+- **Improvement recommendations:** ~~Build interactive CLI bootstrapping wizards~~ **Done — Improvement 7 (2026-05-14).** ~~Add Azure OpenAI reachability checks in operator lint~~ **Done — Improvement 11 (2026-05-14).** ~~Surface OIDC diagnostic endpoints~~ **Done — Improvement 13 (2026-05-14).**
 - **Status:** Fixable in V1.
 
 **2. Correctness**
@@ -79,7 +79,7 @@
 - **Weighted deficiency signal:** 40
 - **Justification:** Debugging OIDC mismatches or SQL migration failures requires reading container logs, which mid-market buyers struggle with.
 - **Tradeoffs:** Secure default logging vs. verbose troubleshooting.
-- **Improvement recommendations:** Provide API endpoints to test/validate Identity Provider metadata.
+- **Improvement recommendations:** **`GET /v1/admin/auth/oidc-diagnostics`** is available for IdP discovery reachability (Improvement 13); deeper automated IdP metadata validation may still require operational tooling beyond V1.
 - **Status:** Fixable in V1.
 
 **9. Explainability**
@@ -379,7 +379,7 @@ Constraints: Do not expose mutation endpoints; config is read-only from the UI.
 - **Why it matters:** Generic OIDC debugging is extremely hard for self-serve customers.
 - **Expected impact:** Drastically improves Customer Self-Sufficiency.
 - **Affected qualities:** Customer Self-Sufficiency, Adoption Friction.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `GET /v1/admin/auth/oidc-diagnostics` on `AdminAuthDiagnosticsController`; `OidcWellKnownDiagnosticsService` + typed `HttpClient` (10s); tests in `OidcWellKnownDiagnosticsServiceTests`, `AdminOidcDiagnosticsEndpointTests`, `AuthorizationBoundaryTests`.
 - **Cursor prompt:**
 ```text
 Add `GET /v1/admin/auth/oidc-diagnostics` to `ArchLucid.Api`.
@@ -579,7 +579,7 @@ Constraints: Do not log the full connection string.
 ## 10. Prompt Batching Guidance
 To optimize context window usage and cursor cost-effectiveness, execute the actionable prompts in the following batches:
 - **Batch 1 (Core Guardrails & Correctness):** ~~Improvements 14, 22~~ **Completed 2026-05-14.** (`ArchLucid.ArtifactSynthesis.Tests`, `ArchLucid.Host.Core.Tests`.)
-- **Batch 2 (CLI & Operator Tooling):** ~~Improvements 7, 11~~ **Completed 2026-05-14.** (`ArchLucid.Cli`, `ArchLucid.Cli.Tests`, `ArchLucid.Core`, `ArchLucid.Core.Tests`.) Improvement 13. Focuses on `ArchLucid.Cli`, config parsing, and `ArchLucid.Api` diagnostic routes.
+- **Batch 2 (CLI & Operator Tooling):** ~~Improvements 7, 11, 13~~ **Completed 2026-05-14.** (`ArchLucid.Cli`, `ArchLucid.Cli.Tests`, `ArchLucid.Core`, `ArchLucid.Core.Tests`, `ArchLucid.Api`, `ArchLucid.Api.Tests`, OpenAPI snapshot + clients.)
 - **Batch 3 (UI ROI & Transparency):** Improvements 8, 10, 17. Focuses heavily on `archlucid-ui` components (Savings, Knowledge Graph sidebar, Copy Command).
 - **Batch 4 (Observability & Latency Tracing):** Improvements 15, 18, 24, 25. Focuses on `ArchLucid.AgentRuntime` and `ArchLucid.Api.DataAccess` telemetry.
 - **Batch 5 (UX Polish & Settings):** Improvements 12, 16, 19, 20, 21, 23. Light touches to React components across `archlucid-ui`.

@@ -1,5 +1,5 @@
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Services.Admin;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.Services;
 
 using Asp.Versioning;

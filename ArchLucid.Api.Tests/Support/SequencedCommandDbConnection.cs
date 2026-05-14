@@ -1,8 +1,6 @@
 using System.Data;
 using System.Data.Common;
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace ArchLucid.Api.Tests.Support;
 
 /// <summary>
@@ -35,9 +33,7 @@ internal sealed class SequencedCommandDbConnection : DbConnection
     {
         get => _connectionString;
 
-        [param: AllowNull]
-        set =>
-            _connectionString = value ?? string.Empty;
+        set => _connectionString = value ?? string.Empty;
     }
 
     public override string Database => string.Empty;

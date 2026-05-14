@@ -23,7 +23,8 @@ internal sealed class RecordingDbTransaction : DbTransaction
     public override IsolationLevel IsolationLevel =>
         IsolationLevel.Unspecified;
 
-    public override DbConnection? DbConnection => _databaseConnection;
+    protected override DbConnection DbConnection =>
+        _databaseConnection ?? throw new InvalidOperationException("RecordingDbTransaction is not bound to a connection.");
 
     internal void BindConnection(DbConnection connection)
     {

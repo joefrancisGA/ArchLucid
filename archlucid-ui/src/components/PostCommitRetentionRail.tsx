@@ -83,7 +83,7 @@ export function PostCommitRetentionRail({
             {showcaseSpine ? null : (
               <details className="rounded-md border border-neutral-200 bg-white/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40">
                 <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                  After this review — optional follow-up package
+                  Create follow-up review
                 </summary>
                 <div className="mt-3 flex flex-col gap-3">
                   <Button

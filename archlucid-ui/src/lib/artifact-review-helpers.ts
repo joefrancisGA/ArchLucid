@@ -272,6 +272,12 @@ export function sponsorArtifactDownloadActionLabel(artifactType: string): string
 
 export type SponsorArtifactAudienceBucket = "sponsor" | "shared" | "architects" | "audit" | "other";
 
+/** Buyer deliverables tab: sponsor + cross-functional shared outputs. */
+export const DELIVERABLE_TAB_EXECUTIVE_BUCKETS: readonly SponsorArtifactAudienceBucket[] = ["sponsor", "shared"];
+
+/** Buyer deliverables tab: engineering handoff, audit exports, and miscellaneous package attachments. */
+export const DELIVERABLE_TAB_ARB_BUCKETS: readonly SponsorArtifactAudienceBucket[] = ["architects", "audit", "other"];
+
 const AUDIENCE_SECTION_COPY: Record<
   SponsorArtifactAudienceBucket,
   { readonly title: string; readonly lead: string }

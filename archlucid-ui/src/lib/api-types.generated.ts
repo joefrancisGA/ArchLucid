@@ -604,6 +604,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/auth/oidc-diagnostics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOidcDiagnosticsResponse"];
+                        "text/json": components["schemas"]["AdminOidcDiagnosticsResponse"];
+                        "text/plain": components["schemas"]["AdminOidcDiagnosticsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/config-lint": {
         parameters: {
             query?: never;
@@ -709,6 +746,43 @@ export interface paths {
                         "application/json": components["schemas"]["AdminConfigSummaryResponse"];
                         "text/json": components["schemas"]["AdminConfigSummaryResponse"];
                         "text/plain": components["schemas"]["AdminConfigSummaryResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/custom-handlers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RegisteredAgentHandlerInfo"][];
+                        "text/json": components["schemas"]["RegisteredAgentHandlerInfo"][];
+                        "text/plain": components["schemas"]["RegisteredAgentHandlerInfo"][];
                     };
                 };
             };
@@ -1133,6 +1207,67 @@ export interface paths {
                 };
                 /** @description Service Unavailable */
                 503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/llm-cost-tuning": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["LlmCostTuningRequest"];
+                    "application/json": null | components["schemas"]["LlmCostTuningRequest"];
+                    "text/json": null | components["schemas"]["LlmCostTuningRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Implemented */
+                501: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -7912,6 +8047,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/architecture/runs/{runId}/graph/interactive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CytoscapeInteractiveGraphResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/architecture/runs/{runId}/provenance": {
         parameters: {
             query?: never;
@@ -10076,6 +10284,226 @@ export interface paths {
                         "text/json": components["schemas"]["ProblemDetails"];
                         "text/plain": components["schemas"]["ProblemDetails"];
                     };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/azure-extractor/upload-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["AzureExtractorChunkUploadStartBody"];
+                    "application/json": components["schemas"]["AzureExtractorChunkUploadStartBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/azure-extractor/upload-sessions/{sessionId}/chunks/{chunkIndex}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    sessionId: string;
+                    chunkIndex: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/azure-extractor/upload-sessions/{sessionId}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    runId?: string;
+                };
+                header?: never;
+                path: {
+                    sessionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
             };
         };
@@ -20682,6 +21110,24 @@ export interface components {
         AdminConfigSummaryResponse: {
             keys?: null | components["schemas"]["ConfigSummaryKeyRow"][];
         };
+        AdminOidcDiagnosticsResponse: {
+            authMode?: string;
+            authorizationEndpoint?: null | string;
+            configuredAudience?: null | string;
+            configuredAuthority?: null | string;
+            diagnosticSummary?: null | string;
+            discoveryAttempted?: boolean;
+            discoveryError?: null | string;
+            discoverySucceeded?: null | boolean;
+            issuerFromDiscovery?: null | string;
+            jwksUri?: null | string;
+            localJwtAudience?: null | string;
+            localJwtIssuer?: null | string;
+            openIdConfigurationUrl?: null | string;
+            tokenEndpoint?: null | string;
+            userinfoEndpoint?: null | string;
+            usesLocalJwtSigningKey?: boolean;
+        };
         AdminOutboxSnapshot: {
             /** Format: int64 */
             authorityPipelineWorkDeadLetter: number | string;
@@ -21396,6 +21842,13 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        AzureExtractorChunkUploadStartBody: {
+            fileName?: string;
+            /** Format: int64 */
+            totalBytes?: null | number | string;
+            /** Format: int32 */
+            totalChunks?: number;
+        };
         BackgroundJobInfo: {
             /** Format: date-time */
             completedUtc: null | string;
@@ -21506,6 +21959,7 @@ export interface components {
         };
         CloudProvider: number;
         CommitRunRequest: {
+            bypassJustification?: null | string;
             notifySponsor?: boolean;
         };
         CommitRunResponse: {
@@ -21880,6 +22334,37 @@ export interface components {
             nextCursor?: null | string;
             /** Format: int32 */
             requestedTake?: number;
+        };
+        CytoscapeEdgeData: {
+            edgeType?: null | string;
+            id: string;
+            label?: null | string;
+            source: string;
+            target: string;
+        };
+        CytoscapeEdgeElement: {
+            data: components["schemas"]["CytoscapeEdgeData"];
+        };
+        CytoscapeElementsGroup: {
+            edges: components["schemas"]["CytoscapeEdgeElement"][];
+            nodes: components["schemas"]["CytoscapeNodeElement"][];
+        };
+        CytoscapeInteractiveGraphResponse: {
+            elements: components["schemas"]["CytoscapeElementsGroup"];
+            /** Format: uuid */
+            graphSnapshotId?: string;
+            /** Format: uuid */
+            runId?: string;
+        };
+        CytoscapeNodeData: {
+            category?: null | string;
+            id: string;
+            label?: null | string;
+            nodeType?: null | string;
+            sourceEntityId?: null | string;
+        };
+        CytoscapeNodeElement: {
+            data: components["schemas"]["CytoscapeNodeData"];
         };
         DataConsistencyOrphanCounts: {
             /** Format: int64 */
@@ -23149,6 +23634,12 @@ export interface components {
             generatedUtc?: string;
             themes?: components["schemas"]["LearningThemeResponse"][];
         };
+        LlmCostTuningRequest: {
+            /** Format: double */
+            inputUsdPerMillionTokens?: number | string;
+            /** Format: double */
+            outputUsdPerMillionTokens?: number | string;
+        };
         ManifestBundleResponse: {
             diagram?: string;
             manifest?: components["schemas"]["GoldenManifest"];
@@ -24163,6 +24654,14 @@ export interface components {
             externalSysId?: null | string;
             findingId?: string;
             provider?: string;
+        };
+        RegisteredAgentHandlerInfo: {
+            agentType?: string;
+            agentTypeKey?: string;
+            assemblyName?: null | string;
+            assemblyVersion?: null | string;
+            description?: null | string;
+            implementationTypeName?: string;
         };
         RejectGovernanceRequest: {
             reviewComment?: null | string;

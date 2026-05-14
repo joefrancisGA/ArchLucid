@@ -9,6 +9,7 @@ import {
   triggerGoldenManifestMarkdownDownload,
 } from "@/lib/export-markdown";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -25,13 +26,24 @@ export type GoldenManifestExportMenuProps = {
   goldenManifestJson: unknown | null;
   manifestSummary: ManifestSummary | null;
   trustEvidenceCard?: RunTrustEvidenceCard | null;
+  /**
+   * Buyer deliverables: single obvious control instead of a select labeled “More formats”.
+   */
+  buyerMarkdownAsPrimaryButton?: boolean;
 };
 
 /**
  * Export menu for reviewed (golden) manifest artifacts on run detail — Markdown is generated entirely in the browser.
  */
 export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
-  const { runId, manifestId, goldenManifestJson, manifestSummary, trustEvidenceCard } = props;
+  const {
+    runId,
+    manifestId,
+    goldenManifestJson,
+    manifestSummary,
+    trustEvidenceCard,
+    buyerMarkdownAsPrimaryButton = false,
+  } = props;
   const [exportMenuKey, setExportMenuKey] = useState(0);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
@@ -42,6 +54,37 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     return null;
   }
 
+  function downloadMarkdownSummary(): void {
+    const markdown: string = formatGoldenManifestMarkdown(goldenManifestJson, {
+      runId,
+      manifestSummaryFallback: manifestSummary,
+      trustEvidenceCard: trustEvidenceCard ?? null,
+    });
+
+    const filename: string = buildGoldenManifestMarkdownFilename(runId, manifestId);
+
+    triggerGoldenManifestMarkdownDownload(markdown, filename);
+    recordFirstExportOpenedOnce();
+    setExportMenuKey((k: number) => k + 1);
+  }
+
+  if (buyerMarkdownAsPrimaryButton === true) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="h-9"
+        data-testid="golden-manifest-markdown-download-button"
+        onClick={() => {
+          downloadMarkdownSummary();
+        }}
+      >
+        Download Markdown summary
+      </Button>
+    );
+  }
+
   return (
     <Select
       key={exportMenuKey}
@@ -50,17 +93,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
           return;
         }
 
-        const markdown: string = formatGoldenManifestMarkdown(goldenManifestJson, {
-          runId,
-          manifestSummaryFallback: manifestSummary,
-          trustEvidenceCard: trustEvidenceCard ?? null,
-        });
-
-        const filename: string = buildGoldenManifestMarkdownFilename(runId, manifestId);
-
-        triggerGoldenManifestMarkdownDownload(markdown, filename);
-        recordFirstExportOpenedOnce();
-        setExportMenuKey((k: number) => k + 1);
+        downloadMarkdownSummary();
       }}
     >
       <SelectTrigger

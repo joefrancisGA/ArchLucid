@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
+import { ArtifactIntegrityTechnicalDetails } from "@/components/ArtifactIntegrityTechnicalDetails";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import type { ArtifactDescriptor } from "@/types/authority";
 import { getArtifactDownloadUrl } from "@/lib/api";
@@ -70,8 +71,24 @@ export function ArtifactListTable(props: {
    * When true with {@link sponsorMode}, splits manifest-style lists into audience sections (manifest detail).
    */
   audienceSections?: boolean;
+  /**
+   * When set with {@link sponsorMode} and {@link audienceSections}, only these audience buckets are rendered
+   * (preserves {@link AUDIENCE_BUCKET_ORDER} ordering).
+   */
+  deliverablesBucketAllowlist?: readonly SponsorArtifactAudienceBucket[];
+  /** Omit the integrity appendix (e.g. when a parent renders it once below tabbed tables). */
+  omitIntegrityDetails?: boolean;
 }) {
-  const { manifestId, artifacts, currentArtifactId, runId, sponsorMode, audienceSections = false } = props;
+  const {
+    manifestId,
+    artifacts,
+    currentArtifactId,
+    runId,
+    sponsorMode,
+    audienceSections = false,
+    deliverablesBucketAllowlist,
+    omitIntegrityDetails = false,
+  } = props;
   const sorted = [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
   const hidePilotFeedbackOnArtifacts = isBuyerPolishedOperatorShellEnv();
   const artifactColumnLabel = sponsorMode ? "Output" : "Artifact";
@@ -159,50 +176,20 @@ export function ArtifactListTable(props: {
   );
 
   const integrityDetails =
-    sponsorMode && sorted.length > 0 ? (
-      <details className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-        <summary className="cursor-pointer select-none text-sm font-medium text-neutral-800 dark:text-neutral-200">
-          Integrity and format details
-        </summary>
-        <div className="mt-3 space-y-4">
-          {sorted.map((artifact) => (
-            <div
-              key={`${artifact.artifactId}-tech`}
-              className="border-t border-neutral-200 pt-3 first:border-t-0 first:pt-0 dark:border-neutral-700"
-            >
-              <p className="m-0 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                {getArtifactBusinessLabel(artifact.artifactType)}
-              </p>
-              <dl className="m-0 mt-2 grid gap-2 text-[11px] text-neutral-600 dark:text-neutral-400">
-                <div>
-                  <dt className="m-0 font-medium text-neutral-700 dark:text-neutral-300">Media type / format</dt>
-                  <dd className="m-0 mt-0.5">
-                    <code className="break-all font-mono text-[10px] text-neutral-800 dark:text-neutral-200">
-                      {artifact.format}
-                    </code>
-                    <span className="mt-1 block text-[10px] text-neutral-500 dark:text-neutral-500">
-                      Presentation: {getArtifactFormatLabel(artifact.format)}
-                    </span>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="m-0 font-medium text-neutral-700 dark:text-neutral-300">Content fingerprint</dt>
-                  <dd className="m-0 mt-0.5 break-all font-mono text-[10px] text-neutral-800 dark:text-neutral-200">
-                    {artifact.contentHash}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          ))}
-        </div>
-      </details>
+    !omitIntegrityDetails && sponsorMode && sorted.length > 0 ? (
+      <ArtifactIntegrityTechnicalDetails artifacts={sorted} />
     ) : null;
 
   if (sponsorMode === true && audienceSections === true) {
+    const bucketSequence =
+      deliverablesBucketAllowlist !== undefined
+        ? AUDIENCE_BUCKET_ORDER.filter((b) => deliverablesBucketAllowlist.includes(b))
+        : [...AUDIENCE_BUCKET_ORDER];
+
     return (
       <div className="overflow-x-auto">
         <div className="space-y-10" role="region" aria-label="Deliverables grouped by audience">
-          {AUDIENCE_BUCKET_ORDER.map((bucket) => {
+          {bucketSequence.map((bucket) => {
             const slice = sorted.filter((a) => sponsorArtifactAudienceBucket(a.artifactType) === bucket);
 
             if (slice.length === 0) {
@@ -239,7 +226,9 @@ export function ArtifactListTable(props: {
         {thead}
         <tbody>{renderArtifactRows(sorted)}</tbody>
       </table>
-      {integrityDetails}
+      {!omitIntegrityDetails && sponsorMode && sorted.length > 0 ? (
+        <ArtifactIntegrityTechnicalDetails artifacts={sorted} />
+      ) : null}
     </div>
   );
 }
