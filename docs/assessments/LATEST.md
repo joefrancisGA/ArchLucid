@@ -705,7 +705,7 @@ To optimize context window usage and cursor cost-effectiveness, execute the impr
 **Batch 3: External Integrations & Azure Logic (Prompts 7, 11, 15, 17, 19, 21 completed)**
 - **Why:** Grouping Terraform logic, ServiceNow mappings, Slack config, Azure retry handlers, identity roles, and role script generation minimizes context-switching between third-party API dependencies.
 
-**Batch 4: Output & Compliance Validation (Prompts 3, 4, 23, 24, 25 completed; Prompts 10, 13, 14 remaining)**
+**Batch 4: Output & Compliance Validation (Prompts 3, 4, 10, 13, 14, 23, 24, 25 completed)**
 - **Why:** These focus on the artifacts produced by the system (`ADVISORY.md`, architecture structures, DB isolation, data retention, export formats, and webhook routing). Cursor can hold the synthesis and testing libraries in context.
 
 **Batch 5: UI & Startup Health (Prompt 5 completed; Prompts 8, 9, 12, 16, 20 remaining)**
