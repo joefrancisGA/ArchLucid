@@ -55,29 +55,42 @@ def _recent_md_without_library_header(raw: str) -> str:
     return "\n".join(out).strip()
 
 
-def uncovered_by_file(package_el: ET.Element) -> dict[str, int]:
-    counts: dict[str, int] = defaultdict(int)
+def _uncovered_entries_in_aggregate_lines(lines_parent: ET.Element) -> int:
+    """Count <line hits=\"0\"/> under Cobertura's class-level aggregate <lines> block."""
+    n = 0
+    for child in lines_parent:
+        if local_name(child.tag) != "line":
+            continue
+        hits = child.get("hits")
+        if hits is None:
+            continue
+        try:
+            if int(hits) == 0:
+                n += 1
+        except ValueError:
+            pass
+    return n
+
+
+def uncovered_by_class_rows(package_el: ET.Element) -> list[tuple[str, str, int]]:
+    """Cobertura <class>: type name, filename, uncovered line entries (class aggregate lines only).
+
+    Multiple <class> nodes for the same (name, file) (e.g. partial types) have counts summed.
+    """
+    acc: dict[tuple[str, str], int] = defaultdict(int)
     for element in package_el.iter():
         if local_name(element.tag) != "class":
             continue
+        type_name = (element.get("name") or "").strip() or "(unnamed type)"
         fn = (element.get("filename") or "").strip()
-        if not fn:
-            continue
+        uncovered = 0
         for child in element:
             if local_name(child.tag) != "lines":
                 continue
-            for line in child:
-                if local_name(line.tag) != "line":
-                    continue
-                hits = line.get("hits")
-                if hits is None:
-                    continue
-                try:
-                    if int(hits) == 0:
-                        counts[fn] += 1
-                except ValueError:
-                    pass
-    return dict(counts)
+            uncovered += _uncovered_entries_in_aggregate_lines(child)
+        key = (type_name, fn)
+        acc[key] += uncovered
+    return [(name, fn, cnt) for (name, fn), cnt in acc.items()]
 
 
 def main() -> int:
@@ -92,7 +105,7 @@ def main() -> int:
     if root is None:
         return 3
 
-    packages: list[tuple[str, float, int, dict[str, int]]] = []
+    packages: list[tuple[str, float, int, list[tuple[str, str, int]]]] = []
     for pkg in root.iter():
         if local_name(pkg.tag) != "package":
             continue
@@ -103,7 +116,7 @@ def main() -> int:
         if lr is None:
             continue
         line_rate = float(lr)
-        by_file = uncovered_by_file(pkg)
+        class_rows = uncovered_by_class_rows(pkg)
         # Total coverable lines: count all line elements with hits
         total_lines = 0
         for element in pkg.iter():
@@ -113,7 +126,7 @@ def main() -> int:
                 total_lines += 1
         if total_lines == 0:
             continue
-        packages.append((name, line_rate, total_lines, by_file))
+        packages.append((name, line_rate, total_lines, class_rows))
 
     packages.sort(key=lambda t: t[1])
 
@@ -131,41 +144,47 @@ def main() -> int:
         "",
         "**Measurement:** Production `ArchLucid.*` assemblies only; excludes `*.Tests`, TestSupport, and Benchmarks.",
         "",
-        "## Bottom five assemblies by line coverage",
+        "## All assemblies by line coverage (lowest first)",
         "",
         "| Assembly | Line coverage % | Coverable lines (approx.) |",
         "|----------|-----------------|---------------------------|",
     ]
 
-    bottom5 = packages[:5]
-    for name, lr, total_lines, by_file in bottom5:
+    for name, lr, total_lines, _class_rows in packages:
         out_lines.append(f"| {name} | {lr * 100.0:.2f} | {total_lines} |")
 
     out_lines.extend(
         [
             "",
-            "## Files with most uncovered lines (top three per assembly above)",
+            "## Up to three classes per assembly with the most uncovered line entries",
+            "",
+            "Per Cobertura **class** aggregate line blocks (`<class>/<lines>/<line hits=\"…\"/>`). ",
+            "**Partial types** merged by **class name + file**.",
             "",
         ]
     )
 
-    for name, lr, total_lines, by_file in bottom5:
+    def _rel_path(filepath: str) -> Path:
+        p = Path(filepath.strip())
+        try:
+            return p.relative_to(repo)
+        except ValueError:
+            return Path(filepath)
+
+    for name, lr, total_lines, class_rows in packages:
         out_lines.append(f"### {name} ({lr * 100.0:.2f}% line coverage)")
         out_lines.append("")
-        if not by_file:
+        nonzero = [(cn, fp, cnt) for cn, fp, cnt in class_rows if cnt > 0]
+        if not nonzero:
             out_lines.append("_No uncovered line rows in Cobertura for this package (or only branches uncovered)._")
             out_lines.append("")
             continue
-        ranked = sorted(by_file.items(), key=lambda kv: kv[1], reverse=True)[:3]
-        out_lines.append("| Rank | File | Uncovered line entries |")
-        out_lines.append("|------|------|------------------------|")
-        for i, (path, n) in enumerate(ranked, start=1):
-            rel = Path(path)
-            try:
-                rel = rel.relative_to(repo)
-            except ValueError:
-                rel = Path(path)
-            out_lines.append(f"| {i} | `{rel}` | {n} |")
+        ranked = sorted(nonzero, key=lambda t: t[2], reverse=True)[:3]
+        out_lines.append("| Rank | Class | File | Uncovered line entries |")
+        out_lines.append("|------|-------|------|------------------------|")
+        for i, (cls, path, n) in enumerate(ranked, start=1):
+            rel = _rel_path(path)
+            out_lines.append(f"| {i} | `{cls}` | `{rel}` | {n} |")
         out_lines.append("")
 
     out_lines.extend(

@@ -8,7 +8,7 @@
 
 **Measurement:** Production `ArchLucid.*` assemblies only; excludes `*.Tests`, TestSupport, and Benchmarks.
 
-## Bottom five assemblies by line coverage
+## All assemblies by line coverage (lowest first)
 
 | Assembly | Line coverage % | Coverable lines (approx.) |
 |----------|-----------------|---------------------------|
@@ -17,45 +17,192 @@
 | ArchLucid.Persistence | 57.02 | 29106 |
 | ArchLucid.Api | 57.29 | 29296 |
 | ArchLucid.Integrations.AzureDevOps | 59.69 | 671 |
+| ArchLucid.Cli | 63.65 | 12253 |
+| ArchLucid.Host.Core | 68.79 | 12050 |
+| ArchLucid.Application | 74.11 | 40784 |
+| ArchLucid.AgentRuntime | 74.85 | 11274 |
+| ArchLucid.Host.Composition | 75.59 | 4540 |
+| ArchLucid.ArtifactSynthesis | 81.05 | 3536 |
+| ArchLucid.Core | 82.87 | 11778 |
+| ArchLucid.Notifications | 87.50 | 272 |
+| ArchLucid.Contracts | 91.12 | 6983 |
+| ArchLucid.Decisioning | 92.00 | 13406 |
+| ArchLucid.KnowledgeGraph | 92.88 | 1096 |
+| ArchLucid.ContextIngestion | 93.50 | 2025 |
+| ArchLucid.Retrieval | 94.37 | 714 |
+| ArchLucid.Provenance | 94.60 | 710 |
+| ArchLucid.AgentSimulator | 97.59 | 582 |
+| ArchLucid.Capabilities.Cost | 98.36 | 122 |
+| ArchLucid.Jobs.Cli | 100.00 | 36 |
 
-## Files with most uncovered lines (top three per assembly above)
+## Up to three classes per assembly with the most uncovered line entries
+
+Per Cobertura **class** aggregate line blocks (`<class>/<lines>/<line hits="…"/>`). 
+**Partial types** merged by **class name + file**.
 
 ### ArchLucid.Worker (0.00% line coverage)
 
-| Rank | File | Uncovered line entries |
-|------|------|------------------------|
-| 1 | `ArchLucid.Worker\Program.cs` | 34 |
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Worker.Program` | `ArchLucid.Worker\Program.cs` | 34 |
 
 ### ArchLucid.Api.Client (18.75% line coverage)
 
-| Rank | File | Uncovered line entries |
-|------|------|------------------------|
-| 1 | `ArchLucid.Api.Client\FileParameter.cs` | 12 |
-| 2 | `ArchLucid.Api.Client\ProblemDetails.cs` | 1 |
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Api.Client.Generated.FileParameter` | `ArchLucid.Api.Client\FileParameter.cs` | 12 |
+| 2 | `ArchLucid.Api.Client.Generated.ProblemDetails` | `ArchLucid.Api.Client\ProblemDetails.cs` | 1 |
 
 ### ArchLucid.Persistence (57.02% line coverage)
 
-| Rank | File | Uncovered line entries |
-|------|------|------------------------|
-| 1 | `ArchLucid.Persistence\Tenancy\DapperTenantRepository.cs` | 583 |
-| 2 | `ArchLucid.Persistence\Findings\FindingsSnapshotRelationalRead.cs` | 240 |
-| 3 | `ArchLucid.Persistence\GraphSnapshots\GraphSnapshotSqlBulkCopy.cs` | 240 |
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Persistence.Tenancy.DapperTenantRepository` | `ArchLucid.Persistence\Tenancy\DapperTenantRepository.cs` | 583 |
+| 2 | `ArchLucid.Persistence.Findings.FindingsSnapshotRelationalRead` | `ArchLucid.Persistence\Findings\FindingsSnapshotRelationalRead.cs` | 240 |
+| 3 | `ArchLucid.Persistence.GraphSnapshots.GraphSnapshotSqlBulkCopy` | `ArchLucid.Persistence\GraphSnapshots\GraphSnapshotSqlBulkCopy.cs` | 240 |
 
 ### ArchLucid.Api (57.29% line coverage)
 
-| Rank | File | Uncovered line entries |
-|------|------|------------------------|
-| 1 | `ArchLucid.Api\Services\Admin\AdminDiagnosticsService.cs` | 213 |
-| 2 | `ArchLucid.Api\Demo\QuickStartService.cs` | 173 |
-| 3 | `ArchLucid.Api\Controllers\RegistrationController.cs` | 166 |
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Api.Services.Admin.AdminDiagnosticsService` | `ArchLucid.Api\Services\Admin\AdminDiagnosticsService.cs` | 213 |
+| 2 | `ArchLucid.Api.Demo.QuickStartService` | `ArchLucid.Api\Demo\QuickStartService.cs` | 173 |
+| 3 | `ArchLucid.Api.Controllers.RegistrationController` | `ArchLucid.Api\Controllers\RegistrationController.cs` | 166 |
 
 ### ArchLucid.Integrations.AzureDevOps (59.69% line coverage)
 
-| Rank | File | Uncovered line entries |
-|------|------|------------------------|
-| 1 | `ArchLucid.Integrations.AzureDevOps\AuthorityRunCompletedAzureDevOpsIntegrationEventHandler.cs` | 58 |
-| 2 | `ArchLucid.Integrations.AzureDevOps\AzureDevOpsPullRequestDecorator.cs` | 50 |
-| 3 | `ArchLucid.Integrations.AzureDevOps\AzureDevOpsRunSummaryMarkdown.cs` | 11 |
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Integrations.AzureDevOps.AuthorityRunCompletedAzureDevOpsIntegrationEventHandler` | `ArchLucid.Integrations.AzureDevOps\AuthorityRunCompletedAzureDevOpsIntegrationEventHandler.cs` | 57 |
+| 2 | `ArchLucid.Integrations.AzureDevOps.AzureDevOpsPullRequestDecorator` | `ArchLucid.Integrations.AzureDevOps\AzureDevOpsPullRequestDecorator.cs` | 50 |
+| 3 | `ArchLucid.Integrations.AzureDevOps.AzureDevOpsRunSummaryMarkdown` | `ArchLucid.Integrations.AzureDevOps\AzureDevOpsRunSummaryMarkdown.cs` | 11 |
+
+### ArchLucid.Cli (63.65% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Cli.Commands.BuyerProofPackCommand` | `ArchLucid.Cli\Commands\BuyerProofPackCommand.cs` | 229 |
+| 2 | `ArchLucid.Cli.Commands.TryCommand` | `ArchLucid.Cli\Commands\TryCommand.cs` | 207 |
+| 3 | `ArchLucid.Cli.Commands.ValidateConfigEvaluator` | `ArchLucid.Cli\Commands\ValidateConfigEvaluator.cs` | 163 |
+
+### ArchLucid.Host.Core (68.79% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanProbeExecutor` | `ArchLucid.Host.Core\DataConsistency\DataConsistencyOrphanProbeExecutor.cs` | 267 |
+| 2 | `ArchLucid.Host.Core.Hosted.AuthorityPipelineWorkProcessor` | `ArchLucid.Host.Core\Hosted\AuthorityPipelineWorkProcessor.cs` | 107 |
+| 3 | `ArchLucid.Host.Core.Jobs.BackgroundJobQueueProcessorHostedService` | `ArchLucid.Host.Core\Jobs\BackgroundJobQueueProcessorHostedService.cs` | 102 |
+
+### ArchLucid.Application (74.11% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Application.Bootstrap.DemoSeedService` | `ArchLucid.Application\Bootstrap\DemoSeedService.cs` | 415 |
+| 2 | `ArchLucid.Application.Analysis.MarkdownArchitectureAnalysisExportService` | `ArchLucid.Application\Analysis\MarkdownArchitectureAnalysisExportService.cs` | 244 |
+| 3 | `ArchLucid.Application.AzureExtractor.AzureExtractorIngestService` | `ArchLucid.Application\AzureExtractor\AzureExtractorIngestService.cs` | 240 |
+
+### ArchLucid.AgentRuntime (74.85% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.AgentRuntime.LlmCompletionAccountingClient` | `ArchLucid.AgentRuntime\LlmCompletionAccountingClient.cs` | 117 |
+| 2 | `ArchLucid.AgentRuntime.AgentExecutionTraceRecorder` | `ArchLucid.AgentRuntime\AgentExecutionTraceRecorder.cs` | 65 |
+| 3 | `ArchLucid.AgentRuntime.Evaluation.AgentOutputLlmSemanticJudge` | `ArchLucid.AgentRuntime\Evaluation\AgentOutputLlmSemanticJudge.cs` | 64 |
+
+### ArchLucid.Host.Composition (75.59% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Host.Composition.Startup.ServiceCollectionExtensions` | `ArchLucid.Host.Composition\Startup\ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` | 289 |
+| 2 | `ArchLucid.Host.Composition.Configuration.ArchLucidStorageServiceCollectionExtensions` | `ArchLucid.Host.Composition\Configuration\ArchLucidStorageServiceCollectionExtensions.cs` | 90 |
+| 3 | `ArchLucid.Host.Composition.ValueReports.InMemoryValueReportJobQueue` | `ArchLucid.Host.Composition\ValueReports\InMemoryValueReportJobQueue.cs` | 67 |
+
+### ArchLucid.ArtifactSynthesis (81.05% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.ArtifactSynthesis.Docx.DocxExportService` | `ArchLucid.ArtifactSynthesis\Docx\DocxExportService.cs` | 160 |
+| 2 | `ArchLucid.ArtifactSynthesis.Docx.Builders.WordDocumentBuilder` | `ArchLucid.ArtifactSynthesis\Docx\Builders\WordDocumentBuilder.cs` | 61 |
+| 3 | `ArchLucid.ArtifactSynthesis.Repositories.InMemoryArtifactBundleRepository` | `ArchLucid.ArtifactSynthesis\Repositories\InMemoryArtifactBundleRepository.cs` | 27 |
+
+### ArchLucid.Core (82.87% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Core.Diagnostics.ArchLucidInstrumentation` | `ArchLucid.Core\Diagnostics\ArchLucidInstrumentation.cs` | 66 |
+| 2 | `ArchLucid.Core.Support.SupportBundleNextStepsBuilder` | `ArchLucid.Core\Support\SupportBundleNextStepsBuilder.cs` | 52 |
+| 3 | `ArchLucid.Core.Audit.InMemoryAuditRetryQueue` | `ArchLucid.Core\Audit\InMemoryAuditRetryQueue.cs` | 35 |
+
+### ArchLucid.Notifications (87.50% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Notifications.AuthorityRunCommittedChatOpsHook` | `ArchLucid.Notifications\AuthorityRunCommittedChatOpsHook.cs` | 15 |
+| 2 | `ArchLucid.Notifications.AuthorityRunCommittedChatOpsNotice` | `ArchLucid.Notifications\AuthorityRunCommittedChatOpsNotice.cs` | 2 |
+
+### ArchLucid.Contracts (91.12% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Contracts.Explanation.FindingExplainabilityResult` | `ArchLucid.Contracts\Explanation\FindingExplainabilityResult.cs` | 46 |
+| 2 | `ArchLucid.Contracts.Audit.AuditEventPresentation` | `ArchLucid.Contracts\Audit\AuditEventPresentation.cs` | 26 |
+| 3 | `ArchLucid.Contracts.Findings.FindingReviewEventRecord` | `ArchLucid.Contracts\Findings\FindingReviewEventRecord.cs` | 22 |
+
+### ArchLucid.Decisioning (92.00% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Decisioning.Plugins.FindingEnginePluginDiscovery` | `ArchLucid.Decisioning\Plugins\FindingEnginePluginDiscovery.cs` | 75 |
+| 2 | `ArchLucid.Decisioning.Repositories.InMemoryFindingsSnapshotRepository` | `ArchLucid.Decisioning\Repositories\InMemoryFindingsSnapshotRepository.cs` | 71 |
+| 3 | `ArchLucid.Decisioning.Governance.Resolution.EffectiveGovernanceResolver` | `ArchLucid.Decisioning\Governance\Resolution\EffectiveGovernanceResolver.cs` | 28 |
+
+### ArchLucid.KnowledgeGraph (92.88% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.KnowledgeGraph.Inference.DefaultGraphEdgeInferer` | `ArchLucid.KnowledgeGraph\Inference\DefaultGraphEdgeInferer.cs` | 14 |
+| 2 | `ArchLucid.KnowledgeGraph.Caching.NonCachingGraphSnapshotProjectionCache` | `ArchLucid.KnowledgeGraph\Caching\NonCachingGraphSnapshotProjectionCache.cs` | 4 |
+| 3 | `ArchLucid.KnowledgeGraph.Models.GraphSnapshotExtensions` | `ArchLucid.KnowledgeGraph\Models\GraphSnapshotExtensions.cs` | 4 |
+
+### ArchLucid.ContextIngestion (93.50% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.ContextIngestion.Canonicalization.CanonicalInfrastructureEnricher` | `ArchLucid.ContextIngestion\Canonicalization\CanonicalInfrastructureEnricher.cs` | 19 |
+| 2 | `ArchLucid.ContextIngestion.Infrastructure.JsonInfrastructureDeclarationParser` | `ArchLucid.ContextIngestion\Infrastructure\JsonInfrastructureDeclarationParser.cs` | 18 |
+| 3 | `ArchLucid.ContextIngestion.Infrastructure.TerraformShowJsonInfrastructureDeclarationParser` | `ArchLucid.ContextIngestion\Infrastructure\TerraformShowJsonInfrastructureDeclarationParser.cs` | 13 |
+
+### ArchLucid.Retrieval (94.37% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Retrieval.Embedding.CircuitBreakingOpenAiEmbeddingClient` | `ArchLucid.Retrieval\Embedding\CircuitBreakingOpenAiEmbeddingClient.cs` | 11 |
+| 2 | `ArchLucid.Retrieval.Models.RetrievalChunk` | `ArchLucid.Retrieval\Models\RetrievalChunk.cs` | 3 |
+| 3 | `ArchLucid.Retrieval.Indexing.InMemoryVectorIndex` | `ArchLucid.Retrieval\Indexing\InMemoryVectorIndex.cs` | 2 |
+
+### ArchLucid.Provenance (94.60% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Provenance.Services.ProvenanceGraphAlgorithms` | `ArchLucid.Provenance\Services\ProvenanceGraphAlgorithms.cs` | 11 |
+| 2 | `ArchLucid.Provenance.GraphNodesPageResponse` | `ArchLucid.Provenance\GraphViewModels.cs` | 6 |
+| 3 | `ArchLucid.Provenance.DecisionProvenanceSnapshot` | `ArchLucid.Provenance\DecisionProvenanceSnapshot.cs` | 2 |
+
+### ArchLucid.AgentSimulator (97.59% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.AgentSimulator.Scenarios.EnterpriseRagScenarioProvider` | `ArchLucid.AgentSimulator\Scenarios\EnterpriseRagScenarioProvider.cs` | 7 |
+
+### ArchLucid.Capabilities.Cost (98.36% line coverage)
+
+| Rank | Class | File | Uncovered line entries |
+|------|-------|------|------------------------|
+| 1 | `ArchLucid.Capabilities.Cost.CostAgentHandler` | `ArchLucid.Capabilities.Cost\CostAgentHandler.cs` | 1 |
+
+### ArchLucid.Jobs.Cli (100.00% line coverage)
+
+_No uncovered line rows in Cobertura for this package (or only branches uncovered)._
 
 ## Merged totals (reference)
 
@@ -64,6 +211,8 @@
 
 ## Recent targeted tests (correctness improvement track)
 
+- **2026-05-13 — Integrations.AzureDevOps (unit) + coverage bookkeeping:** **`ArchLucid.Integrations.AzureDevOps.Tests`** now cover PR decorator compare skips/fallbacks, wire-format edge cases, markdown formatters, and the authority-run handler. **Merged Cobertura caveat:** `coverage-gap-1a/merged/Cobertura.xml` (and thus `docs/COVERAGE_GAP_ANALYSIS.md` after `scripts/ci/coverage_gap_analysis.py`) still shows **`ArchLucid.Integrations.AzureDevOps`** at **~59.7%** line until the solution coverage merge is re-run; a **focused** `dotnet test` on that test project with `--collect:"XPlat Code Coverage"` produced a Cobertura row of **~90.2% line** for the **`ArchLucid.Integrations.AzureDevOps`** package alone (roughly **+30 pp** vs the stale merged package metric, which is **not** the same measurement as whole-solution merge).
+- **2026-05-13 — Api (no-SQL unit slice):** **`QuickStartPresetsTests`** (**`TryGet`**, keys, **`LogicalScopePins`**); **`AdminDiagnosticsServiceNonSqlTests`** — outbox snapshot aggregation, **`StorageProvider=InMemory`** short-circuit for orphan counts/remediations (strict **`IDbConnectionFactory`**), archival audit when **`IRunRepository`** returns updates.
 - **2026-04-17 — Improvement 1 (`lowest-assembly-tests` slice, Api / Evolution):** **`EvolutionSimulationServiceTests`** — Moq repositories + **`IArchitectureAnalysisService`** / **`ISimulationEvaluationService`**; **`CreateCandidateFromImprovementPlanAsync`** throws **`EvolutionResourceNotFoundException`** with **`ProblemTypes.LearningImprovementPlanNotFound`** when plan missing; **`RunShadowEvaluationAsync`** with empty **`LinkedArchitectureRunIds`** updates candidate to **`Simulated`**, returns no simulation rows, never calls analysis/evaluation or run insert/delete.
 - **2026-04-17 — Improvement 1 (`lowest-assembly-tests` slice, Api / Advisory):** **`AdvisoryControllerListRecommendationsIntegrationTests`** — **`GET /v1/advisory/runs/{runId}/recommendations`**: **200** + empty **`RecommendationRecordResponse`** list for a never-seeded run id; same after architecture **commit** before **`GET …/improvements`** (no persisted recommendations yet).
 - **2026-04-17 — Improvement 1 (`lowest-assembly-tests` slice, Application / export):** **`EndToEndReplayComparisonExportServiceTests`** — Moq **`IEndToEndReplayComparisonSummaryFormatter`**; **`GenerateMarkdown`** **short** vs **default** (separator, **`## Run Metadata Diff`**, **`### Interpretation Notes`** / **`### Warnings`**); **`GenerateHtml`** **short** omits extended sections (**`Run Metadata Diff`**, interpretation lists).
