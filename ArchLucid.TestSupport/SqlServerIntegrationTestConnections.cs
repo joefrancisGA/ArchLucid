@@ -55,17 +55,33 @@ public static class SqlServerIntegrationTestConnections
                 + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
                 + " to a reachable instance (see docs/BUILD.md).");
 
-        SqlConnectionStringBuilder windowsLocal = new()
+        return BuildNormalizedWindowsLocalHostIntegratedConnectionString(databaseName);
+    }
+
+    /// <summary>
+    ///     When <see cref="TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable" /> is unset on Windows, persistence
+    ///     integration tries these connection strings in order: <c>localhost</c> + integrated security (same implicit default
+    ///     as <see cref="CreateEphemeralApiDatabaseConnectionString" />), then <c>(localdb)\mssqllocaldb</c>.
+    /// </summary>
+    public static IEnumerable<string> EnumerateWindowsPersistenceFallbackConnectionStrings(string defaultCatalog)
+    {
+        if (string.IsNullOrWhiteSpace(defaultCatalog))
+            throw new ArgumentException("Database catalog name is required.", nameof(defaultCatalog));
+
+        if (!OperatingSystem.IsWindows())
+            yield break;
+
+        yield return BuildNormalizedWindowsLocalHostIntegratedConnectionString(defaultCatalog);
+
+        SqlConnectionStringBuilder localDb = new()
         {
-            DataSource = "localhost",
-            InitialCatalog = databaseName,
+            DataSource = "(localdb)\\mssqllocaldb",
+            InitialCatalog = defaultCatalog,
             IntegratedSecurity = true,
-            Encrypt = SqlConnectionEncryptOption.Mandatory,
-            TrustServerCertificate = true,
             MultipleActiveResultSets = true
         };
 
-        return windowsLocal.ConnectionString;
+        yield return NormalizePersistenceConnectionString(localDb.ConnectionString, defaultCatalog);
     }
 
     /// <summary>
@@ -100,5 +116,18 @@ public static class SqlServerIntegrationTestConnections
         };
 
         return builder.ConnectionString;
+    }
+
+    private static string BuildNormalizedWindowsLocalHostIntegratedConnectionString(string initialCatalog)
+    {
+        SqlConnectionStringBuilder windowsLocal = new()
+        {
+            DataSource = "localhost",
+            InitialCatalog = initialCatalog,
+            IntegratedSecurity = true,
+            MultipleActiveResultSets = true
+        };
+
+        return NormalizePersistenceConnectionString(windowsLocal.ConnectionString, initialCatalog);
     }
 }

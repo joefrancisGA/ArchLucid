@@ -2,10 +2,8 @@
 
 import { useCallback, useState } from "react";
 
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-
 import { defaultSupportBundleFilename } from "./default-support-bundle-filename";
+import type { AdminSupportPageServerLoad } from "./load-admin-support-page-data";
 import { parseFilenameFromContentDisposition } from "./parse-filename-from-content-disposition";
 
 export type UseAdminSupportPageModel = {
@@ -15,8 +13,8 @@ export type UseAdminSupportPageModel = {
   onDownload: () => Promise<void>;
 };
 
-export function useAdminSupportPage(): UseAdminSupportPageModel {
-  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+export function useAdminSupportPage(loaded: AdminSupportPageServerLoad): UseAdminSupportPageModel {
+  const isDemo = loaded.demo;
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

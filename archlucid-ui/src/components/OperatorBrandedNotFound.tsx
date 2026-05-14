@@ -13,7 +13,7 @@ export function OperatorBrandedNotFound() {
         The link may be mistyped, expired, or pointed at a resource that is not in this workspace. Use a fresh link
         from the product, or start from home.
       </p>
-      <p className="m-0 mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+      <p className="m-0 mt-3 text-xs text-neutral-600 dark:text-neutral-400">
         If you pasted an id, confirm the full value copied — truncated identifiers are rejected.
       </p>
       <div className="mt-4 flex flex-wrap gap-4 text-sm font-medium">
@@ -27,7 +27,7 @@ export function OperatorBrandedNotFound() {
           Findings
         </Link>
       </div>
-      <p className="m-0 mt-6 text-[11px] uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+      <p className="m-0 mt-6 text-[11px] uppercase tracking-wide text-neutral-800 dark:text-neutral-300">
         ArchLucid · 404
       </p>
       <span data-testid="branded-not-found" className="sr-only">

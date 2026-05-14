@@ -80,13 +80,61 @@ public sealed class GraphNodeFactoryTests
     {
         CanonicalObject item = BuildItem(properties: new Dictionary<string, string>
         {
-            ["text"] = "hello", ["ref"] = "POL-001"
+            ["text"] = "hello",
+            ["ref"] = "POL-001"
         });
 
         GraphNode node = _sut.CreateNode(item);
 
         node.Properties.Should().ContainKey("text").WhoseValue.Should().Be("hello");
         node.Properties.Should().ContainKey("ref").WhoseValue.Should().Be("POL-001");
+    }
+
+    [Fact]
+    public void CreateNode_NullProperties_ProducesEmptyGraphProperties()
+    {
+        CanonicalObject item = BuildItem();
+        item.Properties = null!;
+
+        GraphNode node = _sut.CreateNode(item);
+
+        node.Properties.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CreateNode_DuplicatePropertyKeysDifferingOnlyByCase_ThrowsArgumentException()
+    {
+        CanonicalObject item = BuildItem(properties: new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["category"] = "compute",
+            ["Category"] = "storage"
+        });
+
+        Action act = () => _sut.CreateNode(item);
+
+        act.Should().Throw<ArgumentException>().WithParameterName("item");
+    }
+
+    [Fact]
+    public void CreateNode_WhitespaceObjectType_ThrowsArgumentException()
+    {
+        CanonicalObject item = BuildItem();
+        item.ObjectType = "   ";
+
+        Action act = () => _sut.CreateNode(item);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void CreateNode_WhitespaceName_ThrowsArgumentException()
+    {
+        CanonicalObject item = BuildItem();
+        item.Name = "\t";
+
+        Action act = () => _sut.CreateNode(item);
+
+        act.Should().Throw<ArgumentException>();
     }
 
     [Fact]

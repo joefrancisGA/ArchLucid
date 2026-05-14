@@ -1,6 +1,12 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const hoistedAdminHealthLoad = vi.hoisted(() => ({ demo: false }));
+
+vi.mock("./_sections/load-admin-health-page-data", () => ({
+  loadAdminHealthPageData: () => Promise.resolve(hoistedAdminHealthLoad),
+}));
+
 import AdminHealthPage from "./page";
 
 function jsonResponse(data: unknown, status = 200) {
@@ -36,7 +42,9 @@ describe("AdminHealthPage", () => {
       },
     );
     vi.stubGlobal("fetch", fetchMock);
-    render(<AdminHealthPage />);
+    const page = await AdminHealthPage();
+
+    render(page);
     expect(await screen.findByTestId("admin-health-ready-table")).toBeInTheDocument();
     expect(await screen.findByText("database")).toBeInTheDocument();
     expect(await screen.findByText("12 ms")).toBeInTheDocument();
@@ -68,7 +76,9 @@ describe("AdminHealthPage", () => {
       },
     );
     vi.stubGlobal("fetch", fetchMock);
-    render(<AdminHealthPage />);
+    const page = await AdminHealthPage();
+
+    render(page);
     const badge = await screen.findByTestId("admin-health-overall-badge");
     expect(badge.textContent).toMatch(/degraded/i);
     vi.unstubAllGlobals();
@@ -94,7 +104,9 @@ describe("AdminHealthPage", () => {
       },
     );
     vi.stubGlobal("fetch", fetchMock);
-    render(<AdminHealthPage />);
+    const page = await AdminHealthPage();
+
+    render(page);
     const badge = await screen.findByTestId("admin-health-overall-badge");
     expect(badge.textContent).toMatch(/unhealthy/i);
     vi.unstubAllGlobals();
@@ -125,7 +137,9 @@ describe("AdminHealthPage", () => {
       },
     );
     vi.stubGlobal("fetch", fetchMock);
-    render(<AdminHealthPage />);
+    const page = await AdminHealthPage();
+
+    render(page);
     expect(await screen.findByTestId("admin-health-circuit-note")).toHaveTextContent(/requires API authentication/i);
     vi.unstubAllGlobals();
   });
@@ -165,7 +179,9 @@ describe("AdminHealthPage", () => {
       },
     );
     vi.stubGlobal("fetch", fetchMock);
-    render(<AdminHealthPage />);
+    const page = await AdminHealthPage();
+
+    render(page);
     const rates = await screen.findByTestId("admin-health-rates-table");
     expect(rates).toBeInTheDocument();
     expect(rates).toHaveTextContent("2");
@@ -198,7 +214,9 @@ describe("AdminHealthPage", () => {
       },
     );
     vi.stubGlobal("fetch", fetchMock);
-    render(<AdminHealthPage />);
+    const page = await AdminHealthPage();
+
+    render(page);
     expect(await screen.findByTestId("admin-health-build-identity")).toHaveTextContent(/internal test identifiers/i);
     expect(screen.queryByText("e2e-screenshots")).toBeNull();
     vi.unstubAllGlobals();
@@ -229,7 +247,9 @@ describe("AdminHealthPage", () => {
       },
     );
     vi.stubGlobal("fetch", fetchMock);
-    render(<AdminHealthPage />);
+    const page = await AdminHealthPage();
+
+    render(page);
     await waitFor(() => {
       expect(fetchMock.mock.calls.length).toBeGreaterThan(0);
     });

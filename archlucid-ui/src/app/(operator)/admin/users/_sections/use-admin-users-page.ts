@@ -3,16 +3,15 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { parseAdminUsersDirectoryPayload } from "@/lib/admin-tenant-directory-parse";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import { ADMIN_USERS_PROXY_PATH } from "./admin-users-page-constants";
 import type { AdminUsersDirectoryRow, AdminUsersNote } from "./admin-users-page-types";
 import type { AdminUsersPageViewModel } from "./admin-users-page-view-model";
+import type { AdminUsersPageServerLoad } from "./load-admin-users-page-data";
 
-export function useAdminUsersPage(): AdminUsersPageViewModel {
-  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+export function useAdminUsersPage(loaded: AdminUsersPageServerLoad): AdminUsersPageViewModel {
+  const isDemo = loaded.demo;
 
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AdminUsersDirectoryRow[]>([]);

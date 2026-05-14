@@ -2,7 +2,10 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Tenancy;
+
+using ArchLucid.Persistence.Tests;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Caching.Memory;
@@ -25,8 +28,10 @@ internal static class DapperTenantRepositoryTestFactory
 
         ITenantDatabaseBindingRepository bindings = new DapperTenantDatabaseBindingRepository(system);
         IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        string securedCatalog =
+            SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(tenantPlaneFactory.ConnectionString);
         TenantDatabaseResolver resolver =
-            new(bindings, cache, topology, tenantPlaneFactory.ConnectionString);
+            new(bindings, cache, topology, securedCatalog);
 
         return new DapperTenantRepository(
             system,
@@ -34,6 +39,70 @@ internal static class DapperTenantRepositoryTestFactory
             topology,
             bindings,
             resolver);
+    }
+
+    /// <summary>
+    ///     Same physical catalog as <paramref name="tenantPlaneFactory" />, but <see cref="SqlTopologyMode.SystemWithPerTenantCatalogs" />
+    ///     so repository code paths that fan out bindings / dual suspend hit real SQL without a second database.
+    /// </summary>
+    public static DapperTenantRepository CreateForPerTenantCatalogSameDatabaseIntegration(TestSqlConnectionFactory tenantPlaneFactory)
+    {
+        ArgumentNullException.ThrowIfNull(tenantPlaneFactory);
+
+        string secured =
+            SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(tenantPlaneFactory.ConnectionString);
+        SqlConnectionStringBuilder builder = new(secured);
+        string logicalDatabaseName = builder.InitialCatalog;
+
+        if (string.IsNullOrWhiteSpace(logicalDatabaseName))
+            logicalDatabaseName = SqlServerPersistenceFixture.DefaultTestDatabaseName;
+
+        builder.InitialCatalog = string.Empty;
+        string templateConnectionString = builder.ConnectionString;
+
+        ISystemSqlConnectionFactory system = new DelegatingSystemSqlConnectionFactory(tenantPlaneFactory);
+        IOptionsMonitor<SqlTopologyOptions> topology = new StaticOptionsMonitor<SqlTopologyOptions>(
+            new SqlTopologyOptions
+            {
+                Mode = SqlTopologyMode.SystemWithPerTenantCatalogs,
+                TenantCatalogConnectionStringTemplate = templateConnectionString,
+                TenantBindingCacheSeconds = 60,
+            });
+
+        ITenantDatabaseBindingRepository bindings = new DapperTenantDatabaseBindingRepository(system);
+        IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        TenantDatabaseResolver resolver = new(bindings, cache, topology, secured);
+
+        return new DapperTenantRepository(
+            system,
+            tenantPlaneFactory,
+            topology,
+            bindings,
+            resolver);
+    }
+
+    /// <summary>
+    ///     Inserts / activates <c>dbo.TenantDatabaseBindings</c> for <see cref="SqlTopologyMode.SystemWithPerTenantCatalogs" /> tests against a single catalog.
+    /// </summary>
+    public static async Task EnsureActiveBindingForCurrentCatalogAsync(
+        TestSqlConnectionFactory tenantPlaneFactory,
+        Guid tenantId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(tenantPlaneFactory);
+
+        ISystemSqlConnectionFactory system = new DelegatingSystemSqlConnectionFactory(tenantPlaneFactory);
+        string secured =
+            SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(tenantPlaneFactory.ConnectionString);
+        SqlConnectionStringBuilder builder = new(secured);
+        string logicalDatabaseName = builder.InitialCatalog;
+
+        if (string.IsNullOrWhiteSpace(logicalDatabaseName))
+            logicalDatabaseName = SqlServerPersistenceFixture.DefaultTestDatabaseName;
+
+        DapperTenantDatabaseBindingRepository repo = new(system);
+        await repo.UpsertPendingAsync(tenantId, logicalDatabaseName, ct);
+        await repo.MarkActiveAsync(tenantId, ct);
     }
 
     private sealed class DelegatingSystemSqlConnectionFactory(ISqlConnectionFactory inner) : ISystemSqlConnectionFactory

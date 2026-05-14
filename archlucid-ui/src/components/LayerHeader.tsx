@@ -53,7 +53,7 @@ export function LayerHeader({ pageKey, className, density = "default" }: LayerHe
         className={cn(
           "m-0 font-semibold uppercase tracking-wide",
           compact
-            ? "text-[10px] text-neutral-500 dark:text-neutral-400"
+            ? "text-[10px] text-neutral-600 dark:text-neutral-300"
             : "text-[11px] text-teal-900 dark:text-teal-200",
         )}
       >
@@ -64,7 +64,9 @@ export function LayerHeader({ pageKey, className, density = "default" }: LayerHe
         className={cn(
           "m-0 mt-1 leading-snug",
           usesOperateGovernanceFootnote
-            ? "text-xs text-neutral-500 dark:text-neutral-400"
+            ? compact
+              ? "text-xs text-neutral-600 dark:text-neutral-300"
+              : "text-xs text-neutral-500 dark:text-neutral-400"
             : "text-sm text-neutral-600 dark:text-neutral-400",
         )}
       >

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
   findCircuitBreakersEntry,
   type HealthDetailedResponse,
@@ -12,7 +11,6 @@ import {
   type CircuitGateRow,
   type VersionInfoResponse,
 } from "@/lib/health-dashboard-types";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import {
@@ -24,9 +22,10 @@ import {
 } from "./admin-health-constants";
 import type { AdminHealthConfigLintPayload } from "./admin-health-types";
 import type { AdminHealthPageViewModel } from "./admin-health-view-model";
+import type { AdminHealthPageServerLoad } from "./load-admin-health-page-data";
 
-export function useAdminHealthPage(): AdminHealthPageViewModel {
-  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+export function useAdminHealthPage(loaded: AdminHealthPageServerLoad): AdminHealthPageViewModel {
+  const isDemo = loaded.demo;
 
   const [loading, setLoading] = useState(true);
   const [ready, setReady] = useState<HealthReadyResponse | null>(null);

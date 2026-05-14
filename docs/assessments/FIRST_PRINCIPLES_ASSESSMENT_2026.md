@@ -307,6 +307,7 @@ Please add unit and integration tests for `ArchLucid.Application.AzureExtractor.
 ```
 
 ### 7. Fortify `MarkdownArchitectureAnalysisExportService`
+- **Status:** Complete — Batch 5.
 - **Why it matters:** Exported artifacts are the primary tangible deliverable for executives.
 - **Expected impact:** Directly improves Proof-of-ROI Readiness (+2-4 pts) and Usability. Weighted readiness impact: +0.2-0.4%.
 - **Affected qualities:** Proof-of-ROI Readiness, Usability.
@@ -347,6 +348,7 @@ Please add unit tests for `ArchLucid.Api.Services.Admin.AdminDiagnosticsService`
 ```
 
 ### 11. Strengthen `ComparisonReplayCostEstimator` Visibility
+- **Status:** Complete — Batch 5.
 - **Why it matters:** Users need to understand the cost of a replay before triggering it.
 - **Expected impact:** Directly improves Usability (+2-3 pts) and Proof-of-ROI Readiness. Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Usability, Proof-of-ROI Readiness.
@@ -409,6 +411,7 @@ Write integration tests for the `Integration.JiraIssueCreateSucceeded` and `Inte
 ```
 
 ### 17. Review `DocxExportService` Memory Usage
+- **Status:** Complete — Batch 5.
 - **Why it matters:** Large DOCX exports can cause memory spikes.
 - **Expected impact:** Directly improves Performance (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Performance.
@@ -419,6 +422,7 @@ Add unit tests for `ArchLucid.ArtifactSynthesis.Docx.DocxExportService` ensuring
 ```
 
 ### 18. Audit `FindingExplainabilityResult`
+- **Status:** Complete — Batch 5.
 - **Why it matters:** Explanations must be deterministic and serializable.
 - **Expected impact:** Directly improves Explainability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Explainability.
@@ -460,6 +464,7 @@ Write configuration tests ensuring that when `ArchLucidAuth:Authority` is set to
 ```
 
 ### 22. Audit `GraphNodeFactory`
+- **Status:** Complete — Batch 5.
 - **Why it matters:** Graph integrity is the core of the analysis engine.
 - **Expected impact:** Directly improves Correctness (+1-2 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Correctness.
@@ -510,7 +515,7 @@ To optimize context window usage and efficiency, execute the actionable prompts 
 - **Batch 2 (Agent & LLM Reliability):** **Complete.** Prompts 4, 5, 23. (Focuses on `ArchLucid.AgentRuntime` and Knowledge Graph inference).
 - **Batch 3 (Background Orchestration):** **Complete.** Prompts 2, 12, 13. (Focuses strictly on `ArchLucid.Worker` and `ArchLucid.Host.Core.Jobs`).
 - **Batch 4 (Integrations & Telemetry):** Prompts 6, 15, 16, 21. (Focuses on Azure Extractor, Webhooks, ITSM, and OIDC auth).
-- **Batch 5 (Artifacts & Explainability):** Prompts 7, 11, 17, 18, 22. (Focuses on Export Services, Cost Estimators, and Explainability Contracts).
+- **Batch 5 (Artifacts & Explainability):** **Complete.** Prompts 7, 11, 17, 18, 22. (Focuses on Export Services, Cost Estimators, and Explainability Contracts).
 - **Batch 6 (Documentation & CLI):** Prompts 8, 9, 10, 14, 19, 24, 25. (Focuses on Demo Seed, CLI coverage, and generating Markdown documentation).
 
 ---

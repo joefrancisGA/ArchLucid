@@ -38,7 +38,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
             </Button>
             <nav
               aria-label="Marketing"
-              className="hidden min-w-0 flex-1 flex-wrap items-center gap-2 pe-8 sm:flex"
+              className="hidden flex-wrap items-center gap-2 pe-8 sm:flex"
             >
               <Button asChild variant="ghost" size="sm">
                 <Link href="/welcome">Overview</Link>

@@ -24,19 +24,31 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
+const hoistedCostReportingLoad = vi.hoisted(() => ({ demo: false }));
+
+vi.mock("./_sections/load-cost-reporting-settings-page-data", () => ({
+  loadCostReportingSettingsPageData: () => Promise.resolve(hoistedCostReportingLoad),
+}));
+
 import CostReportingSettingsPage from "./page";
 
 describe("CostReportingSettingsPage", () => {
-  it("blocks non-admins", () => {
+  it("blocks non-admins", async () => {
     nav.callerAuthorityRank = 2;
-    render(<CostReportingSettingsPage />);
+
+    const page = await CostReportingSettingsPage();
+
+    render(page);
     expect(screen.getByTestId("cost-reporting-forbidden")).toBeInTheDocument();
     nav.callerAuthorityRank = 3;
   });
 
   it("shows mock banner when API returns 404", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("x", { status: 404 })));
-    render(<CostReportingSettingsPage />);
+
+    const page = await CostReportingSettingsPage();
+
+    render(page);
     expect(await screen.findByTestId("cost-reporting-mock-banner")).toBeInTheDocument();
     expect((await screen.findAllByText("Core workspace")).length).toBe(2);
     vi.unstubAllGlobals();

@@ -3,18 +3,17 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
   type LlmCostReportingDashboard,
   fetchLlmCostReportingDashboard,
 } from "@/lib/llm-cost-reporting";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 import type {
   CostReportingSettingsPageSurface,
   CostReportingSettingsPageViewModel,
 } from "./cost-reporting-settings-page-view-model";
+import type { CostReportingSettingsPageServerLoad } from "./load-cost-reporting-settings-page-data";
 
 function resolveSurface(
   isDemo: boolean,
@@ -36,8 +35,10 @@ function resolveSurface(
   return "admin";
 }
 
-export function useCostReportingSettingsPage(): CostReportingSettingsPageViewModel {
-  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+export function useCostReportingSettingsPage(
+  loaded: CostReportingSettingsPageServerLoad,
+): CostReportingSettingsPageViewModel {
+  const isDemo = loaded.demo;
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const surface = resolveSurface(isDemo, isAuthorityLoading, isAdmin);

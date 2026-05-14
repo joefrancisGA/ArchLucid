@@ -1,6 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const hoistedAdminUsersLoad = vi.hoisted(() => ({ demo: false }));
+
+vi.mock("./_sections/load-admin-users-page-data", () => ({
+  loadAdminUsersPageData: () => Promise.resolve(hoistedAdminUsersLoad),
+}));
+
 import AdminUsersPage from "./page";
 
 describe("AdminUsersPage", () => {
@@ -16,12 +22,16 @@ describe("AdminUsersPage", () => {
       return new Response("n", { status: 404 });
     });
     vi.stubGlobal("fetch", fetchMock);
-    render(<AdminUsersPage />);
-      expect(
-        await screen.findByText(/User directory unavailable/i, {}, { timeout: 5_000 }),
-      ).toBeInTheDocument();
 
-      expect(screen.getByTestId("admin-users-api-note")).toBeInTheDocument();
+    const page = await AdminUsersPage();
+
+    render(page);
+
+    expect(
+      await screen.findByText(/User directory unavailable/i, {}, { timeout: 5_000 }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByTestId("admin-users-api-note")).toBeInTheDocument();
   });
 
   it("renders user rows when GET /v1/admin/users succeeds", async () => {
@@ -43,7 +53,10 @@ describe("AdminUsersPage", () => {
         return new Response("n", { status: 404 });
       }),
     );
-    render(<AdminUsersPage />);
+    const page = await AdminUsersPage();
+
+    render(page);
+
     expect(await screen.findByText("Ada Lovelace")).toBeInTheDocument();
     expect(screen.getByText("bob@example.com")).toBeInTheDocument();
     expect(screen.getByText("Admin")).toBeInTheDocument();

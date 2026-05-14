@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import {
@@ -24,9 +22,10 @@ import type {
   AdminConfigurationPageViewModel,
   AdminConfigurationRowSectionGroup,
 } from "./admin-configuration-view-model";
+import type { AdminConfigurationPageServerLoad } from "./load-admin-configuration-page-data";
 
-export function useAdminConfigurationPage(): AdminConfigurationPageViewModel {
-  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+export function useAdminConfigurationPage(loaded: AdminConfigurationPageServerLoad): AdminConfigurationPageViewModel {
+  const isDemo = loaded.demo;
 
   const [loadState, setLoadState] = useState<AdminConfigurationLoadState>("idle");
   const [rows, setRows] = useState<ConfigSummaryKeyRow[]>([]);

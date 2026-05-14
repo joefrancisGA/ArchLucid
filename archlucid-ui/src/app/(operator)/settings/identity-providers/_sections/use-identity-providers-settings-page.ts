@@ -6,6 +6,7 @@ import type { components } from "@/lib/api-types.generated";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import { filterArchLucidAuthConfigRows } from "./filter-arch-lucid-auth-config-rows";
+import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-providers-settings-page-data";
 
 type AdminConfigSummaryResponse = components["schemas"]["AdminConfigSummaryResponse"];
 type ConfigSummaryKeyRow = components["schemas"]["ConfigSummaryKeyRow"];
@@ -15,7 +16,10 @@ export type UseIdentityProvidersSettingsPageModel = {
   rows: ConfigSummaryKeyRow[] | null;
 };
 
-export function useIdentityProvidersSettingsPage(): UseIdentityProvidersSettingsPageModel {
+export function useIdentityProvidersSettingsPage(
+  loaded: IdentityProvidersSettingsPageServerLoad,
+): UseIdentityProvidersSettingsPageModel {
+  const isDemo = loaded.demo;
   const [rows, setRows] = useState<ConfigSummaryKeyRow[] | null>(null);
   const [note, setNote] = useState<string | null>(null);
 
@@ -51,8 +55,12 @@ export function useIdentityProvidersSettingsPage(): UseIdentityProvidersSettings
   }, []);
 
   useEffect(() => {
+    if (isDemo) {
+      return;
+    }
+
     void load();
-  }, [load]);
+  }, [isDemo, load]);
 
   return {
     note,

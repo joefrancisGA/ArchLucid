@@ -12,14 +12,14 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-///     Resolves a SQL Server connection (environment variable or Windows LocalDB), ensures the test catalog exists,
+///     Resolves a SQL Server connection (<see cref="EnvironmentConnectionStringVariable" />, or on Windows
+///     <c>localhost</c> + integrated security then LocalDB), ensures the test catalog exists,
 ///     applies embedded <see cref="DatabaseMigrator" /> scripts (core Data-layer tables) and a minimal SQL supplement
 ///     for persistence-only tables (AuditEvents, ConversationThreads, ProvenanceSnapshots) that DbUp omits.
 /// </summary>
 /// <remarks>
 ///     No Docker/Testcontainers dependency in this fixture. When <see cref="EnvironmentConnectionStringVariable" /> is
-///     unset and LocalDB
-///     is unavailable, <see cref="IsSqlServerAvailable" /> is false and SQL integration tests should skip
+///     unset and neither implicit Windows target is reachable, <see cref="IsSqlServerAvailable" /> is false and SQL integration tests should skip
 ///     (see <see cref="Xunit.Skip" />.<c>IfNot</c> with <c>[SkippableFact]</c> from Xunit.SkippableFact). You can still filter with
 ///     <c>dotnet test --filter "Category!=SqlServerContainer"</c>.
 /// </remarks>
@@ -42,8 +42,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     ///     connection string.
     /// </summary>
     public const string SqlServerUnavailableSkipReason =
-        "No SQL Server for persistence tests (install LocalDB on Windows or set " + EnvironmentConnectionStringVariable
-        + "). Or run: dotnet test --filter \"Category!=SqlServerContainer\".";
+        "No SQL Server for persistence tests (Windows: default instance on localhost or LocalDB; elsewhere set "
+        + EnvironmentConnectionStringVariable + "). Or run: dotnet test --filter \"Category!=SqlServerContainer\".";
 
     /// <summary>True after a successful connection and schema migration.</summary>
     public bool IsSqlServerAvailable
@@ -74,8 +74,15 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
             return;
         }
 
-        if (await TryInitializeFromLocalDbAsync())
-            return;
+        if (OperatingSystem.IsWindows())
+        {
+            foreach (string candidate in SqlServerIntegrationTestConnections.EnumerateWindowsPersistenceFallbackConnectionStrings(
+                         DefaultTestDatabaseName))
+            {
+                if (await TryInitializeFromImplicitConnectionAsync(candidate))
+                    return;
+            }
+        }
 
         IsSqlServerAvailable = false;
         ConnectionString = string.Empty;
@@ -110,20 +117,10 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         }
     }
 
-    private async Task<bool> TryInitializeFromLocalDbAsync()
+    private async Task<bool> TryInitializeFromImplicitConnectionAsync(string connectionString)
     {
         try
         {
-            SqlConnectionStringBuilder localDb = new()
-            {
-                DataSource = "(localdb)\\mssqllocaldb",
-                InitialCatalog = DefaultTestDatabaseName,
-                IntegratedSecurity = true,
-                TrustServerCertificate = true
-            };
-
-            string connectionString = localDb.ConnectionString;
-
             await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(connectionString, CancellationToken.None);
 
             DatabaseMigrator.Run(connectionString);

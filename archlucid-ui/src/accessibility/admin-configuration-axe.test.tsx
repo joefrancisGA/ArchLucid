@@ -2,25 +2,23 @@ import { render, screen } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import AdminConfigurationPage from "@/app/(operator)/admin/configuration/page";
+const hoistedAdminConfigurationLoad = vi.hoisted(() => ({ demo: false }));
 
-function jsonResponse(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
-}
-
-vi.mock("@/lib/demo-ui-env", () => ({
-  isNextPublicDemoMode: () => false,
-}));
-
-vi.mock("@/lib/operator-static-demo", () => ({
-  isStaticDemoPayloadFallbackEnabled: () => false,
+vi.mock("@/app/(operator)/admin/configuration/_sections/load-admin-configuration-page-data", () => ({
+  loadAdminConfigurationPageData: () => Promise.resolve(hoistedAdminConfigurationLoad),
 }));
 
 vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
   mergeRegistrationScopeForProxy: (init: RequestInit) => init,
 }));
 
+import AdminConfigurationPage from "@/app/(operator)/admin/configuration/page";
+
 expect.extend(toHaveNoViolations);
+
+function jsonResponse(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
+}
 
 describe("AdminConfigurationPage — axe (Vitest)", () => {
   afterEach(() => {
@@ -69,7 +67,9 @@ describe("AdminConfigurationPage — axe (Vitest)", () => {
       });
       vi.stubGlobal("fetch", fetchMock);
 
-      const { container } = render(<AdminConfigurationPage />);
+      const page = await AdminConfigurationPage();
+
+      const { container } = render(page);
 
       expect(await screen.findByTestId("admin-configuration-table-hosting")).toBeInTheDocument();
 
