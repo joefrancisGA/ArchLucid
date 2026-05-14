@@ -39,7 +39,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     return (
       <div className="max-w-4xl">
         <OperatorPageHeader
-          title={buyerShell === true ? "Search review evidence" : "Semantic Search"}
+          title={buyerShell === true ? "Search this review's evidence" : "Semantic Search"}
           helpKey="semantic-search"
           subtitle={semanticSearchPageSubtitleOperator}
         />
@@ -57,7 +57,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
   return (
     <div className="max-w-4xl">
       <OperatorPageHeader
-        title={buyerShell === true ? "Search review evidence" : "Semantic Search"}
+        title={buyerShell === true ? "Search this review's evidence" : "Semantic Search"}
         helpKey="semantic-search"
         subtitle={semanticSearchPageSubtitleOperator}
       />

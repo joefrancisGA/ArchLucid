@@ -4,11 +4,11 @@ import { runAxe } from "./helpers/axe-helper";
 
 /**
  * Pilot group `<nav aria-label>` — always `group.label` from `PilotNavGroupBuilder` (`SidebarNav` sets `aria-label={group.label}`).
- * The disclosure **button** label is `group.label` in full-operator mode and `"All reviews"` when buyer-polished (`isBuyerPolishedOperatorShellEnv`).
+ * The disclosure **button** label is `group.label` in full-operator mode and `"Review list"` when buyer-polished (`isBuyerPolishedOperatorShellEnv`).
  */
 const pilotNavGroupAriaLabel = "Review work";
 
-const pilotSectionDisclosureName = /^(Review work|All reviews)$/;
+const pilotSectionDisclosureName = /^(Review work|Review list)$/;
 
 /** Expands the pilot nav collapsible when `localStorage` left it closed so sidebar links are in the a11y tree. */
 async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
@@ -21,7 +21,7 @@ async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
 
   if ((await minimalRoot.count()) > 0) return;
 
-  // Pilot disclosure label is **Review work** or buyer-polished **All reviews** — not route title **Architecture reviews**.
+  // Pilot disclosure label is **Review work** or buyer-polished **Review list** — not route title **Architecture reviews**.
   const trigger = page.getByRole("button", { name: pilotSectionDisclosureName });
 
   await trigger.waitFor({ state: "visible", timeout: 60_000 });

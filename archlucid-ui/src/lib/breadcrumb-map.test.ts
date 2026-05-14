@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { SHOWCASE_BUYER_REVIEW_TITLE } from "./showcase-static-demo";
+import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "./showcase-static-demo";
 import { getBreadcrumbs } from "./breadcrumb-map";
 
 describe("getBreadcrumbs", () => {
@@ -81,6 +81,41 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/audit", { buyerPolishedShell: true })).toEqual([
       { label: "Home", href: "/" },
       { label: "Audit Trail" },
+    ]);
+  });
+
+  it("buyer-polished: showcase runId on hub inserts review package title before the hub crumb", () => {
+    expect(
+      getBreadcrumbs("/graph", {
+        buyerPolishedShell: true,
+        queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      }),
+    ).toEqual([
+      { label: "Home", href: "/" },
+      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
+      { label: "Evidence graph" },
+    ]);
+  });
+
+  it("does not inject review package crumb when runId mismatches showcase", () => {
+    expect(
+      getBreadcrumbs("/graph", {
+        buyerPolishedShell: true,
+        queryRunId: "other-review",
+      }),
+    ).toEqual([{ label: "Home", href: "/" }, { label: "Evidence graph" }]);
+  });
+
+  it("does not inject review package crumb on governance subpaths despite showcase runId (buyer wording)", () => {
+    expect(
+      getBreadcrumbs("/governance/findings", {
+        buyerPolishedShell: true,
+        queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      }),
+    ).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Governance", href: "/governance" },
+      { label: "Finding" },
     ]);
   });
 

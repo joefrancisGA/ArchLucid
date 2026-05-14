@@ -34,6 +34,7 @@ import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealth
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { TrialBanner } from "@/components/TrialBanner";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 
@@ -138,18 +139,23 @@ function AppShellInner({ children }: AppShellClientProps) {
                   </div>
                   <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
                     <AuthPanel />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      aria-label="Search documentation and help"
-                      onClick={() => {
-                        setHelpDocSearchOpen(true);
-                      }}
-                    >
-                      <HelpCircle className="h-4 w-4" aria-hidden />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          aria-label="Documentation and product help search"
+                          onClick={() => {
+                            setHelpDocSearchOpen(true);
+                          }}
+                        >
+                          <HelpCircle className="h-4 w-4" aria-hidden />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent sideOffset={6}>Documentation and product help search</TooltipContent>
+                    </Tooltip>
                     <ColorModeToggle />
                   </div>
                 </div>
@@ -214,18 +220,23 @@ function AppShellInner({ children }: AppShellClientProps) {
                 <AuthPanel />
                 <ScopeSwitcher />
                 <CommandPalette />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                      aria-label="Search documentation and help"
-                  onClick={() => {
-                    setHelpDocSearchOpen(true);
-                  }}
-                >
-                  <HelpCircle className="h-4 w-4" aria-hidden />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      aria-label="Documentation and product help search"
+                      onClick={() => {
+                        setHelpDocSearchOpen(true);
+                      }}
+                    >
+                      <HelpCircle className="h-4 w-4" aria-hidden />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={6}>Documentation and product help search</TooltipContent>
+                </Tooltip>
                 <ColorModeToggle />
               </div>
             </div>

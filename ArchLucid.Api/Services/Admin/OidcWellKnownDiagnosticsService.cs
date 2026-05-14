@@ -13,7 +13,8 @@ public sealed class OidcWellKnownDiagnosticsService(
     HttpClient httpClient,
     IOptionsMonitor<ArchLucidAuthOptions> authOptionsMonitor) : IOidcWellKnownDiagnosticsService
 {
-    private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+    private readonly HttpClient _httpClient =
+        httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
     private readonly IOptionsMonitor<ArchLucidAuthOptions> _authOptionsMonitor =
         authOptionsMonitor ?? throw new ArgumentNullException(nameof(authOptionsMonitor));
@@ -28,56 +29,61 @@ public sealed class OidcWellKnownDiagnosticsService(
         string? audienceConfigured = TrimOrNull(opts.Audience);
         bool usesLocalKey = !string.IsNullOrWhiteSpace(opts.JwtSigningPublicKeyPemPath?.Trim());
 
-        AdminOidcDiagnosticsResponse response = new()
-        {
-            AuthMode = modeTrim,
-            ConfiguredAuthority = authorityConfigured,
-            ConfiguredAudience = audienceConfigured,
-            UsesLocalJwtSigningKey = usesLocalKey,
-            LocalJwtIssuer = usesLocalKey ? TrimOrNull(opts.JwtLocalIssuer) : null,
-            LocalJwtAudience = usesLocalKey ? TrimOrNull(opts.JwtLocalAudience) : null
-        };
+        AdminOidcDiagnosticsResponse baseline = AuthBaseline(modeTrim, authorityConfigured, audienceConfigured,
+            usesLocalKey, opts);
 
         if (!string.Equals(modeTrim, "JwtBearer", StringComparison.OrdinalIgnoreCase))
         {
-            response.DiagnosticSummary =
-                "ArchLucidAuth:Mode is not JwtBearer; OpenID Connect discovery is not used for API JWT validation.";
-
-            return response;
+            return baseline with
+            {
+                DiagnosticSummary =
+                    "ArchLucidAuth:Mode is not JwtBearer; OpenID Connect discovery is not used for API JWT validation."
+            };
         }
 
         if (usesLocalKey)
         {
-            response.DiagnosticSummary =
-                "JWT validation uses ArchLucidAuth:JwtSigningPublicKeyPemPath with local issuer/audience; OIDC metadata is not fetched from Authority at runtime.";
-
-            return response;
+            return baseline with
+            {
+                DiagnosticSummary =
+                    "JWT validation uses ArchLucidAuth:JwtSigningPublicKeyPemPath with local issuer/audience; OIDC metadata is not fetched from Authority at runtime."
+            };
         }
 
         if (authorityConfigured is null)
         {
-            response.DiagnosticSummary = "ArchLucidAuth:Authority is empty; cannot resolve OpenID Connect metadata.";
-            response.DiscoveryAttempted = false;
-            response.DiscoverySucceeded = false;
-            response.DiscoveryError = response.DiagnosticSummary;
+            const string summary =
+                "ArchLucidAuth:Authority is empty; cannot resolve OpenID Connect metadata.";
 
-            return response;
+            return baseline with
+            {
+                DiagnosticSummary = summary,
+                DiscoveryAttempted = false,
+                DiscoverySucceeded = false,
+                DiscoveryError = summary
+            };
         }
 
         if (!TryBuildDiscoveryUri(authorityConfigured, out Uri? discoveryUri))
         {
             string msg = "ArchLucidAuth:Authority is not a valid absolute HTTP(S) URL.";
-            response.DiagnosticSummary = msg;
-            response.DiscoveryAttempted = false;
-            response.DiscoverySucceeded = false;
-            response.DiscoveryError = msg;
 
-            return response;
+            return baseline with
+            {
+                DiagnosticSummary = msg,
+                DiscoveryAttempted = false,
+                DiscoverySucceeded = false,
+                DiscoveryError = msg
+            };
         }
 
         string discoveryUrl = discoveryUri!.AbsoluteUri;
-        response.OpenIdConfigurationUrl = discoveryUrl;
-        response.DiscoveryAttempted = true;
+
+        AdminOidcDiagnosticsResponse attempted = baseline with
+        {
+            OpenIdConfigurationUrl = discoveryUrl,
+            DiscoveryAttempted = true
+        };
 
         try
         {
@@ -88,23 +94,29 @@ public sealed class OidcWellKnownDiagnosticsService(
 
             if (!httpResponse.IsSuccessStatusCode)
             {
-                response.DiscoverySucceeded = false;
-                response.DiscoveryError = $"HTTP {(int)httpResponse.StatusCode} when fetching OpenID configuration.";
-                response.DiagnosticSummary = response.DiscoveryError;
+                string err = $"HTTP {(int)httpResponse.StatusCode} when fetching OpenID configuration.";
 
-                return response;
+                return attempted with
+                {
+                    DiscoverySucceeded = false,
+                    DiscoveryError = err,
+                    DiagnosticSummary = err
+                };
             }
 
             using JsonDocument document = JsonDocument.Parse(body);
             JsonElement root = document.RootElement;
 
-            response.DiscoverySucceeded = true;
-            response.IssuerFromDiscovery = ReadDiscoveryString(root, "issuer");
-            response.AuthorizationEndpoint = ReadDiscoveryString(root, "authorization_endpoint");
-            response.TokenEndpoint = ReadDiscoveryString(root, "token_endpoint");
-            response.JwksUri = ReadDiscoveryString(root, "jwks_uri");
-            response.UserinfoEndpoint = ReadDiscoveryString(root, "userinfo_endpoint");
-            response.DiagnosticSummary = "OpenID configuration document fetched successfully.";
+            return attempted with
+            {
+                DiscoverySucceeded = true,
+                IssuerFromDiscovery = ReadDiscoveryString(root, "issuer"),
+                AuthorizationEndpoint = ReadDiscoveryString(root, "authorization_endpoint"),
+                TokenEndpoint = ReadDiscoveryString(root, "token_endpoint"),
+                JwksUri = ReadDiscoveryString(root, "jwks_uri"),
+                UserinfoEndpoint = ReadDiscoveryString(root, "userinfo_endpoint"),
+                DiagnosticSummary = "OpenID configuration document fetched successfully."
+            };
         }
         catch (OperationCanceledException)
         {
@@ -112,24 +124,55 @@ public sealed class OidcWellKnownDiagnosticsService(
                 throw;
 
             // HttpClient timeouts surface as TaskCanceledException (derived from OperationCanceledException).
-            response.DiscoverySucceeded = false;
-            response.DiscoveryError = "Request timed out reaching the OpenID configuration URL.";
-            response.DiagnosticSummary = response.DiscoveryError;
+            string err = "Request timed out reaching the OpenID configuration URL.";
+
+            return attempted with
+            {
+                DiscoverySucceeded = false,
+                DiscoveryError = err,
+                DiagnosticSummary = err
+            };
         }
         catch (HttpRequestException ex)
         {
-            response.DiscoverySucceeded = false;
-            response.DiscoveryError = SanitizeDiscoveryTransportMessage(ex.Message);
-            response.DiagnosticSummary = response.DiscoveryError;
+            string err = SanitizeDiscoveryTransportMessage(ex.Message);
+
+            return attempted with
+            {
+                DiscoverySucceeded = false,
+                DiscoveryError = err,
+                DiagnosticSummary = err
+            };
         }
         catch (JsonException ex)
         {
-            response.DiscoverySucceeded = false;
-            response.DiscoveryError = $"OpenID configuration response was not valid JSON ({ex.Message}).";
-            response.DiagnosticSummary = response.DiscoveryError;
-        }
+            string err = $"OpenID configuration response was not valid JSON ({ex.Message}).";
 
-        return response;
+            return attempted with
+            {
+                DiscoverySucceeded = false,
+                DiscoveryError = err,
+                DiagnosticSummary = err
+            };
+        }
+    }
+
+    private static AdminOidcDiagnosticsResponse AuthBaseline(
+        string modeTrim,
+        string? authorityConfigured,
+        string? audienceConfigured,
+        bool usesLocalKey,
+        ArchLucidAuthOptions opts)
+    {
+        return new AdminOidcDiagnosticsResponse
+        {
+            AuthMode = modeTrim,
+            ConfiguredAuthority = authorityConfigured,
+            ConfiguredAudience = audienceConfigured,
+            UsesLocalJwtSigningKey = usesLocalKey,
+            LocalJwtIssuer = usesLocalKey ? TrimOrNull(opts.JwtLocalIssuer) : null,
+            LocalJwtAudience = usesLocalKey ? TrimOrNull(opts.JwtLocalAudience) : null
+        };
     }
 
     private static bool TryBuildDiscoveryUri(string authorityTrimmed, out Uri? discoveryUri)

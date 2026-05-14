@@ -13,10 +13,53 @@ export type BreadcrumbItem = {
 export type GetBreadcrumbsOptions = {
   /** Buyer-polished shell uses calmer create-flow labels on the wizard path. */
   readonly buyerPolishedShell?: boolean;
+  /**
+   * When set (e.g. `runId` query on graph / governance / audit / ask hubs), buyer-polished shell can insert
+   * the active review package title between Home and the hub page.
+   */
+  readonly queryRunId?: string;
 };
 
 function newReviewWizardCrumbLabel(buyerPolishedShell: boolean | undefined): string {
   return buyerPolishedShell === true ? "New review" : "New request";
+}
+
+const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>(["graph", "audit", "ask", "governance"]);
+
+function injectBuyerShowcaseReviewPackageCrumb(
+  items: BreadcrumbItem[],
+  normalizedPath: string,
+  options?: GetBreadcrumbsOptions,
+): BreadcrumbItem[] {
+  const runId = options?.queryRunId?.trim();
+
+  if (options?.buyerPolishedShell !== true || runId !== SHOWCASE_STATIC_DEMO_RUN_ID) {
+    return items;
+  }
+
+  const rawSegments = normalizedPath.split("/").filter(Boolean);
+
+  if (rawSegments.length !== 1) {
+    return items;
+  }
+
+  const hub = rawSegments[0] ?? "";
+
+  if (!BUYER_HUB_RUN_SCOPED_SEGMENTS.has(hub)) {
+    return items;
+  }
+
+  if (items.length < 2 || items[0]?.label !== "Home") {
+    return items;
+  }
+
+  const reviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+
+  return [
+    items[0]!,
+    { label: SHOWCASE_BUYER_REVIEW_TITLE, href: reviewHref },
+    ...items.slice(1),
+  ];
 }
 
 const SEGMENT_LABELS: Record<string, string> = {
@@ -140,7 +183,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     }
   }
 
-  return items;
+  return injectBuyerShowcaseReviewPackageCrumb(items, normalized, options);
 }
 
 /** E2E / demo fixture ids in path segments — show realistic titles instead of slug-style labels. */

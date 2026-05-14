@@ -7,6 +7,7 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -24,6 +25,9 @@ import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 
 const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
+
+/** Hover / accessible description for the buyer-polished curated workspace strip + Example badge. */
+const BUYER_CURATED_SCOPE_TOOLTIP = "Example workspace: sample data only";
 
 type ProjectOption = { projectId: string; name: string };
 type WorkspaceOption = { workspaceId: string; name: string; projects: ProjectOption[] };
@@ -183,18 +187,24 @@ export function ScopeSwitcher() {
 
   if (polishedShell && isDefaultDevScope) {
     return (
-      <span className="inline-flex max-w-[min(22rem,46vw)] shrink items-center gap-2">
-        <span
-          data-testid="operator-scope-switcher-trigger"
-          className="inline-flex min-w-0 max-w-[min(18rem,38vw)] shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
-          aria-label="Active workspace"
-        >
-          {workspaceLabel}
-        </span>
-        <span className="shrink-0 rounded border border-teal-200 bg-teal-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">
-          Example
-        </span>
-      </span>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="inline-flex max-w-[min(22rem,46vw)] shrink cursor-default items-center gap-2">
+            <span
+              data-testid="operator-scope-switcher-trigger"
+              className="inline-flex min-w-0 max-w-[min(18rem,38vw)] shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+              title={BUYER_CURATED_SCOPE_TOOLTIP}
+              aria-label={`Active workspace — ${BUYER_CURATED_SCOPE_TOOLTIP}`}
+            >
+              {workspaceLabel}
+            </span>
+            <span className="shrink-0 rounded border border-teal-200 bg-teal-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">
+              Example
+            </span>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent sideOffset={6}>{BUYER_CURATED_SCOPE_TOOLTIP}</TooltipContent>
+      </Tooltip>
     );
   }
 

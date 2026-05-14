@@ -119,7 +119,7 @@ export function buyerPolishedRouteOrientation(pathname: string): {
 
   if (path.startsWith("/search")) {
     return {
-      label: "Search review evidence",
+      label: "Search this review's evidence",
       line: "Find language across review summaries, manifests, and linked metadata (tenant-scoped).",
     };
   }

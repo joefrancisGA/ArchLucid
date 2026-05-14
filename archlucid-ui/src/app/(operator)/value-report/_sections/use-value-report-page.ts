@@ -24,7 +24,10 @@ export type UseValueReportPageModel = {
   toUtc: string;
 };
 
-export function useValueReportPage(_loaded: ValueReportPageServerLoad): UseValueReportPageModel {
+export function useValueReportPage(loaded: ValueReportPageServerLoad): UseValueReportPageModel {
+  // Keeps hook boundary aligned with `load-value-report-page-data` when eligibility/tier arrives.
+  void loaded;
+
   const canMutate = useEnterpriseMutationCapability();
   const [fromUtc, setFromUtc] = useState(() => {
     const d = new Date();

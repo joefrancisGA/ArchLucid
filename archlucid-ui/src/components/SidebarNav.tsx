@@ -491,7 +491,7 @@ export function SidebarNav() {
             >
               <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
                 <span id={`sidebar-group-trigger-title-${group.id}`}>
-                  {group.id === "pilot" && buyerPolishedShell ? "All reviews" : group.label}
+                  {group.id === "pilot" && buyerPolishedShell ? "Review list" : group.label}
                 </span>
                 {group.id === "operate-governance" ? (
                   <span id="sidebar-governance-nav-hint-slot">

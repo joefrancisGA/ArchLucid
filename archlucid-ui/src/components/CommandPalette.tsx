@@ -14,6 +14,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
@@ -270,31 +271,43 @@ export function CommandPalette() {
 
   const polishedShell = buyerPolishedShell;
 
+  const polishedPaletteLabel = "Search this review's evidence";
+  const polishedPalettePlaceholder = "Search this review's evidence or find a page…";
+
   return (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className={
-          polishedShell
-            ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-            : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
-        }
-        aria-label={polishedShell ? "Search documentation and pages" : "Open command palette"}
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        {polishedShell ? null : (
-          <span className="rounded border border-neutral-300 bg-white px-1 py-0.5 text-[10px] font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400">
-            ⌘K
-          </span>
-        )}
-        <span>{polishedShell ? "Search review evidence" : "Search"}</span>
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className={
+              polishedShell
+                ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+                : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            }
+            aria-label={polishedShell ? polishedPaletteLabel : "Open command palette"}
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            {polishedShell ? null : (
+              <span className="rounded border border-neutral-300 bg-white px-1 py-0.5 text-[10px] font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400">
+                ⌘K
+              </span>
+            )}
+            <span>{polishedShell ? polishedPaletteLabel : "Search"}</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent sideOffset={6}>
+          {polishedShell
+            ? "Jump to destinations and help topics relevant to this review package."
+            : "Search pages or open a workflow with the keyboard shortcut."}
+        </TooltipContent>
+      </Tooltip>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder={polishedShell ? "Search review evidence or find a page…" : "Search pages or paste a review ID…"} />
+        <CommandInput placeholder={polishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!polishedShell} />
           <CommandPaletteDocumentationSearch />

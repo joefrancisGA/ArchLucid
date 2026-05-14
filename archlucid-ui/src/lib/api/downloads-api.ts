@@ -4,9 +4,7 @@ import {
   ensureOidcBearerReady,
   getBearerToken,
   isBrowser,
-  resolveRequest,
   throwApiRequestError,
-  withCorrelationHeaders,
 } from "./http";
 
 export function getArtifactDownloadUrl(manifestId: string, artifactId: string): string {

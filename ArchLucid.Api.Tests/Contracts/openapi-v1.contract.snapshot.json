@@ -9384,7 +9384,7 @@
         ],
         "type": "object"
       },
-      "ManifestSummaryResponse": {
+      "ManifestMarkdownDocumentResponse": {
         "properties": {
           "content": {
             "type": "string"
@@ -9397,6 +9397,54 @@
           },
           "summary": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ManifestSummaryResponse": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "decisionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "hasUnresolvedIssues": {
+            "type": "boolean"
+          },
+          "hasWarnings": {
+            "type": "boolean"
+          },
+          "manifestHash": {
+            "type": "string"
+          },
+          "manifestId": {
+            "type": "string"
+          },
+          "operatorSummary": {
+            "type": "string"
+          },
+          "ruleSetId": {
+            "type": "string"
+          },
+          "ruleSetVersion": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "unresolvedIssueCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "warningCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -22052,17 +22100,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ManifestSummaryResponse"
+                  "$ref": "#/components/schemas/ManifestMarkdownDocumentResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ManifestSummaryResponse"
+                  "$ref": "#/components/schemas/ManifestMarkdownDocumentResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ManifestSummaryResponse"
+                  "$ref": "#/components/schemas/ManifestMarkdownDocumentResponse"
                 }
               }
             },
@@ -22111,17 +22159,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ManifestSummaryResponse"
+                  "$ref": "#/components/schemas/ManifestMarkdownDocumentResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ManifestSummaryResponse"
+                  "$ref": "#/components/schemas/ManifestMarkdownDocumentResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ManifestSummaryResponse"
+                  "$ref": "#/components/schemas/ManifestMarkdownDocumentResponse"
                 }
               }
             },

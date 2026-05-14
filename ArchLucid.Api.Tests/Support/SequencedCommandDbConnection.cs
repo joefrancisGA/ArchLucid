@@ -1,6 +1,8 @@
 using System.Data;
 using System.Data.Common;
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Api.Tests.Support;
 
 /// <summary>
@@ -29,14 +31,15 @@ internal sealed class SequencedCommandDbConnection : DbConnection
 
     private string _connectionString = string.Empty;
 
-#pragma warning disable CS8765 // BCL ConnectionString setter allows null; we normalize to empty string.
+    /// <inheritdoc />
+    /// <remarks><see cref="DbConnection.ConnectionString" /> allows null assignment; we normalize to empty string.</remarks>
+    [AllowNull]
     public override string ConnectionString
     {
         get => _connectionString;
+
         set => _connectionString = value ?? string.Empty;
     }
-#pragma warning restore CS8765
-
     public override string Database => string.Empty;
 
     public override string DataSource => string.Empty;

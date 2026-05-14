@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { getBreadcrumbs } from "@/lib/breadcrumb-map";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -11,7 +11,14 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
  */
 export function Breadcrumbs() {
   const pathname = usePathname() ?? "/";
-  const items = getBreadcrumbs(pathname, { buyerPolishedShell: isBuyerPolishedOperatorShellEnv() });
+  const searchParams = useSearchParams();
+  const queryRunId = searchParams.get("runId");
+  const runIdTrimmed = queryRunId !== null && queryRunId.trim().length > 0 ? queryRunId.trim() : undefined;
+
+  const items = getBreadcrumbs(pathname, {
+    buyerPolishedShell: isBuyerPolishedOperatorShellEnv(),
+    queryRunId: runIdTrimmed,
+  });
 
   if (items.length <= 1) {
     return null;
