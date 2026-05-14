@@ -27,7 +27,7 @@ export function OperatorBrandedNotFound() {
           Findings
         </Link>
       </div>
-      <p className="m-0 mt-6 text-[11px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+      <p className="m-0 mt-6 text-[11px] uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
         ArchLucid · 404
       </p>
       <span data-testid="branded-not-found" className="sr-only">
