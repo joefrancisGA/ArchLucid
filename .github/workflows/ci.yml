@@ -1389,13 +1389,14 @@ jobs:
       - name: Test — ArchLucid.Api.Tests (Category=Slow only)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+        # Blame must exceed GreenfieldSqlApiFactory idempotency lock budget (25m) + create-run slack; see ArchitectureRequestConcurrencyTestSupport.
         run: >
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release --settings coverage.runsettings
           --filter "Category=Slow"
           --collect:"XPlat Code Coverage"
           --results-directory "${{ runner.temp }}/coverage-full-slow-api"
           --logger "trx;LogFilePrefix=full-slow-api-"
-          --blame-hang --blame-hang-timeout 20min
+          --blame-hang --blame-hang-timeout 45min
 
       - uses: actions/upload-artifact@v6
         if: always()
@@ -1462,6 +1463,7 @@ jobs:
       - name: Test — domain test projects (Category=Slow only)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+        # Blame timeout aligned with slow API shard (SQL + long idempotency / pipeline waits).
         run: |
           set -euo pipefail
           for proj in \
@@ -1474,7 +1476,7 @@ jobs:
               --collect:"XPlat Code Coverage" \
               --results-directory "${{ runner.temp }}/coverage-full-slow-domain" \
               --logger "trx;LogFilePrefix=full-slow-domain-" \
-              --blame-hang --blame-hang-timeout 20min
+              --blame-hang --blame-hang-timeout 45min
           done
 
       - uses: actions/upload-artifact@v6

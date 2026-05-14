@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace ArchLucid.Host.Composition.Tests;
 
 /// <summary>TB-002: startup advisory paths increment <see cref="ArchLucidInstrumentation.StartupConfigWarningsTotal"/>.</summary>
+[Collection("StartupConfigWarningsInstrumentation")]
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class StartupConfigWarningsInstrumentationTests
@@ -187,6 +188,8 @@ public sealed class StartupConfigWarningsInstrumentationTests
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
+                // Pin ArchLucid environment: HostEnvironmentClassification falls back to process env when absent.
+                ["ARCHLUCID_ENVIRONMENT"] = "Development",
                 ["ArchLucid:ContentSafety:FailClosedOnSdkError"] = "false",
             })
             .Build();
