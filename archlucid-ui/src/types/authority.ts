@@ -26,27 +26,25 @@ export type RunSummary = components["schemas"]["RunSummaryResponse"] &
     createdUtc: string;
   };
 
-/**
- * Golden manifest summary for operator review headers.
- *
- * **Note:** The v1 snapshot uses `ManifestSummaryResponse` for a different document-shaped DTO elsewhere; this shape
- * matches the authority manifest summary endpoint in practice (`GET /v1/authority/manifests/{manifestId}/summary`).
- */
-export type ManifestSummary = {
-  manifestId: string;
-  runId: string;
-  createdUtc: string;
-  manifestHash: string;
-  ruleSetId: string;
-  ruleSetVersion: string;
-  decisionCount: number;
-  warningCount: number;
-  unresolvedIssueCount: number;
-  status: string;
-  hasWarnings?: boolean;
-  hasUnresolvedIssues?: boolean;
-  operatorSummary?: string;
-};
+type ManifestSummaryResponseSchema = components["schemas"]["ManifestSummaryResponse"];
+
+/** Authority manifest counters after fetch — OpenAPI **`ManifestSummaryResponse`** with required primitives for JSX. */
+export type ManifestSummary = ManifestSummaryResponseSchema &
+  Required<
+    Pick<
+      ManifestSummaryResponseSchema,
+      | "manifestId"
+      | "runId"
+      | "createdUtc"
+      | "manifestHash"
+      | "ruleSetId"
+      | "ruleSetVersion"
+      | "decisionCount"
+      | "warningCount"
+      | "unresolvedIssueCount"
+      | "status"
+    >
+  >;
 
 /** A single diff entry from run or manifest comparison (section/key/before/after). */
 export type DiffItem = {

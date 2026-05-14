@@ -12,7 +12,9 @@ import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
-import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
+import {
+  buyerHeaderStatusTwinPillCaption,
+} from "@/lib/review-buyer-disposition-line";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
@@ -76,9 +78,19 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         headline={m.headline}
         hasGoldenManifest={Boolean(m.manifestId)}
         executionFlavorBuyerSummary={m.resolvedDetail.executionFlavorBuyerSummary}
-        buyerGovernanceLine={
-          m.buyerPolishedArtifactTable === true && m.manifestSummary !== null
-            ? `Governance approval: ${governanceGateLabelFromManifestStatus(m.manifestSummary.status)}`
+        buyerGovernanceApprovalLabel={
+          m.buyerPolishedArtifactTable === true ? m.governanceGateLabel ?? null : null
+        }
+        buyerHeaderStatusCaption={
+          m.buyerPolishedArtifactTable === true
+            ? buyerHeaderStatusTwinPillCaption({
+                hasGoldenManifest: Boolean(m.manifestId),
+                findingCountDisplay: m.findingCountDisplay,
+                warningCountDisplay: m.warningCountDisplay,
+                unresolvedIssueCountDisplay: m.manifestSummary?.unresolvedIssueCount ?? null,
+                governanceGateLabel: m.governanceGateLabel,
+                aggregateRiskPosture: m.explanationSummary?.riskPosture ?? null,
+              })
             : null
         }
       />

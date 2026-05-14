@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildBuyerReviewPackageDispositionLine,
   buildBuyerReviewPackagePlainStatusHeadline,
+  buyerHeaderStatusTwinPillCaption,
 } from "./review-buyer-disposition-line";
 
 describe("buildBuyerReviewPackagePlainStatusHeadline", () => {
@@ -33,6 +34,34 @@ describe("buildBuyerReviewPackagePlainStatusHeadline", () => {
   });
 });
 
+describe("buyerHeaderStatusTwinPillCaption", () => {
+  it("uses the generic monitored-risk sentence when posture is approved with monitoring", () => {
+    expect(
+      buyerHeaderStatusTwinPillCaption({
+        hasGoldenManifest: true,
+        findingCountDisplay: 9,
+        warningCountDisplay: 1,
+        unresolvedIssueCountDisplay: 0,
+        governanceGateLabel: "Passed",
+        aggregateRiskPosture: "Approved with monitoring",
+      }),
+    ).toContain("one non-blocking risk remains under monitored control");
+  });
+
+  it("returns null when posture does not imply monitored approval", () => {
+    expect(
+      buyerHeaderStatusTwinPillCaption({
+        hasGoldenManifest: true,
+        findingCountDisplay: 9,
+        warningCountDisplay: 0,
+        unresolvedIssueCountDisplay: 0,
+        governanceGateLabel: "Pending",
+        aggregateRiskPosture: "Low",
+      }),
+    ).toBeNull();
+  });
+});
+
 describe("buildBuyerReviewPackageDispositionLine", () => {
   it("prompts finalization when manifest is not golden", () => {
     expect(
@@ -58,7 +87,7 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
     });
 
     expect(line).toContain("Approved with monitoring");
-    expect(line).toContain("governance gate Passed");
+    expect(line).toContain("governance gate Approved with monitoring");
     expect(line).toContain("9 findings");
     expect(line).toContain("non-blocking warning");
   });

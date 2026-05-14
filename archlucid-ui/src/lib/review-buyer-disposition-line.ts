@@ -39,6 +39,23 @@ export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDis
 }
 
 /**
+ * Short caption beside the title row pipeline pill — keeps the PHI-specific paragraph in the outcome strip only.
+ */
+export function buyerHeaderStatusTwinPillCaption(input: BuyerReviewDispositionInput): string | null {
+  if (!input.hasGoldenManifest) {
+    return null;
+  }
+
+  const postureRaw = (input.aggregateRiskPosture ?? "").trim().toLowerCase();
+
+  if (postureRaw === "approved with monitoring") {
+    return "The review package is finalized; one non-blocking risk remains under monitored control.";
+  }
+
+  return null;
+}
+
+/**
  * One buyer-facing sentence synthesizing finalized state, disposition posture, governance gate, findings, and warnings.
  */
 export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDispositionInput): string {
@@ -50,7 +67,8 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
   const warnings = clampNonNegativeInt(input.warningCountDisplay);
   const unresolved = clampNonNegativeInt(input.unresolvedIssueCountDisplay);
 
-  const gate = (input.governanceGateLabel ?? "").trim() || "Pending";
+  const gateRaw = (input.governanceGateLabel ?? "").trim() || "Pending";
+  const gate = gateRaw === "Passed" ? "Approved with monitoring" : gateRaw;
   const postureRaw = (input.aggregateRiskPosture ?? "").trim();
   const posture =
     postureRaw.length > 0 && postureRaw.toLowerCase() !== "not rated" ? postureRaw : null;

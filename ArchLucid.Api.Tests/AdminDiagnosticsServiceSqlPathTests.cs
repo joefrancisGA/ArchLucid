@@ -450,7 +450,8 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
     {
         Mock<DbCommand> command = new(MockBehavior.Loose);
 
-        command.SetupProperty(cm => cm.Transaction);
+        // Moq cannot use SetupProperty for DbCommand.Transaction on current runtimes (non-overridable getter).
+
         command.SetupProperty(cm => cm.Connection);
 
         command.SetupGet(cm => cm.Parameters)

@@ -2702,6 +2702,48 @@
         },
         "type": "object"
       },
+      "AuthDiagnosticEntry": {
+        "properties": {
+          "audience": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "issuer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "presentClaimTypes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "roleClaimValues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "subjectPrefix": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "timestampUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AzureExtractorChunkUploadStartBody": {
         "properties": {
           "fileName": {
@@ -2792,6 +2834,49 @@
       },
       "BackgroundJobState": {
         "type": "integer"
+      },
+      "BatchCreateRunItemResult": {
+        "properties": {
+          "errorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "BatchCreateRunResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BatchCreateRunItemResult"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
       },
       "BatchReplayComparisonRequest": {
         "properties": {
@@ -9264,6 +9349,23 @@
         },
         "type": "object"
       },
+      "ManifestMarkdownDocumentResponse": {
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "manifestVersion": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ManifestMetadata": {
         "properties": {
           "changeDescription": {
@@ -9384,23 +9486,6 @@
         ],
         "type": "object"
       },
-      "ManifestMarkdownDocumentResponse": {
-        "properties": {
-          "content": {
-            "type": "string"
-          },
-          "format": {
-            "type": "string"
-          },
-          "manifestVersion": {
-            "type": "string"
-          },
-          "summary": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "ManifestSummaryResponse": {
         "properties": {
           "createdUtc": {
@@ -9421,6 +9506,7 @@
             "type": "string"
           },
           "manifestId": {
+            "format": "uuid",
             "type": "string"
           },
           "operatorSummary": {
@@ -9433,6 +9519,7 @@
             "type": "string"
           },
           "runId": {
+            "format": "uuid",
             "type": "string"
           },
           "status": {
@@ -13225,6 +13312,14 @@
         ],
         "type": "object"
       },
+      "RunExportBlobPushRequest": {
+        "properties": {
+          "destinationSasUrl": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RunExportHistoryResponse": {
         "properties": {
           "exports": {
@@ -15073,6 +15168,21 @@
         },
         "type": "object"
       },
+      "TerraformPrCreatedResponse": {
+        "properties": {
+          "branchName": {
+            "type": "string"
+          },
+          "pullRequestNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pullRequestUrl": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ThresholdCandidate": {
         "properties": {
           "label": {
@@ -16091,6 +16201,59 @@
         ]
       }
     },
+    "/v1/admin/auth-diagnostics": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "maxCount",
+            "schema": {
+              "default": 50,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuthDiagnosticEntry"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuthDiagnosticEntry"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuthDiagnosticEntry"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AdminAuthDiagnostics"
+        ]
+      }
+    },
     "/v1/admin/auth/oidc-diagnostics": {
       "get": {
         "responses": {
@@ -16116,7 +16279,7 @@
           }
         },
         "tags": [
-          "Admin"
+          "AdminAuthDiagnostics"
         ]
       }
     },
@@ -22499,6 +22662,144 @@
         ]
       }
     },
+    "/v1/architecture/request/batch": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ArchitectureRequest"
+                    },
+                    "type": "array"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ArchitectureRequest"
+                    },
+                    "type": "array"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/ArchitectureRequest"
+                    },
+                    "type": "array"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchCreateRunResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchCreateRunResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchCreateRunResponse"
+                }
+              }
+            },
+            "description": "Accepted"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Runs"
+        ]
+      }
+    },
     "/v1/architecture/request/import": {
       "post": {
         "requestBody": {
@@ -28017,6 +28318,149 @@
         ]
       }
     },
+    "/v1/artifacts/runs/{runId}/export/push": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RunExportBlobPushRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RunExportBlobPushRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RunExportBlobPushRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "ArtifactExport"
+        ]
+      }
+    },
     "/v1/artifacts/runs/{runId}/terraform-advisory-export": {
       "get": {
         "parameters": [
@@ -28060,6 +28504,126 @@
           "404": {
             "content": {
               "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "ArtifactExport"
+        ]
+      }
+    },
+    "/v1/artifacts/runs/{runId}/terraform-pr": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerraformPrCreatedResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerraformPrCreatedResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerraformPrCreatedResponse"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -37188,6 +37752,58 @@
         ]
       }
     },
+    "/v1/integrations/webhooks/slack/interactivity": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "SlackInteractivity"
+        ]
+      }
+    },
     "/v1/integrations/webhooks/{routingSubscriptionId}/test": {
       "post": {
         "parameters": [
@@ -45016,6 +45632,9 @@
       "name": "Admin"
     },
     {
+      "name": "AdminAuthDiagnostics"
+    },
+    {
       "name": "AdminLlmCostTuning"
     },
     {
@@ -45290,6 +45909,9 @@
     },
     {
       "name": "SecurityTrustPublication"
+    },
+    {
+      "name": "SlackInteractivity"
     },
     {
       "name": "SponsorBriefMarketing"

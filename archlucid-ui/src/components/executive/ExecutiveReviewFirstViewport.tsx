@@ -79,6 +79,8 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
   const { runId, goldenManifestId, summary } = props;
   const enc = encodeURIComponent(runId);
   const structuredConfidence = summary.explanation?.structured?.confidence;
+  const faithfulnessWarningTrimmed = (summary.faithfulnessWarning ?? "").trim();
+
   const evidenceConfidenceLine = [
     typeof structuredConfidence === "number" && Number.isFinite(structuredConfidence)
       ? `Aggregate model confidence: ${formatAggregateModelConfidence(structuredConfidence)}.`
@@ -86,7 +88,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
     typeof summary.faithfulnessSupportRatio === "number" && Number.isFinite(summary.faithfulnessSupportRatio)
       ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, "—")}.`
       : null,
-    (summary.faithfulnessWarning ?? "").trim().length > 0 ? summary.faithfulnessWarning.trim() : null,
+    faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
     summary.deterministicFallbackUsed === true || summary.usedDeterministicFallback === true
       ? "Some narrative was deterministically aligned to the manifest when live synthesis was unavailable."
       : null,

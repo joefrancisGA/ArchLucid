@@ -18,7 +18,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
 import { findPriorCommittedRun } from "@/lib/find-prior-committed-run";
-import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
+import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
@@ -324,8 +324,13 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     manifestSummary !== null &&
     isManifestCommittedForPilotScorecardPackage(manifestSummary);
 
-  const governanceGateLabel =
+  const governanceGateLabelRaw =
     manifestSummary !== null ? governanceGateLabelFromManifestStatus(manifestSummary.status) : null;
+
+  const governanceGateLabel =
+    governanceGateLabelRaw !== null && buyerPolishedArtifactTable
+      ? buyerGovernanceApprovalDisplayLabel(governanceGateLabelRaw)
+      : governanceGateLabelRaw;
 
   const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
   const findingWireSnapshots = buildFindingWireSnapshotsForRunDetail(resolvedDetail, explanationSummary);

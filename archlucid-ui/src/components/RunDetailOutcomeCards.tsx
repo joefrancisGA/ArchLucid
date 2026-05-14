@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
+import { StatusPill } from "@/components/StatusPill";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
@@ -156,14 +157,18 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
 
   const packageBody = (
     <>
-      <p
-        className={cn(
-          valueClass,
-          props.hasGoldenManifest ? "text-emerald-700 dark:text-emerald-400" : "text-amber-800 dark:text-amber-200",
-        )}
-      >
-        {props.hasGoldenManifest ? "Finalized" : "In progress"}
-      </p>
+      {props.hasGoldenManifest ? (
+        <StatusPill status="Finalized" domain="pipeline" className="mt-px" ariaLabel="Review package outcome: finalized" />
+      ) : (
+        <p
+          className={cn(
+            valueClass,
+            "text-amber-800 dark:text-amber-200",
+          )}
+        >
+          In progress
+        </p>
+      )}
       {warningsLine !== null ? <p className={detailClass}>{warningsLine}</p> : null}
     </>
   );
@@ -253,7 +258,18 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
 
       <div className={segmentInner}>
         <p className={stripSegmentLabelClass()}>Approval status</p>
-        <p className={cn(valueClass, "mt-1")}>{gate}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          {gate !== "—" ? (
+            <StatusPill
+              status={gate}
+              domain="governance"
+              uppercase={false}
+              ariaLabel={`Governance approval: ${gate}`}
+            />
+          ) : (
+            <p className={cn(valueClass, "mt-0")}>{gate}</p>
+          )}
+        </div>
       </div>
     </section>
   );

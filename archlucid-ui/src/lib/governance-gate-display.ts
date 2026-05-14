@@ -23,3 +23,21 @@ export function governanceGateLabelFromManifestStatus(status: string | undefined
 
   return "Pending";
 }
+
+/**
+ * Buyer-facing label: operators still see "Passed" from {@link governanceGateLabelFromManifestStatus};
+ * procurement language uses "Approved with monitoring" for the same gate state.
+ */
+export function buyerGovernanceApprovalDisplayLabel(gateLabel: string | undefined | null): string {
+  const t = (gateLabel ?? "").trim();
+
+  if (t.length === 0) {
+    return "—";
+  }
+
+  if (t === "Passed") {
+    return "Approved with monitoring";
+  }
+
+  return t;
+}

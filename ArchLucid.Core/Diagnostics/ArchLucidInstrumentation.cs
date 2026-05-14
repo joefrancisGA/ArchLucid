@@ -67,6 +67,9 @@ public static class ArchLucidInstrumentation
     /// <summary>One span per production agent handler invocation (<c>RealAgentExecutor</c>).</summary>
     public static readonly ActivitySource AgentHandler = new("ArchLucid.Agent.Handler", "1.0.0");
 
+    /// <summary>Staged batch phases in <c>RealAgentExecutor</c> (e.g. Phase 1 vs Critic).</summary>
+    public static readonly ActivitySource AgentExecution = new("ArchLucid.Agent.Execution", "1.0.0");
+
     /// <summary>Azure OpenAI chat completion calls (nested under agent handler when a trace is active).</summary>
     public static readonly ActivitySource AgentLlmCompletion = new("ArchLucid.Agent.LlmCompletion", "1.0.0");
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
+import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
 
 describe("governanceGateLabelFromManifestStatus", () => {
   it("returns Not configured for empty status", () => {
@@ -31,5 +31,22 @@ describe("governanceGateLabelFromManifestStatus", () => {
   it("defaults other statuses to Pending", () => {
     expect(governanceGateLabelFromManifestStatus("Draft")).toBe("Pending");
     expect(governanceGateLabelFromManifestStatus("InReview")).toBe("Pending");
+  });
+});
+
+describe("buyerGovernanceApprovalDisplayLabel", () => {
+  it("maps Passed to procurement language", () => {
+    expect(buyerGovernanceApprovalDisplayLabel("Passed")).toBe("Approved with monitoring");
+  });
+
+  it("passes through other gate labels", () => {
+    expect(buyerGovernanceApprovalDisplayLabel("Pending")).toBe("Pending");
+    expect(buyerGovernanceApprovalDisplayLabel("Failed")).toBe("Failed");
+  });
+
+  it("returns dash for empty strings", () => {
+    expect(buyerGovernanceApprovalDisplayLabel(null)).toBe("—");
+    expect(buyerGovernanceApprovalDisplayLabel("")).toBe("—");
+    expect(buyerGovernanceApprovalDisplayLabel("   ")).toBe("—");
   });
 });

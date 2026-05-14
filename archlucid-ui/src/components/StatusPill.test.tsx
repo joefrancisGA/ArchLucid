@@ -7,7 +7,16 @@ import { StatusPill } from "./StatusPill";
 expect.extend(toHaveNoViolations);
 
 const pipelineStatuses = ["Finalized", "Ready to finalize", "In pipeline", "Starting"] as const;
-const governanceStatuses = ["Submitted", "Approved", "Rejected", "Promoted", "Activated", "Draft"] as const;
+const governanceStatuses = [
+  "Submitted",
+  "Approved",
+  "Rejected",
+  "Promoted",
+  "Activated",
+  "Draft",
+  "Approved with monitoring",
+  "Failed",
+] as const;
 
 describe("StatusPill", () => {
   it.each(pipelineStatuses)("renders pipeline status %s", (status) => {

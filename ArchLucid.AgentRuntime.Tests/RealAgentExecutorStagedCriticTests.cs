@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -18,6 +20,13 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class RealAgentExecutorStagedCriticTests
 {
+    /// <summary>
+    ///     Must match <c>ArchLucid.Agent.Execution</c> on <c>ArchLucidInstrumentation.AgentExecution</c>. Use this literal
+    ///     in <see cref="ActivityListener.ShouldListenTo" /> — reading <c>AgentExecution.Name</c> while static init builds
+    ///     earlier <see cref="ActivitySource" /> instances can throw (listener callback during type initializer).
+    /// </summary>
+    private const string AgentExecutionActivitySourceName = "ArchLucid.Agent.Execution";
+
     private static ArchitectureRequest MinimalRequest()
     {
         return new ArchitectureRequest
@@ -88,6 +97,67 @@ public sealed class RealAgentExecutorStagedCriticTests
         await sut.ExecuteAsync(runId, request, evidence, [tTopo, tComp, tCrit], CancellationToken.None);
 
         critic.ObservedPhase1FinishedAtCriticStart.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task StagedCriticEnabled_true_emits_open_telemetry_phase_spans_and_claim_count_tag()
+    {
+        List<Activity> completed = [];
+        string runId = Guid.NewGuid().ToString("N");
+
+        using (ActivityListener listener = new())
+        {
+            listener.ShouldListenTo = s => s.Name == AgentExecutionActivitySourceName;
+            listener.Sample = (ref _) => ActivitySamplingResult.AllData;
+            listener.ActivityStopped = completed.Add;
+            ActivitySource.AddActivityListener(listener);
+
+            IAgentHandler topo = new SimpleReturnHandler(AgentType.Topology, "topo-claim", "rid-t");
+            IAgentHandler comp = new SimpleReturnHandler(AgentType.Compliance, "comp-claim", "rid-c");
+            IAgentHandler critic = new ObservingCriticHandler(() => 0);
+
+            RealAgentExecutor sut = CreateSut(
+                Options.Create(new StagedCriticAgentOptions { StagedCriticEnabled = true }),
+                topo,
+                comp,
+                critic);
+
+            ArchitectureRequest request = MinimalRequest();
+            AgentEvidencePackage evidence = new();
+            AgentTask tTopo = new()
+            {
+                TaskId = "tz",
+                RunId = runId,
+                AgentType = AgentType.Topology
+            };
+            AgentTask tComp = new()
+            {
+                TaskId = "tc",
+                RunId = runId,
+                AgentType = AgentType.Compliance
+            };
+            AgentTask tCrit = new()
+            {
+                TaskId = "tk",
+                RunId = runId,
+                AgentType = AgentType.Critic
+            };
+
+            await sut.ExecuteAsync(runId, request, evidence, [tTopo, tComp, tCrit], CancellationToken.None);
+        }
+
+        Activity[] phases = completed
+            .Where(a => a.OperationName is "AgentExecution.Phase1" or "AgentExecution.Phase2_Critic")
+            .ToArray();
+
+        phases.Should().HaveCount(2);
+        phases[0].OperationName.Should().Be("AgentExecution.Phase1");
+        phases[1].OperationName.Should().Be("AgentExecution.Phase2_Critic");
+        phases[0].GetTagItem("archlucid.run_id").Should().Be(runId);
+        phases[1].GetTagItem("archlucid.run_id").Should().Be(runId);
+        object? claimsTag = phases[1].GetTagItem("archlucid.staged_critic.summarized_claims_count");
+        claimsTag.Should().NotBeNull();
+        Convert.ToInt32(claimsTag).Should().Be(2);
     }
 
     [SkippableFact]

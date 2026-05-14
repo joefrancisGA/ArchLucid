@@ -140,9 +140,9 @@
 - **Score:** 85
 - **Weight:** 1
 - **Weighted deficiency signal:** 15
-- **Justification:** OpenTelemetry and Serilog are wired correctly. However, Staged Critic introduces wall-clock delays that need explicit tracing visibility.
+- **Justification:** OpenTelemetry and Serilog are wired correctly. Staged Critic batches now emit dedicated phase spans (`AgentExecution.Phase1`, `AgentExecution.Phase2_Critic`) so wall-clock delay is visible in distributed traces (Improvement 15, 2026-05-14).
 - **Tradeoffs:** Trace cardinality vs. insight.
-- **Improvement recommendations:** Wrap Staged Critic phases in explicit OpenTelemetry spans.
+- **Improvement recommendations:** ~~Wrap Staged Critic phases in explicit OpenTelemetry spans.~~ **Done — Improvement 15 (2026-05-14).**
 - **Status:** Fixable in V1.
 
 ## 4. Top 12 Most Important Weaknesses
@@ -155,7 +155,7 @@
 7. Operators may confuse `Simulator` mode behavior with broken agent logic if not explicitly warned.
 8. The exact reasoning an LLM used to connect components is not surfaced in the Knowledge Graph UI.
 9. Costly replay evaluations can be triggered without the user seeing the `CostEstimator` warning first.
-10. Wall-clock delays introduced by the `StagedCritic` are not cleanly demarcated in APM traces.
+10. ~~Wall-clock delays introduced by the `StagedCritic` are not cleanly demarcated in APM traces.~~ **Mitigated — Improvement 15 (2026-05-14)** (`RealAgentExecutor` phase spans).
 11. The boundaries for customer-authored custom agent handlers remain undefined.
 12. Multi-tenant LLM hard-cutoff logic lacks defined UX paths when a tenant maxes out their budget mid-run.
 
@@ -411,7 +411,7 @@ Constraints: Must test against the actual `ArchLucid.ArtifactSynthesis` generati
 - **Why it matters:** Staged Critic adds wall-clock time; operators need to see this explicitly in traces.
 - **Expected impact:** Better observability for pipeline latency.
 - **Affected qualities:** Observability.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `ArchLucidInstrumentation.AgentExecution` (`ArchLucid.Agent.Execution`); spans `AgentExecution.Phase1` / `AgentExecution.Phase2_Critic` and tag `archlucid.staged_critic.summarized_claims_count` in `RealAgentExecutor`; source registered in `ObservabilityExtensions`; tests in `RealAgentExecutorStagedCriticTests`.
 - **Cursor prompt:**
 ```text
 Update `RealAgentExecutor` in `ArchLucid.AgentRuntime`.
@@ -581,7 +581,7 @@ To optimize context window usage and cursor cost-effectiveness, execute the acti
 - **Batch 1 (Core Guardrails & Correctness):** ~~Improvements 14, 22~~ **Completed 2026-05-14.** (`ArchLucid.ArtifactSynthesis.Tests`, `ArchLucid.Host.Core.Tests`.)
 - **Batch 2 (CLI & Operator Tooling):** ~~Improvements 7, 11, 13~~ **Completed 2026-05-14.** (`ArchLucid.Cli`, `ArchLucid.Cli.Tests`, `ArchLucid.Core`, `ArchLucid.Core.Tests`, `ArchLucid.Api`, `ArchLucid.Api.Tests`, OpenAPI snapshot + clients.)
 - **Batch 3 (UI ROI & Transparency):** Improvements 8, 10, 17. Focuses heavily on `archlucid-ui` components (Savings, Knowledge Graph sidebar, Copy Command).
-- **Batch 4 (Observability & Latency Tracing):** Improvements 15, 18, 24, 25. Focuses on `ArchLucid.AgentRuntime` and `ArchLucid.Api.DataAccess` telemetry.
+- **Batch 4 (Observability & Latency Tracing):** ~~Improvement 15~~ **Completed 2026-05-14.** (`ArchLucid.AgentRuntime`, `ArchLucid.Core`, `ArchLucid.Host.Core`.) Improvements 18, 24, 25. Remaining focus: `ArchLucid.AgentRuntime` and `ArchLucid.Api.DataAccess` telemetry.
 - **Batch 5 (UX Polish & Settings):** Improvements 12, 16, 19, 20, 21, 23. Light touches to React components across `archlucid-ui`.
 - **Batch 6 (Integration Health):** Improvement 9. Isolated work on `ArchLucid.Api` ITSM controllers.
 - **Batch 7 (Integration & Architecture Docs):** Improvements 1, 2, 4, 5. Focuses on `docs/library` and `docs/integrations`.

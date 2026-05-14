@@ -66,34 +66,46 @@ public sealed class RunExportBlobPushService(
                         runId, (int)response.StatusCode);
             }
 
-            await _auditService.LogAsync(
-                new AuditEvent
+            AuditEvent httpOutcomeAudit = new()
+            {
+                EventType = success
+                    ? AuditEventTypes.RunExportBlobPushSucceeded
+                    : AuditEventTypes.RunExportBlobPushFailed,
+                RunId = runId,
+                DataJson = JsonSerializer.Serialize(new
                 {
-                    EventType = success
-                        ? AuditEventTypes.RunExportBlobPushSucceeded
-                        : AuditEventTypes.RunExportBlobPushFailed,
-                    RunId = runId,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        statusCode = (int)response.StatusCode,
-                        bytes = zipContent.Length
-                    })
-                },
-                cancellationToken).ConfigureAwait(false);
+                    statusCode = (int)response.StatusCode,
+                    bytes = zipContent.Length
+                })
+            };
+
+            await DurableAuditLogRetry.TryLogAsync(
+                    ct => _auditService.LogAsync(httpOutcomeAudit, ct),
+                    _logger,
+                    $"RunExportBlobPush:http:{runId:N}",
+                    cancellationToken,
+                    auditEventTypeForMetrics: httpOutcomeAudit.EventType)
+                .ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Error))
                 _logger.LogError(ex, "Run export blob push threw an exception: RunId={RunId}", runId);
 
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.RunExportBlobPushFailed,
-                    RunId = runId,
-                    DataJson = JsonSerializer.Serialize(new { error = ex.GetType().Name })
-                },
-                cancellationToken).ConfigureAwait(false);
+            AuditEvent exceptionOutcomeAudit = new()
+            {
+                EventType = AuditEventTypes.RunExportBlobPushFailed,
+                RunId = runId,
+                DataJson = JsonSerializer.Serialize(new { error = ex.GetType().Name })
+            };
+
+            await DurableAuditLogRetry.TryLogAsync(
+                    ct => _auditService.LogAsync(exceptionOutcomeAudit, ct),
+                    _logger,
+                    $"RunExportBlobPush:exception:{runId:N}",
+                    cancellationToken,
+                    auditEventTypeForMetrics: AuditEventTypes.RunExportBlobPushFailed)
+                .ConfigureAwait(false);
 
             throw;
         }

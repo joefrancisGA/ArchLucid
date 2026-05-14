@@ -39,6 +39,6 @@ describe("RunStatusBadge", () => {
 
     expect(pill).not.toBeNull();
     expect(pill?.className).toMatch(/rounded-full/);
-    expect(pill?.className).toMatch(/emerald-800/);
+    expect(pill?.className).toMatch(/emerald-9/);
   });
 });

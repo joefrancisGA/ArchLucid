@@ -7,6 +7,7 @@ import { HelpLink } from "@/components/HelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { HelpButton } from "@/components/ui/help-button";
 import { Badge } from "@/components/ui/badge";
+import { StatusPill } from "@/components/StatusPill";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import type { RunSummary } from "@/types/authority";
@@ -18,10 +19,11 @@ export type RunDetailPageHeaderProps = {
   hasGoldenManifest: boolean;
   executionFlavorBuyerSummary?: string | null;
   /**
-   * Buyer-polished finalized runs: aligns header governance hint with downstream summary tiles
-   * (e.g., `Governance approval: Passed`).
+   * Buyer-polished: governance gate label mapped for display (for example Passed → Approved with monitoring).
    */
-  buyerGovernanceLine?: string | null;
+  buyerGovernanceApprovalLabel?: string | null;
+  /** Buyer-polished: one sentence beside the finalized pipeline pill. */
+  buyerHeaderStatusCaption?: string | null;
 };
 
 /**
@@ -33,7 +35,8 @@ export function RunDetailPageHeader({
   headline,
   hasGoldenManifest,
   executionFlavorBuyerSummary,
-  buyerGovernanceLine,
+  buyerGovernanceApprovalLabel,
+  buyerHeaderStatusCaption,
 }: RunDetailPageHeaderProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const finalizedBuyerChrome = buyerPolishedShell === true && hasGoldenManifest === true;
@@ -45,12 +48,19 @@ export function RunDetailPageHeader({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-start gap-2">
-            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-              <h1 className="m-0 min-w-0 flex-1 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-2xl">
-                {headline}
-              </h1>
-              {buyerPolishedShell === true && finalizedBuyerChrome === true ? (
-                <RunStatusBadge run={runSummary} />
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                <h1 className="m-0 min-w-0 flex-1 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-2xl">
+                  {headline}
+                </h1>
+                {buyerPolishedShell === true && finalizedBuyerChrome === true ? (
+                  <RunStatusBadge run={runSummary} />
+                ) : null}
+              </div>
+              {buyerPolishedShell === true && finalizedBuyerChrome === true && buyerHeaderStatusCaption ? (
+                <p className="m-0 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+                  {buyerHeaderStatusCaption}
+                </p>
               ) : null}
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
@@ -109,11 +119,21 @@ export function RunDetailPageHeader({
         </div>
         {buyerPolishedShell === true ? (
           finalizedBuyerChrome === true ? (
-            <div className="flex shrink-0 flex-col gap-2 text-right">
-              {buyerGovernanceLine !== null && buyerGovernanceLine !== undefined && buyerGovernanceLine.length > 0 ? (
-                <p className="m-0 text-sm font-semibold leading-snug text-teal-900 dark:text-teal-200">
-                  {buyerGovernanceLine}
-                </p>
+            <div className="flex shrink-0 flex-col items-end gap-2 text-right">
+              {buyerGovernanceApprovalLabel !== null &&
+              buyerGovernanceApprovalLabel !== undefined &&
+              buyerGovernanceApprovalLabel.trim().length > 0 ? (
+                <div className="flex flex-col items-end gap-1">
+                  <p className="m-0 text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                    Governance approval
+                  </p>
+                  <StatusPill
+                    status={buyerGovernanceApprovalLabel.trim()}
+                    domain="governance"
+                    uppercase={false}
+                    className="text-xs font-semibold normal-case tracking-normal"
+                  />
+                </div>
               ) : (
                 <p className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-50">Finalized package</p>
               )}

@@ -140,25 +140,42 @@ public sealed class RealAgentExecutor : IAgentExecutor
                     AgentTask[] phase1 = orderedTasks.Where(static t => t.AgentType != AgentType.Critic).ToArray();
                     AgentTask[] phase2 = orderedTasks.Where(static t => t.AgentType == AgentType.Critic).ToArray();
 
-                    AgentResult[] phase1Results = await ExecutePhaseWhenAllAsync(
-                            runId,
-                            request,
-                            evidence,
-                            phase1,
-                            linked)
-                        .ConfigureAwait(false);
+                    AgentResult[] phase1Results;
+                    using (Activity? phase1Activity = ArchLucidInstrumentation.AgentExecution.StartActivity(
+                               "AgentExecution.Phase1"))
+                    {
+                        phase1Activity?.SetTag("archlucid.run_id", runId);
+
+                        phase1Results = await ExecutePhaseWhenAllAsync(
+                                runId,
+                                request,
+                                evidence,
+                                phase1,
+                                linked)
+                            .ConfigureAwait(false);
+                    }
 
                     ReplaceStagedPriorSummaryNotes(evidence);
                     EvidenceNote note = StagedPriorAgentsSummaryBuilder.CreateNote(phase1Results, stagedOpts);
                     evidence.Notes.Add(note);
 
-                    AgentResult[] phase2Results = await ExecutePhaseWhenAllAsync(
-                            runId,
-                            request,
-                            evidence,
-                            phase2,
-                            linked)
-                        .ConfigureAwait(false);
+                    int summarizedClaimsCount = CountStagedPriorSummarizedClaimSlots(phase1Results, stagedOpts);
+
+                    AgentResult[] phase2Results;
+                    using (Activity? phase2Activity = ArchLucidInstrumentation.AgentExecution.StartActivity(
+                               "AgentExecution.Phase2_Critic"))
+                    {
+                        phase2Activity?.SetTag("archlucid.run_id", runId);
+                        phase2Activity?.SetTag("archlucid.staged_critic.summarized_claims_count", summarizedClaimsCount);
+
+                        phase2Results = await ExecutePhaseWhenAllAsync(
+                                runId,
+                                request,
+                                evidence,
+                                phase2,
+                                linked)
+                            .ConfigureAwait(false);
+                    }
 
                     Dictionary<string, AgentResult> byTaskId = new(StringComparer.Ordinal);
 
@@ -328,6 +345,23 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
         evidence.Notes.RemoveAll(static n =>
             EvidenceNoteTypes.StagedPriorAgentsSummary.Equals(n.NoteType, StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    ///     Upper-bound count of claim lines eligible for the staged Critic summary (per-agent cap
+    ///     <see cref="StagedCriticAgentOptions.MaxClaimsPerAgentIncluded" />), for trace tags.
+    /// </summary>
+    private static int CountStagedPriorSummarizedClaimSlots(
+        IReadOnlyList<AgentResult> phase1Results,
+        StagedCriticAgentOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(phase1Results);
+        ArgumentNullException.ThrowIfNull(options);
+
+        if (options.MaxClaimsPerAgentIncluded <= 0)
+            return 0;
+
+        return phase1Results.Sum(r => Math.Min(r.Claims.Count, options.MaxClaimsPerAgentIncluded));
     }
 
     private async Task<AgentResult> ExecuteSingleAsync(

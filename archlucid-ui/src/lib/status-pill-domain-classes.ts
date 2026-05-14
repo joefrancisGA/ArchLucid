@@ -8,7 +8,7 @@ export const STATUS_PILL_BASE = "rounded-full px-2.5 py-0.5 text-xs font-semibol
 function pipelineSemanticClass(status: string): string {
   switch (status) {
     case "Finalized":
-      return "border-transparent bg-emerald-800 text-white shadow-sm hover:bg-emerald-800/90 dark:bg-emerald-800 dark:text-white dark:hover:bg-emerald-800/90";
+      return "border border-emerald-950/30 bg-emerald-900 text-white shadow-sm ring-1 ring-emerald-950/35 hover:bg-emerald-900/95 dark:border-emerald-700/80 dark:bg-emerald-950 dark:text-emerald-50 dark:ring-emerald-400/25 dark:hover:bg-emerald-950/90";
     case "Ready to finalize":
       return "border-amber-500/70 bg-amber-50 text-amber-950 shadow-sm dark:border-amber-600/60 dark:bg-amber-950/50 dark:text-amber-50";
     case "In pipeline":
@@ -23,10 +23,14 @@ function pipelineSemanticClass(status: string): string {
 /** Same palette as legacy `governance-status-badge-class.ts` (kept for deprecation re-export). */
 export function governanceDomainBadgeClass(status: string): string {
   switch (status) {
+    case "Approved with monitoring":
+      return "border border-teal-950/25 bg-teal-900 text-white shadow-sm ring-1 ring-teal-950/35 hover:bg-teal-900/95 dark:border-teal-600/70 dark:bg-teal-950 dark:text-teal-50 dark:ring-teal-300/30 dark:hover:bg-teal-950/90";
     case "Submitted":
       return "border-transparent bg-blue-600 text-white hover:bg-blue-600/90 dark:bg-blue-600 dark:hover:bg-blue-600/90";
     case "Approved":
       return "border-transparent bg-emerald-800 text-white hover:bg-emerald-800/90 dark:bg-emerald-800 dark:hover:bg-emerald-800/90";
+    case "Failed":
+      return "border-transparent bg-red-600 text-white hover:bg-red-600/90 dark:bg-red-600 dark:hover:bg-red-600/90";
     case "Rejected":
       return "border-transparent bg-red-600 text-white hover:bg-red-600/90 dark:bg-red-600 dark:hover:bg-red-600/90";
     case "Promoted":

@@ -604,6 +604,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/auth-diagnostics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    maxCount?: number | string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthDiagnosticEntry"][];
+                        "text/json": components["schemas"]["AuthDiagnosticEntry"][];
+                        "text/plain": components["schemas"]["AuthDiagnosticEntry"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/auth/oidc-diagnostics": {
         parameters: {
             query?: never;
@@ -4780,9 +4819,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ManifestSummaryResponse"];
-                        "text/json": components["schemas"]["ManifestSummaryResponse"];
-                        "text/plain": components["schemas"]["ManifestSummaryResponse"];
+                        "application/json": components["schemas"]["ManifestMarkdownDocumentResponse"];
+                        "text/json": components["schemas"]["ManifestMarkdownDocumentResponse"];
+                        "text/plain": components["schemas"]["ManifestMarkdownDocumentResponse"];
                     };
                 };
                 /** @description Not Found */
@@ -4830,9 +4869,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ManifestSummaryResponse"];
-                        "text/json": components["schemas"]["ManifestSummaryResponse"];
-                        "text/plain": components["schemas"]["ManifestSummaryResponse"];
+                        "application/json": components["schemas"]["ManifestMarkdownDocumentResponse"];
+                        "text/json": components["schemas"]["ManifestMarkdownDocumentResponse"];
+                        "text/plain": components["schemas"]["ManifestMarkdownDocumentResponse"];
                     };
                 };
                 /** @description Not Found */
@@ -5013,6 +5052,82 @@ export interface paths {
                 };
                 /** @description Conflict */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/request/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["ArchitectureRequest"][];
+                    "application/json": null | components["schemas"]["ArchitectureRequest"][];
+                    "text/json": null | components["schemas"]["ArchitectureRequest"][];
+                };
+            };
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BatchCreateRunResponse"];
+                        "text/json": components["schemas"]["BatchCreateRunResponse"];
+                        "text/plain": components["schemas"]["BatchCreateRunResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -8677,6 +8792,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/artifacts/runs/{runId}/export/push": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["RunExportBlobPushRequest"];
+                    "application/json": null | components["schemas"]["RunExportBlobPushRequest"];
+                    "text/json": null | components["schemas"]["RunExportBlobPushRequest"];
+                };
+            };
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/artifacts/runs/{runId}/terraform-advisory-export": {
         parameters: {
             query?: never;
@@ -8735,6 +8935,89 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/artifacts/runs/{runId}/terraform-pr": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TerraformPrCreatedResponse"];
+                        "text/json": components["schemas"]["TerraformPrCreatedResponse"];
+                        "text/plain": components["schemas"]["TerraformPrCreatedResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -15031,6 +15314,61 @@ export interface paths {
         trace?: never;
     };
     "/v1/integrations/webhooks/servicenow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/webhooks/slack/interactivity": {
         parameters: {
             query?: never;
             header?: never;
@@ -21842,6 +22180,16 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        AuthDiagnosticEntry: {
+            audience?: null | string;
+            issuer?: null | string;
+            presentClaimTypes?: string[];
+            reason?: string;
+            roleClaimValues?: string[];
+            subjectPrefix?: null | string;
+            /** Format: date-time */
+            timestampUtc?: string;
+        };
         AzureExtractorChunkUploadStartBody: {
             fileName?: string;
             /** Format: int64 */
@@ -21873,6 +22221,16 @@ export interface components {
             state: components["schemas"]["BackgroundJobState"];
         };
         BackgroundJobState: number;
+        BatchCreateRunItemResult: {
+            errorCode?: null | string;
+            errorMessage?: null | string;
+            requestId?: null | string;
+            runId?: null | string;
+            succeeded?: boolean;
+        };
+        BatchCreateRunResponse: {
+            items?: components["schemas"]["BatchCreateRunItemResult"][];
+        };
         BatchReplayComparisonRequest: {
             comparisonRecordIds?: string[];
             format?: string;
@@ -23778,6 +24136,12 @@ export interface components {
             supportingFindingIds?: string[];
             title?: string;
         };
+        ManifestMarkdownDocumentResponse: {
+            content?: string;
+            format?: string;
+            manifestVersion?: string;
+            summary?: string;
+        };
         ManifestMetadata: {
             changeDescription?: string;
             /** Format: date-time */
@@ -23808,10 +24172,25 @@ export interface components {
             tags?: string[];
         };
         ManifestSummaryResponse: {
-            content?: string;
-            format?: string;
-            manifestVersion?: string;
-            summary?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: int32 */
+            decisionCount?: number;
+            hasUnresolvedIssues?: boolean;
+            hasWarnings?: boolean;
+            manifestHash?: string;
+            /** Format: uuid */
+            manifestId?: string;
+            operatorSummary?: string;
+            ruleSetId?: string;
+            ruleSetVersion?: string;
+            /** Format: uuid */
+            runId?: string;
+            status?: string;
+            /** Format: int32 */
+            unresolvedIssueCount?: number;
+            /** Format: int32 */
+            warningCount?: number;
         };
         MarketingPricingQuotePostRequest: {
             companyName?: string;
@@ -24975,6 +25354,9 @@ export interface components {
             /** Format: int32 */
             unresolvedIssueCount?: number;
         };
+        RunExportBlobPushRequest: {
+            destinationSasUrl?: string;
+        };
         RunExportHistoryResponse: {
             exports?: components["schemas"]["RunExportRecord"][];
         };
@@ -25524,6 +25906,12 @@ export interface components {
         };
         TenantWorkspacesListResponse: {
             workspaces?: components["schemas"]["TenantWorkspaceApiDto"][];
+        };
+        TerraformPrCreatedResponse: {
+            branchName?: string;
+            /** Format: int32 */
+            pullRequestNumber?: number;
+            pullRequestUrl?: string;
         };
         ThresholdCandidate: {
             label?: string;
