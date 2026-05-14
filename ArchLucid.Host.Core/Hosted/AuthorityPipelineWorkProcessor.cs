@@ -91,8 +91,15 @@ public sealed class AuthorityPipelineWorkProcessor(
         };
 
         using IDisposable _ = AmbientScopeContext.Push(jobScope);
+
         IAuthorityRunOrchestrator orchestrator =
             scope.ServiceProvider.GetRequiredService<IAuthorityRunOrchestrator>();
+
+        ContextIngestionRequest request = payload.ContextIngestionRequest;
+        request.RunId = entry.RunId;
+
+        await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
+
         IRunRepository runRepository =
             scope.ServiceProvider.GetRequiredService<IRunRepository>();
         IArchitectureRequestRepository requestRepository =
@@ -101,11 +108,6 @@ public sealed class AuthorityPipelineWorkProcessor(
             scope.ServiceProvider.GetRequiredService<IEvidenceBundleRepository>();
         IAgentTaskRepository taskRepository =
             scope.ServiceProvider.GetRequiredService<IAgentTaskRepository>();
-
-        ContextIngestionRequest request = payload.ContextIngestionRequest;
-        request.RunId = entry.RunId;
-
-        await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
 
         string runIdN = LogSanitizer.Sanitize(entry.RunId.ToString("N"));
         RunRecord? authorityHeader =

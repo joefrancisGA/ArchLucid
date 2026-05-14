@@ -1,5 +1,5 @@
 /*
-  INV-002: dbo.Runs.StructuralExecutionMode — NOT NULL execution labeling + extend IX_Runs_Scope_CreatedUtc INCLUDE.
+  163: INV-002 — dbo.Runs.StructuralExecutionMode NOT NULL execution labeling + extend IX_Runs_Scope_CreatedUtc INCLUDE.
 */
 
 IF COL_LENGTH(N'dbo.Runs', N'StructuralExecutionMode') IS NULL

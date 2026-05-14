@@ -7,6 +7,7 @@ using ArchLucid.Api.Authentication;
 using ArchLucid.Api.Configuration;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Host.Core.Auth.Services;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -81,6 +82,10 @@ public static class AuthServiceCollectionExtensions
                     _ =>
                     {
                     });
+
+        services.AddScoped<IRoleSyncService, NoOpRoleSyncService>();
+
+        services.AddHttpContextAccessor();
 
         services.AddScoped<IClaimsTransformation, ArchLucidRoleClaimsTransformation>();
 

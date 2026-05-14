@@ -12,14 +12,50 @@ const pilotSectionDisclosureName = /^(Review work|All reviews)$/;
 
 /** Expands the pilot nav collapsible when `localStorage` left it closed so sidebar links are in the a11y tree. */
 async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
+  const minimalRoot = page.getByTestId("app-shell-minimal-root");
+  const sidebarNav = page.getByTestId("sidebar-nav");
+
+  // Full shell: desktop sidebar (`hidden` + `lg:block`). Minimal shell (fatal review-detail routes): no sidebar —
+  // avoid waiting forever on `sidebar-nav`.
+  await sidebarNav.or(minimalRoot).waitFor({ state: "visible", timeout: 60_000 });
+
+  if ((await minimalRoot.count()) > 0) return;
+
+  // Pilot disclosure label is **Review work** or buyer-polished **All reviews** — not route title **Architecture reviews**.
   const trigger = page.getByRole("button", { name: pilotSectionDisclosureName });
+
   await trigger.waitFor({ state: "visible", timeout: 60_000 });
 
   if ((await trigger.getAttribute("aria-expanded")) === "false") await trigger.click();
 }
 
+/** Pilot **Reviews** link (sidebar) or minimal-shell header fallback — both honor SPA routing + route announcer. */
+async function navigateToReviewsViaOperatorShell(page: Page): Promise<void> {
+  await ensureCorePilotSectionExpanded(page);
+
+  const pilotReviews = page
+    .getByRole("navigation", { name: pilotNavGroupAriaLabel })
+    .getByRole("link", { name: "Reviews" });
+
+  if ((await pilotReviews.count()) > 0) {
+    await pilotReviews.click();
+
+    return;
+  }
+
+  await page.getByTestId("app-shell-minimal-root").getByRole("link", { name: "Reviews" }).click();
+}
+
 /** Live API + SQL focus/announcer checks (merge-blocking via `ui-e2e-live`). */
 test.describe("route focus and announcements", () => {
+  // Default Playwright test timeout is 30s; several steps below use 60s waits — align the harness.
+  test.describe.configure({ timeout: 120_000 });
+
+  test.beforeEach(async ({ page }) => {
+    // Sidebar uses `lg:block`; pin a desktop width so CI/dev machines don't evaluate `hidden` forever.
+    await page.setViewportSize({ width: 1440, height: 900 });
+  });
+
   test("skip link moves focus to main content", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
@@ -34,12 +70,7 @@ test.describe("route focus and announcements", () => {
     await page.goto("/", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
-    await ensureCorePilotSectionExpanded(page);
-
-    await page
-      .getByRole("navigation", { name: pilotNavGroupAriaLabel })
-      .getByRole("link", { name: "Reviews" })
-      .click();
+    await navigateToReviewsViaOperatorShell(page);
 
     await page.waitForURL("**/reviews**", { timeout: 60_000 });
 
@@ -51,12 +82,7 @@ test.describe("route focus and announcements", () => {
     await page.goto("/", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
-    await ensureCorePilotSectionExpanded(page);
-
-    await page
-      .getByRole("navigation", { name: pilotNavGroupAriaLabel })
-      .getByRole("link", { name: "Reviews" })
-      .click();
+    await navigateToReviewsViaOperatorShell(page);
     await page.waitForURL("**/reviews**", { timeout: 60_000 });
 
     await expect(page.getByTestId("route-announcer")).toContainText("Navigated to Architecture reviews", {

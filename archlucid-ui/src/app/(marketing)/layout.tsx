@@ -32,11 +32,14 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
       <MicrosoftClarityLoader projectId={clarityProjectId} />
       <header className="border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" className="h-auto p-0" asChild>
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>
               <ArchLucidWordmarkLink href="/welcome" aria-label="ArchLucid — welcome" variant="marketing" />
             </Button>
-            <nav aria-label="Marketing" className="hidden gap-2 sm:flex">
+            <nav
+              aria-label="Marketing"
+              className="hidden min-w-0 flex-1 flex-wrap items-center gap-2 sm:flex"
+            >
               <Button asChild variant="ghost" size="sm">
                 <Link href="/welcome">Overview</Link>
               </Button>
@@ -68,7 +71,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
               </Button>
             </nav>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <ColorModeToggle />
             <Button asChild variant="outline" size="sm">
               <Link href="/auth/signin">Sign in</Link>

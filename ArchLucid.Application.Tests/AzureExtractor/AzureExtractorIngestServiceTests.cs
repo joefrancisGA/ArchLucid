@@ -64,7 +64,8 @@ public sealed class AzureExtractorIngestServiceTests
             AzureExtractorUploadLimits.MaxZipBytes);
 
         result.Succeeded.Should().BeFalse();
-        result.FailureDetail.Should().Contain("manifest.json"); // because it couldn't be loaded from the bad zip
+
+        result.FailureDetail.Should().Contain("Uploaded payload is not a valid ZIP archive.");
     }
 
     [Fact]
@@ -104,12 +105,12 @@ public sealed class AzureExtractorIngestServiceTests
     public async Task IngestZipBytesAsync_when_valid_returns_success_and_saves_package()
     {
         var runId = Guid.NewGuid();
-        var manifest = new 
-        { 
+        var manifest = new
+        {
             schemaVersion = 1,
             scriptVersion = "1.0.0",
-            collectionTimestampUtc = DateTime.UtcNow.ToString("O"),
-            subscriptionId = Guid.NewGuid().ToString()
+            collectionTimestamp = DateTime.UtcNow.ToString("O"),
+            subscriptionId = Guid.NewGuid().ToString(),
         };
         var manifestJson = JsonSerializer.Serialize(manifest);
         

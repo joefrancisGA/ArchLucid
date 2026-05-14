@@ -1,7 +1,3 @@
-using ArchLucid.Host.Core.Hosting;
-using ArchLucid.Host.Core.Jobs;
-using ArchLucid.Host.Core.Hosted;
-
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -17,24 +13,31 @@ public sealed class WorkerCompositionTests
     [Fact]
     public void Worker_starts_and_registers_expected_background_services()
     {
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Authority", "https://mock.example.com/");
-        Environment.SetEnvironmentVariable("ArchLucidAuth__Audience", "mock");
-        
-        using var factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
-                builder.UseSetting("ConnectionStrings:Redis", "localhost");
-            });
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
 
-        using var scope = factory.Services.CreateScope();
-        
-        var hostedServices = scope.ServiceProvider.GetServices<IHostedService>().ToList();
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
 
-        // Let's assert that the container can yield expected background services without crashing.
-        hostedServices.Should().NotBeEmpty();
-        
-        // Assert some key hosted services are registered
-        hostedServices.Should().Contain(s => s.GetType().Name.Contains("BackgroundJobQueueProcessorHostedService") || s.GetType().Name.Contains("DataConsistencyOrphanProbeHostedService"));
+            using IServiceScope scope = factory.Services.CreateScope();
+
+            List<IHostedService> hostedServices = scope.ServiceProvider.GetServices<IHostedService>().ToList();
+
+            hostedServices.Should().NotBeEmpty();
+
+            hostedServices.Should().Contain(
+                s =>
+                    s.GetType().Name.Contains("BackgroundJobQueueProcessorHostedService", StringComparison.Ordinal)
+                    || s.GetType().Name.Contains("DataConsistencyOrphanProbeHostedService", StringComparison.Ordinal));
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
     }
 }

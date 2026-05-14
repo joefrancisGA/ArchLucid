@@ -253,6 +253,7 @@ Please write comprehensive unit and integration tests for `ArchLucid.Persistence
 ```
 
 ### 2. Backfill `ArchLucid.Worker` Tests
+- **Status:** Complete — Batch 3.
 - **Why it matters:** 0% coverage is unacceptable for the background orchestration engine.
 - **Expected impact:** Directly improves Correctness (+3-5 pts) and Reliability. Weighted readiness impact: +0.4-0.6%.
 - **Affected qualities:** Correctness, Workflow Embeddedness.
@@ -356,6 +357,7 @@ Review `ArchLucid.Application.Runs.ComparisonReplayCostEstimator`. Add robust un
 ```
 
 ### 12. Test `AuthorityPipelineWorkProcessor`
+- **Status:** Complete — Batch 3.
 - **Why it matters:** Core component of the background job processing.
 - **Expected impact:** Directly improves Correctness (+2-3 pts). Weighted readiness impact: +0.2-0.3%.
 - **Affected qualities:** Correctness.
@@ -366,6 +368,7 @@ Please add tests for `ArchLucid.Host.Core.Hosted.AuthorityPipelineWorkProcessor`
 ```
 
 ### 13. Test `BackgroundJobQueueProcessorHostedService`
+- **Status:** Complete — Batch 3.
 - **Why it matters:** Background job resilience.
 - **Expected impact:** Directly improves Correctness (+2-3 pts). Weighted readiness impact: +0.2-0.3%.
 - **Affected qualities:** Correctness.
@@ -505,7 +508,7 @@ To optimize context window usage and efficiency, execute the actionable prompts 
 
 - **Batch 1 (Core Persistence & Correctness):** **Complete.** Prompts 1, 3, 20. (Focuses strictly on `ArchLucid.Persistence` and related data consistency execution. Highly localized context).
 - **Batch 2 (Agent & LLM Reliability):** **Complete.** Prompts 4, 5, 23. (Focuses on `ArchLucid.AgentRuntime` and Knowledge Graph inference).
-- **Batch 3 (Background Orchestration):** Prompts 2, 12, 13. (Focuses strictly on `ArchLucid.Worker` and `ArchLucid.Host.Core.Jobs`).
+- **Batch 3 (Background Orchestration):** **Complete.** Prompts 2, 12, 13. (Focuses strictly on `ArchLucid.Worker` and `ArchLucid.Host.Core.Jobs`).
 - **Batch 4 (Integrations & Telemetry):** Prompts 6, 15, 16, 21. (Focuses on Azure Extractor, Webhooks, ITSM, and OIDC auth).
 - **Batch 5 (Artifacts & Explainability):** Prompts 7, 11, 17, 18, 22. (Focuses on Export Services, Cost Estimators, and Explainability Contracts).
 - **Batch 6 (Documentation & CLI):** Prompts 8, 9, 10, 14, 19, 24, 25. (Focuses on Demo Seed, CLI coverage, and generating Markdown documentation).

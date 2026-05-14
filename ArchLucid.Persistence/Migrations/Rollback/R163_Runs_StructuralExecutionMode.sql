@@ -1,5 +1,5 @@
 /*
-  Roll back DbUp 155 — remove StructuralExecutionMode and restore IX_Runs_Scope_CreatedUtc without that INCLUDE.
+  Roll back DbUp 163 — remove StructuralExecutionMode and restore IX_Runs_Scope_CreatedUtc without that INCLUDE.
 */
 
 IF EXISTS (
