@@ -42,4 +42,15 @@ public sealed class ChatOpsIncomingWebhooksOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     Slack App signing secret (used to verify HMAC-SHA256 signatures on inbound interactivity callbacks).
+    ///     Configure via Azure Key Vault reference for production. When absent, the interactivity endpoint rejects
+    ///     all inbound requests.
+    /// </summary>
+    public string? SlackSigningSecret
+    {
+        get;
+        set;
+    }
 }

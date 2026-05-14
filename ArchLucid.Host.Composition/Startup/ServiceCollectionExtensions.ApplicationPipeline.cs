@@ -107,6 +107,19 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IEndToEndReplayComparisonService, EndToEndReplayComparisonService>();
         services.AddScoped<IEndToEndReplayComparisonSummaryFormatter, MarkdownEndToEndReplayComparisonSummaryFormatter>();
         services.AddScoped<IEndToEndReplayComparisonExportService, EndToEndReplayComparisonExportService>();
+        services.AddHttpClient(RunExportBlobPushService.HttpClientName, static client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(5);
+        });
+        services.AddScoped<IRunExportBlobPushService, RunExportBlobPushService>();
+        services.Configure<TerraformGitHubPrOptions>(
+            configuration.GetSection(TerraformGitHubPrOptions.SectionPath));
+        services.AddHttpClient(TerraformGitHubPrService.HttpClientName, static client =>
+        {
+            client.BaseAddress = new Uri("https://api.github.com/");
+            client.Timeout = TimeSpan.FromSeconds(60);
+        });
+        services.AddScoped<ITerraformGitHubPrService, TerraformGitHubPrService>();
     }
 
     private static void RegisterComparisonReplayAndDrift(IServiceCollection services, IConfiguration configuration)

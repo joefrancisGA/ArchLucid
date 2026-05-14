@@ -15,7 +15,8 @@
           <!-- Pure contract/DTO assemblies: exclude only when types are [ExcludeFromCodeCoverage] per docs/library/coverage-exclusions.md (assembly-wide omit would skew merge %). -->
           <Exclude>[ArchLucid.Cli]*ArchLucidApiClient*</Exclude>
           <Exclude>[ArchLucid.Api]Microsoft.AspNetCore.OpenApi.Generated*</Exclude>
-          <ExcludeByFile>**/obj/**/OpenApiXmlCommentSupport.generated.cs,**/obj/**/LoggerMessage.g.cs,**/ArchLucid.Api.Client/Generated/**,**/RegexGenerator.g.cs</ExcludeByFile>
+          <!-- Worker: single-file composition root (same pattern as other hosts; Coverlet rarely attributes line hits to Program.Main). -->
+          <ExcludeByFile>**/obj/**/OpenApiXmlCommentSupport.generated.cs,**/obj/**/LoggerMessage.g.cs,**/ArchLucid.Api.Client/Generated/**,**/RegexGenerator.g.cs,**/ArchLucid.Worker/Program.cs</ExcludeByFile>
         </Configuration>
       </DataCollector>
     </DataCollectors>

@@ -208,10 +208,68 @@ public sealed class ApiKeyAuthenticationHandlerTests
         (await h3.InvokeHandleAuthenticateAsync()).Succeeded.Should().BeTrue();
     }
 
+    [SkippableFact]
+    public async Task When_admin_key_is_expired_returns_failure_with_expiry_message()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "admin-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        // Set time past the expiry date.
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow())
+            .Returns(new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero));
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "admin-key",
+                ["Authentication:ApiKey:AdminKeyExpiresAt"] = "2026-01-01T00:00:00Z"
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("expired");
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_expiry_is_in_future_returns_success()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "admin-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        // Set time before the expiry date.
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow())
+            .Returns(new DateTimeOffset(2025, 12, 31, 0, 0, 0, TimeSpan.Zero));
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "admin-key",
+                ["Authentication:ApiKey:AdminKeyExpiresAt"] = "2026-01-01T00:00:00Z"
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+    }
+
     private static ApiKeyAuthHandlerTestDouble CreateHandler(
         IReadOnlyDictionary<string, string?> configData,
         HttpContext httpContext,
-        IHostEnvironment environment)
+        IHostEnvironment environment,
+        TimeProvider? timeProvider = null)
     {
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(configData).Build();
         ServiceCollection services = [];
@@ -222,13 +280,14 @@ public sealed class ApiKeyAuthenticationHandlerTests
         IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor =
             sp.GetRequiredService<IOptionsMonitor<ApiKeyAuthenticationOptions>>();
 
-        return CreateHandlerWithApiKeyMonitor(apiKeyMonitor, httpContext, environment);
+        return CreateHandlerWithApiKeyMonitor(apiKeyMonitor, httpContext, environment, timeProvider);
     }
 
     private static ApiKeyAuthHandlerTestDouble CreateHandlerWithApiKeyMonitor(
         IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor,
         HttpContext httpContext,
-        IHostEnvironment environment)
+        IHostEnvironment environment,
+        TimeProvider? timeProvider = null)
     {
         Mock<IOptionsMonitor<AuthenticationSchemeOptions>> monitor = new();
         AuthenticationSchemeOptions schemeOptions = new();
@@ -240,7 +299,8 @@ public sealed class ApiKeyAuthenticationHandlerTests
             NullLoggerFactory.Instance,
             UrlEncoder.Default,
             apiKeyMonitor,
-            environment);
+            environment,
+            timeProvider ?? TimeProvider.System);
 
         AuthenticationScheme scheme = new(
             AuthServiceCollectionExtensions.ApiKeySchemeName,
@@ -256,8 +316,9 @@ public sealed class ApiKeyAuthenticationHandlerTests
         ILoggerFactory loggerFactory,
         UrlEncoder encoder,
         IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyOptions,
-        IHostEnvironment environment)
-        : ApiKeyAuthenticationHandler(options, loggerFactory, encoder, apiKeyOptions, environment)
+        IHostEnvironment environment,
+        TimeProvider timeProvider)
+        : ApiKeyAuthenticationHandler(options, loggerFactory, encoder, apiKeyOptions, environment, timeProvider)
     {
         public Task<AuthenticateResult> InvokeHandleAuthenticateAsync()
         {

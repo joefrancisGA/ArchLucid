@@ -133,7 +133,78 @@ public sealed partial class RunsController(
         }
     }
 
-    private CreateRunIdempotencyState? TryBuildCreateRunIdempotency(ArchitectureRequest request)
+    /// <summary>
+    ///     Creates up to 50 architecture runs in a single call for CI/CD pipelines. Each item in the array is treated as
+    ///     an independent <see cref="CreateRun" /> call. Partial failures are captured per item; the overall response is
+    ///     always <c>202 Accepted</c>. Idempotency keys are not supported for batch requests.
+    /// </summary>
+    [HttpPost("request/batch")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(BatchCreateRunResponse), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CreateRunBatch(
+        [FromBody] IReadOnlyList<ArchitectureRequest>? requests,
+        CancellationToken cancellationToken)
+    {
+        if (requests is null || requests.Count == 0)
+            return this.BadRequestProblem("Request body must be a non-empty JSON array.", ProblemTypes.ValidationFailed);
+
+        if (requests.Count > BatchCreateRunMaxItems)
+            return this.BadRequestProblem(
+                $"Batch may contain at most {BatchCreateRunMaxItems} items. Received {requests.Count}.",
+                ProblemTypes.ValidationFailed);
+
+        List<BatchCreateRunItemResult> results = new(requests.Count);
+
+        foreach (ArchitectureRequest request in requests)
+        {
+            if (request is null)
+            {
+                results.Add(new BatchCreateRunItemResult { Succeeded = false, ErrorMessage = "Null item in batch." });
+                continue;
+            }
+
+            try
+            {
+                CreateRunResult result = await architectureRunCreateOrchestrator
+                    .CreateRunAsync(request, idempotency: null, cancellationToken)
+                    .ConfigureAwait(false);
+
+                results.Add(new BatchCreateRunItemResult
+                {
+                    RequestId = request.RequestId,
+                    RunId = result.Run.RunId,
+                    Succeeded = true
+                });
+            }
+            catch (ConflictException ex)
+            {
+                results.Add(new BatchCreateRunItemResult
+                {
+                    RequestId = request.RequestId,
+                    Succeeded = false,
+                    ErrorCode = ProblemTypes.Conflict,
+                    ErrorMessage = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                results.Add(new BatchCreateRunItemResult
+                {
+                    RequestId = request.RequestId,
+                    Succeeded = false,
+                    ErrorCode = ProblemTypes.BadRequest,
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+
+        return Accepted(new BatchCreateRunResponse { Items = results });
+    }
+
+    private const int BatchCreateRunMaxItems = 50;
     {
         if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues raw) ||
             string.IsNullOrWhiteSpace(raw.ToString()))

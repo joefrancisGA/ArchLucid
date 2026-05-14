@@ -1,5 +1,12 @@
-import { TenantSettingsPageMain } from "./_sections/TenantSettingsPageMain";
+import { TenantSettingsPageClient } from "./_sections/TenantSettingsPageClient";
+import { loadTenantSettingsPageData } from "./_sections/load-tenant-settings-page-data";
 
-export default function TenantSettingsPage() {
-  return <TenantSettingsPageMain />;
+export default async function TenantSettingsPage() {
+  const loaded = await loadTenantSettingsPageData();
+
+  if (loaded.mode === "hidden") {
+    return null;
+  }
+
+  return <TenantSettingsPageClient loaded={loaded} />;
 }

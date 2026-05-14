@@ -38,4 +38,25 @@ public sealed class ApiKeyAuthenticationOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     UTC hard-expiry for the admin key slot. When set and the current time is past this value,
+    ///     admin key authentication is rejected even if the presented key material matches.
+    ///     Supports scheduled key retirement without a configuration redeploy.
+    /// </summary>
+    public DateTimeOffset? AdminKeyExpiresAt
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     UTC hard-expiry for the read-only key slot.
+    ///     Same semantics as <see cref="AdminKeyExpiresAt" />.
+    /// </summary>
+    public DateTimeOffset? ReadOnlyKeyExpiresAt
+    {
+        get;
+        set;
+    }
 }

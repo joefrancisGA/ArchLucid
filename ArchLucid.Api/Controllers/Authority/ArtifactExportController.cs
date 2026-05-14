@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
@@ -20,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -44,7 +46,10 @@ public sealed class ArtifactExportController(
     IScopeContextProvider scopeProvider,
     IAuditService auditService,
     IDiagramImageRenderer diagramImageRenderer,
-    IConfiguration configuration)
+    IConfiguration configuration,
+    IRunExportBlobPushService runExportBlobPushService,
+    ITerraformGitHubPrService terraformGitHubPrService,
+    IServiceScopeFactory serviceScopeFactory)
     : ControllerBase
 {
     private static readonly JsonSerializerOptions ExportJsonOptions = new()
@@ -348,5 +353,149 @@ public sealed class ArtifactExportController(
             ct);
 
         return File(package.Content, package.ContentType, package.PackageFileName);
+    }
+
+    /// <summary>
+    ///     Asynchronously pushes the run export ZIP to a customer-provided Azure Blob SAS URL.
+    ///     Returns 202 Accepted immediately; the upload proceeds in the background.
+    ///     Audit events (<c>RunExportBlobPushSucceeded</c> / <c>RunExportBlobPushFailed</c>) are written on completion.
+    /// </summary>
+    [HttpPost("runs/{runId:guid}/export/push")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> PushRunExportToBlob(
+        Guid runId,
+        [FromBody] RunExportBlobPushRequest? request,
+        CancellationToken ct = default)
+    {
+        if (request is null || string.IsNullOrWhiteSpace(request.DestinationSasUrl))
+            return this.BadRequestProblem("DestinationSasUrl is required.", ProblemTypes.RequestBodyRequired);
+
+        if (!Uri.TryCreate(request.DestinationSasUrl, UriKind.Absolute, out _))
+            return this.BadRequestProblem("DestinationSasUrl is not a valid absolute URI.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (runDetail.GoldenManifest is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' has no committed golden manifest available for export.",
+                ProblemTypes.ManifestNotFound);
+
+        IReadOnlyList<SynthesizedArtifact> artifacts =
+            await artifactQueryService.GetArtifactsByManifestIdAsync(scope, runDetail.GoldenManifest.ManifestId, ct);
+
+        string manifestJson = JsonSerializer.Serialize(runDetail.GoldenManifest, ExportJsonOptions);
+        string? traceJson = runDetail.AuthorityTrace is null
+            ? null
+            : JsonSerializer.Serialize(runDetail.AuthorityTrace, ExportJsonOptions);
+
+        ManifestDocument golden = runDetail.GoldenManifest;
+        string ruleSetLine = $"{golden.RuleSetId} {golden.RuleSetVersion}".Trim();
+        RunExportReadmeContext readmeContext = new()
+        {
+            ManifestDisplayName = string.IsNullOrWhiteSpace(golden.Metadata.Name) ? null : golden.Metadata.Name,
+            ManifestHash = string.IsNullOrWhiteSpace(golden.ManifestHash) ? null : golden.ManifestHash,
+            RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine,
+            OperatorShellReviewRelativePath = $"/reviews/{runId:D}"
+        };
+
+        ArtifactPackage package = artifactPackagingService.BuildRunExportPackage(
+            runId,
+            golden.ManifestId,
+            artifacts,
+            manifestJson,
+            traceJson,
+            readmeContext,
+            renderedArchitectureDiagramPng: null);
+
+        byte[] zipContent = package.Content;
+        string sasUrl = request.DestinationSasUrl;
+
+        // Fire-and-forget: upload completes in the background while the API returns 202 immediately.
+        _ = Task.Run(async () =>
+        {
+            using IServiceScope backgroundScope = serviceScopeFactory.CreateScope();
+            IRunExportBlobPushService pushService =
+                backgroundScope.ServiceProvider.GetRequiredService<IRunExportBlobPushService>();
+
+            try
+            {
+                await pushService.PushAsync(runId, zipContent, sasUrl).ConfigureAwait(false);
+            }
+            catch
+            {
+                // Exceptions are logged inside PushAsync; swallow here to avoid unobserved task faults.
+            }
+        }, CancellationToken.None);
+
+        return Accepted();
+    }
+
+    /// <summary>
+    ///     Creates an advisory Terraform GitHub Pull Request for the given run.
+    ///     Generates the Terraform placeholder ZIP then pushes the files to GitHub and opens a PR on the
+    ///     configured repository. Returns <c>201 Created</c> with the PR URL on success.
+    ///     Requires <c>TerraformGitHubPr:Enabled=true</c> and valid GitHub credentials in configuration.
+    /// </summary>
+    [HttpPost("runs/{runId:guid}/terraform-pr")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(TerraformPrCreatedResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CreateTerraformPr(
+        Guid runId,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        ArtifactPackage package = artifactPackagingService.BuildTerraformAdvisoryPlaceholderExport(runId);
+
+        try
+        {
+            TerraformPrCreationResult result = await terraformGitHubPrService
+                .CreatePrAsync(runId, package.Content, ct)
+                .ConfigureAwait(false);
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TerraformAdvisoryExportDownloaded,
+                    RunId = runId,
+                    DataJson = System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        source = "github_pr",
+                        prUrl = result.PullRequestUrl,
+                        branch = result.BranchName
+                    })
+                }, ct);
+
+            return CreatedAtAction(
+                nameof(DownloadTerraformAdvisoryExport),
+                new { runId },
+                new TerraformPrCreatedResponse
+                {
+                    PullRequestUrl = result.PullRequestUrl,
+                    PullRequestNumber = result.PullRequestNumber,
+                    BranchName = result.BranchName
+                });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
+        }
     }
 }

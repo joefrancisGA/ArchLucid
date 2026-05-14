@@ -20,6 +20,58 @@ public static class ChatOpsIncomingWebhookBodies
         };
     }
 
+    /// <summary>
+    ///     Slack Block Kit message with Approve and Reject interactive action buttons, for use when an
+    ///     <paramref name="approvalRequestId" /> is provided. The action values are encoded as
+    ///     <c>governance_approve:{approvalRequestId}</c> and <c>governance_reject:{approvalRequestId}</c>.
+    /// </summary>
+    public static object ForSlackWithGovernanceActions(ChatOpsWebhookMessage message, string approvalRequestId)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
+
+        string headline = string.IsNullOrWhiteSpace(message.SeverityLabel)
+            ? $"*{message.Title}*"
+            : FormattableString.Invariant($"*[{message.SeverityLabel!.Trim()}]* {message.Title}");
+
+        string body = CombineBlocks(headline, message.SupportingParagraph, message.Body);
+
+        return new
+        {
+            blocks = new object[]
+            {
+                new
+                {
+                    type = "section",
+                    text = new { type = "mrkdwn", text = body }
+                },
+                new
+                {
+                    type = "actions",
+                    elements = new object[]
+                    {
+                        new
+                        {
+                            type = "button",
+                            text = new { type = "plain_text", text = "Approve", emoji = true },
+                            style = "primary",
+                            value = $"governance_approve:{approvalRequestId}",
+                            action_id = "governance_approve"
+                        },
+                        new
+                        {
+                            type = "button",
+                            text = new { type = "plain_text", text = "Reject", emoji = true },
+                            style = "danger",
+                            value = $"governance_reject:{approvalRequestId}",
+                            action_id = "governance_reject"
+                        }
+                    }
+                }
+            }
+        };
+    }
+
     /// <summary>Teams legacy Office 365 Connector incoming webhook expects <c>title</c> and <c>text</c> fields.</summary>
     public static object ForTeams(ChatOpsWebhookMessage message)
     {

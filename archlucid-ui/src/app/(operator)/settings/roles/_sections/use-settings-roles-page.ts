@@ -10,12 +10,11 @@ import {
   parseAdminUsersDirectoryPayload,
 } from "@/lib/admin-tenant-directory-parse";
 import type { ArchLucidAppRole } from "@/lib/current-principal";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 
+import type { SettingsRolesPageServerLoad } from "./load-settings-roles-page-data";
 import {
   SETTINGS_ROLES_API_KEYS_PATH,
   SETTINGS_ROLES_USERS_PATH,
@@ -47,8 +46,8 @@ function resolveSurface(
   return "admin";
 }
 
-export function useSettingsRolesPage(): SettingsRolesPageViewModel {
-  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): SettingsRolesPageViewModel {
+  const isDemo = loaded.demo;
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const surface = resolveSurface(isDemo, isAuthorityLoading, isAdmin);

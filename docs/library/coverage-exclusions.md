@@ -27,7 +27,7 @@ After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cob
 
 **PR comment:** **`scripts/ci/build_coverage_pr_comment.py`** lists any product **`ArchLucid.*`** package under the per-package merge floor as the **same CI gate** as [`assert_merged_line_coverage_min.py`](../../scripts/ci/assert_merged_line_coverage_min.py) on merged Cobertura (not a separate “warning” threshold).
 
-**Exclusions in `coverage.runsettings`:** Tier-5 excludes (generated **OpenAPI** client, **NSwag** output, etc.) shrink denominators for merged Cobertura; gates still apply to the merged tree. See the **`coverage.runsettings`** file at repo root for the current exclude list.
+**Exclusions in `coverage.runsettings`:** Tier-5 excludes (generated **OpenAPI** client, **NSwag** output, etc.) shrink denominators for merged Cobertura; gates still apply to the merged tree. **`ArchLucid.Worker/Program.cs`** is also excluded (**composition root**; logic is covered in `Host.Composition` / `Host.Core`). See the **`coverage.runsettings`** file at repo root for the current exclude list.
 
 **Stryker:** Scheduled mutation runs use multiple **`stryker-config*.json`** files (Persistence, Application, Decisioning, Coordinator, AgentRuntime); baseline scores are asserted via **`scripts/ci/assert_stryker_score_vs_baseline.py`** against **`stryker-baselines.json`**. Narrative: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
 
@@ -140,6 +140,7 @@ Pure data-transfer objects used by Dapper for SQL result mapping. They contain o
 | Class | Assembly | Justification |
 |-------|----------|---------------|
 | `Program` (partial) | Api | ASP.NET startup wiring; tested via `WebApplicationFactory` integration tests |
+| `Program` (partial) | Worker | Background worker host wiring (`WebApplication` + DI + config validation); exercised by **`ArchLucid.Worker.Tests`** but omitted from Cobertura via **`coverage.runsettings`** **`ExcludeByFile`** (**`ArchLucid.Worker/Program.cs`**) so merged line denominators are not dominated by an uninstrumented entrypoint |
 | `Program` (static) | Cli | CLI argument dispatch and console I/O |
 | `Program` (static) | Jobs.Cli | ACA Jobs composition root (`WebApplication` + DI + schema bootstrap); **`JobsCommandLine`** is unit-tested in **`ArchLucid.Jobs.Cli.Tests`** |
 | `ApiKeyAuthenticationHandler` | Api | ASP.NET authentication handler; tested via HTTP pipeline integration tests |

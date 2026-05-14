@@ -26,7 +26,8 @@ public class ApiKeyAuthenticationHandler(
     ILoggerFactory logger,
     UrlEncoder encoder,
     IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyOptions,
-    IHostEnvironment environment)
+    IHostEnvironment environment,
+    TimeProvider timeProvider)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -72,6 +73,10 @@ public class ApiKeyAuthenticationHandler(
 
         if (MatchesAnyCommaSeparatedKey(key, adminKeyRaw))
         {
+            if (IsKeyExpired(keys.AdminKeyExpiresAt))
+                return Task.FromResult(AuthenticateResult.Fail(
+                    "The admin API key has expired. Rotate the key and update Authentication:ApiKey:AdminKey."));
+
             userName = "ApiKeyAdmin";
             claims =
             [
@@ -87,6 +92,10 @@ public class ApiKeyAuthenticationHandler(
         }
         else if (MatchesAnyCommaSeparatedKey(key, readerKeyRaw))
         {
+            if (IsKeyExpired(keys.ReadOnlyKeyExpiresAt))
+                return Task.FromResult(AuthenticateResult.Fail(
+                    "The read-only API key has expired. Rotate the key and update Authentication:ApiKey:ReadOnlyKey."));
+
             userName = "ApiKeyReadOnly";
             claims =
             [
@@ -151,8 +160,13 @@ public class ApiKeyAuthenticationHandler(
         return CryptographicOperations.FixedTimeEquals(a, b);
     }
 
+    /// <summary>
+    ///     Returns <c>true</c> when <paramref name="expiresAt" /> is set and is strictly in the past.
+    /// </summary>
+    private bool IsKeyExpired(DateTimeOffset? expiresAt)
+        => expiresAt is not null && timeProvider.GetUtcNow() > expiresAt.Value;
+
     private static Claim[] BuildSyntheticAdminClaims()
-    {
         return
         [
             new Claim(ClaimTypes.Name, "DevUser"),

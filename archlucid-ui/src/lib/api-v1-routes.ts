@@ -14,6 +14,7 @@ export const ApiV1Routes = {
   alertRoutingSubscriptions: "v1/alert-routing-subscriptions",
   digestSubscriptions: "v1/digest-subscriptions",
   tenantExecDigestPreferences: "v1/tenant/exec-digest-preferences",
+  tenantTrialStatus: "v1/tenant/trial-status",
   tenantCostEstimate: "v1/tenant/cost-estimate",
   tenantMeasuredRoi: "v1/tenant/measured-roi",
   tenantWorkspaces: "v1/tenant/workspaces",

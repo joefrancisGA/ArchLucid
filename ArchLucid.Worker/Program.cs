@@ -10,6 +10,7 @@ using ArchLucid.Host.Core.Startup.Validation;
 namespace ArchLucid.Worker;
 
 /// <summary>Background worker host: advisory scans, data archival, retrieval indexing outbox (no public HTTP API).</summary>
+// ReSharper disable once PartialTypeWithSinglePart
 public partial class Program
 {
     public static void Main(string[] args)

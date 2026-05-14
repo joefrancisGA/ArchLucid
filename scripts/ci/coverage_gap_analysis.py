@@ -21,10 +21,21 @@ def local_name(tag: str) -> str:
     return tag
 
 
+# Packages omitted from gap-analysis tables only. Mirror coverage.runsettings when a host assembly
+# still appears in merged Cobertura until the next full merge (e.g. stale shards).
+_GAP_ANALYSIS_OMIT_PACKAGES: frozenset[str] = frozenset(
+    {
+        "ArchLucid.Worker",  # Program.cs excluded via ExcludeByFile in coverage.runsettings
+    }
+)
+
+
 def is_target_product_package(name: str) -> bool:
     if not is_product_archlucid_package(name):
         return False
     if "Benchmark" in name:
+        return False
+    if name in _GAP_ANALYSIS_OMIT_PACKAGES:
         return False
     return True
 
@@ -142,7 +153,8 @@ def main() -> int:
         f"**Generated:** from `{cobertura.relative_to(repo)}` "
         "(ReportGenerator Cobertura merge of Coverlet outputs from `dotnet test` + `--collect:\"XPlat Code Coverage\"`).",
         "",
-        "**Measurement:** Production `ArchLucid.*` assemblies only; excludes `*.Tests`, TestSupport, and Benchmarks.",
+        "**Measurement:** Production `ArchLucid.*` assemblies only; excludes `*.Tests`, TestSupport, Benchmarks, and "
+        "`ArchLucid.Worker` (`Program.cs` omitted per **`coverage.runsettings`** **`ExcludeByFile`**).",
         "",
         "## All assemblies by line coverage (lowest first)",
         "",

@@ -6,13 +6,12 @@
 
 **Generated:** from `coverage-gap-1a\merged\Cobertura.xml` (ReportGenerator Cobertura merge of Coverlet outputs from `dotnet test` + `--collect:"XPlat Code Coverage"`).
 
-**Measurement:** Production `ArchLucid.*` assemblies only; excludes `*.Tests`, TestSupport, and Benchmarks.
+**Measurement:** Production `ArchLucid.*` assemblies only; excludes `*.Tests`, TestSupport, Benchmarks, and `ArchLucid.Worker` (`Program.cs` omitted per **`coverage.runsettings`** **`ExcludeByFile`**).
 
 ## All assemblies by line coverage (lowest first)
 
 | Assembly | Line coverage % | Coverable lines (approx.) |
 |----------|-----------------|---------------------------|
-| ArchLucid.Worker | 0.00 | 68 |
 | ArchLucid.Persistence | 54.64 | 30360 |
 | ArchLucid.Api | 56.41 | 30117 |
 | ArchLucid.Cli | 63.65 | 12253 |
@@ -39,12 +38,6 @@
 
 Per Cobertura **class** aggregate line blocks (`<class>/<lines>/<line hits="…"/>`). 
 **Partial types** merged by **class name + file**.
-
-### ArchLucid.Worker (0.00% line coverage)
-
-| Rank | Class | File | Uncovered line entries |
-|------|-------|------|------------------------|
-| 1 | `ArchLucid.Worker.Program` | `ArchLucid.Worker\Program.cs` | 34 |
 
 ### ArchLucid.Persistence (54.64% line coverage)
 

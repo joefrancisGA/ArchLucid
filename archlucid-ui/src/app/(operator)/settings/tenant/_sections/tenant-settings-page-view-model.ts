@@ -1,8 +1,7 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react";
 
 import type { ExecDigestPreferencesResponse, ExecDigestPreferencesUpsertRequest } from "@/types/exec-digest-preferences";
-
-import type { TenantTrialStatusPayload } from "./tenant-settings-types";
+import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 
 export type TenantSettingsPageContentModel = {
   readonly currentPrincipalName: string | null;
@@ -14,8 +13,4 @@ export type TenantSettingsPageContentModel = {
   readonly form: ExecDigestPreferencesUpsertRequest | null;
   readonly setForm: Dispatch<SetStateAction<ExecDigestPreferencesUpsertRequest | null>>;
   readonly onSaveDigest: (e: FormEvent) => Promise<void>;
-};
-
-export type TenantSettingsPageViewModel = TenantSettingsPageContentModel & {
-  readonly shouldRenderPage: boolean;
 };

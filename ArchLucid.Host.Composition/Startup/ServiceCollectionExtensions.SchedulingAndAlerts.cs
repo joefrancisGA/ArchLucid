@@ -176,6 +176,7 @@ public static partial class ServiceCollectionExtensions
         });
         services.AddSingleton<IChatOpsWebhookDeliveryService, ChatOpsWebhookDeliveryService>();
         services.AddSingleton<IAuthorityRunCommittedChatOpsHook, AuthorityRunCommittedChatOpsHook>();
+        services.AddSingleton<ISlackInteractivityVerifier, SlackInteractivityVerifier>();
         services.AddScoped<IDigestDeliveryChannel, DigestEmailDeliveryChannel>();
         services.AddScoped<IDigestDeliveryChannel, DigestTeamsWebhookDeliveryChannel>();
         services.AddScoped<IDigestDeliveryChannel, DigestSlackWebhookDeliveryChannel>();

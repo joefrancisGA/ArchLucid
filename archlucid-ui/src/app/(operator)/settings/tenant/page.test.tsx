@@ -26,8 +26,8 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-const { digestLoad, saveExecDigestMock } = vi.hoisted(() => {
-  const d: ExecDigestPreferencesResponse = {
+const hoisted = vi.hoisted(() => {
+  const digestLoad: ExecDigestPreferencesResponse = {
     schemaVersion: 1,
     tenantId: "t1",
     isConfigured: true,
@@ -38,41 +38,44 @@ const { digestLoad, saveExecDigestMock } = vi.hoisted(() => {
     hourOfDay: 9,
     updatedUtc: "2026-01-01T00:00:00Z",
   };
-  const save = vi.fn(async (body: ExecDigestPreferencesUpsertRequest): Promise<ExecDigestPreferencesResponse> => {
-    return { ...d, ...body, updatedUtc: "2026-01-02T00:00:00Z" };
+
+  const saveExecDigestMock = vi.fn(async (body: ExecDigestPreferencesUpsertRequest): Promise<ExecDigestPreferencesResponse> => {
+    return { ...digestLoad, ...body, updatedUtc: "2026-01-02T00:00:00Z" };
   });
-  return { digestLoad: d, saveExecDigestMock: save };
+
+  return { digestLoad, saveExecDigestMock };
 });
 
+vi.mock("./_sections/load-tenant-settings-page-data", () => ({
+  loadTenantSettingsPageData: () =>
+    Promise.resolve({
+      mode: "visible" as const,
+      trial: { status: "Active", daysRemaining: 7 },
+      digest: hoisted.digestLoad,
+      digestLoadFailure: null,
+    }),
+}));
+
 vi.mock("@/lib/api", () => ({
-  getExecDigestPreferences: vi.fn(() => Promise.resolve(digestLoad)),
-  saveExecDigestPreferences: (b: ExecDigestPreferencesUpsertRequest) => saveExecDigestMock(b),
+  getExecDigestPreferences: vi.fn(() => Promise.resolve(hoisted.digestLoad)),
+  tryGetTenantTrialStatus: vi.fn(() => Promise.resolve({ status: "Active", daysRemaining: 7 })),
+  saveExecDigestPreferences: (b: ExecDigestPreferencesUpsertRequest) => hoisted.saveExecDigestMock(b),
 }));
 
 import TenantSettingsPage from "./page";
 
 describe("TenantSettingsPage", () => {
   it("renders and saves digest preferences", async () => {
-    const fetchMock = vi.fn(
-      async (input: string | URL) => {
-        if (String(input).includes("/v1/tenant/trial-status")) {
-          return new Response(JSON.stringify({ status: "Active", daysRemaining: 7 }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-        return new Response("n", { status: 404 });
-      },
-    );
-    vi.stubGlobal("fetch", fetchMock);
-    render(<TenantSettingsPage />);
+    const page = await TenantSettingsPage();
+
+    render(page);
     expect(await screen.findByTestId("tenant-settings-page")).toBeInTheDocument();
     expect(await screen.findByText(/Status:/i)).toBeInTheDocument();
     const save = await screen.findByTestId("tenant-digest-save");
     fireEvent.click(save);
+
     await waitFor(() => {
-      expect(saveExecDigestMock).toHaveBeenCalled();
+      expect(hoisted.saveExecDigestMock).toHaveBeenCalled();
     });
-    vi.unstubAllGlobals();
   });
 });

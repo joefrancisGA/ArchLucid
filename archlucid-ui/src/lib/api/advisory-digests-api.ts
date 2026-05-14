@@ -14,6 +14,7 @@ import type {
   TeamsIncomingWebhookConnectionUpsertRequest,
 } from "@/types/teams-incoming-webhook-connection";
 import type { TenantCostEstimateResponse } from "@/types/tenant-cost-estimate";
+import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 import { apiDelete, apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
 
 /** Lists all advisory scan schedules for the current scope. */
@@ -75,6 +76,15 @@ export async function listDigestSubscriptions(): Promise<DigestSubscription[]> {
 /** Loads weekly executive digest email preferences for the current tenant. */
 export async function getExecDigestPreferences(): Promise<ExecDigestPreferencesResponse> {
   return apiGet<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`);
+}
+
+/** Best-effort tenant trial banner payload; returns null when the route errors (UI treats as unknown trial state). */
+export async function tryGetTenantTrialStatus(): Promise<TenantTrialStatusPayload | null> {
+  try {
+    return await apiGet<TenantTrialStatusPayload>(`/${ApiV1Routes.tenantTrialStatus}`);
+  } catch {
+    return null;
+  }
 }
 
 /** Rough monthly spend band for Standard+ tenants (404 when below Standard; route not disclosed). */

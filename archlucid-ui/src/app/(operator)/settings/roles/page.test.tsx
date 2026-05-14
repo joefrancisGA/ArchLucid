@@ -29,12 +29,20 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
+const hoistedRolesLoad = vi.hoisted(() => ({ demo: false }));
+
+vi.mock("./_sections/load-settings-roles-page-data", () => ({
+  loadSettingsRolesPageData: () => Promise.resolve(hoistedRolesLoad),
+}));
+
 import SettingsRolesPage from "./page";
 
 describe("SettingsRolesPage", () => {
-  it("blocks non-admin operators", () => {
+  it("blocks non-admin operators", async () => {
     nav.callerAuthorityRank = 2;
-    render(<SettingsRolesPage />);
+    const page = await SettingsRolesPage();
+
+    render(page);
     expect(screen.getByTestId("settings-roles-forbidden")).toBeInTheDocument();
     nav.callerAuthorityRank = 3;
   });
@@ -60,7 +68,9 @@ describe("SettingsRolesPage", () => {
     });
 
     vi.stubGlobal("fetch", fetchMock);
-    render(<SettingsRolesPage />);
+    const page = await SettingsRolesPage();
+
+    render(page);
 
     expect(await screen.findByText("Ada")).toBeInTheDocument();
     expect(screen.getByTestId("settings-roles-select-user-u1")).toBeInTheDocument();

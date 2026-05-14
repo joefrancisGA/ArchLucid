@@ -103,6 +103,12 @@ public static class AuditEventTypes
 
     public const string RunExported = "RunExported";
 
+    /// <summary>Run export ZIP was successfully pushed to a customer-provided Azure Blob SAS URL.</summary>
+    public const string RunExportBlobPushSucceeded = "RunExportBlobPushSucceeded";
+
+    /// <summary>Run export ZIP push to a customer-provided Azure Blob SAS URL failed.</summary>
+    public const string RunExportBlobPushFailed = "RunExportBlobPushFailed";
+
     /// <summary>
     ///     Operator downloaded the advisory Terraform placeholder ZIP (
     ///     <c>GET /v1/artifacts/runs/{{runId}}/terraform-advisory-export</c>).
