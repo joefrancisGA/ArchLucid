@@ -1,5 +1,6 @@
 {
   "exemption_by_controller_file": {
+    "Admin/AdminAuthDiagnosticsController.cs": "auth_debug_api",
     "Admin/AuthDebugController.cs": "auth_debug_api",
     "Admin/DemoController.cs": "demo_tooling",
     "Admin/DocsController.cs": "static_operator_docs_html",
@@ -19,6 +20,7 @@
     "Diagnostics/SyntheticOperatorDemoPackController.cs": "synthetic_demo_admin_pack",
     "E2e/E2eHarnessController.cs": "e2e_nonprod_harness",
     "Integrations/ItsmInboundWebhooksController.cs": "partner_webhook_ingest",
+    "Integrations/SlackInteractivityController.cs": "partner_webhook_ingest",
     "Marketing/EnterpriseComparisonMarketingController.cs": "marketing_public_api",
     "Marketing/MarketingPricingQuoteRequestController.cs": "marketing_public_api",
     "Marketing/MarketingShowcaseController.cs": "marketing_public_api",

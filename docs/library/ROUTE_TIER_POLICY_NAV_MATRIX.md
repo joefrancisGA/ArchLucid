@@ -38,11 +38,12 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:116 -->
+<!-- route-tier-policy-nav-registry-count:118 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
 | `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
+| `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
 | `Admin/AdminLlmCostTuningController.cs` | `/v1/admin` | none | AdminAuthority | /settings/tenant-cost |  |
 | `Admin/AuditController.cs` | `/v1/audit` | none | ReadAuthority | /audit |  |
 | `Admin/AuthDebugController.cs` | `/api/auth` | none | ReadAuthority |  | auth_debug_api |
@@ -119,6 +120,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ExecuteAuthority |  |  |
 | `Integrations/ItsmInboundWebhooksController.cs` | `/v1/integrations/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Integrations/ItsmOutboundIssuesController.cs` | `/v1/integrations/itsm/outbound/issues` | none | ExecuteAuthority |  |  |
+| `Integrations/SlackInteractivityController.cs` | `/v1/integrations/webhooks/slack` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Integrations/TeamsIncomingWebhookConnectionsController.cs` | `/v1/integrations/teams` | standard | Authorize | /integrations/teams |  |
 | `Integrations/WebhookConnectionsController.cs` | `/v1/integrations/webhooks` | standard | ExecuteAuthority |  |  |
 | `Marketing/EnterpriseComparisonMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
