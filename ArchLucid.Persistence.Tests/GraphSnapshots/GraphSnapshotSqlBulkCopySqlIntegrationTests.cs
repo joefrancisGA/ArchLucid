@@ -137,8 +137,14 @@ public sealed class GraphSnapshotSqlBulkCopySqlIntegrationTests(SqlServerPersist
         Assert.Equal("n-1", nodes[0].NodeId);
         Assert.Equal("Container", nodes[0].NodeType);
 
-        // Verify Node Properties
-        var nodeProps = (await connection.QueryAsync("SELECT * FROM dbo.GraphSnapshotNodeProperties")).ToList();
+        // Verify Node Properties (scope to this snapshot — shared container DB retains rows from other tests)
+        const string selectNodePropsForSnapshot = """
+                                                  SELECT p.*
+                                                  FROM dbo.GraphSnapshotNodeProperties AS p
+                                                  INNER JOIN dbo.GraphSnapshotNodes AS n ON p.GraphNodeRowId = n.GraphNodeRowId
+                                                  WHERE n.GraphSnapshotId = @graphId;
+                                                  """;
+        List<dynamic> nodeProps = (await connection.QueryAsync(selectNodePropsForSnapshot, new { graphId })).ToList();
         nodeProps.Should().ContainSingle();
         Assert.Equal("k1", nodeProps[0].PropertyKey);
         Assert.Equal("v1", nodeProps[0].PropertyValue);

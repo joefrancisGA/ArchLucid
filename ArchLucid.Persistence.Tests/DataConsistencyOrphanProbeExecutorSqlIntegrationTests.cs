@@ -9,6 +9,7 @@ using ArchLucid.Persistence.Tests.Support;
 using Dapper;
 
 using Microsoft.Data.SqlClient;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -26,6 +27,16 @@ public sealed class DataConsistencyOrphanProbeExecutorSqlIntegrationTests(SqlSer
     private static readonly Guid SeedWorkspaceId = Guid.Parse("81818181-8181-8181-8181-818181818181");
     private static readonly Guid SeedScopeProjectId = Guid.Parse("82828282-8282-8282-8282-828282828282");
 
+    // Relaxed only while inserting a synthetic orphan row (no Runs row and synthetic snapshot ids).
+    private static readonly string[] GoldenManifestAuthorityForeignKeysForOrphanInsert =
+    [
+        "FK_GoldenManifests_Runs_RunId",
+        "FK_GoldenManifests_ContextSnapshots_ContextSnapshotId",
+        "FK_GoldenManifests_GraphSnapshots_GraphSnapshotId",
+        "FK_GoldenManifests_FindingsSnapshots_FindingsSnapshotId",
+        "FK_GoldenManifests_DecisioningTraces_DecisionTraceId"
+    ];
+
     [SkippableFact]
     public async Task RunOnceAsync_accurately_identifies_orphaned_records_and_ignores_active_runs()
     {
@@ -40,10 +51,14 @@ public sealed class DataConsistencyOrphanProbeExecutorSqlIntegrationTests(SqlSer
 
         Guid activeManifestId = Guid.NewGuid();
         Guid orphanManifestId = Guid.NewGuid();
+        Guid activeContextSnapshotId = Guid.NewGuid();
+        Guid activeGraphSnapshotId = Guid.NewGuid();
+        Guid activeFindingsSnapshotId = Guid.NewGuid();
+        Guid activeDecisionTraceId = Guid.NewGuid();
 
         await using SqlConnection conn = new(fixture.ConnectionString);
         await conn.OpenAsync(CancellationToken.None);
-        bool nchecked = false;
+        List<string> goldenManifestFksNoChecked = [];
 
         try
         {
@@ -51,8 +66,17 @@ public sealed class DataConsistencyOrphanProbeExecutorSqlIntegrationTests(SqlSer
             await ArchitectureCommitTestSeed.InsertRequestAndRunAsync(conn, activeRequestId, activeRunIdStr, CancellationToken.None);
 
             await AuthorityRunChainTestSeed.SeedSnapshotChainForExistingRunAsync(
-                conn, SeedTenantId, SeedWorkspaceId, SeedScopeProjectId, activeRunGuid, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
-                "ActiveRunSeed", CancellationToken.None);
+                conn,
+                SeedTenantId,
+                SeedWorkspaceId,
+                SeedScopeProjectId,
+                activeRunGuid,
+                activeContextSnapshotId,
+                activeGraphSnapshotId,
+                activeFindingsSnapshotId,
+                activeDecisionTraceId,
+                "ActiveRunSeed",
+                CancellationToken.None);
 
             const string insertManifest = """
                                           IF NOT EXISTS (SELECT 1 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId)
@@ -63,29 +87,58 @@ public sealed class DataConsistencyOrphanProbeExecutorSqlIntegrationTests(SqlSer
                                            ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson, WarningsJson, ProvenanceJson,
                                            TenantId, WorkspaceId, ProjectId)
                                           VALUES
-                                          (@ManifestId, @RunId, NEWID(), NEWID(), NEWID(), NEWID(),
+                                          (@ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
                                            SYSUTCDATETIME(), N'h', N'rs', N'1', N'rh', N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
                                            N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
                                            @TenantId, @WorkspaceId, @ScopeProjectId);
                                           """;
 
-            await conn.ExecuteAsync(new CommandDefinition(insertManifest, new
-            {
-                ManifestId = activeManifestId, RunId = activeRunGuid, TenantId = SeedTenantId, WorkspaceId = SeedWorkspaceId, ScopeProjectId = SeedScopeProjectId
-            }));
+            await conn.ExecuteAsync(
+                new CommandDefinition(
+                    insertManifest,
+                    new
+                    {
+                        ManifestId = activeManifestId,
+                        RunId = activeRunGuid,
+                        ContextSnapshotId = activeContextSnapshotId,
+                        GraphSnapshotId = activeGraphSnapshotId,
+                        FindingsSnapshotId = activeFindingsSnapshotId,
+                        DecisionTraceId = activeDecisionTraceId,
+                        TenantId = SeedTenantId,
+                        WorkspaceId = SeedWorkspaceId,
+                        ScopeProjectId = SeedScopeProjectId
+                    }));
 
-            // Seed Orphan Manifest (bypass FK temporarily)
-            int fkHits = await conn.ExecuteScalarAsync<int>(@"SELECT COUNT(1) FROM sys.foreign_keys WHERE name = N'FK_GoldenManifests_Runs_RunId'");
-            if (fkHits > 0)
+            // Seed orphan manifest: RunId has no row in dbo.Runs and snapshot ids are synthetic — relax GoldenManifests FK checks like sibling probe tests.
+
+            foreach (string fkName in GoldenManifestAuthorityForeignKeysForOrphanInsert)
             {
-                await conn.ExecuteAsync("ALTER TABLE dbo.GoldenManifests NOCHECK CONSTRAINT FK_GoldenManifests_Runs_RunId;");
-                nchecked = true;
+                int fkHits = await conn.ExecuteScalarAsync<int>(
+                    @"SELECT COUNT(1) FROM sys.foreign_keys WHERE name = @Name",
+                    new { Name = fkName });
+
+                if (fkHits == 0)
+                    continue;
+
+                await conn.ExecuteAsync($"ALTER TABLE dbo.GoldenManifests NOCHECK CONSTRAINT [{fkName}];");
+                goldenManifestFksNoChecked.Add(fkName);
             }
 
-            await conn.ExecuteAsync(new CommandDefinition(insertManifest, new
-            {
-                ManifestId = orphanManifestId, RunId = orphanRunGuid, TenantId = SeedTenantId, WorkspaceId = SeedWorkspaceId, ScopeProjectId = SeedScopeProjectId
-            }));
+            await conn.ExecuteAsync(
+                new CommandDefinition(
+                    insertManifest,
+                    new
+                    {
+                        ManifestId = orphanManifestId,
+                        RunId = orphanRunGuid,
+                        ContextSnapshotId = Guid.NewGuid(),
+                        GraphSnapshotId = Guid.NewGuid(),
+                        FindingsSnapshotId = Guid.NewGuid(),
+                        DecisionTraceId = Guid.NewGuid(),
+                        TenantId = SeedTenantId,
+                        WorkspaceId = SeedWorkspaceId,
+                        ScopeProjectId = SeedScopeProjectId
+                    }));
 
             // Setup Executor
             var probeOptions = new Mock<IOptionsMonitor<DataConsistencyProbeOptions>>();
@@ -147,11 +200,11 @@ public sealed class DataConsistencyOrphanProbeExecutorSqlIntegrationTests(SqlSer
         }
         finally
         {
-            if (nchecked)
+            for (int i = goldenManifestFksNoChecked.Count - 1; i >= 0; i--)
             {
                 try
                 {
-                    await conn.ExecuteAsync("ALTER TABLE dbo.GoldenManifests WITH CHECK CHECK CONSTRAINT FK_GoldenManifests_Runs_RunId;");
+                    await conn.ExecuteAsync($"ALTER TABLE dbo.GoldenManifests WITH CHECK CHECK CONSTRAINT [{goldenManifestFksNoChecked[i]}];");
                 }
                 catch
                 {
