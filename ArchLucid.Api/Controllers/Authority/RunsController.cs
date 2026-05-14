@@ -138,7 +138,6 @@ public sealed partial class RunsController(
     ///     an independent <see cref="CreateRun" /> call. Partial failures are captured per item; the overall response is
     ///     always <c>202 Accepted</c>. Idempotency keys are not supported for batch requests.
     /// </summary>
-    [MutatingAuditExcluded("202 Accepted fan-out only; each CreateRunAsync item retains orchestrator persistence audits.")]
     [HttpPost("request/batch")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(BatchCreateRunResponse), StatusCodes.Status202Accepted)]
@@ -201,6 +200,31 @@ public sealed partial class RunsController(
                 });
             }
         }
+
+        ScopeContext batchScope = scopeContextProvider.GetCurrentScope();
+        string batchActor = actorContext.GetActor();
+        int succeededCount = results.Count(r => r.Succeeded);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ArchitectureRunBatchAccepted,
+                ActorUserId = batchActor,
+                ActorUserName = batchActor,
+                TenantId = batchScope.TenantId,
+                WorkspaceId = batchScope.WorkspaceId,
+                ProjectId = batchScope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        itemCount = requests.Count,
+                        succeeded = succeededCount,
+                        failed = requests.Count - succeededCount
+                    },
+                    AuditJsonSerializationOptions.Instance)
+            },
+            cancellationToken);
 
         return Accepted(new BatchCreateRunResponse { Items = results });
     }

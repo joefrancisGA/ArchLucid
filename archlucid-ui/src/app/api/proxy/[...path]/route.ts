@@ -13,6 +13,9 @@ import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { getScopeHeaders } from "@/lib/scope";
 
+/** Forwards JSON/binary calls to the upstream C# API (`GET`/`POST`/`PUT`/`DELETE`). */
+type ForwardMethod = "GET" | "POST" | "PUT" | "DELETE";
+
 /**
  * Builds headers for the upstream C# API request.
  * Attaches API key, forwards browser Authorization header, and merges scope headers
@@ -39,6 +42,7 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
   if (hasBearer) {
     h.set("Authorization", bearerToUse);
   }
+
   for (const [k, v] of Object.entries(getScopeHeaders())) {
     const incoming = request.headers.get(k);
     h.set(k, incoming && incoming.trim().length > 0 ? incoming : v);
@@ -86,11 +90,116 @@ function respondWithProxyProblem(
   return res;
 }
 
-/** Forwards a request to the upstream ArchLucid API, preserving query string and method. */
+/** Forwards `POST`/`PUT` with JSON (or other) body and size limits identical to historical POST behavior. */
+async function forwardMutatingWithBody(
+  request: NextRequest,
+  method: "POST" | "PUT",
+  pathForLog: string,
+  correlationId: string,
+  targetUrl: string,
+  headers: Headers,
+): Promise<NextResponse> {
+  const tooLargeByHeader = declaredPostBodyExceedsLimit(
+    request.headers.get("content-length"),
+    PROXY_MAX_BODY_BYTES,
+  );
+
+  if (tooLargeByHeader !== false) {
+    logProxyDiagnostic("body_too_large", {
+      method,
+      path: pathForLog,
+      declaredLength: tooLargeByHeader.declaredLength,
+      maxBytes: PROXY_MAX_BODY_BYTES,
+      correlationId,
+    });
+    return respondWithProxyProblem(
+      413,
+      {
+        type: "about:blank",
+        title: "Payload too large",
+        status: 413,
+        detail: `Request body (${tooLargeByHeader.declaredLength} bytes) exceeds the proxy limit of ${PROXY_MAX_BODY_BYTES} bytes.`,
+      },
+      correlationId,
+    );
+  }
+
+  const contentType = request.headers.get("content-type");
+
+  if (contentType) {
+    headers.set("Content-Type", contentType);
+  }
+
+  const body = await readRequestBodyWithLimit(request.body, PROXY_MAX_BODY_BYTES);
+
+  if (body === null) {
+    logProxyDiagnostic("body_too_large_streaming", {
+      method,
+      path: pathForLog,
+      maxBytes: PROXY_MAX_BODY_BYTES,
+      correlationId,
+    });
+    return respondWithProxyProblem(
+      413,
+      {
+        type: "about:blank",
+        title: "Payload too large",
+        status: 413,
+        detail: `Request body exceeded the proxy limit of ${PROXY_MAX_BODY_BYTES} bytes during streaming read.`,
+      },
+      correlationId,
+    );
+  }
+
+  let res: Response;
+
+  try {
+    res = await fetch(targetUrl, {
+      method,
+      headers,
+      body,
+      cache: "no-store",
+      signal: AbortSignal.timeout(PROXY_UPSTREAM_FETCH_TIMEOUT_MS),
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    logProxyDiagnostic("upstream_fetch_failed", {
+      method,
+      path: pathForLog,
+      message,
+      correlationId,
+    });
+    return respondWithProxyProblem(
+      502,
+      {
+        type: "about:blank",
+        title: "Upstream API unreachable",
+        status: 502,
+        detail: message,
+        supportHint:
+          "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
+      },
+      correlationId,
+    );
+  }
+
+  if (!res.ok) {
+    logProxyDiagnostic("upstream_non_success", {
+      method,
+      path: pathForLog,
+      status: res.status,
+      correlationId,
+    });
+  }
+
+  return passThrough(res);
+}
+
+/** Forwards GET/POST/PUT/DELETE after applying rate limits, sandbox mocks, and upstream config validation. */
 async function forward(
   request: NextRequest,
   pathSegments: string[],
-  method: "GET" | "POST",
+  method: ForwardMethod,
 ): Promise<NextResponse> {
   const upstreamHeaders = buildUpstreamHeaders(request);
   const correlationId =
@@ -133,62 +242,18 @@ async function forward(
   const pathForLog = path.length > 0 ? path : "_";
 
   const headers = upstreamHeaders;
-  if (method === "POST") {
-    const tooLargeByHeader = declaredPostBodyExceedsLimit(
-      request.headers.get("content-length"),
-      PROXY_MAX_BODY_BYTES,
-    );
 
-    if (tooLargeByHeader !== false) {
-      logProxyDiagnostic("body_too_large", {
-        method,
-        path: pathForLog,
-        declaredLength: tooLargeByHeader.declaredLength,
-        maxBytes: PROXY_MAX_BODY_BYTES,
-        correlationId,
-      });
-      return respondWithProxyProblem(
-        413,
-        {
-          type: "about:blank",
-          title: "Payload too large",
-          status: 413,
-          detail: `Request body (${tooLargeByHeader.declaredLength} bytes) exceeds the proxy limit of ${PROXY_MAX_BODY_BYTES} bytes.`,
-        },
-        correlationId,
-      );
-    }
+  if (method === "POST" || method === "PUT") {
+    return forwardMutatingWithBody(request, method, pathForLog, correlationId, targetUrl, headers);
+  }
 
-    const contentType = request.headers.get("content-type");
-    if (contentType) headers.set("Content-Type", contentType);
-
-    const body = await readRequestBodyWithLimit(request.body, PROXY_MAX_BODY_BYTES);
-
-    if (body === null) {
-      logProxyDiagnostic("body_too_large_streaming", {
-        method,
-        path: pathForLog,
-        maxBytes: PROXY_MAX_BODY_BYTES,
-        correlationId,
-      });
-      return respondWithProxyProblem(
-        413,
-        {
-          type: "about:blank",
-          title: "Payload too large",
-          status: 413,
-          detail: `Request body exceeded the proxy limit of ${PROXY_MAX_BODY_BYTES} bytes during streaming read.`,
-        },
-        correlationId,
-      );
-    }
-
+  if (method === "DELETE") {
     let res: Response;
+
     try {
       res = await fetch(targetUrl, {
-        method: "POST",
+        method: "DELETE",
         headers,
-        body,
         cache: "no-store",
         signal: AbortSignal.timeout(PROXY_UPSTREAM_FETCH_TIMEOUT_MS),
       });
@@ -227,6 +292,7 @@ async function forward(
   }
 
   let res: Response;
+
   try {
     res = await fetch(targetUrl, {
       method: "GET",
@@ -276,22 +342,31 @@ function passThrough(res: Response, cacheControlPrivateMaxAgeSeconds?: number): 
   const out = new NextResponse(res.body, { status: res.status });
 
   const contentType = res.headers.get("content-type");
-  if (contentType) out.headers.set("Content-Type", contentType);
+
+  if (contentType) {
+    out.headers.set("Content-Type", contentType);
+  }
 
   const disposition = res.headers.get("content-disposition");
-  if (disposition) out.headers.set("Content-Disposition", disposition);
+
+  if (disposition) {
+    out.headers.set("Content-Disposition", disposition);
+  }
 
   const correlation = res.headers.get(CORRELATION_ID_HEADER);
+
   if (correlation && correlation.trim().length > 0) {
     out.headers.set(CORRELATION_ID_HEADER, correlation.trim());
   }
 
   const traceId = res.headers.get("X-Trace-Id");
+
   if (traceId && traceId.trim().length > 0) {
     out.headers.set("X-Trace-Id", traceId.trim());
   }
 
   const traceParent = res.headers.get("traceparent");
+
   if (traceParent && traceParent.trim().length > 0) {
     out.headers.set("traceparent", traceParent.trim());
   }
@@ -307,11 +382,11 @@ function passThrough(res: Response, cacheControlPrivateMaxAgeSeconds?: number): 
   return out;
 }
 
-/** Handles GET requests from browser components → forwards to C# API with server-side credentials. */
-export async function GET(
+async function handleRateLimitedForward(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
-) {
+  method: ForwardMethod,
+): Promise<NextResponse> {
   const rateLimited = enforceProxyRateLimit(request);
 
   if (rateLimited) {
@@ -319,7 +394,16 @@ export async function GET(
   }
 
   const { path } = await context.params;
-  return forward(request, path ?? [], "GET");
+
+  return forward(request, path ?? [], method);
+}
+
+/** Handles GET requests from browser components → forwards to C# API with server-side credentials. */
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ path: string[] }> },
+) {
+  return handleRateLimitedForward(request, context, "GET");
 }
 
 /** Handles POST requests from browser components → forwards to C# API with server-side credentials. */
@@ -327,12 +411,21 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
 ) {
-  const rateLimited = enforceProxyRateLimit(request);
+  return handleRateLimitedForward(request, context, "POST");
+}
 
-  if (rateLimited) {
-    return rateLimited;
-  }
+/** Handles PUT requests (tenant settings, webhook references, etc.) from browser-safe same-origin callers. */
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ path: string[] }> },
+) {
+  return handleRateLimitedForward(request, context, "PUT");
+}
 
-  const { path } = await context.params;
-  return forward(request, path ?? [], "POST");
+/** Handles DELETE requests (resource teardown) from browser-safe same-origin callers. */
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ path: string[] }> },
+) {
+  return handleRateLimitedForward(request, context, "DELETE");
 }

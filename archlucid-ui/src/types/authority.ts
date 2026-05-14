@@ -1,35 +1,37 @@
-/** Lightweight summary of an architecture run (mirrors RunSummaryResponse in C#). */
-export type RunSummary = {
-  runId: string;
-  projectId: string;
-  /** Canonical buyer-facing label (`displayName` from API); UI prefers over slug identifiers when populated. */
-  displayName?: string | null;
-  description?: string | null;
-  createdUtc: string;
+import type { components } from "@/lib/openapi-schemas";
+
+/**
+ * Optional snapshot/list enrichments not always surfaced on **`RunSummaryResponse`**
+ * but returned by list/summary endpoints in practice.
+ */
+type RunSummaryWireExtensions = {
   contextSnapshotId?: string | null;
   graphSnapshotId?: string | null;
   findingsSnapshotId?: string | null;
   goldenManifestId?: string | null;
   decisionTraceId?: string | null;
   artifactBundleId?: string | null;
-  /** API 55R+: explicit flags (camelCase from JSON). */
-  hasContextSnapshot?: boolean;
-  hasGraphSnapshot?: boolean;
-  hasFindingsSnapshot?: boolean;
-  hasGoldenManifest?: boolean;
-  hasDecisionTrace?: boolean;
-  hasArtifactBundle?: boolean;
-  /** True when the run fell back to simulator and/or used resource-level LLM fallback (completion deployment `fallback:` prefix) for one or more agents. */
-  runDegradedExecution?: boolean;
-  /** Distinct agent type names (e.g. `Topology`) that used resource-level LLM fallback; may be empty when only simulator substitution applied. */
-  degradedExecutionAgents?: string[] | null;
-  /** Optional list enrichment (API may omit). */
   findingCount?: number | null;
   warningCount?: number | null;
   artifactCount?: number | null;
 };
 
-/** Golden manifest summary: decision/warning/issue counts and status (mirrors ManifestSummaryResponse). */
+/**
+ * Lightweight summary — **OpenAPI** `RunSummaryResponse` plus list/summary keys the shell treats as present after fetch.
+ */
+export type RunSummary = components["schemas"]["RunSummaryResponse"] &
+  RunSummaryWireExtensions & {
+    runId: string;
+    projectId: string;
+    createdUtc: string;
+  };
+
+/**
+ * Golden manifest summary for operator review headers.
+ *
+ * **Note:** The v1 snapshot uses `ManifestSummaryResponse` for a different document-shaped DTO elsewhere; this shape
+ * matches the authority manifest summary endpoint in practice (`GET /v1/authority/manifests/{manifestId}/summary`).
+ */
 export type ManifestSummary = {
   manifestId: string;
   runId: string;
@@ -41,14 +43,12 @@ export type ManifestSummary = {
   warningCount: number;
   unresolvedIssueCount: number;
   status: string;
-  /** API 55R+ */
   hasWarnings?: boolean;
   hasUnresolvedIssues?: boolean;
-  /** API 55R+: deterministic one-line summary from API (counts + status). */
   operatorSummary?: string;
 };
 
-/** A single diff entry from a run or manifest comparison (section/key/before/after). */
+/** A single diff entry from run or manifest comparison (section/key/before/after). */
 export type DiffItem = {
   section: string;
   key: string;
@@ -70,7 +70,7 @@ export type ManifestComparison = {
   diffs: DiffItem[];
 };
 
-/** Legacy flat-diff comparison between two runs (run-level diffs + optional manifest comparison). */
+/** Legacy flat-diff comparison between two runs. */
 export type RunComparison = {
   leftRunId: string;
   rightRunId: string;
@@ -80,21 +80,26 @@ export type RunComparison = {
   hasManifestComparison?: boolean;
 };
 
-/** Metadata for a synthesized artifact (file name, type, format, hash — no binary content). */
-export type ArtifactDescriptor = {
+type ArtifactWire = components["schemas"]["ArtifactDescriptorResponse"];
+
+/**
+ * Artifact row — OpenAPI **`ArtifactDescriptorResponse`** normalized for JSX props (omit `null` unions on optional ids).
+ */
+export type ArtifactDescriptor = Omit<
+  ArtifactWire,
+  "artifactId" | "artifactType" | "name" | "format" | "createdUtc" | "contentHash" | "manifestId" | "runId"
+> & {
   artifactId: string;
   artifactType: string;
   name: string;
   format: string;
   createdUtc: string;
   contentHash: string;
-  /** API 55R+: set on list and descriptor responses. */
   manifestId?: string;
-  /** API 55R+: set when returned from full artifact row (descriptor endpoint). */
   runId?: string;
 };
 
-/** Validation flags from an authority chain replay (presence checks + hash match). */
+/** Validation flags from an authority chain replay. */
 export type ReplayValidation = {
   contextPresent: boolean;
   graphPresent: boolean;
@@ -105,7 +110,6 @@ export type ReplayValidation = {
   manifestHashMatches: boolean;
   artifactBundlePresentAfterReplay: boolean;
   notes: string[];
-  /** API 55R+ */
   hasValidationNotes?: boolean;
 };
 
@@ -122,87 +126,8 @@ export type ReplayResponse = {
   validationNoteCount?: number;
 };
 
-/** Aggregated LLM usage for a run (from persisted agent execution traces). */
-export type RunAgentExecutionLlmCostEstimate = {
-  estimatedCostUsd: number | null;
-  tokenCounts: {
-    prompt: number;
-    completion: number;
-  };
-  model: string;
-};
-
-/** Full run detail envelope containing the run summary and optional snapshot/manifest/trace/bundle data. */
-export type RunDetail = {
-  /** Sponsor-safe agent execution line from GET /v1/authority/runs/{runId} (simulator vs live vs fallback). */
-  executionFlavorBuyerSummary?: string | null;
-  /** True when pilot simulator substitution occurred and/or traces show resource-level LLM fallback. */
-  runDegradedExecution?: boolean;
-  /** Agent types that used resource-level LLM fallback on this run (sorted). */
-  degradedExecutionAgents?: string[] | null;
-  /** Committed runs only — operational evidence summary (API 2026-05+). */
-  trustEvidenceCard?: RunTrustEvidenceCard | null;
-  /** Summed trace tokens + USD estimate from GET /v1/authority/runs/{runId} when traces exist. */
-  agentExecutionLlmCostEstimate?: RunAgentExecutionLlmCostEstimate | null;
-  /** Live API returns agent `results` with nested `findings`; static demo may inject the same shape. */
-  results?: unknown;
-  run: {
-    runId: string;
-    projectId: string;
-    description?: string | null;
-    createdUtc: string;
-    contextSnapshotId?: string | null;
-    graphSnapshotId?: string | null;
-    findingsSnapshotId?: string | null;
-    goldenManifestId?: string | null;
-    decisionTraceId?: string | null;
-    artifactBundleId?: string | null;
-    /** Persisted W3C trace id from run creation (OpenTelemetry); distinct from the current-request trace header. */
-    otelTraceId?: string;
-    /** API mirrors `RunRecord.RealModeFellBackToSimulator` when present. */
-    realModeFellBackToSimulator?: boolean;
-    /** Optional deployment label captured when fallback was recorded (`PilotAoaiDeploymentSnapshot`). */
-    pilotAoaiDeploymentSnapshot?: string | null;
-  };
-  contextSnapshot?: unknown;
-  graphSnapshot?: unknown;
-  findingsSnapshot?: unknown;
-  decisionTrace?: unknown;
-  goldenManifest?: unknown;
-  artifactBundle?: unknown;
-};
-
-/** Node in the API decision provenance graph (camelCase JSON from GET …/provenance). */
-export type ProvenanceNode = {
-  id: string;
-  type: number;
-  referenceId: string;
-  name: string;
-  metadata?: Record<string, string>;
-};
-
-export type ProvenanceEdge = {
-  id: string;
-  fromNodeId: string;
-  toNodeId: string;
-  type: number;
-};
-
-export type DecisionProvenanceGraph = {
-  id: string;
-  runId: string;
-  nodes: ProvenanceNode[];
-  edges: ProvenanceEdge[];
-};
-
-/** Audit timeline row for operator pipeline view (GET …/pipeline-timeline). */
-export type PipelineTimelineItem = {
-  eventId: string;
-  occurredUtc: string;
-  eventType: string;
-  actorUserName: string;
-  correlationId?: string | null;
-};
+/** LLM usage rollup — **OpenAPI** `RunAgentLlmCostEstimateResponse`. */
+export type RunAgentExecutionLlmCostEstimate = components["schemas"]["RunAgentLlmCostEstimateResponse"];
 
 export type TrustEvidenceFieldSnapshot = {
   title: string;
@@ -234,4 +159,78 @@ export type RunTrustEvidenceCard = {
   aiExplainability: TrustEvidenceFieldSnapshot;
   topFinding?: RunTrustEvidenceTopFindingRow | null;
   links: RunTrustEvidenceRouteRef[];
+};
+
+/** Optional fields sporadically merged onto authority run detail JSON beside `RunDetailDto`. */
+type RunDetailOptionalWireExtras = {
+  trustEvidenceCard?: RunTrustEvidenceCard | null;
+  agentExecutionLlmCostEstimate?: components["schemas"]["RunAgentLlmCostEstimateResponse"] | null;
+};
+
+type RunDetailDtoBase = components["schemas"]["RunDetailDto"];
+
+type RunDetailSnapshots = Pick<
+  RunDetailDtoBase,
+  | "artifactBundle"
+  | "contextSnapshot"
+  | "decisionTrace"
+  | "findingsSnapshot"
+  | "goldenManifest"
+  | "graphSnapshot"
+>;
+
+/**
+ * Authority run detail (`GET /v1/authority/runs/{runId}`): **OpenAPI** `RunDetailDto` plus sporadic merges.
+ *
+ * Snapshot/manifest/binary-adjacent fields stay **`unknown`** at the boundary so curated static-demo placeholders
+ * and evolving DTO variants do not fight generated schema literals.
+ *
+ * After `coerceRunDetail` succeeds, **`run`** includes required `runId` / `projectId` / `createdUtc`.
+ */
+export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots> &
+  RunDetailOptionalWireExtras & {
+    run: NonNullable<RunDetailDtoBase["run"]> & {
+      runId: string;
+      projectId: string;
+      createdUtc: string;
+    };
+    contextSnapshot?: unknown;
+    graphSnapshot?: unknown;
+    findingsSnapshot?: unknown;
+    decisionTrace?: unknown;
+    goldenManifest?: unknown;
+    artifactBundle?: unknown;
+    results?: unknown;
+  };
+
+/** Node in decision provenance graph (`GET …/provenance`). */
+export type ProvenanceNode = {
+  id: string;
+  type: number;
+  referenceId: string;
+  name: string;
+  metadata?: Record<string, string>;
+};
+
+export type ProvenanceEdge = {
+  id: string;
+  fromNodeId: string;
+  toNodeId: string;
+  type: number;
+};
+
+export type DecisionProvenanceGraph = {
+  id: string;
+  runId: string;
+  nodes: ProvenanceNode[];
+  edges: ProvenanceEdge[];
+};
+
+/** Pipeline audit timeline row (`GET …/pipeline-timeline`). */
+export type PipelineTimelineItem = {
+  eventId: string;
+  occurredUtc: string;
+  eventType: string;
+  actorUserName: string;
+  correlationId?: string | null;
 };

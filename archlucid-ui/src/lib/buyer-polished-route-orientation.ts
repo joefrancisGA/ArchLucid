@@ -78,7 +78,7 @@ export function buyerPolishedRouteOrientation(pathname: string): {
   if (path.startsWith("/governance")) {
     return {
       label: "Governance approval record",
-      line: "Configured approval path outcomes for this workspace — disposition without deployment authority claims.",
+      line: "Signed approval record for this workspace — ties to evidence without replacing change-management decisions.",
     };
   }
 

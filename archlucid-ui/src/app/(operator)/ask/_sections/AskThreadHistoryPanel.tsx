@@ -26,13 +26,13 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
     <Card className="h-fit border-neutral-200 dark:border-neutral-700">
       <CardHeader className="p-4 pb-2">
         <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-          Your conversation history
+          {buyerPolishedShell ? "Evidence Q&A history" : "Your conversation history"}
         </CardTitle>
         <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
           {buyerPolishedShell ? (
             <>
-              Open a saved thread below to continue, or start a fresh thread when you need a clean question list—link a review
-              first.
+              Answers are limited to the selected architecture review package and cite package evidence when available —
+              open a saved thread below, or start a fresh question after linking the review package.
             </>
           ) : (
             <>
@@ -40,8 +40,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
               one below to continue with its saved context.
             </>
           )}
-        </p>
-      </CardHeader>
+        </p>      </CardHeader>
       <CardContent className="space-y-3 p-4 pt-0">
         <Button
           type="button"
@@ -53,7 +52,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
           }
           onClick={onNewConversation}
         >
-          {buyerPolishedShell ? "Start fresh thread" : "New conversation"}
+          {buyerPolishedShell ? "Ask a new review question" : "New conversation"}
         </Button>
         <ul className="m-0 list-none space-y-1 p-0">
           {threads.map((thread) => (

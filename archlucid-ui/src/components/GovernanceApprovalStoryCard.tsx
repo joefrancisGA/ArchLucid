@@ -32,7 +32,7 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
       label: "Approved for governed use",
       done: promoteReady,
       detail: promoteReady
-        ? "This sealed package may be cited for architecture decisions, review-board evidence, and audit inquiry — not as authority to move production workloads."
+        ? "Use this sealed package when citing approvals, narratives, or audit artefacts — deployments follow your organization's change board."
         : "Complete approval before citing this package in downstream decisions.",
     },
   ];
@@ -46,9 +46,8 @@ export function GovernanceApprovalStoryCard(props: { readonly row: GovernanceApp
         <CardDescription>
           <span className="font-medium text-neutral-800 dark:text-neutral-200">Sealed package:</span> manifest version{" "}
           <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.manifestVersion}</span>
-          {" — "}
-          authorized for professional review and audit evidence. Enterprise change management still governs deployment and
-          environment movement.
+          {" — "}ready for citation in architecture governance and audit narratives. Deployment decisions stay with your enterprise
+          change process.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">

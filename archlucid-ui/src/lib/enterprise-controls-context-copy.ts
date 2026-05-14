@@ -28,7 +28,7 @@ export const enterpriseMutationControlDisabledTitle =
  * mutations; align the Export button with **`/me` role claims**, not `useEnterpriseMutationCapability`.
  */
 export const auditExportControlDisabledTitle =
-  "Bulk export needs Auditor or Admin in this workspace; search above still works for your role.";
+  "Available to authorized audit users in this workspace; adjust date filters or roles if export stays unavailable.";
 
 /** Sidebar / mobile: optional micro-copy when Reader-ranked shell shows fewer nav items (empty = omit line). */
 export const enterpriseNavHintReaderRank = "";
@@ -535,7 +535,11 @@ export const auditExportSectionSupportingLineBuyerPolished =
 export const auditExportCsvButtonLabelWindowIncomplete = "Export audit trail (set From/To)";
 
 /** Audit CSV — button label when window is valid but principal lacks Auditor/Admin for bulk export (API). */
-export const auditExportCsvButtonLabelRoleRestricted = "Download audit trail CSV (Auditor/Admin)";
+export const auditExportCsvButtonLabelRoleRestricted = "Download audit trail";
+
+/** Audit log — buyer-polished shell: narrative promise before event list. */
+export const auditTrailBuyerProofNarrativeLead =
+  "This audit trail demonstrates how the review progressed from captured context through manifest finalization, governance approval, and packaged deliverables with named human actors and lifecycle events recorded by the product.";
 
 /** Policy packs — intro under “Compare versions” when caller can mutate (Execute+ in shell). */
 export const policyPacksCompareVersionsIntroOperator =
@@ -631,7 +635,7 @@ export const policyPacksPackSelectReaderTitle =
 
 /** Audit — Execute+ caller without Auditor/Admin claims (CSV export remains API-role-gated). */
 export const auditExportExecuteRankAuditorRoleNote =
-  "Bulk CSV downloads need Auditor or Admin — your role can search events but not export.";
+  "Exports are available to authorized audit users — your current role can review events in the UI but not download the CSV bundle.";
 
 /** Alert rules — Create button label when mutation capability is false (same Execute+ floor as the hook). */
 export const alertRulesCreateButtonLabelReaderRank = "Create rule (Execute+)";

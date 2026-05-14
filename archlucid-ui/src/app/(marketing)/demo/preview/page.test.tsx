@@ -87,7 +87,7 @@ const fixture: DemoCommitPagePreviewResponse = {
 
 describe("Demo preview marketing body", () => {
   it("renders all sections from a fixture payload", () => {
-    render(<DemoPreviewMarketingBody payload={fixture} />);
+    render(<DemoPreviewMarketingBody payload={fixture} buyerAudienceChrome={false} />);
 
     expect(screen.getByTestId("demo-preview-status-banner")).toHaveTextContent("demo tenant — replace before publishing");
     expect(screen.getByTestId("demo-preview-run")).toHaveTextContent("Fixture");
@@ -118,7 +118,7 @@ describe("Demo preview marketing body", () => {
   });
 
   it("does not render sponsor email banner or finalize controls", () => {
-    render(<DemoPreviewMarketingBody payload={fixture} />);
+    render(<DemoPreviewMarketingBody payload={fixture} buyerAudienceChrome={false} />);
 
     expect(screen.queryByTestId("email-run-to-sponsor-banner")).toBeNull();
     expect(screen.queryByRole("button", { name: /finalize manifest/i })).toBeNull();

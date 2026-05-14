@@ -384,7 +384,7 @@ export function GraphViewer({
                 </p>
               ) : (
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Record type:</span>{" "}
+                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Evidence item:</span>{" "}
                   {selectedNode.type}
                 </p>
               )}
@@ -407,10 +407,10 @@ export function GraphViewer({
                     return (
                       <>
                         <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
-                          <Link href={graphFindingDetailHref(rid, fid)}>Open finding detail</Link>
+                          <Link href={graphFindingDetailHref(rid, fid)}>View finding and evidence</Link>
                         </Button>
                         <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
-                          <Link href={graphFindingInspectHref(rid, fid)}>Inspect evidence trail</Link>
+                          <Link href={graphFindingInspectHref(rid, fid)}>View evidence trail</Link>
                         </Button>
                       </>
                     );

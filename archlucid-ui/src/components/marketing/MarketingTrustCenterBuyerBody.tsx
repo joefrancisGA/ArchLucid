@@ -1,0 +1,152 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+
+/** Curated buyer Trust Center sections — avoids rendering raw repo markdown publicly. */
+export type MarketingTrustCenterBuyerBodyProps = {
+  readonly lastReviewedUtc: string | null;
+};
+
+/** Contact for security questionnaires and procurement follow-up */
+const SECURITY_CONTACT = (
+  <>
+    Email{" "}
+    <Link
+      className="font-medium text-blue-800 underline underline-offset-2 hover:text-blue-950 dark:text-blue-300 dark:hover:text-blue-200"
+      href="mailto:security@archlucid.net"
+    >
+      security@archlucid.net
+    </Link>
+  </>
+);
+
+/** Public Trust Center structured layout (marketing route). Does not imply SOC&nbsp;2 CPA attestation or completed third-party penetration tests. */
+export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBodyProps): ReactNode {
+  const { lastReviewedUtc } = props;
+
+  return (
+    <div className="space-y-10">
+      <header>
+        <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Trust Center</h1>
+        <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          Procurement and security reviewer entry point for assurance posture on the ArchLucid product. This Trust Center{" "}
+          <strong className="font-semibold text-neutral-900 dark:text-neutral-100">
+            does not claim SOC&nbsp;2 Type&nbsp;II attestation or completion of independent penetration testing unless a
+            future published summary states otherwise
+          </strong>
+          .
+        </p>
+
+        <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+          {lastReviewedUtc !== null ? `Last reviewed (UTC): ${lastReviewedUtc}.` : "Last reviewed date is refreshed with each assurance-cycle update."}{" "}
+          Internal security assessment is complete on a rolling cadence; an independent engagement is planned for a future assurance window after vendor selection.
+        </p>
+
+        <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-4 dark:border-blue-950 dark:bg-blue-950/35">
+          <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Assurance at a glance</p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <div>
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                Completed — internal controls
+              </p>
+              <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+                <li>SOC&nbsp;2 control mapping — self-assessment (not CPA report)</li>
+                <li>Architecture and operations security documents</li>
+              </ul>
+            </div>
+            <div>
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                Independent validations
+              </p>
+              <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+                <li>Durable audit catalogue (append-only design)</li>
+                <li>No third-party penetration summary published publicly yet</li>
+              </ul>
+            </div>
+            <div>
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                Planned validations
+              </p>
+              <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+                <li>Vendor-led penetration test after programme funding</li>
+                <li>Expanded artifacts under procurement review</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section aria-labelledby="trust-security-posture">
+        <h2 id="trust-security-posture" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Security posture summary
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          ArchLucid is built for regulated buyers: tenant isolation, scope-filtered APIs, immutable audit instrumentation for
+          mutating routes, and evidence packs suitable for questionnaires. Detailed control narratives and questionnaires are
+          distributed with buyers under diligence, not scraped from filenames on this page.
+        </p>
+      </section>
+
+      <section aria-labelledby="trust-assurance-artifacts">
+        <h2 id="trust-assurance-artifacts" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Assurance artifacts
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          Request the current procurement-ready bundle containing questionnaire pre-fills (for example CAIQ-lite and SIG
+          oriented summaries), tenancy and subprocessors overview, SLA summary excerpts, incident response placeholders, and security contact references. Detailed reports referenced in questionnaires are commonly shared under confidentiality.
+        </p>
+      </section>
+
+      <section aria-labelledby="trust-third-party">
+        <h2 id="trust-third-party" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Third-party assessment status
+        </h2>
+        <ul className="mt-3 max-w-3xl list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+          <li>
+            Internal security assessments are performed on scheduled windows; summaries for buyers are available during due
+            diligence.
+          </li>
+          <li>
+            Vendor-led penetration testing is planned once an assessor is selected and funded — redacted summaries, when approved for distribution,
+            accompany detailed questionnaire responses.
+          </li>
+          <li>Detailed penetration-test-style reports beyond public summaries remain under NDA by default.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="trust-data-handling">
+        <h2 id="trust-data-handling" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Data handling &amp; privacy
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          ArchLucid is for architecture governance and evidence about systems customers describe — not a clinical record system. Do not upload regulated health data into illustrative brief fields. For contractual privacy documents and data transfer terms, coordinate with{" "}
+          {SECURITY_CONTACT}. For plain-language privacy disclosures, see the{" "}
+          <Link
+            href="/privacy"
+            className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+          >
+            Privacy
+          </Link>{" "}
+          page.
+        </p>
+      </section>
+
+      <section aria-labelledby="trust-procurement">
+        <h2 id="trust-procurement" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Procurement questionnaire response package
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          Procurement teams reuse structured answers mapped to ArchLucid&rsquo;s published evidence catalogue. Submit your
+          intake form requirements and stakeholder list via {SECURITY_CONTACT} so we align the artefact bundle to your
+          process.
+        </p>
+      </section>
+
+      <section aria-labelledby="trust-contact-review">
+        <h2 id="trust-contact-review" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Contact — security review
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm text-neutral-700 dark:text-neutral-300">{SECURITY_CONTACT}</p>
+      </section>
+    </div>
+  );
+}

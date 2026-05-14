@@ -81,11 +81,11 @@ export function auditBuyerActorRoleLine(actorName: string, eventType: string): s
   }
 
   if (name === "Jordan Lee") {
-    return "Reviewer";
+    return "Architecture reviewer";
   }
 
   if (name === "Taylor Morgan") {
-    return "Approver";
+    return "Review owner";
   }
 
   if (eventType.trim().toLowerCase() === "finalize.run") {

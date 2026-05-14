@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 /**
- * Lightweight “guided tour” callouts for marketing `/demo/preview` — no auth, no new API.
- * Maps to assessment Improvement 3 value props: findings, provenance/timeline, governance posture, manifest.
+ * Lightweight guided tour for marketing `/demo/preview` — no auth, no new API.
+ * Maps to assessment value props: findings, provenance/timeline, governance posture, manifest.
  */
 export function DemoPreviewGuidedCallouts() {
   return (
@@ -11,23 +11,23 @@ export function DemoPreviewGuidedCallouts() {
       aria-label="What to notice in this sample review"
       data-testid="demo-preview-guided-callouts"
     >
-      <p className="m-0 font-semibold">What you are seeing (no sign-in)</p>
+      <p className="m-0 font-semibold">How to read this walkthrough</p>
       <ol className="mt-3 list-decimal space-y-2 pl-5 text-teal-900 dark:text-teal-100">
         <li data-callout="findings">
           <strong>Findings &amp; evidence</strong> — severity, recommended actions, and traceable rationale in the review
           outcome strip above.
         </li>
         <li data-callout="provenance">
-          <strong>Provenance &amp; review trail</strong> — pipeline timeline shows how the review moved from context to
-          committed manifest (open <span className="font-medium">Classic vertical timeline</span> for the full graph).
+          <strong>Provenance &amp; review lifecycle</strong> — see how the review moved from captured context to the
+          committed manifest. Open <span className="font-medium">Full audit timeline</span> for the vertical sequence.
         </li>
         <li data-callout="governance">
-          <strong>Governance posture</strong> — manifest summary captures policy pack, decisions, and warnings from the
-          pre-commit posture for this architecture.
+          <strong>Governance posture</strong> — manifest summary captures policy pack, decisions, and monitored risks for
+          this architecture review.
         </li>
         <li data-callout="manifest">
-          <strong>Manifest &amp; artifacts</strong> — golden manifest slice plus exportable artifact rows (formats your
-          team can attach to PRs or packs).
+          <strong>Manifest &amp; deliverables</strong> — signed record plus exportable rows your team can attach to review
+          packs.
         </li>
       </ol>
       <p className="mt-3 m-0 text-xs text-teal-800 dark:text-teal-200">

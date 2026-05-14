@@ -117,21 +117,8 @@ internal static class DoctorQuickStartReadiness
     }
 
     /// <summary>Whether to probe Azure OpenAI network reachability (Real mode, non-Echo).</summary>
-    internal static bool ShouldProbeOpenAiEndpoint(IConfiguration configuration)
-    {
-        ArgumentNullException.ThrowIfNull(configuration);
-
-        if (!string.Equals(
-                configuration["AgentExecution:Mode"]?.Trim(),
-                "Real",
-                StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        return !string.Equals(
-            configuration["AgentExecution:CompletionClient"]?.Trim(),
-            "Echo",
-            StringComparison.OrdinalIgnoreCase);
-    }
+    internal static bool ShouldProbeOpenAiEndpoint(IConfiguration configuration) =>
+        AzureOpenAiExecutionProbePolicy.ShouldProbeConfiguredEndpoint(configuration);
 
     internal static DoctorReadinessLine EvaluateRequiredConfigurationKeys(
         IConfiguration configuration,

@@ -25,77 +25,67 @@ export type AssuranceEngagementRow = {
 
 export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> = [
   {
-    id: "owner-conducted-pen-2026-q2",
-    engagement: "2026-Q2 owner-conducted penetration-style assessment",
-    vendor: "ArchLucid internal",
-    scope:
-      "Operator UI surface, HTTPS API behaviours, SaaS-aligned data-plane review (paired with checklist-driven UI coverage)",
-    completedUtc:
-      "Window tracked in docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md",
+    id: "internal-security-assessment-2026-q2",
+    engagement: "Internal security assessment (scheduled 2026-Q2 window)",
+    vendor: "ArchLucid internal security programme",
+    scope: "Operator UI surface, HTTPS API behaviours, SaaS-aligned data-plane coverage with checklist discipline",
+    completedUtc: "2026-Q2",
     summaryAccess: {
       kind: "nda",
-      description:
-        "NDA-aligned public stub — quantitative findings withheld; procurement detail under security@archlucid.net",
+      description: "Summary available under diligence — contact security@archlucid.net",
     },
   },
   {
-    id: "pen-test-2026-q2-third-party-v2",
-    engagement: "Third-party penetration test (vendor TBD)",
-    vendor: "V2-planned — no vendor committed for V1 (owner 2026-05-01)",
-    scope:
-      "API, operator UI, hosted SaaS data plane (typical scope — confirm in executed SoW)",
-    completedUtc:
-      "Not scheduled — use docs/security/pen-test-summaries/2026-Q2-SOW.md when engaging (V2)",
+    id: "pen-test-third-party-planned",
+    engagement: "Independent third-party penetration testing",
+    vendor: "Assessor to be selected — programme planned after funding",
+    scope: "Hosted product API, operator UI, and primary data-plane paths (scope confirmed in executed Statement of Work)",
+    completedUtc: "Planned",
     summaryAccess: {
       kind: "nda",
-      description:
-        "NDA-only when executed — email security@archlucid.net after assessor delivers redacted summary",
+      description: "Redacted summary when available — contact security@archlucid.net",
     },
   },
   {
     id: "owner-security-self-assessment-2026",
-    engagement: "Internal owner security self-assessment",
+    engagement: "Security & SOC 2 readiness self-assessment",
     vendor: "ArchLucid (internal CISO ownership)",
-    scope: "STRIDE-aligned control review across SOC 2 Common Criteria mapping",
-    completedUtc: "2026-Q2 (latest revision tracked in SOC2_SELF_ASSESSMENT_2026.md)",
+    scope: "STRIDE-aligned control review mapped to SOC&nbsp;2 Common Criteria themes (self-assessment — not CPA opinion)",
+    completedUtc: "2026-Q2 (rolling updates)",
     summaryAccess: {
       kind: "public",
-      description: "Public summary — SOC2_SELF_ASSESSMENT_2026.md",
+      description: "SOC&nbsp;2 readiness summary (public excerpt)",
       href: "https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/SOC2_SELF_ASSESSMENT_2026.md",
     },
   },
   {
     id: "accessibility-self-attestation-2026-04-22",
     engagement: "Accessibility self-attestation review",
-    vendor:
-      "ArchLucid (accessibility custodian, same operational team as security@)",
-    scope:
-      "WCAG 2.2 Level AA target on operator UI top routes — axe-core (wcag22aa + WCAG 2.x tags) + jsx-a11y",
-    completedUtc: "2026-04-22 (annual cadence; next window 2027-04-22)",
+    vendor: "ArchLucid accessibility custodians",
+    scope: "WCAG 2.2 Level AA targets on primary operator routes with automated checks in CI",
+    completedUtc: "2026-04-22",
     summaryAccess: {
       kind: "public",
-      description: "Public — /accessibility marketing route",
+      description: "Accessibility statement",
       href: "/accessibility",
     },
   },
   {
     id: "chaos-game-day-quarterly-staging-2026",
-    engagement: "Quarterly staging chaos exercise",
-    vendor: "ArchLucid Platform / on-call",
-    scope:
-      "Staging-only fault injection (SQL pool exhaustion 2026-04-29; subsequent runs 2026-07-29, 2026-10-28) — production chaos out-of-scope per owner decision 2026-04-22 (PENDING_QUESTIONS.md item 34)",
-    completedUtc:
-      "Calendar published 2026-04-22; first run 2026-04-29 (staging)",
+    engagement: "Quarterly staging resilience exercise",
+    vendor: "ArchLucid platform operations",
+    scope: "Staging-only fault injection exercises (production out of scope by policy)",
+    completedUtc: "Calendar in published quality log",
     summaryAccess: {
       kind: "public",
-      description: "Public — closing reports under docs/quality/game-day-log/",
+      description: "Exercise log index",
       href: "https://github.com/joefrancisGA/ArchLucid/blob/main/docs/quality/game-day-log/README.md",
     },
   },
 ];
 
 export const SECURITY_TRUST_NDA_NOTICE =
-  "Pen-test redacted summaries are available under NDA only. The public Trust Center records engagement existence and high-level posture. To request the most recent redacted summary, email security@archlucid.net.";
+  "Detailed third-party test reports and quantitative findings are shared under NDA when available. This page records status and how to request material during diligence.";
 
 export const SECURITY_TRUST_REPO_TRUST_CENTER_URL =
   "https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/TRUST_CENTER.md";

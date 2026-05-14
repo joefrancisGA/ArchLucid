@@ -44,7 +44,10 @@ export default async function DemoPreviewMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Showing a curated sample architecture review.</p>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
+          sample identifiers are simplified for readability.
+        </p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
@@ -64,7 +67,10 @@ export default async function DemoPreviewMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Showing a curated sample architecture review.</p>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
+          sample identifiers are simplified for readability.
+        </p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
@@ -76,7 +82,10 @@ export default async function DemoPreviewMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Showing a curated sample architecture review.</p>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
+          sample identifiers are simplified for readability.
+        </p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
@@ -90,7 +99,8 @@ export default async function DemoPreviewMarketingPage() {
     <main className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        A read-only walkthrough of a completed architecture review — suitable for procurement and sponsor conversations.
+        A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
+        sample identifiers are simplified for readability.
       </p>
       <div className="mt-8">
         <DemoPreviewMarketingBody payload={payload} />

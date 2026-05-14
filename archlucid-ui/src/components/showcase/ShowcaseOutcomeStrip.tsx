@@ -34,62 +34,60 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
     <section aria-label="Open completed output" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/reviews/${encRun}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Review package</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Outcomes, timeline, and exports</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">1 · Architecture review</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">Decision, evidence, and audit package</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Review package</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">1 · Architecture review</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">
-            Sign in with a connected workspace to open the full review detail screen.
+            Sign in with a connected workspace to open the executive summary and sealed record.
           </span>
         </div>
       )}
 
       {hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Manifest finalized</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">
-            Finalized Architecture Manifest — architecture record and artifact list
-          </span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">2 · Signed manifest</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">Sealed architecture record &amp; deliverables index</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Manifest finalized</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">2 · Signed manifest</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
         </div>
       )}
 
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/reviews/${encRun}#run-explanation`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Findings &amp; explanation</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Aggregate narrative on the review</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">3 · Risk &amp; evidence</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">Executive narrative anchored to citations</span>
         </Link>
       ) : hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Findings &amp; explanation</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">See findings and narrative in the finalized manifest</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">3 · Risk &amp; evidence</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">See summarized posture on the sealed manifest view</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Findings &amp; explanation</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">3 · Risk &amp; evidence</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
         </div>
       )}
 
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/reviews/${encRun}#artifacts-exports`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Artifacts &amp; exports</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Downloads and descriptor table</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance handoff</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">Board-ready &amp; audit-ready deliverables</span>
         </Link>
       ) : hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Artifacts &amp; exports</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Artifact list and exports on the manifest</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance handoff</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">Deliverables list on the sealed manifest</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Artifacts &amp; exports</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance handoff</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
         </div>
       )}
@@ -97,21 +95,17 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       {encFinding !== null ? (
         isRunDetailAvailable ? (
           <Link className={cardClass} href={`/reviews/${encRun}/findings/${encFinding}`}>
-            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Primary finding</span>
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">
-              PHI Minimization Risk — human-readable detail
-            </span>
+            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">5 · Audit package anchor</span>
+            <span className="text-xs text-neutral-600 dark:text-neutral-400">Primary risk — PHI minimization posture</span>
           </Link>
         ) : hasManifest ? (
           <Link className={cardClass} href={`/manifests/${encManifest}`}>
-            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Primary finding</span>
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">
-              PHI minimization posture — see related items in the manifest
-            </span>
+            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">5 · Audit package anchor</span>
+            <span className="text-xs text-neutral-600 dark:text-neutral-400">PHI minimization posture — see related items in the manifest</span>
           </Link>
         ) : (
           <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Primary finding</span>
+            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">5 · Audit package anchor</span>
             <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
           </div>
         )

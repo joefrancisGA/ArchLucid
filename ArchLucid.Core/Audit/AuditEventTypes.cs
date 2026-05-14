@@ -28,6 +28,12 @@ public static class AuditEventTypes
     /// <summary>Governance approval request created (<c>POST /v1/governance/approval-requests</c>).</summary>
     public const string GovernanceApprovalRequested = "GovernanceApprovalRequested";
 
+    /// <summary>
+    ///     Slack Block Kit approve/reject interactivity dispatched after signature verification (
+    ///     <c>POST …/integrations/webhooks/slack/interactivity</c>); workflow outcome audits emit per approval request.
+    /// </summary>
+    public const string GovernanceSlackInteractivityDispatched = "GovernanceSlackInteractivityDispatched";
+
     public const string ArtifactsGenerated = "ArtifactsGenerated";
 
     /// <summary>Artifact synthesis ended in hard failure (no usable bundle).</summary>
@@ -41,6 +47,12 @@ public static class AuditEventTypes
 
     /// <summary>Request locked because a non-terminal run references it.</summary>
     public const string RequestLocked = "Request.Locked";
+
+    /// <summary>
+    ///     Bulk create accepted (<c>POST …/architecture/request/batch</c>, 202). Item persists emit durable
+    ///     <see cref="RequestCreated" /> via <c>CreateRunAsync</c>.
+    /// </summary>
+    public const string ArchitectureRunBatchAccepted = "Architecture.RunBatchAccepted";
 
     /// <summary>Request released after all referencing runs reached a terminal state.</summary>
     public const string RequestReleased = "Request.Released";
@@ -108,6 +120,12 @@ public static class AuditEventTypes
 
     /// <summary>Run export ZIP push to a customer-provided Azure Blob SAS URL failed.</summary>
     public const string RunExportBlobPushFailed = "RunExportBlobPushFailed";
+
+    /// <summary>
+    ///     Run export ZIP blob push queued (HTTP 202): background upload emits <see cref="RunExportBlobPushSucceeded" />
+    ///     or <see cref="RunExportBlobPushFailed" />.
+    /// </summary>
+    public const string RunExportBlobPushQueued = "RunExportBlobPushQueued";
 
     /// <summary>
     ///     Operator downloaded the advisory Terraform placeholder ZIP (

@@ -57,8 +57,8 @@ export function MarketingPricingQuotePanel() {
         Request a quote
       </h2>
       <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
-        Prefer email over calendar ping-pong when live checkout is not enabled for your procurement path. We respond
-        asynchronously — no tenant is auto-created from this form.
+        Submit your procurement details and we will respond with next steps — most teams consolidate requirements over
+        email before workspace provisioning begins.
       </p>
       {done ? (
         <p className="text-sm text-teal-800 dark:text-teal-200" role="status">

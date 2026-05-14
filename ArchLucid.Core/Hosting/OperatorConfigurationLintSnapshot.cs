@@ -5,8 +5,9 @@ namespace ArchLucid.Core.Hosting;
 /// </summary>
 /// <remarks>
 ///     Blocking merges auth traps used by <c>archlucid config lint</c> with
-///     <see cref="ProductionDangerousMisconfigurationLint.DescribeFailFastFindings" />. Advisory mirrors
-///     <see cref="ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords" /> (optional on HTTP via query flag).
+///     <see cref="ProductionDangerousMisconfigurationLint.DescribeFailFastFindings" />. Advisory merges
+///     <see cref="ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords" /> with optional Azure OpenAI
+///     TCP reachability hints (<see cref="AzureOpenAiEndpointConnectivityLintAdvisor" />).
 /// </remarks>
 public sealed record OperatorConfigurationLintSnapshot(
     string HostingEnvironmentName,

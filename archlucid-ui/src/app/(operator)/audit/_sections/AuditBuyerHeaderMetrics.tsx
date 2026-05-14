@@ -2,6 +2,7 @@ import {
   auditExportExecuteRankAuditorRoleNote,
   auditExportSectionSupportingLineBuyerPolished,
   auditSearchSectionLeadBuyerPolishedLine,
+  auditTrailBuyerProofNarrativeLead,
 } from "@/lib/enterprise-controls-context-copy";
 type BuyerAuditTrailMetrics = {
   eventCount: number;
@@ -29,6 +30,12 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
       <p className="mb-3 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
         {auditSearchSectionLeadBuyerPolishedLine}
       </p>
+      <div
+        className="mb-3 max-w-prose rounded-md border border-teal-200/70 bg-teal-50/50 px-3 py-3 text-sm text-neutral-800 dark:border-teal-900 dark:bg-teal-950/30 dark:text-neutral-100"
+        data-testid="audit-buyer-proof-narrative"
+      >
+        {auditTrailBuyerProofNarrativeLead}
+      </div>
       {buyerAuditTrailSummaryLine !== null ? (
         <p
           className="mb-3 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm font-medium text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100"
@@ -64,6 +71,9 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
             </p>
             <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {buyerAuditTrailMetrics.systemRecordedCount}
+            </p>
+            <p className="m-0 mt-2 text-[11px] leading-snug text-neutral-500 dark:text-neutral-400">
+              Logged automatically by ArchLucid lifecycle logging when no named human submits the row.
             </p>
           </div>
         </div>

@@ -24,7 +24,7 @@ export function AskBuyerRunAnchors(props: AskBuyerRunAnchorsProps) {
         className="font-medium text-teal-800 underline dark:text-teal-300"
         href={`/reviews/${encodeURIComponent(canonical)}`}
       >
-        Open linked review
+        Open linked architecture review
       </Link>
       {canonical === SHOWCASE_STATIC_DEMO_RUN_ID ? (
         <Link

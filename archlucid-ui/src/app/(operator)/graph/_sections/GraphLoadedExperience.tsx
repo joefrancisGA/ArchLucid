@@ -77,6 +77,10 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           ) : (
             <GraphNodeKindLegendChips />
           )}
+          <p className="m-0 max-w-prose text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+            Every decision captured in the signed manifest can be traced to source evidence, analysis, findings, and packaged
+            deliverables in this trace.
+          </p>
         </div>
       ) : null}
       {buyerPolishedShell ? (
@@ -87,7 +91,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           )}
         >
           <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-            Advanced filters — change review, filters, or reload graph
+            Filter evidence view
           </summary>
           <div className="border-t border-neutral-200 px-2 pb-3 pt-1 dark:border-neutral-700">{controls}</div>
         </details>
@@ -194,7 +198,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
       ) : null}
       {demoUi && buyerPolishedShell ? (
         <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          Expand advanced filters when you need a different finalized package. This view defaults to the{" "}
+          Use <span className="font-medium text-neutral-800 dark:text-neutral-200">Filter evidence view</span> when you want a different finalized package loaded into this explorer. Defaults stay on the{" "}
           {BUYER_SURFACE_VOCABULARY.evidenceGraphNav.toLowerCase()} for {SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.
         </p>
       ) : null}

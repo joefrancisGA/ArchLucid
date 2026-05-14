@@ -32,7 +32,7 @@ describe("MarketingSecurityTrustView", () => {
   it("surfaces the NDA notice and points reviewers at security@archlucid.net", () => {
     render(<MarketingSecurityTrustView />);
 
-    expect(screen.getAllByText(/NDA[- ]only/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/under NDA/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/security@archlucid\.net/i).length).toBeGreaterThan(0);
   });
 
@@ -42,8 +42,6 @@ describe("MarketingSecurityTrustView", () => {
     const chaosRow = screen.getByTestId(
       "assurance-row-chaos-game-day-quarterly-staging-2026",
     );
-    expect(
-      within(chaosRow).getByText(/production chaos out-of-scope/i),
-    ).toBeInTheDocument();
+    expect(within(chaosRow).getByText(/production out of scope/i)).toBeInTheDocument();
   });
 });

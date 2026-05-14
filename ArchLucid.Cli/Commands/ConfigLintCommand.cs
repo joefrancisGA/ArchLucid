@@ -39,24 +39,27 @@ internal static class ConfigLintCommand
         OperatorConfigurationLintSnapshot lintSnapshot =
             OperatorConfigurationLintEvaluator.Evaluate(local, trimmedEnv);
 
-        List<string> errors = [];
+        List<string> blockingLines = [];
 
         foreach (HostingMisconfigurationWarning w in lintSnapshot.BlockingFindings)
-            errors.Add($"[{w.RuleName}] {w.Message}");
+            blockingLines.Add($"[{w.RuleName}] {w.Message}");
 
-        if (hostingAdvisor)
+        foreach (string line in blockingLines)
+            Console.Error.WriteLine(line);
+
+        foreach (HostingMisconfigurationWarning w in lintSnapshot.AdvisoryFindings)
         {
-            foreach (HostingMisconfigurationWarning w in lintSnapshot.AdvisoryFindings)
-                errors.Add($"[HostingMisconfiguration:{w.RuleName}] {w.Message}");
+            bool emit =
+                hostingAdvisor
+                || AzureOpenAiEndpointConnectivityLintAdvisor.IsConnectivitySurfaceRule(w.RuleName);
+
+            if (!emit)
+                continue;
+
+            Console.Error.WriteLine($"[HostingMisconfiguration:{w.RuleName}] {w.Message}");
         }
 
-        bool ok = errors.Count == 0;
-
-        if (!ok)
-
-            foreach (string line in errors)
-
-                Console.Error.WriteLine(line);
+        bool ok = blockingLines.Count == 0;
 
         if (ok)
 

@@ -64,30 +64,29 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="why-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} platform: specialized agents analyze architecture requests, produce
-        explainable findings, and feed governance workflows with a durable audit trail. The comparison table below is
-        claim-by-claim, with symbol-only scores in the product columns. The downloadable proof pack bundles a deeper,
-        citation-backed narrative for teams who need to compare vendors on paper.
+        ArchLucid is an {BRAND_CATEGORY} — governed architecture reviews whose findings, manifests, approvals, and exports
+        share one traceable evidence trail. Specialized automation accelerates synthesis, yet procurement reviewers lead
+        with governance outcomes — comparisons below summarize typical fit versus adjacent tooling. The downloadable proof
+        pack carries the citation-backed drill-down for diligence teams who need paperwork parity.
       </p>
 
-      <section className="mt-10 rounded-xl border border-sky-200 bg-gradient-to-br from-white via-white to-sky-50 px-6 py-6 shadow-sm dark:border-sky-900/70 dark:from-neutral-950 dark:via-neutral-950 dark:to-sky-950/40">
+      <section className="mt-10 rounded-xl border border-sky-200 bg-white px-6 py-6 shadow-sm dark:border-sky-900/70 dark:bg-neutral-950">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-800 dark:text-sky-300">
           First-principles outcome
         </p>
         <h2 id="why-hero-outcome-heading" className="mt-2 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
-          Governed AI architecture reviews—not ad-hoc chat
+          Governed architecture reviews — durable evidence before agentic acceleration
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          ArchLucid runs a structured multi-agent review pipeline against every architecture request so findings,
-          comparisons, manifests, and audit exports share one proven trace. Buyers still compare incumbent stack tools; the
-          adjacent-category table below summarizes the same qualitative landscape dimensions used in our internal
-          competitive assessment—not a substitute for the symbol-scored hard-comparison grid further down.
+          An Architecture Proof Engine turns architecture review inputs into governed findings, signed decisions, audit-ready deliverables,
+          and explainable lineage. Multi-agent execution sits behind those outcomes so teams move faster without losing the record
+          CFOs and regulators expect.
         </p>
       </section>
 
       <section className="mt-12" aria-labelledby="why-market-landscape-heading">
         <h2 id="why-market-landscape-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Adjacent-category landscape (qualitative · three rows · five lenses)
+          Where ArchLucid fits (adjacent tooling · qualitative landscape)
         </h2>
         <p className="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
           Summarized wording only — citations and benchmark detail are included in the proof pack linked from this page.

@@ -7,7 +7,7 @@ import { CORRELATION_ID_HEADER } from "@/lib/correlation";
  * allow-list of GET routes so the operator UI can be explored without the C# API. Server-side only (`archlucid-ui/.env.local`).
  */
 export function trySandboxProxyMock(
-  method: "GET" | "POST",
+  method: "GET" | "POST" | "PUT" | "DELETE",
   pathSegments: string[],
   correlationId: string,
 ): NextResponse | null {

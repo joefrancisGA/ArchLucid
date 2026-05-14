@@ -12,9 +12,14 @@ public static class OperatorConfigurationLintEvaluator
     ///     Builds blocking + advisory lists from live <paramref name="configuration" /> and the ASP.NET Core-style
     ///     environment name (same semantics as <c>IHostEnvironment.EnvironmentName</c>).
     /// </summary>
+    /// <param name="azureOpenAiTcpReachabilityProbe">
+    ///     Optional unit-test hook for Azure OpenAI TCP reachability; default uses
+    ///     <see cref="AzureOpenAiEndpointConnectivitySocketProbe.IsTcpReachableAsync" /> under a 2s budget.
+    /// </param>
     public static OperatorConfigurationLintSnapshot Evaluate(
         IConfiguration configuration,
-        string aspNetCoreEnvironmentName)
+        string aspNetCoreEnvironmentName,
+        Func<Uri, CancellationToken, Task<bool>>? azureOpenAiTcpReachabilityProbe = null)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
@@ -29,12 +34,19 @@ public static class OperatorConfigurationLintEvaluator
 
         blocking.AddRange(ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(configuration, trimmedEnv));
 
-        IReadOnlyList<HostingMisconfigurationWarning> advisory =
-            ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords(configuration, trimmedEnv);
+        List<HostingMisconfigurationWarning> advisory =
+            ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords(configuration, trimmedEnv).ToList();
+
+        HostingMisconfigurationWarning? openAiConnectivity =
+            AzureOpenAiEndpointConnectivityLintAdvisor.TryDescribeConnectivityFinding(
+                configuration,
+                azureOpenAiTcpReachabilityProbe);
+
+        if (openAiConnectivity is not null)
+            advisory.Add(openAiConnectivity.Value);
 
         return new OperatorConfigurationLintSnapshot(trimmedEnv, blocking, advisory);
     }
-
 
     /// <summary>
     ///     Mirrors legacy <c>archlucid config lint</c> auth traps: production-like hosting requires JwtBearer or ApiKey when

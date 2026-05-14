@@ -80,11 +80,17 @@ export function DemoPreviewNotAvailable() {
   );
 }
 
-function DemoStatusBanner({ payload }: { readonly payload: DemoCommitPagePreviewResponse }) {
+function DemoStatusBanner({
+  payload,
+  buyerAudienceChrome,
+}: {
+  readonly payload: DemoCommitPagePreviewResponse;
+  readonly buyerAudienceChrome: boolean;
+}) {
   const runIdLabel = typeof payload.run?.runId === "string" ? payload.run.runId : "—";
   const generatedUtc = typeof payload.generatedUtc === "string" ? payload.generatedUtc : "—";
 
-  if (isBuyerSafeDemoMarketingChromeEnv()) {
+  if (buyerAudienceChrome) {
     return (
       <div
         data-testid="demo-preview-status-banner"
@@ -141,14 +147,20 @@ export type DemoPreviewMarketingBodyProps = {
   readonly payload: DemoCommitPagePreviewResponse;
   /** Parent surfaces its own demo banner — omit duplicate banner noise on `/showcase`. */
   readonly suppressStatusBanner?: boolean;
+  /**
+   * When true (default), hide raw identifiers and engineer phrasing suitable for procurement viewers.
+   * Pass false only in tests or tooling that assert fixture metadata.
+   */
+  readonly buyerAudienceChrome?: boolean;
 };
 
 /** Marketing-only commit page projection (no operator CTAs). */
 export function DemoPreviewMarketingBody({
   payload,
   suppressStatusBanner = false,
+  buyerAudienceChrome = true,
 }: DemoPreviewMarketingBodyProps) {
-  const demoMode = isBuyerSafeDemoMarketingChromeEnv();
+  const demoMode = buyerAudienceChrome || isBuyerSafeDemoMarketingChromeEnv();
   const payloadRunId = typeof payload.run?.runId === "string" ? payload.run.runId.trim() : "";
   const isRunDetailAvailable = payloadRunId.length > 0 && isStaticDemoPayloadFallbackActiveForRun(payloadRunId);
   const chain = payload.authorityChain ?? {};
@@ -176,7 +188,7 @@ export function DemoPreviewMarketingBody({
         isRunDetailAvailable={isRunDetailAvailable}
       />
 
-      {suppressStatusBanner ? null : <DemoStatusBanner payload={payload} />}
+      {suppressStatusBanner ? null : <DemoStatusBanner payload={payload} buyerAudienceChrome={demoMode} />}
 
       <DemoPreviewGuidedCallouts />
 
@@ -214,9 +226,13 @@ export function DemoPreviewMarketingBody({
       </section>
 
       <section data-testid="demo-preview-review-trail">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Review trail</h2>
+        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+          {demoMode ? "Review lifecycle timeline" : "Review trail"}
+        </h2>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Audit milestones for this completed output — same timeline as the in-product review trail (oldest first).
+          {demoMode
+            ? "Key lifecycle milestones for this completed review — mirrors the in-product trail you will see after signing in (oldest first)."
+            : "Audit milestones for this completed output — same timeline as the in-product review trail (oldest first)."}
         </p>
         <div className="mt-3 space-y-4" data-testid="demo-preview-pipeline-timeline">
           <ShowcasePipelineReviewTrailCards
@@ -231,7 +247,7 @@ export function DemoPreviewMarketingBody({
           />
           <details className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800">
             <summary className="cursor-pointer select-none font-medium text-neutral-900 dark:text-neutral-100">
-              Classic vertical timeline
+              {demoMode ? "Full audit timeline" : "Classic vertical timeline"}
             </summary>
             <div className="mt-3">
               <AuthorityPipelineTimeline items={pipelineItems} omitEventTechnicalDetails={demoMode} />
@@ -239,7 +255,14 @@ export function DemoPreviewMarketingBody({
           </details>
         </div>
 
-        {!demoMode ? (
+        {demoMode ? (
+          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+            <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
+              Sign in
+            </Link>{" "}
+            to view the full interactive timeline in your workspace.
+          </p>
+        ) : (
           <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
             Show the full timeline after{" "}
             <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
@@ -247,7 +270,7 @@ export function DemoPreviewMarketingBody({
             </Link>
             .
           </p>
-        ) : null}
+        )}
 
         <details className="mt-4 rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800">
           <summary className="cursor-pointer select-none font-medium text-neutral-900 dark:text-neutral-100">
@@ -290,7 +313,7 @@ export function DemoPreviewMarketingBody({
               {typeof manifest.decisionCount === "number" ? manifest.decisionCount : "—"}
             </p>
             <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-              <strong>Warnings:</strong>{" "}
+              <strong>{demoMode ? "Monitored risks:" : "Warnings:"}</strong>{" "}
               {typeof manifest.warningCount === "number" ? manifest.warningCount : "—"}
             </p>
             <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
@@ -385,8 +408,8 @@ export function DemoPreviewMarketingBody({
           Try with your own architecture
         </h2>
         <p className="mt-2 m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          Start a free workspace trial — bring your manifests, repos, or requirements and run the full pipeline behind this
-          sample.
+          Start a free workspace trial — bring your material and run a governed architecture review comparable to what you
+          see here.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link

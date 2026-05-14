@@ -80,6 +80,11 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         <p className="m-0 mt-2 text-base font-medium leading-snug text-neutral-900 dark:text-neutral-100">
           {policyPackBuyerLabel(summary.ruleSetId, summary.ruleSetVersion)}
         </p>
+        {isCuratedDemo ? (
+          <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+            Sample healthcare claims policy pack used for this illustrative review.
+          </p>
+        ) : null}
         <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           Defines the checks referenced during this review. Policy posture informs approvals — it does not replace deployment
           or change-management authority.
@@ -87,7 +92,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         {buyerPolicyPackHref !== null ? (
           <p className="m-0 mt-3 text-sm">
             <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={buyerPolicyPackHref}>
-              Open policy pack narrative
+              View policy basis
             </Link>
           </p>
         ) : null}
@@ -101,7 +106,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
 
   const warningsSummaryLabel =
     buyerPolishedLayout ?? false
-      ? `Warnings in this package (${summary.warningCount})`
+      ? `Monitored risks in this package (${summary.warningCount})`
       : `Warnings (${summary.warningCount})`;
 
   const decisionsBlock = (
@@ -157,21 +162,21 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           </ul>
         ) : summary.warningCount > 0 ? (
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            Warning detail ships with the governed manifest export. Use{" "}
+            Monitored-risk detail travels with the governed manifest export — use{" "}
             <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/reviews/${summary.runId}`}>
               review detail
             </Link>{" "}
             or download the bundle.
           </p>
         ) : (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No warnings recorded for this manifest.</p>
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No monitored risks recorded on this manifest record.</p>
         )}
       </div>
     </details>
   );
 
   const auditIdentifiers = (
-    <CollapsibleSection title="Technical identifiers (audit)" defaultOpen={false}>
+    <CollapsibleSection title="Verification appendix (identifiers)" defaultOpen={false}>
       <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
         <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
         <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
@@ -223,8 +228,50 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         >
           Recorded in this package
         </h3>
-        {decisionsBlock}
-        {warningsBlock}
+        {isCuratedDemo ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" data-testid="manifest-buyer-pack-summary-cards">
+            <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Decisions recorded</p>
+              <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{summary.decisionCount}</p>
+              <Link className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300" href="#manifest-buyer-recorded-details">
+                View decision list
+              </Link>
+            </div>
+            <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Monitored risks</p>
+              <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{summary.warningCount}</p>
+              <p className="m-0 mt-2 text-[11px] text-neutral-600 dark:text-neutral-400">Tracked with governance cadence.</p>
+            </div>
+            <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Unresolved blocking issues</p>
+              <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{summary.unresolvedIssueCount}</p>
+            </div>
+            <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Evidence graph anchors</p>
+              <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT}</p>
+              <Link
+                href={`/graph?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}
+                className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300"
+              >
+                Explore graph
+              </Link>
+            </div>
+            <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Lifecycle audit events</p>
+              <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT}</p>
+              <Link
+                href={`/audit?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}
+                className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300"
+              >
+                View audit trail
+              </Link>
+            </div>
+          </div>
+        ) : null}
+        <div id="manifest-buyer-recorded-details" className="space-y-3">
+          {decisionsBlock}
+          {warningsBlock}
+        </div>
       </section>
     ) : null;
 
@@ -286,7 +333,9 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
         </p>
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-        <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Warnings</p>
+        <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          {options.buyerPolishedLayout && isCuratedDemo ? "Monitored risks" : "Warnings"}
+        </p>
         <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
           {Number.isFinite(summary.warningCount) ? summary.warningCount : "—"}
         </p>

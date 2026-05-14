@@ -16,6 +16,10 @@ describe("buyerPolishedOperateBackLink", () => {
       label: "Back to review package",
       href: "/reviews/claims-intake-modernization",
     });
+    expect(buyerPolishedOperateBackLink("/ask")).toEqual({
+      label: "Back to review package",
+      href: "/reviews/claims-intake-modernization",
+    });
   });
 
   it("returns null when already on or under the showcase package", () => {

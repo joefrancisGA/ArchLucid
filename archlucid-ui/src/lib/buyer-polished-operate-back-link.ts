@@ -19,7 +19,8 @@ export function buyerPolishedOperateBackLink(pathnameWithSearch: string): {
     path.startsWith("/governance") ||
     path.startsWith("/audit") ||
     path.startsWith("/manifests/") ||
-    path.startsWith("/showcase/")
+    path.startsWith("/showcase/") ||
+    path.startsWith("/ask")
   ) {
     return { label: "Back to review package", href: packageHref };
   }

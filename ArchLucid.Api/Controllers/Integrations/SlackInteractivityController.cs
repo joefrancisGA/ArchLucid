@@ -54,7 +54,6 @@ public sealed class SlackInteractivityController(
     ///     Returns <c>200 OK</c> on success (Slack requires 200 to suppress the "This app didn't respond" message),
     ///     and <c>400</c> or <c>401</c> on verification failure.
     /// </summary>
-    [MutatingAuditExcluded("Slack-signed ingress; approve/reject flows call IAuditService after workflow mutations.")]
     [HttpPost("interactivity")]
     [Consumes("application/x-www-form-urlencoded")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -97,6 +96,8 @@ public sealed class SlackInteractivityController(
         if (!root.TryGetProperty("actions", out JsonElement actionsEl))
             return Ok();
 
+        int slackGovernanceDispatches = 0;
+
         foreach (JsonElement action in actionsEl.EnumerateArray())
         {
             string? value = action.TryGetProperty("value", out JsonElement valEl)
@@ -109,13 +110,30 @@ public sealed class SlackInteractivityController(
             if (value.StartsWith(ApprovePrefix, StringComparison.Ordinal))
             {
                 string approvalRequestId = value[ApprovePrefix.Length..];
+
+                slackGovernanceDispatches++;
+
                 await ProcessApproveAsync(approvalRequestId, ct);
             }
             else if (value.StartsWith(RejectPrefix, StringComparison.Ordinal))
             {
                 string approvalRequestId = value[RejectPrefix.Length..];
+
+                slackGovernanceDispatches++;
+
                 await ProcessRejectAsync(approvalRequestId, ct);
             }
+        }
+
+        if (slackGovernanceDispatches > 0)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.GovernanceSlackInteractivityDispatched,
+                    DataJson = System.Text.Json.JsonSerializer.Serialize(new { actionCount = slackGovernanceDispatches })
+                },
+                ct);
         }
 
         return Ok();

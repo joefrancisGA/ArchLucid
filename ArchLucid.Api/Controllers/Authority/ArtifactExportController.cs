@@ -357,9 +357,9 @@ public sealed class ArtifactExportController(
     /// <summary>
     ///     Asynchronously pushes the run export ZIP to a customer-provided Azure Blob SAS URL.
     ///     Returns 202 Accepted immediately; the upload proceeds in the background.
-    ///     Audit events (<c>RunExportBlobPushSucceeded</c> / <c>RunExportBlobPushFailed</c>) are written on completion.
+    ///     Durable <c>RunExportBlobPushQueued</c> fires at accept; completion audits are
+    ///     <c>RunExportBlobPushSucceeded</c> / <c>RunExportBlobPushFailed</c>.
     /// </summary>
-    [MutatingAuditExcluded("Returns 202 immediately; background RunExportBlobPushService.PushAsync emits outcome audits.")]
     [HttpPost("runs/{runId:guid}/export/push")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
@@ -418,6 +418,15 @@ public sealed class ArtifactExportController(
 
         byte[] zipContent = package.Content;
         string sasUrl = request.DestinationSasUrl;
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.RunExportBlobPushQueued,
+                RunId = runId,
+                DataJson = JsonSerializer.Serialize(new { bytes = zipContent.Length })
+            },
+            ct);
 
         // Fire-and-forget: upload completes in the background while the API returns 202 immediately.
         _ = Task.Run(async () =>

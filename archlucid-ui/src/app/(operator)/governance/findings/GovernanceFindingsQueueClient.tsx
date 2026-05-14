@@ -44,9 +44,9 @@ function demoPhiRow(): GovernanceFindingQueueRow {
     title: "PHI Minimization Risk",
     severity: "High",
     category: "Privacy / regulated data",
-    status: "Open",
+    status: "Accepted · monitoring · non-blocking",
     recommended:
-      "Review PHI handling posture with intake and security owners before production rollout.",
+      "Review PHI handling posture with intake and security owners before production rollout; weekly exception-volume review while monitored.",
   };
 }
 
@@ -212,12 +212,12 @@ export default function GovernanceFindingsQueueClient() {
   return (
     <>
       <LayerHeader pageKey="governance-findings" density="compact" />
-      <OperatorPageHeader title="Findings" />
+      <OperatorPageHeader title={buyerPolishedShell ? "Review findings and disposition" : "Findings"} />
 
       <div className="mt-4 space-y-4">
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
           {buyerPolishedShell
-            ? "Open items raised during architecture reviews, with severity and suggested next steps."
+            ? "Portfolio view of review findings with severity, disposition, and recommended next steps — open a row to see evidence, impact, and monitoring posture."
             : "Findings from architecture reviews — severity, category, and links to inspect each item in context."}
         </p>
 
@@ -292,7 +292,9 @@ export default function GovernanceFindingsQueueClient() {
                       </td>
                       <td className="px-3 py-2 align-top">
                         <Button asChild variant="outline" size="sm" className="h-8 border-teal-300 dark:border-teal-700">
-                          <Link href={inspectHref(row.runId, row.findingId)}>Open</Link>
+                          <Link href={inspectHref(row.runId, row.findingId)}>
+                            {buyerPolishedShell ? "View finding and evidence" : "Open"}
+                          </Link>
                         </Button>
                       </td>
                     </tr>
@@ -371,7 +373,9 @@ export default function GovernanceFindingsQueueClient() {
                   </div>
                   <div className="sm:col-span-2">
                     <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
-                      <Link href={inspectHref(row.runId, row.findingId)}>Open finding</Link>
+                      <Link href={inspectHref(row.runId, row.findingId)}>
+                        {buyerPolishedShell ? "View finding and evidence" : "Open finding"}
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>
