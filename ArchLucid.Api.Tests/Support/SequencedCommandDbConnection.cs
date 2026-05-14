@@ -29,12 +29,13 @@ internal sealed class SequencedCommandDbConnection : DbConnection
 
     private string _connectionString = string.Empty;
 
+#pragma warning disable CS8765 // BCL ConnectionString setter allows null; we normalize to empty string.
     public override string ConnectionString
     {
         get => _connectionString;
-
         set => _connectionString = value ?? string.Empty;
     }
+#pragma warning restore CS8765
 
     public override string Database => string.Empty;
 
