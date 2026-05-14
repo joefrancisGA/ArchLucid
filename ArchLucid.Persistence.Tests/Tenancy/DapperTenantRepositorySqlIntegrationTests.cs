@@ -459,4 +459,101 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         (await sut.UpdateEntraTenantIdAsync(tenantId, second, CancellationToken.None)).Should().BeFalse();
         (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.EntraTenantId.Should().Be(first);
     }
+
+    [SkippableFact]
+    public async Task ListWorkspacesAsync_only_returns_workspaces_for_requested_tenant()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        
+        Guid tenantA = Guid.NewGuid();
+        Guid tenantB = Guid.NewGuid();
+        
+        await sut.InsertTenantAsync(tenantA, "Tenant A", "t-a-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantB, "Tenant B", "t-b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
+
+        Guid workspaceA1 = Guid.NewGuid();
+        Guid workspaceA2 = Guid.NewGuid();
+        Guid workspaceB1 = Guid.NewGuid();
+
+        await sut.InsertWorkspaceAsync(workspaceA1, tenantA, "A1", Guid.NewGuid(), CancellationToken.None);
+        await sut.InsertWorkspaceAsync(workspaceA2, tenantA, "A2", Guid.NewGuid(), CancellationToken.None);
+        await sut.InsertWorkspaceAsync(workspaceB1, tenantB, "B1", Guid.NewGuid(), CancellationToken.None);
+
+        var listA = await sut.ListWorkspacesAsync(tenantA, CancellationToken.None);
+        listA.Should().HaveCount(2);
+        listA.Select(x => x.WorkspaceId).Should().Contain(new[] { workspaceA1, workspaceA2 });
+        listA.Select(x => x.WorkspaceId).Should().NotContain(workspaceB1);
+
+        var listB = await sut.ListWorkspacesAsync(tenantB, CancellationToken.None);
+        listB.Should().HaveCount(1);
+        listB.Select(x => x.WorkspaceId).Should().Contain(workspaceB1);
+    }
+
+    [SkippableFact]
+    public async Task Trial_lifecycle_methods_isolate_by_tenant_id()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        
+        Guid tenantA = Guid.NewGuid();
+        Guid tenantB = Guid.NewGuid();
+        
+        await sut.InsertTenantAsync(tenantA, "Tenant A", "t-a-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
+        await sut.InsertTenantAsync(tenantB, "Tenant B", "t-b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
+
+        await sut.CommitSelfServiceTrialAsync(
+            tenantA, TimeProvider.System.GetUtcNow(), TimeProvider.System.GetUtcNow().AddDays(14),
+            20, 5, Guid.NewGuid(), null, null, null, null, null, null, null, CancellationToken.None);
+            
+        await sut.CommitSelfServiceTrialAsync(
+            tenantB, TimeProvider.System.GetUtcNow(), TimeProvider.System.GetUtcNow().AddDays(14),
+            20, 5, Guid.NewGuid(), null, null, null, null, null, null, null, CancellationToken.None);
+
+        // Try to increment trial runs for tenant A
+        await sut.TryIncrementActiveTrialRunAsync(tenantA, CancellationToken.None);
+        
+        // Tenant A should be incremented, B should remain 0
+        (await sut.GetByIdAsync(tenantA, CancellationToken.None))!.TrialRunsUsed.Should().Be(1);
+        (await sut.GetByIdAsync(tenantB, CancellationToken.None))!.TrialRunsUsed.Should().Be(0);
+
+        // Claim seat for tenant A
+        await sut.TryClaimTrialSeatAsync(tenantA, "userA@contoso.com", CancellationToken.None);
+        
+        // Tenant A should have 1 seat used, B should remain 0
+        (await sut.GetByIdAsync(tenantA, CancellationToken.None))!.TrialSeatsUsed.Should().Be(1);
+        (await sut.GetByIdAsync(tenantB, CancellationToken.None))!.TrialSeatsUsed.Should().Be(0);
+        
+        // E2E expiration set for tenant A shouldn't affect B
+        DateTimeOffset next = TimeProvider.System.GetUtcNow().AddDays(60);
+        await sut.E2eHarnessSetTrialExpiresUtcAsync(tenantA, next, CancellationToken.None);
+        (await sut.GetByIdAsync(tenantA, CancellationToken.None))!.TrialExpiresUtc.Should().BeCloseTo(next, TimeSpan.FromSeconds(1));
+        (await sut.GetByIdAsync(tenantB, CancellationToken.None))!.TrialExpiresUtc.Should().NotBeCloseTo(next, TimeSpan.FromSeconds(1));
+    }
+
+    [SkippableFact]
+    public async Task PersistTrialSignupBaselineReviewCycle_persists_correctly()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        
+        Guid tenantId = Guid.NewGuid();
+        
+        await sut.InsertTenantAsync(tenantId, "Tenant Baseline", "t-b-" + Guid.NewGuid().ToString("N")[..8], TenantTier.Standard, null, CancellationToken.None);
+        
+        var captureDate = TimeProvider.System.GetUtcNow();
+        await sut.PersistTrialSignupBaselineReviewCycleAsync(tenantId, 40.5m, "Survey", captureDate, CancellationToken.None);
+        
+        var tenant = await sut.GetByIdAsync(tenantId, CancellationToken.None);
+        tenant.Should().NotBeNull();
+        tenant!.BaselineReviewCycleHours.Should().Be(40.5m);
+        tenant.BaselineReviewCycleSource.Should().Be("Survey");
+        tenant.BaselineReviewCycleCapturedUtc.Should().BeCloseTo(captureDate, TimeSpan.FromSeconds(1));
+    }
 }
