@@ -292,6 +292,45 @@ public sealed class CommandLineTests
         }
     }
 
+    [Fact]
+    public async Task Config_bootstrap_unknown_flag_prints_usage()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["config", "bootstrap", "--not-a-flag"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            string combined = outWriter + errWriter.ToString();
+            combined.Should().Contain("Usage");
+            combined.Should().Contain("bootstrap");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task Config_bootstrap_with_global_json_flag_returns_usage_error()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["--json", "config", "bootstrap"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            string combined = outWriter + errWriter.ToString();
+            combined.Should().Contain("--json");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
     private static void RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
         out TextWriter prevErr)
     {

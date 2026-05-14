@@ -26,13 +26,14 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class AdminDiagnosticsServiceSqlPathTests
 {
-    private sealed record ReadResult(IReadOnlyList<string> ComparisonStrings, IReadOnlyList<Guid> Guids)
+    private sealed record ReadResult(IReadOnlyList<string> ComparisonStrings, IReadOnlyList<Guid> GuidRows)
     {
         public static ReadResult Empty() => new([], []);
 
         public static ReadResult Strings(params string[] values) => new(values, []);
 
-        public static ReadResult Guids(params Guid[] ids) => new([], ids);
+        /// <returns>Candidate rows surfaced as <see cref="DbDataReader.GetGuid"/>.</returns>
+        public static ReadResult OnlyGuids(params Guid[] ids) => new([], ids);
     }
 
     /// <summary>Holds a factory + queued <see cref="DbCommand" /> builders wired to a single <see cref="DbConnection" />.</summary>
@@ -202,7 +203,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         Mock<IDbConnectionFactory> factoryOuter = new();
 
         ScriptedSqlSession session = new(factoryOuter);
-        session.EnqueueParameterizedReader(ReadResult.Guids(manifestId));
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(manifestId));
 
         _ = session.Activate();
 
@@ -226,9 +227,9 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         Mock<IDbConnectionFactory> factoryOuter = new();
 
         ScriptedSqlSession session = new(factoryOuter);
-        session.EnqueueParameterizedReader(ReadResult.Guids(manifestId));
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(manifestId));
         session.EnqueueNonQuery(1);
-        session.EnqueueParameterizedReader(ReadResult.Guids(manifestId));
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(manifestId));
 
         Mock<DbConnection> conn = session.Activate();
 
@@ -266,7 +267,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         Mock<IDbConnectionFactory> factoryOuter = new();
 
         ScriptedSqlSession session = new(factoryOuter);
-        session.EnqueueParameterizedReader(ReadResult.Guids(manifestId));
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(manifestId));
         session.EnqueueFaultingNonQuery(new InvalidOperationException("bundle delete fault"));
 
         Mock<DbConnection> conn = session.Activate();
@@ -295,8 +296,8 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         Mock<IDbConnectionFactory> factoryOuter = new();
 
         ScriptedSqlSession session = new(factoryOuter);
-        session.EnqueueParameterizedReader(ReadResult.Guids(snapshotId));
-        session.EnqueueParameterizedReader(ReadResult.Guids(snapshotId));
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(snapshotId));
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(snapshotId));
 
         Mock<DbConnection> conn = session.Activate();
 
@@ -468,11 +469,11 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
                 {
                     index++;
 
-                    return index < result.Guids.Count;
+                    return index < result.GuidRows.Count;
                 });
 
             reader.Setup(r => r.GetGuid(0))
-                .Returns(() => result.Guids[index]);
+                .Returns(() => result.GuidRows[index]);
         }
 
         return reader;

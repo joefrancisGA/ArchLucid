@@ -395,7 +395,7 @@ Constraints: Require `AdminAuthority` policy.
 - **Why it matters:** Ensures the hard constraint "no `terraform destroy` on behalf of customers" is never accidentally violated.
 - **Expected impact:** Eliminates a catastrophic security/engineering risk.
 - **Affected qualities:** Correctness, Security.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `TerraformAdvisorySafetyTests`, `TerraformAdvisoryArtifactGenerator`, and related snippet builders in `ArchLucid.ArtifactSynthesis`.
 - **Cursor prompt:**
 ```text
 Add a test class `TerraformAdvisorySafetyTests` in `ArchLucid.ArtifactSynthesis.Tests`.
@@ -519,7 +519,7 @@ Constraints: Do not block execution, just warn.
 - **Why it matters:** The `AdvisoryScanHostedService` runs in the background and is hard to verify manually.
 - **Expected impact:** Guarantees background scans don't silently fail.
 - **Affected qualities:** Correctness.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `AdvisoryScanHostedServiceTests` in `ArchLucid.Host.Core.Tests`; configurable `AdvisoryScanHostedService:PollInterval`; `ArchLucid.Api.Tests` shutdown tests updated for new ctor.
 - **Cursor prompt:**
 ```text
 Add `AdvisoryScanHostedServiceTests` to `ArchLucid.Host.Core.Tests`.
@@ -578,7 +578,7 @@ Constraints: Do not log the full connection string.
 
 ## 10. Prompt Batching Guidance
 To optimize context window usage and cursor cost-effectiveness, execute the actionable prompts in the following batches:
-- **Batch 1 (Core Guardrails & Correctness):** Improvements 14, 22. Focuses on `ArchLucid.ArtifactSynthesis.Tests` and `ArchLucid.Host.Core.Tests`.
+- **Batch 1 (Core Guardrails & Correctness):** ~~Improvements 14, 22~~ **Completed 2026-05-14.** (`ArchLucid.ArtifactSynthesis.Tests`, `ArchLucid.Host.Core.Tests`.)
 - **Batch 2 (CLI & Operator Tooling):** Improvements 7, 11, 13. Focuses on `ArchLucid.Cli`, config parsing, and `ArchLucid.Api` diagnostic routes.
 - **Batch 3 (UI ROI & Transparency):** Improvements 8, 10, 17. Focuses heavily on `archlucid-ui` components (Savings, Knowledge Graph sidebar, Copy Command).
 - **Batch 4 (Observability & Latency Tracing):** Improvements 15, 18, 24, 25. Focuses on `ArchLucid.AgentRuntime` and `ArchLucid.Api.DataAccess` telemetry.
