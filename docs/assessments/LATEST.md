@@ -1,3 +1,5 @@
+> **Scope:** For leadership and technical evaluators: current weighted readiness snapshot (scores, themes, gaps); not a build runbook, API contract, formal audit opinion, or live telemetry baseline.
+
 # ArchLucid Assessment – Weighted Readiness 78.13%
 
 ## 2. Executive Summary
