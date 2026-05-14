@@ -692,6 +692,656 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         loaded.CreatedUtc.Should().Be(created);
     }
 
+    [SkippableFact]
+    public async Task GetByManifestId_relational_with_loadArtifactBodies_false_maps_content_to_empty()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await SeedAuthorityChainAsync(
+            connection,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            CancellationToken.None);
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            FindingsSnapshotId = findingsId,
+            DecisionTraceId = traceId,
+            CreatedUtc = new DateTime(2026, 12, 1, 10, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "mh",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rsh",
+            Metadata = new ManifestMetadata(),
+            Requirements = new RequirementsCoverageSection(),
+            Topology = new TopologySection(),
+            Security = new SecuritySection(),
+            Compliance = new ComplianceSection(),
+            Cost = new CostSection(),
+            Constraints = new ConstraintSection(),
+            UnresolvedIssues = new UnresolvedIssuesSection(),
+            Assumptions = [],
+            Warnings = [],
+            Provenance = new ManifestProvenance(),
+            Decisions = []
+        };
+
+        SqlGoldenManifestRepository manifestRepository =
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        await manifestRepository.SaveAsync(manifest, CancellationToken.None);
+
+        DateTime bundleCreated = new(2026, 12, 1, 10, 5, 0, DateTimeKind.Utc);
+        Guid bundleId = Guid.NewGuid();
+        Guid artifactId = Guid.NewGuid();
+        Guid synthTraceId = Guid.NewGuid();
+        string storedBody = "relational body for load-slices-only";
+
+        ArtifactBundle bundle = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            BundleId = bundleId,
+            RunId = runId,
+            ManifestId = manifestId,
+            CreatedUtc = bundleCreated,
+            Artifacts =
+            [
+                new SynthesizedArtifact
+                {
+                    ArtifactId = artifactId,
+                    RunId = runId,
+                    ManifestId = manifestId,
+                    CreatedUtc = bundleCreated,
+                    ArtifactType = "ArchitectureNarrative",
+                    Name = "narrative.md",
+                    Format = "markdown",
+                    Content = storedBody,
+                    ContentHash = "sha256:body-off",
+                    Metadata = new Dictionary<string, string>(StringComparer.Ordinal) { ["k"] = "v" },
+                    ContributingDecisionIds = ["d1"]
+                }
+            ],
+            Trace = new SynthesisTrace
+            {
+                TraceId = synthTraceId,
+                RunId = runId,
+                ManifestId = manifestId,
+                CreatedUtc = bundleCreated,
+                GeneratorsUsed = ["G"],
+                SourceDecisionIds = ["S"],
+                Notes = ["N"]
+            }
+        };
+
+        SqlArtifactBundleRepository
+            repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        await repository.SaveAsync(bundle, CancellationToken.None);
+
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+
+        ArtifactBundle? loaded =
+            await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: false, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded.Artifacts.Should().ContainSingle();
+        SynthesizedArtifact a = loaded.Artifacts[0];
+        a.Content.Should().Be(string.Empty);
+        a.ContentHash.Should().Be("sha256:body-off");
+        a.Metadata.Should().ContainKey("k");
+        a.ContributingDecisionIds.Should().Equal("d1");
+        loaded.Trace.GeneratorsUsed.Should().Equal("G");
+    }
+
+    [SkippableFact]
+    public async Task GetByManifestId_relational_artifact_with_empty_metadata_and_decision_links_round_trips()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await SeedAuthorityChainAsync(
+            connection,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            CancellationToken.None);
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            FindingsSnapshotId = findingsId,
+            DecisionTraceId = traceId,
+            CreatedUtc = new DateTime(2026, 12, 2, 11, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "mh",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rsh",
+            Metadata = new ManifestMetadata(),
+            Requirements = new RequirementsCoverageSection(),
+            Topology = new TopologySection(),
+            Security = new SecuritySection(),
+            Compliance = new ComplianceSection(),
+            Cost = new CostSection(),
+            Constraints = new ConstraintSection(),
+            UnresolvedIssues = new UnresolvedIssuesSection(),
+            Assumptions = [],
+            Warnings = [],
+            Provenance = new ManifestProvenance(),
+            Decisions = []
+        };
+
+        SqlGoldenManifestRepository manifestRepository =
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        await manifestRepository.SaveAsync(manifest, CancellationToken.None);
+
+        DateTime bundleCreated = new(2026, 12, 2, 11, 5, 0, DateTimeKind.Utc);
+        Guid bundleId = Guid.NewGuid();
+        Guid artifactId = Guid.NewGuid();
+
+        ArtifactBundle bundle = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            BundleId = bundleId,
+            RunId = runId,
+            ManifestId = manifestId,
+            CreatedUtc = bundleCreated,
+            Artifacts =
+            [
+                new SynthesizedArtifact
+                {
+                    ArtifactId = artifactId,
+                    RunId = runId,
+                    ManifestId = manifestId,
+                    CreatedUtc = bundleCreated,
+                    ArtifactType = "Minimal",
+                    Name = "x.txt",
+                    Format = "text",
+                    Content = "c",
+                    ContentHash = "h",
+                    Metadata = new Dictionary<string, string>(StringComparer.Ordinal),
+                    ContributingDecisionIds = []
+                }
+            ],
+            Trace = new SynthesisTrace
+            {
+                TraceId = Guid.NewGuid(),
+                RunId = runId,
+                ManifestId = manifestId,
+                CreatedUtc = bundleCreated,
+                GeneratorsUsed = [],
+                SourceDecisionIds = [],
+                Notes = []
+            }
+        };
+
+        SqlArtifactBundleRepository
+            repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        await repository.SaveAsync(bundle, CancellationToken.None);
+
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+
+        ArtifactBundle? loaded =
+            await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded.Artifacts.Should().ContainSingle();
+        SynthesizedArtifact a = loaded.Artifacts[0];
+        a.Metadata.Should().BeEmpty();
+        a.ContributingDecisionIds.Should().BeEmpty();
+        a.Content.Should().Be("c");
+    }
+
+    [SkippableFact]
+    public async Task GetByManifestId_trace_generators_relational_slice_overlays_json_lists()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await SeedAuthorityChainAsync(
+            connection,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            CancellationToken.None);
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            FindingsSnapshotId = findingsId,
+            DecisionTraceId = traceId,
+            CreatedUtc = new DateTime(2026, 12, 3, 12, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "mh",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rsh",
+            Metadata = new ManifestMetadata(),
+            Requirements = new RequirementsCoverageSection(),
+            Topology = new TopologySection(),
+            Security = new SecuritySection(),
+            Compliance = new ComplianceSection(),
+            Cost = new CostSection(),
+            Constraints = new ConstraintSection(),
+            UnresolvedIssues = new UnresolvedIssuesSection(),
+            Assumptions = [],
+            Warnings = [],
+            Provenance = new ManifestProvenance(),
+            Decisions = []
+        };
+
+        SqlGoldenManifestRepository manifestRepository =
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        await manifestRepository.SaveAsync(manifest, CancellationToken.None);
+
+        Guid bundleId = Guid.NewGuid();
+        DateTime created = new(2026, 12, 3, 12, 5, 0, DateTimeKind.Utc);
+        Guid synthTraceId = Guid.NewGuid();
+
+        List<SynthesizedArtifact> artifacts = [];
+        SynthesisTrace trace = new()
+        {
+            TraceId = synthTraceId,
+            RunId = runId,
+            ManifestId = manifestId,
+            CreatedUtc = created,
+            GeneratorsUsed = ["from-json-should-replace"],
+            SourceDecisionIds = ["src-json-a"],
+            Notes = ["note-json-a"]
+        };
+
+        const string insertBundle = """
+                                    INSERT INTO dbo.ArtifactBundles
+                                    (
+                                        BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
+                                        TenantId, WorkspaceId, ProjectId
+                                    )
+                                    VALUES
+                                    (
+                                        @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
+                                        @TenantId, @WorkspaceId, @ProjectId
+                                    );
+                                    """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertBundle,
+                new
+                {
+                    BundleId = bundleId,
+                    RunId = runId,
+                    ManifestId = manifestId,
+                    CreatedUtc = created,
+                    ArtifactsJson = JsonEntitySerializer.Serialize(artifacts),
+                    TraceJson = JsonEntitySerializer.Serialize(trace),
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string insertGens = """
+                                  INSERT INTO dbo.ArtifactBundleTraceGenerators
+                                  (BundleId, SortOrder, GeneratorName, TenantId, WorkspaceId, ProjectId)
+                                  VALUES
+                                  (@BundleId, 0, @G0, @TenantId, @WorkspaceId, @ProjectId),
+                                  (@BundleId, 1, @G1, @TenantId, @WorkspaceId, @ProjectId);
+                                  """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertGens,
+                new
+                {
+                    BundleId = bundleId,
+                    G0 = "sql-generator-z",
+                    G1 = "sql-generator-a",
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId
+                },
+                cancellationToken: CancellationToken.None));
+
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+
+        SqlArtifactBundleRepository
+            repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        ArtifactBundle? loaded =
+            await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded.Artifacts.Should().BeEmpty();
+        loaded.Trace.TraceId.Should().Be(synthTraceId);
+        loaded.Trace.GeneratorsUsed.Should().Equal("sql-generator-z", "sql-generator-a");
+        loaded.Trace.SourceDecisionIds.Should().Equal("src-json-a");
+        loaded.Trace.Notes.Should().Equal("note-json-a");
+    }
+
+    [SkippableFact]
+    public async Task GetByManifestId_trace_decision_links_relational_slice_overlays_json_lists()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await SeedAuthorityChainAsync(
+            connection,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            CancellationToken.None);
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            FindingsSnapshotId = findingsId,
+            DecisionTraceId = traceId,
+            CreatedUtc = new DateTime(2026, 12, 4, 13, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "mh",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rsh",
+            Metadata = new ManifestMetadata(),
+            Requirements = new RequirementsCoverageSection(),
+            Topology = new TopologySection(),
+            Security = new SecuritySection(),
+            Compliance = new ComplianceSection(),
+            Cost = new CostSection(),
+            Constraints = new ConstraintSection(),
+            UnresolvedIssues = new UnresolvedIssuesSection(),
+            Assumptions = [],
+            Warnings = [],
+            Provenance = new ManifestProvenance(),
+            Decisions = []
+        };
+
+        SqlGoldenManifestRepository manifestRepository =
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        await manifestRepository.SaveAsync(manifest, CancellationToken.None);
+
+        Guid bundleId = Guid.NewGuid();
+        DateTime created = new(2026, 12, 4, 13, 5, 0, DateTimeKind.Utc);
+
+        List<SynthesizedArtifact> artifacts = [];
+        SynthesisTrace trace = new()
+        {
+            TraceId = Guid.NewGuid(),
+            RunId = runId,
+            ManifestId = manifestId,
+            CreatedUtc = created,
+            GeneratorsUsed = ["gen-json"],
+            SourceDecisionIds = ["from-json-should-replace"],
+            Notes = ["note-json"]
+        };
+
+        const string insertBundle = """
+                                    INSERT INTO dbo.ArtifactBundles
+                                    (
+                                        BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
+                                        TenantId, WorkspaceId, ProjectId
+                                    )
+                                    VALUES
+                                    (
+                                        @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
+                                        @TenantId, @WorkspaceId, @ProjectId
+                                    );
+                                    """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertBundle,
+                new
+                {
+                    BundleId = bundleId,
+                    RunId = runId,
+                    ManifestId = manifestId,
+                    CreatedUtc = created,
+                    ArtifactsJson = JsonEntitySerializer.Serialize(artifacts),
+                    TraceJson = JsonEntitySerializer.Serialize(trace),
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string insertLinks = """
+                                   INSERT INTO dbo.ArtifactBundleTraceDecisionLinks
+                                   (BundleId, SortOrder, DecisionId, TenantId, WorkspaceId, ProjectId)
+                                   VALUES
+                                   (@BundleId, 1, @D1, @TenantId, @WorkspaceId, @ProjectId),
+                                   (@BundleId, 0, @D0, @TenantId, @WorkspaceId, @ProjectId);
+                                   """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertLinks,
+                new
+                {
+                    BundleId = bundleId,
+                    D0 = "sql-dec-first",
+                    D1 = "sql-dec-second",
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId
+                },
+                cancellationToken: CancellationToken.None));
+
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+
+        SqlArtifactBundleRepository
+            repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        ArtifactBundle? loaded =
+            await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded.Trace.GeneratorsUsed.Should().Equal("gen-json");
+        loaded.Trace.SourceDecisionIds.Should().Equal("sql-dec-first", "sql-dec-second");
+        loaded.Trace.Notes.Should().Equal("note-json");
+    }
+
+    [SkippableFact]
+    public async Task GetByManifestId_trace_notes_relational_slice_overlays_json_lists()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await SeedAuthorityChainAsync(
+            connection,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            CancellationToken.None);
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            FindingsSnapshotId = findingsId,
+            DecisionTraceId = traceId,
+            CreatedUtc = new DateTime(2026, 12, 5, 14, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "mh",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rsh",
+            Metadata = new ManifestMetadata(),
+            Requirements = new RequirementsCoverageSection(),
+            Topology = new TopologySection(),
+            Security = new SecuritySection(),
+            Compliance = new ComplianceSection(),
+            Cost = new CostSection(),
+            Constraints = new ConstraintSection(),
+            UnresolvedIssues = new UnresolvedIssuesSection(),
+            Assumptions = [],
+            Warnings = [],
+            Provenance = new ManifestProvenance(),
+            Decisions = []
+        };
+
+        SqlGoldenManifestRepository manifestRepository =
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        await manifestRepository.SaveAsync(manifest, CancellationToken.None);
+
+        Guid bundleId = Guid.NewGuid();
+        DateTime created = new(2026, 12, 5, 14, 5, 0, DateTimeKind.Utc);
+
+        List<SynthesizedArtifact> artifacts = [];
+        SynthesisTrace trace = new()
+        {
+            TraceId = Guid.NewGuid(),
+            RunId = runId,
+            ManifestId = manifestId,
+            CreatedUtc = created,
+            GeneratorsUsed = ["gen-json"],
+            SourceDecisionIds = ["src-json"],
+            Notes = ["from-json-should-replace"]
+        };
+
+        const string insertBundle = """
+                                    INSERT INTO dbo.ArtifactBundles
+                                    (
+                                        BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
+                                        TenantId, WorkspaceId, ProjectId
+                                    )
+                                    VALUES
+                                    (
+                                        @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
+                                        @TenantId, @WorkspaceId, @ProjectId
+                                    );
+                                    """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertBundle,
+                new
+                {
+                    BundleId = bundleId,
+                    RunId = runId,
+                    ManifestId = manifestId,
+                    CreatedUtc = created,
+                    ArtifactsJson = JsonEntitySerializer.Serialize(artifacts),
+                    TraceJson = JsonEntitySerializer.Serialize(trace),
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string insertNotes = """
+                                   INSERT INTO dbo.ArtifactBundleTraceNotes
+                                   (BundleId, SortOrder, NoteText, TenantId, WorkspaceId, ProjectId)
+                                   VALUES
+                                   (@BundleId, 0, @N0, @TenantId, @WorkspaceId, @ProjectId),
+                                   (@BundleId, 1, @N1, @TenantId, @WorkspaceId, @ProjectId);
+                                   """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertNotes,
+                new
+                {
+                    BundleId = bundleId,
+                    N0 = "sql-note-a",
+                    N1 = "sql-note-b",
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId
+                },
+                cancellationToken: CancellationToken.None));
+
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+
+        SqlArtifactBundleRepository
+            repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        ArtifactBundle? loaded =
+            await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded.Trace.GeneratorsUsed.Should().Equal("gen-json");
+        loaded.Trace.SourceDecisionIds.Should().Equal("src-json");
+        loaded.Trace.Notes.Should().Equal("sql-note-a", "sql-note-b");
+    }
+
     private static async Task SeedAuthorityChainAsync(
         SqlConnection connection,
         Guid runId,

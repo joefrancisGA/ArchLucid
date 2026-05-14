@@ -166,8 +166,7 @@ public class ApiKeyAuthenticationHandler(
     private bool IsKeyExpired(DateTimeOffset? expiresAt)
         => expiresAt is not null && timeProvider.GetUtcNow() > expiresAt.Value;
 
-    private static Claim[] BuildSyntheticAdminClaims()
-        return
+    private static Claim[] BuildSyntheticAdminClaims() =>
         [
             new Claim(ClaimTypes.Name, "DevUser"),
             new Claim(ClaimTypes.Role, ArchLucidRoles.Admin),
@@ -178,5 +177,4 @@ public class ApiKeyAuthenticationHandler(
             new Claim("permission", "replay:comparisons"),
             new Claim("permission", "replay:diagnostics")
         ];
-    }
 }

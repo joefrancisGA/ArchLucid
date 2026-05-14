@@ -83,11 +83,11 @@ function severityBadgeClass(severity: string): string {
   }
 
   if (key === "high") {
-    return "border-transparent bg-orange-600 text-white hover:bg-orange-600/90 dark:bg-orange-600 dark:hover:bg-orange-600/90";
+    return "border-transparent bg-orange-700 text-white hover:bg-orange-700/90 dark:bg-orange-700 dark:hover:bg-orange-700/90";
   }
 
   if (key === "medium") {
-    return "border-transparent bg-amber-500 text-white hover:bg-amber-500/90 dark:bg-amber-500 dark:hover:bg-amber-500/90";
+    return "border-transparent bg-amber-600 text-white hover:bg-amber-600/90 dark:bg-amber-600 dark:hover:bg-amber-600/90";
   }
 
   return "border-neutral-200 bg-neutral-100 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100";

@@ -2,6 +2,7 @@
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
@@ -65,11 +66,13 @@ public sealed class DemoSeedServiceTests
         baseline.Manifest.Should().NotBeNull();
         baseline.Run.CurrentManifestVersion.Should().Be(demo.ManifestBaseline);
         baseline.Results.Should().NotBeEmpty();
+        AssertCommittedDemoManifestSnapshotChain(baseline!, demo.AuthorityRunBaselineId);
 
         ArchitectureRunDetail? hardened = await detail.GetRunDetailAsync(demo.RunHardened);
         hardened.Should().NotBeNull();
         hardened.Manifest.Should().NotBeNull();
         hardened.Run.CurrentManifestVersion.Should().Be(demo.ManifestHardened);
+        AssertCommittedDemoManifestSnapshotChain(hardened!, demo.AuthorityRunHardenedId);
     }
 
     [SkippableFact]
@@ -156,5 +159,28 @@ public sealed class DemoSeedServiceTests
             hardened!.Results);
 
         diff.AgentDeltas.Should().NotBeEmpty();
+    }
+
+    /// <summary>
+    ///     Validates the authority committed-chain pointers exposed through <see cref="IRunDetailQueryService"/> — the same
+    ///     aggregate consumers use — without assuming legacy table names such as <c>dbo.GoldenManifests</c>.
+    /// </summary>
+    private static void AssertCommittedDemoManifestSnapshotChain(ArchitectureRunDetail detail, Guid expectedAuthorityRunId)
+    {
+        detail.HasBrokenManifestReference.Should().BeFalse();
+        detail.Manifest.Should().NotBeNull();
+
+        detail.Run.RunId.Should().Be(expectedAuthorityRunId.ToString("N"));
+        detail.Manifest!.RunId.Should().Be(detail.Run.RunId);
+
+        detail.Run.ContextSnapshotId.Should().NotBeNullOrWhiteSpace();
+        detail.Run.GraphSnapshotId.Should().NotBeNull();
+        detail.Run.FindingsSnapshotId.Should().NotBeNull();
+        detail.Run.GoldenManifestId.Should().NotBeNull();
+        detail.Run.DecisionTraceId.Should().NotBeNull();
+
+        detail.DecisionTraces.Should().ContainSingle();
+        Guid loadedTraceId = detail.DecisionTraces[0].RequireRuleAudit().DecisionTraceId;
+        loadedTraceId.Should().Be(detail.Run.DecisionTraceId!.Value);
     }
 }

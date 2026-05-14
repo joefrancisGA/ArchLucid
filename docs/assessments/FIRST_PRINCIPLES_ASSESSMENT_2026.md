@@ -318,6 +318,7 @@ Please write unit tests for `ArchLucid.Application.Analysis.MarkdownArchitecture
 ```
 
 ### 8. Fix `DemoSeedService` Test Gaps
+- **Status:** Complete — Batch 6.
 - **Why it matters:** The demo seed is critical for trial success; it must never fail.
 - **Expected impact:** Directly improves Usability (+2-3 pts) and Adoption Friction. Weighted readiness impact: +0.2-0.3%.
 - **Affected qualities:** Usability, Adoption Friction.
@@ -328,6 +329,7 @@ Please create integration tests for `ArchLucid.Application.Bootstrap.DemoSeedSer
 ```
 
 ### 9. Improve `Api.Client` Coverage
+- **Status:** Complete — Batch 6.
 - **Why it matters:** The client SDK must be highly reliable for automation.
 - **Expected impact:** Directly improves Interoperability (+2-4 pts) and Customer Self-Sufficiency. Weighted readiness impact: +0.2-0.4%.
 - **Affected qualities:** Interoperability, Customer Self-Sufficiency.
@@ -338,6 +340,7 @@ Please write unit tests for the generated types in `ArchLucid.Api.Client`, speci
 ```
 
 ### 10. Audit `AdminDiagnosticsService`
+- **Status:** Complete — Batch 6.
 - **Why it matters:** Diagnostics are critical for troubleshooting production issues.
 - **Expected impact:** Directly improves Observability (+3-5 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Observability.
@@ -381,6 +384,7 @@ Please implement unit tests for `ArchLucid.Host.Core.Jobs.BackgroundJobQueueProc
 ```
 
 ### 14. Document Custom Handler Boilerplate
+- **Status:** Complete — Batch 6.
 - **Why it matters:** fulfills the V1 GA extensibility documentation requirement.
 - **Expected impact:** Directly improves Customer Self-Sufficiency (+5-8 pts). Weighted readiness impact: +0.2-0.3%.
 - **Affected qualities:** Customer Self-Sufficiency.
@@ -433,6 +437,7 @@ Write tests for `ArchLucid.Contracts.Explanation.FindingExplainabilityResult`. E
 ```
 
 ### 19. Validate `EffectiveGovernanceResolver`
+- **Status:** Complete — Batch 6.
 - **Why it matters:** Governance policies must apply strictly without bypassing.
 - **Expected impact:** Directly improves Stickiness (+2-3 pts) and Correctness. Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Stickiness, Correctness.
@@ -486,6 +491,7 @@ Write unit tests for `ArchLucid.KnowledgeGraph.Inference.DefaultGraphEdgeInferer
 ```
 
 ### 24. Document Webhook Payload Schemas
+- **Status:** Complete — Batch 6.
 - **Why it matters:** Enables custom downstream integrations.
 - **Expected impact:** Directly improves Interoperability (+2-4 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Interoperability.
@@ -496,6 +502,7 @@ Create `docs/integrations/WEBHOOK_SCHEMAS.md`. Document the exact JSON schema pa
 ```
 
 ### 25. Harden `BuyerProofPackCommand`
+- **Status:** Complete — Batch 6.
 - **Why it matters:** The CLI command for generating the procurement pack must be rock solid.
 - **Expected impact:** Directly improves Compliance Readiness (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Compliance Readiness.
@@ -516,7 +523,7 @@ To optimize context window usage and efficiency, execute the actionable prompts 
 - **Batch 3 (Background Orchestration):** **Complete.** Prompts 2, 12, 13. (Focuses strictly on `ArchLucid.Worker` and `ArchLucid.Host.Core.Jobs`).
 - **Batch 4 (Integrations & Telemetry):** Prompts 6, 15, 16, 21. (Focuses on Azure Extractor, Webhooks, ITSM, and OIDC auth).
 - **Batch 5 (Artifacts & Explainability):** **Complete.** Prompts 7, 11, 17, 18, 22. (Focuses on Export Services, Cost Estimators, and Explainability Contracts).
-- **Batch 6 (Documentation & CLI):** Prompts 8, 9, 10, 14, 19, 24, 25. (Focuses on Demo Seed, CLI coverage, and generating Markdown documentation).
+- **Batch 6 (Documentation & CLI):** **Complete.** Prompts 8, 9, 10, 14, 19, 24, 25. (Focuses on Demo Seed, CLI coverage, and generating Markdown documentation).
 
 ---
 

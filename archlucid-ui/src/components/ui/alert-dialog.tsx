@@ -35,7 +35,7 @@ const AlertDialogContent = React.forwardRef<
     <AlertDialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-oklch(0.922 0 0) bg-oklch(1 0 0) p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg dark:border-oklch(1 0 0 / 10%) dark:bg-oklch(0.145 0 0)",
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-neutral-200 bg-white p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg dark:border-neutral-800 dark:bg-neutral-950",
         className
       )}
       {...props}
@@ -94,7 +94,7 @@ const AlertDialogDescription = React.forwardRef<
   <AlertDialogPrimitive.Description
     ref={ref}
     className={cn(
-      "text-sm text-oklch(0.556 0 0) dark:text-oklch(0.708 0 0)",
+      "text-sm text-neutral-500 dark:text-neutral-400",
       className
     )}
     {...props}
@@ -110,8 +110,8 @@ const AlertDialogAction = React.forwardRef<
   <AlertDialogPrimitive.Action
     ref={ref}
     className={cn(
-      "inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-transparent px-4 py-2 text-sm font-medium text-destructive-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oklch(0.708 0 0) focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-oklch(0.556 0 0) dark:ring-offset-oklch(0.145 0 0)",
-      "bg-oklch(0.577 0.245 27.325) hover:bg-oklch(0.577 0.245 27.325)/80 dark:bg-oklch(0.704 0.191 22.216) dark:hover:bg-oklch(0.704 0.191 22.216)/80",
+      "inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-red-500 dark:ring-offset-neutral-950",
+      "bg-red-600 hover:bg-red-600/80 dark:bg-red-900 dark:hover:bg-red-900/80",
       className
     )}
     {...props}
@@ -126,7 +126,7 @@ const AlertDialogCancel = React.forwardRef<
   <AlertDialogPrimitive.Cancel
     ref={ref}
     className={cn(
-      "mt-2 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-oklch(0.922 0 0) bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-oklch(0.97 0 0) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oklch(0.708 0 0) focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:border-oklch(1 0 0 / 10%) dark:hover:bg-oklch(0.269 0 0) dark:focus-visible:ring-oklch(0.556 0 0) dark:ring-offset-oklch(0.145 0 0)",
+      "mt-2 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-neutral-200 bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-800 dark:hover:bg-neutral-800 dark:focus-visible:ring-neutral-600 dark:ring-offset-neutral-950",
       "sm:mt-0",
       className
     )}

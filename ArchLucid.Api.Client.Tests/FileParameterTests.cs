@@ -45,4 +45,29 @@ public sealed class FileParameterTests
     {
         Assert.Throws<ArgumentNullException>(() => new FileParameter(null!));
     }
+
+    [Fact]
+    public void Properties_expose_live_stream_reference_without_disposing_it()
+    {
+        MemoryStream data = new MemoryStream(Encoding.UTF8.GetBytes("payload"));
+
+        FileParameter fp = new FileParameter(data, "doc.json", "application/json");
+
+        Assert.Same(data, fp.Data);
+        fp.Data.Position = 0;
+        using StreamReader sr = new(fp.Data, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
+
+        Assert.Equal("payload", sr.ReadToEnd());
+    }
+
+    [Fact]
+    public void Empty_stream_is_accepted_for_optional_upload_shapes()
+    {
+        MemoryStream data = new(Array.Empty<byte>());
+
+        FileParameter fp = new FileParameter(data, "empty.bin");
+
+        Assert.Equal(0, fp.Data.Length);
+        Assert.Equal("empty.bin", fp.FileName);
+    }
 }

@@ -35,7 +35,7 @@ export function governanceDomainBadgeClass(status: string): string {
       return "border-transparent bg-teal-700 text-white hover:bg-teal-700/90 dark:bg-teal-700 dark:hover:bg-teal-700/90";
     case "Draft":
     default:
-      return "border-oklch(0.922 0 0) bg-oklch(0.97 0 0) text-oklch(0.205 0 0) dark:border-oklch(1 0 0 / 10%) dark:bg-oklch(0.269 0 0) dark:text-oklch(0.985 0 0)";
+      return "border-neutral-200 bg-neutral-100 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-800 dark:text-neutral-100";
   }
 }
 

@@ -3,6 +3,7 @@ using System.Globalization;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -315,6 +316,132 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                                        && e.DataJson.Contains("\"byIds\"", StringComparison.Ordinal)
                                        && e.DataJson.Contains(runId.ToString("D"), StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
+                Times.Once);
+    }
+
+    [Fact]
+    public async Task GetLeasesAsync_returns_repository_rows()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+        Mock<IAuthorityPipelineWorkRepository> authority = new();
+        Mock<IRetrievalIndexingOutboxRepository> retrieval = new();
+        Mock<IIntegrationEventOutboxRepository> integration = new();
+        Mock<IHostLeaderLeaseRepository> hostLeases = new();
+        Mock<IRunRepository> runs = new();
+
+        HostLeaderLeaseSnapshot leaseRow = new()
+        {
+            LeaseName = "test-lease",
+            HolderInstanceId = "holder-a",
+            LeaseExpiresUtc =
+                DateTime.Parse("2035-06-01T00:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal)
+        };
+
+        _ = hostLeases.Setup(h => h.ListAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<HostLeaderLeaseSnapshot> { leaseRow });
+
+        AdminDiagnosticsService sut = new(
+            authority.Object,
+            retrieval.Object,
+            integration.Object,
+            hostLeases.Object,
+            runs.Object,
+            factory.Object,
+            SqlOptions(),
+            actor.Object,
+            audit.Object);
+
+        IReadOnlyList<HostLeaderLeaseSnapshot> rows =
+            await sut.GetLeasesAsync(CancellationToken.None);
+
+        Assert.Single(rows);
+        Assert.Equal("test-lease", rows[0].LeaseName);
+        Assert.Equal("holder-a", rows[0].HolderInstanceId);
+    }
+
+    [Fact]
+    public async Task ListIntegrationOutboxDeadLettersAsync_delegates_to_integration_repository()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+        Mock<IAuthorityPipelineWorkRepository> authority = new();
+        Mock<IRetrievalIndexingOutboxRepository> retrieval = new();
+        Mock<IIntegrationEventOutboxRepository> integration = new();
+        Mock<IHostLeaderLeaseRepository> hostLeases = new();
+        Mock<IRunRepository> runs = new();
+
+        IntegrationEventOutboxDeadLetterRow row = new()
+        {
+            OutboxId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            RunId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            EventType = IntegrationEventTypes.AlertFiredV1,
+            DeadLetteredUtc =
+                DateTime.Parse("2026-02-02T08:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal),
+            RetryCount = 4,
+            LastErrorMessage = "timeout"
+        };
+
+        _ = integration.Setup(i => i.ListDeadLettersAsync(25, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<IntegrationEventOutboxDeadLetterRow> { row });
+
+        AdminDiagnosticsService sut = new(
+            authority.Object,
+            retrieval.Object,
+            integration.Object,
+            hostLeases.Object,
+            runs.Object,
+            factory.Object,
+            SqlOptions(),
+            actor.Object,
+            audit.Object);
+
+        IReadOnlyList<IntegrationEventOutboxDeadLetterRow> letters =
+            await sut.ListIntegrationOutboxDeadLettersAsync(25, CancellationToken.None);
+
+        Assert.Single(letters);
+        Assert.Equal(row.OutboxId, letters[0].OutboxId);
+        Assert.Equal(IntegrationEventTypes.AlertFiredV1, letters[0].EventType);
+        integration.Verify(
+            i => i.ListDeadLettersAsync(25, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RetryIntegrationOutboxDeadLetterAsync_returns_repository_boolean()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+        Mock<IAuthorityPipelineWorkRepository> authority = new();
+        Mock<IRetrievalIndexingOutboxRepository> retrieval = new();
+        Mock<IIntegrationEventOutboxRepository> integration = new();
+        Mock<IHostLeaderLeaseRepository> hostLeases = new();
+        Mock<IRunRepository> runs = new();
+
+        Guid outboxId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        _ = integration.Setup(i => i.ResetDeadLetterForRetryAsync(outboxId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        AdminDiagnosticsService sut = new(
+            authority.Object,
+            retrieval.Object,
+            integration.Object,
+            hostLeases.Object,
+            runs.Object,
+            factory.Object,
+            SqlOptions(),
+            actor.Object,
+            audit.Object);
+
+        bool ok = await sut.RetryIntegrationOutboxDeadLetterAsync(outboxId, CancellationToken.None);
+
+        Assert.True(ok);
+        integration.Verify(
+            i => i.ResetDeadLetterForRetryAsync(outboxId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

@@ -39,8 +39,6 @@
 Per Cobertura **class** aggregate line blocks (`<class>/<lines>/<line hits="…"/>`). 
 **Partial types** merged by **class name + file**.
 
-> **Note (2026-05-14):** **`DapperTenantRepository`** gained **`DapperTenantRepositoryConstructorTests`** (null guards) and additional **`DapperTenantRepositorySqlIntegrationTests`**, including **`SystemWithPerTenantCatalogs`** paths against a single catalog (dual suspend + binding fan-out). The rank-1 uncovered line count below is still from the snapshot named in **Generated**; re-run **How to refresh** to recompute merged Cobertura.
-
 ### ArchLucid.Persistence (54.64% line coverage)
 
 | Rank | Class | File | Uncovered line entries |
@@ -48,6 +46,16 @@ Per Cobertura **class** aggregate line blocks (`<class>/<lines>/<line hits="…"
 | 1 | `ArchLucid.Persistence.Tenancy.DapperTenantRepository` | `ArchLucid.Persistence\Tenancy\DapperTenantRepository.cs` | 583 |
 | 2 | `ArchLucid.Persistence.ArtifactBundles.ArtifactBundleRelationalRead` | `ArchLucid.Persistence\ArtifactBundles\ArtifactBundleRelationalRead.cs` | 406 |
 | 3 | `ArchLucid.Persistence.ContextSnapshots.ContextSnapshotRelationalRead` | `ArchLucid.Persistence\ContextSnapshots\ContextSnapshotRelationalRead.cs` | 314 |
+
+#### `DapperTenantRepository` — Cobertura snapshot vs test backfill (2026-05-14)
+
+| Source | Class `line-rate` (Cobertura) | Uncovered line entries | Notes |
+|--------|-------------------------------|------------------------|-------|
+| `coverage-gap-1a\merged\Cobertura.xml` (basis for table above) | **0** | **583** | No line hits recorded for this type in the current merge; rank-1 gap unchanged until tests are run under Coverlet and outputs merged here. |
+
+**Tests now in tree (expect this row to drop after refresh):** **`DapperTenantRepositoryConstructorTests`** — five primary-constructor **`ArgumentNullException`** guards. **`DapperTenantRepositorySqlIntegrationTests`** — added paths including **`SqlTopologyMode.SystemWithPerTenantCatalogs`** on one catalog (dual suspend + **`ListTrialLifecycleAutomationTenantIdsAsync`** via active binding), **`TryIncrementActiveTrialRunAsync`** with caller-owned **`IDbConnection`**/**`IDbTransaction`**, **`UpdateEntraTenantIdAsync`** (missing tenant + Entra held by another tenant), **`MarkTrialConvertedAsync`** with null commercial tier, expired / inactive trial seat handling, **`TryMarkFirstManifestCommittedAsync`** with unset run limit, **`ListTenantIdsPendingTrialArchitecturePreseedAsync`** non-positive **`take`** clamp. Factories: **`CreateForPerTenantCatalogSameDatabaseIntegration`**, **`EnsureActiveBindingForCurrentCatalogAsync`** in **`ArchLucid.Persistence.Tests\Support\DapperTenantRepositoryTestFactory`**.
+
+**Refresh:** **How to refresh** below. If Coverlet fails at session end with file locks on dependencies (for example **`ArchLucid.Application.dll`**), close parallel builds/tests and retry, or run a Debug-output test run so Release bins are not held.
 
 ### ArchLucid.Api (56.41% line coverage)
 

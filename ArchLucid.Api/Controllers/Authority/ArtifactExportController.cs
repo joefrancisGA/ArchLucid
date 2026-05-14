@@ -47,7 +47,6 @@ public sealed class ArtifactExportController(
     IAuditService auditService,
     IDiagramImageRenderer diagramImageRenderer,
     IConfiguration configuration,
-    IRunExportBlobPushService runExportBlobPushService,
     ITerraformGitHubPrService terraformGitHubPrService,
     IServiceScopeFactory serviceScopeFactory)
     : ControllerBase
@@ -360,6 +359,7 @@ public sealed class ArtifactExportController(
     ///     Returns 202 Accepted immediately; the upload proceeds in the background.
     ///     Audit events (<c>RunExportBlobPushSucceeded</c> / <c>RunExportBlobPushFailed</c>) are written on completion.
     /// </summary>
+    [MutatingAuditExcluded("Returns 202 immediately; background RunExportBlobPushService.PushAsync emits outcome audits.")]
     [HttpPost("runs/{runId:guid}/export/push")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]

@@ -129,7 +129,7 @@ export function LayerContextStrip({
                   ← {buyerGoldenJourneyNav.prev.label}
                 </Link>
               ) : (
-                <span className="shrink-0 text-neutral-400 dark:text-neutral-500">← Start</span>
+                <span className="shrink-0 text-neutral-600 dark:text-neutral-400">← Start</span>
               )}
               <span className="min-w-0 flex-1 text-center font-medium text-neutral-700 dark:text-neutral-300">
                 {buyerGoldenJourneyNav.summaryLine}
@@ -143,7 +143,7 @@ export function LayerContextStrip({
                   {buyerGoldenJourneyNav.next.label} →
                 </Link>
               ) : (
-                <span className="shrink-0 text-neutral-400 dark:text-neutral-500">End →</span>
+                <span className="shrink-0 text-neutral-600 dark:text-neutral-400">End →</span>
               )}
               </div>
               <ol

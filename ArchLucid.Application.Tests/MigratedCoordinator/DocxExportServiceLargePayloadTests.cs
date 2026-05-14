@@ -6,6 +6,9 @@ using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Models;
+
+using DocumentFormat.OpenXml.Packaging;
 
 using FluentAssertions;
 
@@ -46,7 +49,16 @@ public sealed class DocxExportServiceLargePayloadTests
 
         DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
 
-        result.Content.Length.Should().BeGreaterThan(15_000);
+        result.Content.Should().NotBeNullOrEmpty();
+
+        using MemoryStream wordStream = new(result.Content);
+        using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
+        MainDocumentPart? main = wordDoc.MainDocumentPart;
+        main.Should().NotBeNull();
+        string xml = main.Document.OuterXml;
+
+        xml.Should().Contain("TAIL");
+        xml.Length.Should().BeGreaterThan(LargeSummaryCharCount);
     }
 
     [SkippableFact]
@@ -81,7 +93,17 @@ public sealed class DocxExportServiceLargePayloadTests
 
         DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
 
-        result.Content.Length.Should().BeGreaterThan(25_000);
+        result.Content.Should().NotBeNullOrEmpty();
+
+        using MemoryStream wordStream = new(result.Content);
+        using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
+        MainDocumentPart? main = wordDoc.MainDocumentPart;
+        main.Should().NotBeNull();
+        string xml = main.Document.OuterXml;
+
+        xml.Should().Contain("REQ-0");
+        xml.Should().Contain($"REQ-{RequirementRowCount - 1}");
+        xml.Should().Contain("Requirements Coverage");
     }
 
     private static DocxExportRequest MinimalRequest(Guid runId, Guid manifestId)

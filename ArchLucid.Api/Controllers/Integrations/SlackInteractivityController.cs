@@ -7,6 +7,7 @@ using ArchLucid.Notifications;
 
 using Asp.Versioning;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -17,6 +18,7 @@ namespace ArchLucid.Api.Controllers.Integrations;
 ///     Verifies the Slack request signature against the tenant-configured <c>SlackSigningSecret</c>
 ///     before dispatching approve/reject actions.
 /// </summary>
+[AllowAnonymous]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/integrations/webhooks/slack")]
@@ -52,6 +54,7 @@ public sealed class SlackInteractivityController(
     ///     Returns <c>200 OK</c> on success (Slack requires 200 to suppress the "This app didn't respond" message),
     ///     and <c>400</c> or <c>401</c> on verification failure.
     /// </summary>
+    [MutatingAuditExcluded("Slack-signed ingress; approve/reject flows call IAuditService after workflow mutations.")]
     [HttpPost("interactivity")]
     [Consumes("application/x-www-form-urlencoded")]
     [ProducesResponseType(StatusCodes.Status200OK)]

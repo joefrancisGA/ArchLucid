@@ -137,6 +137,34 @@ public sealed class ArchLucidApiClientWireTests
     }
 
     [Fact]
+    public void Client_JsonSerializerSettings_round_trips_ProblemDetails_traceId()
+    {
+        using HttpMessageHandler handler = new StubPipelineHandler();
+        using HttpClient http = new HttpClient(handler);
+        TestArchLucidApiClient client = new TestArchLucidApiClient(http)
+        {
+            BaseUrl = "https://unit.test/",
+        };
+
+        ProblemDetails original = new ProblemDetails
+        {
+            Title = "Conflict",
+            Status = 409,
+            Detail = "duplicate",
+            TraceId = "corr-123",
+            Type = "https://example/problem"
+        };
+
+        string json = JsonSerializer.Serialize(original, client.TestSerializerSettings);
+        ProblemDetails? roundTrip = JsonSerializer.Deserialize<ProblemDetails>(json, client.TestSerializerSettings);
+
+        Assert.NotNull(roundTrip);
+        Assert.Equal(original.TraceId, roundTrip!.TraceId);
+        Assert.Equal(original.Title, roundTrip.Title);
+        Assert.Equal(original.Status, roundTrip.Status);
+    }
+
+    [Fact]
     public void BaseUrl_without_trailing_slash_is_normalized()
     {
         using HttpMessageHandler handler = new StubPipelineHandler();

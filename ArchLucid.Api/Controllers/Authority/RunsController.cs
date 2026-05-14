@@ -138,6 +138,7 @@ public sealed partial class RunsController(
     ///     an independent <see cref="CreateRun" /> call. Partial failures are captured per item; the overall response is
     ///     always <c>202 Accepted</c>. Idempotency keys are not supported for batch requests.
     /// </summary>
+    [MutatingAuditExcluded("202 Accepted fan-out only; each CreateRunAsync item retains orchestrator persistence audits.")]
     [HttpPost("request/batch")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(BatchCreateRunResponse), StatusCodes.Status202Accepted)]
@@ -205,10 +206,11 @@ public sealed partial class RunsController(
     }
 
     private const int BatchCreateRunMaxItems = 50;
+
+    private CreateRunIdempotencyState? TryBuildCreateRunIdempotency(ArchitectureRequest request)
     {
         if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues raw) ||
             string.IsNullOrWhiteSpace(raw.ToString()))
-
             return null;
 
         string trimmed = raw.ToString().Trim();
