@@ -2,12 +2,17 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { runAxe } from "./helpers/axe-helper";
 
-/** Matches `PilotNavGroupBuilder` → `label` in `src/lib/pilot-nav-group-builder.ts` (sidebar `<nav aria-label>`). */
-const architectureReviewsNavLabel = "Architecture reviews";
+/**
+ * Pilot group `<nav aria-label>` — always `group.label` from `PilotNavGroupBuilder` (`SidebarNav` sets `aria-label={group.label}`).
+ * The disclosure **button** label is `group.label` in full-operator mode and `"All reviews"` when buyer-polished (`isBuyerPolishedOperatorShellEnv`).
+ */
+const pilotNavGroupAriaLabel = "Review work";
 
-/** Expands the architecture-reviews collapsible when `localStorage` left it closed so `<nav aria-label>` links are in the a11y tree. */
+const pilotSectionDisclosureName = /^(Review work|All reviews)$/;
+
+/** Expands the pilot nav collapsible when `localStorage` left it closed so sidebar links are in the a11y tree. */
 async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
-  const trigger = page.getByRole("button", { name: architectureReviewsNavLabel });
+  const trigger = page.getByRole("button", { name: pilotSectionDisclosureName });
   await trigger.waitFor({ state: "visible", timeout: 60_000 });
 
   if ((await trigger.getAttribute("aria-expanded")) === "false") await trigger.click();
@@ -32,7 +37,7 @@ test.describe("route focus and announcements", () => {
     await ensureCorePilotSectionExpanded(page);
 
     await page
-      .getByRole("navigation", { name: architectureReviewsNavLabel })
+      .getByRole("navigation", { name: pilotNavGroupAriaLabel })
       .getByRole("link", { name: "Reviews" })
       .click();
 
@@ -49,7 +54,7 @@ test.describe("route focus and announcements", () => {
     await ensureCorePilotSectionExpanded(page);
 
     await page
-      .getByRole("navigation", { name: architectureReviewsNavLabel })
+      .getByRole("navigation", { name: pilotNavGroupAriaLabel })
       .getByRole("link", { name: "Reviews" })
       .click();
     await page.waitForURL("**/reviews**", { timeout: 60_000 });
