@@ -14,9 +14,9 @@
 - **Score:** 65
 - **Weight:** 6
 - **Weighted deficiency signal:** 210
-- **Justification:** Bootstrapping requires manual JSON config manipulation (`appsettings.json`) for SQL strings, Azure OpenAI endpoints, and OIDC parameters. This creates a steep learning curve for trials.
+- **Justification:** OIDC and advanced hosting settings still require editing JSON (`appsettings.json`). SQL connection strings and Azure OpenAI keys can be merged via `archlucid config bootstrap`, but trial operators still face a steep prerequisite curve overall.
 - **Tradeoffs:** Full enterprise control vs. fast time-to-first-run.
-- **Improvement recommendations:** Build interactive CLI bootstrapping wizards and surface OIDC diagnostic endpoints.
+- **Improvement recommendations:** ~~Build interactive CLI bootstrapping wizards~~ **Done — Improvement 7 (2026-05-14).** ~~Add Azure OpenAI reachability checks in operator lint~~ **Done — Improvement 11 (2026-05-14).** Surface OIDC diagnostic endpoints (Improvement 13).
 - **Status:** Fixable in V1.
 
 **2. Correctness**
@@ -177,7 +177,7 @@
 
 ## 7. Top 6 Engineering Risks
 1. A prompt injection or hallucination leading to a `terraform destroy` escaping the `ArtifactSynthesis` layer.
-2. `AzureOpenAI` endpoints becoming unreachable without failing the application fast during startup.
+2. `AzureOpenAI` endpoints becoming unreachable without surfacing misconfiguration early (`archlucid config lint` now emits an advisory when Real mode cannot TCP-reach the configured endpoint; startup still does not hard-fail solely on upstream outage).
 3. Silent network drops breaking DbUp migrations, leaving the application in a degraded boot loop.
 4. The `AdvisoryScanHostedService` silently failing its lease acquisition without CI test coverage proving its loop.
 5. The `CircuitBreakingAgentCompletionClient` opening without emitting high-visibility, distinct warnings.
@@ -286,7 +286,7 @@ Constraints: Ensure the regex does not severely impact generation performance.
 - **Why it matters:** Reduces trial Adoption Friction by interactively prompting for SQL and Azure OpenAI keys instead of hand-editing JSON.
 - **Expected impact:** Speeds up pilot time-to-first-run by eliminating JSON syntax errors.
 - **Affected qualities:** Adoption Friction, Usability.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `ConfigBootstrapCommand` / `ConfigBootstrapDocumentMerger` in `ArchLucid.Cli`; CLI coverage in `ArchLucid.Cli.Tests`.
 - **Cursor prompt:**
 ```text
 Add a `bootstrap` verb to `ArchLucid.Cli`.
@@ -349,7 +349,7 @@ Constraints: Truncate reasoning text to 500 characters in the sidebar with an "e
 - **Why it matters:** Fails fast if the endpoint is blocked by a firewall, preventing downstream pipeline failures.
 - **Expected impact:** Lower adoption friction.
 - **Affected qualities:** Adoption Friction.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `AzureOpenAiEndpointConnectivityLintAdvisor` via `OperatorConfigurationLintEvaluator`; `OperatorConfigurationLintEvaluatorTests` in `ArchLucid.Core.Tests`.
 - **Cursor prompt:**
 ```text
 Enhance `OperatorConfigurationLintEvaluator` in `ArchLucid.Core`.
@@ -579,7 +579,7 @@ Constraints: Do not log the full connection string.
 ## 10. Prompt Batching Guidance
 To optimize context window usage and cursor cost-effectiveness, execute the actionable prompts in the following batches:
 - **Batch 1 (Core Guardrails & Correctness):** ~~Improvements 14, 22~~ **Completed 2026-05-14.** (`ArchLucid.ArtifactSynthesis.Tests`, `ArchLucid.Host.Core.Tests`.)
-- **Batch 2 (CLI & Operator Tooling):** Improvements 7, 11, 13. Focuses on `ArchLucid.Cli`, config parsing, and `ArchLucid.Api` diagnostic routes.
+- **Batch 2 (CLI & Operator Tooling):** ~~Improvements 7, 11~~ **Completed 2026-05-14.** (`ArchLucid.Cli`, `ArchLucid.Cli.Tests`, `ArchLucid.Core`, `ArchLucid.Core.Tests`.) Improvement 13. Focuses on `ArchLucid.Cli`, config parsing, and `ArchLucid.Api` diagnostic routes.
 - **Batch 3 (UI ROI & Transparency):** Improvements 8, 10, 17. Focuses heavily on `archlucid-ui` components (Savings, Knowledge Graph sidebar, Copy Command).
 - **Batch 4 (Observability & Latency Tracing):** Improvements 15, 18, 24, 25. Focuses on `ArchLucid.AgentRuntime` and `ArchLucid.Api.DataAccess` telemetry.
 - **Batch 5 (UX Polish & Settings):** Improvements 12, 16, 19, 20, 21, 23. Light touches to React components across `archlucid-ui`.

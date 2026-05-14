@@ -84,7 +84,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       />
 
       <div className="flex flex-wrap items-center gap-2">
-        <GenerateAdrFromRunModal input={m.adrGeneratorInput} />
+        <GenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={m.buyerPolishedArtifactTable} />
       </div>
 
       <CompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />

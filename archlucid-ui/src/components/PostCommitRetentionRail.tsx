@@ -52,7 +52,7 @@ export function PostCommitRetentionRail({
         <CardDescription className="text-neutral-700 dark:text-neutral-300">
           {buyerPolishedShell
             ? showcaseSpine
-              ? "Continue the proof path: Executive Summary, signed manifest, evidence graph, governance approval, then the full audit trail."
+              ? "After the sample review, continue Executive Summary → signed manifest → evidence graph → governance approval → audit trail."
               : "Finalized package — use Executive Summary, then manifest, graph, governance, and audit trail in order."
             : "You have a committed review package. Pick the next loop that fits your team—navigation stays inside this workspace."}
         </CardDescription>

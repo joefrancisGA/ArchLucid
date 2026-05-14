@@ -217,15 +217,12 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-showcase-demo-banner")).toBeInTheDocument();
       });
-      expect(screen.getByRole("link", { name: "View Executive Summary" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Start executive review" })).toHaveAttribute(
         "href",
         "/executive/reviews/claims-intake-modernization",
       );
-      expect(screen.getByRole("link", { name: "Open walkthrough" })).toHaveAttribute(
-        "href",
-        "/showcase/claims-intake-modernization",
-      );
-      expect(screen.getByRole("link", { name: "View full review package" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Jump to journey on home" })).toHaveAttribute("href", "/#buyer-review-journey");
+      expect(screen.getByRole("link", { name: "Open full review package" })).toHaveAttribute(
         "href",
         "/reviews/claims-intake-modernization",
       );
@@ -259,9 +256,13 @@ describe("RunsDashboardPanel", () => {
       });
       expect(
         screen.getByText(
-          /open the sample manifest summary to see a governed package/i,
+          /open the sample executive summary or sealed manifest summary/i,
         ),
       ).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Start executive review" })).toHaveAttribute(
+        "href",
+        "/executive/reviews/claims-intake-modernization",
+      );
       expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
         "href",
         "/reviews/claims-intake-modernization/manifest",

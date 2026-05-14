@@ -51,11 +51,17 @@ function isRunNeedingAttention(run: RunSummary): boolean {
   return run.hasFindingsSnapshot === true && run.hasGoldenManifest !== true;
 }
 
-const TAB_LABEL: Record<TabId, string> = {
-  recent: "Recent",
-  attention: "Needs attention",
-  outcomes: "Outcomes",
-};
+function runsDashboardTabLabel(tabId: TabId, buyerPolishedShell: boolean): string {
+  if (tabId === "recent") {
+    return "Recent";
+  }
+
+  if (tabId === "attention") {
+    return buyerPolishedShell ? "Monitored risks" : "Needs attention";
+  }
+
+  return "Outcomes";
+}
 
 function runIsShowcaseHomeExampleStory(run: RunSummary): boolean {
   const id = run.runId.trim();
@@ -217,20 +223,30 @@ export function RunsDashboardPanel() {
                   setTab(id);
                 }}
               >
-                {TAB_LABEL[id]}
+                {runsDashboardTabLabel(id, buyerPolishedShell)}
               </button>
             ))}
           </div>
           <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             {tab === "recent" ? "Latest in workspace" : null}
-            {tab === "attention" ? "Reviews needing attention" : null}
+            {tab === "attention"
+              ? buyerPolishedShell
+                ? "Packaging and pre-final posture"
+                : "Reviews needing attention"
+              : null}
             {tab === "outcomes" ? "Review outcomes" : null}
           </CardTitle>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
             {tab === "recent" ? "Showing the latest reviews for this workspace." : null}
-            {tab === "attention" ? "Reviews with findings awaiting a finalized manifest." : null}
+            {tab === "attention"
+              ? buyerPolishedShell
+                ? "Architecture reviews still moving toward a sealed manifest before sponsor sign-off."
+                : "Reviews with findings awaiting a finalized manifest."
+              : null}
             {tab === "outcomes"
-              ? "Manifests finalized, findings surfaced, and average time to finalization."
+              ? buyerPolishedShell && showcaseDemoRun !== undefined
+                ? "Representative posture for this sample workspace."
+                : "Manifests finalized, findings surfaced, and average time to finalization."
               : null}
           </p>
         </CardHeader>
@@ -263,37 +279,42 @@ export function RunsDashboardPanel() {
                     {buyerSafeHighlight ? (
                       <>
                         <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Start here:</strong>{" "}
-                        <strong>View Executive Summary</strong>, then the <strong>Review journey</strong> on home.
+                        <strong>Start executive review</strong>, then the numbered <strong>Review journey</strong> on
+                        home.
                       </>
                     ) : (
-                      <>Use the five-step journey on home, or open the manifest summary to walk the sealed package.</>
+                      <>
+                        Use <strong className="text-neutral-800 dark:text-neutral-200">Follow the five-step review journey</strong>{" "}
+                        on home, or open the sealed manifest summary to walk the completed package.
+                      </>
                     )}
                   </p>
                   <div className="space-y-2">
                     <Button asChild variant="primary" size="sm" className="h-8 w-full">
-                      <Link href={getShowcaseExecutiveHref()}>View Executive Summary</Link>
+                      <Link href={getShowcaseExecutiveHref()}>Start executive review</Link>
                     </Button>
                     <div className="flex flex-wrap gap-2">
                       <Button asChild variant="outline" size="sm" className="h-8">
                         <Link href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
-                          View full review package
+                          Open full review package
                         </Link>
                       </Button>
                     </div>
-                    <details className="rounded-md border border-neutral-200/80 bg-white/50 px-2 py-1.5 text-xs dark:border-neutral-700 dark:bg-neutral-950/30">
-                      <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
-                        Guided walkthrough (optional)
-                      </summary>
-                      <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
-                        <Link
-                          className="font-medium text-teal-800 underline dark:text-teal-300"
-                          href={getShowcaseWalkthroughHref()}
-                        >
-                          Open walkthrough
-                        </Link>{" "}
-                        — same package on the public page.
+                    <div className="rounded-md border border-neutral-200/80 bg-white/50 px-2 py-2 text-xs dark:border-neutral-700 dark:bg-neutral-950/30">
+                      <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">
+                        Follow the five-step review journey
                       </p>
-                    </details>
+                      <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
+                        Executive Summary → signed manifest → evidence graph → governance approval → audit trail (
+                        matches the Review journey strip on home).
+                      </p>
+                      <Link
+                        className="mt-2 inline-block font-medium text-teal-800 underline dark:text-teal-300"
+                        href="/#buyer-review-journey"
+                      >
+                        Jump to journey on home
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ) : null}
@@ -314,8 +335,8 @@ export function RunsDashboardPanel() {
                       </>
                     ) : (
                       <>
-                        Open the proof path: review detail, finalized manifest, primary finding, or the read-only
-                        marketing showcase.
+                        Explore the completed sample review: review detail, finalized manifest, primary finding, or the
+                        read-only marketing showcase.
                       </>
                     )}
                   </p>
@@ -376,18 +397,25 @@ export function RunsDashboardPanel() {
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     {buyerPolishedShell
-                      ? "Start with a new request, or open the sample manifest summary to see a governed package end to end."
+                      ? "Open the sample executive summary or sealed manifest summary to walk a governed Claims Intake package end to end."
                       : "You have no architecture reviews yet. Create a request to produce a manifest, findings, and exportable artifacts — or walk the pilot checklist first."}
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
-                    <Button asChild variant="primary" size="sm" className="h-8">
-                      <Link href="/reviews/new">Create your first request</Link>
-                    </Button>
-                    {buyerPolishedShell ? (
-                      <Button asChild variant="outline" size="sm" className="h-8">
-                        <Link href={getShowcaseManifestHref()}>View manifest summary</Link>
+                    {!buyerPolishedShell ? (
+                      <Button asChild variant="primary" size="sm" className="h-8">
+                        <Link href="/reviews/new">Create your first request</Link>
                       </Button>
                     ) : (
+                      <>
+                        <Button asChild variant="primary" size="sm" className="h-8">
+                          <Link href={getShowcaseExecutiveHref()}>Start executive review</Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link href={getShowcaseManifestHref()}>View manifest summary</Link>
+                        </Button>
+                      </>
+                    )}
+                    {buyerPolishedShell ? null : (
                       <>
                         <Button asChild variant="outline" size="sm" className="h-8">
                           <Link href="/onboarding">First-review checklist</Link>
@@ -406,15 +434,17 @@ export function RunsDashboardPanel() {
                   {effectiveItems.map((run) => (
                     <li
                       key={run.runId}
-                      className="flex flex-wrap items-start justify-between gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
+                      className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
                     >
-                      <Link
-                        href={`/reviews/${encodeURIComponent(run.runId)}`}
-                        className="min-w-0 flex-1 text-xs font-medium text-teal-800 underline decoration-teal-300/80 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                      >
-                        {runListPrimaryTitle(run)}
-                      </Link>
-                      <RunStatusBadge run={run} className="text-[0.6rem]" />
+                      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                        <Link
+                          href={`/reviews/${encodeURIComponent(run.runId)}`}
+                          className="min-w-0 text-xs font-medium text-teal-800 underline decoration-teal-300/80 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                        >
+                          {runListPrimaryTitle(run)}
+                        </Link>
+                        <RunStatusBadge run={run} className="text-[0.6rem]" />
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -473,45 +503,91 @@ export function RunsDashboardPanel() {
 
           {tab === "outcomes" ? (
             <div data-testid="command-center-activity-card">
-              {deltaStatus === "loading" ? (
-                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading review outcomes…</p>
-              ) : null}
+              {buyerPolishedShell && showcaseDemoRun !== undefined ? (
+                <ul
+                  className="m-0 grid list-none gap-2 p-0 sm:grid-cols-3"
+                  data-testid="runs-dashboard-buyer-outcome-cards"
+                >
+                  <li className="rounded-lg border border-emerald-200/90 bg-emerald-50/50 px-3 py-2 dark:border-emerald-900/60 dark:bg-emerald-950/20">
+                    <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-300">
+                      Outcome
+                    </p>
+                    <p className="m-0 mt-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                      Review finalized
+                    </p>
+                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                      Signed manifest pinned with governance-approved posture for sponsor readout.
+                    </p>
+                  </li>
+                  <li className="rounded-lg border border-amber-200/90 bg-amber-50/50 px-3 py-2 dark:border-amber-900/55 dark:bg-amber-950/20">
+                    <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-amber-950 dark:text-amber-200">
+                      Monitored posture
+                    </p>
+                    <p className="m-0 mt-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                      One non-blocking risk under monitoring
+                    </p>
+                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                      PHI minimization control accepted with recurring sampling — tracked in monitored risks elsewhere in
+                      the package.
+                    </p>
+                  </li>
+                  <li className="rounded-lg border border-teal-200/90 bg-teal-50/50 px-3 py-2 dark:border-teal-900/60 dark:bg-teal-950/20">
+                    <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+                      Deliverables
+                    </p>
+                    <p className="m-0 mt-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                      Evidence package ready
+                    </p>
+                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                      Executive summary through audit trail packaged for diligence and CAB-style review inquiries.
+                    </p>
+                  </li>
+                </ul>
+              ) : (
+                <>
+                  {deltaStatus === "loading" ? (
+                    <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading review outcomes…</p>
+                  ) : null}
 
-              {deltaStatus === "error" ? (
-                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                  Review outcomes are unavailable right now. Try again later or open the reviews list.
-                </p>
-              ) : null}
+                  {deltaStatus === "error" ? (
+                    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                      Review outcomes are unavailable right now. Try again later or open the reviews list.
+                    </p>
+                  ) : null}
 
-              {deltaStatus === "ready" && deltaData !== null && outcomesWindow !== null && outcomesWindow > 0 ? (
-                <dl className="m-0 grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Findings</dt>
-                    <dd className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                      {formatFindings(deltaData.medianTotalFindings)}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Time to finalize</dt>
-                    <dd className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                      {formatHours(deltaData.medianTimeToCommittedManifestTotalSeconds)}
-                    </dd>
-                  </div>
-                </dl>
-              ) : null}
+                  {deltaStatus === "ready" && deltaData !== null && outcomesWindow !== null && outcomesWindow > 0 ? (
+                    <dl className="m-0 grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Findings</dt>
+                        <dd className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                          {formatFindings(deltaData.medianTotalFindings)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">
+                          Time to finalize
+                        </dt>
+                        <dd className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                          {formatHours(deltaData.medianTimeToCommittedManifestTotalSeconds)}
+                        </dd>
+                      </div>
+                    </dl>
+                  ) : null}
 
-              {deltaStatus === "ready" && outcomesWindow === 0 ? (
-                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                  After your first finalized review, this panel will show manifests finalized, findings surfaced, and
-                  average time to finalization.
-                </p>
-              ) : null}
+                  {deltaStatus === "ready" && outcomesWindow === 0 ? (
+                    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                      After your first finalized review, this panel will show manifests finalized, findings surfaced, and
+                      average time to finalization.
+                    </p>
+                  ) : null}
 
-              {deltaStatus === "ready" && deltaData !== null && outcomesWindow === null ? (
-                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                  Review outcomes summary is incomplete. Try again later.
-                </p>
-              ) : null}
+                  {deltaStatus === "ready" && deltaData !== null && outcomesWindow === null ? (
+                    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                      Review outcomes summary is incomplete. Try again later.
+                    </p>
+                  ) : null}
+                </>
+              )}
             </div>
           ) : null}
 

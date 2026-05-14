@@ -36,8 +36,11 @@ export function SampleFirstReviewPackageCard() {
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {buyerPolished === true ? (
               <>
-                Use <strong>View Executive Summary</strong> first, then follow the numbered{" "}
-                <strong>Review journey</strong> in the sidebar.
+                Start with <strong>Start executive review</strong>, then follow the numbered <strong>Review journey</strong>{" "}
+                on home (<Link href="/#buyer-review-journey" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200">
+                  jump to steps
+                </Link>
+                ).
               </>
             ) : (
               "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."
@@ -81,7 +84,7 @@ export function SampleFirstReviewPackageCard() {
                 <>
                   <Button asChild variant="primary" size="lg" className="h-11 min-h-[44px] px-7 text-base shadow-sm">
                     <Link href={getShowcaseExecutiveHref()} onClick={recordSampleOpened}>
-                      View Executive Summary
+                      Start executive review
                     </Link>
                   </Button>
                 </>
@@ -106,26 +109,20 @@ export function SampleFirstReviewPackageCard() {
                   onClick={recordSampleOpened}
                   className="inline-flex min-h-[24px] items-center font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                 >
-                  View full review package
-                </Link>
-                <Link
-                  href="/reviews/new"
-                  className="inline-flex min-h-[24px] items-center font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                >
-                  Start a new request
+                  Open full review package
                 </Link>
                 <details>
                   <summary className="inline-flex min-h-[24px] cursor-pointer list-none items-center font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100 [&::-webkit-details-marker]:hidden">
-                    Guided walkthrough
+                    Follow the five-step review journey
                   </summary>
                   <span className="ms-1 text-neutral-600 dark:text-neutral-400">
-                    Same story on the public page —{" "}
+                    Mirrors the numbered links on home — optionally open the public walkthrough:&nbsp;
                     <Link
                       href={getShowcaseWalkthroughHref()}
                       onClick={recordSampleOpened}
                       className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                     >
-                      open walkthrough
+                      showcase walkthrough
                     </Link>
                     .
                   </span>

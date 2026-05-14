@@ -43,8 +43,8 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchLucidApiFactory factory
 
         summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ManifestSummaryResponse? summaryPayload =
-            await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
+        ManifestMarkdownDocumentResponse? summaryPayload =
+            await summaryResponse.Content.ReadFromJsonAsync<ManifestMarkdownDocumentResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload.Summary.Should().Contain("## Evidence Context");
         summaryPayload.Summary.Should().Contain("### Policy Evidence");

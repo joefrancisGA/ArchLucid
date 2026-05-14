@@ -7,6 +7,7 @@ import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-severity";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
+import { ExecutiveReviewFirstViewport } from "@/components/executive/ExecutiveReviewFirstViewport";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 
@@ -140,40 +141,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
       ) : null}
 
       {summary !== null ? (
-        <Card>
-          <CardContent className="grid gap-3 pt-6 sm:grid-cols-2">
-            <div>
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Findings
-              </p>
-              <p className="m-0 mt-1 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                {summary.findingCount}
-              </p>
-            </div>
-            <div>
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Unresolved issues
-              </p>
-              <p className="m-0 mt-1 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                {summary.unresolvedIssueCount}
-              </p>
-            </div>
-            <div>
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Compliance gaps
-              </p>
-              <p className="m-0 mt-1 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                {summary.complianceGapCount}
-              </p>
-            </div>
-            <div>
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Overall assessment
-              </p>
-              <p className="m-0 mt-1 text-sm text-neutral-700 dark:text-neutral-300">{summary.overallAssessment}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <ExecutiveReviewFirstViewport runId={runId} goldenManifestId={runSummary?.goldenManifestId} summary={summary} />
       ) : null}
 
       {summary !== null ? (

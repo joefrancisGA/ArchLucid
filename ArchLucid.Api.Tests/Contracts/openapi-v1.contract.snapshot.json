@@ -85,6 +85,98 @@
         },
         "type": "object"
       },
+      "AdminOidcDiagnosticsResponse": {
+        "properties": {
+          "authMode": {
+            "type": "string"
+          },
+          "authorizationEndpoint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "configuredAudience": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "configuredAuthority": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "diagnosticSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "discoveryAttempted": {
+            "type": "boolean"
+          },
+          "discoveryError": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "discoverySucceeded": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "issuerFromDiscovery": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jwksUri": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "localJwtAudience": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "localJwtIssuer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "openIdConfigurationUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tokenEndpoint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "userinfoEndpoint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "usesLocalJwtSigningKey": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "AdminOutboxSnapshot": {
         "properties": {
           "authorityPipelineWorkDeadLetter": {
@@ -15948,6 +16040,35 @@
         },
         "tags": [
           "ArchLucid.Api"
+        ]
+      }
+    },
+    "/v1/admin/auth/oidc-diagnostics": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOidcDiagnosticsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOidcDiagnosticsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOidcDiagnosticsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Admin"
         ]
       }
     },

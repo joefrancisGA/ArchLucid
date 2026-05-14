@@ -49,4 +49,16 @@ describe("GenerateAdrFromRunModal", () => {
     expect(writeText).toHaveBeenCalledTimes(1);
     expect(writeText.mock.calls[0]?.[0]).toContain("# ADR:");
   });
+
+  it("uses decision-record wording in buyer-polished shell", async () => {
+    render(<GenerateAdrFromRunModal input={minimalInput} buyerPolished />);
+
+    expect(screen.getByTestId("generate-adr-button")).toHaveTextContent("Open decision record");
+
+    fireEvent.click(screen.getByTestId("generate-adr-button"));
+
+    const dialog = await screen.findByRole("dialog");
+
+    expect(within(dialog).getByRole("heading", { name: /decision record draft/i })).toBeInTheDocument();
+  });
 });

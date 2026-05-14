@@ -17,12 +17,14 @@ import { buildMadrMarkdownFromRun, type AdrGeneratorRunInput } from "@/lib/adr-f
 
 export type GenerateAdrFromRunModalProps = {
   input: AdrGeneratorRunInput;
+  /** Buyer-polished review detail: soften ADR jargon into decision-record language. */
+  buyerPolished?: boolean;
 };
 
 /**
  * Run detail action: drafts a MADR-style ADR in-browser from serialized run + explanation payload (no extra HTTP).
  */
-export function GenerateAdrFromRunModal({ input }: GenerateAdrFromRunModalProps) {
+export function GenerateAdrFromRunModal({ input, buyerPolished = false }: GenerateAdrFromRunModalProps) {
   const [open, setOpen] = useState(false);
   const [markdown, setMarkdown] = useState<string>("");
   const [copied, setCopied] = useState(false);
@@ -69,15 +71,16 @@ export function GenerateAdrFromRunModal({ input }: GenerateAdrFromRunModalProps)
   return (
     <>
       <Button type="button" variant="outline" data-testid="generate-adr-button" onClick={() => onOpenChange(true)}>
-        Generate ADR
+        {buyerPolished ? "Open decision record" : "Generate ADR"}
       </Button>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-h-[min(90vh,56rem)] max-w-3xl gap-4 overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Architecture Decision Record</DialogTitle>
+            <DialogTitle>{buyerPolished ? "Decision record draft" : "Architecture Decision Record"}</DialogTitle>
             <DialogDescription>
-              MADR-inspired draft from this review&apos;s findings and aggregate AI assessment. Edit the Markdown, then
-              copy or download — nothing is stored server-side.
+              {buyerPolished
+                ? "MADR-style draft you can copy into your enterprise decision-register or CAB packet. Edit the Markdown, then copy or download — nothing is stored server-side."
+                : "MADR-inspired draft from this review's findings and aggregate AI assessment. Edit the Markdown, then copy or download — nothing is stored server-side."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">

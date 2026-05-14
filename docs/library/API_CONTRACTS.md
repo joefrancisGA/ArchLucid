@@ -175,6 +175,7 @@ See also **`docs/CONTROLLER_AREA_MAP.md`**. Existing **`POST /v1/admin/runs/arch
 | `GET` | `/v1/admin/config-summary` | **AdminAuthority** | Catalog presence + optional **`includeEffectiveValues`** (masked secrets). |
 | `GET` | `/v1/admin/configuration/summary` | **AdminAuthority** | Alias of **`config-summary`**. |
 | `GET` | `/v1/admin/config-lint` | **AdminAuthority** | **`AdminConfigLintResponse`**: **`hostingEnvironmentName`**, **`ok`**, **`blockingFindings`**, optional **`advisoryFindings`** (omit advisory noise with **`includeAdvisory=false`**). Mirrors **`archlucid config lint`** / **`ProductionLikeHostingMisconfigurationAdvisor`**; never returns secrets. |
+| `GET` | `/v1/admin/auth/oidc-diagnostics` | **AdminAuthority** | **`AdminOidcDiagnosticsResponse`**: configured **`authMode`**, **`configuredAuthority`**, **`configuredAudience`**, **`usesLocalJwtSigningKey`**, optional local issuer/audience when PEM signing is enabled; when **`JwtBearer`** uses OIDC metadata, attempts **`GET {authority}/.well-known/openid-configuration`** (10s HTTP timeout) and surfaces **`issuerFromDiscovery`**, **`authorizationEndpoint`**, **`tokenEndpoint`**, **`jwksUri`**, **`userinfoEndpoint`**, plus **`discoverySucceeded`** / **`discoveryError`**. No secrets. |
 
 ## Correlation ID
 

@@ -446,7 +446,7 @@ export function RunDetailOutcomeCards({
             Completed output (public showcase)
           </Link>
           <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-            Timeline and audit identifiers stay below — start here for the proof path.
+            Timeline and audit identifiers stay below — start here after the sample review.
           </p>
         </CardContent>
       </Card>

@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:187 -->
+<!-- audit-core-const-count:190 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -229,10 +229,12 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `ProvenanceAccessed` | `ProvenanceAccessed` | `AuthorityQueryController` (`GET …/provenance`, `GET /v1/runs/{runId}/review-trail/provenance`) |
 | `FindingsListAccessed` | `FindingsListAccessed` | — (constant reserved; no bulk list route + no `LogAsync` yet — see **Known gaps**) |
 | `GovernanceApprovalRequested` | `GovernanceApprovalRequested` | `GovernanceController` (`POST /v1/governance/approval-requests`) |
+| `GovernanceSlackInteractivityDispatched` | `GovernanceSlackInteractivityDispatched` | `SlackInteractivityController` (`POST …/integrations/webhooks/slack/interactivity`; signature-verified dispatch) |
 | `ArtifactsGenerated` | `ArtifactsGenerated` | `AuthorityPipelineStagesExecutor` |
 | `ArtifactSynthesisFailed` | `ArtifactSynthesisFailed` | `AuthorityPipelineStagesExecutor` (artifact stage `catch` before rethrow) |
 | `ArtifactSynthesisPartial` | `ArtifactSynthesisPartial` | `AuthorityPipelineStagesExecutor` (partial bundle branch) |
 | `RequestCreated` | `Request.Created` | `ArchitectureRunCreateOrchestrator` |
+| `ArchitectureRunBatchAccepted` | `Architecture.RunBatchAccepted` | `RunsController` (`POST …/architecture/request/batch`, 202; per-item persist emits `RequestCreated`) |
 | `RequestLocked` | `Request.Locked` | `ArchitectureRunCreateOrchestrator` |
 | `RequestReleased` | `Request.Released` | `AuthorityDrivenArchitectureRunCommitOrchestrator` |
 | `ManifestSuperseded` | `ManifestSuperseded` | — (catalogue-only until supersession writer exists — see **Known gaps**) |
@@ -252,6 +254,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `SyntheticOperatorDemoPackMarker` | `SyntheticOperatorDemoPack.Marker` | `SyntheticOperatorDemoPackWriter` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `SyntheticOperatorDemoPackInvoked` | `SyntheticOperatorDemoPack.Invoked` | `SyntheticOperatorDemoPackController` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `RunExported` | `RunExported` | `ArtifactExportController` |
+| `RunExportBlobPushQueued` | `RunExportBlobPushQueued` | `ArtifactExportController` (HTTP 202 accepts enqueue; background `RunExportBlobPushService` emits succeeded/failed) |
 | `RunExportBlobPushSucceeded` | `RunExportBlobPushSucceeded` | `RunExportBlobPushService` (`ArtifactExportController` queues background PUT to customer SAS) |
 | `RunExportBlobPushFailed` | `RunExportBlobPushFailed` | `RunExportBlobPushService` (non-success HTTP or exception; same enqueue path as succeeded) |
 | `TerraformAdvisoryExportDownloaded` | `TerraformAdvisoryExportDownloaded` | `ArtifactExportController` |

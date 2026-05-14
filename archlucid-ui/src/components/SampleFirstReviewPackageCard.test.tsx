@@ -80,16 +80,17 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText("Review journey", { selector: "strong" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View Executive Summary" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Start executive review" })).toHaveAttribute(
       "href",
       "/executive/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "View full review package" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open full review package" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Start a new request" })).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByRole("link", { name: "open walkthrough" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "jump to steps" })).toHaveAttribute("href", "/#buyer-review-journey");
+    expect(screen.queryByRole("link", { name: "Start a new request" })).toBeNull();
+    expect(screen.getByRole("link", { name: "showcase walkthrough" })).toHaveAttribute(
       "href",
       "/showcase/claims-intake-modernization",
     );
@@ -98,7 +99,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
   it("records review-output telemetry when the full package link opens", () => {
     render(<SampleFirstReviewPackageCard />);
 
-    fireEvent.click(screen.getByRole("link", { name: "View full review package" }));
+    fireEvent.click(screen.getByRole("link", { name: "Open full review package" }));
 
     expect(recordCorePilotRailChecklistStep).toHaveBeenCalledWith(3);
   });

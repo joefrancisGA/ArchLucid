@@ -2,8 +2,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ArchLucid.Api.Models;
 
+/// <summary>
+///     Markdown (or markdown-shaped) golden-manifest export body for governance architecture routes —
+///     distinct from <see cref="ArchLucid.Api.Contracts.ManifestSummaryResponse" /> (authority manifest counters/metadata).
+/// </summary>
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
-public sealed class ManifestSummaryResponse
+public sealed class ManifestMarkdownDocumentResponse
 {
     public string ManifestVersion
     {

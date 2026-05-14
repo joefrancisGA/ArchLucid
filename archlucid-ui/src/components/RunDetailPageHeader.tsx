@@ -45,9 +45,14 @@ export function RunDetailPageHeader({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-start gap-2">
-            <h1 className="m-0 flex-1 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-2xl">
-              {headline}
-            </h1>
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+              <h1 className="m-0 min-w-0 flex-1 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-2xl">
+                {headline}
+              </h1>
+              {buyerPolishedShell === true && finalizedBuyerChrome === true ? (
+                <RunStatusBadge run={runSummary} />
+              ) : null}
+            </div>
             <div className="flex shrink-0 items-center gap-1.5">
               <HelpButton pageKey="/runs/[id]" />
               <HelpLink
@@ -80,9 +85,12 @@ export function RunDetailPageHeader({
               {executionFlavorBuyerSummary}
             </p>
           ) : null}
-          {buyerPolishedShell !== true || finalizedBuyerChrome !== true ? (
+          {runSummary.runDegradedExecution === true ||
+          !(buyerPolishedShell === true && finalizedBuyerChrome === true) ? (
             <div className="flex flex-wrap items-center gap-2">
-              <RunStatusBadge run={runSummary} />
+              {!(buyerPolishedShell === true && finalizedBuyerChrome === true) ? (
+                <RunStatusBadge run={runSummary} />
+              ) : null}
               {runSummary.runDegradedExecution === true ? (
                 <Badge
                   variant="outline"

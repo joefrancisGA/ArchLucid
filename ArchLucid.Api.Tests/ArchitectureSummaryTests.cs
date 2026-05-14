@@ -42,8 +42,8 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
 
         summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ManifestSummaryResponse? summaryPayload =
-            await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
+        ManifestMarkdownDocumentResponse? summaryPayload =
+            await summaryResponse.Content.ReadFromJsonAsync<ManifestMarkdownDocumentResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload.Format.Should().Be("markdown");
         summaryPayload.Content.Should().Contain("# Architecture Summary: EnterpriseRag");

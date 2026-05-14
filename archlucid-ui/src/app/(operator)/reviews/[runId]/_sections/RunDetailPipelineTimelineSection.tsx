@@ -29,7 +29,7 @@ export function RunDetailPipelineTimelineSection(
         <CardHeader>
           <div className="mb-1 flex flex-wrap items-center gap-2">
             <h3 id="pipeline-timeline-title" className={runDetailSectionHeadingClass}>
-              {buyerPolishedArtifactTable ? "Review activity timeline" : "Pipeline timeline"}
+              {buyerPolishedArtifactTable ? "Recent lifecycle events" : "Pipeline timeline"}
             </h3>
             <ContextualHelp helpKey="run-pipeline-status" placement="right" />
           </div>

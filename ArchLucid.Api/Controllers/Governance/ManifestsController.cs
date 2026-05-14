@@ -206,7 +206,7 @@ public sealed class ManifestsController(
     }
 
     [HttpGet("manifest/{manifestVersion}/summary")]
-    [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ManifestMarkdownDocumentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestSummary(
         [FromRoute] string manifestVersion,
@@ -294,14 +294,14 @@ public sealed class ManifestsController(
 
         string content = manifestSummaryService.GenerateMarkdown(manifest, options);
 
-        return Ok(new ManifestSummaryResponse
+        return Ok(new ManifestMarkdownDocumentResponse
         {
             ManifestVersion = manifestVersion, Format = FormatMarkdown, Content = content, Summary = content
         });
     }
 
     [HttpGet("manifest/{manifestVersion}/summary/evidence")]
-    [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ManifestMarkdownDocumentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestSummaryEvidence(
         [FromRoute] string manifestVersion,
@@ -314,7 +314,7 @@ public sealed class ManifestsController(
 
         string markdown = summaryGenerator.GenerateMarkdown(manifest, evidence);
 
-        return Ok(new ManifestSummaryResponse
+        return Ok(new ManifestMarkdownDocumentResponse
         {
             ManifestVersion = manifestVersion, Format = FormatMarkdown, Content = markdown, Summary = markdown
         });

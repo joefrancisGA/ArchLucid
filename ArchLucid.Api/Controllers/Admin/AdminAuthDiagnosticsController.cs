@@ -1,4 +1,5 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Api.Services.Admin;
 using ArchLucid.Host.Core.Services;
 
 using Asp.Versioning;
@@ -20,12 +21,17 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin")]
-public sealed class AdminAuthDiagnosticsController(IAuthDiagnosticsRingBuffer authDiagnosticsRingBuffer) : ControllerBase
+public sealed class AdminAuthDiagnosticsController(
+    IAuthDiagnosticsRingBuffer authDiagnosticsRingBuffer,
+    IOidcWellKnownDiagnosticsService oidcWellKnownDiagnosticsService) : ControllerBase
 {
     private const int MaxAuthDiagnosticsEntries = 200;
 
     private readonly IAuthDiagnosticsRingBuffer _authDiagnosticsRingBuffer =
         authDiagnosticsRingBuffer ?? throw new ArgumentNullException(nameof(authDiagnosticsRingBuffer));
+
+    private readonly IOidcWellKnownDiagnosticsService _oidcWellKnownDiagnosticsService =
+        oidcWellKnownDiagnosticsService ?? throw new ArgumentNullException(nameof(oidcWellKnownDiagnosticsService));
 
     /// <summary>
     ///     Returns the most recent IdP JWT role-mapping failures captured in the in-memory ring buffer.
@@ -41,5 +47,18 @@ public sealed class AdminAuthDiagnosticsController(IAuthDiagnosticsRingBuffer au
             _authDiagnosticsRingBuffer.GetRecent(Math.Clamp(maxCount, 1, MaxAuthDiagnosticsEntries));
 
         return Ok(entries);
+    }
+
+    /// <summary>
+    ///     Returns configured JWT/OIDC authority and audience plus optional OpenID Provider discovery metadata reachability.
+    /// </summary>
+    [HttpGet("auth/oidc-diagnostics")]
+    [ProducesResponseType(typeof(AdminOidcDiagnosticsResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdminOidcDiagnosticsResponse>> GetOidcDiagnostics(CancellationToken cancellationToken)
+    {
+        AdminOidcDiagnosticsResponse snapshot =
+            await _oidcWellKnownDiagnosticsService.BuildAsync(cancellationToken);
+
+        return Ok(snapshot);
     }
 }

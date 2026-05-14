@@ -22,7 +22,7 @@ using Xunit;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>SQL-backed branches of <see cref="AdminDiagnosticsService" /> exercised with Moq-backed <see cref="DbConnection" />.</summary>
+/// <summary>SQL-backed branches of <see cref="AdminDiagnosticsService" /> using Moq <see cref="DbCommand"/> + <see cref="SequencedCommandDbConnection"/>.</summary>
 [Trait("Suite", "Core")]
 public sealed class AdminDiagnosticsServiceSqlPathTests
 {
@@ -36,52 +36,39 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         public static ReadResult OnlyGuids(params Guid[] ids) => new([], ids);
     }
 
-    /// <summary>Holds a factory + queued <see cref="DbCommand" /> builders wired to a single <see cref="DbConnection" />.</summary>
     private sealed class ScriptedSqlSession(Mock<IDbConnectionFactory> factoryProxy)
     {
-        private readonly Queue<Func<Mock<DbConnection>, DbCommand>> _commandBuilders = new();
+        private readonly List<Func<DbCommand>> _commandFactories = new();
 
         public IDbConnectionFactory Factory => factoryProxy.Object;
 
         public void EnqueueParameterizedReader(ReadResult result, Action<Mock<DbCommand>>? sideEffect = null)
         {
-            _commandBuilders.Enqueue(connection =>
-                BuildReaderCommand(connection, result, sideEffect));
+            _commandFactories.Add(() => BuildReaderCommand(result, sideEffect));
         }
 
         public void EnqueueNonQuery(int rowsAffected, Action<Mock<DbCommand>>? sideEffect = null)
         {
-            _commandBuilders.Enqueue(connection =>
-                BuildNonQueryCommand(connection, Task.FromResult(rowsAffected), sideEffect));
+            _commandFactories.Add(() =>
+                BuildNonQueryCommand(Task.FromResult(rowsAffected), sideEffect));
         }
 
         public void EnqueueFaultingNonQuery(Exception fault, Action<Mock<DbCommand>>? sideEffect = null)
         {
-            _commandBuilders.Enqueue(connection =>
-                BuildNonQueryCommand(connection, Task.FromException<int>(fault), sideEffect));
+            _commandFactories.Add(() =>
+                BuildNonQueryCommand(Task.FromException<int>(fault), sideEffect));
         }
 
-        /// <summary>Applies <see cref="AttachTransaction" /> to the connection created for this session.</summary>
-        public Mock<DbConnection> Activate()
+        public SequencedCommandDbConnection Activate()
         {
-            Mock<DbConnection> connection = new(MockBehavior.Loose);
-            connection.Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+            Queue<DbCommand> scripted = new();
 
-            Mock<DbConnection> connectionCapture = connection;
+            foreach (Func<DbCommand> maker in _commandFactories)
+                scripted.Enqueue(maker());
 
-            connection.Setup(c => c.CreateCommand()).Returns(() =>
-            {
-                if (_commandBuilders.Count == 0)
-                    throw new InvalidOperationException("No DbCommand was scripted for this CreateCommand call.");
+            SequencedCommandDbConnection connection = new(scripted);
 
-                Func<Mock<DbConnection>, DbCommand> next = _commandBuilders.Dequeue();
-
-                return next(connectionCapture);
-            });
-
-            factoryProxy
-                .Setup(f => f.CreateConnection())
-                .Returns(connection.Object);
+            factoryProxy.Setup(f => f.CreateConnection()).Returns(connection);
 
             return connection;
         }
@@ -93,7 +80,8 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         List<object?> scalarSequence = [11L, Convert.ToDecimal(33), 22, Convert.ToDecimal(44)];
 
         Mock<IDbConnectionFactory> factory = new();
-        _ = ScalarConnection(factory, scalarSequence);
+
+        ScalarConnection(factory, scalarSequence);
 
         AdminDiagnosticsService sut = CreateDiagnosticsService(factory.Object);
 
@@ -133,7 +121,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         Assert.Equal("comparison-key-42", result.ComparisonRecordIds[0]);
 
         audit.Verify(
-            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            svc => svc.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -147,9 +135,9 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         session.EnqueueParameterizedReader(ReadResult.Strings("audit-target"));
         session.EnqueueParameterizedReader(ReadResult.Strings("audit-target"));
 
-        Mock<DbConnection> conn = session.Activate();
+        SequencedCommandDbConnection connection = session.Activate();
 
-        Mock<DbTransaction> tx = AttachTransaction(conn);
+        RecordingDbTransaction transaction = AttachTransaction(connection);
 
         AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object);
 
@@ -161,7 +149,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         Assert.Single(result.ComparisonRecordIds);
 
         audit.Verify(
-            service => service.LogAsync(
+            svc => svc.LogAsync(
                 It.Is<AuditEvent>(auditEvent =>
                     auditEvent.EventType == AuditEventTypes.ComparisonRecordOrphansRemediated
                     && DataJsonFragments(
@@ -172,8 +160,9 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
-        tx.Verify(transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
-        tx.Verify(transaction => transaction.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+        Assert.False(connection.HasScheduledBeginTransaction);
+        Assert.Equal(1, transaction.CommitCalls);
+        Assert.Equal(0, transaction.RollbackCalls);
     }
 
     [Fact]
@@ -184,15 +173,13 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         ScriptedSqlSession session = new(factoryOuter);
         session.EnqueueParameterizedReader(ReadResult.Empty());
 
-        Mock<DbConnection> conn = session.Activate();
+        SequencedCommandDbConnection connection = session.Activate();
 
         AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory);
 
         _ = await sut.RemediateOrphanComparisonRecordsAsync(false, 10, CancellationToken.None);
 
-        conn.Verify(
-            c => c.BeginTransactionAsync(It.IsAny<CancellationToken>()),
-            Times.Never);
+        Assert.False(connection.HasScheduledBeginTransaction);
     }
 
     [Fact]
@@ -231,9 +218,9 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         session.EnqueueNonQuery(1);
         session.EnqueueParameterizedReader(ReadResult.OnlyGuids(manifestId));
 
-        Mock<DbConnection> conn = session.Activate();
+        SequencedCommandDbConnection connection = session.Activate();
 
-        Mock<DbTransaction> tx = AttachTransaction(conn);
+        RecordingDbTransaction transaction = AttachTransaction(connection);
 
         AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object);
 
@@ -244,7 +231,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         Assert.Equal(1, result.RowCount);
 
         audit.Verify(
-            service => service.LogAsync(
+            svc => svc.LogAsync(
                 It.Is<AuditEvent>(auditEvent =>
                     auditEvent.EventType == AuditEventTypes.GoldenManifestOrphansRemediated
                     && DataJsonFragments(
@@ -254,8 +241,9 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
-        tx.Verify(transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
-        tx.Verify(transaction => transaction.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+        Assert.False(connection.HasScheduledBeginTransaction);
+        Assert.Equal(1, transaction.CommitCalls);
+        Assert.Equal(0, transaction.RollbackCalls);
     }
 
     [Fact]
@@ -270,20 +258,21 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         session.EnqueueParameterizedReader(ReadResult.OnlyGuids(manifestId));
         session.EnqueueFaultingNonQuery(new InvalidOperationException("bundle delete fault"));
 
-        Mock<DbConnection> conn = session.Activate();
+        SequencedCommandDbConnection connection = session.Activate();
 
-        Mock<DbTransaction> tx = AttachTransaction(conn);
+        RecordingDbTransaction transaction = AttachTransaction(connection);
 
         AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             sut.RemediateOrphanGoldenManifestsAsync(false, 2, CancellationToken.None));
 
-        tx.Verify(transaction => transaction.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
-        tx.Verify(transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        Assert.False(connection.HasScheduledBeginTransaction);
+        Assert.Equal(0, transaction.CommitCalls);
+        Assert.Equal(1, transaction.RollbackCalls);
 
         audit.Verify(
-            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            svc => svc.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -299,9 +288,9 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         session.EnqueueParameterizedReader(ReadResult.OnlyGuids(snapshotId));
         session.EnqueueParameterizedReader(ReadResult.OnlyGuids(snapshotId));
 
-        Mock<DbConnection> conn = session.Activate();
+        SequencedCommandDbConnection connection = session.Activate();
 
-        Mock<DbTransaction> tx = AttachTransaction(conn);
+        RecordingDbTransaction transaction = AttachTransaction(connection);
 
         AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object);
 
@@ -312,7 +301,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         Assert.Equal(1, result.RowCount);
 
         audit.Verify(
-            service => service.LogAsync(
+            svc => svc.LogAsync(
                 It.Is<AuditEvent>(auditEvent =>
                     auditEvent.EventType == AuditEventTypes.FindingsSnapshotOrphansRemediated
                     && DataJsonFragments(
@@ -322,8 +311,9 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
-        tx.Verify(transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
-        tx.Verify(transaction => transaction.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+        Assert.False(connection.HasScheduledBeginTransaction);
+        Assert.Equal(1, transaction.CommitCalls);
+        Assert.Equal(0, transaction.RollbackCalls);
     }
 
     [Fact]
@@ -334,9 +324,10 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         Mock<DbCommand>? capture = null;
 
         ScriptedSqlSession session = new(factoryOuter);
+
         session.EnqueueParameterizedReader(
             ReadResult.Empty(),
-            captured => capture = captured);
+            scripted => capture = scripted);
 
         _ = session.Activate();
 
@@ -354,64 +345,41 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             Convert.ToInt32(maxRowsParameter.Value, CultureInfo.InvariantCulture));
     }
 
-    private static DbConnection ScalarConnection(Mock<IDbConnectionFactory> factoryProxy,
+    private static void ScalarConnection(Mock<IDbConnectionFactory> factoryProxy,
         IReadOnlyList<object?> scalarSequence)
     {
-        Queue<object?> remaining = new(scalarSequence);
-        Mock<DbConnection> conn = new(MockBehavior.Loose);
-        conn.Setup(c =>
-                c.OpenAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        Queue<DbCommand> queue = new();
 
-        Mock<DbConnection> connectionCapture = conn;
-
-        conn.Setup(c => c.CreateCommand()).Returns(() =>
+        foreach (object? scalar in scalarSequence)
         {
-            if (remaining.Count == 0)
-                throw new InvalidOperationException("Scalar sequence exhausted.");
+            Mock<DbCommand> shell = CommandShellMoq();
 
-            object? scalar = remaining.Dequeue();
-            Mock<DbCommand> command = BaseCommand(connectionCapture);
-
-            command.Setup(cm =>
+            shell.Setup(cm =>
                     cm.ExecuteScalarAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(scalar);
 
-            return command.Object;
-        });
+            queue.Enqueue(shell.Object);
+        }
 
-        factoryProxy
-            .Setup(f => f.CreateConnection())
-            .Returns(conn.Object);
+        SequencedCommandDbConnection connection = new(queue);
 
-        return conn.Object;
+        factoryProxy.Setup(f => f.CreateConnection()).Returns(connection);
     }
 
-    private static Mock<DbTransaction> AttachTransaction(Mock<DbConnection> connection)
+    private static RecordingDbTransaction AttachTransaction(SequencedCommandDbConnection connection)
     {
-        Mock<DbTransaction> tx = new(MockBehavior.Loose);
+        RecordingDbTransaction transaction = new();
 
-        tx.Setup(t =>
-                t.CommitAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        connection.QueueNextBeginTransaction(transaction);
 
-        tx.Setup(t =>
-                t.RollbackAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        connection.Setup(c =>
-                c.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-            .Returns(() => new ValueTask<DbTransaction>(tx.Object));
-
-        return tx;
+        return transaction;
     }
 
     private static DbCommand BuildReaderCommand(
-        Mock<DbConnection> connection,
         ReadResult result,
         Action<Mock<DbCommand>>? sideEffect)
     {
-        Mock<DbCommand> command = BaseCommand(connection);
+        Mock<DbCommand> command = CommandShellMoq();
         Mock<DbDataReader> reader = BuildReader(result);
 
         command.Setup(cm =>
@@ -424,11 +392,10 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
     }
 
     private static DbCommand BuildNonQueryCommand(
-        Mock<DbConnection> connection,
         Task<int> outcome,
         Action<Mock<DbCommand>>? sideEffect)
     {
-        Mock<DbCommand> command = BaseCommand(connection);
+        Mock<DbCommand> command = CommandShellMoq();
 
         command.Setup(cm =>
                 cm.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()))
@@ -479,15 +446,12 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         return reader;
     }
 
-    private static Mock<DbCommand> BaseCommand(
-        Mock<DbConnection> connection)
+    private static Mock<DbCommand> CommandShellMoq()
     {
         Mock<DbCommand> command = new(MockBehavior.Loose);
 
         command.SetupProperty(cm => cm.Transaction);
-
-        command.SetupGet(cm => cm.Connection)
-            .Returns(connection.Object);
+        command.SetupProperty(cm => cm.Connection);
 
         command.SetupGet(cm => cm.Parameters)
             .Returns(new ListDbParameterCollection());

@@ -1,6 +1,6 @@
 namespace ArchLucid.Host.Core.Demo;
 
-/// <summary>Compact manifest summary for marketing preview (mirrors <c>ManifestSummaryResponse</c> fields).</summary>
+/// <summary>Compact manifest summary for marketing preview (mirrors <see cref="ArchLucid.Api.Contracts.ManifestSummaryResponse" />).</summary>
 public sealed class DemoPreviewManifestSummary
 {
     public required string ManifestId

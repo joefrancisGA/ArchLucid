@@ -42,6 +42,10 @@ public static class ApiWebLayerServiceCollectionExtensions
         }
 
         services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
+        services.AddHttpClient<IOidcWellKnownDiagnosticsService, OidcWellKnownDiagnosticsService>(static client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
         services.AddScoped<ApiRequestMeteringMiddleware>();
         services.AddSingleton<ILocalTrialJwtIssuer, LocalTrialJwtIssuer>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
