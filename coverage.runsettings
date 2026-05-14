@@ -5,17 +5,9 @@
       <DataCollector friendlyName="XPlat Code Coverage">
         <Configuration>
           <Format>cobertura</Format>
-          <!-- Test host assemblies only: keep Coverlet + Cobertura for product code invoked by tests, not for counting test types. -->
-          <Exclude>[*Tests]*</Exclude>
-          <Exclude>[ArchLucid.TestSupport]*</Exclude>
-          <!-- Line-coverage thresholds: do not set <Threshold> here — VSTest invokes coverlet per test assembly, so a global
-               minimum would fail projects that only exercise a slice of the solution. Prefer merged Cobertura + ReportGenerator
-               (see CI "Merge coverage" step) and/or a dedicated script on the merged XML when you want a repo-wide gate. -->
-          <!-- Tier 5: generated / external-HTTP surfaces not meaningfully unit-tested -->
-          <!-- Pure contract/DTO assemblies: exclude only when types are [ExcludeFromCodeCoverage] per docs/library/coverage-exclusions.md (assembly-wide omit would skew merge %). -->
-          <Exclude>[ArchLucid.Cli]*ArchLucidApiClient*</Exclude>
-          <Exclude>[ArchLucid.Api]Microsoft.AspNetCore.OpenApi.Generated*</Exclude>
-          <!-- Worker: single-file composition root (same pattern as other hosts; Coverlet rarely attributes line hits to Program.Main). -->
+          <!-- One comma-separated Exclude element (Coverlet VSTest); includes ArchLucid.Api Microsoft.AspNetCore.OpenApi.Generated*. -->
+          <Exclude>[*Tests]*,[ArchLucid.TestSupport]*,[ArchLucid.Cli]*ArchLucidApiClient*,[ArchLucid.Api]Microsoft.AspNetCore.OpenApi.Generated*</Exclude>
+          <!-- Line-rate gates: use merged Cobertura in CI, not per-project <Threshold> here. -->
           <ExcludeByFile>**/obj/**/OpenApiXmlCommentSupport.generated.cs,**/obj/**/LoggerMessage.g.cs,**/ArchLucid.Api.Client/Generated/**,**/RegexGenerator.g.cs,**/ArchLucid.Worker/Program.cs</ExcludeByFile>
         </Configuration>
       </DataCollector>

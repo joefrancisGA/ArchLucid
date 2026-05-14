@@ -13,7 +13,7 @@ describe("governanceStatusBadgeClass", () => {
   });
 
   it("uses neutral styling for Draft and unknown statuses", () => {
-    expect(governanceStatusBadgeClass("Draft")).toContain("bg-oklch");
-    expect(governanceStatusBadgeClass("Unknown")).toContain("bg-oklch");
+    expect(governanceStatusBadgeClass("Draft")).toContain("bg-neutral-100");
+    expect(governanceStatusBadgeClass("Unknown")).toContain("bg-neutral-100");
   });
 });

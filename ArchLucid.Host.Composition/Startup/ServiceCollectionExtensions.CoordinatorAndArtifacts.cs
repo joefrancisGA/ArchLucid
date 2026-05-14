@@ -165,6 +165,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArtifactGenerator, MermaidDiagramArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, InventoryArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, CostSummaryArtifactGenerator>();
+        services.AddScoped<IArtifactGenerator, TerraformAdvisoryArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, UnresolvedIssuesArtifactGenerator>();
         services.AddScoped<IArtifactSynthesisService, ArtifactSynthesisService>();
         services.AddScoped<IDocxExportService, DocxExportService>();

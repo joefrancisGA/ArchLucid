@@ -6,6 +6,7 @@ using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -39,6 +40,7 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
         AdvisoryScanHostedService sut = new(
             provider,
             HostLeaderElectionTestDoubles.CoordinatorWithElectionDisabled(),
+            Options.Create(new AdvisoryScanHostedServiceOptions()),
             NullLogger<AdvisoryScanHostedService>.Instance);
 
         using CancellationTokenSource cts = new();
@@ -82,6 +84,7 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
         AdvisoryScanHostedService sut = new(
             provider,
             HostLeaderElectionTestDoubles.CoordinatorWithElectionDisabled(),
+            Options.Create(new AdvisoryScanHostedServiceOptions()),
             NullLogger<AdvisoryScanHostedService>.Instance);
 
         using CancellationTokenSource cts = new();
@@ -124,6 +127,7 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
         AdvisoryScanHostedService sut = new(
             provider,
             HostLeaderElectionTestDoubles.CoordinatorWithElectionDisabled(),
+            Options.Create(new AdvisoryScanHostedServiceOptions()),
             NullLogger<AdvisoryScanHostedService>.Instance);
 
         await sut.StartAsync(cts.Token);

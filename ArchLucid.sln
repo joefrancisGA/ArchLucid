@@ -132,6 +132,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Analyzers.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Worker.Tests", "ArchLucid.Worker.Tests\ArchLucid.Worker.Tests.csproj", "{5733049D-CDD0-4938-B89A-62D92481F31C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Host.Core.Tests", "ArchLucid.Host.Core.Tests\ArchLucid.Host.Core.Tests.csproj", "{4AE51FC9-88D2-466D-8269-CF34FF6233C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -718,6 +720,18 @@ Global
 		{5733049D-CDD0-4938-B89A-62D92481F31C}.Release|x64.Build.0 = Release|Any CPU
 		{5733049D-CDD0-4938-B89A-62D92481F31C}.Release|x86.ActiveCfg = Release|Any CPU
 		{5733049D-CDD0-4938-B89A-62D92481F31C}.Release|x86.Build.0 = Release|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Debug|x64.Build.0 = Debug|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Debug|x86.Build.0 = Debug|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Release|x64.ActiveCfg = Release|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Release|x64.Build.0 = Release|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Release|x86.ActiveCfg = Release|Any CPU
+		{4AE51FC9-88D2-466D-8269-CF34FF6233C7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

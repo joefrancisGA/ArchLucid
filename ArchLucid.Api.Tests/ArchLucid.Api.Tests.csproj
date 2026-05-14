@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <!-- Repo coverlet tiered excludes (Microsoft.AspNetCore.OpenApi.Generated in ArchLucid.Api, etc.); CLI settings flag overrides. -->
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)\..\coverage.runsettings</RunSettingsFilePath>
     <AssemblyName>ArchLucid.Api.Tests</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

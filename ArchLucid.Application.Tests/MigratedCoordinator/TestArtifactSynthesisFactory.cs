@@ -22,6 +22,7 @@ internal static class TestArtifactSynthesisFactory
             new MermaidDiagramArtifactGenerator(renderer),
             new InventoryArtifactGenerator(),
             new CostSummaryArtifactGenerator(),
+            new TerraformAdvisoryArtifactGenerator(),
             new UnresolvedIssuesArtifactGenerator()
         ];
         return new ArtifactSynthesisService(

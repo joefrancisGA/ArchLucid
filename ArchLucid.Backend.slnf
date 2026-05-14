@@ -29,6 +29,7 @@
       "ArchLucid.Host.Composition/ArchLucid.Host.Composition.csproj",
       "ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj",
       "ArchLucid.Host.Core/ArchLucid.Host.Core.csproj",
+      "ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj",
       "ArchLucid.Integrations.AzureDevOps/ArchLucid.Integrations.AzureDevOps.csproj",
       "ArchLucid.Integrations.AzureDevOps.Tests/ArchLucid.Integrations.AzureDevOps.Tests.csproj",
       "ArchLucid.Jobs.Cli/ArchLucid.Jobs.Cli.csproj",

@@ -2,6 +2,16 @@
   "version": 1,
   "entries": [
     {
+      "controller_file": "Admin/AdminAuthDiagnosticsController.cs",
+      "class_name": "AdminAuthDiagnosticsController",
+      "route_template": "v{version:apiVersion}/admin",
+      "normalized_prefix": "/v1/admin",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": "auth_debug_api",
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminController.cs",
       "class_name": "AdminController",
       "route_template": "v{version:apiVersion}/admin",
@@ -759,6 +769,16 @@
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Integrations/SlackInteractivityController.cs",
+      "class_name": "SlackInteractivityController",
+      "route_template": "v{version:apiVersion}/integrations/webhooks/slack",
+      "normalized_prefix": "/v1/integrations/webhooks/slack",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": "partner_webhook_ingest",
       "nav_operator_href": null
     },
     {

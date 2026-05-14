@@ -83,11 +83,12 @@ function severityBadgeClass(severity: string): string {
   }
 
   if (key === "high") {
-    return "border-transparent bg-orange-700 text-white hover:bg-orange-700/90 dark:bg-orange-700 dark:hover:bg-orange-700/90";
+    // White on orange-600 (~3.5:1) fails WCAG AA at text-xs; orange-800 stays clearly “warning/high” with enough contrast.
+    return "border-transparent bg-orange-800 text-white hover:bg-orange-800/90 dark:bg-orange-800 dark:hover:bg-orange-800/90";
   }
 
   if (key === "medium") {
-    return "border-transparent bg-amber-600 text-white hover:bg-amber-600/90 dark:bg-amber-600 dark:hover:bg-amber-600/90";
+    return "border-transparent bg-amber-800 text-white hover:bg-amber-800/90 dark:bg-amber-800 dark:hover:bg-amber-800/90";
   }
 
   return "border-neutral-200 bg-neutral-100 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100";

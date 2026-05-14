@@ -263,6 +263,47 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
     }
 
     [Fact]
+    public async Task ArchiveRunsByIdsAsync_when_none_succeed_skips_audit()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IRunRepository> runs);
+
+        Guid requestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        RunArchiveByIdsResult byIds = new()
+        {
+            SucceededRunIds = [],
+            ArchivedRuns = [],
+            Failed = [],
+            ChildCascade = new RunArchiveChildCascadeCounts()
+        };
+
+        _ = runs
+            .Setup(r => r.ArchiveRunsByIdsAsync(
+                It.Is<IReadOnlyList<Guid>>(list => list.Count == 1 && list[0] == requestId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(byIds);
+
+        _ = await sut.ArchiveRunsByIdsAsync(new[] { requestId }, CancellationToken.None);
+
+        audit.Verify(
+            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ArchiveRunsByIdsAsync_when_succeeded_logs_manifest_archived()
     {
         Mock<IAuditService> audit = new();

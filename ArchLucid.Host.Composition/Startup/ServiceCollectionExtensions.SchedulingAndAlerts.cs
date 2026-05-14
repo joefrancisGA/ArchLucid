@@ -140,6 +140,14 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureDigestBuilder, ArchitectureDigestBuilder>();
         services.AddScoped<IAdvisoryScanRunner, AdvisoryScanRunner>();
         services.AddScoped<AdvisoryDueScheduleProcessor>();
+        services
+            .AddOptions<AdvisoryScanHostedServiceOptions>()
+            .BindConfiguration(AdvisoryScanHostedServiceOptions.SectionName)
+            .PostConfigure(static o =>
+            {
+                if (o.PollInterval <= TimeSpan.Zero)
+                    o.PollInterval = TimeSpan.FromMinutes(5);
+            });
 
         if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))
             return;

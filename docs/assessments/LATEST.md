@@ -69,7 +69,7 @@
 - **Justification:** `[RequiresCommercialTenantTier]` exists, but trial downgrade paths and hard LLM budget cutoffs lack refined UX handling.
 - **Tradeoffs:** Hard enforcement vs. soft warnings.
 - **Improvement recommendations:** Finalize UX behavior for LLM hard-cutoff triggers.
-- **Status:** Blocked on user input.
+- **Status:** Fixable in V1.
 
 **8. Customer Self-Sufficiency**
 - **Score:** 60
@@ -96,7 +96,7 @@
 - **Justification:** Good OIDC and SCIM baseline. Custom agent handlers are promised in documentation but the physical boundary isn't crystallized.
 - **Tradeoffs:** Tightly coupled code vs. external webhook architecture.
 - **Improvement recommendations:** Finalize the custom agent boundary model.
-- **Status:** Blocked on user input.
+- **Status:** Fixable in V1.
 
 **11. Security**
 - **Score:** 90
@@ -132,7 +132,7 @@
 - **Justification:** The system runs well on `HotPathCache` memory, but the Redis distributed projection is deferred to V2.
 - **Tradeoffs:** Complexity vs. Scale.
 - **Improvement recommendations:** Determine baselines for the V2 Redis architecture.
-- **Status:** Blocked on user input.
+- **Status:** Fixable in V1.
 
 **15. Observability**
 - **Score:** 85
@@ -186,29 +186,99 @@ ArchLucid's technical foundation—from RLS to agent circuit-breaking—is remar
 
 ## 9. Top Improvement Opportunities
 
-**1. DEFERRED Identify Custom Agent Handler Boundary**
-- **Reason:** The V1.1 custom agent handler documentation requirement needs a technical decision on the execution boundary.
-- **Input needed:** Should custom handlers run in-process as .NET assemblies or out-of-process via gRPC/HTTP webhooks?
+**1. Define Custom Agent Handler Out-of-Process Boundary**
+- **Why it matters:** V1.1 requires documentation for custom handlers, and out-of-process (webhooks) protects the host's memory space and aligns with MCP.
+- **Expected impact:** Clear extensibility path for enterprise integrators.
+- **Affected qualities:** Interoperability, Security.
+- **Status:** Actionable now
+- **Cursor prompt:**
+```text
+Add `docs/library/CUSTOM_AGENT_HANDLERS.md`.
+1. Document the architectural decision to strictly use out-of-process gRPC/HTTP webhooks for third-party custom agent handlers.
+2. Provide a sample JSON payload demonstrating the expected webhook request and response schemas (based on `AgentResult`).
+3. State explicitly that in-process .NET assembly loading is prohibited for custom agents.
+Acceptance Criteria: A clear integration guide exists for external developers.
+Constraints: Must align with the existing `AgentResult` schema and REST patterns.
+```
+- **Impact:** Directly improves Interoperability (+6-8 pts), Security (+3-5 pts). Weighted readiness impact: +0.4-0.6%.
 
-**2. DEFERRED Redis Multi-Replica Baseline Metrics**
-- **Reason:** V2 distributed cache planning requires concrete load expectations.
-- **Input needed:** What is the expected P99 latency target and requests-per-second load for the Knowledge Graph projection cache under peak load?
+**2. Implement Lightweight Redis Baseline for V2**
+- **Why it matters:** V2 distributed cache needs configuration, and the expected light load means a minimal Basic tier Redis setup is sufficient.
+- **Expected impact:** Prevents over-engineering and over-provisioning infrastructure.
+- **Affected qualities:** Performance, Proof-of-ROI Readiness.
+- **Status:** Actionable now
+- **Cursor prompt:**
+```text
+Update the infrastructure documentation in `docs/library/SCALING_PATH.md`.
+1. Document that the V2 Redis distributed cache architecture targets a "Light Load" baseline (Basic tier, single user).
+2. Add a section detailing that the `IGraphSnapshotProjectionCache` will be backed by a minimal Redis instance with a 24-hour TTL, scaling only if utilization exceeds 100 requests per minute.
+Acceptance Criteria: Engineers have clear constraints preventing them from building a massive enterprise Redis cluster.
+Constraints: Emphasize cost-efficiency over high-availability for this specific cache.
+```
+- **Impact:** Directly improves Performance (+5-7 pts). Weighted readiness impact: +0.2-0.3%.
 
-**3. DEFERRED Finalize Multi-tenant Billing Hard-Cutoff Behavior**
-- **Reason:** `LlmMonthlyTenantDollarBudget:HardCutoffUsdPerUtcMonth` exists, but the user experience when this is hit during a long-running execution needs UX definition.
-- **Input needed:** Should the UI display a "Budget Exceeded" interstitial preventing login, or just disable the "Run" button gracefully?
+**3. Gracefully Disable LLM Execution on Budget Exceeded**
+- **Why it matters:** Hard cutoffs shouldn't lock users out of viewing past reports or managing their account.
+- **Expected impact:** Better UX when limits are hit, preserving stickiness while stopping costs.
+- **Affected qualities:** Commercial Packaging Readiness, Usability.
+- **Status:** Actionable now
+- **Cursor prompt:**
+```text
+Update the `RunCreationWizard` in `archlucid-ui`.
+1. Fetch the tenant's current budget status via the API (check `LlmMonthlyTenantDollarBudget:HardCutoffUsdPerUtcMonth` limits).
+2. If the limit is exceeded, disable the "Execute Run" button and display an inline warning: "LLM Execution budget exceeded for this month. You may still view previous runs."
+Acceptance Criteria: Users can log in but cannot incur further LLM costs.
+Constraints: Must not block artifact downloads or comparisons.
+```
+- **Impact:** Directly improves Commercial Packaging Readiness (+6-8 pts), Usability (+3-5 pts). Weighted readiness impact: +0.3-0.5%.
 
-**4. DEFERRED Define Jira OAuth App Registration Posture**
-- **Reason:** Bi-directional sync is V1, but the OAuth app registration strategy (customer-owned vs ArchLucid-owned) shapes the documentation.
-- **Input needed:** Will customers create their own Jira OAuth apps for the sync, or will ArchLucid provide a globally registered app?
+**4. Document ArchLucid-Owned Jira OAuth App Registration**
+- **Why it matters:** Customers need clear instructions on how the Jira bi-directional sync authenticates.
+- **Expected impact:** Removes enterprise adoption blockers regarding third-party app security.
+- **Affected qualities:** Workflow Embeddedness, Security.
+- **Status:** Actionable now
+- **Cursor prompt:**
+```text
+Add an authorization section to `docs/integrations/ITSM_BRIDGE_V1_RECIPES.md`.
+1. Document that ArchLucid will provide a globally registered Jira OAuth 2.0 application for the V1 bi-directional sync.
+2. Specify the exact Jira scopes requested by the app (e.g., `read:jira-work`, `write:jira-work`).
+3. Explain the installation flow from the Atlassian Marketplace.
+Acceptance Criteria: Security reviewers understand the exact blast radius of the Jira integration.
+Constraints: Do not commit any client secrets or IDs to the repo.
+```
+- **Impact:** Directly improves Workflow Embeddedness (+5-8 pts). Weighted readiness impact: +0.2-0.4%.
 
-**5. DEFERRED Slack App Directory Interactive Actions**
-- **Reason:** Slack chat-ops is V1, but interactive buttons (approve/ack) are not committed.
-- **Input needed:** Do you want to scope interactive Slack approvals for V1.1, or keep Slack as read-only notifications indefinitely?
+**5. Scope Slack Interactive Actions for V1.1**
+- **Why it matters:** Clearly defines that Slack approve/ack buttons are on the roadmap for V1.1, managing customer expectations.
+- **Expected impact:** Provides a strong feature promise for chat-ops without delaying V1 GA.
+- **Affected qualities:** Stickiness, Workflow Embeddedness.
+- **Status:** Actionable now
+- **Cursor prompt:**
+```text
+Update `docs/library/V1_DEFERRED.md`.
+1. Modify the Slack row in section `6a. Chat-ops`.
+2. Explicitly commit that interactive Slack approvals (approve/ack buttons) are scoped for V1.1.
+3. Keep the App Directory listing as an open (unpinned) item.
+Acceptance Criteria: Documentation reflects that interactive Slack features are an upcoming V1.1 commitment.
+Constraints: Do not pin calendar dates.
+```
+- **Impact:** Directly improves Stickiness (+4-6 pts). Weighted readiness impact: +0.1-0.2%.
 
-**6. DEFERRED Support Bundle PII Redaction Strategy**
-- **Reason:** The `doctor` / support bundle CLI extracts diagnostics.
-- **Input needed:** What specific log patterns (e.g., email addresses, project names) must be scrubbed from the support bundle before the customer sends it to us?
+**6. Implement PII Email Redaction in Support Bundles**
+- **Why it matters:** Prevents accidental leakage of customer email addresses in support scenarios.
+- **Expected impact:** Higher enterprise security compliance.
+- **Affected qualities:** Security, Compliance Readiness.
+- **Status:** Actionable now
+- **Cursor prompt:**
+```text
+Update `SupportBundleController` in `ArchLucid.Api`.
+1. Before serializing logs and configuration for the support bundle, run a Regex-based redactor.
+2. Replace all valid email addresses with `[REDACTED_EMAIL]`.
+3. Apply this to all textual payloads being added to the ZIP bundle.
+Acceptance Criteria: Support bundles generated via CLI/API do not contain user emails.
+Constraints: Ensure the regex does not severely impact generation performance.
+```
+- **Impact:** Directly improves Security (+5-8 pts), Compliance Readiness (+3-5 pts). Weighted readiness impact: +0.3-0.5%.
 
 **7. Create `archlucid config bootstrap` wizard**
 - **Why it matters:** Reduces trial Adoption Friction by interactively prompting for SQL and Azure OpenAI keys instead of hand-editing JSON.
@@ -512,23 +582,9 @@ To optimize context window usage and cursor cost-effectiveness, execute the acti
 - **Batch 4 (Observability & Latency Tracing):** Improvements 15, 18, 24, 25. Focuses on `ArchLucid.AgentRuntime` and `ArchLucid.Api.DataAccess` telemetry.
 - **Batch 5 (UX Polish & Settings):** Improvements 12, 16, 19, 20, 21, 23. Light touches to React components across `archlucid-ui`.
 - **Batch 6 (Integration Health):** Improvement 9. Isolated work on `ArchLucid.Api` ITSM controllers.
+- **Batch 7 (Integration & Architecture Docs):** Improvements 1, 2, 4, 5. Focuses on `docs/library` and `docs/integrations`.
+- **Batch 8 (Billing UX & Security Polish):** Improvements 3, 6. Focuses on `archlucid-ui` and `SupportBundleController`.
 
 ## 11. Pending Questions for Later
 
-**DEFERRED Identify Custom Agent Handler Boundary**
-- Should custom handlers run in-process as .NET assemblies or out-of-process via gRPC/HTTP webhooks?
-
-**DEFERRED Redis Multi-Replica Baseline Metrics**
-- What is the expected P99 latency target and requests-per-second load for the Knowledge Graph projection cache under peak load?
-
-**DEFERRED Finalize Multi-tenant Billing Hard-Cutoff Behavior**
-- Should the UI display a "Budget Exceeded" interstitial preventing login, or just disable the "Run" button gracefully?
-
-**DEFERRED Define Jira OAuth App Registration Posture**
-- Will customers create their own Jira OAuth apps for the sync, or will ArchLucid provide a globally registered app?
-
-**DEFERRED Slack App Directory Interactive Actions**
-- Do you want to scope interactive Slack approvals for V1.1, or keep Slack as read-only notifications indefinitely?
-
-**DEFERRED Support Bundle PII Redaction Strategy**
-- What specific log patterns (e.g., email addresses, project names) must be scrubbed from the support bundle before the customer sends it to us?
+All pending questions have been resolved and their outputs integrated into the Top Improvement Opportunities above.

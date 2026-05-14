@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
@@ -11,9 +13,10 @@ namespace ArchLucid.Host.Core.Hosted;
 public sealed class AdvisoryScanHostedService(
     IServiceProvider serviceProvider,
     HostLeaderElectionCoordinator electionCoordinator,
+    IOptions<AdvisoryScanHostedServiceOptions> options,
     ILogger<AdvisoryScanHostedService> logger) : BackgroundService
 {
-    private static readonly TimeSpan PollInterval = TimeSpan.FromMinutes(5);
+    private readonly TimeSpan _pollInterval = NormalizePollInterval(options);
 
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -26,7 +29,7 @@ public sealed class AdvisoryScanHostedService(
 
     private async Task PollLoopAsync(CancellationToken leaderToken)
     {
-        logger.LogInformation("Advisory scan hosted service started (poll every {Minutes} minutes).", PollInterval.TotalMinutes);
+        logger.LogInformation("Advisory scan hosted service started (poll every {Minutes} minutes).", _pollInterval.TotalMinutes);
 
         while (!leaderToken.IsCancellationRequested)
         {
@@ -48,12 +51,24 @@ public sealed class AdvisoryScanHostedService(
 
             try
             {
-                await Task.Delay(PollInterval, leaderToken);
+                await Task.Delay(_pollInterval, leaderToken);
             }
             catch (OperationCanceledException)
             {
                 break;
             }
         }
+    }
+
+    private static TimeSpan NormalizePollInterval(IOptions<AdvisoryScanHostedServiceOptions> options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        AdvisoryScanHostedServiceOptions value = options.Value;
+
+        if (value.PollInterval <= TimeSpan.Zero)
+            return TimeSpan.FromMinutes(5);
+
+        return value.PollInterval;
     }
 }

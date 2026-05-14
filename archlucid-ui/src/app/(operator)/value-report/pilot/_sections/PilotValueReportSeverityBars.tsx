@@ -13,7 +13,7 @@ export function PilotValueReportSeverityBars(props: Props) {
     () =>
       [
         { label: "Critical", n: props.counts.critical, barClass: "bg-red-600" },
-        { label: "High", n: props.counts.high, barClass: "bg-orange-600" },
+        { label: "High", n: props.counts.high, barClass: "bg-orange-800" },
         { label: "Medium", n: props.counts.medium, barClass: "bg-amber-500" },
         { label: "Low", n: props.counts.low, barClass: "bg-blue-500" },
         { label: "Info", n: props.counts.info, barClass: "bg-neutral-400 dark:bg-neutral-600" },

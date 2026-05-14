@@ -11,4 +11,5 @@ public static class ArtifactType
     public const string CoverageSummary = "CoverageSummary";
     public const string ArchitectureNarrative = "ArchitectureNarrative";
     public const string UnresolvedIssuesReport = "UnresolvedIssuesReport";
+    public const string TerraformAdvisory = "TerraformAdvisory";
 }
