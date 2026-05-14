@@ -391,6 +391,9 @@ public static class AgentOutputTraceQualityEvaluator
         {
             using JsonDocument doc = JsonDocument.Parse(parsedResultJson);
 
+            if (doc.RootElement.ValueKind != JsonValueKind.Object)
+                return false;
+
             return doc.RootElement.TryGetProperty("citations", out JsonElement citationsElement)
                    && citationsElement.ValueKind == JsonValueKind.Array
                    && citationsElement.GetArrayLength() > 0;
