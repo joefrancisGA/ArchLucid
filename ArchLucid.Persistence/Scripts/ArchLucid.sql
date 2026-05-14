@@ -7063,3 +7063,49 @@ BEGIN
         ON dbo.LlmDailyTenantTokenWindowState (LastUpdatedUtc DESC);
 END;
 GO
+
+/* ---- DbUp 159 parity: commit-run idempotency + project role assignments (see Migrations/159_CommitRunIdempotency_ProjectRoleAssignments.sql) ---- */
+
+IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.CommitRunIdempotency
+    (
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId             UNIQUEIDENTIFIER NOT NULL,
+        ProjectId               UNIQUEIDENTIFIER NOT NULL,
+        RunId                   NVARCHAR(64)       NOT NULL,
+        IdempotencyKeyHash      VARBINARY(32)      NOT NULL,
+        RequestFingerprint      VARBINARY(32)      NOT NULL,
+        CreatedUtc               DATETIME2(7)      NOT NULL
+            CONSTRAINT DF_CommitRunIdempotency_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_CommitRunIdempotency PRIMARY KEY CLUSTERED (TenantId, WorkspaceId, ProjectId, RunId, IdempotencyKeyHash),
+        CONSTRAINT FK_CommitRunIdempotency_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT CK_CommitRunIdempotency_RunIdLen CHECK (LEN(RunId) > 0)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_CommitRunIdempotency_Scope_Key
+        ON dbo.CommitRunIdempotency (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ProjectRoleAssignments', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ProjectRoleAssignments
+    (
+        TenantId        UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ProjectId       UNIQUEIDENTIFIER NOT NULL,
+        UserId          UNIQUEIDENTIFIER NOT NULL,
+        Role            NVARCHAR(32)     NOT NULL,
+        CreatedUtc       DATETIME2(7)     NOT NULL CONSTRAINT DF_ProjectRoleAssignments_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_ProjectRoleAssignments PRIMARY KEY CLUSTERED (TenantId, ProjectId, UserId),
+        CONSTRAINT FK_ProjectRoleAssignments_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT FK_ProjectRoleAssignments_ScimUsers FOREIGN KEY (UserId) REFERENCES dbo.ScimUsers (Id),
+        CONSTRAINT CK_ProjectRoleAssignments_Role CHECK (Role IN (N'Reader', N'Operator', N'ProjectAdmin'))
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ProjectRoleAssignments_User_Scope
+        ON dbo.ProjectRoleAssignments (TenantId, WorkspaceId, ProjectId, UserId)
+        INCLUDE (Role);
+END;
+GO
