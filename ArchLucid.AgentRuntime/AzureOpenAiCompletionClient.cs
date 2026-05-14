@@ -35,6 +35,13 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
     private static readonly AsyncLocal<(string DeploymentName, string? ModelId)?> LastModelMetadata = new();
 
+    /// <summary>
+    ///     Test-only hook: seeds token counts read by <see cref="TryConsumeLastCompletionTokenUsage" /> on this async flow.
+    ///     Used to unit-test <see cref="LlmCompletionAccountingClient" /> without a live Azure completion.
+    /// </summary>
+    internal static void SeedLastCompletionTokenUsageForTests(int promptTokens, int completionTokens, int reasoningTokens = 0) =>
+        LastCompletionTokenUsage.Value = (promptTokens, completionTokens, reasoningTokens);
+
     private readonly ChatClient _chatClient;
     private readonly string _deploymentName;
     private readonly int _maxOutputTokens;

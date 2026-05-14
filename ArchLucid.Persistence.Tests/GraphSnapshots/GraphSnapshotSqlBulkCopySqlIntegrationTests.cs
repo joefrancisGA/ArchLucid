@@ -1,6 +1,8 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GraphSnapshots;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
@@ -97,7 +99,7 @@ public sealed class GraphSnapshotSqlBulkCopySqlIntegrationTests(SqlServerPersist
             Warnings = ["warn-1", "warn-2"]
         };
 
-        ScopeContext scope = new(tenantId, workspaceId, scopeProjectId);
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = scopeProjectId };
         await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync();
 
         try
@@ -107,15 +109,14 @@ public sealed class GraphSnapshotSqlBulkCopySqlIntegrationTests(SqlServerPersist
             await GraphSnapshotSqlBulkCopy.CopyNodeRowsAsync(connection, tran, snapshot, scope, plannedNodes, CancellationToken.None);
             await GraphSnapshotSqlBulkCopy.CopyNodePropertyRowsAsync(connection, tran, scope, plannedNodes, CancellationToken.None);
 
-            var edgeRows = snapshot.Edges.Select(e => new GraphSnapshotEdgeRow
-            {
-                GraphSnapshotId = snapshot.GraphSnapshotId,
-                EdgeId = e.EdgeId,
-                FromNodeId = e.FromNodeId,
-                ToNodeId = e.ToNodeId,
-                EdgeType = e.EdgeType,
-                Weight = e.Weight
-            }).ToList();
+            var edgeRows = snapshot.Edges.Select(e => new GraphSnapshotEdgeRow(
+                snapshot.GraphSnapshotId,
+                e.EdgeId,
+                e.FromNodeId,
+                e.ToNodeId,
+                e.EdgeType,
+                e.Weight
+            )).ToList();
 
             await GraphSnapshotSqlBulkCopy.CopyIndexedEdgeRowsAsync(connection, tran, edgeRows, scope, CancellationToken.None);
             await GraphSnapshotSqlBulkCopy.CopyEdgePropertyRowsAsync(connection, tran, snapshot, scope, CancellationToken.None);

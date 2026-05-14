@@ -65,6 +65,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 
 vi.mock("@/lib/pilot-value-report-fetch", () => ({
   fetchPilotValueReportJson: vi.fn(),
+  getTenantPilotValueReportJson: vi.fn(),
 }));
 
 vi.mock("@/lib/api", async (importOriginal) => {

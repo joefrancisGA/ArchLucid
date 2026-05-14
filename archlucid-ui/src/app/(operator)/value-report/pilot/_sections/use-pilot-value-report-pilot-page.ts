@@ -1,26 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { isApiRequestError } from "@/lib/api-request-error";
-import { buildPilotValueReportQuery } from "@/lib/pilot-value-report-fetch";
+import { buildPilotValueReportQuery, getTenantPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
+import type { PilotValueReportPageServerLoad } from "./load-pilot-value-report-page-data";
 import type { PilotValueReportPilotPageError, PilotValueReportPilotPageViewModel } from "./pilot-value-report-pilot-page-view-model";
+import { toPilotValueReportPilotPageError } from "./to-pilot-value-report-pilot-page-error";
 
-export function usePilotValueReportPilotPage(): PilotValueReportPilotPageViewModel {
-  const [fromUtc, setFromUtc] = useState(() => {
-    const d = new Date();
-
-    d.setUTCDate(d.getUTCDate() - 30);
-
-    return d.toISOString().slice(0, 16);
-  });
-  const [toUtc, setToUtc] = useState(() => new Date().toISOString().slice(0, 16));
-  const [data, setData] = useState<PilotValueReportJson | null>(null);
+export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerLoad): PilotValueReportPilotPageViewModel {
+  const [fromUtc, setFromUtc] = useState(loaded.initialFromUtc);
+  const [toUtc, setToUtc] = useState(loaded.initialToUtc);
+  const [data, setData] = useState<PilotValueReportJson | null>(loaded.data);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<PilotValueReportPilotPageError | null>(null);
+  const [error, setError] = useState<PilotValueReportPilotPageError | null>(loaded.failure);
+
+  const skipInitialClientLoadRef = useRef(true);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -29,39 +26,24 @@ export function usePilotValueReportPilotPage(): PilotValueReportPilotPageViewMod
     try {
       const fromIso = new Date(fromUtc).toISOString();
       const toIso = new Date(toUtc).toISOString();
-      const q = buildPilotValueReportQuery(fromIso, toIso);
+      const json = await getTenantPilotValueReportJson(fromIso, toIso);
 
-      const res = await fetch(
-        `/api/proxy/v1/tenant/pilot-value-report?${q}`,
-        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-      );
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      const json = (await res.json()) as PilotValueReportJson;
       setData(json);
     } catch (e: unknown) {
-      if (isApiRequestError(e)) {
-        setError({
-          message: e.message,
-          problem: e.problem,
-          correlationId: e.correlationId,
-        });
-      } else {
-        setError({
-          message: e instanceof Error ? e.message : "Could not load pilot value report.",
-          problem: null,
-          correlationId: null,
-        });
-      }
+      setError(toPilotValueReportPilotPageError(e));
+      setData(null);
     } finally {
       setBusy(false);
     }
   }, [fromUtc, toUtc]);
 
   useEffect(() => {
+    if (skipInitialClientLoadRef.current) {
+      skipInitialClientLoadRef.current = false;
+
+      return;
+    }
+
     void load();
   }, [load]);
 

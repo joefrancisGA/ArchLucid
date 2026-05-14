@@ -1,6 +1,7 @@
 using ArchLucid.Api.Demo;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -203,7 +204,7 @@ public sealed class QuickStartServiceTests
         Assert.Equal("top-critical", body.TopFindings[0].Title);
         Assert.Equal(nameof(FindingSeverity.Critical), body.TopFindings[0].Severity);
         Assert.Equal("next-error", body.TopFindings[1].Title);
-        Assert.Equal("cat-only", body.TopFindings[2].Title);
+        Assert.Equal("third-warn", body.TopFindings[2].Title);
         Assert.Equal($"https://app.example/runs/{Uri.EscapeDataString(runHex)}", body.RunDetailUrl);
 
         Guid expectedParsed = Guid.ParseExact(runHex, "N");
@@ -218,6 +219,29 @@ public sealed class QuickStartServiceTests
         Assert.Equal(DemoScopePinned.TenantId, submitted.TenantId);
         Assert.Equal(expectedParsed, completed.RunId);
         Assert.Contains("demo-quickstart", completed.DataJson, StringComparison.Ordinal);
+
+        VerifyPipelineOnce(runHex, mocks);
+    }
+
+    [Fact]
+    public async Task RunAsync_finding_summary_trims_category_when_message_is_blank()
+    {
+        string runHex = Guid.NewGuid().ToString("N");
+
+        ExecuteRunResult executed =
+            ExecuteWithFindings(runHex, [CreateArchitectureFinding(" \t ", FindingSeverity.Info, " cat-only-value ")]);
+
+        GoldenManifest golden = MinimalCommitted(runHex, "mv");
+
+        WiredMocks mocks = WireMocks(runHex, executed, golden, capture: null, auditTrail: null);
+
+        QuickStartService sut = ToService(mocks);
+
+        DemoQuickStartResponse body =
+            await sut.RunAsync(new DemoQuickStartRequest { PresetId = "monolith-migration" }, CancellationToken.None);
+
+        Assert.Single(body.TopFindings);
+        Assert.Equal("cat-only-value", body.TopFindings[0].Title);
 
         VerifyPipelineOnce(runHex, mocks);
     }
@@ -244,6 +268,8 @@ public sealed class QuickStartServiceTests
 
         Assert.Single(body.TopFindings);
         Assert.Equal("Finding", body.TopFindings[0].Title);
+
+        VerifyPipelineOnce(runHex, mocks);
     }
 
     [Fact]
@@ -420,9 +446,9 @@ public sealed class QuickStartServiceTests
                     It.IsAny<ArchitectureRequest>(),
                     null,
                     It.IsAny<CancellationToken>()))
-            .ReturnsAsync(NewCreateResult(runIdReturned))
             .Callback<ArchitectureRequest, CreateRunIdempotencyState?, CancellationToken>((rq, _, _) =>
-                capture?.Invoke(rq));
+                capture?.Invoke(rq))
+            .ReturnsAsync(NewCreateResult(runIdReturned));
 
         Mock<IArchitectureRunExecuteOrchestrator> execute = new(MockBehavior.Strict);
 

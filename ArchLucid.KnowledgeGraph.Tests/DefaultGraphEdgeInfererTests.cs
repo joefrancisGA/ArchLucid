@@ -2,6 +2,8 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Models;
 
+using ArchLucid.KnowledgeGraph;
+
 using FluentAssertions;
 
 namespace ArchLucid.KnowledgeGraph.Tests;
@@ -240,6 +242,102 @@ public sealed class DefaultGraphEdgeInfererTests
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [contextNode, policy, r1, r2]);
 
         edges.Should().NotContain(e => e.EdgeType == GraphEdgeTypes.AppliesTo);
+    }
+
+    [Fact]
+    public void InferEdges_SecurityWithProtectedTopologyNodeIds_ProtectsOnlyListedResources()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        string contextNodeId = $"context-{snapshot.SnapshotId:N}";
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx"
+        };
+        GraphNode security = new()
+        {
+            NodeId = "sec-nsg",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "nsg-prod",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds] = "res-web,res-api"
+            }
+        };
+        GraphNode web = new()
+        {
+            NodeId = "res-web",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "web-vm",
+            Category = GraphTopologyCategories.Compute
+        };
+        GraphNode api = new()
+        {
+            NodeId = "res-api",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "api-app",
+            Category = GraphTopologyCategories.Compute
+        };
+        GraphNode db = new()
+        {
+            NodeId = "res-db",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "sql-db",
+            Category = GraphTopologyCategories.Data
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot,
+            [contextNode, security, web, api, db]);
+
+        edges.Should().Contain(e =>
+            e.FromNodeId == "sec-nsg" &&
+            e.ToNodeId == "res-web" &&
+            e.EdgeType == GraphEdgeTypes.Protects);
+        edges.Should().Contain(e =>
+            e.FromNodeId == "sec-nsg" &&
+            e.ToNodeId == "res-api" &&
+            e.EdgeType == GraphEdgeTypes.Protects);
+        edges.Should().NotContain(e =>
+            e.FromNodeId == "sec-nsg" &&
+            e.ToNodeId == "res-db" &&
+            e.EdgeType == GraphEdgeTypes.Protects);
+    }
+
+    [Fact]
+    public void InferEdges_TypicalHubSpoke_NetworkContainsSubnetUsesContainsResourceEdge()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        string contextNodeId = $"context-{snapshot.SnapshotId:N}";
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx"
+        };
+        GraphNode hubNetwork = new()
+        {
+            NodeId = "vnet-hub",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet-hub-eastus",
+            Category = GraphTopologyCategories.Network
+        };
+        GraphNode spokeSubnet = new()
+        {
+            NodeId = "snet-shared",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet-hub-eastus-shared-subnet",
+            Category = GraphTopologyCategories.Network
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [contextNode, hubNetwork, spokeSubnet]);
+
+        edges.Should().Contain(e =>
+            e.FromNodeId == "vnet-hub" &&
+            e.ToNodeId == "snet-shared" &&
+            e.EdgeType == GraphEdgeTypes.ContainsResource &&
+            e.Label == "contains resource");
+        edges.Should().Contain(e =>
+            e.FromNodeId == contextNodeId &&
+            e.ToNodeId == "vnet-hub" &&
+            e.EdgeType == GraphEdgeTypes.Contains &&
+            e.Label == "contains");
     }
 
     [Fact]

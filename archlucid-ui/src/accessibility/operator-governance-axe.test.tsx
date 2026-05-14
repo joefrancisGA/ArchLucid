@@ -48,8 +48,8 @@ vi.mock("@/lib/workspace-health-audit-count", () => ({
   countAuditEventsInWindow: vi.fn().mockResolvedValue({ count: 0, exact: true }),
 }));
 
-vi.mock("@/lib/pilot-value-report-fetch", () => ({
-  fetchPilotValueReportJson: vi.fn().mockResolvedValue({
+vi.mock("@/lib/pilot-value-report-fetch", () => {
+  const stubPilotReport = {
     tenantId: "00000000-0000-0000-0000-000000000001",
     fromUtc: "2026-01-01T00:00:00.000Z",
     toUtc: "2026-06-01T00:00:00.000Z",
@@ -68,8 +68,15 @@ vi.mock("@/lib/pilot-value-report-fetch", () => ({
     committedRunsTimeline: [],
     governancePendingApprovalsNow: 0,
     auditExportTruncated: false,
-  }),
-}));
+  };
+
+  const resolved = vi.fn().mockResolvedValue(stubPilotReport);
+
+  return {
+    fetchPilotValueReportJson: resolved,
+    getTenantPilotValueReportJson: resolved,
+  };
+});
 
 vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
   useEnterpriseMutationCapability: () => false,

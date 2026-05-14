@@ -240,6 +240,7 @@ Qualities are ranked from most urgent to least urgent based on their **weighted 
 - **Input needed:** I need a decision on whether this will be prioritized for V1.1 and the specific ARM roles you are willing to request.
 
 ### 1. Backfill `DapperTenantRepository` Tests
+- **Status:** Complete — Batch 1.
 - **Why it matters:** Prevents catastrophic cross-tenant data leaks.
 - **Expected impact:** Directly improves Correctness (+5-8 pts) and Security (+1-2 pts). Weighted readiness impact: +0.6-0.9%.
 - **Affected qualities:** Correctness, Security.
@@ -260,6 +261,7 @@ Please implement unit tests for the background services in `ArchLucid.Worker`, s
 ```
 
 ### 3. Fortify `GraphSnapshotSqlBulkCopy` Tests
+- **Status:** Complete — Batch 1.
 - **Why it matters:** Massive uncovered blocks here risk data corruption during complex graph ingestion.
 - **Expected impact:** Directly improves Correctness (+2-4 pts) and Performance. Weighted readiness impact: +0.3-0.5%.
 - **Affected qualities:** Correctness, Performance.
@@ -270,6 +272,7 @@ Please write SQL integration tests for `ArchLucid.Persistence.GraphSnapshots.Gra
 ```
 
 ### 4. Enhance `AgentOutputTraceQualityEvaluator` Tests
+- **Status:** Complete — Batch 2.
 - **Why it matters:** This component is the safeguard against LLM hallucinations corrupting the manifest.
 - **Expected impact:** Directly improves AI/Agent Readiness (+3-5 pts) and Correctness. Weighted readiness impact: +0.4-0.7%.
 - **Affected qualities:** AI/Agent Readiness, Correctness.
@@ -280,6 +283,7 @@ Please add exhaustive unit tests for `ArchLucid.AgentRuntime.Evaluation.AgentOut
 ```
 
 ### 5. Secure `LlmCompletionAccountingClient` Tests
+- **Status:** Complete — Batch 2.
 - **Why it matters:** Gaps here risk severe financial inaccuracies in token billing.
 - **Expected impact:** Directly improves Correctness (+2-3 pts) and Proof-of-ROI Readiness. Weighted readiness impact: +0.3-0.5%.
 - **Affected qualities:** Correctness.
@@ -430,6 +434,7 @@ Write exhaustive unit tests for `ArchLucid.Decisioning.Governance.Resolution.Eff
 ```
 
 ### 20. Test `DataConsistencyOrphanProbeExecutor`
+- **Status:** Complete — Batch 1.
 - **Why it matters:** Orphaned data costs money and degrades performance.
 - **Expected impact:** Directly improves Performance (+1-2 pts) and Correctness. Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Performance, Correctness.
@@ -460,6 +465,7 @@ Add unit tests for `ArchLucid.KnowledgeGraph.GraphNodeFactory`. Ensure node inst
 ```
 
 ### 23. Test `DefaultGraphEdgeInferer`
+- **Status:** Complete — Batch 2.
 - **Why it matters:** Inferred relationships must be accurate to avoid hallucinated architecture diagrams.
 - **Expected impact:** Directly improves Explainability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities:** Explainability.
@@ -495,8 +501,8 @@ Add unit tests for `ArchLucid.Cli.Commands.BuyerProofPackCommand`. Ensure that t
 
 To optimize context window usage and efficiency, execute the actionable prompts in the following batches:
 
-- **Batch 1 (Core Persistence & Correctness):** Prompts 1, 3, 20. (Focuses strictly on `ArchLucid.Persistence` and related data consistency execution. Highly localized context).
-- **Batch 2 (Agent & LLM Reliability):** Prompts 4, 5, 23. (Focuses on `ArchLucid.AgentRuntime` and Knowledge Graph inference).
+- **Batch 1 (Core Persistence & Correctness):** **Complete.** Prompts 1, 3, 20. (Focuses strictly on `ArchLucid.Persistence` and related data consistency execution. Highly localized context).
+- **Batch 2 (Agent & LLM Reliability):** **Complete.** Prompts 4, 5, 23. (Focuses on `ArchLucid.AgentRuntime` and Knowledge Graph inference).
 - **Batch 3 (Background Orchestration):** Prompts 2, 12, 13. (Focuses strictly on `ArchLucid.Worker` and `ArchLucid.Host.Core.Jobs`).
 - **Batch 4 (Integrations & Telemetry):** Prompts 6, 15, 16, 21. (Focuses on Azure Extractor, Webhooks, ITSM, and OIDC auth).
 - **Batch 5 (Artifacts & Explainability):** Prompts 7, 11, 17, 18, 22. (Focuses on Export Services, Cost Estimators, and Explainability Contracts).

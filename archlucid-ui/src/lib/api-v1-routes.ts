@@ -17,6 +17,8 @@ export const ApiV1Routes = {
   tenantCostEstimate: "v1/tenant/cost-estimate",
   tenantMeasuredRoi: "v1/tenant/measured-roi",
   tenantWorkspaces: "v1/tenant/workspaces",
+  /** Pilot value report JSON/Markdown aggregate (`GET` with `fromUtc` / `toUtc` query). */
+  tenantPilotValueReport: "v1/tenant/pilot-value-report",
   /** Executive ROI dashboard aggregates (mocked upstream until analytics persistence lands). */
   analyticsRoi: "v1/analytics/roi",
   /** Sponsor evidence bundle (Standard tier): explainability completeness, deltas, governance counts. */

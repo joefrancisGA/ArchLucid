@@ -1,4 +1,5 @@
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { apiGet } from "@/lib/api";
+import { ApiV1Routes } from "@/lib/api-v1-routes";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
 export function buildPilotValueReportQuery(fromIso: string | null, toIso: string): string {
@@ -13,16 +14,17 @@ export function buildPilotValueReportQuery(fromIso: string | null, toIso: string
   return params.toString();
 }
 
-export async function fetchPilotValueReportJson(fromIso: string | null, toIso: string): Promise<PilotValueReportJson> {
+/** Server or browser JSON aggregate; uses shared `apiGet` routing (RSC → upstream, browser → `/api/proxy`). */
+export async function getTenantPilotValueReportJson(
+  fromIso: string | null,
+  toIso: string,
+): Promise<PilotValueReportJson> {
   const q = buildPilotValueReportQuery(fromIso, toIso);
-  const res = await fetch(
-    `/api/proxy/v1/tenant/pilot-value-report?${q}`,
-    mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-  );
 
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}`);
-  }
+  return apiGet<PilotValueReportJson>(`/${ApiV1Routes.tenantPilotValueReport}?${q}`);
+}
 
-  return (await res.json()) as PilotValueReportJson;
+/** Alias for historical call sites; delegates to {@link getTenantPilotValueReportJson}. */
+export async function fetchPilotValueReportJson(fromIso: string | null, toIso: string): Promise<PilotValueReportJson> {
+  return getTenantPilotValueReportJson(fromIso, toIso);
 }

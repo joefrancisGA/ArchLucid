@@ -128,4 +128,85 @@ public sealed class DefaultGraphEdgeInfererContractTests
             .BeApproximately(1.0, 1e-10);
         edges.Should().NotContain(e => e.FromNodeId == "sec-1" && e.ToNodeId == "res-b");
     }
+
+    [Fact]
+    public void InferEdges_Deduplicate_KeepsEdgeWithHighestWeight()
+    {
+        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
+        GraphNode network = new()
+        {
+            NodeId = "net-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet-prod",
+            Category = GraphTopologyCategories.Network
+        };
+        GraphNode subnet = new()
+        {
+            NodeId = "sub-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet-prod-subnet",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["parentNodeId"] = "net-1"
+            }
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [network, subnet]);
+
+        edges.Should()
+            .ContainSingle(e => e.EdgeType == GraphEdgeTypes.ContainsResource && e.FromNodeId == "net-1" && e.ToNodeId == "sub-1")
+            .Which.Weight.Should().Be(1d);
+    }
+
+    [Fact]
+    public void InferEdges_CircularDependencyInParentNodeIds_DoesNotInfiniteLoopAndAddsBothEdges()
+    {
+        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
+        GraphNode nodeA = new()
+        {
+            NodeId = "node-a",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "A",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["parentNodeId"] = "node-b" }
+        };
+        GraphNode nodeB = new()
+        {
+            NodeId = "node-b",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "B",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["parentNodeId"] = "node-a" }
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [nodeA, nodeB]);
+
+        edges.Should().Contain(e => e.EdgeType == GraphEdgeTypes.ContainsResource && e.FromNodeId == "node-b" && e.ToNodeId == "node-a");
+        edges.Should().Contain(e => e.EdgeType == GraphEdgeTypes.ContainsResource && e.FromNodeId == "node-a" && e.ToNodeId == "node-b");
+    }
+
+    [Theory]
+    [InlineData("storage isolation", GraphTopologyCategories.Storage)]
+    [InlineData("compute requires auth", GraphTopologyCategories.Compute)]
+    [InlineData("database encryption", GraphTopologyCategories.Data)]
+    public void InferEdges_RequirementRelevance_HeuristicsMatchCategoryCorrectly(string requirementText, string category)
+    {
+        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
+        GraphNode requirement = new()
+        {
+            NodeId = "req-1",
+            NodeType = GraphNodeTypes.Requirement,
+            Label = "req",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["text"] = requirementText }
+        };
+        GraphNode resource = new()
+        {
+            NodeId = "res-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "resource",
+            Category = category
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [requirement, resource]);
+
+        edges.Should().Contain(e => e.EdgeType == GraphEdgeTypes.RelatesTo && e.FromNodeId == "req-1" && e.ToNodeId == "res-1");
+    }
 }
