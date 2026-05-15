@@ -16,6 +16,8 @@ using ArchLucid.Notifications;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Persistence.Orchestration.Pipeline;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -153,7 +155,7 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
             CreateIntegrationEventsOptionsMonitor(false);
 
-        AuthorityRunOrchestrator sut = new(
+        AuthorityRunOrchestrator sut = CreateOrchestrator(
             uowFactory.Object,
             scopeProvider.Object,
             audit.Object,
@@ -167,7 +169,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            NonCachingGraphSnapshotProjectionCache.Instance,
             CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -358,7 +359,7 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
             CreateIntegrationEventsOptionsMonitor(true);
 
-        AuthorityRunOrchestrator sut = new(
+        AuthorityRunOrchestrator sut = CreateOrchestrator(
             uowFactory.Object,
             scopeProvider.Object,
             audit.Object,
@@ -372,7 +373,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            NonCachingGraphSnapshotProjectionCache.Instance,
             CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -474,7 +474,7 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
             CreateIntegrationEventsOptionsMonitor(false);
 
-        AuthorityRunOrchestrator sut = new(
+        AuthorityRunOrchestrator sut = CreateOrchestrator(
             uowFactory.Object,
             scopeProvider.Object,
             audit.Object,
@@ -488,7 +488,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            NonCachingGraphSnapshotProjectionCache.Instance,
             CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -664,7 +663,7 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
             CreateIntegrationEventsOptionsMonitor(false);
 
-        AuthorityRunOrchestrator sut = new(
+        AuthorityRunOrchestrator sut = CreateOrchestrator(
             uowFactory.Object,
             scopeProvider.Object,
             audit.Object,
@@ -678,7 +677,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            NonCachingGraphSnapshotProjectionCache.Instance,
             CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -770,7 +768,7 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
             CreateIntegrationEventsOptionsMonitor(false);
 
-        AuthorityRunOrchestrator sut = new(
+        AuthorityRunOrchestrator sut = CreateOrchestrator(
             uowFactory.Object,
             scopeProvider.Object,
             audit.Object,
@@ -784,7 +782,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
-            NonCachingGraphSnapshotProjectionCache.Instance,
             CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -892,7 +889,7 @@ public sealed class AuthorityRunOrchestratorTests
         pipelineOpts.Setup(m => m.CurrentValue)
             .Returns(new AuthorityPipelineOptions { PipelineTimeout = TimeSpan.FromMilliseconds(200) });
 
-        AuthorityRunOrchestrator sut = new(
+        AuthorityRunOrchestrator sut = CreateOrchestrator(
             uowFactory.Object,
             scopeProvider.Object,
             audit.Object,
@@ -906,7 +903,6 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             pipelineOpts.Object,
             CreatePublicSiteOptionsMonitor().Object,
-            NonCachingGraphSnapshotProjectionCache.Instance,
             CreatePassiveChatOpsHook().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
@@ -958,6 +954,49 @@ public sealed class AuthorityRunOrchestratorTests
             .Returns(new AuthorityPipelineOptions { PipelineTimeout = TimeSpan.FromHours(1) });
 
         return mock;
+    }
+
+    private static AuthorityRunOrchestrator CreateOrchestrator(
+        IArchLucidUnitOfWorkFactory uowFactory,
+        IScopeContextProvider scopeProvider,
+        IAuditService audit,
+        IRunRepository runRepo,
+        IAuthorityPipelineStagesExecutor pipeline,
+        IRetrievalIndexingOutboxRepository retrievalOutbox,
+        IAuthorityPipelineWorkRepository workRepo,
+        IAsyncAuthorityPipelineModeResolver modeResolver,
+        IIntegrationEventPublisher integrationEvents,
+        IIntegrationEventOutboxRepository integrationOutbox,
+        IOptionsMonitor<IntegrationEventsOptions> integrationEventOpts,
+        IOptionsMonitor<AuthorityPipelineOptions> pipelineOpts,
+        IOptionsMonitor<PublicSiteOptions> publicSiteOpts,
+        IAuthorityRunCommittedChatOpsHook chatOpsHook,
+        ILogger<AuthorityRunOrchestrator> logger)
+    {
+        InlineAuthorityPipelineStagesExecutionDriver driver = new(pipeline);
+        AuthorityCommittedPipelineFinalizer finalizer = new(
+            runRepo,
+            retrievalOutbox,
+            integrationEvents,
+            integrationOutbox,
+            integrationEventOpts,
+            publicSiteOpts,
+            NonCachingGraphSnapshotProjectionCache.Instance,
+            chatOpsHook,
+            audit,
+            NullLogger<AuthorityCommittedPipelineFinalizer>.Instance);
+
+        return new AuthorityRunOrchestrator(
+            uowFactory,
+            scopeProvider,
+            audit,
+            runRepo,
+            driver,
+            finalizer,
+            workRepo,
+            modeResolver,
+            pipelineOpts,
+            logger);
     }
 
     private static ManifestDocument NewMinimalManifest(

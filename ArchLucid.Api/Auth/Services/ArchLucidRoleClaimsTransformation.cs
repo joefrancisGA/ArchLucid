@@ -1,29 +1,33 @@
 using System.Security.Claims;
 using System.Text.Json;
 
-using ArchLucid.Core;
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Auth.Services;
 
 /// <summary>
 ///     Maps ArchLucid roles to legacy <c>permission</c> claims so existing policies
-///     (CanCommitRuns, CanReplayComparisons, etc.) keep working with JWT or dev bypass.
+///     (CanCommitRuns, CanReplayComparisons, etc.) keep working with JWT, SAML cookie sessions, or dev bypass.
 /// </summary>
 /// <remarks>
 ///     JWT / Entra app role claims (<c>roles</c>) are authoritative unless <see cref="IRoleSyncService" /> applies a
-///     SCIM manual override for the inbound principal.  When no known ArchLucid role is found on an authenticated
+///     SCIM manual override for the inbound principal. SAML SP sessions apply
+///     <see cref="ArchLucidSamlInboundClaimsNormalizer" /> when <c>ArchLucidAuth:Saml2:Enabled</c> is true so IdP
+///     attributes can be promoted onto the same claim types. When no known ArchLucid role is found on an authenticated
 ///     principal the failure is recorded in <see cref="IAuthDiagnosticsRingBuffer" /> for admin inspection.
 /// </remarks>
 public sealed class ArchLucidRoleClaimsTransformation(
     IRoleSyncService roleSync,
     IHttpContextAccessor httpContextAccessor,
-    IAuthDiagnosticsRingBuffer authDiagnosticsRingBuffer) : IClaimsTransformation
+    IAuthDiagnosticsRingBuffer authDiagnosticsRingBuffer,
+    IOptions<ArchLucidSamlAuthOptions> samlAuthOptions) : IClaimsTransformation
 {
     private readonly IRoleSyncService _roleSync = roleSync ?? throw new ArgumentNullException(nameof(roleSync));
 
@@ -32,6 +36,9 @@ public sealed class ArchLucidRoleClaimsTransformation(
 
     private readonly IAuthDiagnosticsRingBuffer _authDiagnosticsRingBuffer =
         authDiagnosticsRingBuffer ?? throw new ArgumentNullException(nameof(authDiagnosticsRingBuffer));
+
+    private readonly IOptions<ArchLucidSamlAuthOptions> _samlAuthOptions =
+        samlAuthOptions ?? throw new ArgumentNullException(nameof(samlAuthOptions));
 
     private static readonly string[] AdminPermissions =
     [
@@ -63,6 +70,10 @@ public sealed class ArchLucidRoleClaimsTransformation(
     private const string MicrosoftWsIdentityRoleClaimUri =
         "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
+    /// <summary>SOAP 2005 role URI often used by SAML IdPs (distinct from <see cref="ClaimTypes.Role" />).</summary>
+    private const string XmlSoap2005RoleClaimUri =
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+
     /// <inheritdoc />
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
@@ -73,6 +84,8 @@ public sealed class ArchLucidRoleClaimsTransformation(
 
         if (clone.Identity is not ClaimsIdentity id)
             return principal;
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(id, _samlAuthOptions.Value);
 
         CancellationToken ct = CancellationToken.None;
         HttpContext? httpContext = _httpContextAccessor.HttpContext;
@@ -179,6 +192,9 @@ public sealed class ArchLucidRoleClaimsTransformation(
             ExpandRolesClaimJsonArray(c.Value, roles);
 
         foreach (Claim c in principal.FindAll(MicrosoftWsIdentityRoleClaimUri))
+            ExpandRolesClaimJsonArray(c.Value, roles);
+
+        foreach (Claim c in principal.FindAll(XmlSoap2005RoleClaimUri))
             ExpandRolesClaimJsonArray(c.Value, roles);
 
         return roles;

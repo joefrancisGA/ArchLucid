@@ -169,7 +169,7 @@ export function StructuredComparisonView(props: {
           })}
           rel="noreferrer"
         >
-          Download architecture package DOCX (includes comparison; AI narrative when configured)
+          Download comparison package (DOCX)
         </a>
       </p>
 

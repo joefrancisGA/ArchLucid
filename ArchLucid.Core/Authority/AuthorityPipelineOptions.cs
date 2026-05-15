@@ -27,4 +27,16 @@ public sealed class AuthorityPipelineOptions
         get;
         set;
     } = true;
+
+    /// <summary>
+    ///     Selects the orchestration substrate for authority pipeline runs. Defaults to
+    ///     <see cref="OrchestratorBackend.Legacy" />. Switch to
+    ///     <see cref="OrchestratorBackend.DurableTask" /> only after parity tests pass and a full
+    ///     release-smoke run completes with DTF active (see improvement #26 in LATEST.md).
+    /// </summary>
+    public OrchestratorBackend OrchestratorBackend
+    {
+        get;
+        set;
+    } = OrchestratorBackend.Legacy;
 }

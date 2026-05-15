@@ -26,10 +26,11 @@ export type AssuranceEngagementRow = {
 export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> = [
   {
     id: "internal-security-assessment-2026-q2",
-    engagement: "Internal security assessment (scheduled 2026-Q2 window)",
+    engagement: "Internal security assessment",
     vendor: "ArchLucid internal security program",
-    scope: "Operator UI surface, HTTPS API behaviours, SaaS-aligned data-plane coverage with checklist discipline",
-    completedUtc: "2026-Q2",
+    scope:
+      "Application and administrative UI surfaces, HTTPS API behaviours, SaaS-aligned data-plane coverage with a documented control review process",
+    completedUtc: "In progress",
     summaryAccess: {
       kind: "nda",
       description: "Summary available under diligence — contact security@archlucid.net",
@@ -50,11 +51,12 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     id: "owner-security-self-assessment-2026",
     engagement: "Security & SOC 2 readiness self-assessment",
     vendor: "ArchLucid internal security ownership",
-    scope: "STRIDE-aligned control review mapped to SOC&nbsp;2 Common Criteria themes (self-assessment — not CPA opinion)",
+    scope:
+      "STRIDE-aligned control review mapped to SOC 2 Common Criteria themes (self-assessment — not CPA opinion)",
     completedUtc: "2026-Q2 (rolling updates)",
     summaryAccess: {
       kind: "public",
-      description: "SOC&nbsp;2 readiness summary (public excerpt)",
+      description: "SOC\u00A02 readiness summary (public excerpt)",
       href: "https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/SOC2_SELF_ASSESSMENT_2026.md",
     },
   },
@@ -75,8 +77,8 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     engagement: "Quarterly staging resilience exercise",
     vendor: "ArchLucid platform operations",
     scope:
-      "Staging fault-injection drills for operator practices; production resilience testing is governed by customer deployment architecture and contractual operating models.",
-    completedUtc: "Calendar in published quality log",
+      "Staging-only fault-injection drills for operator practices (SQL pool exhaustion exemplar 2026-04-29; quarterly calendar per game-day log). Production out of scope for scheduled chaos per owner decision 2026-04-22 (PENDING_QUESTIONS item 34). Broader production resilience follows customer deployment architecture and contracts.",
+    completedUtc: "Scheduled — summary available during diligence",
     summaryAccess: {
       kind: "public",
       description: "Resilience exercise summary",

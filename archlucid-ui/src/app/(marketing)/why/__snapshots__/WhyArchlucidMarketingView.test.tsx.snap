@@ -15,7 +15,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
   >
     ArchLucid is an 
     Architecture Proof Engine
-     — governed architecture reviews whose findings, manifests, approvals, and exports share one traceable evidence trail. Specialized automation accelerates synthesis, yet procurement reviewers lead with governance outcomes — comparisons below summarize typical fit versus adjacent tooling. The downloadable proof pack carries the citation-backed drill-down for diligence teams who need paperwork parity.
+    : governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable proof pack carries the citation-backed drill-down for diligence teams who need paperwork parity.
   </p>
   <section
     class="mt-10 rounded-xl border border-sky-200 bg-white px-6 py-6 shadow-sm dark:border-sky-900/70 dark:bg-neutral-950"
@@ -29,7 +29,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-2 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50"
       id="why-hero-outcome-heading"
     >
-      Governed architecture reviews — durable evidence before agentic acceleration
+      Governed architecture reviews with durable evidence before automation
     </h2>
     <p
       class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
@@ -108,22 +108,22 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Consumption-based SaaS (see pricing manifest in-repo).
+              Consumption-based SaaS with published packaging documentation and quote-led enterprise paths.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              ~$19–39/seat/month (code assist; not orchestrated architecture runs).
+              Typical fit: per-seat developer tooling billed for IDE assistance.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              ~$20–25/seat/month (chat; unstructured output).
+              Typical fit: conversational assist with unstructured outputs and manual prompting.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              OSS + optional SaaS tiers ($5–20/mo) — modeling first; limited automated analysis.
+              Typical fit: modeling and diagram DSL with optional SaaS tiers; packaged governance evidence varies by rollout.
             </td>
           </tr>
           <tr
@@ -138,22 +138,22 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Multi-agent architecture pipeline + simulator + routed LLMs (ARCHITECTURE_CONTEXT.md in repo).
+              Purpose-built governed review workflow — multi-agent synthesis, deterministic replay, routed models behind human-reviewed outcomes.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Code completions; lacks manifest-scale architecture orchestration.
+              Typical fit: code completions and refactoring assistance in the editor.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Prompt-defined; brittle repeatability.
+              Often used for exploratory analysis; repeatability depends on prompting and transcripts.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Diagram DSL assist — no agentic findings pipeline comparable to Authority runs.
+              Typical fit: architecture modeling views; analytical depth tied to authored models and integrations.
             </td>
           </tr>
           <tr
@@ -168,22 +168,22 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Committed manifests, segregation-of-duties gates, typed audit envelopes, replay exports (see COMPETITIVE_LANDSCAPE.md §3 for evidence list).
+              Committed manifests, segregation-of-duty gates, typed audit envelopes, and replay/export paths aligned to architecture review packs.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              No enterprise architecture audit trail tied to manifests.
+              Typical fit: developer workflow tooling — not an architecture-evidence catalogue product.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Conversation history only — not attestable lifecycle evidence.
+              Typical fit: interactive Q&A — not a governed package with sealed manifest lineage by default.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Version control over DSL artefacts — lacks governed promotion workflow parity.
+              Typical fit: documenting system context — governance promotion workflows differ from packaged review records.
             </td>
           </tr>
         </tbody>
@@ -274,12 +274,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
       id="why-hard-compare-heading"
     >
-      Hard comparison (front-door)
+      Fit-for-purpose comparison (technical claims)
     </h2>
     <p
       class="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400"
     >
-      Symbols only in the product columns (✓ / partial / —). Each row is labeled the same way across public collateral so reviewers can trace claims to proof links.
+      Symbols in the product columns (✓ / partial / —) summarize capability depth; each row links to diligence references. This is a technical claim map — not a vendor scorecard.
     </p>
     <div
       class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
@@ -291,7 +291,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         <caption
           class="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
         >
-          ArchLucid vs common stacks — technically scoped rows
+          ArchLucid vs typical adjacent stacks — scoped technical rows
         </caption>
         <thead>
           <tr
@@ -400,7 +400,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   download=""
                   href="/v1/marketing/trust-center/evidence-pack.zip"
                 >
-                  Evidence pack (ZIP)
+                  Assurance evidence package (ZIP)
                 </a>
                 <a
                   class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
@@ -408,7 +408,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  AUDIT_COVERAGE_MATRIX.md
+                  Durable audit coverage matrix
                 </a>
               </div>
             </td>
@@ -454,7 +454,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  MULTI_TENANT_RLS.md
+                  Tenant isolation control summary
                 </a>
               </div>
             </td>
@@ -500,7 +500,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  V1_SCOPE.md (auth)
+                  Authentication scope (published scope doc)
                 </a>
               </div>
             </td>
@@ -546,7 +546,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  COMPARISON_REPLAY.md
+                  Comparison replay summary
                 </a>
               </div>
             </td>
@@ -590,7 +590,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
                   href="/demo/explain"
                 >
-                  Explainability demo (live run)
+                  Explainability demo (live review)
                 </a>
               </div>
             </td>
@@ -636,7 +636,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  PRE_COMMIT_GOVERNANCE_GATE.md
+                  Governance gate control description
                 </a>
               </div>
             </td>

@@ -3,23 +3,16 @@ using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
-using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Interfaces;
-using ArchLucid.Persistence.Coordination.Retrieval;
-using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration.Pipeline;
 using ArchLucid.Persistence.Serialization;
-using ArchLucid.Notifications;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -38,21 +31,23 @@ public sealed class AuthorityRunOrchestrator(
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService,
     IRunRepository runRepository,
-    IAuthorityPipelineStagesExecutor pipelineStagesExecutor,
-    IRetrievalIndexingOutboxRepository retrievalIndexingOutbox,
+    IAuthorityPipelineStagesExecutionDriver authorityPipelineStagesExecutionDriver,
+    IAuthorityCommittedPipelineFinalizer authorityCommittedPipelineFinalizer,
     IAuthorityPipelineWorkRepository authorityPipelineWorkRepository,
     IAsyncAuthorityPipelineModeResolver asyncAuthorityPipelineModeResolver,
-    IIntegrationEventPublisher integrationEventPublisher,
-    IIntegrationEventOutboxRepository integrationEventOutbox,
-    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
-    IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
-    IGraphSnapshotProjectionCache graphSnapshotProjectionCache,
-    IAuthorityRunCommittedChatOpsHook authorityRunCommittedChatOpsHook,
     ILogger<AuthorityRunOrchestrator> logger)
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IAuthorityPipelineStagesExecutionDriver _authorityPipelineStagesExecutionDriver =
+        authorityPipelineStagesExecutionDriver
+        ?? throw new ArgumentNullException(nameof(authorityPipelineStagesExecutionDriver));
+
+    private readonly IAuthorityCommittedPipelineFinalizer _authorityCommittedPipelineFinalizer =
+        authorityCommittedPipelineFinalizer
+        ?? throw new ArgumentNullException(nameof(authorityCommittedPipelineFinalizer));
 
     /// <inheritdoc />
     /// <remarks>
@@ -60,8 +55,8 @@ public sealed class AuthorityRunOrchestrator(
     ///     paths: (1) <em>deferred queue</em> — when <see cref="IAsyncAuthorityPipelineModeResolver" /> requests queueing and
     ///     <paramref name="evidenceBundleIdForDeferredWork" /> is non-empty, enqueues outbox payload and returns early after
     ///     commit; or (2) <em>inline execution</em> — runs
-    ///     <see cref="IAuthorityPipelineStagesExecutor.ExecuteAfterRunPersistedAsync" /> and
-    ///     <see cref="FinalizeCommittedPipelineAsync" /> in-process. Pipeline duration is bounded by
+    ///     <see cref="IAuthorityPipelineStagesExecutionDriver.ExecuteStagesAsync" /> and
+    ///     <see cref="IAuthorityCommittedPipelineFinalizer.FinalizeAsync" /> in-process. Pipeline duration is bounded by
     ///     <see cref="AuthorityPipelineOptions.PipelineTimeout" /> via a linked cancellation token (timeout surfaces as
     ///     <see cref="OperationCanceledException" /> filtered against caller cancellation).
     /// </remarks>
@@ -212,6 +207,10 @@ public sealed class AuthorityRunOrchestrator(
                     "inline_authority_pipeline_stages");
 
 
+            if (_authorityPipelineStagesExecutionDriver.RequiresCommittedRunHeaderBeforeStages)
+                await uow.CommitAsync(pipelineCt);
+
+
             AuthorityPipelineContext ctx = new()
             {
                 Run = run,
@@ -221,17 +220,26 @@ public sealed class AuthorityRunOrchestrator(
                 RunActivity = runActivity
             };
 
-            await pipelineStagesExecutor.ExecuteAfterRunPersistedAsync(ctx, pipelineCt);
+            AuthorityPipelineStagesExecutionResult stageResult =
+                await _authorityPipelineStagesExecutionDriver.ExecuteStagesAsync(ctx, pipelineCt);
 
-            return await FinalizeCommittedPipelineAsync(
-                run,
-                ctx.ContextSnapshot!,
-                ctx.FindingsSnapshot!,
-                ctx.Manifest!,
-                ctx.Trace!,
-                scope,
-                uow,
-                pipelineCt);
+            if (stageResult.NeedsFinalizeOnCurrentUnitOfWork)
+            {
+                return await _authorityCommittedPipelineFinalizer.FinalizeAsync(
+                    run,
+                    ctx.ContextSnapshot!,
+                    ctx.FindingsSnapshot!,
+                    ctx.Manifest!,
+                    ctx.Trace!,
+                    scope,
+                    uow,
+                    pipelineCt);
+            }
+
+            if (stageResult.CompletedRun is null)
+                throw new InvalidOperationException("Authority pipeline stages completed without a run record.");
+
+            return stageResult.CompletedRun;
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
@@ -351,17 +359,29 @@ public sealed class AuthorityRunOrchestrator(
                 },
                 pipelineCt);
 
-            await pipelineStagesExecutor.ExecuteAfterRunPersistedAsync(ctx, pipelineCt);
+            if (_authorityPipelineStagesExecutionDriver.RequiresCommittedRunHeaderBeforeStages)
+                await uow.CommitAsync(pipelineCt);
 
-            return await FinalizeCommittedPipelineAsync(
-                run,
-                ctx.ContextSnapshot!,
-                ctx.FindingsSnapshot!,
-                ctx.Manifest!,
-                ctx.Trace!,
-                scope,
-                uow,
-                pipelineCt);
+            AuthorityPipelineStagesExecutionResult stageResult =
+                await _authorityPipelineStagesExecutionDriver.ExecuteStagesAsync(ctx, pipelineCt);
+
+            if (stageResult.NeedsFinalizeOnCurrentUnitOfWork)
+            {
+                return await _authorityCommittedPipelineFinalizer.FinalizeAsync(
+                    run,
+                    ctx.ContextSnapshot!,
+                    ctx.FindingsSnapshot!,
+                    ctx.Manifest!,
+                    ctx.Trace!,
+                    scope,
+                    uow,
+                    pipelineCt);
+            }
+
+            if (stageResult.CompletedRun is null)
+                throw new InvalidOperationException("Authority pipeline stages completed without a run record.");
+
+            return stageResult.CompletedRun;
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
@@ -387,200 +407,6 @@ public sealed class AuthorityRunOrchestrator(
 
             throw;
         }
-    }
-
-    private async Task<RunRecord> FinalizeCommittedPipelineAsync(
-        RunRecord run,
-        ContextSnapshot contextSnapshot,
-        FindingsSnapshot findingsSnapshot,
-        ManifestDocument manifest,
-        DecisionTrace trace,
-        ScopeContext scope,
-        IArchLucidUnitOfWork uow,
-        CancellationToken ct)
-    {
-        if (uow.SupportsExternalTransaction)
-
-            await retrievalIndexingOutbox.EnqueueAsync(
-                run.RunId,
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                uow.Connection,
-                uow.Transaction,
-                ct);
-
-        else
-
-            await retrievalIndexingOutbox.EnqueueAsync(
-                run.RunId,
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                ct);
-
-
-        // Publish-or-enqueue integration events: uses the ambient transaction when the unit-of-work participates in one
-        // so webhook rows share fate with the authority commit; otherwise falls back to immediate publish where configured.
-        string integrationMessageId = BuildAuthorityRunCompletedMessageId(run.RunId);
-        string publicBaseUrl = NormalizePublicSiteBaseUrl(publicSiteOptions.CurrentValue.BaseUrl);
-        Guid? previousRunId = await TryResolvePreviousCommittedGoldenRunIdAsync(scope, run, ct);
-        object[] findingLinks = BuildAuthorityRunCompletedFindingLinks(run.RunId, findingsSnapshot.Findings, publicBaseUrl);
-        object integrationPayload = new
-        {
-            schemaVersion = 1,
-            runId = run.RunId,
-            manifestId = manifest.ManifestId,
-            tenantId = scope.TenantId,
-            workspaceId = scope.WorkspaceId,
-            projectId = scope.ProjectId,
-            previousRunId,
-            findings = findingLinks
-        };
-
-        await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
-            integrationEventOutbox,
-            integrationEventPublisher,
-            integrationEventsOptions.CurrentValue,
-            logger,
-            IntegrationEventTypes.AuthorityRunCompletedV1,
-            integrationPayload,
-            integrationMessageId,
-            run.RunId,
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            uow.SupportsExternalTransaction ? uow.Connection : null,
-            uow.SupportsExternalTransaction ? uow.Transaction : null,
-            ct);
-
-        await uow.CommitAsync(ct);
-
-        if (run.GraphSnapshotId is { } graphSnapshotId)
-            graphSnapshotProjectionCache.Invalidate(scope, run.RunId, graphSnapshotId);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.RunCompleted,
-                RunId = run.RunId,
-                ManifestId = run.GoldenManifestId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        run.GoldenManifestId,
-                        run.ArtifactBundleId,
-                        run.DecisionTraceId
-                    },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            ct);
-
-        if (logger.IsEnabled(LogLevel.Information))
-
-            logger.LogInformation(
-                "Authority pipeline completed: RunId={RunId}, ManifestId={ManifestId}, ContextSnapshotId={ContextSnapshotId}, FindingsSnapshotId={FindingsSnapshotId}, DecisionTraceId={DecisionTraceId}",
-                run.RunId,
-                manifest.ManifestId,
-                contextSnapshot.SnapshotId,
-                findingsSnapshot.FindingsSnapshotId,
-                trace.RequireRuleAudit().DecisionTraceId);
-
-
-        ArchLucidInstrumentation.AuthorityRunsCompletedTotal.Add(1);
-
-        await authorityRunCommittedChatOpsHook.NotifyAsync(
-            new AuthorityRunCommittedChatOpsNotice
-            {
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = run.RunId,
-                FindingCount = findingsSnapshot.Findings.Count,
-                Description = run.Description,
-            },
-            ct);
-
-        return run;
-    }
-
-    private static string BuildAuthorityRunCompletedMessageId(Guid runId)
-    {
-        return $"{runId:D}:{IntegrationEventTypes.AuthorityRunCompletedV1}";
-    }
-
-    private static string NormalizePublicSiteBaseUrl(string? raw)
-    {
-        const string fallback = "https://archlucid.net";
-
-        if (string.IsNullOrWhiteSpace(raw))
-            return fallback;
-
-        string trimmed = raw.Trim().TrimEnd('/');
-
-        return trimmed.Length == 0 ? fallback : trimmed;
-    }
-
-    private Task<Guid?> TryResolvePreviousCommittedGoldenRunIdAsync(ScopeContext scope, RunRecord run, CancellationToken ct)
-    {
-        try
-        {
-            ArgumentNullException.ThrowIfNull(scope);
-            ArgumentNullException.ThrowIfNull(run);
-
-            // Tests and degenerate mocks may return a null Task or a completed Task with a null list; treat both as empty.
-            IReadOnlyList<RunRecord> recent = [];
-
-            _runRepository.ListByProjectAsync(scope, run.ProjectId, 100, ct);
-
-            int count = recent.Count;
-
-            for (int i = 0; i < count; i++)
-            {
-                RunRecord candidate = recent[i];
-
-                if (candidate.RunId == run.RunId)
-                    continue;
-                if (candidate.ArchivedUtc is not null)
-                    continue;
-                if (candidate.GoldenManifestId is null)
-                    continue;
-
-                return Task.FromResult<Guid?>(candidate.RunId);
-            }
-
-            return Task.FromResult<Guid?>(null);
-        }
-        catch (Exception exception)
-        {
-            return Task.FromException<Guid?>(exception);
-        }
-    }
-
-    /// <summary>Per-finding deep links for integration consumers (webhooks, SIEM enrichment).</summary>
-    private static object[] BuildAuthorityRunCompletedFindingLinks(Guid runId, List<Finding> findings, string publicBaseUrl)
-    {
-        if (findings.Count == 0)
-            return [];
-
-        List<object> rows = [];
-
-        foreach (Finding f in findings)
-        {
-            if (string.IsNullOrWhiteSpace(f.FindingId))
-                continue;
-
-            string id = f.FindingId.Trim();
-            string deepLink = $"{publicBaseUrl}/runs/{runId:D}/findings/{Uri.EscapeDataString(id)}";
-            rows.Add(new
-            {
-                findingId = id,
-                deepLinkUrl = deepLink,
-                severity = f.Severity.ToString()
-            });
-        }
-
-        return [.. rows];
     }
 
     private async Task SaveRunAsync(RunRecord run, IArchLucidUnitOfWork uow, CancellationToken ct)

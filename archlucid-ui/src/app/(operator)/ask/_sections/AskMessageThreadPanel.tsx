@@ -39,11 +39,11 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
       ) : null}
       {buyerPolishedShell && tryStaticDemoConversationMessages(selectedThreadId.trim()) !== null ? (
         <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">
-          Example evidence answer — illustrative Q&amp;A for the Claims Intake sample walkthrough.
+          Example review question — illustrative Q&A for the Claims Intake sample walkthrough.
         </p>
       ) : null}
       <h3 className="mb-3 m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-        {buyerPolishedShell ? "Evidence Q&amp;A exchange" : "Conversation"}
+        {buyerPolishedShell ? "Evidence Q&A exchange" : "Conversation"}
       </h3>
       <div className="grid gap-3">
         {messages.length === 0 ? <EmptyState {...ASK_CONVERSATION_EMPTY} /> : null}

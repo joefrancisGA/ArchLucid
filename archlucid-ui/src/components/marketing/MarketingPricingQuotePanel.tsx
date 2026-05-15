@@ -113,7 +113,11 @@ export function MarketingPricingQuotePanel() {
             </select>
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            <span>Message (max 2000 characters)</span>
+            <span>Message</span>
+            <span className="text-xs font-normal text-neutral-500 dark:text-neutral-400">
+              Include deployment scope, procurement timeline, data sensitivity, and expected review volume if known (up to
+              2000 characters).
+            </span>
             <textarea
               required
               maxLength={2000}

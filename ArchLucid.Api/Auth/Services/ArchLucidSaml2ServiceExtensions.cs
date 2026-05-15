@@ -2,12 +2,16 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Authentication;
+using ArchLucid.Api.Configuration;
 
 using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.MvcCore.Configuration;
 using ITfoxtec.Identity.Saml2.Schemas.Metadata;
 using ITfoxtec.Identity.Saml2.Util;
 
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -88,6 +92,26 @@ public static class ArchLucidSaml2ServiceExtensions
 
         services.AddSaml2(slidingExpiration: true);
 
+        ArchLucidAuthOptions archLucidAuthOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
+        string primaryApiScheme = ResolvePrimaryApiAuthenticationScheme(archLucidAuthOptions);
+        services.AddSingleton<IPostConfigureOptions<AuthenticationOptions>>(
+            new ArchLucidSaml2AuthenticationCoexistenceConfigurer(primaryApiScheme));
+
         return services;
     }
+
+    /// <summary>Matches <see cref="AuthServiceCollectionExtensions.AddArchLucidAuth" /> default schemes for the active mode.</summary>
+    private static string ResolvePrimaryApiAuthenticationScheme(ArchLucidAuthOptions authOptions)
+    {
+        ArgumentNullException.ThrowIfNull(authOptions);
+
+        if (string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
+            return JwtBearerDefaults.AuthenticationScheme;
+
+        if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
+            return AuthServiceCollectionExtensions.ApiKeySchemeName;
+
+        return DevelopmentBypassAuthenticationHandler.SchemeName;
+    }
 }
+

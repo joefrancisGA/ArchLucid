@@ -28,11 +28,11 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
       <header>
         <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Trust Center</h1>
         <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Procurement and security reviewer entry point for assurance posture on the ArchLucid product.{" "}
-          <strong className="font-semibold text-neutral-900 dark:text-neutral-100">
-            Current assurance materials include internal control mapping, architecture and security documentation, SOC&nbsp;2
-            readiness summaries, and questionnaire-oriented diligence packets.
-          </strong>{" "}
+          Procurement and security reviewer entry point for assurance posture on the ArchLucid product. Current assurance
+          materials include internal control mapping, architecture and security documentation, SOC{"\u00A0"}2 readiness
+          summaries, and questionnaire-oriented diligence packets.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           CPA-issued attestations and independent penetration-test summaries ship when formally published — detailed status
           and artifacts are reviewed during procurement.
         </p>
@@ -72,8 +72,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
                 <li>
-                  Independent third-party penetration testing is planned as part of the next assurance cycle (assessor
-                  selection underway)
+                  Independent third-party assessment planned for the next assurance cycle.
                 </li>
               </ul>
             </div>

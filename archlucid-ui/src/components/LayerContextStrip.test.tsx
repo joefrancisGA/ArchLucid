@@ -9,7 +9,7 @@ describe("LayerContextStrip", () => {
       {
         id: "pilot" as const,
         wantLabel: "Architecture reviews",
-        wantQuestion: "Can we produce a credible, evidence-backed review package faster?"
+        wantQuestion: "Finalized packages with findings, evidence, manifest, and audit trail."
       },
       {
         id: "operate-analysis" as const,

@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { getShowcaseExecutiveHref, getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
+import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -36,11 +36,8 @@ export function SampleFirstReviewPackageCard() {
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {buyerPolished === true ? (
               <>
-                Start with <strong>Start executive review</strong>, then follow the numbered <strong>Review journey</strong>{" "}
-                on home (<Link href="/#buyer-review-journey" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-200">
-                  jump to steps
-                </Link>
-                ).
+                Review the completed Claims Intake package through executive summary, signed manifest, evidence graph,
+                governance approval, and audit trail.
               </>
             ) : (
               "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."
@@ -70,7 +67,7 @@ export function SampleFirstReviewPackageCard() {
                 </dd>
               </div>
               <div className="rounded-lg border border-neutral-200 px-2 py-2 dark:border-neutral-800">
-                <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Warnings</dt>
+                <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Monitored risks</dt>
                 <dd className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
                   {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount}
                 </dd>
@@ -103,7 +100,7 @@ export function SampleFirstReviewPackageCard() {
             </div>
 
             {buyerPolished === true ? (
-              <div className="m-0 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+              <div className="m-0 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
                 <Link
                   href={sampleReviewHref}
                   onClick={recordSampleOpened}
@@ -111,22 +108,12 @@ export function SampleFirstReviewPackageCard() {
                 >
                   Open full review package
                 </Link>
-                <details>
-                  <summary className="inline-flex min-h-[24px] cursor-pointer list-none items-center font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100 [&::-webkit-details-marker]:hidden">
-                    Follow the five-step review journey
-                  </summary>
-                  <span className="ms-1 text-neutral-600 dark:text-neutral-400">
-                    Mirrors the numbered links on home — optionally open the public walkthrough:&nbsp;
-                    <Link
-                      href={getShowcaseWalkthroughHref()}
-                      onClick={recordSampleOpened}
-                      className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                    >
-                      showcase walkthrough
-                    </Link>
-                    .
-                  </span>
-                </details>
+                <Link
+                  href="/#buyer-review-journey"
+                  className="inline-flex min-h-[24px] items-center font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                >
+                  Review decision evidence
+                </Link>
               </div>
             ) : null}
           </div>

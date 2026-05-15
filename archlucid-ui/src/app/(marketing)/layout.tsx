@@ -44,7 +44,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                 <Link href="/welcome">Overview</Link>
               </Button>
               <Button asChild variant="ghost" size="sm">
-                <Link href="/signup">Start free trial</Link>
+                <Link href="/pricing#pricing-quote-request">Request demo</Link>
               </Button>
               <Button asChild variant="ghost" size="sm">
                 <Link href="/pricing">Pricing</Link>

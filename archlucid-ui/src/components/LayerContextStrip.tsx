@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const LAYER_COPY: Record<LayerId, { label: string; question: string; strip: string; labelClass: string }> = {
   pilot: {
     label: "Architecture reviews",
-    question: "Architecture reviews — finalized packages with findings, evidence, manifest, and audit trail.",
+    question: "Finalized packages with findings, evidence, manifest, and audit trail.",
     strip: "bg-blue-50/90 border-b border-blue-200/60 dark:border-blue-900/50 dark:bg-blue-950/30",
     labelClass: "text-blue-900 dark:text-blue-200",
   },

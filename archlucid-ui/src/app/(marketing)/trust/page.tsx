@@ -37,11 +37,11 @@ export default function MarketingTrustCenterPage(): ReactNode {
           href="/v1/marketing/trust-center/evidence-pack.zip"
           rel="noopener"
         >
-          Download evidence pack (ZIP)
+          Download public evidence summary (ZIP)
         </a>
         <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-          Procurement-oriented bundle assembled from approved sources. Use with your questionnaire process; coordinated
-          disclosure for detailed summaries is arranged through{" "}
+          Public procurement-oriented bundle assembled from approved sources — not a customer-specific evidence pack. Use
+          with your questionnaire process; coordinated disclosure for detailed summaries is arranged through{" "}
           <Link
             href="mailto:security@archlucid.net"
             className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"

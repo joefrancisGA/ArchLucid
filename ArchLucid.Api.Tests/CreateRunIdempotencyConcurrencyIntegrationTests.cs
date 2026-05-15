@@ -21,9 +21,13 @@ namespace ArchLucid.Api.Tests;
 public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 {
     /// <summary>
-    ///     Fails under <see cref="GreenfieldSqlApiFactory" /> HTTP + applock ceilings (~28 minutes/post) before CI blame-hang.
+    ///     Caps total wall clock so a wedged host fails instead of hitting the CI job blame timeout. Must stay
+    ///     <strong>above</strong> <see cref="ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout" />:
+    ///     parallel POSTs link this token into each slot; a shorter guard cancels mid-response-buffer and yields
+    ///     <see cref="OperationCanceledException" /> despite legitimate <c>sp_getapplock</c> + pipeline waits in slow CI.
     /// </summary>
-    private static readonly TimeSpan ParallelCreateRunHangGuard = TimeSpan.FromMinutes(45);
+    private static readonly TimeSpan ParallelCreateRunHangGuard =
+        ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout + TimeSpan.FromMinutes(25);
 
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "

@@ -59,53 +59,53 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       )}
 
       {isRunDetailAvailable ? (
-        <Link className={cardClass} href={`/reviews/${encRun}#run-explanation`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">3 · Risk &amp; evidence</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Executive narrative anchored to citations</span>
+        <Link className={cardClass} href={`/graph?runId=${encRun}`}>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">3 · Evidence graph</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">Traceability from evidence to decisions</span>
         </Link>
       ) : hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">3 · Risk &amp; evidence</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">3 · Evidence graph</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">See summarized posture on the sealed manifest view</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">3 · Risk &amp; evidence</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">3 · Evidence graph</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
         </div>
       )}
 
       {isRunDetailAvailable ? (
-        <Link className={cardClass} href={`/reviews/${encRun}#artifacts-exports`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance handoff</span>
+        <Link className={cardClass} href={`/governance?runId=${encRun}`}>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance approval</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">Board-ready &amp; audit-ready deliverables</span>
         </Link>
       ) : hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance handoff</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance approval</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">Deliverables list on the sealed manifest</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance handoff</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance approval</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
         </div>
       )}
 
       {encFinding !== null ? (
         isRunDetailAvailable ? (
-          <Link className={cardClass} href={`/reviews/${encRun}/findings/${encFinding}`}>
-            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">5 · Audit package anchor</span>
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">Primary risk — PHI minimization posture</span>
+          <Link className={cardClass} href={`/audit?runId=${encRun}`}>
+            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">5 · Audit trail</span>
+            <span className="text-xs text-neutral-600 dark:text-neutral-400">Recorded lifecycle events for this review</span>
           </Link>
         ) : hasManifest ? (
           <Link className={cardClass} href={`/manifests/${encManifest}`}>
-            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">5 · Audit package anchor</span>
+            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">5 · Audit trail</span>
             <span className="text-xs text-neutral-600 dark:text-neutral-400">PHI minimization posture — see related items in the manifest</span>
           </Link>
         ) : (
           <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">5 · Audit package anchor</span>
+            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">5 · Audit trail</span>
             <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
           </div>
         )

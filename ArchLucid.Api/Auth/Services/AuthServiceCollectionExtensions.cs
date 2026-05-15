@@ -31,6 +31,9 @@ public static class AuthServiceCollectionExtensions
 
         ArchLucidAuthOptions authOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
 
+        services.Configure<ArchLucidSamlAuthOptions>(
+            configuration.GetSection(ArchLucidSamlAuthOptions.ConfigurationSectionPath));
+
         if (string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
 
             services

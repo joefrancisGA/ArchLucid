@@ -1,6 +1,7 @@
 import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lucide-react";
 
 import type { EmptyStateProps } from "@/components/EmptyState";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import {
   governanceWorkflowIdleGettingStartedOperator,
   governanceWorkflowIdleGettingStartedReader,
@@ -12,10 +13,10 @@ export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
   title: "No architecture runs yet",
   description:
-    "Core Pilot path: create an architecture review request, let the pipeline finish, finalize when ready, then open your review package. You can start here, open the onboarding checklist, or submit via the CLI or API.",
+    "Core Pilot path: create an architecture review request, let the pipeline finish, finalize when ready, then open your review package. You can start here, open the sample review package, or submit via the CLI or API.",
   actions: [
     { label: "Create request", href: "/reviews/new" },
-    { label: "Onboarding checklist", href: "/onboarding", variant: "outline" },
+    { label: "View sample review package", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
 };
@@ -39,7 +40,11 @@ export const GRAPH_IDLE: EmptyStateProps = {
     "Pick a committed review above, keep Review trail selected, then choose Load graph. If the list is empty, start from reviews or Core Pilot: create a request, finish the pipeline, then return here.",
   actions: [
     { label: "View reviews list", href: "/reviews?projectId=default" },
-    { label: "Onboarding checklist", href: "/onboarding", variant: "outline" },
+    {
+      label: "Open signed manifest",
+      href: `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
+      variant: "outline",
+    },
   ],
 };
 

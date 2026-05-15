@@ -26,7 +26,11 @@ import {
 } from "@/lib/operator-static-demo";
 import { coerceGraphViewModel } from "@/lib/operator-response-guards";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
-import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
 import type { GraphViewModel } from "@/types/graph";
 import { GraphArchitectureNoteBanner } from "@/app/(operator)/graph/_sections/GraphArchitectureNoteBanner";
 import { GraphFetchStatusAlerts } from "@/app/(operator)/graph/_sections/GraphFetchStatusAlerts";
@@ -289,15 +293,30 @@ export function GraphPageContent() {
 
   const graphIdlePreset = useMemo(() => {
     if (demoUi && showIdleCard) {
+      const manifestHref = `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
+      const auditHref = `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+
+      if (buyerPolishedShell) {
+        return {
+          ...GRAPH_IDLE,
+          title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
+          description: `Evidence graph unavailable in this sample view. Open the signed manifest or audit trail for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
+          actions: [
+            { label: "Open signed manifest", href: manifestHref },
+            { label: "Open audit trail", href: auditHref, variant: "outline" },
+          ],
+        };
+      }
+
       return {
         ...GRAPH_IDLE,
         title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
-        description: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} traces evidence from captured context through prioritized risk findings to the signed manifest and deliverables. The graph loads automatically — if the canvas stays empty, expand advanced controls below and choose Load graph.`,
+        description: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} traces evidence from captured context through monitored risks to the signed manifest and deliverables. Loading continues automatically when you open this page.`,
       };
     }
 
     return GRAPH_IDLE;
-  }, [demoUi, showIdleCard]);
+  }, [demoUi, showIdleCard, buyerPolishedShell]);
 
   const leadIntro =
     demoUi || buyerPolishedShell
@@ -308,7 +327,8 @@ export function GraphPageContent() {
 
   const loadButtonLabel = loading ? "Loading…" : "Load graph";
 
-  const showLoadButton = !demoUi || mode !== "provenance-full" || graph === null;
+  const showLoadButton =
+    !(demoUi && mode === "provenance-full") && (!demoUi || mode !== "provenance-full" || graph === null);
 
   const controls = (
     <GraphPageControls

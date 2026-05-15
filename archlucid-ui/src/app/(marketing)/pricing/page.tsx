@@ -8,7 +8,7 @@ import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 
 export const metadata: Metadata = {
   title: "Pricing",
-  description: `ArchLucid ${BRAND_CATEGORY} — packaging and pricing overview — start a free trial.`,
+  description: `ArchLucid ${BRAND_CATEGORY} — packaging and pricing overview — request a demo or quote.`,
   other: {
     "x-archlucid-brand-category-legacy": BRAND_CATEGORY_LEGACY,
   },
@@ -28,29 +28,29 @@ export default async function PricingPage(props: PricingPageProps) {
         className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="pricing-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} offering. For regulated deployments,{" "}
+        ArchLucid is an {BRAND_CATEGORY} offering. Compare{" "}
+        <strong className="font-semibold text-neutral-800 dark:text-neutral-200">
+          Team, Professional, and Enterprise
+        </strong>{" "}
+        plans below. Eligible deployments may support self-service checkout; regulated-industry buyers typically finalize
+        scope through procurement. For custom deployments,{" "}
         <a
           className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
           href="#pricing-quote-request"
         >
           request a quote
         </a>{" "}
-        via the panel below — your account team will confirm licensing. Compare{" "}
-        <strong className="font-semibold text-neutral-800 dark:text-neutral-200">
-          Team, Professional, and Enterprise
-        </strong>{" "}
-        once you scroll past the quote form.
-        Self-service checkout is available for eligible plans when enabled for your storefront; regulated-industry buyers
-        typically finalize scope through procurement.
+        — your account team confirms licensing.
       </p>
-      <MarketingPricingQuotePanel />
       <MarketingTierPricingSection
         sectionHeadingId="pricing-page-heading"
         sectionTitle="Pricing"
         sectionIntro="Tier summaries reflect the current published price list. Final pricing depends on deployment scope, volume, and procurement channel — your account team confirms details."
         signupHref={signupHref}
-        signupCallToActionLabel="Start trial"
+        signupCallToActionLabel="Start workspace trial"
+        showSignupCallToAction={false}
       />
+      <MarketingPricingQuotePanel />
       <MarketingPricingPublicCutoverNotice />
     </main>
   );
