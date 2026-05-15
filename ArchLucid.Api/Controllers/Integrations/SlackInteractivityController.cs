@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Web;
 
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Notifications;
@@ -84,7 +85,9 @@ public sealed class SlackInteractivityController(
         string payloadJson = HttpUtility.ParseQueryString(rawBody)["payload"] ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(payloadJson))
-            return BadRequest();
+            return this.BadRequestProblem(
+                "The Slack interactivity callback is missing the 'payload' form field.",
+                ProblemTypes.ValidationFailed);
 
         using JsonDocument doc = JsonDocument.Parse(payloadJson);
         JsonElement root = doc.RootElement;

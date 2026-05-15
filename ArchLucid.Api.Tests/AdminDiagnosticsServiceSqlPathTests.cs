@@ -77,7 +77,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
     [Fact]
     public async Task GetDataConsistencyOrphanCountsAsync_sqlPath_maps_execute_scalar_pipeline()
     {
-        List<object?> scalarSequence = [11L, Convert.ToDecimal(33), 22, Convert.ToDecimal(44)];
+        List<object?> scalarSequence = [11L, 22, Convert.ToDecimal(33), Convert.ToDecimal(44)];
 
         Mock<IDbConnectionFactory> factory = new();
 

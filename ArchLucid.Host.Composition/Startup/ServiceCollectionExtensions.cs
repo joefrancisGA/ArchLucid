@@ -113,6 +113,10 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ConfluencePublishingOptions.SectionName));
         services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60));
         services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60));
+        services.AddHttpClient(
+            ItsmOutboundIntegrationHealthLimits.HttpClientName,
+            static client => client.Timeout = TimeSpan.FromSeconds(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds));
+        services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ItsmOutboundIssueCreationService>();
         RegisterScimProvisioning(services, configuration);
 

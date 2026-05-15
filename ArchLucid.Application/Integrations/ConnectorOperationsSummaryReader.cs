@@ -7,6 +7,7 @@ using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Persistence.Integrations;
 
 using Microsoft.Extensions.Options;
@@ -74,8 +75,12 @@ public sealed class ConnectorOperationsSummaryReader(
         bool teamsConfigured = teamsRow is { IsConfigured: true };
         string teamsSmoke = teamsConfigured ? "LocallyValid" : "NotConfigured";
 
-        (bool jiraOk, string jiraSummary) = EvaluateJira(tenantItsm);
-        (bool snowOk, string snowSummary) = EvaluateServiceNow();
+        ItsmOutboundLocalReadiness jiraLocal = ItsmOutboundLocalConfigurationEvaluator.EvaluateJira(_itsm, tenantItsm);
+        ItsmOutboundLocalReadiness snowLocal = ItsmOutboundLocalConfigurationEvaluator.EvaluateServiceNow(_itsm);
+        bool jiraOk = jiraLocal.IsReady;
+        string jiraSummary = jiraLocal.Summary;
+        bool snowOk = snowLocal.IsReady;
+        string snowSummary = snowLocal.Summary;
         (bool confOk, string confSummary) = EvaluateConfluence();
 
         int slackRoutes = alertRoutes.Count(static r =>
@@ -193,50 +198,13 @@ public sealed class ConnectorOperationsSummaryReader(
         };
     }
 
-    private (bool Ok, string Summary) EvaluateJira(TenantItsmOutboundSettings? tenantItsm)
-    {
-        string url = _itsm.Jira.CloudBaseUrl.Trim();
-        bool urlOk = TryValidateHttpsUrl(url);
-
-        string projectFallback = _itsm.Jira.DefaultProjectKey.Trim();
-        string? projectOverride = tenantItsm?.JiraProjectKeyOverride?.Trim();
-        bool projectOk = !string.IsNullOrWhiteSpace(projectOverride) || !string.IsNullOrWhiteSpace(projectFallback);
-
-        bool tokenOk = !string.IsNullOrWhiteSpace(_itsm.Jira.ApiToken.Trim());
-        bool emailOk = !string.IsNullOrWhiteSpace(_itsm.Jira.ServiceAccountEmail.Trim());
-
-        if (!urlOk)
-            return (false, "Set Integrations:ItsmOutbound:Jira:CloudBaseUrl to a valid https:// Atlassian URL.");
-
-        if (!emailOk || !tokenOk)
-            return (false, "Jira requires a service account email and API token in app settings or Key Vault materialization.");
-
-        return !projectOk ? (false, "Provide DefaultProjectKey or a per-tenant Jira project key override.") : (true, "Jira Cloud base URL, project key, and credentials fields are populated (live validation still required).");
-    }
-
-    private (bool Ok, string Summary) EvaluateServiceNow()
-    {
-        string url = _itsm.ServiceNow.InstanceBaseUrl.Trim();
-        bool urlOk = TryValidateHttpsUrl(url);
-        bool userOk = !string.IsNullOrWhiteSpace(_itsm.ServiceNow.Username.Trim());
-        bool passOk = !string.IsNullOrWhiteSpace(_itsm.ServiceNow.Password.Trim());
-
-        if (!urlOk)
-            return (false, "Set Integrations:ItsmOutbound:ServiceNow:InstanceBaseUrl to a valid https:// instance URL.");
-
-        if (!userOk || !passOk)
-            return (false, "ServiceNow requires username and password fields (store secrets in Key Vault in production).");
-
-        return (true, "ServiceNow instance URL and credential fields are populated (live Table API validation still required).");
-    }
-
     private (bool Ok, string Summary) EvaluateConfluence()
     {
         if (!_confluence.Enabled)
             return (false, "Confluence publishing is disabled in Integrations:ConfluencePublishing:Enabled.");
 
         string url = _confluence.CloudBaseUrl.Trim();
-        bool urlOk = TryValidateHttpsUrl(url);
+        bool urlOk = ItsmOutboundLocalConfigurationEvaluator.TryValidateHttpsUrl(url);
         bool spaceOk = !string.IsNullOrWhiteSpace(_confluence.SpaceKey.Trim()) ||
                        (_confluence.ProjectSpaceKeys is not null &&
                         _confluence.ProjectSpaceKeys.Keys.Any(k => !string.IsNullOrWhiteSpace(k)) &&
@@ -254,14 +222,5 @@ public sealed class ConnectorOperationsSummaryReader(
             return (false, "Confluence requires service account email and API token fields.");
 
         return (true, "Confluence Cloud URL, space, and credential fields are populated (live REST validation still required).");
-    }
-
-    private static bool TryValidateHttpsUrl(string url)
-    {
-        if (string.IsNullOrWhiteSpace(url))
-            return false;
-
-        return Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) &&
-               string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase);
     }
 }

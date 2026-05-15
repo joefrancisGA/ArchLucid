@@ -61,7 +61,7 @@
 - **Weighted deficiency signal:** 60
 - **Justification:** First-party connectors (Jira, ServiceNow, Slack, Confluence) are in scope. However, operators lack visibility into the live health/sync status of these outbound channels.
 - **Tradeoffs:** Asynchronous fire-and-forget vs. synchronous status checks.
-- **Improvement recommendations:** Implement a `/health` endpoint specific to ITSM integrations.
+- **Improvement recommendations:** ~~Implement a `/health` endpoint specific to ITSM integrations.~~ **Done — Improvement 9 (2026-05-15)** (`GET /v1/integrations/itsm/health`, `ItsmOutboundIntegrationHealthService`, WireMock integration tests).
 - **Status:** Fixable in V1.
 
 **7. Commercial Packaging Readiness**
@@ -150,7 +150,7 @@
 2. The risk of the system hallucinating destructive `terraform destroy` commands is unacceptable for enterprise trust.
 3. ~~Financial ROI is calculated but buried inside artifact JSON files instead of driving the UI narrative.~~ **Mitigated — Improvement 8 (2026-05-14)** (`RunSavingsSummary`; annualized rollup from committed extractor-style artifacts / demo constant).
 4. Troubleshooting OIDC/Entra ID failures requires access to raw container logs, blocking self-serve onboarding.
-5. Operators lack real-time visibility into the health of critical ITSM outbound syncs (Jira/ServiceNow).
+5. ~~Operators lack real-time visibility into the health of critical ITSM outbound syncs (Jira/ServiceNow).~~ **Mitigated — Improvement 9 (2026-05-15)** (`GET /v1/integrations/itsm/health` with read-only upstream probes per configured vendor).
 6. Quality Gate strictness parameters are hidden in config rather than visible to operators in the UI.
 7. Operators may confuse `Simulator` mode behavior with broken agent logic if not explicitly warned.
 8. The exact reasoning an LLM used to connect components is not surfaced in the Knowledge Graph UI.
@@ -169,7 +169,7 @@
 
 ## 6. Top 6 Enterprise Adoption Blockers
 1. Fear of the agent pipeline accidentally generating destructive (`destroy`) infrastructure-as-code scripts.
-2. Opaque status of ITSM connectors; enterprise operators need a dedicated health-check ping.
+2. ~~Opaque status of ITSM connectors; enterprise operators need a dedicated health-check ping.~~ **Mitigated — Improvement 9 (2026-05-15)** (`GET /v1/integrations/itsm/health`).
 3. High cognitive load required to understand and write JSON schema policies for governance.
 4. Lack of transparent visibility into the exact LLM `ReasoningTrace` for inferred architecture edges.
 5. The inability to quickly export Compliance Drift metrics to a portable format like PDF for executives.
@@ -318,7 +318,7 @@ Constraints: Handle missing artifacts gracefully without crashing.
 - **Why it matters:** Operators cannot currently tell if Jira/ServiceNow credentials have expired until a sync fails.
 - **Expected impact:** Reduces support burden and improves observability.
 - **Affected qualities:** Workflow Embeddedness, Observability.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-15) — `GET /v1/integrations/itsm/health` (`ItsmIntegrationHealthController`); `ItsmOutboundIntegrationHealthService` loads **`dbo.TenantItsmOutboundSettings`** for scoped tenant Jira readiness, read-only pings to Jira **/rest/api/3/myself** and ServiceNow **Table API incident** (`sysparm_limit=1`); **`200`** + `status`, **`503`** when any configured upstream fails; `ItsmOutboundIntegrationHealthServiceTests`, `ItsmIntegrationHealthWireMockEndpointIntegrationTests`; **`docs/library/API_CONTRACTS.md`** ITSM table row.
 - **Cursor prompt:**
 ```text
 Add `GET /v1/integrations/itsm/health` to `ArchLucid.Api`.
@@ -583,7 +583,7 @@ To optimize context window usage and cursor cost-effectiveness, execute the acti
 - **Batch 3 (UI ROI & Transparency):** ~~Improvements 8, 10, 17~~ **Completed 2026-05-14** (`RunSavingsSummary`, Knowledge Graph reasoning sidebar + edge inspect, wizard Azure ingest copy-command).
 - **Batch 4 (Observability & Latency Tracing):** ~~Improvement 15~~ **Completed 2026-05-14.** (`ArchLucid.AgentRuntime`, `ArchLucid.Core`, `ArchLucid.Host.Core`.) Improvements 18, 24, 25. Remaining focus: `ArchLucid.AgentRuntime` and `ArchLucid.Api.DataAccess` telemetry.
 - **Batch 5 (UX Polish & Settings):** ~~Improvements 12, 16, 19, 20, 21, 23~~ **Completed 2026-05-14** (`TenantQualityGatesCard`, policy-pack JSON tooltip, `ComplianceDriftChartPdfExport`, `SimulatorExecutionModeBanner`, `ArchitectureComparisonReplayCostSection`, replay/compare/reviews autofocus wired through `RunIdPicker` / `RunsListClient`).
-- **Batch 6 (Integration Health):** Improvement 9. Isolated work on `ArchLucid.Api` ITSM controllers.
+- **Batch 6 (Integration Health):** ~~Improvement 9~~ **Completed 2026-05-15** (`ArchLucid.Api` `ItsmIntegrationHealthController`, `ArchLucid.Application` health service + limits, WireMock endpoint tests, commercial-tier metadata lock test).
 - **Batch 7 (Integration & Architecture Docs):** ~~Improvements 1, 2, 4, 5~~ **Completed 2026-05-14.** (`docs/library/CUSTOM_AGENT_HANDLERS.md`, `SCALING_PATH.md` §10, `ITSM_BRIDGE_V1_RECIPES.md` Jira OAuth section, `V1_DEFERRED.md` §6a Slack scope.)
 - **Batch 8 (Billing UX & Security Polish):** Improvements 3, 6. Focuses on `archlucid-ui` and `SupportBundleController`.
 

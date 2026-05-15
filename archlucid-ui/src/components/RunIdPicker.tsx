@@ -214,6 +214,12 @@ export function RunIdPicker({
       .slice(0, 12);
   }, [runs, query, useBuyerFacingRunLabels]);
 
+  const popupContainerClass =
+    "absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md border border-neutral-200 bg-white py-1 text-sm shadow-md dark:border-neutral-700 dark:bg-neutral-900";
+  /** role="listbox" must contain option/group children — avoid it for loading-only or empty-list error banners (axe aria-required-children). */
+  const showRunPopup = open && (filtered.length > 0 || loadError !== null || loading);
+  const popupUsesListbox = !loading && filtered.length > 0;
+
   return (
     <div className="relative max-w-xl">
       <Label htmlFor={controlId} className="mb-1 block text-sm font-medium text-neutral-800 dark:text-neutral-200">
@@ -252,59 +258,58 @@ export function RunIdPicker({
           setOpen(true);
         }}
       />
-      {open && (filtered.length > 0 || loadError !== null || loading) ? (
-        <ul
-          id={`${controlId}-listbox`}
-          role="listbox"
-          className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md border border-neutral-200 bg-white py-1 text-sm shadow-md dark:border-neutral-700 dark:bg-neutral-900"
-        >
-          {loading ? (
-            <li className="px-3 py-2 text-neutral-500 dark:text-neutral-400" role="presentation">
-              Loading reviews…
-            </li>
-          ) : null}
-          {loadError ? (
-            <li className="px-3 py-2 text-red-700 dark:text-red-400" role="presentation">
-              {loadError}
-            </li>
-          ) : null}
-          {!loading &&
-            filtered.map((r) => {
+      {showRunPopup ? (
+        popupUsesListbox ? (
+          <ul id={`${controlId}-listbox`} role="listbox" className={popupContainerClass}>
+            {loadError !== null ? (
+              <li className="px-3 py-2 text-red-700 dark:text-red-400" role="presentation">
+                {loadError}
+              </li>
+            ) : null}
+            {filtered.map((r) => {
               const primaryText = useBuyerFacingRunLabels
                 ? buyerFacingReviewTitleFromSummary(r)
                 : truncate(runSummaryDisplayLabel(r), 52);
-              const secondaryText = useBuyerFacingRunLabels
-                ? truncate(r.runId, 48)
-                : truncate(r.runId, 48);
+              const secondaryText = useBuyerFacingRunLabels ? truncate(r.runId, 48) : truncate(r.runId, 48);
 
               return (
-              <li key={r.runId} role="presentation">
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={r.runId === value.trim()}
-                  className={cn(
-                    "flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                    r.runId === value.trim() && "bg-teal-50 dark:bg-teal-900/20",
-                  )}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                  }}
-                  onClick={() => {
-                    setQuery(useBuyerFacingRunLabels ? buyerFacingReviewTitleFromSummary(r) : r.runId);
-                    onChange(r.runId);
-                    onSelect?.(r.runId);
-                    onRunPicked?.(r);
-                    setOpen(false);
-                  }}
-                >
-                  <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{primaryText}</span>
-                  <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400">{secondaryText}</span>
-                </button>
-              </li>
+                <li key={r.runId} role="presentation">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={r.runId === value.trim()}
+                    className={cn(
+                      "flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                      r.runId === value.trim() && "bg-teal-50 dark:bg-teal-900/20",
+                    )}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                    }}
+                    onClick={() => {
+                      setQuery(useBuyerFacingRunLabels ? buyerFacingReviewTitleFromSummary(r) : r.runId);
+                      onChange(r.runId);
+                      onSelect?.(r.runId);
+                      onRunPicked?.(r);
+                      setOpen(false);
+                    }}
+                  >
+                    <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{primaryText}</span>
+                    <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400">{secondaryText}</span>
+                  </button>
+                </li>
               );
             })}
-        </ul>
+          </ul>
+        ) : (
+          <div id={`${controlId}-listbox`} role="status" aria-live="polite" className={popupContainerClass}>
+            {loading ? (
+              <div className="px-3 py-2 text-neutral-500 dark:text-neutral-400">Loading reviews…</div>
+            ) : null}
+            {!loading && loadError !== null ? (
+              <div className="px-3 py-2 text-red-700 dark:text-red-400">{loadError}</div>
+            ) : null}
+          </div>
+        )
       ) : null}
     </div>
   );

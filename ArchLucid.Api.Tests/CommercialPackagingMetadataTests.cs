@@ -2,6 +2,7 @@
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Api.Controllers.Integrations;
 using ArchLucid.Api.Controllers.Pilots;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Tenancy;
@@ -94,6 +95,18 @@ public sealed class CommercialPackagingMetadataTests
         produces.Should().ContainSingle(a =>
             a.StatusCode == StatusCodes.Status200OK &&
             a.Type == typeof(SponsorEvidencePackResponse));
+    }
+
+    [SkippableFact]
+    public void Itsm_integration_health_declares_standard_commercial_tier()
+    {
+        RequiresCommercialTenantTierAttribute? attr =
+            typeof(ItsmIntegrationHealthController).GetCustomAttribute<RequiresCommercialTenantTierAttribute>(
+                inherit: false);
+
+        attr.Should().NotBeNull($"{nameof(ItsmIntegrationHealthController)} must stay Standard-gated.");
+        attr.Arguments.Should().HaveCount(1);
+        attr.Arguments[0].Should().Be(TenantTier.Standard);
     }
 
     [SkippableFact]

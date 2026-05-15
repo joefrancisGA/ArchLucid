@@ -13,7 +13,7 @@ public sealed class ConfigBootstrapDocumentMergerTests
     [Fact]
     public void Merge_preserves_unrelated_keys()
     {
-        string existing =
+        const string existing =
             """
             {
               "Other": { "A": 1 },

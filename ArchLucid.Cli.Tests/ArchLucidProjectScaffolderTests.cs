@@ -77,17 +77,17 @@ public sealed class ArchLucidProjectScaffolderTests
     public void LoadConfig_when_only_legacy_manifest_filename_exists_loads_same_as_archlucid_json()
     {
         using TempDirectory temp = new();
-        string validJson = """
-                           {
-                             "schemaVersion": "1.0",
-                             "projectName": "LegacyNamed",
-                             "inputs": { "brief": "inputs/brief.md" },
-                             "outputs": { "localCacheDir": "outputs" },
-                             "plugins": { "lockFile": "plugins/plugin-lock.json" },
-                             "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
-                           }
-                           """;
-        string legacyName = "archi" + "forge.json";
+        const string validJson = """
+                                 {
+                                   "schemaVersion": "1.0",
+                                   "projectName": "LegacyNamed",
+                                   "inputs": { "brief": "inputs/brief.md" },
+                                   "outputs": { "localCacheDir": "outputs" },
+                                   "plugins": { "lockFile": "plugins/plugin-lock.json" },
+                                   "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
+                                 }
+                                 """;
+        const string legacyName = "archi" + "forge.json";
         File.WriteAllText(Path.Combine(temp.Path, legacyName), validJson);
         Directory.CreateDirectory(Path.Combine(temp.Path, "inputs"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "plugins"));
@@ -103,16 +103,16 @@ public sealed class ArchLucidProjectScaffolderTests
     public void LoadConfig_when_schema_version_empty_throws_InvalidDataException()
     {
         using TempDirectory temp = new();
-        string json = """
-                      {
-                        "schemaVersion": "",
-                        "projectName": "P",
-                        "inputs": { "brief": "inputs/brief.md" },
-                        "outputs": { "localCacheDir": "outputs" },
-                        "plugins": { "lockFile": "plugins/plugin-lock.json" },
-                        "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
-                      }
-                      """;
+        const string json = """
+                            {
+                              "schemaVersion": "",
+                              "projectName": "P",
+                              "inputs": { "brief": "inputs/brief.md" },
+                              "outputs": { "localCacheDir": "outputs" },
+                              "plugins": { "lockFile": "plugins/plugin-lock.json" },
+                              "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
+                            }
+                            """;
         File.WriteAllText(Path.Combine(temp.Path, ArchLucidProjectScaffolder.CliManifestFileName), json);
         Directory.CreateDirectory(Path.Combine(temp.Path, "inputs"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "plugins"));

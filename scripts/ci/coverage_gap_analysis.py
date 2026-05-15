@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import argparse
+import datetime
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -104,9 +106,46 @@ def uncovered_by_class_rows(package_el: ET.Element) -> list[tuple[str, str, int]
     return [(name, fn, cnt) for (name, fn), cnt in acc.items()]
 
 
+def _resolve_cobertura(repo: Path, cobertura_arg: str | None) -> Path:
+    if cobertura_arg:
+        cob = Path(cobertura_arg)
+        return cob.resolve() if cob.is_absolute() else (repo / cob).resolve()
+    default = repo / "coverage-gap-1a" / "merged" / "Cobertura.xml"
+    return default.resolve()
+
+
+def _dataset_note_text(cobertura: Path, repo: Path) -> str:
+    """UTC mtime and path so readers can detect stale merges vs narrative bullets."""
+    rel = cobertura
+    try:
+        rel_str = cobertura.relative_to(repo)
+    except ValueError:
+        rel_str = cobertura
+    try:
+        mtime = cobertura.stat().st_mtime
+        stamp = datetime.datetime.fromtimestamp(mtime, tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    except OSError:
+        stamp = "(mtime unavailable)"
+    return (
+        f"**Data source:** `{rel_str}` (file mtime **{stamp}**). "
+        "For CI gate parity, prefer the **`coverage-merged-cobertura`** artifact from job **`.NET: merge coverage + gates`** "
+        "(copy **`Cobertura.xml`** and run **`python scripts/ci/coverage_gap_analysis.py --cobertura <path>`**). "
+        "See **`docs/library/CODE_COVERAGE.md`** — local merges without **`ARCHLUCID_SQL_TEST`** under-count SQL-only paths."
+    )
+
+
 def main() -> int:
     repo = Path(__file__).resolve().parents[2]
-    cobertura = repo / "coverage-gap-1a" / "merged" / "Cobertura.xml"
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--cobertura",
+        metavar="PATH",
+        default=None,
+        help="Merged Cobertura.xml (default: coverage-gap-1a/merged/Cobertura.xml under repo root).",
+    )
+    args = parser.parse_args()
+
+    cobertura = _resolve_cobertura(repo, args.cobertura)
     if not cobertura.is_file():
         print(f"Missing merged Cobertura: {cobertura}", file=sys.stderr)
         return 2
@@ -142,16 +181,16 @@ def main() -> int:
     packages.sort(key=lambda t: t[1])
 
     out_lines: list[str] = [
-        "> **Scope:** Coverage gap analysis (merged Cobertura) - tables from merged Cobertura; reflects whatever "
-        "test assemblies produced `coverage-gap-1a/**/coverage.cobertura.xml`, not implicitly a green full solution.",
+        "> **Scope:** Coverage gap analysis (merged Cobertura) - tables from the Cobertura file named under **Data source**; "
+        "stale or partial local merges (or leftover shards under `coverage-gap-1a`) produce misleading percentages — clean the "
+        "folder before `dotnet test` or use the CI **`coverage-merged-cobertura`** artifact.",
         ">",
         "> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). "
         "Read this file only if you have a specific reason beyond those five entry documents.",
         "",
         "# Coverage gap analysis (merged Cobertura)",
         "",
-        f"**Generated:** from `{cobertura.relative_to(repo)}` "
-        "(ReportGenerator Cobertura merge of Coverlet outputs from `dotnet test` + `--collect:\"XPlat Code Coverage\"`).",
+        _dataset_note_text(cobertura, repo),
         "",
         "**Measurement:** Production `ArchLucid.*` assemblies only; excludes `*.Tests`, TestSupport, Benchmarks, and "
         "`ArchLucid.Worker` (`Program.cs` omitted per **`coverage.runsettings`** **`ExcludeByFile`**).",
@@ -224,6 +263,8 @@ def main() -> int:
     )
     out_lines.append("")
     out_lines.append("```powershell")
+    out_lines.append("# Remove old shards so ReportGenerator does not merge stale + new Cobertura files.")
+    out_lines.append("Remove-Item -Recurse -Force .\\coverage-gap-1a -ErrorAction SilentlyContinue")
     out_lines.append("dotnet test ArchLucid.sln -c Release --settings coverage.runsettings `")
     out_lines.append("  --collect:\"XPlat Code Coverage\" --results-directory .\\coverage-gap-1a")
     out_lines.append("dotnet tool restore")
@@ -232,6 +273,8 @@ def main() -> int:
         "\"-targetdir:coverage-gap-1a/merged\" \"-reporttypes:Cobertura\""
     )
     out_lines.append("python scripts/ci/coverage_gap_analysis.py")
+    out_lines.append("# Or: gh run download <run-id> -n coverage-merged-cobertura -D .\\ci-cov")
+    out_lines.append("#     python scripts/ci/coverage_gap_analysis.py --cobertura .\\ci-cov\\Cobertura.xml")
     out_lines.append("```")
     out_lines.append("")
 

@@ -83,6 +83,7 @@ Runbook: **`docs/runbooks/AZURE_EXTRACTOR_INGEST.md`**.
 | Direction | Entry point | Notes |
 |-----------|-------------|-------|
 | Outbound | **`POST /v1/integrations/itsm/outbound/issues`** | Requires **ExecuteAuthority**; providers **`Jira`** \| **`ServiceNow`**. Persists correlation for inbound callbacks. |
+| Operators | **`GET /v1/integrations/itsm/health`** | Requires **ReadAuthority**; **Standard** commercial tier. Lightweight read-only vendor pings (**Jira** `GET …/rest/api/3/myself`, **ServiceNow** `GET …/api/now/table/incident?sysparm_limit=1`) using host credentials plus **`dbo.TenantItsmOutboundSettings`** for the scoped tenant when evaluating Jira project readiness. **`200`** `{ "status": "healthy" \| "not_configured" \| "unhealthy", … }`; **`503`** when upstream fails for any locally configured vendor (body still carries per-vendor summaries). |
 | Inbound | **`POST /v1/integrations/webhooks/jira`**, **`POST /v1/integrations/webhooks/servicenow`** | Shared-secret headers per **`Integrations:ItsmInbound`**; anonymous route with connector secrets (no JWT). Payload shapes and headers are defined in **`GET /openapi/v1.json`**. |
 
 ## Explain (`/v1/explain`)

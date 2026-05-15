@@ -125,7 +125,7 @@ function extractCostManagementOpportunityUsd(props: Record<string, unknown>): nu
     normalizeHeadingCell(typeof cell === "string" ? cell : headingFromColumnDescriptor(cell)),
   );
 
-  let colIdx = headings.findIndex((h) => CM_OPPORTUNITY_HEADING.test(h));
+  const colIdx = headings.findIndex((h) => CM_OPPORTUNITY_HEADING.test(h));
 
   if (colIdx < 0) return 0;
 
