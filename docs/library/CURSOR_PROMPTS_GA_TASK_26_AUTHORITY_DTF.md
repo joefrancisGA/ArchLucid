@@ -1,3 +1,5 @@
+> **Scope:** For engineers migrating the authority pipeline to the Durable Task Framework in Cursor after `IAuthorityRunOrchestrator` extraction; sequenced prompts only—not persistence DDL, rollout policy, or unrelated run subsystems.
+
 # Cursor Prompts — GA Task #26 (Authority pipeline: DTF migration)
 
 > **Canonical file:** `docs/library/CURSOR_PROMPTS_GA_TASK_26_AUTHORITY_DTF.md`  
