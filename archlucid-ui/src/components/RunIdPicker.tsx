@@ -34,6 +34,7 @@ type RunIdPickerProps = {
   /** When true, primary line is a buyer-facing title; technical run id is shown underneath. */
   useBuyerFacingRunLabels?: boolean;
   /** Invoked when the user picks a row from the list (not on every keystroke). */
+  onRunPicked?: (summary: RunSummary) => void;
   /** When true, focus the combo input on mount (operator list vs compare-entry ergonomics). */
   autoFocus?: boolean;
 };

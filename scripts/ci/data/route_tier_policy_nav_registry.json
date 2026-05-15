@@ -762,6 +762,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Integrations/ItsmIntegrationHealthController.cs",
+      "class_name": "ItsmIntegrationHealthController",
+      "route_template": "v{version:apiVersion}/integrations/itsm/health",
+      "normalized_prefix": "/v1/integrations/itsm/health",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Integrations/ItsmOutboundIssuesController.cs",
       "class_name": "ItsmOutboundIssuesController",
       "route_template": "v{version:apiVersion}/integrations/itsm/outbound/issues",

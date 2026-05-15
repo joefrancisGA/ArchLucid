@@ -59,7 +59,7 @@
 - **Score:** 80
 - **Weight:** 3
 - **Weighted deficiency signal:** 60
-- **Justification:** First-party connectors (Jira, ServiceNow, Slack, Confluence) are in scope. However, operators lack visibility into the live health/sync status of these outbound channels.
+- **Justification:** First-party connectors (Jira, ServiceNow, Slack, Confluence) are in scope. **`GET /v1/integrations/itsm/health` (Improvement 9, 2026-05-15)** gives operators read-only Jira/ServiceNow outbound connectivity probes in tenant scope; Slack, Confluence, and other channels still lack comparable live health surfaces in the product UI.
 - **Tradeoffs:** Asynchronous fire-and-forget vs. synchronous status checks.
 - **Improvement recommendations:** ~~Implement a `/health` endpoint specific to ITSM integrations.~~ **Done — Improvement 9 (2026-05-15)** (`GET /v1/integrations/itsm/health`, `ItsmOutboundIntegrationHealthService`, WireMock integration tests).
 - **Status:** Fixable in V1.

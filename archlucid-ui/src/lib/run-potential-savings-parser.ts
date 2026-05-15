@@ -165,7 +165,7 @@ export function heuristicAnnualUsdOpportunityFromOrphanCandidatesJson(parsed: un
 
   const list = coerceOrphanList(parsed);
 
-  return list.reduce((acc, row) => acc + sumOrphanCandidateRowUsdAnnual(row), 0);
+  return list.reduce<number>((acc, row) => acc + sumOrphanCandidateRowUsdAnnual(row), 0);
 }
 
 function coerceOrphanList(parsed: unknown): unknown[] {
