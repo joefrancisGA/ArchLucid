@@ -1,6 +1,7 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Repositories;
 using ArchLucid.ContextIngestion.Interfaces;
@@ -30,6 +31,7 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Host.Composition.GoToMarket;
+using ArchLucid.Host.Composition.Orchestration;
 using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
@@ -172,7 +174,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IAuthorityPipelineWorkRepository, InMemoryAuthorityPipelineWorkRepository>();
         services.AddSingleton<IAsyncAuthorityPipelineModeResolver, DisabledAsyncAuthorityPipelineModeResolver>();
         services.AddScoped<IAuthorityPipelineStagesExecutor, AuthorityPipelineStagesExecutor>();
-        services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
+        services.AddScoped<AuthorityRunOrchestrator>();
+        services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestratorApplicationAdapter>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
         services.AddSingleton<ILlmTenantBudgetRepository, InMemoryLlmTenantBudgetRepository>();

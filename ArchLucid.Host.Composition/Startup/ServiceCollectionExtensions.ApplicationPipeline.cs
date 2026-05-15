@@ -27,6 +27,7 @@ using ArchLucid.Application.Traceability;
 using ArchLucid.Application.Trust;
 using ArchLucid.Application.Value;
 using ArchLucid.ContextIngestion.Canonicalization;
+
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Contracts;
@@ -56,6 +57,7 @@ using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Services;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -251,8 +253,6 @@ public static partial class ServiceCollectionExtensions
         services.Configure<KnowledgeGraphProjectionCacheOptions>(
             configuration.GetSection(KnowledgeGraphProjectionCacheOptions.SectionName));
         services.TryAddSingleton<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions()));
-        services.TryAddSingleton<GraphSnapshotProjectionMemoryCache>();
-        services.TryAddSingleton<GraphSnapshotProjectionDistributedCache>();
         services.TryAddSingleton<IGraphSnapshotProjectionCache>(static sp =>
         {
             IOptionsMonitor<KnowledgeGraphProjectionCacheOptions> monitor =
@@ -263,9 +263,15 @@ public static partial class ServiceCollectionExtensions
                 return NonCachingGraphSnapshotProjectionCache.Instance;
 
             if (opts.Backend == GraphProjectionCacheBackend.Distributed)
-                return sp.GetRequiredService<GraphSnapshotProjectionDistributedCache>();
+            {
+                IDistributedCache distributedCache = sp.GetRequiredService<IDistributedCache>();
 
-            return sp.GetRequiredService<GraphSnapshotProjectionMemoryCache>();
+                return new GraphSnapshotProjectionDistributedCache(distributedCache, monitor);
+            }
+
+            IMemoryCache memoryCache = sp.GetRequiredService<IMemoryCache>();
+
+            return new GraphSnapshotProjectionMemoryCache(memoryCache, monitor);
         });
         services.AddSingleton<PlainTextContextDocumentParser>();
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<PlainTextContextDocumentParser>());

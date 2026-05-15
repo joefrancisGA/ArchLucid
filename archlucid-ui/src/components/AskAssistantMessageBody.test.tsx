@@ -81,7 +81,7 @@ describe("AskAssistantMessageBody", () => {
       />,
     );
 
-    expect(screen.getByText("Sources in this workspace")).toBeInTheDocument();
+    expect(screen.getByText("Sources in this review package")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Manifest" })).toHaveAttribute("href", "/manifests/a1");
     expect(screen.getByRole("link", { name: "Finding" })).toHaveAttribute("href", "/reviews/r1/findings/f1");
   });

@@ -3,6 +3,8 @@ using ArchLucid.Core.Manifest;
 
 using FluentAssertions;
 
+using Xunit;
+
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
 /// <summary>Golden-output guards for advisory Terraform comment emit (<see cref="TerraformAdvisoryDecommissionSnippetBuilder" />).</summary>
@@ -27,9 +29,10 @@ public sealed class TerraformAdvisoryDecommissionSnippetBuilderTests
 
         snippet.Should().StartWith(TerraformAdvisoryDecommissionSnippetBuilder.AdvisoryHeaderLine);
         snippet.Should().Contain(TerraformAdvisoryDecommissionSnippetBuilder.AdvisoryMdPointerLine);
-        snippet.Should().Contain("Decision dec-42", StringComparison.Ordinal);
+        snippet.Should().Contain("Decision dec-42");
         snippet.Should().Contain("azurerm_resource_group.demo_rg");
-        snippet.Should().NotContain("destroy", StringComparison.OrdinalIgnoreCase);
+
+        Assert.DoesNotContain("destroy", snippet, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Orchestration;
 
 namespace ArchLucid.Host.Core.Hosted;

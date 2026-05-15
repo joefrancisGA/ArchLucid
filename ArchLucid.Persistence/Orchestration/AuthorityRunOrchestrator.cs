@@ -29,8 +29,9 @@ using Serilog.Context;
 namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>
-///     <see cref="IAuthorityRunOrchestrator" /> implementation coordinating ingestion, knowledge graph, findings,
-///     decisioning, artifact synthesis, audit, and post-commit retrieval indexing.
+///     Legacy SQL-backed authority pipeline coordinating ingestion, knowledge graph, findings, decisioning, artifact synthesis,
+///     audit, and post-commit retrieval indexing. Registered in host composition as the implementation behind the
+///     application-layer <c>IAuthorityRunOrchestrator</c> port.
 /// </summary>
 public sealed class AuthorityRunOrchestrator(
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
@@ -48,7 +49,7 @@ public sealed class AuthorityRunOrchestrator(
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     IGraphSnapshotProjectionCache graphSnapshotProjectionCache,
     IAuthorityRunCommittedChatOpsHook authorityRunCommittedChatOpsHook,
-    ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
+    ILogger<AuthorityRunOrchestrator> logger)
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));

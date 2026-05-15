@@ -1,6 +1,5 @@
 ﻿using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Orchestration;
-
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Api.Auth;
 using ArchLucid.Api.Filters;
 using ArchLucid.Api.Formatters;
 using ArchLucid.Api.OpenApi;
@@ -21,12 +22,14 @@ namespace ArchLucid.Api.Startup;
 
 internal static class MvcExtensions
 {
-    public static IServiceCollection AddArchLucidMvc(this IServiceCollection services)
+    public static IServiceCollection AddArchLucidMvc(this IServiceCollection services, IConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(configuration);
+
         services.AddSingleton<AuditEventCsvFormatter>();
         services.AddSingleton<IConfigureOptions<MvcOptions>, AuditCsvFormatterMvcOptionsConfigurer>();
 
-        services.AddControllers(options =>
+        IMvcBuilder mvcBuilder = services.AddControllers(options =>
             {
                 options.Conventions.Add(new DefaultPublicApiRateLimitConvention());
                 options.Filters.Add<ApiProblemDetailsExceptionFilter>();
@@ -40,6 +43,10 @@ internal static class MvcExtensions
                 // Contract enums as strings (e.g. run.status, agentType) so clients and integration tests match OpenAPI expectations.
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(null));
             });
+
+        if (ArchLucidSaml2HostFlags.IsSaml2Enabled(configuration))
+            mvcBuilder.AddApplicationPart(typeof(ITfoxtec.Identity.Saml2.MvcCore.HttpRequestExtensions).Assembly);
+
         services.Configure<ApiBehaviorOptions>(options =>
         {
             options.InvalidModelStateResponseFactory = context =>

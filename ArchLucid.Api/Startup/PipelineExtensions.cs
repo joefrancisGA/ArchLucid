@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+using ArchLucid.Api.Auth;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
@@ -11,6 +12,8 @@ using ArchLucid.Host.Core.Middleware;
 
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+
+using ITfoxtec.Identity.Saml2.MvcCore.Configuration;
 
 using Scalar.AspNetCore;
 
@@ -114,6 +117,9 @@ internal static class PipelineExtensions
     /// <summary>Authentication, authorization, metering, health maps, and controllers (endpoint execution).</summary>
     public static WebApplication UseArchLucidPipelineAfterSerilogRequestLogging(this WebApplication app)
     {
+        if (ArchLucidSaml2HostFlags.IsSaml2Enabled(app.Configuration))
+            app.UseSaml2();
+
         app.UseAuthentication();
         app.UseRateLimiter();
         app.UseMiddleware<ArchLucidRateLimitTelemetryHeadersMiddleware>();

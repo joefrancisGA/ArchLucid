@@ -11,6 +11,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
     <InternalsVisibleTo Include="ArchLucid.Host.Composition.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Host.Core.Tests" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
 using ArchLucid.Api.Auth.Models;
@@ -45,7 +46,11 @@ public static class ArchLucidSaml2ServiceExtensions
             .Bind(configuration.GetSection(ArchLucidSamlAuthOptions.ConfigurationSectionPath))
             .PostConfigure<IHttpClientFactory>((saml2Configuration, httpClientFactory) =>
             {
-                string certPath = environment.MapToPhysicalFilePath(samlOptions.SigningCertificateFile.Trim());
+                string trimmedCert = samlOptions.SigningCertificateFile.Trim();
+                string certPath = Path.IsPathRooted(trimmedCert)
+                    ? trimmedCert
+                    : Path.GetFullPath(Path.Combine(environment.ContentRootPath, trimmedCert.TrimStart('/', '\\')));
+
                 saml2Configuration.SigningCertificate =
                     CertificateUtil.Load(certPath, samlOptions.SigningCertificatePassword);
                 saml2Configuration.AllowedAudienceUris.Add(saml2Configuration.Issuer);
@@ -56,7 +61,7 @@ public static class ArchLucidSaml2ServiceExtensions
                     .GetAwaiter()
                     .GetResult();
 
-                IdPSSODescriptor? idp = entityDescriptor.IdPSsoDescriptor;
+                IdPSsoDescriptor? idp = entityDescriptor.IdPSsoDescriptor;
                 if (idp is null)
                     throw new InvalidOperationException(
                         "SAML IdP metadata did not contain an IdPSSODescriptor; check ArchLucidAuth:Saml2:IdPMetadata.");
@@ -64,7 +69,7 @@ public static class ArchLucidSaml2ServiceExtensions
                 saml2Configuration.AllowedIssuer = entityDescriptor.EntityId;
                 saml2Configuration.SingleSignOnDestination = idp.SingleSignOnServices.First().Location;
 
-                if (idp.SingleLogoutServices is { Count: > 0 })
+                if (idp.SingleLogoutServices.Any())
                     saml2Configuration.SingleLogoutDestination = idp.SingleLogoutServices.First().Location;
 
                 foreach (X509Certificate2 signingCertificate in idp.SigningCertificates)

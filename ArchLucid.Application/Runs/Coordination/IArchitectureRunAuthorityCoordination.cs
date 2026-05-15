@@ -4,7 +4,7 @@ namespace ArchLucid.Application.Runs.Coordination;
 
 /// <summary>
 ///     Maps an <see cref="ArchitectureRequest" /> into an authority run via
-///     <see cref="ArchLucid.Persistence.Orchestration.IAuthorityRunOrchestrator" />, then materializes
+///     <see cref="ArchLucid.Application.Runs.Orchestration.IAuthorityRunOrchestrator" />, then materializes
 ///     <see cref="CoordinationResult" /> (run, evidence bundle, starter agent tasks).
 /// </summary>
 /// <remarks>

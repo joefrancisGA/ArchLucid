@@ -62,7 +62,7 @@ public partial class Program
         // are completed in AddArchLucidApplicationServices via ArchLucid.Host.Composition.
         builder.Services.AddHealthChecks();
 
-        builder.Services.AddArchLucidMvc();
+        builder.Services.AddArchLucidMvc(builder.Configuration);
 
         using (ILoggerFactory authSafetyLoggerFactory = LoggerFactory.Create(logging =>
                {
@@ -80,6 +80,7 @@ public partial class Program
         // Singleton: resolves scope from IHttpContextAccessor (or ambient overrides). IAgentCompletionClient is scoped; handlers receive per-request instances while this provider stays stateless.
         builder.Services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
         builder.Services.AddArchLucidAuth(builder.Configuration);
+        builder.Services.AddArchLucidSaml2IfEnabled(builder.Configuration, builder.Environment);
         builder.Services.AddArchLucidAuthorization();
 
         builder.Services.AddArchLucidOpenTelemetry(
