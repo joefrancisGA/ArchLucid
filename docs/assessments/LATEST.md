@@ -1,3 +1,5 @@
+> **Scope:** Internal weighted readiness assessment for repo stewards — V1 scoring boundary and backlog prompts; not a customer-facing datasheet nor an exhaustive audit substitute.
+
 # ArchLucid Assessment – Weighted Readiness 81.55%
 
 **V1 scoring boundary:**
@@ -9,7 +11,7 @@
 - **Planning bridge (59R operator UX):** **V1 GA** — in-shell flow on **`/product-learning`** per **`docs/library/PRODUCT_LEARNING.md` §4.2** (improvement **#16**, **P7** owner **2026-05-15**). **`/planning`** stays read-only browse; bridge invokes existing **`POST /v1/learning/planning/materialize`** — **no** preview-only endpoint required for GA (**engineering judgment** documented in §4.2 **Constraints**).
 - **ServiceNow bi-directional status sync:** **`V1` GA** per **`docs/library/V1_SCOPE.md` §2.13** — unchanged. **P10** (**2026-05-15**): **no** ServiceNow developer instance **yet**; owner will unblock **#22** via **cost-free** **ServiceNow Developer Program** / personal developer-style instance (**paid** sandbox **not** a **`V1` GA** prerequisite). Until provisioned, engineering is **queued only** — explicit scope demotion requires **`V1_SCOPE.md`** / **`PENDING_QUESTIONS.md`** amendment **if** a **free** path never materializes.
 - **Durable Task Framework (DTF):** Scoped migration of **`AuthorityRunOrchestrator`** to DTF is an **active V1 engineering decision**. DTF is introduced only behind an interface in the host composition layer; `ArchLucid.Application` takes no compile-time dependency on it. AI/Agent Readiness is scored upward (82) to reflect this commitment. The ACA Jobs row in `V1_DEFERRED.md` §6f remains out of V1 scope; only the DTF orchestration substrate for the existing authority pipeline is in scope. **P11** (**2026-05-15**, owner concurrence): **Azure Container Apps Jobs** stay **`V2`** situational backlog (**improvement #25**) — **not** promoted into **`V1`**.
-- **Terraform Phase 7.5 (`state mv`):** Completing **brownfield** Terraform **`state mv` / `moved` blocks** so resource addresses align with current **ArchLucid** naming is an **active V1 decision**. Phase **7.6–7.8** (GitHub repo rename, Entra app rename, workspace path) remain **deferred** per `docs/ARCHLUCID_RENAME_CHECKLIST.md` until org coordination.
+- **Terraform Phase 7.5 (`state mv`):** **COMPLETE for repository IaC posture (2026-05-15)** — committed **`infra/**/*.tf`** uses **`archlucid`** resource addresses only (grep audit and operator rehearsal checklist in **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**); **conditional** **`terraform state mv`** applies **only** when remote state still lists **`archiforge`** addresses (**`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`**). **Phase 7.6–7.7** (GitHub repository rename, Entra greenfield registration alignment) **closed 2026-04-19**; **Phase 7.8** (optional local workspace folder rename) **waived** — receipts in **`docs/archive/root-superseded-2026-05-01/ARCHLUCID_RENAME_CHECKLIST.md`**; pointer **`docs/ARCHLUCID_RENAME_CHECKLIST.md`** (**assessment improvement #2**). **P2** (**2026-05-15**): owner **IT/security approval** on file, consistent with executed rename work.
 - **Operator UI vocabulary vs marketing workflow (V1):** Buyer-facing labels in **`archlucid-ui`** align with the evidence-backed governance narrative (e.g. **Capture system**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) mapped from existing flows (**run**, **manifest**, **commit**, **authority** remain internal/API). **REST routes, OpenAPI operation IDs, CLI commands, and audit event names are unchanged** unless separately versioned. **Usability** headline (**77**) reflects glossary alignment (**Q1** / **#27**) plus bounded bulk capture (**Q4** / **#30**).
 
 - **Buyer-grade architecture review export:** A **default DOCX/PDF export profile** matching the landing-page report narrative (executive summary, system overview, evidence reviewed, architecture decisions, key risks, policy findings, AI-assisted analysis with human-review framing, traceability appendix, recommended next actions) is a **V1 GA gate** per owner Q2 (**Marketing alignment — owner Q&A** row 2). **Consultant whitelabel** on cover/metadata is **also GA** per row **5** — same pipeline (**#28**). Landing demos and downloadable sample reports assume both ship with GA.
@@ -26,7 +28,7 @@
 
 ## Executive Summary
 
-**Overall Readiness:** ArchLucid is a functionally complete V1 product with a solid architectural foundation, capable of executing the core pilot loop (internally run → execute → commit → manifest and artifacts). However, its immediate readiness is bottlenecked by **remaining** Phase 7 rename work outside Terraform state (repo / Entra / workspace — still deferred), incomplete audit coverage, and the intentional deferral of live commerce and compliance attestations to V1.1 and beyond. **Phase 7.5 Terraform `state mv` is now in the V1 commitment.** **Operator shell labels will align with marketing workflow language** so pilots moving from landing page to product see one coherent story (technical APIs unchanged). **V1 GA requires** a buyer-grade **Architecture Review Report** export (DOCX + PDF) aligned to landing-page sections (**Marketing alignment Q2**) **with consultant whitelabel on cover/metadata** (**Marketing alignment Q5**, folded into **#28**) **and two curated default policy packs** (AI governance + security baseline; landing-zone pack **V1.1**) (**Marketing alignment Q3**) **and bounded bulk evidence upload** (**≤30 files** per operation — **Marketing alignment Q4**) **and two curated demo workspaces as a hard release gate** (**Marketing alignment Q6** / improvement **#31**) **and a landing CTA stack aligned to sales-led GA** (**Marketing alignment Q7** / improvement **#32**) **and native SAML 2.0 SP workforce SSO** (**`V1_SCOPE.md` §2.12**, improvement **#13**, **P6** owner **2026-05-15**) **and the 59R planning bridge UX** (**`PRODUCT_LEARNING.md` §4.2**, improvement **#16**, **P7** owner **2026-05-15**).
+**Overall Readiness:** ArchLucid is a functionally complete V1 product with a solid architectural foundation, capable of executing the core pilot loop (internally run → execute → commit → manifest and artifacts). However, its immediate readiness is still constrained by **residual audit-matrix deferrals** (notably read-path **`FindingsListAccessed`**) and the intentional deferral of live commerce and compliance attestations to V1.1 and beyond — **durable `ManifestSuperseded` / finalize supersession hygiene closed repository-side (2026-05-15**, **`AUDIT_COVERAGE_MATRIX.md`**, improvement **#3**). **Phase 7.6–7.7** rename execution and Entra greenfield alignment **closed 2026-04-19** (**7.8** waived — **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**). **Terraform Phase 7.5** (**improvement #1**) is **closed** for **committed IaC** as of **2026-05-15**; operators still owe **`terraform plan` / `state list`** hygiene per **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`** wherever remote backends exist. **Operator shell labels will align with marketing workflow language** so pilots moving from landing page to product see one coherent story (technical APIs unchanged). **V1 GA requires** a buyer-grade **Architecture Review Report** export (DOCX + PDF) aligned to landing-page sections (**Marketing alignment Q2**) **with consultant whitelabel on cover/metadata** (**Marketing alignment Q5**, folded into **#28**) **and two curated default policy packs** (AI governance + security baseline; landing-zone pack **V1.1**) (**Marketing alignment Q3**) **and bounded bulk evidence upload** (**≤30 files** per operation — **Marketing alignment Q4**) **and two curated demo workspaces as a hard release gate** (**Marketing alignment Q6** / improvement **#31**) **and a landing CTA stack aligned to sales-led GA** (**Marketing alignment Q7** / improvement **#32**) **and native SAML 2.0 SP workforce SSO** (**`V1_SCOPE.md` §2.12**, improvement **#13**, **P6** owner **2026-05-15**) **and the 59R planning bridge UX** (**`PRODUCT_LEARNING.md` §4.2**, improvement **#16**, **P7** owner **2026-05-15**).
 
 **Commercial Picture:** The product is ready for sales-led pilots and staging-based trial evaluations. However, self-serve transactability is intentionally paused, with Stripe live keys and Marketplace publication deferred to V1.1. The lack of a published reference customer and signed design partner (also deferred) may slow early momentum. **GA ships differentiated governance starters:** buyer-visible **AI governance** and **security baseline** policy packs (thin MVP counts acceptable), strengthening demo credibility versus empty-pack onboarding. **Evidence capture** gets **bulk upload** at GA with an explicit **≤30-file** ceiling (**Marketing alignment Q4**) — pitch accordingly. **Consultants can white-label client deliverables** (firm name, engagement title, logo — **Marketing alignment Q5**) directly from export — strengthens marketplace / boutique wedge without manual DOCX surgery. **Sales-led and self-serve evaluators both hit fixed demo workspaces** (**self-demo + regulated synthetic**) — GA is blocked until both stay green (**Marketing alignment Q6**). **First-90-days landing posture:** **Request walkthrough** primary, **Try the self-demo** secondary (Workspace **A**), **Early access** tertiary capture — **no public paid-pilot $ band** yet (**Marketing alignment Q7**).
 
@@ -42,9 +44,9 @@
 - **Score:** 77
 - **Weight:** 6
 - **Weighted deficiency signal:** 138
-- **Justification:** Tier 1 Azure extraction remains frictionless. **Terraform Phase 7.5 (`state mv`) is committed for V1**, which removes the largest day-to-day IaC friction from stale resource addresses. **Owner decision (Q6):** **two curated demo workspaces** are a **hard GA gate**, shrinking time-to-first-success for evaluators versus blank tenants. **Owner decision (Q7):** landing **hybrid CTA** routes serious buyers to **walkthrough** while offering **self-demo** before calendar load (**#32**). Phase **7.6–7.8** (GitHub repo rename, Entra registration alignment, workspace path) stays **deferred as execution work** — **IT/security approval to proceed is recorded** (**P2**, **2026-05-15**); residual friction until the rename lands in code and identity UX.
-- **Tradeoffs:** Executing `state mv` in brownfield stacks is operationally risky and needs a coordinated deploy window; deferring repo/Entra renames avoids org thrash but leaves residual naming seams. Demo workspaces create **fixture-maintenance tax** — feature churn can break GA smoke unless **#31** is treated as living backlog.
-- **Improvement recommendations:** Complete Phase 7.5 per `docs/ARCHLUCID_RENAME_CHECKLIST.md` and improvement #1 below. Implement improvement **#31** (demo workspaces — **release-blocking**). Implement improvement **#32** (landing CTA stack — **Q7**). Provide explicit documentation for generic OIDC setup (`improvement #24`). Schedule **7.6–7.8** execution (**improvement #2**, still deferred — **P2 answered:** IT/security approval **yes**, 2026-05-15).
+- **Justification:** Tier 1 Azure extraction remains frictionless. **Terraform Phase 7.5** (**improvement #1**) **closed in-repository (2026-05-15)** — **`infra/**/*.tf`** aligns with **`archlucid`** addresses (grep + rehearsal matrix **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**); **brownfield `state mv`** remains operator-owned only when legacy **`archiforge`** addresses persist in remote state. **Phase 7.6–7.7** + waived **7.8** (**improvement #2**) **closed 2026-04-19** — see **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**. **Owner decision (Q6):** **two curated demo workspaces** are a **hard GA gate**, shrinking time-to-first-success for evaluators versus blank tenants. **Owner decision (Q7):** landing **hybrid CTA** routes serious buyers to **walkthrough** while offering **self-demo** before calendar load (**#32**). Some **immutable** DbUp history and RLS lineage still carries legacy spellings — procurement-facing docs should say so honestly (**not** unreleased rename backlog).
+- **Tradeoffs:** Executing `state mv` in brownfield stacks is operationally risky and needs a coordinated deploy window. Demo workspaces create **fixture-maintenance tax** — feature churn can break GA smoke unless **#31** is treated as living backlog.
+- **Improvement recommendations:** ~~Complete Phase 7.5 per `docs/ARCHLUCID_RENAME_CHECKLIST.md` and improvement #1 below.~~ **Improvement #1 closed (2026-05-15)** — follow **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`** for subscription rehearsals only. **Improvement #2** (**7.6–7.8**) **closed 2026-04-19** per archived checklist — no schedule action. Implement improvement **#31** (demo workspaces — **release-blocking**). Implement improvement **#32** (landing CTA stack — **Q7**). Provide explicit documentation for generic OIDC setup (`improvement #24`).
 
 ### 2. AI/Agent Readiness
 - **Score:** 82
@@ -58,9 +60,9 @@
 - **Score:** 82
 - **Weight:** 8
 - **Weighted deficiency signal:** 144
-- **Justification:** The execution model is solid, but known gaps in durable audit coverage for some mutating flows and the presence of legacy RLS object names present correctness and data integrity risks.
-- **Tradeoffs:** Prioritizing feature delivery over complete audit parity leaves minor compliance gaps.
-- **Improvement recommendations:** Implement durable audit coverage for all missing mutating flows. Update legacy RLS object names to use current tokens.
+- **Justification:** The execution model is solid; **improvement #3** **`ManifestSuperseded`** durable path **closed (2026-05-15)** per **`docs/library/AUDIT_COVERAGE_MATRIX.md`** (finalize orphan cleanup). Legacy RLS object names remain a correctness / isolation hygiene topic.
+- **Tradeoffs:** Read-path **`FindingsListAccessed`** stays intentionally unaudited until a stable bulk-list contract exists; RLS rename migrations remain coordination-heavy.
+- **Improvement recommendations:** ~~Implement durable audit coverage for all missing mutating flows.~~ **Improvement #3 closed (2026-05-15)** — retain **`AUDIT_COVERAGE_MATRIX.md`** discipline for future mutation surfaces. Update legacy RLS object names to use current tokens (improvement **#4**).
 
 ### 4. Proof-of-ROI Readiness
 - **Score:** 84
@@ -90,9 +92,9 @@
 - **Score:** 75
 - **Weight:** 2
 - **Weighted deficiency signal:** 50
-- **Justification:** A durable audit trail exists, and the SOC 2 self-assessment is complete. However, known gaps in audit coverage for some flows reduce overall compliance readiness.
+- **Justification:** A durable audit trail exists, and the SOC 2 self-assessment is complete. **Finalize supersession** now emits **`ManifestSuperseded`** (**2026-05-15**); residual gaps are limited to explicit matrix deferrals (e.g. **`FindingsListAccessed`** read path).
 - **Tradeoffs:** Self-assessment is faster and cheaper than CPA attestation but carries less weight with enterprise buyers.
-- **Improvement recommendations:** Close the known gaps in the `AUDIT_COVERAGE_MATRIX.md`.
+- **Improvement recommendations:** ~~Close the known gaps in the `AUDIT_COVERAGE_MATRIX.md`.~~ **Mutating durable gaps cleared (2026-05-15)** — keep matrix reviews green when adding HTTP mutations; track **`FindingsListAccessed`** only when a list endpoint ships.
 
 ### 8. Commercial Packaging Readiness
 - **Score:** 83
@@ -162,9 +164,9 @@
 
 ## Top 15 Most Important Weaknesses
 
-1. Residual rename debt after Phase 7.5: GitHub repo, Entra apps, workspace path (**7.6–7.8** deferred), plus lingering legacy tokens in configuration and docs — adoption friction persists until those close.
+1. **Legacy naming seams** inside **immutable** DbUp migration history and some persisted RLS / graph identifiers (**not** unreleased GitHub or Entra rename work — **Phase 7.6–7.7 closed 2026-04-19**, **7.8 waived**, **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**). Enterprise reviewers may ask for an explicit legacy-to-current map in procurement appendix until remaining honest doc pointers land.
 2. **Planning bridge (59R)** — **`PRODUCT_LEARNING.md` §4.2** / improvement **#16** is **V1 GA** (**P7**); **until shipped**, **`/planning`** is read-only and **`POST /v1/learning/planning/materialize`** lacks first-class shell UX for non-API operators.
-3. Known gaps in durable audit coverage for some mutating flows.
+3. ~~Known gaps in durable audit coverage for some mutating flows.~~ **COMPLETE (2026-05-15)** **`ManifestSuperseded`** finalize supersession + durable audit (**improvement #3** / **`AUDIT_COVERAGE_MATRIX.md`**).
 4. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
 5. Reliance on memory cache for graph snapshot projections, posing performance risks at scale.
 6. Playwright E2E tests relying heavily on mocks rather than live API validation.
@@ -184,7 +186,7 @@
 
 1. Stripe live keys and Marketplace published state are deferred to V1.1 (**P4**: remain off until **finance confirms** Partner Center / tax / payout readiness).
 2. Lack of cross-tenant analytics to prove ROI to executive buyers.
-3. Adoption friction from **remaining** Phase **7.6–7.8** rename scope (Terraform **7.5** is **in V1**).
+3. **GA-gated demo workspaces (#31)** — if automated smoke regresses, sales-led pilots lose a credible first-session story even when core product paths stay healthy.
 4. Absence of a signed design partner (though deferred, it impacts early monetization).
 5. Lack of a published reference customer case study (deferred to V1.1).
 
@@ -193,9 +195,9 @@
 ## Top 6 Enterprise Adoption Blockers
 
 1. Lack of CPA-issued SOC 2 Type I/II report (though deferred, it causes procurement friction).
-2. Known gaps in durable audit coverage for mutating flows.
+2. ~~Known gaps in durable audit coverage for mutating flows.~~ **Closed 2026-05-15** — **`ManifestSuperseded`** path (**improvement #3**); procurement narrative should cite **`AUDIT_COVERAGE_MATRIX.md`** for any residual **read-path** deferrals.
 3. Absence of third-party penetration test redacted summary (**`V2`** — factual **`(B)` procurement friction**; **not** a **V1** standing prompt per **P8** owner **2026-05-15**).
-4. Incomplete **non-Terraform** rename work (**7.6–7.8**) and legacy configuration tokens causing confusion for enterprise IT (Terraform state alignment is committed in V1).
+4. **Immutable SQL / identity lineage strings** (historic migration bodies, session-context keys, allowlisted CI/doc carve-outs) plus honest disclosure obligations for procurement — **Terraform Phase 7.5 / improvement #1** complete for committed **`infra/**/*.tf`** **2026-05-15**; **Phase 7.6–7.7 / improvement #2** closed **2026-04-19** (**`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); **`terraform state mv`** only when remote state lists **`archiforge`** (**`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
 5. **Native SAML 2.0 SP** — **V1 GA engineering gate** (**`V1_SCOPE.md` §2.12**, **P6** owner **2026-05-15**, improvement **#13**); **until shipped**, SAML-mandatory enterprises cannot rely on **direct SP** posture — interim OIDC federation / brokers remain valid.
 6. Absence of multi-region active/active guarantees out of the box.
 
@@ -214,56 +216,39 @@
 
 ## Most Important Truth
 
-ArchLucid is a functionally complete V1 product with a solid architectural foundation, but its immediate adoption and monetization are bottlenecked by **remaining** Phase **7.6–7.8** operational hygiene (after **Terraform 7.5** lands in V1), incomplete audit coverage, and the intentional deferral of live commerce and compliance attestations to V1.1 and beyond. **GA commits** to **two curated policy packs** (AI governance + security baseline); **landing-zone pack narrative stays honest** until **V1.1**. **Bulk evidence ingestion is real but bounded:** **≤30 files** per upload at GA — marketing must carry that constraint visibly (**Marketing alignment Q4**). **Architecture Review exports ship consultant whitelabel** (firm/client branding + attribution — **Marketing alignment Q5**) — logo handling must meet the same tenant-upload security bar as other blobs. **GA cannot ship without two green demo workspaces** (**Marketing alignment Q6**) — fixture drift becomes an operational obligation, not optional polish. **First 90 days of landing copy** must mirror **sales-led GA:** walkthrough primary, self-demo secondary, early-access tertiary — **no public paid-pilot price band** until reference deals exist (**Marketing alignment Q7**). **59R planning bridge** (**`PRODUCT_LEARNING.md` §4.2**, **#16**) is **V1 GA** — engineering execution gates operator-complete pilot-feedback → planning flow (**P7**).
+ArchLucid is a functionally complete V1 product with a solid architectural foundation, but its immediate adoption and monetization are constrained by **residual audit-matrix deferrals** (read-path items such as **`FindingsListAccessed`** only — mutating durable gaps cleared **2026-05-15** via **`ManifestSuperseded`** / improvement **#3**), **GA demo workspace discipline (#31)**, and the intentional deferral of live commerce and compliance attestations to V1.1 and beyond. **Terraform Phase 7.5 / improvement #1** is **closed** for committed IaC **2026-05-15** — see **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**. **Phase 7.6–7.7 / improvement #2** closed **2026-04-19** (**7.8 waived** — **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**). **GA commits** to **two curated policy packs** (AI governance + security baseline); **landing-zone pack narrative stays honest** until **V1.1**. **Bulk evidence ingestion is real but bounded:** **≤30 files** per upload at GA — marketing must carry that constraint visibly (**Marketing alignment Q4**). **Architecture Review exports ship consultant whitelabel** (firm/client branding + attribution — **Marketing alignment Q5**) — logo handling must meet the same tenant-upload security bar as other blobs. **GA cannot ship without two green demo workspaces** (**Marketing alignment Q6**) — fixture drift becomes an operational obligation, not optional polish. **First 90 days of landing copy** must mirror **sales-led GA:** walkthrough primary, self-demo secondary, early-access tertiary — **no public paid-pilot price band** until reference deals exist (**Marketing alignment Q7**). **59R planning bridge** (**`PRODUCT_LEARNING.md` §4.2**, **#16**) is **V1 GA** — engineering execution gates operator-complete pilot-feedback → planning flow (**P7**).
 
 ---
 
 ## Top Improvement Opportunities
 
-1. Complete Phase 7.5 Terraform `state mv` (brownfield alignment)
-- Why it matters: Stale Terraform **resource addresses** block safe renames and confuse every infra change; greenfield IaC already uses ArchLucid naming — brownfield stacks need explicit **`terraform state mv`** or equivalent **`moved`** blocks without replacing live Azure objects.
-- Expected impact: **Validates** the IaC slice for GA: weighted readiness **81.55%** assumes Phase **7.5** lands for GA alongside improvement **#31** (**Q6** demo workspaces). **§1 Adoption Friction** headline (**77**) bundles **7.5** + demo gates + residual rename debt narrative; incremental lift after **7.5** remains dominated by **7.6–7.8** (improvement **#2**).
-- Affected qualities: Adoption Friction, Correctness.
-- Actionable: Yes
+1. **COMPLETE (2026-05-15)** Terraform Phase **7.5** — **`infra/**/*.tf`** resource address alignment (**improvement #1**)
 
-```markdown
-Execute **Phase 7.5** Terraform state alignment per `docs/ARCHLUCID_RENAME_CHECKLIST.md` (Phase 7.5) and `docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`, using brownfield guidance in `docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md` where applicable.
+   - **Outcome:** Committed Terraform uses **`archlucid`** resource labels exclusively (**grep audit:** `rg "archiforge" infra --glob "*.tf"` → empty — documented in **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**). Historical **`terraform state mv`** targets for APIM + Grafana stacks remain archived (**`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`**) for backends that still list **`archiforge`** addresses.
 
-SCOPE — IN V1
-- For each Terraform **root** that has already been applied with **legacy resource addresses** (e.g. historical `archiforge`/`archlucid` address drift versus current `.tf` labels): add **`moved`** blocks and/or run **`terraform state mv`** so state addresses match committed resource blocks — **without** destroying or recreating production resources unless an explicit commented exception is reviewed.
-- Roots to audit: at minimum **`infra/terraform`**, **`infra/terraform-monitoring`**, **`infra/terraform-container-apps`**, **`infra/terraform-sql-failover`**, and any other root named in deployment docs (`docs/library/DEPLOYMENT_TERRAFORM.md`).
-- Preserve CI guardrails: do not reintroduce banned tokens into `infra/**/*.tf` where CI fails on them.
+   - **Why it mattered:** Stale **`archiforge`** addresses block safe infra iteration; **main-branch IaC** no longer encodes that drift (**temporary `moved_*.tf` files removed 2026-04-19** per archived checklist).
 
-CONSTRAINTS
-- Require a **maintenance window** or **staging dry-run** before production `state mv`; document rollback (restore state backup).
-- Do not change application code or API behavior in this task.
-- Do not implement Phase **7.6–7.8** (repo rename, Entra rename, workspace path) in this prompt — those stay deferred.
+   - **Expected impact — retained narrative:** Weighted readiness **81.55%** still assumes **demo workspaces (#31)** close alongside **`terraform plan` / `state list`** hygiene for the **subscriptions × roots** matrix (**P1**).
 
-DOCUMENTATION — MANDATORY
-- Update **`docs/ARCHLUCID_RENAME_CHECKLIST.md`** Phase 7.5 checkboxes and changelog row when complete.
-- Remove or refresh **stub** wording in `docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md` so operators have a current procedure for brownfield vs greenfield.
+   - **Affected qualities:** Adoption Friction, Correctness.
 
-ACCEPTANCE CRITERIA
-1. `terraform plan` is **non-destructive** (no unexpected replace/destroy) for each updated root against a representative environment after moves.
-2. State addresses and `.tf` resource addresses match per root; grep-based audit confirms no orphaned legacy address pattern remains in documented production roots (define the grep in the checklist or runbook).
-3. Checklist and runbook reflect completed V1 posture for Terraform state.
-```
+   - **Actionable:** **Closed** for repository deliverables (**checklist pointer:** **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); operators finish **`terraform plan` / `state list`** rows only where remote backends exist (**same runbook** — subscriptions listed under **P1** below).
 
-2. DEFERRED Complete Phase 7.6-7.8 GitHub repo rename and Entra apps
-- Why it matters: Aligns the codebase and identity providers with the final product name.
-- Expected impact: Professionalizes the product appearance and reduces enterprise confusion.
-- Affected qualities: Adoption Friction, Security.
-- Actionable: DEFERRED
-- Input needed: **P2 answered (2026-05-15):** IT/security approval — **yes**. Remaining: **schedule** execution window + coordination checklist (**`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); optional evidence link (ticket/email) for audit trail.
+2. **COMPLETE (2026-04-19)** Phase **7.6–7.7** GitHub repo rename + Entra greenfield alignment (**improvement #2**); **7.8** waived
 
-3. Implement durable audit coverage for missing mutating flows
-- Why it matters: Closes compliance gaps and improves enterprise trust.
-- Expected impact: Directly improves Compliance Readiness (+5 pts), Correctness (+2 pts). Weighted readiness impact: +0.54%.
-- Affected qualities: Compliance Readiness, Correctness.
-- Actionable: Yes
-```markdown
-Review `docs/library/AUDIT_COVERAGE_MATRIX.md` and identify the mutating flows that currently lack durable audit logging. Implement `IAuditService` calls in these flows (e.g., analysis reports, export/comparison paths, governance via `GovernanceWorkflowService`) to ensure all state changes emit a durable `AuditEvent`. Ensure the event types are added to the `AuditEventTypes` catalog. Do not change existing audit events. Acceptance criteria: All mutating flows listed as gaps in the matrix now emit durable audit events.
-```
+   - **Outcome:** GitHub **`joefrancisGA/ArchiForge` → `joefrancisGA/ArchLucid`**; Entra strings via **`infra/terraform-entra/`** for greenfield **`terraform apply`**; **Phase 7.8** optional workspace folder rename **waived** by owner. Receipts: **`docs/archive/root-superseded-2026-05-01/ARCHLUCID_RENAME_CHECKLIST.md`** (rows **7.6–7.8**).
+   - **Why it mattered:** Public repository URL and registration alignment match the **ArchLucid** product name — reduces evaluator and identity-admin confusion versus legacy codename drift.
+   - **Expected impact:** **P2** (**2026-05-15**) IT/security **approval** stays on file for auditors; execution debt for **7.6–7.7** is **not** reopenable from this checklist without a new initiative.
+   - **Affected qualities:** Adoption Friction, Security.
+   - **Actionable:** **Closed** — pointer **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**; optional evidence link (ticket/email) retained per org policy only.
+
+3. **COMPLETE (2026-05-15)** Durable audit + SQL lifecycle for **`ManifestSuperseded`** / finalize supersession hygiene (**improvement #3**)
+
+   - **Outcome:** `ManifestFinalizationService` emits **`AuditEventTypes.ManifestSuperseded`** for each golden manifest transitioned by **`IGoldenManifestRepository.SupersedeUnreferencedActiveGoldenManifestsAsync`** (**Active** → **Superseded** when **no** non-archived **scoped** run references the row **after** finalize wires the new manifest). **`CachingGoldenManifestRepository`** evicts superseded ids from the hot-path cache.
+   - **Why it mattered:** Prior matrix flagged **`ManifestSuperseded`** as catalogue-only — procurement narratives could not point at durable rows for orphan golden manifests replaced at commit.
+   - **Expected impact:** Compliance Readiness / Correctness uplift mirrors the former backlog estimate (**~+0.54%** weighted **when rescored**); headline **81.55%** unchanged until the assessment spreadsheet is formally recomputed.
+   - **Affected qualities:** Compliance Readiness, Correctness.
+   - **Actionable:** **Closed** — verification anchor **`docs/library/AUDIT_COVERAGE_MATRIX.md`** (**Known gaps** mutating section cleared **2026-05-15**); **`FindingsListAccessed`** remains the lone intentional catalogue/read deferral.
 
 4. Update legacy RLS object names to use current tokens
 - Why it matters: Reduces technical debt and prevents correctness issues.
@@ -741,7 +726,7 @@ ACCEPTANCE CRITERIA
 
 ## Prompt Batching Guidance
 
-- **Batch 0 (IaC / state hygiene — coordinated window):** 1 alone, or paired only with checklist/runbook edits in the same PR. Requires operator review and non-interactive `terraform plan` verification; do not merge on a blind agent run without human sign-off on production state backups.
+- **Batch 0 (IaC / state hygiene — coordinated window):** Improvement **#1** (**Terraform Phase 7.5**) **closed** in-repository **2026-05-15** — future brownfield-only **`state mv`** PRs pair **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`** updates with operator **`terraform plan`** sign-off (human-required — **DEV** before **Prod**).
 - **Batch 1b (Marketing artifact — GA gate):** **28** (buyer-grade report export **+ consultant whitelabel — Q5**). Coordinate with **#27** so labels in exported doc match UI glossary (**Architecture snapshot**, **Review**, etc.); coordinate with **#29** so **Policy findings** reflect seeded packs; security review on logo uploads.
 - **Batch 1c (Governance content — GA gate):** **29** — curated pack authoring + seed/bootstrap + docs honesty guardrails; pair with legal/product review of mapping disclaimers; **do not** dilute with landing-zone pack scope creep.
 - **Batch 1d (Evidence capture UX — GA gate):** **30** with **#27** — bulk upload surfaces must reuse glossary (**Evidence**, **Capture**) and visible **“up to 30 files”** disclosure.
@@ -773,15 +758,15 @@ Sequential decisions so marketing ↔ technical V1 stay aligned. **Status: Q1–
 
 ## Pending Questions for Later
 
-- **P1 — Phase 7.5 Terraform `state mv` (first maintenance windows) — answered (subscriptions + authority); roots still confirm against backends:**
-  - **Subscriptions (owner-provided via Azure portal, 2026-05-15):** Both tenant subscriptions under **Default Directory** (`joefrancismarch25outlook.onmicrosoft.com`) are in scope for Phase **7.5** brownfield alignment:
+- **P1 — Phase 7.5 Terraform rehearsals (`DEV` / `Prod`) — answered (subscriptions + authority); improvement **#1** checklist/runbook closure (**2026-05-15**):**
+  - **Subscriptions (owner-provided via Azure portal, 2026-05-15):** Both tenant subscriptions under **Default Directory** (`joefrancismarch25outlook.onmicrosoft.com`) remain in scope for **`terraform plan` / `state mv`** rehearsals when remote backends exist:
     - **ArchLucid DEV** — subscription **`8aa56f3b-18bc-43ca-ad45-bad9e811d33b`**
     - **ArchLucid Prod** — subscription **`aab65184-5005-4b0d-a884-9e28328630b1`**
-  - **Recommended window order:** Run **`terraform plan`** / `state mv` rehearsal against **DEV** first; repeat only after DEV plans are clean for **Prod** (Prod currently shows **$0** spend — still validate whether remote state exists per root before skipping **Prod** passes).
+  - **Recommended window order:** Run **`terraform plan`** / **`terraform state mv`** rehearsal against **DEV** first; repeat only after DEV plans are clean for **Prod** (Prod currently shows **$0** spend — still validate whether remote state exists per root before skipping **Prod** passes).
   - **Backup / rollback authority:** Portal identity holds **Azure RBAC Owner** on **both** subscriptions — **same principal** should **download remote state backups** immediately before each `state mv`, run **`terraform plan`**, and **authorize abort / state restore** if the plan shows unexpected **destroy/replace**. Delegate to a named infra deputy in writing if Owner is not executing moves personally.
-  - **Roots — owner still confirms:** Enumerate only roots where **remote backend state already exists** in each subscription (per **`backend.tf`** / CI wiring). Canonical catalog: **`docs/library/DEPLOYMENT_TERRAFORM.md`** (Terraform roots table). Assessment improvement **#1** requires at minimum **`infra/terraform`**, **`infra/terraform-monitoring`**, **`infra/terraform-container-apps`**, **`infra/terraform-sql-failover`** **whenever** those roots have been applied brownfield — extend to **`infra/terraform-storage`**, **`infra/terraform-private`**, **`infra/terraform-edge`**, **`infra/terraform-entra`**, **`infra/terraform-openai`**, **`infra/terraform-logicapps`**, **`infra/terraform-keyvault`**, **`infra/terraform-servicebus`**, **`infra/terraform-orchestrator`**, **`infra/terraform-otel-collector`** only if applied in that subscription.
-  - **Follow-up:** Paste a short **matrix** (subscription × root × state backend yes/no) into **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`** when enumerated — closes residual P1 ambiguity.
-- **P2 — Phase 7.6–7.8 GitHub repo rename + Entra apps — answered:** **Owner 2026-05-15:** **Yes** — IT/security approval to execute the **GitHub repository rename** and **Entra ID app registration alignment** (**Phase 7.6–7.8**) is **in place** per owner confirmation. **Execution** remains **`DEFERRED`** as engineering work (**improvement #2**, **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**) until scheduled; retain evidence link (ticket/email) when filed for auditors.
+  - **Roots:** Canonical catalog **`docs/library/DEPLOYMENT_TERRAFORM.md`**. Enumerate only stacks already applied with **`backend.tf`**. **`terraform state list | rg archiforge`** determines brownfield **`state mv`** need (**archive procedures:** **`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`**). Starter audit depth (**when brownfield applies**) historically emphasized **`infra/terraform`**, **`infra/terraform-monitoring`**, **`infra/terraform-container-apps`**, **`infra/terraform-sql-failover`** — extend to other roots **when applied** in that subscription (**matrix:** **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
+  - **Matrix:** Subscription × root rehearsal template appended **2026-05-15** (operators fill **Y/N** cells — satisfies former **P1** follow-up).
+- **P2 — Phase 7.6–7.8 GitHub repo rename + Entra apps — answered:** **Owner 2026-05-15:** **Yes** — IT/security approval to execute the **GitHub repository rename** and **Entra ID app registration alignment** is **on file**. **Engineering closure:** **Phase 7.6–7.7** **completed 2026-04-19**; **Phase 7.8** optional local folder rename **waived** — receipts **`docs/archive/root-superseded-2026-05-01/ARCHLUCID_RENAME_CHECKLIST.md`**; living pointer **`docs/ARCHLUCID_RENAME_CHECKLIST.md`** (**improvement #2**). Optional evidence link (ticket/email) for auditors if your org requires it.
 - **P3 — In-Slack interactive approvals — answered:** **Owner 2026-05-15 (agent recommendation accepted):** **Not** V1 GA / **not** current sprint. **Target: early V1.1** (~first **30 days** post-GA). **MVP scope:** single **approve finding / decision** flow; **audit parity** with UI; **signing-secret** + identity/RBAC binding. **Marketing:** no “approve from Slack” claims at GA. **Mockups:** none provided — engineer from operator approval UX or add wireframes in V1.1 slice. Details also in improvement **#6**.
 - **P4 — Stripe live keys + Marketplace publication — answered:** **Owner 2026-05-15:** **Defer** execution **until finance confirms** Partner Center readiness (seller verification, tax profile, payout/banking). **Next step:** Finance “go” → run improvement **#7** against billing/runbook checklists (e.g. **`docs/library/DEPLOYMENT_TERRAFORM.md`** and any Partner Center / Stripe cutover notes the team maintains).
 - **P5 — Hosted-trial `V1`→`V1.1` migration guide — answered:** **Owner 2026-05-15:** Artifact is **out of V1 GA scope** and **in V1.1 documentation scope** (`docs/library/V1_DEFERRED.md` §6i). **`(A)` V1 readiness is unchanged** by its absence at GA. Engineering tracks rollout prose via improvement **#10** when **`V1.1`** deltas are enumerated for tenants (commerce **P4**, MCP, Slack **P3**, packs, etc.).

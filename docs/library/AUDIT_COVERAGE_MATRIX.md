@@ -101,6 +101,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Comparison summary persisted (export diff) | `ExportsController` (`POST .../run/exports/compare/summary`, `persist: true`) | `ComparisonSummaryPersisted` | RunId when parseable | `comparisonId`, `sourceExportRecordId`, `leftExportRecordId`, `rightExportRecordId` |
 | End-to-end comparison persisted | `ComparisonAuditService` (`RunComparisonController` `POST .../run/compare/end-to-end/summary`, `persist: true`) | `EndToEndComparisonPersisted` | RunId when left/right parseable | `comparisonRecordId`, `leftRunId`, `rightRunId`, `comparisonType` |
 | Comparison replay persisted (new immutable row) | `ComparisonAuditService` (`ComparisonReplayService` when `PersistReplay`) | `ComparisonReplayPersisted` | RunId when left/right parseable | `comparisonRecordId`, `sourceComparisonRecordId`, `leftRunId`, `rightRunId`, `comparisonType` |
+| Golden manifest superseded (finalize orphan Active cleanup) | `ManifestFinalizationService` (after successful finalize SQL includes transition in outer txn; legacy path runs supersede after `dbo.Runs` commit) | `ManifestSuperseded` | RunId + superseded `ManifestId` on each row | `{ supersedingManifestId, runId, reason }` — emitted once per superseded manifest (`reason`: `unreferenced_after_finalize`) |
 | Data archival host failure | `DataArchivalHostIteration` | `DataArchivalHostLoopFailed` | — | exception summary |
 | OpenAI circuit breaker | `CircuitBreakerAuditBridge` (wired from `CircuitBreakerGate`) | `CircuitBreakerStateTransition`, `CircuitBreakerRejection`, `CircuitBreakerProbeOutcome` | Tenant/Workspace/Project from ambient scope | `{ gate, fromState, toState, probeOutcome? }` |
 | Azure AI Content Safety circuit degraded (local deny-list fallback) | `CircuitBreakingContentSafetyGuard` | `ContentSafetyCircuitDegradedFallback` | Empty GUID tenant/workspace/project; explicit system actor | `{ kind, denialCountsByCategory }` — emitted when the content-safety breaker allows via local redaction after the remote circuit is open/unhealthy; audit failures swallowed so the LLM path is not blocked. |
@@ -168,13 +169,11 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-**Last reviewed:** 2026-05-10.
+**Last reviewed:** 2026-05-15.
 
-### Mutating / lifecycle — risk acceptance (verified in repository)
+### Mutating / lifecycle — verified
 
-| Gap | Provable state | Owner / policy |
-|-----|----------------|----------------|
-| **`ManifestSuperseded`** | `AuditEventTypes.ManifestSuperseded` and `GoldenManifestLifecycleStatus.Superseded` exist in contracts, but **no** C# mutation path assigns `GoldenManifestLifecycleStatus.Superseded` to a persisted golden manifest today (enum value is unused in writers). | **Product / architecture backlog** — when supersession ships, emit **`IAuditService.LogAsync`** from the **application service or orchestrator** that performs the lifecycle transition (not inside Dapper repositories), using this constant. **Risk acceptance:** until then the event type is **catalogue-only**; absence of rows is expected. |
+**None.** `ManifestSuperseded` durable emission shipped **2026-05-15**: after manifest finalization wires the committing run to the new golden manifest, `IGoldenManifestRepository.SupersedeUnreferencedActiveGoldenManifestsAsync` transitions **Active** rows in scope that are **not referenced** by any non-archived run (`dbo.Runs.GoldenManifestId`), and `ManifestFinalizationService` emits one **`IAuditService`** row per superseded manifest id (**repository mutation only** — audit semantics stay in the application service per matrix policy).
 
 ### Read-path / reserved observability (not an append-only weakness)
 
@@ -182,7 +181,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 |------|----------------|--------|
 | **`FindingsListAccessed`** | Core constant exists; **no** `IAuditService.LogAsync` call site. Public read APIs expose **per-finding** inspect/evidence routes (see OpenAPI: `/v1/architecture/run/{runId}/findings/{findingId}/…`, `/v1/findings/{findingId}/inspect`), not a dedicated bulk “list findings” route tied to this name. | **Deferred** — add durable audit only when a stable list endpoint is defined; until then, rely on run/manifest lifecycle audits and per-finding reads. |
 
-**Open catalogued-only items: 2** (tables above). Neither item weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_DenyUpdateDelete.sql`](../../ArchLucid.Persistence/Migrations/051_AuditEvents_DenyUpdateDelete.sql) / consolidated DDL).
+**Open catalogued-only items: 1** (`FindingsListAccessed` read-path deferral only — table below). Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_DenyUpdateDelete.sql`](../../ArchLucid.Persistence/Migrations/051_AuditEvents_DenyUpdateDelete.sql) / consolidated DDL).
 
 **Layered enforcement shipped 2026-04-29**
 
@@ -209,9 +208,9 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Metric | Approximate value |
 |--------|-------------------|
 | **Core `AuditEventTypes` `public const string` rows** | 154 (see CI marker above; includes nested `Baseline` and nested `Run`) |
-| **`await *auditService.LogAsync` production call sites** | ~45 (excluding tests; includes bridge) |
+| **`await *auditService.LogAsync` production call sites** | ~46 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
-| **Known-gap catalogued-only items** | 2 — `ManifestSuperseded` (no supersession writer), `FindingsListAccessed` (no list route wiring) — see **Known gaps** |
+| **Known-gap catalogued-only items** | 1 — `FindingsListAccessed` (no bulk list route wiring) — see **Known gaps** |
 
 ---
 
@@ -237,7 +236,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `ArchitectureRunBatchAccepted` | `Architecture.RunBatchAccepted` | `RunsController` (`POST …/architecture/request/batch`, 202; per-item persist emits `RequestCreated`) |
 | `RequestLocked` | `Request.Locked` | `ArchitectureRunCreateOrchestrator` |
 | `RequestReleased` | `Request.Released` | `AuthorityDrivenArchitectureRunCommitOrchestrator` |
-| `ManifestSuperseded` | `ManifestSuperseded` | — (catalogue-only until supersession writer exists — see **Known gaps**) |
+| `ManifestSuperseded` | `ManifestSuperseded` | `ManifestFinalizationService` (post-finalize orphan Active cleanup + durable audit per superseded `ManifestId`; SQL transition via `IGoldenManifestRepository.SupersedeUnreferencedActiveGoldenManifestsAsync`) |
 | `ManifestArchived` | `ManifestArchived` | `AdminDiagnosticsService` (`ArchiveRuns*` / cascade — batch `ManifestArchived`) |
 | `FindingsSnapshotSealed` | `FindingsSnapshotSealed` | `AuthorityPipelineStagesExecutor` |
 | `FindingReviewApproved` | `FindingReviewApproved` | `FindingReviewTrailAppendService` |
