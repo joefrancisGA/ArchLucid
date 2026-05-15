@@ -77,7 +77,8 @@ public sealed class AdvisoryScanHostedServiceTests
         using CancellationTokenSource cts = new();
         await sut.StartAsync(cts.Token);
 
-        await Task.Delay(250, CancellationToken.None);
+        // Allow enough wall time for ≥2 poll intervals under parallel CI / loaded dev machines (PollInterval is 80ms).
+        await Task.Delay(500, CancellationToken.None);
 
         await cts.CancelAsync();
         await sut.StopAsync(CancellationToken.None);

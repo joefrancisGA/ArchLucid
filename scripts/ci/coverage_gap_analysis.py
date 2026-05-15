@@ -31,6 +31,9 @@ _GAP_ANALYSIS_OMIT_PACKAGES: frozenset[str] = frozenset(
     }
 )
 
+# Classes below this line-rate threshold are listed in the full gap table per assembly.
+_GAP_CLASS_LINE_RATE_THRESHOLD = 0.95
+
 
 def is_target_product_package(name: str) -> bool:
     if not is_product_archlucid_package(name):
@@ -68,42 +71,127 @@ def _recent_md_without_library_header(raw: str) -> str:
     return "\n".join(out).strip()
 
 
-def _uncovered_entries_in_aggregate_lines(lines_parent: ET.Element) -> int:
-    """Count <line hits=\"0\"/> under Cobertura's class-level aggregate <lines> block."""
-    n = 0
+def _aggregate_lines_coverable_and_uncovered(lines_parent: ET.Element) -> tuple[int, int]:
+    """Coverable vs uncovered `<line>` rows under Cobertura's class-level aggregate `<lines>` block."""
+    coverable = 0
+    uncovered = 0
+
     for child in lines_parent:
         if local_name(child.tag) != "line":
             continue
-        hits = child.get("hits")
-        if hits is None:
+
+        if child.get("number") is None:
             continue
+
+        coverable += 1
+        hits_raw = child.get("hits")
+
+        if hits_raw is None:
+            continue
+
         try:
-            if int(hits) == 0:
-                n += 1
+            if int(hits_raw) == 0:
+                uncovered += 1
         except ValueError:
             pass
-    return n
+
+    return coverable, uncovered
 
 
-def uncovered_by_class_rows(package_el: ET.Element) -> list[tuple[str, str, int]]:
-    """Cobertura <class>: type name, filename, uncovered line entries (class aggregate lines only).
+def class_coverage_rows(package_el: ET.Element) -> list[tuple[str, str, float, int, int]]:
+    """Per Cobertura `<class>`: type name, filename, line-rate, coverable lines, uncovered lines.
 
-    Multiple <class> nodes for the same (name, file) (e.g. partial types) have counts summed.
+    Multiple `<class>` nodes for the same (name, file) (e.g. partial types) merge counts; line-rate is recomputed.
     """
-    acc: dict[tuple[str, str], int] = defaultdict(int)
+    coverable_acc: dict[tuple[str, str], int] = defaultdict(int)
+    uncovered_acc: dict[tuple[str, str], int] = defaultdict(int)
+
     for element in package_el.iter():
         if local_name(element.tag) != "class":
             continue
+
         type_name = (element.get("name") or "").strip() or "(unnamed type)"
         fn = (element.get("filename") or "").strip()
-        uncovered = 0
+
         for child in element:
             if local_name(child.tag) != "lines":
                 continue
-            uncovered += _uncovered_entries_in_aggregate_lines(child)
-        key = (type_name, fn)
-        acc[key] += uncovered
-    return [(name, fn, cnt) for (name, fn), cnt in acc.items()]
+
+            cov_n, unc_n = _aggregate_lines_coverable_and_uncovered(child)
+            key = (type_name, fn)
+            coverable_acc[key] += cov_n
+            uncovered_acc[key] += unc_n
+
+    rows: list[tuple[str, str, float, int, int]] = []
+
+    for key, cov_lines in coverable_acc.items():
+        if cov_lines <= 0:
+            continue
+
+        unc_lines = uncovered_acc[key]
+        line_rate = float(cov_lines - unc_lines) / float(cov_lines)
+        rows.append((key[0], key[1], line_rate, cov_lines, unc_lines))
+
+    return rows
+
+
+def _class_short_name(full_type_name: str) -> str:
+    parts = full_type_name.split(".")
+    return parts[-1] if parts else full_type_name
+
+
+def prior_coverage_attempt_hint(full_type_name: str, recent_coverage_notes_lower: str) -> str:
+    """Heuristic: `COVERAGE_GAP_ANALYSIS_RECENT.md` substring match on full name or short name."""
+    if not recent_coverage_notes_lower:
+        return "No"
+
+    lowered_full = full_type_name.lower()
+
+    if lowered_full in recent_coverage_notes_lower:
+        return "Yes"
+
+    short = _class_short_name(full_type_name)
+
+    # Avoid noisy hits on tiny identifiers (e.g. `Program`).
+    if len(short) >= 8 and short.lower() in recent_coverage_notes_lower:
+        return "Yes"
+
+    return "No"
+
+
+def _markdown_table_class_cell(full_type_name: str) -> str:
+    """Pipe-table safe cell for Cobertura type names (generics may contain backticks like `` `1 ``)."""
+    if "`" not in full_type_name:
+        return f"`{full_type_name}`"
+
+    escaped = (
+        full_type_name.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("|", "&#124;")
+    )
+
+    return f"<code>{escaped}</code>"
+
+
+def _emit_class_gap_markdown_rows(
+    out_lines: list[str],
+    ranked: list[tuple[str, str, float, int, int]],
+    repo: Path,
+    recent_lower: str,
+) -> None:
+    out_lines.append(
+        "| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |"
+    )
+    out_lines.append("|------|-------|------|-----------------|-----------------|----------------|")
+
+    for i, (cls, path, lr, cov_n, unc_n) in enumerate(ranked, start=1):
+        rel = _rel_path_for_doc(repo, path)
+        attempt = prior_coverage_attempt_hint(cls, recent_lower)
+        cls_cell = _markdown_table_class_cell(cls)
+        out_lines.append(
+            f"| {i} | {cls_cell} | `{rel}` | {lr * 100.0:.2f} | {unc_n} | {attempt} |"
+        )
 
 
 def _resolve_cobertura(repo: Path, cobertura_arg: str | None) -> Path:
@@ -170,27 +258,43 @@ def main() -> int:
     if root is None:
         return 3
 
-    packages: list[tuple[str, float, int, list[tuple[str, str, int]]]] = []
+    recent_path = repo / "docs" / "library" / "COVERAGE_GAP_ANALYSIS_RECENT.md"
+    recent_notes_lower = ""
+
+    if recent_path.is_file():
+        recent_notes_lower = recent_path.read_text(encoding="utf-8").lower()
+
+    packages: list[tuple[str, float, int, list[tuple[str, str, float, int, int]]]] = []
+
     for pkg in root.iter():
         if local_name(pkg.tag) != "package":
             continue
+
         name = (pkg.get("name") or "").strip()
+
         if not name or not is_target_product_package(name):
             continue
-        lr = pkg.get("line-rate")
-        if lr is None:
+
+        lr_raw = pkg.get("line-rate")
+
+        if lr_raw is None:
             continue
-        line_rate = float(lr)
-        class_rows = uncovered_by_class_rows(pkg)
+
+        line_rate = float(lr_raw)
+        class_rows = class_coverage_rows(pkg)
         # Total coverable lines: count all line elements with hits
         total_lines = 0
+
         for element in pkg.iter():
             if local_name(element.tag) != "line":
                 continue
+
             if element.get("number") is not None:
                 total_lines += 1
+
         if total_lines == 0:
             continue
+
         packages.append((name, line_rate, total_lines, class_rows))
 
     packages.sort(key=lambda t: t[1])
@@ -222,10 +326,13 @@ def main() -> int:
     out_lines.extend(
         [
             "",
-            "## Up to three classes per assembly with the most uncovered line entries",
+            "## Per-assembly class gaps (by line coverage %)",
             "",
-            "Per Cobertura **class** aggregate line blocks (`<class>/<lines>/<line hits=\"…\"/>`). ",
-            "**Partial types** merged by **class name + file**.",
+            "Per Cobertura **class** aggregate `<lines>` rows. **Line coverage %** is **(coverable − uncovered) / coverable** for that class. "
+            "**Partial types** merged by **class name + file**. Sort order: **lowest line % first**.",
+            "",
+            "**Prior attempt?** — **Yes** if the fully-qualified type name (or its short name, length ≥ **8**) appears as a substring in "
+            "`docs/library/COVERAGE_GAP_ANALYSIS_RECENT.md` (heuristic; very short names are not matched on their own).",
             "",
         ]
     )
@@ -233,17 +340,34 @@ def main() -> int:
     for name, lr, total_lines, class_rows in packages:
         out_lines.append(f"### {name} ({lr * 100.0:.2f}% line coverage)")
         out_lines.append("")
-        nonzero = [(cn, fp, cnt) for cn, fp, cnt in class_rows if cnt > 0]
-        if not nonzero:
-            out_lines.append("_No uncovered line rows in Cobertura for this package (or only branches uncovered)._")
+
+        if not class_rows:
+            out_lines.append("_No Cobertura class rows with coverable lines for this package._")
             out_lines.append("")
             continue
-        ranked = sorted(nonzero, key=lambda t: t[2], reverse=True)[:3]
-        out_lines.append("| Rank | Class | File | Uncovered line entries |")
-        out_lines.append("|------|-------|------|------------------------|")
-        for i, (cls, path, n) in enumerate(ranked, start=1):
-            rel = _rel_path_for_doc(repo, path)
-            out_lines.append(f"| {i} | `{cls}` | `{rel}` | {n} |")
+
+        sorted_by_rate = sorted(class_rows, key=lambda t: t[2])
+        top3 = sorted_by_rate[:3]
+        out_lines.append("#### Top 3 classes by lowest line coverage %")
+        out_lines.append("")
+        _emit_class_gap_markdown_rows(out_lines, top3, repo, recent_notes_lower)
+        out_lines.append("")
+
+        below_threshold = [row for row in sorted_by_rate if row[2] < _GAP_CLASS_LINE_RATE_THRESHOLD]
+        out_lines.append(
+            f"#### All classes below {_GAP_CLASS_LINE_RATE_THRESHOLD * 100.0:.0f}% line coverage"
+        )
+        out_lines.append("")
+
+        if not below_threshold:
+            out_lines.append(
+                f"_No classes below {_GAP_CLASS_LINE_RATE_THRESHOLD * 100.0:.0f}% line coverage in Cobertura for this assembly._"
+            )
+        else:
+            _emit_class_gap_markdown_rows(
+                out_lines, below_threshold, repo, recent_notes_lower
+            )
+
         out_lines.append("")
 
     out_lines.extend(
@@ -259,7 +383,6 @@ def main() -> int:
     if branch_raw:
         out_lines.append(f"- **Merged branch coverage:** {float(branch_raw) * 100.0:.2f}%")
     out_lines.append("")
-    recent_path = repo / "docs" / "library" / "COVERAGE_GAP_ANALYSIS_RECENT.md"
     if recent_path.is_file():
         out_lines.append(_recent_md_without_library_header(recent_path.read_text(encoding="utf-8")))
         out_lines.append("")

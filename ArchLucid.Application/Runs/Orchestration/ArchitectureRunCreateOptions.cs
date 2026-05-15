@@ -14,7 +14,7 @@ public sealed class ArchitectureRunCreateOptions
     ///     transaction without timing out on cold or slow SQL hosts.
     /// </summary>
     /// <remarks>
-    ///     Clamped in <see cref="ArchitectureRunCreateOrchestrator" /> to <c>[1000, 1500000]</c> (25 minutes).
+    ///     Clamped in <see cref="ArchitectureRunCreateOrchestrator" /> to <c>[1000, 3600000]</c> (1 hour max).
     /// </remarks>
     public int DistributedIdempotencyLockTimeoutMilliseconds
     {

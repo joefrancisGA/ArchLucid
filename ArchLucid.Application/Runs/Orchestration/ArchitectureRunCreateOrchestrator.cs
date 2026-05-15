@@ -125,7 +125,14 @@ public sealed class ArchitectureRunCreateOrchestrator(
         int ms = options.Value.DistributedIdempotencyLockTimeoutMilliseconds;
         if (ms < 1_000)
             return 1_000;
-        return ms > 1_500_000 ? 1_500_000 : ms;
+
+        // Ceiling must allow losers to wait for the slowest winner across authority pipeline plus SQL variance
+        // (greenfield CI sets AuthorityPipeline:PipelineTimeout above the historical 25-minute cap).
+        const int absoluteMaxDistributedIdempotencyLockWaitMilliseconds = 3_600_000;
+
+        return ms > absoluteMaxDistributedIdempotencyLockWaitMilliseconds
+            ? absoluteMaxDistributedIdempotencyLockWaitMilliseconds
+            : ms;
     }
 
     private async Task<CreateRunResult> CreateRunWithCoordinationAsync(ArchitectureRequest request, CreateRunIdempotencyState? idempotency,

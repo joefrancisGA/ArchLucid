@@ -54,11 +54,22 @@ public sealed class CircuitBreakingAgentCompletionClient(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            // Snapshot after ThrowIfBroken (HalfOpen probes may transition Open → HalfOpen there).
+            string stateBeforeOutcome = _gate.CurrentState;
+
             string result = await _llmRetryPipeline.ExecuteAsync(
                 async ct => await _inner.CompleteJsonAsync(systemPrompt, userPrompt, ct),
                 cancellationToken);
 
             _gate.RecordSuccess();
+
+            if (stateBeforeOutcome.Equals("HalfOpen", StringComparison.Ordinal) &&
+                _gate.CurrentState.Equals("Closed", StringComparison.Ordinal))
+            {
+                _logger.LogInformation(
+                    "LLM Circuit Breaker reset; circuit closed and completions may proceed. Gate={GateName}.",
+                    _gate.GateName);
+            }
 
             return result;
         }
@@ -69,7 +80,19 @@ public sealed class CircuitBreakingAgentCompletionClient(
         }
         catch (Exception ex)
         {
+            string stateBeforeFailure = _gate.CurrentState;
+
             _gate.RecordFailure();
+
+            if (_gate.CurrentState.Equals("Open", StringComparison.Ordinal) &&
+                (stateBeforeFailure.Equals("Closed", StringComparison.Ordinal) ||
+                 stateBeforeFailure.Equals("HalfOpen", StringComparison.Ordinal)))
+            {
+                _logger.LogWarning(
+                    "LLM Circuit Breaker opened due to consecutive failures. Gate={GateName}.",
+                    _gate.GateName);
+            }
+
             _logger.LogWarning(ex, "LLM completion call failed after retries; circuit breaker recorded failure.");
             throw;
         }

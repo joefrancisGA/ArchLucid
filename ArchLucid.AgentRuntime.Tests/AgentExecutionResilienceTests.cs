@@ -129,10 +129,14 @@ public sealed class AgentExecutionResilienceTests
         Func<Task> act = async () =>
             await sut.ExecuteAsync(runId, request, evidence, [task], CancellationToken.None);
 
-        ExceptionAssertions<AgentHandlerExecutionException> thrown =
-            await act.Should().ThrowAsync<AgentHandlerExecutionException>();
+        ExceptionAssertions<AgentExecutionFailedException> thrown =
+            await act.Should().ThrowAsync<AgentExecutionFailedException>();
 
-        thrown.Which.InnerException.Should().BeOfType<TimeoutRejectedException>();
+        thrown.Which.RunId.Should().Be(runId);
+        thrown.Which.TaskCorrelation.Should().Be("t1");
+        thrown.Which.InnerException.Should().BeOfType<AgentHandlerExecutionException>();
+
+        thrown.Which.InnerException!.InnerException.Should().BeOfType<TimeoutRejectedException>();
     }
 
     private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>

@@ -133,6 +133,15 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
         createdUtc: "2026-01-14T22:10:05.000Z",
         contentHash: "sha256-demo-art-md",
       },
+      // CostSummary → shared bucket: second audience table on the default executive tab in buyer shell.
+      {
+        artifactId: "e6f8394c-d8fa-9255-ef01-c45678901234",
+        artifactType: "CostSummary",
+        name: "Cost posture summary.json",
+        format: "application/json",
+        createdUtc: "2026-01-14T22:10:07.000Z",
+        contentHash: "sha256-demo-art-cost",
+      },
       {
         artifactId: "c3e5f709-b2d4-6f81-bcde-f12345678901",
         artifactType: "JsonBundle",

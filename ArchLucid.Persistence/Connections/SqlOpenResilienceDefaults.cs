@@ -15,7 +15,8 @@ public static class SqlOpenResilienceDefaults
     public static ResiliencePipeline BuildSqlOpenRetryPipeline(
         ILogger<ResilientSqlConnectionFactory>? logger = null,
         int maxRetryAttempts = 3,
-        TimeSpan? baseDelay = null)
+        TimeSpan? baseDelay = null,
+        Func<long>? getElapsedMillisecondsSinceOpenStarted = null)
     {
         // Polly.Retry.RetryStrategyOptions.MaxRetryAttempts must be >= 1; callers use 0 to mean "no retries".
         if (maxRetryAttempts <= 0)
@@ -33,13 +34,20 @@ public static class SqlOpenResilienceDefaults
                 ShouldHandle = new PredicateBuilder().Handle<Exception>(SqlTransientDetector.IsTransient),
                 OnRetry = args =>
                 {
-                    if (logger is not null && args.Outcome.Exception is { } ex)
+                    if (logger is null)
+                        return ValueTask.CompletedTask;
 
-                        logger.LogWarning(
-                            ex,
-                            "Transient SQL error on connection open; retry {AttemptNumber} (max {MaxRetryAttempts}).",
-                            args.AttemptNumber,
-                            maxRetryAttempts);
+                    long elapsedMs = getElapsedMillisecondsSinceOpenStarted?.Invoke() ?? 0;
+
+                    if (args.Outcome.Exception is not { } ex)
+                        return ValueTask.CompletedTask;
+
+                    logger.LogWarning(
+                        ex,
+                        "Transient SQL error on connection open after {ElapsedMs}ms; scheduling retry {RetryAttempt} (max attempts {MaxRetryAttempts}).",
+                        elapsedMs,
+                        args.AttemptNumber,
+                        maxRetryAttempts);
 
                     return ValueTask.CompletedTask;
                 }

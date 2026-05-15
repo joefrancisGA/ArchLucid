@@ -13,7 +13,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     /// <summary>
     ///     Default <see cref="HttpClient.Timeout" /> is 100s; create-run idempotency uses <c>sp_getapplock</c> with a
     ///     wait budget up to configured <c>ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c>
-    ///     (~25 minutes in greenfield SQL tests). A single <see cref="PostSingleArchitectureRequestAsync" /> call can
+    ///     (≤1 hour clamp; greenfield SQL tests configure ~42 minutes so waiters survive a 30-minute pipeline winner).
+    ///     A single <see cref="PostSingleArchitectureRequestAsync" /> call can
     ///     wait on the lock and then run the authority pipeline (~30-minute <c>AuthorityPipeline:PipelineTimeout</c>).
     ///     Factories (<see cref="GreenfieldSqlApiFactory" />, <see cref="ArchLucidApiFactory" />) therefore set
     ///     <see cref="HttpClient.Timeout" /> around <strong>65</strong> minutes for CI slack.

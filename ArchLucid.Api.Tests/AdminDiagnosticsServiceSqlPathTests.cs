@@ -59,6 +59,21 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
                 BuildNonQueryCommand(Task.FromException<int>(fault), sideEffect));
         }
 
+        public void EnqueueFaultingReader(Exception fault, Action<ScriptedDbCommand>? sideEffect = null)
+        {
+            _commandFactories.Add(() =>
+            {
+                ScriptedDbCommand command = new(CreateParameterTemplate)
+                {
+                    ReaderAsync = _ => Task.FromException<DbDataReader>(fault)
+                };
+
+                sideEffect?.Invoke(command);
+
+                return command;
+            });
+        }
+
         public SequencedCommandDbConnection Activate()
         {
             Queue<DbCommand> scripted = new();
@@ -95,6 +110,26 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             FindingsSnapshotsRunIdOrphans: 22,
             ContextSnapshotsRunIdOrphans: 33,
             GraphSnapshotsRunIdOrphans: 44);
+
+        Assert.Equal(expected, counts);
+    }
+
+    [Fact]
+    public async Task GetDataConsistencyOrphanCountsAsync_sqlPath_null_scalar_maps_to_zero()
+    {
+        // ExecuteCountAsync falls through to Convert.ToInt64 when the scalar is not long (including DB null).
+        List<object?> scalarSequence = [null, 7L, 8L, 9L];
+
+        Mock<IDbConnectionFactory> factory = new();
+
+        ScalarConnection(factory, scalarSequence);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(factory.Object);
+
+        DataConsistencyOrphanCounts counts =
+            await sut.GetDataConsistencyOrphanCountsAsync(CancellationToken.None);
+
+        DataConsistencyOrphanCounts expected = new(0, 0, 0, 7, 8, 9);
 
         Assert.Equal(expected, counts);
     }
@@ -180,6 +215,66 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         _ = await sut.RemediateOrphanComparisonRecordsAsync(false, 10, CancellationToken.None);
 
         Assert.False(connection.HasScheduledBeginTransaction);
+    }
+
+    [Fact]
+    public async Task RemediateOrphanComparisonRecordsAsync_execute_sql_fault_on_delete_reader_rolls_back()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.Strings("will-fail-delete"));
+        session.EnqueueFaultingReader(new InvalidOperationException("delete reader fault"));
+
+        SequencedCommandDbConnection connection = session.Activate();
+
+        RecordingDbTransaction transaction = AttachTransaction(connection);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            sut.RemediateOrphanComparisonRecordsAsync(false, 3, CancellationToken.None));
+
+        Assert.False(connection.HasScheduledBeginTransaction);
+        Assert.Equal(0, transaction.CommitCalls);
+        Assert.Equal(1, transaction.RollbackCalls);
+
+        audit.Verify(
+            svc => svc.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RemediateOrphanComparisonRecordsAsync_execute_sql_empty_delete_output_skips_audit_but_commits()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.Strings("candidate-with-no-output"));
+        session.EnqueueParameterizedReader(ReadResult.Empty());
+
+        SequencedCommandDbConnection connection = session.Activate();
+
+        RecordingDbTransaction transaction = AttachTransaction(connection);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object);
+
+        OrphanComparisonRemediationResult result =
+            await sut.RemediateOrphanComparisonRecordsAsync(false, 12, CancellationToken.None);
+
+        Assert.False(result.DryRun);
+        Assert.Equal(0, result.RowCount);
+        Assert.Empty(result.ComparisonRecordIds);
+
+        audit.Verify(
+            svc => svc.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        Assert.False(connection.HasScheduledBeginTransaction);
+        Assert.Equal(1, transaction.CommitCalls);
+        Assert.Equal(0, transaction.RollbackCalls);
     }
 
     [Fact]
@@ -277,6 +372,93 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
     }
 
     [Fact]
+    public async Task RemediateOrphanGoldenManifests_execute_sql_when_no_candidates_skips_transaction()
+    {
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.Empty());
+
+        SequencedCommandDbConnection connection = session.Activate();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory);
+
+        _ = await sut.RemediateOrphanGoldenManifestsAsync(false, 8, CancellationToken.None);
+
+        Assert.False(connection.HasScheduledBeginTransaction);
+    }
+
+    [Fact]
+    public async Task RemediateOrphanFindingsSnapshotsAsync_dryRun_sql_projects_snapshot_candidates()
+    {
+        Guid snapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(snapshotId));
+
+        _ = session.Activate();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory);
+
+        OrphanFindingsSnapshotRemediationResult result =
+            await sut.RemediateOrphanFindingsSnapshotsAsync(true, 11, CancellationToken.None);
+
+        Assert.True(result.DryRun);
+        Assert.Equal(1, result.RowCount);
+        Assert.Single(result.FindingsSnapshotIds);
+        Assert.Equal(snapshotId.ToString("D", CultureInfo.InvariantCulture), result.FindingsSnapshotIds[0]);
+    }
+
+    [Fact]
+    public async Task RemediateOrphanFindingsSnapshots_execute_sql_when_no_candidates_skips_transaction()
+    {
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.Empty());
+
+        SequencedCommandDbConnection connection = session.Activate();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory);
+
+        _ = await sut.RemediateOrphanFindingsSnapshotsAsync(false, 7, CancellationToken.None);
+
+        Assert.False(connection.HasScheduledBeginTransaction);
+    }
+
+    [Fact]
+    public async Task RemediateOrphanFindingsSnapshots_execute_sql_fault_on_delete_reader_rolls_back()
+    {
+        Guid snapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Mock<IAuditService> audit = new();
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedSqlSession session = new(factoryOuter);
+        session.EnqueueParameterizedReader(ReadResult.OnlyGuids(snapshotId));
+        session.EnqueueFaultingReader(new InvalidOperationException("findings delete reader fault"));
+
+        SequencedCommandDbConnection connection = session.Activate();
+
+        RecordingDbTransaction transaction = AttachTransaction(connection);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory, audit.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            sut.RemediateOrphanFindingsSnapshotsAsync(false, 5, CancellationToken.None));
+
+        Assert.False(connection.HasScheduledBeginTransaction);
+        Assert.Equal(0, transaction.CommitCalls);
+        Assert.Equal(1, transaction.RollbackCalls);
+
+        audit.Verify(
+            svc => svc.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RemediateOrphanFindingsSnapshotsAsync_execute_sql_logs_findings_audit()
     {
         Guid snapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -334,6 +516,35 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
         AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory);
 
         _ = await sut.RemediateOrphanComparisonRecordsAsync(true, 50_000, CancellationToken.None);
+
+        Assert.NotNull(capture);
+
+        DbParameter? maxRowsParameter = FindParameter(capture!.Parameters, "@MaxRows");
+
+        Assert.NotNull(maxRowsParameter);
+        Assert.Equal(
+            PaginationDefaults.MaxListingTake,
+            Convert.ToInt32(maxRowsParameter.Value, CultureInfo.InvariantCulture));
+    }
+
+    [Fact]
+    public async Task RemediateOrphan_findings_clamps_MaxRows_to_MaxListingTake()
+    {
+        Mock<IDbConnectionFactory> factoryOuter = new();
+
+        ScriptedDbCommand? capture = null;
+
+        ScriptedSqlSession session = new(factoryOuter);
+
+        session.EnqueueParameterizedReader(
+            ReadResult.Empty(),
+            scripted => capture = scripted);
+
+        _ = session.Activate();
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(session.Factory);
+
+        _ = await sut.RemediateOrphanFindingsSnapshotsAsync(true, 50_000, CancellationToken.None);
 
         Assert.NotNull(capture);
 

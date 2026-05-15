@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Linq;
+using System.Text.Json;
 
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Application.Common;
@@ -361,6 +363,105 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
     }
 
     [Fact]
+    public async Task ArchiveRunsCreatedBeforeAsync_audit_caps_sample_run_ids_at_64_and_sets_actor()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IRunRepository> runs);
+
+        List<Guid> runIds = Enumerable.Range(0, 65)
+            .Select(static i => Guid.Parse($"10000000-0000-4000-8000-{i:x012}"))
+            .ToList();
+
+        RunArchiveBatchResult batch = new()
+        {
+            UpdatedCount = 65,
+            ArchivedRuns =
+                [..runIds.Select(r => new ArchivedRunScopeRow
+                {
+                    RunId = r,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                    ScopeProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+                })],
+            ChildCascade = new RunArchiveChildCascadeCounts { GoldenManifests = 3, FindingsSnapshots = 2 }
+        };
+
+        DateTimeOffset cutoff = DateTimeOffset.Parse("2022-02-02T02:02:02Z", CultureInfo.InvariantCulture);
+        _ = runs.Setup(r => r.ArchiveRunsCreatedBeforeAsync(cutoff, It.IsAny<CancellationToken>())).ReturnsAsync(batch);
+
+        _ = await sut.ArchiveRunsCreatedBeforeAsync(cutoff, CancellationToken.None);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    MatchesArchiveRunsCreatedBeforeAuditCapsSample(e, runIds[0])),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ArchiveRunsByIdsAsync_audit_caps_sample_run_ids_at_64_and_sets_actor()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IRunRepository> runs);
+
+        List<Guid> succeededRunIds = Enumerable.Range(0, 65)
+            .Select(static i => Guid.Parse($"20000000-0000-4000-8000-{i:x012}"))
+            .ToList();
+
+        RunArchiveByIdsResult byIds = new()
+        {
+            SucceededRunIds = succeededRunIds,
+            ArchivedRuns =
+                [..succeededRunIds.Select(r => new ArchivedRunScopeRow
+                {
+                    RunId = r,
+                    TenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                    WorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                    ScopeProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff")
+                })],
+            Failed = [],
+            ChildCascade = new RunArchiveChildCascadeCounts()
+        };
+
+        _ = runs
+            .Setup(r => r.ArchiveRunsByIdsAsync(succeededRunIds, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(byIds);
+
+        _ = await sut.ArchiveRunsByIdsAsync(succeededRunIds, CancellationToken.None);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(e => MatchesArchiveRunsByIdsAuditCapsSample(e)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task GetLeasesAsync_returns_repository_rows()
     {
         Mock<IAuditService> audit = new();
@@ -484,6 +585,48 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         integration.Verify(
             i => i.ResetDeadLetterForRetryAsync(outboxId, It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    /// <remarks>Moq <see cref="It.Is{TValue}"/> requires an expression-tree lambda; keep checks in this helper.</remarks>
+    private static bool MatchesArchiveRunsCreatedBeforeAuditCapsSample(AuditEvent auditEvent, Guid expectedFirstSampleRunId)
+    {
+        if (auditEvent.EventType != AuditEventTypes.ManifestArchived
+            || auditEvent.ActorUserId != "test-admin"
+            || auditEvent.ActorUserName != "test-admin"
+            || auditEvent.DataJson == null // CS8122: Moq expression trees — cannot use `is null` upstream of It.Is
+            || !auditEvent.DataJson.Contains("createdBefore:", StringComparison.Ordinal))
+            return false;
+
+        using JsonDocument doc = JsonDocument.Parse(auditEvent.DataJson);
+        JsonElement root = doc.RootElement;
+
+        if (root.GetProperty("updatedRuns").GetInt32() != 65)
+            return false;
+
+        if (root.GetProperty("sampleRunIds").GetArrayLength() != 64)
+            return false;
+
+        if (root.GetProperty("childCascade").GetProperty("GoldenManifests").GetInt32() != 3)
+            return false;
+
+        string firstSample = root.GetProperty("sampleRunIds")[0].GetString() ?? string.Empty;
+
+        return firstSample == expectedFirstSampleRunId.ToString("D", CultureInfo.InvariantCulture);
+    }
+
+    /// <remarks>Moq <see cref="It.Is{TValue}"/> requires an expression-tree lambda; keep checks in this helper.</remarks>
+    private static bool MatchesArchiveRunsByIdsAuditCapsSample(AuditEvent auditEvent)
+    {
+        if (auditEvent.EventType != AuditEventTypes.ManifestArchived
+            || auditEvent.ActorUserId != "test-admin"
+            || auditEvent.ActorUserName != "test-admin"
+            || auditEvent.DataJson == null // CS8122: Moq expression trees — cannot use `is null` upstream of It.Is
+            || !auditEvent.DataJson.Contains("\"byIds\"", StringComparison.Ordinal))
+            return false;
+
+        using JsonDocument doc = JsonDocument.Parse(auditEvent.DataJson);
+
+        return doc.RootElement.GetProperty("sampleRunIds").GetArrayLength() == 64;
     }
 
     private static Mock<IActorContext> ActorMock()

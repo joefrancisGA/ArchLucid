@@ -88,9 +88,9 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
                 // Cold CI can run the full inline authority pipeline for minutes after a long idempotency wait; keep this
                 // above default (5 minutes) so the server does not cancel pipeline work while SqlClient.Timeout still applies.
                 ["AuthorityPipeline:PipelineTimeout"] = "00:30:00",
-                // Parallel idempotency tests: all waiters share one sp_getapplock deadline; cold CI + greenfield DbUp
-                // first create-run must finish before peers time out (align with ConfigureClient HttpClient.Timeout).
-                ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "1500000",
+                // Parallel idempotency tests: losers wait on sp_getapplock while the winner runs the full authority
+                // pipeline. Wait budget must exceed AuthorityPipeline:PipelineTimeout (30m here) plus cold-SQL slack.
+                ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "2520000",
                 // appsettings.Advanced.json sets 120s; that blocks DataConsistency readiness on Combined hosts until the first reconciliation.
                 ["DataConsistency:InitialDelaySeconds"] = "0",
                 // Http-only URL list disables HTTPS redirection middleware for in-memory TestServer (avoids redirect handler + long POST interaction quirks in CI).
@@ -104,7 +104,7 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
     {
         base.ConfigureClient(client);
 
-        // Worst wall clock for one POST: up to DistributedIdempotencyLockTimeout (25 min) + AuthorityPipeline pipeline.
+        // Worst wall clock for one POST: up to DistributedIdempotencyLockTimeout (below) + AuthorityPipeline pipeline (30 min).
         client.Timeout = TimeSpan.FromMinutes(65);
     }
 

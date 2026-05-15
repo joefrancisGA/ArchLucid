@@ -16,6 +16,9 @@ namespace ArchLucid.Host.Core.DataAccess;
 /// <see cref="CreateOpenConnectionAsync"/> opens one short DI scope only to resolve
 /// <see cref="ISqlConnectionFactory"/>; the returned <see cref="SqlConnection"/> outlives that scope.
 /// <see cref="CreateConnection"/> returns an unopened connection for probes that open explicitly (e.g. readiness).
+/// When the scoped <see cref="ISqlConnectionFactory"/> is <see cref="ResilientSqlConnectionFactory"/>,
+/// transient failures during open are retried and logged at Warning by <see cref="SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline"/>
+/// (elapsed time and retry attempt count); connection strings are never written to logs.
 /// </remarks>
 public sealed class SqlScopedResolutionDbConnectionFactory(
     IServiceScopeFactory scopeFactory,

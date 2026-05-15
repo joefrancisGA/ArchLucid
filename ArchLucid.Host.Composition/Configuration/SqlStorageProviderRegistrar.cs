@@ -1,5 +1,6 @@
 using System.Reflection;
 
+using Polly;
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Integrations.Itsm;
@@ -171,13 +172,18 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ResilientSqlConnectionFactory>(sp =>
         {
             SqlOpenResilienceOptions sqlOpenOpts = sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>().Value;
+            SqlConnectionOpenAttemptTiming openTiming = new();
+
+            ResiliencePipeline pipeline = SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
+                sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>(),
+                sqlOpenOpts.MaxRetryAttempts,
+                TimeSpan.FromMilliseconds(sqlOpenOpts.BaseDelayMilliseconds),
+                () => openTiming.ElapsedMilliseconds);
 
             return new ResilientSqlConnectionFactory(
                 sp.GetRequiredService<ScopedRoutingSqlConnectionFactory>(),
-                SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
-                    sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>(),
-                    sqlOpenOpts.MaxRetryAttempts,
-                    TimeSpan.FromMilliseconds(sqlOpenOpts.BaseDelayMilliseconds)));
+                pipeline,
+                openTiming);
         });
 
         services.AddScoped<ISqlConnectionFactory>(static sp =>

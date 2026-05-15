@@ -10,7 +10,8 @@ namespace ArchLucid.Persistence.Connections;
 /// </summary>
 public sealed class ResilientSqlConnectionFactory(
     ISqlConnectionFactory inner,
-    ResiliencePipeline sqlOpenRetryPipeline) : ISqlConnectionFactory
+    ResiliencePipeline sqlOpenRetryPipeline,
+    SqlConnectionOpenAttemptTiming? openAttemptTiming = null) : ISqlConnectionFactory
 {
     private readonly ISqlConnectionFactory _inner =
         inner ?? throw new ArgumentNullException(nameof(inner));
@@ -18,11 +19,27 @@ public sealed class ResilientSqlConnectionFactory(
     private readonly ResiliencePipeline _sqlOpenRetryPipeline =
         sqlOpenRetryPipeline ?? throw new ArgumentNullException(nameof(sqlOpenRetryPipeline));
 
+    private readonly SqlConnectionOpenAttemptTiming? _openAttemptTiming = openAttemptTiming;
+
     /// <inheritdoc />
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken)
     {
-        return await _sqlOpenRetryPipeline.ExecuteAsync(
-            async ct => await _inner.CreateOpenConnectionAsync(ct),
-            cancellationToken);
+        if (_openAttemptTiming is null)
+            return await _sqlOpenRetryPipeline.ExecuteAsync(
+                async ct => await _inner.CreateOpenConnectionAsync(ct),
+                cancellationToken);
+
+        _openAttemptTiming.BeginAttempt();
+
+        try
+        {
+            return await _sqlOpenRetryPipeline.ExecuteAsync(
+                async ct => await _inner.CreateOpenConnectionAsync(ct),
+                cancellationToken);
+        }
+        finally
+        {
+            _openAttemptTiming.EndAttempt();
+        }
     }
 }

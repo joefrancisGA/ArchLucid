@@ -112,8 +112,11 @@ public sealed class RealAgentExecutorTests
         Func<Task> act = async () =>
             await sut.ExecuteAsync("run", request, new AgentEvidencePackage(), [task], CancellationToken.None);
 
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*cost*");
+        ExceptionAssertions<AgentExecutionFailedException> thrown =
+            await act.Should().ThrowAsync<AgentExecutionFailedException>();
+
+        thrown.Which.InnerException.Should().BeOfType<InvalidOperationException>()
+            .Which.Message.Should().Contain("cost");
     }
 
     [SkippableFact]
@@ -271,13 +274,19 @@ public sealed class RealAgentExecutorTests
         Func<Task> act = async () =>
             await sut.ExecuteAsync(runId, request, evidence, [taskTopology, taskCompliance], CancellationToken.None);
 
-        ExceptionAssertions<AgentHandlerExecutionException> thrown =
-            await act.Should().ThrowAsync<AgentHandlerExecutionException>();
+        ExceptionAssertions<AgentExecutionFailedException> thrown =
+            await act.Should().ThrowAsync<AgentExecutionFailedException>();
 
-        thrown.Which.AgentTypeKey.Should().Be(AgentTypeKeys.Compliance);
-        thrown.Which.AgentType.Should().Be(AgentType.Compliance);
-        thrown.Which.InnerException.Should().BeOfType<HttpRequestException>();
-        HttpRequestException httpEx = (HttpRequestException)thrown.Which.InnerException!;
+        thrown.Which.RunId.Should().Be(runId);
+        thrown.Which.TaskCorrelation.Should().Be("tc");
+        thrown.Which.InnerException.Should().BeOfType<AgentHandlerExecutionException>();
+
+        AgentHandlerExecutionException handlerEx = (AgentHandlerExecutionException)thrown.Which.InnerException!;
+
+        handlerEx.AgentTypeKey.Should().Be(AgentTypeKeys.Compliance);
+        handlerEx.AgentType.Should().Be(AgentType.Compliance);
+        handlerEx.InnerException.Should().BeOfType<HttpRequestException>();
+        HttpRequestException httpEx = (HttpRequestException)handlerEx.InnerException!;
         httpEx.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
 
         bool topologySignaled = await topologyCompleted.WaitAsync(TimeSpan.FromSeconds(5));
@@ -288,8 +297,8 @@ public sealed class RealAgentExecutorTests
     [SkippableFact]
     public async Task ExecuteAsync_when_handler_throws_wraps_as_AgentHandlerExecutionException_with_fixed_outer_message()
     {
-        InvalidOperationException inner = new("sensitive llm/provider body");
-        ThrowingAgentHandler failing = new(AgentType.Topology, inner);
+        InvalidOperationException innerCause = new("sensitive llm/provider body");
+        ThrowingAgentHandler failing = new(AgentType.Topology, innerCause);
         RealAgentExecutor sut = CreateSut(failing);
         ArchitectureRequest request = new() { RequestId = "r1", Description = "1234567890ab", SystemName = "S" };
         AgentTask task = new() { TaskId = "t", RunId = "run1", AgentType = AgentType.Topology };
@@ -297,13 +306,19 @@ public sealed class RealAgentExecutorTests
         Func<Task> act = async () =>
             await sut.ExecuteAsync("run1", request, new AgentEvidencePackage(), [task], CancellationToken.None);
 
-        ExceptionAssertions<AgentHandlerExecutionException> thrown =
-            await act.Should().ThrowAsync<AgentHandlerExecutionException>();
+        ExceptionAssertions<AgentExecutionFailedException> thrown =
+            await act.Should().ThrowAsync<AgentExecutionFailedException>();
 
-        thrown.Which.Message.Should().Be("Agent handler execution failed.");
-        thrown.Which.AgentTypeKey.Should().Be(AgentTypeKeys.Topology);
-        thrown.Which.AgentType.Should().Be(AgentType.Topology);
-        thrown.Which.InnerException.Should().BeSameAs(inner);
+        thrown.Which.RunId.Should().Be("run1");
+        thrown.Which.TaskCorrelation.Should().Be("t");
+        thrown.Which.InnerException.Should().BeOfType<AgentHandlerExecutionException>();
+
+        AgentHandlerExecutionException handlerEx = (AgentHandlerExecutionException)thrown.Which.InnerException!;
+
+        handlerEx.Message.Should().Be("Agent handler execution failed.");
+        handlerEx.AgentTypeKey.Should().Be(AgentTypeKeys.Topology);
+        handlerEx.AgentType.Should().Be(AgentType.Topology);
+        handlerEx.InnerException.Should().BeSameAs(innerCause);
     }
 
     private sealed class ThrowingAgentHandler(AgentType agentType, Exception toThrow) : IAgentHandler

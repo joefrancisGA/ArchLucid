@@ -12,7 +12,7 @@ Remove-Item -Recurse -Force .\coverage-gap-1a -ErrorAction SilentlyContinue
 dotnet test ArchLucid.sln -c Release --settings coverage.runsettings `
   --collect:"XPlat Code Coverage" --results-directory .\coverage-gap-1a
 if ($LASTEXITCODE -ne 0) {
-  Write-Error "dotnet test failed with exit code $LASTEXITCODE — fix tests or set ARCHLUCID_SQL_TEST for SQL-backed coverage (see docs/library/CODE_COVERAGE.md)."
+  Write-Error "dotnet test failed with exit code $LASTEXITCODE - fix tests or set ARCHLUCID_SQL_TEST for SQL-backed coverage (see docs/library/CODE_COVERAGE.md)."
 }
 
 dotnet tool restore

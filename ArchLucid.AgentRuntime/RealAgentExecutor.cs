@@ -208,10 +208,19 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
                 return finished;
             }
-            catch
+            catch (OperationCanceledException)
             {
                 await linked.CancelAsync();
                 throw;
+            }
+            catch (Exception ex)
+            {
+                await linked.CancelAsync();
+
+                if (ex is AgentExecutionFailedException or AgentRunPartialBudgetException or CostLimitExceededException)
+                    throw;
+
+                throw new AgentExecutionFailedException(runId, taskId: null, ex);
             }
             finally
             {
@@ -427,7 +436,10 @@ public sealed class RealAgentExecutor : IAgentExecutor
                         new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
                         new KeyValuePair<string, object?>("outcome", "error"));
 
-                    throw new AgentHandlerExecutionException(dispatchKey, task.AgentType, ex);
+                    throw new AgentExecutionFailedException(
+                        runId,
+                        task.TaskId,
+                        new AgentHandlerExecutionException(dispatchKey, task.AgentType, ex));
                 }
 
                 activity?.SetTag("archlucid.agent.confidence", result.Confidence);
