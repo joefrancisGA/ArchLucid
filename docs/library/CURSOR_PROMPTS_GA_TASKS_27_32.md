@@ -1,3 +1,5 @@
+> **Scope:** For Cursor operators implementing GA improvements #27–#32 from `LATEST.md` via sequenced copy-paste prompts; not the assessment rubric, API contracts, or executable product code.
+
 # Cursor Prompts — GA Tasks #27–#32
 
 > **Created:** 2026-05-15  
