@@ -826,4 +826,189 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         outcome.Should().NotBeNull();
         outcome!.TrialRunUsageRatio.Should().Be(0);
     }
+
+    [SkippableFact]
+    public async Task GetFirstWorkspaceAsync_returns_null_when_no_workspace_rows()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        Guid tenantId = Guid.NewGuid();
+        string slug = "nows-" + Guid.NewGuid().ToString("N")[..8];
+
+        await sut.InsertTenantAsync(tenantId, "No workspaces", slug, TenantTier.Standard, null, CancellationToken.None);
+
+        (await sut.GetFirstWorkspaceAsync(tenantId, CancellationToken.None)).Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task TryIncrementActiveTrialRunAsync_throws_expired_when_trial_term_passed()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        Guid tenantId = Guid.NewGuid();
+        string slug = "exp-run-" + Guid.NewGuid().ToString("N")[..8];
+        DateTimeOffset start = TimeProvider.System.GetUtcNow().AddDays(-5);
+        DateTimeOffset expired = TimeProvider.System.GetUtcNow().AddSeconds(-30);
+
+        await sut.InsertTenantAsync(tenantId, "Expired run gate", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.CommitSelfServiceTrialAsync(
+            tenantId,
+            start,
+            expired,
+            runsLimit: 10,
+            seatsLimit: 2,
+            Guid.NewGuid(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+
+        Func<Task> act = async () => await sut.TryIncrementActiveTrialRunAsync(tenantId, CancellationToken.None);
+        (await act.Should().ThrowAsync<TrialLimitExceededException>()).Which.Reason.Should().Be(TrialLimitReason.Expired);
+    }
+
+    [SkippableFact]
+    public async Task TryRecordTrialLifecycleTransitionAsync_rejects_blank_next_status()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+
+        Func<Task> act = async () =>
+            await sut.TryRecordTrialLifecycleTransitionAsync(
+                Guid.NewGuid(),
+                TrialLifecycleStatus.Active,
+                nextStatus: "   ",
+                reason: "x",
+                CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [SkippableFact]
+    public async Task TryMarkFirstManifestCommittedAsync_sets_usage_ratio_from_trial_runs_used_over_limit()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        Guid tenantId = Guid.NewGuid();
+        string slug = "ratio-" + Guid.NewGuid().ToString("N")[..8];
+
+        await sut.InsertTenantAsync(tenantId, "Ratio", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.CommitSelfServiceTrialAsync(
+            tenantId,
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(7),
+            runsLimit: 10,
+            seatsLimit: 2,
+            Guid.NewGuid(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+        await sut.TryIncrementActiveTrialRunAsync(tenantId, CancellationToken.None);
+        await sut.TryIncrementActiveTrialRunAsync(tenantId, CancellationToken.None);
+        await sut.TryIncrementActiveTrialRunAsync(tenantId, CancellationToken.None);
+
+        TrialFirstManifestCommitOutcome? outcome = await sut.TryMarkFirstManifestCommittedAsync(
+            tenantId,
+            TimeProvider.System.GetUtcNow(),
+            CancellationToken.None);
+
+        outcome.Should().NotBeNull();
+        outcome!.TrialRunUsageRatio.Should().BeApproximately(0.3, 0.0001);
+    }
+
+    [SkippableFact]
+    public async Task DecrementEnterpriseScimSeatAsync_leaves_usage_at_zero_when_already_zero()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        Guid tenantId = Guid.NewGuid();
+        string slug = "dec0-" + Guid.NewGuid().ToString("N")[..8];
+
+        await sut.InsertTenantAsync(
+            tenantId,
+            "Dec at zero",
+            slug,
+            TenantTier.Enterprise,
+            null,
+            CancellationToken.None,
+            enterpriseScimSeatsLimit: 5);
+
+        await sut.DecrementEnterpriseScimSeatAsync(tenantId, CancellationToken.None);
+        (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.EnterpriseSeatsUsed.Should().Be(0);
+    }
+
+    [SkippableFact]
+    public async Task EnqueueTrialArchitecturePreseedAsync_does_not_reschedule_after_welcome_run_recorded()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        Guid tenantId = Guid.NewGuid();
+        string slug = "pre2-" + Guid.NewGuid().ToString("N")[..8];
+
+        await sut.InsertTenantAsync(tenantId, "Pre idem", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.CommitSelfServiceTrialAsync(
+            tenantId,
+            TimeProvider.System.GetUtcNow(),
+            TimeProvider.System.GetUtcNow().AddDays(4),
+            3,
+            2,
+            Guid.NewGuid(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+
+        await sut.EnqueueTrialArchitecturePreseedAsync(tenantId, CancellationToken.None);
+        DateTimeOffset? firstEnqueue = (await sut.GetByIdAsync(tenantId, CancellationToken.None))!
+            .TrialArchitecturePreseedEnqueuedUtc;
+        firstEnqueue.Should().NotBeNull();
+
+        await sut.MarkTrialArchitecturePreseedCompletedAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        await sut.EnqueueTrialArchitecturePreseedAsync(tenantId, CancellationToken.None);
+
+        (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.TrialArchitecturePreseedEnqueuedUtc.Should().Be(firstEnqueue);
+    }
+
+    [SkippableFact]
+    public async Task MarkTrialConvertedAsync_updates_zero_rows_when_trial_not_active()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        Guid tenantId = Guid.NewGuid();
+        string slug = "macv0-" + Guid.NewGuid().ToString("N")[..8];
+
+        await sut.InsertTenantAsync(tenantId, "No trial yet", slug, TenantTier.Standard, null, CancellationToken.None);
+        await sut.MarkTrialConvertedAsync(tenantId, TenantTier.Enterprise, CancellationToken.None);
+
+        TenantRecord? row = await sut.GetByIdAsync(tenantId, CancellationToken.None);
+        row!.Tier.Should().Be(TenantTier.Standard);
+        row.TrialStatus.Should().BeNull();
+    }
 }

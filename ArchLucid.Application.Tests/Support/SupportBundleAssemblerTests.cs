@@ -100,6 +100,7 @@ public sealed class SupportBundleAssemblerTests
         string manifest = ReadEntryAsText(artifact.Bytes, SupportBundleAssembler.ManifestFileName);
 
         manifest.Should().Contain("\"source\": \"api\"");
+        manifest.Should().Contain("[REDACTED_EMAIL]");
         manifest.Should().Contain($"\"bundleFormatVersion\": \"{SupportBundleAssembler.BundleFormatVersion}\"");
     }
 

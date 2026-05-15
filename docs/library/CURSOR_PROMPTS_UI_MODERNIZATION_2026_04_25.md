@@ -1617,7 +1617,7 @@ Changes:
 
 Rules:
 - Do NOT change the state management, API calls, or mutation logic.
-- Do NOT change the enterprise-mutation-capability guards.
+- Do NOT change the operate-capability / mutation-rank guards.
 - Do NOT change the tab container (AdvisoryHubClient).
 - Do NOT remove any ContextualHelp or GlossaryTooltip placements.
 - Do NOT change route paths.

@@ -4,7 +4,7 @@
  * docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md (Stage 1 — role clarity without commercializing the wedge).
  * Keep wording responsibility-based, not permission-jargon.
  *
- * **Rank pairing:** several `*Reader*` / `*Operator*` pairs are chosen in pages via `useEnterpriseMutationCapability()` or
+ * **Rank pairing:** several `*Reader*` / `*Operator*` pairs are chosen in pages via `useOperateCapability()` or
  * `useNavCallerAuthorityRank()` vs `AUTHORITY_RANK.ExecuteAuthority` — keep thresholds aligned with `nav-authority.ts`.
  */
 
@@ -25,7 +25,7 @@ export const enterpriseMutationControlDisabledTitle =
 
 /**
  * Audit CSV export uses **`RequireAuditor`** on the API (Auditor **or** Admin)—stricter than Execute-tier pack
- * mutations; align the Export button with **`/me` role claims**, not `useEnterpriseMutationCapability`.
+ * mutations; align the Export button with **`/me` role claims**, not `useOperateCapability`.
  */
 export const auditExportControlDisabledTitle =
   "Available to authorized audit users in this workspace; adjust date filters or roles if export stays unavailable.";
@@ -80,7 +80,7 @@ export const governanceResolutionChangeRelatedControlsLead =
   "Refresh is GET. Scope changes: Packs or Workflow.";
 
 /**
- * Governance resolution — extra line under **Change related controls** when **`useEnterpriseMutationCapability()`** is
+ * Governance resolution — extra line under **Change related controls** when **`useOperateCapability()`** is
  * false (writes live elsewhere; **Refresh** stays a safe GET).
  */
 export const governanceResolutionChangeRelatedControlsReaderSupplement =

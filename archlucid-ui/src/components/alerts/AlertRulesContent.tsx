@@ -8,7 +8,7 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
 import { Button } from "@/components/ui/button";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { createAlertRule, listAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -46,7 +46,7 @@ const RULE_TYPES = [
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
 
 export function AlertRulesContent() {
-  const canMutateAlertRules = useEnterpriseMutationCapability();
+  const canMutateAlertRules = useOperateCapability();
   const [items, setItems] = useState<AlertRule[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);

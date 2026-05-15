@@ -13,7 +13,7 @@ import {
   operatorNavOutsideProviderPrincipal,
   shellBootstrapReadPrincipal,
 } from "@/lib/current-principal";
-import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
+import { operateCapabilityFromRank } from "@/lib/operate-capability";
 import { LAYER_PAGE_GUIDANCE, type LayerGuidanceBlock } from "@/lib/layer-guidance";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import {
@@ -86,7 +86,7 @@ describe("authority seam regression", () => {
     }
   });
 
-  it("ties enterpriseMutationCapabilityFromRank to normalized principal rank (same threshold as nav Execute tier)", () => {
+  it("ties operateCapabilityFromRank to normalized principal rank (same threshold as nav Execute tier)", () => {
     const table: { claims: { type: string; value: string }[]; expectMutate: boolean }[] = [
       { claims: [{ type: "roles", value: "Reader" }], expectMutate: false },
       { claims: [{ type: "roles", value: "Auditor" }], expectMutate: false },
@@ -97,16 +97,16 @@ describe("authority seam regression", () => {
     for (const row of table) {
       const principal = normalizeAuthMeResponse({ claims: row.claims });
 
-      expect(enterpriseMutationCapabilityFromRank(principal.authorityRank)).toBe(row.expectMutate);
+      expect(operateCapabilityFromRank(principal.authorityRank)).toBe(row.expectMutate);
     }
   });
 
   it("documents synthetic shell principals used before /me settles (bootstrap vs test outside-provider)", () => {
     expect(shellBootstrapReadPrincipal.authorityRank).toBe(AUTHORITY_RANK.ReadAuthority);
-    expect(enterpriseMutationCapabilityFromRank(shellBootstrapReadPrincipal.authorityRank)).toBe(false);
+    expect(operateCapabilityFromRank(shellBootstrapReadPrincipal.authorityRank)).toBe(false);
 
     expect(operatorNavOutsideProviderPrincipal.authorityRank).toBe(AUTHORITY_RANK.AdminAuthority);
-    expect(enterpriseMutationCapabilityFromRank(operatorNavOutsideProviderPrincipal.authorityRank)).toBe(true);
+    expect(operateCapabilityFromRank(operatorNavOutsideProviderPrincipal.authorityRank)).toBe(true);
   });
 
   /**
@@ -139,7 +139,7 @@ describe("authority seam regression", () => {
    * Single numeric floor for Execute-class nav rows and Enterprise mutation soft-enable (`AUTHORITY_RANK.ExecuteAuthority`).
    * Catches accidental divergence if either helper changes threshold independently.
    */
-  it("matches enterpriseMutationCapabilityFromRank to ExecuteAuthority nav visibility for ranks 0 through Admin", () => {
+  it("matches operateCapabilityFromRank to ExecuteAuthority nav visibility for ranks 0 through Admin", () => {
     const executeTierLink = {
       href: "/_seam-probe-execute",
       label: "Probe",
@@ -149,7 +149,7 @@ describe("authority seam regression", () => {
     };
 
     for (let rank = 0; rank <= AUTHORITY_RANK.AdminAuthority; rank += 1) {
-      expect(enterpriseMutationCapabilityFromRank(rank)).toBe(
+      expect(operateCapabilityFromRank(rank)).toBe(
         navLinkVisibleForCallerRank(executeTierLink, rank),
       );
     }

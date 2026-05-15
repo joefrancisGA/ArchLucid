@@ -33,6 +33,8 @@ function Harness() {
   return (
     <FormProvider {...form}>
       <QuickStartWizard
+        llmBudgetStatus={null}
+        blocksLlmExecution={false}
         onRunCreated={() => {
           /* test double */
         }}

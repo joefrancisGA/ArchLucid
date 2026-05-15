@@ -51,7 +51,7 @@ Fast component-level checks run in **`ui-axe-components`** via Vitest + **jest-a
 
 - **Skip-to-content link**: first focusable element in `layout.tsx`, jumps to `#main-content` (visible on focus)
 - **Language attribute**: `<html lang="en">`
-- **Landmark navigation**: `<main>` on page components, `<nav>` with `aria-label` in `ShellNav`, `<header>` in layout
+- **Landmark navigation**: `<main>` on page components, `<nav>` with `aria-label` in `SidebarNav`, `<header>` in layout
 - **Form labels**: `<label>` wrapping on audit, policy packs, and alerts controls
 - **Focus management**: custom `focus-visible` styles for nav links, workflow actions, and auth controls (`globals.css`)
 - **Error regions**: `role="alert"` on API error messages

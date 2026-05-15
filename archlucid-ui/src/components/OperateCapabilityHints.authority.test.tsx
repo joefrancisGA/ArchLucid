@@ -1,6 +1,6 @@
 /**
  * Rank-gated **Capability** surface hints (same `AUTHORITY_RANK.ExecuteAuthority` threshold as nav filtering and
- * `useOperateCapability` / deprecated `useEnterpriseMutationCapability`). Asserts presence/absence and canonical copy imports.
+ * `useOperateCapability`). Asserts presence/absence and canonical copy imports.
  */
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";

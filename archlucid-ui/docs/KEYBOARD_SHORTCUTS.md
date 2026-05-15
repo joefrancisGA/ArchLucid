@@ -34,7 +34,7 @@ Registry: [`src/lib/shortcut-registry.ts`](../src/lib/shortcut-registry.ts) (`SH
 
 ## Page-specific: Alerts (`/alerts`)
 
-Focus an alert card (`role="article"`, `tabIndex={0}`, `data-alert-id`) or a control inside it. Implemented in [`useAlertCardShortcuts`](../src/hooks/useAlertCardShortcuts.ts) on [`alerts/page.tsx`](../src/app/%28operator%29/alerts/page.tsx). **Alt+1–3 register only when** the same **`useEnterpriseMutationCapability()`** gate used for triage **Confirm** is true (Execute+ rank in the shell); read-tier callers keep **Alt+J / Alt+K** only.
+Focus an alert card (`role="article"`, `tabIndex={0}`, `data-alert-id`) or a control inside it. Implemented in [`useAlertCardShortcuts`](../src/hooks/useAlertCardShortcuts.ts) on [`alerts/page.tsx`](../src/app/%28operator%29/alerts/page.tsx). **Alt+1–3 register only when** the same **`useOperateCapability()`** gate used for triage **Confirm** is true (Execute+ rank in the shell); read-tier callers keep **Alt+J / Alt+K** only.
 
 | Combo | Action |
 |-------|--------|
@@ -49,7 +49,7 @@ At Execute+, shortcuts call the same path as the triage buttons (then **Confirm*
 ## Discoverability
 
 1. **Shift+?** — Full table in the Radix/shadcn dialog ([`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx)).
-2. **Shell nav** — [`ShellNav.tsx`](../src/components/ShellNav.tsx): extended `title` text includes `(Alt+…)`; `aria-keyshortcuts` matches [`registryKeyToAriaKeyShortcuts`](../src/lib/shortcut-registry.ts). No inline `<kbd>` in the nav (compact layout).
+2. **Shell nav** — [`SidebarNav.tsx`](../src/components/SidebarNav.tsx): extended `title` text includes `(Alt+…)`; `aria-keyshortcuts` matches [`registryKeyToAriaKeyShortcuts`](../src/lib/shortcut-registry.ts). No inline `<kbd>` in the nav (compact layout).
 3. **`<ShortcutHint>`** — [`ShortcutHint.tsx`](../src/components/ShortcutHint.tsx): visible chips next to primary links on home, runs list, compare heading (uses global `kbd` CSS).
 4. **Footer** — Shell hint: “Press Shift+? for keyboard shortcuts.” Alerts page: operator line lists Alt+1–3; read-tier line documents J/K only plus when Alt+1–3 register (`enterprise-controls-context-copy` / page).
 
@@ -63,7 +63,7 @@ At Execute+, shortcuts call the same path as the triage buttons (then **Confirm*
 
 1. Add an entry to `SHORTCUTS` in [`shortcut-registry.ts`](../src/lib/shortcut-registry.ts) (`key`, `label`, `description`, `route` or help-only).
 2. If it navigates, `useShortcutNavigation` already binds any entry with `route`; no change unless you need custom behavior.
-3. Update [`ShellNav.tsx`](../src/components/ShellNav.tsx) if the destination has a nav link (title + `aria-keyshortcuts`).
+3. Update [`SidebarNav.tsx`](../src/components/SidebarNav.tsx) if the destination has a nav link (title + `aria-keyshortcuts`).
 4. Extend [`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx) / registry if the help dialog should show a new section.
 5. Add or extend [`src/integration/keyboard-shortcuts-global.test.tsx`](../src/integration/keyboard-shortcuts-global.test.tsx).
 

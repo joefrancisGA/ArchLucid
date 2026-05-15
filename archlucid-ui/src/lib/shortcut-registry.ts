@@ -76,7 +76,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
 
 /**
  * Maps a registry combo string to the `aria-keyshortcuts` / tooltip form (e.g. `alt+n` → `Alt+N`).
- * Keeps ShellNav and other hints aligned with `SHORTCUTS[].key`.
+ * Keeps SidebarNav and other hints aligned with `SHORTCUTS[].key`.
  */
 export function registryKeyToAriaKeyShortcuts(combo: string): string {
   const parts = combo

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -33,7 +33,7 @@ import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-s
  * Subscriptions tab: email/webhook delivery config (Execute-class mutations; read-only list for Read rank).
  */
 export function DigestSubscriptionsContent() {
-  const canMutateSubscriptions = useEnterpriseMutationCapability();
+  const canMutateSubscriptions = useOperateCapability();
   const [items, setItems] = useState<DigestSubscription[]>([]);
   const [attemptsBySub, setAttemptsBySub] = useState<Record<string, DigestDeliveryAttempt[]>>({});
   const [loading, setLoading] = useState(false);

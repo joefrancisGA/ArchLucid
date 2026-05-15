@@ -1,9 +1,10 @@
-import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 /**
  * Whether the caller’s numeric rank should **soft-enable** Execute-class POST/toggle controls on **Operate** routes.
- * Delegates to the legacy helper so rank thresholds stay single-sourced until the deprecated symbol is removed.
+ *
+ * **UI shaping only — API authoritative:** success/failure is still enforced with **`[Authorize(Policy = …)]`** on **ArchLucid.Api**.
  */
 export function operateCapabilityFromRank(rank: number): boolean {
-  return enterpriseMutationCapabilityFromRank(rank);
+  return rank >= AUTHORITY_RANK.ExecuteAuthority;
 }

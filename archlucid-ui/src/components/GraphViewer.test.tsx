@@ -12,7 +12,7 @@ beforeAll(() => {
 });
 
 describe("GraphViewer", () => {
-  it("renders node detail panel when the graph has nodes (normal case)", () => {
+  it("renders graph chrome and selection prompt when the graph has nodes (operator default)", () => {
     const graph = {
       nodes: [{ id: "n1", label: "Service A", type: "Service", metadata: { region: "east" } }],
       edges: [] as { source: string; target: string; type: string }[],
@@ -20,8 +20,13 @@ describe("GraphViewer", () => {
 
     render(<GraphViewer graph={graph} />);
 
-    expect(screen.getByText("Node detail")).toBeInTheDocument();
-    expect(screen.getByText(/Select a node or inferred edge/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Select a node or inferred edge on the canvas to inspect reasoning and metadata.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Graph Settings" })).toBeInTheDocument();
+    expect(screen.queryByText("Node detail")).not.toBeInTheDocument();
   });
 
   it("renders empty-state when the graph has no nodes", () => {

@@ -6,6 +6,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.CustomerSuccess;
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Alerts;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Integrations;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diagrams;
@@ -182,6 +183,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IEvidencePackSourceProvider, EmbeddedResourceEvidencePackSourceProvider>();
         services.AddSingleton<IEvidencePackBuilder, EvidencePackBuilder>();
         services.AddSingleton<ISupportBundleAssembler, SupportBundleAssembler>();
+        services.AddScoped<ILlmMonthlyTenantDollarBudgetStatusService, LlmMonthlyTenantDollarBudgetStatusService>();
         services.AddScoped<IReferenceEvidenceAdminExportService, ReferenceEvidenceAdminExportService>();
         services.AddSingleton<IExecutionProvenanceFooterRenderer,
             ExecutionProvenanceFooterRenderer>();

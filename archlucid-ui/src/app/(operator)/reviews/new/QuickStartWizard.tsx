@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
+import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
@@ -10,6 +11,7 @@ import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { architectureReviewTemplates, suggestedSystemNameFromTemplateId } from "@/data/review-templates";
 import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -27,6 +29,9 @@ const QUICK_STEPS = [
 ] as const;
 
 export type QuickStartWizardProps = {
+  /** Monthly LLM dollar gate from parent (shared fetch with full wizard shell). */
+  llmBudgetStatus: LlmMonthlyDollarBudgetStatus | null;
+  blocksLlmExecution: boolean;
   /** Invoked after a run id is returned so the parent can show pipeline tracking. */
   onRunCreated: (runId: string) => void;
 };
@@ -36,7 +41,7 @@ export type QuickStartWizardProps = {
  * for constraints and advanced fields.
  */
 export function QuickStartWizard(props: QuickStartWizardProps) {
-  const { onRunCreated } = props;
+  const { onRunCreated, llmBudgetStatus, blocksLlmExecution } = props;
   const [quickStep, setQuickStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
@@ -67,6 +72,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   }, [quickStep]);
 
   const canProceed = !submitting;
+  const canSubmit = !submitting && !blocksLlmExecution;
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
     if (kind === "ok") {
       showSuccess(message);
@@ -119,6 +125,12 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
       return;
     }
 
+    if (blocksLlmExecution) {
+      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous runs.");
+
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
 
@@ -156,6 +168,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
 
   return (
     <div className="space-y-4 pb-36">
+      {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
       <div className="space-y-1" data-testid="quick-start-progress">
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
           Quick start — step {quickStep + 1} of {QUICK_STEPS.length}: {QUICK_STEPS[quickStep].label}
@@ -263,6 +276,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
           onSaveDraft={undefined}
           submitting={submitting}
           canProceed={canProceed}
+          canSubmit={canSubmit}
           isFirstStep={isFirstStep}
           isLastInputStep={isReviewStep}
           nextLabel="Next"

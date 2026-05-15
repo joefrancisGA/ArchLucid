@@ -99,7 +99,7 @@ Focused **component** and **API client contract** coverage for the operator shel
 npm test
 
 # Navigation + landing:
-npx vitest run src/app/page.test.tsx src/components/ShellNav.test.tsx
+npx vitest run src/app/page.test.tsx src/components/SidebarNav.test.tsx
 
 # Review workflow patterns + compare views:
 npx vitest run src/review-workflow
@@ -345,7 +345,7 @@ describe("prepareArtifactBodyText", () => {
 | Test file | What it tests | Type |
 |-----------|--------------|------|
 | `src/app/page.test.tsx` | Home / landing workflow links (55R) | Component |
-| `src/components/ShellNav.test.tsx` | Grouped nav links (Start & review, Q&A, Alerts) | Component |
+| `src/components/SidebarNav.test.tsx` | Grouped nav links (Start & review, Q&A, Alerts) | Component |
 | `src/components/GraphViewer.test.tsx` | Graph empty states, filter behavior, non-empty panel | Component |
 | `src/components/ArtifactListTable.test.tsx` | Review/Download URLs, empty list, sorted rows | Component |
 | `src/components/ArtifactReviewContent.test.tsx` | Preview, truncation, preview-unavailable | Component |

@@ -19,7 +19,8 @@ export type UseIdentityProvidersSettingsPageModel = {
 export function useIdentityProvidersSettingsPage(
   loaded: IdentityProvidersSettingsPageServerLoad,
 ): UseIdentityProvidersSettingsPageModel {
-  const isDemo = loaded.demo;
+  void loaded;
+
   const [rows, setRows] = useState<ConfigSummaryKeyRow[] | null>(null);
   const [note, setNote] = useState<string | null>(null);
 
@@ -55,12 +56,8 @@ export function useIdentityProvidersSettingsPage(
   }, []);
 
   useEffect(() => {
-    if (isDemo) {
-      return;
-    }
-
     void load();
-  }, [isDemo, load]);
+  }, [load]);
 
   return {
     note,

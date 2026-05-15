@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { normalizeAuthMeResponse } from "@/lib/current-principal";
-import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
+import { operateCapabilityFromRank } from "@/lib/operate-capability";
 import { AUTHORITY_RANK, requiredAuthorityFromRank } from "@/lib/nav-authority";
 
 /** Guards the `/me` → `CurrentPrincipal` seam used by `OperatorNavAuthorityProvider` (rank + enterprise surfacing flag). */
@@ -85,7 +85,7 @@ describe("normalizeAuthMeResponse", () => {
   });
 
   /**
-   * `hasEnterpriseOperatorSurfaces` and `useEnterpriseMutationCapability` must stay on the same Execute floor;
+   * `hasEnterpriseOperatorSurfaces` and `useOperateCapability` must stay on the same Execute floor;
    * diverging formulas would mis-label principals or soft-enable writes inconsistently.
    */
   /**
@@ -107,7 +107,7 @@ describe("normalizeAuthMeResponse", () => {
     }
   });
 
-  it("keeps hasEnterpriseOperatorSurfaces aligned with enterpriseMutationCapabilityFromRank for /me-shaped payloads", () => {
+  it("keeps hasEnterpriseOperatorSurfaces aligned with operateCapabilityFromRank for /me-shaped payloads", () => {
     const payloads = [
       { claims: [{ type: "roles", value: "Reader" }] },
       { claims: [{ type: "roles", value: "Auditor" }] },
@@ -128,7 +128,7 @@ describe("normalizeAuthMeResponse", () => {
       const principal = normalizeAuthMeResponse(body);
 
       expect(principal.hasEnterpriseOperatorSurfaces).toBe(
-        enterpriseMutationCapabilityFromRank(principal.authorityRank),
+        operateCapabilityFromRank(principal.authorityRank),
       );
     }
   });

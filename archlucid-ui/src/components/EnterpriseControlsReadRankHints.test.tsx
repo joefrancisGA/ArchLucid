@@ -24,7 +24,7 @@ import {
 
 /**
  * When rank is below Execute, mutation pages and governance reader cues surface — these paths share the same rank
- * source as `useEnterpriseMutationCapability` / nav filtering (`AUTHORITY_RANK.ExecuteAuthority` threshold).
+ * source as `useOperateCapability` / nav filtering (`AUTHORITY_RANK.ExecuteAuthority` threshold).
  */
 describe("EnterpriseControls read-tier hints (rank < Execute)", () => {
   it("Execute-page hint renders the canonical reader line (soft-disable messaging)", () => {

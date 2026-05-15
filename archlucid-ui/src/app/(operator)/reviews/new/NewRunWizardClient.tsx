@@ -17,7 +17,9 @@ import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { createArchitectureRun, listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -105,6 +107,7 @@ function tryParseSampleRunQuery(raw: string | null): string | null {
 /** Full wizard client: react-hook-form + zod, create run, poll summary with live region + toast. */
 export function NewRunWizardClient() {
   const searchParams = useSearchParams();
+  const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const featuredSampleRunId = useMemo(() => {
     const raw = searchParams?.get("sampleRunId") ?? null;
 
@@ -219,6 +222,7 @@ export function NewRunWizardClient() {
   }, [stepIndex]);
 
   const canProceed = !submitting;
+  const canSubmit = !submitting && !blocksLlmExecution;
 
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
     if (kind === "ok") {
@@ -285,6 +289,12 @@ export function NewRunWizardClient() {
 
     if (!ok) {
       showToast("err", "Fix validation errors before creating the architecture review.");
+
+      return;
+    }
+
+    if (blocksLlmExecution) {
+      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous runs.");
 
       return;
     }
@@ -369,6 +379,10 @@ export function NewRunWizardClient() {
             </div>
           ) : null}
 
+          {wizardModeReady && llmBudgetStatus !== null ? (
+            <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} />
+          ) : null}
+
           {wizardModeReady && wizardMode === "quick" && showQuickTrack && runId ? (
             <WizardStepTrack runId={runId} pollSummary={pollSummary} />
           ) : null}
@@ -376,6 +390,8 @@ export function NewRunWizardClient() {
           {wizardModeReady && wizardMode === "quick" && !showQuickTrack ? (
             <QuickStartWizard
               key={wizardMode}
+              blocksLlmExecution={blocksLlmExecution}
+              llmBudgetStatus={llmBudgetStatus}
               onRunCreated={(id) => {
                 setRunId(id);
               }}
@@ -505,6 +521,7 @@ export function NewRunWizardClient() {
                 onSaveDraft={saveWizardDraft}
                 submitting={submitting}
                 canProceed={canProceed}
+                canSubmit={canSubmit}
                 isFirstStep={isFirstStep}
                 isLastInputStep={isReviewStep}
                 nextLabel={stepIndex === 0 ? "Continue" : "Next"}

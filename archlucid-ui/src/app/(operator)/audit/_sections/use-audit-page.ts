@@ -12,7 +12,7 @@ import {
   principalRolesAllowAuditCsvExport,
 } from "@/app/(operator)/audit/audit-ui-helpers";
 import { useNavCallerAuthorityRank, useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AuditEvent, CursorPagedResponse } from "@/lib/api";
@@ -41,7 +41,7 @@ import { resolveAuditSearchPageForUi, shouldInjectAuditDemoOnSearchError } from 
 export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProps {
   const { currentPrincipal } = useOperatorNavAuthority();
   const callerAuthorityRank = useNavCallerAuthorityRank();
-  const canMutateEnterpriseShell = useEnterpriseMutationCapability();
+  const canMutateEnterpriseShell = useOperateCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [advancedAuditFiltersOpen, setAdvancedAuditFiltersOpen] = useState(!buyerPolishedShell);
   const [buyerPrimaryFiltersOpen, setBuyerPrimaryFiltersOpen] = useState(false);

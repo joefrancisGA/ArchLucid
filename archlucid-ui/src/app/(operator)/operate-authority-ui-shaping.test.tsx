@@ -1,8 +1,7 @@
 /**
- * Page-level regression: **`useEnterpriseMutationCapability()`** (deprecated; prefer **`useOperateCapability()`**) must
- * actually gate Operate write affordances. Lib-level parity lives in **`authority-seam-regression.test.ts`** /
- * **`current-principal.test.ts`**; this file catches inverted `disabled` props, dropped hooks, or pages that stop calling
- * the hook while nav still filters by rank.
+ * Page-level regression: **`useOperateCapability()`** must actually gate Operate write affordances. Lib-level parity lives in
+ * **`authority-seam-regression.test.ts`** / **`current-principal.test.ts`**; this file catches inverted `disabled` props,
+ * dropped hooks, or pages that stop calling the hook while nav still filters by rank.
  *
  * Governance workflow: submit card uses the same hook for read-only fields (`readOnly` / disabled selects) — asserted
  * via DOM attributes, not tooltip copy strings.
@@ -16,8 +15,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mutateCapability = vi.hoisted(() => ({ current: false }));
 
-vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
-  useEnterpriseMutationCapability: (): boolean => mutateCapability.current,
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: (): boolean => mutateCapability.current,
 }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
@@ -546,7 +545,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   /**
    * Rank cues (`GovernanceResolutionRankCue`) and this supplement are different seams: outside **`OperatorNavAuthorityProvider`**
    * tests default to Admin rank, but the mutation hook mock can still be **false** — we assert the page wires **soft-disable**
-   * copy to **`useEnterpriseMutationCapability`**, not nav rank alone.
+   * copy to **`useOperateCapability`**, not nav rank alone.
    */
   it("Governance resolution: Change related controls shows reader supplement when mutation capability is false", async () => {
     mutateCapability.current = false;

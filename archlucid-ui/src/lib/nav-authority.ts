@@ -15,14 +15,14 @@
  *
  * - **Nav / palette:** **`navLinkVisibleForCallerRank`** / **`filterNavLinksByAuthority`** — link visible iff
  *   `callerRank >= requiredAuthorityRank(link.requiredAuthority)` (missing `requiredAuthority` ⇒ visible at every rank).
- * - **Enterprise write affordances:** **`enterpriseMutationCapabilityFromRank`** / **`useEnterpriseMutationCapability()`**
+ * - **Enterprise write affordances:** **`operateCapabilityFromRank`** / **`useOperateCapability()`**
  *   — **`callerRank >= AUTHORITY_RANK.ExecuteAuthority`**. **`CurrentPrincipal.hasEnterpriseOperatorSurfaces`**
  *   (**`current-principal.ts`**) must use that **same numeric floor** (see **`current-principal.test.ts`**).
  *   Shell composition is **tier → authority** in **`nav-shell-visibility.ts`**; empty groups are dropped there.
  * - **Rank-only copy (same numeric floor, not nav visibility):** **`LayerHeader`** Enterprise rank cue and
  *   **`EnterpriseControlsContextHints`** use **`useNavCallerAuthorityRank()`** with **`AUTHORITY_RANK.ExecuteAuthority`** for
  *   reader vs operator lines — parallel to (2) but **do not** replace **`filterNavLinksByAuthority`** for **`ReadAuthority`**
- *   destinations still shown in nav. A route may branch **(2)** on **`useEnterpriseMutationCapability()`** separately from
+ *   destinations still shown in nav. A route may branch **(2)** on **`useOperateCapability()`** separately from
  *   rank cues (e.g. governance resolution **Change related controls**). **docs/PRODUCT_PACKAGING.md** §3 *Four UI shaping surfaces*.
  *
  * **`ReadAuthority`** on a **`NavLinkItem`** marks read-mostly destinations; **`ExecuteAuthority`** marks Execute-class
@@ -35,13 +35,13 @@
  * Stage 1 framing: **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
  * @see `authority-seam-regression.test.ts` — `/me` claims → rank vs Enterprise nav vs mutation capability; config-wide Execute rows vs Read; Auditor Enterprise parity; rank **`0`** vs **`ReadAuthority`**; nav ordering after **`filterNavLinksByAuthority`**; **`/alerts`** **`advanced`** tier; Enterprise nav **monotonicity** Read→Execute→Admin; Advanced default shell **`/ask`**-only; **`/governance`** visible at Execute rank when **`showAdvanced`**; **`LAYER_PAGE_GUIDANCE`** Enterprise (**`enterpriseFootnote`**) vs Advanced (no footnote) for **`LayerHeader`** packaging parity.
- * @see `authority-execute-floor-regression.test.ts` — **one boolean for Execute-class:** synthetic **`ExecuteAuthority`** **`NavLinkItem`** visibility vs **`enterpriseMutationCapabilityFromRank`** across ranks; real **`operate-governance`** monotonic filtered counts; Reader list keeps **`/alerts`**, omits **`/governance`**.
+ * @see `authority-execute-floor-regression.test.ts` — **one boolean for Execute-class:** synthetic **`ExecuteAuthority`** **`NavLinkItem`** visibility vs **`operateCapabilityFromRank`** across ranks; real **`operate-governance`** monotonic filtered counts; Reader list keeps **`/alerts`**, omits **`/governance`**.
  * @see `authority-shaped-ui-regression.test.ts` — **every** real **`nav-config`** **`ExecuteAuthority`** row: hidden at **Read**, visible at **Execute** (new links cannot drift untested).
  * @see `nav-authority.test.ts` — `navLinkVisibleForCallerRank` Execute floor; `nav-config.structure.test.ts` — packaging invariants on **`NAV_GROUPS`**.
  * @see `EnterpriseControlsContextHints.authority.test.tsx` — rank-gated Enterprise cue components (same **`ExecuteAuthority`** threshold).
  * @see `current-principal.test.ts` — **`normalizeAuthMeResponse`**: **`maxAuthority`** must track **`requiredAuthorityFromRank(authorityRank)`**.
  * @see `OperatorNavAuthorityProvider.test.tsx` — rank fed into consumers of this module during JWT `/me` refetch.
- * @see `enterprise-authority-ui-shaping.test.tsx` — **`useEnterpriseMutationCapability`** gates **`disabled`** / submit **`readOnly`** on representative Enterprise pages (**UI only**; API **`[Authorize]`**).
+ * @see `enterprise-authority-ui-shaping.test.tsx` — **`useOperateCapability`** gates **`disabled`** / submit **`readOnly`** on representative Enterprise pages (**UI only**; API **`[Authorize]`**).
  * @see `authority-shaped-layout-regression.test.tsx` — inspect-first columns / action order when mutation is off (**UI hierarchy**; still not authZ).
  */
 

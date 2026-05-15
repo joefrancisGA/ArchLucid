@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
+import { operateCapabilityFromRank } from "@/lib/operate-capability";
 import {
   AUTHORITY_RANK,
   filterNavLinksByAuthority,
@@ -10,7 +10,7 @@ import {
 
 /**
  * **Purpose:** narrow regression on the **Execute numeric floor** shared by **`navLinkVisibleForCallerRank`** (for
- * **`ExecuteAuthority`** links) and **`enterpriseMutationCapabilityFromRank`** / **`useEnterpriseMutationCapability()`**.
+ * **`ExecuteAuthority`** links) and **`operateCapabilityFromRank`** / **`useOperateCapability()`**.
  * **UI shaping only — API authoritative:** tests never imply POST success; **`[Authorize(Policy = …)]`** on **ArchLucid.Api**
  * still returns **401/403** on deep links.
  *
@@ -28,16 +28,16 @@ const executeTierNavLink = {
 };
 
 /**
- * Single numeric floor for **Execute-class nav visibility** and **`useEnterpriseMutationCapability`** (LayerHeader uses
+ * Single numeric floor for **Execute-class nav visibility** and **`useOperateCapability()`** (LayerHeader uses
  * the same comparison). If these diverge, Reader shells could show workflow while buttons soft-enable—or the inverse.
  */
 describe("authority Execute floor regression", () => {
-  it("matches enterpriseMutationCapabilityFromRank for an ExecuteAuthority nav row across representative ranks", () => {
+  it("matches operateCapabilityFromRank for an ExecuteAuthority nav row across representative ranks", () => {
     const ranks = [0, AUTHORITY_RANK.ReadAuthority, AUTHORITY_RANK.ExecuteAuthority, AUTHORITY_RANK.AdminAuthority];
 
     for (const rank of ranks) {
       const visible = navLinkVisibleForCallerRank(executeTierNavLink, rank);
-      const mutate = enterpriseMutationCapabilityFromRank(rank);
+      const mutate = operateCapabilityFromRank(rank);
 
       expect(visible).toBe(mutate);
     }

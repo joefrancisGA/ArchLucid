@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   deleteTeamsIncomingWebhookConnection,
   getTeamsIncomingWebhookConnection,
@@ -39,7 +39,7 @@ export function useTeamsNotificationsIntegrationPage(
 ): TeamsNotificationsIntegrationPageViewModel {
   const isDemo = serverLoad.mode === "demo";
 
-  const canMutate = useEnterpriseMutationCapability();
+  const canMutate = useOperateCapability();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 

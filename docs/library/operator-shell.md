@@ -154,7 +154,7 @@ npm test
 Targeted suites (Vitest):
 
 ```bash
-npx vitest run src/app/page.test.tsx src/components/ShellNav.test.tsx
+npx vitest run src/app/page.test.tsx src/components/SidebarNav.test.tsx
 npx vitest run src/review-workflow
 npx vitest run src/components/ArtifactListTable.test.tsx src/components/ArtifactReviewContent.test.tsx
 npx vitest run src/components/GraphViewer.test.tsx

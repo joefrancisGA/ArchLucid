@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { downloadBoardPackPdf, downloadValueReportDocx } from "@/lib/api";
 import { DEFAULT_DEV_TENANT_ID } from "@/lib/scope-defaults";
 
@@ -28,7 +28,7 @@ export function useValueReportPage(loaded: ValueReportPageServerLoad): UseValueR
   // Keeps hook boundary aligned with `load-value-report-page-data` when eligibility/tier arrives.
   void loaded;
 
-  const canMutate = useEnterpriseMutationCapability();
+  const canMutate = useOperateCapability();
   const [fromUtc, setFromUtc] = useState(() => {
     const d = new Date();
 

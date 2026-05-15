@@ -12,11 +12,11 @@ Summarize **current merged line and branch coverage** for product **`ArchLucid.*
 
 | Item | Value |
 |------|--------|
-| **Cobertura file** | `coverage-gap-1a/merged/Cobertura.xml` (ReportGenerator merge of Coverlet outputs) |
-| **As-of** | 2026-05-14 (timestamp inside Cobertura: Unix **1778739180**) |
-| **Product filter** | Same idea as **`scripts/ci/coverage_cobertura.product_packages_for_gate`**: **`ArchLucid.*`** packages with coverable lines, excluding test/support assemblies |
+| **Cobertura file** | **`coverage-report-final/Cobertura.xml`** (local merged Cobertura; same **72.95%** merged line snapshot as **[`CODE_COVERAGE.md`](CODE_COVERAGE.md)** § strict profile **2026-04-20**) |
+| **As-of** | **2026-04-20** (Cobertura timestamp Unix **1776678710**) |
+| **Product filter** | Gap-analysis doc uses **`scripts/ci/coverage_gap_analysis.py`** (subset of product packages; omits **`ArchLucid.Worker`** from tables). CI gates use **`scripts/ci/coverage_cobertura.product_packages_for_gate`**. |
 
-**Important:** This merge reflects **whatever test assemblies produced the underlying `coverage.cobertura.xml` files**, not necessarily a green **`dotnet test ArchLucid.sln`** with **`ARCHLUCID_SQL_TEST`** (CI **`dotnet-full-regression`**). Percentages **below** CI floors here do **not** automatically mean CI is red — **[`docs/library/CODE_COVERAGE.md`](CODE_COVERAGE.md)** instructs treating workflow artifact **`coverage-merged-cobertura`** as authoritative for gate debugging.
+**Important:** `coverage-report-final/Cobertura.xml` is a **local** historical merge (source paths were normalized in **`coverage_gap_analysis.py`** for this repo clone). **`docs/COVERAGE_GAP_ANALYSIS.md`** lists every product **package** row from that file — including split **`ArchLucid.Persistence.*`** projects when the merge contains them. Some SQL-backed tests did not match a CI-equivalent session in **`CODE_COVERAGE.md`**; treat workflow artifact **`coverage-merged-cobertura`** as authoritative for gates.
 
 **Exclusions:** See **`coverage.runsettings`** and **`coverage-exclusions.md`** (for example generated OpenAPI XML comments under **`obj/`**, **`ArchLucid.Worker/Program.cs`**). **`ArchLucid.Worker`** may still appear with **low line-rate** for remaining coverable lines in this snapshot.
 
@@ -26,49 +26,24 @@ CI (**`.github/workflows/ci.yml`**, job **`.NET: full regression (SQL)`**) enfor
 
 | Metric | This snapshot | CI minimum | Notes |
 |--------|---------------:|-----------:|-------|
-| **Merged line** | **69.43%** | **≥ 95%** | Strict gate + ratchet (**`.coverage-floor`** baseline **97.00%**, pass when merged ≥ baseline − 2 pp per **`assert_coverage_floor_ratchet.py`**) |
-| **Merged branch** | **54.56%** | **≥ 63%** | Branch uplift typically trails line-focused tests |
-| **Per-package line** | Several packages **below 63%** (see table) | **≥ 63%** each gated product package with coverable lines | **`scripts/ci/assert_merged_line_coverage_min.py`** |
+| **Merged line** | **72.95%** | **≥ 95%** | Strict gate + ratchet (**`.coverage-floor`** baseline **97.00%**, pass when merged ≥ baseline − 2 pp per **`assert_coverage_floor_ratchet.py`**) |
+| **Merged branch** | **58.71%** | **≥ 63%** | Branch uplift typically trails line-focused tests |
+| **Per-package line** | Several packages **below 63%** (see gap doc) | **≥ 63%** each gated product package with coverable lines | **`scripts/ci/assert_merged_line_coverage_min.py`** |
 
-**Interpretation:** For this Cobertura merge, **all strict thresholds would fail** if asserted against CI arguments — consistent with a **partial or non-SQL-equivalent** local/regression slice. Use this document for **directional** backlog prioritization; confirm uplift with **`dotnet-full-regression`** or a full local reproduction described in **`CODE_COVERAGE.md`**.
+**Interpretation:** For this Cobertura merge, **all strict thresholds would fail** if asserted against CI arguments — consistent with a **local** slice where some SQL-backed tests did not pass (**`CODE_COVERAGE.md`**). Use the gap-analysis doc for **directional** backlog prioritization; confirm uplift with **`dotnet-full-regression`** or a CI-equivalent local reproduction.
 
 ## Product assemblies (line % ascending)
 
-Branch % is Cobertura **`branch-rate`** at package scope (may be **`0`** when no branch metadata).
-
-| Assembly | Line % | Branch % | Coverable lines (approx.) |
-|----------|-------:|---------:|----------------------------:|
-| ArchLucid.Worker | 0.00 | 0.00 | 68 |
-| ArchLucid.Persistence | 54.64 | 46.88 | 30360 |
-| ArchLucid.Api | 56.41 | 43.48 | 30117 |
-| ArchLucid.Cli | 63.65 | 51.83 | 12253 |
-| ArchLucid.Host.Core | 67.66 | 60.30 | 12250 |
-| ArchLucid.Host.Composition | 71.11 | 44.07 | 5793 |
-| ArchLucid.AgentRuntime | 72.86 | 55.80 | 11799 |
-| ArchLucid.Application | 73.48 | 54.68 | 41438 |
-| ArchLucid.Core | 79.57 | 58.14 | 12297 |
-| ArchLucid.ArtifactSynthesis | 81.05 | 68.46 | 3536 |
-| ArchLucid.Notifications | 87.50 | 50.00 | 272 |
-| ArchLucid.Integrations.AzureDevOps | 90.15 | 74.11 | 671 |
-| ArchLucid.KnowledgeGraph | 90.51 | 77.85 | 1124 |
-| ArchLucid.Contracts | 90.94 | 43.67 | 6995 |
-| ArchLucid.Decisioning | 91.72 | 81.55 | 13455 |
-| ArchLucid.ContextIngestion | 93.50 | 75.46 | 2025 |
-| ArchLucid.Retrieval | 94.37 | 76.39 | 714 |
-| ArchLucid.Provenance | 94.60 | 85.25 | 710 |
-| ArchLucid.AgentSimulator | 97.59 | 59.09 | 582 |
-| ArchLucid.Capabilities.Cost | 98.36 | 93.75 | 122 |
-| ArchLucid.Jobs.Cli | 100.00 | 100.00 | 36 |
-| ArchLucid.Api.Client | 100.00 | 100.00 | 32 |
+Authoritative **per-package line %, branch %, coverable lines, class hotspots**, and refresh commands live in **[`../COVERAGE_GAP_ANALYSIS.md`](../COVERAGE_GAP_ANALYSIS.md)** (generated from the **Data source** path at the top of that file via **`python scripts/ci/coverage_gap_analysis.py`**). Do not duplicate percentages here — they go stale when someone refreshes only one document.
 
 ## Hotspots and backlog hooks
 
-Class-level rankings (uncovered line entries, partial types merged) and **test-backfill notes** are maintained in **`docs/COVERAGE_GAP_ANALYSIS.md`**. Highest-impact themes from that doc aligned with this snapshot:
+Class-level rankings (uncovered line entries, partial types merged) and **test-backfill notes** are maintained in **`docs/COVERAGE_GAP_ANALYSIS.md`**. Highest-impact themes aligned with the **`coverage-report-final/Cobertura.xml`** snapshot:
 
-1. **`ArchLucid.Persistence`** — large surface (**~54.6%** line); **`DapperTenantRepository`** and relational read paths dominate uncovered entries.
-2. **`ArchLucid.Api`** — **~56.4%** line; significant churn from **generated OpenAPI** XML comments plus **`AdminDiagnosticsService`**, **`QuickStartService`**.
-3. **`ArchLucid.Cli`** — **`BuyerProofPackCommand`**, **`TryCommand`**, **`ValidateConfigEvaluator`** drive CLI gaps.
-4. **`ArchLucid.Host.Core` / `ArchLucid.Host.Composition`** — background processing, DI composition extension methods, and consistency probes carry integration-heavy branches (**Composition** branch % particularly low vs line %).
+1. **`ArchLucid.Persistence`** — lowest line % in that merge (**~40%** for the main **`ArchLucid.Persistence`** package); **`DapperTenantRepository`** and relational read paths dominate uncovered entries.
+2. **`ArchLucid.Api`** — **~61%** line; **`AdminDiagnosticsService`**, **`GovernanceController`**, **`EvolutionSimulationService`** drive gaps in the hotspot table.
+3. **`ArchLucid.Cli`** — CLI commands and config evaluation remain expensive to cover end-to-end.
+4. **`ArchLucid.Host.Core` / `ArchLucid.Host.Composition`** — background processing, DI composition extension methods, and consistency probes carry integration-heavy paths.
 
 ## Security, scalability, reliability, cost
 

@@ -72,7 +72,7 @@ export type NavGroupWithVisibleLinks = {
  * ## Role
  *
  * Single composition point for operator shell navigation (sidebar, mobile drawer, command palette).
- * **Out of scope:** **`useEnterpriseMutationCapability()`** and other page-level POST soft-disables — this module only
+ * **Out of scope:** **`useOperateCapability()`** and other page-level POST soft-disables — this module only
  * applies **tier** then **`filterNavLinksByAuthority`**; see **docs/PRODUCT_PACKAGING.md** §3 *Four UI shaping surfaces*.
  *
  * ## Composition order (do not reorder)
@@ -108,7 +108,7 @@ export type NavGroupWithVisibleLinks = {
  *   Execute rank does not bypass extended tier without disclosure toggles; **Core Pilot** **`/replay`** (extended **Execute**)
  *   stays hidden until **Show more** even at Admin rank.
  * @see `OperatorNavAuthorityProvider.test.tsx` — conservative rank during JWT `/me` refetch (feeds this module indirectly).
- * @see `enterprise-authority-ui-shaping.test.tsx` — **`useEnterpriseMutationCapability`** → **`disabled`** / **`readOnly`** on representative Enterprise pages (incl. governance submit fields).
+ * @see `enterprise-authority-ui-shaping.test.tsx` — **`useOperateCapability`** → **`disabled`** / **`readOnly`** on representative Enterprise pages (incl. governance submit fields).
  * @see `authority-shaped-layout-regression.test.tsx` — read-tier **layout** (inspect-first columns, triage deemphasis); complements this module’s **link set** only.
  */
 export function filterNavLinksForOperatorShell(

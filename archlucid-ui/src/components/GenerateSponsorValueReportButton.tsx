@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { downloadValueReportDocx } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -31,7 +31,7 @@ async function resolveTenantIdFromMe(): Promise<string | null> {
 
 /** One-click sponsor DOCX for the current scope (last 30 days UTC). */
 export function GenerateSponsorValueReportButton() {
-  const canMutate = useEnterpriseMutationCapability();
+  const canMutate = useOperateCapability();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{
     message: string;

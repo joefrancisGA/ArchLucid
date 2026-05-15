@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { DIGESTS_HUB_TAB_IDS, digestsHubTabFromSearchParam, type DigestsHubTabId } from "@/lib/digests-hub-tab";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +32,7 @@ export function DigestsHubClient() {
   const router: ReturnType<typeof useRouter> = useRouter();
   const pathname: string = usePathname();
   const searchParams = useSearchParams();
-  const canMutate: boolean = useEnterpriseMutationCapability();
+  const canMutate: boolean = useOperateCapability();
   const rawTab: string | null = searchParams.get(TAB_PARAM);
 
   const activeTab: DigestsHubTabId = useMemo(

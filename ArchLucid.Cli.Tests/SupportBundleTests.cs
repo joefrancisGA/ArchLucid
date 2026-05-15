@@ -46,6 +46,14 @@ public sealed class SupportBundleTests
     }
 
     [Fact]
+    public void RedactSensitivePatterns_replaces_email_addresses()
+    {
+        string redacted = SupportBundleRedactor.RedactSensitivePatterns("op logs: u_1@tenant.example.org done");
+
+        redacted.Should().Be("op logs: [REDACTED_EMAIL] done");
+    }
+
+    [Fact]
     public void RedactSensitivePatterns_strips_jwt_openai_sk_json_keys_and_long_content_fields()
     {
         const string markerJwt = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIiJ9.BADMARKERPAYLOADSIGNATUREZZZZ.BADMARKERSIGTOKENZZZZZ";

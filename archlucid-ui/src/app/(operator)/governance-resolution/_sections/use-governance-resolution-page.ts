@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { getGovernanceResolution } from "@/lib/api";
@@ -15,7 +15,7 @@ export function useGovernanceResolutionPage(
   serverLoad: GovernanceResolutionPageServerLoad,
 ): GovernanceResolutionPageViewModel {
   /** Same Execute floor as Policy packs / Workflow writes — shapes “Change related controls” emphasis only (GET refresh stays allowed). */
-  const canMutateEnterprisePolicySurfaces = useEnterpriseMutationCapability();
+  const canMutateEnterprisePolicySurfaces = useOperateCapability();
   const [data, setData] = useState<EffectiveGovernanceResolutionResult | null>(serverLoad.data);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(serverLoad.failure);

@@ -8,6 +8,15 @@ namespace ArchLucid.Application.Tests.Support;
 public sealed class SupportBundleSensitivePatternRedactorTests
 {
     [SkippableFact]
+    public void RedactSensitivePatterns_ReplacesEmailAddress()
+    {
+        const string input = "Contact alice@example.com for help.";
+        string redacted = SupportBundleSensitivePatternRedactor.RedactSensitivePatterns(input);
+
+        redacted.Should().Be("Contact [REDACTED_EMAIL] for help.");
+    }
+
+    [SkippableFact]
     public void RedactSensitivePatterns_ReplacesBearerToken()
     {
         const string input = "Authorization: Bearer abc.def.ghi-secret";

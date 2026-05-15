@@ -9,7 +9,7 @@ export type UseAlertCardShortcutsOptions = {
   onAction: (alertId: string, action: string) => void;
   /**
    * When false, Alt+1/2/3 are not registered (read-tier principals still use J/K to move between cards).
-   * The alerts inbox should pass **`useEnterpriseMutationCapability()`** so shortcuts match the same Execute+ floor as
+   * The alerts inbox should pass **`useOperateCapability()`** so shortcuts match the same Execute+ floor as
    * triage **Confirm**; page buttons may still open a read-only preview when false, without binding triage hotkeys.
    */
   mutationsEnabled?: boolean;

@@ -305,7 +305,7 @@ After changing operator shell or layer guidance, run Vitest locally. On Windows,
 
 ```bash
 cd archlucid-ui
-npx vitest run src/components/LayerHeader.test.tsx src/lib/authority-seam-regression.test.ts src/lib/use-nav-surface.test.ts src/components/ShellNav.test.tsx src/components/AfterCorePilotChecklistHint.test.tsx --pool=threads --maxWorkers=1
+npx vitest run src/components/LayerHeader.test.tsx src/lib/authority-seam-regression.test.ts src/lib/use-nav-surface.test.ts src/components/SidebarNav.test.tsx src/components/AfterCorePilotChecklistHint.test.tsx --pool=threads --maxWorkers=1
 ```
 
 A recent run of `LayerHeader.test.tsx` and `authority-seam-regression.test.ts` with `--pool=threads --maxWorkers=1` reported **28** tests passed in about **55s**.

@@ -69,6 +69,22 @@ describe("WizardNavButtons", () => {
     expect(screen.getByRole("button", { name: /submitting/i })).toBeDisabled();
   });
 
+  it("disables Submit when canSubmit is false while canProceed remains true", () => {
+    render(
+      <WizardNavButtons onSubmit={vi.fn()} isLastInputStep canProceed canSubmit={false} />,
+    );
+
+    expect(screen.getByRole("button", { name: "Submit" })).toBeDisabled();
+  });
+
+  it("keeps Next enabled when canSubmit is false on non-final steps", () => {
+    render(
+      <WizardNavButtons onNext={vi.fn()} isLastInputStep={false} canProceed canSubmit={false} />,
+    );
+
+    expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
+  });
+
   it("invokes onNext when Next is clicked", () => {
     const onNext = vi.fn();
 

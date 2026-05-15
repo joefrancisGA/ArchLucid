@@ -38,8 +38,8 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
-vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
-  useEnterpriseMutationCapability: () => false,
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => false,
 }));
 
 // LayerHeader reads layerGuidance + contextHints.layerHeaderEnterpriseRankCue; stub the full shape.

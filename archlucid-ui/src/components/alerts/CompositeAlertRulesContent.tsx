@@ -6,7 +6,7 @@ import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -64,7 +64,7 @@ const DEDUPE = [
 ];
 
 export function CompositeAlertRulesContent() {
-  const canMutateComposite = useEnterpriseMutationCapability();
+  const canMutateComposite = useOperateCapability();
   const [items, setItems] = useState<CompositeAlertRule[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);

@@ -17,7 +17,7 @@ import {
   governanceResolutionRankReaderLine,
   layerHeaderEnterpriseOperatorRankLine,
 } from "@/lib/enterprise-controls-context-copy";
-import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
+import { operateCapabilityFromRank } from "@/lib/operate-capability";
 import {
   LAYER_PAGE_GUIDANCE,
   type LayerGuidanceBlock,
@@ -56,7 +56,7 @@ export type NavSurfaceContextHints = {
  * Composed, route-scoped UI shaping surface returned by {@link useNavSurface}. Each
  * field is sourced from the existing single-purpose surface module so the four
  * underlying surfaces (`nav-shell-visibility`, `operate-capability` /
- * `enterprise-mutation-capability`, `layer-guidance`, `OperateCapabilityHints`) remain the implementation
+ * `operate-capability`, `layer-guidance`, `OperateCapabilityHints`) remain the implementation
  * detail and the only place the rank/tier rules live.
  */
 export type NavSurface = {
@@ -72,7 +72,7 @@ export type NavSurface = {
 
 /**
  * Single composed surface hook for any operator route that today calls
- * `nav-shell-visibility` + `useEnterpriseMutationCapability` + `LayerHeader` +
+ * `nav-shell-visibility` + `useOperateCapability` + `LayerHeader` +
  * `OperateCapabilityHints` separately. Callers pass the
  * {@link LayerGuidancePageKey} that matches the route family (the same key the
  * page already passes to `<LayerHeader pageKey=… />`).
@@ -83,7 +83,7 @@ export type NavSurface = {
  * need one piece (e.g. the sidebar) can keep using them.
  *
  * @see `nav-shell-visibility.ts` for tier → authority → empty-group composition.
- * @see `enterprise-mutation-capability.ts` for the Execute+ mutation floor.
+ * @see `operate-capability.ts` for the Execute+ mutation floor.
  * @see `layer-guidance.ts` for `LAYER_PAGE_GUIDANCE` packaging copy.
  * @see `OperateCapabilityHints.tsx` for the rendered rank cue components.
  * @see `use-nav-surface.test.ts` — equivalence vs the underlying modules individually.
@@ -128,7 +128,7 @@ export function composeNavSurface(
     "all",
     hasCommittedArchitectureReview,
   );
-  const mutationCapability = enterpriseMutationCapabilityFromRank(callerAuthorityRank);
+  const mutationCapability = operateCapabilityFromRank(callerAuthorityRank);
   const contextHints = composeContextHints(layerGuidance, callerAuthorityRank, mutationCapability);
 
   return {

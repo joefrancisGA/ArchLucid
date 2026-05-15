@@ -90,6 +90,15 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
     }
 
     [SkippableFact]
+    public async Task Reader_key_cannot_GET_admin_llm_monthly_dollar_budget_status_returns_403()
+    {
+        using HttpClient client = CreateReaderClient();
+        using HttpResponseMessage response = await client.GetAsync("/v1/admin/llm-monthly-dollar-budget-status");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
     public async Task Reader_key_cannot_GET_admin_auth_oidc_diagnostics_returns_403()
     {
         using HttpClient client = CreateReaderClient();

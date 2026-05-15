@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +31,7 @@ export type AdvisoryHubClientProps = {
 export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps) {
   const router: ReturnType<typeof useRouter> = useRouter();
   const pathname: string = usePathname();
-  const canMutate: boolean = useEnterpriseMutationCapability();
+  const canMutate: boolean = useOperateCapability();
   const [activeTab, setActiveTab] = useState<AdvisoryHubTabId>(initialTab);
 
   useEffect(() => {

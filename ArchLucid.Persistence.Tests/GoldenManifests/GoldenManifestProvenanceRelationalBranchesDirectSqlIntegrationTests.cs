@@ -13,7 +13,8 @@ namespace ArchLucid.Persistence.Tests.GoldenManifests;
 
 /// <summary>
 ///     Branch coverage for <see cref="GoldenManifestPhase1RelationalRead.HydrateAsync" /> provenance paths:
-///     relational rules-only (no source findings / nodes), and JSON fallback when no relational provenance rows.
+///     relational rules-only (no source findings / nodes), graph-nodes-only, findings+rules without graph nodes,
+///     and JSON fallback when no relational provenance rows.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -113,6 +114,188 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
 
         hydrated.Provenance.AppliedRuleIds.Should().Equal("rule-rel-1");
         hydrated.Provenance.SourceFindingIds.Should().BeEmpty();
+        hydrated.Provenance.SourceGraphNodeIds.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task HydrateAsync_provenance_relational_source_graph_nodes_only_uses_empty_findings_and_rules_lists()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
+            connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            "proj-prov-nodes-only",
+            CancellationToken.None);
+
+        const string insertManifest = """
+                                      INSERT INTO dbo.GoldenManifests
+                                      (
+                                          TenantId, WorkspaceId, ProjectId,
+                                          ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                          CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                          MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                          ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                          WarningsJson, ProvenanceJson
+                                      )
+                                      VALUES
+                                      (
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                                          @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                          N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
+                                          N'{}', N'{}', N'[]', N'[]',
+                                          N'[]', N'{"sourceFindingIds":["no"],"sourceGraphNodeIds":["no"],"appliedRuleIds":["no"]}'
+                                      );
+                                      """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertManifest,
+                new
+                {
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId,
+                    ManifestId = manifestId,
+                    RunId = runId,
+                    ContextSnapshotId = contextId,
+                    GraphSnapshotId = graphId,
+                    FindingsSnapshotId = findingsId,
+                    DecisionTraceId = traceId,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    ManifestHash = "h",
+                    RuleSetId = "r",
+                    RuleSetVersion = "1",
+                    RuleSetHash = "rh"
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string insertNode = """
+                                  INSERT INTO dbo.GoldenManifestProvenanceSourceGraphNodes (ManifestId, SortOrder, NodeId)
+                                  VALUES (@ManifestId, 0, N'node-rel-only');
+                                  """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(insertNode, new { ManifestId = manifestId },
+                cancellationToken: CancellationToken.None));
+
+        GoldenManifestStorageRow row = await QueryManifestRowAsync(connection, manifestId, CancellationToken.None);
+
+        ManifestDocument hydrated =
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
+
+        hydrated.Provenance.SourceGraphNodeIds.Should().Equal("node-rel-only");
+        hydrated.Provenance.SourceFindingIds.Should().BeEmpty();
+        hydrated.Provenance.AppliedRuleIds.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task HydrateAsync_provenance_relational_findings_and_rules_without_graph_nodes()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
+            connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            contextId,
+            graphId,
+            findingsSnapshotId,
+            traceId,
+            "proj-prov-find-rules-no-nodes",
+            CancellationToken.None);
+
+        const string insertManifest = """
+                                      INSERT INTO dbo.GoldenManifests
+                                      (
+                                          TenantId, WorkspaceId, ProjectId,
+                                          ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                          CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                          MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                          ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                          WarningsJson, ProvenanceJson
+                                      )
+                                      VALUES
+                                      (
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                                          @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                          N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
+                                          N'{}', N'{}', N'[]', N'[]',
+                                          N'[]', N'{}'
+                                      );
+                                      """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertManifest,
+                new
+                {
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId,
+                    ManifestId = manifestId,
+                    RunId = runId,
+                    ContextSnapshotId = contextId,
+                    GraphSnapshotId = graphId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    DecisionTraceId = traceId,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    ManifestHash = "h",
+                    RuleSetId = "r",
+                    RuleSetVersion = "1",
+                    RuleSetHash = "rh"
+                },
+                cancellationToken: CancellationToken.None));
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                """
+                INSERT INTO dbo.GoldenManifestProvenanceSourceFindings (ManifestId, SortOrder, FindingId)
+                VALUES (@ManifestId, 0, N'finding-fr');
+                INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
+                VALUES (@ManifestId, 0, N'rule-fr');
+                """,
+                new { ManifestId = manifestId },
+                cancellationToken: CancellationToken.None));
+
+        GoldenManifestStorageRow row = await QueryManifestRowAsync(connection, manifestId, CancellationToken.None);
+
+        ManifestDocument hydrated =
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
+
+        hydrated.Provenance.SourceFindingIds.Should().Equal("finding-fr");
+        hydrated.Provenance.AppliedRuleIds.Should().Equal("rule-fr");
         hydrated.Provenance.SourceGraphNodeIds.Should().BeEmpty();
     }
 

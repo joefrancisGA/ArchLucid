@@ -78,8 +78,8 @@ vi.mock("@/lib/pilot-value-report-fetch", () => {
   };
 });
 
-vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
-  useEnterpriseMutationCapability: () => false,
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => false,
 }));
 
 vi.mock("@/lib/use-nav-surface", () => ({

@@ -7,7 +7,7 @@
  * `authority-execute-floor-regression.test.ts`, and the per-component tests.
  *
  * @see `use-nav-surface.ts` — the composed surface returned to callers.
- * @see `nav-shell-visibility.ts`, `enterprise-mutation-capability.ts`,
+ * @see `nav-shell-visibility.ts`, `operate-capability.ts`,
  *   `layer-guidance.ts`, `OperateCapabilityHints.tsx` for the underlying modules this hook composes.
  */
 import { describe, expect, it } from "vitest";
@@ -27,7 +27,7 @@ import {
   governanceResolutionRankReaderLine,
   layerHeaderEnterpriseOperatorRankLine,
 } from "@/lib/enterprise-controls-context-copy";
-import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
+import { operateCapabilityFromRank } from "@/lib/operate-capability";
 import { LAYER_PAGE_GUIDANCE, type LayerGuidancePageKey } from "@/lib/layer-guidance";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -73,13 +73,13 @@ describe("composeNavSurface — equivalence with underlying Visibility + Capabil
     }
   });
 
-  it("returns mutationCapability matching enterpriseMutationCapabilityFromRank for every rank", () => {
+  it("returns mutationCapability matching operateCapabilityFromRank for every rank", () => {
     const sampleRouteKey: LayerGuidancePageKey = "governance-workflow";
 
     for (const rank of allRanks) {
       const composed = composeNavSurface(sampleRouteKey, rank, false, false, true);
 
-      expect(composed.mutationCapability).toBe(enterpriseMutationCapabilityFromRank(rank));
+      expect(composed.mutationCapability).toBe(operateCapabilityFromRank(rank));
     }
   });
 

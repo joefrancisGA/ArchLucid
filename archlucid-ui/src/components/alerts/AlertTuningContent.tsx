@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -86,7 +86,7 @@ function CandidateCard({
 }
 
 export function AlertTuningContent() {
-  const canMutateEnterpriseShell = useEnterpriseMutationCapability();
+  const canMutateEnterpriseShell = useOperateCapability();
   const [ruleKind, setRuleKind] = useState<"Simple" | "Composite">("Simple");
   const [ruleType, setRuleType] = useState("CostIncreasePercent");
   const [tunedMetricComposite, setTunedMetricComposite] = useState("CostIncreasePercent");

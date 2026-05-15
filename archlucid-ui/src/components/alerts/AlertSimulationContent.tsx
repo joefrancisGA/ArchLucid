@@ -5,7 +5,7 @@ import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsCont
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import {
   alertSimulationCurrentBehaviorHeadingOperator,
@@ -136,7 +136,7 @@ function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
 }
 
 export function AlertSimulationContent() {
-  const canMutateEnterpriseShell = useEnterpriseMutationCapability();
+  const canMutateEnterpriseShell = useOperateCapability();
   const [tab, setTab] = useState<Tab>("simple");
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);

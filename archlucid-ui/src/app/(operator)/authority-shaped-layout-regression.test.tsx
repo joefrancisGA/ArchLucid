@@ -1,6 +1,6 @@
 /**
  * Page-level **authority-shaped layout** regression: ordering and visual hierarchy that should stay tied to
- * `useEnterpriseMutationCapability()` (Execute+ floor) and inspect-first patterns — not copy wording.
+ * `useOperateCapability()` (Execute+ floor) and inspect-first patterns — not copy wording.
  *
  * **UI shaping only:** these assertions do not prove authorization; **ArchLucid.Api** `[Authorize]` remains
  * authoritative for POST/toggle. See **docs/PRODUCT_PACKAGING.md** §3 *Four UI shaping surfaces* and *Contributor drift guard*.
@@ -14,8 +14,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mutateCapability = vi.hoisted(() => ({ current: false }));
 
-vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
-  useEnterpriseMutationCapability: (): boolean => mutateCapability.current,
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: (): boolean => mutateCapability.current,
 }));
 
 // Pages migrated to `useNavSurface()` resolve `mutationCapability` through

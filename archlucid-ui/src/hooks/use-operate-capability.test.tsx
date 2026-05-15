@@ -10,9 +10,9 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => navCallerAuthorityRank.current,
 }));
 
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 
-describe("useEnterpriseMutationCapability", () => {
+describe("useOperateCapability", () => {
   beforeEach(() => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
   });
@@ -24,24 +24,24 @@ describe("useEnterpriseMutationCapability", () => {
   it("is false when nav rank is Read (same threshold as Enterprise soft-disable)", () => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
 
-    const { result } = renderHook(() => useEnterpriseMutationCapability());
+    const { result } = renderHook(() => useOperateCapability());
 
     expect(result.current).toBe(false);
   });
 
   it("is true when nav rank is Execute or Admin", () => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.ExecuteAuthority;
-    expect(renderHook(() => useEnterpriseMutationCapability()).result.current).toBe(true);
+    expect(renderHook(() => useOperateCapability()).result.current).toBe(true);
 
     navCallerAuthorityRank.current = AUTHORITY_RANK.AdminAuthority;
-    expect(renderHook(() => useEnterpriseMutationCapability()).result.current).toBe(true);
+    expect(renderHook(() => useOperateCapability()).result.current).toBe(true);
   });
 
   /** Aligns with `LayerHeader` Enterprise rank cue: sub-Read numeric rank stays non-mutating (conservative shell). */
   it("is false when nav rank is below Read policy floor (e.g. unset 0)", () => {
     navCallerAuthorityRank.current = 0;
 
-    const { result } = renderHook(() => useEnterpriseMutationCapability());
+    const { result } = renderHook(() => useOperateCapability());
 
     expect(result.current).toBe(false);
   });

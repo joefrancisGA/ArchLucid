@@ -5,7 +5,7 @@ import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsCont
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -49,7 +49,7 @@ function isWebhookChannelType(channelType: string): boolean {
 }
 
 export function AlertRoutingContent() {
-  const canMutateRouting = useEnterpriseMutationCapability();
+  const canMutateRouting = useOperateCapability();
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
   const [attemptsBySub, setAttemptsBySub] = useState<Record<string, AlertRoutingDeliveryAttempt[]>>({});
   const [loading, setLoading] = useState(false);

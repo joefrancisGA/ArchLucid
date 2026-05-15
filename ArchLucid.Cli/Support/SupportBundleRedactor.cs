@@ -14,6 +14,7 @@ public static class SupportBundleRedactor
         "strip-authorization-bearer-secret",
         "strip-x-api-key-header-secret",
         "mask-connection-keyword-secrets",
+        "mask-email-addresses",
         "mask-jwt-like-tokens",
         "mask-json-escaped-jwt-strings",
         "mask-openai-sk-shaped-keys",
@@ -32,6 +33,10 @@ public static class SupportBundleRedactor
 
     private static readonly Regex ConnectionSecret = new(
         @"(?i)(\b(?:Password|Pwd|AccountKey|SharedAccessKey)\s*=\s*)[^\s;""]+",
+        RegexOptions.Compiled);
+
+    private static readonly Regex EmailAddress = new(
+        @"(?<![\w.+_-])([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?![\w.+_-])",
         RegexOptions.Compiled);
 
     /// <summary>
@@ -166,6 +171,7 @@ public static class SupportBundleRedactor
         string s = BearerHeader.Replace(text, m => m.Groups[1].Value + "[REDACTED]");
         s = ApiKeyHeader.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
         s = ConnectionSecret.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
+        s = EmailAddress.Replace(s, "[REDACTED_EMAIL]");
         s = JwtEmbeddedInJsonEscapedUnicodeQuotes.Replace(s, @"\\u0022[REDACTED_JWT]\\u0022");
         s = JwtLikeToken.Replace(s, "[REDACTED_JWT]");
         s = OpenAiSkKey.Replace(s, "[REDACTED_API_KEY]");

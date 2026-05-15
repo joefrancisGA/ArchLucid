@@ -451,6 +451,19 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
       return { keys: [] as unknown[] } as unknown;
     }
 
+    if (pathname.includes("llm-monthly-dollar-budget-status")) {
+      return {
+        monthlyBudgetMonitoringActive: false,
+        blocksAdditionalLlmExecution: false,
+        utcMonth: "2026-05",
+        hardCutoffUsdPerUtcMonth: null,
+        effectiveHardCapUsd: null,
+        purchasedCapBumpUsd: null,
+        estimatedUsdPressure: null,
+        assumedNextCallReservationUsd: null,
+      } as unknown;
+    }
+
     if (pathname.includes("support-bundle")) {
       return { requestId: "mock" } as unknown;
     }

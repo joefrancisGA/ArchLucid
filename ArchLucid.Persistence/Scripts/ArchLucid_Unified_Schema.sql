@@ -3399,7 +3399,7 @@ BEGIN
         TrialRunsLimit     INT              NULL,
         TrialRunsUsed      INT              NOT NULL CONSTRAINT DF_Tenants_TrialRunsUsed DEFAULT 0,
         TrialSeatsLimit    INT              NULL,
-        TrialSeatsUsed     INT              NOT NULL CONSTRAINT DF_Tenants_TrialSeatsUsed DEFAULT 1,
+        TrialSeatsUsed     INT              NOT NULL CONSTRAINT DF_Tenants_TrialSeatsUsed DEFAULT 0,
         TrialStatus        NVARCHAR(32)     NULL,
         TrialSampleRunId   UNIQUEIDENTIFIER NULL;
 END;

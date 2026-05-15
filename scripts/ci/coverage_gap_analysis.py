@@ -114,6 +114,21 @@ def _resolve_cobertura(repo: Path, cobertura_arg: str | None) -> Path:
     return default.resolve()
 
 
+def _rel_path_for_doc(repo: Path, filepath: str) -> Path:
+    """Prefer repo-relative paths; strip legacy clone prefixes (e.g. pre-rename `ArchiForge`)."""
+    p = Path(filepath.strip())
+    try:
+        return p.relative_to(repo)
+    except ValueError:
+        pass
+    normalized = filepath.replace("\\", "/")
+    idx = normalized.find("/ArchLucid.")
+    if idx >= 0:
+        tail = normalized[idx + 1 :]
+        return Path(tail.replace("/", "\\"))
+    return p
+
+
 def _dataset_note_text(cobertura: Path, repo: Path) -> str:
     """UTC mtime and path so readers can detect stale merges vs narrative bullets."""
     rel = cobertura
@@ -215,13 +230,6 @@ def main() -> int:
         ]
     )
 
-    def _rel_path(filepath: str) -> Path:
-        p = Path(filepath.strip())
-        try:
-            return p.relative_to(repo)
-        except ValueError:
-            return Path(filepath)
-
     for name, lr, total_lines, class_rows in packages:
         out_lines.append(f"### {name} ({lr * 100.0:.2f}% line coverage)")
         out_lines.append("")
@@ -234,7 +242,7 @@ def main() -> int:
         out_lines.append("| Rank | Class | File | Uncovered line entries |")
         out_lines.append("|------|-------|------|------------------------|")
         for i, (cls, path, n) in enumerate(ranked, start=1):
-            rel = _rel_path(path)
+            rel = _rel_path_for_doc(repo, path)
             out_lines.append(f"| {i} | `{cls}` | `{rel}` | {n} |")
         out_lines.append("")
 

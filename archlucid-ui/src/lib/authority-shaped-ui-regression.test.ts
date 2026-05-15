@@ -17,7 +17,7 @@ import {
   operatorNavOutsideProviderPrincipal,
   shellBootstrapReadPrincipal,
 } from "@/lib/current-principal";
-import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
+import { operateCapabilityFromRank } from "@/lib/operate-capability";
 import { NAV_GROUPS, type NavLinkItem } from "@/lib/nav-config";
 import {
   AUTHORITY_RANK,
@@ -32,7 +32,7 @@ function allCatalogNavLinks(): NavLinkItem[] {
 describe("authority-shaped UI regression", () => {
   /**
    * Every real **`nav-config`** row tagged **`ExecuteAuthority`** must stay off the Read-tier shell and on from Execute
-   * upward — otherwise nav and **`useEnterpriseMutationCapability()`** tell different stories for the same rank.
+   * upward — otherwise nav and **`useOperateCapability()`** tell different stories for the same rank.
    */
   it("keeps every catalog ExecuteAuthority nav link off at Read rank and on at Execute rank", () => {
     const executeLinks = allCatalogNavLinks().filter((l) => l.requiredAuthority === "ExecuteAuthority");
@@ -46,11 +46,11 @@ describe("authority-shaped UI regression", () => {
   });
 
   /** Same numeric boundary as **`navLinkVisibleForCallerRank`** for **`ExecuteAuthority`** links (floor = 2). */
-  it("flips enterpriseMutationCapabilityFromRank only at ExecuteAuthority and above", () => {
-    expect(enterpriseMutationCapabilityFromRank(0)).toBe(false);
-    expect(enterpriseMutationCapabilityFromRank(AUTHORITY_RANK.ReadAuthority)).toBe(false);
-    expect(enterpriseMutationCapabilityFromRank(AUTHORITY_RANK.ExecuteAuthority)).toBe(true);
-    expect(enterpriseMutationCapabilityFromRank(AUTHORITY_RANK.AdminAuthority)).toBe(true);
+  it("flips operateCapabilityFromRank only at ExecuteAuthority and above", () => {
+    expect(operateCapabilityFromRank(0)).toBe(false);
+    expect(operateCapabilityFromRank(AUTHORITY_RANK.ReadAuthority)).toBe(false);
+    expect(operateCapabilityFromRank(AUTHORITY_RANK.ExecuteAuthority)).toBe(true);
+    expect(operateCapabilityFromRank(AUTHORITY_RANK.AdminAuthority)).toBe(true);
   });
 
   /**
@@ -66,14 +66,14 @@ describe("authority-shaped UI regression", () => {
    * Shell defaults used before **`OperatorNavAuthorityProvider`** settles: bootstrap stays read/non-mutating; test-only
    * outside-provider principal stays operator-shaped for isolated renders.
    */
-  it("keeps synthetic shell principals aligned with enterpriseMutationCapabilityFromRank", () => {
+  it("keeps synthetic shell principals aligned with operateCapabilityFromRank", () => {
     expect(
-      enterpriseMutationCapabilityFromRank(shellBootstrapReadPrincipal.authorityRank) ===
+      operateCapabilityFromRank(shellBootstrapReadPrincipal.authorityRank) ===
         shellBootstrapReadPrincipal.hasEnterpriseOperatorSurfaces,
     ).toBe(true);
 
     expect(
-      enterpriseMutationCapabilityFromRank(operatorNavOutsideProviderPrincipal.authorityRank) ===
+      operateCapabilityFromRank(operatorNavOutsideProviderPrincipal.authorityRank) ===
         operatorNavOutsideProviderPrincipal.hasEnterpriseOperatorSurfaces,
     ).toBe(true);
   });

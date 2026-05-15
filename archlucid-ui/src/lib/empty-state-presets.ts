@@ -12,11 +12,10 @@ export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
   title: "No architecture runs yet",
   description:
-    "Core Pilot path: create an architecture review request, let the pipeline finish, finalize when ready, then open your review package. You can start here, use Getting started, or submit via the CLI or API.",
+    "Core Pilot path: create an architecture review request, let the pipeline finish, finalize when ready, then open your review package. You can start here, open the onboarding checklist, or submit via the CLI or API.",
   actions: [
     { label: "Create request", href: "/reviews/new" },
-    { label: "Getting started", href: "/getting-started", variant: "outline" },
-    { label: "Onboarding", href: "/onboarding", variant: "outline" },
+    { label: "Onboarding checklist", href: "/onboarding", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
 };
@@ -40,7 +39,7 @@ export const GRAPH_IDLE: EmptyStateProps = {
     "Pick a committed review above, keep Review trail selected, then choose Load graph. If the list is empty, start from reviews or Core Pilot: create a request, finish the pipeline, then return here.",
   actions: [
     { label: "View reviews list", href: "/reviews?projectId=default" },
-    { label: "Getting started", href: "/getting-started", variant: "outline" },
+    { label: "Onboarding checklist", href: "/onboarding", variant: "outline" },
   ],
 };
 

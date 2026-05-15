@@ -1,7 +1,7 @@
 /**
  * Sanity checks for webhook settings UX wiring (validators + mocked alert-routing adapters).
  *
- * `@/components/WebhooksSettingsClient` depends on **`useEnterpriseMutationCapability`** and **`useNavCallerAuthorityRank`**;
+ * `@/components/WebhooksSettingsClient` depends on **`useOperateCapability`** and **`useNavCallerAuthorityRank`**;
  * we stub both so renders stay deterministic offline.
  */
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -14,8 +14,8 @@ const apiMocks = vi.hoisted(() => ({
   toggle: vi.fn(),
 }));
 
-vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
-  useEnterpriseMutationCapability: () => true,
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
 }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({

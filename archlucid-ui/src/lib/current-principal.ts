@@ -20,22 +20,22 @@
  *
  * **`OperatorNavAuthorityProvider`** exposes the same rank to **`useNavCallerAuthorityRank()`**, which feeds
  * **`filterNavLinksForOperatorShell`** / **`listNavGroupsVisibleInOperatorShell`** (`nav-shell-visibility.ts`) alongside
- * **`useNavCommittedArchitectureReview()`**, and **`useEnterpriseMutationCapability()`** (Execute+ floor in **`enterprise-mutation-capability.ts`**). Page-level **layout**
+ * **`useNavCommittedArchitectureReview()`**, and **`useOperateCapability()`** (Execute+ floor in **`operate-capability.ts`**). Page-level **layout**
  * (inspect-first columns when mutation is off) also keys off that hook on some routes — see **`authority-shaped-layout-regression.test.tsx`**.
  * **`LayerHeader`**
  * Enterprise rank cue uses the **same numeric Execute boundary** for in-strip copy (**not** tier disclosure — that stays in
- * **`nav-shell-visibility.ts`**). Some routes also read **`useEnterpriseMutationCapability()`** for paragraphs that are not
+ * **`nav-shell-visibility.ts`**). Some routes also read **`useOperateCapability()`** for paragraphs that are not
  * the rank cue (e.g. governance resolution **Change related controls** supplement — same policies story, **second hook**;
- * **`enterprise-authority-ui-shaping.test.tsx`**). Packaging enumeration: **docs/PRODUCT_PACKAGING.md** §3 *Four UI shaping surfaces*.
+ * **`enterprise-authority-ui-shaping.test.tsx`**). Packaging enumeration: **docs/PRODUCT_PACKAGING.md** §3 *Two UI shaping surfaces*.
  * **`hasEnterpriseOperatorSurfaces`**
- * uses that **same Execute floor** as **`enterpriseMutationCapabilityFromRank(authorityRank)`** — do not diverge (guarded in
+ * uses that **same Execute floor** as **`operateCapabilityFromRank(authorityRank)`** — do not diverge (guarded in
  * **`current-principal.test.ts`**). **Progressive disclosure** (`nav-tier`) is **not** applied here; it runs only in
  * **`nav-shell-visibility.ts`** before **`filterNavLinksByAuthority`**. Drift between consumers breaks the story in
  * **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* read-model + *Contributor drift guard*).
  * **Stage 1 framing (not entitlements):** **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4 maps buyer “role clarity” to these modules — same read-model, no licensing.
  *
  * **Route-local exception (still API-authoritative):** audit **CSV export** enablement on **`/audit`** uses raw
- * **`roleClaimValues`** (**Auditor** / **Admin**) to mirror **`RequireAuditor`** — not **`useEnterpriseMutationCapability()`**
+ * **`roleClaimValues`** (**Auditor** / **Admin**) to mirror **`RequireAuditor`** — not **`useOperateCapability()`**
  * and not **`LayerHeader`** rank lines. Do not “fix” export gating by moving it to **`authorityRank`** without an explicit product decision.
  *
  * ## Role → policy normalization (UX only; server enforces policies)
@@ -65,7 +65,7 @@
  * **Cross-module tests:** `authority-seam-regression.test.ts` exercises `normalizeAuthMeResponse` together with
  * nav visibility and mutation rank; **`authority-shaped-ui-regression.test.ts`** guards real **`NAV_GROUPS`**
  * **`ExecuteAuthority`** rows vs Read/Execute ranks and synthetic shell principals; **`authority-execute-floor-regression.test.ts`** locks **`navLinkVisibleForCallerRank`**
- * for a synthetic **`ExecuteAuthority`** link to the **same boolean** as **`enterpriseMutationCapabilityFromRank`** (prevents
+ * for a synthetic **`ExecuteAuthority`** link to the **same boolean** as **`operateCapabilityFromRank`** (prevents
  * nav/mutation threshold drift without re-reading full cross-module suite); **`OperatorNavAuthorityProvider.test.tsx`** locks conservative **`useNavCallerAuthorityRank`**
  * during JWT **`/me`** refetch; unit coverage remains in `current-principal.test.ts`. Rank-gated Enterprise copy
  * components: **`EnterpriseControlsContextHints.authority.test.tsx`** (same rank as nav / mutation). Page-level mutation

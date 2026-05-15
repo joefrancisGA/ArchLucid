@@ -13,7 +13,7 @@ type LineagePhase = "loading" | "ready" | "error";
 export type GovernanceQuickApproveButtonProps = {
   approvalRequestId: string;
   status: string;
-  /** ExecuteAuthority floor — same as `useEnterpriseMutationCapability()`. */
+  /** ExecuteAuthority floor — same as `useOperateCapability()`. */
   canExecute: boolean;
   /** Optional display name; API falls back to authenticated actor when empty. */
   reviewedBy: string;

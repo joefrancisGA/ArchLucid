@@ -9,6 +9,11 @@ export type WizardNavButtonsProps = {
   submitting?: boolean;
   /** When false, primary (Next / Submit) is disabled. Defaults to true. */
   canProceed?: boolean;
+  /**
+   * When set, controls Submit disabled state on the last step only (Next still uses `canProceed`).
+   * Defaults to `canSubmit ?? canProceed` when omitted.
+   */
+  canSubmit?: boolean;
   isFirstStep?: boolean;
   /** When true, primary action is Submit instead of Next. */
   isLastInputStep?: boolean;
@@ -32,6 +37,7 @@ export function WizardNavButtons({
   onSubmit,
   submitting = false,
   canProceed = true,
+  canSubmit,
   isFirstStep = false,
   isLastInputStep = false,
   nextLabel = "Next",
@@ -41,7 +47,9 @@ export function WizardNavButtons({
   submittingLabel = "Submitting…",
 }: WizardNavButtonsProps) {
   const showBack = Boolean(onBack) && !isFirstStep;
-  const primaryDisabled = !canProceed || submitting;
+  const effectiveCanSubmit = canSubmit ?? canProceed;
+  const nextDisabled = !canProceed || submitting;
+  const submitDisabled = !effectiveCanSubmit || submitting;
   const showSubmit = Boolean(onSubmit) && isLastInputStep;
   const showNext = Boolean(onNext) && !isLastInputStep;
   const showSaveDraft = Boolean(onSaveDraft);
@@ -62,12 +70,12 @@ export function WizardNavButtons({
           </Button>
         ) : null}
         {showSubmit ? (
-          <Button type="button" variant="primary" disabled={primaryDisabled} onClick={onSubmit}>
+          <Button type="button" variant="primary" disabled={submitDisabled} onClick={onSubmit}>
             {submitting ? submittingLabel : submitLabel}
           </Button>
         ) : null}
         {showNext ? (
-          <Button type="button" variant="primary" disabled={primaryDisabled} onClick={onNext}>
+          <Button type="button" variant="primary" disabled={nextDisabled} onClick={onNext}>
             {nextLabel}
           </Button>
         ) : null}

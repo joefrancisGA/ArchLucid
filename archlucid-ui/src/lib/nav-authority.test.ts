@@ -24,7 +24,7 @@ describe("nav-authority", () => {
     expect(navLinkVisibleForCallerRank(corePilotLink, 1)).toBe(true);
   });
 
-  /** Same numeric floor as `enterpriseMutationCapabilityFromRank` and `LayerHeader` Enterprise rank cue. */
+  /** Same numeric floor as `operateCapabilityFromRank` and `LayerHeader` Enterprise rank cue. */
   it("flips Execute-tier link visibility at caller rank ExecuteAuthority (not below)", () => {
     const link = {
       href: "/governance",

@@ -6,7 +6,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { getExecDigestPreferences, saveExecDigestPreferences } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -27,7 +27,7 @@ const dayNames: string[] = [
  * Schedule tab: weekly executive digest email preferences (Read view; save requires operator rank / mutation hook).
  */
 export function ExecDigestScheduleContent() {
-  const canMutate: boolean = useEnterpriseMutationCapability();
+  const canMutate: boolean = useOperateCapability();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);

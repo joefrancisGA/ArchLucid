@@ -5,7 +5,7 @@ import { enterpriseNavHintOperatorRank } from "@/lib/enterprise-controls-context
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { OPERATOR_SHELL_PRESET_STORAGE_KEY } from "@/lib/operator-nav-preset";
 
-import { ShellNav } from "./ShellNav";
+import { SidebarNav } from "./SidebarNav";
 
 vi.mock("next/navigation", () => ({
   usePathname: (): string => "/",
@@ -30,7 +30,7 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-describe("ShellNav (sidebar re-export — primary navigation)", () => {
+describe("SidebarNav (primary navigation)", () => {
   beforeEach(() => {
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
 
@@ -46,7 +46,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   it(
     "shows compact Review work group by default; sidebar layout can reveal extended Analysis links",
     () => {
-      render(<ShellNav />);
+      render(<SidebarNav />);
 
       const nav = screen.getByRole("navigation", { name: "Review work" });
       expect(nav).toBeInTheDocument();
@@ -98,7 +98,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   it(
     "exposes Analysis and Governance group navigations when sections are expanded",
     () => {
-      render(<ShellNav />);
+      render(<SidebarNav />);
 
       fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
       fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
@@ -135,7 +135,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   );
 
   it("does not show a footer keyboard-shortcut hint in the sidebar", () => {
-    render(<ShellNav />);
+    render(<SidebarNav />);
 
     expect(screen.queryByText("Press Shift+? for help and keyboard shortcuts")).toBeNull();
   });

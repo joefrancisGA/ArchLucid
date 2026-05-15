@@ -35,7 +35,7 @@ import {
   governanceWorkflowPageLeadReader,
   governanceWorkflowOutcomeBannerLine,
 } from "@/lib/enterprise-controls-context-copy";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
@@ -63,7 +63,7 @@ import {
 
 export function GovernanceWorkflowPageContent() {
   const searchParams = useSearchParams();
-  const canMutateWorkflow = useEnterpriseMutationCapability();
+  const canMutateWorkflow = useOperateCapability();
   const [toast, setToast] = useState<GovernanceWorkflowToastState>(null);
   const isStaticDemoFallbackActiveForShowcase =
     isStaticDemoPayloadFallbackEnabled() ||

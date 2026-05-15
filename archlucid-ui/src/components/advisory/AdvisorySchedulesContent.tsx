@@ -6,7 +6,7 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -41,7 +41,7 @@ const inputClass =
  * Schedules tab: CRUD and history for scan windows (Execute-class mutations; inspect-only for Read — former `/advisory-scheduling`).
  */
 export function AdvisorySchedulesContent() {
-  const canMutateSchedules: boolean = useEnterpriseMutationCapability();
+  const canMutateSchedules: boolean = useOperateCapability();
   const [schedules, setSchedules] = useState<AdvisoryScanSchedule[]>([]);
   const [executionsBySchedule, setExecutionsBySchedule] = useState<Record<string, AdvisoryScanExecution[]>>(
     {},

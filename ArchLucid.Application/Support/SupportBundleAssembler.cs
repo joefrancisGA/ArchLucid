@@ -115,7 +115,8 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
                 new { file = ReferencesFileName, why = "Doc links and correlation hints." }
             },
             notes = "Server-assembled bundle. Sensitive env-var values appear only as (set)/(not set); " +
-                    "bearer tokens, X-Api-Key headers, and connection-string passwords are replaced with [REDACTED]."
+                    "bearer tokens, X-Api-Key headers, connection-string passwords, and email-shaped tokens are replaced " +
+                    "([REDACTED] / [REDACTED_EMAIL])."
         };
     }
 
@@ -197,8 +198,8 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         body.AppendLine();
         body.AppendLine("Redaction");
         body.AppendLine("---------");
-        body.AppendLine("Bearer tokens, X-Api-Key headers, and password-shaped key=value pairs are replaced");
-        body.AppendLine("with [REDACTED] before the bundle is written. Environment variables whose names");
+        body.AppendLine("Bearer tokens, X-Api-Key headers, password-shaped key=value pairs, and email addresses are");
+        body.AppendLine("replaced with [REDACTED] / [REDACTED_EMAIL] before the bundle is written. Environment variables whose names");
         body.AppendLine("look like secrets show (set)/(not set) only.");
         body.AppendLine();
         body.AppendLine("Open ticket / next steps");
@@ -206,7 +207,7 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         body.Append(SupportBundleNextStepsDocument.AdvisoryDisclaimer);
         body.AppendLine(" Attach this ZIP to a support ticket.");
         body.AppendLine("Pre-forward checklist (Resolved 2026-05-03): review every file for sensitive context;");
-        body.AppendLine("bundles already redact bearer tokens, Api-Key headers, password-shaped lines, and");
+        body.AppendLine("bundles already redact bearer tokens, Api-Key headers, password-shaped lines, jwt-like tokens, emails, and");
         body.AppendLine("mask secret-shaped env vars. Include tenant-identifying or contact data with external");
         body.AppendLine("support only when you explicitly intend that disclosure (requires ExecuteAuthority to download).");
         return body.ToString();

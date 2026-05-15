@@ -4,12 +4,14 @@ import { useRouter } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createArchitectureRun } from "@/lib/api";
 import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { showError, showSuccess } from "@/lib/toast";
@@ -83,6 +85,7 @@ export type QuickReviewWizardProps = {
  */
 export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const { onRunCreatedNavigate } = props;
+  const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [briefText, setBriefText] = useState("");
@@ -143,6 +146,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       return;
     }
 
+    if (blocksLlmExecution) {
+      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous runs.");
+
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -179,6 +188,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4 pb-36">
+      {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
       <div className="space-y-1" data-testid="quick-review-progress">
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
           Quick review — step {step + 1} of {QUICK_REVIEW_STEPS.length}: {QUICK_REVIEW_STEPS[step].label}
@@ -295,7 +305,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
             onClick={() => {
               void submitRun();
             }}
-            disabled={submitting}
+            disabled={submitting || blocksLlmExecution}
             data-testid="quick-review-start"
           >
             Start Architecture Review

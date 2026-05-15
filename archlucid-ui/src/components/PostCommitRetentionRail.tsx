@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, type ReactElement } from "react";
 
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -39,7 +39,7 @@ export function PostCommitRetentionRail({
   buyerShowcaseQuickLinks = false,
   goldenManifestId = null,
 }: PostCommitRetentionRailProps): ReactElement {
-  const canMutate: boolean = useEnterpriseMutationCapability();
+  const canMutate: boolean = useOperateCapability();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [nextCycleDialogOpen, setNextCycleDialogOpen] = useState(false);
   const showcaseSpine =

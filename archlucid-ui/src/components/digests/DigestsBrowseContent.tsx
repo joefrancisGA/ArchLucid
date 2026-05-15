@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   digestsHistoryHeadingOperator,
   digestsHistoryHeadingReader,
@@ -26,7 +26,7 @@ import type { DigestDeliveryAttempt } from "@/types/digest-subscriptions";
  * Browse tab: architecture digest list and detail (former standalone `/digests` page body).
  */
 export function DigestsBrowseContent() {
-  const canMutateEnterpriseShell = useEnterpriseMutationCapability();
+  const canMutateEnterpriseShell = useOperateCapability();
   const [digests, setDigests] = useState<ArchitectureDigest[]>([]);
   const [selected, setSelected] = useState<ArchitectureDigest | null>(null);
   const [deliveryAttempts, setDeliveryAttempts] = useState<DigestDeliveryAttempt[]>([]);
