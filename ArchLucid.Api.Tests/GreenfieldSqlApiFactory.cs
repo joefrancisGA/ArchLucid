@@ -85,12 +85,10 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
                 ["RateLimiting:Registration:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:WindowMinutes"] = "1",
                 ["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "300",
-                // Cold CI can run the full inline authority pipeline for minutes after a long idempotency wait; keep this
-                // above default (5 minutes) so the server does not cancel pipeline work while SqlClient.Timeout still applies.
-                ["AuthorityPipeline:PipelineTimeout"] = "00:30:00",
-                // Parallel idempotency tests: losers wait on sp_getapplock while the winner runs the full authority
-                // pipeline. Wait budget must exceed AuthorityPipeline:PipelineTimeout (30m here) plus cold-SQL slack.
-                ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "2520000",
+                // Simulator runs finish quickly; cap budgets so parallel SQL idempotency bursts cannot stall CI near blame-hang.
+                ["AuthorityPipeline:PipelineTimeout"] = "00:20:00",
+                // Losers wait on sp_getapplock while the winner runs the authority pipeline — must exceed PipelineTimeout.
+                ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "1500000",
                 // appsettings.Advanced.json sets 120s; that blocks DataConsistency readiness on Combined hosts until the first reconciliation.
                 ["DataConsistency:InitialDelaySeconds"] = "0",
                 // Http-only URL list disables HTTPS redirection middleware for in-memory TestServer (avoids redirect handler + long POST interaction quirks in CI).
@@ -104,8 +102,8 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
     {
         base.ConfigureClient(client);
 
-        // Worst wall clock for one POST: up to DistributedIdempotencyLockTimeout (below) + AuthorityPipeline pipeline (30 min).
-        client.Timeout = TimeSpan.FromMinutes(65);
+        // Worst wall clock for one POST: applock wait budget (~25m) + pipeline ceiling (~20m) — stay aligned with settings above.
+        client.Timeout = TimeSpan.FromMinutes(28);
     }
 
     /// <inheritdoc />

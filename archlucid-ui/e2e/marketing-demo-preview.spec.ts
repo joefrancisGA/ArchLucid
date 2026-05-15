@@ -11,9 +11,14 @@ test.describe("marketing-demo-preview", () => {
     });
 
     await expect(page.getByRole("heading", { name: "Manifest summary" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Review trail" })).toBeVisible();
+    // Default marketing chrome uses buyer-safe copy ("Review lifecycle timeline"); tooling/tests may use "Review trail".
+    await expect(page.getByRole("heading", { name: /^(Review lifecycle timeline|Review trail)$/ })).toBeVisible();
     await expect(page.locator('[data-testid="demo-preview-review-trail"]')).toBeVisible();
-    await expect(page.getByText("Primary finding").first()).toBeVisible();
+
+    const outcomeStrip = page.getByRole("region", { name: "Open completed output" });
+    await expect(outcomeStrip).toBeVisible();
+    await expect(outcomeStrip.getByText(/1 · Architecture review/)).toBeVisible();
+    await expect(outcomeStrip.getByText(/2 · Signed manifest/)).toBeVisible();
 
     const signup = page.locator('[data-testid="demo-preview-cta-signup"]');
 

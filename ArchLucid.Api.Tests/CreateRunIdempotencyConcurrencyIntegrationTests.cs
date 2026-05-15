@@ -20,6 +20,11 @@ namespace ArchLucid.Api.Tests;
 [Collection("ArchLucidEnvMutation")]
 public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 {
+    /// <summary>
+    ///     Fails under <see cref="GreenfieldSqlApiFactory" /> HTTP + applock ceilings (~28 minutes/post) before CI blame-hang.
+    /// </summary>
+    private static readonly TimeSpan ParallelCreateRunHangGuard = TimeSpan.FromMinutes(45);
+
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "
         + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
@@ -43,6 +48,10 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
     {
         Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
+        using CancellationTokenSource hangGuard = new();
+        hangGuard.CancelAfter(ParallelCreateRunHangGuard);
+        CancellationToken ct = hangGuard.Token;
+
         await using GreenfieldSqlApiFactory factory = new();
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
@@ -60,7 +69,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
                 parallel,
                 10,
                 500,
-                CancellationToken.None);
+                ct);
 
         responses = await ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync(
             client,
@@ -68,7 +77,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
             idempotencyKey,
             responses,
             25,
-            CancellationToken.None);
+            ct);
 
         try
         {
@@ -93,9 +102,9 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         }
 
         await using SqlConnection connection = new(factory.SqlConnectionString);
-        await connection.OpenAsync(CancellationToken.None);
+        await connection.OpenAsync(ct);
 
-        int authorityRunCount = await CountRunsWithRequestIdAsync(connection, requestId, CancellationToken.None);
+        int authorityRunCount = await CountRunsWithRequestIdAsync(connection, requestId, ct);
         authorityRunCount.Should().Be(1);
     }
 

@@ -96,8 +96,77 @@ When you want **named themes** and **improvement plans** in the 59R tables (for 
 - **Deterministic:** same scoped inputs produce the same derivation and priority ordering; existing theme keys are skipped (idempotent).
 - **Evidence:** new plans link **pilot feedback signals** only (capped per plan) — not automatic “prove it” links to every architecture run.
 - **Still no auto-adaptation:** this path does **not** change prompts, rule packs, agents, or governance — same rule as §1.
+- **Operator shell (V1 GA):** **`PlanningBridgePanel`** on **`/product-learning`** — see **§4.2**.
 
-Read/list/report for themes and plans live under **`GET /v1/learning/*`** (59R); see OpenAPI at **`GET /openapi/v1.json`**.
+---
+
+## 4.2 Planning bridge — in-shell UX (**V1 GA**)
+
+Canonical product/requirements spec for improvement **#16** in weighted assessments (**P7** answered **2026-05-15**). Supersedes “wait for external Figma” for V1 — **ASCII wireframes** and **behavioral acceptance** live here; optional Figma polish is non-blocking.
+
+#### Objective
+
+Give operators with **ExecuteAuthority** a **first-class, honest** path inside the operator shell to turn **Pilot feedback** triage into **59R planning themes and plans** without dropping to raw API calls, while preserving **determinism**, **idempotency**, and **no auto-mutation** of prompts, agents, or governance (**§4.1**, **§1**).
+
+#### Assumptions
+
+- **`POST /v1/learning/planning/materialize`** and **`ProductLearningPlanningMaterializeResult`** remain the **only** persistence path for V1 GA (no second “shadow” writer).
+- The **Pilot feedback** dashboard already loads **summary, opportunities, trends, triage** with a shared **`since`** filter (**§2**).
+- **`/planning`** remains a **read-only** aggregation view; the bridge **initiates** materialization from **`/product-learning`**, then routes the operator to **`/planning`** to inspect results (**`archlucid-ui`** `PlanningPageView` today).
+
+#### Constraints
+
+- **Authority:** **`ExecuteAuthority`** only — mirror controller policy (**`LearningController`**); hide or disable the bridge for lesser roles with **`OperatorShellMessage`** / tooltip explaining RBAC.
+- **Bounded workload:** Respect API clamps — **`maxPlansToMaterialize`** default **10**, max **50** (same as **`LearningPlanningQueryParser`**).
+- **No new persistence semantics:** Do **not** add prompts, agents, rule-pack mutations, or LLM calls in the bridge — UI is a thin orchestration over existing APIs.
+- **Backend surface (owner engineering judgment — V1 GA):** **Do not** add a **`planning/materialize/preview`** endpoint for V1 GA. **`ProductLearningPlanningMaterializeResult`** already returns **`ThemesInserted`**, **`PlansInserted`**, **`SkippedExistingThemeKeys`**, **`SignalLinksInserted`** — sufficient for success UX. Materialization is **idempotent** (existing **`ThemeKey`** rows are skipped); the UI must explain that **re-running** may show **zeros** or high **`SkippedExistingThemeKeys`**. Defer **`GET` preview / dry-run** to a later slice **only** if buyer-led usability testing proves insufficient signal from POST-only flows.
+
+#### Architecture overview
+
+Add a **`PlanningBridgePanel`** (name flexible) on **`/product-learning`** below **Top improvement opportunities** (or adjacent to **Export for triage** — choose one stable placement per implementation).
+
+The panel runs a **three-step** cognitive model:
+
+1. **Align scope** — inherit **`since`** from the dashboard time-range control (same semantics as **`GET /v1/product-learning/improvement-opportunities`**). Show read-only **opportunity count** from already-loaded client state **or** one lightweight **`GET`** if the dashboard store does not expose it — **do not** duplicate four-panel reload logic.
+2. **Confirm caps** — numeric **`maxPlansToMaterialize`** (default **10**, clamp **1–50**) with helper text referencing **§4.1** bounds.
+3. **Materialize** — **`POST /v1/learning/planning/materialize?since=…&maxPlansToMaterialize=…`**; render **`ProductLearningPlanningMaterializeResult`** as a **`role="status"`** summary; primary **Next** → **`/planning`** (deep link as today).
+
+#### Component breakdown (UI)
+
+| Concern | Direction |
+|---------|-----------|
+| **Layout** | Reuse **`OperatorShellMessage`**, **`OperatorApiProblem`**, existing button / input tokens from **`/product-learning`** sections. |
+| **State** | Client-side: `idle` \| `submitting` \| `success` \| `error`; reset `success` banner on **`since`** or cap change. |
+| **Copy** | Use **materialize** / **draft plans** language — avoid implying auto-backlog filing or Jira/ServiceNow sync. Cross-link **§4.1** behavior in a short **“What this does”** `<details>` or footnote. |
+| **Empty paths** | If **no opportunities** in scope, disable primary button; **`OperatorTryNext`** points at widening **time range** or capturing signals on findings. |
+| **Demo mode** | If **`PlanningPageView`** blocks demo (**59R requires live API**), the bridge panel must **also** hide or show the same demo-static **`OperatorDemoStaticBanner`** posture — never pretend materialize succeeded offline. |
+
+#### Data flow
+
+```text
+/product-learning (existing dashboard fetch(es))
+       │
+       ▼
+PlanningBridgePanel ──POST──► /v1/learning/planning/materialize
+       │                              │
+       │◄──── JSON ProductLearningPlanningMaterializeResult ────┘
+       ▼
+Success banner + link to /planning ──GET──► existing planning list loaders
+```
+
+Correlation IDs: propagate from **`OperatorApiProblem`** on **`4xx`/`5xx`** — same as other operator mutations.
+
+#### Security model
+
+- **RBAC:** UI gated by **`ExecuteAuthority`** claim/policy parity with **`LearningController.MaterializePlanningDrafts`** — **no** client-side-only obscurity.
+- **Tenant isolation:** Same **`x-tenant-id` / `x-workspace-id` / `x-project-id`** (or JWT-derived defaults) as other **`archlucid-ui`** operator calls — **no** cross-tenant preview.
+- **Audit:** Successful **`POST`** already emits **`ProductLearningPlanningMaterialized`** — UI does **not** need duplicate audit rows; optional **`learning.planning_materialize_clicked`** analytics event is implementation-choice (**must not** log secrets).
+
+#### Operational considerations
+
+- **Tests:** At minimum **Vitest** unit tests on query-string assembly + result formatting; **Playwright** happy-path optional when **`ui-e2e-live`** harness has **`ExecuteAuthority`** persona — align with **`release-smoke`** norms.
+- **Docs:** Keep OpenAPI (**`GET /openapi/v1.json`**) authoritative for parameter spelling; update **`API_CONTRACTS.md`** only if narrative drift appears.
+- **Rollout:** Feature-flag optional (**environment or appsettings**) — default **on** for production-like staging when **`LearningController`** route is enabled.
 
 ---
 
@@ -119,5 +188,6 @@ Read/list/report for themes and plans live under **`GET /v1/learning/*`** (59R);
 | [DATA_MODEL.md](DATA_MODEL.md) | `ProductLearningPilotSignals` table overview. |
 | [API_CONTRACTS.md](API_CONTRACTS.md) | General HTTP behavior, auth, correlation ID. |
 | [operator-shell.md](operator-shell.md) | Overall UI navigation patterns. |
+| **§4.2 (this doc)** | Planning bridge PRD — **`/product-learning`** → **`POST …/materialize`** → **`/planning`** (**V1 GA**). |
 
 **Tests:** Filter `ChangeSet=58R` or `FullyQualifiedName~ProductLearning` — see [TEST_STRUCTURE.md](TEST_STRUCTURE.md).

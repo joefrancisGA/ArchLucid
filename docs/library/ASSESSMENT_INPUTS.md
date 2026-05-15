@@ -23,3 +23,5 @@ Read these **before** grepping broadly or opening large code regions. For scorin
 **Outputs:** Write the latest pass to **[`docs/assessments/LATEST.md`](../assessments/LATEST.md)**. **Do not** add new dated multi-thousand-line files under `docs/library/` unless the team explicitly opts back in — archive under `docs/archive/assessments/` instead.
 
 **Historical assessments:** Indexed out of default agent context via `.cursorignore`; open explicitly when comparing scores over time.
+
+**`V1` assessment hygiene — third-party pen test:** Owner **2026-05-15** (**[`docs/assessments/LATEST.md`](../assessments/LATEST.md)** **P8**): **omit** recurring vendor/budget pen-test questionnaire prompts during **`(A)` V1** planning / execution; external pen test stays **`V2`** (`V1_DEFERRED.md` §6c). Procurement friction without a published assessor summary remains **`(B)` informational** only.

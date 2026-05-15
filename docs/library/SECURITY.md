@@ -36,6 +36,8 @@ Merge-blocking **Schemathesis light** runs on every PR after full .NET regressio
 
 **OIDC issuers beyond Entra (V1 GA):** **`JwtBearer`** accepts tokens from **configurable OIDC authorities** when **`ArchLucidAuth:Authority`** targets a standards-compliant issuer (discovery + JWKS). Claim mapping into **`ArchLucidRoles`** is operator-owned — capture buyer IdP shapes in procurement questionnaires (**[PROCUREMENT_FAQ.md](../go-to-market/PROCUREMENT_FAQ.md)**).
 
+**Native SAML 2.0 SP (V1 GA — owner 2026-05-15):** Workforce SSO via SAML **Service Provider** flows is **in product scope for V1 GA** alongside **`JwtBearer`** OIDC (**[V1_SCOPE.md](V1_SCOPE.md) §2.12**). Keys, bindings, metadata, and SAML assertion→principal→**`ArchLucidRoles`** mapping are documented when implementation merges; SAML-authenticated sessions must meet the **same RBAC and tenant isolation guarantees** as JWT bearer paths, with audit parity on sign-in outcomes.
+
 ## DevelopmentBypass production guard
 
 `ArchLucidAuth:Mode=DevelopmentBypass` is allowed only when **`IHostEnvironment.IsDevelopment()`** is **true** (see **`AuthSafetyGuard`**). **`Authentication:ApiKey:DevelopmentBypassAll=true`** is permitted only in that same **Development** host — it throws **`InvalidOperationException`** in **Staging**, **Production**, **Test**, and other non-Development environment names, even when **`ArchLucidAuth:Mode`** is **`JwtBearer`** or **`ApiKey`**.

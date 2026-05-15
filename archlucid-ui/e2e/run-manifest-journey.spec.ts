@@ -62,6 +62,10 @@ test.describe("operator journey — run detail to manifest and back", () => {
       }),
     ).toBeVisible();
 
+    // Buyer-polished run detail uses {@link BuyerDeliverablesArtifactTabs}; `FIXTURE_MANIFEST_ID` artifacts
+    // (`MarkdownNarrative` → other, `MermaidDiagram` → architects) both appear under the ARB tab only.
+    await page.getByRole("tab", { name: "Architecture review board artifacts" }).click();
+
     const deliverablesRegion = page.getByRole("region", { name: "Deliverables grouped by audience" });
 
     await expect(deliverablesRegion.getByRole("columnheader", { name: "Output" })).toHaveCount(2);

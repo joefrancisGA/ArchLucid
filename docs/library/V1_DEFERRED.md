@@ -148,11 +148,11 @@ These commercial milestones are **explicitly release-window-pinned to V1.1** so 
 
 ## 6d. Agent ecosystem / MCP — V1.1 candidates (scope documentation 2026-04-24)
 
-This section **promotes MCP from backlog-only text to the named V1.1 release window**, aligned with [V1_SCOPE.md §3](V1_SCOPE.md) and the engineering intent in [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md). It does **not** pin calendar dates; pinning dates still requires an owner entry in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+This section **promotes MCP from backlog-only text to the named V1.1 release window**, aligned with [V1_SCOPE.md §3](V1_SCOPE.md) and the engineering intent in [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md). **Tool count, transport, and allowlist are pinned** in that backlog **§5.1** (owner **2026-05-15**). This section does **not** pin calendar dates; pinning dates still requires an owner entry in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
 
 | MCP milestone | V1 posture | V1.1 commitment |
 |-----------------|------------|-----------------|
-| **Inbound MCP server (membrane)** — stdio and/or Streamable HTTP host process that registers **tenant-scoped, read-mostly** tools (`GetRunStatus`, manifest/provenance/governance summaries, artifact listing, audit slices, etc.) implemented as thin wrappers over **`ArchLucid.Application`** services; **SQL Server + RLS** remain authoritative; **typed audit** rows per tool class; **token / session caps** and **circuit breakers** consistent with existing LLM accounting patterns. | **Out of V1.** No MCP transport in the V1 shipping boundary; pilots and integrators use **REST**, **CLI**, and the **operator UI**. | **In scope for V1.1.** Minimum viable shape per [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) §5–§6 (façade projects, tool list, data-flow sketch). **Hard rule:** the authoritative solution **never** takes a compile-time dependency on MCP — the membrane is removable without changing business logic. |
+| **Inbound MCP server (membrane)** — **§5.1 pinned:** **Streamable HTTP** (production, private endpoint) with **seven** **read-only** tools (`GetRunStatus`, `GetManifestSummary`, `CompareRuns`, `GetProvenanceGraph`, `GetGovernanceStatus`, `ListArtifacts`, `GetAuditSlice`); optional **`stdio`** for local/self-hosted non-SLA harnesses only. Thin wrappers over **`ArchLucid.Application`**; **SQL Server + RLS** authoritative; **typed audit** per tool; **token / session caps** and **circuit breakers** per existing LLM accounting. | **Out of V1.** No MCP transport in the V1 shipping boundary; pilots and integrators use **REST**, **CLI**, and the **operator UI**. | **In scope for V1.1** at the **§5.1** freeze ([`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md)). **Hard rule:** the authoritative solution **never** takes a compile-time dependency on MCP — the membrane is removable without changing business logic. |
 | **Outbound MCP client (ArchLucid calls external tool servers)** | **Out of V1.** | **Out of V1.1** unless separately promoted — backlog default is **V2** with an explicit allowlist and approval-class mapping (see same backlog §5). |
 
 **Rules:**
@@ -204,17 +204,20 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ---
 
-## 6g. Identity — generic OIDC in **V1 GA** (owner **2026-05-09**)
+## 6g. Identity — generic OIDC **and native SAML SP** in **V1 GA** (OIDC owner **2026-05-09**; SAML owner **2026-05-15**)
 
 **Generic OIDC** workforce sign-in — **`ArchLucidAuth:Mode=JwtBearer`** with **`ArchLucidAuth:Authority`** pointed at a **non-Microsoft OIDC issuer** (standard discovery + JWKS validation; claim mapping to **`ArchLucidRoles`** per **[SECURITY.md](SECURITY.md)**) — is **in scope for V1 GA** per [V1_SCOPE.md §2.12](V1_SCOPE.md).
 
 **Supersedes:** procurement copy and assessments that described generic OIDC as **roadmap-only** or implied Entra was the **only** first-class workforce IdP.
 
-**Still not automatic V1 without separate promotion:** turnkey **per-vendor** admin wizards beyond configuration docs; **native SAML 2.0 SP** as a first-class sign-in path ([V1_SCOPE.md §3](V1_SCOPE.md) non-goals row).
+**Promoted to V1 GA (owner 2026-05-15):** **native SAML 2.0 Service Provider** workforce SSO — see [V1_SCOPE.md §2.12](V1_SCOPE.md).
+
+**Still not automatic V1 without separate promotion:** turnkey **per-vendor** admin wizards beyond configuration docs (beyond SAML SP / OIDC configuration surfaces committed in §2.12).
 
 **Rules:**
 
 - Quality assessments **must not** treat “no generic OIDC” as a V1 defect — it is a **committed V1 integration surface** alongside Entra.
+- **`(A)` V1 headline readiness** after **`V1_SCOPE.md` §2.12** SAML promotion (**owner 2026-05-15**) **must not** claim **broker-free SAML-direct GA** until SAML SP ships — track **`docs/assessments/LATEST.md`** improvement **#13** or equivalent engineering backlog identifier until closed.
 - Claim-mapping and issuer allowlisting discipline stays **documented operator responsibility** — capture buyer IdP specifics in questionnaires ([PROCUREMENT_FAQ.md](../go-to-market/PROCUREMENT_FAQ.md)).
 
 ---

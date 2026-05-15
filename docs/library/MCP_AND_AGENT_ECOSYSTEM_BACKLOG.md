@@ -113,17 +113,37 @@ The membrane sits **outside** the persistence seam described in [dual-pipeline-n
 
 Each new class lands in its own file per project rule. Every public type carries XML docs.
 
+### 5.1 V1.1 pinned slice (scope freeze — owner 2026-05-15)
+
+This subsection is the **contractual V1.1 minimum** for inbound MCP. Anything not listed here waits for a **later** version or a **new** owner promotion. ADR **`adr/0029-mcp-membrane-and-agent-ecosystem.md`** should reference this subsection when moved past *Draft*.
+
+| Dimension | Pin |
+|-----------|-----|
+| **Programs** | New projects **`ArchLucid.Mcp.Contracts`** and **`ArchLucid.Mcp.Server`** only; **no** MCP SDK or generated tool code inside `ArchLucid.Application` or below. |
+| **Tool count & class** | **Exactly seven** tools, **read-only**, each registered with **`ToolApprovalClass.ReadEvidence`** only (server-enforced). **No** `ProposeChange`, `ExecuteRun`, `CommitManifest`, or `AdminGovernance` tools in the V1.1 slice — writes stay on REST / UI / existing automation. |
+| **Tool allowlist (frozen)** | 1. `GetRunStatusTool` 2. `GetManifestSummaryTool` 3. `CompareRunsTool` 4. `GetProvenanceGraphTool` 5. `GetGovernanceStatusTool` 6. `ListArtifactsTool` 7. `GetAuditSliceTool` — one C# tool class per file; each delegates **only** to existing `ArchLucid.Application` services (no raw SQL in the membrane). Wire protocol names / JSON schemas are recorded in **`docs/MCP_SURFACE.md`** when that file is added (§10). |
+| **Transport — production** | **Streamable HTTP** only for **vendor-hosted / production** deployments, **same private-endpoint + auth posture** as `ArchLucid.Api` (no new public ingress; backlog §7 **No new public ports**). |
+| **Transport — non-production** | **`stdio`** is **optional** for **local developer** and **self-hosted** builds of `ArchLucid.Mcp.Server` (harnesses, fixtures). It is **not** part of the **hosted SaaS SLA** or default buyer integration path for **V1.1** unless separately promoted. |
+| **Tenancy / isolation** | **One shared membrane fleet** (same scale-out model as API workers); **strict `SESSION_CONTEXT` / tenant resolution per authenticated session**. **No** per-tenant OS process isolation in V1.1. |
+| **Outbound MCP** | **Out of scope:** `ArchLucid.Mcp.Client` and any ArchLucid-as-MCP-client allowlist remain **V2** unless a **new** owner row promotes them ([V1_DEFERRED.md](V1_DEFERRED.md) §6d). |
+| **NuGet MCP SDK** | **Pin at V1.1 engineering kickoff** with verification before merge (§9.2 item **9**); pre-1.0 churn risk stays acknowledged in §2 **Assumptions**. |
+
+**Explicit non-goals for this slice:** marketplace agent stores; MCP tool descriptions templated from `Retrieval`; LLM-self-classified approval classes; coordinator-only HTTP bypass ([ADR 0021](../adr/0021-coordinator-pipeline-strangler-plan.md)); SMB/445 or public-internet MCP without private endpoints (§9.5).
+
 ---
 
 ## 6. Data flow — MCP read tool, V1.1
 
-1. External agent shell connects to `ArchLucid.Mcp.Server` over **stdio** (local pilot) or **Streamable HTTP** (hosted) — the latter only behind the existing private-endpoint posture.
+1. External agent shell connects to `ArchLucid.Mcp.Server` over **Streamable HTTP** (production; private endpoint) or, for local/self-hosted only, **stdio** — see **§5.1** for the freeze.
 2. Server authenticates the caller via the same code path as `ArchLucid.Api` — Entra ID JWT preferred, API key supported.
 3. Server resolves tenant from claims and **propagates `SESSION_CONTEXT`** so RLS predicates apply identically to direct `ArchLucid.Api` calls.
 4. Server resolves the requested tool, looks up its `ToolApprovalClass`, and applies `IToolApprovalClassPolicy`:
    - `ReadEvidence` → execute and return.
    - `AnalyzeDraft` → execute and return; result is marked *advisory*.
    - `ProposeChange` and above → write a draft proposal into the existing approval queue (`GovernanceApprovalRequest`) and return a **proposal id**, never an applied change.
+
+   **§5.1 note:** The **V1.1 pinned** tools use **`ReadEvidence` only** — the `AnalyzeDraft` / `ProposeChange` branches are for **later** promotions, not the initial membrane ship.
+
 5. Tool logic delegates to an `ArchLucid.Application` service. No raw SQL inside the membrane.
 6. Server emits a typed audit event capturing `(tenantId, principal, toolName, toolApprovalClass, latencyMs, tokensIn, tokensOut, outcome, correlationId)`.
 7. Token usage flows through `LlmCompletionAccountingClient` and the per-MCP-session cap; circuit breaker keys mirror the `OpenAiCircuitBreakerKeys` pattern.
@@ -177,7 +197,7 @@ These five items are pure documentation and type-only changes. They cost almost 
 
 | # | Item | Why now | Risk |
 |---|------|---------|------|
-| 6 | Build `ArchLucid.Mcp.Contracts` and `ArchLucid.Mcp.Server` with the seven read-only tools listed in §5 | Highest-leverage interop; maps 1:1 to existing services | Low — read-only; RLS unchanged |
+| 6 | Build `ArchLucid.Mcp.Contracts` and `ArchLucid.Mcp.Server` with the **seven** read-only tools in **§5.1** | Highest-leverage interop; maps 1:1 to existing services | Low — read-only; RLS unchanged |
 | 7 | Implement `IToolApprovalClassPolicy` and wire it through `GovernanceApprovalRequest` | Establishes the seam for any future autonomy | Low — additive |
 | 8 | Add typed MCP audit events; extend `AUDIT_COVERAGE_MATRIX.md` | Keeps the compliance narrative honest | Low |
 | 9 | Pin the C# MCP SDK version in `Directory.Packages.props`; document in `docs/MCP_SURFACE.md` | Required before any commit | Medium — SDK is pre-1.0; verify before pinning |
@@ -234,8 +254,8 @@ Promoting a row out of §9.1 into a sprint pulls a small ripple of doc updates. 
 
 These are tracked here rather than in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) until program decides to promote any of them.
 
-1. **Local vs hosted MCP first?** `stdio` for a developer/pilot demo is faster to ship; Streamable HTTP behind a private endpoint is what enterprise pilots will actually use.
-2. **One MCP server per tenant or one shared with strict `SESSION_CONTEXT`?** Default plan is shared with strict scoping; revisit if a high-sensitivity pilot requires hard process isolation.
+1. ~~**Local vs hosted MCP first?**~~ **Resolved (owner 2026-05-15):** **§5.1** — Streamable HTTP is the **production** transport; `stdio` is **optional non-production** only.
+2. ~~**One MCP server per tenant or one shared with strict `SESSION_CONTEXT`?**~~ **Resolved (owner 2026-05-15):** **§5.1** — **shared membrane fleet** + strict **`SESSION_CONTEXT`** per session.
 3. **Do `AnalyzeDraft` results get persisted as draft artifacts, or returned ephemerally?** Persistence simplifies audit but inflates storage and complicates retention; ephemeral is cheaper but harder to investigate after the fact.
 4. **Approval-class taxonomy stability.** Is the six-class taxonomy in §5 the right granularity, or should `CommitManifest` split into `CommitManifest:NoBreakingChange` and `CommitManifest:BreakingChange`?
 5. **MCP SDK risk.** Pre-1.0 churn vs. the cost of waiting for a 1.0 stable line. Decision should land in ADR 0029 before any V1.1 work begins.
@@ -249,4 +269,4 @@ These are tracked here rather than in [PENDING_QUESTIONS.md](../PENDING_QUESTION
 - When a §9 row promotes, update §9 status and the ripple list in §10 in the same change-set.
 - When OpenAI, MCP, or vendor-side guidance changes materially, add a dated subsection to §11 instead of editing prior assertions.
 
-**Last reviewed:** 2026-04-21
+**Last reviewed:** 2026-05-15
