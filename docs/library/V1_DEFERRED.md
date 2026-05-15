@@ -89,7 +89,9 @@ Docs describe **templates and gaps** that depend on **customer subscription and 
 
 **Slack** first-party **outbound** chat-ops (notification sink parity with **Microsoft Teams** — same **`EnabledTriggersJson`** / trigger catalog, **Key Vault** secret-name references, Authority-shaped payloads) is **in scope for V1 GA** per [`V1_SCOPE.md`](V1_SCOPE.md) **§2.14** — **owner scope update 2026-05-05**, superseding the prior *Resolved 2026-04-23* posture that listed Slack as **V2-only**.
 
-**Still not automatic V1 commitments without separate promotion:** Slack **App Directory** listing, OAuth installation UX marketed as first-class, and **in-Slack interactive** approve/ack buttons.
+**V1.1 commitment:** **In-Slack interactive** approvals / acknowledgements (**approve / ack** buttons on Slack messages surfaced by ArchLucid) — scoped for **V1.1** so chat-ops can close governance loops without leaving Slack.
+
+**Still open / unpinned without separate promotion (no calendar dates implied):** Slack **App Directory** listing and OAuth installation UX marketed as **first-class** product onboarding.
 
 **Rules:**
 

@@ -72,3 +72,28 @@ Describe how ArchLucid scales from a **single shared SQL catalog** to **stronger
 - **Scalability:** Horizontal scale of **stateless** API/worker replicas; SQL **vertical** scale first, then **partitioning** (per-tenant DB or elastic pools) when metrics show noisy neighbors.
 - **Reliability:** Secondary region improves **regional failure** tolerance; replicas + outbox processors improve **throughput** under burst.
 - **Cost:** Use **consumption budgets** (50 / 75 / 90% actual + 100% forecasted) and **LLM** dashboards to catch drift before invoice shock.
+
+## 10. V2 Redis baseline — light load (`IGraphSnapshotProjectionCache`)
+
+**Intent:** When **`IGraphSnapshotProjectionCache`** gains a Redis-backed implementation (see [`V1_DEFERRED.md`](V1_DEFERRED.md) §6e — distributed graph projection cache **V2 candidate**), provision **only what latency and coherence require**. Avoid defaulting to Premium clustered Redis “because enterprise.”
+
+**Light-load baseline (default engineering target):**
+
+- **SKU posture:** **Azure Cache for Redis — Basic** (or equivalent minimal managed Redis), **single node**, sized for **low request rates** and **small serialized snapshots**. Basic intentionally trades HA for **cost-efficiency** on this specific cache lane — graph projections are **rebuildable** from authoritative SQL + pipeline inputs.
+- **Usage profile:** Suitable for early **multi-replica** API fleets where graph snapshot caching is **read-mostly advisory** and stale snapshots are acceptable within TTL.
+
+**TTL and eviction:**
+
+- **`IGraphSnapshotProjectionCache`** entries should use a **24-hour TTL** unless product telemetry proves shorter freshness is mandatory. Expired entries rebuild on next miss.
+
+**Scale trigger:**
+
+- **Review SKU / capacity** when sustained traffic to this cache exceeds **100 requests per minute** (organization-defined measurement window e.g. 15-minute rolling average). Crossing this threshold is a signal to evaluate **Standard** tier, larger memory, or **private endpoint** hardening — not an automatic mandate to deploy a multi-shard cluster.
+
+**Trade-off:** Cost-efficiency and operational simplicity **over** Redis HA for **non-authoritative** projection material — authoritative graph truth remains **SQL-backed** with existing isolation rules.
+
+**Security:** Redis must remain **private** (VNet injection / private endpoint); never expose Redis TLS endpoints publicly. Keep Terraform placement aligned with landing-zone assumptions (**private endpoints**, **deny-by-default** egress).
+
+**Reliability:** Basic tier implies **accept brief unavailability** during provider maintenance; callers must **fall back** to cold-load projections without failing customer-visible workflows.
+
+**Cost:** Keeps V2 cache infrastructure proportional to measured utilization instead of provisioning enterprise HA Redis before demand exists.

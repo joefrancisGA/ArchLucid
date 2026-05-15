@@ -51,10 +51,24 @@ public class GraphNodeVm
         get;
         set;
     }
+
+    /// <summary>Optional agent/heuristic narration for operator graph explainability.</summary>
+    public string? ReasoningTrace
+    {
+        get;
+        set;
+    }
 }
 
 public class GraphEdgeVm
 {
+    /// <summary>Stable snapshot edge id when present.</summary>
+    public string? Id
+    {
+        get;
+        set;
+    }
+
     public string Source
     {
         get;
@@ -72,6 +86,27 @@ public class GraphEdgeVm
         get;
         set;
     } = null!;
+
+    /// <summary>Optional traversal label from graph edge payloads.</summary>
+    public string? Label
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Rule tag when inferred (stored as inferenceSource on persisted edges).</summary>
+    public string? InferenceSource
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Deterministic heuristic or propagated agent narration for this edge.</summary>
+    public string? ReasoningTrace
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>

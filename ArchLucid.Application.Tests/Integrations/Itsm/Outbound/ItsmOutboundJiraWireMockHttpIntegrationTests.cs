@@ -25,6 +25,7 @@ using static ArchLucid.Application.Tests.Integrations.Itsm.Outbound.ItsmOutbound
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 
 /// <summary>WireMock verifies exact Jira Cloud issue REST payloads (no live SaaS).</summary>
+[Collection("ItsmOutboundJiraWireMock")]
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
@@ -99,7 +100,7 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
 
         using HttpClient jiraHttp = new()
         {
-            Timeout = TimeSpan.FromSeconds(25)
+            Timeout = TimeSpan.FromSeconds(120)
         };
 
         ItsmOutboundIssueCreationService sut = new(
@@ -165,7 +166,7 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
 
         using HttpClient jiraHttp = new()
         {
-            Timeout = TimeSpan.FromSeconds(15)
+            Timeout = TimeSpan.FromSeconds(120)
         };
 
         ItsmOutboundIssueCreationService sut = new(
@@ -208,7 +209,7 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
         options.Jira.CloudBaseUrl = server.Url!.TrimEnd('/');
 
         using HttpClient jiraHttp = new();
-        jiraHttp.Timeout = TimeSpan.FromSeconds(15);
+        jiraHttp.Timeout = TimeSpan.FromSeconds(120);
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,

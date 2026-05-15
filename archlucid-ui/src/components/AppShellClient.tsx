@@ -32,6 +32,7 @@ import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathnam
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { SimulatorExecutionModeBanner } from "@/components/SimulatorExecutionModeBanner";
 import { TrialBanner } from "@/components/TrialBanner";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -162,6 +163,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               </header>
               <LayerContextFromRoute />
               <div data-testid="app-shell-main" className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6">
+                <SimulatorExecutionModeBanner />
                 <KeyboardShortcutProvider
                   onHelpRequested={() => {
                     setHelpDocSearchOpen(true);
@@ -251,6 +253,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <SidebarNav />
             </nav>
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
+              <SimulatorExecutionModeBanner />
               {pathname === "/" ? <TrialBanner /> : null}
               <KeyboardShortcutProvider
                 onHelpRequested={() => {

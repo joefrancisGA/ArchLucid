@@ -313,7 +313,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             EdgeType = edgeType,
             Label = label,
             Weight = weight,
-            InferenceSource = inferenceSource
+            InferenceSource = inferenceSource,
+            ReasoningTrace = GraphEdgeInferenceReasoningSummaries.ForRule(inferenceSource)
         };
     }
 

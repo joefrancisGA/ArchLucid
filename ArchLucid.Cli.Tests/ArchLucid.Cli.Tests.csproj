@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Cli\ArchLucid.Cli.csproj" />
     <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
+    <ProjectReference Include="..\ArchLucid.TestSupport\ArchLucid.TestSupport.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
@@ -32,6 +33,7 @@
   <ItemGroup>
     <Using Include="ArchLucid.Core" />
     <Using Include="ArchLucid.Core.Manifest" />
+    <Using Include="ArchLucid.TestSupport" />
     <Using Include="Xunit" />
   </ItemGroup>
 </Project>

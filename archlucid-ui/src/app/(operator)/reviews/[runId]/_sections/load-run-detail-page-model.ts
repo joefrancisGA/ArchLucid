@@ -43,6 +43,7 @@ import {
   severityBadgeLabel,
 } from "@/lib/quick-decision-summary-derive";
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
+import { loadRunSavingsSummaryModel } from "@/lib/run-savings-summary-model";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
@@ -358,6 +359,13 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     severityLabelForFinding: severityBadgeLabel,
   });
 
+  const savingsSummary = await loadRunSavingsSummaryModel({
+    artifacts,
+    manifestId,
+    routeRunId: runId,
+    usedStaticDemoRun,
+  });
+
   const model: RunDetailPageModel = {
     routeRunId: runId,
     resolvedDetail,
@@ -391,6 +399,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     quickDecisionFindings,
     findingWireSnapshots,
     adrGeneratorInput,
+    savingsSummary,
   };
 
   return { kind: "success", model };

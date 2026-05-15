@@ -122,7 +122,13 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     page,
   }) => {
     await page.goto("/");
-    await expect(page.getByRole("main").locator('a[href^="/reviews/new"]').first()).toBeVisible();
+    /** Mock E2E uses buyer-polished demo: `/reviews/new` is de-emphasized (golden path is the showcase package). */
+    await expect(
+      page
+        .getByRole("main")
+        .first()
+        .getByRole("heading", { name: /Claims Intake Modernization Review Package/i }),
+    ).toBeVisible();
 
     await page.goto("/reviews/new");
     await expect(page).toHaveURL(/\/reviews\/new/);

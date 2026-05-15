@@ -9,6 +9,7 @@ import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 import { RunEstimatedLlmCostCard } from "@/components/RunEstimatedLlmCostCard";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
+import { RunSavingsSummary } from "@/components/RunSavingsSummary";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
@@ -94,6 +95,8 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
             : null
         }
       />
+
+      {m.savingsSummary !== null ? <RunSavingsSummary model={m.savingsSummary} /> : null}
 
       <div className="flex flex-wrap items-center gap-2">
         <GenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={m.buyerPolishedArtifactTable} />

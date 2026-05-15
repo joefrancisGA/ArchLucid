@@ -34,7 +34,8 @@ type RunIdPickerProps = {
   /** When true, primary line is a buyer-facing title; technical run id is shown underneath. */
   useBuyerFacingRunLabels?: boolean;
   /** Invoked when the user picks a row from the list (not on every keystroke). */
-  onRunPicked?: (run: RunSummary) => void;
+  /** When true, focus the combo input on mount (operator list vs compare-entry ergonomics). */
+  autoFocus?: boolean;
 };
 
 function truncate(text: string, max: number): string {
@@ -63,6 +64,7 @@ export function RunIdPicker({
   preferAutoPick = true,
   useBuyerFacingRunLabels = false,
   onRunPicked,
+  autoFocus = false,
 }: RunIdPickerProps) {
   const generatedId = useId();
   const controlId = inputId ?? `run-id-picker-${generatedId}`;
@@ -233,6 +235,7 @@ export function RunIdPicker({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? `${controlId}-listbox` : undefined}
+        autoFocus={autoFocus}
         onFocus={() => {
           setOpen(true);
           void loadRuns();

@@ -1,76 +1,98 @@
-> **Scope:** Operators forking the host who need a minimal C# recipe for swapping **built-in** `IAgentHandler` registrations — cites existing composition patterns; **not** a plugin marketplace or supported third-party SDK.
+> **Scope:** Integration guide for external/custom agent handlers — out-of-process webhook boundary, sample payloads aligned with `AgentResult`; not shipping code, MCP membrane specs, or in-host plugin APIs.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
-# Custom agent handlers (fork boilerplate)
+# Custom agent handlers — out-of-process boundary
 
-## Where handlers live today
+## 1. Objective
 
-Production handlers (`TopologyAgentHandler`, `CostAgentHandler`, `ComplianceAgentHandler`, `CriticAgentHandler`) are registered as **`services.AddScoped<IAgentHandler, …>()`** inside **`RegisterAgentExecution`** in [`ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`](../../ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs) when **`AgentExecution:Mode`** is not **`Simulator`**.
+Give enterprise integrators a **clear, secure extension model** for plugging third-party agents into ArchLucid without loading arbitrary code inside the API or worker hosts.
 
-`RealAgentExecutor` builds a dictionary keyed by **`IAgentHandler.AgentTypeKey`** and **throws at startup** when two handlers advertise the same key (see [`ArchLucid.AgentRuntime/RealAgentExecutor.cs`](../../ArchLucid.AgentRuntime/RealAgentExecutor.cs)). You cannot register a second topology handler without removing or replacing the stock one.
+## 2. Assumptions
 
-Stable keys are defined in [`ArchLucid.Contracts/Common/AgentTypeKeys.cs`](../../ArchLucid.Contracts/Common/AgentTypeKeys.cs); each handler exposes **`AgentType`** plus **`AgentTypeKey`** (typically `AgentTypeKeys.Topology`, etc.).
+- Custom handlers run in **customer-operated or partner-operated** environments with their own identity, scaling, and patching cadence.
+- The authoritative pipeline still expects validated **`AgentResult`**-shaped JSON at integration boundaries (same semantics as built-in agents).
 
-## Fork recipe (replace one built-in handler)
+## 3. Constraints
 
-1. **Fork or wrap** [`ArchLucid.Host.Composition`](../../ArchLucid.Host.Composition) into your deployment repo (same pattern as other enterprise forks of composition roots).
-2. Copy the **`else`** branch body of **`RegisterAgentExecution`** that registers the four stock handlers.
-3. Swap exactly **one** line — example replaces topology:
+- **In-process .NET assembly loading for custom agents is prohibited.** Third-party binaries must not be loaded into ArchLucid hosting processes.
+- Transport must stay **out-of-process**: **HTTPS REST webhooks** (recommended default) or **gRPC** over TLS to a registered endpoint — both treated as untrusted network peers until mutually authenticated.
+- Payloads must align with **`ArchLucid.Contracts.Agents.AgentResult`** (see repo) and existing REST/OpenAPI patterns; do not invent parallel result schemas.
 
-```csharp
-// Stock line (remove when forking this handler):
-// services.AddScoped<IAgentHandler, TopologyAgentHandler>();
+## 4. Architecture overview
 
-// Your forked implementation must keep AgentType / AgentTypeKey aligned with dispatch:
-services.AddScoped<IAgentHandler, AcmeTopologyAgentHandler>();
-```
+ArchLucid orchestration **delegates** an `AgentTask` to an external handler by issuing an HTTP/gRPC call to a **tenant-configured endpoint**. The handler executes domain-specific logic, then returns an **`AgentResult`** JSON document. The host validates schema, applies quality gates, and merges outcomes like any first-party agent — preserving **memory isolation** (handler crashes do not tear down the API) and aligning with **MCP-style** “tools live outside the kernel” posture.
 
-4. Implement **`AcmeTopologyAgentHandler : IAgentHandler`** mirroring the constructor dependencies of [`TopologyAgentHandler`](../../ArchLucid.AgentRuntime/TopologyAgentHandler.cs) (completion client, parser, trace recorder, prompts, audit, scope, remediation options) unless you intentionally slim the pipeline — **do not change `AgentTypeKey`** if you still execute persisted **`AgentTask`** rows that resolve to **`topology`**.
+## 5. Component breakdown
 
-## Minimal handler skeleton (compile-time checklist only)
+| Piece | Responsibility |
+|-------|----------------|
+| **Orchestration layer** | Issues tasks, correlates `runId` / `taskId`, enforces timeouts and tenant scope |
+| **Custom handler (external)** | Computes claims, evidence refs, optional manifest deltas |
+| **`AgentResult` schema** | Stable contract for success path |
+| **Webhook security** | mTLS or signed requests (organization-specific); secrets via Key Vault / tenant secrets — never embedded in docs |
 
-This skeleton is **not** runnable end-to-end copy-paste — real handlers must call `IAgentCompletionClient`, `IAgentResultParser`, and `IAgentExecutionTraceRecorder` like the stock implementations. It shows the **surface area** you must satisfy:
+## 6. Data flow
 
-```csharp
-using ArchLucid.Contracts.Abstractions.Agents;
-using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Requests;
+1. Host resolves **task descriptor** → builds **invocation request** (includes correlation IDs and serialized task context).
+2. **POST** (or gRPC unary) to handler URL with authenticated caller identity.
+3. Handler responds with **`AgentResult`** JSON (or structured error mapped to pipeline semantics).
+4. Host runs **`AgentResult`** parsing/schema validation → downstream manifest synthesis unchanged.
 
-namespace Acme.ArchLucid.Host.AgentHandlers;
+## 7. Security model
 
-public sealed class AcmeTopologyAgentHandler : IAgentHandler
+- **Trust boundary:** Handler endpoint is **outside** ArchLucid trust zone until authenticated and authorized per tenant configuration.
+- **Blast radius:** Compromise of a handler leaks **only** what credentials that endpoint holds — not sibling tenants inside ArchLucid memory space (no shared in-process heap).
+- **Prohibited:** Shipping NuGet/plugin DLL drop-ins, `Assembly.LoadFrom` agent packs, or executing arbitrary scripts submitted through agent registration APIs without a separate hardened sandbox (not part of V1).
+
+## 8. Operational considerations
+
+- Define **SLAs**, retries, and **idempotency keys** using `taskId` / `resultId` so duplicate deliveries do not double-apply deltas.
+- Cap payload sizes and reasoning trace length at ingress per tenant policy (mirror production defaults used for LLM-backed agents).
+
+---
+
+## Sample JSON — webhook invocation request (illustrative)
+
+ArchLucid → handler (minimal envelope; **exact fields may evolve** — rely on OpenAPI when published):
+
+```json
 {
-    public AgentType AgentType => AgentType.Topology;
-
-    public string AgentTypeKey => AgentTypeKeys.Topology;
-
-    public Task<AgentResult> ExecuteAsync(
-        string runId,
-        ArchitectureRequest request,
-        AgentEvidencePackage evidence,
-        AgentTask task,
-        CancellationToken cancellationToken = default)
-    {
-        if (request is null) throw new ArgumentNullException(nameof(request));
-        if (evidence is null) throw new ArgumentNullException(nameof(evidence));
-        if (task is null) throw new ArgumentNullException(nameof(task));
-
-        // Delegate to the stock TopologyAgentHandler logic via composition **or** call your LLM pipeline here.
-        throw new NotImplementedException("Wire completion client + parser + traces like TopologyAgentHandler.");
-    }
+  "schemaVersion": "1.0",
+  "invocationId": "e19f9f8d7d6d4f8b9e7c6b5a40332211",
+  "runId": "7f6e5d4c3b2a109876543210fedcba98",
+  "taskId": "aabbccddeeff00112233445566778899",
+  "agentType": "Topology",
+  "requestedAtUtc": "2026-05-14T12:34:56Z",
+  "callbackHints": {
+    "tenantDisplayName": "Contoso Pilot",
+    "evidencePackUri": "https://api.example.invalid/internal/evidence/aabb"
+  }
 }
 ```
 
-## Operational cautions
+## Sample JSON — webhook response body (`AgentResult` aligned)
 
-- **Simulator mode** (`AgentExecution:Mode=Simulator`) substitutes [`SimulatorExecutionTraceRecordingExecutor`](../../ArchLucid.AgentRuntime/SimulatorExecutionTraceRecordingExecutor.cs); handler registrations still exist but flows may bypass parts of the real pipeline — validate both modes if you ship a fork.
-- **Governance + auditing**: stock handlers emit structured traces and audits; skipping those contracts breaks operator UX and compliance narratives — reuse shared helpers where possible.
-- **Upgrade merges**: composition files churn frequently; track upstream diffs to `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` whenever rebasing.
+Handler → ArchLucid (`agentType` matches `ArchLucid.Contracts.Common.AgentType`; JSON uses camelCase consistent with ASP.NET Core defaults):
 
-## References
+```json
+{
+  "resultId": "0123456789abcdef0123456789abcdef",
+  "taskId": "aabbccddeeff00112233445566778899",
+  "runId": "7f6e5d4c3b2a109876543210fedcba98",
+  "agentType": "Topology",
+  "claims": [
+    "Dedicated subnet per workload tier improves blast-radius containment.",
+    "Azure Firewall policy aligns with governance pack GP-001."
+  ],
+  "evidenceRefs": ["policy:GP-001", "catalog:subnet-pattern-standard"],
+  "confidence": 0.82,
+  "findings": [],
+  "proposedChanges": null,
+  "reasoningTrace": "Matched workload tiers to catalog patterns; excluded conflicting legacy spoke.",
+  "citations": null,
+  "createdUtc": "2026-05-14T12:35:10Z"
+}
+```
 
-- Interface contract — [`IAgentHandler`](../../ArchLucid.Contracts/Abstractions/Agents/IAgentHandler.cs)
-- Dispatch keys — [`AgentTypeKeys`](../../ArchLucid.Contracts/Common/AgentTypeKeys.cs)
-- Reference implementation — [`TopologyAgentHandler`](../../ArchLucid.AgentRuntime/TopologyAgentHandler.cs)
+**Integration rule:** External handlers **must** return JSON compatible with **`AgentResult`** validation rules enforced by `AgentResultParser` (schema validation options apply per environment).

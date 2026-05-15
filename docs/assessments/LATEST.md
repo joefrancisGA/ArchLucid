@@ -4,7 +4,7 @@
 
 ## 2. Executive Summary
 - **Overall Readiness:** The core agent pipeline (`RealAgentExecutor`, `StagedCritic`) and the baseline API contracts are structurally mature. The primary barriers to V1 GA success are related to the operator onboarding experience and the predictability of LLM behavior under edge cases.
-- **Commercial Picture:** Proof-of-ROI exists via the Azure Extractor (`Get-ArchLucidAzurePackage.ps1`) and Terraform generation, but the value is locked inside artifacts rather than surfaced aggressively. Adoption friction remains high due to SQL and OIDC prerequisite knowledge.
+- **Commercial Picture:** Proof-of-ROI exists via the Azure Extractor (`Get-ArchLucidAzurePackage.ps1`) and Terraform generation; **annualized extractor opportunity headlines Run Detail via `RunSavingsSummary` when `cost-actual.json` / `orphan-candidates.json` (or demo illustration) is present — Improvement 8 (2026-05-14).** Sponsor-ready narrative polish outside that path can still lag. Adoption friction remains high due to SQL and OIDC prerequisite knowledge.
 - **Enterprise Picture:** Security (RLS, Private Endpoints) and Compliance (78 typed audit events) are exceptionally strong. Enterprise friction centers on self-service troubleshooting, particularly when debugging generic OIDC configuration failures without support intervention.
 - **Engineering Picture:** The system has excellent circuit breaking and LLM quota tracking (`LlmCompletionAccountingClient`). However, non-deterministic correctness remains the highest weighted risk, necessitating stricter constraints on LLM outputs and explicit tests for destructive behavior.
 
@@ -16,7 +16,7 @@
 - **Weighted deficiency signal:** 210
 - **Justification:** OIDC and advanced hosting settings still require editing JSON (`appsettings.json`). SQL connection strings and Azure OpenAI keys can be merged via `archlucid config bootstrap`, but trial operators still face a steep prerequisite curve overall.
 - **Tradeoffs:** Full enterprise control vs. fast time-to-first-run.
-- **Improvement recommendations:** ~~Build interactive CLI bootstrapping wizards~~ **Done — Improvement 7 (2026-05-14).** ~~Add Azure OpenAI reachability checks in operator lint~~ **Done — Improvement 11 (2026-05-14).** ~~Surface OIDC diagnostic endpoints~~ **Done — Improvement 13 (2026-05-14).**
+- **Improvement recommendations:** ~~Build interactive CLI bootstrapping wizards~~ **Done — Improvement 7 (2026-05-14).** ~~Add Azure OpenAI reachability checks in operator lint~~ **Done — Improvement 11 (2026-05-14).** ~~Surface OIDC diagnostic endpoints~~ **Done — Improvement 13 (2026-05-14).** ~~Batch 5 UI polish~~ **Done — Improvements 12, 16, 19, 20, 21, 23 (2026-05-14).**
 - **Status:** Fixable in V1.
 
 **2. Correctness**
@@ -32,9 +32,9 @@
 - **Score:** 75
 - **Weight:** 5
 - **Weighted deficiency signal:** 125
-- **Justification:** Financial value is extracted via PowerShell and attached to artifacts (`cost-actual.json`), but is not the headline metric on the Run Detail dashboard.
+- **Justification:** Financial value is extracted via PowerShell and attached to artifacts (`cost-actual.json`); ~~the Run Detail page did not headline those numbers~~ **`RunSavingsSummary` + `loadRunSavingsSummaryModel` now surface an annualized heuristic rollup when `cost-actual.json` / `orphan-candidates.json` (or the static demo illustration) is present (Improvement 8, 2026-05-14).**
 - **Tradeoffs:** Deep technical analysis vs. executive summarization.
-- **Improvement recommendations:** Build a prominent UI component that calculates and displays annualized savings directly from the artifact payload.
+- **Improvement recommendations:** ~~Build a prominent UI component that calculates and displays annualized savings directly from the artifact payload.~~ **Done — Improvement 8 (2026-05-14).**
 - **Status:** Fixable in V1.
 
 **4. AI/Agent Readiness**
@@ -88,7 +88,7 @@
 - **Weighted deficiency signal:** 40
 - **Justification:** The Knowledge Graph exists, but the exact LLM reasoning (`ReasoningTrace`) that inferred specific edges is not surfaced deeply in the UI.
 - **Tradeoffs:** UI clean design vs. deep transparency.
-- **Improvement recommendations:** Inject reasoning snippets directly into the node metadata panels.
+- **Improvement recommendations:** ~~Inject reasoning snippets directly into the node metadata panels.~~ **Done — Improvement 10 (2026-05-14)** (`GraphNode`/`GraphEdge`/`ReasoningTrace`, deterministic inferrer narration, `GraphViewer` sidebar with 500-char expand).
 - **Status:** Fixable in V1.
 
 **10. Interoperability**
@@ -148,7 +148,7 @@
 ## 4. Top 12 Most Important Weaknesses
 1. Bootstrapping and Trial Configuration (SQL/OIDC) requires deep manual JSON editing, destroying momentum.
 2. The risk of the system hallucinating destructive `terraform destroy` commands is unacceptable for enterprise trust.
-3. Financial ROI is calculated but buried inside artifact JSON files instead of driving the UI narrative.
+3. ~~Financial ROI is calculated but buried inside artifact JSON files instead of driving the UI narrative.~~ **Mitigated — Improvement 8 (2026-05-14)** (`RunSavingsSummary`; annualized rollup from committed extractor-style artifacts / demo constant).
 4. Troubleshooting OIDC/Entra ID failures requires access to raw container logs, blocking self-serve onboarding.
 5. Operators lack real-time visibility into the health of critical ITSM outbound syncs (Jira/ServiceNow).
 6. Quality Gate strictness parameters are hidden in config rather than visible to operators in the UI.
@@ -161,7 +161,7 @@
 
 ## 5. Top 6 Monetization Blockers
 1. Friction in the initial installation and SQL/IdP bootstrapping causes trial abandonment.
-2. Missing a prominent, auto-calculated "Annualized Savings" KPI component in the Run Detail view.
+2. ~~Missing a prominent, auto-calculated "Annualized Savings" KPI component in the Run Detail view.~~ **Done — Improvement 8 (2026-05-14).**
 3. Difficulties in debugging OIDC configurations prevent mid-market customers from completing SSO setup.
 4. Users executing runs in `Simulator` mode might falsely conclude the AI is weak, losing the sale.
 5. Inability to easily copy/paste the Tier 2 Azure Extractor script natively from the UI slows down proof-of-value.
@@ -192,7 +192,7 @@ ArchLucid's technical foundation—from RLS to agent circuit-breaking—is remar
 - **Why it matters:** V1.1 requires documentation for custom handlers, and out-of-process (webhooks) protects the host's memory space and aligns with MCP.
 - **Expected impact:** Clear extensibility path for enterprise integrators.
 - **Affected qualities:** Interoperability, Security.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — [`docs/library/CUSTOM_AGENT_HANDLERS.md`](../library/CUSTOM_AGENT_HANDLERS.md) (webhook/`AgentResult` samples; in-process assembly loading prohibited).
 - **Cursor prompt:**
 ```text
 Add `docs/library/CUSTOM_AGENT_HANDLERS.md`.
@@ -208,7 +208,7 @@ Constraints: Must align with the existing `AgentResult` schema and REST patterns
 - **Why it matters:** V2 distributed cache needs configuration, and the expected light load means a minimal Basic tier Redis setup is sufficient.
 - **Expected impact:** Prevents over-engineering and over-provisioning infrastructure.
 - **Affected qualities:** Performance, Proof-of-ROI Readiness.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — §10 **V2 Redis baseline — light load** in [`docs/library/SCALING_PATH.md`](../library/SCALING_PATH.md) (`IGraphSnapshotProjectionCache`, 24h TTL, scale signal **100 rpm**).
 - **Cursor prompt:**
 ```text
 Update the infrastructure documentation in `docs/library/SCALING_PATH.md`.
@@ -238,7 +238,7 @@ Constraints: Must not block artifact downloads or comparisons.
 - **Why it matters:** Customers need clear instructions on how the Jira bi-directional sync authenticates.
 - **Expected impact:** Removes enterprise adoption blockers regarding third-party app security.
 - **Affected qualities:** Workflow Embeddedness, Security.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — **Authorization — ArchLucid-owned Jira OAuth** in [`docs/library/ITSM_BRIDGE_V1_RECIPES.md`](../library/ITSM_BRIDGE_V1_RECIPES.md) (global OAuth app, scopes, Marketplace flow; no secrets in repo).
 - **Cursor prompt:**
 ```text
 Add an authorization section to `docs/integrations/ITSM_BRIDGE_V1_RECIPES.md`.
@@ -254,7 +254,7 @@ Constraints: Do not commit any client secrets or IDs to the repo.
 - **Why it matters:** Clearly defines that Slack approve/ack buttons are on the roadmap for V1.1, managing customer expectations.
 - **Expected impact:** Provides a strong feature promise for chat-ops without delaying V1 GA.
 - **Affected qualities:** Stickiness, Workflow Embeddedness.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — §6a **Chat-ops** in [`docs/library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) (interactive approve/ack → **V1.1 commitment**; App Directory listing remains unpinned).
 - **Cursor prompt:**
 ```text
 Update `docs/library/V1_DEFERRED.md`.
@@ -302,7 +302,7 @@ Constraints: Do not echo the `ApiKey` to the console.
 - **Why it matters:** ROI must be immediately obvious to executive sponsors without digging into artifacts.
 - **Expected impact:** Increases commercial win rate by highlighting financial value.
 - **Affected qualities:** Proof-of-ROI Readiness.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `RunSavingsSummary`, `loadRunSavingsSummaryModel`, `run-potential-savings-parser` / `run-potential-savings-artifact-names` in `archlucid-ui`; Vitest in `run-potential-savings-parser.test.ts`, `run-savings-summary-model.test.ts`.
 - **Cursor prompt:**
 ```text
 Create a `RunSavingsSummary` React component in `archlucid-ui`.
@@ -334,7 +334,7 @@ Constraints: Respect tenant isolation via `IScopeContextProvider`.
 - **Why it matters:** Users need to trust the graph by seeing exactly why an edge was inferred.
 - **Expected impact:** Greatly improves system explainability.
 - **Affected qualities:** Explainability.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `ReasoningTrace` on `ArchLucid.KnowledgeGraph.Models.GraphNode` / `GraphEdge`; deterministic narrative via `GraphEdgeInferenceReasoningSummaries`; topology-merge propagates agent `ReasoningTrace`; architecture graph API (`GraphEdgeVm`/`GraphNodeVm`), JSON converters + relational merge preserve fields; UI: `ReasoningTraceReadMore` (500 + expand), `GraphViewer` edge-click panel and node reasoning.
 - **Cursor prompt:**
 ```text
 Update the `archlucid-ui` Knowledge Graph component and `ArchLucid.KnowledgeGraph` serialization.
@@ -364,7 +364,7 @@ Constraints: Set a strict 2-second timeout to avoid hanging the CLI.
 - **Why it matters:** Operators don't know the current `PilotStrictMinSemanticScore` unless they read the JSON config.
 - **Expected impact:** Better situational awareness of agent gating.
 - **Affected qualities:** Usability.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `TenantQualityGatesCard` + `quality-gate-config-summary` on **Tenant settings** (`GET /v1/admin/config-summary?includeEffectiveValues=true`); displays **Mode**, **StructuralWarnBelow**, **SemanticWarnBelow** rows with catalog-aligned paths (read-only).
 - **Cursor prompt:**
 ```text
 Add a "Quality Gates" read-only panel to the Settings page in `archlucid-ui`.
@@ -427,7 +427,7 @@ Constraints: Use the existing `ArchLucidInstrumentation.ActivitySource`.
 - **Why it matters:** Policy schemas are complex; inline help reduces documentation trips.
 - **Expected impact:** Faster governance rollout by operators.
 - **Affected qualities:** Usability.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `PolicyPackJsonSchemaHelpIcon` / `policy-pack-json-schema-hint.tsx` next to **Initial content** and **Publish** JSON editors in `PolicyPacksLifecycleSection`.
 - **Cursor prompt:**
 ```text
 Enhance the Governance Policy JSON editor in `archlucid-ui`.
@@ -442,7 +442,7 @@ Constraints: Keep the text under 100 words.
 - **Why it matters:** Running the PowerShell script is the first step for ROI; make it frictionless.
 - **Expected impact:** Higher conversion rate on cost extraction.
 - **Affected qualities:** Adoption Friction.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — Full wizard step `WizardStepAzureContext` (`NewRunWizardClient`); `buildGetArchLucidAzurePackageCommandLine()` defaults `-IncludeCost`; Clipboard copy via `navigator.clipboard` + toast.
 - **Cursor prompt:**
 ```text
 Update the Run Creation wizard in `archlucid-ui`.
@@ -474,7 +474,7 @@ Constraints: Do not log sensitive prompt data.
 - **Why it matters:** Compliance officers need portable artifacts for board meetings.
 - **Expected impact:** Better Enterprise Compliance Readiness.
 - **Affected qualities:** Compliance Readiness.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `ComplianceDriftChartPdfExport` (`html2canvas` + `jspdf`) on executive workspace KPI **Compliance drift trend** (`ExecutiveWorkspaceHealthDashboard`); bounded capture excludes shell chrome by design.
 - **Cursor prompt:**
 ```text
 Add a PDF export button to the Compliance Drift page in `archlucid-ui`.
@@ -489,7 +489,7 @@ Constraints: Exclude navigation sidebars from the PDF capture.
 - **Why it matters:** Users might think the LLM is failing when they are actually just in `Simulator` mode.
 - **Expected impact:** Prevents pilot confusion.
 - **Affected qualities:** Usability.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `SimulatorExecutionModeBanner` reads `AgentExecution:Mode` from `GET /v1/admin/config-summary` (`includeEffectiveValues=true`); session-dismiss via `sessionStorage`; rendered from `AppShellClient` (full + minimal chrome).
 - **Cursor prompt:**
 ```text
 Add a global banner to `archlucid-ui` layout.
@@ -504,7 +504,7 @@ Constraints: Banner should be dismissible for the session.
 - **Why it matters:** `ComparisonReplayCostEstimator` exists but isn't surfaced prominently before triggering expensive replays.
 - **Expected impact:** Prevents accidental budget burn.
 - **Affected qualities:** Usability, Correctness.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — `ArchitectureComparisonReplayCostSection` on **Replay** calls `GET /v1/architecture/comparisons/{id}/replay/cost-estimate` (debounced + manual refresh); shows `relativeCostBand` + `factors`; warn-only UX (no downstream POST here).
 - **Cursor prompt:**
 ```text
 Update the Replay dialog in `archlucid-ui`.
@@ -534,7 +534,7 @@ Constraints: Use `TimeProvider` or `Task.Delay` mocking to avoid long test times
 - **Why it matters:** Operator muscle memory; small UX polish goes a long way.
 - **Expected impact:** Minor Usability improvement.
 - **Affected qualities:** Usability.
-- **Status:** Actionable now
+- **Status:** Completed (2026-05-14) — **`/compare`:** `RunIdPicker` `autoFocus` on baseline picker (`CompareRunPickersSection`), optional `autoFocus` prop on `RunIdPicker`; **`/reviews`:** `autoFocus` on `#runs-filter-input` (`RunsListClient`).
 - **Cursor prompt:**
 ```text
 Update the Comparisons list page in `archlucid-ui`.
@@ -580,11 +580,11 @@ Constraints: Do not log the full connection string.
 To optimize context window usage and cursor cost-effectiveness, execute the actionable prompts in the following batches:
 - **Batch 1 (Core Guardrails & Correctness):** ~~Improvements 14, 22~~ **Completed 2026-05-14.** (`ArchLucid.ArtifactSynthesis.Tests`, `ArchLucid.Host.Core.Tests`.)
 - **Batch 2 (CLI & Operator Tooling):** ~~Improvements 7, 11, 13~~ **Completed 2026-05-14.** (`ArchLucid.Cli`, `ArchLucid.Cli.Tests`, `ArchLucid.Core`, `ArchLucid.Core.Tests`, `ArchLucid.Api`, `ArchLucid.Api.Tests`, OpenAPI snapshot + clients.)
-- **Batch 3 (UI ROI & Transparency):** Improvements 8, 10, 17. Focuses heavily on `archlucid-ui` components (Savings, Knowledge Graph sidebar, Copy Command).
+- **Batch 3 (UI ROI & Transparency):** ~~Improvements 8, 10, 17~~ **Completed 2026-05-14** (`RunSavingsSummary`, Knowledge Graph reasoning sidebar + edge inspect, wizard Azure ingest copy-command).
 - **Batch 4 (Observability & Latency Tracing):** ~~Improvement 15~~ **Completed 2026-05-14.** (`ArchLucid.AgentRuntime`, `ArchLucid.Core`, `ArchLucid.Host.Core`.) Improvements 18, 24, 25. Remaining focus: `ArchLucid.AgentRuntime` and `ArchLucid.Api.DataAccess` telemetry.
-- **Batch 5 (UX Polish & Settings):** Improvements 12, 16, 19, 20, 21, 23. Light touches to React components across `archlucid-ui`.
+- **Batch 5 (UX Polish & Settings):** ~~Improvements 12, 16, 19, 20, 21, 23~~ **Completed 2026-05-14** (`TenantQualityGatesCard`, policy-pack JSON tooltip, `ComplianceDriftChartPdfExport`, `SimulatorExecutionModeBanner`, `ArchitectureComparisonReplayCostSection`, replay/compare/reviews autofocus wired through `RunIdPicker` / `RunsListClient`).
 - **Batch 6 (Integration Health):** Improvement 9. Isolated work on `ArchLucid.Api` ITSM controllers.
-- **Batch 7 (Integration & Architecture Docs):** Improvements 1, 2, 4, 5. Focuses on `docs/library` and `docs/integrations`.
+- **Batch 7 (Integration & Architecture Docs):** ~~Improvements 1, 2, 4, 5~~ **Completed 2026-05-14.** (`docs/library/CUSTOM_AGENT_HANDLERS.md`, `SCALING_PATH.md` §10, `ITSM_BRIDGE_V1_RECIPES.md` Jira OAuth section, `V1_DEFERRED.md` §6a Slack scope.)
 - **Batch 8 (Billing UX & Security Polish):** Improvements 3, 6. Focuses on `archlucid-ui` and `SupportBundleController`.
 
 ## 11. Pending Questions for Later

@@ -12,7 +12,7 @@ import ReactFlow, {
   type Node,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import type { GraphNodeVm, GraphViewModel } from "@/types/graph";
+import type { GraphEdgeVm, GraphNodeVm, GraphViewModel } from "@/types/graph";
 import {
   graphLooksLikeCoordinatorProvenanceTrail,
   isBuyerTrailPhiHeroNode,
@@ -34,6 +34,7 @@ import {
   graphFindingInspectHref,
 } from "@/lib/graph-finding-deep-links";
 import { graphBuyerTrailMetadataLines } from "@/lib/graph-buyer-node-detail";
+import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";
 import Link from "next/link";
 
 function pickHeroNodeId(graph: GraphViewModel, preferredId: string | undefined): GraphNodeVm | null {
@@ -158,6 +159,7 @@ export function GraphViewer({
   );
 
   const [selectedNode, setSelectedNode] = useState<GraphNodeVm | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<GraphEdgeVm | null>(null);
   const [explainStatusLine, setExplainStatusLine] = useState("");
   const [explainAggregateHref, setExplainAggregateHref] = useState<string | null>(null);
 
@@ -201,6 +203,7 @@ export function GraphViewer({
 
     const hero = pickHeroNodeId(filtered, defaultSelectedNodeId);
     setSelectedNode(hero);
+    setSelectedEdge(null);
     setExplainStatusLine("");
     setExplainAggregateHref(null);
   }, [buyerTrailPanel, filtered, defaultSelectedNodeId]);
@@ -254,7 +257,22 @@ export function GraphViewer({
             nodesDraggable={!compactChrome}
             nodesConnectable={!compactChrome}
             proOptions={{ hideAttribution: true }}
+            onEdgeClick={(event, rfEdge) => {
+              event.stopPropagation();
+
+              const rawCandidate = rfEdge?.data?.raw;
+
+              const rawEdge = typeof rawCandidate === "object" && rawCandidate !== null ? (rawCandidate as GraphEdgeVm) : null;
+
+              if (rawEdge !== null) {
+                setSelectedEdge(rawEdge);
+                setSelectedNode(null);
+                setExplainStatusLine("");
+                setExplainAggregateHref(null);
+              }
+            }}
             onNodeClick={(_, node) => {
+              setSelectedEdge(null);
               setExplainStatusLine("");
               setExplainAggregateHref(null);
               setSelectedNode((node.data.raw as GraphNodeVm) ?? null);
@@ -357,16 +375,76 @@ export function GraphViewer({
         ) : null}
 
         <div className="flex-1">
-          <h3 className="mt-0">Node detail</h3>
+          {!selectedEdge && !selectedNode && !buyerTrailPanel ? (
+            <p>Select a node or inferred edge on the canvas to inspect reasoning and metadata.</p>
+          ) : null}
 
-          {!selectedNode && !buyerTrailPanel ? <p>Select a node to inspect it.</p> : null}
+          {!selectedEdge && !selectedNode && buyerTrailPanel ? (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              Select a node or edge on the canvas to see technical details.
+            </p>
+          ) : null}
 
-          {!selectedNode && buyerTrailPanel ? (
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">Select a node on the canvas to see details.</p>
+          {selectedEdge ? (
+            <div className="space-y-3">
+              <h3 className="mt-0">Edge detail</h3>
+              {!buyerTrailPanel ? (
+                <>
+                  {selectedEdge.id !== undefined &&
+                  selectedEdge.id !== null &&
+                  String(selectedEdge.id).trim().length > 0 ? (
+                    <p className="m-0">
+                      <strong>ID:</strong> {String(selectedEdge.id)}
+                    </p>
+                  ) : null}
+                  <p className="m-0">
+                    <strong>From:</strong> {selectedEdge.source}
+                  </p>
+                  <p className="m-0">
+                    <strong>To:</strong> {selectedEdge.target}
+                  </p>
+                  <p className="m-0">
+                    <strong>Relationship:</strong> {selectedEdge.type}
+                  </p>
+                  {selectedEdge.label !== undefined &&
+                  selectedEdge.label !== null &&
+                  String(selectedEdge.label).trim().length > 0 ? (
+                    <p className="m-0">
+                      <strong>Label:</strong> {String(selectedEdge.label)}
+                    </p>
+                  ) : null}
+                  {selectedEdge.inferenceSource !== undefined &&
+                  selectedEdge.inferenceSource !== null &&
+                  selectedEdge.inferenceSource.trim().length > 0 ? (
+                    <p className="m-0">
+                      <strong>Inference rule:</strong> {selectedEdge.inferenceSource.trim()}
+                    </p>
+                  ) : null}
+                </>
+              ) : (
+                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                  <strong>Edge:</strong> {selectedEdge.source} → {selectedEdge.target} ({selectedEdge.type})
+                </p>
+              )}
+              {selectedEdge.reasoningTrace !== undefined &&
+              selectedEdge.reasoningTrace !== null &&
+              selectedEdge.reasoningTrace.trim().length > 0 ? (
+                <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
+                  <ReasoningTraceReadMore heading="Reasoning trace" trace={selectedEdge.reasoningTrace} />
+                </div>
+              ) : (
+                !buyerTrailPanel && (
+                  <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+                    No reasoning narration was persisted for this edge.
+                  </p>
+                )
+              )}
+            </div>
           ) : null}
 
           {selectedNode ? (
             <>
+              <h3 className="mt-0">Node detail</h3>
               {!buyerTrailPanel ? (
                 <p>
                   <strong>ID:</strong> {selectedNode.id}
@@ -470,6 +548,14 @@ export function GraphViewer({
                     </>
                   );
                 })()
+              ) : null}
+
+              {selectedNode.reasoningTrace !== undefined &&
+              selectedNode.reasoningTrace !== null &&
+              selectedNode.reasoningTrace.trim().length > 0 ? (
+                <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+                  <ReasoningTraceReadMore heading="Reasoning trace" trace={selectedNode.reasoningTrace} />
+                </div>
               ) : null}
 
               {runId.trim().length > 0 && selectedNode !== null && !buyerTrailPanel && !compactChrome ? (

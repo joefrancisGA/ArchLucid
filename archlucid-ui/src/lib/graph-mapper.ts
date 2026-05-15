@@ -231,6 +231,9 @@ export function mapGraphToReactFlow(
       id: `${edge.source}-${edge.target}-${edge.type}-${index}`,
       source: edge.source,
       target: edge.target,
+      data: {
+        raw: edge,
+      },
       label: showHumanLabel ? buyerTrailEdgeDisplayPhrase(edge.type) : edge.type,
       type: "smoothstep",
       animated: isBuyerTrail && (edge.type === "raised" || touchesHero),

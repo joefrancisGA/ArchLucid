@@ -1,6 +1,7 @@
 import type { RunDetailSection } from "@/components/RunDetailSectionNav";
 import type { AdrGeneratorRunInput } from "@/lib/adr-from-run";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import type { RunSavingsSummaryModel } from "@/lib/run-savings-summary-model";
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
@@ -47,4 +48,5 @@ export type RunDetailPageModel = {
   readonly quickDecisionFindings: QuickDecisionFinding[];
   readonly findingWireSnapshots: Record<string, FindingWireSnapshot>;
   readonly adrGeneratorInput: AdrGeneratorRunInput;
+  readonly savingsSummary: RunSavingsSummaryModel | null;
 };

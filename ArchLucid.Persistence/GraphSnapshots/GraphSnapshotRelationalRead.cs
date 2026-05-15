@@ -317,6 +317,14 @@ internal static class GraphSnapshotRelationalRead
                 if (string.IsNullOrEmpty(edge.Label) && !string.IsNullOrEmpty(fromJson.Label))
                     edge.Label = fromJson.Label;
 
+                if (string.IsNullOrWhiteSpace(edge.InferenceSource)
+                    && !string.IsNullOrWhiteSpace(fromJson.InferenceSource))
+                    edge.InferenceSource = fromJson.InferenceSource;
+
+                if (string.IsNullOrWhiteSpace(edge.ReasoningTrace)
+                    && !string.IsNullOrWhiteSpace(fromJson.ReasoningTrace))
+                    edge.ReasoningTrace = fromJson.ReasoningTrace;
+
                 if (edge.Properties.Count == 0 && fromJson.Properties.Count > 0)
                     edge.Properties = new Dictionary<string, string>(fromJson.Properties, StringComparer.Ordinal);
             }

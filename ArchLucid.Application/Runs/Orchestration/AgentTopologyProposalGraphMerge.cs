@@ -42,6 +42,8 @@ public static class AgentTopologyProposalGraphMerge
             if (proposal is null)
                 continue;
 
+            string? reasoning = result.ReasoningTrace?.Trim();
+
             if (proposal.AddedServices is { Count: > 0 })
             {
                 foreach (ManifestService svc in proposal.AddedServices)
@@ -52,7 +54,7 @@ public static class AgentTopologyProposalGraphMerge
                     if (!seenLabels.Add(svc.ServiceName))
                         continue;
 
-                    added.Add(TopologyServiceNode(svc));
+                    added.Add(TopologyServiceNode(svc, reasoning));
                 }
             }
 
@@ -67,7 +69,7 @@ public static class AgentTopologyProposalGraphMerge
                 if (!seenLabels.Add(ds.DatastoreName))
                     continue;
 
-                added.Add(TopologyDatastoreNode(ds));
+                added.Add(TopologyDatastoreNode(ds, reasoning));
             }
         }
 
@@ -86,7 +88,7 @@ public static class AgentTopologyProposalGraphMerge
         };
     }
 
-    private static GraphNode TopologyServiceNode(ManifestService svc)
+    private static GraphNode TopologyServiceNode(ManifestService svc, string? reasoningTrace)
     {
         return new GraphNode
         {
@@ -96,11 +98,12 @@ public static class AgentTopologyProposalGraphMerge
             Category = GraphTopologyCategories.Compute,
             SourceType = nameof(AgentType.Topology),
             SourceId = "ProposedChanges",
+            ReasoningTrace = reasoningTrace,
             Properties = EnumProperties("serviceType", svc.ServiceType, "runtimePlatform", svc.RuntimePlatform)
         };
     }
 
-    private static GraphNode TopologyDatastoreNode(ManifestDatastore ds)
+    private static GraphNode TopologyDatastoreNode(ManifestDatastore ds, string? reasoningTrace)
     {
         return new GraphNode
         {
@@ -110,6 +113,7 @@ public static class AgentTopologyProposalGraphMerge
             Category = GraphTopologyCategories.Data,
             SourceType = nameof(AgentType.Topology),
             SourceId = "ProposedChanges",
+            ReasoningTrace = reasoningTrace,
             Properties = EnumProperties("datastoreType", ds.DatastoreType, "runtimePlatform", ds.RuntimePlatform)
         };
     }

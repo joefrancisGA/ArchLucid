@@ -4,7 +4,7 @@ import { CircleHelp } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
+import { ComplianceDriftChartPdfExport } from "@/components/ComplianceDriftChartPdfExport";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { HelpLink } from "@/components/HelpLink";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -314,7 +314,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
               </Link>
             </div>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Daily buckets (1440-minute) from compliance drift API.</p>
-            <ComplianceDriftChart points={driftPoints} />
+            <ComplianceDriftChartPdfExport points={driftPoints} />
           </CardContent>
         </Card>
 

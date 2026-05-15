@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 
 import { TenantSettingsDigestEmailsInput } from "./TenantSettingsDigestEmailsInput";
+import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
 
 type Props = {
@@ -194,6 +195,8 @@ export function TenantSettingsPageView(props: Props) {
           )}
         </CardContent>
       </Card>
+
+      <TenantQualityGatesCard />
     </div>
   );
 }

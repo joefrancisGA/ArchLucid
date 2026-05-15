@@ -26,6 +26,7 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
             Label = ReadFirstString(root, "label"),
             Weight = ReadFirstDouble(root, "weight") ?? 1d,
             InferenceSource = ReadFirstString(root, "inferenceSource"),
+            ReasoningTrace = ReadFirstString(root, "reasoningTrace"),
             Properties = ReadProperties(root, options)
         };
     }
@@ -46,6 +47,10 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
             writer.WriteNull("inferenceSource");
         else
             writer.WriteString("inferenceSource", value.InferenceSource);
+        if (value.ReasoningTrace is null)
+            writer.WriteNull("reasoningTrace");
+        else
+            writer.WriteString("reasoningTrace", value.ReasoningTrace);
         writer.WritePropertyName("properties");
         JsonSerializer.Serialize(writer, value.Properties, options);
         writer.WriteEndObject();

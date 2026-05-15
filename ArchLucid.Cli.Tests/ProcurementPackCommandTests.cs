@@ -9,6 +9,8 @@ public sealed class ProcurementPackCommandTests
     [Fact]
     public async Task Procurement_pack_unknown_flag_returns_usage_error()
     {
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(Path.GetTempPath());
+
         StringWriter outWriter = new();
         StringWriter errWriter = new();
         TextWriter prevOut = Console.Out;
@@ -37,6 +39,8 @@ public sealed class ProcurementPackCommandTests
     [Fact]
     public async Task Procurement_pack_missing_out_value_returns_usage_error()
     {
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(Path.GetTempPath());
+
         StringWriter errWriter = new();
         TextWriter prevErr = Console.Error;
         Console.SetError(errWriter);
@@ -61,6 +65,8 @@ public sealed class ProcurementPackCommandTests
     [Fact]
     public async Task Procurement_pack_dry_run_succeeds_when_python_and_sources_present()
     {
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(Path.GetTempPath());
+
         StringWriter outWriter = new();
         StringWriter errWriter = new();
         TextWriter prevOut = Console.Out;

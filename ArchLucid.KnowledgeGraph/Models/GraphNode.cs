@@ -43,4 +43,13 @@ public class GraphNode
         get;
         set;
     } = [];
+
+    /// <summary>
+    ///     Optional agent/heuristic narration carried into graph projection for operator explainability.
+    /// </summary>
+    public string? ReasoningTrace
+    {
+        get;
+        set;
+    }
 }

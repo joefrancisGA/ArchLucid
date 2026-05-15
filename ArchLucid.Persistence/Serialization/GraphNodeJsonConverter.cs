@@ -26,6 +26,7 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
             Category = ReadFirstString(root, "category"),
             SourceType = ReadFirstString(root, "sourceType"),
             SourceId = ReadFirstString(root, "sourceId"),
+            ReasoningTrace = ReadFirstString(root, "reasoningTrace"),
             Properties = ReadProperties(root, options)
         };
     }
@@ -48,6 +49,10 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
             writer.WriteNull("sourceId");
         else
             writer.WriteString("sourceId", value.SourceId);
+        if (value.ReasoningTrace is null)
+            writer.WriteNull("reasoningTrace");
+        else
+            writer.WriteString("reasoningTrace", value.ReasoningTrace);
         writer.WritePropertyName("properties");
         JsonSerializer.Serialize(writer, value.Properties, options);
         writer.WriteEndObject();

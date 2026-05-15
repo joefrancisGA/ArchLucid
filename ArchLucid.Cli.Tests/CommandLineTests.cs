@@ -135,6 +135,9 @@ public sealed class CommandLineTests
     public async Task New_WithProjectName_Returns0_AndCreatesFiles()
     {
         using TempDirectory temp = new();
+
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(temp.Path);
+
         string prevCwd = Directory.GetCurrentDirectory();
         try
         {
@@ -168,6 +171,9 @@ public sealed class CommandLineTests
     public async Task New_with_quickstart_before_name_creates_local_evaluation_artifacts()
     {
         using TempDirectory temp = new();
+
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(temp.Path);
+
         string prevCwd = Directory.GetCurrentDirectory();
         try
         {
@@ -199,6 +205,9 @@ public sealed class CommandLineTests
     public async Task New_with_quickstart_after_name_creates_local_evaluation_artifacts()
     {
         using TempDirectory temp = new();
+
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(temp.Path);
+
         string prevCwd = Directory.GetCurrentDirectory();
         try
         {
@@ -228,6 +237,9 @@ public sealed class CommandLineTests
     public async Task New_with_unknown_flag_returns_usage_error()
     {
         using TempDirectory temp = new();
+
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(temp.Path);
+
         string prevCwd = Directory.GetCurrentDirectory();
         try
         {

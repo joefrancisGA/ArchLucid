@@ -12,6 +12,29 @@
 
 ---
 
+## Authorization — ArchLucid-owned Jira OAuth (first-party V1 bi-directional sync)
+
+**Audience:** Security reviewers and tenant admins evaluating blast radius for **first-party Jira** connectivity ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13).
+
+**Model:** ArchLucid operates a **globally registered Atlassian OAuth 2.0 (3LO) application** used for **V1 bi-directional Jira sync**. Tenants **install / authorize** that marketplace-connected app against **their** Jira Cloud site; ArchLucid **never** asks customers to embed ArchLucid-owned **client secrets** in tenant-managed automation recipes on this hub.
+
+**Scopes (representative — verify current marketplace submission before audits):**
+
+- `read:jira-work` — read issues, metadata, and boards/search endpoints required for inbound sync and reconciliation.
+- `write:jira-work` — create/update transitions on issues ArchLucid owns or mirrors per connector rules.
+
+Additional granular scopes may appear if Atlassian splits capabilities; **documentation updates** accompany marketplace releases. No OAuth client identifiers or secrets belong in git — retrieve via secure operator channels only.
+
+**Installation flow:**
+
+1. Tenant admin opens ArchLucid **ITSM / Jira** settings and starts **Connect Jira**.
+2. Operator completes **Atlassian Marketplace** install / OAuth consent for the ArchLucid-published app (site-scoped grant).
+3. ArchLucid stores **refresh-token material** in tenant-bound secret storage (Key Vault pattern per deployment docs); connector workers use scoped tokens only inside tenant pipelines.
+
+**Customer-owned bridges:** Logic Apps / Power Automate recipes ([Recipe 3](#recipe-3--no-code-bridges-logic-appsfirst-or-power-automatefirst)) may instead use **tenant-created** OAuth apps — that path is **distinct** from the **ArchLucid-owned** app described here.
+
+---
+
 ## Recipe 1 — Azure DevOps: PR comment + status (manifest delta)
 
 **Goal:** On each pipeline run for an Azure Repos pull request, show the same **`GET /v1/compare`** Markdown as the GitHub “sticky PR comment” pattern: **one** thread updated via marker `<!-- archlucid:manifest-delta -->`, plus an informational PR status.

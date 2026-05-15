@@ -105,4 +105,49 @@ public sealed class AgentTopologyProposalGraphMergeTests
         GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
         merged.Nodes.Should().HaveCount(1);
     }
+
+    [SkippableFact]
+    public void WithMergedTopologyProposals_propagates_topology_agent_reasoning_trace_to_added_nodes()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes = [],
+            Edges = [],
+            Warnings = []
+        };
+
+        const string reasoning = "Proposed storefront API based on ingestion hints.";
+
+        AgentResult topology = new()
+        {
+            ResultId = "r2",
+            TaskId = "t2",
+            RunId = "run-2",
+            AgentType = AgentType.Topology,
+            ReasoningTrace = reasoning,
+            ProposedChanges = new ManifestDeltaProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "payments-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService
+                    }
+                ]
+            },
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        GraphNode svc = merged.Nodes.Should().ContainSingle(n => n.Label == "payments-api").Subject;
+        svc.ReasoningTrace.Should().Be(reasoning);
+    }
 }

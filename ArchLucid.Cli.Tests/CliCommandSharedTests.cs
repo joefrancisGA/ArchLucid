@@ -112,8 +112,11 @@ public sealed class CliCommandSharedTests
     [Fact]
     public void TryLoadConfigFromCwd_without_manifest_returns_null()
     {
-        string previous = Directory.GetCurrentDirectory();
         using TempDirectory temp = new();
+
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(temp.Path);
+
+        string previous = Directory.GetCurrentDirectory();
 
         try
         {

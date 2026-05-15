@@ -100,10 +100,7 @@ public sealed class GraphController(
     private static GraphViewModel MapArchitectureGraph(GraphSnapshot snapshot)
     {
         List<GraphNodeVm> nodes = snapshot.Nodes.Select(MapNode).ToList();
-        List<GraphEdgeVm> edges = snapshot.Edges.Select(e => new GraphEdgeVm
-        {
-            Source = e.FromNodeId, Target = e.ToNodeId, Type = e.EdgeType
-        }).ToList();
+        List<GraphEdgeVm> edges = snapshot.Edges.Select(MapEdge).ToList();
 
         return new GraphViewModel { Nodes = nodes, Edges = edges };
     }
@@ -111,9 +108,7 @@ public sealed class GraphController(
     private static GraphNodesPageResponse MapArchitectureGraphPage(GraphSnapshotNodesPage slice)
     {
         List<GraphNodeVm> nodes = slice.Nodes.Select(MapNode).ToList();
-        List<GraphEdgeVm> edges = slice.Edges
-            .Select(e => new GraphEdgeVm { Source = e.FromNodeId, Target = e.ToNodeId, Type = e.EdgeType })
-            .ToList();
+        List<GraphEdgeVm> edges = slice.Edges.Select(MapEdge).ToList();
 
         return new GraphNodesPageResponse
         {
@@ -144,7 +139,25 @@ public sealed class GraphController(
 
         return new GraphNodeVm
         {
-            Id = x.NodeId, Label = x.Label, Type = x.NodeType, Metadata = meta.Count > 0 ? meta : null
+            Id = x.NodeId,
+            Label = x.Label,
+            Type = x.NodeType,
+            Metadata = meta.Count > 0 ? meta : null,
+            ReasoningTrace = x.ReasoningTrace
+        };
+    }
+
+    private static GraphEdgeVm MapEdge(GraphEdge e)
+    {
+        return new GraphEdgeVm
+        {
+            Id = e.EdgeId,
+            Source = e.FromNodeId,
+            Target = e.ToNodeId,
+            Type = e.EdgeType,
+            Label = e.Label,
+            InferenceSource = e.InferenceSource,
+            ReasoningTrace = e.ReasoningTrace
         };
     }
 }

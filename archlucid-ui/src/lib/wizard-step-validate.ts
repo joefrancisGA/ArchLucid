@@ -14,15 +14,16 @@ const stepPickSchema: Record<number, z.ZodTypeAny | null> = {
     inlineRequirements: true,
   }),
   2: wizardFormSchema.pick({ constraints: true, requiredCapabilities: true, assumptions: true }),
-  3: wizardFormSchema.pick({
+  3: null,
+  4: wizardFormSchema.pick({
     policyReferences: true,
     topologyHints: true,
     securityBaselineHints: true,
     documents: true,
     infrastructureDeclarations: true,
   }),
-  4: null,
   5: null,
+  6: null,
 };
 
 export type WizardStepFieldError = { field: string; message: string };

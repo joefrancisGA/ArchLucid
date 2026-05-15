@@ -76,7 +76,8 @@ public sealed class DefaultGraphEdgeInfererTests
         edges.Should().Contain(e =>
             e.FromNodeId == contextNodeId &&
             e.ToNodeId == "res-1" &&
-            e.EdgeType == GraphEdgeTypes.Contains);
+            e.EdgeType == GraphEdgeTypes.Contains &&
+            !string.IsNullOrWhiteSpace(e.ReasoningTrace));
     }
 
     [Fact]

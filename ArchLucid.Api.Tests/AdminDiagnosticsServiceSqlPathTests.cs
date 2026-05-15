@@ -22,7 +22,7 @@ using Xunit;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>SQL-backed branches of <see cref="AdminDiagnosticsService" /> using Moq <see cref="DbCommand"/> + <see cref="SequencedCommandDbConnection"/>.</summary>
+/// <summary>SQL-backed branches of <see cref="AdminDiagnosticsService" /> using <see cref="ScriptedDbCommand" /> + <see cref="SequencedCommandDbConnection" />.</summary>
 [Trait("Suite", "Core")]
 public sealed class AdminDiagnosticsServiceSqlPathTests
 {
@@ -42,18 +42,18 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
 
         public IDbConnectionFactory Factory => factoryProxy.Object;
 
-        public void EnqueueParameterizedReader(ReadResult result, Action<Mock<DbCommand>>? sideEffect = null)
+        public void EnqueueParameterizedReader(ReadResult result, Action<ScriptedDbCommand>? sideEffect = null)
         {
             _commandFactories.Add(() => BuildReaderCommand(result, sideEffect));
         }
 
-        public void EnqueueNonQuery(int rowsAffected, Action<Mock<DbCommand>>? sideEffect = null)
+        public void EnqueueNonQuery(int rowsAffected, Action<ScriptedDbCommand>? sideEffect = null)
         {
             _commandFactories.Add(() =>
                 BuildNonQueryCommand(Task.FromResult(rowsAffected), sideEffect));
         }
 
-        public void EnqueueFaultingNonQuery(Exception fault, Action<Mock<DbCommand>>? sideEffect = null)
+        public void EnqueueFaultingNonQuery(Exception fault, Action<ScriptedDbCommand>? sideEffect = null)
         {
             _commandFactories.Add(() =>
                 BuildNonQueryCommand(Task.FromException<int>(fault), sideEffect));
@@ -321,7 +321,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
     {
         Mock<IDbConnectionFactory> factoryOuter = new();
 
-        Mock<DbCommand>? capture = null;
+        ScriptedDbCommand? capture = null;
 
         ScriptedSqlSession session = new(factoryOuter);
 
@@ -337,7 +337,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
 
         Assert.NotNull(capture);
 
-        DbParameter? maxRowsParameter = FindParameter(capture!.Object.Parameters, "@MaxRows");
+        DbParameter? maxRowsParameter = FindParameter(capture!.Parameters, "@MaxRows");
 
         Assert.NotNull(maxRowsParameter);
         Assert.Equal(
@@ -352,13 +352,9 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
 
         foreach (object? scalar in scalarSequence)
         {
-            Mock<DbCommand> shell = CommandShellMoq();
+            ScriptedDbCommand shell = new(CreateParameterTemplate) { ScalarAsync = _ => Task.FromResult(scalar) };
 
-            shell.Setup(cm =>
-                    cm.ExecuteScalarAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(scalar);
-
-            queue.Enqueue(shell.Object);
+            queue.Enqueue(shell);
         }
 
         SequencedCommandDbConnection connection = new(queue);
@@ -377,90 +373,40 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
 
     private static DbCommand BuildReaderCommand(
         ReadResult result,
-        Action<Mock<DbCommand>>? sideEffect)
+        Action<ScriptedDbCommand>? sideEffect)
     {
-        Mock<DbCommand> command = CommandShellMoq();
-        Mock<DbDataReader> reader = BuildReader(result);
+        ScriptedDbCommand command = new(CreateParameterTemplate)
+        {
+            ReaderAsync = _ =>
+            {
+                DbDataReader reader = BuildReader(result);
 
-        command.Setup(cm =>
-                cm.ExecuteReaderAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(reader.Object);
+                return Task.FromResult(reader);
+            }
+        };
 
         sideEffect?.Invoke(command);
 
-        return command.Object;
+        return command;
     }
 
     private static DbCommand BuildNonQueryCommand(
         Task<int> outcome,
-        Action<Mock<DbCommand>>? sideEffect)
+        Action<ScriptedDbCommand>? sideEffect)
     {
-        Mock<DbCommand> command = CommandShellMoq();
-
-        command.Setup(cm =>
-                cm.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()))
-            .Returns(outcome);
+        ScriptedDbCommand command = new(CreateParameterTemplate) { NonQueryAsync = _ => outcome };
 
         sideEffect?.Invoke(command);
 
-        return command.Object;
-    }
-
-    private static Mock<DbDataReader> BuildReader(ReadResult result)
-    {
-        Mock<DbDataReader> reader = new(MockBehavior.Loose);
-
-        if (result.ComparisonStrings.Count > 0)
-        {
-            int index = -1;
-
-            reader.Setup(r =>
-                    r.ReadAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() =>
-                {
-                    index++;
-
-                    return index < result.ComparisonStrings.Count;
-                });
-
-            reader.Setup(r => r.GetString(0))
-                .Returns(() => result.ComparisonStrings[index]);
-        }
-        else
-        {
-            int index = -1;
-
-            reader.Setup(r =>
-                    r.ReadAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() =>
-                {
-                    index++;
-
-                    return index < result.GuidRows.Count;
-                });
-
-            reader.Setup(r => r.GetGuid(0))
-                .Returns(() => result.GuidRows[index]);
-        }
-
-        return reader;
-    }
-
-    private static Mock<DbCommand> CommandShellMoq()
-    {
-        Mock<DbCommand> command = new(MockBehavior.Loose);
-
-        // Moq cannot use SetupProperty for DbCommand.Transaction on current runtimes (non-overridable getter).
-
-        command.SetupProperty(cm => cm.Connection);
-
-        command.SetupGet(cm => cm.Parameters)
-            .Returns(new ListDbParameterCollection());
-
-        command.Setup(cm => cm.CreateParameter())
-            .Returns(CreateParameterTemplate);
-
         return command;
+    }
+
+    private static DbDataReader BuildReader(ReadResult result)
+    {
+        if (result.ComparisonStrings.Count > 0)
+            return new ScriptedTabularDbDataReader(result.ComparisonStrings);
+
+        return new ScriptedTabularDbDataReader(result.GuidRows);
     }
 
     private static DbParameter CreateParameterTemplate()

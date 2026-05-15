@@ -4,13 +4,20 @@ export type GraphNodeVm = {
   label: string;
   type: string;
   metadata?: Record<string, string>;
+  /** Topology merge / ingestion may propagate agent narration for explainability. */
+  reasoningTrace?: string | null;
 };
 
 /** A directed edge in the graph (source → target with a relationship type). */
 export type GraphEdgeVm = {
+  /** Snapshot edge identifier when serialized from architecture graph payloads. */
+  id?: string | null;
   source: string;
   target: string;
   type: string;
+  label?: string | null;
+  inferenceSource?: string | null;
+  reasoningTrace?: string | null;
 };
 
 /** Paginated architecture graph (GET /v1/graph/runs/{runId}/nodes). */

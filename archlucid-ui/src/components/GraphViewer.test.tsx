@@ -21,7 +21,7 @@ describe("GraphViewer", () => {
     render(<GraphViewer graph={graph} />);
 
     expect(screen.getByText("Node detail")).toBeInTheDocument();
-    expect(screen.getByText(/Select a node to inspect/)).toBeInTheDocument();
+    expect(screen.getByText(/Select a node or inferred edge/)).toBeInTheDocument();
   });
 
   it("renders empty-state when the graph has no nodes", () => {

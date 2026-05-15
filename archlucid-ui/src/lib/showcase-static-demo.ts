@@ -37,6 +37,12 @@ export const SHOWCASE_STATIC_DEMO_SPINE_COUNTS = {
   decisionCount: 12,
 } as const;
 
+/**
+ * Sponsor-facing headline used only when **`usedStaticDemoRun`** serves the Claims Intake static payload —
+ * illustrative until live `cost-actual.json` + `orphan-candidates.json` artifacts exist on tenants.
+ */
+export const SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD = 94_360;
+
 /** Grouped decision bullets for manifest detail (synopses are {@link SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES}). */
 export type ShowcaseStaticDemoDecisionItem = {
   readonly controlArea: string;

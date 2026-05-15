@@ -9,6 +9,7 @@ import {
   policyPacksPublishButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
+import { PolicyPackJsonSchemaHelpIcon } from "@/lib/policy-pack-json-schema-hint";
 import { PACK_TYPES, VERTICAL_POLICY_PACK_IMPORTS } from "./policy-packs-page-constants";
 
 export type PolicyPacksLifecycleSectionProps = {
@@ -164,12 +165,15 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
               </select>
             </label>
             <div className="space-y-2">
-              <label
-                htmlFor="policy-pack-create-json"
-                className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
-              >
-                Initial content (policy)
-              </label>
+              <div className="flex flex-wrap items-start gap-2">
+                <label
+                  htmlFor="policy-pack-create-json"
+                  className="min-w-[12rem] flex-1 text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                >
+                  Initial content (policy)
+                </label>
+                <PolicyPackJsonSchemaHelpIcon ariaLabel="Brief policy-pack JSON schema reference" />
+              </div>
               <Textarea
                 id="policy-pack-create-json"
                 value={createJson}
@@ -222,12 +226,15 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
               />
             </div>
             <div className="space-y-2">
-              <label
-                htmlFor="policy-pack-publish-json"
-                className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
-              >
-                Content (policy)
-              </label>
+              <div className="flex flex-wrap items-start gap-2">
+                <label
+                  htmlFor="policy-pack-publish-json"
+                  className="min-w-[12rem] flex-1 text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                >
+                  Content (policy)
+                </label>
+                <PolicyPackJsonSchemaHelpIcon ariaLabel="Brief policy-pack JSON schema reference" />
+              </div>
               <Textarea
                 id="policy-pack-publish-json"
                 value={publishJson}

@@ -16,6 +16,7 @@ import { RunIdPicker } from "@/components/RunIdPicker";
 import { replayModeLabel, REPLAY_MODE_PLAIN_OPTIONS, sortReplayNotes } from "@/lib/replay-display";
 
 import type { ReplayFormViewModel } from "./replay-form-view-model";
+import { ArchitectureComparisonReplayCostSection } from "./ArchitectureComparisonReplayCostSection";
 
 type Props = {
   readonly model: ReplayFormViewModel;
@@ -201,6 +202,7 @@ export function ReplayFormView(props: Props) {
           </section>
         </ClientErrorBoundary>
       )}
+      <ArchitectureComparisonReplayCostSection />
     </div>
   );
 }

@@ -52,6 +52,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
       <div className="grid max-w-3xl gap-3">
         <RunIdPicker
           preferAutoPick={false}
+          autoFocus
           label={leftPickerLabel}
           placeholder="Choose a baseline review"
           value={leftRunId}

@@ -40,7 +40,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
       }),
     ).toBeVisible();
 
-    await page.getByText("Technical identifiers (audit)", { exact: true }).click();
+    await page.getByText("Verification appendix (identifiers)", { exact: true }).click();
     await expect(page.getByText(FIXTURE_MANIFEST_ID)).toBeVisible();
 
     await expect(

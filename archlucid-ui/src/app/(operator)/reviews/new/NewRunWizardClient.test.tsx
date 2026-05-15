@@ -71,7 +71,7 @@ async function renderNewRunWizard() {
   );
 
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Full Wizard (6 steps)" }));
+    fireEvent.click(screen.getByRole("button", { name: "Full Wizard (7 steps)" }));
   });
 
   await waitFor(
@@ -150,11 +150,11 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
 
     expect(progressLine()).toHaveTextContent(/Step 2:/);
 
-    for (let i = 0; i < 3; i += 1) {
+    for (let i = 0; i < 4; i += 1) {
       await clickPrimaryForward();
     }
 
-    expect(progressLine()).toHaveTextContent(/Step 5:/);
+    expect(progressLine()).toHaveTextContent(/Step 6:/);
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
 
     await act(async () => {

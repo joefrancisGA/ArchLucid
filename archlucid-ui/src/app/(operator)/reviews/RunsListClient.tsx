@@ -360,6 +360,7 @@ export function RunsListClient({
             }}
             className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
             autoComplete="off"
+            autoFocus
             aria-label="Filter reviews by name or description"
             aria-controls="runs-list-filter-status"
           />

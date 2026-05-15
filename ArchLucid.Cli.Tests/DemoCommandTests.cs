@@ -9,6 +9,8 @@ public sealed class DemoCommandTests
     [Fact]
     public async Task Demo_export_unknown_flag_returns_usage_error()
     {
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(Path.GetTempPath());
+
         StringWriter errWriter = new();
         TextWriter prevErr = Console.Error;
         Console.SetError(errWriter);
@@ -33,6 +35,8 @@ public sealed class DemoCommandTests
     [Fact]
     public async Task Demo_export_copies_sample_pack_to_temp()
     {
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(Path.GetTempPath());
+
         StringWriter outWriter = new();
         TextWriter prevOut = Console.Out;
         Console.SetOut(outWriter);

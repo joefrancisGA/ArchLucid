@@ -40,6 +40,7 @@ public static class GraphSnapshotCloner
             Category = node.Category,
             SourceType = node.SourceType,
             SourceId = node.SourceId,
+            ReasoningTrace = node.ReasoningTrace,
             Properties = new Dictionary<string, string>(node.Properties, StringComparer.OrdinalIgnoreCase)
         };
     }
@@ -55,6 +56,7 @@ public static class GraphSnapshotCloner
             Label = edge.Label,
             Weight = edge.Weight,
             InferenceSource = edge.InferenceSource,
+            ReasoningTrace = edge.ReasoningTrace,
             Properties = new Dictionary<string, string>(edge.Properties, StringComparer.OrdinalIgnoreCase)
         };
     }

@@ -56,4 +56,13 @@ public class GraphEdge
         get;
         set;
     } = [];
+
+    /// <summary>
+    ///     Optional inference explanation (deterministic heuristic text or propagated agent narration).
+    /// </summary>
+    public string? ReasoningTrace
+    {
+        get;
+        set;
+    }
 }

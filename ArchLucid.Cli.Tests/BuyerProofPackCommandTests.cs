@@ -26,6 +26,9 @@ public sealed class BuyerProofPackCommandTests : IDisposable
     {
         _emptyCwd = Path.Combine(Path.GetTempPath(), "ArchLucidCliBuyerProofPackTests." + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_emptyCwd);
+
+        CliTestWorkingDirectory.EnsureReadableUsingExistingDirectory(_emptyCwd);
+
         _prevApiUrl = Environment.GetEnvironmentVariable("ARCHLUCID_API_URL");
     }
 
@@ -83,6 +86,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
     {
         StringWriter err = new(CultureInfo.InvariantCulture);
         TextWriter prevErr = Console.Error;
+        string prevCwd = Directory.GetCurrentDirectory();
 
         try
         {
@@ -97,6 +101,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
         }
         finally
         {
+            Directory.SetCurrentDirectory(prevCwd);
             Console.SetError(prevErr);
         }
     }
@@ -106,6 +111,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
     {
         StringWriter err = new(CultureInfo.InvariantCulture);
         TextWriter prevErr = Console.Error;
+        string prevCwd = Directory.GetCurrentDirectory();
 
         try
         {
@@ -120,6 +126,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
         }
         finally
         {
+            Directory.SetCurrentDirectory(prevCwd);
             Console.SetError(prevErr);
         }
     }
@@ -129,6 +136,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
     {
         StringWriter err = new(CultureInfo.InvariantCulture);
         TextWriter prevErr = Console.Error;
+        string prevCwd = Directory.GetCurrentDirectory();
 
         try
         {
@@ -143,6 +151,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
         }
         finally
         {
+            Directory.SetCurrentDirectory(prevCwd);
             Console.SetError(prevErr);
         }
     }
@@ -152,6 +161,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
     {
         StringWriter err = new(CultureInfo.InvariantCulture);
         TextWriter prevErr = Console.Error;
+        string prevCwd = Directory.GetCurrentDirectory();
 
         try
         {
@@ -166,6 +176,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
         }
         finally
         {
+            Directory.SetCurrentDirectory(prevCwd);
             Console.SetError(prevErr);
         }
     }
@@ -175,6 +186,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
     {
         StringWriter err = new(CultureInfo.InvariantCulture);
         TextWriter prevErr = Console.Error;
+        string prevCwd = Directory.GetCurrentDirectory();
 
         try
         {
@@ -190,6 +202,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
         }
         finally
         {
+            Directory.SetCurrentDirectory(prevCwd);
             Console.SetError(prevErr);
         }
     }

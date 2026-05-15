@@ -48088,6 +48088,18 @@ namespace ArchLucid.Api.Client.Generated
     public partial class GraphEdgeVm
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
+        public string? Id { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("inferenceSource")]
+        public string? InferenceSource { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("label")]
+        public string? Label { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("reasoningTrace")]
+        public string? ReasoningTrace { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("source")]
         public string? Source { get; set; } = default!;
 
@@ -48156,6 +48168,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("metadata")]
         public System.Collections.Generic.IDictionary<string, string>? Metadata { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("reasoningTrace")]
+        public string? ReasoningTrace { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("type")]
         public string? Type { get; set; } = default!;

@@ -7989,6 +7989,30 @@
       },
       "GraphEdgeVm": {
         "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "inferenceSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reasoningTrace": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "source": {
             "type": "string"
           },
@@ -8054,6 +8078,12 @@
             "type": [
               "null",
               "object"
+            ]
+          },
+          "reasoningTrace": {
+            "type": [
+              "null",
+              "string"
             ]
           },
           "type": {

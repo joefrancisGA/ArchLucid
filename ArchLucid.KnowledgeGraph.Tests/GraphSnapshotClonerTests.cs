@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Services;
 
@@ -25,6 +26,8 @@ public sealed class GraphSnapshotClonerTests
             ToNodeId = "b",
             EdgeType = "contains",
             Weight = 0.75,
+            InferenceSource = GraphEdgeInferenceSources.ContextMembership,
+            ReasoningTrace = "cloned trace",
             Properties = new Dictionary<string, string> { ["k"] = "v" }
         };
         GraphSnapshot source = new()
@@ -68,6 +71,8 @@ public sealed class GraphSnapshotClonerTests
         clone.Edges[0].FromNodeId.Should().Be("a");
         clone.Edges[0].ToNodeId.Should().Be("b");
         clone.Edges[0].Weight.Should().Be(0.75);
+        clone.Edges[0].InferenceSource.Should().Be(GraphEdgeInferenceSources.ContextMembership);
+        clone.Edges[0].ReasoningTrace.Should().Be("cloned trace");
         clone.Edges[0].Properties["k"].Should().Be("v");
     }
 }

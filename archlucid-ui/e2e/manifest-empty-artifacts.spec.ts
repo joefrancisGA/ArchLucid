@@ -25,8 +25,8 @@ test.describe("operator journey — manifest empty artifact list", () => {
       }),
     ).toBeVisible();
 
-    // Manifest ID lives under a collapsed <details> in buyer-polished layout.
-    await page.getByText("Technical identifiers (audit)", { exact: true }).click();
+    // Manifest ID lives under a collapsed <details> in the summary panel (buyer-polished and full-operator).
+    await page.getByText("Verification appendix (identifiers)", { exact: true }).click();
     await expect(page.getByText(FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID)).toBeVisible();
 
     await expect(page.getByText("Artifact list could not be loaded.", { exact: true })).toHaveCount(0);
