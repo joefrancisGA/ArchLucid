@@ -121,5 +121,22 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
             return Task.FromResult(match);
         }
     }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<Guid>> SupersedeUnreferencedActiveGoldenManifestsAsync(
+        ScopeContext scope,
+        Guid newManifestId,
+        IDbConnection? connection,
+        IDbTransaction? transaction,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        _ = newManifestId;
+        _ = connection;
+        _ = transaction;
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<Guid>>(Array.Empty<Guid>());
+    }
 }
 

@@ -39,4 +39,16 @@ public interface IGoldenManifestRepository
     /// </summary>
     Task<ManifestDocument?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion,
         CancellationToken ct);
+
+    /// <summary>
+    ///     Marks active golden manifests in the scope as superseded when no non-archived run in that scope references them.
+    ///     Intended immediately after finalize wires <paramref name="newManifestId" /> onto the committing run (same SQL transaction when provided).
+    /// </summary>
+    /// <returns>Manifest identifiers transitioned to superseded; never null (empty when none).</returns>
+    Task<IReadOnlyList<Guid>> SupersedeUnreferencedActiveGoldenManifestsAsync(
+        ScopeContext scope,
+        Guid newManifestId,
+        IDbConnection? connection,
+        IDbTransaction? transaction,
+        CancellationToken cancellationToken);
 }

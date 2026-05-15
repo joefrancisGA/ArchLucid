@@ -12,6 +12,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Startup;
+using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.Persistence.AzureExtractorChunkUpload;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Caching;
@@ -135,7 +136,47 @@ public static class ArchLucidStorageServiceCollectionExtensions
         IConfiguration configuration)
     {
         RegisterDistributedCacheForLlmCompletionIfNeeded(services, configuration);
+        RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded(services, configuration);
         RegisterLlmCompletionResponseStore(services, configuration);
+    }
+
+    internal static void RegisterDistributedCacheForKnowledgeGraphProjectionIfNeeded(
+        IServiceCollection services,
+        IConfiguration configuration)
+    {
+        KnowledgeGraphProjectionCacheOptions kg =
+            configuration.GetSection(KnowledgeGraphProjectionCacheOptions.SectionName).Get<KnowledgeGraphProjectionCacheOptions>()
+            ?? new KnowledgeGraphProjectionCacheOptions();
+
+        if (kg.Backend != GraphProjectionCacheBackend.Distributed)
+            return;
+
+        if (services.Any(static d => d.ServiceType == typeof(IDistributedCache)))
+            return;
+
+        HotPathCacheOptions hotPath =
+            configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
+            new HotPathCacheOptions();
+
+        LlmCompletionResponseCacheOptions llm =
+            configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName).Get<LlmCompletionResponseCacheOptions>()
+            ?? new LlmCompletionResponseCacheOptions();
+
+        string? kgRedis = kg.RedisConnectionString?.Trim();
+
+        string redis = !string.IsNullOrEmpty(kgRedis)
+            ? kgRedis
+            : !string.IsNullOrWhiteSpace(llm.RedisConnectionString)
+                ? llm.RedisConnectionString!.Trim()
+                : hotPath.RedisConnectionString.Trim();
+
+        if (string.IsNullOrEmpty(redis))
+
+            throw new InvalidOperationException(
+                "ArchLucid:KnowledgeGraph:ProjectionCache:Backend is Distributed but no IDistributedCache is registered and no Redis connection string is available (configure ProjectionCache:RedisConnectionString, LlmCompletionCache:RedisConnectionString, or HotPathCache:RedisConnectionString).");
+
+
+        services.AddStackExchangeRedisCache(o => o.Configuration = redis);
     }
 
     internal static void RegisterHostLeaderLeaseInfrastructure(IServiceCollection services)

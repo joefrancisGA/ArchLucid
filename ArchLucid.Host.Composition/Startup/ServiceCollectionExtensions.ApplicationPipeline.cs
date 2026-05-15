@@ -57,7 +57,9 @@ using ArchLucid.KnowledgeGraph.Services;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 using ContextConnector = ArchLucid.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchLucid.ContextIngestion.Interfaces.IContextIngestionService;
@@ -249,7 +251,22 @@ public static partial class ServiceCollectionExtensions
         services.Configure<KnowledgeGraphProjectionCacheOptions>(
             configuration.GetSection(KnowledgeGraphProjectionCacheOptions.SectionName));
         services.TryAddSingleton<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions()));
-        services.TryAddSingleton<IGraphSnapshotProjectionCache, GraphSnapshotProjectionMemoryCache>();
+        services.TryAddSingleton<GraphSnapshotProjectionMemoryCache>();
+        services.TryAddSingleton<GraphSnapshotProjectionDistributedCache>();
+        services.TryAddSingleton<IGraphSnapshotProjectionCache>(static sp =>
+        {
+            IOptionsMonitor<KnowledgeGraphProjectionCacheOptions> monitor =
+                sp.GetRequiredService<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>>();
+            KnowledgeGraphProjectionCacheOptions opts = monitor.CurrentValue;
+
+            if (!opts.Enabled)
+                return NonCachingGraphSnapshotProjectionCache.Instance;
+
+            if (opts.Backend == GraphProjectionCacheBackend.Distributed)
+                return sp.GetRequiredService<GraphSnapshotProjectionDistributedCache>();
+
+            return sp.GetRequiredService<GraphSnapshotProjectionMemoryCache>();
+        });
         services.AddSingleton<PlainTextContextDocumentParser>();
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<PlainTextContextDocumentParser>());
         services.AddSingleton<IReadOnlyList<IContextDocumentParser>>(static sp =>

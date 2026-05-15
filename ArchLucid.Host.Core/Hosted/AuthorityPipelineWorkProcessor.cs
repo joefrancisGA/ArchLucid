@@ -98,6 +98,15 @@ public sealed class AuthorityPipelineWorkProcessor(
         ContextIngestionRequest request = payload.ContextIngestionRequest;
         request.RunId = entry.RunId;
 
+        if (_logger.IsEnabled(LogLevel.Information))
+
+            _logger.LogInformation(
+                "Authority pipeline worker state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}",
+                entry.RunId,
+                "queued_outbox_claimed",
+                "authority_pipeline_resume");
+
+
         await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
 
         IRunRepository runRepository =

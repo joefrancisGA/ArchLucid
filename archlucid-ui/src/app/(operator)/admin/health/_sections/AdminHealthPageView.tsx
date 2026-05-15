@@ -5,6 +5,8 @@ import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
 import { isInternalTestBuildVersion } from "./admin-health-helpers";
 import type { AdminHealthPageViewModel } from "./admin-health-view-model";
 
@@ -21,6 +23,16 @@ export function AdminHealthPageView(props: Props) {
   const m = props.model;
 
   if (m.isDemo) {
+    if (isBuyerPolishedOperatorShellEnv()) {
+      return (
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+          <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">
+            This workspace administration page is not part of the sample review.
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
         <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Diagnostics not available in demo mode.</p>
@@ -31,6 +43,9 @@ export function AdminHealthPageView(props: Props) {
 
   const internalTestBuildDisclosure = isInternalTestBuildVersion(m.version);
   const overall = m.ready?.status ?? "Unknown";
+  const archivalEntry = m.ready?.entries.find((entry) => entry.name === "data_archival") ?? null;
+  const archivalDegraded =
+    archivalEntry !== null && archivalEntry.status.trim().toLowerCase() === "degraded";
 
   return (
     <div className="mx-auto max-w-3xl space-y-6" data-testid="admin-health-page">
@@ -74,6 +89,18 @@ export function AdminHealthPageView(props: Props) {
             <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert">
               {m.readyError}
             </p>
+          ) : null}
+          {archivalDegraded ? (
+            <div
+              className="mb-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-50"
+              role="status"
+              data-testid="admin-health-data-archival-degraded"
+            >
+              <strong className="font-semibold">Data archival</strong> is <strong>Degraded</strong> — the last retention
+              archival iteration failed while archival was enabled. Review worker logs and{" "}
+              <code className="rounded bg-amber-100/80 px-1 text-xs dark:bg-amber-900/60">docs/runbooks/DATA_ARCHIVAL_HEALTH.md</code>{" "}
+              (readiness check <span className="font-mono text-xs">data_archival</span>).
+            </div>
           ) : null}
           {m.version !== null ? (
             <div className="mb-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900/50" data-testid="admin-health-build-identity">

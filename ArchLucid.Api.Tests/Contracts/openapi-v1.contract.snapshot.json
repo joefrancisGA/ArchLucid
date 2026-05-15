@@ -4395,6 +4395,45 @@
         },
         "type": "object"
       },
+      "CrossTenantUsageRollup": {
+        "properties": {
+          "committedRunsCount": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "distinctTenantCount": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "generatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "totalRunsCount": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "committedRunsCount",
+          "distinctTenantCount",
+          "generatedUtc",
+          "totalRunsCount"
+        ],
+        "type": "object"
+      },
       "CursorPagedResponseOfAuditEvent": {
         "properties": {
           "hasMore": {
@@ -16228,6 +16267,35 @@
         },
         "tags": [
           "ArchLucid.Api"
+        ]
+      }
+    },
+    "/v1/admin/analytics/cross-tenant-summary": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrossTenantUsageRollup"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrossTenantUsageRollup"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrossTenantUsageRollup"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Admin"
         ]
       }
     },

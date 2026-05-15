@@ -17,6 +17,7 @@ import {
   severityBadgeClass,
   sinceIsoForRange,
 } from "./product-learning-page-helpers";
+import { PlanningBridgePanel } from "./PlanningBridgePanel";
 import type { ProductLearningTimeRangeKey } from "./product-learning-types";
 import type { ProductLearningPageViewModel } from "./product-learning-view-model";
 
@@ -244,6 +245,8 @@ export function ProductLearningPageView(props: Props) {
               </ol>
             )}
           </section>
+
+          <PlanningBridgePanel since={sinceIsoForRange(m.range)} disabled={m.loading} />
 
           <section className="mb-6" aria-labelledby="pl-triage-heading">
             <h3 id="pl-triage-heading" className="text-[17px] mb-1">

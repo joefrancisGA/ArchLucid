@@ -20,6 +20,7 @@
     <PackageReference Include="Azure.Storage.Queues" />
     <PackageReference Include="Asp.Versioning.Mvc" />
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
+    <PackageReference Include="ITfoxtec.Identity.Saml2.MvcCore" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.OpenApi" />
@@ -56,9 +57,7 @@
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
     <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
-    <ProjectReference Include="..\ArchLucid.Analyzers\ArchLucid.Analyzers.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\ArchLucid.Analyzers\ArchLucid.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

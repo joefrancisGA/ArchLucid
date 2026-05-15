@@ -194,7 +194,14 @@ public sealed class ManifestFinalizationService(
             throw MapSqlException(ex, request.RunId);
         }
 
+        IReadOnlyList<Guid> supersededManifestIds =
+            await goldenManifestRepository.SupersedeUnreferencedActiveGoldenManifestsAsync(scope, persisted.ManifestId, connection, transaction,
+                cancellationToken);
+
         await uow.CommitAsync(cancellationToken);
+
+        await EmitManifestSupersededAuditsAsync(scope, request, supersededManifestIds, persisted.ManifestId, cancellationToken);
+
         return new ManifestFinalizationResult(persisted.ManifestId, false, request.Contract.Metadata.ManifestVersion, persisted);
     }
 
@@ -233,6 +240,7 @@ public sealed class ManifestFinalizationService(
         header.DecisionTraceId = audit.DecisionTraceId;
         header.CompletedUtc ??= TimeProvider.System.UtcNowDateTime();
         await runRepository.UpdateAsync(header, cancellationToken);
+
         AuditEvent finalized = scope.CreateAuditEvent(
             AuditEventTypes.ManifestFinalized,
             request.ActorUserId,
@@ -268,7 +276,49 @@ public sealed class ManifestFinalizationService(
         await integrationEventOutbox.EnqueueAsync(request.RunId, IntegrationEventTypes.ManifestFinalizedV1, messageId, utf8, scope.TenantId, scope.WorkspaceId,
             scope.ProjectId, cancellationToken);
         await uow.CommitAsync(cancellationToken);
+
+        IReadOnlyList<Guid> supersededManifestIds =
+            await goldenManifestRepository.SupersedeUnreferencedActiveGoldenManifestsAsync(scope, persisted.ManifestId, null, null, cancellationToken);
+
+        await EmitManifestSupersededAuditsAsync(scope, request, supersededManifestIds, persisted.ManifestId, cancellationToken);
+
         return new ManifestFinalizationResult(persisted.ManifestId, false, request.Contract.Metadata.ManifestVersion, persisted);
+    }
+
+    /// <summary>
+    ///     Emits one durable audit row per superseded golden manifest (repository performs SQL transition; application owns audit semantics).
+    /// </summary>
+    private async Task EmitManifestSupersededAuditsAsync(
+        ScopeContext scope,
+        ManifestFinalizationRequest request,
+        IReadOnlyList<Guid> supersededManifestIds,
+        Guid supersedingManifestId,
+        CancellationToken cancellationToken)
+    {
+        if (supersededManifestIds is null || supersededManifestIds.Count == 0)
+            return;
+
+        foreach (Guid supersededManifestId in supersededManifestIds)
+        {
+            string dataJson = JsonSerializer.Serialize(
+                new
+                {
+                    supersedingManifestId,
+                    runId = request.RunId,
+                    reason = "unreferenced_after_finalize"
+                },
+                IntegrationEventJson.Options);
+
+            AuditEvent auditEvent = scope.CreateAuditEvent(
+                AuditEventTypes.ManifestSuperseded,
+                request.ActorUserId,
+                request.ActorUserName,
+                dataJson);
+            auditEvent.RunId = request.RunId;
+            auditEvent.ManifestId = supersededManifestId;
+
+            await auditService.LogAsync(auditEvent, cancellationToken);
+        }
     }
 
     private static Exception MapSqlException(SqlException ex, Guid runId)

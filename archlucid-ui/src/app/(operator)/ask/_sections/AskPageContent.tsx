@@ -325,7 +325,7 @@ export function AskPageContent() {
         helpKey="ask-archlucid"
         subtitle={
           buyerPolishedShell
-            ? "Saved threads keep their review context. For a new thread, pick a review below—your workspace selection is used when available."
+            ? "Each saved thread stays tied to one review package. Start a new thread after you select a review; your workspace's active review is used when it matches the list."
             : "Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."
         }
       />

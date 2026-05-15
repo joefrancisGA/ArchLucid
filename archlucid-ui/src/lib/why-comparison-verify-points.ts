@@ -12,29 +12,29 @@ export type WhyVerifyLink = {
 export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
   [{ label: "Demo preview", href: "/demo/preview" }],
   [
-    { label: "Evidence pack (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
+    { label: "Assurance evidence package (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
     {
-      label: "AUDIT_COVERAGE_MATRIX.md",
+      label: "Durable audit coverage matrix",
       href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/AUDIT_COVERAGE_MATRIX.md`,
     },
   ],
   [
     {
-      label: "MULTI_TENANT_RLS.md",
+      label: "Tenant isolation control summary",
       href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/security/MULTI_TENANT_RLS.md`,
     },
   ],
-  [{ label: "V1_SCOPE.md (auth)", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/V1_SCOPE.md` }],
+  [{ label: "Authentication scope (published scope doc)", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/V1_SCOPE.md` }],
   [
     {
-      label: "COMPARISON_REPLAY.md",
+      label: "Comparison replay summary",
       href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/COMPARISON_REPLAY.md`,
     },
   ],
-  [{ label: "Explainability demo (live run)", href: "/demo/explain" }],
+  [{ label: "Explainability demo (live review)", href: "/demo/explain" }],
   [
     {
-      label: "PRE_COMMIT_GOVERNANCE_GATE.md",
+      label: "Governance gate control description",
       href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/PRE_COMMIT_GOVERNANCE_GATE.md`,
     },
   ],

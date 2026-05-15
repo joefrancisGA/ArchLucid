@@ -64,8 +64,8 @@ function renderTextWithUuidReviewLinks(body: string, buyerPolishedLinks: boolean
 function GroundingLinksFooter(props: { readonly links: readonly AskAssistantGroundingLink[] }) {
   return (
     <div className="mt-4 rounded-lg border border-neutral-200/90 bg-white/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-        Sources in this workspace
+      <p className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+        Sources in this review package
       </p>
       <ul className="m-0 mt-2 list-none space-y-1.5 p-0 text-sm">
         {props.links.map((link) => (
@@ -111,7 +111,7 @@ export function AskAssistantMessageBody(props: {
         ) : null}
         {structured.sections.map((section, index) => (
           <section key={`${section.key}-${index}`} aria-label={section.title}>
-            <h4 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <h4 className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">
               {section.title}
             </h4>
             <div className={`${bodyClass} mt-1.5`}>

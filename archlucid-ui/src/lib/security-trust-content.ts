@@ -27,7 +27,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
   {
     id: "internal-security-assessment-2026-q2",
     engagement: "Internal security assessment (scheduled 2026-Q2 window)",
-    vendor: "ArchLucid internal security programme",
+    vendor: "ArchLucid internal security program",
     scope: "Operator UI surface, HTTPS API behaviours, SaaS-aligned data-plane coverage with checklist discipline",
     completedUtc: "2026-Q2",
     summaryAccess: {
@@ -38,7 +38,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
   {
     id: "pen-test-third-party-planned",
     engagement: "Independent third-party penetration testing",
-    vendor: "Assessor to be selected — programme planned after funding",
+    vendor: "Assessor to be selected — next assurance-cycle testing program",
     scope: "Hosted product API, operator UI, and primary data-plane paths (scope confirmed in executed Statement of Work)",
     completedUtc: "Planned",
     summaryAccess: {
@@ -49,7 +49,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
   {
     id: "owner-security-self-assessment-2026",
     engagement: "Security & SOC 2 readiness self-assessment",
-    vendor: "ArchLucid (internal CISO ownership)",
+    vendor: "ArchLucid internal security ownership",
     scope: "STRIDE-aligned control review mapped to SOC&nbsp;2 Common Criteria themes (self-assessment — not CPA opinion)",
     completedUtc: "2026-Q2 (rolling updates)",
     summaryAccess: {
@@ -74,11 +74,12 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     id: "chaos-game-day-quarterly-staging-2026",
     engagement: "Quarterly staging resilience exercise",
     vendor: "ArchLucid platform operations",
-    scope: "Staging-only fault injection exercises (production out of scope by policy)",
+    scope:
+      "Staging fault-injection drills for operator practices; production resilience testing is governed by customer deployment architecture and contractual operating models.",
     completedUtc: "Calendar in published quality log",
     summaryAccess: {
       kind: "public",
-      description: "Exercise log index",
+      description: "Resilience exercise summary",
       href: "https://github.com/joefrancisGA/ArchLucid/blob/main/docs/quality/game-day-log/README.md",
     },
   },

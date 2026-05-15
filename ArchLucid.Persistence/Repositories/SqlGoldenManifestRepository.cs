@@ -93,6 +93,82 @@ public sealed class SqlGoldenManifestRepository(
         return model;
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Guid>> SupersedeUnreferencedActiveGoldenManifestsAsync(
+        ScopeContext scope,
+        Guid newManifestId,
+        IDbConnection? connection,
+        IDbTransaction? transaction,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (connection is not null)
+            return await SupersedeUnreferencedActiveGoldenManifestsCoreAsync(scope, newManifestId, connection, transaction, cancellationToken);
+
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlTransaction tx = owned.BeginTransaction();
+
+        try
+        {
+            IReadOnlyList<Guid> superseded =
+                await SupersedeUnreferencedActiveGoldenManifestsCoreAsync(scope, newManifestId, owned, tx, cancellationToken);
+            tx.Commit();
+            return superseded;
+        }
+        catch
+        {
+            tx.Rollback();
+            throw;
+        }
+    }
+
+    private static async Task<IReadOnlyList<Guid>> SupersedeUnreferencedActiveGoldenManifestsCoreAsync(
+        ScopeContext scope,
+        Guid newManifestId,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           UPDATE gm
+                           SET LifecycleStatus = @SupersededStatus
+                           OUTPUT deleted.ManifestId
+                           FROM dbo.GoldenManifests AS gm
+                           WHERE gm.TenantId = @TenantId
+                             AND gm.WorkspaceId = @WorkspaceId
+                             AND gm.ProjectId = @ProjectId
+                             AND gm.LifecycleStatus = @ActiveStatus
+                             AND gm.ArchivedUtc IS NULL
+                             AND gm.ManifestId <> @NewManifestId
+                             AND NOT EXISTS (
+                                 SELECT 1
+                                 FROM dbo.Runs AS r
+                                 WHERE r.GoldenManifestId = gm.ManifestId
+                                   AND r.TenantId = @TenantId
+                                   AND r.WorkspaceId = @WorkspaceId
+                                   AND r.ScopeProjectId = @ProjectId
+                                   AND r.ArchivedUtc IS NULL);
+                           """;
+
+        IEnumerable<Guid> rows = await connection.QueryAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    NewManifestId = newManifestId,
+                    ActiveStatus = nameof(GoldenManifestLifecycleStatus.Active),
+                    SupersededStatus = nameof(GoldenManifestLifecycleStatus.Superseded)
+                },
+                transaction,
+                cancellationToken: cancellationToken));
+
+        return rows.AsList();
+    }
+
     public async Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);

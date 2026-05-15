@@ -23,7 +23,7 @@ import {
   dedupeRunSummariesByRunId,
   normalizeRunSummaryForDemoPicker,
 } from "@/lib/demo-run-canonical";
-import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
+import { getBuyerSafeReviewsTableLink, getBuyerSafeSignedManifestTableLink } from "@/lib/buyer-safe-review-navigation";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
@@ -46,7 +46,7 @@ function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
 }
 
-function runRowNumericCountsLine(run: RunSummary): string | null {
+function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
   const fc = run.findingCount;
   const wc = run.warningCount;
   const ac = run.artifactCount;
@@ -65,7 +65,7 @@ function runRowNumericCountsLine(run: RunSummary): string | null {
   }
 
   if (hasWarning) {
-    tokens.push(`${wc} warnings`);
+    tokens.push(buyerPolished ? `${wc} monitored risks` : `${wc} warnings`);
   }
 
   if (hasArtifact) {
@@ -80,10 +80,10 @@ function runRowExplicitCountsLine(run: RunSummary, buyerPolished: boolean): stri
     const c = SHOWCASE_STATIC_DEMO_SPINE_COUNTS;
     const pkgWord = buyerPolished ? "Package" : "manifest";
 
-    return `${c.findingCount} findings · ${c.warningCount} warnings · ${pkgWord} ${run.hasGoldenManifest ? "finalized" : "pending"}`;
+    return `${c.findingCount} findings · ${c.warningCount} ${buyerPolished ? "monitored risks" : "warnings"} · ${pkgWord} ${run.hasGoldenManifest ? "finalized" : "pending"}`;
   }
 
-  const numeric = runRowNumericCountsLine(run);
+  const numeric = runRowNumericCountsLine(run, buyerPolished);
 
   if (numeric !== null) {
     const pkgWord = buyerPolished ? "Package" : "manifest";
@@ -456,6 +456,9 @@ export function RunsListClient({
                           const title = runListPrimaryTitle(run);
                           const countsLine = runRowExplicitCountsLine(run, buyerPolished);
                           const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
+                          const signedManifestExplore = buyerPolished
+                            ? getBuyerSafeSignedManifestTableLink(run.runId)
+                            : null;
                           const describeRow = runRowAccessibleDescription(run, projectId, countsLine, buyerPolished);
 
                           return (
@@ -540,6 +543,17 @@ export function RunsListClient({
                                     >
                                       {primaryExplore.label}
                                     </Link>
+                                    {signedManifestExplore !== null ? (
+                                      <Link
+                                        href={signedManifestExplore.href}
+                                        className="font-medium text-teal-800 underline dark:text-teal-300"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                        }}
+                                      >
+                                        {signedManifestExplore.label}
+                                      </Link>
+                                    ) : null}
                                     {isRunCommittedForBaseline(run) ? (
                                       <RunsRowBaselineMenu runId={run.runId} />
                                     ) : null}

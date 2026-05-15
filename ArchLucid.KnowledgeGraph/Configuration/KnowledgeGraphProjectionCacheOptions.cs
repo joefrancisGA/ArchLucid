@@ -5,6 +5,26 @@ public sealed class KnowledgeGraphProjectionCacheOptions
 {
     public const string SectionName = "ArchLucid:KnowledgeGraph:ProjectionCache";
 
+    /// <summary>
+    ///     Process-local <see cref="IMemoryCache" /> vs shared <see cref="Microsoft.Extensions.Caching.Distributed.IDistributedCache" />.
+    /// </summary>
+    public GraphProjectionCacheBackend Backend
+    {
+        get;
+        set;
+    } = GraphProjectionCacheBackend.Memory;
+
+    /// <summary>
+    ///     Optional Redis connection string for distributed projection caching when <see cref="Backend"/> is
+    ///     <see cref="GraphProjectionCacheBackend.Distributed"/> and no <c>IDistributedCache</c> is registered yet.
+    ///     Falls back to LLM / hot-path Redis strings in host composition when unset.
+    /// </summary>
+    public string? RedisConnectionString
+    {
+        get;
+        set;
+    }
+
     /// <summary>Disable read-through caching entirely (queries always hit persistent stores).</summary>
     public bool Enabled
     {

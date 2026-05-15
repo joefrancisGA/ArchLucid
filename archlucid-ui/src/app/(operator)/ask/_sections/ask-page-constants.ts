@@ -6,6 +6,8 @@ export const ASK_EXAMPLE_PROMPTS: readonly string[] = [
 ];
 
 export const ASK_FOLLOW_UP_CHIPS_BUYER: readonly string[] = [
+  "What evidence supports the PHI minimization decision?",
+  "Which risks remain accepted with monitoring?",
   "What are the top three risks I should brief leadership on?",
   "What should we validate before go-live?",
   "Summarize the mitigation pattern in one paragraph.",

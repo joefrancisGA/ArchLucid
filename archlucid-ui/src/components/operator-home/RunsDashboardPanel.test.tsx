@@ -256,14 +256,18 @@ describe("RunsDashboardPanel", () => {
       });
       expect(
         screen.getByText(
-          /open the sample executive summary or sealed manifest summary/i,
+          /open the sample executive summary or the full review package to walk/i,
         ),
       ).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Start executive review" })).toHaveAttribute(
         "href",
         "/executive/reviews/claims-intake-modernization",
       );
-      expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "View review package" })).toHaveAttribute(
+        "href",
+        "/reviews/claims-intake-modernization",
+      );
+      expect(screen.getByRole("link", { name: "View signed manifest" })).toHaveAttribute(
         "href",
         "/reviews/claims-intake-modernization/manifest",
       );

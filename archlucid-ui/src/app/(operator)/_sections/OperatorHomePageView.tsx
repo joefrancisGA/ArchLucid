@@ -50,7 +50,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         {buyerPolishedShell ? (
           <details className="rounded-lg border border-neutral-200 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40">
             <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
-              Connect your workspace (after the sample review)
+              Next steps after sample review
             </summary>
             <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
               When your team is ready for tenant-backed governed reviews, procurement and workspace onboarding use a

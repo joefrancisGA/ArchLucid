@@ -39,28 +39,34 @@ export function isBuyerSafePrimaryReviewNavigationPreferred(runId: string): bool
 }
 
 /**
- * Primary authenticated “next step” on the reviews table and similar hero CTAs.
- * For curated static-spine runs, prefer the **manifest summary** (sealed package) — sponsor-safe and avoids sending
- * evaluators through walkthrough before they see outputs. Walkthrough stays available as a secondary action on home
- * and in the runs dashboard banner.
+ * Primary authenticated next step on the reviews table: open the full review package on `/reviews/...`.
+ * Pair with {@link getBuyerSafeSignedManifestTableLink} for sealed manifest access without losing the package context.
  */
 export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExploreLink {
+  const id = canonicalizeDemoRunId(runId.trim());
+
+  return {
+    href: getCanonicalReviewWorkspaceHref(id),
+    label: "View review package",
+  };
+}
+
+/** Signed manifest for the same review — secondary table action next to {@link getBuyerSafeReviewsTableLink}. */
+export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(runId.trim());
 
   if (isDemoRunIdEligibleForStaticFallback(id)) {
     return {
       href: getShowcaseManifestHref(),
-      label: "View manifest summary",
+      label: "View signed manifest",
     };
   }
 
   return {
-    href: `/reviews/${encodeURIComponent(id)}`,
-    label: "Open review",
+    href: `/reviews/${encodeURIComponent(id)}/manifest`,
+    label: "View signed manifest",
   };
 }
-
-/** Full workspace detail (`/reviews/...`) for operators and staging — still used as a tertiary action in buyer-safe demos. */
 export function getCanonicalReviewWorkspaceHref(runId: string): string {
   return `/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
 }

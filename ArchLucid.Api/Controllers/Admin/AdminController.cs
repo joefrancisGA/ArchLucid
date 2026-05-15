@@ -136,6 +136,19 @@ public sealed class AdminController(
         return Ok(rows);
     }
 
+    /// <summary>
+    ///     Aggregate-only counters across tenants (internal ops / ROI narratives — requires AdminAuthority).
+    /// </summary>
+    [HttpGet("analytics/cross-tenant-summary")]
+    [ProducesResponseType(typeof(CrossTenantUsageRollup), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCrossTenantUsageSummary(CancellationToken cancellationToken = default)
+    {
+        CrossTenantUsageRollup rollup =
+            await _diagnostics.GetCrossTenantUsageRollupAsync(cancellationToken);
+
+        return Ok(rollup);
+    }
+
     /// <summary>Effective state of the async authority pipeline feature flag.</summary>
     [HttpGet("features/async-authority-pipeline")]
     [ProducesResponseType(typeof(AsyncAuthorityPipelineFeatureState), StatusCodes.Status200OK)]

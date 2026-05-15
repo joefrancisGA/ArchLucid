@@ -34,6 +34,29 @@ _GAP_ANALYSIS_OMIT_PACKAGES: frozenset[str] = frozenset(
 # Classes below this line-rate threshold are listed in the full gap table per assembly.
 _GAP_CLASS_LINE_RATE_THRESHOLD = 0.95
 
+# Large assembly: keep summary table sorted by line rate, but emit per-class sections near the doc bottom.
+_DECISIONING_PACKAGE = "ArchLucid.Decisioning"
+
+
+def _per_assembly_emit_order(
+    packages: list[tuple[str, float, int, list[tuple[str, str, float, int, int]]]],
+) -> list[tuple[str, float, int, list[tuple[str, str, float, int, int]]]]:
+    """Line-rate order for summary table; detail sections move Decisioning after other <100% assemblies."""
+
+    decisioning = next((p for p in packages if p[0] == _DECISIONING_PACKAGE), None)
+    others = [p for p in packages if p[0] != _DECISIONING_PACKAGE]
+    below_full = [p for p in others if p[1] < 1.0]
+    full_line = [p for p in others if p[1] >= 1.0]
+
+    ordered = list(below_full)
+
+    if decisioning is not None:
+        ordered.append(decisioning)
+
+    ordered.extend(full_line)
+
+    return ordered
+
 
 def is_target_product_package(name: str) -> bool:
     if not is_product_archlucid_package(name):
@@ -329,7 +352,9 @@ def main() -> int:
             "## Per-assembly class gaps (by line coverage %)",
             "",
             "Per Cobertura **class** aggregate `<lines>` rows. **Line coverage %** is **(coverable − uncovered) / coverable** for that class. "
-            "**Partial types** merged by **class name + file**. Sort order: **lowest line % first**.",
+            "**Partial types** merged by **class name + file**. Sort order: **lowest assembly line % first**, **except** "
+            f"**`{_DECISIONING_PACKAGE}`** — that assembly is placed **near the bottom** (after **`ArchLucid.AgentSimulator`**, "
+            "before **`100.00%`** assemblies) because its class list is large.",
             "",
             "**Prior attempt?** — **Yes** if the fully-qualified type name (or its short name, length ≥ **8**) appears as a substring in "
             "`docs/library/COVERAGE_GAP_ANALYSIS_RECENT.md` (heuristic; very short names are not matched on their own).",
@@ -337,7 +362,7 @@ def main() -> int:
         ]
     )
 
-    for name, lr, total_lines, class_rows in packages:
+    for name, lr, total_lines, class_rows in _per_assembly_emit_order(packages):
         out_lines.append(f"### {name} ({lr * 100.0:.2f}% line coverage)")
         out_lines.append("")
 

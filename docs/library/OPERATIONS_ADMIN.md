@@ -12,6 +12,7 @@ Privileged routes under **`GET /v1/admin/...`** require **`AdminAuthority`** pol
 | Route | Purpose |
 |-------|---------|
 | `GET /v1/admin/diagnostics/outboxes` | Pending authority pipeline and retrieval indexing work (depth snapshot). |
+| `GET /v1/admin/analytics/cross-tenant-summary` | Aggregate-only SQL counters across tenants (`dbo.Runs` — distinct tenants, committed vs total); **AdminAuthority**; no per-tenant breakdown. |
 | `GET /v1/admin/diagnostics/leases` | SQL host leader lease rows (empty when not applicable). |
 | `GET /v1/admin/features/async-authority-pipeline` | Effective feature flag state. |
 

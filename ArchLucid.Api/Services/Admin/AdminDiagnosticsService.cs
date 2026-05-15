@@ -118,6 +118,33 @@ public sealed class AdminDiagnosticsService(
     }
 
     /// <inheritdoc />
+    public async Task<CrossTenantUsageRollup> GetCrossTenantUsageRollupAsync(
+        CancellationToken cancellationToken = default)
+    {
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
+            return new CrossTenantUsageRollup(0, 0, 0, TimeProvider.System.GetUtcNow());
+
+        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
+        await using DbConnection _ = connection;
+        await connection.OpenAsync(cancellationToken);
+
+        long totalRuns =
+            await ExecuteCountAsync(connection, "SELECT COUNT_BIG(*) FROM dbo.Runs;", cancellationToken);
+
+        long committedRuns =
+            await ExecuteCountAsync(connection,
+                "SELECT COUNT_BIG(*) FROM dbo.Runs WHERE GoldenManifestId IS NOT NULL;",
+                cancellationToken);
+
+        long distinctTenants =
+            await ExecuteCountAsync(connection,
+                "SELECT COUNT_BIG(DISTINCT TenantId) FROM dbo.Runs;",
+                cancellationToken);
+
+        return new CrossTenantUsageRollup(distinctTenants, committedRuns, totalRuns, TimeProvider.System.GetUtcNow());
+    }
+
+    /// <inheritdoc />
     public async Task<OrphanComparisonRemediationResult> RemediateOrphanComparisonRecordsAsync(
         bool dryRun,
         int maxRows,

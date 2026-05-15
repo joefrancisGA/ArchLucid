@@ -77,6 +77,25 @@ public sealed class CachingGoldenManifestRepository(
         return _inner.GetByContractManifestVersionAsync(scope, manifestVersion, ct);
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Guid>> SupersedeUnreferencedActiveGoldenManifestsAsync(
+        ScopeContext scope,
+        Guid newManifestId,
+        IDbConnection? connection,
+        IDbTransaction? transaction,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        IReadOnlyList<Guid> superseded =
+            await _inner.SupersedeUnreferencedActiveGoldenManifestsAsync(scope, newManifestId, connection, transaction, cancellationToken);
+
+        foreach (Guid manifestId in superseded)
+            await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, manifestId, cancellationToken);
+
+        return superseded;
+    }
+
     private static ScopeContext AmbientScope(ManifestDocument manifest)
     {
         return new ScopeContext { TenantId = manifest.TenantId, WorkspaceId = manifest.WorkspaceId, ProjectId = manifest.ProjectId };

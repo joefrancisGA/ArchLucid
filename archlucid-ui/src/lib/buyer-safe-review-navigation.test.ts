@@ -22,11 +22,11 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("View manifest summary");
-    expect(link.href).toContain("/manifest");
+    expect(link.label).toBe("View review package");
+    expect(link.href).toBe("/reviews/claims-intake-modernization");
   });
 
-  it("uses manifest summary link for static spine IDs even when buyer chrome env is off", async () => {
+  it("uses review package link for static spine IDs even when buyer chrome env is off", async () => {
     process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
 
     const mod = await import("./buyer-safe-review-navigation");
@@ -35,19 +35,19 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("View manifest summary");
-    expect(link.href).toContain("/manifest");
+    expect(link.label).toBe("View review package");
+    expect(link.href).toBe("/reviews/claims-intake-modernization");
   });
 
-  it("uses manifest summary for static spine IDs when static operator enables buyer-polished shell without DEMO_MODE", async () => {
+  it("uses review package link for static spine IDs when static operator enables buyer-polished shell without DEMO_MODE", async () => {
     process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true" };
 
     const mod = await import("./buyer-safe-review-navigation");
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("View manifest summary");
-    expect(link.href).toContain("/manifest");
+    expect(link.label).toBe("View review package");
+    expect(link.href).toBe("/reviews/claims-intake-modernization");
   });
 
   it("canonicalizes workspace href for alias demo IDs", async () => {
@@ -66,5 +66,15 @@ describe("buyer-safe-review-navigation", () => {
     const mod = await import("./buyer-safe-review-navigation");
 
     expect(mod.getShowcaseManifestHref()).toBe("/reviews/claims-intake-modernization/manifest");
+  });
+
+  it("resolves signed manifest table link for curated static spine IDs", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "true", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
+
+    const mod = await import("./buyer-safe-review-navigation");
+    const manifest = mod.getBuyerSafeSignedManifestTableLink("claims-intake-modernization");
+
+    expect(manifest.label).toBe("View signed manifest");
+    expect(manifest.href).toBe("/reviews/claims-intake-modernization/manifest");
   });
 });

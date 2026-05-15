@@ -5,9 +5,11 @@ using ArchLucid.Core.Configuration;
 
 using ArchLucid.Persistence.Telemetry;
 
-using Microsoft.Extensions.Options;
-
 using Azure.Storage.Blobs;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Hosted;
 
@@ -28,17 +30,15 @@ public static class FirstTenantFunnelArchivalIteration
         ArgumentNullException.ThrowIfNull(opts);
         ArgumentNullException.ThrowIfNull(logger);
 
+        using IServiceScope scope = scopeFactory.CreateScope();
+
         if (!opts.PerTenantEmission)
         {
-            if (logger.IsEnabled(LogLevel.Debug))
-
-                logger.LogDebug(
-                    "FirstTenantFunnel archival skipped: Telemetry:FirstTenantFunnel:PerTenantEmission is false.");
+            await PurgeAgedSqlRowsAfterPerTenantDisabledAsync(scope, opts, logger, ct).ConfigureAwait(false);
 
             return;
         }
 
-        using IServiceScope scope = scopeFactory.CreateScope();
         BlobServiceClient? blobClient = scope.ServiceProvider.GetService<BlobServiceClient>();
 
         IFirstTenantFunnelArchivalBatchStore store =
@@ -48,11 +48,9 @@ public static class FirstTenantFunnelArchivalIteration
             scope.ServiceProvider.GetService<IOptions<ArchLucidRetentionOptions>>();
         ArchLucidRetentionOptions retention = retentionOpts?.Value ?? new ArchLucidRetentionOptions();
 
-        int funnelRetentionDays = retention.FunnelEventsDays > 0
-            ? retention.FunnelEventsDays
-            : opts.ArchivalRetentionDays > 0
-                ? opts.ArchivalRetentionDays
-                : 90;
+        IConfiguration configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+        int funnelRetentionDays = ResolveFunnelRetentionDays(configuration, retention, opts);
 
         int batchSize = opts.ArchivalBatchSize > 0 ? opts.ArchivalBatchSize : 1000;
 
@@ -128,6 +126,76 @@ public static class FirstTenantFunnelArchivalIteration
             "FirstTenantFunnel archival uploaded {Count} rows to {BlobUrl} and deleted from SQL.",
             rows.Count,
             blob.Uri);
+    }
+
+    /// <summary>
+    ///     Removes aged SQL rows when per-tenant funnel emission is off (leftovers after owner flipped the flag, or legacy
+    ///     pilots). Uses the same retention precedence as blob archival but always deletes from SQL (no cold archive).
+    /// </summary>
+    private static async Task PurgeAgedSqlRowsAfterPerTenantDisabledAsync(
+        IServiceScope serviceScope,
+        FirstTenantFunnelOptions opts,
+        ILogger logger,
+        CancellationToken ct)
+    {
+        IConfiguration configuration = serviceScope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+        IFirstTenantFunnelArchivalBatchStore store =
+            serviceScope.ServiceProvider.GetRequiredService<IFirstTenantFunnelArchivalBatchStore>();
+
+        IOptions<ArchLucidRetentionOptions>? retentionOpts =
+            serviceScope.ServiceProvider.GetService<IOptions<ArchLucidRetentionOptions>>();
+        ArchLucidRetentionOptions retention = retentionOpts?.Value ?? new ArchLucidRetentionOptions();
+
+        int funnelRetentionDays = ResolveFunnelRetentionDays(configuration, retention, opts);
+
+        int batchSize = opts.ArchivalBatchSize > 0 ? opts.ArchivalBatchSize : 1000;
+
+        IReadOnlyList<FirstTenantFunnelArchiveRow> rows =
+            await store.TakeRowsOlderThanAsync(funnelRetentionDays, batchSize, ct).ConfigureAwait(false);
+
+        if (rows.Count == 0)
+        {
+            if (logger.IsEnabled(LogLevel.Debug))
+
+                logger.LogDebug(
+                    "FirstTenantFunnel SQL purge (PerTenantEmission=false): no rows older than {RetentionDays} days.",
+                    funnelRetentionDays);
+
+            return;
+        }
+
+        IReadOnlyList<long> purgeIds = rows.Select(static r => r.EventId).ToList();
+
+        await store.DeleteByEventIdsAsync(purgeIds, ct).ConfigureAwait(false);
+
+        logger.LogInformation(
+            "FirstTenantFunnel SQL purge (PerTenantEmission=false): deleted {Count} rows older than {RetentionDays} days.",
+            rows.Count,
+            funnelRetentionDays);
+    }
+
+    private static int ResolveFunnelRetentionDays(
+        IConfiguration configuration,
+        ArchLucidRetentionOptions retention,
+        FirstTenantFunnelOptions opts)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(retention);
+        ArgumentNullException.ThrowIfNull(opts);
+
+        int explicitArchLucidDays = configuration.GetValue<int?>("ArchLucid:FirstTenantFunnelRetentionDays") ?? 0;
+
+        if (explicitArchLucidDays > 0)
+            return explicitArchLucidDays;
+
+        if (retention.FunnelEventsDays > 0)
+            return retention.FunnelEventsDays;
+
+        if (opts.ArchivalRetentionDays > 0)
+            return opts.ArchivalRetentionDays;
+
+        return 90;
     }
 
     private static string BuildJsonLines(IReadOnlyList<FirstTenantFunnelArchiveRow> rows)

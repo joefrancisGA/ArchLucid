@@ -95,8 +95,8 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
         {formatAuditSummaryHeading(events.length, hasMoreResults)}.
         {buyerPolishedShell
           ? displayEventGroups !== null
-            ? " Oldest-first review sequence; grouped by lifecycle stage."
-            : " Oldest-first review sequence for this view."
+            ? " Showing the full lifecycle from review start through packaged deliverables, grouped by stage."
+            : " Showing the full lifecycle from review start through packaged deliverables."
           : " Newest first; use Load more for older entries."}
       </p>
       {buyerPolishedShell && uniformRunIdForDisplay !== null ? (

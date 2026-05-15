@@ -19,7 +19,7 @@ const SECURITY_CONTACT = (
   </>
 );
 
-/** Public Trust Center structured layout (marketing route). Does not imply SOC&nbsp;2 CPA attestation or completed third-party penetration tests. */
+/** Public Trust Center structured layout (marketing route). Does not imply SOC&nbsp;2 CPA attestation or completed third-party penetration tests unless a published summary states otherwise. */
 export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBodyProps): ReactNode {
   const { lastReviewedUtc } = props;
 
@@ -28,17 +28,20 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
       <header>
         <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Trust Center</h1>
         <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Procurement and security reviewer entry point for assurance posture on the ArchLucid product. This Trust Center{" "}
+          Procurement and security reviewer entry point for assurance posture on the ArchLucid product.{" "}
           <strong className="font-semibold text-neutral-900 dark:text-neutral-100">
-            does not claim SOC&nbsp;2 Type&nbsp;II attestation or completion of independent penetration testing unless a
-            future published summary states otherwise
-          </strong>
-          .
+            Current assurance materials include internal control mapping, architecture and security documentation, SOC&nbsp;2
+            readiness summaries, and questionnaire-oriented diligence packets.
+          </strong>{" "}
+          CPA-issued attestations and independent penetration-test summaries ship when formally published — detailed status
+          and artifacts are reviewed during procurement.
         </p>
 
         <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-          {lastReviewedUtc !== null ? `Last reviewed (UTC): ${lastReviewedUtc}.` : "Last reviewed date is refreshed with each assurance-cycle update."}{" "}
-          Internal security assessment is complete on a rolling cadence; an independent engagement is planned for a future assurance window after vendor selection.
+          {lastReviewedUtc !== null
+            ? `Last assurance content review (UTC): ${lastReviewedUtc}.`
+            : "Last assurance content review is refreshed with each assurance-cycle update."}{" "}
+          Internal security assessment proceeds on a rolling cadence.
         </p>
 
         <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-4 dark:border-blue-950 dark:bg-blue-950/35">
@@ -46,29 +49,32 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <div>
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Completed — internal controls
+                Available today
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-                <li>SOC&nbsp;2 control mapping — self-assessment (not CPA report)</li>
-                <li>Architecture and operations security documents</li>
+                <li>SOC&nbsp;2 control-mapping self-assessment (not a CPA opinion)</li>
+                <li>Architecture, operations, and security documentation packs</li>
+                <li>Audit-ready evidence packages (immutable audit design for mutating routes)</li>
               </ul>
             </div>
             <div>
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Independent validations
+                Procurement path
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-                <li>Durable audit catalogue (append-only design)</li>
-                <li>No third-party penetration summary published publicly yet</li>
+                <li>Diligence questionnaire responses and CAIQ-lite / SIG oriented summaries under confidentiality</li>
+                <li>Subprocessors and tenancy overview on request via {SECURITY_CONTACT}</li>
               </ul>
             </div>
             <div>
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                Planned validations
+                Planned / in flight
               </p>
               <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-                <li>Vendor-led penetration test after programme funding</li>
-                <li>Expanded artifacts under procurement review</li>
+                <li>
+                  Independent third-party penetration testing is planned as part of the next assurance cycle (assessor
+                  selection underway)
+                </li>
               </ul>
             </div>
           </div>
@@ -81,8 +87,9 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           ArchLucid is built for regulated buyers: tenant isolation, scope-filtered APIs, immutable audit instrumentation for
-          mutating routes, and evidence packs suitable for questionnaires. Detailed control narratives and questionnaires are
-          distributed with buyers under diligence, not scraped from filenames on this page.
+          mutating routes, and evidence packs suitable for questionnaires.{" "}
+          Detailed control narratives and questionnaire responses are shared with buyers during due diligence, not scraped
+          from filenames on this page.
         </p>
       </section>
 
@@ -106,10 +113,13 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
             diligence.
           </li>
           <li>
-            Vendor-led penetration testing is planned once an assessor is selected and funded — redacted summaries, when approved for distribution,
-            accompany detailed questionnaire responses.
+            Independent third-party penetration testing is planned as part of the next assurance cycle. Redacted summaries,
+            when approved for distribution, accompany detailed questionnaire responses.
           </li>
-          <li>Detailed penetration-test-style reports beyond public summaries remain under NDA by default.</li>
+          <li>
+            Independent penetration test reports, once completed, and other detailed assessment reports beyond public summaries
+            remain under NDA by default.
+          </li>
         </ul>
       </section>
 
@@ -118,8 +128,11 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           Data handling &amp; privacy
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          ArchLucid is for architecture governance and evidence about systems customers describe — not a clinical record system. Do not upload regulated health data into illustrative brief fields. For contractual privacy documents and data transfer terms, coordinate with{" "}
-          {SECURITY_CONTACT}. For plain-language privacy disclosures, see the{" "}
+          ArchLucid stores architecture review evidence and governance metadata about systems customers describe — not a clinical
+          record system or patient-care record store.{" "}
+          The public demo uses illustrative data only and is not intended for regulated health data. Production deployments are
+          configured under contractual data-processing terms. Coordinate with{" "}
+          {SECURITY_CONTACT} for privacy agreements. Plain-language disclosures live on the{" "}
           <Link
             href="/privacy"
             className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
@@ -135,7 +148,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           Procurement questionnaire response package
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Procurement teams reuse structured answers mapped to ArchLucid&rsquo;s published evidence catalogue. Submit your
+          Procurement teams reuse structured answers mapped to ArchLucid&rsquo;s reusable procurement evidence catalogue. Submit your
           intake form requirements and stakeholder list via {SECURITY_CONTACT} so we align the artefact bundle to your
           process.
         </p>

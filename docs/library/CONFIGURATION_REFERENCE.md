@@ -136,11 +136,13 @@ All other keys are optional unless **When required** in the detailed table says 
 | SchemaValidation | `SchemaValidation:GoldenManifestSchemaPath` | appsettings, content | schemas/... | Optional (not mode-gated) | All (Api, Worker, Combined) | Golden manifest JSON schema file. |
 | SchemaValidation | `SchemaValidation:EnableDetailedErrors` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Verbose schema errors in early validation (dev). |
 | ArchLucidAuth | `ArchLucidAuth:Mode` | appsettings, env | ApiKey | Optional (not mode-gated) | All (Api, Worker, Combined) | Default auth story for the template (dev API key, etc.). |
-| ArchLucidAuth | `ArchLucidAuth:Authority` | appsettings, env | empty | Optional (When OIDC in use) | All (Api, Worker, Combined) | Identity provider authority (OIDC) when that mode is enabled. |
+| ArchLucidAuth | `ArchLucidAuth:Authority` | appsettings, env | empty | Optional (When OIDC in use) | All (Api, Worker, Combined) | Identity provider authority (OIDC) when that mode is enabled — generic issuer checklist [GENERIC_OIDC_SETUP.md](../runbooks/GENERIC_OIDC_SETUP.md). |
 | ArchLucidAuth | `ArchLucidAuth:Audience` | appsettings, env | empty | Optional (When OIDC in use) | All (Api, Worker, Combined) | Token audience (OIDC). |
 | ArchLucidAuth | `ArchLucidAuth:DevUserId` | appsettings, env | dev-user | Optional (not mode-gated) | All (Api, Worker, Combined) | Principal id for the development loop. |
 | ArchLucidAuth | `ArchLucidAuth:DevUserName` | appsettings, env | Developer | Optional (not mode-gated) | All (Api, Worker, Combined) | Display name in dev default principal. |
 | ArchLucidAuth | `ArchLucidAuth:DevRole` | appsettings, env | Admin | Optional (not mode-gated) | All (Api, Worker, Combined) | Default role in dev (see security docs). |
+| Persistence | `Persistence:SqlOpenResilience:MaxRetryAttempts` | appsettings, env | 3 | Optional (Sql hosts) | All (Api, Worker, Combined) | SQL connection **open** retries for transient errors (`SqlTransientDetector`) via `ResilientSqlConnectionFactory`; `0` disables retries. |
+| Persistence | `Persistence:SqlOpenResilience:BaseDelayMilliseconds` | appsettings, env | 200 | Optional (Sql hosts) | All (Api, Worker, Combined) | Base delay for exponential backoff with jitter between SQL open retries. |
 | Trial | `Trial:Lifecycle:IntervalMinutes` | appsettings, env | 360 | Optional (not mode-gated) | All (Api, Worker, Combined) | Trial state machine / email tick interval. |
 | Trial | `Trial:Lifecycle:ReadOnlyAfterExpireDays` | appsettings, env | 7 | Optional (not mode-gated) | All (Api, Worker, Combined) | Days after expiry before read-only state. |
 | Trial | `Trial:Lifecycle:ExportOnlyAfterReadOnlyDays` | appsettings, env | 30 | Optional (not mode-gated) | All (Api, Worker, Combined) | Transition to export-only after read-only for this many days. |

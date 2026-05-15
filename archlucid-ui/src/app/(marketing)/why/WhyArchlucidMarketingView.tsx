@@ -64,10 +64,10 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="why-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} — governed architecture reviews whose findings, manifests, approvals, and exports
-        share one traceable evidence trail. Specialized automation accelerates synthesis, yet procurement reviewers lead
-        with governance outcomes — comparisons below summarize typical fit versus adjacent tooling. The downloadable proof
-        pack carries the citation-backed drill-down for diligence teams who need paperwork parity.
+        ArchLucid is an {BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and
+        exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration.
+        Comparisons below summarize typical fit versus adjacent tooling. The downloadable proof pack carries the
+        citation-backed drill-down for diligence teams who need paperwork parity.
       </p>
 
       <section className="mt-10 rounded-xl border border-sky-200 bg-white px-6 py-6 shadow-sm dark:border-sky-900/70 dark:bg-neutral-950">
@@ -75,7 +75,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           First-principles outcome
         </p>
         <h2 id="why-hero-outcome-heading" className="mt-2 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
-          Governed architecture reviews — durable evidence before agentic acceleration
+          Governed architecture reviews with durable evidence before automation
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           An Architecture Proof Engine turns architecture review inputs into governed findings, signed decisions, audit-ready deliverables,
@@ -207,17 +207,17 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
 
       <section className="mt-12" aria-labelledby="why-hard-compare-heading">
         <h2 id="why-hard-compare-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Hard comparison (front-door)
+          Fit-for-purpose comparison (technical claims)
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-          Symbols only in the product columns (✓ / partial / —). Each row is labeled the same way across public
-          collateral so reviewers can trace claims to proof links.
+          Symbols in the product columns (✓ / partial / —) summarize capability depth; each row links to diligence
+          references. This is a technical claim map — not a vendor scorecard.
         </p>
 
         <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
           <table className="w-full min-w-[72rem] border-collapse text-left text-sm" data-testid="why-hard-comparison-table">
             <caption className="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
-              ArchLucid vs common stacks — technically scoped rows
+              ArchLucid vs typical adjacent stacks — scoped technical rows
             </caption>
             <thead>
               <tr className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80">

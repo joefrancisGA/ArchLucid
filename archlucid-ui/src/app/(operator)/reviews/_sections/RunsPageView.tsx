@@ -14,7 +14,7 @@ import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 
 import type { RunsPageModel } from "./runs-page-model";
@@ -57,17 +57,19 @@ export function RunsPageView(props: Props) {
         )}
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <div className="inline-flex items-center gap-1.5">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/reviews/new" className="no-underline">
-              {isBuyerPolishedOperatorShellEnv() ? "New review" : "New request"}
-            </Link>
-          </Button>
-          {isBuyerPolishedOperatorShellEnv() ? null : (
-            <ShortcutHint shortcut="Alt+N" className="text-[0.75rem] text-neutral-500 dark:text-neutral-400" />
-          )}
-        </div>
-        {m.totalCount > 0 && !isBuyerPolishedOperatorShellEnv() ? (
+        {!isBuyerSafeDemoMarketingChromeEnv() ? (
+          <div className="inline-flex items-center gap-1.5">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/reviews/new" className="no-underline">
+                {isBuyerPolishedOperatorShellEnv() ? "New review" : "New request"}
+              </Link>
+            </Button>
+            {isBuyerPolishedOperatorShellEnv() ? null : (
+              <ShortcutHint shortcut="Alt+N" className="text-[0.75rem] text-neutral-500 dark:text-neutral-400" />
+            )}
+          </div>
+        ) : null}
+        {!isBuyerSafeDemoMarketingChromeEnv() && m.totalCount > 0 && !isBuyerPolishedOperatorShellEnv() ? (
           <Button variant="outline" size="sm" asChild>
             <Link href="/compare" className="no-underline">
               Compare two reviews

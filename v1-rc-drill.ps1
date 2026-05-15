@@ -3,11 +3,65 @@
 param(
     [string] $ApiBaseUrl = 'http://localhost:5128',
     [switch] $SkipSupportBundle,
-    [switch] $SkipDoctor
+    [switch] $SkipDoctor,
+    [string] $BearerToken,
+    [string] $ApiKey
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+function Get-V1RcDrillOptionalHeaders
+{
+    $headers = @{}
+
+    if (-not [string]::IsNullOrWhiteSpace($BearerToken)) {
+        $headers['Authorization'] = 'Bearer ' + $BearerToken.Trim()
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($ApiKey)) {
+        $headers['X-Api-Key'] = $ApiKey.Trim()
+    }
+
+    if ($headers.Count -eq 0) {
+        return $null
+    }
+
+    return $headers
+}
+
+function Invoke-V1RcDrillRestMethod
+{
+    param(
+        [string] $Uri,
+        [ValidateSet('Get', 'Post')]
+        [string] $Method = 'Get',
+        [string] $Body,
+        [string] $ContentType,
+        [int] $TimeoutSec = 0
+    )
+
+    $optionalHeaders = Get-V1RcDrillOptionalHeaders
+    $params = @{ Uri = $Uri; Method = $Method }
+
+    if ($null -ne $optionalHeaders) {
+        $params['Headers'] = $optionalHeaders
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($Body)) {
+        $params['Body'] = $Body
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($ContentType)) {
+        $params['ContentType'] = $ContentType
+    }
+
+    if ($TimeoutSec -gt 0) {
+        $params['TimeoutSec'] = $TimeoutSec
+    }
+
+    return Invoke-RestMethod @params
+}
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path (Join-Path $root 'scripts') 'OperatorDiagnostics.ps1')
@@ -69,7 +123,7 @@ function New-V1RcDrillCommittedRun
     $json = $bodyObj | ConvertTo-Json -Compress -Depth 8
 
     try {
-        $created = Invoke-RestMethod -Uri "$base/v1/architecture/request" -Method Post -Body $json -ContentType 'application/json'
+        $created = Invoke-V1RcDrillRestMethod -Uri "$base/v1/architecture/request" -Method Post -Body $json -ContentType 'application/json'
     }
     catch {
         Invoke-DrillRestFailure -Stage "Create run ($RequestIdSuffix)" -ErrorRecord $_
@@ -86,7 +140,7 @@ function New-V1RcDrillCommittedRun
     }
 
     try {
-        $null = Invoke-RestMethod -Uri "$base/v1/architecture/run/$runId/execute" -Method Post
+        $null = Invoke-V1RcDrillRestMethod -Uri "$base/v1/architecture/run/$runId/execute" -Method Post
     }
     catch {
         Invoke-DrillRestFailure -Stage "Execute run $runId ($RequestIdSuffix)" -ErrorRecord $_
@@ -94,7 +148,7 @@ function New-V1RcDrillCommittedRun
     }
 
     try {
-        $null = Invoke-RestMethod -Uri "$base/v1/architecture/run/$runId/commit" -Method Post
+        $null = Invoke-V1RcDrillRestMethod -Uri "$base/v1/architecture/run/$runId/commit" -Method Post
     }
     catch {
         Invoke-DrillRestFailure -Stage "Commit run $runId ($RequestIdSuffix)" -ErrorRecord $_
@@ -102,7 +156,7 @@ function New-V1RcDrillCommittedRun
     }
 
     try {
-        $detail = Invoke-RestMethod -Uri "$base/v1/architecture/run/$runId" -Method Get
+        $detail = Invoke-V1RcDrillRestMethod -Uri "$base/v1/architecture/run/$runId" -Method Get
     }
     catch {
         Invoke-DrillRestFailure -Stage "GET run $runId ($RequestIdSuffix)" -ErrorRecord $_
@@ -159,7 +213,7 @@ try
     }
 
     try {
-        $ver = Invoke-RestMethod -Uri "$base/version" -Method Get -TimeoutSec 15
+        $ver = Invoke-V1RcDrillRestMethod -Uri "$base/version" -Method Get -TimeoutSec 15
     }
     catch {
         Invoke-DrillRestFailure -Stage 'GET /version' -ErrorRecord $_
@@ -182,7 +236,7 @@ try
     Write-DrillPhase "List artifacts for Run A manifest ($($runA.ManifestId))"
 
     try {
-        $artifacts = Invoke-RestMethod -Uri "$base/v1/artifacts/manifests/$($runA.ManifestId)" -Method Get
+        $artifacts = Invoke-V1RcDrillRestMethod -Uri "$base/v1/artifacts/manifests/$($runA.ManifestId)" -Method Get
     }
     catch {
         Invoke-DrillRestFailure -Stage 'GET /v1/artifacts/manifests/{manifestId}' -ErrorRecord $_
@@ -205,7 +259,7 @@ try
     $pairUrl = "$base/v1/architecture/run/compare/end-to-end?leftRunId=$([uri]::EscapeDataString($runA.RunId))&rightRunId=$([uri]::EscapeDataString($runB.RunId))"
 
     try {
-        $null = Invoke-RestMethod -Uri $pairUrl -Method Get
+        $null = Invoke-V1RcDrillRestMethod -Uri $pairUrl -Method Get
     }
     catch {
         Invoke-DrillRestFailure -Stage 'GET run/compare/end-to-end' -ErrorRecord $_
@@ -217,7 +271,7 @@ try
     $replayBody = (@{ runId = $runA.RunId; mode = 'ReconstructOnly' } | ConvertTo-Json -Compress)
 
     try {
-        $replay = Invoke-RestMethod -Uri "$base/v1/authority/replay" -Method Post -Body $replayBody -ContentType 'application/json'
+        $replay = Invoke-V1RcDrillRestMethod -Uri "$base/v1/authority/replay" -Method Post -Body $replayBody -ContentType 'application/json'
     }
     catch {
         Invoke-DrillRestFailure -Stage 'POST /v1/authority/replay' -ErrorRecord $_
@@ -233,7 +287,20 @@ try
     $zipPath = Join-Path ([System.IO.Path]::GetTempPath()) ("v1-rc-drill-export-$stamp.zip")
 
     try {
-        Invoke-WebRequest -Uri "$base/v1/artifacts/runs/$($runA.RunId)/export" -OutFile $zipPath -UseBasicParsing -TimeoutSec 120
+        $zipInvokeParams = @{
+            Uri             = "$base/v1/artifacts/runs/$($runA.RunId)/export"
+            OutFile         = $zipPath
+            UseBasicParsing = $true
+            TimeoutSec      = 120
+        }
+
+        $zipHeaders = Get-V1RcDrillOptionalHeaders
+
+        if ($null -ne $zipHeaders) {
+            $zipInvokeParams['Headers'] = $zipHeaders
+        }
+
+        Invoke-WebRequest @zipInvokeParams
     }
     catch {
         Invoke-DrillRestFailure -Stage 'GET /v1/artifacts/runs/{runId}/export' -ErrorRecord $_

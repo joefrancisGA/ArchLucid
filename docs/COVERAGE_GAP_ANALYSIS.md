@@ -4,7 +4,7 @@
 
 # Coverage gap analysis (merged Cobertura)
 
-**Data source:** `coverage-gap-1a\merged\Cobertura.xml` (file mtime **2026-05-15 18:35:56 UTC**). **This refresh merged 17 Coverlet shards from an interrupted solution test run** (not all test projects finished), so some product assemblies may be **missing or under-represented** (for example no `ArchLucid.Api` row below). For gate parity use CI **`coverage-merged-cobertura`**, or run a **full green** `dotnet test ArchLucid.sln` with coverlet, then merge; if persistence SQL tests fail with duplicate keys, **`DROP DATABASE`** (or recreate) **`ArchLucidPersistenceTests`** on your test instance, then re-run **`scripts/ci/refresh_coverage_gap_analysis.ps1`**. See **`docs/library/CODE_COVERAGE.md`**.
+**Data source:** `coverage-gap-1a\merged\Cobertura.xml` (file mtime **2026-05-15 18:35:56 UTC**). **This refresh merged 17 Coverlet shards from an interrupted solution test run** (not all test projects finished), so some product assemblies may be **missing or under-represented** (for example no `ArchLucid.Api` row below). **The `ArchLucid.Capabilities.Cost` row and subsection below reflect a focused Cobertura cross-check** (**`coverage-gap-cost/**/coverage.cobertura.xml`**, **`2026-05-15`**) from **`dotnet test ArchLucid.Capabilities.Cost.Tests`** with **`coverage.runsettings`** (**100%** line / branch class aggregates on **61** coverable lines in that shard); rerun a **full merged** **`coverage-gap-1a`** refresh to reconcile assembly ordering and merged totals once the solution test completes cleanly. For gate parity use CI **`coverage-merged-cobertura`**, or run a **full green** `dotnet test ArchLucid.sln` with coverlet, then merge; if persistence SQL tests fail with duplicate keys, **`DROP DATABASE`** (or recreate) **`ArchLucidPersistenceTests`** on your test instance, then re-run **`scripts/ci/refresh_coverage_gap_analysis.ps1`**. See **`docs/library/CODE_COVERAGE.md`**. **`ArchLucid.Notifications`** row and per-class subsection below were **cross-checked** on **2026-05-15** with **`dotnet test ArchLucid.Notifications.Tests`** using **`coverage.runsettings`** and **`XPlat Code Coverage`** (package line coverage **100%** on **207** instrumented lines in that focused run; branch coverage **~94.6%**).
 
 **Measurement:** Production `ArchLucid.*` assemblies only; excludes `*.Tests`, TestSupport, Benchmarks, and `ArchLucid.Worker` (`Program.cs` omitted per **`coverage.runsettings`** **`ExcludeByFile`**).
 
@@ -12,8 +12,6 @@
 
 | Assembly | Line coverage % | Coverable lines (approx.) |
 |----------|-----------------|---------------------------|
-| ArchLucid.Notifications | 2.90 | 414 |
-| ArchLucid.Capabilities.Cost | 14.75 | 122 |
 | ArchLucid.Decisioning | 22.30 | 13406 |
 | ArchLucid.Host.Core | 24.44 | 12168 |
 | ArchLucid.Application | 51.41 | 41745 |
@@ -32,216 +30,14 @@
 | ArchLucid.Provenance | 92.27 | 730 |
 | ArchLucid.AgentSimulator | 97.59 | 582 |
 | ArchLucid.Api.Client | 100.00 | 32 |
+| ArchLucid.Capabilities.Cost | 100.00 | 61 |
+| ArchLucid.Notifications | 100.00 | 207 |
 
 ## Per-assembly class gaps (by line coverage %)
 
-Per Cobertura **class** aggregate `<lines>` rows. **Line coverage %** is **(coverable − uncovered) / coverable** for that class. **Partial types** merged by **class name + file**. Sort order: **lowest line % first**.
+Per Cobertura **class** aggregate `<lines>` rows. **Line coverage %** is **(coverable − uncovered) / coverable** for that class. **Partial types** merged by **class name + file**. Sort order: **lowest assembly line % first**, **except** **`ArchLucid.Decisioning`** — that assembly is placed **near the bottom** (after **`ArchLucid.AgentSimulator`**, before **`100.00%`** assemblies) because its class list is large.
 
 **Prior attempt?** — **Yes** if the fully-qualified type name (or its short name, length ≥ **8**) appears as a substring in `docs/library/COVERAGE_GAP_ANALYSIS_RECENT.md` (heuristic; very short names are not matched on their own).
-
-### ArchLucid.Notifications (2.90% line coverage)
-
-#### Top 3 classes by lowest line coverage %
-
-| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
-|------|-------|------|-----------------|-----------------|----------------|
-| 1 | `ArchLucid.Notifications.AuthorityRunCommittedChatOpsHook` | `ArchLucid.Notifications\AuthorityRunCommittedChatOpsHook.cs` | 0.00 | 63 | No |
-| 2 | `ArchLucid.Notifications.ChatOpsIncomingWebhookBodies` | `ArchLucid.Notifications\ChatOpsIncomingWebhookBodies.cs` | 0.00 | 71 | No |
-| 3 | `ArchLucid.Notifications.ChatOpsIncomingWebhooksOptions` | `ArchLucid.Notifications\ChatOpsIncomingWebhooksOptions.cs` | 0.00 | 10 | No |
-
-#### All classes below 95% line coverage
-
-| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
-|------|-------|------|-----------------|-----------------|----------------|
-| 1 | `ArchLucid.Notifications.AuthorityRunCommittedChatOpsHook` | `ArchLucid.Notifications\AuthorityRunCommittedChatOpsHook.cs` | 0.00 | 63 | No |
-| 2 | `ArchLucid.Notifications.ChatOpsIncomingWebhookBodies` | `ArchLucid.Notifications\ChatOpsIncomingWebhookBodies.cs` | 0.00 | 71 | No |
-| 3 | `ArchLucid.Notifications.ChatOpsIncomingWebhooksOptions` | `ArchLucid.Notifications\ChatOpsIncomingWebhooksOptions.cs` | 0.00 | 10 | No |
-| 4 | `ArchLucid.Notifications.ChatOpsWebhookDeliveryService` | `ArchLucid.Notifications\ChatOpsWebhookDeliveryService.cs` | 0.00 | 14 | No |
-| 5 | `ArchLucid.Notifications.ChatOpsWebhookMessage` | `ArchLucid.Notifications\ChatOpsWebhookMessage.cs` | 0.00 | 8 | No |
-| 6 | `ArchLucid.Notifications.SlackInteractivityVerifier` | `ArchLucid.Notifications\SlackInteractivityVerifier.cs` | 0.00 | 29 | No |
-| 7 | `ArchLucid.Notifications.AuthorityRunCommittedChatOpsNotice` | `ArchLucid.Notifications\AuthorityRunCommittedChatOpsNotice.cs` | 50.00 | 6 | No |
-
-### ArchLucid.Capabilities.Cost (14.75% line coverage)
-
-#### Top 3 classes by lowest line coverage %
-
-| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
-|------|-------|------|-----------------|-----------------|----------------|
-| 1 | `ArchLucid.Capabilities.Cost.CostConstraintFindingEngine` | `ArchLucid.Capabilities.Cost\CostConstraintFindingEngine.cs` | 0.00 | 51 | No |
-| 2 | `ArchLucid.Capabilities.Cost.CostAgentHandler` | `ArchLucid.Capabilities.Cost\CostAgentHandler.cs` | 90.00 | 1 | No |
-
-#### All classes below 95% line coverage
-
-| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
-|------|-------|------|-----------------|-----------------|----------------|
-| 1 | `ArchLucid.Capabilities.Cost.CostConstraintFindingEngine` | `ArchLucid.Capabilities.Cost\CostConstraintFindingEngine.cs` | 0.00 | 51 | No |
-| 2 | `ArchLucid.Capabilities.Cost.CostAgentHandler` | `ArchLucid.Capabilities.Cost\CostAgentHandler.cs` | 90.00 | 1 | No |
-
-### ArchLucid.Decisioning (22.30% line coverage)
-
-#### Top 3 classes by lowest line coverage %
-
-| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
-|------|-------|------|-----------------|-----------------|----------------|
-| 1 | `ArchLucid.Decisioning.Advisory.Analysis.ImprovementSignalAnalyzer` | `ArchLucid.Decisioning\Advisory\Analysis\ImprovementSignalAnalyzer.cs` | 0.00 | 126 | No |
-| 2 | `ArchLucid.Decisioning.Advisory.Delivery.DigestDeliveryAttempt` | `ArchLucid.Decisioning\Advisory\Delivery\DigestDeliveryAttempt.cs` | 0.00 | 25 | No |
-| 3 | `ArchLucid.Decisioning.Advisory.Delivery.DigestDeliveryPayload` | `ArchLucid.Decisioning\Advisory\Delivery\DigestDeliveryPayload.cs` | 0.00 | 4 | No |
-
-#### All classes below 95% line coverage
-
-| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
-|------|-------|------|-----------------|-----------------|----------------|
-| 1 | `ArchLucid.Decisioning.Advisory.Analysis.ImprovementSignalAnalyzer` | `ArchLucid.Decisioning\Advisory\Analysis\ImprovementSignalAnalyzer.cs` | 0.00 | 126 | No |
-| 2 | `ArchLucid.Decisioning.Advisory.Delivery.DigestDeliveryAttempt` | `ArchLucid.Decisioning\Advisory\Delivery\DigestDeliveryAttempt.cs` | 0.00 | 25 | No |
-| 3 | `ArchLucid.Decisioning.Advisory.Delivery.DigestDeliveryPayload` | `ArchLucid.Decisioning\Advisory\Delivery\DigestDeliveryPayload.cs` | 0.00 | 4 | No |
-| 4 | `ArchLucid.Decisioning.Advisory.Delivery.DigestEmailDeliveryChannel` | `ArchLucid.Decisioning\Advisory\Delivery\DigestEmailDeliveryChannel.cs` | 0.00 | 11 | No |
-| 5 | `ArchLucid.Decisioning.Advisory.Delivery.DigestSlackWebhookDeliveryChannel` | `ArchLucid.Decisioning\Advisory\Delivery\DigestSlackWebhookDeliveryChannel.cs` | 0.00 | 16 | No |
-| 6 | `ArchLucid.Decisioning.Advisory.Delivery.DigestTeamsWebhookDeliveryChannel` | `ArchLucid.Decisioning\Advisory\Delivery\DigestTeamsWebhookDeliveryChannel.cs` | 0.00 | 16 | No |
-| 7 | `ArchLucid.Decisioning.Advisory.Learning.AdaptiveRecommendationScorer` | `ArchLucid.Decisioning\Advisory\Learning\AdaptiveRecommendationScorer.cs` | 0.00 | 27 | No |
-| 8 | `ArchLucid.Decisioning.Advisory.Learning.AdaptiveScoringInput` | `ArchLucid.Decisioning\Advisory\Learning\AdaptiveScoringInput.cs` | 0.00 | 8 | No |
-| 9 | `ArchLucid.Decisioning.Advisory.Learning.AdaptiveScoringResult` | `ArchLucid.Decisioning\Advisory\Learning\AdaptiveScoringResult.cs` | 0.00 | 13 | No |
-| 10 | `ArchLucid.Decisioning.Advisory.Learning.RecommendationLearningAnalyzer` | `ArchLucid.Decisioning\Advisory\Learning\RecommendationLearningAnalyzer.cs` | 0.00 | 52 | No |
-| 11 | `ArchLucid.Decisioning.Advisory.Learning.RecommendationOutcomeStats` | `ArchLucid.Decisioning\Advisory\Learning\RecommendationOutcomeStats.cs` | 0.00 | 16 | No |
-| 12 | `ArchLucid.Decisioning.Advisory.Models.ImprovementRecommendation` | `ArchLucid.Decisioning\Advisory\Models\ImprovementRecommendation.cs` | 0.00 | 27 | No |
-| 13 | `ArchLucid.Decisioning.Advisory.Models.ImprovementSignal` | `ArchLucid.Decisioning\Advisory\Models\ImprovementSignal.cs` | 0.00 | 17 | No |
-| 14 | `ArchLucid.Decisioning.Advisory.Scheduling.AdvisoryScanExecution` | `ArchLucid.Decisioning\Advisory\Scheduling\AdvisoryScanExecution.cs` | 0.00 | 24 | No |
-| 15 | `ArchLucid.Decisioning.Advisory.Scheduling.ArchitectureDigestBuilder` | `ArchLucid.Decisioning\Advisory\Scheduling\ArchitectureDigestBuilder.cs` | 0.00 | 62 | No |
-| 16 | `ArchLucid.Decisioning.Advisory.Scheduling.SimpleScanScheduleCalculator` | `ArchLucid.Decisioning\Advisory\Scheduling\SimpleScanScheduleCalculator.cs` | 0.00 | 11 | No |
-| 17 | `ArchLucid.Decisioning.Advisory.Services.ImprovementAdvisorService` | `ArchLucid.Decisioning\Advisory\Services\ImprovementAdvisorService.cs` | 0.00 | 52 | No |
-| 18 | `ArchLucid.Decisioning.Advisory.Services.RecommendationGenerator` | `ArchLucid.Decisioning\Advisory\Services\RecommendationGenerator.cs` | 0.00 | 99 | No |
-| 19 | `ArchLucid.Decisioning.Advisory.Workflow.RecommendationActionRequest` | `ArchLucid.Decisioning\Advisory\Workflow\RecommendationActionRequest.cs` | 0.00 | 6 | No |
-| 20 | `ArchLucid.Decisioning.Alerts.AlertActionRequest` | `ArchLucid.Decisioning\Alerts\AlertActionRequest.cs` | 0.00 | 4 | No |
-| 21 | `ArchLucid.Decisioning.Alerts.AlertEvaluationContext` | `ArchLucid.Decisioning\Alerts\AlertEvaluationContext.cs` | 0.00 | 21 | No |
-| 22 | `ArchLucid.Decisioning.Alerts.AlertEvaluationContextFactory` | `ArchLucid.Decisioning\Alerts\AlertEvaluationContextFactory.cs` | 0.00 | 13 | No |
-| 23 | `ArchLucid.Decisioning.Alerts.AlertEvaluationOutcome` | `ArchLucid.Decisioning\Alerts\AlertEvaluationOutcome.cs` | 0.00 | 3 | No |
-| 24 | `ArchLucid.Decisioning.Alerts.AlertEvaluator` | `ArchLucid.Decisioning\Alerts\AlertEvaluator.cs` | 0.00 | 128 | Yes |
-| 25 | `ArchLucid.Decisioning.Alerts.Composite.AlertMetricSnapshot` | `ArchLucid.Decisioning\Alerts\Composite\AlertMetricSnapshot.cs` | 0.00 | 12 | No |
-| 26 | `ArchLucid.Decisioning.Alerts.Composite.AlertMetricSnapshotBuilder` | `ArchLucid.Decisioning\Alerts\Composite\AlertMetricSnapshotBuilder.cs` | 0.00 | 32 | No |
-| 27 | `ArchLucid.Decisioning.Alerts.Composite.AlertSuppressionDecision` | `ArchLucid.Decisioning\Alerts\Composite\AlertSuppressionDecision.cs` | 0.00 | 10 | No |
-| 28 | `ArchLucid.Decisioning.Alerts.Composite.CompositeAlertDeduplicationKeyBuilder` | `ArchLucid.Decisioning\Alerts\Composite\CompositeAlertDeduplicationKeyBuilder.cs` | 0.00 | 12 | No |
-| 29 | `ArchLucid.Decisioning.Alerts.Composite.CompositeAlertEvaluationResult` | `ArchLucid.Decisioning\Alerts\Composite\CompositeAlertEvaluationResult.cs` | 0.00 | 3 | No |
-| 30 | `ArchLucid.Decisioning.Alerts.Composite.CompositeAlertRuleEvaluator` | `ArchLucid.Decisioning\Alerts\Composite\CompositeAlertRuleEvaluator.cs` | 0.00 | 32 | No |
-| 31 | `ArchLucid.Decisioning.Alerts.Delivery.AlertDeliveryPayload` | `ArchLucid.Decisioning\Alerts\Delivery\AlertDeliveryPayload.cs` | 0.00 | 4 | No |
-| 32 | `ArchLucid.Decisioning.Alerts.Delivery.AlertEmailDeliveryChannel` | `ArchLucid.Decisioning\Alerts\Delivery\AlertEmailDeliveryChannel.cs` | 0.00 | 13 | No |
-| 33 | `ArchLucid.Decisioning.Alerts.Delivery.AlertOnCallWebhookDeliveryChannel` | `ArchLucid.Decisioning\Alerts\Delivery\AlertOnCallWebhookDeliveryChannel.cs` | 0.00 | 16 | No |
-| 34 | `ArchLucid.Decisioning.Alerts.Delivery.AlertSeverityComparer` | `ArchLucid.Decisioning\Alerts\Delivery\AlertSeverityComparer.cs` | 0.00 | 9 | No |
-| 35 | `ArchLucid.Decisioning.Alerts.Delivery.AlertSlackWebhookDeliveryChannel` | `ArchLucid.Decisioning\Alerts\Delivery\AlertSlackWebhookDeliveryChannel.cs` | 0.00 | 18 | No |
-| 36 | `ArchLucid.Decisioning.Alerts.Delivery.AlertTeamsWebhookDeliveryChannel` | `ArchLucid.Decisioning\Alerts\Delivery\AlertTeamsWebhookDeliveryChannel.cs` | 0.00 | 18 | No |
-| 37 | `ArchLucid.Decisioning.Alerts.Simulation.RuleSimulationRequest` | `ArchLucid.Decisioning\Alerts\Simulation\RuleSimulationRequest.cs` | 0.00 | 19 | No |
-| 38 | `ArchLucid.Decisioning.Alerts.Simulation.RuleSimulationResult` | `ArchLucid.Decisioning\Alerts\Simulation\RuleSimulationResult.cs` | 0.00 | 19 | No |
-| 39 | `ArchLucid.Decisioning.Alerts.Simulation.SimulatedAlertOutcome` | `ArchLucid.Decisioning\Alerts\Simulation\SimulatedAlertOutcome.cs` | 0.00 | 25 | No |
-| 40 | `ArchLucid.Decisioning.Alerts.Tuning.AlertNoiseScorer` | `ArchLucid.Decisioning\Alerts\Tuning\AlertNoiseScorer.cs` | 0.00 | 34 | No |
-| 41 | `ArchLucid.Decisioning.Alerts.Tuning.NoiseScoreBreakdown` | `ArchLucid.Decisioning\Alerts\Tuning\NoiseScoreBreakdown.cs` | 0.00 | 13 | No |
-| 42 | `ArchLucid.Decisioning.Alerts.Tuning.ThresholdCandidate` | `ArchLucid.Decisioning\Alerts\Tuning\ThresholdCandidate.cs` | 0.00 | 4 | No |
-| 43 | `ArchLucid.Decisioning.Alerts.Tuning.ThresholdCandidateEvaluation` | `ArchLucid.Decisioning\Alerts\Tuning\ThresholdCandidateEvaluation.cs` | 0.00 | 6 | No |
-| 44 | `ArchLucid.Decisioning.Alerts.Tuning.ThresholdRecommendationRequest` | `ArchLucid.Decisioning\Alerts\Tuning\ThresholdRecommendationRequest.cs` | 0.00 | 23 | No |
-| 45 | `ArchLucid.Decisioning.Alerts.Tuning.ThresholdRecommendationResult` | `ArchLucid.Decisioning\Alerts\Tuning\ThresholdRecommendationResult.cs` | 0.00 | 15 | No |
-| 46 | `ArchLucid.Decisioning.Alerts.Tuning.ThresholdRecommendationService` | `ArchLucid.Decisioning\Alerts\Tuning\ThresholdRecommendationService.cs` | 0.00 | 124 | No |
-| 47 | `ArchLucid.Decisioning.Analysis.GraphCoverageAnalyzer` | `ArchLucid.Decisioning\Analysis\GraphCoverageAnalyzer.cs` | 0.00 | 113 | No |
-| 48 | `ArchLucid.Decisioning.Analysis.PolicyCoverageResult` | `ArchLucid.Decisioning\Analysis\PolicyCoverageResult.cs` | 0.00 | 10 | No |
-| 49 | `ArchLucid.Decisioning.Analysis.RequirementCoverageResult` | `ArchLucid.Decisioning\Analysis\RequirementCoverageResult.cs` | 0.00 | 12 | No |
-| 50 | `ArchLucid.Decisioning.Analysis.SecurityCoverageResult` | `ArchLucid.Decisioning\Analysis\SecurityCoverageResult.cs` | 0.00 | 12 | No |
-| 51 | `ArchLucid.Decisioning.Analysis.TopologyCoverageResult` | `ArchLucid.Decisioning\Analysis\TopologyCoverageResult.cs` | 0.00 | 19 | No |
-| 52 | `ArchLucid.Decisioning.Comparison.ComparisonService` | `ArchLucid.Decisioning\Comparison\ComparisonService.cs` | 0.00 | 111 | No |
-| 53 | `ArchLucid.Decisioning.Compliance.Evaluators.GraphComplianceEvaluator` | `ArchLucid.Decisioning\Compliance\Evaluators\GraphComplianceEvaluator.cs` | 0.00 | 46 | No |
-| 54 | `ArchLucid.Decisioning.Compliance.Loaders.ComplianceRulePackValidator` | `ArchLucid.Decisioning\Compliance\Loaders\ComplianceRulePackValidator.cs` | 0.00 | 17 | No |
-| 55 | `ArchLucid.Decisioning.Compliance.Loaders.FileComplianceRulePackLoader` | `ArchLucid.Decisioning\Compliance\Loaders\FileComplianceRulePackLoader.cs` | 0.00 | 34 | No |
-| 56 | `ArchLucid.Decisioning.Compliance.Loaders.FileComplianceRulePackProvider` | `ArchLucid.Decisioning\Compliance\Loaders\FileComplianceRulePackProvider.cs` | 0.00 | 2 | No |
-| 57 | `ArchLucid.Decisioning.Compliance.Models.ComplianceEvaluationResult` | `ArchLucid.Decisioning\Compliance\Models\ComplianceEvaluationResult.cs` | 0.00 | 3 | No |
-| 58 | `ArchLucid.Decisioning.Compliance.Models.ComplianceRule` | `ArchLucid.Decisioning\Compliance\Models\ComplianceRule.cs` | 0.00 | 17 | No |
-| 59 | `ArchLucid.Decisioning.Compliance.Models.ComplianceRuleDocument` | `ArchLucid.Decisioning\Compliance\Models\ComplianceRuleDocument.cs` | 0.00 | 17 | No |
-| 60 | `ArchLucid.Decisioning.Compliance.Models.ComplianceRulePack` | `ArchLucid.Decisioning\Compliance\Models\ComplianceRulePack.cs` | 0.00 | 13 | No |
-| 61 | `ArchLucid.Decisioning.Compliance.Models.ComplianceRulePackDocument` | `ArchLucid.Decisioning\Compliance\Models\ComplianceRulePackDocument.cs` | 0.00 | 9 | No |
-| 62 | `ArchLucid.Decisioning.Compliance.Models.ComplianceViolation` | `ArchLucid.Decisioning\Compliance\Models\ComplianceViolation.cs` | 0.00 | 18 | No |
-| 63 | `ArchLucid.Decisioning.Configuration.HumanReviewFindingOptions` | `ArchLucid.Decisioning\Configuration\HumanReviewFindingOptions.cs` | 0.00 | 6 | No |
-| 64 | `ArchLucid.Decisioning.Findings.ExplanationFaithfulnessChecker` | `ArchLucid.Decisioning\Findings\ExplanationFaithfulnessChecker.cs` | 0.00 | 188 | No |
-| 65 | `ArchLucid.Decisioning.Findings.Factories.FindingFactory` | `ArchLucid.Decisioning\Findings\Factories\FindingFactory.cs` | 0.00 | 122 | No |
-| 66 | `ArchLucid.Decisioning.Findings.Factories.FindingPayloadConverter` | `ArchLucid.Decisioning\Findings\Factories\FindingPayloadConverter.cs` | 0.00 | 29 | No |
-| 67 | `ArchLucid.Decisioning.Findings.FindingConfidenceCalculationResult` | `ArchLucid.Decisioning\Findings\FindingConfidenceCalculationResult.cs` | 0.00 | 1 | No |
-| 68 | `ArchLucid.Decisioning.Findings.FindingConfidenceCalculator` | `ArchLucid.Decisioning\Findings\FindingConfidenceCalculator.cs` | 0.00 | 20 | No |
-| 69 | `ArchLucid.Decisioning.Findings.FindingHumanReviewInitializer` | `ArchLucid.Decisioning\Findings\FindingHumanReviewInitializer.cs` | 0.00 | 17 | No |
-| 70 | `ArchLucid.Decisioning.Findings.NullFindingsSnapshotEvaluationConfidenceEnricher` | `ArchLucid.Decisioning\Findings\NullFindingsSnapshotEvaluationConfidenceEnricher.cs` | 0.00 | 3 | No |
-| 71 | `ArchLucid.Decisioning.Findings.Payloads.PolicyApplicabilityFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\PolicyApplicabilityFindingPayload.cs` | 0.00 | 10 | No |
-| 72 | `ArchLucid.Decisioning.Findings.Payloads.PolicyCoverageFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\PolicyCoverageFindingPayload.cs` | 0.00 | 7 | No |
-| 73 | `ArchLucid.Decisioning.Findings.Payloads.RequirementCoverageFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\RequirementCoverageFindingPayload.cs` | 0.00 | 9 | No |
-| 74 | `ArchLucid.Decisioning.Findings.Payloads.SecurityControlFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\SecurityControlFindingPayload.cs` | 0.00 | 8 | No |
-| 75 | `ArchLucid.Decisioning.Findings.Payloads.SecurityCoverageFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\SecurityCoverageFindingPayload.cs` | 0.00 | 9 | No |
-| 76 | `ArchLucid.Decisioning.Findings.Payloads.TopologyCoverageFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\TopologyCoverageFindingPayload.cs` | 0.00 | 8 | No |
-| 77 | `ArchLucid.Decisioning.Findings.Payloads.TopologyGapFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\TopologyGapFindingPayload.cs` | 0.00 | 6 | No |
-| 78 | `ArchLucid.Decisioning.Governance.PolicyPacks.ComplianceRulePackGovernanceFilter` | `ArchLucid.Decisioning\Governance\PolicyPacks\ComplianceRulePackGovernanceFilter.cs` | 0.00 | 17 | No |
-| 79 | `ArchLucid.Decisioning.Governance.PolicyPacks.EffectiveGovernanceLoader` | `ArchLucid.Decisioning\Governance\PolicyPacks\EffectiveGovernanceLoader.cs` | 0.00 | 6 | No |
-| 80 | `ArchLucid.Decisioning.Governance.PolicyPacks.EffectivePolicyPackSet` | `ArchLucid.Decisioning\Governance\PolicyPacks\EffectivePolicyPackSet.cs` | 0.00 | 9 | No |
-| 81 | `ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackGovernanceFilter` | `ArchLucid.Decisioning\Governance\PolicyPacks\PolicyPackGovernanceFilter.cs` | 0.00 | 8 | No |
-| 82 | `ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackManagementService` | `ArchLucid.Decisioning\Governance\PolicyPacks\PolicyPackManagementService.cs` | 0.00 | 181 | No |
-| 83 | `ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackResolver` | `ArchLucid.Decisioning\Governance\PolicyPacks\PolicyPackResolver.cs` | 0.00 | 27 | No |
-| 84 | `ArchLucid.Decisioning.Governance.PolicyPacks.RequestScopedCachingEffectiveGovernanceLoader` | `ArchLucid.Decisioning\Governance\PolicyPacks\RequestScopedCachingEffectiveGovernanceLoader.cs` | 0.00 | 17 | No |
-| 85 | `ArchLucid.Decisioning.Governance.PolicyPacks.ResolvedPolicyPack` | `ArchLucid.Decisioning\Governance\PolicyPacks\ResolvedPolicyPack.cs` | 0.00 | 10 | No |
-| 86 | `ArchLucid.Decisioning.Governance.Resolution.EffectiveGovernanceResolutionResult` | `ArchLucid.Decisioning\Governance\Resolution\EffectiveGovernanceResolutionResult.cs` | 0.00 | 18 | No |
-| 87 | `ArchLucid.Decisioning.Governance.Resolution.EffectiveGovernanceResolver` | `ArchLucid.Decisioning\Governance\Resolution\EffectiveGovernanceResolver.cs` | 0.00 | 281 | No |
-| 88 | `ArchLucid.Decisioning.Governance.Resolution.GovernanceConflictRecord` | `ArchLucid.Decisioning\Governance\Resolution\GovernanceConflictRecord.cs` | 0.00 | 11 | No |
-| 89 | `ArchLucid.Decisioning.Governance.Resolution.GovernanceResolutionCandidate` | `ArchLucid.Decisioning\Governance\Resolution\GovernanceResolutionCandidate.cs` | 0.00 | 18 | No |
-| 90 | `ArchLucid.Decisioning.Governance.Resolution.GovernanceResolutionDecision` | `ArchLucid.Decisioning\Governance\Resolution\GovernanceResolutionDecision.cs` | 0.00 | 17 | No |
-| 91 | `ArchLucid.Decisioning.Governance.Resolution.GovernanceScopeLevel` | `ArchLucid.Decisioning\Governance\Resolution\GovernanceScopeLevel.cs` | 0.00 | 4 | No |
-| 92 | `ArchLucid.Decisioning.Governance.Resolution.PolicyAssignmentPrecedence` | `ArchLucid.Decisioning\Governance\Resolution\PolicyAssignmentPrecedence.cs` | 0.00 | 10 | No |
-| 93 | `ArchLucid.Decisioning.Manifest.AuthorityCommitProjectionBuilder` | `ArchLucid.Decisioning\Manifest\AuthorityCommitProjectionBuilder.cs` | 0.00 | 61 | No |
-| 94 | `ArchLucid.Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder` | `ArchLucid.Decisioning\Manifest\Builders\DefaultGoldenManifestBuilder.cs` | 0.00 | 382 | No |
-| 95 | `ArchLucid.Decisioning.Manifest.Mapping.ContractGoldenManifestMapper` | `ArchLucid.Decisioning\Manifest\Mapping\ContractGoldenManifestMapper.cs` | 0.00 | 57 | No |
-| 96 | `ArchLucid.Decisioning.Manifest.Mapping.ContractGoldenManifestPersistence` | `ArchLucid.Decisioning\Manifest\Mapping\ContractGoldenManifestPersistence.cs` | 0.00 | 24 | No |
-| 97 | `ArchLucid.Decisioning.Merge.ComplexityDecisionStrategy` | `ArchLucid.Decisioning\Merge\ComplexityDecisionStrategy.cs` | 0.00 | 53 | No |
-| 98 | `ArchLucid.Decisioning.Merge.DecisionStrategyParameters` | `ArchLucid.Decisioning\Merge\DecisionStrategyParameters.cs` | 0.00 | 23 | No |
-| 99 | `ArchLucid.Decisioning.Merge.SecurityControlsDecisionStrategy` | `ArchLucid.Decisioning\Merge\SecurityControlsDecisionStrategy.cs` | 0.00 | 49 | No |
-| 100 | `ArchLucid.Decisioning.Merge.TopologyAcceptanceDecisionStrategy` | `ArchLucid.Decisioning\Merge\TopologyAcceptanceDecisionStrategy.cs` | 0.00 | 53 | No |
-| 101 | `ArchLucid.Decisioning.Models.DecisionRule` | `ArchLucid.Decisioning\Models\DecisionRule.cs` | 0.00 | 16 | No |
-| 102 | `ArchLucid.Decisioning.Models.DecisionRuleSet` | `ArchLucid.Decisioning\Models\DecisionRuleSet.cs` | 0.00 | 35 | No |
-| 103 | `ArchLucid.Decisioning.Models.FindingRecordMetadataPage` | `ArchLucid.Decisioning\Models\FindingRecordMetadataRows.cs` | 0.00 | 1 | No |
-| 104 | `ArchLucid.Decisioning.Models.FindingRecordMetadataRow` | `ArchLucid.Decisioning\Models\FindingRecordMetadataRows.cs` | 0.00 | 9 | No |
-| 105 | `ArchLucid.Decisioning.Rules.InMemoryDecisionRuleProvider` | `ArchLucid.Decisioning\Rules\InMemoryDecisionRuleProvider.cs` | 0.00 | 100 | No |
-| 106 | `ArchLucid.Decisioning.Services.ComplianceFindingEngine` | `ArchLucid.Decisioning\Services\ComplianceFindingEngine.cs` | 0.00 | 57 | No |
-| 107 | `ArchLucid.Decisioning.Services.FindingPayloadValidator` | `ArchLucid.Decisioning\Services\FindingPayloadValidator.cs` | 0.00 | 45 | No |
-| 108 | `ArchLucid.Decisioning.Services.FindingsOrchestrator` | `ArchLucid.Decisioning\Services\FindingsOrchestrator.cs` | 0.00 | 98 | No |
-| 109 | `ArchLucid.Decisioning.Services.GoldenManifestValidator` | `ArchLucid.Decisioning\Services\GoldenManifestValidator.cs` | 0.00 | 27 | No |
-| 110 | `ArchLucid.Decisioning.Services.ManifestHashService` | `ArchLucid.Decisioning\Services\ManifestHashService.cs` | 0.00 | 47 | No |
-| 111 | `ArchLucid.Decisioning.Services.PolicyApplicabilityFindingEngine` | `ArchLucid.Decisioning\Services\PolicyApplicabilityFindingEngine.cs` | 0.00 | 34 | No |
-| 112 | `ArchLucid.Decisioning.Services.PolicyCoverageFindingEngine` | `ArchLucid.Decisioning\Services\PolicyCoverageFindingEngine.cs` | 0.00 | 77 | No |
-| 113 | `ArchLucid.Decisioning.Services.RequirementCoverageFindingEngine` | `ArchLucid.Decisioning\Services\RequirementCoverageFindingEngine.cs` | 0.00 | 45 | No |
-| 114 | `ArchLucid.Decisioning.Services.RequirementFindingEngine` | `ArchLucid.Decisioning\Services\RequirementFindingEngine.cs` | 0.00 | 58 | No |
-| 115 | `ArchLucid.Decisioning.Services.SecurityBaselineFindingEngine` | `ArchLucid.Decisioning\Services\SecurityBaselineFindingEngine.cs` | 0.00 | 68 | No |
-| 116 | `ArchLucid.Decisioning.Services.SecurityCoverageFindingEngine` | `ArchLucid.Decisioning\Services\SecurityCoverageFindingEngine.cs` | 0.00 | 49 | No |
-| 117 | `ArchLucid.Decisioning.Services.TopologyCoverageFindingEngine` | `ArchLucid.Decisioning\Services\TopologyCoverageFindingEngine.cs` | 0.00 | 86 | No |
-| 118 | `ArchLucid.Decisioning.Plugins.FindingEnginePluginDiscovery` | `ArchLucid.Decisioning\Plugins\FindingEnginePluginDiscovery.cs` | 3.66 | 79 | No |
-| 119 | `ArchLucid.Decisioning.Services.RuleBasedDecisionEngine` | `ArchLucid.Decisioning\Services\RuleBasedDecisionEngine.cs` | 10.20 | 44 | No |
-| 120 | `ArchLucid.Decisioning.Repositories.InMemoryFindingsSnapshotRepository` | `ArchLucid.Decisioning\Repositories\InMemoryFindingsSnapshotRepository.cs` | 16.47 | 71 | No |
-| 121 | `ArchLucid.Decisioning.Merge.DecisionEngineV2` | `ArchLucid.Decisioning\Merge\DecisionEngineV2.cs` | 17.14 | 29 | No |
-| 122 | `ArchLucid.Decisioning.Merge.DecisionNodeManifestMerger` | `ArchLucid.Decisioning\Merge\DecisionNodeManifestMerger.cs` | 18.99 | 64 | No |
-| 123 | `ArchLucid.Decisioning.Findings.FindingExplainabilityNarrativeBuilder` | `ArchLucid.Decisioning\Findings\FindingExplainabilityNarrativeBuilder.cs` | 21.15 | 82 | No |
-| 124 | `ArchLucid.Decisioning.Findings.Serialization.FindingsSnapshotMigrator` | `ArchLucid.Decisioning\Findings\Serialization\FindingsSnapshotMigrator.cs` | 24.24 | 25 | No |
-| 125 | `ArchLucid.Decisioning.Advisory.Models.ImprovementPlan` | `ArchLucid.Decisioning\Advisory\Models\ImprovementPlan.cs` | 50.00 | 8 | Yes |
-| 126 | `ArchLucid.Decisioning.Models.FindingEngineFailure` | `ArchLucid.Decisioning\Models\FindingEngineFailure.cs` | 50.00 | 6 | No |
-| 127 | `ArchLucid.Decisioning.Validation.PassthroughSchemaValidationService` | `ArchLucid.Decisioning\Validation\PassthroughSchemaValidationService.cs` | 50.00 | 3 | No |
-| 128 | `ArchLucid.Decisioning.Advisory.Learning.RecommendationLearningProfile` | `ArchLucid.Decisioning\Advisory\Learning\RecommendationLearningProfile.cs` | 53.33 | 14 | No |
-| 129 | `ArchLucid.Decisioning.Repositories.InMemoryGoldenManifestRepository` | `ArchLucid.Decisioning\Repositories\InMemoryGoldenManifestRepository.cs` | 57.69 | 22 | No |
-| 130 | `ArchLucid.Decisioning.Validation.SchemaValidationService` | `ArchLucid.Decisioning\Validation\SchemaValidationService.cs` | 58.54 | 51 | No |
-| 131 | `ArchLucid.Decisioning.Advisory.Workflow.RecommendationRecord` | `ArchLucid.Decisioning\Advisory\Workflow\RecommendationRecord.cs` | 59.62 | 21 | Yes |
-| 132 | `ArchLucid.Decisioning.Merge.DecisionMergeInputGate` | `ArchLucid.Decisioning\Merge\DecisionMergeInputGate.cs` | 65.96 | 16 | No |
-| 133 | `ArchLucid.Decisioning.Findings.ExplanationFaithfulnessReport` | `ArchLucid.Decisioning\Findings\ExplanationFaithfulnessReport.cs` | 66.67 | 2 | No |
-| 134 | `ArchLucid.Decisioning.Findings.TraceConfidenceLabels` | `ArchLucid.Decisioning\Findings\TraceConfidenceLabels.cs` | 66.67 | 1 | No |
-| 135 | `ArchLucid.Decisioning.Alerts.Delivery.AlertRoutingSubscription` | `ArchLucid.Decisioning\Alerts\Delivery\AlertRoutingSubscription.cs` | 70.00 | 9 | No |
-| 136 | `ArchLucid.Decisioning.Merge.ManifestGovernanceMerger` | `ArchLucid.Decisioning\Merge\ManifestGovernanceMerger.cs` | 70.83 | 21 | No |
-| 137 | `ArchLucid.Decisioning.Alerts.AlertRecord` | `ArchLucid.Decisioning\Alerts\AlertRecord.cs` | 72.09 | 12 | No |
-| 138 | `ArchLucid.Decisioning.Validation.SchemaValidationError` | `ArchLucid.Decisioning\Validation\SchemaValidationResult.cs` | 75.00 | 2 | No |
-| 139 | `ArchLucid.Decisioning.Findings.Serialization.FindingJsonConverter` | `ArchLucid.Decisioning\Findings\Serialization\FindingJsonConverter.cs` | 77.86 | 31 | No |
-| 140 | `ArchLucid.Decisioning.Models.FindingsSnapshot` | `ArchLucid.Decisioning\Models\FindingsSnapshot.cs` | 78.57 | 6 | Yes |
-| 141 | `ArchLucid.Decisioning.Merge.AgentProposalManifestMerger` | `ArchLucid.Decisioning\Merge\AgentProposalManifestMerger.cs` | 80.20 | 40 | No |
-| 142 | `ArchLucid.Decisioning.Merge.DecisionMergeResult` | `ArchLucid.Decisioning\Merge\DecisionMergeResult.cs` | 81.25 | 3 | No |
-| 143 | `ArchLucid.Decisioning.Advisory.Delivery.DigestSubscription` | `ArchLucid.Decisioning\Advisory\Delivery\DigestSubscription.cs` | 81.48 | 5 | No |
-| 144 | `ArchLucid.Decisioning.Manifest.AuthorityManifestRiskPosture` | `ArchLucid.Decisioning\Manifest\AuthorityManifestRiskPosture.cs` | 81.48 | 5 | No |
-| 145 | `ArchLucid.Decisioning.Validation.SchemaValidationOptions` | `ArchLucid.Decisioning\Validation\SchemaValidationOptions.cs` | 85.00 | 3 | No |
-| 146 | `ArchLucid.Decisioning.Validation.SchemaValidationResult` | `ArchLucid.Decisioning\Validation\SchemaValidationResult.cs` | 85.71 | 1 | No |
-| 147 | `ArchLucid.Decisioning.Merge.DecisionEngineService` | `ArchLucid.Decisioning\Merge\DecisionEngineService.cs` | 89.80 | 5 | No |
-| 148 | `ArchLucid.Decisioning.Findings.TraceCompletenessScore` | `ArchLucid.Decisioning\Findings\TraceCompletenessScore.cs` | 91.30 | 2 | No |
-| 149 | `ArchLucid.Decisioning.Findings.ExplainabilityTraceCompletenessAnalyzer` | `ArchLucid.Decisioning\Findings\ExplainabilityTraceCompletenessAnalyzer.cs` | 93.27 | 7 | No |
-| 150 | `ArchLucid.Decisioning.Findings.FindingPayloadRegistry` | `ArchLucid.Decisioning\Findings\FindingPayloadRegistry.cs` | 93.33 | 1 | No |
-| 151 | `ArchLucid.Decisioning.Findings.EngineTraceCompleteness` | `ArchLucid.Decisioning\Findings\EngineTraceCompleteness.cs` | 94.44 | 1 | No |
 
 ### ArchLucid.Host.Core (24.44% line coverage)
 
@@ -1626,6 +1422,172 @@ Per Cobertura **class** aggregate `<lines>` rows. **Line coverage %** is **(cove
 |------|-------|------|-----------------|-----------------|----------------|
 | 1 | `ArchLucid.AgentSimulator.Scenarios.EnterpriseRagScenarioProvider` | `ArchLucid.AgentSimulator\Scenarios\EnterpriseRagScenarioProvider.cs` | 0.00 | 7 | No |
 
+### ArchLucid.Decisioning (22.30% line coverage)
+
+#### Top 3 classes by lowest line coverage %
+
+| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
+|------|-------|------|-----------------|-----------------|----------------|
+| 1 | `ArchLucid.Decisioning.Advisory.Analysis.ImprovementSignalAnalyzer` | `ArchLucid.Decisioning\Advisory\Analysis\ImprovementSignalAnalyzer.cs` | 0.00 | 126 | No |
+| 2 | `ArchLucid.Decisioning.Advisory.Delivery.DigestDeliveryAttempt` | `ArchLucid.Decisioning\Advisory\Delivery\DigestDeliveryAttempt.cs` | 0.00 | 25 | No |
+| 3 | `ArchLucid.Decisioning.Advisory.Delivery.DigestDeliveryPayload` | `ArchLucid.Decisioning\Advisory\Delivery\DigestDeliveryPayload.cs` | 0.00 | 4 | No |
+
+#### All classes below 95% line coverage
+
+| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
+|------|-------|------|-----------------|-----------------|----------------|
+| 1 | `ArchLucid.Decisioning.Advisory.Analysis.ImprovementSignalAnalyzer` | `ArchLucid.Decisioning\Advisory\Analysis\ImprovementSignalAnalyzer.cs` | 0.00 | 126 | No |
+| 2 | `ArchLucid.Decisioning.Advisory.Delivery.DigestDeliveryAttempt` | `ArchLucid.Decisioning\Advisory\Delivery\DigestDeliveryAttempt.cs` | 0.00 | 25 | No |
+| 3 | `ArchLucid.Decisioning.Advisory.Delivery.DigestDeliveryPayload` | `ArchLucid.Decisioning\Advisory\Delivery\DigestDeliveryPayload.cs` | 0.00 | 4 | No |
+| 4 | `ArchLucid.Decisioning.Advisory.Delivery.DigestEmailDeliveryChannel` | `ArchLucid.Decisioning\Advisory\Delivery\DigestEmailDeliveryChannel.cs` | 0.00 | 11 | No |
+| 5 | `ArchLucid.Decisioning.Advisory.Delivery.DigestSlackWebhookDeliveryChannel` | `ArchLucid.Decisioning\Advisory\Delivery\DigestSlackWebhookDeliveryChannel.cs` | 0.00 | 16 | No |
+| 6 | `ArchLucid.Decisioning.Advisory.Delivery.DigestTeamsWebhookDeliveryChannel` | `ArchLucid.Decisioning\Advisory\Delivery\DigestTeamsWebhookDeliveryChannel.cs` | 0.00 | 16 | No |
+| 7 | `ArchLucid.Decisioning.Advisory.Learning.AdaptiveRecommendationScorer` | `ArchLucid.Decisioning\Advisory\Learning\AdaptiveRecommendationScorer.cs` | 0.00 | 27 | No |
+| 8 | `ArchLucid.Decisioning.Advisory.Learning.AdaptiveScoringInput` | `ArchLucid.Decisioning\Advisory\Learning\AdaptiveScoringInput.cs` | 0.00 | 8 | No |
+| 9 | `ArchLucid.Decisioning.Advisory.Learning.AdaptiveScoringResult` | `ArchLucid.Decisioning\Advisory\Learning\AdaptiveScoringResult.cs` | 0.00 | 13 | No |
+| 10 | `ArchLucid.Decisioning.Advisory.Learning.RecommendationLearningAnalyzer` | `ArchLucid.Decisioning\Advisory\Learning\RecommendationLearningAnalyzer.cs` | 0.00 | 52 | No |
+| 11 | `ArchLucid.Decisioning.Advisory.Learning.RecommendationOutcomeStats` | `ArchLucid.Decisioning\Advisory\Learning\RecommendationOutcomeStats.cs` | 0.00 | 16 | No |
+| 12 | `ArchLucid.Decisioning.Advisory.Models.ImprovementRecommendation` | `ArchLucid.Decisioning\Advisory\Models\ImprovementRecommendation.cs` | 0.00 | 27 | No |
+| 13 | `ArchLucid.Decisioning.Advisory.Models.ImprovementSignal` | `ArchLucid.Decisioning\Advisory\Models\ImprovementSignal.cs` | 0.00 | 17 | No |
+| 14 | `ArchLucid.Decisioning.Advisory.Scheduling.AdvisoryScanExecution` | `ArchLucid.Decisioning\Advisory\Scheduling\AdvisoryScanExecution.cs` | 0.00 | 24 | No |
+| 15 | `ArchLucid.Decisioning.Advisory.Scheduling.ArchitectureDigestBuilder` | `ArchLucid.Decisioning\Advisory\Scheduling\ArchitectureDigestBuilder.cs` | 0.00 | 62 | No |
+| 16 | `ArchLucid.Decisioning.Advisory.Scheduling.SimpleScanScheduleCalculator` | `ArchLucid.Decisioning\Advisory\Scheduling\SimpleScanScheduleCalculator.cs` | 0.00 | 11 | No |
+| 17 | `ArchLucid.Decisioning.Advisory.Services.ImprovementAdvisorService` | `ArchLucid.Decisioning\Advisory\Services\ImprovementAdvisorService.cs` | 0.00 | 52 | No |
+| 18 | `ArchLucid.Decisioning.Advisory.Services.RecommendationGenerator` | `ArchLucid.Decisioning\Advisory\Services\RecommendationGenerator.cs` | 0.00 | 99 | No |
+| 19 | `ArchLucid.Decisioning.Advisory.Workflow.RecommendationActionRequest` | `ArchLucid.Decisioning\Advisory\Workflow\RecommendationActionRequest.cs` | 0.00 | 6 | No |
+| 20 | `ArchLucid.Decisioning.Alerts.AlertActionRequest` | `ArchLucid.Decisioning\Alerts\AlertActionRequest.cs` | 0.00 | 4 | No |
+| 21 | `ArchLucid.Decisioning.Alerts.AlertEvaluationContext` | `ArchLucid.Decisioning\Alerts\AlertEvaluationContext.cs` | 0.00 | 21 | No |
+| 22 | `ArchLucid.Decisioning.Alerts.AlertEvaluationContextFactory` | `ArchLucid.Decisioning\Alerts\AlertEvaluationContextFactory.cs` | 0.00 | 13 | No |
+| 23 | `ArchLucid.Decisioning.Alerts.AlertEvaluationOutcome` | `ArchLucid.Decisioning\Alerts\AlertEvaluationOutcome.cs` | 0.00 | 3 | No |
+| 24 | `ArchLucid.Decisioning.Alerts.AlertEvaluator` | `ArchLucid.Decisioning\Alerts\AlertEvaluator.cs` | 0.00 | 128 | Yes |
+| 25 | `ArchLucid.Decisioning.Alerts.Composite.AlertMetricSnapshot` | `ArchLucid.Decisioning\Alerts\Composite\AlertMetricSnapshot.cs` | 0.00 | 12 | No |
+| 26 | `ArchLucid.Decisioning.Alerts.Composite.AlertMetricSnapshotBuilder` | `ArchLucid.Decisioning\Alerts\Composite\AlertMetricSnapshotBuilder.cs` | 0.00 | 32 | No |
+| 27 | `ArchLucid.Decisioning.Alerts.Composite.AlertSuppressionDecision` | `ArchLucid.Decisioning\Alerts\Composite\AlertSuppressionDecision.cs` | 0.00 | 10 | No |
+| 28 | `ArchLucid.Decisioning.Alerts.Composite.CompositeAlertDeduplicationKeyBuilder` | `ArchLucid.Decisioning\Alerts\Composite\CompositeAlertDeduplicationKeyBuilder.cs` | 0.00 | 12 | No |
+| 29 | `ArchLucid.Decisioning.Alerts.Composite.CompositeAlertEvaluationResult` | `ArchLucid.Decisioning\Alerts\Composite\CompositeAlertEvaluationResult.cs` | 0.00 | 3 | No |
+| 30 | `ArchLucid.Decisioning.Alerts.Composite.CompositeAlertRuleEvaluator` | `ArchLucid.Decisioning\Alerts\Composite\CompositeAlertRuleEvaluator.cs` | 0.00 | 32 | No |
+| 31 | `ArchLucid.Decisioning.Alerts.Delivery.AlertDeliveryPayload` | `ArchLucid.Decisioning\Alerts\Delivery\AlertDeliveryPayload.cs` | 0.00 | 4 | No |
+| 32 | `ArchLucid.Decisioning.Alerts.Delivery.AlertEmailDeliveryChannel` | `ArchLucid.Decisioning\Alerts\Delivery\AlertEmailDeliveryChannel.cs` | 0.00 | 13 | No |
+| 33 | `ArchLucid.Decisioning.Alerts.Delivery.AlertOnCallWebhookDeliveryChannel` | `ArchLucid.Decisioning\Alerts\Delivery\AlertOnCallWebhookDeliveryChannel.cs` | 0.00 | 16 | No |
+| 34 | `ArchLucid.Decisioning.Alerts.Delivery.AlertSeverityComparer` | `ArchLucid.Decisioning\Alerts\Delivery\AlertSeverityComparer.cs` | 0.00 | 9 | No |
+| 35 | `ArchLucid.Decisioning.Alerts.Delivery.AlertSlackWebhookDeliveryChannel` | `ArchLucid.Decisioning\Alerts\Delivery\AlertSlackWebhookDeliveryChannel.cs` | 0.00 | 18 | No |
+| 36 | `ArchLucid.Decisioning.Alerts.Delivery.AlertTeamsWebhookDeliveryChannel` | `ArchLucid.Decisioning\Alerts\Delivery\AlertTeamsWebhookDeliveryChannel.cs` | 0.00 | 18 | No |
+| 37 | `ArchLucid.Decisioning.Alerts.Simulation.RuleSimulationRequest` | `ArchLucid.Decisioning\Alerts\Simulation\RuleSimulationRequest.cs` | 0.00 | 19 | No |
+| 38 | `ArchLucid.Decisioning.Alerts.Simulation.RuleSimulationResult` | `ArchLucid.Decisioning\Alerts\Simulation\RuleSimulationResult.cs` | 0.00 | 19 | No |
+| 39 | `ArchLucid.Decisioning.Alerts.Simulation.SimulatedAlertOutcome` | `ArchLucid.Decisioning\Alerts\Simulation\SimulatedAlertOutcome.cs` | 0.00 | 25 | No |
+| 40 | `ArchLucid.Decisioning.Alerts.Tuning.AlertNoiseScorer` | `ArchLucid.Decisioning\Alerts\Tuning\AlertNoiseScorer.cs` | 0.00 | 34 | No |
+| 41 | `ArchLucid.Decisioning.Alerts.Tuning.NoiseScoreBreakdown` | `ArchLucid.Decisioning\Alerts\Tuning\NoiseScoreBreakdown.cs` | 0.00 | 13 | No |
+| 42 | `ArchLucid.Decisioning.Alerts.Tuning.ThresholdCandidate` | `ArchLucid.Decisioning\Alerts\Tuning\ThresholdCandidate.cs` | 0.00 | 4 | No |
+| 43 | `ArchLucid.Decisioning.Alerts.Tuning.ThresholdCandidateEvaluation` | `ArchLucid.Decisioning\Alerts\Tuning\ThresholdCandidateEvaluation.cs` | 0.00 | 6 | No |
+| 44 | `ArchLucid.Decisioning.Alerts.Tuning.ThresholdRecommendationRequest` | `ArchLucid.Decisioning\Alerts\Tuning\ThresholdRecommendationRequest.cs` | 0.00 | 23 | No |
+| 45 | `ArchLucid.Decisioning.Alerts.Tuning.ThresholdRecommendationResult` | `ArchLucid.Decisioning\Alerts\Tuning\ThresholdRecommendationResult.cs` | 0.00 | 15 | No |
+| 46 | `ArchLucid.Decisioning.Alerts.Tuning.ThresholdRecommendationService` | `ArchLucid.Decisioning\Alerts\Tuning\ThresholdRecommendationService.cs` | 0.00 | 124 | No |
+| 47 | `ArchLucid.Decisioning.Analysis.GraphCoverageAnalyzer` | `ArchLucid.Decisioning\Analysis\GraphCoverageAnalyzer.cs` | 0.00 | 113 | No |
+| 48 | `ArchLucid.Decisioning.Analysis.PolicyCoverageResult` | `ArchLucid.Decisioning\Analysis\PolicyCoverageResult.cs` | 0.00 | 10 | No |
+| 49 | `ArchLucid.Decisioning.Analysis.RequirementCoverageResult` | `ArchLucid.Decisioning\Analysis\RequirementCoverageResult.cs` | 0.00 | 12 | No |
+| 50 | `ArchLucid.Decisioning.Analysis.SecurityCoverageResult` | `ArchLucid.Decisioning\Analysis\SecurityCoverageResult.cs` | 0.00 | 12 | No |
+| 51 | `ArchLucid.Decisioning.Analysis.TopologyCoverageResult` | `ArchLucid.Decisioning\Analysis\TopologyCoverageResult.cs` | 0.00 | 19 | No |
+| 52 | `ArchLucid.Decisioning.Comparison.ComparisonService` | `ArchLucid.Decisioning\Comparison\ComparisonService.cs` | 0.00 | 111 | No |
+| 53 | `ArchLucid.Decisioning.Compliance.Evaluators.GraphComplianceEvaluator` | `ArchLucid.Decisioning\Compliance\Evaluators\GraphComplianceEvaluator.cs` | 0.00 | 46 | No |
+| 54 | `ArchLucid.Decisioning.Compliance.Loaders.ComplianceRulePackValidator` | `ArchLucid.Decisioning\Compliance\Loaders\ComplianceRulePackValidator.cs` | 0.00 | 17 | No |
+| 55 | `ArchLucid.Decisioning.Compliance.Loaders.FileComplianceRulePackLoader` | `ArchLucid.Decisioning\Compliance\Loaders\FileComplianceRulePackLoader.cs` | 0.00 | 34 | No |
+| 56 | `ArchLucid.Decisioning.Compliance.Loaders.FileComplianceRulePackProvider` | `ArchLucid.Decisioning\Compliance\Loaders\FileComplianceRulePackProvider.cs` | 0.00 | 2 | No |
+| 57 | `ArchLucid.Decisioning.Compliance.Models.ComplianceEvaluationResult` | `ArchLucid.Decisioning\Compliance\Models\ComplianceEvaluationResult.cs` | 0.00 | 3 | No |
+| 58 | `ArchLucid.Decisioning.Compliance.Models.ComplianceRule` | `ArchLucid.Decisioning\Compliance\Models\ComplianceRule.cs` | 0.00 | 17 | No |
+| 59 | `ArchLucid.Decisioning.Compliance.Models.ComplianceRuleDocument` | `ArchLucid.Decisioning\Compliance\Models\ComplianceRuleDocument.cs` | 0.00 | 17 | No |
+| 60 | `ArchLucid.Decisioning.Compliance.Models.ComplianceRulePack` | `ArchLucid.Decisioning\Compliance\Models\ComplianceRulePack.cs` | 0.00 | 13 | No |
+| 61 | `ArchLucid.Decisioning.Compliance.Models.ComplianceRulePackDocument` | `ArchLucid.Decisioning\Compliance\Models\ComplianceRulePackDocument.cs` | 0.00 | 9 | No |
+| 62 | `ArchLucid.Decisioning.Compliance.Models.ComplianceViolation` | `ArchLucid.Decisioning\Compliance\Models\ComplianceViolation.cs` | 0.00 | 18 | No |
+| 63 | `ArchLucid.Decisioning.Configuration.HumanReviewFindingOptions` | `ArchLucid.Decisioning\Configuration\HumanReviewFindingOptions.cs` | 0.00 | 6 | No |
+| 64 | `ArchLucid.Decisioning.Findings.ExplanationFaithfulnessChecker` | `ArchLucid.Decisioning\Findings\ExplanationFaithfulnessChecker.cs` | 0.00 | 188 | No |
+| 65 | `ArchLucid.Decisioning.Findings.Factories.FindingFactory` | `ArchLucid.Decisioning\Findings\Factories\FindingFactory.cs` | 0.00 | 122 | No |
+| 66 | `ArchLucid.Decisioning.Findings.Factories.FindingPayloadConverter` | `ArchLucid.Decisioning\Findings\Factories\FindingPayloadConverter.cs` | 0.00 | 29 | No |
+| 67 | `ArchLucid.Decisioning.Findings.FindingConfidenceCalculationResult` | `ArchLucid.Decisioning\Findings\FindingConfidenceCalculationResult.cs` | 0.00 | 1 | No |
+| 68 | `ArchLucid.Decisioning.Findings.FindingConfidenceCalculator` | `ArchLucid.Decisioning\Findings\FindingConfidenceCalculator.cs` | 0.00 | 20 | No |
+| 69 | `ArchLucid.Decisioning.Findings.FindingHumanReviewInitializer` | `ArchLucid.Decisioning\Findings\FindingHumanReviewInitializer.cs` | 0.00 | 17 | No |
+| 70 | `ArchLucid.Decisioning.Findings.NullFindingsSnapshotEvaluationConfidenceEnricher` | `ArchLucid.Decisioning\Findings\NullFindingsSnapshotEvaluationConfidenceEnricher.cs` | 0.00 | 3 | No |
+| 71 | `ArchLucid.Decisioning.Findings.Payloads.PolicyApplicabilityFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\PolicyApplicabilityFindingPayload.cs` | 0.00 | 10 | No |
+| 72 | `ArchLucid.Decisioning.Findings.Payloads.PolicyCoverageFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\PolicyCoverageFindingPayload.cs` | 0.00 | 7 | No |
+| 73 | `ArchLucid.Decisioning.Findings.Payloads.RequirementCoverageFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\RequirementCoverageFindingPayload.cs` | 0.00 | 9 | No |
+| 74 | `ArchLucid.Decisioning.Findings.Payloads.SecurityControlFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\SecurityControlFindingPayload.cs` | 0.00 | 8 | No |
+| 75 | `ArchLucid.Decisioning.Findings.Payloads.SecurityCoverageFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\SecurityCoverageFindingPayload.cs` | 0.00 | 9 | No |
+| 76 | `ArchLucid.Decisioning.Findings.Payloads.TopologyCoverageFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\TopologyCoverageFindingPayload.cs` | 0.00 | 8 | No |
+| 77 | `ArchLucid.Decisioning.Findings.Payloads.TopologyGapFindingPayload` | `ArchLucid.Decisioning\Findings\Payloads\TopologyGapFindingPayload.cs` | 0.00 | 6 | No |
+| 78 | `ArchLucid.Decisioning.Governance.PolicyPacks.ComplianceRulePackGovernanceFilter` | `ArchLucid.Decisioning\Governance\PolicyPacks\ComplianceRulePackGovernanceFilter.cs` | 0.00 | 17 | No |
+| 79 | `ArchLucid.Decisioning.Governance.PolicyPacks.EffectiveGovernanceLoader` | `ArchLucid.Decisioning\Governance\PolicyPacks\EffectiveGovernanceLoader.cs` | 0.00 | 6 | No |
+| 80 | `ArchLucid.Decisioning.Governance.PolicyPacks.EffectivePolicyPackSet` | `ArchLucid.Decisioning\Governance\PolicyPacks\EffectivePolicyPackSet.cs` | 0.00 | 9 | No |
+| 81 | `ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackGovernanceFilter` | `ArchLucid.Decisioning\Governance\PolicyPacks\PolicyPackGovernanceFilter.cs` | 0.00 | 8 | No |
+| 82 | `ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackManagementService` | `ArchLucid.Decisioning\Governance\PolicyPacks\PolicyPackManagementService.cs` | 0.00 | 181 | No |
+| 83 | `ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackResolver` | `ArchLucid.Decisioning\Governance\PolicyPacks\PolicyPackResolver.cs` | 0.00 | 27 | No |
+| 84 | `ArchLucid.Decisioning.Governance.PolicyPacks.RequestScopedCachingEffectiveGovernanceLoader` | `ArchLucid.Decisioning\Governance\PolicyPacks\RequestScopedCachingEffectiveGovernanceLoader.cs` | 0.00 | 17 | No |
+| 85 | `ArchLucid.Decisioning.Governance.PolicyPacks.ResolvedPolicyPack` | `ArchLucid.Decisioning\Governance\PolicyPacks\ResolvedPolicyPack.cs` | 0.00 | 10 | No |
+| 86 | `ArchLucid.Decisioning.Governance.Resolution.EffectiveGovernanceResolutionResult` | `ArchLucid.Decisioning\Governance\Resolution\EffectiveGovernanceResolutionResult.cs` | 0.00 | 18 | No |
+| 87 | `ArchLucid.Decisioning.Governance.Resolution.EffectiveGovernanceResolver` | `ArchLucid.Decisioning\Governance\Resolution\EffectiveGovernanceResolver.cs` | 0.00 | 281 | No |
+| 88 | `ArchLucid.Decisioning.Governance.Resolution.GovernanceConflictRecord` | `ArchLucid.Decisioning\Governance\Resolution\GovernanceConflictRecord.cs` | 0.00 | 11 | No |
+| 89 | `ArchLucid.Decisioning.Governance.Resolution.GovernanceResolutionCandidate` | `ArchLucid.Decisioning\Governance\Resolution\GovernanceResolutionCandidate.cs` | 0.00 | 18 | No |
+| 90 | `ArchLucid.Decisioning.Governance.Resolution.GovernanceResolutionDecision` | `ArchLucid.Decisioning\Governance\Resolution\GovernanceResolutionDecision.cs` | 0.00 | 17 | No |
+| 91 | `ArchLucid.Decisioning.Governance.Resolution.GovernanceScopeLevel` | `ArchLucid.Decisioning\Governance\Resolution\GovernanceScopeLevel.cs` | 0.00 | 4 | No |
+| 92 | `ArchLucid.Decisioning.Governance.Resolution.PolicyAssignmentPrecedence` | `ArchLucid.Decisioning\Governance\Resolution\PolicyAssignmentPrecedence.cs` | 0.00 | 10 | No |
+| 93 | `ArchLucid.Decisioning.Manifest.AuthorityCommitProjectionBuilder` | `ArchLucid.Decisioning\Manifest\AuthorityCommitProjectionBuilder.cs` | 0.00 | 61 | No |
+| 94 | `ArchLucid.Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder` | `ArchLucid.Decisioning\Manifest\Builders\DefaultGoldenManifestBuilder.cs` | 0.00 | 382 | No |
+| 95 | `ArchLucid.Decisioning.Manifest.Mapping.ContractGoldenManifestMapper` | `ArchLucid.Decisioning\Manifest\Mapping\ContractGoldenManifestMapper.cs` | 0.00 | 57 | No |
+| 96 | `ArchLucid.Decisioning.Manifest.Mapping.ContractGoldenManifestPersistence` | `ArchLucid.Decisioning\Manifest\Mapping\ContractGoldenManifestPersistence.cs` | 0.00 | 24 | No |
+| 97 | `ArchLucid.Decisioning.Merge.ComplexityDecisionStrategy` | `ArchLucid.Decisioning\Merge\ComplexityDecisionStrategy.cs` | 0.00 | 53 | No |
+| 98 | `ArchLucid.Decisioning.Merge.DecisionStrategyParameters` | `ArchLucid.Decisioning\Merge\DecisionStrategyParameters.cs` | 0.00 | 23 | No |
+| 99 | `ArchLucid.Decisioning.Merge.SecurityControlsDecisionStrategy` | `ArchLucid.Decisioning\Merge\SecurityControlsDecisionStrategy.cs` | 0.00 | 49 | No |
+| 100 | `ArchLucid.Decisioning.Merge.TopologyAcceptanceDecisionStrategy` | `ArchLucid.Decisioning\Merge\TopologyAcceptanceDecisionStrategy.cs` | 0.00 | 53 | No |
+| 101 | `ArchLucid.Decisioning.Models.DecisionRule` | `ArchLucid.Decisioning\Models\DecisionRule.cs` | 0.00 | 16 | No |
+| 102 | `ArchLucid.Decisioning.Models.DecisionRuleSet` | `ArchLucid.Decisioning\Models\DecisionRuleSet.cs` | 0.00 | 35 | No |
+| 103 | `ArchLucid.Decisioning.Models.FindingRecordMetadataPage` | `ArchLucid.Decisioning\Models\FindingRecordMetadataRows.cs` | 0.00 | 1 | No |
+| 104 | `ArchLucid.Decisioning.Models.FindingRecordMetadataRow` | `ArchLucid.Decisioning\Models\FindingRecordMetadataRows.cs` | 0.00 | 9 | No |
+| 105 | `ArchLucid.Decisioning.Rules.InMemoryDecisionRuleProvider` | `ArchLucid.Decisioning\Rules\InMemoryDecisionRuleProvider.cs` | 0.00 | 100 | No |
+| 106 | `ArchLucid.Decisioning.Services.ComplianceFindingEngine` | `ArchLucid.Decisioning\Services\ComplianceFindingEngine.cs` | 0.00 | 57 | No |
+| 107 | `ArchLucid.Decisioning.Services.FindingPayloadValidator` | `ArchLucid.Decisioning\Services\FindingPayloadValidator.cs` | 0.00 | 45 | No |
+| 108 | `ArchLucid.Decisioning.Services.FindingsOrchestrator` | `ArchLucid.Decisioning\Services\FindingsOrchestrator.cs` | 0.00 | 98 | No |
+| 109 | `ArchLucid.Decisioning.Services.GoldenManifestValidator` | `ArchLucid.Decisioning\Services\GoldenManifestValidator.cs` | 0.00 | 27 | No |
+| 110 | `ArchLucid.Decisioning.Services.ManifestHashService` | `ArchLucid.Decisioning\Services\ManifestHashService.cs` | 0.00 | 47 | No |
+| 111 | `ArchLucid.Decisioning.Services.PolicyApplicabilityFindingEngine` | `ArchLucid.Decisioning\Services\PolicyApplicabilityFindingEngine.cs` | 0.00 | 34 | No |
+| 112 | `ArchLucid.Decisioning.Services.PolicyCoverageFindingEngine` | `ArchLucid.Decisioning\Services\PolicyCoverageFindingEngine.cs` | 0.00 | 77 | No |
+| 113 | `ArchLucid.Decisioning.Services.RequirementCoverageFindingEngine` | `ArchLucid.Decisioning\Services\RequirementCoverageFindingEngine.cs` | 0.00 | 45 | No |
+| 114 | `ArchLucid.Decisioning.Services.RequirementFindingEngine` | `ArchLucid.Decisioning\Services\RequirementFindingEngine.cs` | 0.00 | 58 | No |
+| 115 | `ArchLucid.Decisioning.Services.SecurityBaselineFindingEngine` | `ArchLucid.Decisioning\Services\SecurityBaselineFindingEngine.cs` | 0.00 | 68 | No |
+| 116 | `ArchLucid.Decisioning.Services.SecurityCoverageFindingEngine` | `ArchLucid.Decisioning\Services\SecurityCoverageFindingEngine.cs` | 0.00 | 49 | No |
+| 117 | `ArchLucid.Decisioning.Services.TopologyCoverageFindingEngine` | `ArchLucid.Decisioning\Services\TopologyCoverageFindingEngine.cs` | 0.00 | 86 | No |
+| 118 | `ArchLucid.Decisioning.Plugins.FindingEnginePluginDiscovery` | `ArchLucid.Decisioning\Plugins\FindingEnginePluginDiscovery.cs` | 3.66 | 79 | No |
+| 119 | `ArchLucid.Decisioning.Services.RuleBasedDecisionEngine` | `ArchLucid.Decisioning\Services\RuleBasedDecisionEngine.cs` | 10.20 | 44 | No |
+| 120 | `ArchLucid.Decisioning.Repositories.InMemoryFindingsSnapshotRepository` | `ArchLucid.Decisioning\Repositories\InMemoryFindingsSnapshotRepository.cs` | 16.47 | 71 | No |
+| 121 | `ArchLucid.Decisioning.Merge.DecisionEngineV2` | `ArchLucid.Decisioning\Merge\DecisionEngineV2.cs` | 17.14 | 29 | No |
+| 122 | `ArchLucid.Decisioning.Merge.DecisionNodeManifestMerger` | `ArchLucid.Decisioning\Merge\DecisionNodeManifestMerger.cs` | 18.99 | 64 | No |
+| 123 | `ArchLucid.Decisioning.Findings.FindingExplainabilityNarrativeBuilder` | `ArchLucid.Decisioning\Findings\FindingExplainabilityNarrativeBuilder.cs` | 21.15 | 82 | No |
+| 124 | `ArchLucid.Decisioning.Findings.Serialization.FindingsSnapshotMigrator` | `ArchLucid.Decisioning\Findings\Serialization\FindingsSnapshotMigrator.cs` | 24.24 | 25 | No |
+| 125 | `ArchLucid.Decisioning.Advisory.Models.ImprovementPlan` | `ArchLucid.Decisioning\Advisory\Models\ImprovementPlan.cs` | 50.00 | 8 | Yes |
+| 126 | `ArchLucid.Decisioning.Models.FindingEngineFailure` | `ArchLucid.Decisioning\Models\FindingEngineFailure.cs` | 50.00 | 6 | No |
+| 127 | `ArchLucid.Decisioning.Validation.PassthroughSchemaValidationService` | `ArchLucid.Decisioning\Validation\PassthroughSchemaValidationService.cs` | 50.00 | 3 | No |
+| 128 | `ArchLucid.Decisioning.Advisory.Learning.RecommendationLearningProfile` | `ArchLucid.Decisioning\Advisory\Learning\RecommendationLearningProfile.cs` | 53.33 | 14 | No |
+| 129 | `ArchLucid.Decisioning.Repositories.InMemoryGoldenManifestRepository` | `ArchLucid.Decisioning\Repositories\InMemoryGoldenManifestRepository.cs` | 57.69 | 22 | No |
+| 130 | `ArchLucid.Decisioning.Validation.SchemaValidationService` | `ArchLucid.Decisioning\Validation\SchemaValidationService.cs` | 58.54 | 51 | No |
+| 131 | `ArchLucid.Decisioning.Advisory.Workflow.RecommendationRecord` | `ArchLucid.Decisioning\Advisory\Workflow\RecommendationRecord.cs` | 59.62 | 21 | Yes |
+| 132 | `ArchLucid.Decisioning.Merge.DecisionMergeInputGate` | `ArchLucid.Decisioning\Merge\DecisionMergeInputGate.cs` | 65.96 | 16 | No |
+| 133 | `ArchLucid.Decisioning.Findings.ExplanationFaithfulnessReport` | `ArchLucid.Decisioning\Findings\ExplanationFaithfulnessReport.cs` | 66.67 | 2 | No |
+| 134 | `ArchLucid.Decisioning.Findings.TraceConfidenceLabels` | `ArchLucid.Decisioning\Findings\TraceConfidenceLabels.cs` | 66.67 | 1 | No |
+| 135 | `ArchLucid.Decisioning.Alerts.Delivery.AlertRoutingSubscription` | `ArchLucid.Decisioning\Alerts\Delivery\AlertRoutingSubscription.cs` | 70.00 | 9 | No |
+| 136 | `ArchLucid.Decisioning.Merge.ManifestGovernanceMerger` | `ArchLucid.Decisioning\Merge\ManifestGovernanceMerger.cs` | 70.83 | 21 | No |
+| 137 | `ArchLucid.Decisioning.Alerts.AlertRecord` | `ArchLucid.Decisioning\Alerts\AlertRecord.cs` | 72.09 | 12 | No |
+| 138 | `ArchLucid.Decisioning.Validation.SchemaValidationError` | `ArchLucid.Decisioning\Validation\SchemaValidationResult.cs` | 75.00 | 2 | No |
+| 139 | `ArchLucid.Decisioning.Findings.Serialization.FindingJsonConverter` | `ArchLucid.Decisioning\Findings\Serialization\FindingJsonConverter.cs` | 77.86 | 31 | No |
+| 140 | `ArchLucid.Decisioning.Models.FindingsSnapshot` | `ArchLucid.Decisioning\Models\FindingsSnapshot.cs` | 78.57 | 6 | Yes |
+| 141 | `ArchLucid.Decisioning.Merge.AgentProposalManifestMerger` | `ArchLucid.Decisioning\Merge\AgentProposalManifestMerger.cs` | 80.20 | 40 | No |
+| 142 | `ArchLucid.Decisioning.Merge.DecisionMergeResult` | `ArchLucid.Decisioning\Merge\DecisionMergeResult.cs` | 81.25 | 3 | No |
+| 143 | `ArchLucid.Decisioning.Advisory.Delivery.DigestSubscription` | `ArchLucid.Decisioning\Advisory\Delivery\DigestSubscription.cs` | 81.48 | 5 | No |
+| 144 | `ArchLucid.Decisioning.Manifest.AuthorityManifestRiskPosture` | `ArchLucid.Decisioning\Manifest\AuthorityManifestRiskPosture.cs` | 81.48 | 5 | No |
+| 145 | `ArchLucid.Decisioning.Validation.SchemaValidationOptions` | `ArchLucid.Decisioning\Validation\SchemaValidationOptions.cs` | 85.00 | 3 | No |
+| 146 | `ArchLucid.Decisioning.Validation.SchemaValidationResult` | `ArchLucid.Decisioning\Validation\SchemaValidationResult.cs` | 85.71 | 1 | No |
+| 147 | `ArchLucid.Decisioning.Merge.DecisionEngineService` | `ArchLucid.Decisioning\Merge\DecisionEngineService.cs` | 89.80 | 5 | No |
+| 148 | `ArchLucid.Decisioning.Findings.TraceCompletenessScore` | `ArchLucid.Decisioning\Findings\TraceCompletenessScore.cs` | 91.30 | 2 | No |
+| 149 | `ArchLucid.Decisioning.Findings.ExplainabilityTraceCompletenessAnalyzer` | `ArchLucid.Decisioning\Findings\ExplainabilityTraceCompletenessAnalyzer.cs` | 93.27 | 7 | No |
+| 150 | `ArchLucid.Decisioning.Findings.FindingPayloadRegistry` | `ArchLucid.Decisioning\Findings\FindingPayloadRegistry.cs` | 93.33 | 1 | No |
+| 151 | `ArchLucid.Decisioning.Findings.EngineTraceCompleteness` | `ArchLucid.Decisioning\Findings\EngineTraceCompleteness.cs` | 94.44 | 1 | No |
+
 ### ArchLucid.Api.Client (100.00% line coverage)
 
 #### Top 3 classes by lowest line coverage %
@@ -1640,6 +1602,33 @@ Per Cobertura **class** aggregate `<lines>` rows. **Line coverage %** is **(cove
 
 _No classes below 95% line coverage in Cobertura for this assembly._
 
+### ArchLucid.Capabilities.Cost (100.00% line coverage)
+
+#### Top 3 classes by lowest line coverage %
+
+| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
+|------|-------|------|-----------------|-----------------|----------------|
+| 1 | `ArchLucid.Capabilities.Cost.CostAgentHandler` | `ArchLucid.Capabilities.Cost\CostAgentHandler.cs` | 100.00 | 0 | No |
+| 2 | `ArchLucid.Capabilities.Cost.CostConstraintFindingEngine` | `ArchLucid.Capabilities.Cost\CostConstraintFindingEngine.cs` | 100.00 | 0 | No |
+
+#### All classes below 95% line coverage
+
+_No classes below 95% line coverage in Cobertura for this assembly._
+
+### ArchLucid.Notifications (100.00% line coverage)
+
+#### Top 3 classes by lowest line coverage %
+
+| Rank | Class | File | Line coverage % | Uncovered lines | Prior attempt? |
+|------|-------|------|-----------------|-----------------|----------------|
+| 1 | `ArchLucid.Notifications.AuthorityRunCommittedChatOpsHook` | `ArchLucid.Notifications\AuthorityRunCommittedChatOpsHook.cs` | 100.00 | 0 | No |
+| 2 | `ArchLucid.Notifications.AuthorityRunCommittedChatOpsNotice` | `ArchLucid.Notifications\AuthorityRunCommittedChatOpsNotice.cs` | 100.00 | 0 | No |
+| 3 | `ArchLucid.Notifications.ChatOpsIncomingWebhookBodies` | `ArchLucid.Notifications\ChatOpsIncomingWebhookBodies.cs` | 100.00 | 0 | No |
+
+#### All classes below 95% line coverage
+
+_No classes below 95% line coverage in Cobertura for this assembly._
+
 ## Merged totals (reference)
 
 - **Merged line coverage:** 57.72%
@@ -1647,8 +1636,8 @@ _No classes below 95% line coverage in Cobertura for this assembly._
 
 ## Recent targeted tests (correctness improvement track)
 
-- **2026-05-14 — Persistence (tenancy):** **`DapperTenantRepositoryConstructorTests`** — primary-constructor **`ArgumentNullException`** parameter names; **`DapperTenantRepositorySqlIntegrationTests`** — **`SystemWithPerTenantCatalogs`** suspend + **`ListTrialLifecycleAutomationTenantIdsAsync`** fan-out (same DB + active binding), **`TryIncrementActiveTrialRunAsync`** external connection/transaction, **`UpdateEntraTenantIdAsync`** miss + Entra collision, **`MarkTrialConvertedAsync`** null tier (**`CASE`** preserves tier), expired / inactive trial seat paths, **`TryMarkFirstManifestCommittedAsync`** zero ratio when limit unset, **`ListTenantIdsPendingTrialArchitecturePreseedAsync`** non-positive **`take`** clamp.
-- **2026-05-14 — Api (`Demo` quick-start path):** **`QuickStartServiceTests`** — Moq **`IArchitectureRunCreateOrchestrator`** / **`IArchitectureRunExecuteOrchestrator`** / **`IArchitectureRunCommitOrchestrator`**; preset vs free-text **`ArchitectureRequest`** shaping (**`NormalizeDescription`**, constraints/capabilities), **`TopFindings`** severity ordering / **`DisplayTitle`** fallbacks, **`PublicSiteOptions`** deep links, **`IAuditService`** **`RunSubmitted`** / **`RunCompleted`** with **`Guid.TryParse`** vs opaque **`run id`**.
+- **2026-05-15 — Capabilities.Cost:** **`ArchLucid.Capabilities.Cost.Tests`** — **`CostConstraintFindingEngine`** (**`EngineType`** / **`Category`**, empty graph, high-risk vs other severities / explainability traces, **`budgetName`** fallback to **`Label`**, non-numeric **`maxMonthlyCost`**, multiple **`CostConstraint`** nodes) and **`CostAgentHandler`** (**`ExecuteAsync`** + null **`request`** / **`evidence`** / **`task`**). Focused **`dotnet test ArchLucid.Capabilities.Cost.Tests`** with **`coverage.runsettings`**: **`ArchLucid.Capabilities.Cost`** package **100%** line / branch on **61** Cobertura class-aggregate lines (see **Data source** note).
+- **2026-05-14 — Persistence (tenancy):** **`DapperTenantRepositoryConstructorTests`** — primary-constructor **`ArgumentNullException`** parameter names; **`DapperTenantRepositorySqlIntegrationTests`** — **`SystemWithPerTenantCatalogs`** suspend + **`ListTrialLifecycleAutomationTenantIdsAsync`** fan-out (same DB + active binding), **`TryIncrementActiveTrialRunAsync`** external connection/transaction, **`UpdateEntraTenantIdAsync`** miss + Entra collision, **`MarkTrialConvertedAsync`** null tier (**`CASE`** preserves tier), expired / inactive trial seat paths, **`TryMarkFirstManifestCommittedAsync`** zero ratio when limit unset, **`ListTenantIdsPendingTrialArchitecturePreseedAsync`** non-positive **`take`** clamp. — Moq **`IArchitectureRunCreateOrchestrator`** / **`IArchitectureRunExecuteOrchestrator`** / **`IArchitectureRunCommitOrchestrator`**; preset vs free-text **`ArchitectureRequest`** shaping (**`NormalizeDescription`**, constraints/capabilities), **`TopFindings`** severity ordering / **`DisplayTitle`** fallbacks, **`PublicSiteOptions`** deep links, **`IAuditService`** **`RunSubmitted`** / **`RunCompleted`** with **`Guid.TryParse`** vs opaque **`run id`**.
 - **2026-05-14 — Api.Client (maintained surface):** **`FileParameterTests`** + **`ArchLucidApiClientWireTests`** — **`HttpClient`** stubs (**`VersionAsync`**, **`MeAsync`**, **`ExecutiveSummaryAsync`** / **`ProblemDetails`**), **`JsonStringEnumConverter`** parity (**`CitationReference`**), **`BaseUrl`** normalization. **`coverage.runsettings`** still excludes **`ArchLucid.Api.Client/Generated/`** from Cobertura line totals (hand-maintained surface only).
 - **2026-05-13 — Integrations.AzureDevOps (unit) + coverage bookkeeping:** **`ArchLucid.Integrations.AzureDevOps.Tests`** now cover PR decorator compare skips/fallbacks, wire-format edge cases, markdown formatters, and the authority-run handler. Merged Cobertura refreshed: **`ArchLucid.Integrations.AzureDevOps`** at **90.15% line** (up from ~59.7%).
 - **2026-05-13 — Api (no-SQL unit slice):** **`QuickStartPresetsTests`** (**`TryGet`**, keys, **`LogicalScopePins`**); **`AdminDiagnosticsServiceNonSqlTests`** — outbox snapshot aggregation, **`StorageProvider=InMemory`** short-circuit for orphan counts/remediations (strict **`IDbConnectionFactory`**), archival audit when **`IRunRepository`** returns updates.

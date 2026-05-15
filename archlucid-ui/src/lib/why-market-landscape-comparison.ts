@@ -13,23 +13,28 @@ export type WhyMarketLandscapeMarketingRow = {
 export const WHY_MARKET_LANDSCAPE_MARKETING_ROWS: readonly WhyMarketLandscapeMarketingRow[] = [
   {
     dimension: "Pricing",
-    archlucid: "Consumption-based SaaS (see pricing manifest in-repo).",
-    githubCopilotAdHocArchitecture: "~$19–39/seat/month (code assist; not orchestrated architecture runs).",
-    manualChatgptClaude: "~$20–25/seat/month (chat; unstructured output).",
-    structurizrWithAssist: "OSS + optional SaaS tiers ($5–20/mo) — modeling first; limited automated analysis.",
+    archlucid: "Consumption-based SaaS with published packaging documentation and quote-led enterprise paths.",
+    githubCopilotAdHocArchitecture: "Typical fit: per-seat developer tooling billed for IDE assistance.",
+    manualChatgptClaude: "Typical fit: conversational assist with unstructured outputs and manual prompting.",
+    structurizrWithAssist:
+      "Typical fit: modeling and diagram DSL with optional SaaS tiers; packaged governance evidence varies by rollout.",
   },
   {
     dimension: "AI capability",
-    archlucid: "Multi-agent architecture pipeline + simulator + routed LLMs (ARCHITECTURE_CONTEXT.md in repo).",
-    githubCopilotAdHocArchitecture: "Code completions; lacks manifest-scale architecture orchestration.",
-    manualChatgptClaude: "Prompt-defined; brittle repeatability.",
-    structurizrWithAssist: "Diagram DSL assist — no agentic findings pipeline comparable to Authority runs.",
+    archlucid:
+      "Purpose-built governed review pipeline — multi-agent synthesis, deterministic replay, routed models behind human-reviewed outcomes.",
+    githubCopilotAdHocArchitecture: "Typical fit: code completions and refactoring assistance in the editor.",
+    manualChatgptClaude: "Typical fit: ad-hoc analysis; repeatability depends on prompting and transcripts.",
+    structurizrWithAssist:
+      "Typical fit: architecture modeling views; analytical depth tied to authored models and integrations.",
   },
   {
     dimension: "Governance & audit posture",
-    archlucid: "Committed manifests, segregation-of-duties gates, typed audit envelopes, replay exports (see COMPETITIVE_LANDSCAPE.md §3 for evidence list).",
-    githubCopilotAdHocArchitecture: "No enterprise architecture audit trail tied to manifests.",
-    manualChatgptClaude: "Conversation history only — not attestable lifecycle evidence.",
-    structurizrWithAssist: "Version control over DSL artefacts — lacks governed promotion workflow parity.",
+    archlucid:
+      "Committed manifests, segregation-of-duty gates, typed audit envelopes, and replay/export paths aligned to architecture review packs.",
+    githubCopilotAdHocArchitecture: "Typical fit: developer workflow tooling — not an architecture-evidence catalogue product.",
+    manualChatgptClaude: "Typical fit: interactive Q&A — not a governed package with sealed manifest lineage by default.",
+    structurizrWithAssist:
+      "Typical fit: documenting system context — governance promotion workflows differ from packaged review records.",
   },
 ];

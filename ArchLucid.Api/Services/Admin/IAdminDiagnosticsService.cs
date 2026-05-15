@@ -67,4 +67,9 @@ public interface IAdminDiagnosticsService
     Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(
         IReadOnlyList<Guid> runIds,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Aggregate-only usage counters across tenants from SQL (<c>dbo.Runs</c>) — no per-tenant breakdown.
+    /// </summary>
+    Task<CrossTenantUsageRollup> GetCrossTenantUsageRollupAsync(CancellationToken cancellationToken = default);
 }

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips";
 import { GraphReviewTrailLegendChips } from "@/components/GraphReviewTrailLegendChips";
 import { Button } from "@/components/ui/button";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
 import {
   downloadBrowserTextFile,
@@ -13,7 +12,6 @@ import {
   safeGraphExportFilenameSegment,
 } from "@/lib/graph-view-model-export";
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
-import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/graph/_sections/GraphInteractiveCanvas";
@@ -67,9 +65,8 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
               What this graph proves
             </p>
             <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-              Captured evidence and analysis feed primary risk findings that anchor the governed architecture decisions
-              sealed in the manifest and reflected in sponsor and audit deliverables. Select any highlighted node to read
-              how it participates in this trace.
+              For this sample review, the PHI minimization finding is tied to source context, applied policy packs, the signed
+              manifest, and packaged deliverables in one trace consumers can replay.
             </p>
           </div>
           {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
@@ -77,10 +74,6 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           ) : (
             <GraphNodeKindLegendChips />
           )}
-          <p className="m-0 max-w-prose text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Every decision captured in the signed manifest can be traced to source evidence, analysis, findings, and packaged
-            deliverables in this trace.
-          </p>
         </div>
       ) : null}
       {buyerPolishedShell ? (
@@ -198,8 +191,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
       ) : null}
       {demoUi && buyerPolishedShell ? (
         <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          Use <span className="font-medium text-neutral-800 dark:text-neutral-200">Filter evidence view</span> when you want a different finalized package loaded into this explorer. Defaults stay on the{" "}
-          {BUYER_SURFACE_VOCABULARY.evidenceGraphNav.toLowerCase()} for {SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.
+          Use filters to focus the evidence view on a selected review package or evidence type when more than one package is available in this workspace.
         </p>
       ) : null}
       {demoUi && !buyerPolishedShell ? (

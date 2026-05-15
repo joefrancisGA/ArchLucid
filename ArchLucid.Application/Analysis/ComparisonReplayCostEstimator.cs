@@ -20,6 +20,8 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(replayMode);
         List<string> factors = [];
         int score = ScoreForRecord(record, normalizedFormat, mode, factors);
+        score += ComparisonReplayPayloadComplexity.ScorePayloadComplexity(record.PayloadJson, factors);
+
         if (persistReplay)
         {
             score += 2;

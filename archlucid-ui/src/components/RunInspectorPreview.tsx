@@ -17,6 +17,7 @@ import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import {
   getBuyerSafeReviewsTableLink,
+  getBuyerSafeSignedManifestTableLink,
   getCanonicalReviewWorkspaceHref,
   getShowcaseExecutiveHref,
   getShowcaseWalkthroughHref,
@@ -56,6 +57,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const buyerSafePrimary = isBuyerSafePrimaryReviewNavigationPreferred(run.runId);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
+  const signedManifestExplore = getBuyerSafeSignedManifestTableLink(run.runId);
   const workspaceHref = getCanonicalReviewWorkspaceHref(run.runId);
   const showcaseWalkthroughHref = getShowcaseWalkthroughHref();
   const showcaseUseWorkspaceQuickLinks = showcaseStory && buyerPolished;
@@ -75,15 +77,15 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
     : `${workspaceHref}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
   const artifactNote =
     showcaseStory && demoChrome
-      ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} warnings${
-          buyerPolished ? "" : " (demo totals)"
-        }`
+      ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${
+          SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount
+        } ${buyerPolished ? "monitored risks" : "warnings"}${buyerPolished ? "" : " (demo totals)"}`
       : run.hasArtifactBundle
         ? buyerPolished
           ? "Browse sponsor-ready deliverables and exports from the full review. Open review detail when you need the complete workspace view."
           : "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."
         : buyerPolished
-          ? "No file bundle reported for this row yet."
+          ? "Evidence package available from the signed manifest."
           : "Artifact bundle not reported in list payload";
 
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
@@ -123,7 +125,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           type="button"
           className="mt-1 text-xs font-medium text-teal-800 underline dark:text-teal-300"
           onClick={() => setTechnicalOpen((v) => !v)}
-          aria-expanded={technicalOpen}
+          aria-expanded={technicalOpen ? "true" : "false"}
         >
           {technicalOpen ? "Hide technical details" : "Technical details (IDs)"}
         </button>
@@ -186,12 +188,20 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         </ul>
       </div>
 
-      {/* Primary exploration — buyer-safe demos lead with manifest + showcase so hydration failures on `/reviews/[id]` do not strand evaluators */}
+      {/* Primary exploration — buyer shell leads with the full package; signed manifest + graph stay one click away. */}
       <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         {buyerPolished ? (
-          <div className={cn("grid gap-2", showEvidenceGraphCta ? "sm:grid-cols-2" : "")}>
+          <div
+            className={cn(
+              "grid gap-2",
+              showEvidenceGraphCta ? "sm:grid-cols-3" : "sm:grid-cols-2",
+            )}
+          >
             <Button variant="primary" size="sm" className="w-full" asChild>
               <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="w-full" asChild>
+              <Link href={signedManifestExplore.href}>{signedManifestExplore.label}</Link>
             </Button>
             {showEvidenceGraphCta ? (
               <Button variant="outline" size="sm" className="w-full" asChild>
@@ -307,7 +317,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             type="button"
             className="text-xs text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
             onClick={() => setMoreOpen((v) => !v)}
-            aria-expanded={moreOpen}
+            aria-expanded={moreOpen ? "true" : "false"}
           >
             {moreOpen ? "▾ Less" : "▸ More actions"}
           </button>

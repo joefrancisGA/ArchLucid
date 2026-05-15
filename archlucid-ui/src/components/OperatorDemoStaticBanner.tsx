@@ -16,12 +16,15 @@ export function OperatorDemoStaticBanner(): ReactElement {
       }
       role="status"
       data-demo-static="true"
+      title={demoMode ? "Example workspace using sample data only." : undefined}
     >
-      <strong className="font-medium">{demoMode ? "Sample data" : "Demonstration content"}</strong>
-      {" — "}
-      {demoMode
-        ? "Example scenario aligned with the public completed review—connect a workspace for live tenant data."
-        : "You are viewing an example review package aligned with the completed showcase—connect a workspace for live data."}
+      <strong className="font-medium">{demoMode ? "Example workspace · sample data only" : "Demonstration content"}</strong>
+      {demoMode ? null : (
+        <>
+          {" — "}
+          You are viewing an example review package aligned with the completed showcase — connect a workspace for live data.
+        </>
+      )}
     </div>
   );
 }

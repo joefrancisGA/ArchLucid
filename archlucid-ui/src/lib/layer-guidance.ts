@@ -96,11 +96,11 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-findings": {
     layerBadge: "Governance",
-    headline: "Findings from architecture reviews and governance scans.",
-    useWhen: "Open a review for snapshot and explainability; use governance dashboard for cross-review queue context.",
+    headline: "Findings from architecture reviews and policy checks.",
+    useWhen: "Open a review for snapshot and explainability; use the governance dashboard for portfolio-level review context.",
     firstPilotNote:
-      "After Pilot proof, use review detail for drill-down; dashboard queues cross-review findings.",
-    enterpriseFootnote: "Review-scoped detail; cross-review queue on governance dashboard.",
+      "After Pilot proof, use review detail for drill-down; dashboard queues portfolio governance findings.",
+    enterpriseFootnote: "Review-scoped detail; portfolio governance view on governance dashboard.",
   },
   "governance-first-30-days": {
     layerBadge: "Governance",

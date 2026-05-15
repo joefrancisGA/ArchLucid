@@ -106,6 +106,15 @@ public sealed class AuthorityPipelineStagesExecutor(
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
+    private static readonly string[] PipelineStageSequence =
+    [
+        "context_ingestion",
+        "graph",
+        "findings",
+        "decisioning",
+        "artifacts"
+    ];
+
     /// <inheritdoc />
     public async Task ExecuteAfterRunPersistedAsync(AuthorityPipelineContext ctx, CancellationToken ct)
     {
@@ -376,7 +385,29 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         try
         {
+            int stageIndex = Array.IndexOf(PipelineStageSequence, stageName);
+            string nextStage =
+                stageIndex >= 0 && stageIndex + 1 < PipelineStageSequence.Length
+                    ? PipelineStageSequence[stageIndex + 1]
+                    : "(finalize_authority_pipeline)";
+
+            if (_logger.IsEnabled(LogLevel.Information))
+
+                _logger.LogInformation(
+                    "Authority pipeline state transition: RunId={RunId}, CurrentStage={CurrentStage}, NextStage={NextStage}",
+                    ctx.Run.RunId,
+                    stageName,
+                    nextStage);
+
+
             await stageWork(activity, ct);
+
+            if (_logger.IsEnabled(LogLevel.Information))
+
+                _logger.LogInformation(
+                    "Authority pipeline stage completed: RunId={RunId}, Stage={Stage}",
+                    ctx.Run.RunId,
+                    stageName);
         }
         catch (Exception ex)
         {

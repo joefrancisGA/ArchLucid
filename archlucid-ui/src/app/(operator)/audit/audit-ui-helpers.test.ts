@@ -39,7 +39,7 @@ describe("formatBuyerAuditTrailSummaryLine", () => {
 
     expect(line).toContain("7 recorded events");
     expect(line).toContain("2 human actors");
-    expect(line).toContain("4 system-recorded events");
+    expect(line).toContain("4 events recorded automatically by ArchLucid lifecycle logging");
   });
 
   it("returns null for an empty list", () => {

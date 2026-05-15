@@ -169,6 +169,14 @@ public sealed class ManifestFinalizationConcurrencyTests
                 IDbTransaction? _,
                 ManifestDocument? body) => body!);
 
+        golden.Setup(g => g.SupersedeUnreferencedActiveGoldenManifestsAsync(
+                scope,
+                It.IsAny<Guid>(),
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Guid>());
+
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 

@@ -206,6 +206,14 @@ public sealed class ManifestFinalizationServiceTests
                 It.IsAny<ManifestDocument>()))
             .ReturnsAsync(persisted);
 
+        golden.Setup(g => g.SupersedeUnreferencedActiveGoldenManifestsAsync(
+                scope,
+                persisted.ManifestId,
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Guid>());
+
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
@@ -255,6 +263,103 @@ public sealed class ManifestFinalizationServiceTests
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task FinalizeAsync_legacy_emits_ManifestSuperseded_when_repository_returns_superseded_ids()
+    {
+        Guid runId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid supersededManifestId = Guid.NewGuid();
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord header = new()
+        {
+            RunId = runId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "proj",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            FindingsSnapshotId = findingsId
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(header);
+
+        Mock<IDecisionTraceRepository> traces = new();
+        traces.Setup(t => t.SaveAsync(It.IsAny<DecisionTrace>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IGoldenManifestRepository> golden = new();
+        ManifestDocument persisted = CreateMinimalManifest(runId, findingsId, traceId);
+        golden.Setup(g => g.SaveAsync(
+                It.IsAny<GoldenManifest>(),
+                scope,
+                It.IsAny<SaveContractsManifestOptions>(),
+                It.IsAny<IManifestHashService>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null,
+                It.IsAny<ManifestDocument>()))
+            .ReturnsAsync(persisted);
+
+        golden.Setup(g => g.SupersedeUnreferencedActiveGoldenManifestsAsync(
+                scope,
+                persisted.ManifestId,
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Guid> { supersededManifestId });
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        outbox.Setup(o => o.EnqueueAsync(
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ManifestFinalizationService sut = CreateSut(
+            scopeProvider: scopeProvider.Object,
+            runRepository: runs.Object,
+            decisionTraceRepository: traces.Object,
+            goldenManifestRepository: golden.Object,
+            auditService: audit.Object,
+            integrationEventOutbox: outbox.Object);
+
+        ManifestFinalizationRequest request = CreateMinimalRequest(runId, findingsId, traceId);
+
+        await sut.FinalizeAsync(request, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.ManifestSuperseded && e.ManifestId == supersededManifestId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.ManifestFinalized),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

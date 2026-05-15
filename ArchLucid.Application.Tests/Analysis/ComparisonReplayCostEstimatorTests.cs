@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
@@ -101,6 +103,45 @@ public sealed class ComparisonReplayCostEstimatorTests
 
         result.Should().NotBeNull();
         result.Factors.Should().Contain(f => f.Contains("Large stored payload", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public async Task TryEstimateAsync_manifest_delta_depth_adds_factor_and_raises_score()
+    {
+        Mock<IComparisonRecordRepository> repo = new();
+        string payloadJson = JsonSerializer.Serialize(new
+        {
+            manifestDelta = Enumerable.Range(1, 90).Select(static i => new { key = $"k{i}" }).ToArray()
+        });
+
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = payloadJson
+            });
+
+        ComparisonReplayCostEstimator sut = new(repo.Object);
+
+        ComparisonReplayCostEstimate? rich =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        repo.Setup(r => r.GetByIdAsync("c2", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c2",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = "{}"
+            });
+
+        ComparisonReplayCostEstimate? baseline =
+            await sut.TryEstimateAsync("c2", "markdown", "artifact", false, CancellationToken.None);
+
+        rich.Should().NotBeNull();
+        baseline.Should().NotBeNull();
+        rich.ApproximateRelativeScore.Should().BeGreaterThan(baseline.ApproximateRelativeScore);
+        rich.Factors.Should().Contain(f => f.Contains("manifest delta", StringComparison.OrdinalIgnoreCase));
     }
 
     [SkippableFact]

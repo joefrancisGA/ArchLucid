@@ -312,9 +312,10 @@ export const alertsTriageSuppressButtonLabelReaderInbox = "Suppress (preview)";
 
 /** Audit log — readers vs operators (see `AuditLogRankCue`). */
 export const auditLogRankReaderLine =
-  "Exports are available to Auditor or Admin roles when your time window is set.";
+  "Audit exports are available only to authorized audit or workspace administrators when your time window is set.";
 
-export const auditLogRankOperatorLine = "CSV export follows your organization’s role policy.";
+export const auditLogRankOperatorLine =
+  "Audit exports are available only to authorized audit or workspace administrators.";
 
 /** Extra line under the pending-approvals empty state when rank is below Execute (batch/review CTAs are disabled). */
 export const governanceDashboardPendingClearReaderSupplement =
@@ -529,7 +530,7 @@ export const auditExportSectionSupportingLine =
 
 /** Audit log — polished shell: no bulk-export mechanics in primary copy. */
 export const auditExportSectionSupportingLineBuyerPolished =
-  "Download a CSV of the events shown above for the selected date range.";
+  "Authorized users can export this audit trail as CSV for the selected date range.";
 
 /** Audit CSV — button label when From/To are incomplete (export disabled before role checks). */
 export const auditExportCsvButtonLabelWindowIncomplete = "Export audit trail (set From/To)";

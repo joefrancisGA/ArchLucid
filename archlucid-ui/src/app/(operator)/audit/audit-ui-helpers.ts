@@ -237,7 +237,7 @@ export function formatBuyerAuditTrailSummaryLine(
   const reviewTitle = buyerFacingReviewLinkLabelFromRunId(runKey);
   const eventCount = events.length;
 
-  return `${eventCount} recorded events, ${distinctHumans.size} human actor${distinctHumans.size === 1 ? "" : "s"}, ${systemRows} system-recorded event${systemRows === 1 ? "" : "s"}, all tied to ${reviewTitle}.`;
+  return `${eventCount} recorded events, ${distinctHumans.size} human actor${distinctHumans.size === 1 ? "" : "s"}, ${systemRows} event${systemRows === 1 ? "" : "s"} recorded automatically by ArchLucid lifecycle logging, all tied to ${reviewTitle}.`;
 }
 
 /** Metric tiles for buyer-polished audit header — same actor classification as {@link formatBuyerAuditTrailSummaryLine}. */

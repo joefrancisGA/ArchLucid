@@ -151,6 +151,15 @@ public sealed class AuthorityRunOrchestrator(
             {
                 string deferredEvidenceBundleId = evidenceBundleIdForDeferredWork!.Trim();
 
+                if (logger.IsEnabled(LogLevel.Information))
+
+                    logger.LogInformation(
+                        "Authority pipeline orchestrator transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}",
+                        run.RunId,
+                        "run_persisted",
+                        "queued_authority_pipeline");
+
+
                 AuthorityPipelineWorkPayload payload = new()
                 {
                     ContextIngestionRequest = request,
@@ -192,6 +201,15 @@ public sealed class AuthorityRunOrchestrator(
 
                 return run;
             }
+
+            if (logger.IsEnabled(LogLevel.Information))
+
+                logger.LogInformation(
+                    "Authority pipeline orchestrator transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}",
+                    run.RunId,
+                    "run_persisted",
+                    "inline_authority_pipeline_stages");
+
 
             AuthorityPipelineContext ctx = new()
             {
@@ -286,6 +304,15 @@ public sealed class AuthorityRunOrchestrator(
             CancellationToken pipelineCt = linkedCts.Token;
 
             RunRecord run = existing;
+
+            if (logger.IsEnabled(LogLevel.Information))
+
+                logger.LogInformation(
+                    "Authority pipeline orchestrator transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}",
+                    run.RunId,
+                    "queued_resume",
+                    "inline_authority_pipeline_stages");
+
 
             using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();
             runActivity?.SetTag("archlucid.run_id", run.RunId.ToString("D"));

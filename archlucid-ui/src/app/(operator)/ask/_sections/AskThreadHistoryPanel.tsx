@@ -26,13 +26,13 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
     <Card className="h-fit border-neutral-200 dark:border-neutral-700">
       <CardHeader className="p-4 pb-2">
         <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-          {buyerPolishedShell ? "Evidence Q&A history" : "Your conversation history"}
+          {buyerPolishedShell ? "Review Q&A threads" : "Your conversation history"}
         </CardTitle>
         <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
           {buyerPolishedShell ? (
             <>
-              Answers are limited to the selected architecture review package and cite package evidence when available —
-              open a saved thread below, or start a fresh question after linking the review package.
+              Answers use only the selected review package and cite evidence from that package when it exists. Open a
+              thread below to continue, or ask a new question after you pick a review.
             </>
           ) : (
             <>

@@ -397,7 +397,7 @@ export function RunsDashboardPanel() {
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     {buyerPolishedShell
-                      ? "Open the sample executive summary or sealed manifest summary to walk a governed Claims Intake package end to end."
+                      ? "Open the sample executive summary or the full review package to walk a governed Claims Intake review end to end."
                       : "You have no architecture reviews yet. Create a request to produce a manifest, findings, and exportable artifacts — or walk the pilot checklist first."}
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
@@ -411,7 +411,12 @@ export function RunsDashboardPanel() {
                           <Link href={getShowcaseExecutiveHref()}>Start executive review</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link href={getShowcaseManifestHref()}>View manifest summary</Link>
+                          <Link href={getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID)}>
+                            View review package
+                          </Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link href={getShowcaseManifestHref()}>View signed manifest</Link>
                         </Button>
                       </>
                     )}

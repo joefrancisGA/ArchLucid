@@ -20,7 +20,7 @@ public sealed class SqlTransientDetectorTests
     [InlineData(49918)]
     [InlineData(49919)]
     [InlineData(49920)]
-    [InlineData(1205)]
+    [InlineData(40501)]
     public void IsTransient_SqlException_WithTransientErrorNumber_ReturnsTrue(int errorNumber)
     {
         SqlException ex = SqlExceptionTestFactory.Create(errorNumber);

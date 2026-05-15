@@ -19,13 +19,15 @@
 |-------------|--------|
 | **API running** | Target URL reachable (default `http://localhost:5128`). |
 | **SQL + DbUp** | `ArchLucid:StorageProvider=Sql` with a **migrated** database (fresh DB is fine—migrations run on startup). |
-| **Auth** | Examples assume **`DevelopmentBypass`** (no JWT/API key on curl). For **JwtBearer** / **ApiKey**, add headers per [README.md](../../README.md) and [API_CONTRACTS.md](API_CONTRACTS.md). |
+| **Auth** | Examples assume **`DevelopmentBypass`** (no JWT/API key on curl). For **JwtBearer** / **ApiKey**, add headers per [README.md](../../README.md) and [API_CONTRACTS.md](API_CONTRACTS.md). **`v1-rc-drill.ps1`** accepts **`-BearerToken`** (Bearer JWT) and/or **`-ApiKey`** (`X-Api-Key`) while preserving DevelopmentBypass behavior when both are omitted. |
 | **Tooling** | `curl` or PowerShell `Invoke-RestMethod`; .NET SDK for CLI steps; optional Node for UI steps. |
 
 **Automated HTTP steps (no UI):** from repo root, with the API already up:
 
 ```powershell
-.\v1-rc-drill.ps1 -ApiBaseUrl 'http://localhost:5128'
+.\v1-rc-drill.ps1 -ApiBaseUrl 'http://localhost:5128' -BearerToken $env:ARCHLUCID_TEST_JWT
+# or API key auth:
+.\v1-rc-drill.ps1 -ApiBaseUrl 'https://api.example.com' -ApiKey $env:ARCHLUCID_ADMIN_KEY
 ```
 
 **Switches:** **`-SkipDoctor`** / **`-SkipSupportBundle`** if you already validated CLI diagnostics separately.

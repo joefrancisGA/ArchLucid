@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(154)
+        return new List<ConfigurationKeyEntry>(158)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -33,8 +33,22 @@ public static class ConfigurationKeyCatalog
                 ConfigKeyRequirementKind.WhenDefaultSqlStorage),
             E("ArchLucid", "ArchLucid:PublicSite:BaseUrl", M("appsettings", "env"), "https://archlucid.net", "—",
                 "Public marketing / operator link base for emails and exports.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:KnowledgeGraph:ProjectionCache:Backend", M("appsettings", "env"), "Memory", "—",
+                "Memory (per-process IMemoryCache) vs Distributed (IDistributedCache / Redis via host composition).",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:KnowledgeGraph:ProjectionCache:RedisConnectionString", M("appsettings", "env"),
+                "empty", "Distributed Backend",
+                "Optional Redis connection for projection cache; falls back to LLM / hot-path Redis when unset.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:KnowledgeGraph:ProjectionCache:AbsoluteExpirationSeconds", M("appsettings", "env"),
+                "300", "Enabled projection cache",
+                "TTL (seconds) for cached graph snapshot projections.",
+                ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Retention:FunnelEventsDays", M("appsettings", "env"), "0", "—",
-                "Max age (days) for FirstTenantFunnel SQL rows before archival/purge; 0 uses Telemetry:FirstTenantFunnel:ArchivalRetentionDays.",
+                "Max age (days) for FirstTenantFunnel SQL rows before archival/purge; 0 falls through to ArchLucid:FirstTenantFunnelRetentionDays when set, else Telemetry:FirstTenantFunnel:ArchivalRetentionDays, else 90.",
+                ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:FirstTenantFunnelRetentionDays", M("appsettings", "env"), "(omit)", "—",
+                "When > 0, max age (days) for dbo.FirstTenantFunnelEvents SQL purge/archive rows (overrides Retention:FunnelEventsDays chain).",
                 ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Retention:FunnelEventsHardDeleteWithoutBlobArchive", M("appsettings", "env"),
                 "true", "—",

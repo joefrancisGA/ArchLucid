@@ -5,7 +5,7 @@
 **V1 scoring boundary:**
 
 - **MCP:** Inbound Model Context Protocol is **explicitly out of V1** and scheduled for **V1.1** per `docs/library/V1_SCOPE.md` §3 and `docs/library/V1_DEFERRED.md` §6d. **V1.1 slice pinned** (**owner 2026-05-15**, **P12**): **seven read-only tools**, **Streamable HTTP** for production (private endpoint), optional **`stdio`** for local/self-hosted harness only — `docs/library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md` **§5.1**. Absence of an MCP host does not reduce any weighted quality score; REST, CLI, operator UI, webhooks, and first-party integrations are the in-contract V1 integration surfaces.
-- **Hosted-trial `V1`→`V1.1` migration / expectations guide:** **Explicitly out of V1 GA.** The consolidated tenant-facing rollup is **V1.1 documentation scope only** (`docs/library/V1_DEFERRED.md` §6i, **P5** owner **2026-05-15**). **`(A)` V1 headline readiness is not reduced** because this memo is absent at GA; improvement **#10** tracks the **V1.1** documentation slice.
+- **Hosted-trial `V1`→`V1.1` migration / expectations guide:** **Explicitly out of V1 GA** narrative-blocking claims — orientation memo **`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`** **shipped (2026-05-15**, improvement **#10**, **`V1_DEFERRED.md` §6i**). **`(A)` V1 headline readiness is unchanged:** memo frames **V1.1** outbound deltas (commerce, MCP, Slack approvals, packs), **not** a GA prerequisite checklist rewrite.
 - **Native SAML 2.0 Service Provider (workforce SSO):** **In V1 GA scope** (**owner 2026-05-15**, **`docs/library/V1_SCOPE.md` §2.12**, **P6**). **`JwtBearer`** OIDC remains **first-class**; SAML **SP** augments buyer choice. **`(A)` V1 headline readiness** assumes **#13** closes before GA claims **SAML-direct** tenancy support without brokers — until shipped, procurement must describe **OIDC / broker** interim posture honestly.
 - **Third-party penetration test (external vendor):** **`V2`** per **`docs/library/V1_DEFERRED.md` §6c. **`(A)` V1 planning / execution** omits recurring **budget / vendor pen-test prompts** (**owner 2026-05-15**, **P8**). Treat absent published assessor summary as **`(B)` procurement realism** only — improvement **#18** remains **`V2`** backlog metadata, not a **V1** standing question.
 - **Planning bridge (59R operator UX):** **V1 GA** — in-shell flow on **`/product-learning`** per **`docs/library/PRODUCT_LEARNING.md` §4.2** (improvement **#16**, **P7** owner **2026-05-15**). **`/planning`** stays read-only browse; bridge invokes existing **`POST /v1/learning/planning/materialize`** — **no** preview-only endpoint required for GA (**engineering judgment** documented in §4.2 **Constraints**).
@@ -34,7 +34,7 @@
 
 **Enterprise Picture:** The system supports robust tenant isolation (database-per-tenant), workforce SSO via **OIDC / Entra ID** and **native SAML 2.0 SP** (**`V1_SCOPE.md` §2.12**, **V1 GA** — improvement **#13**), and private connectivity. First-party ITSM connectors (Jira, ServiceNow) and Slack/Confluence integrations are strong enterprise features. However, the absence of a CPA-issued SOC 2 report and third-party penetration test (deferred to V2) will cause friction during procurement and security reviews.
 
-**Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. A scoped migration of `AuthorityRunOrchestrator` to the Durable Task Framework is an active V1 commitment that adds checkpoint-based replay, structured compensation, and event-sourced execution history — directly aligned with the regulated AI governance buyer wedge. The primary remaining risks involve legacy RLS object names, reliance on memory caching for graph projections at scale, the need to expand live API E2E test coverage, and **keeping GA-gated demo workspace smoke green** (**Q6** / **#31**).
+**Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. A scoped migration of `AuthorityRunOrchestrator` to the Durable Task Framework is an active V1 commitment that adds checkpoint-based replay, structured compensation, and event-sourced execution history — directly aligned with the regulated AI governance buyer wedge. **Improvements closed (2026-05-15):** idempotent orphan **`archiforge_*`** RLS predicate drops (**DbUp 165**, **#4**); **`FirstTenantFunnelEvents`** SQL purge when per-tenant emission is **off** (**#5**); **`ui-e2e-live`** negative-path coverage (**#8**); optional **Redis-backed** graph projection **`IDistributedCache`** (**#9**); hosted-trial **V1→V1.1** orientation memo (**#10**). Residual risks include **immutable** migration/history spellings, catalogs still on legacy **RLS** identifiers until **`108`** replay coordination, single-process projection defaults without Redis, and **keeping GA-gated demo workspace smoke green** (**Q6** / **#31**).
 
 ---
 
@@ -60,9 +60,9 @@
 - **Score:** 82
 - **Weight:** 8
 - **Weighted deficiency signal:** 144
-- **Justification:** The execution model is solid; **improvement #3** **`ManifestSuperseded`** durable path **closed (2026-05-15)** per **`docs/library/AUDIT_COVERAGE_MATRIX.md`** (finalize orphan cleanup). Legacy RLS object names remain a correctness / isolation hygiene topic.
+- **Justification:** The execution model is solid; **improvement #3** **`ManifestSuperseded`** durable path **closed (2026-05-15)** per **`docs/library/AUDIT_COVERAGE_MATRIX.md`** (finalize orphan cleanup). **Improvement #4** (**DbUp 165**) clears **unreferenced** legacy **`archiforge_*`** security predicates; residual catalogs still named **`ArchiforgeTenantScope`** remain operator **`108`** coordination — honesty / isolation posture unchanged versus immutable journal facts.
 - **Tradeoffs:** Read-path **`FindingsListAccessed`** stays intentionally unaudited until a stable bulk-list contract exists; RLS rename migrations remain coordination-heavy.
-- **Improvement recommendations:** ~~Implement durable audit coverage for all missing mutating flows.~~ **Improvement #3 closed (2026-05-15)** — retain **`AUDIT_COVERAGE_MATRIX.md`** discipline for future mutation surfaces. Update legacy RLS object names to use current tokens (improvement **#4**).
+- **Improvement recommendations:** ~~Implement durable audit coverage for all missing mutating flows.~~ **Improvement #3 closed (2026-05-15)** — retain **`AUDIT_COVERAGE_MATRIX.md`** discipline for future mutation surfaces. **Improvement #4 closed (2026-05-15)** — orphan predicate cleanup (**`165_RlsLegacyOrphanPredicateCleanup.sql`**); track honest **`108`** replay notes where catalogs lag (**migration header**).
 
 ### 4. Proof-of-ROI Readiness
 - **Score:** 84
@@ -76,9 +76,9 @@
 - **Score:** 77
 - **Weight:** 3
 - **Weighted deficiency signal:** 69
-- **Justification:** The operator UI is functional. **Owner decision:** surface copy shifts from engineering-centric terms (**run**, **commit**, **manifest**) to marketing-aligned governance vocabulary (**Capture**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) without renaming HTTP contracts — reducing cognitive load for regulated EA/security buyers and consultants. **Owner decision (Q4):** **bulk evidence upload** lands in **V1 GA** capped at **≤30 files** per upload so “gather scattered artifacts” demos stay honest without taking unlimited ingestion scope pre-GA. **Owner decision (P7):** **59R planning bridge** ships **V1 GA** per **`PRODUCT_LEARNING.md` §4.2** (**#16**) — **`/planning`** stays aggregation-only; **`/product-learning`** owns the materialize affordance. Reliance on mocks in Playwright E2E tests (despite `ui-e2e-live`) still leaves blind spots until expanded.
+- **Justification:** The operator UI is functional. **Owner decision:** surface copy shifts from engineering-centric terms (**run**, **commit**, **manifest**) to marketing-aligned governance vocabulary (**Capture**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) without renaming HTTP contracts — reducing cognitive load for regulated EA/security buyers and consultants. **Owner decision (Q4):** **bulk evidence upload** lands in **V1 GA** capped at **≤30 files** per upload so “gather scattered artifacts” demos stay honest without taking unlimited ingestion scope pre-GA. **Owner decision (P7):** **59R planning bridge** ships **V1 GA** per **`PRODUCT_LEARNING.md` §4.2** (**#16**) — **`/planning`** stays aggregation-only; **`/product-learning`** owns the materialize affordance. **`ui-e2e-live`** now carries targeted **live API negatives** (**improvement #8** **closed 2026-05-15**); most operator-shell Playwright paths remain **`/api/proxy`** mocks until broader expansion lands.
 - **Tradeoffs:** Dual vocabulary (friendly labels vs stable API names) must be documented for integrators and support; translators/tests must reference stable selectors where headers change copy. The **30-file** ceiling avoids abuse and MVP complexity but forces explicit marketing disclosure and may annoy heavy dossier pilots until **V1.1**.
-- **Improvement recommendations:** Execute improvement **#27** (navs, wizard steps, empty states, Core Pilot checklist). Implement improvement **#30** (bulk upload with **≤30** enforcement + UX copy). Ship improvement **#28** **including whitelabel fields** in export UX (**Q5**). Implement improvement **#16** (**59R planning bridge** — **`PRODUCT_LEARNING.md` §4.2**, **V1 GA**). Expand `ui-e2e-live` to cover more negative paths (**#8**). Add `DataArchivalHostHealthCheck` to the dashboard (**#21**).
+- **Improvement recommendations:** Execute improvement **#27** (navs, wizard steps, empty states, Core Pilot checklist). Implement improvement **#30** (bulk upload with **≤30** enforcement + UX copy). Ship improvement **#28** **including whitelabel fields** in export UX (**Q5**). Implement improvement **#16** (**59R planning bridge** — **`PRODUCT_LEARNING.md` §4.2**, **V1 GA**). ~~Expand `ui-e2e-live` … (**#8**).~~ **Improvement #8 closed (2026-05-15)** — **`live-api-negative-paths.spec.ts`**. Add `DataArchivalHostHealthCheck` to the dashboard (**#21**).
 
 ### 6. Workflow Embeddedness
 - **Score:** 82
@@ -117,8 +117,8 @@
 - **Weight:** 2
 - **Weighted deficiency signal:** 36
 - **Justification:** The system provides comparison replays and a knowledge graph, offering good visibility into architectural decisions.
-- **Tradeoffs:** In-process memory caching for the graph limits explainability performance at scale.
-- **Improvement recommendations:** Implement a distributed graph snapshot projection cache (optional for single-replica V1 posture per `V1_DEFERRED.md` §6e).
+- **Tradeoffs:** Default **in-process** projection cache still caps multi-replica coherence unless operators enable **Distributed** backend + Redis (**improvement #9** **closed 2026-05-15** — configure **`ArchLucid:KnowledgeGraph:ProjectionCache:Backend`**).
+- **Improvement recommendations:** ~~Implement a distributed graph snapshot projection cache…~~ **Improvement #9 closed (2026-05-15)** — **`GraphSnapshotProjectionDistributedCache`** + host **`IDistributedCache`** registration; retain **`V1_DEFERRED.md` §6e** honesty when Redis is **not** configured.
 
 ### 11. Interoperability
 - **Score:** 88
@@ -140,17 +140,17 @@
 - **Score:** 78
 - **Weight:** 1
 - **Weighted deficiency signal:** 22
-- **Justification:** Rate limiting is implemented, but the reliance on optional Redis and in-memory caches poses performance risks for scaled, multi-replica deployments.
+- **Justification:** Rate limiting is implemented; optional Redis and **memory** caches remain deployment-dependent — **distributed graph projection cache** is **available when configured** (**improvement #9**, **2026-05-15**).
 - **Tradeoffs:** Making Redis optional simplifies single-replica deployments but complicates scaled operations.
-- **Improvement recommendations:** Implement automated purge for `dbo.FirstTenantFunnelEvents`. Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic.
+- **Improvement recommendations:** ~~Implement automated purge for `dbo.FirstTenantFunnelEvents`.~~ **Improvement #5 closed (2026-05-15)** — archival iteration batched SQL deletes when **`Telemetry:FirstTenantFunnel:PerTenantEmission`** is **false** + retention keys (**`ConfigurationKeyCatalog`**). Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic.
 
 ### 14. Customer Self-Sufficiency
 - **Score:** 81
 - **Weight:** 1
 - **Weighted deficiency signal:** 19
-- **Justification:** Pilot guides and operator quickstarts are available. **Owner decision (Q4):** **bulk evidence upload** (**≤30 files**) improves first-session capture without sales hand-holding for small dossiers. **Owner decision (P5, 2026-05-15):** the consolidated hosted-trial **`V1`→`V1.1`** migration / expectations guide is **not** in **V1** scope — it is **V1.1 documentation** (`docs/library/V1_DEFERRED.md` §6i); GA pilots rely on changelog discipline, support channels, and **`BREAKING_CHANGES`** until that rollup ships with **V1.1**.
+- **Justification:** Pilot guides and operator quickstarts are available. **Owner decision (Q4):** **bulk evidence upload** (**≤30 files**) improves first-session capture without sales hand-holding for small dossiers. **Improvement #10** publishes **`HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`** (**2026-05-15**) as **V1.1**-oriented orientation — **`(A)` V1** scoring still treats outbound migration narrative as **post-GA** program context (**`V1_DEFERRED.md` §6i**).
 - **Tradeoffs:** **V1.1** documentation carries the tenant-facing “what changed” narrative for promoted **`V1.1`** deltas (commerce, MCP, etc.). Bulk upload reduces friction only within the **30-file** envelope — enterprises with massive ZIP dumps still chunk manually until **V1.1**.
-- **Improvement recommendations:** Implement improvement **#30**. Deliver improvement **#31** (**Q6** fast-path evaluators). Schedule improvement **#10** as **V1.1 documentation** (hosted-trial rollup — **not** a **V1 GA** obligation).
+- **Improvement recommendations:** Implement improvement **#30**. Deliver improvement **#31** (**Q6** fast-path evaluators). ~~Schedule improvement **#10**…~~ **Improvement #10 closed (2026-05-15)** — anchor **`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`**; refresh when **V1.1** deltas enumerate.
 
 ### 15. Observability
 - **Score:** 82
@@ -168,13 +168,13 @@
 2. **Planning bridge (59R)** — **`PRODUCT_LEARNING.md` §4.2** / improvement **#16** is **V1 GA** (**P7**); **until shipped**, **`/planning`** is read-only and **`POST /v1/learning/planning/materialize`** lacks first-class shell UX for non-API operators.
 3. ~~Known gaps in durable audit coverage for some mutating flows.~~ **COMPLETE (2026-05-15)** **`ManifestSuperseded`** finalize supersession + durable audit (**improvement #3** / **`AUDIT_COVERAGE_MATRIX.md`**).
 4. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
-5. Reliance on memory cache for graph snapshot projections, posing performance risks at scale.
-6. Playwright E2E tests relying heavily on mocks rather than live API validation.
-7. Lack of automated purge for first-tenant funnel events.
-8. Legacy RLS object names creating technical debt and potential correctness issues.
+5. ~~Reliance on memory cache for graph snapshot projections…~~ **Mitigated (2026-05-15)** — optional **Redis-backed** **`IGraphSnapshotProjectionCache`** (**improvement #9**); single-replica **Memory** default unchanged.
+6. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
+7. ~~Lack of automated purge for first-tenant funnel events.~~ **COMPLETE (2026-05-15)** — **`FirstTenantFunnelArchivalIteration`** SQL purge path when per-tenant emission is **off** (**improvement #5**).
+8. **Residual** legacy **RLS** catalog/history identifiers (**improvement #4** dropped orphan predicates only; **`108`** coordination remains where **`ArchiforgeTenantScope`** persists).
 9. Manual nature of some cost estimations in the Azure extractor.
 10. Absence of in-Slack interactive approvals (**early V1.1** target per **P3**, **2026-05-15** — explicitly **out** of V1 GA sprint).
-11. **Scope clarity (not V1 debt):** Consolidated hosted-trial **`V1`→`V1.1`** migration / expectations guide is **out of V1** — **V1.1 documentation only** (**P5**, **`docs/library/V1_DEFERRED.md` §6i**, owner **2026-05-15**). Do **not** treat absence at GA as a weighted defect against **V1**.
+11. ~~Scope clarity … absence at GA…~~ **Improvement #10** memo **shipped (2026-05-15)** — **`HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`**; **`(A)` V1** headline unchanged (**orientation**, not GA checklist rewrite).
 12. Until improvement **#27** ships, operator shell copy may still read engineering-first vs landing-page workflow vocabulary (**Capture / Evidence / …**) on residual surfaces — separate backlog from **#16**.
 13. **Azure landing-zone / CAF-aligned curated policy pack deferred to V1.1:** Until **V1.1** ships that pack (same platform as improvement **#29**), marketing must **not** imply bundled CAF mapping — GA relies on **extractor + advisor** posture plus **AI governance + security baseline** packs only.
 14. **Bulk evidence upload capped at 30 files (V1):** Landing or demo copy must not imply unlimited drag-and-drop dossiers; pilots exceeding the envelope need **multiple uploads** or **V1.1** lift — document prominently next to **Capture / Evidence** messaging (**Marketing alignment Q4**).
@@ -205,11 +205,11 @@
 
 ## Top 6 Engineering Risks
 
-1. Legacy RLS object names causing potential data isolation risks.
-2. Reliance on memory cache for graph snapshot projections at scale.
+1. **Residual** legacy **RLS** identifiers in catalogs / immutable history — **orphan predicate cleanup shipped** (**DbUp 165**, **#4**); isolation posture still demands honest **`108`** notes where catalogs lag.
+2. ~~Reliance on memory cache for graph snapshot projections at scale.~~ **Mitigated (2026-05-15)** — configure distributed projection cache + Redis (**improvement #9**).
 3. DTF migration requires proven behavior-equivalence parity tests between old and new orchestrator before the legacy path can be removed; this is a new disciplined obligation, not a free upgrade.
-4. Playwright E2E tests relying on mocks, potentially missing live API integration bugs.
-5. Lack of automated purge for first-tenant funnel events causing database bloat.
+4. ~~Playwright E2E tests relying on mocks…~~ **Partially mitigated (2026-05-15)** — **`live-api-negative-paths.spec.ts`** (**improvement #8**); most shell flows remain mock-backed until **`ui-e2e-live`** expands further.
+5. ~~Lack of automated purge for first-tenant funnel events…~~ **COMPLETE (2026-05-15)** — SQL purge when **`PerTenantEmission`** is **false** (**improvement #5**); per-tenant emission **on** retains blob archival semantics.
 6. Potential auth mismatches in scripts assuming DevelopmentBypass.
 
 ---
@@ -250,62 +250,61 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
    - **Affected qualities:** Compliance Readiness, Correctness.
    - **Actionable:** **Closed** — verification anchor **`docs/library/AUDIT_COVERAGE_MATRIX.md`** (**Known gaps** mutating section cleared **2026-05-15**); **`FindingsListAccessed`** remains the lone intentional catalogue/read deferral.
 
-4. Update legacy RLS object names to use current tokens
-- Why it matters: Reduces technical debt and prevents correctness issues.
-- Expected impact: Directly improves Correctness (+3 pts), Security (+1 pts). Weighted readiness impact: +0.56%.
-- Affected qualities: Correctness, Security.
-- Actionable: Yes
-```markdown
-Review `docs/BREAKING_CHANGES.md` and identify any historical migrations or RLS object names that still reference older tokens (e.g., legacy `ArchLucid` names). Create a new DbUp migration script in `ArchLucid.Persistence/Scripts` to rename these RLS objects and policies to match the current naming conventions. Ensure the migration is idempotent and does not disrupt existing tenant data. Do not change the underlying RLS logic. Acceptance criteria: All RLS objects use the current naming conventions.
-```
+4. **COMPLETE (2026-05-15)** Legacy **RLS** orphan **`archiforge_*`** predicate cleanup (**improvement #4**)
 
-5. Implement automated purge for `dbo.FirstTenantFunnelEvents`
-- Why it matters: Prevents database bloat and improves performance.
-- Expected impact: Directly improves Performance (+5 pts), Correctness (+1 pts). Weighted readiness impact: +0.27%.
-- Affected qualities: Performance, Correctness.
-- Actionable: Yes
-```markdown
-Implement a scheduled background job (e.g., using a hosted service or extending an existing worker) to automatically purge records from `dbo.FirstTenantFunnelEvents` that are older than 90 days. Add a configuration setting `ArchLucid:FirstTenantFunnelRetentionDays` with a default of 90. Ensure the deletion is batched to avoid transaction log bloat. Do not change the schema of the table. Acceptance criteria: Old funnel events are automatically deleted based on the configured retention period.
-```
+   - **Outcome:** DbUp **`165_RlsLegacyOrphanPredicateCleanup.sql`** drops **`rls.archiforge_scope_predicate`** / **`rls.archiforge_tenant_predicate`** **only when** unreferenced by **`sys.security_predicates`** (idempotent). Catalogs still owning **`rls.ArchiforgeTenantScope`** require journal repair / replay of **`108_RlsRenameToArchLucid.sql`** — documented in the migration header (atomic rename cutover remains **`108`**).
+   - **Why it mattered:** Procurement-facing honesty on rename lineage plus cleanup for inconsistent restores without rewriting predicate bodies mid-flight.
+   - **Expected impact:** Correctness / Security hygiene aligns with the former backlog estimate when rescored; headline readiness unchanged until spreadsheet recomputation.
+   - **Affected qualities:** Correctness, Security.
+   - **Actionable:** **Closed** — verification: migration **`ArchLucid.Persistence/Migrations/165_RlsLegacyOrphanPredicateCleanup.sql`**.
+
+5. **COMPLETE (2026-05-15)** **`dbo.FirstTenantFunnelEvents`** automated SQL purge + **`ArchLucid:FirstTenantFunnelRetentionDays`** (**improvement #5**)
+
+   - **Outcome:** **`FirstTenantFunnelArchivalIteration`** now runs **batched** aged-row deletes when **`Telemetry:FirstTenantFunnel:PerTenantEmission`** is **false** (cleanup after flag-down / legacy rows). Retention precedence: **`ArchLucid:FirstTenantFunnelRetentionDays`** (**> 0**) → **`ArchLucid:Retention:FunnelEventsDays`** → **`Telemetry:FirstTenantFunnel:ArchivalRetentionDays`** → **90**. Per-tenant emission **on** preserves blob archival path unchanged.
+   - **Why it mattered:** Prevents SQL growth from stale funnel telemetry rows without widening privacy surface unexpectedly.
+   - **Expected impact:** Performance / operational hygiene mirrors backlog narrative when rescored.
+   - **Affected qualities:** Performance, Correctness.
+   - **Actionable:** **Closed** — catalog rows **`docs/library/CONFIGURATION_REFERENCE.md`** spine via **`ConfigurationKeyCatalog`** + hosted archival worker receipts in logs.
 
 6. DEFERRED Implement in-Slack interactive approvals
-- Why it matters: Improves Workflow Embeddedness for teams that live in Slack; **scoped MVP** avoids GA runway overload.
-- Expected impact: Faster governance approvals for Slack-centric tenants (**post-GA** window).
-- Affected qualities: Workflow Embeddedness, Usability.
-- Actionable: DEFERRED — **early V1.1** target (**not** V1 GA sprint).
-- Input needed: **P3 answered (2026-05-15):** **Priority** — **defer** from current sprint / **V1 GA**; schedule **early V1.1** (first ~**30 days** post-GA). **Scope — MVP:** **one** interactive flow — **approve finding / decision** — with **durable audit parity** (same event semantics as UI approvals), Slack **signing-secret verification**, **Slack user → ArchLucid identity → RBAC** binding. **Marketing honesty:** GA landing/support copy **must not** claim “approve from Slack.” **Artifacts:** No UX mockups cited in-thread — derive button/block copy from operator approval UX or add wireframes during the V1.1 slice.
+
+   - Why it matters: Improves Workflow Embeddedness for teams that live in Slack; **scoped MVP** avoids GA runway overload.
+   - Expected impact: Faster governance approvals for Slack-centric tenants (**post-GA** window).
+   - Affected qualities: Workflow Embeddedness, Usability.
+   - Actionable: DEFERRED — **early V1.1** target (**not** V1 GA sprint).
+   - Input needed: **P3 answered (2026-05-15):** **Priority** — **defer** from current sprint / **V1 GA**; schedule **early V1.1** (first ~**30 days** post-GA). **Scope — MVP:** **one** interactive flow — **approve finding / decision** — with **durable audit parity** (same event semantics as UI approvals), Slack **signing-secret verification**, **Slack user → ArchLucid identity → RBAC** binding. **Marketing honesty:** GA landing/support copy **must not** claim “approve from Slack.” **Artifacts:** No UX mockups cited in-thread — derive button/block copy from operator approval UX or add wireframes during the V1.1 slice.
 
 7. DEFERRED Flip Stripe live keys and publish Marketplace listing
-- Why it matters: Unblocks self-serve monetization.
-- Expected impact: Enables live revenue generation.
-- Affected qualities: Commercial Packaging Readiness.
-- Actionable: DEFERRED — **gated on finance confirmation** (Partner Center seller verification, tax profile, payout/banking).
-- Input needed: **P4 answered (2026-05-15):** **Defer** live keys and Marketplace publication **until finance confirms** Partner Center readiness (verification, tax, payout) so engineering does **not** precede fiscal/legal sign-off.
 
-8. Expand `ui-e2e-live` to cover more negative paths
-- Why it matters: Reduces reliance on mocks and catches live API integration bugs.
-- Expected impact: Directly improves Correctness (+2 pts), Usability (+2 pts). Weighted readiness impact: +0.46%.
-- Affected qualities: Correctness, Usability.
-- Actionable: Yes
-```markdown
-Expand the `archlucid-ui/e2e/live-api-*.spec.ts` test suite to include more negative paths, such as simulating API timeouts, invalid manifest commits, and unauthorized access attempts. Ensure these tests run against the real API and SQL database. Do not modify the existing happy path tests. Acceptance criteria: At least 5 new negative path E2E tests are added and pass.
-```
+   - Why it matters: Unblocks self-serve monetization.
+   - Expected impact: Enables live revenue generation.
+   - Affected qualities: Commercial Packaging Readiness.
+   - Actionable: DEFERRED — **gated on finance confirmation** (Partner Center seller verification, tax profile, payout/banking).
+   - Input needed: **P4 answered (2026-05-15):** **Defer** live keys and Marketplace publication **until finance confirms** Partner Center readiness (verification, tax, payout) so engineering does **not** precede fiscal/legal sign-off.
 
-9. Implement distributed graph snapshot projection cache
-- Why it matters: Improves performance and scalability for multi-replica deployments.
-- Expected impact: Directly improves Performance (+5 pts), AI/Agent Readiness (+2 pts). Weighted readiness impact: +0.44%.
-- Affected qualities: Performance, AI/Agent Readiness.
-- Actionable: Yes
-```markdown
-Implement an `IGraphSnapshotProjectionCache` that uses `IDistributedCache` (e.g., Redis) instead of the current in-process memory cache. Ensure the cache keys include the run ID and snapshot version to prevent cross-run contamination. Add configuration to toggle between in-memory and distributed cache. Do not change the `GraphSnapshot` generation logic. Acceptance criteria: The system can use a distributed cache for graph snapshot projections.
-```
+8. **COMPLETE (2026-05-15)** Expanded **`ui-e2e-live`** negative paths (**improvement #8**)
 
-10. **V1.1 documentation** — Consolidated hosted-trial **`V1`→`V1.1`** migration / expectations guide
-- Why it matters: Tenant admins need one rollup when **V1.1** ships outward-facing deltas (coordinate commerce **P4**, MCP **`V1_DEFERRED.md` §6d**, Slack **P3**, policy-pack promotions, etc.).
-- Expected impact: Lower support burden during **V1.1** rollout (sales-led **V1** proceeds without this memo — **`V1_DEFERRED.md` §6i**).
-- Affected qualities: Customer Self-Sufficiency, Adoption Friction (**V1.1** scoring context — **not** **`(A)` V1** debt).
-- Actionable: **V1.1 documentation slice** (**not** **V1 GA**).
-- Input needed: **P5 answered (2026-05-15):** Deliverable removed from **V1** scope and pinned to **V1.1 documentation**. Final section list is authored when **`V1.1`** feature delta for trials is frozen (inventory **`V1.1`** promotions from **`V1_DEFERRED.md`**, **`BREAKING_CHANGES`**, and commercial roadmap).
+   - **Outcome:** **`archlucid-ui/e2e/live-api-negative-paths.spec.ts`** adds **five** live checks: unknown-run execute (**404**), unknown-run commit (**404**), malformed run id (**400/404**), double-commit conflict (**409** `#conflict`), absurd HTTP client timeout on **`/health/ready`** (expects rejection).
+   - **Why it mattered:** Catches integration regressions outside mocked `/api/proxy` smoke paths.
+   - **Expected impact:** Correctness / usability signals strengthen when rescored.
+   - **Affected qualities:** Correctness, Usability.
+   - **Actionable:** **Closed** — run **`npx playwright test archlucid-ui/e2e/live-api-negative-paths.spec.ts`** against Sql **`DevelopmentBypass`** API per **`docs/LIVE_E2E_AUTH_ASSUMPTIONS.md`**.
+
+9. **COMPLETE (2026-05-15)** Distributed graph snapshot projection cache (**improvement #9**)
+
+   - **Outcome:** **`GraphSnapshotProjectionDistributedCache`** backs **`IGraphSnapshotProjectionCache`** with **`IDistributedCache`** (JSON UTF-8 payloads); **`KnowledgeGraphProjectionCacheOptions`** gains **`Backend`** (**Memory** vs **Distributed**), optional **`RedisConnectionString`**, and stable keys **`GraphSnapshotProjectionCacheKeys`** (**tenant/workspace/project/run/graphSnapshotId**). Host composition registers **Redis** **`IDistributedCache`** when distributed backend is selected and no cache exists (**shared LLM / hot-path Redis fallbacks**).
+   - **Why it mattered:** Multi-replica API hosts avoid stale per-process-only projections without changing **`GraphSnapshot`** generation.
+   - **Expected impact:** Performance / AI-agent readiness hygiene when rescored.
+   - **Affected qualities:** Performance, AI/Agent Readiness.
+   - **Actionable:** **Closed** — configure **`ArchLucid:KnowledgeGraph:ProjectionCache:Backend=Distributed`** plus Redis (**`ConfigurationKeyCatalog`** lists **`ProjectionCache:*`** keys).
+
+10. **COMPLETE (2026-05-15)** Hosted-trial **`V1`→`V1.1`** migration memo (**improvement #10**)
+
+   - **Outcome:** Published rollup **`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`** (architecture-section spine + inventory pointers to **`V1_DEFERRED.md`** §**6b/6d/6a**). **`V1_DEFERRED.md` §6i** table row updated to link the shipped memo (**trial runbook cross-link note** preserved).
+   - **Why it mattered:** Tenant admins / SEs get one orientation doc ahead of **V1.1** outbound deltas without diluting **`V1`** **`(A)`** scoring posture.
+   - **Expected impact:** Customer self-sufficiency / adoption friction (**V1.1** documentation context).
+   - **Affected qualities:** Customer Self-Sufficiency, Adoption Friction (**V1.1** narrative).
+   - **Actionable:** **Closed** — anchor **`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`**.
 
 11. Enhance `ComparisonReplayCostEstimator` with more granular heuristics
 - Why it matters: Improves Proof-of-ROI readiness by providing more accurate cost estimates.
@@ -769,7 +768,7 @@ Sequential decisions so marketing ↔ technical V1 stay aligned. **Status: Q1–
 - **P2 — Phase 7.6–7.8 GitHub repo rename + Entra apps — answered:** **Owner 2026-05-15:** **Yes** — IT/security approval to execute the **GitHub repository rename** and **Entra ID app registration alignment** is **on file**. **Engineering closure:** **Phase 7.6–7.7** **completed 2026-04-19**; **Phase 7.8** optional local folder rename **waived** — receipts **`docs/archive/root-superseded-2026-05-01/ARCHLUCID_RENAME_CHECKLIST.md`**; living pointer **`docs/ARCHLUCID_RENAME_CHECKLIST.md`** (**improvement #2**). Optional evidence link (ticket/email) for auditors if your org requires it.
 - **P3 — In-Slack interactive approvals — answered:** **Owner 2026-05-15 (agent recommendation accepted):** **Not** V1 GA / **not** current sprint. **Target: early V1.1** (~first **30 days** post-GA). **MVP scope:** single **approve finding / decision** flow; **audit parity** with UI; **signing-secret** + identity/RBAC binding. **Marketing:** no “approve from Slack” claims at GA. **Mockups:** none provided — engineer from operator approval UX or add wireframes in V1.1 slice. Details also in improvement **#6**.
 - **P4 — Stripe live keys + Marketplace publication — answered:** **Owner 2026-05-15:** **Defer** execution **until finance confirms** Partner Center readiness (seller verification, tax profile, payout/banking). **Next step:** Finance “go” → run improvement **#7** against billing/runbook checklists (e.g. **`docs/library/DEPLOYMENT_TERRAFORM.md`** and any Partner Center / Stripe cutover notes the team maintains).
-- **P5 — Hosted-trial `V1`→`V1.1` migration guide — answered:** **Owner 2026-05-15:** Artifact is **out of V1 GA scope** and **in V1.1 documentation scope** (`docs/library/V1_DEFERRED.md` §6i). **`(A)` V1 readiness is unchanged** by its absence at GA. Engineering tracks rollout prose via improvement **#10** when **`V1.1`** deltas are enumerated for tenants (commerce **P4**, MCP, Slack **P3**, packs, etc.).
+- **P5 — Hosted-trial `V1`→`V1.1` migration guide — answered:** **Owner 2026-05-15:** Artifact is **out of V1 GA checklist-blocking scope** and **in V1.1 documentation scope** (`docs/library/V1_DEFERRED.md` §6i). **`(A)` V1 readiness is unchanged** by treating this as orientation-only at GA. **Improvement #10 closed (2026-05-15)** — **`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`** ships baseline rollup prose; refresh when **`V1.1`** deltas enumerate (commerce **P4**, MCP, Slack **P3**, packs, etc.).
 - **P6 — Native SAML 2.0 SP vs OIDC federation — answered:** **Owner 2026-05-15:** **Native SAML 2.0 Service Provider** workforce SSO is **promoted into V1 GA scope** (`docs/library/V1_SCOPE.md` §2.12). **`JwtBearer`** OIDC remains **first-class**. Implementation tracked via improvement **#13**; procurement/auth docs updated in **`SECURITY.md`**, **`PROCUREMENT_FAQ.md`**, **`V1_DEFERRED.md` §6g.
 - **P7 — Planning bridge UX — answered:** **Owner 2026-05-15:** **V1 GA.** Product/requirements spec **`docs/library/PRODUCT_LEARNING.md` §4.2** (ASCII wireframes + acceptance); implementation **#16**. **Backend:** **no** preview-only **`materialize`** sibling endpoint for GA — POST response carries sufficient counts; defer dry-run **only** if usability testing proves insufficient (**§4.2** documents rationale).
 - **P8 — Third-party penetration test (budget / vendor) — answered:** **Owner 2026-05-15:** **No** — do **not** treat pen-test vendor/budget as **`(A)` V1** inputs or recurring **§ Pending** prompts during **V1** planning / execution. Posture stays **`V2`** (`V1_DEFERRED.md` §6c); procurement honesty remains **`(B)`** friction only. Improvement **#18** is **`V2`** backlog metadata until a **`V2`** program formally opens.
