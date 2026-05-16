@@ -15,7 +15,7 @@ const CURATED_DOC_PATHS = [
   "docs/library/PILOT_GUIDE.md",
   "docs/runbooks/TROUBLESHOOTING.md",
   "docs/library/CONFIGURATION_REFERENCE.md",
-  "docs/CORE_PILOT.md",
+  "docs/library/CORE_PILOT.md",
   "docs/go-to-market/PROCUREMENT_FAQ.md",
 ];
 
