@@ -22,6 +22,13 @@ namespace ArchLucid.Api.Tests;
 [Collection("ArchLucidEnvMutation")]
 public sealed class DemoSeedAuthorityChainAuditIntegrationTests
 {
+    /// <summary>
+    ///     <see cref="ArchLucid.Application.Bootstrap.DemoSeedService.SeedAsync" /> on the default tenant persists four
+    ///     authority FK chains (Contoso baseline + hardened, Northwind product tour, Meridian Alpine regulated scenario),
+    ///     each emitting one <see cref="AuditEventTypes.AuthorityCommittedChainPersisted" /> row.
+    /// </summary>
+    private const int ExpectedAuthorityCommittedChainAuditRowCount = 4;
+
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "
         + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
@@ -58,7 +65,7 @@ public sealed class DemoSeedAuthorityChainAuditIntegrationTests
         }
 
         int afterFirst = await CountAuthorityCommittedChainAuditRowsAsync(factory.SqlConnectionString, tenantId);
-        afterFirst.Should().Be(2);
+        afterFirst.Should().Be(ExpectedAuthorityCommittedChainAuditRowCount);
 
         using (IServiceScope scope2 = factory.Services.CreateScope())
         {
@@ -66,7 +73,7 @@ public sealed class DemoSeedAuthorityChainAuditIntegrationTests
         }
 
         int afterSecond = await CountAuthorityCommittedChainAuditRowsAsync(factory.SqlConnectionString, tenantId);
-        afterSecond.Should().Be(2);
+        afterSecond.Should().Be(ExpectedAuthorityCommittedChainAuditRowCount);
 
         await using SqlConnection connection = new(factory.SqlConnectionString);
         await connection.OpenAsync(CancellationToken.None);

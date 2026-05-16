@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getArchitecturePackageDocxUrl, getRunExplanationSummary, getRunSummary } from "@/lib/api";
+import { getRunExplanationSummary, getRunSummary } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-severity";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { ExecutiveReviewFirstViewport } from "@/components/executive/ExecutiveReviewFirstViewport";
-import { Button } from "@/components/ui/button";
+import { ExecutiveReviewHandoffActions } from "@/components/executive/ExecutiveReviewHandoffActions";
+import type { ExecutiveRiskReviewFindingMarkdownRow } from "@/lib/executive-risk-review-markdown";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 
 type ExecutiveFindingRow = {
@@ -44,12 +45,21 @@ function traceToRows(traces: FindingTraceConfidenceDto[]): ExecutiveFindingRow[]
   return withTrace.map((x) => x.row);
 }
 
+function traceToMarkdownFindingRows(traces: FindingTraceConfidenceDto[]): ExecutiveRiskReviewFindingMarkdownRow[] {
+  return traceToRows(traces).map((row) => ({
+    findingId: row.findingId,
+    title: row.title,
+    severity: row.severity,
+    recommended: row.recommended,
+  }));
+}
+
 function findingExecutiveHref(runId: string, findingId: string): string {
   return `/executive/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
 }
 
 /**
- * Single-review executive findings board: severity-sorted table + architecture package export.
+ * Single-review executive summary: first-viewport narrative, severity-sorted findings, DOCX package + Markdown handoff.
  */
 export default async function ExecutiveReviewFindingsPage({ params }: { params: Promise<{ runId: string }> }) {
   const { runId } = await params;
@@ -90,6 +100,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
   const traces =
     summary?.findingTraceConfidences ?? summary?.explanation?.findingTraceConfidences ?? [];
   const rows = traceToRows(traces ?? []);
+  const markdownRows = traceToMarkdownFindingRows(traces ?? []);
 
   return (
     <div className="space-y-6">
@@ -113,7 +124,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
 
       <header className="space-y-2">
         <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
-          Risk review
+          Executive summary
         </p>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{headline}</h1>
         {summary !== null ? (
@@ -146,11 +157,14 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
 
       {summary !== null ? (
         <div className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-start lg:justify-between">
             <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Prioritized findings</h2>
-            <Button variant="outline" size="sm" asChild>
-              <a href={getArchitecturePackageDocxUrl(runId)}>Download architecture package (DOCX)</a>
-            </Button>
+            <ExecutiveReviewHandoffActions
+              runId={runId}
+              headline={headline}
+              summary={summary}
+              prioritizedFindings={markdownRows}
+            />
           </div>
 
           {rows.length === 0 ? (
@@ -159,14 +173,13 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
             </p>
           ) : (
             <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
-              <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+              <table className="w-full min-w-[640px] border-collapse text-left text-sm">
                 <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
                   <tr>
                     <th className="px-3 py-2">Severity</th>
                     <th className="px-3 py-2">Finding</th>
                     <th className="px-3 py-2">Confidence</th>
                     <th className="px-3 py-2">Recommended action</th>
-                    <th className="px-3 py-2"> </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -190,11 +203,6 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
                       </td>
                       <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">
                         {row.recommended}
-                      </td>
-                      <td className="px-3 py-2 align-top">
-                        <Button variant="outline" size="sm" className="h-8" asChild>
-                          <Link href={findingExecutiveHref(runId, row.findingId)}>Open</Link>
-                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -222,9 +230,6 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
                   </CardHeader>
                   <CardContent className="space-y-2 pt-0">
                     <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{row.recommended}</p>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={findingExecutiveHref(runId, row.findingId)}>Open finding</Link>
-                    </Button>
                   </CardContent>
                 </Card>
               ))}

@@ -6,6 +6,7 @@ using ArchLucid.Host.Core.Authorization;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
+using Microsoft.AspNetCore.Http;
 
 namespace ArchLucid.Api.Filters;
 
@@ -15,14 +16,21 @@ namespace ArchLucid.Api.Filters;
 ///     worker paths rely on <see cref="ArchLucid.Core.Tenancy.ITenantRepository.TryIncrementActiveTrialRunAsync" />
 ///     throwing).
 /// </summary>
-public sealed class TrialLimitAuthorizationHandler : AuthorizationHandler<TrialActiveRequirement>
+public sealed class TrialLimitAuthorizationHandler(IHttpContextAccessor httpContextAccessor)
+    : AuthorizationHandler<TrialActiveRequirement>
 {
+    private readonly IHttpContextAccessor _httpContextAccessor =
+        httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+
     /// <inheritdoc />
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         TrialActiveRequirement requirement)
     {
-        if (context.Resource is not HttpContext httpContext)
+        // Prefer the authorization resource (normally HttpContext); fall back to the ambient request when needed.
+        HttpContext? httpContext = context.Resource as HttpContext ?? _httpContextAccessor.HttpContext;
+
+        if (httpContext is null)
         {
             context.Fail();
 

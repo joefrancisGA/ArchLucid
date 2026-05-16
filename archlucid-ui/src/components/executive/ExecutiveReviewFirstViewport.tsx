@@ -214,12 +214,19 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
             <li>
               <Link
                 className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                href={`/audit?runId=${enc}`}
+                href={`/ask?runId=${enc}`}
               >
-                View audit trail
+                Ask this review
               </Link>
             </li>
-          </ul>
+            <li>
+              <Link
+                className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                href="/reviews/new"
+              >
+                Start a follow-up review request (operator shell)
+              </Link>
+            </li>
         </CardContent>
       </Card>
     </div>
