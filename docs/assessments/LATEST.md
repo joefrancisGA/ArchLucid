@@ -340,7 +340,7 @@ Update the operator UI dashboard to display the status of the `data_archival` he
 Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Api.DataAccess` to use Polly for transient fault handling when opening SQL connections. Implement a retry policy with exponential backoff for common transient SQL errors (e.g., error numbers 40613, 40197, 40501). Ensure the retry policy is configurable via `appsettings.json`. Do not change the `IDbConnectionFactory` interface. Acceptance criteria: SQL connections automatically retry on transient failures.
 ```
 
-23. Add explicit documentation for `ArchLucidAuth:Authority` configuration
+15. Add explicit documentation for `ArchLucidAuth:Authority` configuration
 - Why it matters: Reduces adoption friction for generic OIDC setup.
 - Expected impact: Directly improves Adoption Friction (+3 pts), Customer Self-Sufficiency (+2 pts). Weighted readiness impact: +0.42%.
 - Affected qualities: Adoption Friction, Customer Self-Sufficiency.
@@ -349,14 +349,14 @@ Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Api.DataAccess` to
 Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides step-by-step instructions for configuring `ArchLucidAuth:Authority` with a non-Microsoft OIDC issuer (e.g., Okta, Auth0). Include examples of claim mapping to `ArchLucidRoles` and troubleshooting tips for common JWKS validation errors. Link this new file from `docs/library/SECURITY.md` and `docs/library/CONFIGURATION_REFERENCE.md`. Acceptance criteria: Clear documentation exists for setting up generic OIDC.
 ```
 
-24. DEFERRED Implement Azure Container Apps Jobs for bursty work
+16. DEFERRED Implement Azure Container Apps Jobs for bursty work
 - Why it matters: V2 backlog candidate to improve orchestration scalability.
 - Expected impact: Better resource utilization during peak loads.
 - Affected qualities: Performance, AI/Agent Readiness.
 - Actionable: DEFERRED
 - Input needed: **P11** (**2026-05-15**): owner concurs with deferral — remains **`V2`** situational per `V1_DEFERRED.md` §6f; revisit with bursty-scale / cost telemetry after **#26** closure if pressure appears.
 
-27. Align operator shell labels with marketing governance vocabulary (presentation-only)
+17. Align operator shell labels with marketing governance vocabulary (presentation-only)
 - Why it matters: Regulated buyers and consultants encounter landing-page workflow language first; mismatched UI terms (**Run**, **Commit**, **Manifest**) create friction and weaken the evidence-backed governance positioning.
 - Expected impact: Glossary alignment (**Q1**) raises Usability **+4** (baseline **72** → **76**). Owner **Q4** / improvement **#30** adds **+1** → headline **77**. The glossary slice contributes **+0.25%** weighted readiness toward cumulative headline (**81.55%** after later owner deltas). Secondary lift for Adoption Friction after pilots validate copy.
 - Affected qualities: Usability, Adoption Friction (narrative alignment).
@@ -396,7 +396,7 @@ ACCEPTANCE CRITERIA
 4. No regression in accessibility (`aria-labelledby` / buttons remain meaningful).
 ```
 
-28. Buyer-grade **Architecture Review Report** export (DOCX + PDF) **with consultant whitelabel** — **V1 GA gate**
+18. Buyer-grade **Architecture Review Report** export (DOCX + PDF) **with consultant whitelabel** — **V1 GA gate**
 - Why it matters: Marketing sells the **deliverable** (report handed to ARB / CISO / client). Without a polished default profile **and consultant-ready branding**, demos and boutique-consultant promises under-deliver.
 - Expected impact: Proof-of-ROI **82→83**, Commercial Packaging **81→82**, Stickiness **79→80**; weighted readiness **+~0.17%** toward headline (**stacked before Q6 / cumulative **81.55%**). Treat as **merge-blocking for GA** alongside improvement **#27**. **Owner Q5** folds whitelabel here — **no separate export SKU**.
 - Affected qualities: Proof-of-ROI Readiness, Commercial Packaging Readiness, Stickiness; Usability (export dialog UX).
@@ -583,6 +583,48 @@ ACCEPTANCE CRITERIA
 1. **Hero** shows three CTAs in **primary / secondary / tertiary** visual hierarchy matching this spec.
 2. **Analytics** events fire for each CTA path (verify in staging telemetry or browser devtools contract).
 3. **No** hero **$** pilot pricing for **90-day** window — pricing remains **sales-qualification** path only.
+```
+
+23. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
+- Why it matters: Enterprise compliance requires a verifiable way to delete all tenant data upon contract termination or user request.
+- Expected impact: Compliance Readiness (+3 pts).
+- Affected qualities: Compliance Readiness, Security.
+- Actionable: Yes
+
+```markdown
+Implement a durable background job to handle tenant offboarding and data deletion.
+- Create a `TenantDeletionService` that orchestrates the removal of all tenant-scoped data across SQL, Blob Storage, and Knowledge Graph.
+- Ensure the deletion process emits a durable `TenantDataDeleted` audit event (stored in a system-level audit log, outside the tenant's scope).
+- Add an administrative API endpoint `POST /v1/admin/tenants/{id}/delete` (secured by a highly privileged internal role).
+- Acceptance criteria: A tenant can be fully deleted, and the deletion is durably audited.
+```
+
+24. **Add explicit OpenTelemetry tracing for LLM API calls**
+- Why it matters: AI/Agent Readiness requires deep observability into token usage, latency, and prompt/response pairs for debugging and cost attribution.
+- Expected impact: Observability (+3 pts), AI/Agent Readiness (+2 pts).
+- Affected qualities: Observability, AI/Agent Readiness.
+- Actionable: Yes
+
+```markdown
+Enhance the existing OpenTelemetry instrumentation to capture detailed metrics for all LLM API calls.
+- Add spans for every call to the underlying LLM provider (e.g., Azure OpenAI).
+- Include span attributes for: model name, prompt token count, completion token count, total token count, and latency.
+- Ensure sensitive prompt/response content is NOT logged by default (or is scrubbed), but allow opting in via a secure configuration flag for debugging.
+- Acceptance criteria: Token usage and latency for LLM calls are visible in the APM backend.
+```
+
+25. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
+- Why it matters: Prevents a single tenant from exhausting worker resources by submitting too many concurrent architecture review runs.
+- Expected impact: Performance (+3 pts), Reliability (+2 pts).
+- Affected qualities: Performance, Reliability.
+- Actionable: Yes
+
+```markdown
+Introduce concurrency limits for the `AuthorityRunOrchestrator` to protect the worker pool.
+- Implement a tenant-level concurrency limit (e.g., max 5 concurrent runs per tenant).
+- If a tenant exceeds the limit, queue the runs or return a `429 Too Many Requests` response from the API.
+- Ensure the limits are configurable via `appsettings.json` or a dynamic configuration provider.
+- Acceptance criteria: A single tenant cannot monopolize the worker pool.
 ```
 
 ---

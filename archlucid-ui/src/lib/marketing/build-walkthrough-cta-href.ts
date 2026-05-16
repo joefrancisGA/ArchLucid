@@ -1,3 +1,5 @@
+import type { ReadonlyURLSearchParams } from "next/navigation";
+
 import { appendMarketingAttributionToUrl } from "@/lib/marketing/append-marketing-attribution-to-url";
 
 /** Owner-approved mailto subject when no booking URL is configured. */
