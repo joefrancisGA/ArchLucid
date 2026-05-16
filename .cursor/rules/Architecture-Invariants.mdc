@@ -8,10 +8,10 @@ alwaysApply: false
 
 Cross-cutting behavioral rules intended to become CI-analyzers, architecture tests, and startup validators are catalogued in **`docs/library/ARCHITECTURE_INVARIANTS.md`** (stable IDs **`INV-001`** … **`INV-015`**).
 
-Governance draft: **`docs/architecture/adr/0035-architecture-invariant-catalog.md`** (flip **Proposed → Accepted** when reviewed).
+Governance draft: **`docs/architecture/adrs/0035-architecture-invariant-catalog.md`** (flip **Proposed → Accepted** when reviewed).
 
 Implementation backlog: **`docs/library/TECH_BACKLOG.md`** — **`TB-009`** (documentation / ADR acceptance), **`TB-010`**–**`TB-012`** (enforcement waves).
 
-ADR authoring skeleton (not itself an ADR): **`docs/architecture/adr/adr-template-full.md`** (strict rules: **`docs/architecture/adr/template.md`**).
+ADR authoring skeleton (not itself an ADR): **`docs/architecture/adrs/adr-template-full.md`** (strict rules: **`docs/architecture/adrs/template.md`**).
 
 **Invariant audit vs TB-001:** **`INV-003`** does **not** require synchronous failure on informational async audit paths shipped under **`TB-001`** unless a superseding backlog item merges.
