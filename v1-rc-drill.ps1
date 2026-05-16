@@ -1,5 +1,12 @@
 # V1 RC drill: HTTP checks against a running ArchLucid API (two runs, compare, replay, export, diagnostics).
 # Does not build, deploy, or start the API. See docs/library/V1_RC_DRILL.md
+#
+# Authentication:
+# - Omit both -BearerToken and -ApiKey for DevelopmentBypass labs (existing behavior unchanged).
+# - -BearerToken <jwt>: sends Authorization: Bearer on script HTTP (Invoke-RestMethod / export download).
+# - -ApiKey <key>: sends X-Api-Key on script HTTP and temporarily sets ARCHLUCID_API_KEY for CLI steps
+#   (doctor, support-bundle) so /health/diagnostics and other probes match the ApiKey-auth API.
+# - You may pass both if your environment expects both headers (unusual).
 param(
     [string] $ApiBaseUrl = 'http://localhost:5128',
     [switch] $SkipSupportBundle,
@@ -71,9 +78,25 @@ $base = $ApiBaseUrl.TrimEnd('/')
 $stamp = [DateTime]::UtcNow.ToString('yyyyMMddHHmmss', [System.Globalization.CultureInfo]::InvariantCulture)
 
 $script:savedApiUrl = $env:ARCHLUCID_API_URL
+$script:savedArchLucidApiKey = $env:ARCHLUCID_API_KEY
+$script:drillSetApiKeyForCli = (-not [string]::IsNullOrWhiteSpace($ApiKey))
+
+if ($script:drillSetApiKeyForCli) {
+    $env:ARCHLUCID_API_KEY = $ApiKey.Trim()
+}
 
 function Restore-DrillEnv
 {
+    if ($script:drillSetApiKeyForCli) {
+
+        if ($null -eq $script:savedArchLucidApiKey -or [string]::IsNullOrWhiteSpace($script:savedArchLucidApiKey)) {
+            Remove-Item Env:\ARCHLUCID_API_KEY -ErrorAction SilentlyContinue
+        }
+        else {
+            $env:ARCHLUCID_API_KEY = $script:savedArchLucidApiKey
+        }
+    }
+
     if ($null -eq $script:savedApiUrl) { Remove-Item Env:\ARCHLUCID_API_URL -ErrorAction SilentlyContinue }
     else { $env:ARCHLUCID_API_URL = $script:savedApiUrl }
 }

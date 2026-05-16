@@ -19,7 +19,7 @@
 |-------------|--------|
 | **API running** | Target URL reachable (default `http://localhost:5128`). |
 | **SQL + DbUp** | `ArchLucid:StorageProvider=Sql` with a **migrated** database (fresh DB is fine—migrations run on startup). |
-| **Auth** | Examples assume **`DevelopmentBypass`** (no JWT/API key on curl). For **JwtBearer** / **ApiKey**, add headers per [README.md](../../README.md) and [API_CONTRACTS.md](API_CONTRACTS.md). **`v1-rc-drill.ps1`** accepts **`-BearerToken`** (Bearer JWT) and/or **`-ApiKey`** (`X-Api-Key`) while preserving DevelopmentBypass behavior when both are omitted. |
+| **Auth** | Examples assume **`DevelopmentBypass`** (no JWT/API key on curl). For **JwtBearer** / **ApiKey**, add headers per [README.md](../../README.md) and [API_CONTRACTS.md](API_CONTRACTS.md). **`v1-rc-drill.ps1`** accepts **`-BearerToken`** (`Authorization: Bearer`) and/or **`-ApiKey`** (`X-Api-Key`) on **script** REST calls while preserving DevelopmentBypass when both are omitted. With **`-ApiKey`**, the script also sets **`ARCHLUCID_API_KEY`** for the embedded **`doctor`** / **`support-bundle`** steps so CLI probes match ApiKey-auth APIs. JwtBearer-only setups: REST steps use `-BearerToken`; CLI still uses **`ARCHLUCID_API_KEY`** when you need **`/health/diagnostics`** detail (doctor exits 0 with a 401 note if only JWT is configured). |
 | **Tooling** | `curl` or PowerShell `Invoke-RestMethod`; .NET SDK for CLI steps; optional Node for UI steps. |
 
 **Automated HTTP steps (no UI):** from repo root, with the API already up:

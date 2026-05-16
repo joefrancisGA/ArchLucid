@@ -476,11 +476,11 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
 - Affected qualities: Proof-of-ROI Readiness, Cost-Effectiveness, Explainability.
 - Actionable: Completed
 
-3. Enhance `v1-rc-drill.ps1` to support JWT/API key authentication
+3. COMPLETED: Enhance `v1-rc-drill.ps1` to support JWT/API key authentication
 - Why it matters: Reduces auth mismatches and improves testing realism.
-- Expected impact: Directly improves Correctness (+2 pts), Security (+2 pts). Weighted readiness impact: +0.46%.
+- Expected impact: (Delivered **2026-05-16**.) Directly improves Correctness (+2 pts), Security (+2 pts). Weighted readiness impact: +0.46%.
 - Affected qualities: Correctness, Security.
-- Actionable: Yes
+- Actionable: Completed
 ```markdown
 Update the `v1-rc-drill.ps1` script to accept optional parameters for a JWT bearer token or API key. If provided, use these credentials instead of relying on `DevelopmentBypass`. Update the script documentation to explain how to use these parameters. Do not break the existing `DevelopmentBypass` behavior when no credentials are provided. Acceptance criteria: The RC drill script can be run against an environment secured with JWT or API keys.
 ```
