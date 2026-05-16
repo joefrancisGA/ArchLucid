@@ -288,6 +288,16 @@ The following bulk processing features are explicitly deferred to **V1.1**:
 
 ---
 
+## 6l. Multi-region active/active guarantees (V2 candidate)
+
+**V1 GA stance:** Single-region deployment is the baseline. Multi-region active/active topology is explicitly out of scope for V1 and V1.1.
+
+**Rules:**
+- Quality assessments **must not** treat the absence of multi-region active/active guarantees as a defect or penalize the readiness score.
+- Do not list multi-region active/active as an Enterprise Adoption Blocker for V1.
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |

@@ -193,7 +193,7 @@
 
 1. **Immutable SQL / identity lineage strings** (historic migration bodies, session-context keys, allowlisted CI/doc carve-outs) plus honest disclosure obligations for procurement — **Terraform Phase 7.5 / improvement #1** complete for committed **`infra/**/*.tf`** **2026-05-15**; **Phase 7.6–7.7 / improvement #2** closed **2026-04-19** (**`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); **`terraform state mv`** only when remote state lists **`archiforge`** (**`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
 2. **Native SAML 2.0 SP** — **V1 GA engineering gate** (**`V1_SCOPE.md` §2.12**, **P6** owner **2026-05-15**, improvement **#13**); **until shipped**, SAML-mandatory enterprises cannot rely on **direct SP** posture — interim OIDC federation / brokers remain valid.
-3. Absence of multi-region active/active guarantees out of the box.
+3. **Missing default policy packs:** The absence of bundled AI governance and security baseline policy packs (V1 GA gate) leaves regulated buyers without immediate, actionable compliance findings during initial evaluation.
 4. **Lack of automated tenant data deletion:** Absence of a verifiable GDPR/CCPA "right to be forgotten" mechanism causes friction in enterprise procurement and legal reviews.
 5. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
 6. **IdP configuration documentation gaps:** Missing explicit documentation for `ArchLucidAuth:Authority` configuration causes friction during enterprise SSO onboarding and security reviews.
