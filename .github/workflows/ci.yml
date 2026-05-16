@@ -14,7 +14,7 @@
 #   Tier 2c — k6: operator-path API smoke after full regression (native k6; merge-blocking) + k6 CI smoke read+write (after Tier 1)
 #   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact; lint/typecheck/build (`ui-static-quality`); mock journeys (`ui-playwright-mock-smoke`);
 #             axe WCAG 2.1 A/AA (`ui-playwright-accessibility`, mock-backed); optional full-page screenshot goldens via `npm run test:e2e:mock:visual` locally when updating baselines
-#   Tier 3b — Operator UI e2e (Playwright live API + SQL; PR omits extended live-a11y route matrix — see nightly / manual workflow_dispatch)
+#   Tier 3b — Operator UI e2e (Playwright live API + SQL; extended live-a11y route matrix via workflow_dispatch input / nightly)
 #
 # Re-run failed jobs from the Actions tab. Local equivalents: test-fast-core.*, test-full.*,
 # archlucid-ui: npm test / npm run test:axe-components / Playwright (default live config; mock via playwright.mock.config.ts).
@@ -2091,6 +2091,7 @@ jobs:
   ui-demo-preflight:
     name: "Operator UI: demo-readiness preflight"
     needs: gitleaks
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -2118,6 +2119,7 @@ jobs:
   ui-axe-components:
     name: "Operator UI: Vitest axe (components)"
     needs: gitleaks
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -2141,6 +2143,7 @@ jobs:
   ui-static-quality:
     name: "Operator UI: lint, typecheck, production build"
     needs: gitleaks
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -2166,6 +2169,7 @@ jobs:
   ui-playwright-mock-smoke:
     name: "Operator UI: Playwright mock functional (mock API)"
     needs: gitleaks
+    if: github.event_name != 'pull_request'
     # Mock journey specs (`e2e/`, `chromium` project). Accessibility scans: job `ui-playwright-accessibility`. Optional visual goldens: `npm run test:e2e:mock:visual` — see playwright.mock.config.ts.
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -2213,6 +2217,7 @@ jobs:
   ui-playwright-accessibility:
     name: "Operator UI: axe-core WCAG 2.1 A/AA (mock)"
     needs: gitleaks
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -2258,11 +2263,12 @@ jobs:
 
   # Live API + Sql + Next.js (no mock). Gating — failures block merge.
   ui-e2e-live:
-    name: "Operator UI: e2e live API + SQL (PR subset — full live-a11y matrix is nightly)"
+    name: "Operator UI: e2e live API + SQL (full CI; extended live-a11y matrix via workflow_dispatch input)"
     needs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
       - dotnet-full-regression-slow-domain
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     services:
@@ -2413,6 +2419,7 @@ jobs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
       - dotnet-full-regression-slow-domain
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -2555,6 +2562,7 @@ jobs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
       - dotnet-full-regression-slow-domain
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -2720,6 +2728,7 @@ jobs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
       - dotnet-full-regression-slow-domain
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     services:
@@ -2817,6 +2826,7 @@ jobs:
   k6-ci-smoke:
     name: "Performance: k6 CI smoke (read + write baseline)"
     needs: dotnet-fast-core
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -2896,6 +2906,7 @@ jobs:
   dotnet-benchmark-regression:
     name: ".NET: benchmark regression (short job)"
     needs: dotnet-fast-core
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -2929,6 +2940,7 @@ jobs:
   security-zap-api-baseline:
     name: "Security: OWASP ZAP baseline (API container)"
     needs: docker-build-smoke
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
@@ -3001,11 +3013,12 @@ jobs:
   # Lightweight per-PR API fuzz: Schemathesis examples-only phase (~1–2 min) to catch response
   # schema violations before merge. Full fuzz (fuzzing + stateful) runs weekly in schemathesis-scheduled.yml.
   api-schemathesis-light:
-    name: "Security: Schemathesis light fuzz (PR)"
+    name: "Security: Schemathesis light fuzz (full CI)"
     needs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
       - dotnet-full-regression-slow-domain
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:

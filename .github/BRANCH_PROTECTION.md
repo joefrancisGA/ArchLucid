@@ -34,15 +34,17 @@ Use **exact** names as they appear on a completed run (Settings shows autocomple
 | `Containers: Docker build smoke` |
 | `CodeQL (csharp)` |
 | `CodeQL (javascript)` |
-| `PR: coverage comment` — safe to require: passes outside pull requests (no-op sticky comment); posts only on same-repo PRs |
+| `PR: coverage comment` — optional on **full CI** (`workflow_dispatch`): posts only on same-repo **pull_request** events when wired that way; trimmed PR runs skip merged coverage so this job does not apply on PR |
 
 **Note:** Matrix Terraform jobs publish **one check per matrix value**; include each leg you care about.
+
+Checks from **`.NET: full regression (SQL)`** through **`Containers: Docker build smoke`** (and **`PR: coverage comment`**) run only on **full CI** (`workflow_dispatch`), not on trimmed **pull_request** runs.
 
 ### If you use Rulesets
 
 Create a ruleset targeting your default branch, enable **Require status checks**, and add the same check names. Rulesets can target multiple branches in one place.
 
-**Manual CI:** If `.github/workflows/ci.yml` is configured for **`workflow_dispatch` only**, required checks do not run automatically on commits — run **Actions → CI → Run workflow** (pick branch/ref) and merge after checks attach to that run.
+**PR vs full CI:** On **pull_request** (into `main`/`master`), `.github/workflows/ci.yml` runs jobs **before** `.NET: fast core (corset)` plus a **trimmed** corset (same check name; skips CycloneDX SBOM, coverlet/ReportGenerator, and the finding-engine template test). Everything **after** corset—including `.NET: full regression`, UI/Docker/k6/ZAP/Schemathesis—runs only on **Actions → CI → Run workflow** (`workflow_dispatch`).
 
 ## Automatic staging deploy (supplements branch protection)
 
