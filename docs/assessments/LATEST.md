@@ -326,8 +326,8 @@
 - **Weight:** 1
 - **Weighted deficiency signal:** 18
 - **Justification:** Good logging and OpenTelemetry.
-- **Tradeoffs:** Some operational scripts need auth updates for realistic testing.
-- **Improvement recommendations:** Update `v1-rc-drill.ps1` to support JWT/API keys for realistic testing.
+- **Tradeoffs:** Some operational scripts assume DevelopmentBypass aside from curated paths (for example JWT-only CLI probes).
+- **Improvement recommendations:** Broaden JWT/API realism for remaining operator scripts (`ARCHLUCID_*` bearer parity); `v1-rc-drill.ps1` covered (**#3**, **closed 2026-05-16**).
 
 ### 37. Manageability
 - **Score:** 100
@@ -420,7 +420,7 @@
 5. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
 6. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
 7. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity and release-smoke validation remain engineering obligations before the legacy orchestrator can be safely removed.
-8. **Auth mismatches in operational scripts:** Potential authentication mismatches exist in operational scripts (like `v1-rc-drill.ps1`) that assume `DevelopmentBypass`, reducing testing realism against environments secured with JWT or API keys.
+8. **Operational script auth realism (narrow residual):** `v1-rc-drill.ps1` accepts **`-BearerToken`** / **`-ApiKey`** (**#3**, **2026-05-16**); other scripts may remain DevelopmentBypass-assumptive; JwtBearer drills still rely on **`ARCHLUCID_API_KEY`** for CLI detailed **`/health/diagnostics`** probes (JWT covers script REST).
 9. **Lack of explicit logging for agent state machine transitions:** Makes it difficult to observe and debug complex agent orchestrations in production.
 
 ---
@@ -452,7 +452,7 @@
 3. **E2E test mock reliance:** Despite the addition of negative live-API paths, the majority of the Playwright E2E suite still relies heavily on mocked `/api/proxy` responses, leaving integration blind spots until `ui-e2e-live` expands further.
 4. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
 5. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
-6. **Auth mismatches in operational scripts:** Potential authentication mismatches exist in operational scripts (like `v1-rc-drill.ps1`) that assume `DevelopmentBypass`, reducing testing realism against environments secured with JWT or API keys.
+6. **Operational script auth realism (narrow residual):** Beyond **`v1-rc-drill.ps1`** JWT/API key support (**#3**, **2026-05-16**), some scripts remain DevelopmentBypass-assumptive; CLI JWT parity for probes that require ReadAuthority remains a tooling gap versus API-key env (`ARCHLUCID_API_KEY`).
 
 ---
 
