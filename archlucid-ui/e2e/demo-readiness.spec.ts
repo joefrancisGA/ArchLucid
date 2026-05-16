@@ -135,15 +135,17 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
     await page.goto("/reviews?projectId=default");
     await expect(page.getByRole("heading", { name: /architecture reviews/i })).toBeVisible();
-    // Showcase row primary action is "View manifest summary" (or "Open review"), not a title-shaped link.
-    // Scope to the primary <main> and disambiguate if duplicate rows ever slip through (Playwright strict mode).
+    // Buyer-polished table rows expose two Action links ("View review package", "View signed manifest");
+    // target the primary explore link via stable test id (Playwright strict mode).
     const claimsTableRow = page
       .getByRole("main")
       .first()
       .getByTestId(`runs-row-${SHOWCASE_DEMO_RUN_ID}`)
       .first();
     await expect(claimsTableRow).toBeVisible();
-    await claimsTableRow.getByRole("link").click();
+    await claimsTableRow
+      .getByTestId(`runs-row-primary-explore-${SHOWCASE_DEMO_RUN_ID}`)
+      .click();
     const afterListClickUrl = new RegExp(
       `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}/manifest|/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")})`,
     );

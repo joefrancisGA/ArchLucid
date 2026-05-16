@@ -581,6 +581,7 @@ export function RunsListClient({
                                   <div className="flex flex-col items-start gap-1.5">
                                     <Link
                                       href={primaryExplore.href}
+                                      data-testid={`runs-row-primary-explore-${run.runId}`}
                                       className="font-medium text-teal-800 underline dark:text-teal-300"
                                       onClick={(e) => {
                                         e.stopPropagation();

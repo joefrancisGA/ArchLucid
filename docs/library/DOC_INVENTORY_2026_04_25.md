@@ -194,7 +194,6 @@
 | `library/DEPLOYMENT_TERRAFORM.md` | 2026-04-23 | N | Y |  |
 | `library/DEVCONTAINER.md` | 2026-04-23 | N | Y |  |
 | `library/DI_REGISTRATION_MAP.md` | 2026-04-23 | N | Y |  |
-| `library/DOC_INVENTORY_2026_04_23.md` | (unknown) | N | Y |  |
 | `library/EMAIL_NOTIFICATIONS.md` | 2026-04-23 | N | Y |  |
 | `library/EXPLAINABILITY_TRACE_COVERAGE.md` | 2026-04-23 | N | Y |  |
 | `library/EXPLANATION_SCHEMA.md` | 2026-04-23 | N | Y |  |
