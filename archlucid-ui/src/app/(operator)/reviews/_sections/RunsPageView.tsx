@@ -37,7 +37,7 @@ export function RunsPageView(props: Props) {
         metadata={
           <>
             <span>{m.projectTitle}</span>
-            <RunsListProofHeadline />
+            {isBuyerPolishedOperatorShellEnv() ? null : <RunsListProofHeadline />}
           </>
         }
         helpKey="runs-list-overview"
@@ -47,7 +47,8 @@ export function RunsPageView(props: Props) {
         {isBuyerPolishedOperatorShellEnv() ? (
           <>
             Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to review its manifest, evidence,
-            findings, and deliverables.
+            findings, and deliverables. Use <strong className="font-medium text-neutral-800 dark:text-neutral-100">Search reviews</strong>{" "}
+            below to narrow by title, description, or Run ID.
           </>
         ) : (
           <>

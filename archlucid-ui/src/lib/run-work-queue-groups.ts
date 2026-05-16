@@ -47,7 +47,22 @@ export function partitionRunsIntoWorkQueueSections(runs: RunSummary[]): RunWorkQ
   }));
 }
 
-export function workQueueSectionHeading(groupId: RunWorkQueueGroupId): string {
+export function workQueueSectionHeading(groupId: RunWorkQueueGroupId, buyerPolished = false): string {
+  if (buyerPolished) {
+    switch (groupId) {
+      case "needs-attention":
+        return "Pre-final — manifest pending";
+      case "in-progress":
+        return "Early pipeline";
+      case "committed":
+        return "Finalized review packages";
+      default: {
+        const _exhaustive: never = groupId;
+        return _exhaustive;
+      }
+    }
+  }
+
   switch (groupId) {
     case "needs-attention":
       return "Needs attention";

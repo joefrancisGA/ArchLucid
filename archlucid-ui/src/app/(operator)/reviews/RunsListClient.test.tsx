@@ -1,11 +1,27 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const runsListBuyerPolishedForced = vi.hoisted(() => ({ on: false as boolean }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () =>
+      runsListBuyerPolishedForced.on === true ? true : actual.isBuyerPolishedOperatorShellEnv(),
+  };
+});
 
 import { RunsListClient } from "./RunsListClient";
 
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import type { RunSummary } from "@/types/authority";
+
+afterEach(() => {
+  runsListBuyerPolishedForced.on = false;
+});
 
 const sampleRun: RunSummary = {
   runId: "00000000-0000-0000-0000-000000000099",
@@ -133,5 +149,49 @@ describe("RunsListClient inspector", () => {
 
     expect(screen.queryByTestId(`runs-row-baseline-menu-${sampleRun.runId}`)).toBeNull();
     expect(screen.getByTestId(`runs-row-baseline-menu-${committed.runId}`)).toBeInTheDocument();
+  });
+
+  it("buyer-polished: uses finalized section heading and scope chips", () => {
+    runsListBuyerPolishedForced.on = true;
+
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    render(<RunsListClient runs={[committed]} projectId="default" page={1} pageSize={20} totalCount={1} />);
+
+    expect(screen.getByRole("heading", { name: /finalized review packages/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^finalized packages$/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Search reviews by name or description/i)).toBeInTheDocument();
+  });
+
+  it("buyer-polished: finalized scope hides in-flight runs", () => {
+    runsListBuyerPolishedForced.on = true;
+
+    const inFlight: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000dd",
+    };
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000ee",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    render(
+      <RunsListClient runs={[inFlight, committed]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    expect(screen.getByTestId(`runs-row-${inFlight.runId}`)).toBeInTheDocument();
+    expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^finalized packages$/i }));
+
+    expect(screen.queryByTestId(`runs-row-${inFlight.runId}`)).toBeNull();
+    expect(screen.getByTestId(`runs-row-${committed.runId}`)).toBeInTheDocument();
   });
 });

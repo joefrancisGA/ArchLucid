@@ -9,6 +9,7 @@ import { RunProvenanceInline } from "@/components/RunProvenanceInline";
 import { RunsRowBaselineMenu } from "@/components/RunsRowBaselineMenu";
 import { RunTableRowErrorBoundary } from "@/components/RunTableRowErrorBoundary";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
@@ -42,6 +43,8 @@ export type RunsListClientProps = {
 };
 
 type SortOrder = "createdDesc" | "createdAsc";
+
+type BuyerPackageScopeFilter = "all" | "finalized" | "in_flight";
 
 function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
@@ -243,6 +246,7 @@ export function RunsListClient({
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
   const [filterText, setFilterText] = useState("");
+  const [buyerPackageScope, setBuyerPackageScope] = useState<BuyerPackageScopeFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
   const [selectedRun, setSelectedRun] = useState<RunSummary | null>(() => (safeRuns.length > 0 ? safeRuns[0] : null));
   const [paginationAnnouncement, setPaginationAnnouncement] = useState("");
@@ -303,13 +307,23 @@ export function RunsListClient({
       });
     }
 
+    if (buyerPolished) {
+      if (buyerPackageScope === "finalized") {
+        list = list.filter((run) => run.hasGoldenManifest === true);
+      }
+
+      if (buyerPackageScope === "in_flight") {
+        list = list.filter((run) => run.hasGoldenManifest !== true);
+      }
+    }
+
     return [...list].sort((left, right) => {
       const leftTime = new Date(left.createdUtc).getTime();
       const rightTime = new Date(right.createdUtc).getTime();
 
       return sortOrder === "createdDesc" ? rightTime - leftTime : leftTime - rightTime;
     });
-  }, [safeRuns, filterText, sortOrder]);
+  }, [safeRuns, filterText, sortOrder, buyerPolished, buyerPackageScope]);
 
   const workQueueSections = useMemo(
     () => partitionRunsIntoWorkQueueSections(filteredSorted),
@@ -349,10 +363,18 @@ export function RunsListClient({
       <RunInspectorPreview run={selectedRun} />
     );
 
+  const listNarrowingActive =
+    filterText.trim().length > 0 || (buyerPolished === true && buyerPackageScope !== "all");
+  const soleVisibleRun = filteredSorted.length === 1 ? filteredSorted[0] ?? null : null;
+
   const filterStatusLine = runsListPageFilterStatusLine(
     filteredSorted.length,
     safeRuns.length,
-    filterText.trim().length > 0,
+    listNarrowingActive,
+    {
+      buyerPolished,
+      soleVisibleRun,
+    },
   );
 
   const runsSortControl = (
@@ -424,11 +446,51 @@ export function RunsListClient({
     <div className="mt-4 space-y-4">
       {buyerPolished ? (
         <div className="space-y-3">
+          {runsFilterControl}
+          <fieldset className="m-0 min-w-0 border-0 p-0">
+            <legend className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              Show
+            </legend>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant={buyerPackageScope === "all" ? "primary" : "outline"}
+                className="h-8"
+                onClick={() => {
+                  setBuyerPackageScope("all");
+                }}
+              >
+                All
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={buyerPackageScope === "finalized" ? "primary" : "outline"}
+                className="h-8"
+                onClick={() => {
+                  setBuyerPackageScope("finalized");
+                }}
+              >
+                Finalized packages
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={buyerPackageScope === "in_flight" ? "primary" : "outline"}
+                className="h-8"
+                onClick={() => {
+                  setBuyerPackageScope("in_flight");
+                }}
+              >
+                In flight
+              </Button>
+            </div>
+          </fieldset>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             {runsSortControl}
             {runsListFilterStatus}
           </div>
-          {runsFilterControl}
         </div>
       ) : (
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
@@ -477,7 +539,7 @@ export function RunsListClient({
                     id={headingId}
                     className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"
                   >
-                    {workQueueSectionHeading(section.groupId)}
+                    {workQueueSectionHeading(section.groupId, buyerPolished)}
                   </h3>
                   <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
                     <table className="w-full border-collapse text-sm">
@@ -537,8 +599,17 @@ export function RunsListClient({
             </span>
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-xs">
-            Pipeline phase derived from snapshots: finalized manifest, findings ready to finalize, still executing, or
-            just starting.
+            {buyerPolished ? (
+              <>
+                Packaging status from snapshots: finalized review package, pre-final while findings await a sealed manifest,
+                or early pipeline before findings are ready.
+              </>
+            ) : (
+              <>
+                Pipeline phase derived from snapshots: finalized manifest, findings ready to finalize, still executing, or
+                just starting.
+              </>
+            )}
           </TooltipContent>
         </Tooltip>
                                   </div>
