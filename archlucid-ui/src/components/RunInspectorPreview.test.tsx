@@ -69,6 +69,7 @@ describe("RunInspectorPreview", () => {
 
     render(<RunInspectorPreview run={showcaseRun()} />);
 
+    expect(screen.getByText("Risks reviewed")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View review package" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",

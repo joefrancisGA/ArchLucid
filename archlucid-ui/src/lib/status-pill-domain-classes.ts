@@ -8,10 +8,13 @@ export const STATUS_PILL_BASE = "rounded-full px-2.5 py-0.5 text-xs font-semibol
 function pipelineSemanticClass(status: string): string {
   switch (status) {
     case "Finalized":
+    case "Package finalized":
       return "border border-emerald-950/30 bg-emerald-900 text-white shadow-sm ring-1 ring-emerald-950/35 hover:bg-emerald-900/95 dark:border-emerald-700/80 dark:bg-emerald-950 dark:text-emerald-50 dark:ring-emerald-400/25 dark:hover:bg-emerald-950/90";
     case "Ready to finalize":
+    case "Ready to seal":
       return "border-amber-500/70 bg-amber-50 text-amber-950 shadow-sm dark:border-amber-600/60 dark:bg-amber-950/50 dark:text-amber-50";
     case "In pipeline":
+    case "In flight":
       return "border-blue-500/70 bg-blue-50 text-blue-950 dark:border-blue-600/60 dark:bg-blue-950/40 dark:text-blue-100";
     case "Starting":
       return "border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-200";

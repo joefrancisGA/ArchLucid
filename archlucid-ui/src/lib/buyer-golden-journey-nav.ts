@@ -1,4 +1,5 @@
 import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -11,11 +12,11 @@ const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
  * Canonical five-step buyer demo spine — keep in sync with {@link BuyerGoldenJourneyStrip} home card.
  */
 export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
-  { step: 1, label: "Executive Summary", href: getShowcaseExecutiveHref() },
+  { step: 1, label: "Executive summary", href: getShowcaseExecutiveHref() },
   { step: 2, label: "Signed manifest", href: getShowcaseManifestHref() },
-  { step: 3, label: "Evidence graph", href: `/graph?runId=${showcaseRunEnc}` },
+  { step: 3, label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav, href: `/graph?runId=${showcaseRunEnc}` },
   { step: 4, label: "Governance approval", href: `/governance?runId=${showcaseRunEnc}` },
-  { step: 5, label: "Audit trail", href: `/audit?runId=${showcaseRunEnc}` },
+  { step: 5, label: BUYER_SURFACE_VOCABULARY.auditTrail, href: `/audit?runId=${showcaseRunEnc}` },
 ] as const;
 
 export type BuyerGoldenJourneyNavLink = {
@@ -67,7 +68,7 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
       canonicalizeDemoRunId(workspace[1]) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
     ) {
       return {
-        summaryLine: "Review package overview — between Executive Summary and signed manifest",
+        summaryLine: "Review package overview — between Executive summary and signed manifest",
         prev: { label: defs[0].label, href: defs[0].href },
         next: { label: defs[1].label, href: defs[1].href },
         currentStepIndex: null,

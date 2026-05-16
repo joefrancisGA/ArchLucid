@@ -19,7 +19,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     const nav = resolveBuyerGoldenJourneyNav(path);
 
     expect(nav?.summaryLine).toContain("Step 1 of 5");
-    expect(nav?.summaryLine).toContain("Executive Summary");
+    expect(nav?.summaryLine).toContain("Executive summary");
     expect(nav?.currentStepIndex).toBe(0);
     expect(nav?.prev).toBeNull();
     expect(nav?.next?.label).toBe("Signed manifest");
@@ -37,7 +37,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(navB?.summaryLine).toContain("Step 2 of 5");
     expect(navA?.currentStepIndex).toBe(1);
     expect(navB?.currentStepIndex).toBe(1);
-    expect(navA?.prev?.label).toBe("Executive Summary");
+    expect(navA?.prev?.label).toBe("Executive summary");
     expect(navA?.next?.label).toBe("Evidence graph");
   });
 
@@ -61,7 +61,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
   it("treats showcase review workspace as hub between executive and manifest", () => {
     const nav = resolveBuyerGoldenJourneyNav(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`);
 
-    expect(nav?.summaryLine).toContain("Review package overview");
+    expect(nav?.summaryLine).toContain("between Executive summary and signed manifest");
     expect(nav?.currentStepIndex).toBeNull();
     expect(nav?.prev?.href).toBe(BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[0].href);
     expect(nav?.next?.href).toBe(BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[1].href);

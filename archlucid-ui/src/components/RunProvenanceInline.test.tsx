@@ -35,4 +35,18 @@ describe("RunProvenanceInline", () => {
 
     expect(screen.getByTestId("run-provenance-inline-summary")).toHaveTextContent("Review package complete");
   });
+
+  it("uses Risks reviewed chip label when buyer polished and findings snapshot present", () => {
+    render(
+      <RunProvenanceInline
+        buyerPolished
+        run={minimalRun({
+          hasContextSnapshot: true,
+          hasFindingsSnapshot: true,
+        })}
+      />,
+    );
+
+    expect(screen.getByText("Risks reviewed")).toBeInTheDocument();
+  });
 });

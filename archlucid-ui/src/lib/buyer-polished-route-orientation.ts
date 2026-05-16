@@ -41,7 +41,7 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith(`/executive/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)) {
     return {
-      label: "Executive Summary",
+      label: "Executive summary",
       line: `Board-ready posture, outcomes, and evidence hooks for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
     };
   }

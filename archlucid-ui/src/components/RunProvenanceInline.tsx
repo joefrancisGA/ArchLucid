@@ -31,6 +31,14 @@ function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
     return "Evidence graph ready";
   }
 
+  if (buyerPolished && stage.key === "findings") {
+    if (!stage.present) {
+      return "Risks · …";
+    }
+
+    return "Risks reviewed";
+  }
+
   if (!stage.present) {
     return `${stage.label} · …`;
   }
@@ -60,6 +68,12 @@ function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
     : "Graph — structured architecture / linkage snapshot. " +
       (run.hasGraphSnapshot === true ? "Present." : "Not yet generated.");
 
+  const findingsTooltip = buyerPolished
+    ? "Risks & decisions — monitored-risk and architecture decision snapshot for this review. " +
+      (run.hasFindingsSnapshot === true ? "Present." : "Not yet captured.")
+    : "Findings — risk and decision findings snapshot. " +
+      (run.hasFindingsSnapshot === true ? "Present." : "Not yet captured.");
+
   return [
     {
       key: "context",
@@ -79,9 +93,7 @@ function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
       key: "findings",
       label: "Findings",
       present: run.hasFindingsSnapshot === true,
-      tooltip:
-        "Findings — risk and decision findings snapshot. " +
-        (run.hasFindingsSnapshot === true ? "Present." : "Not yet captured."),
+      tooltip: findingsTooltip,
     },
     {
       key: "manifest",

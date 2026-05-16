@@ -1,4 +1,5 @@
 import { StatusPill } from "@/components/StatusPill";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -27,6 +28,25 @@ export function deriveRunListPipelineLabel(run: RunSummary): RunPipelineLabel {
   return "Starting";
 }
 
+function buyerPipelineStatusDisplayLabel(label: RunPipelineLabel): string {
+  switch (label) {
+    case "Finalized":
+      return "Package finalized";
+
+    case "Ready to finalize":
+      return "Ready to seal";
+
+    case "In pipeline":
+      return "In flight";
+
+    case "Starting":
+      return "Starting";
+
+    default:
+      return label;
+  }
+}
+
 export type RunStatusBadgeProps = {
   run: RunSummary;
   className?: string;
@@ -36,14 +56,15 @@ export type RunStatusBadgeProps = {
  * Visual scan helper for run list rows — derived from snapshot flags on {@link RunSummary}.
  */
 export function RunStatusBadge({ run, className }: RunStatusBadgeProps) {
-  const label = deriveRunListPipelineLabel(run);
+  const internal = deriveRunListPipelineLabel(run);
+  const displayLabel = isBuyerPolishedOperatorShellEnv() ? buyerPipelineStatusDisplayLabel(internal) : internal;
 
   return (
     <StatusPill
-      status={label}
+      status={displayLabel}
       domain="pipeline"
       className={cn("shrink-0", className)}
-      ariaLabel={`Run pipeline status: ${label}`}
+      ariaLabel={`Run pipeline status: ${displayLabel}`}
     />
   );
 }

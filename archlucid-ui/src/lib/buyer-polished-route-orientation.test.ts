@@ -19,8 +19,10 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("keeps executive summary orientation for the showcase run", () => {
-    expect(
-      buyerPolishedRouteOrientation(`/executive/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)?.line,
-    ).toContain(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
+    const base = `/executive/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`;
+    const o = buyerPolishedRouteOrientation(base);
+
+    expect(o?.label).toBe("Executive summary");
+    expect(o?.line).toContain(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
   });
 });

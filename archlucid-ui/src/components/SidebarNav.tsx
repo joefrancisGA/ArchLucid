@@ -42,13 +42,12 @@ import {
   type NavGroupWithVisibleLinks,
 } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
 import { OPEN_COMMAND_PALETTE_EVENT, registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
@@ -59,44 +58,15 @@ const SIDEBAR_ADMIN_SECTION_OPEN_KEY = "archlucid-sidebar-admin-section-open";
 /** Pilot-group paths omitted in buyer-polished shell — golden path lives in quick actions and reviews index. */
 const BUYER_POLISHED_PILOT_OMIT_PATHS = new Set<string>(["/", "/onboarding", "/reviews/new"]);
 
-/** Buyer-demo golden path — uses canonical showcase run/manifest so quick actions work without workspace context. */
-const BUYER_POLISHED_QUICK_ACTION_LINKS: readonly {
-  readonly step: number;
-  readonly href: string;
-  readonly label: string;
-  readonly Icon: typeof LayoutDashboard;
-}[] = [
-  {
-    step: 1,
-    href: `/executive/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-    label: "Executive summary",
-    Icon: LayoutDashboard,
-  },
-  {
-    step: 2,
-    href: `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
-    label: "Signed manifest",
-    Icon: FileText,
-  },
-  {
-    step: 3,
-    href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-    label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
-    Icon: GitGraph,
-  },
-  {
-    step: 4,
-    href: `/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-    label: "Governance approval",
-    Icon: GitBranch,
-  },
-  {
-    step: 5,
-    href: `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-    label: BUYER_SURFACE_VOCABULARY.auditTrail,
-    Icon: FileSearch,
-  },
-];
+/** Buyer-demo golden path — single source: {@link BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS}. */
+const BUYER_JOURNEY_STEP_ICONS = [LayoutDashboard, FileText, GitGraph, GitBranch, FileSearch] as const;
+
+const BUYER_POLISHED_QUICK_ACTION_LINKS = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.map((def, idx) => ({
+  step: def.step,
+  href: def.href,
+  label: def.label,
+  Icon: BUYER_JOURNEY_STEP_ICONS[idx]!,
+}));
 
 const OPERATOR_SHELL_PRESET_LABELS: Record<OperatorShellPresetId, string> = {
 

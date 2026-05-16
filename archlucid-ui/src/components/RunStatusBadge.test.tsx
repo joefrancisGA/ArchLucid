@@ -1,5 +1,17 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const runStatusBuyerPolishedForced = vi.hoisted(() => ({ on: false as boolean }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () =>
+      runStatusBuyerPolishedForced.on === true ? true : actual.isBuyerPolishedOperatorShellEnv(),
+  };
+});
 
 import { RunStatusBadge, deriveRunListPipelineLabel } from "@/components/RunStatusBadge";
 import type { RunSummary } from "@/types/authority";
@@ -9,6 +21,10 @@ const base: RunSummary = {
   projectId: "default",
   createdUtc: "2026-01-01T00:00:00.000Z",
 };
+
+afterEach(() => {
+  runStatusBuyerPolishedForced.on = false;
+});
 
 describe("deriveRunListPipelineLabel", () => {
   it("returns Finalized when golden manifest flag is true", () => {
@@ -39,6 +55,23 @@ describe("RunStatusBadge", () => {
 
     expect(pill).not.toBeNull();
     expect(pill?.className).toMatch(/rounded-full/);
+    expect(pill?.className).toMatch(/emerald-9/);
+  });
+
+  it("uses buyer-facing pipeline labels when buyer-polished shell is active", () => {
+    runStatusBuyerPolishedForced.on = true;
+
+    render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
+
+    expect(screen.getByLabelText(/Run pipeline status: Package finalized/i)).toBeInTheDocument();
+  });
+
+  it("keeps emerald styling for buyer Package finalized label", () => {
+    runStatusBuyerPolishedForced.on = true;
+
+    const { container } = render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
+    const pill = container.querySelector('[aria-label="Run pipeline status: Package finalized"]');
+
     expect(pill?.className).toMatch(/emerald-9/);
   });
 });

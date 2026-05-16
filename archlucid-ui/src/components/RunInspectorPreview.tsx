@@ -174,7 +174,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </span>
           </li>
           <li className="flex justify-between gap-2">
-            <span>Findings reviewed</span>
+            <span>{buyerPolished ? "Risks reviewed" : "Findings reviewed"}</span>
             <span aria-label={run.hasFindingsSnapshot ? "Findings snapshot present" : "Findings snapshot missing"}>
               {snapshotLabel(run.hasFindingsSnapshot)}
             </span>
