@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
+import { SelfDemoRequestCta } from "@/components/marketing/SelfDemoRequestCta";
 import { WalkthroughRequestCta } from "@/components/marketing/WalkthroughRequestCta";
 import { Button } from "@/components/ui/button";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
@@ -105,8 +106,9 @@ export function WelcomeMarketingPage() {
         >
           {HERO_PITCH}
         </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <div className="mt-8 flex flex-wrap items-start justify-center gap-3">
           <WalkthroughRequestCta className="min-h-11 px-8 text-base font-semibold shadow-sm" />
+          <SelfDemoRequestCta />
           <Button asChild variant="outline" size="lg">
             <Link href="/see-it">See it in 30 seconds</Link>
           </Button>

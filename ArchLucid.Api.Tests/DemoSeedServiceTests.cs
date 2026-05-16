@@ -161,6 +161,42 @@ public sealed class DemoSeedServiceTests
         diff.AgentDeltas.Should().NotBeEmpty();
     }
 
+    [SkippableFact]
+    public async Task SeedAsync_seeds_workspace_a_product_tour_run_under_derived_workspace_scope()
+    {
+        await using ArchLucidApiFactory factory = new();
+        using IServiceScope scope = factory.Services.CreateScope();
+        IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
+        Guid tenantId = scopeProvider.GetCurrentScope().TenantId;
+        Guid tourWorkspaceId = DemoTourWorkspaceIds.WorkspaceRowId(tenantId);
+        Guid tourProjectId = DemoTourWorkspaceIds.ProjectScopeRowId(tenantId);
+        Guid tourRunId = DemoTourWorkspaceIds.AuthorityRunId(tenantId);
+
+        await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
+
+        ScopeContext tourScope = new() { TenantId = tenantId, WorkspaceId = tourWorkspaceId, ProjectId = tourProjectId };
+
+        using (AmbientScopeContext.Push(tourScope))
+
+        {
+
+            IAuthorityQueryService authority = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+
+            IReadOnlyList<RunSummaryDto> rows =
+                await authority.ListRunsByProjectAsync(tourScope, "Contoso Cloud Platform", 50, CancellationToken.None);
+
+            rows.Should().Contain(r => r.RunId == tourRunId);
+
+            IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
+            ArchitectureRunDetail? tour = await detail.GetRunDetailAsync(tourRunId.ToString("N"));
+            tour.Should().NotBeNull();
+            tour!.Manifest.Should().NotBeNull();
+            tour.Manifest!.SystemName.Should().Be("Contoso Cloud Platform");
+            tour.Run.CurrentManifestVersion.Should().Be(ProductTourWorkspaceSeed.ManifestVersionLiteral);
+            AssertCommittedDemoManifestSnapshotChain(tour, tourRunId);
+        }
+    }
+
     /// <summary>
     ///     Validates the authority committed-chain pointers exposed through <see cref="IRunDetailQueryService"/> — the same
     ///     aggregate consumers use — without assuming legacy table names such as <c>dbo.GoldenManifests</c>.

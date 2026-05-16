@@ -2,18 +2,20 @@ import { MARKETING_ANALYTICS_CONSENT_STORAGE_KEY } from "@/lib/marketing-analyti
 
 type ClarityApi = (action: string, ...args: string[]) => void;
 
-export type CtaWalkthroughClickAnalyticsProps = {
+/** Shared shape for hero CTA events ({@code cta_walkthrough_click}, {@code cta_self_demo_click}). */
+export type MarketingHeroCtaAnalyticsProps = {
   readonly source: string;
   readonly utm_source?: string;
   readonly utm_medium?: string;
   readonly utm_campaign?: string;
 };
 
-/**
- * Emits Clarity custom dimensions + custom event when marketing analytics consent is granted and Clarity is loaded.
- * No-op on the operator shell or when consent is denied (same gate as {@link MicrosoftClarityLoader}).
- */
-export function recordMarketingCtaWalkthroughClick(properties: CtaWalkthroughClickAnalyticsProps): void {
+export type CtaWalkthroughClickAnalyticsProps = MarketingHeroCtaAnalyticsProps;
+
+function recordMarketingHeroCtaClarityEvent(
+  eventName: "cta_walkthrough_click" | "cta_self_demo_click",
+  properties: MarketingHeroCtaAnalyticsProps,
+): void {
   if (typeof window === "undefined") return;
 
   if (window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY) !== "granted") return;
@@ -31,5 +33,18 @@ export function recordMarketingCtaWalkthroughClick(properties: CtaWalkthroughCli
   if (properties.utm_campaign !== undefined && properties.utm_campaign !== "")
     clarity("set", "cta_utm_campaign", properties.utm_campaign);
 
-  clarity("event", "cta_walkthrough_click");
+  clarity("event", eventName);
+}
+
+/**
+ * Emits Clarity custom dimensions + custom event when marketing analytics consent is granted and Clarity is loaded.
+ * No-op on the operator shell or when consent is denied (same gate as {@link MicrosoftClarityLoader}).
+ */
+export function recordMarketingCtaWalkthroughClick(properties: MarketingHeroCtaAnalyticsProps): void {
+  recordMarketingHeroCtaClarityEvent("cta_walkthrough_click", properties);
+}
+
+/** Clarity event for hero **Try the self-demo** (Workspace A). */
+export function recordMarketingCtaSelfDemoClick(properties: MarketingHeroCtaAnalyticsProps): void {
+  recordMarketingHeroCtaClarityEvent("cta_self_demo_click", properties);
 }
