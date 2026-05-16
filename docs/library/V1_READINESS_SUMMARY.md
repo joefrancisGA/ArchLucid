@@ -40,7 +40,6 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 | Item | Why / pointer |
 |------|----------------|
 | **Terraform `state mv`** (Phase **7.5**) | Resource **addresses** may still contain **`archiforge`** in **remote state** for applied stacks; **`main` IaC** uses **`archlucid`** labels — coordinate `state mv` + deploy window ([TERRAFORM_STATE_MV_PHASE_7_5.md](../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md), [ARCHLUCID_RENAME_CHECKLIST.md](../ARCHLUCID_RENAME_CHECKLIST.md)). |
-| **Dedicated in-shell “planning bridge” UX** | **V1** ships **API** materialization (`POST /v1/learning/planning/materialize`, [V1_SCOPE.md](V1_SCOPE.md) §2.8, [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) §4.1); a first-class operator UI wizard for the same flow is **not** claimed here — treat as backlog if pilots need it. |
 | **Full audit parity** | Some mutating flows do not emit `dbo.AuditEvents`; documented as **known gaps** ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md), [V1_DEFERRED.md](V1_DEFERRED.md) §2). |
 | **Multi-region SaaS guarantees** | Docs describe targets; not a boxed V1 product promise ([V1_SCOPE.md](V1_SCOPE.md) §3). |
 | **Enterprise integration catalog** | Optional events/webhooks exist; custom consumers are customer-owned ([V1_SCOPE.md](V1_SCOPE.md) §3). |
@@ -81,8 +80,7 @@ Ordered by **typical leverage**, not mandatory roadmap:
 1. **Terraform brownfield hygiene** — run **`terraform plan` / `state list`** per [TERRAFORM_STATE_MV_PHASE_7_5.md](../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md) when remote state may still list **`archiforge`** addresses; **Phase 7.6–7.7** GitHub + Entra rename work already **closed** **2026-04-19** ([ARCHLUCID_RENAME_CHECKLIST.md](../ARCHLUCID_RENAME_CHECKLIST.md)).
 2. **Live API + operator UI** validation pass where Playwright mocks are insufficient (record outcome in release notes).
 3. **Audit coverage** closes you care about for compliance ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md)).
-4. **Planning materialization UX** if pilots need guided in-product workflow beyond the API ([PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) §4.1).
-5. **Maintainer backlog** ([NEXT_REFACTORINGS.md](NEXT_REFACTORINGS.md))—engineering hygiene, not pilot-blocking by default.
+4. **Maintainer backlog** ([NEXT_REFACTORINGS.md](NEXT_REFACTORINGS.md))—engineering hygiene, not pilot-blocking by default.
 
 ---
 

@@ -102,7 +102,7 @@ When you want **named themes** and **improvement plans** in the 59R tables (for 
 
 ## 4.2 Planning bridge — in-shell UX (**V1 GA**)
 
-Canonical product/requirements spec for improvement **#16** in weighted assessments (**P7** answered **2026-05-15**). Supersedes “wait for external Figma” for V1 — **ASCII wireframes** and **behavioral acceptance** live here; optional Figma polish is non-blocking.
+Canonical product/requirements spec for the shipped **planning bridge** on **`/product-learning`** (**`PlanningBridgePanel`**). Supersedes “wait for external Figma” for V1 — **ASCII wireframes** and **behavioral acceptance** live here; optional Figma polish is non-blocking.
 
 #### Objective
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { HeroEarlyAccessCta } from "@/components/marketing/HeroEarlyAccessCta";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { SelfDemoRequestCta } from "@/components/marketing/SelfDemoRequestCta";
 import { WalkthroughRequestCta } from "@/components/marketing/WalkthroughRequestCta";
@@ -119,6 +120,9 @@ export function WelcomeMarketingPage() {
             <Link href="/auth/signin">Sign in</Link>
           </Button>
         </div>
+
+        <HeroEarlyAccessCta source="hero" />
+
         <div className="mt-6 text-center">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Same finalized demo as{" "}

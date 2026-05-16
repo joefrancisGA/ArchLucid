@@ -1,4 +1,4 @@
-> **Scope:** Evaluator-facing demo workspaces (Workspace A Product Tour anchors, stable URLs, and scope headers).
+> **Scope:** Evaluator-facing demo workspaces (Workspace A Product Tour, Workspace B synthetic regulated storyline, stable URLs, scope headers, and export hints).
 
 > **Spine docs:** [`DEMO_QUICKSTART.md`](DEMO_QUICKSTART.md), [`demo-quickstart.md`](../library/demo-quickstart.md).
 
@@ -46,3 +46,46 @@ Development bootstrap inserts **`dbo.TenantWorkspaces.IsDemoWorkspace = 1`** for
 ### Read-only stance for evaluators
 
 Today, **enforce read-only evaluator access** operationally (**Entra roles / RBAC**, product role matrix, trial policy) rather than trusting UI alone. Synthetic rows remain authoritative for the storyline; cloning onto non-default tenants is intentionally gated in **`DemoSeedService`** (requires **`ScopeIds.DefaultTenant`** unless product widens seeding intentionally).
+
+---
+
+## Workspace B — Synthetic regulated / AI governance scenario
+
+**Audience:** Evaluators who need a **regulated, AI-era governance** walkthrough with heavier findings and **consultant whitelabel** export hints.
+
+**Synthetic storyline:** **Meridian Advisory Group** (fabricated consultant) delivers **Alpine Health Innovations — Patient Risk Scoring Platform** review. **No PHI, PII, or real regulated payloads** — classification tags and “patient” language are narrative only.
+
+**Committed review run (`dbo.Runs`):** **`61c60d76-2b80-93f9-46bb-2f66fd608b9b`** (`DemoWorkspaceStableIds.RegulatedScenarioArchitectureReviewRunId`).
+
+### Stable UI entry URL
+
+| Pattern | Example |
+|---------|---------|
+| **Canonical reviewer deep link** | `{UI_ORIGIN}/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` |
+
+### Scope headers (mandatory triplet)
+
+Runs are filtered by tenant + workspace + project. Use:
+
+| Header | GUID |
+|--------|------|
+| `x-tenant-id` | `11111111-1111-1111-1111-111111111111` |
+| `x-workspace-id` | `3f1a16c3-172e-5632-c53a-3ed16446f603` |
+| `x-project-id` | `49074cdf-bdab-a5fa-789b-09a3e556a8f2` |
+
+SQL workspace display name: **AI Governance Review — Patient Risk Scoring Platform**. Project slug (`dbo.Projects.Name`): **`alpine-ai-governance-review`**.
+
+### Whitelabel + export pre-fill
+
+Seeded **`dbo.RunExportRecords`** for Workspace B stores **`AnalysisRequestJson`** with **`PersistedAnalysisExportRequest`**, including:
+
+| JSON field | Intended use |
+|------------|----------------|
+| **`reviewBoardWhitelabelFirmDisplayName`** | Meridian Advisory Group |
+| **`reviewBoardWhitelabelClientEngagementTitle`** | Alpine Health — AI Governance Engagement |
+| **`reviewBoardWhitelabelLogoBlobReference`** | Opaque placeholder pointer (resolve to bytes in tenant storage for real PDF/DOCX) |
+| **`reviewBoardWhitelabelFooterAttribution`** | Custom footer line with `{FirmDisplayName}` placeholder |
+
+**Architecture review board packets** (`IArchitectureReviewExportService.GenerateReportAsync`) still require callers to pass **`WhitelabelConfiguration`** + optional logo bytes — the stored JSON is the **evaluator pre-fill** contract for tools and future UI. Artifact bundle markdown under the run also mirrors the same strings for human-readable tours.
+
+Coverage: **`DemoRegulatedScenarioWorkspaceIdsParityTests`**, **`DemoSeedServiceTests.SeedAsync_seeds_workspace_b_regulated_scenario_with_whitelabel_export_hints`**.

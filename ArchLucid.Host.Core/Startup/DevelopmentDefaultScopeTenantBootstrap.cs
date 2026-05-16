@@ -151,6 +151,43 @@ public static class DevelopmentDefaultScopeTenantBootstrap
                             TourProjectSlug = "product-tour-architecture-context",
                         });
                 }
+
+                Guid regulatedWs = DemoRegulatedScenarioWorkspaceIds.WorkspaceRowId(ScopeIds.DefaultTenant);
+                Guid regulatedProj = DemoRegulatedScenarioWorkspaceIds.ProjectScopeRowId(ScopeIds.DefaultTenant);
+
+                int regulatedWorkspaceMissing =
+                    connection.QuerySingle<int>(
+                        "SELECT COUNT(1) FROM dbo.TenantWorkspaces WHERE Id = @WsId;",
+                        new { WsId = regulatedWs, });
+
+                if (regulatedWorkspaceMissing == 0)
+                {
+                    _ = connection.Execute(
+                        """
+                        INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId, IsDemoWorkspace)
+                        VALUES (@WorkspaceId, @TenantId, @WorkspaceName, @DefaultProjectId, 1);
+                        """,
+                        new
+                        {
+                            WorkspaceId = regulatedWs,
+                            TenantId = ScopeIds.DefaultTenant,
+                            WorkspaceName = "AI Governance Review — Patient Risk Scoring Platform",
+                            DefaultProjectId = regulatedProj,
+                        });
+
+                    _ = connection.Execute(
+                        """
+                        INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, CreatedUtc, IsDeleted)
+                        VALUES (@ProjectId, @TenantId, @WorkspaceId, @ProjectSlug, SYSUTCDATETIME(), 0);
+                        """,
+                        new
+                        {
+                            ProjectId = regulatedProj,
+                            TenantId = ScopeIds.DefaultTenant,
+                            WorkspaceId = regulatedWs,
+                            ProjectSlug = "alpine-ai-governance-review",
+                        });
+                }
             }
         }
 

@@ -193,4 +193,34 @@ public sealed class PersistedAnalysisExportRequest
         get;
         set;
     }
+
+    // ── Architecture review board export (optional UI pre-fill; demo seeds / consultant defaults) ──
+
+    /// <summary>Optional consulting firm shown on architecture review board packet covers.</summary>
+    public string? ReviewBoardWhitelabelFirmDisplayName
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional engagement title (client storyline headline).</summary>
+    public string? ReviewBoardWhitelabelClientEngagementTitle
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional tenant-scoped logo blob pointer (opaque; resolve to bytes in product export hosts).</summary>
+    public string? ReviewBoardWhitelabelLogoBlobReference
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional footer attribution template (supports <c>{FirmDisplayName}</c> substitution upstream).</summary>
+    public string? ReviewBoardWhitelabelFooterAttribution
+    {
+        get;
+        set;
+    }
 }

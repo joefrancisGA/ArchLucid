@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { cn } from "@/lib/utils";
 import { extractEmailDomainForAnalytics } from "@/lib/marketing/extract-email-domain-for-analytics";
 import { recordMarketingCtaEarlyAccessSubmit } from "@/lib/marketing/marketing-clarity-custom-event";
 
@@ -20,10 +21,18 @@ const ROLE_OPTIONS: readonly { readonly value: string; readonly label: string }[
   { value: "other", label: "Other" },
 ];
 
+export type HeroEarlyAccessCtaProps = {
+  /** Clarity dimension {@code cta_source} (default {@code hero}). */
+  readonly source?: string;
+  readonly className?: string;
+};
+
 /**
  * Tertiary hero capture — not tenant signup; no instant product access messaging.
  */
-export function HeroEarlyAccessCta() {
+export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
+  const source = props.source ?? "hero";
+  const className = props.className;
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -60,7 +69,7 @@ export function HeroEarlyAccessCta() {
       }
 
       recordMarketingCtaEarlyAccessSubmit({
-        source: "hero",
+        source,
         email_domain: extractEmailDomainForAnalytics(email),
         utm_source: searchParams.get("utm_source") ?? undefined,
         utm_medium: searchParams.get("utm_medium") ?? undefined,
@@ -88,7 +97,7 @@ export function HeroEarlyAccessCta() {
   }
 
   return (
-    <div className="mx-auto mt-4 flex w-full max-w-md flex-col items-center gap-3">
+    <div className={cn("mx-auto mt-4 flex w-full max-w-md flex-col items-center gap-3", className)}>
       {open ? null : (
         <Button type="button" variant="ghost" size="sm" className="text-teal-800 dark:text-teal-200" onClick={() => setOpen(true)}>
           Join early access
@@ -98,7 +107,7 @@ export function HeroEarlyAccessCta() {
       {open ? (
         <form
           onSubmit={(ev) => void onSubmit(ev)}
-          className="w-full rounded-lg border border-neutral-200 bg-white p-4 text-left shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
+          className="relative w-full rounded-lg border border-neutral-200 bg-white p-4 text-left shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
           aria-label="Early access request"
         >
           <p className="mb-3 text-xs text-neutral-600 dark:text-neutral-400">

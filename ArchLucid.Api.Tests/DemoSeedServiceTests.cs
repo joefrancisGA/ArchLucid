@@ -1,4 +1,6 @@
-﻿using ArchLucid.Application.Bootstrap;
+﻿using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Bootstrap;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Architecture;
@@ -201,6 +203,61 @@ public sealed class DemoSeedServiceTests
         tour.Run.CurrentManifestVersion.Should().Be("northwind-product-tour-v1-manifest");
 
         AssertCommittedDemoManifestSnapshotChain(tour, tourRunId);
+    }
+
+    [SkippableFact]
+    public async Task SeedAsync_seeds_workspace_b_regulated_scenario_with_whitelabel_export_hints()
+    {
+        await using ArchLucidApiFactory factory = new();
+        using IServiceScope scope = factory.Services.CreateScope();
+        IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
+        Guid tenantId = scopeProvider.GetCurrentScope().TenantId;
+
+        Skip.If(tenantId != ScopeIds.DefaultTenant,
+            "Workspace B synthetic regulated seed is keyed to ScopeIds.DefaultTenant to avoid cloning demo fixtures onto trial catalogs.");
+
+        Guid workspaceId = DemoRegulatedScenarioWorkspaceIds.WorkspaceRowId(tenantId);
+        Guid projectId = DemoRegulatedScenarioWorkspaceIds.ProjectScopeRowId(tenantId);
+        Guid runGuid = DemoRegulatedScenarioWorkspaceIds.AuthorityRunId(tenantId);
+
+        await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
+
+        ScopeContext regulatedScope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        };
+
+        using IDisposable __ = AmbientScopeContext.Push(regulatedScope);
+        IAuthorityQueryService authority = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+
+        IReadOnlyList<RunSummaryDto> rows =
+            await authority.ListRunsByProjectAsync(regulatedScope, "Alpine Patient Risk Scoring Platform", 50, CancellationToken.None);
+
+        rows.Should().Contain(r => r.RunId == runGuid);
+
+        IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
+        ArchitectureRunDetail? regulated = await detail.GetRunDetailAsync(runGuid.ToString("N"));
+        regulated.Should().NotBeNull();
+        regulated!.Manifest.Should().NotBeNull();
+        regulated.Manifest!.SystemName.Should().Be("Alpine Patient Risk Scoring Platform");
+        regulated.Run.CurrentManifestVersion.Should().Be("meridian-alpine-regulated-demo-v1-manifest");
+
+        AssertCommittedDemoManifestSnapshotChain(regulated, runGuid);
+
+        string exportId = DemoRegulatedScenarioWorkspaceIds.ExportRecordId(tenantId).ToString("N");
+        IRunExportRecordRepository exports = scope.ServiceProvider.GetRequiredService<IRunExportRecordRepository>();
+        RunExportRecord? exportRow = await exports.GetByIdAsync(exportId);
+        exportRow.Should().NotBeNull();
+
+        PersistedAnalysisExportRequest? hints = AnalysisExportRequestRehydrator.Rehydrate(exportRow!);
+
+        hints.Should().NotBeNull();
+        hints!.TemplateProfile.Should().Be("regulated");
+        hints.ReviewBoardWhitelabelFirmDisplayName.Should().Be("Meridian Advisory Group");
+        hints.ReviewBoardWhitelabelClientEngagementTitle.Should().Be("Alpine Health — AI Governance Engagement");
+        hints.ReviewBoardWhitelabelLogoBlobReference.Should().ContainEquivalentOf("meridian");
     }
 
     /// <summary>

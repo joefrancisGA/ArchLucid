@@ -48,6 +48,7 @@ describe("WelcomeMarketingPage", () => {
     expect(
       screen.getByText(new RegExp(`ArchLucid is an ${escapedCategory} platform\\. You bring real architecture context`, "i")),
     ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /join early access/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Three pillars/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /AI-native architecture analysis/i })).toBeInTheDocument();
 
