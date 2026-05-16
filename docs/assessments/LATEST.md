@@ -205,12 +205,12 @@
 
 ## Top 6 Engineering Risks
 
-1. **Residual** legacy **RLS** identifiers in catalogs / immutable history — **orphan predicate cleanup shipped** (**DbUp 165**, **#4**); isolation posture still demands honest **`108`** notes where catalogs lag.
-2. ~~Reliance on memory cache for graph snapshot projections at scale.~~ **Mitigated (2026-05-15)** — configure distributed projection cache + Redis (**improvement #9**).
-3. DTF **SQL production DI** is on the Durable Task port (**#26**, **2026-05-16**); multiset parity / release-smoke receipts and deeper engine-native scheduling remain operator- and engineering-owned obligations — not a free upgrade.
-4. ~~Playwright E2E tests relying on mocks…~~ **Partially mitigated (2026-05-15)** — **`live-api-negative-paths.spec.ts`** (**improvement #8**); most shell flows remain mock-backed until **`ui-e2e-live`** expands further.
-5. ~~Lack of automated purge for first-tenant funnel events…~~ **COMPLETE (2026-05-15)** — SQL purge when **`PerTenantEmission`** is **false** (**improvement #5**); per-tenant emission **on** retains blob archival semantics.
-6. Potential auth mismatches in scripts assuming DevelopmentBypass.
+1. **Residual legacy RLS identifiers:** Immutable history and catalogs still contain legacy `archiforge_*` identifiers; while orphan predicates were dropped, isolation posture requires ongoing coordination with migration `108` where catalogs lag.
+2. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity, release-smoke validation, and deeper engine-native scheduling remain engineering obligations before the legacy orchestrator can be safely removed.
+3. **E2E test mock reliance:** Despite the addition of negative live-API paths, the majority of the Playwright E2E suite still relies heavily on mocked `/api/proxy` responses, leaving integration blind spots until `ui-e2e-live` expands further.
+4. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
+5. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
+6. **Auth mismatches in operational scripts:** Potential authentication mismatches exist in operational scripts (like `v1-rc-drill.ps1`) that assume `DevelopmentBypass`, reducing testing realism against environments secured with JWT or API keys.
 
 ---
 

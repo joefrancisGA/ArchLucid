@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { CtaButton } from "@/components/marketing/CtaButton";
 import { buildSelfDemoCtaHref } from "@/lib/marketing/build-self-demo-cta-href";
 import { recordMarketingCtaSelfDemoClick } from "@/lib/marketing/marketing-clarity-custom-event";
+import { cn } from "@/lib/utils";
 
 /** Owner / legal-approved disclosure (hero self-demo; does not claim paid-tenant parity). */
 export const SELF_DEMO_HERO_DISCLOSURE_COPY =
@@ -30,13 +31,18 @@ export function SelfDemoRequestCta(props: { readonly className?: string }) {
   };
 
   return (
-    <div className="flex max-w-[11rem] flex-col items-center gap-1 sm:max-w-[14rem]">
+    <div
+      className={cn(
+        "flex w-full flex-col items-center gap-1 sm:w-auto sm:max-w-[18rem] sm:items-stretch",
+        props.className,
+      )}
+    >
       <CtaButton
         href={href}
         variant="outline"
         size="lg"
         sameTab
-        className={props.className}
+        className="min-h-11 w-full font-normal sm:w-auto"
         title={SELF_DEMO_HERO_DISCLOSURE_COPY}
         ariaDescribedby={SELF_DEMO_DISCLOSURE_ID}
         data-testid="welcome-self-demo-cta"

@@ -14,6 +14,9 @@ import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 /** Homepage hero pitch — category label flows through `BRAND_CATEGORY`. */
 const HERO_PITCH = `ArchLucid is an ${BRAND_CATEGORY} platform. You bring real architecture context, and our AI agents analyze it for topology, cost, compliance, and design quality — then produce a versioned manifest with every finding traced and explained. You get a defensible package in minutes instead of weeks: evidence, stated limits, and a governance-ready audit trail — without a founder narrating why it matters.`;
 
+/** Hero CTA subheading — ARB / governance positioning (above primary + secondary buttons). */
+const HERO_CTA_SUBHEADING = "See how ArchLucid delivers architecture reviews your ARB trusts.";
+
 type WelcomeVerifyLink = {
   readonly label: string;
   readonly href: string;
@@ -107,21 +110,54 @@ export function WelcomeMarketingPage() {
         >
           {HERO_PITCH}
         </p>
-        <div className="mt-8 flex flex-wrap items-start justify-center gap-3">
-          <WalkthroughRequestCta className="min-h-11 px-8 text-base font-semibold shadow-sm" />
-          <SelfDemoRequestCta />
-          <Button asChild variant="outline" size="lg">
-            <Link href="/see-it">See it in 30 seconds</Link>
-          </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link href="/signup">Start free trial</Link>
-          </Button>
-          <Button asChild variant="secondary" size="lg">
-            <Link href="/auth/signin">Sign in</Link>
-          </Button>
-        </div>
+        <div data-testid="welcome-hero-cta-stack" className="mt-8 flex w-full flex-col items-center gap-5">
+          <p
+            id="hero-cta-subheading"
+            className="max-w-2xl text-lg font-semibold leading-snug text-neutral-800 dark:text-neutral-100 sm:text-xl"
+            data-testid="welcome-hero-cta-subheading"
+          >
+            {HERO_CTA_SUBHEADING}
+          </p>
 
-        <HeroEarlyAccessCta />
+          <div
+            className="flex w-full max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-center"
+            data-testid="welcome-hero-primary-secondary-row"
+            aria-labelledby="hero-cta-subheading"
+          >
+            <WalkthroughRequestCta className="h-11 min-h-11 w-full px-8 text-base font-bold shadow-sm sm:w-auto sm:min-w-[12rem]" />
+            <SelfDemoRequestCta />
+          </div>
+
+          <div data-testid="welcome-hero-tertiary-region" className="flex w-full max-w-2xl flex-col items-center">
+            <HeroEarlyAccessCta className="max-w-md" />
+            <p className="mt-2 max-w-lg text-center text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+              <span className="font-medium text-neutral-700 dark:text-neutral-300">FAQ:</span>{" "}
+              <Link
+                className="text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                href="/faq#bulk-upload-30-files"
+              >
+                Bulk upload limit (30 files)
+              </Link>
+              {" · "}
+              <Link className="text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq#demo-workspaces">
+                Demo workspaces
+              </Link>
+              .
+            </p>
+          </div>
+
+          <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:gap-3" data-testid="welcome-hero-secondary-actions">
+            <Button asChild variant="outline" size="lg">
+              <Link href="/see-it">See it in 30 seconds</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/signup">Start free trial</Link>
+            </Button>
+            <Button asChild variant="secondary" size="lg">
+              <Link href="/auth/signin">Sign in</Link>
+            </Button>
+          </div>
+        </div>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">

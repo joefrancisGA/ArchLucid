@@ -99,7 +99,13 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
   return (
     <div className={cn("mx-auto mt-4 flex w-full max-w-md flex-col items-center gap-3", className)}>
       {open ? null : (
-        <Button type="button" variant="ghost" size="sm" className="text-teal-800 dark:text-teal-200" onClick={() => setOpen(true)}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="text-sm font-medium text-teal-800 dark:text-teal-200"
+          onClick={() => setOpen(true)}
+        >
           Join early access
         </Button>
       )}
