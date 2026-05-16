@@ -154,7 +154,10 @@ export function StructuredComparisonView(props: {
         </span>
       </div>
       {summaryHighlights.length > 0 ? (
-        <p className="mb-3 max-w-3xl rounded-md border border-teal-200/80 bg-teal-50/50 p-3 text-sm text-neutral-900 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-neutral-100">
+        <p
+          className="mb-3 max-w-3xl rounded-md border border-teal-200/80 bg-teal-50/50 p-3 text-sm text-neutral-900 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-neutral-100"
+          data-testid="compare-sponsor-recommendation"
+        >
           <strong>Sponsor recommendation:</strong> {summaryHighlights[0]}
           {summaryHighlights.length > 1 ? (
             <span className="text-neutral-600 dark:text-neutral-400">

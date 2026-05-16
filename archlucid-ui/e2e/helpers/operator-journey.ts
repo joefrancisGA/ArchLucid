@@ -101,12 +101,9 @@ export async function expandCompareTechnicalDetails(page: Page): Promise<void> {
 
 /**
  * Sponsor callout under structured manifest compare (`#compare-structured`).
- * Do not assert highlight copy with bare `getByText` — the same string appears in summary highlights `<li>` (strict mode).
+ * Uses `data-testid` — buyer-polished shells rewrite fixture highlight prose (see
+ * {@link applyBuyerPolishedGoldenManifestSummaryHighlights}), so asserting raw fixture copy flakes in mock CI.
  */
 export function structuredCompareSponsorRecommendationParagraph(page: Page): Locator {
-  return page
-    .locator("#compare-structured")
-    .locator("p")
-    .filter({ hasText: /Sponsor recommendation/i })
-    .filter({ hasText: /Fixture highlight alpha/i });
+  return page.locator("#compare-structured").getByTestId("compare-sponsor-recommendation");
 }
