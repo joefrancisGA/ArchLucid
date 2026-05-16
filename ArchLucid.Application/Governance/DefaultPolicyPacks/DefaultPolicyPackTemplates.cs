@@ -3,8 +3,9 @@ namespace ArchLucid.Application.Governance.DefaultPolicyPacks;
 /// <summary>
 ///     Canonical JSON bodies for policy pack <c>initialContentJson</c> (same shape as
 ///     <c>ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackContentDocument</c>) that pilots can paste into
-///     <c>POST /v1/governance/policy-packs</c> after tailoring metadata. Not auto-seeded into SQL — avoids surprise tenant
-///     mutations; see <c>docs/library/GOVERNANCE.md</c>.
+///     <c>POST /v1/policy-packs</c> after tailoring metadata. Includes Azure WAF analogue, SaaS security baseline, and AI
+///     governance starter (<see cref="AiGovernanceResponsibleAiV1Json" />). Not auto-seeded into SQL — avoids surprise tenant
+///     mutations; see <c>docs/library/GOVERNANCE.md</c> and P29-4 for future default seeding.
 /// </summary>
 public static class DefaultPolicyPackTemplates
 {
