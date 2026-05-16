@@ -22,7 +22,7 @@ public sealed class MicrosoftOpenApiEvidenceBulkUploadOperationTransformer : IOp
     {
         _ = cancellationToken;
 
-        if (!HttpMethods.IsPost(context.Description.HttpMethod))
+        if (context.Description.HttpMethod is null || !HttpMethods.IsPost(context.Description.HttpMethod))
             return Task.CompletedTask;
 
         string path = context.Description.RelativePath?.Trim('/') ?? "";
