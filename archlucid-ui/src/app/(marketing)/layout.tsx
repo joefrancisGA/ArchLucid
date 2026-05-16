@@ -30,48 +30,48 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
     <ShellReadySurface className="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
       <MarketingJsonLd />
       <MicrosoftClarityLoader projectId={clarityProjectId} />
-      <header className="border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-10 px-4 py-3">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
+      <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/90 shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
             <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>
               <ArchLucidWordmarkLink href="/welcome" aria-label="ArchLucid — welcome" variant="marketing" />
             </Button>
             <nav
               aria-label="Marketing"
-              className="hidden flex-wrap items-center gap-2 pe-8 sm:flex"
+              className="-mx-1 flex min-w-0 flex-1 flex-nowrap items-center gap-0.5 overflow-x-auto px-1 sm:flex-wrap sm:gap-1 sm:overflow-visible sm:pb-0 sm:pe-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="shrink-0">
                 <Link href="/welcome">Overview</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="shrink-0">
                 <Link href="/pricing#pricing-quote-request">Request demo</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="shrink-0">
                 <Link href="/pricing">Pricing</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="shrink-0">
                 <Link href="/why">Why ArchLucid</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="shrink-0">
                 <Link href="/see-it">See it (30s)</Link>
               </Button>
               {liveDemoLinked ? (
-                <Button asChild variant="ghost" size="sm">
+                <Button asChild variant="ghost" size="sm" className="shrink-0">
                   <Link href="/live-demo">Live demo</Link>
                 </Button>
               ) : null}
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="shrink-0">
                 <Link href="/compliance-journey">Compliance journey</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="shrink-0">
                 <Link href="/trust">Trust Center</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="shrink-0">
                 <Link href="/privacy">Privacy</Link>
               </Button>
             </nav>
           </div>
-          <div className="flex shrink-0 items-center gap-8">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <ColorModeToggle />
             <Button asChild variant="outline" size="sm">
               <Link href="/auth/signin">Sign in</Link>
