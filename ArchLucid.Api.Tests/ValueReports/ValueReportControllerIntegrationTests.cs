@@ -10,6 +10,7 @@ using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -21,13 +22,19 @@ namespace ArchLucid.Api.Tests.ValueReports;
 [Trait("Category", "Integration")]
 public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
 {
-    private readonly JwtLocalSigningWebAppFactory _baseFactory = new();
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly ValueReportJwtWebAppFactory _factory = new();
 
-    public ValueReportControllerIntegrationTests()
+    /// <summary>
+    ///     One <see cref="WebApplicationFactory{TEntryPoint}" /> instance for both JWT signing keys and host extras
+    ///     (avoids deriving only via <c>WithWebHostBuilder</c>, where config/DI split across two factories is easy to get
+    ///     wrong in CI).
+    /// </summary>
+    private sealed class ValueReportJwtWebAppFactory : JwtLocalSigningWebAppFactory
     {
-        _factory = _baseFactory.WithWebHostBuilder(builder =>
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            base.ConfigureWebHost(builder);
+
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
@@ -39,7 +46,7 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
                 services.RemoveAll<IValueReportMetricsReader>();
                 services.AddSingleton<IValueReportMetricsReader, StubValueReportMetricsReader>();
             });
-        });
+        }
     }
 
     public async Task InitializeAsync()
@@ -62,7 +69,6 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
     public Task DisposeAsync()
     {
         _factory.Dispose();
-        _baseFactory.Dispose();
 
         return Task.CompletedTask;
     }
@@ -71,7 +77,7 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
     public async Task Post_generate_returns_docx_when_operator_jwt_and_standard_tier()
     {
         string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            _baseFactory.PrivatePemForTests,
+            _factory.PrivatePemForTests,
             "https://test.archlucid.local",
             "api://archlucid-jwt-local-test",
             "OperatorUser",
@@ -81,7 +87,7 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         Uri url = new(
-            $"/v1.0/value-report/{ScopeIds.DefaultTenant:D}/generate?from=2026-01-01T00:00:00.0000000Z&to=2026-01-10T00:00:00.0000000Z",
+            $"/v1/value-report/{ScopeIds.DefaultTenant:D}/generate?from=2026-01-01T00:00:00.0000000Z&to=2026-01-10T00:00:00.0000000Z",
             UriKind.Relative);
 
         using HttpResponseMessage res = await client.PostAsync(url, null);

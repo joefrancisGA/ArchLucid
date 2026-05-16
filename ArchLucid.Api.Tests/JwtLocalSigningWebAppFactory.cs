@@ -11,9 +11,11 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 ///     In-memory API host with <c>ArchLucidAuth:Mode=JwtBearer</c> and local RSA validation
-///     (<c>ArchLucidAuth:JwtSigningPublicKeyPemPath</c>) — mirrors CI live E2E.
+///     (<c>ArchLucidAuth:JwtSigningPublicKeyPemPath</c>) — mirrors CI live E2E. Not <c>sealed</c> so integration tests can
+///     subclass once and combine <see cref="Microsoft.AspNetCore.TestHost.WebHostBuilderExtensions.ConfigureTestServices" />
+///     with the same PEM-backed signing key pair.
 /// </summary>
-public sealed class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
+public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 {
     private readonly string _publicPemPath;
 

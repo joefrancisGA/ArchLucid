@@ -1,4 +1,5 @@
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.Analytics;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Runs.Orchestration;
@@ -199,6 +200,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
 
         services.AddSingleton<IOutboxOperationalMetricsReader, InMemoryOutboxOperationalMetricsReader>();
         services.AddSingleton<ITrialFunnelOperationalMetricsReader, InMemoryTrialFunnelOperationalMetricsReader>();
+        services.AddSingleton<IInternalCrossTenantAnalyticsService, InMemoryInternalCrossTenantAnalyticsService>();
         services.AddScoped<ITrialFunnelCommitHook, SqlTrialFunnelCommitHook>();
         // In-memory hosts intentionally omit ISqlConnectionFactory; first-session SQL persistence is not modeled here.
         services.AddSingleton<IFirstSessionLifecycleHook>(NoOpFirstSessionLifecycleHook.Instance);

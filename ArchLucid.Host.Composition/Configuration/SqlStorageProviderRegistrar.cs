@@ -2,6 +2,7 @@ using System.Reflection;
 
 using Polly;
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.Analytics;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Runs.Orchestration;
@@ -42,6 +43,7 @@ using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Alerts;
+using ArchLucid.Persistence.Analytics;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Billing;
@@ -173,6 +175,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                 sp.GetRequiredService<ITenantDatabaseResolver>(),
                 sp.GetRequiredService<IScopeContextProvider>(),
                 sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>()));
+
+        services.AddScoped<IInternalCrossTenantAnalyticsService, SqlInternalCrossTenantAnalyticsService>();
 
         services.AddScoped<ResilientSqlConnectionFactory>(sp =>
         {

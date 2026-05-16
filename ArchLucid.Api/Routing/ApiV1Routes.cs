@@ -40,6 +40,9 @@ public static class ApiV1Routes
     /// <summary>Mocked executive ROI aggregates until analytics persistence is wired.</summary>
     public const string AnalyticsRoi = "v1/analytics/roi";
 
+    /// <summary>Operator-only anonymized cross-tenant SQL aggregates.</summary>
+    public const string InternalCrossTenantAnalytics = "v1/internal/analytics/cross-tenant";
+
     /// <summary>Single JSON sponsor evidence bundle aligned with measured ROI (Standard tier).</summary>
     public const string PilotsSponsorEvidencePack = "v1/pilots/sponsor-evidence-pack";
 
