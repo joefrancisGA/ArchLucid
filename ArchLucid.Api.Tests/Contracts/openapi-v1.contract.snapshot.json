@@ -8012,6 +8012,12 @@
             },
             "type": "object"
           },
+          "reasoningTrace": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "toNodeId": {
             "type": "string"
           },
@@ -8086,6 +8092,12 @@
               "type": "string"
             },
             "type": "object"
+          },
+          "reasoningTrace": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "sourceId": {
             "type": [
@@ -8252,6 +8264,12 @@
       "IFormFile": {
         "format": "binary",
         "type": "string"
+      },
+      "IFormFileCollection": {
+        "items": {
+          "$ref": "#/components/schemas/IFormFile"
+        },
+        "type": "array"
       },
       "ImprovementOpportunity": {
         "properties": {
@@ -8470,6 +8488,37 @@
         "required": [
           "eventType"
         ],
+        "type": "object"
+      },
+      "ItsmIntegrationHealthProbeVm": {
+        "properties": {
+          "locallyConfigured": {
+            "type": "boolean"
+          },
+          "reachable": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ItsmIntegrationHealthResponse": {
+        "properties": {
+          "jira": {
+            "$ref": "#/components/schemas/ItsmIntegrationHealthProbeVm"
+          },
+          "serviceNow": {
+            "$ref": "#/components/schemas/ItsmIntegrationHealthProbeVm"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "JsonElement": {},
@@ -8972,6 +9021,65 @@
               "number",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "LlmMonthlyTenantDollarBudgetStatusResult": {
+        "properties": {
+          "assumedNextCallReservationUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "blocksAdditionalLlmExecution": {
+            "type": "boolean"
+          },
+          "effectiveHardCapUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "estimatedUsdPressure": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "hardCutoffUsdPerUtcMonth": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "monthlyBudgetMonitoringActive": {
+            "type": "boolean"
+          },
+          "purchasedCapBumpUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "utcMonth": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -9605,6 +9713,50 @@
         },
         "type": "object"
       },
+      "MarketingEarlyAccessPostRequest": {
+        "properties": {
+          "companyName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "utmCampaign": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "utmMedium": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "utmSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "websiteUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "MarketingPricingQuotePostRequest": {
         "properties": {
           "companyName": {
@@ -10022,6 +10174,30 @@
           },
           "regulatedEnvironment": {
             "type": "boolean"
+          },
+          "reviewBoardWhitelabelClientEngagementTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewBoardWhitelabelFirmDisplayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewBoardWhitelabelFooterAttribution": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewBoardWhitelabelLogoBlobReference": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "templateProfile": {
             "type": [
@@ -17131,6 +17307,35 @@
         },
         "tags": [
           "AdminLlmCostTuning"
+        ]
+      }
+    },
+    "/v1/admin/llm-monthly-dollar-budget-status": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmMonthlyTenantDollarBudgetStatusResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmMonthlyTenantDollarBudgetStatusResult"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmMonthlyTenantDollarBudgetStatusResult"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AdminLlmMonthlyDollarBudgetStatus"
         ]
       }
     },
@@ -26330,6 +26535,144 @@
         },
         "tags": [
           "RunQuery"
+        ]
+      }
+    },
+    "/v1/architecture/run/{runId}/evidence/bulk": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "files": {
+                    "$ref": "#/components/schemas/IFormFileCollection"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          }
+        },
+        "tags": [
+          "EvidenceBulkUpload"
         ]
       }
     },
@@ -37273,6 +37616,55 @@
         ]
       }
     },
+    "/v1/integrations/itsm/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmIntegrationHealthResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmIntegrationHealthResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmIntegrationHealthResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmIntegrationHealthResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmIntegrationHealthResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmIntegrationHealthResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "tags": [
+          "ItsmIntegrationHealth"
+        ]
+      }
+    },
     "/v1/integrations/itsm/outbound/issues": {
       "post": {
         "requestBody": {
@@ -39561,6 +39953,78 @@
         },
         "tags": [
           "Learning"
+        ]
+      }
+    },
+    "/v1/marketing/early-access": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MarketingEarlyAccessPostRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MarketingEarlyAccessPostRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MarketingEarlyAccessPostRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "MarketingEarlyAccessRequest"
         ]
       }
     },
@@ -45736,6 +46200,9 @@
       "name": "AdminLlmCostTuning"
     },
     {
+      "name": "AdminLlmMonthlyDollarBudgetStatus"
+    },
+    {
       "name": "Advisory"
     },
     {
@@ -45859,6 +46326,9 @@
       "name": "EnterpriseComparisonMarketing"
     },
     {
+      "name": "EvidenceBulkUpload"
+    },
+    {
       "name": "Evolution"
     },
     {
@@ -45913,6 +46383,9 @@
       "name": "ItsmInboundWebhooks"
     },
     {
+      "name": "ItsmIntegrationHealth"
+    },
+    {
       "name": "ItsmOutboundIssues"
     },
     {
@@ -45923,6 +46396,9 @@
     },
     {
       "name": "Manifests"
+    },
+    {
+      "name": "MarketingEarlyAccessRequest"
     },
     {
       "name": "MarketingPricingQuoteRequest"

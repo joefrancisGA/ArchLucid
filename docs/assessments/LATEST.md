@@ -222,51 +222,7 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
 
 ## Top Improvement Opportunities
 
-1. **COMPLETE (2026-05-15)** Terraform Phase **7.5** — **`infra/**/*.tf`** resource address alignment (**improvement #1**)
-
-   - **Outcome:** Committed Terraform uses **`archlucid`** resource labels exclusively (**grep audit:** `rg "archiforge" infra --glob "*.tf"` → empty — documented in **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**). Historical **`terraform state mv`** targets for APIM + Grafana stacks remain archived (**`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`**) for backends that still list **`archiforge`** addresses.
-
-   - **Why it mattered:** Stale **`archiforge`** addresses block safe infra iteration; **main-branch IaC** no longer encodes that drift (**temporary `moved_*.tf` files removed 2026-04-19** per archived checklist).
-
-   - **Expected impact — retained narrative:** Weighted readiness **81.55%** still assumes **demo workspaces (#31)** close alongside **`terraform plan` / `state list`** hygiene for the **subscriptions × roots** matrix (**P1**).
-
-   - **Affected qualities:** Adoption Friction, Correctness.
-
-   - **Actionable:** **Closed** for repository deliverables (**checklist pointer:** **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); operators finish **`terraform plan` / `state list`** rows only where remote backends exist (**same runbook** — subscriptions listed under **P1** below).
-
-2. **COMPLETE (2026-04-19)** Phase **7.6–7.7** GitHub repo rename + Entra greenfield alignment (**improvement #2**); **7.8** waived
-
-   - **Outcome:** GitHub **`joefrancisGA/ArchiForge` → `joefrancisGA/ArchLucid`**; Entra strings via **`infra/terraform-entra/`** for greenfield **`terraform apply`**; **Phase 7.8** optional workspace folder rename **waived** by owner. Receipts: **`docs/archive/root-superseded-2026-05-01/ARCHLUCID_RENAME_CHECKLIST.md`** (rows **7.6–7.8**).
-   - **Why it mattered:** Public repository URL and registration alignment match the **ArchLucid** product name — reduces evaluator and identity-admin confusion versus legacy codename drift.
-   - **Expected impact:** **P2** (**2026-05-15**) IT/security **approval** stays on file for auditors; execution debt for **7.6–7.7** is **not** reopenable from this checklist without a new initiative.
-   - **Affected qualities:** Adoption Friction, Security.
-   - **Actionable:** **Closed** — pointer **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**; optional evidence link (ticket/email) retained per org policy only.
-
-3. **COMPLETE (2026-05-15)** Durable audit + SQL lifecycle for **`ManifestSuperseded`** / finalize supersession hygiene (**improvement #3**)
-
-   - **Outcome:** `ManifestFinalizationService` emits **`AuditEventTypes.ManifestSuperseded`** for each golden manifest transitioned by **`IGoldenManifestRepository.SupersedeUnreferencedActiveGoldenManifestsAsync`** (**Active** → **Superseded** when **no** non-archived **scoped** run references the row **after** finalize wires the new manifest). **`CachingGoldenManifestRepository`** evicts superseded ids from the hot-path cache.
-   - **Why it mattered:** Prior matrix flagged **`ManifestSuperseded`** as catalogue-only — procurement narratives could not point at durable rows for orphan golden manifests replaced at commit.
-   - **Expected impact:** Compliance Readiness / Correctness uplift mirrors the former backlog estimate (**~+0.54%** weighted **when rescored**); headline **81.55%** unchanged until the assessment spreadsheet is formally recomputed.
-   - **Affected qualities:** Compliance Readiness, Correctness.
-   - **Actionable:** **Closed** — verification anchor **`docs/library/AUDIT_COVERAGE_MATRIX.md`** (**Known gaps** mutating section cleared **2026-05-15**); **`FindingsListAccessed`** remains the lone intentional catalogue/read deferral.
-
-4. **COMPLETE (2026-05-15)** Legacy **RLS** orphan **`archiforge_*`** predicate cleanup (**improvement #4**)
-
-   - **Outcome:** DbUp **`165_RlsLegacyOrphanPredicateCleanup.sql`** drops **`rls.archiforge_scope_predicate`** / **`rls.archiforge_tenant_predicate`** **only when** unreferenced by **`sys.security_predicates`** (idempotent). Catalogs still owning **`rls.ArchiforgeTenantScope`** require journal repair / replay of **`108_RlsRenameToArchLucid.sql`** — documented in the migration header (atomic rename cutover remains **`108`**).
-   - **Why it mattered:** Procurement-facing honesty on rename lineage plus cleanup for inconsistent restores without rewriting predicate bodies mid-flight.
-   - **Expected impact:** Correctness / Security hygiene aligns with the former backlog estimate when rescored; headline readiness unchanged until spreadsheet recomputation.
-   - **Affected qualities:** Correctness, Security.
-   - **Actionable:** **Closed** — verification: migration **`ArchLucid.Persistence/Migrations/165_RlsLegacyOrphanPredicateCleanup.sql`**.
-
-5. **COMPLETE (2026-05-15)** **`dbo.FirstTenantFunnelEvents`** automated SQL purge + **`ArchLucid:FirstTenantFunnelRetentionDays`** (**improvement #5**)
-
-   - **Outcome:** **`FirstTenantFunnelArchivalIteration`** now runs **batched** aged-row deletes when **`Telemetry:FirstTenantFunnel:PerTenantEmission`** is **false** (cleanup after flag-down / legacy rows). Retention precedence: **`ArchLucid:FirstTenantFunnelRetentionDays`** (**> 0**) → **`ArchLucid:Retention:FunnelEventsDays`** → **`Telemetry:FirstTenantFunnel:ArchivalRetentionDays`** → **90**. Per-tenant emission **on** preserves blob archival path unchanged.
-   - **Why it mattered:** Prevents SQL growth from stale funnel telemetry rows without widening privacy surface unexpectedly.
-   - **Expected impact:** Performance / operational hygiene mirrors backlog narrative when rescored.
-   - **Affected qualities:** Performance, Correctness.
-   - **Actionable:** **Closed** — catalog rows **`docs/library/CONFIGURATION_REFERENCE.md`** spine via **`ConfigurationKeyCatalog`** + hosted archival worker receipts in logs.
-
-6. DEFERRED Implement in-Slack interactive approvals
+1. DEFERRED Implement in-Slack interactive approvals
 
    - Why it matters: Improves Workflow Embeddedness for teams that live in Slack; **scoped MVP** avoids GA runway overload.
    - Expected impact: Faster governance approvals for Slack-centric tenants (**post-GA** window).
@@ -274,7 +230,7 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
    - Actionable: DEFERRED — **early V1.1** target (**not** V1 GA sprint).
    - Input needed: **P3 answered (2026-05-15):** **Priority** — **defer** from current sprint / **V1 GA**; schedule **early V1.1** (first ~**30 days** post-GA). **Scope — MVP:** **one** interactive flow — **approve finding / decision** — with **durable audit parity** (same event semantics as UI approvals), Slack **signing-secret verification**, **Slack user → ArchLucid identity → RBAC** binding. **Marketing honesty:** GA landing/support copy **must not** claim “approve from Slack.” **Artifacts:** No UX mockups cited in-thread — derive button/block copy from operator approval UX or add wireframes during the V1.1 slice.
 
-7. DEFERRED Flip Stripe live keys and publish Marketplace listing
+2. DEFERRED Flip Stripe live keys and publish Marketplace listing
 
    - Why it matters: Unblocks self-serve monetization.
    - Expected impact: Enables live revenue generation.
@@ -282,31 +238,7 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
    - Actionable: DEFERRED — **gated on finance confirmation** (Partner Center seller verification, tax profile, payout/banking).
    - Input needed: **P4 answered (2026-05-15):** **Defer** live keys and Marketplace publication **until finance confirms** Partner Center readiness (verification, tax, payout) so engineering does **not** precede fiscal/legal sign-off.
 
-8. **COMPLETE (2026-05-15)** Expanded **`ui-e2e-live`** negative paths (**improvement #8**)
-
-   - **Outcome:** **`archlucid-ui/e2e/live-api-negative-paths.spec.ts`** adds **five** live checks: unknown-run execute (**404**), unknown-run commit (**404**), malformed run id (**400/404**), double-commit conflict (**409** `#conflict`), absurd HTTP client timeout on **`/health/ready`** (expects rejection).
-   - **Why it mattered:** Catches integration regressions outside mocked `/api/proxy` smoke paths.
-   - **Expected impact:** Correctness / usability signals strengthen when rescored.
-   - **Affected qualities:** Correctness, Usability.
-   - **Actionable:** **Closed** — run **`npx playwright test archlucid-ui/e2e/live-api-negative-paths.spec.ts`** against Sql **`DevelopmentBypass`** API per **`docs/LIVE_E2E_AUTH_ASSUMPTIONS.md`**.
-
-9. **COMPLETE (2026-05-15)** Distributed graph snapshot projection cache (**improvement #9**)
-
-   - **Outcome:** **`GraphSnapshotProjectionDistributedCache`** backs **`IGraphSnapshotProjectionCache`** with **`IDistributedCache`** (JSON UTF-8 payloads); **`KnowledgeGraphProjectionCacheOptions`** gains **`Backend`** (**Memory** vs **Distributed**), optional **`RedisConnectionString`**, and stable keys **`GraphSnapshotProjectionCacheKeys`** (**tenant/workspace/project/run/graphSnapshotId**). Host composition registers **Redis** **`IDistributedCache`** when distributed backend is selected and no cache exists (**shared LLM / hot-path Redis fallbacks**).
-   - **Why it mattered:** Multi-replica API hosts avoid stale per-process-only projections without changing **`GraphSnapshot`** generation.
-   - **Expected impact:** Performance / AI-agent readiness hygiene when rescored.
-   - **Affected qualities:** Performance, AI/Agent Readiness.
-   - **Actionable:** **Closed** — configure **`ArchLucid:KnowledgeGraph:ProjectionCache:Backend=Distributed`** plus Redis (**`ConfigurationKeyCatalog`** lists **`ProjectionCache:*`** keys).
-
-10. **COMPLETE (2026-05-15)** Hosted-trial **`V1`→`V1.1`** migration memo (**improvement #10**)
-
-   - **Outcome:** Published rollup **`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`** (architecture-section spine + inventory pointers to **`V1_DEFERRED.md`** §**6b/6d/6a**). **`V1_DEFERRED.md` §6i** table row updated to link the shipped memo (**trial runbook cross-link note** preserved).
-   - **Why it mattered:** Tenant admins / SEs get one orientation doc ahead of **V1.1** outbound deltas without diluting **`V1`** **`(A)`** scoring posture.
-   - **Expected impact:** Customer self-sufficiency / adoption friction (**V1.1** documentation context).
-   - **Affected qualities:** Customer Self-Sufficiency, Adoption Friction (**V1.1** narrative).
-   - **Actionable:** **Closed** — anchor **`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`**.
-
-11. Enhance `ComparisonReplayCostEstimator` with more granular heuristics
+3. Enhance `ComparisonReplayCostEstimator` with more granular heuristics
 - Why it matters: Improves Proof-of-ROI readiness by providing more accurate cost estimates.
 - Expected impact: Directly improves Proof-of-ROI Readiness (+4 pts), Explainability (+2 pts). Weighted readiness impact: +0.50%.
 - Affected qualities: Proof-of-ROI Readiness, Explainability.
@@ -315,7 +247,7 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
 Enhance the `ComparisonReplayCostEstimator` in `ArchLucid.Application` to use more granular heuristics based on the specific agent tasks and artifact sizes involved in the comparison. Update the scoring logic to account for the complexity of the manifest deltas. Do not change the HTTP API contract for the cost estimate endpoint. Acceptance criteria: Cost estimates are more accurate and reflect the actual complexity of the replay.
 ```
 
-12. Add cross-tenant analytics capabilities (internal only)
+4. Add cross-tenant analytics capabilities (internal only)
 - Why it matters: Helps prove ROI across the customer base and informs product direction.
 - Expected impact: Directly improves Proof-of-ROI Readiness (+3 pts), Stickiness (+2 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Proof-of-ROI Readiness, Stickiness.
@@ -324,7 +256,7 @@ Enhance the `ComparisonReplayCostEstimator` in `ArchLucid.Application` to use mo
 Implement an internal-only analytics service that aggregates anonymized usage data, run completion times, and cost savings across all tenants. Ensure this service bypasses RLS safely using a dedicated internal connection string or explicit cross-tenant queries. Do not expose this data to external customers. Acceptance criteria: Internal operators can query aggregated cross-tenant metrics.
 ```
 
-13. Implement native SAML 2.0 Service Provider — **V1 GA gate**
+5. Implement native SAML 2.0 Service Provider — **V1 GA gate**
 - Why it matters: Buyers mandate SAML Web SSO without SAML→OIDC brokers; parity with **`JwtBearer`** OIDC expands addressable regulated enterprises.
 - Expected impact: Interoperability (+4 pts estimated post-ship), enterprise procurement friction reduction on IdP questionnaires.
 - Affected qualities: Interoperability, Security.
@@ -335,7 +267,7 @@ Implement an internal-only analytics service that aggregates anonymized usage da
 Implement SAML 2.0 SP authentication alongside existing JwtBearer OIDC: tenant-scoped IdP metadata (entity ID, SSO URLs, IdP signing certificates), ACS endpoint(s), SAML Web SSO profile (HTTP-Redirect / POST), assertion signature validation, replay protection, and bounded clock skew. Map NameID / SAML attributes into `ArchLucidRoles` and authenticated principal identity using the same RBAC and tenant isolation pipeline as JWT bearer; emit typed audit events for SAML sign-in success/failure comparable to OIDC. Extend `SECURITY.md` and `CONFIGURATION_REFERENCE.md` with operator-facing wiring. Do not relax `ArchLucidAuth` production guards without ADR. Acceptance criteria: Automated tests validate assertion handling and role mapping against representative IdP metadata fixtures; SAML and OIDC modes remain independently testable per tenant configuration contract.
 ```
 
-14. Enhance `v1-rc-drill.ps1` to support JWT/API key authentication
+6. Enhance `v1-rc-drill.ps1` to support JWT/API key authentication
 - Why it matters: Reduces auth mismatches and improves testing realism.
 - Expected impact: Directly improves Correctness (+2 pts), Security (+2 pts). Weighted readiness impact: +0.46%.
 - Affected qualities: Correctness, Security.
@@ -344,7 +276,7 @@ Implement SAML 2.0 SP authentication alongside existing JwtBearer OIDC: tenant-s
 Update the `v1-rc-drill.ps1` script to accept optional parameters for a JWT bearer token or API key. If provided, use these credentials instead of relying on `DevelopmentBypass`. Update the script documentation to explain how to use these parameters. Do not break the existing `DevelopmentBypass` behavior when no credentials are provided. Acceptance criteria: The RC drill script can be run against an environment secured with JWT or API keys.
 ```
 
-15. Add explicit logging for agent state machine transitions
+7. Add explicit logging for agent state machine transitions
 - Why it matters: Improves observability and debugging of complex agent orchestrations.
 - Expected impact: Directly improves Observability (+5 pts), AI/Agent Readiness (+1 pts). Weighted readiness impact: +0.27%.
 - Affected qualities: Observability, AI/Agent Readiness.
@@ -353,7 +285,7 @@ Update the `v1-rc-drill.ps1` script to accept optional parameters for a JWT bear
 Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker` to log every state transition of the agent execution state machine. Include the run ID, current state, next state, and any relevant task IDs in the log context. Ensure these logs are emitted at the `Information` level. Do not change the state machine logic itself. Acceptance criteria: Agent state transitions are clearly visible in the application logs.
 ```
 
-16. Add snapshot tests for advisory Terraform recommendation emit
+8. Add snapshot tests for advisory Terraform recommendation emit
 - Why it matters: Ensures Terraform snippets remain valid and do not regress.
 - Expected impact: Directly improves Correctness (+3 pts), Security (+1 pts). Weighted readiness impact: +0.56%.
 - Affected qualities: Correctness, Security.
@@ -362,28 +294,28 @@ Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker
 Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` that validate the output of the advisory Terraform recommendation emit. Use a library like `Verify` or `Snapshooter` to ensure the generated Terraform snippets match expected baselines. Ensure the tests verify the presence of the `# ArchLucid advisory` comment. Do not execute `terraform validate` in the unit tests to avoid external dependencies. Acceptance criteria: Snapshot tests cover the major Terraform recommendation scenarios.
 ```
 
-17. DEFERRED Execute third-party penetration test (**`V2`** — backlog metadata)
+9. DEFERRED Execute third-party penetration test (**`V2`** — backlog metadata)
 - Why it matters: Fulfills **`V2`** commitment and removes a major enterprise procurement blocker when that program runs.
 - Expected impact: Faster security reviews and increased enterprise trust (**post–V1**).
 - Affected qualities: Security, Compliance Readiness (**`V2`** scoring context).
 - Actionable: DEFERRED — **`V2`** window only.
 - Input needed: **P8 answered (2026-05-15):** **No** budget/vendor clarity required for **`(A)` V1** passes — **stop** recurring pen-test vendor/budget questions during **V1** planning / execution; reopen **only** when **`V2`** pen-test program is chartered (then track vendor + budget outside this assessment’s **V1** pending queue).
 
-18. DEFERRED Generate and publish PGP key for security@archlucid.net
+10. DEFERRED Generate and publish PGP key for security@archlucid.net
 - Why it matters: Fulfills V1.1 security commitment for coordinated disclosure.
 - Expected impact: Improves security posture and trustworthiness.
 - Affected qualities: Security.
 - Actionable: DEFERRED — **`V1.1`** slice (**not** **`(A)` V1 GA**); prerequisites (**domain + mailbox**) satisfied (**P9**).
 - Input needed: **P9 answered (2026-05-15):** **`archlucid.net`** acquired; **`security@archlucid.net`** mailbox **active**. **Remaining:** execute **`docs/security/PGP_KEY_GENERATION_RECIPE.md`** + single PR (**`archlucid-ui/public/.well-known/pgp-key.txt`**, **`SECURITY.md`**, marketing **`/security`**) per **`V1_SCOPE.md` §3** / **`V1_DEFERRED.md` §6c.
 
-19. DEFERRED Implement inbound MCP server (membrane) — **V1.1 only**
+11. DEFERRED Implement inbound MCP server (membrane) — **V1.1 only**
 - Why it matters: Tenant-scoped MCP tools are a named **V1.1** integration surface (`V1_SCOPE.md` §3, `V1_DEFERRED.md` §6d); **not** in the V1 shipping boundary. This item is **excluded from V1 weighted scoring** above.
 - Expected impact: When delivered in V1.1, improves agent-tool interoperability for customers that standardize on MCP; does not change V1 headline readiness.
 - Affected qualities: Interoperability (V1.1), AI/Agent Readiness (V1.1).
 - Actionable: DEFERRED — **no V1 implementation** per product decision; ship in **V1.1** window only.
 - Input needed: **P12 answered (2026-05-15):** **`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md` §5.1** pins transport, tool allowlist, and tenancy model. **Remaining:** **`V1.1` program calendar** + ADR **`adr/0029-mcp-membrane-and-agent-ecosystem.md`** past *Draft* before engineering merge (**backlog §9 rules**).
 
-20. Add `DataArchivalHostHealthCheck` to the operator dashboard
+12. Add `DataArchivalHostHealthCheck` to the operator dashboard
 - Why it matters: Improves observability of background data archival processes.
 - Expected impact: Directly improves Observability (+4 pts), Usability (+1 pts). Weighted readiness impact: +0.15%.
 - Affected qualities: Observability, Usability.
@@ -392,14 +324,14 @@ Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` 
 Update the operator UI dashboard to display the status of the `data_archival` health check. Fetch the health status from the `/health` endpoint and display a warning indicator if the status is `Degraded`. Do not change the underlying health check logic in the backend. Acceptance criteria: Operators can see the data archival health status on the UI dashboard.
 ```
 
-21. DEFERRED Implement bi-directional status sync for ServiceNow
+13. DEFERRED Implement bi-directional status sync for ServiceNow
 - Why it matters: Fulfills V1 GA commitment for ITSM integration.
 - Expected impact: Seamless workflow integration for enterprise operators.
 - Affected qualities: Workflow Embeddedness.
 - Actionable: DEFERRED — **until** owner supplies **cost-free** ServiceNow Developer Program / PDI-style instance + schema/credential handshake for **#22** (**P10**).
 - Input needed: **P10 answered (2026-05-15):** **No** ServiceNow developer access **today**; **`V1` GA** bidirectional sync **stays in scope** (`V1_SCOPE.md` §2.13). Owner will onboard a **free** developer instance when possible — **paid** sandbox **not** assumed. **Remaining:** provision instance → hand secure creds + confirm **`incident`** / state mapping vs integration defaults; **if** no **free** path is ever available, owner must **explicitly** amend **`V1_SCOPE.md`** / **`PENDING_QUESTIONS.md`** before demoting **V1** claims.
 
-22. Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic
+14. Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic
 - Why it matters: Improves resilience against transient database connection failures.
 - Expected impact: Directly improves Correctness (+2 pts), Performance (+1 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Correctness, Performance.
@@ -423,66 +355,6 @@ Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides s
 - Affected qualities: Performance, AI/Agent Readiness.
 - Actionable: DEFERRED
 - Input needed: **P11** (**2026-05-15**): owner concurs with deferral — remains **`V2`** situational per `V1_DEFERRED.md` §6f; revisit with bursty-scale / cost telemetry after **#26** closure if pressure appears.
-
-25. Migrate `AuthorityRunOrchestrator` to the Durable Task Framework (scoped V1 slice)
-- **Status:** **COMPLETE (2026-05-16)** — SQL production DI binds `IAuthorityRunOrchestrator` to `DtfAuthorityRunOrchestrator` (P26-10); `AuthorityRunOrchestrator` remains in Persistence for unit tests; InMemory hosts keep `AuthorityRunOrchestratorApplicationAdapter`.
-- Why it matters: Replaces the hand-rolled state machine with checkpoint-based replay, event-sourced orchestration history, and structured compensation flows. For the regulated AI governance buyer wedge, this means the system can structurally prove what the AI pipeline did at every step — not as something logged manually but as a first-class property of the orchestration substrate. Pre-release is architecturally the cheapest time to make this change.
-- Expected impact: Directly improves AI/Agent Readiness (+4 pts), Correctness (+2 pts), Explainability (+2 pts). Weighted readiness impact: +0.67%.
-- Affected qualities: AI/Agent Readiness, Correctness, Explainability.
-- Actionable: ~~Yes~~ **COMPLETE (2026-05-16)**
-
-```
-Migrate AuthorityRunOrchestrator in ArchLucid.Worker / ArchLucid.Host.Composition to the
-Durable Task Framework (DTF) library (Microsoft.DurableTask.*). Scope:
-
-WHAT TO MIGRATE
-- AuthorityRunOrchestrator and its direct stage sequence (ingestion → graph → findings →
-  decision → artifacts → commit). This is the only orchestrator in scope for V1.
-- Leave advisory scans, background hosted services, and alert delivery on their existing
-  patterns.
-
-INTERFACE BOUNDARY — MANDATORY CONSTRAINT
-- Introduce an IAuthorityRunOrchestrator interface (if not already present) in
-  ArchLucid.Application so callers depend on the abstraction.
-- DTF types (TaskOrchestrationContext, TaskActivity, etc.) must NOT appear in
-  ArchLucid.Application or ArchLucid.Contracts. Confine them entirely to the host
-  composition / worker layer.
-- The orchestration history store should use the existing SQL Server connection
-  (Microsoft.DurableTask.SqlServer backend) — do not introduce a new database.
-
-PARITY TESTS — MANDATORY BEFORE REMOVING THE OLD PATH
-- Write behaviour-equivalence integration tests that run the same authority pipeline
-  request through both the old and new orchestrators against an in-memory or test SQL
-  store and assert identical manifest output, status transitions, and audit event emission.
-- Keep the old orchestrator path behind a feature flag (ArchLucid:AuthorityPipeline:
-  OrchestratorBackend = Legacy | DurableTask) until parity tests pass in CI.
-- Only remove the legacy path once parity tests are green and at least one full
-  release-smoke run has completed end-to-end with DurableTask active.
-
-AUDIT AND OBSERVABILITY
-- Emit the same durable AuditEvent types (e.g. AuthorityRunStarted,
-  AuthorityRunCompleted, AuthorityRunFailed) from DTF activity completions as the
-  current orchestrator does. Do not reduce audit coverage.
-- Ensure OpenTelemetry activity spans are created per DTF stage using the existing
-  ArchLucidInstrumentation sources.
-
-DO NOT CHANGE
-- The HTTP API contract (POST /v1/architecture/request, POST /v1/architecture/run/{id}/
-  commit, and related endpoints).
-- GoldenManifest schema or AuditEventTypes catalog values.
-- The advisory scan or alert delivery pipelines.
-
-ACCEPTANCE CRITERIA
-1. All existing AuthorityRunOrchestrator unit and integration tests pass with the new
-   implementation (or are replaced by equivalent DTF-aware tests).
-2. Parity tests confirm identical manifest output between Legacy and DurableTask backends.
-3. release-smoke.ps1 completes end-to-end with DurableTask backend active.
-4. No DTF types leak into ArchLucid.Application or ArchLucid.Contracts (verified by an
-   architecture unit test or build-time analyser check).
-5. Audit event coverage is unchanged or improved (verify against AUDIT_COVERAGE_MATRIX.md).
-```
-
-- **#26 verification log (2026-05-15, coding-agent / workstation):** **AC4** PASS — `ArchLucid.Architecture.Tests` / `DtfNamespaceBoundaryArchitectureTests.DtfTypes_DoNotLeakIntoApplicationOrContracts`. **AC2** PARTIAL — `dotnet test ArchLucid.AgentRuntime.Tests --filter "Suite=Parity"` with `ARCHLUCID_PARITY_TESTS_ENABLED=true` PASS (composition: Legacy → `AuthorityRunOrchestratorApplicationAdapter`, DurableTask → `DtfAuthorityRunOrchestrator`; identical manifest multiset / audit multiset parity still behind `ARCHLUCID_PARITY_FULL_PIPELINE`). **AC1** SPOT CHECK — `ArchLucid.Persistence.Tests` / `AuthorityRunOrchestratorTests` (6) PASS on this run; full `Api.Tests` / `Worker.Tests` + CI matrix not re-run here. **AC3 NOT RUN** — `release-smoke.ps1` end-to-end with `ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask` requires reachable tenant SQL; LocalDB probe on this machine failed (`sqllocaldb info MSSQLLocalDB` API error). Operator-owned rerun: set `ARCHLUCID_SMOKE_SQL` or `-SqlConnectionString`, export `ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`, run `.\release-smoke.ps1` (omit `-SkipE2E`), then confirm logs per GA task prompt (run persistence / DTF-equivalent stages, `AuthorityRunStarted` + `AuthorityRunCompleted`, non-null `goldenManifestId`). **AC5** — no `AUDIT_COVERAGE_MATRIX.md` delta from this verification pass. **P26-10 (2026-05-16):** `SqlStorageProviderRegistrar` now registers `IAuthorityRunOrchestrator` directly as `DtfAuthorityRunOrchestrator` (inner `AuthorityRunOrchestrator` retained for DI); `AuthorityRunOrchestratorApplicationAdapter` removed from SQL path only — InMemory unchanged.
 
 27. Align operator shell labels with marketing governance vocabulary (presentation-only)
 - Why it matters: Regulated buyers and consultants encounter landing-page workflow language first; mismatched UI terms (**Run**, **Commit**, **Manifest**) create friction and weaken the evidence-backed governance positioning.

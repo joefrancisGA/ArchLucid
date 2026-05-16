@@ -48,6 +48,10 @@ export function recordMarketingCtaWalkthroughClick(properties: MarketingHeroCtaA
   recordMarketingHeroCtaClarityEvent("cta_walkthrough_click", properties);
 }
 
+export function recordMarketingCtaSelfDemoClick(properties: MarketingHeroCtaAnalyticsProps): void {
+  recordMarketingHeroCtaClarityEvent("cta_self_demo_click", properties);
+}
+
 /** Clarity event after successful **Join early access** form POST (not on click). */
 export function recordMarketingCtaEarlyAccessSubmit(
   properties: MarketingHeroCtaAnalyticsProps & { readonly email_domain?: string },

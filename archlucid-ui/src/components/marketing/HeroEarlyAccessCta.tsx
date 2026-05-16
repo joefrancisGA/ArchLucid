@@ -5,9 +5,9 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { cn } from "@/lib/utils";
 import { extractEmailDomainForAnalytics } from "@/lib/marketing/extract-email-domain-for-analytics";
 import { recordMarketingCtaEarlyAccessSubmit } from "@/lib/marketing/marketing-clarity-custom-event";
+import { cn } from "@/lib/utils";
 
 const THANKS_COPY = "Thanks! Our team will follow up within 2 business days.";
 

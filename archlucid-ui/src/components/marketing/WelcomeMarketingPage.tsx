@@ -121,7 +121,7 @@ export function WelcomeMarketingPage() {
           </Button>
         </div>
 
-        <HeroEarlyAccessCta source="hero" />
+        <HeroEarlyAccessCta />
 
         <div className="mt-6 text-center">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
