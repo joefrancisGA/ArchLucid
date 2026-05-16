@@ -3,10 +3,10 @@ export function compareRunBuyerDisplayLabel(runId: string): string | null {
   const id = runId.trim();
 
   if (id === "claims-intake-run-v1")
-    return "Baseline claims intake review";
+    return "Baseline Claims Intake Review";
 
   if (id === "claims-intake-run-v2")
-    return "Updated claims intake review";
+    return "Updated Claims Intake Review";
 
   return null;
 }

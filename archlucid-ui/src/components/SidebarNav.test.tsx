@@ -39,7 +39,7 @@ describe("SidebarNav (primary navigation)", () => {
     localStorage.clear();
 
     // Default shell preset is pilot_operator (narrow route list). These tests assert extended analysis
-    // links (Graph, Compare, …) after disclosure toggles — mirror "Full navigator" so those hrefs are not preset-pruned.
+    // links (Evidence graph, Compare, …) after disclosure toggles — mirror "Full navigator" so those hrefs are not preset-pruned.
     localStorage.setItem(OPERATOR_SHELL_PRESET_STORAGE_KEY, "full");
   });
 
@@ -63,7 +63,7 @@ describe("SidebarNav (primary navigation)", () => {
       expect(within(nav).getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
       expect(within(nav).getByRole("link", { name: "Executive Summary" })).toHaveAttribute("href", "/dashboard");
 
-      expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Evidence graph" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Compare two reviews" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Replay a review" })).toBeNull();
 
@@ -73,10 +73,10 @@ describe("SidebarNav (primary navigation)", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
 
-      expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
-      expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Evidence graph" })).toHaveAttribute("href", "/graph");
+      expect(screen.getByRole("link", { name: "Evidence graph" })).toHaveAttribute(
         "title",
-        "Review-trail or architecture graph for one review (Alt+Y)",
+        "Evidence graph — review-trail or architecture view for one review (Alt+Y)",
       );
       expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
       expect(screen.getByRole("link", { name: "Replay a review" })).toHaveAttribute("href", "/replay");

@@ -6,7 +6,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ArchLucid.Host.Composition</RootNamespace>
     <AssemblyName>ArchLucid.Host.Composition</AssemblyName>
+    <!-- Microsoft.DurableTask.Generators emits DurableTaskRegistry.AddAllGeneratedTasks() for standalone workers. -->
+    <DurableTaskGeneratorProjectType>Standalone</DurableTaskGeneratorProjectType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ArchLucid.AgentRuntime.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Host.Composition.Tests" />
+  </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -18,8 +25,13 @@
     <PackageReference Include="Azure.Storage.Blobs" />
     <PackageReference Include="Azure.Storage.Queues" />
     <PackageReference Include="Microsoft.DurableTask.Client" />
-    <PackageReference Include="Microsoft.DurableTask.SqlServer" />
+    <PackageReference Include="Microsoft.DurableTask.Client.Grpc" />
+    <PackageReference Include="Microsoft.DurableTask.Generators">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.DurableTask.Worker" />
+    <PackageReference Include="Microsoft.DurableTask.Worker.Grpc" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" />

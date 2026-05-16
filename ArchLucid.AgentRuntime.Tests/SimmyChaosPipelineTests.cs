@@ -84,7 +84,7 @@ public sealed class SimmyChaosPipelineTests
                 {
                     MaxRetryAttempts = 4,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<Exception>(SqlTransientDetector.IsTransient)
+                    ShouldHandle = new Polly.PredicateBuilder().Handle<Exception>(SqlTransientDetector.IsTransient)
                 })
             .AddChaosFault(chaosOptions)
             .Build();

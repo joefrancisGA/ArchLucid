@@ -1,16 +1,15 @@
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Authentication;
 using ArchLucid.Api.Configuration;
 
 using ITfoxtec.Identity.Saml2;
 using ITfoxtec.Identity.Saml2.MvcCore.Configuration;
+using ITfoxtec.Identity.Saml2.Schemas;
 using ITfoxtec.Identity.Saml2.Schemas.Metadata;
 using ITfoxtec.Identity.Saml2.Util;
 
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
@@ -65,32 +64,14 @@ public static class ArchLucidSaml2ServiceExtensions
                     .GetAwaiter()
                     .GetResult();
 
-                IdPSsoDescriptor? idp = entityDescriptor.IdPSsoDescriptor;
-                if (idp is null)
-                    throw new InvalidOperationException(
-                        "SAML IdP metadata did not contain an IdPSSODescriptor; check ArchLucidAuth:Saml2:IdPMetadata.");
-
-                saml2Configuration.AllowedIssuer = entityDescriptor.EntityId;
-                saml2Configuration.SingleSignOnDestination = idp.SingleSignOnServices.First().Location;
-
-                if (idp.SingleLogoutServices.Any())
-                    saml2Configuration.SingleLogoutDestination = idp.SingleLogoutServices.First().Location;
-
-                foreach (X509Certificate2 signingCertificate in idp.SigningCertificates)
-                {
-                    if (signingCertificate.IsValidLocalTime())
-                        saml2Configuration.SignatureValidationCertificates.Add(signingCertificate);
-                }
-
-                if (saml2Configuration.SignatureValidationCertificates.Count <= 0)
-                    throw new InvalidOperationException(
-                        "The IdP signing certificates from metadata are missing or expired; refresh IdP metadata or clocks.");
-
-                if (idp.WantAuthnRequestsSigned is true)
-                    saml2Configuration.SignAuthnRequest = true;
+                ArchLucidSaml2IdpMetadataBinder.ApplyResolvedEntity(saml2Configuration, entityDescriptor);
             });
 
         services.AddSaml2(slidingExpiration: true);
+
+        services.PostConfigure<CookieAuthenticationOptions>(
+            Saml2Constants.AuthenticationScheme,
+            ArchLucidSaml2CookieSignInAuditIntegration.MergeSignedInHandler);
 
         ArchLucidAuthOptions archLucidAuthOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
         string primaryApiScheme = ResolvePrimaryApiAuthenticationScheme(archLucidAuthOptions);

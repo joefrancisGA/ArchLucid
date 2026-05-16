@@ -64,10 +64,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="why-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and
-        exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration.
-        Comparisons below summarize typical fit versus adjacent tooling. The downloadable proof pack carries the
-        citation-backed drill-down for diligence teams who need paperwork parity.
+        {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable proof pack carries the citation-backed drill-down for diligence teams who need paperwork parity.`}
       </p>
 
       <section className="mt-10 rounded-xl border border-sky-200 bg-white px-6 py-6 shadow-sm dark:border-sky-900/70 dark:bg-neutral-950">

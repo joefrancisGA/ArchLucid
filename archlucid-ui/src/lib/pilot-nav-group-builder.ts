@@ -94,7 +94,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/scorecard",
           label: "Scorecard",
-          title: "Pilot scorecard — committed-run metrics and ROI baselines",
+          title: "Pilot scorecard — finalized-review metrics and ROI baselines",
           icon: BarChart3,
           tier: "extended",
           requiredAuthority: "ReadAuthority",

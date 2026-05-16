@@ -29,10 +29,12 @@ public sealed class AuthorityPipelineOptions
     } = true;
 
     /// <summary>
-    ///     Selects the orchestration substrate for authority pipeline runs. Defaults to
-    ///     <see cref="OrchestratorBackend.Legacy" />. Switch to
-    ///     <see cref="OrchestratorBackend.DurableTask" /> only after parity tests pass and a full
-    ///     release-smoke run completes with DTF active (see improvement #26 in LATEST.md).
+    ///     Selects the orchestration substrate for authority pipeline runs in **non-SQL** hosts (InMemory, tests).
+    ///     Defaults to <see cref="OrchestratorBackend.Legacy" /> so simulator paths keep the in-process adapter.
+    ///     SQL production hosts register the Durable Task-backed orchestrator for the application orchestrator port
+    ///     regardless of this flag; set <see cref="OrchestratorBackend.DurableTask" /> with
+    ///     <c>ArchLucid:AuthorityPipeline:DurableTask:GrpcEndpoint</c> so DTF gRPC/client infrastructure still activates
+    ///     (improvement #26 / release smoke).
     /// </summary>
     public OrchestratorBackend OrchestratorBackend
     {

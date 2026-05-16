@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { applyBuyerPolishedGoldenManifestSummaryHighlights } from "@/lib/buyer-golden-manifest-summary-highlights";
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
 import { partitionDecisionDeltas } from "@/lib/compare-decision-delta-material";
 import { getArchitecturePackageDocxUrl } from "@/lib/api";
@@ -114,6 +115,7 @@ export function StructuredComparisonView(props: {
   updatedPickedSummary?: RunSummary | null;
 }) {
   const golden = sortGoldenManifestComparison(props.golden);
+  const summaryHighlights = applyBuyerPolishedGoldenManifestSummaryHighlights(golden.summaryHighlights);
   const total =
     golden.totalDeltaCount !== undefined
       ? golden.totalDeltaCount
@@ -151,13 +153,13 @@ export function StructuredComparisonView(props: {
           · <strong>Total changes:</strong> {total}
         </span>
       </div>
-      {golden.summaryHighlights.length > 0 ? (
+      {summaryHighlights.length > 0 ? (
         <p className="mb-3 max-w-3xl rounded-md border border-teal-200/80 bg-teal-50/50 p-3 text-sm text-neutral-900 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-neutral-100">
-          <strong>Sponsor recommendation:</strong> {golden.summaryHighlights[0]}
-          {golden.summaryHighlights.length > 1 ? (
+          <strong>Sponsor recommendation:</strong> {summaryHighlights[0]}
+          {summaryHighlights.length > 1 ? (
             <span className="text-neutral-600 dark:text-neutral-400">
               {" "}
-              (+{golden.summaryHighlights.length - 1} more in summary highlights below)
+              (+{summaryHighlights.length - 1} more in summary highlights below)
             </span>
           ) : null}
         </p>
@@ -173,10 +175,10 @@ export function StructuredComparisonView(props: {
         </a>
       </p>
 
-      {golden.summaryHighlights.length > 0 ? (
-        <ComparisonFoldSection title="Summary highlights" countBadge={golden.summaryHighlights.length} defaultOpen>
+      {summaryHighlights.length > 0 ? (
+        <ComparisonFoldSection title="Summary highlights" countBadge={summaryHighlights.length} defaultOpen>
           <ul className="m-0 pl-5 leading-normal">
-            {golden.summaryHighlights.map((h, i) => (
+            {summaryHighlights.map((h, i) => (
               <li key={`highlight-${i}`}>{h}</li>
             ))}
           </ul>

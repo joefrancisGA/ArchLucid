@@ -1,3 +1,4 @@
+import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
@@ -25,42 +26,6 @@ function newReviewWizardCrumbLabel(buyerPolishedShell: boolean | undefined): str
 }
 
 const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>(["graph", "audit", "ask", "governance"]);
-
-function injectBuyerShowcaseReviewPackageCrumb(
-  items: BreadcrumbItem[],
-  normalizedPath: string,
-  options?: GetBreadcrumbsOptions,
-): BreadcrumbItem[] {
-  const runId = options?.queryRunId?.trim();
-
-  if (options?.buyerPolishedShell !== true || runId !== SHOWCASE_STATIC_DEMO_RUN_ID) {
-    return items;
-  }
-
-  const rawSegments = normalizedPath.split("/").filter(Boolean);
-
-  if (rawSegments.length !== 1) {
-    return items;
-  }
-
-  const hub = rawSegments[0] ?? "";
-
-  if (!BUYER_HUB_RUN_SCOPED_SEGMENTS.has(hub)) {
-    return items;
-  }
-
-  if (items.length < 2 || items[0]?.label !== "Home") {
-    return items;
-  }
-
-  const reviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
-
-  return [
-    items[0]!,
-    { label: SHOWCASE_BUYER_REVIEW_TITLE, href: reviewHref },
-    ...items.slice(1),
-  ];
-}
 
 const SEGMENT_LABELS: Record<string, string> = {
   onboarding: "Onboarding",
@@ -205,6 +170,74 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "healthcare-claims-v3-pack": "Healthcare claims policy pack (demonstration)",
 };
 
+function resolveBuyerHubRunPackageTitle(runId: string): string | null {
+  const trimmed = runId.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  if (trimmed === SHOWCASE_STATIC_DEMO_RUN_ID) {
+    return SHOWCASE_BUYER_REVIEW_TITLE;
+  }
+
+  const compareTitle = compareRunBuyerDisplayLabel(trimmed);
+
+  if (compareTitle !== null) {
+    return compareTitle;
+  }
+
+  const demoTitle = DEMO_PATH_SEGMENT_TITLES[trimmed];
+
+  if (demoTitle !== undefined) {
+    return demoTitle;
+  }
+
+  return null;
+}
+
+function injectBuyerShowcaseReviewPackageCrumb(
+  items: BreadcrumbItem[],
+  normalizedPath: string,
+  options?: GetBreadcrumbsOptions,
+): BreadcrumbItem[] {
+  const runId = options?.queryRunId?.trim();
+
+  if (options?.buyerPolishedShell !== true || runId === undefined || runId.length === 0) {
+    return items;
+  }
+
+  const reviewTitle = resolveBuyerHubRunPackageTitle(runId);
+
+  if (reviewTitle === null) {
+    return items;
+  }
+
+  const rawSegments = normalizedPath.split("/").filter(Boolean);
+
+  if (rawSegments.length !== 1) {
+    return items;
+  }
+
+  const hub = rawSegments[0] ?? "";
+
+  if (!BUYER_HUB_RUN_SCOPED_SEGMENTS.has(hub)) {
+    return items;
+  }
+
+  if (items.length < 2 || items[0]?.label !== "Home") {
+    return items;
+  }
+
+  const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+
+  return [
+    items[0]!,
+    { label: reviewTitle, href: reviewHref },
+    ...items.slice(1),
+  ];
+}
+
 function labelForSegment(
   segment: string,
   allSegments: string[],
@@ -219,13 +252,18 @@ function labelForSegment(
   }
 
   if (buyer && segment === "findings") {
-    return "Finding";
+    return "Findings";
   }
 
+  if (buyer === true && prev === "reviews") {
+    const compareReviewsTitle = compareRunBuyerDisplayLabel(segment);
+
+    if (compareReviewsTitle !== null) {
+      return compareReviewsTitle;
+    }
+  }
 
   if (buyer === true && segment === SHOWCASE_STATIC_DEMO_RUN_ID && prev === "reviews") {
-
-
     return SHOWCASE_BUYER_REVIEW_TITLE;
   }
 

@@ -1,15 +1,15 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Bootstrap;
-using ArchLucid.Application.Templates;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Templates;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Configuration;
-using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Archival;
 
 namespace ArchLucid.Host.Composition.Startup;
@@ -66,7 +66,7 @@ public static partial class ServiceCollectionExtensions
         services.AddArchLucidFeatureManagement(configuration);
         services.AddArchLucidStorage(configuration);
         RegisterTenancyMeteringAndSecrets(services, configuration);
-        RegisterBilling(services, configuration);
+        services.RegisterBilling(configuration);
         RegisterAdvisoryScheduling(services, configuration, hostingRole);
         RegisterExecDigestServices(services);
         RegisterWeeklyArchitectureDigest(services, configuration);

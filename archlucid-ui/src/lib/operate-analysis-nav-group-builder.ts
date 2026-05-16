@@ -27,12 +27,12 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       label: "Analysis",
       surface: "review-workflow",
       caption:
-        "Graphs, comparisons, replay, advisory, Ask, reporting, and digests once you leave the baseline review lane.",
+        "Evidence graphs, comparisons, replay, advisory, Ask, reporting, and digests once you leave the baseline review lane.",
       links: [
         {
           href: "/graph",
-          label: "Graph",
-          title: this.shortcutTitle("Review-trail or architecture graph for one review", "alt+y"),
+          label: "Evidence graph",
+          title: this.shortcutTitle("Evidence graph — review-trail or architecture view for one review", "alt+y"),
           keyShortcut: "alt+y",
           icon: GitGraph,
           tier: "extended",
@@ -116,7 +116,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/value-report/pilot",
           label: "Pilot value report",
-          title: "Pilot value report — committed-run metrics, governance signals, Markdown export",
+          title: "Pilot value report — finalized-review metrics, governance signals, Markdown export",
           icon: FileText,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
@@ -124,7 +124,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/value-report/roi",
           label: "ROI report",
-          title: "ROI report — hours estimate from severities and pre-commit audit blocks",
+          title: "ROI report — hours estimate from severities and pre-finalize audit blocks",
           icon: LineChart,
           tier: "extended",
           requiredAuthority: "ReadAuthority",

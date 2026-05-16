@@ -37,7 +37,7 @@ public sealed class LlmCallChaosEndToEndTests
                     MaxRetryAttempts = 4,
                     Delay = TimeSpan.FromMilliseconds(1),
                     ShouldHandle =
-                        new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
+                        new Polly.PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
                 })
             .AddChaosFault(chaos)
             .Build();
@@ -75,7 +75,7 @@ public sealed class LlmCallChaosEndToEndTests
                     MaxRetryAttempts = 2,
                     Delay = TimeSpan.FromMilliseconds(1),
                     ShouldHandle =
-                        new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
+                        new Polly.PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
                 })
             .AddChaosFault(chaos)
             .Build();

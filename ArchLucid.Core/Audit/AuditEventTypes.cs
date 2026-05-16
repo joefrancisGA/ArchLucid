@@ -525,6 +525,18 @@ public static class AuditEventTypes
 
     public const string ScimGroupMembershipChanged = "ScimGroupMembershipChanged";
 
+    /// <summary>
+    ///     SAML 2.0 SP session cookie issued after a successful assertion (ITfoxtec <c>saml2</c> cookie scheme). Payload
+    ///     stays minimal (name id prefix, tenant claim hint — never raw assertion XML or full subject).
+    /// </summary>
+    public const string Saml2ServiceProviderSignInSucceeded = "Saml2ServiceProviderSignInSucceeded";
+
+    /// <summary>
+    ///     SAML 2.0 SP sign-in failed on an <c>/Auth/*</c> route (assertion validation, replay, clock skew, malformed
+    ///     protocol, etc.). Payload records exception type and request path only — not vendor exception text.
+    /// </summary>
+    public const string Saml2ServiceProviderSignInFailed = "Saml2ServiceProviderSignInFailed";
+
     /// <summary>Pilot <c>archlucid try --real</c>: POST execute received with pilot try header (real AOAI attempt).</summary>
     public const string FirstRealValueRunStarted = "FirstRealValueRunStarted";
 

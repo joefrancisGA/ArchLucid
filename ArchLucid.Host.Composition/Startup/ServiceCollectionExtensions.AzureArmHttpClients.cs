@@ -1,8 +1,5 @@
 using ArchLucid.Host.Core.Http;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions

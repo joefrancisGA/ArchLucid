@@ -55,7 +55,7 @@ public sealed class CombinedFailureChaosTests
                 {
                     MaxRetryAttempts = 5,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<Exception>(ex => SqlTransientDetector.IsTransient(ex)
+                    ShouldHandle = new Polly.PredicateBuilder().Handle<Exception>(ex => SqlTransientDetector.IsTransient(ex)
                         || LlmCallResilienceDefaults.ShouldRetryLlmException(ex))
                 })
             .AddChaosFault(chaosOptions)

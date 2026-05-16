@@ -3,10 +3,10 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Caching;
-using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
@@ -404,15 +404,7 @@ public static partial class ServiceCollectionExtensions
                         sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.CompletionFallback);
 
                     List<IAgentCompletionClient> secondaryChains = new(registry.Clients.Count);
-
-                    foreach (AzureOpenAiCompletionClient fbInner in registry.Clients)
-                    {
-                        secondaryChains.Add(BuildAzureOpenAiScopedCompletionChain(
-                            sp,
-                            fbInner,
-                            fallbackGate,
-                            fbInner.Descriptor.ModelId));
-                    }
+                    secondaryChains.AddRange(registry.Clients.Select(fbInner => BuildAzureOpenAiScopedCompletionChain(sp, fbInner, fallbackGate, fbInner.Descriptor.ModelId)));
 
                     ILogger<FallbackAgentCompletionClient> fallbackLogger =
                         sp.GetRequiredService<ILogger<FallbackAgentCompletionClient>>();

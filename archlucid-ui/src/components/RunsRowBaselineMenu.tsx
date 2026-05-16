@@ -4,6 +4,7 @@ import type { RefObject } from "react";
 import { useRef } from "react";
 
 import { persistCompareBaselineRunId } from "@/lib/compare-baseline-run";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ function closeDetails(ref: RefObject<HTMLDetailsElement | null>): void {
  */
 export function RunsRowBaselineMenu(props: { runId: string }) {
   const detailsRef = useRef<HTMLDetailsElement>(null);
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
   const onSetBaseline = () => {
     persistCompareBaselineRunId(props.runId);
@@ -42,7 +44,7 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
           "[&::-webkit-details-marker]:hidden",
         )}
       >
-        More
+        {buyerPolished ? "More actions" : "More"}
       </summary>
       <div className="absolute right-0 z-20 mt-1 min-w-[12rem] rounded-md border border-neutral-200 bg-white py-1 shadow-md dark:border-neutral-700 dark:bg-neutral-950">
         <button

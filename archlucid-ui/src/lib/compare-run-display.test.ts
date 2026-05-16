@@ -30,6 +30,6 @@ describe("compareRunHeadingLabel", () => {
   });
 
   it("uses demo slug mapping when no usable picked summary", () => {
-    expect(compareRunHeadingLabel("claims-intake-run-v1", null)).toBe("Baseline claims intake review");
+    expect(compareRunHeadingLabel("claims-intake-run-v1", null)).toBe("Baseline Claims Intake Review");
   });
 });

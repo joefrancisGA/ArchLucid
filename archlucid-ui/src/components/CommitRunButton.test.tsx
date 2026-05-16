@@ -24,16 +24,25 @@ describe("CommitRunButton", () => {
     expect(screen.getByText(/already finalized/i)).toBeInTheDocument();
   });
 
+  it("surfaces finalize tooltip on the primary control", () => {
+    render(<CommitRunButton runId="x" disabled={false} />);
+
+    expect(screen.getByRole("button", { name: /^finalize review$/i })).toHaveAttribute(
+      "title",
+      "Replay and comparison remain available after finalizing.",
+    );
+  });
+
   it("opens confirm dialog and calls commit on confirm", async () => {
     mockCommit.mockResolvedValue({});
 
     render(<CommitRunButton runId="run-1" disabled={false} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /^finalize manifest$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^finalize review$/i }));
 
     const dialog = await screen.findByRole("alertdialog");
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize manifest$/i }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
 
     await waitFor(() => {
       expect(mockCommit).toHaveBeenCalledWith("run-1", { notifySponsor: false });
@@ -45,13 +54,13 @@ describe("CommitRunButton", () => {
 
     render(<CommitRunButton runId="run-2" disabled={false} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /^finalize manifest$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^finalize review$/i }));
 
     const dialog = await screen.findByRole("alertdialog");
 
     fireEvent.click(within(dialog).getByRole("checkbox", { name: /email tenant admin contact/i }));
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize manifest$/i }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
 
     await waitFor(() => {
       expect(mockCommit).toHaveBeenCalledWith("run-2", { notifySponsor: true });

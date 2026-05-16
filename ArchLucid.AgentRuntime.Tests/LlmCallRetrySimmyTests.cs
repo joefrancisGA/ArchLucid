@@ -39,7 +39,7 @@ public sealed class LlmCallRetrySimmyTests
                     MaxRetryAttempts = 4,
                     Delay = TimeSpan.FromMilliseconds(1),
                     ShouldHandle =
-                        new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
+                        new Polly.PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
                 })
             .AddChaosFault(chaosOptions)
             .Build();
@@ -73,7 +73,7 @@ public sealed class LlmCallRetrySimmyTests
                     MaxRetryAttempts = 2,
                     Delay = TimeSpan.FromMilliseconds(1),
                     ShouldHandle =
-                        new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
+                        new Polly.PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
                 })
             .AddChaosFault(chaosOptions)
             .Build();
@@ -108,7 +108,7 @@ public sealed class LlmCallRetrySimmyTests
                 {
                     MaxRetryAttempts = 2,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<TimeoutRejectedException>()
+                    ShouldHandle = new Polly.PredicateBuilder().Handle<TimeoutRejectedException>()
                 })
             .AddPipeline(innerTimeout)
             .Build();
@@ -141,7 +141,7 @@ public sealed class LlmCallRetrySimmyTests
                     MaxRetryAttempts = 6,
                     Delay = TimeSpan.FromMilliseconds(1),
                     ShouldHandle =
-                        new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
+                        new Polly.PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
                 })
             .AddChaosFault(chaosOptions)
             .Build();

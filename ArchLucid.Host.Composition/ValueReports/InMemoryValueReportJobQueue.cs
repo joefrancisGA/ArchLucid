@@ -49,7 +49,7 @@ public sealed class InMemoryValueReportJobQueue(
             JobPhase.Pending => new ValueReportJobPollResult(true, false, null, entry.FileName, null),
             JobPhase.Completed => new ValueReportJobPollResult(true, true, entry.Bytes, entry.FileName, null),
             JobPhase.Failed => new ValueReportJobPollResult(true, false, null, entry.FileName, entry.ErrorMessage),
-            _ => new ValueReportJobPollResult(true, false, null, null, "Unknown job phase."),
+            _ => new ValueReportJobPollResult(true, false, null, null, "Unknown job phase.")
         };
     }
 
@@ -65,7 +65,7 @@ public sealed class InMemoryValueReportJobQueue(
                        {
                            TenantId = request.TenantId,
                            WorkspaceId = request.WorkspaceId,
-                           ProjectId = request.ProjectId,
+                           ProjectId = request.ProjectId
                        }))
             {
                 ValueReportBuilder builder = scope.ServiceProvider.GetRequiredService<ValueReportBuilder>();
@@ -94,8 +94,8 @@ public sealed class InMemoryValueReportJobQueue(
                             {
                                 jobId,
                                 byteCount = docx.Length,
-                                asyncJob = true,
-                            }),
+                                asyncJob = true
+                            })
                     },
                     CancellationToken.None);
 
@@ -122,6 +122,6 @@ public sealed class InMemoryValueReportJobQueue(
     {
         Pending = 0,
         Completed = 1,
-        Failed = 2,
+        Failed = 2
     }
 }

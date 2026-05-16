@@ -15,6 +15,9 @@ import {
   recordFirstTenantFunnelEvent,
 } from "@/lib/first-tenant-funnel-telemetry";
 
+/** Nav and review-detail copy — replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
+export const FINALIZE_REPLAY_COMPARE_TOOLTIP = "Replay and comparison remain available after finalizing.";
+
 export type CommitRunButtonProps = {
   runId: string;
   /** When true, the review already has a reviewed manifest — commit is not offered. */
@@ -69,7 +72,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
   if (disabled) {
     return (
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-        This review is already finalized (reviewed manifest present).
+        This review is already finalized (reviewed architecture snapshot present).
       </p>
     );
   }
@@ -80,16 +83,18 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
         <Button
           type="button"
           variant="primary"
+          title={FINALIZE_REPLAY_COMPARE_TOOLTIP}
           onClick={() => {
             setError(null);
             setNotifySponsor(false);
             setDialogOpen(true);
           }}
         >
-          Finalize manifest
+          Finalize review
         </Button>
         <p className="mt-1.5 max-w-xl text-sm text-neutral-600 dark:text-neutral-400">
-          Finalizes the reviewed manifest and decision traces when the pipeline snapshots are ready. Requires permission to finalize manifests.
+          Finalizes the reviewed architecture snapshot and decision traces when the pipeline snapshots are ready. Requires
+          permission to finalize.
         </p>
       </div>
 
@@ -104,9 +109,9 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
       <ConfirmationDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title="Finalize this manifest?"
-        description="Merges agent results for this review through the decision engine and persists the reviewed manifest. If the review package is not ready, the API returns a conflict — adjust inputs and try again."
-        confirmLabel="Finalize manifest"
+        title="Finalize this review?"
+        description={`Merges agent results for this review through the decision engine and saves the architecture snapshot. If the review package is not ready, the API returns a conflict — adjust inputs and try again. ${FINALIZE_REPLAY_COMPARE_TOOLTIP}`}
+        confirmLabel="Finalize review"
         cancelLabel="Cancel"
         variant="default"
         onConfirm={() => void onConfirm()}

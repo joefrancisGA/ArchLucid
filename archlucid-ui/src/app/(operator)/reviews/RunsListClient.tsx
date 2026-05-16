@@ -24,9 +24,10 @@ import {
   normalizeRunSummaryForDemoPicker,
 } from "@/lib/demo-run-canonical";
 import { getBuyerSafeReviewsTableLink, getBuyerSafeSignedManifestTableLink } from "@/lib/buyer-safe-review-navigation";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { runsListPageFilterStatusLine } from "@/lib/runs-list-filter-status-line";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -340,58 +341,102 @@ export function RunsListClient({
   const inspectorBody =
     selectedRun === null ? (
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="run-inspector-empty">
-        Select a review to preview details here.
+        {buyerPolished
+          ? "Select a review to preview key outputs here."
+          : "Select a review to preview details here."}
       </p>
     ) : (
       <RunInspectorPreview run={selectedRun} />
     );
 
+  const filterStatusLine = runsListPageFilterStatusLine(
+    filteredSorted.length,
+    safeRuns.length,
+    filterText.trim().length > 0,
+  );
+
+  const runsSortControl = (
+    <div className="flex flex-col gap-1">
+      <Label htmlFor="runs-sort-select">Sort by created</Label>
+      <select
+        id="runs-sort-select"
+        value={sortOrder}
+        onChange={(event) => {
+          setSortOrder(event.target.value as SortOrder);
+        }}
+        className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+        aria-label="Sort reviews by created date"
+      >
+        <option value="createdDesc">Newest first</option>
+        <option value="createdAsc">Oldest first</option>
+      </select>
+    </div>
+  );
+
+  const runsFilterControl = (
+    <div
+      className={cn(
+        "flex flex-col gap-1",
+        buyerPolished ? "max-w-full" : "min-w-[12rem] max-w-md flex-1",
+      )}
+    >
+      <Label htmlFor="runs-filter-input">
+        {buyerPolished ? "Search reviews" : "Filter by review name or description"}
+      </Label>
+      <input
+        id="runs-filter-input"
+        type="search"
+        value={filterText}
+        onChange={(event) => {
+          setFilterText(event.target.value);
+        }}
+        className={cn(
+          "rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+          buyerPolished && "w-full max-w-none",
+        )}
+        autoComplete="off"
+        autoFocus
+        aria-label={
+          buyerPolished ? "Search reviews by name or description" : "Filter reviews by name or description"
+        }
+        aria-controls="runs-list-filter-status"
+      />
+    </div>
+  );
+
+  const runsListFilterStatus = (
+    <p
+      id="runs-list-filter-status"
+      role="status"
+      className={cn(
+        "text-sm text-neutral-600 dark:text-neutral-400",
+        buyerPolished && "sm:max-w-[min(100%,20rem)] sm:text-right",
+      )}
+      aria-live="polite"
+      aria-relevant="additions text"
+      aria-atomic="true"
+    >
+      {filterStatusLine}
+    </p>
+  );
+
   return (
     <div className="mt-4 space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-        <div className="flex min-w-[12rem] max-w-md flex-1 flex-col gap-1">
-          <Label htmlFor="runs-filter-input">Filter by review name or description</Label>
-          <input
-            id="runs-filter-input"
-            type="search"
-            value={filterText}
-            onChange={(event) => {
-              setFilterText(event.target.value);
-            }}
-            className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
-            autoComplete="off"
-            autoFocus
-            aria-label="Filter reviews by name or description"
-            aria-controls="runs-list-filter-status"
-          />
+      {buyerPolished ? (
+        <div className="space-y-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+            {runsSortControl}
+            {runsListFilterStatus}
+          </div>
+          {runsFilterControl}
         </div>
-        <div className="flex flex-col gap-1">
-          <Label htmlFor="runs-sort-select">Sort by created</Label>
-          <select
-            id="runs-sort-select"
-            value={sortOrder}
-            onChange={(event) => {
-              setSortOrder(event.target.value as SortOrder);
-            }}
-            className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
-            aria-label="Sort reviews by created date"
-          >
-            <option value="createdDesc">Newest first</option>
-            <option value="createdAsc">Oldest first</option>
-          </select>
+      ) : (
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+          {runsFilterControl}
+          {runsSortControl}
+          {runsListFilterStatus}
         </div>
-        <p
-          id="runs-list-filter-status"
-          role="status"
-          className="text-sm text-neutral-600 dark:text-neutral-400"
-          aria-live="polite"
-          aria-relevant="additions text"
-          aria-atomic="true"
-        >
-          Showing {filteredSorted.length} of {safeRuns.length} on this page
-          {filterText.trim().length > 0 ? " (filtered)" : ""}
-        </p>
-      </div>
+      )}
 
       <div className={cn(!viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
         <div className={cn("min-w-0 flex-1 space-y-4", !viewportNarrow && "lg:min-w-0")}>

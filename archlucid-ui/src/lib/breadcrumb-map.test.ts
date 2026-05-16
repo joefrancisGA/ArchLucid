@@ -97,13 +97,26 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("does not inject review package crumb when runId mismatches showcase", () => {
+  it("does not inject review package crumb when runId is not a known demo or compare slug", () => {
     expect(
       getBreadcrumbs("/graph", {
         buyerPolishedShell: true,
         queryRunId: "other-review",
       }),
     ).toEqual([{ label: "Home", href: "/" }, { label: "Evidence graph" }]);
+  });
+
+  it("buyer-polished: compare demo runId on hub inserts review package title before the hub crumb", () => {
+    expect(
+      getBreadcrumbs("/audit", {
+        buyerPolishedShell: true,
+        queryRunId: "claims-intake-run-v1",
+      }),
+    ).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Baseline Claims Intake Review", href: "/reviews/claims-intake-run-v1" },
+      { label: "Audit Trail" },
+    ]);
   });
 
   it("does not inject review package crumb on governance subpaths despite showcase runId (buyer wording)", () => {
@@ -115,7 +128,7 @@ describe("getBreadcrumbs", () => {
     ).toEqual([
       { label: "Home", href: "/" },
       { label: "Governance", href: "/governance" },
-      { label: "Finding" },
+      { label: "Findings" },
     ]);
   });
 
@@ -129,7 +142,7 @@ describe("getBreadcrumbs", () => {
       { label: "Home", href: "/" },
       { label: "Reviews", href: "/reviews" },
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/reviews/claims-intake-modernization" },
-      { label: "Finding", href: "/reviews/claims-intake-modernization/findings" },
+      { label: "Findings", href: "/reviews/claims-intake-modernization/findings" },
       {
         label: "High severity: PHI minimization risk",
         href: "/reviews/claims-intake-modernization/findings/phi-minimization-risk",

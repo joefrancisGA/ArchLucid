@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.Api.Auth;
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
@@ -44,6 +45,11 @@ internal static class PipelineExtensions
 
                 if (exceptionFeature?.Error is { } ex)
                 {
+                    await ArchLucidSaml2SignInAudit.TryAppendProtocolFailureAudit(
+                        context,
+                        ex,
+                        context.RequestAborted);
+
                     ILogger<WebApplication> logger = context.RequestServices
                         .GetRequiredService<ILogger<WebApplication>>();
 

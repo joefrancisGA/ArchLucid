@@ -19,6 +19,7 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Orchestration.Pipeline;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
