@@ -23,21 +23,29 @@ public sealed class TerraformAdvisoryEmitSnapshotTests
         return settings;
     }
 
-    /// <summary>Snapshot files use LF only so baselines match across Windows/CI without <c>.gitattributes</c> surprises.</summary>
     private static string NormalizeNewLines(string text)
     {
         return text.ReplaceLineEndings("\n");
     }
 
+    /// <summary>
+    ///     Snapshot files use LF only and a single trailing newline so baselines match across OS/editor defaults and
+    ///     <see cref="TerraformAdvisoryDecommissionSnippetBuilder" /> outputs that omit a trailing newline.
+    /// </summary>
+    private static string NormalizeForVerifySnapshot(string text)
+    {
+        return NormalizeNewLines(text).TrimEnd() + "\n";
+    }
+
     private static void AssertAdvisoryCommentLine(string snippet)
     {
-        snippet.Should().Contain("# ArchLucid advisory", because: "every advisory emit must include the standard banner comment");
+        snippet.Should().Contain("# ArchLucid advisory");
     }
 
     [Fact]
     public Task Application_templates_example_right_size_vm_is_stable()
     {
-        string snippet = NormalizeNewLines(
+        string snippet = NormalizeForVerifySnapshot(
             TerraformAdvisorySnippetTemplates.ExampleRightSizeVmSnippet("finding-1", "rec-a"));
 
         AssertAdvisoryCommentLine(snippet);
@@ -48,7 +56,7 @@ public sealed class TerraformAdvisoryEmitSnapshotTests
     [Fact]
     public Task Application_templates_explainer_instead_of_destroy_is_stable()
     {
-        string snippet = NormalizeNewLines(
+        string snippet = NormalizeForVerifySnapshot(
             TerraformAdvisorySnippetTemplates.ExplainerInsteadOfDestroy(
                 "azurerm_virtual_machine.example",
                 "protected until operator confirms in UI"));
@@ -71,7 +79,8 @@ public sealed class TerraformAdvisoryEmitSnapshotTests
             RelatedNodeIds = ["graph-node-1", "graph-node-2"],
         };
 
-        string section = NormalizeNewLines(TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection(decision));
+        string section = NormalizeForVerifySnapshot(
+            TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection(decision));
 
         AssertAdvisoryCommentLine(section);
 
@@ -91,7 +100,8 @@ public sealed class TerraformAdvisoryEmitSnapshotTests
             RelatedNodeIds = [],
         };
 
-        string section = NormalizeNewLines(TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection(decision));
+        string section = NormalizeForVerifySnapshot(
+            TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection(decision));
 
         AssertAdvisoryCommentLine(section);
 
@@ -111,7 +121,8 @@ public sealed class TerraformAdvisoryEmitSnapshotTests
             RelatedNodeIds = [],
         };
 
-        string section = NormalizeNewLines(TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection(decision));
+        string section = NormalizeForVerifySnapshot(
+            TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection(decision));
 
         AssertAdvisoryCommentLine(section);
 
@@ -121,7 +132,8 @@ public sealed class TerraformAdvisoryEmitSnapshotTests
     [Fact]
     public Task Decommission_stub_when_manifest_has_no_decommission_decisions()
     {
-        string stub = NormalizeNewLines(TerraformAdvisoryDecommissionSnippetBuilder.BuildNoDecommissionManifestStub());
+        string stub = NormalizeForVerifySnapshot(
+            TerraformAdvisoryDecommissionSnippetBuilder.BuildNoDecommissionManifestStub());
 
         AssertAdvisoryCommentLine(stub);
 
@@ -146,9 +158,11 @@ public sealed class TerraformAdvisoryEmitSnapshotTests
         TerraformAdvisoryArtifactGenerator sut = new();
         SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
 
-        AssertAdvisoryCommentLine(artifact.Content);
+        string snapshot = NormalizeForVerifySnapshot(artifact.Content);
 
-        await Verify(NormalizeNewLines(artifact.Content), TerraformSnapshotSettings());
+        AssertAdvisoryCommentLine(snapshot);
+
+        await Verify(snapshot, TerraformSnapshotSettings());
     }
 
     [Fact]
@@ -179,9 +193,11 @@ public sealed class TerraformAdvisoryEmitSnapshotTests
         TerraformAdvisoryArtifactGenerator sut = new();
         SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
 
-        AssertAdvisoryCommentLine(artifact.Content);
+        string snapshot = NormalizeForVerifySnapshot(artifact.Content);
 
-        await Verify(NormalizeNewLines(artifact.Content), TerraformSnapshotSettings());
+        AssertAdvisoryCommentLine(snapshot);
+
+        await Verify(snapshot, TerraformSnapshotSettings());
     }
 
     private static ManifestDocument CreateMinimalManifest()

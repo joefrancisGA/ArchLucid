@@ -24,6 +24,6 @@ public static class TerraformAdvisorySnippetTemplates
     {
         ArgumentNullException.ThrowIfNull(resourceTerraformAddress);
         ArgumentNullException.ThrowIfNull(reason);
-        return $"{AdvisoryHeaderLine}\n# Omitting terraform destroy for `{resourceTerraformAddress}` — {reason}";
+        return $"{AdvisoryHeaderLine}\n# Omitting terraform destroy for `{resourceTerraformAddress}` — {reason}\n";
     }
 }

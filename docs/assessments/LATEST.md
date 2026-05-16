@@ -494,11 +494,11 @@ Update the `v1-rc-drill.ps1` script to accept optional parameters for a JWT bear
 Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker` to log every state transition of the agent execution state machine. Include the run ID, current state, next state, and any relevant task IDs in the log context. Ensure these logs are emitted at the `Information` level. Do not change the state machine logic itself. Acceptance criteria: Agent state transitions are clearly visible in the application logs.
 ```
 
-5. Add snapshot tests for advisory Terraform recommendation emit
-- Why it matters: Ensures Terraform snippets remain valid and do not regress.
-- Expected impact: Directly improves Correctness (+3 pts), Security (+1 pts). Weighted readiness impact: +0.56%.
+5. COMPLETED: Add snapshot tests for advisory Terraform recommendation emit
+- Why it matters: Ensures Terraform snippets remain stable and the advisory banner cannot regress silently.
+- Expected impact: (Delivered **2026-05-16**.) Directly improves Correctness (+3 pts), Security (+1 pts). Weighted readiness impact: +0.56%.
 - Affected qualities: Correctness, Security.
-- Actionable: Yes
+- Actionable: Completed
 ```markdown
 Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` that validate the output of the advisory Terraform recommendation emit. Use a library like `Verify` or `Snapshooter` to ensure the generated Terraform snippets match expected baselines. Ensure the tests verify the presence of the `# ArchLucid advisory` comment. Do not execute `terraform validate` in the unit tests to avoid external dependencies. Acceptance criteria: Snapshot tests cover the major Terraform recommendation scenarios.
 ```
