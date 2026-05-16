@@ -86,7 +86,7 @@ flowchart LR
 
 | Step | Action | Detail |
 |------|--------|--------|
-| 1 | Confirm SQL storage | `ArchLucid:StorageProvider=Sql` for production-aligned paths — **[adr/0011-inmemory-vs-sql-storage-provider.md](../architecture/adr/0011-inmemory-vs-sql-storage-provider.md)** |
+| 1 | Confirm SQL storage | `ArchLucid:StorageProvider=Sql` for production-aligned paths — **[adr/0011-inmemory-vs-sql-storage-provider.md](../architecture/adrs/0011-inmemory-vs-sql-storage-provider.md)** |
 | 2 | Exercise auth you will use in prod | **JwtBearer** or **ApiKey** — **[API_CONTRACTS.md](../library/API_CONTRACTS.md#security-schemes-swashbuckle)**, sample **[ArchLucid.Api/appsettings.Entra.sample.json](../ArchLucid.Api/appsettings.Entra.sample.json)** |
 | 3 | Run integration / regression | Set `ARCHLUCID_SQL_TEST` (or API test var); scripts — **[BUILD.md](BUILD.md)**, **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** |
 | 4 | Optional release smoke | `release-smoke` with `ARCHLUCID_SMOKE_SQL` — **[RELEASE_SMOKE.md](RELEASE_SMOKE.md)** |
@@ -125,7 +125,7 @@ Use these when a **specific feature** demands them — not part of the golden pa
 | **Consumption APIM** | `infra/terraform/README.md` (not a substitute for all private APIM topologies) |
 | **SQL failover group (IaC)** | `infra/terraform-sql-failover/` |
 | **Contoso demo / trusted baseline** | **[demo-quickstart.md](demo-quickstart.md)**, **[TRUSTED_BASELINE.md](TRUSTED_BASELINE.md)** |
-| **RLS / multi-tenant SQL** | **[security/MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md)**, ADRs under `docs/architecture/adr/` |
+| **RLS / multi-tenant SQL** | **[security/MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md)**, ADRs under `docs/architecture/adrs/` |
 | **Managed identity SQL + blob** | **[security/MANAGED_IDENTITY_SQL_BLOB.md](security/MANAGED_IDENTITY_SQL_BLOB.md)** |
 | **Ask + RAG threat model** | **[security/ASK_RAG_THREAT_MODEL.md](security/ASK_RAG_THREAT_MODEL.md)** |
 | **Azure AI Search SKU** | **[AI_SEARCH_SKU_GUIDANCE.md](AI_SEARCH_SKU_GUIDANCE.md)** |
@@ -144,4 +144,4 @@ Use these when a **specific feature** demands them — not part of the golden pa
 
 - **All architecture entry points:** **[ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md)**  
 - **Runbooks (incident-shaped):** **[runbooks/README.md](runbooks/README.md)**  
-- **ADRs (why we chose X):** **[adr/README.md](../architecture/adr/README.md)**
+- **ADRs (why we chose X):** **[adr/README.md](../architecture/adrs/README.md)**

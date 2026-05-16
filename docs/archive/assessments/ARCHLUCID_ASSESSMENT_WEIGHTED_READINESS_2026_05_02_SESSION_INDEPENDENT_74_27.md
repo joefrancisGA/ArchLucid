@@ -144,7 +144,7 @@ Middle and lower tiers (Stickiness → Testability)—briefly: residual risks ar
 3. **Trust velocity ceiling**: honest documentation does not accelerate infosec committees expecting external attestations.
 4. **LLM semantic correctness** remains the hardest buyer objection to disprove quickly.
 5. **Surface-area vs Pilot wedge mismatch**—Operate power can distract evaluators prematurely.
-6. **Legacy/convergence seams** consume contributor attention ([`ADR 0029`](../architecture/adr/0029-coordinator-strangler-acceleration-2026-05-15.md)-family context).
+6. **Legacy/convergence seams** consume contributor attention ([`ADR 0029`](../architecture/adrs/0029-coordinator-strangler-acceleration-2026-05-15.md)-family context).
 7. **Performance / scale evidence buyer-facing**: engineering has baselines—buyer narratives still require careful framing.
 8. **README vs SECURITY nuance drift risk** on auth defaults affecting misconfigured pilots.
 9. **Self-sufficiency asymmetry**: power users excel; hurried buyers under-index long-form library.

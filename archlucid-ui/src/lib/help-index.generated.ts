@@ -69,63 +69,63 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "excerpt": "ArchLucid surfaces `GET /v1/compare` Markdown in CI/CD for both GitHub Actions and Azure DevOps Pipelines — pick the entry point that matches your vendor:"
   },
   {
-    "docPath": "docs/TROUBLESHOOTING.md",
+    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "",
     "sectionHeading": "Troubleshooting for pilots and operators (56R) — overview",
     "excerpt": "Goal: Faster triage without reading the whole codebase."
   },
   {
-    "docPath": "docs/TROUBLESHOOTING.md",
+    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "first-line-steps-try-in-order",
     "sectionHeading": "First-line steps (try in order)",
     "excerpt": "1. See [Common operator errors (top 10)](runbooks/COMMON_ERRORS.md) for step-by-step fixes to startup, auth, migrations, OpenAI, rate limits, concurrency, and readiness checks. 2. `GET /health/live` — process up? Then `GET /health/ready` — read JSON `entries[]` for the first `Unhealthy` / `Degraded` check. 2. `GET /…"
   },
   {
-    "docPath": "docs/TROUBLESHOOTING.md",
+    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "problem-details-applicationproblemjson-and-supporthint",
     "sectionHeading": "Problem Details (`application/problem+json`) and `supportHint`",
     "excerpt": "Shape follows RFC 9457 (Problem Details for HTTP APIs; obsoletes RFC 7807). API error responses may include:"
   },
   {
-    "docPath": "docs/TROUBLESHOOTING.md",
+    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "quick-matrix",
     "sectionHeading": "Quick matrix",
     "excerpt": "Quick matrix"
   },
   {
-    "docPath": "docs/TROUBLESHOOTING.md",
+    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "api-startup-failures",
     "sectionHeading": "API startup failures",
     "excerpt": "1. Read the console output from first line to first `InvalidOperationException` / stack stop. 2. Configuration validation runs right after the host is built: errors are logged as `Startup configuration error:` — fix each listed setting. 3. If `ConnectionStrings:ArchLucid` is unset while `ArchLucid:StorageProvider` i…"
   },
   {
-    "docPath": "docs/TROUBLESHOOTING.md",
+    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "logs-what-to-search-for",
     "sectionHeading": "Logs — what to search for",
     "excerpt": "- `RunId=` — ties log lines to a single architecture run. - `X-Correlation-ID` you sent on the request (or the ID the server returned) — ties client attempts to server handling; if you only have a problem JSON body, use `correlationId` there (same value). - `Authority pipeline` / `Architecture run execution failed` …"
   },
   {
-    "docPath": "docs/TROUBLESHOOTING.md",
+    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "artifact-list-empty-or-download-404",
     "sectionHeading": "Artifact list empty or download 404",
     "excerpt": "- An empty artifact list (`[]`) can be valid: manifest exists but no synthesized files yet or none stored for that manifest. - Bundle ZIP 404 can mean “no bundle” vs “manifest not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
   },
   {
-    "docPath": "docs/TROUBLESHOOTING.md",
+    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "support-bundle-attach-to-tickets",
     "sectionHeading": "Support bundle (attach to tickets)",
     "excerpt": "With the API running, from repo root (or set `ARCHLUCID_API_URL` to your API base):"
   },
   {
-    "docPath": "docs/TROUBLESHOOTING.md",
+    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "still-stuck",
     "sectionHeading": "Still stuck?",
@@ -174,137 +174,11 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "excerpt": "Scope: `RealAgentExecutor` when `AgentExecution:Mode=Real` (deterministic simulator is unchanged)."
   },
   {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
+    "docPath": "docs/library/CORE_PILOT.md",
+    "docTitle": "Core Pilot (pointer)",
     "sectionSlug": "",
-    "sectionHeading": "ArchLucid Core Pilot path — overview",
-    "excerpt": "Audience: Operators and design partners completing their first pilot."
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "first-session-checklist-buyer-evaluator",
-    "sectionHeading": "First session checklist (buyer / evaluator)",
-    "excerpt": "First session checklist (buyer / evaluator)"
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "related",
-    "sectionHeading": "Related",
-    "excerpt": "- [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) — sponsor story of record - [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md) — C4 + ownership - [OPERATOR_ATLAS.md](library/OPERATOR_ATLAS.md) — route × API × CLI - [PRODUCT_PACKAGING.md](library/PRODUCT_PACKAGING.md) §3 — operator nav, `LayerHeade…"
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "1-what-core-pilot-means",
-    "sectionHeading": "1. What \"Core Pilot\" means",
-    "excerpt": "The Core Pilot path is four steps. Completing them produces a committed golden manifest (technical term) and a downloadable artifact bundle — together, the architecture review package that is the primary deliverable of a pilot."
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "2-why-this-boundary-exists",
-    "sectionHeading": "2. Why this boundary exists",
-    "excerpt": "The platform has a large surface area by design: it supports governance workflows, comparison replay, multi-agent authority chains, knowledge graphs, and more. For a first pilot, that breadth is friction, not value."
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "3-step-by-step-walkthrough",
-    "sectionHeading": "3. Step-by-step walkthrough",
-    "excerpt": "3. Step-by-step walkthrough"
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "zero-config-sample-first",
-    "sectionHeading": "Zero-config sample first",
-    "excerpt": "On the operator Home page, Start with sample review opens the curated Claims Intake sample review package. It is already finalized and shows the same output shape as a real Core Pilot: reviewed manifest, findings, evidence trail, artifacts, and a clear demo-data warning. Use it to understand the destination before f…"
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "step-1-create-an-architecture-review",
-    "sectionHeading": "Step 1 — Create an architecture review",
-    "excerpt": "Operator UI: Sidebar → New run → seven-step wizard (system identity, requirements, constraints, advanced inputs, submit). The wizard creates the architecture review and POSTs `POST /v1/architecture/request`; the resulting run ID is support metadata."
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "step-2-execute-the-run",
-    "sectionHeading": "Step 2 — Execute the run",
-    "excerpt": "After creation, the coordinator fills context snapshots and authority steps automatically. In simulator mode (default in dev/demo), the pipeline completes in seconds."
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "step-3-commit-the-manifest",
-    "sectionHeading": "Step 3 — Commit the manifest",
-    "excerpt": "Commit produces the golden manifest and synthesizes artifacts. Nothing is reviewable, exportable, or comparable before this step."
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "step-4-open-the-review-package",
-    "sectionHeading": "Step 4 — Open the review package",
-    "excerpt": "Operator UI: Run detail (after commit) shows: - Manifest summary — decisions, findings, structured metadata. - Artifacts table — each artifact with a Review link (in-shell preview + raw disclosure) and a Download button. - Bundle ZIP — full artifact bundle for offline review."
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "step-5-same-four-steps-with-your-inputs-no-doc-stack",
-    "sectionHeading": "Step 5 — Same four steps with your inputs (no doc stack)",
-    "excerpt": "After `archlucid try` (or the operator wizard demo), the lowest-friction “real” second run is a one-page `SECOND_RUN.toml` / `.json` file plus a single CLI command — no need to read OPERATOR_QUICKSTART, PILOT_GUIDE, or CONTEXT_INGESTION for the happy path."
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "4-extended-operations-not-required-enable-via-show-more-links",
-    "sectionHeading": "4. Extended operations (not required — enable via \"Show more links\")",
-    "excerpt": "These are available once you have a committed run. In the operator UI sidebar, click Show more links to surface Graph, Compare, and Replay."
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "5-what-stays-in-the-sidebar-by-default-essential-tier",
-    "sectionHeading": "5. What stays in the sidebar by default (essential tier)",
-    "excerpt": "The sidebar progressive disclosure system exposes three tiers: `essential`, `extended`, and `advanced`. At first launch (no `localStorage` values), only `essential` links are visible:"
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "6-back-end-surface",
-    "sectionHeading": "6. Back-end surface",
-    "excerpt": "The Core Pilot path uses the following API endpoints. No advanced configuration is required beyond a running API and a valid connection string."
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "7-configuration-for-a-first-pilot",
-    "sectionHeading": "7. Configuration for a first pilot",
-    "excerpt": "Minimum required configuration (see [docs/PILOT_GUIDE.md](library/PILOT_GUIDE.md) for full setup):"
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "8-what-to-evaluate-in-a-core-pilot",
-    "sectionHeading": "8. What to evaluate in a Core Pilot",
-    "excerpt": "At the end of the four steps, a pilot evaluator should be able to answer:"
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "9-cleanup-later-post-core-pilot",
-    "sectionHeading": "9. Cleanup later (post-Core Pilot)",
-    "excerpt": "Once the Core Pilot is validated, the following areas are available for deeper evaluation:"
-  },
-  {
-    "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "ArchLucid Core Pilot path",
-    "sectionSlug": "related-templates-and-evidence",
-    "sectionHeading": "Related templates and evidence",
-    "excerpt": "- Architecture request (field map + OpenAPI pointer): [docs/library/ARCHITECTURE_REQUEST_WIRE_FORMAT.md](library/ARCHITECTURE_REQUEST_WIRE_FORMAT.md) - Starter `ArchitectureRequest` JSON: [templates/reference-architectures/README.md](../templates/reference-architectures/README.md) · [templates/architecture-requests/…"
+    "sectionHeading": "Core Pilot (pointer) — overview",
+    "excerpt": "The operator-facing Core Pilot walkthrough is [`docs/CORE_PILOT.md`](../CORE_PILOT.md)."
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",

@@ -647,7 +647,7 @@ Gaps: Rename from legacy naming partially complete. Technical debt documented in
 
 ### Documentation — Score: 70 | Weight: 1 | Weighted Deficiency: 0.30
 
-**Justification:** 495+ markdown files. Structured docs hierarchy (docs/, docs/library/, docs/go-to-market/, docs/security/, docs/engineering/, docs/runbooks/, docs/architecture/adr/). Navigator document. Five-document spine. Scope headers on every doc. Contributor persona table. Multiple onboarding paths (buyer, contributor, security, operator). CI guards on doc quality (root count, navigator links, two-layer naming).
+**Justification:** 495+ markdown files. Structured docs hierarchy (docs/, docs/library/, docs/go-to-market/, docs/security/, docs/engineering/, docs/runbooks/, docs/architecture/adrs/). Navigator document. Five-document spine. Scope headers on every doc. Contributor persona table. Multiple onboarding paths (buyer, contributor, security, operator). CI guards on doc quality (root count, navigator links, two-layer naming).
 
 Gaps: Documentation may be excessive for the current product stage. Some docs reference features in development or placeholder states. No public documentation site. Docs are in-repo only.
 

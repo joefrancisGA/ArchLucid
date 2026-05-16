@@ -22,7 +22,7 @@ The repository supports a grounded buyer story ([`docs/EXECUTIVE_SPONSOR_BRIEF.m
 
 ### Enterprise picture
 
-Enterprise-grade **artifacts exist**: Trust Center ([`docs/trust-center.md`](../trust-center.md)), STRIDE summary ([`docs/security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md)), SOC 2 self-assessment + roadmap, append-only audit design ([`docs/library/AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md)), SQL RLS posture ([`docs/security/MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md)), SCIM surface (ADR [`0032`](../architecture/adr/0032-scim-v2-service-provider.md)). **Trust gaps are predictable**: no SOC 2 Type II report yet, pen-test outcomes not publicly packaged in V1 contract, and buyers must accept **single-region** posture and integration breadth limits ([`docs/library/BUYER_SCALABILITY_FAQ.md`](BUYER_SCALABILITY_FAQ.md)). Workflow embedding vs incumbent ITSM stacks is **partially addressable via webhooks/API**; first-party Jira/ServiceNow/Slack commitments are explicitly deferred — excluded from penalty.
+Enterprise-grade **artifacts exist**: Trust Center ([`docs/trust-center.md`](../trust-center.md)), STRIDE summary ([`docs/security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md)), SOC 2 self-assessment + roadmap, append-only audit design ([`docs/library/AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md)), SQL RLS posture ([`docs/security/MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md)), SCIM surface (ADR [`0032`](../architecture/adrs/0032-scim-v2-service-provider.md)). **Trust gaps are predictable**: no SOC 2 Type II report yet, pen-test outcomes not publicly packaged in V1 contract, and buyers must accept **single-region** posture and integration breadth limits ([`docs/library/BUYER_SCALABILITY_FAQ.md`](BUYER_SCALABILITY_FAQ.md)). Workflow embedding vs incumbent ITSM stacks is **partially addressable via webhooks/API**; first-party Jira/ServiceNow/Slack commitments are explicitly deferred — excluded from penalty.
 
 ### Engineering picture
 
@@ -180,7 +180,7 @@ For each quality below: **Score / Weight / Weighted deficiency signal / Weighted
     - **Fix horizon:** v1 (documentation); attestations later.
 
 16. **Architectural Integrity — 81 / 3 / 57 / 23.82pp**  
-    - **Justification:** ADRs and strangler patterns document convergence ([`docs/architecture/adr/`](../architecture/adr/README.md)); residual complexity from coordinator → authority migration notes remains specialist knowledge.  
+    - **Justification:** ADRs and strangler patterns document convergence ([`docs/architecture/adrs/`](../architecture/adrs/README.md)); residual complexity from coordinator → authority migration notes remains specialist knowledge.  
     - **Tradeoffs:** Big-bang simplifications risk destabilizing pilots.  
     - **Recommendations:** Keep “external HTTP surface rules” enforced via architecture tests ([`ArchLucid.Architecture.Tests/`](../../ArchLucid.Architecture.Tests)); maintain parity runbooks ([`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md)).  
     - **Fix horizon:** v1.
@@ -198,7 +198,7 @@ For each quality below: **Score / Weight / Weighted deficiency signal / Weighted
     - **Fix horizon:** v1–v1.1.
 
 19. **Reliability — 74 / 2 / 52 / 14.51pp**  
-    - **Justification:** Outbox/integration patterns documented (ADR [`0004`](../architecture/adr/0004-transactional-outbox-retrieval-indexing.md)); chaos/simmy schedules exist; real-world reliability depends on Azure dependencies.  
+    - **Justification:** Outbox/integration patterns documented (ADR [`0004`](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md)); chaos/simmy schedules exist; real-world reliability depends on Azure dependencies.  
     - **Tradeoffs:** More retries mask data bugs; fewer retries harm UX.  
     - **Recommendations:** Ensure incident runbook currency ([`docs/runbooks/INCIDENT_INVESTIGATION.md`](../runbooks/INCIDENT_INVESTIGATION.md)); codify SLO monitoring hooks ([`docs/runbooks/SLO_PROMETHEUS_GRAFANA.md`](../runbooks/SLO_PROMETHEUS_GRAFANA.md)).  
     - **Fix horizon:** v1.
@@ -336,7 +336,7 @@ For each quality below: **Score / Weight / Weighted deficiency signal / Weighted
     - **Fix horizon:** v1.
 
 42. **Azure Ecosystem Fit — 81 / 1 / 19 / 7.94pp**  
-    - **Justification:** Entra, Container Apps, SQL, Service Bus, Marketplace alignment documented (ADR [`0020`](../architecture/adr/0020-azure-primary-platform-permanent.md)).  
+    - **Justification:** Entra, Container Apps, SQL, Service Bus, Marketplace alignment documented (ADR [`0020`](../architecture/adrs/0020-azure-primary-platform-permanent.md)).  
     - **Tradeoffs:** Multi-cloud buyers feel excluded—accepted ICP tradeoff.  
     - **Recommendations:** Where AWS/GCP mentions appear, frame explicitly as out-of-scope for V1 unless connector roadmap opens ([`docs/library/V1_SCOPE.md`](V1_SCOPE.md)).  
     - **Fix horizon:** positioning/docs v1.

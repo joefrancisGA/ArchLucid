@@ -62,7 +62,7 @@ def main() -> int:
             "- **Rule pointer:** [`.cursor/rules/Architecture-Invariants.mdc`]"
             "(../../.cursor/rules/Architecture-Invariants.mdc).",
             "- **ADR:** [`0035-architecture-invariant-catalog.md`]"
-            "(../architecture/adr/0035-architecture-invariant-catalog.md).",
+            "(../architecture/adrs/0035-architecture-invariant-catalog.md).",
             "",
             "## V1 headline / deferrals (read sources; do not treat this digest as canonical)",
             "",

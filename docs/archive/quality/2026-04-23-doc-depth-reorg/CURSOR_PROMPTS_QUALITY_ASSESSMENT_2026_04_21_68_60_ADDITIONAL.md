@@ -21,7 +21,7 @@ interface-family tax cannot silently grow back.
 
 Read first:
 - docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md §1.9, §2.1 item 7, §2.3 item 3, §2.4 item 3
-- docs/architecture/adr/0021-*.md (coordinator strangler) and docs/architecture/adr/0022-*.md (Phase 3 deferral / exit gates)
+- docs/architecture/adrs/0021-*.md (coordinator strangler) and docs/architecture/adrs/0022-*.md (Phase 3 deferral / exit gates)
 - docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md (if present) and .github/workflows/coordinator-parity-daily.yml
 - ArchLucid.Api/Controllers/ (grep for Coordinator namespace / legacy route families)
 - ArchLucid.Coordinator/ and ArchLucid.Application/ (grep for IGoldenManifestRepository / IDecisionTraceRepository dual registrations)
@@ -33,7 +33,7 @@ Do this:
 2. Add scripts/ci/assert_coordinator_reference_ceiling.py that counts non-test references
    to a checked-in allowlist JSON (start from current baseline). CI step: fail when count increases.
    Paired unit tests under scripts/ci/tests/.
-3. Add docs/architecture/adr/0028-coordinator-strangler-completion.md as **Draft** — sections only:
+3. Add docs/architecture/adrs/0028-coordinator-strangler-completion.md as **Draft** — sections only:
    Objective, Assumptions, Constraints, Decision, Consequences, Exit gates — with TODO for completion date (owner).
 4. Cross-link from docs/DUAL_PIPELINE_NAVIGATOR.md (or ARCHITECTURE_COMPONENTS.md) to the inventory + script.
 5. Append PENDING_QUESTIONS.md item 16 sub-bullets if any new mechanical unblockers appear (do not resolve owner gates).

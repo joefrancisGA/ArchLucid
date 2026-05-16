@@ -15,7 +15,7 @@ Pilots creating packs via **`POST /v1/governance/policy-packs`** can start from 
 
 A reviewer **must not** approve or reject a governance approval request they **submitted**.
 
-**JWT (Entra / OIDC) paths.** The server derives a **canonical segregation key** from `tid` + `oid` (`IActorContext.GetActorId()`, shape `jwt:{tenantId}:{objectId}`, or `jwt:{objectId}` when `tid` is absent — see [**ADR 0034**](../architecture/adr/0034-segregation-of-duties-entra-oid-actor-keys.md)). At persistence time the API stores **`RequestedByActorKey`** / **`ReviewedByActorKey`** on `dbo.GovernanceApprovalRequests` (additive columns alongside human-readable **`RequestedBy`** / approved-by display strings).
+**JWT (Entra / OIDC) paths.** The server derives a **canonical segregation key** from `tid` + `oid` (`IActorContext.GetActorId()`, shape `jwt:{tenantId}:{objectId}`, or `jwt:{objectId}` when `tid` is absent — see [**ADR 0034**](../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md)). At persistence time the API stores **`RequestedByActorKey`** / **`ReviewedByActorKey`** on `dbo.GovernanceApprovalRequests` (additive columns alongside human-readable **`RequestedBy`** / approved-by display strings).
 
 `GovernanceSegregationRules` compares **JWT-prefixed** keys ordinally when **both** the stored submission key and the reviewer key match the JWT canonical pattern; otherwise it falls back to **ordinal, case-insensitive** comparison of display strings (API-key-only traffic, mixed legacy rows, or missing keys).
 

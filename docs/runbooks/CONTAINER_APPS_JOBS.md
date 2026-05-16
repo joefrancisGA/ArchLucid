@@ -6,7 +6,7 @@
 # Runbook — Azure Container Apps Jobs (`ArchLucid.Jobs.Cli`)
 
 **Last reviewed:** 2026-04-19  
-**ADR:** [ADR 0018](../architecture/adr/0018-background-workloads-container-apps-jobs.md)
+**ADR:** [ADR 0018](../architecture/adrs/0018-background-workloads-container-apps-jobs.md)
 
 ## Objective
 

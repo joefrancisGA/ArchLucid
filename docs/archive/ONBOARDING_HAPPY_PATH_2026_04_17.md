@@ -59,4 +59,4 @@ flowchart LR
 
 ## Architecture decisions
 
-See `docs/architecture/adr/README.md` for ADRs that explain non-obvious choices (hosting roles, RLS, LLM pipeline, etc.).
+See `docs/architecture/adrs/README.md` for ADRs that explain non-obvious choices (hosting roles, RLS, LLM pipeline, etc.).

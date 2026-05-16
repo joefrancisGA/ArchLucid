@@ -83,10 +83,10 @@ Update docs/CHANGELOG.md and the cursor-prompts execution log.
 
 ```text
 You are executing the unblocking work for ADR 0021 Phase 3. Read these first:
-- docs/architecture/adr/0021-coordinator-pipeline-strangler-plan.md
-- docs/architecture/adr/0022-coordinator-phase3-deferred.md
-- docs/architecture/adr/0010-dual-manifest-trace-repository-contracts.md
-- docs/architecture/adr/0002-dual-persistence-architecture-runs-and-runs.md
+- docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md
+- docs/architecture/adrs/0022-coordinator-phase3-deferred.md
+- docs/architecture/adrs/0010-dual-manifest-trace-repository-contracts.md
+- docs/architecture/adrs/0002-dual-persistence-architecture-runs-and-runs.md
 - docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md
 - ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs
 - ArchLucid.Core/Audit/AuditEventTypes.cs
@@ -161,7 +161,7 @@ Marketplace SaaS listing. Read these first:
 - docs/go-to-market/MARKETPLACE_PUBLICATION.md
 - docs/go-to-market/PRICING_PHILOSOPHY.md
 - docs/AZURE_MARKETPLACE_SAAS_OFFER.md
-- docs/architecture/adr/0016-billing-provider-abstraction.md
+- docs/architecture/adrs/0016-billing-provider-abstraction.md
 - ArchLucid.Persistence/Migrations/078_BillingSubscriptions.sql
 - ArchLucid.Persistence/Migrations/086_Billing_MarketplaceChangePlanQuantity.sql
 - ArchLucid.Application.Tests/Billing/MarketplaceChangePlanWebhookMutationHandlerTests.cs
@@ -273,7 +273,7 @@ Update docs/CHANGELOG.md and the cursor-prompts execution log.
 
 ## Prompt 5 — Two enterprise workflow integrations (ServiceNow CR + Confluence page) — **DEFERRED**
 
-**Status (2026-04-21):** **Do not execute this prompt.** ServiceNow and Confluence first-party integrations are **out of scope for now**: ServiceNow is **operational ITSM**; ArchLucid is aimed at **upstream** architecture and design-time workflows. Confluence is **not** aligned with the current **Microsoft-first** integration direction (Entra, Azure DevOps, Teams, Logic Apps — see [`docs/architecture/adr/0019-logic-apps-standard-edge-orchestration.md`](../../../architecture/adr/0019-logic-apps-standard-edge-orchestration.md); GitHub + ADO manifest-delta already shipped). Recorded in [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) Resolved + items **4** / **11**.
+**Status (2026-04-21):** **Do not execute this prompt.** ServiceNow and Confluence first-party integrations are **out of scope for now**: ServiceNow is **operational ITSM**; ArchLucid is aimed at **upstream** architecture and design-time workflows. Confluence is **not** aligned with the current **Microsoft-first** integration direction (Entra, Azure DevOps, Teams, Logic Apps — see [`docs/architecture/adrs/0019-logic-apps-standard-edge-orchestration.md`](../../../architecture/adrs/0019-logic-apps-standard-edge-orchestration.md); GitHub + ADO manifest-delta already shipped). Recorded in [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) Resolved + items **4** / **11**.
 
 **Title (historical):** Ship ServiceNow change-request creation and Confluence page publishing on commit
 
@@ -501,7 +501,7 @@ existence + PNG magic bytes. Update docs/CHANGELOG.md and the cursor-prompts exe
 ```text
 You are extending the cached anonymous demo preview surface so a buyer can click through
 a few read-only pages without signing in. Read first:
-- docs/architecture/adr/0027-demo-preview-cached-anonymous-commit-page.md
+- docs/architecture/adrs/0027-demo-preview-cached-anonymous-commit-page.md
 - docs/DEMO_PREVIEW.md
 - ArchLucid.Api/Controllers/Demo/   (DemoController + DemoExplainController + DemoPreviewController)
 - ArchLucid.Host.Core/Demo/         (DemoReadModelClient + IDemoCommitPagePreviewClient + IDemoSeedRunResolver)

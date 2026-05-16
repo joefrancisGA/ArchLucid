@@ -489,7 +489,7 @@ beyond what the repository already documents.
    - archlucid-ui/src/app/(marketing)/signup/page.tsx
    - archlucid-ui/public/pricing.json
    - docs/MARKETABILITY_ASSESSMENT_2026_04_18.md (honesty boundary section)
-   - docs/architecture/adr/0016-billing-provider-abstraction.md
+   - docs/architecture/adrs/0016-billing-provider-abstraction.md
    - docs/AZURE_MARKETPLACE_SAAS_OFFER.md
 
 2. In infra/terraform-edge, add:
@@ -614,10 +614,10 @@ land the first consolidation step from PROJECT_CONSOLIDATION_PROPOSAL.md.
 Do the following:
 
 1. Read these files first:
-   - docs/architecture/adr/0001-hosting-roles-api-worker-combined.md
-   - docs/architecture/adr/0002-dual-persistence-architecture-runs-and-runs.md
-   - docs/architecture/adr/0012-runs-authority-convergence-write-freeze.md
-   - docs/architecture/adr/0021-coordinator-pipeline-strangler-plan.md
+   - docs/architecture/adrs/0001-hosting-roles-api-worker-combined.md
+   - docs/architecture/adrs/0002-dual-persistence-architecture-runs-and-runs.md
+   - docs/architecture/adrs/0012-runs-authority-convergence-write-freeze.md
+   - docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md
    - docs/PROJECT_CONSOLIDATION_PROPOSAL.md
    - docs/ARCHITECTURE_CONSTRAINTS.md
    - ArchLucid.sln (project list only)
@@ -658,13 +658,13 @@ Do the following:
      `dotnet list reference` output).
    - Merge them with namespace preservation; update the .sln; run the
      full test suite.
-   - Add an ADR docs/architecture/adr/0022-project-consolidation-step-1.md documenting
+   - Add an ADR docs/architecture/adrs/0022-project-consolidation-step-1.md documenting
      the merge and the next candidates.
 
 Acceptance:
 - ArchLucid.Architecture.Tests builds and runs in CI Tier 1 (fast core).
 - Solution builds; all existing tests pass.
-- New ADR is in place and linked from docs/architecture/adr/README.md.
+- New ADR is in place and linked from docs/architecture/adrs/README.md.
 
 Style:
 - C# 12 primary constructors; one class per file; is null patterns; no

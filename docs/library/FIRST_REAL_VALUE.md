@@ -83,4 +83,4 @@ Until an exporter is configured, these series exist **in-process only** ([`OBSER
 
 ## Architecture decision
 
-ADR **[`docs/architecture/adr/0033-first-real-value-single-env-var-flip.md`](../architecture/adr/0033-first-real-value-single-env-var-flip.md)**.
+ADR **[`docs/architecture/adrs/0033-first-real-value-single-env-var-flip.md`](../architecture/adrs/0033-first-real-value-single-env-var-flip.md)**.

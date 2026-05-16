@@ -426,7 +426,7 @@ Read first:
 - docs/go-to-market/COMPETITIVE_LANDSCAPE.md
 - docs/go-to-market/POSITIONING.md
 - docs/EXECUTIVE_SPONSOR_BRIEF.md
-- docs/architecture/adr/0027-demo-preview-cached-anonymous-commit-page.md
+- docs/architecture/adrs/0027-demo-preview-cached-anonymous-commit-page.md
 - docs/DEMO_PREVIEW.md
 - archlucid-ui/src/app/(marketing)/why/page.tsx
 - archlucid-ui/src/marketing/why-archlucid-comparison.ts
@@ -555,7 +555,7 @@ Read first:
 - docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md
 - schemas/integration-events/catalog.json
 - docs/contracts/archlucid-asyncapi-2.6.yaml
-- docs/architecture/adr/0019-logic-apps-standard-edge-orchestration.md
+- docs/architecture/adrs/0019-logic-apps-standard-edge-orchestration.md
 - infra/terraform-logicapps/  (existing five workflow templates - mirror layout)
 - integrations/github-action-manifest-delta/  (mirror reusable script layout)
 - integrations/azure-devops-task-manifest-delta/

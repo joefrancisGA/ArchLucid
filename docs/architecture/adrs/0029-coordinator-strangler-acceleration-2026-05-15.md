@@ -52,8 +52,8 @@ The new date **2026-05-15** must appear consistently in **every** location below
 | Component | What changes |
 |-----------|--------------|
 | `ArchLucid.Api/Filters/CoordinatorPipelineDeprecationFilter.cs` | `SunsetHttpDate` constant: `Mon, 20 Jul 2026 00:00:00 GMT` → `Fri, 15 May 2026 00:00:00 GMT`. XML doc-comment rationale updated to cite this ADR. Tests on the constant continue to pass by construction (they read `CoordinatorPipelineDeprecationFilter.SunsetHttpDate`, not a string literal). |
-| `docs/architecture/adr/0021-coordinator-pipeline-strangler-plan.md` | The 2026-04-21 update note (§ Status note → "Phase 2 deprecation signal kicked off") changes the inline `Sunset:` value from `Mon, 20 Jul 2026 00:00:00 GMT` to `Fri, 15 May 2026 00:00:00 GMT` and adds a one-line back-reference to **ADR 0029**. |
-| `docs/architecture/adr/0022-coordinator-phase3-deferred.md` | Three references to `2026-07-20` move to `2026-05-15`; the "PR B audit constants after Sunset" line cites this ADR as the source of the new date. |
+| `docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md` | The 2026-04-21 update note (§ Status note → "Phase 2 deprecation signal kicked off") changes the inline `Sunset:` value from `Mon, 20 Jul 2026 00:00:00 GMT` to `Fri, 15 May 2026 00:00:00 GMT` and adds a one-line back-reference to **ADR 0029**. |
+| `docs/architecture/adrs/0022-coordinator-phase3-deferred.md` | Three references to `2026-07-20` move to `2026-05-15`; the "PR B audit constants after Sunset" line cites this ADR as the source of the new date. |
 | `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` | "Phase 3 gate status" sub-section gains a one-line note: *"Cut-over date accelerated to 2026-05-15 per **ADR 0029**; gate **(iv)** still requires 14 contiguous green daily rows before deletion PR merges."* |
 | Any unreleased client SDK release notes | Replace 2026-07-20 with 2026-05-15. (No public SDK has shipped yet — this is a forward guard.) |
 

@@ -23,5 +23,5 @@ Treat **`dbo.Runs`** as the **authority source of truth** for new features. **`A
 
 ## Links
 
-- `docs/architecture/adr/0012-runs-authority-convergence-write-freeze.md` — completion record
+- `docs/architecture/adrs/0012-runs-authority-convergence-write-freeze.md` — completion record
 - `docs/DATA_CONSISTENCY_MATRIX.md`

@@ -34,7 +34,7 @@
 
 Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator** (`CoordinatorRun*`) / **canonical** (`Run.*`) / **authority** (`RunStarted`, `RunCompleted`). Latency columns remain manual until wired.
 
-**Historical note:** `.github/workflows/coordinator-parity-daily.yml` formerly upserted this table nightly; **retired 2026-05-05** with Phase 3 **PR B** ([ADR 0030](../architecture/adr/0030-coordinator-authority-pipeline-unification.md)) — the coordinator pipeline is gone, so the nightly auto-append was vacuous. Operators may still run `python scripts/ci/coordinator_parity_probe.py --runbook docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` manually against a SQL-backed environment if a future ADR restores parity-gate semantics (e.g. post-V1).
+**Historical note:** `.github/workflows/coordinator-parity-daily.yml` formerly upserted this table nightly; **retired 2026-05-05** with Phase 3 **PR B** ([ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md)) — the coordinator pipeline is gone, so the nightly auto-append was vacuous. Operators may still run `python scripts/ci/coordinator_parity_probe.py --runbook docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` manually against a SQL-backed environment if a future ADR restores parity-gate semantics (e.g. post-V1).
 
 <!-- coordinator-parity-probe:table -->
 | Window start (UTC) | Window end (UTC) | Tenant sample | Coordinator p95 ms | Authority p95 ms | Audit rows/hr | Replay parity OK? | Notes |
@@ -57,7 +57,7 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 
 ## Phase 3 gate status (2026-04-21, updated 2026-04-22)
 
-**ADR 0021 Phase 3 is unblocked for the pre-release window.** Gates **(i)** (30-day post-PR-A soak) and **(iv)** (14 contiguous green daily rows in the parity table above) are both **waived** per [ADR 0029](../architecture/adr/0029-coordinator-strangler-acceleration-2026-05-15.md) (owner Q&A 2026-04-21 + follow-up). Gate (iv) was waived because pre-release there is no customer traffic on either pipeline, the daily probe needs a SQL secret that only meaningfully exists post-V1, and holding the gate would create a chicken-and-egg block on shipping V1. Gate **(ii)** (`dotnet test --filter "Suite=Core|Suite=Integration"` green on `main`) **remains in force**. Gate **(iii)** is satisfied for PR A2 by the **cohort parity integration tests** documented in [`evidence/phase3/pr-a2-cohort-parity.md`](../evidence/phase3/pr-a2-cohort-parity.md); the live-API E2E workflow remains an additional regression signal on `main` but is not the sole owner of gate (iii) for this sub-PR.
+**ADR 0021 Phase 3 is unblocked for the pre-release window.** Gates **(i)** (30-day post-PR-A soak) and **(iv)** (14 contiguous green daily rows in the parity table above) are both **waived** per [ADR 0029](../architecture/adrs/0029-coordinator-strangler-acceleration-2026-05-15.md) (owner Q&A 2026-04-21 + follow-up). Gate (iv) was waived because pre-release there is no customer traffic on either pipeline, the daily probe needs a SQL secret that only meaningfully exists post-V1, and holding the gate would create a chicken-and-egg block on shipping V1. Gate **(ii)** (`dotnet test --filter "Suite=Core|Suite=Integration"` green on `main`) **remains in force**. Gate **(iii)** is satisfied for PR A2 by the **cohort parity integration tests** documented in [`evidence/phase3/pr-a2-cohort-parity.md`](../evidence/phase3/pr-a2-cohort-parity.md); the live-API E2E workflow remains an additional regression signal on `main` but is not the sole owner of gate (iii) for this sub-PR.
 
 **PR A2 (2026-04-22) — sub-PR evidence for gates (ii) and (iii) framing:**
 
@@ -66,7 +66,7 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 | **(ii)** | `dotnet test --filter "Suite=Core|Suite=Integration"` green on `main` (full Core + Integration CI slice). |
 | **(iii)** | `ArchitectureRunCommitPathParityIntegrationTests` in `ArchLucid.Api.Tests`: two factories (`Coordinator:LegacyRunCommitPath` true vs false) run the same simulator create → execute → commit idempotency key, assert identical **traceability-bundle.zip** entry names, and assert **stable** `PilotRunDeltasResponse` fields match (findings-by-severity histogram, audit row count + truncation flag, LLM call count, demo flag, top severity string). Clocks, seconds-to-commit, `topFindingId`, and evidence-chain pointers are intentionally out of scope — see [`evidence/phase3/pr-a2-cohort-parity.md`](../evidence/phase3/pr-a2-cohort-parity.md). Live workflow E2E remains additional signal but PR A2 satisfies gate (iii) for the pre-release waiver window via this cohort. |
 
-**Cut-over date: 2026-05-15** (latest-by; PR A may merge earlier once gates (ii) and (iii) clear). ADR 0029 Supersedes the earlier Draft [ADR 0028 — completion scaffold](../architecture/adr/0028-coordinator-strangler-completion.md).
+**Cut-over date: 2026-05-15** (latest-by; PR A may merge earlier once gates (ii) and (iii) clear). ADR 0029 Supersedes the earlier Draft [ADR 0028 — completion scaffold](../architecture/adrs/0028-coordinator-strangler-completion.md).
 
 **Both waivers expire automatically** if ArchLucid ships V1 to a paying customer before PR A merges — at that point the assistant amends ADR 0029 to restore both gates and recomputes the cut-over date. After V1 ships, any *future* coordinator-style refactor (none currently planned) must satisfy gates (i)–(iv) in full; the daily probe and runbook stay live for that purpose.
 
@@ -76,5 +76,5 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 
 ## Related
 
-- [ADR 0021 — Coordinator pipeline strangler plan](../architecture/adr/0021-coordinator-pipeline-strangler-plan.md)
+- [ADR 0021 — Coordinator pipeline strangler plan](../architecture/adrs/0021-coordinator-pipeline-strangler-plan.md)
 - [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md)

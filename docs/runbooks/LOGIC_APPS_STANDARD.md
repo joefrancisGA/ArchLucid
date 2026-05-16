@@ -43,6 +43,6 @@ Operate optional **Logic App (Standard)** hosts that consume ArchLucid **Service
 ## Related
 
 - `infra/terraform-logicapps/README.md`
-- `docs/architecture/adr/0019-logic-apps-standard-edge-orchestration.md`
+- `docs/architecture/adrs/0019-logic-apps-standard-edge-orchestration.md`
 - `docs/CURSOR_PROMPTS_LOGIC_APPS.md`
 - `docs/runbooks/LOGIC_APPS_INCIDENT_CHATOPS.md` — fired/resolved payloads, Service Bus user properties, callback routes

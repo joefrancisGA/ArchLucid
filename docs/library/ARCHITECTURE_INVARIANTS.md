@@ -4,7 +4,7 @@
 
 **Last updated:** 2026-05-09
 
-**Normative decisions** that conflict with this catalog belong in a new or amended [Architecture Decision Record](../architecture/adr/README.md); this file is the **checklist and ID registry** for enforcement work tracked in [`TECH_BACKLOG.md`](TECH_BACKLOG.md).
+**Normative decisions** that conflict with this catalog belong in a new or amended [Architecture Decision Record](../architecture/adrs/README.md); this file is the **checklist and ID registry** for enforcement work tracked in [`TECH_BACKLOG.md`](TECH_BACKLOG.md).
 
 **Conformance today:** Mixed. Several invariants partially hold by convention only. Rows below state **intent**, **why it matters**, **enforcement sketch**, and **relation to shipped decisions** where applicable.
 
@@ -34,7 +34,7 @@
 
 **Intent:** Exactly one derivation of tenant id per request scope; propagation via typed scope / parameters.
 
-**Why:** Cross-tenant data access is irreversible reputational failure; aligns with mental model of [ADR 0003](../architecture/adr/0003-sql-rls-session-context.md) (RLS as defense in depth, not the only control).
+**Why:** Cross-tenant data access is irreversible reputational failure; aligns with mental model of [ADR 0003](../architecture/adrs/0003-sql-rls-session-context.md) (RLS as defense in depth, not the only control).
 
 **Enforcement sketch:** Roslyn ban on `IHttpContextAccessor` / `ClaimsPrincipal` reads below API/Middleware layer except allow-listed parsers; parallel-tenant integration test.
 
@@ -118,7 +118,7 @@
 
 ## INV-010: Central HTTP / LLM clients
 
-**Intent:** All outbound calls inherit correlation, circuit breaking, and retry policy from [ADR 0005](../architecture/adr/0005-llm-completion-pipeline.md) composition.
+**Intent:** All outbound calls inherit correlation, circuit breaking, and retry policy from [ADR 0005](../architecture/adrs/0005-llm-completion-pipeline.md) composition.
 
 **Enforcement sketch:** Ban `new HttpClient()`; verify handler chain in registration tests.
 
@@ -163,6 +163,6 @@
 ## References
 
 - [`TECH_BACKLOG.md`](TECH_BACKLOG.md) — **TB-009** through **TB-012** enforcement waves  
-- [ADR 0035 (Proposed)](../architecture/adr/0035-architecture-invariant-catalog.md) — governance and acceptance  
+- [ADR 0035 (Proposed)](../architecture/adrs/0035-architecture-invariant-catalog.md) — governance and acceptance  
 - [`SONNET_AI_FUNCTIONALITY_REVIEW_BRIEF.md`](SONNET_AI_FUNCTIONALITY_REVIEW_BRIEF.md) — AI-path review questions overlapping INV-002  
 - [`docs/NEXT_REFACTORINGS.md`](../NEXT_REFACTORINGS.md) — broader refactor backlog (orthogonal)

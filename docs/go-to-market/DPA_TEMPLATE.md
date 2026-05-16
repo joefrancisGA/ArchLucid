@@ -107,7 +107,7 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 
 10.1 **Default:** Cross-tenant pattern participation is **OFF** unless Controller **explicitly** enables it in the product controls and, where required, documents that choice in the subscription or order form.
 
-10.2 **What is processed:** only non-identifying structural fingerprints and coarse aggregates, as documented in [CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) and [ADR 0031 — Cross-tenant pattern library](../architecture/adr/0031-cross-tenant-pattern-library.md); **not** free-text titles, URLs, user names, or customer-identifying labels in the operator-facing guidance surface.
+10.2 **What is processed:** only non-identifying structural fingerprints and coarse aggregates, as documented in [CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) and [ADR 0031 — Cross-tenant pattern library](../architecture/adrs/0031-cross-tenant-pattern-library.md); **not** free-text titles, URLs, user names, or customer-identifying labels in the operator-facing guidance surface.
 
 10.3 **Privacy mechanism:** Processor applies a minimum cohort size (**k >= 5** distinct contributing tenants per published bucket, unless a stricter value is agreed in writing) before showing any pattern to other tenants.
 

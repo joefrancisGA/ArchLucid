@@ -670,7 +670,7 @@ Qualities are ordered by **weighted deficiency** (= (100 - score) * weight), fro
 
 ### 2.44 Documentation -- Score: 75 | Weight: 1 | Weighted Deficiency: 25
 
-**Justification:** 556+ markdown files. Structured hierarchy (docs/, docs/library/, docs/architecture/adr/, docs/security/, docs/go-to-market/). Audience-split docs (buyer vs contributor). Doc inventory with metadata. Method documentation being added progressively (10 pieces tracked). API contracts documented.
+**Justification:** 556+ markdown files. Structured hierarchy (docs/, docs/library/, docs/architecture/adrs/, docs/security/, docs/go-to-market/). Audience-split docs (buyer vs contributor). Doc inventory with metadata. Method documentation being added progressively (10 pieces tracked). API contracts documented.
 
 **Tradeoffs:** 556 files risks staleness and navigation difficulty. Quality over quantity.
 

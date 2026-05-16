@@ -39,7 +39,7 @@ At a practical level, ArchLucid is an AI-assisted architecture workflow system t
 
 **Buyer-facing category:** Architecture Proof Engine — *Defensible architecture, on demand.*
 
-**Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting as documented in the repository). This keeps security boundaries, networking, and IaC assumptions explicit for sponsors and platform teams—see [ADR 0020](architecture/adr/0020-azure-primary-platform-permanent.md). **Hosted evaluation:** the public SaaS funnel is served at `https://staging.archlucid.net` (staging) and `https://archlucid.net` (production) when DNS and Front Door custom domains are live—see [REFERENCE_SAAS_STACK_ORDER.md](library/REFERENCE_SAAS_STACK_ORDER.md).
+**Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting as documented in the repository). This keeps security boundaries, networking, and IaC assumptions explicit for sponsors and platform teams—see [ADR 0020](architecture/adrs/0020-azure-primary-platform-permanent.md). **Hosted evaluation:** the public SaaS funnel is served at `https://staging.archlucid.net` (staging) and `https://archlucid.net` (production) when DNS and Front Door custom domains are live—see [REFERENCE_SAAS_STACK_ORDER.md](library/REFERENCE_SAAS_STACK_ORDER.md).
 
 ---
 

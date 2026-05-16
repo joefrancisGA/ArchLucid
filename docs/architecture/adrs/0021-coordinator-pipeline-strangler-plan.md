@@ -44,7 +44,7 @@ Two independent forces are now creating pressure to revisit ADR 0010:
 - **Architectural integrity.** External readers of the architecture (the [Quality Assessment 2026-04-20 § Improvement 3](../archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)) consistently flag the dual interface families as "two ways to do the same thing" and lose time disambiguating which path to extend. The [`docs/archive/dual-pipeline-navigator-superseded.md`](../archive/dual-pipeline-navigator-superseded.md) decision tree mitigates this *for contributors* but does not eliminate the underlying duplication.
 - **Cognitive load + onboarding cost.** Day-1 developer onboarding (`docs/onboarding/day-one-developer.md`) currently sends a new contributor through both interface families even when the day-1 task only touches one. The dual-pipeline model is a real source of "I changed the wrong repository" defects in PR review history.
 
-ADR 0010 cannot be overridden by a single "while I'm in here" refactor PR. The project's ADR governance (`docs/architecture/adr/README.md`) requires accepted ADRs to be **superseded** by a new ADR rather than rewritten or deleted.
+ADR 0010 cannot be overridden by a single "while I'm in here" refactor PR. The project's ADR governance (`docs/architecture/adrs/README.md`) requires accepted ADRs to be **superseded** by a new ADR rather than rewritten or deleted.
 
 ## Decision
 

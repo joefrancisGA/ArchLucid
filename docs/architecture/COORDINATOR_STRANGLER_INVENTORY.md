@@ -66,4 +66,4 @@
 
 - Reference-count ceiling (non-test `.cs` hits vs baseline): `scripts/ci/assert_coordinator_reference_ceiling.py`
 - Archived dual-path map: `docs/archive/dual-pipeline-navigator-superseded.md`
-- Superseded completion scaffold: `docs/architecture/adr/0028-coordinator-strangler-completion.md` (**Superseded by** [ADR 0029](adr/0029-coordinator-strangler-acceleration-2026-05-15.md))
+- Superseded completion scaffold: `docs/architecture/adrs/0028-coordinator-strangler-completion.md` (**Superseded by** [ADR 0029](adr/0029-coordinator-strangler-acceleration-2026-05-15.md))

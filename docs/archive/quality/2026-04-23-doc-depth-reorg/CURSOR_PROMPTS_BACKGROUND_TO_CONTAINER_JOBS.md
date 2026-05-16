@@ -8,7 +8,7 @@
 # Cursor prompts — move background services to Azure Container Apps Jobs
 
 **Status:** **Executed (wave 2, 2026-04-19):** additional `IArchLucidJob` implementations (`orphan-probe`, `data-archival`, `trial-lifecycle`, `trial-email-scan`, `audit-change-feed`, `servicebus-integration-events`), shared Service Bus dispatch, Cosmos single-batch change feed processor, Terraform **Event** trigger support in `jobs.tf`, OTel job counters/histogram, `scripts/ci/check_jobs_offload_manifest.py`. **Deferred:** `audit-retry-drain` (durable queue), dedicated Grafana SLO dashboard slice for jobs-only SLOs (use Log Analytics + OTel queries until wired).
-**Companion ADR:** [ADR 0018](../../../architecture/adr/0018-background-workloads-container-apps-jobs.md).
+**Companion ADR:** [ADR 0018](../../../architecture/adrs/0018-background-workloads-container-apps-jobs.md).
 **Last reviewed:** 2026-04-19
 
 ## Why Container Apps Jobs (not Functions)
