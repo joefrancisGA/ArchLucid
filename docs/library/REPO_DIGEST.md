@@ -1,6 +1,6 @@
 > **Scope:** Generated skim for coding agents and contributors; not a buyer document. Regenerate after large project-tree changes. Does not replace **`V1_SCOPE.md`** or **`V1_DEFERRED.md`**.
 
-**Generated:** 2026-05-11 09:02 UTC (`python scripts/repo_digest/build_repo_digest.py`)
+**Generated:** 2026-05-16 13:14 UTC (`python scripts/repo_digest/build_repo_digest.py`)
 
 ## Root .NET projects
 
@@ -25,6 +25,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 | `ArchLucid.Backfill.Cli/` | `ArchLucid.Backfill.Cli/ArchLucid.Backfill.Cli.csproj` |
 | `ArchLucid.Benchmarks/` | `ArchLucid.Benchmarks/ArchLucid.Benchmarks.csproj` |
 | `ArchLucid.Capabilities.Cost/` | `ArchLucid.Capabilities.Cost/ArchLucid.Capabilities.Cost.csproj` |
+| `ArchLucid.Capabilities.Cost.Tests/` | `ArchLucid.Capabilities.Cost.Tests/ArchLucid.Capabilities.Cost.Tests.csproj` |
 | `ArchLucid.Cli/` | `ArchLucid.Cli/ArchLucid.Cli.csproj` |
 | `ArchLucid.Cli.Tests/` | `ArchLucid.Cli.Tests/ArchLucid.Cli.Tests.csproj` |
 | `ArchLucid.ContextIngestion/` | `ArchLucid.ContextIngestion/ArchLucid.ContextIngestion.csproj` |
@@ -38,6 +39,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 | `ArchLucid.Host.Composition/` | `ArchLucid.Host.Composition/ArchLucid.Host.Composition.csproj` |
 | `ArchLucid.Host.Composition.Tests/` | `ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj` |
 | `ArchLucid.Host.Core/` | `ArchLucid.Host.Core/ArchLucid.Host.Core.csproj` |
+| `ArchLucid.Host.Core.Tests/` | `ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj` |
 | `ArchLucid.Integrations.AzureDevOps/` | `ArchLucid.Integrations.AzureDevOps/ArchLucid.Integrations.AzureDevOps.csproj` |
 | `ArchLucid.Integrations.AzureDevOps.Tests/` | `ArchLucid.Integrations.AzureDevOps.Tests/ArchLucid.Integrations.AzureDevOps.Tests.csproj` |
 | `ArchLucid.Jobs.Cli/` | `ArchLucid.Jobs.Cli/ArchLucid.Jobs.Cli.csproj` |
@@ -45,6 +47,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 | `ArchLucid.KnowledgeGraph/` | `ArchLucid.KnowledgeGraph/ArchLucid.KnowledgeGraph.csproj` |
 | `ArchLucid.KnowledgeGraph.Tests/` | `ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj` |
 | `ArchLucid.Notifications/` | `ArchLucid.Notifications/ArchLucid.Notifications.csproj` |
+| `ArchLucid.Notifications.Tests/` | `ArchLucid.Notifications.Tests/ArchLucid.Notifications.Tests.csproj` |
 | `ArchLucid.Persistence/` | `ArchLucid.Persistence/ArchLucid.Persistence.csproj` |
 | `ArchLucid.Persistence.MigrateVerify/` | `ArchLucid.Persistence.MigrateVerify/ArchLucid.Persistence.MigrateVerify.csproj` |
 | `ArchLucid.Persistence.MigrateVerify.Tests/` | `ArchLucid.Persistence.MigrateVerify.Tests/ArchLucid.Persistence.MigrateVerify.Tests.csproj` |
@@ -55,6 +58,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 | `ArchLucid.Retrieval.Tests/` | `ArchLucid.Retrieval.Tests/ArchLucid.Retrieval.Tests.csproj` |
 | `ArchLucid.TestSupport/` | `ArchLucid.TestSupport/ArchLucid.TestSupport.csproj` |
 | `ArchLucid.Worker/` | `ArchLucid.Worker/ArchLucid.Worker.csproj` |
+| `ArchLucid.Worker.Tests/` | `ArchLucid.Worker.Tests/ArchLucid.Worker.Tests.csproj` |
 
 ## Architecture invariants (**INV-***)
 
@@ -72,7 +76,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 
 - **Evidence contract:** [`ASSESSMENT_INPUTS.md`](ASSESSMENT_INPUTS.md) — ordered reads before broad scans; **`@Assessment-Scope-V1_1`** for **`(A)` / `(B)`** rules.
 - **Current score + backlog:** [`../assessments/LATEST.md`](../assessments/LATEST.md) only — **one** standing weighted pass.
-- **History:** [`../archive/assessments/`](../archive/assessments/) and archived quality narratives — **not** for quoting today’s headline readiness (see **“One workflow”** in **`ASSESSMENT_INPUTS.md`**).
+- **History:** [`../archive/assessments/`](../archive/assessments/) and archived quality narratives — **not** for quoting today's headline readiness (see **"One workflow"** in **`ASSESSMENT_INPUTS.md`**).
 
 ## HTTP / OpenAPI (refresh when changing wire shape)
 
