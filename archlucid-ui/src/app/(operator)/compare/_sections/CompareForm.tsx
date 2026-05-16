@@ -10,7 +10,10 @@ import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunC
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
-import { readCompareRunIdsFromSearchParams } from "@/lib/compare-url-query-params";
+import {
+  compareRunIdsAreSameAfterDemoCanonicalization,
+  readCompareRunIdsFromSearchParams,
+} from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
@@ -165,6 +168,11 @@ export function CompareForm() {
     }
 
     autoComparedFromUrlRef.current = true;
+
+    if (compareRunIdsAreSameAfterDemoCanonicalization(left, right)) {
+      return;
+    }
+
     void runCompareForPair(left, right);
   }, [searchParams, runCompareForPair]);
 
@@ -198,6 +206,7 @@ export function CompareForm() {
 
   const leftTrim = leftRunId.trim();
   const rightTrim = rightRunId.trim();
+  const sameCanonicalRunIdsBlocked = compareRunIdsAreSameAfterDemoCanonicalization(leftTrim, rightTrim);
   const leftFootnote = comparePickerFootnote(leftTrim, leftPickedSummary);
   const rightFootnote = comparePickerFootnote(rightTrim, rightPickedSummary);
   const isDemoClaimsIntakeComparePair =
@@ -233,11 +242,19 @@ export function CompareForm() {
   const compareInsightFirstLayout = pairAligned && !loading && compareHasRenderableOutcome;
 
   async function onCompare() {
+    if (sameCanonicalRunIdsBlocked) {
+      return;
+    }
+
     await runCompareForPair(leftTrim, rightTrim);
   }
 
   async function loadAiExplanation() {
     if (!leftTrim || !rightTrim) return;
+
+    if (sameCanonicalRunIdsBlocked) {
+      return;
+    }
 
     const leftAtStart = leftTrim;
     const rightAtStart = rightTrim;
@@ -329,6 +346,7 @@ export function CompareForm() {
           loading={loading}
           aiLoading={aiLoading}
           pairAligned={pairAligned}
+          sameCanonicalRunIdsBlocked={sameCanonicalRunIdsBlocked}
           onCompare={onCompare}
           onSummarizeForSponsor={loadAiExplanation}
           onLeftRunPicked={setLeftPickedSummary}

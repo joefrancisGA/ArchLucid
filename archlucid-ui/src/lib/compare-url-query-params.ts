@@ -1,4 +1,20 @@
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
+/**
+ * True when both inputs are non-empty and resolve to the same review id after demo alias normalization
+ * (for example legacy bookmark slug vs canonical showcase id).
+ */
+export function compareRunIdsAreSameAfterDemoCanonicalization(priorRunId: string, laterRunId: string): boolean {
+  const priorTrim = priorRunId.trim();
+  const laterTrim = laterRunId.trim();
+
+  if (priorTrim.length === 0 || laterTrim.length === 0) {
+    return false;
+  }
+
+  return canonicalizeDemoRunId(priorTrim).toLowerCase() === canonicalizeDemoRunId(laterTrim).toLowerCase();
+}
 
 /** How `/compare` URLs encode the prior vs later run id in the query string. */
 export type CompareHrefQueryMode = "friendly" | "technical";

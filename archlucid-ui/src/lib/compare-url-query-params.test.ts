@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   comparePageHref,
+  compareRunIdsAreSameAfterDemoCanonicalization,
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
+
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("readCompareRunIdsFromSearchParams", () => {
   it("prefers canonical left/right over synonyms", () => {
@@ -35,6 +38,32 @@ describe("readCompareRunIdsFromSearchParams", () => {
     const sp = new URLSearchParams("fromRunId=f&rightRunId=r");
 
     expect(readCompareRunIdsFromSearchParams(sp)).toEqual({ prior: "f", later: "r" });
+  });
+});
+
+describe("compareRunIdsAreSameAfterDemoCanonicalization", () => {
+  it("is false when either side is empty", () => {
+    expect(compareRunIdsAreSameAfterDemoCanonicalization("", "a")).toBe(false);
+    expect(compareRunIdsAreSameAfterDemoCanonicalization("a", "")).toBe(false);
+    expect(compareRunIdsAreSameAfterDemoCanonicalization("  ", "a")).toBe(false);
+  });
+
+  it("is true when ids differ only by known demo alias normalization", () => {
+    expect(
+      compareRunIdsAreSameAfterDemoCanonicalization("claims-intake-modernization-run", SHOWCASE_STATIC_DEMO_RUN_ID),
+    ).toBe(true);
+  });
+
+  it("is false when ids are not aliases of one another", () => {
+    expect(compareRunIdsAreSameAfterDemoCanonicalization("other-run", SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(false);
+  });
+
+  it("is false for two distinct non-empty ids", () => {
+    expect(compareRunIdsAreSameAfterDemoCanonicalization("run-a", "run-b")).toBe(false);
+  });
+
+  it("treats same literal id as a collision", () => {
+    expect(compareRunIdsAreSameAfterDemoCanonicalization(" same-id ", "same-id")).toBe(true);
   });
 });
 
