@@ -388,42 +388,7 @@ ACCEPTANCE CRITERIA
 3. Security review signs off logo handling (same bar as other tenant-uploaded blobs).
 ```
 
-12. Ship **curated default policy packs** — **V1 GA subset** (AI governance + security baseline); **landing-zone pack → V1.1**
-- Why it matters: The policy-pack **platform** exists (`IPolicyPacksAppService`, persistence, UI), but **tenant-visible curated content** was effectively empty — regulated buyers expecting **AI governance findings** saw no starter signal. Shipping **two** MVP packs closes the narrative gap without pretending exhaustive compliance coverage.
-- Expected impact: Proof-of-ROI Readiness **80→82**, Stickiness **78→79**, Commercial Packaging **80→81**; weighted readiness **+0.30%** toward headline (**stacked before Q4**). Coordinate with **#28** so export **Policy findings** sections populate credibly from seeded rules.
-- Affected qualities: Proof-of-ROI Readiness, Commercial Packaging Readiness, Stickiness; secondary Explainability via mapping appendices.
-- Actionable: Yes (**GA subset only**). **Azure landing-zone / CAF-aligned pack** explicitly **out of V1** — track as **V1.1** content slice (same mechanics; different authoring cadence).
-
-```markdown
-Deliver **two** first-party **default PolicyPack** artifacts shipped with **every new tenant** (or seeded via DbUp migration / bootstrap hook — choose one durable mechanism consistent with `ArchLucid.Persistence` patterns).
-
-PACK A — AI GOVERNANCE / RESPONSIBLE AI (V1 GA — MVP ~15–25 rules)
-- Themes: model/asset inventory & ownership; data minimization / sensitive-data routing before inference; human review gates for production-promotion decisions; evaluation / drift review cadence; prompt/tool logging & retention posture; vendor/model risk classification (informational rubric — **not** a certification claim).
-- Each rule: stable machine id, severity, remediation guidance, **evidence hints** tying to extractor/manifest fields where possible.
-- Documentation: **`docs/library/`** pack appendix listing **mapping** to **NIST AI RMF v1.0** lifecycle themes and **EU AI Act** high-risk category **themes only** — explicit disclaimer: *starter baseline; buyer responsibility for jurisdictional compliance*.
-
-PACK B — SECURITY ARCHITECTURE BASELINE (V1 GA — MVP ~20–30 rules)
-- Themes aligned to credible public baselines: identity/MFA/secrets; network segmentation & private endpoints; encryption; logging/monitoring; secure SDLC hooks — cite **CIS Azure Foundations** and **OWASP ASVS** **themes** as mapping references (same honesty bar as Pack A).
-
-OUT OF SCOPE FOR THIS PROMPT (V1.1 PROGRAM)
-- **Azure landing-zone / CAF-aligned** curated pack — **do not** seed at GA; open a **`docs/library/`** backlog note or extend `V1_DEFERRED.md` / marketing checklist so copy never implies bundled CAF pack until shipped.
-
-ENGINEERING SCOPE
-- Implement via **`ArchLucid.Host.Core`** / persistence paths already used by policy-pack CRUD (`PolicyPacksAppService`, repositories — inspect `ArchLucid.Persistence` migrations for pack tables).
-- Ensure packs appear in **`archlucid-ui`** policy-pack administrator flows (visibility, assignment hooks if product expects tenant admin enablement — match existing UX).
-- Version packs (`PackVersion` or changelog row per `050_PolicyPackChangeLog.sql` patterns) so upgrades do not silently mutate tenant expectations.
-
-TESTS
-- Contract or integration test: new tenant receives both packs with expected rule counts ≥ documented MVP floors.
-- Snapshot or golden test for **rule id** stability across releases where feasible.
-
-ACCEPTANCE CRITERIA
-1. Pilot tenant sees **non-empty** AI governance + security baseline findings when running a representative demo workspace against seeded evidence (existing demo harness or documented seed steps).
-2. Marketing-facing doc (`docs/go-to-market/` or `docs/library/`) lists exactly **two** bundled categories at GA and states landing-zone pack **V1.1**.
-3. No regression to RBAC / RLS boundaries on pack read paths.
-```
-
-13. **Bulk evidence upload** — **V1 GA** with **≤30 files** per operation (server-enforced); larger batches **V1.1**
+12. **Bulk evidence upload** — **V1 GA** with **≤30 files** per operation (server-enforced); larger batches **V1.1**
 - Why it matters: Marketing needs honest **“gather scattered evidence”** narrative without implying infinite dossier ingestion pre-GA; consultants ship dozens of artifacts per engagement — **30** covers MVP demos while bounding abuse, timeouts, and storage spikes.
 - Expected impact: Usability **76→77**, Customer Self-Sufficiency **80→81**; weighted readiness **+~0.09%** toward headline (**stacked before Q5 / cumulative **81.55%** after later deltas). Coordinate with **#27** copy (**Evidence / Capture**) so UI and landing page disclose the cap.
 - Affected qualities: Usability, Customer Self-Sufficiency; secondary Correctness if API contracts are additive.
@@ -454,7 +419,7 @@ ACCEPTANCE CRITERIA
 3. Durable **`AuditEvent`** (or equivalent) emitted on bulk attach matches single-file parity expectations — verify vs **`AUDIT_COVERAGE_MATRIX.md`**.
 ```
 
-14. **Two curated demo workspaces** — **hard V1 GA gate** (**Marketing alignment Q6**)
+13. **Two curated demo workspaces** — **hard V1 GA gate** (**Marketing alignment Q6**)
 - Why it matters: Marketing promises a **guided wedge demo**; blank tenants waste evaluator attention and inflate sales labor. Two workspaces package **happy-path tour** + **regulated synthetic** proof without exposing customer data.
 - Expected impact: Adoption Friction **76→77**, Proof-of-ROI **83→84**, Commercial Packaging **82→83**; weighted readiness **+~0.28%** toward headline **81.55%**. **Merge-blocking:** GA checklist fails if either workspace smoke fails.
 - Affected qualities: Adoption Friction, Proof-of-ROI Readiness, Commercial Packaging Readiness; secondary Customer Self-Sufficiency (faster eval).
@@ -490,7 +455,7 @@ ACCEPTANCE CRITERIA
 3. Breaking layout/copy changes caught by failing smoke force fixture updates — treat **#31** as ongoing hygiene (**§ weaknesses #15**).
 ```
 
-15. **Landing page CTA stack** — first **90 days** post-GA (**Marketing alignment Q7**)
+14. **Landing page CTA stack** — first **90 days** post-GA (**Marketing alignment Q7**)
 - Why it matters: **V1 GA** is **sales-led**; **Stripe live** + **Marketplace** are **V1.1**. A **primary “Early access”** or **public paid-pilot $** CTA misaligns acquisition with product truth and accelerates procurement before **CPA SOC 2** narrative maturity buyers expect (**external pen test is `V2`** — excluded from **V1** planning Q&A per owner **2026-05-15**, **P8**).
 - Expected impact: **Narrative / commercial honesty** — supports **§1 Adoption** and **§8 Commercial Packaging** without changing weighted headline (**81.55%**) until execution evidence changes. Coordinate with **#31** Workspace **A** URL.
 - Affected qualities: Adoption Friction (evaluator path), Commercial Packaging Readiness (copy integrity).
@@ -531,7 +496,7 @@ ACCEPTANCE CRITERIA
 3. **No** hero **$** pilot pricing for **90-day** window — pricing remains **sales-qualification** path only.
 ```
 
-16. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
+15. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
 - Why it matters: Enterprise compliance requires a verifiable way to delete all tenant data upon contract termination or user request.
 - Expected impact: Compliance Readiness (+3 pts).
 - Affected qualities: Compliance Readiness, Security.
@@ -545,7 +510,7 @@ Implement a durable background job to handle tenant offboarding and data deletio
 - Acceptance criteria: A tenant can be fully deleted, and the deletion is durably audited.
 ```
 
-17. **Add explicit OpenTelemetry tracing for LLM API calls**
+16. **Add explicit OpenTelemetry tracing for LLM API calls**
 - Why it matters: AI/Agent Readiness requires deep observability into token usage, latency, and prompt/response pairs for debugging and cost attribution.
 - Expected impact: Observability (+3 pts), AI/Agent Readiness (+2 pts).
 - Affected qualities: Observability, AI/Agent Readiness.
@@ -559,7 +524,7 @@ Enhance the existing OpenTelemetry instrumentation to capture detailed metrics f
 - Acceptance criteria: Token usage and latency for LLM calls are visible in the APM backend.
 ```
 
-18. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
+17. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
 - Why it matters: Prevents a single tenant from exhausting worker resources by submitting too many concurrent architecture review runs.
 - Expected impact: Performance (+3 pts), Reliability (+2 pts).
 - Affected qualities: Performance, Reliability.
@@ -573,7 +538,7 @@ Introduce concurrency limits for the `AuthorityRunOrchestrator` to protect the w
 - Acceptance criteria: A single tenant cannot monopolize the worker pool.
 ```
 
-19. **Implement robust API key rotation and revocation endpoints**
+18. **Implement robust API key rotation and revocation endpoints**
 - Why it matters: Enterprise security requires self-service mechanisms for rotating and revoking API keys used by integrations or CI pipelines.
 - Expected impact: Security (+3 pts), Customer Self-Sufficiency (+2 pts).
 - Affected qualities: Security, Customer Self-Sufficiency.
@@ -585,6 +550,20 @@ Add API endpoints and UI elements for managing API keys.
 - Ensure revoked keys are immediately rejected by the authentication middleware.
 - Emit `ApiKeyRotated` and `ApiKeyRevoked` durable audit events.
 - Acceptance criteria: Users can securely rotate and revoke API keys without operator intervention.
+```
+
+19. **Expand `ui-e2e-live` to cover the full golden path**
+- Why it matters: The Playwright E2E suite still relies heavily on mocked `/api/proxy` responses, leaving integration blind spots.
+- Expected impact: Correctness (+3 pts), Reliability (+2 pts).
+- Affected qualities: Correctness, Reliability.
+- Actionable: Yes
+
+```markdown
+Expand the `ui-e2e-live` test suite to cover the complete golden path of the operator workflow against a live, non-mocked backend.
+- Include end-to-end coverage for: Capture system → Add evidence → Review → Resolve findings → Record decisions → Generate report.
+- Ensure the tests run against a dedicated staging or ephemeral environment with a real SQL database and isolated tenant.
+- Do not remove the existing mocked tests; treat the live E2E suite as a separate, higher-fidelity validation layer.
+- Acceptance criteria: The full operator golden path is validated against a live backend in CI.
 ```
 
 ---
