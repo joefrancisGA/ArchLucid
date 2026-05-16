@@ -16,15 +16,9 @@ ArchLucid is a **proprietary** product codebase. References below to onboarding 
 <details>
 <summary><strong>Documentation spine links</strong> — buyers START_HERE plus engineering five-doc onboarding</summary>
 
-Start at **[docs/START_HERE.md](docs/START_HERE.md)** (buyers). **Engineering team** onboarding for this repo stays on these five active docs (install bodies live under `docs/engineering/`):
+Start at **[docs/START_HERE.md](docs/START_HERE.md)** (buyers). **Engineering team** onboarding for this repo also starts at **[docs/START_HERE.md](docs/START_HERE.md)** (see the contributor section).
 
-1. **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** — toolchain order and verification
-2. **[docs/engineering/FIRST_30_MINUTES.md](docs/engineering/FIRST_30_MINUTES.md)** — Docker-first first run
-3. **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** — guided pilot inside the product
-4. **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)** — system map
-5. **[docs/PENDING_QUESTIONS.md](docs/PENDING_QUESTIONS.md)** — open decisions affecting implementation
-
-**Architecture Decision Records:** **[docs/adr/README.md](docs/adr/README.md)**. Catalogue for the five-doc spine (why these five): **[docs/FIRST_5_DOCS.md](docs/FIRST_5_DOCS.md)**.
+**Architecture Decision Records:** **[docs/adr/README.md](docs/adr/README.md)**.
 
 Buyers: `docs/BUYER_FIRST_30_MINUTES.md` · Sponsors: `docs/EXECUTIVE_SPONSOR_BRIEF.md` · Security / trust: `docs/trust-center.md` · Depth: `docs/library/` · `docs/ARCHITECTURE_INDEX.md` · Archived root-era snapshots: `docs/archive/root-superseded-2026-05-01/README.md` · Engineering onboarding persona table: [`docs/library/CONTRIBUTOR_PERSONA_TABLE.md`](docs/library/CONTRIBUTOR_PERSONA_TABLE.md) (legacy filename — refers to engineers on the codebase, not public OSS contributors).
 

@@ -1,6 +1,6 @@
 > **Scope:** Architecture team — captures the original scaffold for completing the coordinator → authority strangler. **Superseded by ADR 0029**; preserved for audit history. Not a current execution plan — read ADR 0029 for the live plan.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 >
 > **Status:** Superseded by [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) (2026-04-21)

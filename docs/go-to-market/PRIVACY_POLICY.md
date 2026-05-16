@@ -1,6 +1,6 @@
 > **Scope:** Public-facing privacy policy for archlucid.net visitors and ArchLucid product users. Covers GDPR and CCPA. Not legal advice — owner has reviewed and approved; no external law firm engagement.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 <!-- PRIVACY_POLICY_LAST_REVIEWED_UTC:2026-05-10 -->
 

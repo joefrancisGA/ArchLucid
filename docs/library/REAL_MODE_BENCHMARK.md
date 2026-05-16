@@ -1,6 +1,6 @@
 > **Scope:** Real-mode end-to-end benchmark (request → committed manifest) — how to run, interpret, and compare results.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Real-mode end-to-end benchmark

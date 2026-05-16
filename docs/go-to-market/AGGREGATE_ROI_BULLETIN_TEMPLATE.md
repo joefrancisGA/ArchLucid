@@ -1,6 +1,6 @@
 > **Scope:** Quarterly **aggregate** ROI bulletin template for GTM and leadership — sanitized statistics only; not a vehicle for per-customer disclosure.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Aggregate ROI bulletin — template (internal draft)

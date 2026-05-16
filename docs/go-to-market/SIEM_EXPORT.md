@@ -1,6 +1,6 @@
 > **Scope:** ArchLucid — Audit log export for SIEM integration (buyer summary); full payload examples and KQL live in the library SIEM guide linked below.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # ArchLucid — Audit log export for SIEM integration

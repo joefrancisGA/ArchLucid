@@ -1,6 +1,6 @@
 > **Scope:** Human gates before a reference-customer row may use **Published** status — checklist only; not legal advice.
 
-> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # Reference customer — publication checklist

@@ -1,6 +1,6 @@
 > **Scope:** Single-session record for real Azure OpenAI (non-simulator) authority runs — supports manual QA §8.3, golden cohort posture, and pilot credibility; **not** a substitute for automated eval jobs.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Real-LLM run evidence — session template
 

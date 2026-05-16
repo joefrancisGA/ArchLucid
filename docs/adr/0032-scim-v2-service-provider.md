@@ -1,6 +1,6 @@
 > **Scope:** ADR 0032 — SCIM 2.0 inbound service provider — full detail in the sections below.
 >
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # ADR 0032: SCIM 2.0 inbound service provider (RFC 7644)
 

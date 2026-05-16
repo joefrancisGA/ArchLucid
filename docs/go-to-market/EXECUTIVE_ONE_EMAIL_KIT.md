@@ -1,6 +1,6 @@
 > **Scope:** Go-to-market — one-email sponsor/procurement kit (copy-paste blocks); not a second buyer narrative, price sheet, or legal commitment.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Executive one-email kit
 

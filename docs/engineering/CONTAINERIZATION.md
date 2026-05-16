@@ -1,6 +1,6 @@
 > **Scope:** Containerization for **ArchLucid contributors and internal operators** - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 > **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customer-facing deliverables are the public website, the in-product operator UI, the published API client libraries, OpenAPI contracts, and documentation.** Docker images, `docker compose` definitions, and the contents of this document are **engineering / CI/CD / vendor-operations artifacts** — not a "customer installs our containers" distribution model. Customer entry points: **[`START_HERE.md`](../START_HERE.md)** "Audience split" and `archlucid.net`.
 

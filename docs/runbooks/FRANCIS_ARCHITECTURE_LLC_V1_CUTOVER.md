@@ -1,6 +1,6 @@
 > **Scope:** Runbook — phased migration of ArchLucid commercial, contractual, and outward vendor identity from the founder’s personal / sole-proprietorship posture to **Francis Architecture, LLC** during the V1 window (not legal advice).
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Runbook — Francis Architecture, LLC V1 commercial cutover

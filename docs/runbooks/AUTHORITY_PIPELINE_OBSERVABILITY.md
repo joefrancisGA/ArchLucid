@@ -1,6 +1,6 @@
 > **Scope:** Grafana / Prometheus remediation for authority pipeline metering — dashboards, backlog, stale outbox rows, data-consistency signals; full procedural detail in sections below.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Authority pipeline metering and Grafana remediation
 

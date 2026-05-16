@@ -1,6 +1,6 @@
 > **Scope:** One-page “second run” inputs after `archlucid try` — no extra operator docs required.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Second run with your own data (`SECOND_RUN`)

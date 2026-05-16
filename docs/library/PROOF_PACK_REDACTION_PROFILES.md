@@ -1,6 +1,6 @@
 > **Scope:** Redaction **profiles** for ArchLucid **proof-of-value** and **run-evidence** packages (Markdown/PDF/bundles). Complements assembly steps in **[PROOF_OF_VALUE_SNAPSHOT.md](PROOF_OF_VALUE_SNAPSHOT.md)**. **Not** legal advice; customer counsel owns external distribution when regulated data may be present.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Proof pack redaction profiles
 

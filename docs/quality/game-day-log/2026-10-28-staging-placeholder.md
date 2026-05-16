@@ -1,6 +1,6 @@
 > **Scope:** Reserved closing-report slot for **2026-10-28** quarterly staging chaos game day (scenario TBD). Replace this stub before the run.
 
-> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # Game day — 2026-10-28 — Staging — (placeholder)

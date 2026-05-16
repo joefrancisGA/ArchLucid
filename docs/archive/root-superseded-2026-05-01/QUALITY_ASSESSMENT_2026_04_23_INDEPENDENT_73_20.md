@@ -1,6 +1,6 @@
 > **Scope:** Fresh first-principles independent weighted quality assessment of ArchLucid as it stands in this repository on **2026-04-23**, **after** the sixth-pass owner Q&A on 2026-04-23 (see [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) **Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)**). Weighted overall score: **73.20%**. Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md).
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 # ArchLucid Assessment — Weighted Readiness 73.20%
 

@@ -1,6 +1,6 @@
 > **Scope:** Wire-format summary for **`POST /v1/architecture/request`** — integrators should treat **`GET /openapi/v1.json`** as authoritative for property names, required fields, and validation rules. This page orients readers to the C# contract type and starter JSON.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Architecture request wire format
 

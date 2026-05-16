@@ -1,6 +1,6 @@
 > **Scope:** Monthly **USD** spend cap and **kill switch** for the optional **real-LLM** golden-cohort nightly path (`ARCHLUCID_GOLDEN_COHORT_REAL_LLM`). Simulator drift (default CI) is unchanged and does not hit Azure OpenAI.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Golden cohort Azure OpenAI budget and kill switch

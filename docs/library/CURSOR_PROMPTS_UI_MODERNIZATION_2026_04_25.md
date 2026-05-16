@@ -1,6 +1,6 @@
 > **Scope:** Twenty-three paste-ready Cursor prompts — the nine V1-actionable usability improvements from the 69.52% assessment, nine Linear-inspired UI modernization prompts that introduce new visual patterns without breaking existing infrastructure, and five follow-up prompts (19–23) that finish the inline-style migration, unify page headers, and add print support. Each prompt is self-contained.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 > **Lineage:** Prompts 1–9 are the usability assessment prompts from [`CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md`](../CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md). Prompts 10–18 incorporate Linear-inspired workbench concepts — inspector panel, unified status pills, report readability, run detail flagship, dashboard evolution, visual density, and consistency — **calibrated to the actual codebase** (existing `AppShellClient`, `SidebarNav`, `EmptyState`, `RunStatusBadge`, `governance-status-badge-class`, shadcn/Radix/Tailwind stack, 48 operator pages). Prompts 19–23 are follow-up prompts generated from the Prompt 18 punch list — they finish the inline-style sweep, introduce `OperatorPageHeader`, bring parity to lagging surfaces, unify compare views, and add print support.
 

@@ -1,6 +1,6 @@
 > **Scope:** Residual multi-tenant isolation — mapping uncovered SQL surfaces to compensating controls (extends `MULTI_TENANT_RLS.md`).
 >
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Multi-tenant RLS — residual risk matrix
 

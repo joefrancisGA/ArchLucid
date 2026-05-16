@@ -25,7 +25,7 @@ SPINE_FILENAMES: frozenset[str] = frozenset(
         "CORE_PILOT.md",
         "ARCHITECTURE_ON_ONE_PAGE.md",
         "PENDING_QUESTIONS.md",
-        "FIRST_5_DOCS.md",
+        "START_HERE.md",
         # Canonical buyer narrative — owner-only edits; never auto-insert spine banners.
         "EXECUTIVE_SPONSOR_BRIEF.md",
     },
@@ -50,16 +50,13 @@ def first_non_empty_line_index(lines: list[str]) -> int | None:
     return None
 
 
-def relpath_to_first5(from_file: Path, docs_dir: Path) -> str:
-    anchor = docs_dir / "FIRST_5_DOCS.md"
+def relpath_to_start_here(from_file: Path, docs_dir: Path) -> str:
+    anchor = docs_dir / "START_HERE.md"
     return Path(os.path.relpath(anchor, start=from_file.parent)).as_posix()
 
 
 def build_signpost(relative: str) -> str:
-    return (
-        f"> **Spine doc:** [Five-document onboarding spine]({relative}). "
-        "Read this file only if you have a specific reason beyond those five entry documents."
-    )
+    return f"> **Spine doc:** [`START_HERE.md`]({relative})."
 
 
 def process_file(path: Path, docs_dir: Path, apply: bool) -> str:
@@ -85,7 +82,7 @@ def process_file(path: Path, docs_dir: Path, apply: bool) -> str:
     if MARKER_RE.search(window):
         return "skip-marked"
 
-    rel = relpath_to_first5(path, docs_dir)
+    rel = relpath_to_start_here(path, docs_dir)
     signpost = build_signpost(rel)
     insert_lines = ["\n", signpost + "\n", "\n"]
 

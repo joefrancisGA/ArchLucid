@@ -2,7 +2,7 @@
 
 > **Scope:** Cursor prompts for the eight largest weighted improvements from [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md). Each prompt is self-contained and assumes the assistant is starting from a clean session with no memory of the assessment.
 
-> **Spine doc:** [Five-document onboarding spine](../../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../../START_HERE.md).
 
 
 # Cursor prompts — top-8 improvements after the 67.61% assessment (2026-04-21)

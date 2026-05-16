@@ -1,6 +1,6 @@
 > **Scope:** One-page **template** for a single customer reference pack. Replace `<<…>>` placeholders. Every **computed** line must map to `pilot-run-deltas.json` produced by `archlucid reference-evidence` (or the admin ZIP).
 
-> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # Reference evidence pack — `<<CUSTOMER_NAME>>`

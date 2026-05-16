@@ -1,6 +1,6 @@
 > **Scope:** Runbook for investigating production incidents on the ArchLucid hosted SaaS (health, dependencies, telemetry, SQL, worker); not a substitute for customer-specific IR plans or Azure-wide DR runbooks.
 
-> **Spine doc:** [FIRST_5_DOCS.md](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Incident investigation — hosted SaaS
 

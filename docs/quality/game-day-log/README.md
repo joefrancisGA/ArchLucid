@@ -1,6 +1,6 @@
 > **Scope:** Quarterly staging chaos game day calendar, closing-report links, and Simmy workflow alignment; production chaos remains owner-gated ([PENDING_QUESTIONS.md](../../PENDING_QUESTIONS.md) item **34**).
 
-> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # Game day log — quarterly staging chaos (calendar)

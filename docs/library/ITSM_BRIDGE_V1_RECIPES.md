@@ -1,6 +1,6 @@
 > **Scope:** Buyer-facing end-to-end recipes bridging ArchLucid to enterprise workflows (Azure DevOps PR review, CloudEvents consumers, customer-owned Power Automate / Logic Apps); not a SKU matrix, endpoint inventory, or substitute for **V1** first-party **Jira** / **ServiceNow** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13), **Slack** chat-ops ([`V1_SCOPE.md`](V1_SCOPE.md) §2.14), or **Confluence** publish ([`V1_SCOPE.md`](V1_SCOPE.md) §2.15).
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # ITSM bridge — V1 recipe hub
 

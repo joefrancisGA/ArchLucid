@@ -1,6 +1,6 @@
 > **Scope:** Okta OIDC/JWT SSO configuration for ArchLucid API; covers Okta application setup, ArchLucid `ArchLucidAuth` config, token verification, and common troubleshooting. Audience: enterprise IT / identity administrators using Okta as their primary IdP. **Entra ID is the primary supported IdP** — this guide is for organizations that use Okta instead. Does **not** modify ArchLucid auth code; references existing auth paths for contributor context.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # SSO configuration — Okta

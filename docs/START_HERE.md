@@ -28,8 +28,11 @@ START_HERE.md (you are here)
 ├─ Contributor / developer — local toolchain and repo orientation
 │   ├─ engineering/INSTALL_ORDER.md            (canonical body)
 │   ├─ engineering/FIRST_30_MINUTES.md         (canonical body)
-│   ├─ library/CONTRIBUTOR_CODE_MAP.md (1-page decision tree for where to change code)
-│   └─ ARCHITECTURE_INDEX.md       (maps after first run)
+│   ├─ CORE_PILOT.md                           (first pilot / operator motion)
+│   ├─ ARCHITECTURE_ON_ONE_PAGE.md             (poster + ownership)
+│   ├─ PENDING_QUESTIONS.md                    (owner decisions + gates)
+│   ├─ library/CONTRIBUTOR_CODE_MAP.md         (1-page decision tree for where to change code)
+│   └─ ARCHITECTURE_INDEX.md                   (maps after first run)
 │
 └─ Security / GRC — trust pack (hosted UI /trust mirrors narrative)
     └─ trust-center.md

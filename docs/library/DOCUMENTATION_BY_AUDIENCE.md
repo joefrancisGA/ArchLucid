@@ -15,7 +15,7 @@ Cut **browse noise** inside `docs/`: pilots and procurement should rarely land i
 
 - **Historical** markdown under **`docs/archive/`** is intentionally **mixed** audience — treat as receipts, not current UX.
 - **ADRs** under **`docs/adr/`** are primarily **engineering** decision memory.
-- Repo policy still caps stray files at **`docs/`** root; see [`FIRST_5_DOCS.md`](../FIRST_5_DOCS.md) rationale.
+- Repo policy still caps stray files at **`docs/`** root; see [`START_HERE.md`](../START_HERE.md) rationale.
 
 ## Architecture overview
 

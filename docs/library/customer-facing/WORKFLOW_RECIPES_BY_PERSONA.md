@@ -1,6 +1,6 @@
 > **Scope:** Copy-paste adoption recipes that map existing product surfaces (API, CLI, operator UI) to four buyer/operator personas. No new product commitments; defer anything not in V1 scope to the linked depth docs.
 
-> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 # Workflow recipes by persona
 

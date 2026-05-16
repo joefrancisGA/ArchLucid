@@ -1,6 +1,6 @@
 > **Scope:** Independent usability-focused quality assessment of ArchLucid as it stands on **2026-04-25**. Scored from first principles against the repository's current state — UI components, shell architecture, onboarding flows, help surfaces, error handling, CLI, API ergonomics, docs, and tests — without reference to prior assessments.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 # ArchLucid Usability Solution Quality Assessment — 2026-04-25 (Weighted **69.52%**)
 

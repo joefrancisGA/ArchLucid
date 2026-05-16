@@ -1,6 +1,6 @@
 > **Scope:** Internal GTM authoring scaffold — shows the structure a real customer evidence pack must follow, populated with placeholder cells from the demo tenant. **Not** a publishable customer artefact; every cell in a real pack must trace to a customer-approved source per `REFERENCE_PUBLICATION_RUNBOOK.md`.
 
-> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # Reference evidence pack — demo tenant scaffold (internal only)

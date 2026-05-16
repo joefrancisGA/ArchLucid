@@ -1,6 +1,6 @@
 > **Scope:** ADR template enforcement — `Trade-offs`, `Constraints`, and `Expected impact` are merge-blocking for new numbered ADRs; meta-doc, not an ADR.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # ADR template — strict sections (canonical)
 
@@ -31,7 +31,7 @@ If any rule above fails, the ADR is **not ready to merge**.
 ```markdown
 > **Scope:** ADR ⌈NNNN⌉ — ⌈short title⌉.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # ADR ⌈NNNN⌉: ⌈Full title⌉
 

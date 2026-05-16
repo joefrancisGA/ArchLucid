@@ -1,6 +1,6 @@
 > **Scope:** Penetration test summary — procurement interim statement (no third-party test results claimed).
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
 
 # Penetration test summary — interim statement
 

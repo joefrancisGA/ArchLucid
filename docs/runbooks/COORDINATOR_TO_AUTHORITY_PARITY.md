@@ -1,6 +1,6 @@
 > **Scope:** Coordinator vs Authority pipeline parity evidence (ADR 0021).
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Coordinator → Authority parity runbook

@@ -1,6 +1,6 @@
 > **Scope:** Build & project hygiene for **ArchLucid contributors and internal engineers** - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 > **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never run `dotnet build`, `npm ci`, Docker, or local SQL.** This document is the **contributor / internal-engineer** build & test hygiene reference. Customer-facing entry points are **[`START_HERE.md`](../START_HERE.md)** "Audience split" and the website at `archlucid.net`.
 

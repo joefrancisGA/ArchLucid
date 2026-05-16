@@ -1,6 +1,6 @@
 > **Scope:** Runbook — Microsoft Partner Center / Azure Marketplace publisher identity placeholders for commerce go-live (owner-provided IDs).
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Runbook — Marketplace publisher identity

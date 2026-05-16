@@ -1,6 +1,6 @@
 > **Scope:** Quick operator-shell audit — what a **buyer / pilot** sees in the first minute vs **platform admin** surfaces.
 
-**Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+**Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Admin vs review workflow — first-60s UX notes
 

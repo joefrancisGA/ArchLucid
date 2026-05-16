@@ -1,6 +1,6 @@
 > **Scope:** Procurement pack cover letter — **owner-completed scaffold only** (no deal-specific names in repo).
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
 
 # Procurement pack — cover letter (scaffold)
 

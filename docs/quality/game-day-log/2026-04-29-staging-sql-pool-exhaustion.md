@@ -1,6 +1,6 @@
 > **Scope:** Closing report scaffold for **2026-04-29** staging chaos game day — SQL connection pool exhaustion under trial-signup load. Fill after the drill; links to [`README.md`](README.md) calendar row.
 
-> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # Game day close-out — 2026-04-29 — Staging — SQL pool exhaustion (trial-signup load)

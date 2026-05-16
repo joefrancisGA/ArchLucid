@@ -1,6 +1,6 @@
 > **Scope:** Long-form ADR skeleton for contributors — optional tables and extra sections; same three mandated headings as [template.md](template.md); meta-doc, not an ADR.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # ADR template — full skeleton (mandatory reasoning sections)
 
@@ -29,7 +29,7 @@ If any of the three are missing or non-substantive, treat the ADR as **not ready
 ```markdown
 > **Scope:** ADR ⌈NNNN⌉ — ⌈short title⌉ — full detail in sections below.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # ADR ⌈NNNN⌉: ⌈Full title⌉
 

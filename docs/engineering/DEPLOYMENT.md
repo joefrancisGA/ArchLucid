@@ -1,6 +1,6 @@
 > **Scope:** Deployment and rollback umbrella for **ArchLucid internal operators and release managers** - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 > **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers never deploy ArchLucid; ArchLucid hosts it for them at `archlucid.net`.** This document is for **internal ArchLucid operators and release managers** running our hosted production / staging environments. Customer entry points: **[`START_HERE.md`](../START_HERE.md)** "Audience split" and `archlucid.net`.
 

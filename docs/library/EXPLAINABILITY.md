@@ -4,7 +4,7 @@
 
 How operators trace a finding back to persisted authority artifacts without relying on raw LLM prompts at the API edge.
 
-**Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+**Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 ## Finding inspector (`GET /v1/findings/{findingId}/inspect`)
 

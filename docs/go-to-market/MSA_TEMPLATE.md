@@ -1,6 +1,6 @@
 > **Scope:** Master Service Agreement template — internal starting point for sales-led contract negotiation; not legal advice; owner must review with counsel before external use.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # ArchLucid — Master Service Agreement (Template)

@@ -1,6 +1,6 @@
 > **Scope:** Shared Assessments **SIG Core**-style control mapping (pre-fill). **Not** a completed SIG submission — use for RFP appendix drafts.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # SIG Core — ArchLucid (2026 pre-fill)

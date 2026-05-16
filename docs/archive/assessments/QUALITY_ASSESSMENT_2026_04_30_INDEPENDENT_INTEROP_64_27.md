@@ -1,6 +1,6 @@
 > **Scope:** Independent architectural quality assessment of the ArchLucid interoperability surface (2026-04-30). Single-dimension score only. Audience: product owner and engineering leads. Not a general quality assessment, API contract, or deployment runbook.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 # ArchLucid — Interoperability Quality Assessment — 64.27%
 

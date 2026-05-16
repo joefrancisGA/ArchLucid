@@ -1,6 +1,6 @@
 > **Scope:** SOC 2 Trust Services Criteria — **self-assessment only** (not CPA attestation). **2026-05-01:** third-party pen test is **V2**; V1 uses owner-conducted testing per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c. CAIQ/SIG pre-filled; Type I scoping funded as a **readiness** milestone (not yet an opinion).
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # SOC 2 — Owner self-assessment (2026)

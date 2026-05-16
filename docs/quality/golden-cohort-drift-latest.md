@@ -1,6 +1,6 @@
 > **Scope:** Latest golden-cohort drift summary for engineers and CI owners — intent is a single landing place for the most recent nightly cohort run vs baseline; not a full manifest diff or substitute for workflow run logs.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Golden cohort drift report

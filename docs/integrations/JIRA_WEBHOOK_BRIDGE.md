@@ -1,6 +1,6 @@
 > **Scope:** Jira Cloud webhook bridge pattern — runnable reference scripts plus operational recipe; complements **V1** first-party Jira ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13); **not** a substitute for customer security review.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Jira webhook bridge (reference implementation)

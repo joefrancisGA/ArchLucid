@@ -1,6 +1,6 @@
 > **Scope:** Integration guide for external/custom agent handlers — out-of-process webhook boundary, sample payloads aligned with `AgentResult`; not shipping code, MCP membrane specs, or in-host plugin APIs.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Custom agent handlers — out-of-process boundary
 

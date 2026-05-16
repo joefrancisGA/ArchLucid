@@ -1,6 +1,6 @@
 > **Scope:** Auth0 OIDC/JWT SSO configuration for ArchLucid API; covers Auth0 tenant/application setup, custom claims via Actions, ArchLucid `ArchLucidAuth` config, token verification, and common troubleshooting. Audience: enterprise IT / identity administrators using Auth0 as their primary IdP. **Entra ID is the primary supported IdP** — this guide is for organizations that use Auth0 instead. Does **not** modify ArchLucid auth code; references existing auth paths for contributor context.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # SSO configuration — Auth0

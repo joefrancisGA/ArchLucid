@@ -1,6 +1,6 @@
 > **Scope:** Security and accessibility operations owners provisioning and routing the `accessibility@archlucid.net` alias; not WCAG engineering guidance (see root [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) and marketing **`/accessibility`**).
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Accessibility mailbox (`accessibility@archlucid.net`)

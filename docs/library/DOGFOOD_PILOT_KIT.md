@@ -1,6 +1,6 @@
 > **Scope:** Internal dogfood pilot kit — run ArchLucid on ArchLucid-shaped work — full detail, tables, and worksheets in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Dogfood pilot kit (ArchLucid as subject)

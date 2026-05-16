@@ -2,7 +2,7 @@
 
 > **Scope:** Cursor prompts — follow-ups to the six quality improvements - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../../START_HERE.md).
 
 
 # Cursor prompts — follow-ups to the six quality improvements

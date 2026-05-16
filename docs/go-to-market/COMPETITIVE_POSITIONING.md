@@ -1,6 +1,6 @@
 > **Scope:** Competitive positioning for internal sales enablement and evaluator conversations — not for public publication without review.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Competitive positioning (internal)

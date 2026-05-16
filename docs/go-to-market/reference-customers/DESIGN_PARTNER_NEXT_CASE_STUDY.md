@@ -1,6 +1,6 @@
 > **Scope:** DESIGN_PARTNER_NEXT — ArchLucid design-partner case study (placeholders) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # `<<CUSTOMER_NAME>>` — ArchLucid design-partner case study

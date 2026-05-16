@@ -1,6 +1,6 @@
 > **Scope:** One-shot prompt pack for an external model (e.g., Claude Sonnet) to review ArchLucid’s **AI/agent path** from code and docs; **not** a buyer-facing product doc or a substitute for human release sign-off.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Sonnet brief — ArchLucid AI functionality review
 

@@ -1,6 +1,6 @@
 > **Scope:** Buyer-safe **demo recording** script (≈3 minutes) with explicit UI targets.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md) — marketing operators may start at **[DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md)**.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md). — marketing operators may start at **[DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md)**.
 
 # Demo recording storyboard
 

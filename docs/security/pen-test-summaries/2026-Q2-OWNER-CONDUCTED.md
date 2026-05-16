@@ -2,7 +2,7 @@
 
 > **Publication:** Owner-conducted security exercise — summary structure only. **Detailed findings and reproducible exploitation steps are intentionally omitted from the public repo**; redacted artefacts follow NDA posture in [`docs/go-to-market/TRUST_CENTER.md`](../../go-to-market/TRUST_CENTER.md).
 >
-> **Spine:** [Five-document onboarding spine](../../FIRST_5_DOCS.md)
+> **Spine:** [`START_HERE.md`](../../START_HERE.md)
 
 # 2026-Q2 Owner-conducted penetration-style assessment
 

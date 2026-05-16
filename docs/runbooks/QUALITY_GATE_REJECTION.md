@@ -1,6 +1,6 @@
 > **Scope:** HTTP 409 when agent output fails the post-execute quality gate (BlockRunOnReject) — problem details, configuration, and operator actions.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Quality gate rejection (HTTP 409)
 

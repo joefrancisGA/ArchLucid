@@ -10,7 +10,7 @@
 
 Read these in order if you need product context before reviewing:
 
-1. `docs/FIRST_5_DOCS.md` — five-document onboarding spine (install → first run → pilot → poster → pending questions)
+1. `docs/START_HERE.md` — single onboarding hub (buyer, contributor, security routing)
 2. `docs/SYSTEM_MAP.md` — Mermaid system flows
 3. `docs/ARCHITECTURE_COMPONENTS.md`
 4. `docs/API_CONTRACTS.md`

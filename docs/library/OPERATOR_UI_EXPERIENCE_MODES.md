@@ -1,6 +1,6 @@
 > **Scope:** Next.js operator shell experience flags (`NEXT_PUBLIC_*`) — documents buyer-default vs full-operator UI only, not API auth or backend behavior.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Operator UI experience modes

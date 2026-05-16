@@ -1,6 +1,6 @@
 > **Scope:** ArchLucid Trust Center - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../docs/START_HERE.md).
 
 **Buyer posture table (single index):** [`docs/trust-center.md`](../trust-center.md) — same evidence links; rendered in-product at **`/trust`**.
 

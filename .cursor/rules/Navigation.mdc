@@ -12,7 +12,7 @@ alwaysApply: false
 - **AI / agent boundaries & prompts**: `.cursor/rules/AI-Agent-Boundaries.mdc` (DTF host-only, orchestrator port, extension seams), `.cursor/rules/AI-Prompt-And-Redaction-Hygiene.mdc` (LLM prompts, redaction, model-call hygiene).
 - **LLM-driven assessments (narrow read surface)**: `docs/library/ASSESSMENT_INPUTS.md` then `.cursor/rules/Assessment-Read-First.mdc` (when producing a readiness pass — output to `docs/assessments/LATEST.md`; snapshots in `docs/archive/assessments/`).
 - **Weighted readiness assessments (SOC 2 scoring boundary)**: **`@Assessment-Scope-V1_1`** (`.cursor/rules/Assessment-Scope-V1_1.mdc` — not always injected; attach for assessment passes), plus `docs/library/V1_DEFERRED.md` §6c — **`(A)` headline vs `(B)` procurement realism**.
-- **Canonical buyer / operator spine**: `docs/START_HERE.md` (five-document table + journey; `docs/FIRST_5_DOCS.md` is a thin redirect).
+- **Canonical buyer / operator spine**: `docs/START_HERE.md` (decision tree + journey; `docs/FIRST_5_DOCS.md` is a thin redirect).
 - **Persona workflow recipes (API / CLI / UI map)**: `docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md` (stub at `library/WORKFLOW_RECIPES_BY_PERSONA.md`).
 - **Contributor decision tree (what folder to open first)**: `docs/START_HERE.md` — use the persona table + links into the five-document spine.
 - **System flows (Mermaid)**: `docs/library/SYSTEM_MAP.md`

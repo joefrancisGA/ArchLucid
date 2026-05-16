@@ -1,6 +1,6 @@
 > **Scope:** Operators configuring non-Microsoft OIDC issuers for `ArchLucidAuth:Authority` — step checklist only; not Entra-specific onboarding nor a threat model.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Generic OIDC issuer setup (`ArchLucidAuth:Authority`)
 

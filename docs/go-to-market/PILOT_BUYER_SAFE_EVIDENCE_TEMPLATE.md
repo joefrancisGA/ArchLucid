@@ -1,6 +1,6 @@
 > **Scope:** Buyer-safe pilot evidence capture — anonymized fields, no fabricated numerics, cross-links to PMF tracker and ROI model; internal and NDA channels only unless policy says otherwise.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Pilot evidence — buyer-safe capture template
 

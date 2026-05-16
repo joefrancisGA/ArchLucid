@@ -1,6 +1,6 @@
 > **Scope:** Rolling-window procedure for interpreting scheduled **hosted-saas-probe** workflow results — **no buyer-facing availability % without real history**.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Hosted availability — 30-day rollup (operator runbook)
 

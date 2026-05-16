@@ -1,6 +1,6 @@
 > **Scope:** Ten paste-ready Cursor prompts for the V1-actionable improvements in [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md). Each prompt is self-contained — it assumes the assistant starts from a clean session with no memory of the assessment.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 # Cursor prompts — V1-actionable improvements after the 73.20% assessment (2026-04-23)
 

@@ -2,7 +2,7 @@
 
 # ArchLucid API Surface — Defect Catalogue
 
-This document captures the nine defect dimensions identified during the REST API review (see implementation workstream `docs/api/API_V2_ROUTES.md` for the target surface).
+This document captures the nine defect dimensions identified during the REST API review (see implementation workstream `docs/architecture/api/API_V2_ROUTES.md` for the target surface).
 
 ## 1. Implementation Details Leak
 

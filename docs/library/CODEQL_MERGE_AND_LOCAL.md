@@ -1,6 +1,6 @@
 > **Scope:** Operators & developers — branch protection, strict SARIF gate in CI, and local CodeQL CLI parity; not per-alert triage (see [CODEQL_TRIAGE.md](CODEQL_TRIAGE.md)).
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file when wiring merge gates or running CodeQL locally.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md). Read this file when wiring merge gates or running CodeQL locally.
 
 # CodeQL merge gates and local runs (ArchLucid)
 

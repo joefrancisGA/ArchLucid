@@ -1,6 +1,6 @@
 > **Scope:** Operators aligning Terraform **remote state** with committed **`infra/**/*.tf`** resource addresses after the ArchLucid rename — greenfield verification, brownfield **`terraform state mv`**, optional DEV/Prod inventory — not application runtime behavior.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Terraform Phase 7.5 — State alignment runbook
 

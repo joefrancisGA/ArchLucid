@@ -1,6 +1,6 @@
 > **Scope:** Living inventory for ADR 0021 coordinator strangler — post-PR A3 / PR A4 ([ADR 0030](../adr/0030-coordinator-authority-pipeline-unification.md)): what shipped, what stays pinned in CI, and what is **product/ADR follow-up** (not dual storage). Complements [`DualPipelineRegistrationDisciplineTests`](../../ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs) (pins **no** resurrected `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository`, authority repository namespaces, and `AuthorityDrivenArchitectureRunCommitOrchestrator`), [`MvcControllerCoordinatorRepositoryFamilyGuardTests`](../../ArchLucid.Api.Tests/Startup/MvcControllerCoordinatorRepositoryFamilyGuardTests.cs) ([**`V1_SCOPE` Section 3**](../library/V1_SCOPE.md) — MVC constructor surface), and [`scripts/ci/assert_coordinator_reference_ceiling.py`](../../scripts/ci/assert_coordinator_reference_ceiling.py) (reference-count ceiling).
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Coordinator strangler inventory

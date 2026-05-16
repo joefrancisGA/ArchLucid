@@ -1,6 +1,6 @@
 > **Scope:** Security custodian (owner) generating, exporting, publishing, and rotating the OpenPGP key used for coordinated disclosure to **`security@archlucid.net`**. Not Stripe/Marketplace secrets, not CI automation of private keys.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # PGP key generation and publication (coordinated disclosure)

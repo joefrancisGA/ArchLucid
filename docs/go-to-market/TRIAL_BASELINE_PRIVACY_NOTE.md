@@ -1,6 +1,6 @@
 > **Scope:** How ArchLucid uses the optional trial-signup “baseline review-cycle hours” field — audience: prospects, security reviewers, and legal; not a substitute for your organization’s full privacy policy.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
 # Trial baseline review-cycle — privacy note

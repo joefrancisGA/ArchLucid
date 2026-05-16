@@ -1,6 +1,6 @@
 > **Scope:** ArchLucid — Audit log export for SIEM integration - full detail, payload examples for Splunk HEC and Microsoft Sentinel, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 > **Buyer-facing index:** [../go-to-market/SIEM_EXPORT.md](../go-to-market/SIEM_EXPORT.md) (short summary and trust links).
 

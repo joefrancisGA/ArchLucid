@@ -2,7 +2,7 @@
 
 > **Scope:** Independent weighted quality assessment of ArchLucid as it stands on **2026-04-21**. Scored from first principles against the repository's current state — code, infra, docs, tests, and go-to-market assets — without reference to prior assessments.
 
-> **Spine doc:** [Five-document onboarding spine](../../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [`START_HERE.md`](../../../START_HERE.md).
 
 
 # ArchLucid Independent Quality Assessment — 2026-04-21 (Weighted **64.14%**)
