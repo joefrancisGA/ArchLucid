@@ -9,8 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     JWTs for <see cref="JwtLocalSigningWebAppFactory" /> — aligned with <see cref="ArchLucid.Api.Auth.Services.LocalTrialJwtIssuer" />
-///     (notBefore skew) and typical ArchLucid access-token scope claims.
+///     JWTs for <see cref="JwtLocalSigningWebAppFactory" /> — PEM-signed access tokens with scope claims; uses a
+///     deeper <c>notBefore</c> skew than <see cref="ArchLucid.Api.Auth.Services.LocalTrialJwtIssuer" /> so CI/TestServer
+///     clock drift cannot fail JwtBearer authentication (401) before controllers run.
 /// </summary>
 internal static class JwtLocalSigningIntegrationTestTokens
 {
@@ -57,9 +58,11 @@ internal static class JwtLocalSigningIntegrationTestTokens
 
         claims.AddRange(roles.Select(r => new Claim("roles", r)));
 
-        // Match LocalTrialJwtIssuer: extra past skew so host/vm clock drift cannot fail Authentication (401).
+        // Match JwtBearer ClockSkew for local PEM signing (ArchLucidJwtBearerConfiguration.ApplyWithLocalPublicKey): stay
+        // further in the past than LocalTrialJwtIssuer so GitHub-hosted runners/TestServer VMs with multi-minute UTC skew
+        // cannot intermittently reject tokens as "not yet valid" (authentication returns 401 before controllers run).
         DateTime utcNow = TimeProvider.System.GetUtcNow().UtcDateTime;
-        DateTime notBefore = utcNow.AddMinutes(-2);
+        DateTime notBefore = utcNow.AddMinutes(-12);
         DateTime expires = utcNow.AddHours(1);
 
         JwtSecurityTokenHandler handler = new();

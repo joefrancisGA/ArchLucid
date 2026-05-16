@@ -1,14 +1,11 @@
 using System.Security.Cryptography;
 using System.Text;
 
-using ArchLucid.Api.Auth.Models;
-using ArchLucid.Api.Configuration;
 using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
 
@@ -20,6 +17,19 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 {
+    /// <summary>
+    ///     Literal <c>iss</c> wired into this factory's host — must match <see cref="JwtLocalSigningIntegrationTests" />.
+    /// </summary>
+    /// <remarks>
+    ///     Do not derive iss/aud from <see cref="Microsoft.Extensions.Configuration.IConfiguration" /> at mint time:
+    ///     binding order / duplicate keys across providers can theoretically diverge from JwtBearer post-configuration,
+    ///     yielding <c>401</c> on otherwise valid PEM-signed tokens.
+    /// </remarks>
+    public const string JwtLocalTestIssuer = "https://test.archlucid.local";
+
+    /// <summary>Literal <c>aud</c> wired into this factory's host (pair of <see cref="JwtLocalTestIssuer" />).</summary>
+    public const string JwtLocalTestAudience = "api://archlucid-jwt-local-test";
+
     private readonly string _publicPemPath;
 
     public JwtLocalSigningWebAppFactory()
@@ -37,29 +47,14 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         get;
     }
 
-    /// <summary>
-    ///     Issues a Bearer JWT whose <c>iss</c>/<c>aud</c> align with merged <see cref="IConfiguration" /> (resolved via
-    ///     <see cref="ArchLucidAuthConfigurationBridge.Resolve" />), avoiding hard-coded values that drift from validator
-    ///     settings when CI env vars overlay host configuration.
-    /// </summary>
-    public string MintLocalBearerJwt(string name, IReadOnlyList<string> roles)
-    {
-        IConfiguration configuration = Services.GetRequiredService<IConfiguration>();
-        ArchLucidAuthOptions auth = ArchLucidAuthConfigurationBridge.Resolve(configuration);
-        string issuer = auth.JwtLocalIssuer.Trim();
-        string audience = auth.JwtLocalAudience.Trim();
-
-        if (string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(audience))
-            throw new InvalidOperationException(
-                "ArchLucidAuth:JwtLocalIssuer and ArchLucidAuth:JwtLocalAudience must be set when minting local PEM JWTs.");
-
-        return JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
+    /// <summary>Issues a Bearer JWT validated by this factory's JwtBearer PEM settings.</summary>
+    public string MintLocalBearerJwt(string name, IReadOnlyList<string> roles) =>
+        JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             PrivatePemForTests,
-            issuer,
-            audience,
+            JwtLocalTestIssuer,
+            JwtLocalTestAudience,
             name,
             roles);
-    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -70,8 +65,8 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         builder.UseSetting("ArchLucidAuth:Authority", "");
         builder.UseSetting("ArchLucidAuth:Audience", "");
         builder.UseSetting("ArchLucidAuth:JwtSigningPublicKeyPemPath", _publicPemPath);
-        builder.UseSetting("ArchLucidAuth:JwtLocalIssuer", "https://test.archlucid.local");
-        builder.UseSetting("ArchLucidAuth:JwtLocalAudience", "api://archlucid-jwt-local-test");
+        builder.UseSetting("ArchLucidAuth:JwtLocalIssuer", JwtLocalTestIssuer);
+        builder.UseSetting("ArchLucidAuth:JwtLocalAudience", JwtLocalTestAudience);
         builder.UseSetting("Authentication:ApiKey:DevelopmentBypassAll", "false");
 
         // http-only URLs disable HTTPS redirection so TestServer clients keep Authorization headers on redirects
@@ -99,8 +94,8 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
                 ["ArchLucidAuth:Authority"] = "",
                 ["ArchLucidAuth:Audience"] = "",
                 ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = _publicPemPath,
-                ["ArchLucidAuth:JwtLocalIssuer"] = "https://test.archlucid.local",
-                ["ArchLucidAuth:JwtLocalAudience"] = "api://archlucid-jwt-local-test",
+                ["ArchLucidAuth:JwtLocalIssuer"] = JwtLocalTestIssuer,
+                ["ArchLucidAuth:JwtLocalAudience"] = JwtLocalTestAudience,
                 ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
                 ["Billing:Provider"] = "Noop",
                 ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"

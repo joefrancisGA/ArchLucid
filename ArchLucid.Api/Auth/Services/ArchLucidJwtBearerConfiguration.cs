@@ -100,7 +100,8 @@ internal static class ArchLucidJwtBearerConfiguration
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = signingKey,
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromMinutes(2),
+            // Local PEM CI / WebApplicationFactory: allow multi-minute UTC skew between JWT mint host and validating host.
+            ClockSkew = TimeSpan.FromMinutes(5),
             RoleClaimType = "roles",
             NameClaimType = nameClaimType
         };

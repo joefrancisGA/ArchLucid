@@ -16,8 +16,8 @@ public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory
     {
         string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
+            JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+            JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
             "JwtTestUser",
             [ArchLucidRoles.Admin]);
 
