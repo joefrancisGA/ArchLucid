@@ -32,6 +32,8 @@ ArchLucid.Api.Controllers.Authority.FastPathContextController.PostPreview
 ArchLucid.Api.Controllers.Authority.ExportsController.ReplayExportRecordMetadata
 # Durable audit: ImportRequestFileService logs RequestFileImported (AUDIT_COVERAGE_MATRIX architecture request import row).
 ArchLucid.Api.Controllers.Authority.ImportRequestFileController.ImportAsync
+# Durable audit: BulkEvidenceUploadService logs EvidenceBulkAttached via IAuditService.LogAsync.
+ArchLucid.Api.Controllers.Authority.EvidenceBulkUploadController.UploadBulkEvidenceAsync
 # Durable audit: AzureExtractorIngestService logs AzureExtractorPackageUploaded / ParseFailed / SchemaRejected / IngestSucceeded via IAuditService.LogAsync.
 ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController.UploadAsync
 # Chunk bytes are staged only; per-chunk controller audit would flood dbo.AuditEvents — durable ingest audit runs on CompleteChunkUploadAsync via IngestZipBytesAsync (same as UploadAsync).
