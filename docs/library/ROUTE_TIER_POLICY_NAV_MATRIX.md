@@ -133,7 +133,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Marketing/SponsorBriefMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/TrustCenterEvidencePackController.cs` | `/v1/marketing/trust-center` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/WhyArchlucidMarketingPackController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
-| `Notifications/CustomerNotificationChannelPreferencesController.cs` | `/v1/notifications` | standard | Authorize |  |  |
+| `Notifications/CustomerNotificationChannelPreferencesController.cs` | `/v1/notifications` | standard | ReadAuthority |  |  |
 | `Notifications/ExecDigestUnsubscribeController.cs` | `/v1/notifications/exec-digest` | none | AllowAnonymous |  | signed_token_unsubscribe |
 | `Pilots/PilotsBoardPackController.cs` | `/v1/pilots` | standard | ExecuteAuthority | /scorecard |  |
 | `Pilots/PilotsController.cs` | `/v1/pilots` | none | ReadAuthority | /reviews?projectId=default |  |

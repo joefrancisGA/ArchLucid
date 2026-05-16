@@ -907,7 +907,7 @@
       "route_template": "v{version:apiVersion}/notifications",
       "normalized_prefix": "/v1/notifications",
       "commercial_tier": "standard",
-      "class_policy": "Authorize",
+      "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
