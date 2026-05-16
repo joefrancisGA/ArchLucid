@@ -192,7 +192,7 @@ Separate buyer-visible cookbook markdown from contributor-heavy internals **with
 **Constraints**
 
 - Doc scope headers on **every new** Markdown under **`docs/`** (CI **`scripts/ci/check_doc_scope_header.py`**).
-- Navigator link assertions (**`scripts/ci/assert_navigator_links_valid.py`**) stay green after each batch move.
+- Navigator link assertions (**`scripts/ci/assert_start_here_links_valid.py`**) stay green after each batch move.
 
 ---
 

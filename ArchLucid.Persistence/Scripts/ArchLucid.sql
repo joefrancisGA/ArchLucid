@@ -6279,6 +6279,30 @@ BEGIN
 END;
 GO
 
+/* 167: Marketing early-access / waitlist (see Migrations/167_MarketingEarlyAccessRequests.sql). */
+IF OBJECT_ID(N'dbo.MarketingEarlyAccessRequests', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.MarketingEarlyAccessRequests
+    (
+        Id            UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_MarketingEarlyAccessRequests2 PRIMARY KEY CLUSTERED
+            CONSTRAINT DF_MarketingEarlyAccessRequests_Id2 DEFAULT NEWSEQUENTIALID(),
+        CreatedUtc    DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_MarketingEarlyAccessRequests_CreatedUtc2 DEFAULT SYSUTCDATETIME(),
+        Email         NVARCHAR(320)    NOT NULL,
+        CompanyName   NVARCHAR(200)    NULL,
+        Role          NVARCHAR(120)    NULL,
+        UtmSource     NVARCHAR(120)    NULL,
+        UtmMedium     NVARCHAR(120)    NULL,
+        UtmCampaign   NVARCHAR(120)    NULL,
+        ClientIpHash  VARBINARY(32)    NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_MarketingEarlyAccessRequests_CreatedUtc2
+        ON dbo.MarketingEarlyAccessRequests (CreatedUtc DESC);
+END;
+GO
+
 /* 112: First-tenant onboarding telemetry funnel rows
    (see Migrations/112_FirstTenantFunnelEvents.sql; Improvement 12; pending question 40).
    Schema is created unconditionally; rows appear only when

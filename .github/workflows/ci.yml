@@ -120,8 +120,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Assert docs/NAVIGATOR.md links resolve
-        run: python scripts/ci/assert_navigator_links_valid.py
+      - name: Assert docs/START_HERE.md links resolve
+        run: python scripts/ci/assert_start_here_links_valid.py
 
       - name: Assert CONNECTOR_READINESS_MATRIX.md links and code paths resolve
         run: python scripts/ci/assert_connector_readiness_matrix_paths.py
