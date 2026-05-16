@@ -116,6 +116,8 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
           multiple 
           className="hidden" 
           ref={inputRef} 
+          aria-label="Drag and drop evidence files here"
+          data-testid="evidence-file-input"
           onChange={(e) => {
             if (e.target.files) handleFiles(e.target.files);
             // Reset so same file can be selected again if needed

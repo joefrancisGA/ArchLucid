@@ -1,6 +1,29 @@
-> **Scope:** Map of predominant **documentation audiences** (customer-evaluator-operator vs contributor-vendor-internal) — not a duplicate of onboarding narrative in [`START_HERE_DEPTH.md`](START_HERE_DEPTH.md) or the task rows in [`NAVIGATOR.md`](../NAVIGATOR.md).
+> **Scope:** Canonical guide for **routing documentation by audience** (customer / evaluator vs contributor / internal) — merges TB-013 role hints with a folder compass; not a duplicate of onboarding narrative in [`START_HERE_DEPTH.md`](START_HERE_DEPTH.md) or task rows in [`NAVIGATOR.md`](../NAVIGATOR.md).
 
 # Documentation by audience
+
+## Two planes (reduce browse noise)
+
+ArchLucid docs intentionally separate:
+
+| Plane | Typical reader | Goal |
+| --- | --- | --- |
+| **Customer / evaluator** | Buyers, pilots, sponsors, procurement — often **without cloning** | Time-to-value, trust, pilot steps, compliance posture |
+| **Contributor / internal** | Engineers, tenant admins, SRE — **with repo + toolchain** | Build, CI, runbooks, infra, migrations |
+
+**Rule of thumb:** hosted-SaaS pilots use the product UI and Trust Center paths; engineers live under `engineering/`, `runbooks/`, and `library/` references. If a change touches HTTP JSON or operator-visible behavior, refresh **customer-facing** summaries only when behavior is customer-visible; otherwise prefer **operator** or **contributor** libraries.
+
+## Quick route by role (TB-013)
+
+Use this table when you need a **starting doc**, not a folder tour:
+
+| Audience | Intent | Start here |
+| --- | --- | --- |
+| **Buyer / pilot / sponsor** | Time-to-value, trust, procurement | [`docs/START_HERE.md`](../START_HERE.md), [`docs/CORE_PILOT.md`](../CORE_PILOT.md), [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) |
+| **Operator / tenant admin** | Day-2 configuration, runbooks, shell | [`docs/library/OPERATOR_QUICKSTART.md`](OPERATOR_QUICKSTART.md), [`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md), [`docs/OPERATIONS_ADMIN.md`](../OPERATIONS_ADMIN.md) |
+| **Contributor / platform engineer** | Repo layout, invariants, CI, migrations | [`.cursor/rules/Architecture-Invariants.mdc`](../../.cursor/rules/Architecture-Invariants.mdc), [`docs/library/TECH_BACKLOG.md`](TECH_BACKLOG.md), [`docs/library/CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) |
+
+When in doubt on **new** markdown, add a one-line **`Audience:`** note next to the scope header (see `.cursor/rules/Doc-Scope-Header.mdc`); CI validates scope lines.
 
 ## Objective
 
@@ -68,8 +91,13 @@ trust-center.*       runbooks/deployment/security depth
 - **Customer-plane** narratives avoid asking for SMB (port **445**) or raw SQL shells; infra runbooks encode **least privilege** assumptions for **operators of the fleet**, not pilots.
 - **Sensitive** rollout steps stay in **runbooks** + Key Vault narratives — reviewers should skim **trust center** policies before crawling **infra** prose.
 
-Short tri-age hub: **[`DOCUMENTATION_AUDIENCES.md`](DOCUMENTATION_AUDIENCES.md)** (TB-013 starter — buyer vs operator vs contributor).
-
 ## Operational considerations
 
 When **adding markdown**, place it under the subtree that matches the **primary** reader (`go-to-market` vs `engineering` vs `runbooks`). If a doc truly serves equal audiences (rare), add a single-line **Audience:** note under the Scope block and link **both** entry hubs.
+
+Default **depth-first** material belongs under **`docs/library/`** or a topic subtree, not `docs/` root — see `.cursor/rules/Docs-Root-Markdown-Budget.mdc`.
+
+## Related
+
+- [`docs/library/PILOT_GUIDE.md`](PILOT_GUIDE.md)
+- [`docs/contributor/README.md`](../contributor/README.md) (if present)

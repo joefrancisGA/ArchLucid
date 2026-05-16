@@ -1234,6 +1234,7 @@ jobs:
       - dotnet-fast-core
       - api-greenfield-boot
       - sql-dbup-empty-catalog
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 180
     services:
@@ -1298,6 +1299,7 @@ jobs:
       - dotnet-fast-core
       - api-greenfield-boot
       - sql-dbup-empty-catalog
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 240
     services:
@@ -1374,6 +1376,7 @@ jobs:
       - dotnet-full-regression-core-api-integration
       - dotnet-full-regression-core-api-unit
       - dotnet-full-regression-core-libs
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -1386,6 +1389,7 @@ jobs:
       - dotnet-fast-core
       - api-greenfield-boot
       - sql-dbup-empty-catalog
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 180
     services:
@@ -1460,6 +1464,7 @@ jobs:
       - dotnet-fast-core
       - api-greenfield-boot
       - sql-dbup-empty-catalog
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     services:
@@ -1543,6 +1548,7 @@ jobs:
       - dotnet-full-regression-core-libs
       - dotnet-full-regression-slow-api
       - dotnet-full-regression-slow-domain
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -1707,6 +1713,7 @@ jobs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
       - dotnet-full-regression-slow-domain
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -1754,11 +1761,10 @@ jobs:
       - openapi-contract-snapshot
       - dotnet-coverage-merge
       - chaos-tests
-    # Fork PR workflows do not receive repository secrets — skip cleanly instead of failing a red-herring "missing secrets" step.
+    # Fork PR workflows do not receive repository secrets — full CI only (`workflow_dispatch`).
     if: >-
       ${{ vars.ARCHLUCID_CI_REAL_AOAI_ENABLED == 'true'
-          && (github.event_name != 'pull_request'
-              || github.event.pull_request.head.repo.full_name == github.repository) }}
+          && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:
@@ -1858,11 +1864,12 @@ jobs:
             --skip-duplicate
 
   coverage-pr-comment:
-    # Runs on every green full regression so the check can be required on the default branch;
-    # comment steps are gated to same-repo pull_request only.
+    # Runs after green full regression merge (`workflow_dispatch` full CI); comment steps are same-repo pull_request only.
     name: "PR: coverage comment"
     needs: dotnet-coverage-merge
-    if: needs.dotnet-coverage-merge.result == 'success'
+    if: >-
+      github.event_name != 'pull_request'
+      && needs.dotnet-coverage-merge.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -1945,6 +1952,7 @@ jobs:
   docker-build-smoke:
     name: "Containers: Docker build smoke"
     needs: gitleaks
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 50
     permissions:
@@ -2049,6 +2057,7 @@ jobs:
   ui-unit:
     name: "Operator UI: unit (Vitest)"
     needs: gitleaks
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
