@@ -1430,12 +1430,14 @@ jobs:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         # Blame must exceed ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout (~65m factory HttpClient)
         # plus coverage collector / host teardown slack; 45m falsely kills healthy runs under cold SQL + long simulator pipelines.
+        # --diag: VSTest/platform trace when the host stalls after tests (Coverlet teardown vs SQL dispose); blame "current test" is often the last finished test.
         run: >
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release --settings coverage.runsettings
           --filter "Category=Slow"
           --collect:"XPlat Code Coverage"
           --results-directory "${{ runner.temp }}/coverage-full-slow-api"
           --logger "trx;LogFilePrefix=full-slow-api-"
+          --diag "${{ runner.temp }}/vstest-slow-api.diag.log"
           --blame-hang --blame-hang-timeout 90min
 
       - uses: actions/upload-artifact@v6
@@ -1450,6 +1452,20 @@ jobs:
         with:
           name: dotnet-blame-slow-api
           path: ${{ runner.temp }}/coverage-full-slow-api/**/Sequence_*.xml
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-hangdumps-slow-api
+          path: ${{ runner.temp }}/coverage-full-slow-api/**/*.dmp
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: vstest-diag-slow-api
+          path: ${{ runner.temp }}/vstest-slow-api.diag.log
           if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v6
@@ -1511,12 +1527,14 @@ jobs:
             ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj \
             ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj \
             ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj; do
+            diag="${{ runner.temp }}/vstest-slow-domain-$(basename "$proj" .csproj).diag.log"
             dotnet test "$proj" \
               --no-build -c Release --settings coverage.runsettings \
               --filter "Category=Slow" \
               --collect:"XPlat Code Coverage" \
               --results-directory "${{ runner.temp }}/coverage-full-slow-domain" \
               --logger "trx;LogFilePrefix=full-slow-domain-" \
+              --diag "$diag" \
               --blame-hang --blame-hang-timeout 90min
           done
 
@@ -1532,6 +1550,20 @@ jobs:
         with:
           name: dotnet-blame-slow-domain
           path: ${{ runner.temp }}/coverage-full-slow-domain/**/Sequence_*.xml
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-hangdumps-slow-domain
+          path: ${{ runner.temp }}/coverage-full-slow-domain/**/*.dmp
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: vstest-diag-slow-domain
+          path: ${{ runner.temp }}/vstest-slow-domain-*.diag.log
           if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v6
