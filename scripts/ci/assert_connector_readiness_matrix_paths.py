@@ -2,7 +2,7 @@
 
 Validates:
 
-- Relative markdown links ``[text](target)`` (same rules as ``assert_navigator_links_valid`` for skips).
+- Relative markdown links ``[text](target)`` (same rules as ``assert_start_here_links_valid`` for skips).
 - Backticked repo-relative paths that look like source or schema files (contain ``/`` and end with
   ``.cs`` / ``.md`` / ``.json``) — excludes table cells such as ``dbo.*`` that also use backticks.
 

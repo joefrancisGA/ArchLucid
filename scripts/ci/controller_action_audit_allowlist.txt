@@ -72,6 +72,7 @@ ArchLucid.Api.Controllers.Governance.PolicyPacksController.Assign
 ArchLucid.Api.Controllers.Governance.PolicyPacksController.Create
 ArchLucid.Api.Controllers.Governance.PolicyPacksController.Publish
 ArchLucid.Api.Controllers.Marketing.MarketingPricingQuoteRequestController.PostQuoteRequest
+ArchLucid.Api.Controllers.Marketing.MarketingEarlyAccessRequestController.PostEarlyAccessRequest
 ArchLucid.Api.Controllers.Pilots.PilotsBoardPackController.PostBoardPackPdf
 ArchLucid.Api.Controllers.Pilots.PilotsController.PostFirstValueReportPdf
 ArchLucid.Api.Controllers.Pilots.PilotsController.PostScorecard
