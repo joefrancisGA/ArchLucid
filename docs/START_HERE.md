@@ -26,8 +26,8 @@ START_HERE.md (you are here)
 │   └─ library/PILOT_ROI_MODEL.md  (optional depth)
 │
 ├─ Contributor / developer — local toolchain and repo orientation
-│   ├─ INSTALL_ORDER.md            → canonical body: engineering/INSTALL_ORDER.md
-│   ├─ FIRST_30_MINUTES.md         → canonical body: engineering/FIRST_30_MINUTES.md
+│   ├─ engineering/INSTALL_ORDER.md            (canonical body)
+│   ├─ engineering/FIRST_30_MINUTES.md         (canonical body)
 │   ├─ library/CONTRIBUTOR_CODE_MAP.md (1-page decision tree for where to change code)
 │   └─ ARCHITECTURE_INDEX.md       (maps after first run)
 │
