@@ -29,7 +29,7 @@
 
 ## Executive Summary
 
-**Overall Readiness:** ArchLucid is a functionally complete V1 product with a solid architectural foundation, capable of executing the core pilot loop (internally run → execute → commit → manifest and artifacts). However, its immediate readiness is still constrained by **residual audit-matrix deferrals** (notably read-path **`FindingsListAccessed`**) and the intentional deferral of live commerce and compliance attestations to V1.1 and beyond — **durable `ManifestSuperseded` / finalize supersession hygiene closed repository-side (2026-05-15**, **`AUDIT_COVERAGE_MATRIX.md`**, improvement **#3**). **Phase 7.6–7.7** rename execution and Entra greenfield alignment **closed 2026-04-19** (**7.8** waived — **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**). **Terraform Phase 7.5** is **deferred to V1.1**. **Operator shell labels will align with marketing workflow language** so pilots moving from landing page to product see one coherent story (technical APIs unchanged). **V1 GA requires** a buyer-grade **Architecture Review Report** export (DOCX + PDF) aligned to landing-page sections (**Marketing alignment Q2**) **with consultant whitelabel on cover/metadata** (**Marketing alignment Q5**, folded into **#28**) **and two curated default policy packs** (AI governance + security baseline; landing-zone pack **V1.1**) (**Marketing alignment Q3**) **and bounded bulk evidence upload** (**≤30 files** per operation — **Marketing alignment Q4**) **and two curated demo workspaces as a hard release gate** (**Marketing alignment Q6** / improvement **#31**) **and a landing CTA stack aligned to sales-led GA** (**Marketing alignment Q7** / improvement **#32**) **and native SAML 2.0 SP workforce SSO** (**`V1_SCOPE.md` §2.12**, **completed**, **P6** owner **2026-05-15**).
+**Overall Readiness:** ArchLucid is a functionally complete V1 product with a solid architectural foundation, capable of executing the core pilot loop (internally run → execute → commit → manifest and artifacts). However, its immediate readiness is still constrained by **residual audit-matrix deferrals** (notably read-path **`FindingsListAccessed`**) and the intentional deferral of live commerce and compliance attestations to V1.1 and beyond — **durable `ManifestSuperseded` / finalize supersession hygiene closed repository-side (2026-05-15**, **`AUDIT_COVERAGE_MATRIX.md`**, improvement **#3**). **Phase 7.6–7.7** rename execution and Entra greenfield alignment **closed 2026-04-19** (**7.8** waived — **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**). **Terraform Phase 7.5** is **deferred to V1.1**. **Operator shell labels align with marketing workflow language** so pilots moving from landing page to product see one coherent story (technical APIs unchanged, **completed**). **V1 GA requires** a buyer-grade **Architecture Review Report** export (DOCX + PDF) aligned to landing-page sections (**Marketing alignment Q2**) **with consultant whitelabel on cover/metadata** (**Marketing alignment Q5**, folded into **#28**) **and two curated default policy packs** (AI governance + security baseline; landing-zone pack **V1.1**) (**Marketing alignment Q3**) **and bounded bulk evidence upload** (**≤30 files** per operation — **Marketing alignment Q4**) **and two curated demo workspaces as a hard release gate** (**Marketing alignment Q6** / improvement **#31**) **and a landing CTA stack aligned to sales-led GA** (**Marketing alignment Q7** / improvement **#32**) **and native SAML 2.0 SP workforce SSO** (**`V1_SCOPE.md` §2.12**, **completed**, **P6** owner **2026-05-15**).
 
 **Commercial Picture:** The product is ready for sales-led pilots and staging-based trial evaluations. However, self-serve transactability is intentionally paused, with Stripe live keys and Marketplace publication deferred to V1.1. The lack of a published reference customer and signed design partner (also deferred) may slow early momentum. **GA ships differentiated governance starters:** buyer-visible **AI governance** and **security baseline** policy packs (thin MVP counts acceptable), strengthening demo credibility versus empty-pack onboarding. **Evidence capture** gets **bulk upload** at GA with an explicit **≤30-file** ceiling (**Marketing alignment Q4**) — pitch accordingly. **Consultants can white-label client deliverables** (firm name, engagement title, logo — **Marketing alignment Q5**) directly from export — strengthens marketplace / boutique wedge without manual DOCX surgery. **Sales-led and self-serve evaluators both hit fixed demo workspaces** (**self-demo + regulated synthetic**) — GA is blocked until both stay green (**Marketing alignment Q6**). **First-90-days landing posture:** **Request walkthrough** primary, **Try the self-demo** secondary (Workspace **A**), **Early access** tertiary capture — **no public paid-pilot $ band** yet (**Marketing alignment Q7**).
 
@@ -45,7 +45,7 @@
 - **Score:** 80
 - **Weight:** 6
 - **Weighted deficiency signal:** 120
-- **Justification:** Tier 1 Azure extraction remains frictionless. **Phase 7.6–7.7** + waived **7.8** (**improvement #2**) **closed 2026-04-19** — see **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**. **Owner decision (Q6):** **two curated demo workspaces** are a **hard GA gate**, shrinking time-to-first-success for evaluators versus blank tenants. **Owner decision (Q7):** landing **hybrid CTA** routes serious buyers to **walkthrough** while offering **self-demo** before calendar load (**#32**). Some **immutable** DbUp history and RLS lineage still carries legacy spellings — procurement-facing docs should say so honestly (**not** unreleased rename backlog).
+- **Justification:** Tier 1 Azure extraction remains frictionless. **Phase 7.6–7.7** + waived **7.8** (**improvement #2**) **closed 2026-04-19** — see **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**. **Owner decision (Q6):** **two curated demo workspaces** are a **hard GA gate**, shrinking time-to-first-success for evaluators versus blank tenants. **Owner decision (Q7):** landing **hybrid CTA** routes serious buyers to **walkthrough** while offering **self-demo** before calendar load (**#32**). Some **immutable** DbUp history and RLS lineage still carries legacy spellings — procurement-facing docs should say so honestly (**not** unreleased rename backlog). Operator shell labels are aligned with marketing vocabulary (**completed**).
 - **Tradeoffs:** Demo workspaces create **fixture-maintenance tax** — feature churn can break GA smoke unless **#31** is treated as living backlog.
 - **Improvement recommendations:** **Improvement #2** (**7.6–7.8**) **closed 2026-04-19** per archived checklist — no schedule action. Implement improvement **#31** (demo workspaces — **release-blocking**). Implement improvement **#32** (landing CTA stack — **Q7**). Provide explicit documentation for generic OIDC setup (`improvement #24`).
 
@@ -77,9 +77,9 @@
 - **Score:** 79
 - **Weight:** 3
 - **Weighted deficiency signal:** 63
-- **Justification:** The operator UI is functional. **Owner decision:** surface copy shifts from engineering-centric terms (**run**, **commit**, **manifest**) to marketing-aligned governance vocabulary (**Capture**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) without renaming HTTP contracts — reducing cognitive load for regulated EA/security buyers and consultants. **Owner decision (Q4):** **bulk evidence upload** lands in **V1 GA** capped at **≤30 files** per upload so “gather scattered artifacts” demos stay honest without taking unlimited ingestion scope pre-GA. **`/planning`** stays read-only browse; pilot-feedback materialization lives on **`/product-learning`**. **`ui-e2e-live`** now carries targeted **live API negatives** (**improvement #8** **closed 2026-05-15**); most operator-shell Playwright paths remain **`/api/proxy`** mocks until broader expansion lands.
+- **Justification:** The operator UI is functional. **Owner decision:** surface copy shifted from engineering-centric terms (**run**, **commit**, **manifest**) to marketing-aligned governance vocabulary (**Capture**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) without renaming HTTP contracts — reducing cognitive load for regulated EA/security buyers and consultants (**completed**). **Owner decision (Q4):** **bulk evidence upload** lands in **V1 GA** capped at **≤30 files** per upload so “gather scattered artifacts” demos stay honest without taking unlimited ingestion scope pre-GA. **`/planning`** stays read-only browse; pilot-feedback materialization lives on **`/product-learning`**. **`ui-e2e-live`** now carries targeted **live API negatives** (**improvement #8** **closed 2026-05-15**); most operator-shell Playwright paths remain **`/api/proxy`** mocks until broader expansion lands.
 - **Tradeoffs:** Dual vocabulary (friendly labels vs stable API names) must be documented for integrators and support; translators/tests must reference stable selectors where headers change copy. The **30-file** ceiling avoids abuse and MVP complexity but forces explicit marketing disclosure and may annoy heavy dossier pilots until **V1.1**.
-- **Improvement recommendations:** Execute improvement **#27** (navs, wizard steps, empty states, Core Pilot checklist). Implement improvement **#30** (bulk upload with **≤30** enforcement + UX copy). Ship improvement **#28** **including whitelabel fields** in export UX (**Q5**). ~~Expand `ui-e2e-live` … (**#8**).~~ **Improvement #8 closed (2026-05-15)** — **`live-api-negative-paths.spec.ts`**. Add `DataArchivalHostHealthCheck` to the dashboard (**#21**).
+- **Improvement recommendations:** Implement improvement **#30** (bulk upload with **≤30** enforcement + UX copy). Ship improvement **#28** **including whitelabel fields** in export UX (**Q5**). ~~Expand `ui-e2e-live` … (**#8**).~~ **Improvement #8 closed (2026-05-15)** — **`live-api-negative-paths.spec.ts`**. Add `DataArchivalHostHealthCheck` to the dashboard (**#21**).
 
 ### 6. Workflow Embeddedness
 - **Score:** 85
@@ -169,12 +169,12 @@
 2. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
 3. **Residual** legacy **RLS** catalog/history identifiers (**improvement #4** dropped orphan predicates only; **`108`** coordination remains where **`ArchiforgeTenantScope`** persists).
 4. Manual nature of some cost estimations in the Azure extractor.
-5. Until improvement **#27** ships, operator shell copy may still read engineering-first vs landing-page workflow vocabulary (**Capture / Evidence / …**) on residual surfaces.
-6. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment Q6** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or owners risk shipping broken demos.
-7. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
-8. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
-9. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity and release-smoke validation remain engineering obligations before the legacy orchestrator can be safely removed.
-10. **Auth mismatches in operational scripts:** Potential authentication mismatches exist in operational scripts (like `v1-rc-drill.ps1`) that assume `DevelopmentBypass`, reducing testing realism against environments secured with JWT or API keys.
+5. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment Q6** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or owners risk shipping broken demos.
+6. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
+7. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
+8. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity and release-smoke validation remain engineering obligations before the legacy orchestrator can be safely removed.
+9. **Auth mismatches in operational scripts:** Potential authentication mismatches exist in operational scripts (like `v1-rc-drill.ps1`) that assume `DevelopmentBypass`, reducing testing realism against environments secured with JWT or API keys.
+10. **Lack of explicit logging for agent state machine transitions:** Makes it difficult to observe and debug complex agent orchestrations in production.
 
 ---
 
@@ -185,7 +185,7 @@
 3. **Incomplete Buyer-grade Architecture Review Report export:** Until the DOCX/PDF export with consultant whitelabel ships, boutique consultants cannot easily monetize their own deliverables.
 4. **Manual Azure cost estimations:** The Azure extractor's manual cost estimation limits the platform's ability to automatically prove hard infrastructure savings to buyers.
 5. **Coarse `ComparisonReplayCostEstimator` heuristics:** Lack of granular heuristics makes Proof-of-ROI less accurate for complex agent tasks, weakening the commercial business case.
-6. **Operator shell vocabulary mismatch:** Engineering-first terminology in the UI creates friction during sales-led demos, weakening the marketing governance positioning.
+6. **Lack of cross-tenant analytics (internal):** Without internal tools to aggregate usage and cost savings across tenants, it is difficult to prove ROI and inform product direction.
 
 ---
 
@@ -291,47 +291,7 @@ Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Api.DataAccess` to
 Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides step-by-step instructions for configuring `ArchLucidAuth:Authority` with a non-Microsoft OIDC issuer (e.g., Okta, Auth0). Include examples of claim mapping to `ArchLucidRoles` and troubleshooting tips for common JWKS validation errors. Link this new file from `docs/library/SECURITY.md` and `docs/library/CONFIGURATION_REFERENCE.md`. Acceptance criteria: Clear documentation exists for setting up generic OIDC.
 ```
 
-9. Align operator shell labels with marketing governance vocabulary (presentation-only)
-- Why it matters: Regulated buyers and consultants encounter landing-page workflow language first; mismatched UI terms (**Run**, **Commit**, **Manifest**) create friction and weaken the evidence-backed governance positioning.
-- Expected impact: Glossary alignment (**Q1**) raises Usability **+4** (baseline **72** → **76**). Owner **Q4** / improvement **#30** adds **+1** → headline **77**. The glossary slice contributes **+0.25%** weighted readiness toward cumulative headline (**81.55%** after later owner deltas). Secondary lift for Adoption Friction after pilots validate copy.
-- Affected qualities: Usability, Adoption Friction (narrative alignment).
-- Actionable: Yes
-
-```markdown
-Align **`archlucid-ui`** user-visible strings with the marketing workflow story — **presentation layer only**.
-
-CANONICAL GLOSSARY (owner-approved 2026-05-15 — implement consistently)
-| Buyer-facing UI | Technical / unchanged |
-|----------------|----------------------|
-| **Review** | Run, run ID, `ArchitectureRun`, API `/v1/architecture/run/...` |
-| **Finalize review** / **Finalize** (when context clear) | Commit, `POST .../commit`, golden manifest persistence |
-| **Architecture snapshot** / **Snapshot** | Manifest, golden manifest, `GoldenManifest` |
-| **Evidence graph** | Knowledge graph internally; URL path **`/graph`** |
-
-TARGET WORKFLOW COPY (map honestly onto wizard + run detail + exports)
-- Align with **Capture system → Add evidence → Review → Resolve findings → Record decisions → Generate report**; use **Architecture review** in headings/tooltips where **Review** alone is ambiguous.
-
-SCOPE
-- Navigation and section titles: `archlucid-ui/src/lib/nav-config.ts`, `nav-disclosure-copy.ts`, `nav-authority.ts`, related nav helpers.
-- Home / Core Pilot checklist copy, layer headers, empty states, tooltips — replace buyer-visible Run/Commit/Manifest/Knowledge graph wording per glossary above.
-- Update **`docs/library/operator-shell.md`** (and **`CORE_PILOT.md`** / **`PILOT_GUIDE.md`** cross-links if they duplicate UI strings) so docs match the UI glossary.
-
-CONSTRAINTS — DO NOT CHANGE WITHOUT ADR / VERSIONING
-- HTTP paths (`/v1/...`), OpenAPI titles, **`openapi-v1.contract.snapshot.json`**, CLI command names, durable audit **`AuditEventTypes`** names, or correlation-id docs.
-- Do not rename React route paths unless required for redirects (prefer label-only changes).
-
-TESTS
-- Fix/update **`nav-config.structure.test.ts`**, **`nav-shell-visibility.test.ts`**, **`nav-tier.test.ts`**, and any snapshot tests that assert old headings.
-- Ensure **`ui-e2e-live`** and Vitest suites still pass (`npm test` / CI parity).
-
-ACCEPTANCE CRITERIA
-1. Glossary table above appears verbatim (or linked single source) in **`docs/library/operator-shell.md`** or **`docs/go-to-market/UI_GLOSSARY_V1.md`** so support/procurement share one truth with the UI.
-2. A reader can map landing-page hero workflow to visible operator labels without ad-hoc interpretation.
-3. Finalize control includes tooltip copy that replay/compare remain available after finalize (no misleading irreversibility).
-4. No regression in accessibility (`aria-labelledby` / buttons remain meaningful).
-```
-
-10. Buyer-grade **Architecture Review Report** export (DOCX + PDF) **with consultant whitelabel** — **V1 GA gate**
+9. Buyer-grade **Architecture Review Report** export (DOCX + PDF) **with consultant whitelabel** — **V1 GA gate**
 - Why it matters: Marketing sells the **deliverable** (report handed to ARB / CISO / client). Without a polished default profile **and consultant-ready branding**, demos and boutique-consultant promises under-deliver.
 - Expected impact: Proof-of-ROI **82→83**, Commercial Packaging **81→82**, Stickiness **79→80**; weighted readiness **+~0.17%** toward headline (**stacked before Q6 / cumulative **81.55%**). Treat as **merge-blocking for GA** alongside improvement **#27**. **Owner Q5** folds whitelabel here — **no separate export SKU**.
 - Affected qualities: Proof-of-ROI Readiness, Commercial Packaging Readiness, Stickiness; Usability (export dialog UX).

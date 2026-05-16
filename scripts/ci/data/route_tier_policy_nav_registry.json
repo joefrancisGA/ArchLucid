@@ -452,6 +452,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/EvidenceBulkUploadController.cs",
+      "class_name": "EvidenceBulkUploadController",
+      "route_template": "v{version:apiVersion}/architecture/run/{runId:guid}/evidence",
+      "normalized_prefix": "/v1/architecture/run/{runId:guid}/evidence",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/ExecutiveSummaryController.cs",
       "class_name": "ExecutiveSummaryController",
       "route_template": "api/authority/executive-summary",
