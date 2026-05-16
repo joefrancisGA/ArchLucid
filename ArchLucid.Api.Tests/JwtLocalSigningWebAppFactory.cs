@@ -1,11 +1,14 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Configuration;
 using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
 
@@ -32,6 +35,30 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
     public string PrivatePemForTests
     {
         get;
+    }
+
+    /// <summary>
+    ///     Issues a Bearer JWT whose <c>iss</c>/<c>aud</c> align with merged <see cref="IConfiguration" /> (resolved via
+    ///     <see cref="ArchLucidAuthConfigurationBridge.Resolve" />), avoiding hard-coded values that drift from validator
+    ///     settings when CI env vars overlay host configuration.
+    /// </summary>
+    public string MintLocalBearerJwt(string name, IReadOnlyList<string> roles)
+    {
+        IConfiguration configuration = Services.GetRequiredService<IConfiguration>();
+        ArchLucidAuthOptions auth = ArchLucidAuthConfigurationBridge.Resolve(configuration);
+        string issuer = auth.JwtLocalIssuer.Trim();
+        string audience = auth.JwtLocalAudience.Trim();
+
+        if (string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(audience))
+            throw new InvalidOperationException(
+                "ArchLucidAuth:JwtLocalIssuer and ArchLucidAuth:JwtLocalAudience must be set when minting local PEM JWTs.");
+
+        return JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
+            PrivatePemForTests,
+            issuer,
+            audience,
+            name,
+            roles);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

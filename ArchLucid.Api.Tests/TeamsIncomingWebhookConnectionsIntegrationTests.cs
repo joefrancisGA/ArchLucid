@@ -22,10 +22,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
     [SkippableFact]
     public async Task Post_connections_with_reader_jwt_returns_forbidden()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
+        string token = factory.MintLocalBearerJwt(
             "ReaderUser",
             [ArchLucidRoles.Reader]);
 
@@ -47,10 +44,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
     [SkippableFact]
     public async Task Post_connections_with_https_body_returns_bad_request()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
+        string token = factory.MintLocalBearerJwt(
             "OperatorUser",
             [ArchLucidRoles.Operator]);
 
@@ -72,10 +66,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
     [SkippableFact]
     public async Task Get_post_delete_round_trip_with_operator_jwt()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
+        string token = factory.MintLocalBearerJwt(
             "OperatorUser",
             [ArchLucidRoles.Operator]);
 
@@ -129,10 +120,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
     [SkippableFact]
     public async Task Post_connections_with_unknown_trigger_returns_bad_request()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
+        string token = factory.MintLocalBearerJwt(
             "OperatorUser",
             [ArchLucidRoles.Operator]);
 
@@ -157,10 +145,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
     [SkippableFact]
     public async Task Get_triggers_catalog_returns_v1_default_set()
     {
-        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
-            factory.PrivatePemForTests,
-            "https://test.archlucid.local",
-            "api://archlucid-jwt-local-test",
+        string token = factory.MintLocalBearerJwt(
             "ReaderUser",
             [ArchLucidRoles.Reader]);
 
