@@ -35,7 +35,7 @@
 
 **Enterprise Picture:** The system supports robust tenant isolation (database-per-tenant), workforce SSO via **OIDC / Entra ID** and **native SAML 2.0 SP** (**`V1_SCOPE.md` §2.12**, **V1 GA** — **completed**), and private connectivity. First-party ITSM connectors (Jira, ServiceNow) and Slack/Confluence integrations are strong enterprise features. However, the absence of a CPA-issued SOC 2 report and third-party penetration test (deferred to V2) will cause friction during procurement and security reviews.
 
-**Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. **Improvement #26 (2026-05-16):** SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); deeper DTF-native scheduling and full multiset parity remain incremental work. **Improvements closed (2026-05-15):** idempotent orphan **`archiforge_*`** RLS predicate drops (**DbUp 165**, **#4**); **`FirstTenantFunnelEvents`** SQL purge when per-tenant emission is **off** (**#5**); **`ui-e2e-live`** negative-path coverage (**#8**); optional **Redis-backed** graph projection **`IDistributedCache`** (**#9**); hosted-trial **V1→V1.1** orientation memo (**#10**). Residual risks include **immutable** migration/history spellings, catalogs still on legacy **RLS** identifiers until **`108`** replay coordination, single-process projection defaults without Redis, and **keeping GA-gated demo workspace smoke green** (**Q6** / **#31**).
+**Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. **Improvement #26 (2026-05-16):** SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); deeper DTF-native scheduling and full multiset parity remain incremental work. **Improvements closed (2026-05-15):** idempotent orphan **`archiforge_*`** RLS predicate drops (**DbUp 165**, **#4**); **`FirstTenantFunnelEvents`** SQL purge when per-tenant emission is **off** (**#5**); **`ui-e2e-live`** negative-path coverage (**#8**); optional **Redis-backed** graph projection **`IDistributedCache`** (**completed**); hosted-trial **V1→V1.1** orientation memo (**#10**). Residual risks include **immutable** migration/history spellings, catalogs still on legacy **RLS** identifiers until **`108`** replay coordination, single-process projection defaults without Redis, and **keeping GA-gated demo workspace smoke green** (**Q6** / **#31**).
 
 ---
 
@@ -118,8 +118,8 @@
 - **Weight:** 2
 - **Weighted deficiency signal:** 36
 - **Justification:** The system provides comparison replays and a knowledge graph, offering good visibility into architectural decisions.
-- **Tradeoffs:** Default **in-process** projection cache still caps multi-replica coherence unless operators enable **Distributed** backend + Redis (**improvement #9** **closed 2026-05-15** — configure **`ArchLucid:KnowledgeGraph:ProjectionCache:Backend`**).
-- **Improvement recommendations:** ~~Implement a distributed graph snapshot projection cache…~~ **Improvement #9 closed (2026-05-15)** — **`GraphSnapshotProjectionDistributedCache`** + host **`IDistributedCache`** registration; retain **`V1_DEFERRED.md` §6e** honesty when Redis is **not** configured.
+- **Tradeoffs:** Default **in-process** projection cache still caps multi-replica coherence unless operators enable **Distributed** backend + Redis (**completed 2026-05-15** — configure **`ArchLucid:KnowledgeGraph:ProjectionCache:Backend`**).
+- **Improvement recommendations:** Retain **`V1_DEFERRED.md` §6e** honesty when Redis is **not** configured.
 
 ### 11. Interoperability
 - **Score:** 92
@@ -141,7 +141,7 @@
 - **Score:** 78
 - **Weight:** 1
 - **Weighted deficiency signal:** 22
-- **Justification:** Rate limiting is implemented; optional Redis and **memory** caches remain deployment-dependent — **distributed graph projection cache** is **available when configured** (**improvement #9**, **2026-05-15**).
+- **Justification:** Rate limiting is implemented; optional Redis and **memory** caches remain deployment-dependent — **distributed graph projection cache** is **available when configured**.
 - **Tradeoffs:** Making Redis optional simplifies single-replica deployments but complicates scaled operations.
 - **Improvement recommendations:** ~~Implement automated purge for `dbo.FirstTenantFunnelEvents`.~~ **Improvement #5 closed (2026-05-15)** — archival iteration batched SQL deletes when **`Telemetry:FirstTenantFunnel:PerTenantEmission`** is **false** + retention keys (**`ConfigurationKeyCatalog`**). Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic.
 
