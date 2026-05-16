@@ -35,10 +35,10 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
     setFiles((prev) => [...prev, ...newFiles]);
   };
 
-  const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     handleFiles(e.dataTransfer.files);
-  }, [files]);
+  };
 
   const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
