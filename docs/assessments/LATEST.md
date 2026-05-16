@@ -2,13 +2,13 @@
 
 **Canonical pair:** This file is the **single current score and backlog** for weighted readiness. Read **`docs/library/ASSESSMENT_INPUTS.md`** first for the evidence contract; treat **`docs/archive/assessments/`** and archived quality narratives as **history only** — see **“One workflow (current score vs history)”** there.
 
-# ArchLucid Assessment – Weighted Readiness 82.52%
+# ArchLucid Assessment – Weighted Readiness 82.69%
 
 **V1 scoring boundary:**
 
 - **MCP:** Inbound Model Context Protocol is **explicitly out of V1** and scheduled for **V1.1** per `docs/library/V1_SCOPE.md` §3 and `docs/library/V1_DEFERRED.md` §6d. **V1.1 slice pinned** (**owner 2026-05-15**, **P12**): **seven read-only tools**, **Streamable HTTP** for production (private endpoint), optional **`stdio`** for local/self-hosted harness only — `docs/library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md` **§5.1**. Absence of an MCP host does not reduce any weighted quality score; REST, CLI, operator UI, webhooks, and first-party integrations are the in-contract V1 integration surfaces.
 - **Hosted-trial `V1`→`V1.1` migration / expectations guide:** **Explicitly out of V1 GA** narrative-blocking claims — orientation memo **`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`** **shipped (2026-05-15**, improvement **#10**, **`V1_DEFERRED.md` §6i**). **`(A)` V1 headline readiness is unchanged:** memo frames **V1.1** outbound deltas (commerce, MCP, Slack approvals, packs), **not** a GA prerequisite checklist rewrite.
-- **Native SAML 2.0 Service Provider (workforce SSO):** **In V1 GA scope** (**owner 2026-05-15**, **`docs/library/V1_SCOPE.md` §2.12**, **P6**). **`JwtBearer`** OIDC remains **first-class**; SAML **SP** augments buyer choice. **`(A)` V1 headline readiness** assumes **#13** closes before GA claims **SAML-direct** tenancy support without brokers — until shipped, procurement must describe **OIDC / broker** interim posture honestly.
+- **Native SAML 2.0 Service Provider (workforce SSO):** **In V1 GA scope** (**owner 2026-05-15**, **`docs/library/V1_SCOPE.md` §2.12**, **completed**). **`JwtBearer`** OIDC remains **first-class**; SAML **SP** augments buyer choice.
 - **Third-party penetration test (external vendor):** **`V2`** per **`docs/library/V1_DEFERRED.md` §6c. **`(A)` V1 planning / execution** omits recurring **budget / vendor pen-test prompts** (**owner 2026-05-15**, **P8**). Treat absent published assessor summary as **`(B)` procurement realism** only — improvement **#18** remains **`V2`** backlog metadata, not a **V1** standing question.
 - **ServiceNow bi-directional status sync:** **`V1` GA** per **`docs/library/V1_SCOPE.md` §2.13** — unchanged. **P10** (**2026-05-15**): **no** ServiceNow developer instance **yet**; owner will unblock **#22** via **cost-free** **ServiceNow Developer Program** / personal developer-style instance (**paid** sandbox **not** a **`V1` GA** prerequisite). Until provisioned, engineering is **queued only** — explicit scope demotion requires **`V1_SCOPE.md`** / **`PENDING_QUESTIONS.md`** amendment **if** a **free** path never materializes.
 - **Durable Task Framework (DTF):** **Improvement #26 closed (2026-05-16)** — SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); `ArchLucid.Application` still has no compile-time dependency on `Microsoft.DurableTask.*`. InMemory / simulator paths remain on the legacy adapter until separately migrated. The ACA Jobs row in `V1_DEFERRED.md` §6f remains out of V1 scope. **P11** (**2026-05-15**, owner concurrence): **Azure Container Apps Jobs** stay **`V2`** situational backlog (**improvement #25**) — **not** promoted into **`V1`**.
@@ -29,11 +29,11 @@
 
 ## Executive Summary
 
-**Overall Readiness:** ArchLucid is a functionally complete V1 product with a solid architectural foundation, capable of executing the core pilot loop (internally run → execute → commit → manifest and artifacts). However, its immediate readiness is still constrained by **residual audit-matrix deferrals** (notably read-path **`FindingsListAccessed`**) and the intentional deferral of live commerce and compliance attestations to V1.1 and beyond — **durable `ManifestSuperseded` / finalize supersession hygiene closed repository-side (2026-05-15**, **`AUDIT_COVERAGE_MATRIX.md`**, improvement **#3**). **Phase 7.6–7.7** rename execution and Entra greenfield alignment **closed 2026-04-19** (**7.8** waived — **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**). **Terraform Phase 7.5** is **deferred to V1.1**. **Operator shell labels will align with marketing workflow language** so pilots moving from landing page to product see one coherent story (technical APIs unchanged). **V1 GA requires** a buyer-grade **Architecture Review Report** export (DOCX + PDF) aligned to landing-page sections (**Marketing alignment Q2**) **with consultant whitelabel on cover/metadata** (**Marketing alignment Q5**, folded into **#28**) **and two curated default policy packs** (AI governance + security baseline; landing-zone pack **V1.1**) (**Marketing alignment Q3**) **and bounded bulk evidence upload** (**≤30 files** per operation — **Marketing alignment Q4**) **and two curated demo workspaces as a hard release gate** (**Marketing alignment Q6** / improvement **#31**) **and a landing CTA stack aligned to sales-led GA** (**Marketing alignment Q7** / improvement **#32**) **and native SAML 2.0 SP workforce SSO** (**`V1_SCOPE.md` §2.12**, improvement **#13**, **P6** owner **2026-05-15**).
+**Overall Readiness:** ArchLucid is a functionally complete V1 product with a solid architectural foundation, capable of executing the core pilot loop (internally run → execute → commit → manifest and artifacts). However, its immediate readiness is still constrained by **residual audit-matrix deferrals** (notably read-path **`FindingsListAccessed`**) and the intentional deferral of live commerce and compliance attestations to V1.1 and beyond — **durable `ManifestSuperseded` / finalize supersession hygiene closed repository-side (2026-05-15**, **`AUDIT_COVERAGE_MATRIX.md`**, improvement **#3**). **Phase 7.6–7.7** rename execution and Entra greenfield alignment **closed 2026-04-19** (**7.8** waived — **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**). **Terraform Phase 7.5** is **deferred to V1.1**. **Operator shell labels will align with marketing workflow language** so pilots moving from landing page to product see one coherent story (technical APIs unchanged). **V1 GA requires** a buyer-grade **Architecture Review Report** export (DOCX + PDF) aligned to landing-page sections (**Marketing alignment Q2**) **with consultant whitelabel on cover/metadata** (**Marketing alignment Q5**, folded into **#28**) **and two curated default policy packs** (AI governance + security baseline; landing-zone pack **V1.1**) (**Marketing alignment Q3**) **and bounded bulk evidence upload** (**≤30 files** per operation — **Marketing alignment Q4**) **and two curated demo workspaces as a hard release gate** (**Marketing alignment Q6** / improvement **#31**) **and a landing CTA stack aligned to sales-led GA** (**Marketing alignment Q7** / improvement **#32**) **and native SAML 2.0 SP workforce SSO** (**`V1_SCOPE.md` §2.12**, **completed**, **P6** owner **2026-05-15**).
 
 **Commercial Picture:** The product is ready for sales-led pilots and staging-based trial evaluations. However, self-serve transactability is intentionally paused, with Stripe live keys and Marketplace publication deferred to V1.1. The lack of a published reference customer and signed design partner (also deferred) may slow early momentum. **GA ships differentiated governance starters:** buyer-visible **AI governance** and **security baseline** policy packs (thin MVP counts acceptable), strengthening demo credibility versus empty-pack onboarding. **Evidence capture** gets **bulk upload** at GA with an explicit **≤30-file** ceiling (**Marketing alignment Q4**) — pitch accordingly. **Consultants can white-label client deliverables** (firm name, engagement title, logo — **Marketing alignment Q5**) directly from export — strengthens marketplace / boutique wedge without manual DOCX surgery. **Sales-led and self-serve evaluators both hit fixed demo workspaces** (**self-demo + regulated synthetic**) — GA is blocked until both stay green (**Marketing alignment Q6**). **First-90-days landing posture:** **Request walkthrough** primary, **Try the self-demo** secondary (Workspace **A**), **Early access** tertiary capture — **no public paid-pilot $ band** yet (**Marketing alignment Q7**).
 
-**Enterprise Picture:** The system supports robust tenant isolation (database-per-tenant), workforce SSO via **OIDC / Entra ID** and **native SAML 2.0 SP** (**`V1_SCOPE.md` §2.12**, **V1 GA** — improvement **#13**), and private connectivity. First-party ITSM connectors (Jira, ServiceNow) and Slack/Confluence integrations are strong enterprise features. However, the absence of a CPA-issued SOC 2 report and third-party penetration test (deferred to V2) will cause friction during procurement and security reviews.
+**Enterprise Picture:** The system supports robust tenant isolation (database-per-tenant), workforce SSO via **OIDC / Entra ID** and **native SAML 2.0 SP** (**`V1_SCOPE.md` §2.12**, **V1 GA** — **completed**), and private connectivity. First-party ITSM connectors (Jira, ServiceNow) and Slack/Confluence integrations are strong enterprise features. However, the absence of a CPA-issued SOC 2 report and third-party penetration test (deferred to V2) will cause friction during procurement and security reviews.
 
 **Engineering Picture:** The engineering foundation is strong, utilizing SQL persistence, DbUp migrations, and a well-architected agent orchestration pipeline. **Improvement #26 (2026-05-16):** SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); deeper DTF-native scheduling and full multiset parity remain incremental work. **Improvements closed (2026-05-15):** idempotent orphan **`archiforge_*`** RLS predicate drops (**DbUp 165**, **#4**); **`FirstTenantFunnelEvents`** SQL purge when per-tenant emission is **off** (**#5**); **`ui-e2e-live`** negative-path coverage (**#8**); optional **Redis-backed** graph projection **`IDistributedCache`** (**#9**); hosted-trial **V1→V1.1** orientation memo (**#10**). Residual risks include **immutable** migration/history spellings, catalogs still on legacy **RLS** identifiers until **`108`** replay coordination, single-process projection defaults without Redis, and **keeping GA-gated demo workspace smoke green** (**Q6** / **#31**).
 
@@ -122,12 +122,12 @@
 - **Improvement recommendations:** ~~Implement a distributed graph snapshot projection cache…~~ **Improvement #9 closed (2026-05-15)** — **`GraphSnapshotProjectionDistributedCache`** + host **`IDistributedCache`** registration; retain **`V1_DEFERRED.md` §6e** honesty when Redis is **not** configured.
 
 ### 11. Interoperability
-- **Score:** 88
+- **Score:** 92
 - **Weight:** 2
-- **Weighted deficiency signal:** 24
-- **Justification:** V1 contract surfaces—**REST API**, **CLI**, **operator UI**, integration events/webhooks, and **first-party** ITSM and chat connectors—meet the documented integration posture. **Native SAML 2.0 SP** is **promoted to V1 GA** (**P6**, **`V1_SCOPE.md` §2.12**, improvement **#13**); until implemented, SAML-direct buyers still bridge via OIDC federation or brokers — document honestly in pilots. **No MCP host in V1 is in-contract deferral** (`V1_SCOPE.md` §3, `V1_DEFERRED.md` §6d), not a scored weakness for this pass.
+- **Weighted deficiency signal:** 16
+- **Justification:** V1 contract surfaces—**REST API**, **CLI**, **operator UI**, integration events/webhooks, and **first-party** ITSM and chat connectors—meet the documented integration posture. **Native SAML 2.0 SP** is **promoted to V1 GA** (**P6**, **`V1_SCOPE.md` §2.12**, **completed**). **No MCP host in V1 is in-contract deferral** (`V1_SCOPE.md` §3, `V1_DEFERRED.md` §6d), not a scored weakness for this pass.
 - **Tradeoffs:** Buyers who want MCP-native agent tools wait until **V1.1**; until then HTTP/CLI and first-party connectors remain the automation paths of record. SAML SP adds dual auth-surface operational burden (cert rotation, metadata drift) versus OIDC-only tenants.
-- **Improvement recommendations:** Tighten OpenAPI-aligned client examples and webhook recipe discoverability (`docs/integrations/recipes/`). **Ship improvement #13** (SAML SP) as **V1 GA** engineering. Track inbound MCP membrane only under the **V1.1** program (`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`).
+- **Improvement recommendations:** Tighten OpenAPI-aligned client examples and webhook recipe discoverability (`docs/integrations/recipes/`). Track inbound MCP membrane only under the **V1.1** program (`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`).
 
 ### 12. Stickiness
 - **Score:** 80
@@ -192,11 +192,11 @@
 ## Top 6 Enterprise Adoption Blockers
 
 1. **Immutable SQL / identity lineage strings** (historic migration bodies, session-context keys, allowlisted CI/doc carve-outs) plus honest disclosure obligations for procurement — **Terraform Phase 7.5 / improvement #1** complete for committed **`infra/**/*.tf`** **2026-05-15**; **Phase 7.6–7.7 / improvement #2** closed **2026-04-19** (**`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); **`terraform state mv`** only when remote state lists **`archiforge`** (**`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
-2. **Native SAML 2.0 SP** — **V1 GA engineering gate** (**`V1_SCOPE.md` §2.12**, **P6** owner **2026-05-15**, improvement **#13**); **until shipped**, SAML-mandatory enterprises cannot rely on **direct SP** posture — interim OIDC federation / brokers remain valid.
-3. **Missing default policy packs:** The absence of bundled AI governance and security baseline policy packs (V1 GA gate) leaves regulated buyers without immediate, actionable compliance findings during initial evaluation.
-4. **Lack of automated tenant data deletion:** Absence of a verifiable GDPR/CCPA "right to be forgotten" mechanism causes friction in enterprise procurement and legal reviews.
-5. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
-6. **IdP configuration documentation gaps:** Missing explicit documentation for `ArchLucidAuth:Authority` configuration causes friction during enterprise SSO onboarding and security reviews.
+2. **Missing default policy packs:** The absence of bundled AI governance and security baseline policy packs (V1 GA gate) leaves regulated buyers without immediate, actionable compliance findings during initial evaluation.
+3. **Lack of automated tenant data deletion:** Absence of a verifiable GDPR/CCPA "right to be forgotten" mechanism causes friction in enterprise procurement and legal reviews.
+4. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
+5. **IdP configuration documentation gaps:** Missing explicit documentation for `ArchLucidAuth:Authority` configuration causes friction during enterprise SSO onboarding and security reviews.
+6. **Lack of custom rule authoring UI:** Evaluators cannot easily author and test custom governance rules without writing raw code, slowing down enterprise adoption.
 
 ---
 
@@ -237,18 +237,7 @@ Enhance the `ComparisonReplayCostEstimator` in `ArchLucid.Application` to use mo
 Implement an internal-only analytics service that aggregates anonymized usage data, run completion times, and cost savings across all tenants. Ensure this service bypasses RLS safely using a dedicated internal connection string or explicit cross-tenant queries. Do not expose this data to external customers. Acceptance criteria: Internal operators can query aggregated cross-tenant metrics.
 ```
 
-3. Implement native SAML 2.0 Service Provider — **V1 GA gate**
-- Why it matters: Buyers mandate SAML Web SSO without SAML→OIDC brokers; parity with **`JwtBearer`** OIDC expands addressable regulated enterprises.
-- Expected impact: Interoperability (+4 pts estimated post-ship), enterprise procurement friction reduction on IdP questionnaires.
-- Affected qualities: Interoperability, Security.
-- Actionable: Yes — **V1 GA** (**owner 2026-05-15**, **`V1_SCOPE.md` §2.12**, **P6**).
-- Input needed: **P6 answered (2026-05-15):** Owner promotes **native SAML 2.0 SP** into **V1**; **`JwtBearer`** OIDC stays supported — SAML augments workforce SSO surfaces under §2.12 coexistence rules.
-
-```markdown
-Implement SAML 2.0 SP authentication alongside existing JwtBearer OIDC: tenant-scoped IdP metadata (entity ID, SSO URLs, IdP signing certificates), ACS endpoint(s), SAML Web SSO profile (HTTP-Redirect / POST), assertion signature validation, replay protection, and bounded clock skew. Map NameID / SAML attributes into `ArchLucidRoles` and authenticated principal identity using the same RBAC and tenant isolation pipeline as JWT bearer; emit typed audit events for SAML sign-in success/failure comparable to OIDC. Extend `SECURITY.md` and `CONFIGURATION_REFERENCE.md` with operator-facing wiring. Do not relax `ArchLucidAuth` production guards without ADR. Acceptance criteria: Automated tests validate assertion handling and role mapping against representative IdP metadata fixtures; SAML and OIDC modes remain independently testable per tenant configuration contract.
-```
-
-4. Enhance `v1-rc-drill.ps1` to support JWT/API key authentication
+3. Enhance `v1-rc-drill.ps1` to support JWT/API key authentication
 - Why it matters: Reduces auth mismatches and improves testing realism.
 - Expected impact: Directly improves Correctness (+2 pts), Security (+2 pts). Weighted readiness impact: +0.46%.
 - Affected qualities: Correctness, Security.
@@ -257,7 +246,7 @@ Implement SAML 2.0 SP authentication alongside existing JwtBearer OIDC: tenant-s
 Update the `v1-rc-drill.ps1` script to accept optional parameters for a JWT bearer token or API key. If provided, use these credentials instead of relying on `DevelopmentBypass`. Update the script documentation to explain how to use these parameters. Do not break the existing `DevelopmentBypass` behavior when no credentials are provided. Acceptance criteria: The RC drill script can be run against an environment secured with JWT or API keys.
 ```
 
-5. Add explicit logging for agent state machine transitions
+4. Add explicit logging for agent state machine transitions
 - Why it matters: Improves observability and debugging of complex agent orchestrations.
 - Expected impact: Directly improves Observability (+5 pts), AI/Agent Readiness (+1 pts). Weighted readiness impact: +0.27%.
 - Affected qualities: Observability, AI/Agent Readiness.
@@ -266,7 +255,7 @@ Update the `v1-rc-drill.ps1` script to accept optional parameters for a JWT bear
 Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker` to log every state transition of the agent execution state machine. Include the run ID, current state, next state, and any relevant task IDs in the log context. Ensure these logs are emitted at the `Information` level. Do not change the state machine logic itself. Acceptance criteria: Agent state transitions are clearly visible in the application logs.
 ```
 
-6. Add snapshot tests for advisory Terraform recommendation emit
+5. Add snapshot tests for advisory Terraform recommendation emit
 - Why it matters: Ensures Terraform snippets remain valid and do not regress.
 - Expected impact: Directly improves Correctness (+3 pts), Security (+1 pts). Weighted readiness impact: +0.56%.
 - Affected qualities: Correctness, Security.
@@ -275,7 +264,7 @@ Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker
 Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` that validate the output of the advisory Terraform recommendation emit. Use a library like `Verify` or `Snapshooter` to ensure the generated Terraform snippets match expected baselines. Ensure the tests verify the presence of the `# ArchLucid advisory` comment. Do not execute `terraform validate` in the unit tests to avoid external dependencies. Acceptance criteria: Snapshot tests cover the major Terraform recommendation scenarios.
 ```
 
-7. Add `DataArchivalHostHealthCheck` to the operator dashboard
+6. Add `DataArchivalHostHealthCheck` to the operator dashboard
 - Why it matters: Improves observability of background data archival processes.
 - Expected impact: Directly improves Observability (+4 pts), Usability (+1 pts). Weighted readiness impact: +0.15%.
 - Affected qualities: Observability, Usability.
@@ -284,7 +273,7 @@ Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` 
 Update the operator UI dashboard to display the status of the `data_archival` health check. Fetch the health status from the `/health` endpoint and display a warning indicator if the status is `Degraded`. Do not change the underlying health check logic in the backend. Acceptance criteria: Operators can see the data archival health status on the UI dashboard.
 ```
 
-8. Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic
+7. Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic
 - Why it matters: Improves resilience against transient database connection failures.
 - Expected impact: Directly improves Correctness (+2 pts), Performance (+1 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Correctness, Performance.
@@ -293,7 +282,7 @@ Update the operator UI dashboard to display the status of the `data_archival` he
 Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Api.DataAccess` to use Polly for transient fault handling when opening SQL connections. Implement a retry policy with exponential backoff for common transient SQL errors (e.g., error numbers 40613, 40197, 40501). Ensure the retry policy is configurable via `appsettings.json`. Do not change the `IDbConnectionFactory` interface. Acceptance criteria: SQL connections automatically retry on transient failures.
 ```
 
-9. Add explicit documentation for `ArchLucidAuth:Authority` configuration
+8. Add explicit documentation for `ArchLucidAuth:Authority` configuration
 - Why it matters: Reduces adoption friction for generic OIDC setup.
 - Expected impact: Directly improves Adoption Friction (+3 pts), Customer Self-Sufficiency (+2 pts). Weighted readiness impact: +0.42%.
 - Affected qualities: Adoption Friction, Customer Self-Sufficiency.
@@ -302,7 +291,7 @@ Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Api.DataAccess` to
 Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides step-by-step instructions for configuring `ArchLucidAuth:Authority` with a non-Microsoft OIDC issuer (e.g., Okta, Auth0). Include examples of claim mapping to `ArchLucidRoles` and troubleshooting tips for common JWKS validation errors. Link this new file from `docs/library/SECURITY.md` and `docs/library/CONFIGURATION_REFERENCE.md`. Acceptance criteria: Clear documentation exists for setting up generic OIDC.
 ```
 
-10. Align operator shell labels with marketing governance vocabulary (presentation-only)
+9. Align operator shell labels with marketing governance vocabulary (presentation-only)
 - Why it matters: Regulated buyers and consultants encounter landing-page workflow language first; mismatched UI terms (**Run**, **Commit**, **Manifest**) create friction and weaken the evidence-backed governance positioning.
 - Expected impact: Glossary alignment (**Q1**) raises Usability **+4** (baseline **72** → **76**). Owner **Q4** / improvement **#30** adds **+1** → headline **77**. The glossary slice contributes **+0.25%** weighted readiness toward cumulative headline (**81.55%** after later owner deltas). Secondary lift for Adoption Friction after pilots validate copy.
 - Affected qualities: Usability, Adoption Friction (narrative alignment).
@@ -342,7 +331,7 @@ ACCEPTANCE CRITERIA
 4. No regression in accessibility (`aria-labelledby` / buttons remain meaningful).
 ```
 
-11. Buyer-grade **Architecture Review Report** export (DOCX + PDF) **with consultant whitelabel** — **V1 GA gate**
+10. Buyer-grade **Architecture Review Report** export (DOCX + PDF) **with consultant whitelabel** — **V1 GA gate**
 - Why it matters: Marketing sells the **deliverable** (report handed to ARB / CISO / client). Without a polished default profile **and consultant-ready branding**, demos and boutique-consultant promises under-deliver.
 - Expected impact: Proof-of-ROI **82→83**, Commercial Packaging **81→82**, Stickiness **79→80**; weighted readiness **+~0.17%** toward headline (**stacked before Q6 / cumulative **81.55%**). Treat as **merge-blocking for GA** alongside improvement **#27**. **Owner Q5** folds whitelabel here — **no separate export SKU**.
 - Affected qualities: Proof-of-ROI Readiness, Commercial Packaging Readiness, Stickiness; Usability (export dialog UX).
@@ -388,38 +377,7 @@ ACCEPTANCE CRITERIA
 3. Security review signs off logo handling (same bar as other tenant-uploaded blobs).
 ```
 
-12. **Bulk evidence upload** — **V1 GA** with **≤30 files** per operation (server-enforced); larger batches **V1.1**
-- Why it matters: Marketing needs honest **“gather scattered evidence”** narrative without implying infinite dossier ingestion pre-GA; consultants ship dozens of artifacts per engagement — **30** covers MVP demos while bounding abuse, timeouts, and storage spikes.
-- Expected impact: Usability **76→77**, Customer Self-Sufficiency **80→81**; weighted readiness **+~0.09%** toward headline (**stacked before Q5 / cumulative **81.55%** after later deltas). Coordinate with **#27** copy (**Evidence / Capture**) so UI and landing page disclose the cap.
-- Affected qualities: Usability, Customer Self-Sufficiency; secondary Correctness if API contracts are additive.
-- Actionable: Yes
-
-```markdown
-Implement **multi-file upload** attaching **mixed file types** to the **current review’s evidence** (match existing evidence model — locate upload/storage handlers in **`ArchLucid.Api`** / **`ArchLucid.Application`** and **`archlucid-ui`** capture flows).
-
-LIMIT — NON-NEGOTIABLE (V1)
-- Enforce **`EvidenceBulkUploadMaxFiles = 30`** default via **`appsettings.json`** (`ArchLucid:EvidenceBulkUploadMaxFiles` or equivalent tenant-safe setting — justify if global-only).
-- **HTTP API:** reject **`413`** / **`400`** with stable problem+json body when **count > max** (pick one documented pattern consistent with existing validation errors).
-- **UI:** multi-select / drag-drop **must** show remaining quota (“**n / 30**”) and friendly error when exceeded.
-
-DEFERRED / V1.1
-- Raising/removing cap, ZIP-archive expansion, folder recursion — **explicitly out of V1** unless reopened; track on backlog referenced from **`docs/library/V1_DEFERRED.md`** or marketing checklist.
-
-TESTS
-- Unit test: validator rejects **31** files.
-- API integration test: **30** succeeds; **31** fails with contract-stable response.
-- Playwright / Vitest: operator capture flow surfaces cap copy.
-
-DOCUMENTATION — MANDATORY
-- **`docs/go-to-market/`** or **`docs/library/`** one-liner: “Bulk upload **up to 30 files** per action at GA.”
-
-ACCEPTANCE CRITERIA
-1. Pilot can attach **≤30** artifacts in one action without shell scripting workarounds.
-2. Marketing-approved disclosure text ships beside bulk control and on landing/support FAQ hook.
-3. Durable **`AuditEvent`** (or equivalent) emitted on bulk attach matches single-file parity expectations — verify vs **`AUDIT_COVERAGE_MATRIX.md`**.
-```
-
-13. **Two curated demo workspaces** — **hard V1 GA gate** (**Marketing alignment Q6**)
+12. **Two curated demo workspaces** — **hard V1 GA gate** (**Marketing alignment Q6**)
 - Why it matters: Marketing promises a **guided wedge demo**; blank tenants waste evaluator attention and inflate sales labor. Two workspaces package **happy-path tour** + **regulated synthetic** proof without exposing customer data.
 - Expected impact: Adoption Friction **76→77**, Proof-of-ROI **83→84**, Commercial Packaging **82→83**; weighted readiness **+~0.28%** toward headline **81.55%**. **Merge-blocking:** GA checklist fails if either workspace smoke fails.
 - Affected qualities: Adoption Friction, Proof-of-ROI Readiness, Commercial Packaging Readiness; secondary Customer Self-Sufficiency (faster eval).
@@ -455,7 +413,7 @@ ACCEPTANCE CRITERIA
 3. Breaking layout/copy changes caught by failing smoke force fixture updates — treat **#31** as ongoing hygiene (**§ weaknesses #15**).
 ```
 
-14. **Landing page CTA stack** — first **90 days** post-GA (**Marketing alignment Q7**)
+13. **Landing page CTA stack** — first **90 days** post-GA (**Marketing alignment Q7**)
 - Why it matters: **V1 GA** is **sales-led**; **Stripe live** + **Marketplace** are **V1.1**. A **primary “Early access”** or **public paid-pilot $** CTA misaligns acquisition with product truth and accelerates procurement before **CPA SOC 2** narrative maturity buyers expect (**external pen test is `V2`** — excluded from **V1** planning Q&A per owner **2026-05-15**, **P8**).
 - Expected impact: **Narrative / commercial honesty** — supports **§1 Adoption** and **§8 Commercial Packaging** without changing weighted headline (**81.55%**) until execution evidence changes. Coordinate with **#31** Workspace **A** URL.
 - Affected qualities: Adoption Friction (evaluator path), Commercial Packaging Readiness (copy integrity).
@@ -496,7 +454,7 @@ ACCEPTANCE CRITERIA
 3. **No** hero **$** pilot pricing for **90-day** window — pricing remains **sales-qualification** path only.
 ```
 
-15. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
+14. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
 - Why it matters: Enterprise compliance requires a verifiable way to delete all tenant data upon contract termination or user request.
 - Expected impact: Compliance Readiness (+3 pts).
 - Affected qualities: Compliance Readiness, Security.
@@ -510,7 +468,7 @@ Implement a durable background job to handle tenant offboarding and data deletio
 - Acceptance criteria: A tenant can be fully deleted, and the deletion is durably audited.
 ```
 
-16. **Add explicit OpenTelemetry tracing for LLM API calls**
+15. **Add explicit OpenTelemetry tracing for LLM API calls**
 - Why it matters: AI/Agent Readiness requires deep observability into token usage, latency, and prompt/response pairs for debugging and cost attribution.
 - Expected impact: Observability (+3 pts), AI/Agent Readiness (+2 pts).
 - Affected qualities: Observability, AI/Agent Readiness.
@@ -524,7 +482,7 @@ Enhance the existing OpenTelemetry instrumentation to capture detailed metrics f
 - Acceptance criteria: Token usage and latency for LLM calls are visible in the APM backend.
 ```
 
-17. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
+16. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
 - Why it matters: Prevents a single tenant from exhausting worker resources by submitting too many concurrent architecture review runs.
 - Expected impact: Performance (+3 pts), Reliability (+2 pts).
 - Affected qualities: Performance, Reliability.
@@ -538,7 +496,7 @@ Introduce concurrency limits for the `AuthorityRunOrchestrator` to protect the w
 - Acceptance criteria: A single tenant cannot monopolize the worker pool.
 ```
 
-18. **Implement robust API key rotation and revocation endpoints**
+17. **Implement robust API key rotation and revocation endpoints**
 - Why it matters: Enterprise security requires self-service mechanisms for rotating and revoking API keys used by integrations or CI pipelines.
 - Expected impact: Security (+3 pts), Customer Self-Sufficiency (+2 pts).
 - Affected qualities: Security, Customer Self-Sufficiency.
@@ -552,7 +510,7 @@ Add API endpoints and UI elements for managing API keys.
 - Acceptance criteria: Users can securely rotate and revoke API keys without operator intervention.
 ```
 
-19. **Expand `ui-e2e-live` to cover the full golden path**
+18. **Expand `ui-e2e-live` to cover the full golden path**
 - Why it matters: The Playwright E2E suite still relies heavily on mocked `/api/proxy` responses, leaving integration blind spots.
 - Expected impact: Correctness (+3 pts), Reliability (+2 pts).
 - Affected qualities: Correctness, Reliability.
@@ -564,6 +522,20 @@ Expand the `ui-e2e-live` test suite to cover the complete golden path of the ope
 - Ensure the tests run against a dedicated staging or ephemeral environment with a real SQL database and isolated tenant.
 - Do not remove the existing mocked tests; treat the live E2E suite as a separate, higher-fidelity validation layer.
 - Acceptance criteria: The full operator golden path is validated against a live backend in CI.
+```
+
+19. **Enhance `ArchLucid.Decisioning` with custom rule authoring UI**
+- Why it matters: Evaluators and enterprise buyers need a way to easily author and test custom governance rules without writing raw code.
+- Expected impact: Customer Self-Sufficiency (+4 pts), Usability (+3 pts).
+- Affected qualities: Customer Self-Sufficiency, Usability.
+- Actionable: Yes
+
+```markdown
+Implement a web-based rule authoring interface in `archlucid-ui` that integrates with `ArchLucid.Decisioning`.
+- Provide a guided wizard or low-code builder for creating custom policy rules.
+- Allow operators to test the rule against existing architecture snapshots in the UI before publishing.
+- Ensure custom rules are durably stored and versioned alongside the default policy packs.
+- Acceptance criteria: Operators can create, test, and publish custom rules entirely through the UI.
 ```
 
 ---
