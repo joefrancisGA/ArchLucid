@@ -42,6 +42,7 @@ export default async function PricingPage(props: PricingPageProps) {
         </a>{" "}
         — your account team confirms licensing.
       </p>
+      <MarketingPricingQuotePanel />
       <MarketingTierPricingSection
         sectionHeadingId="pricing-page-heading"
         sectionTitle="Pricing"
@@ -50,7 +51,6 @@ export default async function PricingPage(props: PricingPageProps) {
         signupCallToActionLabel="Start workspace trial"
         showSignupCallToAction={false}
       />
-      <MarketingPricingQuotePanel />
       <MarketingPricingPublicCutoverNotice />
     </main>
   );
