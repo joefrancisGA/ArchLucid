@@ -27,6 +27,8 @@ import type {
   PolicyPackVersion,
 } from "@/types/policy-packs";
 
+import { isBundledPlatformDefaultPackType } from "@/lib/policy-pack-type-label";
+
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
 import type { PolicyPacksPageServerLoad } from "./load-policy-packs-page-data";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
@@ -228,6 +230,18 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
       return;
     }
 
+    const selectedPack = packs.find((p) => p.policyPackId === selectedPackId);
+
+    if (selectedPack !== undefined && isBundledPlatformDefaultPackType(selectedPack.packType)) {
+      setFailure(
+        uiFailureFromMessage(
+          "Bundled default (platform) packs cannot be republished from Policy packs — clone content into a tenant-owned pack first.",
+        ),
+      );
+
+      return;
+    }
+
     setFailure(null);
 
     try {
@@ -250,7 +264,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     } finally {
       setLoading(false);
     }
-  }, [canMutatePacks, load, publishJson, publishVersion, selectedPackId]);
+  }, [canMutatePacks, load, packs, publishJson, publishVersion, selectedPackId]);
 
   const onAssign = useCallback(async () => {
     if (!canMutatePacks) {
@@ -282,6 +296,9 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   const compareLeftVersion = packVersions.find((v) => v.policyPackVersionId === compareLeftId);
   const compareRightVersion = packVersions.find((v) => v.policyPackVersionId === compareRightId);
   const selectedPackSummary = packs.find((p) => p.policyPackId === selectedPackId);
+
+  const bundledPublishBlocked =
+    selectedPackSummary !== undefined && isBundledPlatformDefaultPackType(selectedPackSummary.packType);
 
   return {
     canMutatePacks,
@@ -319,6 +336,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     showVersionDiff,
     setShowVersionDiff,
     verticalImportSlug,
+    bundledPublishBlocked,
     load,
     importVerticalPolicyPack,
     onCreate,

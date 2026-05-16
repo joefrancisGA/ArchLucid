@@ -36,6 +36,15 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
         </p>
       ) : null}
       {buyerPolishedShell ? null : (
+        <p className="mb-3 max-w-prose text-xs text-neutral-600 dark:text-neutral-400" data-testid="policy-packs-bundled-defaults-note">
+          New tenants receive two seeded governance bundles labeled{" "}
+          <strong className="font-semibold">Bundled default (platform)</strong> in Policy packs (
+          <span className="whitespace-nowrap">AI Governance / Responsible AI</span>{" "}
+          and <span className="whitespace-nowrap">Security Architecture Baseline</span>). They evaluate like other packs; platform bundles{" "}
+          <strong className="font-semibold">cannot be republished</strong> from this page (clone into a tenant-owned pack to customize).
+        </p>
+      )}
+      {buyerPolishedShell ? null : (
         <p className="mb-3 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           Policy packs are <strong>versioned governance bundles</strong>: they pin compliance rule references, advisory
           defaults, and alert posture for a tenant, workspace, or project so every architecture review evaluates against

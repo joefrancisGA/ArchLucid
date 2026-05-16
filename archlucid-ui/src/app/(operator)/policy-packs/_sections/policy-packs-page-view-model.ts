@@ -45,6 +45,7 @@ export type PolicyPacksPageViewModel = {
   readonly showVersionDiff: boolean;
   readonly setShowVersionDiff: Dispatch<SetStateAction<boolean>>;
   readonly verticalImportSlug: string | null;
+  readonly bundledPublishBlocked: boolean;
   readonly load: () => Promise<void>;
   readonly importVerticalPolicyPack: (slug: string, label: string) => Promise<void>;
   readonly onCreate: () => Promise<void>;

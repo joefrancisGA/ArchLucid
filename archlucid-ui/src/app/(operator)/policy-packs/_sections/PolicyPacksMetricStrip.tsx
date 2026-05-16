@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
 import type { EffectivePolicyPackSet, PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPacksMetricStripProps = {
@@ -47,6 +48,9 @@ export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
           <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             {selectedPackSummary !== undefined ? selectedPackSummary.name : "—"}
           </p>
+          {selectedPackSummary !== undefined ? (
+            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">{policyPackTypeDisplayLabel(selectedPackSummary.packType)}</p>
+          ) : null}
           <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
             {buyerPolishedShell ? "Overview for this workspace snapshot" : "Inspect versions and effective policy"}
           </p>

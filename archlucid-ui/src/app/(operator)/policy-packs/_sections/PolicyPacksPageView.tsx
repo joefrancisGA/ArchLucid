@@ -86,6 +86,7 @@ export function PolicyPacksPageView(props: Props) {
                 loading={m.loading}
                 selectedPackId={m.selectedPackId}
                 verticalImportSlug={m.verticalImportSlug}
+                bundledPublishBlocked={m.bundledPublishBlocked}
                 onImportVertical={m.importVerticalPolicyPack}
                 name={m.name}
                 onNameChange={m.setName}

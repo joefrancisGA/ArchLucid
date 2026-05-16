@@ -5,6 +5,7 @@ import {
   policyPacksEmptyScopeReaderLine,
   policyPacksPackSelectReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
 import type { PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPacksRegisteredListSectionProps = {
@@ -31,7 +32,8 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
         <ul>
           {packs.map((p) => (
             <li key={p.policyPackId}>
-              <strong>{p.name}</strong> — {p.packType} / {p.status} / current <code>{p.currentVersion}</code>
+              <strong>{p.name}</strong> — {policyPackTypeDisplayLabel(p.packType)} / {p.status} / current{" "}
+              <code>{p.currentVersion}</code>
               <div className="text-[13px] text-neutral-600 dark:text-neutral-400">{p.description}</div>
             </li>
           ))}

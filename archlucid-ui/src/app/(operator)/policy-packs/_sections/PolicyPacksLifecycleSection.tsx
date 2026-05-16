@@ -17,6 +17,7 @@ export type PolicyPacksLifecycleSectionProps = {
   loading: boolean;
   selectedPackId: string;
   verticalImportSlug: string | null;
+  bundledPublishBlocked: boolean;
   onImportVertical: (slug: string, label: string) => void;
   name: string;
   onNameChange: (value: string) => void;
@@ -47,6 +48,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
     loading,
     selectedPackId,
     verticalImportSlug,
+    bundledPublishBlocked,
     onImportVertical,
     name,
     onNameChange,
@@ -203,6 +205,13 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
 
         <section className="mb-8">
           <h4 className="mt-0 mb-2">Publish version</h4>
+          {bundledPublishBlocked ? (
+            <p className="mb-2 max-w-prose rounded-md border border-amber-200 bg-amber-50/90 px-3 py-2 text-xs text-neutral-900 dark:border-amber-900/55 dark:bg-amber-950/40 dark:text-amber-100">
+              Selected pack is <strong className="font-semibold">Bundled default (platform)</strong>: ArchLucid seeded it at tenant onboarding. Published versions upgrade with product releases —
+              tenants cannot mint new SemVer revisions from Policy packs UI (API blocks republish too). Customize by copying JSON into a{" "}
+              <strong className="font-semibold">Project custom</strong> pack.
+            </p>
+          ) : null}
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Creates a published version row and marks the pack Active. Use a new semantic version when content changes.
           </p>
@@ -250,8 +259,14 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
             <button
               type="button"
               onClick={() => void onPublish()}
-              disabled={loading || !selectedPackId || !canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              disabled={loading || !selectedPackId || !canMutatePacks || bundledPublishBlocked}
+              title={
+                bundledPublishBlocked
+                  ? "Bundled default packs cannot be republished from Policy packs."
+                  : canMutatePacks
+                    ? undefined
+                    : enterpriseMutationControlDisabledTitle
+              }
               className={cn(
                 !canMutatePacks &&
                   "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",

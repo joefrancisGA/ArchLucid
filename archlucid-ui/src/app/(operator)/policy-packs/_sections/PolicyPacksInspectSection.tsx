@@ -52,6 +52,13 @@ export function PolicyPacksInspectSection(props: PolicyPacksInspectSectionProps)
     compareRightVersion,
   } = props;
 
+  const mergedKeys =
+    effectiveContent?.complianceRuleKeys?.filter((k) => (k ?? "").trim().length > 0).map((k) => k.trim()) ?? [];
+  const mergedKeyPreviewCap = 48;
+  const mergedKeyPreview =
+    mergedKeys.length > mergedKeyPreviewCap ? mergedKeys.slice(0, mergedKeyPreviewCap) : mergedKeys;
+  const mergedKeyRemainder = mergedKeys.length > mergedKeyPreviewCap ? mergedKeys.length - mergedKeyPreviewCap : 0;
+
   return (
     <section className="mb-0" aria-labelledby="policy-packs-content-heading">
       <h3 id="policy-packs-content-heading">
@@ -89,6 +96,29 @@ export function PolicyPacksInspectSection(props: PolicyPacksInspectSectionProps)
       ) : (
         <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-400">—</p>
       )}
+
+      {mergedKeys.length > 0 ? (
+        <details className="mb-6 rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/50">
+          <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+            Bundled compliance rule keys merged for this scope ({mergedKeys.length})
+          </summary>
+          <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+            These stable keys anchor evaluation; titles, remediation, and framework mapping text live on each finding inspect view and in{" "}
+            <code className="rounded bg-neutral-100 px-1 text-[11px] dark:bg-neutral-800">docs/samples/policy-packs/*.json</code>{" "}
+            / <code className="rounded bg-neutral-100 px-1 text-[11px] dark:bg-neutral-800">docs/library/POLICY_PACK_APPENDIX_*</code>.
+          </p>
+          <ul className="mb-0 mt-3 max-h-48 list-disc overflow-y-auto pl-5 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300 md:columns-2 md:gap-6">
+            {mergedKeyPreview.map((k) => (
+              <li key={k} className="break-all">
+                {k}
+              </li>
+            ))}
+          </ul>
+          {mergedKeyRemainder > 0 ? (
+            <p className="mb-0 mt-2 text-xs text-neutral-500 dark:text-neutral-400">…and {mergedKeyRemainder} more.</p>
+          ) : null}
+        </details>
+      ) : null}
 
       <h4 className="mt-0 mb-2">Published versions</h4>
       {packVersions.length === 0 ? (
