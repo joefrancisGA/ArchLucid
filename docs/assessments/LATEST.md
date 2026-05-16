@@ -219,22 +219,6 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
 
 ## Top Improvement Opportunities
 
-1. DEFERRED Implement in-Slack interactive approvals
-
-   - Why it matters: Improves Workflow Embeddedness for teams that live in Slack; **scoped MVP** avoids GA runway overload.
-   - Expected impact: Faster governance approvals for Slack-centric tenants (**post-GA** window).
-   - Affected qualities: Workflow Embeddedness, Usability.
-   - Actionable: DEFERRED — **early V1.1** target (**not** V1 GA sprint).
-   - Input needed: **P3 answered (2026-05-15):** **Priority** — **defer** from current sprint / **V1 GA**; schedule **early V1.1** (first ~**30 days** post-GA). **Scope — MVP:** **one** interactive flow — **approve finding / decision** — with **durable audit parity** (same event semantics as UI approvals), Slack **signing-secret verification**, **Slack user → ArchLucid identity → RBAC** binding. **Marketing honesty:** GA landing/support copy **must not** claim “approve from Slack.” **Artifacts:** No UX mockups cited in-thread — derive button/block copy from operator approval UX or add wireframes during the V1.1 slice.
-
-2. DEFERRED Flip Stripe live keys and publish Marketplace listing
-
-   - Why it matters: Unblocks self-serve monetization.
-   - Expected impact: Enables live revenue generation.
-   - Affected qualities: Commercial Packaging Readiness.
-   - Actionable: DEFERRED — **gated on finance confirmation** (Partner Center seller verification, tax profile, payout/banking).
-   - Input needed: **P4 answered (2026-05-15):** **Defer** live keys and Marketplace publication **until finance confirms** Partner Center readiness (verification, tax, payout) so engineering does **not** precede fiscal/legal sign-off.
-
 1. Enhance `ComparisonReplayCostEstimator` with more granular heuristics
 - Why it matters: Improves Proof-of-ROI readiness by providing more accurate cost estimates.
 - Expected impact: Directly improves Proof-of-ROI Readiness (+4 pts), Explainability (+2 pts). Weighted readiness impact: +0.50%.
@@ -291,27 +275,6 @@ Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker
 Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` that validate the output of the advisory Terraform recommendation emit. Use a library like `Verify` or `Snapshooter` to ensure the generated Terraform snippets match expected baselines. Ensure the tests verify the presence of the `# ArchLucid advisory` comment. Do not execute `terraform validate` in the unit tests to avoid external dependencies. Acceptance criteria: Snapshot tests cover the major Terraform recommendation scenarios.
 ```
 
-9. DEFERRED Execute third-party penetration test (**`V2`** — backlog metadata)
-- Why it matters: Fulfills **`V2`** commitment and removes a major enterprise procurement blocker when that program runs.
-- Expected impact: Faster security reviews and increased enterprise trust (**post–V1**).
-- Affected qualities: Security, Compliance Readiness (**`V2`** scoring context).
-- Actionable: DEFERRED — **`V2`** window only.
-- Input needed: **P8 answered (2026-05-15):** **No** budget/vendor clarity required for **`(A)` V1** passes — **stop** recurring pen-test vendor/budget questions during **V1** planning / execution; reopen **only** when **`V2`** pen-test program is chartered (then track vendor + budget outside this assessment’s **V1** pending queue).
-
-10. DEFERRED Generate and publish PGP key for security@archlucid.net
-- Why it matters: Fulfills V1.1 security commitment for coordinated disclosure.
-- Expected impact: Improves security posture and trustworthiness.
-- Affected qualities: Security.
-- Actionable: DEFERRED — **`V1.1`** slice (**not** **`(A)` V1 GA**); prerequisites (**domain + mailbox**) satisfied (**P9**).
-- Input needed: **P9 answered (2026-05-15):** **`archlucid.net`** acquired; **`security@archlucid.net`** mailbox **active**. **Remaining:** execute **`docs/security/PGP_KEY_GENERATION_RECIPE.md`** + single PR (**`archlucid-ui/public/.well-known/pgp-key.txt`**, **`SECURITY.md`**, marketing **`/security`**) per **`V1_SCOPE.md` §3** / **`V1_DEFERRED.md` §6c.
-
-11. DEFERRED Implement inbound MCP server (membrane) — **V1.1 only**
-- Why it matters: Tenant-scoped MCP tools are a named **V1.1** integration surface (`V1_SCOPE.md` §3, `V1_DEFERRED.md` §6d); **not** in the V1 shipping boundary. This item is **excluded from V1 weighted scoring** above.
-- Expected impact: When delivered in V1.1, improves agent-tool interoperability for customers that standardize on MCP; does not change V1 headline readiness.
-- Affected qualities: Interoperability (V1.1), AI/Agent Readiness (V1.1).
-- Actionable: DEFERRED — **no V1 implementation** per product decision; ship in **V1.1** window only.
-- Input needed: **P12 answered (2026-05-15):** **`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md` §5.1** pins transport, tool allowlist, and tenancy model. **Remaining:** **`V1.1` program calendar** + ADR **`adr/0029-mcp-membrane-and-agent-ecosystem.md`** past *Draft* before engineering merge (**backlog §9 rules**).
-
 7. Add `DataArchivalHostHealthCheck` to the operator dashboard
 - Why it matters: Improves observability of background data archival processes.
 - Expected impact: Directly improves Observability (+4 pts), Usability (+1 pts). Weighted readiness impact: +0.15%.
@@ -320,13 +283,6 @@ Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` 
 ```markdown
 Update the operator UI dashboard to display the status of the `data_archival` health check. Fetch the health status from the `/health` endpoint and display a warning indicator if the status is `Degraded`. Do not change the underlying health check logic in the backend. Acceptance criteria: Operators can see the data archival health status on the UI dashboard.
 ```
-
-13. DEFERRED Implement bi-directional status sync for ServiceNow
-- Why it matters: Fulfills V1 GA commitment for ITSM integration.
-- Expected impact: Seamless workflow integration for enterprise operators.
-- Affected qualities: Workflow Embeddedness.
-- Actionable: DEFERRED — **until** owner supplies **cost-free** ServiceNow Developer Program / PDI-style instance + schema/credential handshake for **#22** (**P10**).
-- Input needed: **P10 answered (2026-05-15):** **No** ServiceNow developer access **today**; **`V1` GA** bidirectional sync **stays in scope** (`V1_SCOPE.md` §2.13). Owner will onboard a **free** developer instance when possible — **paid** sandbox **not** assumed. **Remaining:** provision instance → hand secure creds + confirm **`incident`** / state mapping vs integration defaults; **if** no **free** path is ever available, owner must **explicitly** amend **`V1_SCOPE.md`** / **`PENDING_QUESTIONS.md`** before demoting **V1** claims.
 
 8. Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic
 - Why it matters: Improves resilience against transient database connection failures.
@@ -345,13 +301,6 @@ Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Api.DataAccess` to
 ```markdown
 Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides step-by-step instructions for configuring `ArchLucidAuth:Authority` with a non-Microsoft OIDC issuer (e.g., Okta, Auth0). Include examples of claim mapping to `ArchLucidRoles` and troubleshooting tips for common JWKS validation errors. Link this new file from `docs/library/SECURITY.md` and `docs/library/CONFIGURATION_REFERENCE.md`. Acceptance criteria: Clear documentation exists for setting up generic OIDC.
 ```
-
-16. DEFERRED Implement Azure Container Apps Jobs for bursty work
-- Why it matters: V2 backlog candidate to improve orchestration scalability.
-- Expected impact: Better resource utilization during peak loads.
-- Affected qualities: Performance, AI/Agent Readiness.
-- Actionable: DEFERRED
-- Input needed: **P11** (**2026-05-15**): owner concurs with deferral — remains **`V2`** situational per `V1_DEFERRED.md` §6f; revisit with bursty-scale / cost telemetry after **#26** closure if pressure appears.
 
 10. Align operator shell labels with marketing governance vocabulary (presentation-only)
 - Why it matters: Regulated buyers and consultants encounter landing-page workflow language first; mismatched UI terms (**Run**, **Commit**, **Manifest**) create friction and weaken the evidence-backed governance positioning.
