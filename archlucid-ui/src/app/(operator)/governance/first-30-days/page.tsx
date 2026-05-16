@@ -6,7 +6,7 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "First 30 days — governance preset",
+  title: "First 30 days — governance operating preset",
 };
 
 /**
@@ -29,7 +29,7 @@ export default function FirstThirtyDaysGovernancePage() {
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
               <p className="m-0">Assign a published pack and confirm effective thresholds for your workspace.</p>
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/policy-packs">
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/governance/policy-packs">
                 Open policy packs
               </Link>
             </CardContent>
@@ -73,6 +73,22 @@ export default function FirstThirtyDaysGovernancePage() {
               <p className="m-0">Start with a single promotion path and document expected acknowledgement times for architects.</p>
               <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/governance">
                 Governance workflow
+              </Link>
+            </CardContent>
+          </Card>
+        </li>
+        <li>
+          <Card>
+            <CardHeader className="pb-2">
+              <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Workspace overview anchor</h2>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <p className="m-0">
+                One sponsor-facing page for pre-commit posture, severity exposure in reports, drift, approval SLAs, and a
+                hours-first value proxy — scoped to this workspace session.
+              </p>
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/governance/dashboard">
+                Open workspace overview
               </Link>
             </CardContent>
           </Card>

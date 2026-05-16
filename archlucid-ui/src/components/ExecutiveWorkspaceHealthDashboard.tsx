@@ -258,7 +258,10 @@ export function ExecutiveWorkspaceHealthDashboard() {
             </h2>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
               {buyerPolishedShell ? (
-                <>Rolling 30-day counts from audit-backed governance checkpoints (blocked vs warned).</>
+                <>
+                  Rolling 30-day counts from audit-backed governance checkpoints — hard blocks vs monitored-risk signals
+                  (non-blocking pre-commit guidance).
+                </>
               ) : (
                 <>
                   Audit-backed counts via <span className="font-mono">GovernancePreCommitBlocked</span> and{" "}
@@ -274,7 +277,8 @@ export function ExecutiveWorkspaceHealthDashboard() {
                 </Link>
               </li>
               <li>
-                Warned:{" "}
+                {buyerPolishedShell ? "Monitored-risk signals" : "Warned"}
+                {": "}
                 <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">
                   {warned30d.exact ? warned30d.count : `≥ ${warned30d.count} (sampled lower bound)`}
                 </span>
@@ -297,7 +301,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
             </p>
             <p className="m-0 text-sm">
               <Link href="/governance/findings" className="font-medium text-blue-700 underline dark:text-blue-400">
-                Governance findings queue
+                {buyerPolishedShell ? "Review findings queue" : "Governance findings queue"}
               </Link>
             </p>
           </CardContent>
