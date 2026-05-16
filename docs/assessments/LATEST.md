@@ -452,7 +452,6 @@ Implement a web-based rule authoring interface in `archlucid-ui` that integrates
 
 ## Prompt Batching Guidance
 
-- **Batch 0 (IaC / state hygiene — coordinated window):** Improvement **#1** (**Terraform Phase 7.5**) **closed** in-repository **2026-05-15** — future brownfield-only **`state mv`** PRs pair **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`** updates with operator **`terraform plan`** sign-off (human-required — **DEV** before **Prod**).
 - **Batch 1 (High Leverage, Low Risk):** 3, 4, 17, 24. These address immediate correctness, security, and documentation gaps without major architectural changes.
 - **Batch 2 (Performance & Observability):** 5, 9, 15, 21, 23. These improve the operational characteristics of the system, making it more robust at scale.
 - **Batch 3 (Testing & Analytics):** 8, 11, 12, 14. These improve the testing posture and provide better ROI/cost estimation capabilities.
@@ -479,14 +478,6 @@ Sequential decisions so marketing ↔ technical V1 stay aligned. **Status: Q1–
 
 ## Pending Questions for Later
 
-- **P1 — Phase 7.5 Terraform rehearsals (`DEV` / `Prod`) — answered (subscriptions + authority); improvement **#1** checklist/runbook closure (**2026-05-15**):**
-  - **Subscriptions (owner-provided via Azure portal, 2026-05-15):** Both tenant subscriptions under **Default Directory** (`joefrancismarch25outlook.onmicrosoft.com`) remain in scope for **`terraform plan` / `state mv`** rehearsals when remote backends exist:
-    - **ArchLucid DEV** — subscription **`8aa56f3b-18bc-43ca-ad45-bad9e811d33b`**
-    - **ArchLucid Prod** — subscription **`aab65184-5005-4b0d-a884-9e28328630b1`**
-  - **Recommended window order:** Run **`terraform plan`** / **`terraform state mv`** rehearsal against **DEV** first; repeat only after DEV plans are clean for **Prod** (Prod currently shows **$0** spend — still validate whether remote state exists per root before skipping **Prod** passes).
-  - **Backup / rollback authority:** Portal identity holds **Azure RBAC Owner** on **both** subscriptions — **same principal** should **download remote state backups** immediately before each `state mv`, run **`terraform plan`**, and **authorize abort / state restore** if the plan shows unexpected **destroy/replace**. Delegate to a named infra deputy in writing if Owner is not executing moves personally.
-  - **Roots:** Canonical catalog **`docs/library/DEPLOYMENT_TERRAFORM.md`**. Enumerate only stacks already applied with **`backend.tf`**. **`terraform state list | rg archiforge`** determines brownfield **`state mv`** need (**archive procedures:** **`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`**). Starter audit depth (**when brownfield applies**) historically emphasized **`infra/terraform`**, **`infra/terraform-monitoring`**, **`infra/terraform-container-apps`**, **`infra/terraform-sql-failover`** — extend to other roots **when applied** in that subscription (**matrix:** **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
-  - **Matrix:** Subscription × root rehearsal template appended **2026-05-15** (operators fill **Y/N** cells — satisfies former **P1** follow-up).
 - **P3 — In-Slack interactive approvals — answered:** **Owner 2026-05-15 (agent recommendation accepted):** **Not** V1 GA / **not** current sprint. **Target: early V1.1** (~first **30 days** post-GA). **MVP scope:** single **approve finding / decision** flow; **audit parity** with UI; **signing-secret** + identity/RBAC binding. **Marketing:** no “approve from Slack” claims at GA. **Mockups:** none provided — engineer from operator approval UX or add wireframes in V1.1 slice. Details also in improvement **#6**.
 - **P4 — Stripe live keys + Marketplace publication — answered:** **Owner 2026-05-15:** **Defer** execution **until finance confirms** Partner Center readiness (seller verification, tax profile, payout/banking). **Next step:** Finance “go” → run improvement **#7** against billing/runbook checklists (e.g. **`docs/library/DEPLOYMENT_TERRAFORM.md`** and any Partner Center / Stripe cutover notes the team maintains).
 - **P5 — Hosted-trial `V1`→`V1.1` migration guide — answered:** **Owner 2026-05-15:** Artifact is **out of V1 GA checklist-blocking scope** and **in V1.1 documentation scope** (`docs/library/V1_DEFERRED.md` §6i). **`(A)` V1 readiness is unchanged** by treating this as orientation-only at GA. **`docs/library/HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`** provides baseline rollup prose; refresh when **`V1.1`** deltas enumerate (commerce **P4**, MCP, Slack **P3**, packs, etc.).
