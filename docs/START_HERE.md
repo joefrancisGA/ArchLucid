@@ -30,3 +30,5 @@ START_HERE.md (you are here)
 ```
 
 **Deep lookup (tasks, not personas):** [`architecture/README.md`](architecture/README.md).
+
+**Core Pilot — first session (four steps):** [CORE_PILOT.md](CORE_PILOT.md#first-session-checklist).
