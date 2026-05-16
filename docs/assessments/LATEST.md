@@ -461,16 +461,15 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
 
 ## Top Improvement Opportunities
 
+**Closed 2026-05-16 — item 1 (internal cross-tenant analytics):** Shipped `GET /v1/internal/analytics/cross-tenant` (`RequireOperatorRole`); `IInternalCrossTenantAnalyticsService` + `SqlInternalCrossTenantAnalyticsService` set SQL `SESSION_CONTEXT` key `al_rls_bypass = 1`, then aggregate non-archived `dbo.Runs` (counts + mean completion duration) and optional `dbo.RunTelemetry.EstimatedHoursSaved` (hours-saved proxy). `SystemWithPerTenantCatalogs` mode opens each active `TenantDatabaseBindings` catalog via the resolver — response remains tenant-id-free. In-memory hosts return zeroed metrics.
+
 **Closed 2026-05-16 — improvement #11:** `ComparisonReplayCostEstimator` (via `ComparisonReplayPayloadComplexity`) weights persisted comparison JSON: `manifestDiff` structural lists, `agentResultDiff.agentDeltas` line-item surface, `exportDiffs` cardinality, `runDiff.changedFields`, export-record `changedTopLevelFields` / `requestDiff`, plus legacy `manifestDelta` / `artifactSizesBytes`; operator replay cost-estimate response shape unchanged.
 
-1. Add cross-tenant analytics capabilities (internal only)
+1. Add cross-tenant analytics capabilities (internal only) — **Completed 2026-05-16** (see closed note above).
 - Why it matters: Helps prove ROI across the customer base and informs product direction.
 - Expected impact: Directly improves Proof-of-ROI Readiness (+3 pts), Stickiness (+2 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Proof-of-ROI Readiness, Stickiness.
-- Actionable: Yes
-```markdown
-Implement an internal-only analytics service that aggregates anonymized usage data, run completion times, and cost savings across all tenants. Ensure this service bypasses RLS safely using a dedicated internal connection string or explicit cross-tenant queries. Do not expose this data to external customers. Acceptance criteria: Internal operators can query aggregated cross-tenant metrics.
-```
+- Actionable: Completed
 
 2. Enhance `v1-rc-drill.ps1` to support JWT/API key authentication
 - Why it matters: Reduces auth mismatches and improves testing realism.
