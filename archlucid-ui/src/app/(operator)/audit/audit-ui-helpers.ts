@@ -208,7 +208,7 @@ export function groupAuditEventsByLifecycleStage<T extends { eventType: string }
   return result;
 }
 
-/** Buyer-polished audit ribbon above the timeline — counts aligned with {@link auditBuyerEventIsSystemRecordedActor}. */
+/** Buyer-polished audit ribbon above the timeline — narrative only; counts appear in metric tiles. */
 export function formatBuyerAuditTrailSummaryLine(
   events: ReadonlyArray<{ readonly actorUserName?: string | null; readonly runId?: string | null }>,
   uniformRunId: string | null,
@@ -216,23 +216,6 @@ export function formatBuyerAuditTrailSummaryLine(
 ): string | null {
   if (events.length === 0) {
     return null;
-  }
-
-  const distinctHumans = new Set<string>();
-  let systemRows = 0;
-
-  for (const ev of events) {
-    const name = (ev.actorUserName ?? "").trim();
-
-    if (name.length === 0) {
-      continue;
-    }
-
-    if (auditBuyerEventIsSystemRecordedActor(name)) {
-      systemRows++;
-    } else {
-      distinctHumans.add(name);
-    }
   }
 
   const runKey =

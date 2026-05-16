@@ -166,7 +166,7 @@ export const auditSearchEventsSectionHeadingOperator = "Search audit events";
 export const auditSearchEventsSectionHeadingReader = "Search audit events (inspect)";
 
 /** Audit log — buyer demo shell: section title without internal “inspect” cue. */
-export const auditSearchEventsSectionHeadingBuyerPolished = "Search audit events";
+export const auditSearchEventsSectionHeadingBuyerPolished = "Filter audit trail";
 
 /** Audit log — search is always **GET**; label nudges read-tier callers away from export expectations. */
 export const auditSearchEventsButtonLabelReaderRank = "Search audit log";

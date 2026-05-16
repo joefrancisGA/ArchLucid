@@ -45,7 +45,7 @@ function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
 
   switch (stage.key) {
     case "context":
-      return "Context captured";
+      return buyerPolished ? "Source context captured" : "Context captured";
 
     case "graph":
       return "Graph generated";
@@ -63,7 +63,7 @@ function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
 
 function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
   const graphTooltip = buyerPolished
-    ? "Evidence graph — structured linkage snapshot for this review (provenance and relationships). " +
+    ? "Evidence graph — structured decision trace for this review (provenance and relationships). " +
       (run.hasGraphSnapshot === true ? "Present." : "Not yet generated.")
     : "Graph — structured architecture / linkage snapshot. " +
       (run.hasGraphSnapshot === true ? "Present." : "Not yet generated.");
@@ -110,15 +110,35 @@ export type RunProvenanceInlineProps = {
   run: RunSummary;
   /** Buyer walkthrough: shorter stage chips (e.g. package vs manifest). */
   buyerPolished?: boolean;
+  /** Buyer list row: show progress line only (detail moves to the side panel). */
+  summaryOnly?: boolean;
 };
 
 /**
  * Compact pipeline-stage strip for dense run rows (context → graph → findings → manifest) as readable pill chips.
  */
-export function RunProvenanceInline({ run, buyerPolished = false }: RunProvenanceInlineProps) {
+export function RunProvenanceInline({ run, buyerPolished = false, summaryOnly = false }: RunProvenanceInlineProps) {
   const stages = stagesForRun(run, buyerPolished);
   const presentCount = stages.filter((s) => s.present).length;
   const stageCount = stages.length;
+
+  const summaryLine =
+    buyerPolished
+      ? presentCount >= stageCount
+        ? "Review package complete"
+        : `Progress ${presentCount} of ${stageCount}`
+      : `Review trail ${presentCount}/${stageCount} complete`;
+
+  if (summaryOnly) {
+    return (
+      <p
+        className="m-0 text-[11px] text-neutral-600 dark:text-neutral-400"
+        data-testid="run-provenance-inline-summary"
+      >
+        {summaryLine}
+      </p>
+    );
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -154,11 +174,7 @@ export function RunProvenanceInline({ run, buyerPolished = false }: RunProvenanc
         className="text-[11px] text-neutral-600 dark:text-neutral-400"
         data-testid="run-provenance-inline-summary"
       >
-        {buyerPolished
-          ? presentCount >= stageCount
-            ? "Review package complete"
-            : `Progress ${presentCount} of ${stageCount}`
-          : `Review trail ${presentCount}/${stageCount} complete`}
+        {summaryLine}
       </span>
     </div>
   );

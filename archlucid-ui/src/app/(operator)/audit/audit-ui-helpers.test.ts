@@ -33,13 +33,12 @@ describe("auditBuyerEventIsSystemRecordedActor", () => {
 });
 
 describe("formatBuyerAuditTrailSummaryLine", () => {
-  it("counts ArchLucid system rows as system-recorded (demo spine parity)", () => {
+  it("uses a buyer narrative tied to the review title (counts live in metric tiles)", () => {
     const demo = getDemoSampleAuditTrailEvents();
     const line = formatBuyerAuditTrailSummaryLine(demo, "claims-intake-modernization", "");
 
-    expect(line).toContain("7 recorded events");
-    expect(line).toContain("2 human actors");
-    expect(line).toContain("4 events recorded automatically by ArchLucid lifecycle logging");
+    expect(line).toContain("This audit trail shows the lifecycle from review creation through governance approval");
+    expect(line).toContain("Claims Intake Modernization Review");
   });
 
   it("returns null for an empty list", () => {

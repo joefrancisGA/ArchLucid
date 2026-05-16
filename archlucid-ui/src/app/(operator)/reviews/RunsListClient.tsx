@@ -180,6 +180,10 @@ function inspectorTitle(run: RunSummary | null): string {
     return "Review preview";
   }
 
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return "Review package summary";
+  }
+
   return buyerFacingReviewTitleFromSummary(run);
 }
 
@@ -625,7 +629,7 @@ export function RunsListClient({
                                     </p>
                                   ) : null}
                                   <div className="mt-1.5">
-                                    <RunProvenanceInline run={run} buyerPolished={buyerPolished} />
+                                    <RunProvenanceInline run={run} buyerPolished={buyerPolished} summaryOnly={buyerPolished} />
                                   </div>
                                   {countsLine !== null ? (
                                     <p
