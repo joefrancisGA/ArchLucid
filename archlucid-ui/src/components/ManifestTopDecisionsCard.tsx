@@ -84,7 +84,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
     }
 
     return (
-      <Card>
+      <Card id="manifest-key-decisions">
         <CardHeader>
           <CardTitle className="text-base font-semibold">Key decisions</CardTitle>
           <CardDescription>

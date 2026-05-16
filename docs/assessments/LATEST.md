@@ -2,7 +2,7 @@
 
 **Canonical pair:** This file is the **single current score and backlog** for weighted readiness. Read **`docs/library/ASSESSMENT_INPUTS.md`** first for the evidence contract; treat **`docs/archive/assessments/`** and archived quality narratives as **history only** — see **“One workflow (current score vs history)”** there.
 
-# ArchLucid Assessment – Weighted Readiness 82.75%
+# ArchLucid Assessment – Weighted Readiness 82.84%
 
 **V1 scoring boundary:**
 
