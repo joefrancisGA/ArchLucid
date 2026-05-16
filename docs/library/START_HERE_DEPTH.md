@@ -93,7 +93,7 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 
 On **2026-04-23** the repository **compressed `/docs` root** so evaluators see ~20 active entry files instead of ~200. Most former root markdown files now live under **[`docs/library/`](.)** with **relative links rewritten** across markdown. Superseded **quality / Cursor prompt packs** (except the current **68.60** pair) moved under **[`archive/quality/2026-04-23-doc-depth-reorg/`](../archive/quality/2026-04-23-doc-depth-reorg/)**.
 
-**Inventory:** [`library/DOC_INVENTORY_2026_04_25.md`](DOC_INVENTORY_2026_04_25.md) lists every active markdown file (excluding `docs/archive/`) with last-modified metadata and audience tags.
+**Doc map:** For a maintained inventory and anchors, skim [`REPO_DIGEST.md`](REPO_DIGEST.md) (regenerate with `python scripts/repo_digest/build_repo_digest.py`). To emit a table of every `docs/**/*.md` path (excluding `docs/archive/`), run `python scripts/generate_doc_inventory.py` when needed.
 
 ## Related (optional depth)
 
