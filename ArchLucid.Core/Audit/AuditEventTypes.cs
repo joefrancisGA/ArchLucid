@@ -468,6 +468,9 @@ public static class AuditEventTypes
     /// </summary>
     public const string OutboundWebhookDryRunProbeExecuted = "OutboundWebhookDryRunProbeExecuted";
 
+    /// <summary>Bulk evidence files were attached to a run.</summary>
+    public const string EvidenceBulkAttached = "EvidenceBulkAttached";
+
     /// <summary>
     ///     Operator pinged a persisted alert-routing webhook subscription to verify connectivity
     ///     (<c>POST /v1/integrations/webhooks/{id}/test</c>). Payload includes subscription ID, transport outcome, and

@@ -5,7 +5,7 @@
 
 # Onboarding wizards (operator UI)
 
-> **Install order moved.** See [INSTALL_ORDER.md](../INSTALL_ORDER.md). This page describes in-product routes only (week-one tasks after install).
+> **Install order moved.** See [INSTALL_ORDER.md](../archive/INSTALL_ORDER.md). This page describes in-product routes only (week-one tasks after install).
 
 ## Canonical surface (2026 consolidation)
 

@@ -7,7 +7,7 @@
 
 **Objective.** Reduce time-to-value on the default **Core Pilot** path: architecture request → run → committed manifest → reviewable artifacts and aggregate explanation.
 
-> **Install order moved.** See [../INSTALL_ORDER.md](../INSTALL_ORDER.md). This file is analysis only (week-one tasks after install).
+> **Install order moved.** See [../archive/INSTALL_ORDER.md](../archive/INSTALL_ORDER.md). This file is analysis only (week-one tasks after install).
 
 ## CLI ↔ API ↔ UI map
 

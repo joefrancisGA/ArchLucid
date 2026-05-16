@@ -1,3 +1,5 @@
+> **Scope:** Appendix — Pack B: Security Architecture Baseline (V1 bundled default) - full detail, tables, and links in the sections below.
+
 # Appendix — Pack B: Security Architecture Baseline (V1 bundled default)
 
 **Status:** Starter baseline (GA); authoritative rule payload in-repo.

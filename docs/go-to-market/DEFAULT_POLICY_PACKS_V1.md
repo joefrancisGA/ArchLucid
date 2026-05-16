@@ -1,3 +1,5 @@
+> **Scope:** Default policy packs — V1 GA bundles - full detail, tables, and links in the sections below.
+
 # Default policy packs — V1 GA bundles
 
 **Audience:** pilots, procurement, CS, and sellers explaining what governance content ships **in-tenant by default**.

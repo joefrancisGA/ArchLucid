@@ -9,7 +9,7 @@
 
 **Canonical operator action map:** [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) (UI route × API × CLI × authority — use this instead of memorizing scattered onboarding-only lists).
 
-> **Install order moved.** See [INSTALL_ORDER.md](../INSTALL_ORDER.md). This page now only covers Developer week-one tasks **after** install.
+> **Install order moved.** See [INSTALL_ORDER.md](../archive/INSTALL_ORDER.md). This page now only covers Developer week-one tasks **after** install.
 
 **Ticket:** `ONBOARD-DEV-001` (copy into your work tracker)
 
@@ -57,7 +57,7 @@ npm run dev
 
 | Blocker | Where |
 |---------|--------|
-| Build / packages | [BUILD.md](../library/BUILD.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) |
+| Build / packages | [BUILD.md](../library/BUILD.md), [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md) |
 | SQL / migrations | [SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md) |
 | Auth locally | [API_CONTRACTS.md](../library/API_CONTRACTS.md#security-schemes-swashbuckle) |
 

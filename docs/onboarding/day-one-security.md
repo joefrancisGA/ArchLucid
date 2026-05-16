@@ -9,7 +9,7 @@
 
 **Canonical operator action map:** [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) — where Operate (governance and trust) routes live vs Core Pilot defaults.
 
-> **Install order moved.** See [INSTALL_ORDER.md](../INSTALL_ORDER.md). This page now only covers Security / GRC week-one tasks **after** install.
+> **Install order moved.** See [INSTALL_ORDER.md](../archive/INSTALL_ORDER.md). This page now only covers Security / GRC week-one tasks **after** install.
 
 **Ticket:** `ONBOARD-SEC-001` (copy into your work tracker)
 

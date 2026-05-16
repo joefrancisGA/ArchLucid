@@ -44,7 +44,7 @@ Operational cleanup is **scheduled and gated**, not “unfinished V1 product.”
 
 | Item | Doc source |
 |------|------------|
-| Remove legacy **ArchLucid** config / OIDC / env bridges; **ArchLucid.sql → ArchLucid.sql**; Terraform **state mv**; repo / workspace rename | [ARCHLUCID_RENAME_CHECKLIST.md](../ARCHLUCID_RENAME_CHECKLIST.md) **Phase 7** (requires explicit go-ahead). |
+| Remove legacy **ArchLucid** config / OIDC / env bridges; **ArchLucid.sql → ArchLucid.sql**; Terraform **state mv**; repo / workspace rename | [ARCHLUCID_RENAME_CHECKLIST.md](../archive/ARCHLUCID_RENAME_CHECKLIST.md) **Phase 7** (requires explicit go-ahead). |
 
 ---
 

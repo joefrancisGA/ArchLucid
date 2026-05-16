@@ -2,6 +2,7 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Reporting;
+using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Templates;
 using ArchLucid.Core.Configuration;
@@ -118,6 +119,7 @@ public static partial class ServiceCollectionExtensions
             static client => client.Timeout = TimeSpan.FromSeconds(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds));
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ItsmOutboundIssueCreationService>();
+        services.AddScoped<IBulkEvidenceUploadService, BulkEvidenceUploadService>();
         RegisterScimProvisioning(services, configuration);
 
         return services;
