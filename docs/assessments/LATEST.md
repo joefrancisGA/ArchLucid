@@ -163,22 +163,18 @@
 
 ---
 
-## Top 14 Most Important Weaknesses
+## Top 10 Most Important Weaknesses
 
 1. **Legacy naming seams** inside **immutable** DbUp migration history and some persisted RLS / graph identifiers (**not** unreleased GitHub or Entra rename work — **Phase 7.6–7.7 closed 2026-04-19**, **7.8 waived**, **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**). Enterprise reviewers may ask for an explicit legacy-to-current map in procurement appendix until remaining honest doc pointers land.
-2. ~~Known gaps in durable audit coverage for some mutating flows.~~ **COMPLETE (2026-05-15)** **`ManifestSuperseded`** finalize supersession + durable audit (**improvement #3** / **`AUDIT_COVERAGE_MATRIX.md`**).
-3. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
-4. ~~Reliance on memory cache for graph snapshot projections…~~ **Mitigated (2026-05-15)** — optional **Redis-backed** **`IGraphSnapshotProjectionCache`** (**improvement #9**); single-replica **Memory** default unchanged.
-5. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
-6. ~~Lack of automated purge for first-tenant funnel events.~~ **COMPLETE (2026-05-15)** — **`FirstTenantFunnelArchivalIteration`** SQL purge path when per-tenant emission is **off** (**improvement #5**).
-7. **Residual** legacy **RLS** catalog/history identifiers (**improvement #4** dropped orphan predicates only; **`108`** coordination remains where **`ArchiforgeTenantScope`** persists).
-8. Manual nature of some cost estimations in the Azure extractor.
-9. Absence of in-Slack interactive approvals (**early V1.1** target per **P3**, **2026-05-15** — explicitly **out** of V1 GA sprint).
-10. ~~Scope clarity … absence at GA…~~ **Improvement #10** memo **shipped (2026-05-15)** — **`HOSTED_TRIAL_V1_TO_V1_1_MIGRATION_GUIDE.md`**; **`(A)` V1** headline unchanged (**orientation**, not GA checklist rewrite).
-11. Until improvement **#27** ships, operator shell copy may still read engineering-first vs landing-page workflow vocabulary (**Capture / Evidence / …**) on residual surfaces.
-12. **Azure landing-zone / CAF-aligned curated policy pack deferred to V1.1:** Until **V1.1** ships that pack (same platform as improvement **#29**), marketing must **not** imply bundled CAF mapping — GA relies on **extractor + advisor** posture plus **AI governance + security baseline** packs only.
-13. **Bulk evidence upload capped at 30 files (V1):** Landing or demo copy must not imply unlimited drag-and-drop dossiers; pilots exceeding the envelope need **multiple uploads** or **V1.1** lift — document prominently next to **Capture / Evidence** messaging (**Marketing alignment Q4**).
-14. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment Q6** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or owners risk shipping broken demos.
+2. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
+3. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
+4. **Residual** legacy **RLS** catalog/history identifiers (**improvement #4** dropped orphan predicates only; **`108`** coordination remains where **`ArchiforgeTenantScope`** persists).
+5. Manual nature of some cost estimations in the Azure extractor.
+6. Absence of in-Slack interactive approvals (**early V1.1** target per **P3**, **2026-05-15** — explicitly **out** of V1 GA sprint).
+7. Until improvement **#27** ships, operator shell copy may still read engineering-first vs landing-page workflow vocabulary (**Capture / Evidence / …**) on residual surfaces.
+8. **Azure landing-zone / CAF-aligned curated policy pack deferred to V1.1:** Until **V1.1** ships that pack (same platform as improvement **#29**), marketing must **not** imply bundled CAF mapping — GA relies on **extractor + advisor** posture plus **AI governance + security baseline** packs only.
+9. **Bulk evidence upload capped at 30 files (V1):** Landing or demo copy must not imply unlimited drag-and-drop dossiers; pilots exceeding the envelope need **multiple uploads** or **V1.1** lift — document prominently next to **Capture / Evidence** messaging (**Marketing alignment Q4**).
+10. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment Q6** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or owners risk shipping broken demos.
 
 ---
 
@@ -192,14 +188,13 @@
 
 ---
 
-## Top 6 Enterprise Adoption Blockers
+## Top 5 Enterprise Adoption Blockers
 
 1. Lack of CPA-issued SOC 2 Type I/II report (though deferred, it causes procurement friction).
-2. ~~Known gaps in durable audit coverage for mutating flows.~~ **Closed 2026-05-15** — **`ManifestSuperseded`** path (**improvement #3**); procurement narrative should cite **`AUDIT_COVERAGE_MATRIX.md`** for any residual **read-path** deferrals.
-3. Absence of third-party penetration test redacted summary (**`V2`** — factual **`(B)` procurement friction**; **not** a **V1** standing prompt per **P8** owner **2026-05-15**).
-4. **Immutable SQL / identity lineage strings** (historic migration bodies, session-context keys, allowlisted CI/doc carve-outs) plus honest disclosure obligations for procurement — **Terraform Phase 7.5 / improvement #1** complete for committed **`infra/**/*.tf`** **2026-05-15**; **Phase 7.6–7.7 / improvement #2** closed **2026-04-19** (**`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); **`terraform state mv`** only when remote state lists **`archiforge`** (**`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
-5. **Native SAML 2.0 SP** — **V1 GA engineering gate** (**`V1_SCOPE.md` §2.12**, **P6** owner **2026-05-15**, improvement **#13**); **until shipped**, SAML-mandatory enterprises cannot rely on **direct SP** posture — interim OIDC federation / brokers remain valid.
-6. Absence of multi-region active/active guarantees out of the box.
+2. Absence of third-party penetration test redacted summary (**`V2`** — factual **`(B)` procurement friction**; **not** a **V1** standing prompt per **P8** owner **2026-05-15**).
+3. **Immutable SQL / identity lineage strings** (historic migration bodies, session-context keys, allowlisted CI/doc carve-outs) plus honest disclosure obligations for procurement — **Terraform Phase 7.5 / improvement #1** complete for committed **`infra/**/*.tf`** **2026-05-15**; **Phase 7.6–7.7 / improvement #2** closed **2026-04-19** (**`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); **`terraform state mv`** only when remote state lists **`archiforge`** (**`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
+4. **Native SAML 2.0 SP** — **V1 GA engineering gate** (**`V1_SCOPE.md` §2.12**, **P6** owner **2026-05-15**, improvement **#13**); **until shipped**, SAML-mandatory enterprises cannot rely on **direct SP** posture — interim OIDC federation / brokers remain valid.
+5. Absence of multi-region active/active guarantees out of the box.
 
 ---
 
