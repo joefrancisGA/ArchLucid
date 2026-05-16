@@ -2,7 +2,7 @@
 
 # Common operator errors — top 10
 
-**Audience:** pilots + on-call responders. Prefer **[TROUBLESHOOTING.md](../TROUBLESHOOTING.md)** first-pass flow; this doc expands repeatable failures.
+**Audience:** pilots + on-call responders. Prefer **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** first-pass flow; this doc expands repeatable failures.
 
 ---
 
