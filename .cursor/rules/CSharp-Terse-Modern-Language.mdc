@@ -1,0 +1,121 @@
+---
+description: >-
+  C# pattern matching, null checks, coalescing, switch expressions, expression-bodied
+  members, LINQ pipelines, collection expressions, target-typed new, range/index.
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# C# modern language idioms
+
+---
+
+## Pattern matching for null, type, and shape
+
+Use C# patterns (`is null`, `is not null`, `is { … }`, `is Foo foo`) instead of `== null`, `!= null`, `as` + null check, or chained property guards where patterns are legal.
+
+### Preferred
+
+```csharp
+if (value is null) throw new ArgumentNullException(nameof(value));
+if (value is not null) Use(value);
+
+if (request is { Tenant: { IsActive: true } tenant, Subject: not null }) Apply(tenant);
+
+if (message is JsonObject obj) Process(obj);
+```
+
+### Avoid
+
+```csharp
+if (value == null) throw new ArgumentNullException(nameof(value));
+JsonObject obj = message as JsonObject;
+if (obj != null) Process(obj);
+```
+
+### Scope
+
+- Use **`is null` / `is not null`** for **all** null checks on reference types and `Nullable<T>` **outside expression trees**.
+- Use property patterns `{ … }` and type patterns `is T t` instead of `as` + null check.
+- Pair with **`CSharp-Terse-Guards-And-Flow.mdc`** for same-line guards.
+
+---
+
+## `is null` / `is not null` — strict null patterns
+
+Never use `== null` or `!= null` for reference / nullable value checks when the code is normal C# (not an expression tree).
+
+**Exception — expression trees:** lambdas to `Expression<TDelegate>` (Moq `It.Is`, some EF Core queries) **cannot** use `is` / `is not` (**CS8122**). Use `== null` / `!= null` there with a one-line comment. See **`docs/library/CSHARP_HOUSE_STYLE.md`**.
+
+---
+
+## `??` and `??=` over null fallback blocks
+
+Use **`??`** for fallback values and **`??=`** for initialize-once-if-null.
+
+For "must not be null" use a **guard** + assign, not `?? throw` helpers — matches guard style:
+
+```csharp
+if (options.Region is null) throw new InvalidOperationException("Region is required.");
+string region = options.Region;
+```
+
+Keep `??` chains short (≤ 3 alternatives). Think about thread-safety before `??=` on shared mutable state.
+
+---
+
+## Switch expressions for mapping
+
+When a `switch` only computes and returns a single value, use a **switch expression**.
+
+Always include a discard arm **`_ =>`** that throws or returns a default — never silent fall through.
+
+Use a regular `switch` **statement** when arms need logging, multiple statements, or `await`.
+
+---
+
+## Expression-bodied members
+
+When a method, property, indexer, ctor, finalizer, or operator is a **single expression**, use `=>`.
+
+A `switch` expression counts as one expression. Use a block when there are multiple statements, locals, `try`/`catch`, or comments that must live in the method.
+
+Each type still goes in **its own file** per project rules. For trivial `{ get; }` auto-properties see **`CSharp-Members-And-Construction.mdc`**.
+
+---
+
+## LINQ guard pipelines over manual loops
+
+When transforming, filtering, or aggregating a sequence, prefer a **LINQ pipeline** with explicit null-safety (`is` patterns), not `foreach` + a mutable accumulator.
+
+**When `foreach` still wins:** `await foreach`, multiple sinks per element, measured hot-path allocation cost (comment why).
+
+Materialize once with `.ToList()` / `.ToArray()` when the source is enumerated more than once.
+
+---
+
+## Collection expressions
+
+Use **`[]`**, **`[a, b, c]`**, **`[..src, extra]`** when constructing arrays, spans, lists, or targets the compiler can infer.
+
+**Avoid** `new string[] { … }`, `new List<T>()`, `Array.Empty<T>()` for empty, and `Concat(...).ToArray()` when a spread literal is clearer.
+
+Concrete type on the **left**: `List<Tag> tags = [];` not `var tags = new List<Tag>();`. Explicit constructors when you need capacity, comparer, or special ctor args.
+
+---
+
+## Target-typed `new()`
+
+When the type is on the **left** of an assignment, on a **parameter**, **return type**, or **field**, use **`new(...)`** without repeating the type on the right.
+
+Combine with **collection expressions** when the right side is a collection literal — prefer `[]`.
+
+Avoid when overload choice or inferred type would be unclear at the call site.
+
+---
+
+## Range `..` and index `^`
+
+Use **`^n`** and **`a..b`** for indexable types instead of `Length - n`, `Substring`, or redundant `.Slice` where the indexer form reads better.
+
+For **`IEnumerable<T>`** (no indexer), keep using LINQ.

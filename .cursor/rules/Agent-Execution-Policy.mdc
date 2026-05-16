@@ -1,0 +1,62 @@
+---
+alwaysApply: true
+---
+
+# Agent execution policy
+
+## Do the work yourself
+
+Do not delegate the user's task to subagents (Task tool with
+`subagent_type=generalPurpose`, `explore`, `shell`, or
+`best-of-n-runner`).
+
+### What this means
+
+- Read, search, edit, and verify code yourself using the standard tools
+  (Read, Grep, Glob, StrReplace, Write, Shell, ReadLints, etc.).
+- Do not invoke the Task tool to hand the work to a subprocess.
+- Do not split the user's request across multiple background subagents
+  to "parallelize" it.
+
+### When subagents ARE acceptable
+
+The following narrow exceptions still apply unless the user says
+otherwise in the same turn:
+
+- **Read-only exploration of an unfamiliar area** — if the codebase
+  region is genuinely unknown and a quick `explore` subagent would be
+  faster than several Grep/Glob calls. Even then, prefer doing one or
+  two direct searches first.
+- **The user explicitly asks for a subagent or for parallel work**
+  ("run these in parallel", "use a subagent to investigate X").
+- **A skill (`SKILL.md`) explicitly directs use of a subagent.**
+
+### When subagents are NOT acceptable
+
+- Implementing the change.
+- Editing files.
+- Running tests, linters, or build commands as part of completing the
+  user's request.
+- Drafting commit messages or PRs.
+- Anything where the user expects to see your reasoning and the
+  intermediate tool calls inline.
+
+### Why
+
+- Subagent output is opaque to the user.
+- Delegated work loses context the parent already built in the session.
+- The user chose this assistant to do the work; subagents substitute a different model/context.
+
+### If the task is large
+
+Split it yourself into a TodoWrite list and work through it sequentially
+in this conversation. Do not spawn subagents to "do batches in
+parallel".
+
+## Single-thread by default
+
+- Prefer **one sequential** agent loop. Do not start Background agents or parallel worktrees unless the user clearly asked for parallel or background execution in this conversation.
+- `.cursor/hooks.json` blocks **parallel** subagent workers (`is_parallel_worker`). If a run is denied, tell the user they can temporarily adjust or remove the `subagentStart` hook after explicit approval.
+- `sessionStart` may surface a notice when a **background** agent session starts; it does not replace the policy above.
+
+The **Do the work yourself** section above governs **when** the Task tool is allowed; this section governs **parallelism** and background runs.
