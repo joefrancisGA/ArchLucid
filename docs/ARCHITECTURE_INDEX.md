@@ -19,8 +19,8 @@
   - `docs/V1_RELEASE_CHECKLIST.md`
 - **V1 deferred / exploratory (doc inventory for intentional scope)** — audit gaps, 59R deferrals, Phase 7 rename, infra polish, `NEXT_REFACTORINGS` boundary  
   - `docs/V1_DEFERRED.md`
-- **Start here (canonical buyer + evaluator spine)** — Day-0 journey, five-document table, and where depth moved after the 2026-04-23 doc-root cap  
-  - `docs/START_HERE.md` (**canonical**); thin redirects: `docs/FIRST_5_DOCS.md`, `docs/FIRST_FIVE_DOCS.md`, `docs/FIRST_RUN_WIZARD.md`, `docs/FIRST_RUN_WALKTHROUGH.md` (full bodies under `docs/library/`); archived pre-spine table: `docs/archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md`
+- **Start here (persona router)** — single onboarding hub for buyer, contributor, and security routing  
+  - `docs/START_HERE.md`
 - **Developer Day-1 (week one)** — toolchain, local API + SQL, Core tests, small PR  
   - `docs/onboarding/day-one-developer.md`
 - **SRE / Platform Day-1** — health, deploy order, Terraform validate, migrations posture  
@@ -39,8 +39,8 @@
   - `docs/diagrams/c4/README.md`
 - **C4 model (Structurizr DSL — system context + containers)**  
   - `docs/c4/README.md`, `docs/c4/workspace.dsl`
-- **Request happy path (client → API → SQL → agents)** — stub → developer Day-1 + `API_CONTRACTS`; archived walkthrough  
-  - `docs/ONBOARDING_HAPPY_PATH.md`, `docs/archive/ONBOARDING_HAPPY_PATH_2026_04_17.md`
+- **Request happy path (client → API → SQL → agents)** — developer Day-1 + `API_CONTRACTS`; archived walkthrough  
+  - `docs/archive/ONBOARDING_HAPPY_PATH_2026_04_17.md`
 - **System map (Mermaid flows + entry points)**  
   - `docs/SYSTEM_MAP.md`
 - **One-page system view (nodes/edges/ops — flowchart narrative)**  
@@ -137,8 +137,8 @@
   - `docs/architecture/adr/README.md`
 - **Architecture invariants** — registry `INV-001`–`INV-015`, enforcement waves `TB-009`–`TB-012` (`docs/library/TECH_BACKLOG.md`), proposed governance `docs/architecture/adr/0035-architecture-invariant-catalog.md`  
   - `docs/library/ARCHITECTURE_INVARIANTS.md`
-- **Contributor onboarding** – stub → `docs/onboarding/day-one-developer.md`; archived checklist  
-  - `docs/CONTRIBUTOR_ONBOARDING.md`, `docs/archive/ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md`
+- **Contributor onboarding** – developer Day-1 tasks and mental model  
+  - `docs/onboarding/day-one-developer.md`
 
 ### API and contracts
 

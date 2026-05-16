@@ -25,6 +25,34 @@
 
 ---
 
+## Fast path commands
+
+If you just need the commands to get running locally (after installing prerequisites):
+
+```powershell
+git clone <your-fork-or-upstream-url> ArchLucid
+Set-Location ArchLucid
+dotnet restore
+dotnet build ArchLucid.sln -c Release
+
+# Start dependencies (SQL, Azurite, Redis)
+docker compose --profile dev up -d
+
+# Run fast tests
+dotnet test ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj -c Release
+dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release --filter "Category!=SqlIntegration"
+
+# Run the API
+dotnet run --project ArchLucid.Api/ArchLucid.Api.csproj
+
+# Run the UI (in a new terminal)
+Set-Location archlucid-ui
+npm install
+npm run dev
+```
+
+---
+
 ## Escalation
 
 | Blocker | Where |
