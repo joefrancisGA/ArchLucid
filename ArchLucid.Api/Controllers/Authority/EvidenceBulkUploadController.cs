@@ -1,6 +1,8 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Host.Core.ProblemDetails;
 
 using Asp.Versioning;
 
@@ -8,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -22,10 +25,11 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class EvidenceBulkUploadController(
-    IBulkEvidenceUploadService uploadService) : ControllerBase
+    IBulkEvidenceUploadService uploadService,
+    IOptions<EvidenceBulkUploadOptions> bulkUploadOptions) : ControllerBase
 {
     /// <summary>
-    /// Bulk uploads up to 30 evidence files for a given review run.
+    /// Bulk uploads evidence files for a given review run, up to <see cref="EvidenceBulkUploadOptions.EvidenceBulkUploadMaxFiles" />.
     /// </summary>
     [HttpPost("bulk")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -51,20 +55,19 @@ public sealed class EvidenceBulkUploadController(
             return Ok(new { evidenceItemIds = result.UploadedEvidenceItemIds });
         }
 
-        if (result.ErrorCode == ArchLucid.Host.Core.ProblemDetails.ProblemErrorCodes.RunNotFound)
+        if (result.ErrorCode == ProblemErrorCodes.RunNotFound)
         {
             return this.NotFoundProblem(result.FailureDetail ?? "Run not found.");
         }
 
-        if (result.ErrorCode == ArchLucid.Host.Core.ProblemDetails.ProblemErrorCodes.EvidenceBulkUploadLimitExceeded)
+        if (result.ErrorCode == ProblemErrorCodes.EvidenceBulkUploadLimitExceeded)
         {
-            // We use the extension method added earlier
-            return this.EvidenceBulkUploadLimitProblem(30, files.Count);
+            return this.EvidenceBulkUploadLimitProblem(bulkUploadOptions.Value.EvidenceBulkUploadMaxFiles, files.Count);
         }
 
-        if (result.ErrorCode == ArchLucid.Host.Core.ProblemDetails.ProblemErrorCodes.ValidationFailed)
+        if (result.ErrorCode == ProblemErrorCodes.ValidationFailed)
         {
-            return this.BadRequestProblem(result.FailureDetail ?? "Validation failed.", ArchLucid.Host.Core.ProblemDetails.ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem(result.FailureDetail ?? "Validation failed.", ProblemTypes.ValidationFailed);
         }
 
         return this.BadRequestProblem(result.FailureDetail ?? "Upload failed.");
