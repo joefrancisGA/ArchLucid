@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:122 -->
+<!-- route-tier-policy-nav-registry-count:123 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -76,6 +76,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Alerts/AlertTuningController.cs` | `/v1/alert-tuning` | standard | ReadAuthority | /alerts |  |
 | `Alerts/AlertsController.cs` | `/v1/alerts` | standard | ReadAuthority | /alerts |  |
 | `Alerts/CompositeAlertRulesController.cs` | `/v1/composite-alert-rules` | standard | ReadAuthority | /alerts |  |
+| `Analytics/InternalCrossTenantAnalyticsController.cs` | `/v1/internal/analytics` | none | RequireOperatorRole |  | internal_cross_tenant_analytics |
 | `Analytics/RoiAnalyticsController.cs` | `/v1/analytics` | none | ReadAuthority |  |  |
 | `Auth/TrialLocalIdentityAuthController.cs` | `/v1/auth/trial/local` | none | AllowAnonymous |  | trial_local_identity_auth |
 | `Authority/AnalysisReportsController.cs` | `/v1/architecture` | standard | ExecuteAuthority |  |  |

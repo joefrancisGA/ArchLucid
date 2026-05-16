@@ -21,6 +21,10 @@
       "summary": "Operator engineering / internal architecture diagnostics under /v1/internal/architecture."
     },
     {
+      "code": "internal_cross_tenant_analytics",
+      "summary": "Operator-only cross-tenant product metrics aggregates under /v1/internal/analytics (not tenant-scoped; no shell nav tile)."
+    },
+    {
       "code": "internal_replay_diagnostics",
       "summary": "Internal authority replay pipeline; not exposed as shell operator pages."
     },

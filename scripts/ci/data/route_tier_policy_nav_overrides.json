@@ -6,6 +6,7 @@
     "Admin/DocsController.cs": "static_operator_docs_html",
     "VersionController.cs": "unversioned_version_probe",
     "AgentExecution/AgentExecutionCostPreviewController.cs": "anonymous_wizard_cost_preview",
+    "Analytics/InternalCrossTenantAnalyticsController.cs": "internal_cross_tenant_analytics",
     "Auth/TrialLocalIdentityAuthController.cs": "trial_local_identity_auth",
     "Authority/AuthorityReplayController.cs": "internal_replay_diagnostics",
     "Authority/ExecutiveSummaryController.cs": "non_versioned_executive_api",

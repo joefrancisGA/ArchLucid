@@ -332,6 +332,16 @@
       "nav_operator_href": "/alerts"
     },
     {
+      "controller_file": "Analytics/InternalCrossTenantAnalyticsController.cs",
+      "class_name": "InternalCrossTenantAnalyticsController",
+      "route_template": "v{version:apiVersion}/internal/analytics",
+      "normalized_prefix": "/v1/internal/analytics",
+      "commercial_tier": "none",
+      "class_policy": "RequireOperatorRole",
+      "exemption": "internal_cross_tenant_analytics",
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Analytics/RoiAnalyticsController.cs",
       "class_name": "RoiAnalyticsController",
       "route_template": "v{version:apiVersion}/analytics",
