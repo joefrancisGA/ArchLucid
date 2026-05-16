@@ -60,4 +60,59 @@ public static class DefaultPolicyPackTemplates
           }
         }
         """;
+
+    /// <summary>
+    ///     Curated AI governance starter referencing stable keys <c>ai-gov-001</c>–<c>ai-gov-020</c>; full narrative lives in
+    ///     <c>docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json</c>. Keys must exist in compliance catalog
+    ///     before enforcement surfaces resolve findings — see P29-4 seeding.
+    /// </summary>
+    public const string AiGovernanceResponsibleAiV1Json =
+        """
+        {
+          "complianceRuleIds": [],
+          "complianceRuleKeys": [
+            "ai-gov-001",
+            "ai-gov-002",
+            "ai-gov-003",
+            "ai-gov-004",
+            "ai-gov-005",
+            "ai-gov-006",
+            "ai-gov-007",
+            "ai-gov-008",
+            "ai-gov-009",
+            "ai-gov-010",
+            "ai-gov-011",
+            "ai-gov-012",
+            "ai-gov-013",
+            "ai-gov-014",
+            "ai-gov-015",
+            "ai-gov-016",
+            "ai-gov-017",
+            "ai-gov-018",
+            "ai-gov-019",
+            "ai-gov-020"
+          ],
+          "alertRuleIds": [],
+          "compositeAlertRuleIds": [],
+          "advisoryDefaults": {
+            "severityFloor": "warning",
+            "scanDepth": "standard"
+          },
+          "metadata": {
+            "templateId": "ai-governance-responsible-ai-v1",
+            "pack.displayName": "AI Governance / Responsible AI",
+            "pack.category": "AI Governance",
+            "pack.version": "1.0.0",
+            "pack.isDefault": "true",
+            "pack.description": "Starter baseline for AI/ML asset governance — model inventory, data handling, human oversight, and risk classification. Maps to NIST AI RMF v1.0 themes and EU AI Act high-risk categories. Not a compliance certification.",
+            "frameworkMappingDisclaimer": "Framework references are thematic mapping for reviewers only; they do not constitute certification, attestation, or legal advice.",
+            "nistAiRmfVersion": "1.0",
+            "euAiActMappingNote": "Category strings mirror Annex III high-risk use-case themes for traceability; final legal classification is organizational counsel responsibility.",
+            "curatedRulesArtifact": "docs/samples/policy-packs/ai-governance-responsible-ai-rules-v1.json",
+            "goldenManifest.governance.fields": "ComplianceTags, PolicyConstraints, RequiredControls, RiskClassification",
+            "goldenManifest.metadata.fields": "ManifestVersion, ParentManifestVersion, ChangeDescription, DecisionTraceIds, CreatedUtc",
+            "goldenManifest.service.fields": "ServiceId, ServiceName, ServiceType, RuntimePlatform, Purpose, Tags, RequiredControls"
+          }
+        }
+        """;
 }

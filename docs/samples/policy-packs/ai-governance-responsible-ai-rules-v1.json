@@ -1,0 +1,352 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "AI Governance / Responsible AI",
+    "description": "Starter baseline for AI/ML asset governance — model inventory, data handling, human oversight, and risk classification. Maps to NIST AI RMF v1.0 themes and EU AI Act high-risk categories. Not a compliance certification.",
+    "version": "1.0.0",
+    "category": "AI Governance",
+    "isDefault": true,
+    "suggestedPackType": "ProjectCustom",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/ai-governance-responsible-ai.json"
+  },
+  "rules": [
+    {
+      "id": "ai-gov-001",
+      "title": "AI model registry documented",
+      "description": "The architecture manifest should identify AI/ML assets (models, endpoints, or inference services) with enough specificity that operators can maintain an inventory; anonymized placeholders are insufficient when production reliance is claimed.",
+      "severity": "Medium",
+      "remediationGuidance": "Enumerate inference/training surfaces under services[] (ServiceName, Purpose, Tags) and tie each to an owning team in governance.RequiredControls or governance.PolicyConstraints.",
+      "evidenceHints": [
+        "services[].ServiceName",
+        "services[].Purpose",
+        "services[].Tags",
+        "systemName",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Map" },
+        { "framework": "EU AI Act", "category": "Annex III — AI systems intended for critical infrastructure / safety-related contexts (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-002",
+      "title": "Model ownership assigned",
+      "description": "Each material AI component should have accountable ownership reflected in governance metadata so escalation and change control have a named lever.",
+      "severity": "Medium",
+      "remediationGuidance": "Add ownership statements to governance.PolicyConstraints or governance.RequiredControls (e.g., owner:RACI) and reference the same language in metadata.ChangeDescription for the snapshot.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription",
+        "metadata.DecisionTraceIds"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Govern" },
+        { "framework": "EU AI Act", "category": "Annex III — High-risk administrative / operational reliance (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-003",
+      "title": "Model versioning tracked",
+      "description": "Model lifecycle posture should capture version or promotion lineage so reviewers can distinguish experiments from approved production configurations.",
+      "severity": "High",
+      "remediationGuidance": "Record promotion lineage using metadata.ManifestVersion, metadata.ParentManifestVersion, and explicit notes in metadata.ChangeDescription linking services to approved versions.",
+      "evidenceHints": [
+        "metadata.ManifestVersion",
+        "metadata.ParentManifestVersion",
+        "metadata.ChangeDescription",
+        "services[].Tags"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Manage" },
+        { "framework": "EU AI Act", "category": "Documentation & traceability themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-004",
+      "title": "Deployment environments documented",
+      "description": "Inference and training boundaries across environments (dev/test/stage/prod) must be understandable from the manifest to avoid shadow production AI paths.",
+      "severity": "Medium",
+      "remediationGuidance": "Describe environment separation in governance.PolicyConstraints and align services[].RuntimePlatform / Purpose with environment labels in Tags.",
+      "evidenceHints": [
+        "services[].RuntimePlatform",
+        "services[].Purpose",
+        "services[].Tags",
+        "governance.PolicyConstraints",
+        "relationships"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Map" },
+        { "framework": "EU AI Act", "category": "Risk management system themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-005",
+      "title": "Sensitive training data justified when present",
+      "description": "When training or fine-tuning touches personally identifiable or protected health information, the manifest should document proportionality and routing—not silent inclusion.",
+      "severity": "High",
+      "remediationGuidance": "Capture minimization rationale in governance.PolicyConstraints; tag affected datastores and flows in relationships with governance.ComplianceTags citing handling constraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.ComplianceTags",
+        "datastores",
+        "relationships"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Map" },
+        { "framework": "EU AI Act", "category": "Data governance & fundamental rights themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-006",
+      "title": "Data classification prior to inference",
+      "description": "Flows into inference should reflect classification posture so reviewers can see whether sensitive categories are routed through controlled interfaces.",
+      "severity": "Medium",
+      "remediationGuidance": "Use governance.ComplianceTags for classification tiers and reinforce per-service controls via services[].RequiredControls for inference APIs.",
+      "evidenceHints": [
+        "governance.ComplianceTags",
+        "services[].RequiredControls",
+        "relationships",
+        "services[].Tags"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Measure" },
+        { "framework": "EU AI Act", "category": "Transparency & logging adjacent themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-007",
+      "title": "Sensitive data routing documented",
+      "description": "Architecture graphs should expose routing decisions for regulated payloads (PHI/PII/financial identifiers) touching AI surfaces.",
+      "severity": "High",
+      "remediationGuidance": "Document routing and segmentation expectations in governance.PolicyConstraints and bind them to concrete edges in relationships plus datastore roles.",
+      "evidenceHints": [
+        "relationships",
+        "datastores",
+        "governance.PolicyConstraints",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Map" },
+        { "framework": "EU AI Act", "category": "Cybersecurity & resilience themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-008",
+      "title": "Human sign-off before production promotion",
+      "description": "Production promotion of high-impact models should show human governance signals in manifest provenance—not only automated pipeline success.",
+      "severity": "Medium",
+      "remediationGuidance": "Reference approver lineage through metadata.DecisionTraceIds and narrate promotion decisions in metadata.ChangeDescription; elevate governance.RiskClassification when impact increases.",
+      "evidenceHints": [
+        "metadata.DecisionTraceIds",
+        "metadata.ChangeDescription",
+        "governance.RiskClassification",
+        "metadata.CreatedUtc"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Govern" },
+        { "framework": "EU AI Act", "category": "Human oversight themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-009",
+      "title": "High-risk automated decisions reviewed by humans",
+      "description": "When services encode consequential scoring or triage, the manifest should indicate human review gates appropriate to potential harm.",
+      "severity": "High",
+      "remediationGuidance": "Encode review expectations in governance.RequiredControls and mirror with service-level Tags describing HITL checkpoints on affected services[].",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "services[].Tags",
+        "services[].Purpose",
+        "governance.RiskClassification"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Manage" },
+        { "framework": "EU AI Act", "category": "Annex III — Access to essential services / automated decision themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-010",
+      "title": "Override and escalation path documented",
+      "description": "Operators need a documented path to challenge, override, or escalate unsafe model behavior without bypassing auditability.",
+      "severity": "Medium",
+      "remediationGuidance": "Describe override workflow in governance.PolicyConstraints; link accountable parties using governance.RequiredControls with clear verbs (escalate, freeze, rollback).",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Govern" },
+        { "framework": "EU AI Act", "category": "Monitoring & incident response themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-011",
+      "title": "Review cadence defined",
+      "description": "Model governance should state how often stakeholders re-validate suitability, drift tolerances, and data policy alignment.",
+      "severity": "Low",
+      "remediationGuidance": "Add cadence statements to governance.PolicyConstraints and optionally surface schedule hints in advisoryDefaults-compatible metadata via pack publish (operational checklist).",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.ComplianceTags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Measure" },
+        { "framework": "EU AI Act", "category": "Post-market monitoring themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-012",
+      "title": "Model evaluation cadence defined",
+      "description": "Evaluation discipline (offline/online metrics) should be visible to reviewers even when metrics live outside the manifest literal.",
+      "severity": "Medium",
+      "remediationGuidance": "Capture evaluation commitments in governance.RequiredControls and cross-reference owning services with services[].Tags (eval:*).",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "services[].Tags",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Measure" },
+        { "framework": "EU AI Act", "category": "Quality & performance themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-013",
+      "title": "Drift monitoring described",
+      "description": "Production AI services should declare how drift is observed and tied back to governance triggers.",
+      "severity": "Medium",
+      "remediationGuidance": "Add drift monitoring obligations to governance.RequiredControls and mention telemetry surfaces in services[].RequiredControls.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "services[].RequiredControls",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Measure" },
+        { "framework": "EU AI Act", "category": "Post-market monitoring themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-014",
+      "title": "Retraining triggers documented",
+      "description": "When models retrain automatically or on schedule, reviewers need explicit thresholds or events justifying refreshes.",
+      "severity": "Low",
+      "remediationGuidance": "Encode retrain triggers in governance.PolicyConstraints and align with metadata.ChangeDescription when manifest updates follow retrain events.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription",
+        "metadata.DecisionTraceIds"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Manage" },
+        { "framework": "EU AI Act", "category": "Risk management system themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-015",
+      "title": "LLM interactions logged",
+      "description": "Generative flows should point to logging and traceability mechanisms so prompts, outputs, and session context can be audited where policy requires.",
+      "severity": "Medium",
+      "remediationGuidance": "Tag LLM gateways with logging expectations in services[].Tags and governance.RequiredControls; reference decision tracing with metadata.DecisionTraceIds.",
+      "evidenceHints": [
+        "services[].Tags",
+        "services[].RequiredControls",
+        "metadata.DecisionTraceIds",
+        "governance.ComplianceTags"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Map" },
+        { "framework": "EU AI Act", "category": "Record-keeping themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-016",
+      "title": "Retention policy for AI logs defined",
+      "description": "Retention for model and prompt telemetry should be stated to avoid indefinite storage of sensitive transcripts.",
+      "severity": "Medium",
+      "remediationGuidance": "State retention bounds in governance.PolicyConstraints; tag storage services in services[].Tags (retention:*).",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "datastores"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Govern" },
+        { "framework": "EU AI Act", "category": "Data minimization themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-017",
+      "title": "Tool invocation audit trail",
+      "description": "Agentic tool calls (search, APIs, runners) should be traceable with the same stewardship as raw inference when used in regulated workflows.",
+      "severity": "High",
+      "remediationGuidance": "Document tool-call trace requirements in governance.RequiredControls; link orchestration services with services[].Purpose and services[].Tags including tool-chain identifiers.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "services[].Purpose",
+        "services[].Tags",
+        "relationships",
+        "metadata.DecisionTraceIds"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Measure" },
+        { "framework": "EU AI Act", "category": "Transparency & logging themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-018",
+      "title": "Third-party model risk assessed",
+      "description": "External models or APIs should carry documented risk posture and dependency depth visible in governance metadata.",
+      "severity": "Medium",
+      "remediationGuidance": "Capture vendor/model risk statements in governance.ComplianceTags and governance.PolicyConstraints; flag third-party services via services[].Tags (vendor:*).",
+      "evidenceHints": [
+        "governance.ComplianceTags",
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Map" },
+        { "framework": "EU AI Act", "category": "Third-party reliance themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-019",
+      "title": "Vendor dependency and fallback strategy",
+      "description": "Single-vendor AI lock-in without fallback violates resilient enterprise practice; manifests should show mitigations.",
+      "severity": "Medium",
+      "remediationGuidance": "Describe fallback or degraded modes in governance.PolicyConstraints; map alternate routes in relationships and annotate services[].RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "relationships",
+        "services[].RequiredControls",
+        "governance.RiskClassification"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Manage" },
+        { "framework": "EU AI Act", "category": "Operational resilience themes (thematic mapping)" }
+      ]
+    },
+    {
+      "id": "ai-gov-020",
+      "title": "SLA and availability expectations documented",
+      "description": "Business-critical AI endpoints should tie to availability expectations understandable from architecture metadata.",
+      "severity": "Info",
+      "remediationGuidance": "Record SLA themes in governance.PolicyConstraints and cost/operational posture using governance.CostClassification plus services[].Tags for tiering.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.CostClassification",
+        "services[].Tags",
+        "systemName"
+      ],
+      "frameworkMappings": [
+        { "framework": "NIST AI RMF v1.0", "theme": "Map" },
+        { "framework": "EU AI Act", "category": "High reliability / critical service themes (thematic mapping)" }
+      ]
+    }
+  ]
+}

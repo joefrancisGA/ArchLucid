@@ -1,3 +1,5 @@
+> **Scope:** Synthetic DOCX/PDF samples for buyers and partners previewing collateral formats; not customer exports, signed legal deliverables, or authoritative product specs.
+
 # Go-to-market samples
 
 Sanitized artifacts for procurement, landing pages, and format previews.
