@@ -79,6 +79,7 @@ public sealed class AuditPathClassificationArchitectureTests
         "PolicyPacksAppService",
         "BillingWebhookTrialActivator",
         "AuthorityPipelineStagesExecutor",
+        "AuthorityCommittedPipelineFinalizer",
         "SqlTrialFunnelCommitHook"
     ];
 

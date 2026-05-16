@@ -28,6 +28,7 @@ internal static class ArchLucidSaml2SignInAudit
     internal static bool IsSamlAuthRoute(PathString path) =>
         path.StartsWithSegments("/Auth", StringComparison.OrdinalIgnoreCase);
 
+    [InformationalAudit]
     internal static async Task TryAppendProtocolFailureAudit(HttpContext httpContext, Exception exception,
         CancellationToken cancellationToken)
     {
@@ -73,6 +74,7 @@ internal static class ArchLucidSaml2SignInAudit
         }
     }
 
+    [InformationalAudit]
     internal static async Task AppendCookieSignedInAudit(
         CookieSignedInContext context,
         CancellationToken cancellationToken)
