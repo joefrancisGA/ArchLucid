@@ -67,14 +67,14 @@ public static class MarketplacePreflightRunner
                         ? "MARKETPLACE_PUBLICATION.md references Team / Professional / Enterprise plan mapping"
                         : $"MARKETPLACE_PUBLICATION.md must include the tier triple: {MarketplacePlanTierTriple}"));
 
-        string? azureSaaS = TryReadUtf8(root, Path.Combine("docs", "AZURE_MARKETPLACE_SAAS_OFFER.md"));
+        string? azureSaaS = TryReadUtf8(root, Path.Combine("docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md"));
         steps.Add(
             new MarketplacePreflightStepResult(
                 "azure_marketplace_saas_doc",
                 azureSaaS is not null,
                 azureSaaS is not null
-                    ? "Found docs/AZURE_MARKETPLACE_SAAS_OFFER.md"
-                    : "Missing docs/AZURE_MARKETPLACE_SAAS_OFFER.md"));
+                    ? "Found docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md"
+                    : "Missing docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md"));
 
         if (azureSaaS is not null)
         {
@@ -97,12 +97,12 @@ public static class MarketplacePreflightRunner
                         : "AZURE_MARKETPLACE_SAAS_OFFER.md must mention Professional (Partner Center naming)."));
         }
 
-        string? billing = TryReadUtf8(root, Path.Combine("docs", "BILLING.md"));
+        string? billing = TryReadUtf8(root, Path.Combine("docs", "library", "BILLING.md"));
         steps.Add(
             new MarketplacePreflightStepResult(
                 "billing_doc",
                 billing is not null,
-                billing is not null ? "Found docs/BILLING.md" : "Missing docs/BILLING.md"));
+                billing is not null ? "Found docs/library/BILLING.md" : "Missing docs/library/BILLING.md"));
 
         if (billing is not null)
         {

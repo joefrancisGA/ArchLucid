@@ -24,6 +24,7 @@ public sealed class MarketplacePreflightRunnerTests
     {
         string temp = Path.Combine(Path.GetTempPath(), "archlucid-preflight-" + Guid.NewGuid().ToString("n"));
         Directory.CreateDirectory(Path.Combine(temp, "docs", "go-to-market"));
+        Directory.CreateDirectory(Path.Combine(temp, "docs", "library"));
         Directory.CreateDirectory(Path.Combine(temp, "docs"));
         Directory.CreateDirectory(Path.Combine(temp, "ArchLucid.Api"));
 
@@ -36,10 +37,10 @@ public sealed class MarketplacePreflightRunnerTests
             "wrong triple `Team` / `Pro` / `Enterprise`\n");
 
         File.WriteAllText(
-            Path.Combine(temp, "docs", "AZURE_MARKETPLACE_SAAS_OFFER.md"),
+            Path.Combine(temp, "docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md"),
             "Professional tier docs must not use deprecated `Pro` slug.\n");
 
-        File.WriteAllText(Path.Combine(temp, "docs", "BILLING.md"), "missing routes on purpose\n");
+        File.WriteAllText(Path.Combine(temp, "docs", "library", "BILLING.md"), "missing routes on purpose\n");
 
         File.WriteAllText(Path.Combine(temp, "ArchLucid.Api", "appsettings.json"), "{}\n");
 

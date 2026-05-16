@@ -18,7 +18,7 @@ REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..")
 
 PRICING_REL = os.path.normpath("docs/go-to-market/PRICING_PHILOSOPHY.md")
 MARKETPLACE_REL = os.path.normpath("docs/go-to-market/MARKETPLACE_PUBLICATION.md")
-AZURE_SAAS_REL = os.path.normpath("docs/AZURE_MARKETPLACE_SAAS_OFFER.md")
+AZURE_SAAS_REL = os.path.normpath("docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md")
 
 # Single row from PRICING_PHILOSOPHY.md §3 "Tier overview" — do not drift without updating this script + docs.
 CANONICAL_PACKAGING_ROW = "| **Team** | **Professional** | **Enterprise** |"
