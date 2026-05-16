@@ -52,7 +52,7 @@ Use these in internal decks and emails; buyers can be pointed to the same paths 
 
 | Topic | Where to point |
 | ----- | --------------- |
-| Security, subprocessors, assurance index | [TRUST_CENTER.md](TRUST_CENTER.md), [trust-center.md](../trust-center.md) |
+| Security, subprocessors, assurance index | [TRUST_CENTER.md](TRUST_CENTER.md), [trust-center.md](trust-center.md) |
 | Demo and quick start | [DEMO_QUICKSTART.md](DEMO_QUICKSTART.md), [OPERATOR_QUICKSTART.md](../library/OPERATOR_QUICKSTART.md) |
 | Pilot structure and success framing | [CORE_PILOT.md](../CORE_PILOT.md), [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md), [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) |
 | Buyer-safe evidence templates | [PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md), [reference-customers/](reference-customers/README.md) |

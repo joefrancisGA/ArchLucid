@@ -11,7 +11,7 @@
 ## 1. Before the session
 
 - Confirm **auth mode** (Entra / API key / staging bypass) and **simulator vs real** LLM expectation with the champion.
-- Send Trust Center link: [`docs/trust-center.md`](../trust-center.md) if security is on the thread early.
+- Send Trust Center link: [`docs/go-to-market/trust-center.md`](../go-to-market/trust-center.md) if security is on the thread early.
 - Optional: ask for **`baselineReviewCycleHours`** at trial signup — feeds value report (see [`docs/library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)).
 
 ---

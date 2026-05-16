@@ -10,7 +10,7 @@ START_HERE.md (you are here)
 │
 ├─ Buyer / evaluator — no Docker / SQL / .NET install
 │   ├─ https://archlucid.net
-│   ├─ EXECUTIVE_SPONSOR_BRIEF.md         (sponsor story)
+│   ├─ go-to-market/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor story)
 │   ├─ onboarding/EVALUATION_GUIDE.md     (guided architecture review / review package in product)
 │   ├─ runbooks/PILOT_RESCUE_PLAYBOOK.md  (stuck mid-pilot — symptom index)
 │   └─ library/PILOT_ROI_MODEL.md         (optional depth)
@@ -26,7 +26,7 @@ START_HERE.md (you are here)
 │
 └─ Security / GRC — trust pack (hosted UI /trust mirrors narrative)
     ├─ onboarding/day-one-security.md          (canonical security onboarding)
-    └─ trust-center.md
+    └─ go-to-market/trust-center.md
 ```
 
 **Deep lookup (tasks, not personas):** [`architecture/README.md`](architecture/README.md).

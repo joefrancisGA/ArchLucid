@@ -25,7 +25,7 @@ Default motion: **[`docs/CORE_PILOT.md`](../CORE_PILOT.md)** — four steps.
 
 ## B. Procurement path (diligence)
 
-1. **Trust index:** [`docs/trust-center.md`](../trust-center.md) (marketing route `/trust`).
+1. **Trust index:** [`docs/go-to-market/trust-center.md`](../go-to-market/trust-center.md) (marketing route `/trust`).
 2. **SIG / spreadsheet accelerator:** [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) (evidence pointers only).
 3. **Evidence ZIP:** linked from Trust Center (`/v1/marketing/trust-center/evidence-pack.zip`).
 4. **Pack request / pen-test posture:** [`HOW_TO_REQUEST_PROCUREMENT_PACK.md`](HOW_TO_REQUEST_PROCUREMENT_PACK.md), [`PROCUREMENT_FAQ.md`](PROCUREMENT_FAQ.md).

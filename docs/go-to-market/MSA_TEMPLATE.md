@@ -110,7 +110,7 @@ Capitalized terms not defined here have the meaning given in the Order Form or D
 
 ## 8. Warranties and disclaimers
 
-8.1 **Vendor warranties.** Vendor warrants that: (a) it has the authority to enter into this Agreement; (b) the Services will perform materially in accordance with the Documentation during the Subscription Term; (c) the Services will be provided in compliance with applicable law; and (d) Vendor will use commercially reasonable security measures consistent with the posture documented in the [Trust Center](../trust-center.md).
+8.1 **Vendor warranties.** Vendor warrants that: (a) it has the authority to enter into this Agreement; (b) the Services will perform materially in accordance with the Documentation during the Subscription Term; (c) the Services will be provided in compliance with applicable law; and (d) Vendor will use commercially reasonable security measures consistent with the posture documented in the [Trust Center](trust-center.md).
 
 8.2 **AI output disclaimer.** The Services include AI-generated outputs (findings, recommendations, cost estimates, compliance assessments) produced by an automated agent pipeline. **AI Outputs are decision-support aids and are not a substitute for professional architectural judgment, legal advice, compliance certification, or security assessment.** Customer is solely responsible for evaluating, validating, and acting upon AI Outputs. Vendor does not warrant the accuracy, completeness, or fitness for purpose of any AI Output.
 
@@ -185,7 +185,7 @@ Capitalized terms not defined here have the meaning given in the Order Form or D
 | **Service Level Objectives** | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Availability and latency targets |
 | **Privacy Policy** | [PRIVACY_POLICY.md](PRIVACY_POLICY.md) | Public-facing GDPR + CCPA privacy policy |
 | **Subprocessors** | [SUBPROCESSORS.md](SUBPROCESSORS.md) | Current subprocessor list |
-| **Trust Center** | [../trust-center.md](../trust-center.md) | Security posture and evidence |
+| **Trust Center** | [trust-center.md](trust-center.md) | Security posture and evidence |
 | **Pricing** | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | Tier definitions and list prices |
 | **Acceptable Use Policy** | [Acceptable use URL must be explicitly listed in Order Form] | Acceptable use terms |
 
@@ -221,4 +221,4 @@ Capitalized terms not defined here have the meaning given in the Order Form or D
 | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | Single source of truth for prices |
 | [PRIVACY_POLICY.md](PRIVACY_POLICY.md) | Public-facing GDPR + CCPA privacy policy |
 | [SUBPROCESSORS.md](SUBPROCESSORS.md) | Subprocessor list |
-| [../trust-center.md](../trust-center.md) | Trust Center index |
+| [trust-center.md](trust-center.md) | Trust Center index |

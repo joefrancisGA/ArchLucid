@@ -28,5 +28,6 @@ public interface IAuthorityCommittedManifestChainWriter
         CancellationToken cancellationToken,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null,
-        IReadOnlyList<Finding>? committedFindingsOverride = null);
+        IReadOnlyList<Finding>? committedFindingsOverride = null,
+        AuthorityCommittedChainSeedCustomization? seedCustomization = null);
 }

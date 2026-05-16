@@ -27,4 +27,4 @@ Allowed **Status** values: `Open`, `In Progress`, `Remediated`, `Accepted Risk`,
 ## Related
 
 - [`2026-Q2-SOW.md`](2026-Q2-SOW.md)
-- [`docs/trust-center.md`](../../trust-center.md)
+- [`docs/go-to-market/trust-center.md`](../../go-to-market/trust-center.md)

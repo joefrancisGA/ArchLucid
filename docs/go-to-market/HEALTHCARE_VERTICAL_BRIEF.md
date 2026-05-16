@@ -1,4 +1,4 @@
-> **Scope:** Healthcare / Medicare–adjacent **sales and architecture** positioning — not legal advice, not a compliance attestation. For procurement posture, see [`trust-center.md`](../trust-center.md) and in-repo DPA/MSA templates.
+> **Scope:** Healthcare / Medicare–adjacent **sales and architecture** positioning — not legal advice, not a compliance attestation. For procurement posture, see [`trust-center.md`](trust-center.md) and in-repo DPA/MSA templates.
 
 # Healthcare vertical — architecture brief (starter)
 
@@ -32,5 +32,5 @@ ArchLucid helps teams produce **reviewable architecture manifests, findings, and
 
 ## Related
 
-- **Trust / PHI overview:** [`trust-center.md`](../trust-center.md) — **Healthcare and PHI**
+- **Trust / PHI overview:** [`trust-center.md`](trust-center.md) — **Healthcare and PHI**
 - **Tenant isolation (buyer):** [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md)

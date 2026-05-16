@@ -28,13 +28,13 @@ Use this table for RFP spreadsheets and security portals that need a **single st
 | Multi-tenant SQL RLS | Implemented | [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) | Design and session-context posture documented. |
 | security.txt | Self-attested | [../../archlucid-ui/public/.well-known/security.txt](../../archlucid-ui/public/.well-known/security.txt) | Coordinated disclosure routing (published path). |
 | SLA summary (targets) | Self-attested | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Summary targets — contractual SLA only if MSA/order form says so. |
-| Trust Center evidence pack (ZIP download) | Self-attested | [../trust-center.md](../trust-center.md) | Anonymous download; contents listed in Trust Center section. |
+| Trust Center evidence pack (ZIP download) | Self-attested | [trust-center.md](trust-center.md) | Anonymous download; contents listed in Trust Center section. |
 | PGP coordinated-disclosure key | Deferred | [../security/PGP_KEY_GENERATION_RECIPE.md](../security/PGP_KEY_GENERATION_RECIPE.md) | **V1.1** drop per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) section 6c; CI turns green when key file lands. |
 | ISO 27001 certificate | Not applicable | [../library/V1_SCOPE.md](../library/V1_SCOPE.md) | No certificate claimed; buyer friction is informational — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) / scope narratives. |
 
 | Evidence Artifact | Evidence Type | Last Reviewed UTC | Source File | Buyer-safe Claim |
 |---|---|---|---|---|
-| Trust Center (buyer index) | Self-asserted | 2026-05-01 | [docs/trust-center.md](../trust-center.md) | Central index links only to in-repo evidence; distinguishes self-assessed vs deferred third-party artefacts. |
+| Trust Center (buyer index) | Self-asserted | 2026-05-01 | [trust-center.md](trust-center.md) | Central index links only to in-repo evidence; distinguishes self-assessed vs deferred third-party artefacts. |
 | Security overview | Self-asserted | 2026-05-01 | [docs/library/SECURITY.md](../library/SECURITY.md) | Describes scanning, boundaries, authentication modes documented in-repo. |
 | System threat model (STRIDE) | Self-asserted | 2026-05-01 | [docs/security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) | Internal architectural threat enumeration — not substitute for customer architecture review. |
 | Multi-tenant RLS | Implemented | 2026-05-01 | [docs/security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) | SQL `SESSION_CONTEXT` design and risk posture documented; engineering controls described in-linked implementation notes. |

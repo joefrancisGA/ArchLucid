@@ -4,7 +4,7 @@
 
 **Audience:** procurement, InfoSec questionnaires, resilience reviews preparing **SOC 2** / SIG / CAIQ spreadsheets.
 
-**Evidence index:** **[trust-center.md](../trust-center.md)**
+**Evidence index:** **[trust-center.md](trust-center.md)**
 
 **Canonical assurance wording:** **[ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)**
 
@@ -78,7 +78,7 @@
 
 | Window | Checkpoint |
 |--------|-----------|
-| V2 (when funded) | **Third-party pen-test programme** — templates: **[Trust Center posture](../trust-center.md)**, **[V1_DEFERRED.md §6c](../library/V1_DEFERRED.md)** |
+| V2 (when funded) | **Third-party pen-test programme** — templates: **[Trust Center posture](trust-center.md)**, **[V1_DEFERRED.md §6c](../library/V1_DEFERRED.md)** |
 | Rolling | **Owner-conducted** pen testing + **self-assessment** updates (**[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**), **[2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)** |
 | Deferred (funding-gated) | **SOC 2 Type I readiness** milestone |
 | Subsequent | **SOC 2 Type II** (~6–12 months operating effectiveness evidence) |

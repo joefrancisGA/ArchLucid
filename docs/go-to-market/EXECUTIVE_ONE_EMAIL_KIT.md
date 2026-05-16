@@ -44,7 +44,7 @@ ArchLucid V1 is a bounded product contract for AI-assisted architecture work: op
 
 Use this as a procurement checklist (adjust tone for your process):
 
-1. **Trust Center index** — consolidated security and procurement posture with honest status labels: **[trust-center.md](../trust-center.md)** (public site **`/trust`** when deployed).
+1. **Trust Center index** — consolidated security and procurement posture with honest status labels: **[trust-center.md](trust-center.md)** (public site **`/trust`** when deployed).
 2. **Downloadable evidence pack (ZIP)** — anonymous, on-demand bundle of questionnaires, self-assessment, subprocessors, and related artifacts (documented on the Trust Center): **`GET https://api.archlucid.net/v1/marketing/trust-center/evidence-pack.zip`** (see Trust Center § “Download the evidence pack”).
 3. **Pilot ROI measurement companion** — how to judge pilot success with **today’s** product: **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)**.
 4. **Proof-of-value snapshot playbook** — how to assemble timing, load-test summaries, ROI deltas, and explainability signals into one evidence narrative: **[PROOF_OF_VALUE_SNAPSHOT.md](../library/PROOF_OF_VALUE_SNAPSHOT.md)**.

@@ -1,3 +1,6 @@
+using System.IO;
+
+using ArchLucid.Application.Authority;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -26,7 +29,7 @@ internal static class ProductTourWorkspaceSeed
             ComplianceTags = ["ISO27001-aligned", "AI-Governance-Pack-A", "Security-Baseline-Pack-B"],
             PolicyConstraints =
             [
-                "Private connectivity for inference endpoints where models access production data classifications",
+                "Private connectivity for inference endpoints where models access production-tagged data classifications",
                 "Azure Policy deny rules for sovereign regions on training stores",
                 "Conditional Access + MFA parity for privileged platform roles",
             ],
@@ -40,15 +43,16 @@ internal static class ProductTourWorkspaceSeed
         const string svcAoaiInfer = "svc-contoso-foundry-gateway";
         const string cosmosTraining = "ds-cosmos-ai-training-catalog";
         const string kvSecrets = "ds-kv-platform-secrets";
+
         List<ManifestService> services =
         [
             new()
             {
                 ServiceId = svcApim,
                 ServiceName = "Platform API Management",
-                ServiceType = ServiceType.Api,
-                RuntimePlatform = RuntimePlatform.ApiManagement,
-                Purpose = "External REST façade for SaaS workloads and partner integrations.",
+                ServiceType = ServiceType.Integration,
+                RuntimePlatform = RuntimePlatform.Unknown,
+                Purpose = "External REST façade for SaaS workloads (synthetic demonstration).",
                 Tags = ["public-edge"],
                 RequiredControls = ["ManagedTls", "WafBaseline"],
             },
@@ -56,42 +60,44 @@ internal static class ProductTourWorkspaceSeed
             {
                 ServiceId = svcAcaWorkload,
                 ServiceName = "AI Batch Workloads",
-                ServiceType = ServiceType.Api,
+                ServiceType = ServiceType.Worker,
                 RuntimePlatform = RuntimePlatform.ContainerApps,
-                Purpose = "Scheduled GPU-friendly jobs that refresh retrieval indexes and KPI models.",
-                Tags = ["internal-spoke", "pci-deferred-scope"],
+                Purpose = "Scheduled embeddings refresh jobs on Container Apps profiles.",
+                Tags = ["internal-spoke"],
                 RequiredControls = ["ManagedIdentity"],
             },
             new()
             {
                 ServiceId = svcAoaiInfer,
                 ServiceName = "Azure OpenAI Gateway",
-                ServiceType = ServiceType.Api,
-                RuntimePlatform = RuntimePlatform.ManagedService,
-                Purpose = "Policy-wrapped completions + embeddings routed through private egress.",
+                ServiceType = ServiceType.AiService,
+                RuntimePlatform = RuntimePlatform.AzureOpenAi,
+                Purpose = "Policy-gated completions and embeddings routed through private egress endpoints.",
                 Tags = ["ai-plane"],
-                RequiredControls = ["PrivateLink", "ContentSafety"],
+                RequiredControls = ["PrivateLink"],
             },
         ];
+
         List<ManifestDatastore> datastores =
         [
             new()
             {
                 DatastoreId = cosmosTraining,
                 DatastoreName = "Cosmos DB — Synthetic Training Corpus",
-                DatastoreType = DatastoreType.CosmosDb,
-                RuntimePlatform = RuntimePlatform.CosmosDb,
-                Purpose = "Partitioned corpus for responsibly redacted demos (no production PHI).",
+                DatastoreType = DatastoreType.NoSql,
+                RuntimePlatform = RuntimePlatform.Unknown,
+                Purpose = "Partitioned corpus catalog for responsibly redacted demo tenants (no PHI).",
             },
             new()
             {
                 DatastoreId = kvSecrets,
                 DatastoreName = "Key Vault — Platform Secrets",
-                DatastoreType = DatastoreType.KeyVault,
+                DatastoreType = DatastoreType.Unknown,
                 RuntimePlatform = RuntimePlatform.KeyVault,
-                Purpose = "Holds ingestion keys, Cosmos connection strings, and Foundry credential bridges.",
+                Purpose = "Secrets bridge for ingestion keys + Foundry-managed credentials.",
             },
         ];
+
         List<ManifestRelationship> relationships =
         [
             new()
@@ -100,7 +106,7 @@ internal static class ProductTourWorkspaceSeed
                 SourceId = svcApim,
                 TargetId = svcAcaWorkload,
                 RelationshipType = RelationshipType.Calls,
-                Description = "Operational teams trigger ACA jobs through APIM-managed policies.",
+                Description = "Operational personas trigger ACA jobs through APIM policies.",
             },
             new()
             {
@@ -108,7 +114,7 @@ internal static class ProductTourWorkspaceSeed
                 SourceId = svcAcaWorkload,
                 TargetId = cosmosTraining,
                 RelationshipType = RelationshipType.WritesTo,
-                Description = "Batch pipeline writes embedding refreshes after validation checkpoints.",
+                Description = "Batch workloads publish validated embedding deltas into Cosmos partitions.",
             },
             new()
             {
@@ -116,7 +122,7 @@ internal static class ProductTourWorkspaceSeed
                 SourceId = svcAoaiInfer,
                 TargetId = cosmosTraining,
                 RelationshipType = RelationshipType.ReadsFrom,
-                Description = "Retrieval augmented generation consumes curated Cosmos partitions.",
+                Description = "Retrieval workflows pull curated subsets for completions.",
             },
             new()
             {
@@ -124,7 +130,7 @@ internal static class ProductTourWorkspaceSeed
                 SourceId = svcAoaiInfer,
                 TargetId = kvSecrets,
                 RelationshipType = RelationshipType.AuthenticatesWith,
-                Description = "Gateway pulls inference keys exclusively from Managed Identity–scoped KV.",
+                Description = "Gateway authenticates outbound calls using KV-backed secrets exclusively.",
             },
         ];
 
@@ -140,7 +146,7 @@ internal static class ProductTourWorkspaceSeed
             {
                 ManifestVersion = ManifestVersion,
                 ParentManifestVersion = null,
-                ChangeDescription = "Synthetic Northwind Architects package for Workspace A Product Tour.",
+                ChangeDescription = "Synthetic Northwind Architects package — Workspace A self-demo tour.",
                 DecisionTraceIds = [],
                 CreatedUtc = SeedUtc,
             },
@@ -150,25 +156,25 @@ internal static class ProductTourWorkspaceSeed
     internal static IReadOnlyList<Finding> BuildFindings(Guid authorityRunGuid)
     {
         string suffix = authorityRunGuid.ToString("N");
+
         return new List<Finding>
         {
             new()
             {
                 FindingId = $"product-tour-{suffix}-sb-ingress",
-                FindingType = nameof(ComplianceReview),
+                FindingType = "ComplianceReview",
                 Category = "SecurityArchitectureBaseline",
                 EngineType = "SecurityBaselineSeed",
                 Severity = FindingSeverity.Error,
-                Title = "Container Apps external ingress exposes management APIs without segmented jump hosts",
+                Title = "Container Apps external ingress exposes admin callbacks without segmented jump-host paths",
                 Rationale =
-                    "Security baseline sec-base-003 expects internet-facing workloads to funnel admin traffic "
-                    + "through private operational channels. Synthetic evidence shows ACA env accepting "
-                    + "management callbacks from broadly scoped IP allow lists.",
+                    "Security baseline rule sec-base-003 expects hardened ingress for admin-plane traffic. Demonstration attachments "
+                    + "summarize ACA environments that still advertise broad interim allowlists while migration completes.",
                 PolicyRuleId = "sec-base-003",
-                RecommendedActions = ["Tighten ingress CIDR scopes", "Add JIT admin via Azure Bastion in peered spoke"],
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["pack"] = "security-baseline-v1" },
+                RecommendedActions = ["Shrink allowlisted source ranges", "Add JIT admin hops via bastion-aligned spoke subnets"],
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["policyPackTheme"] = "security-baseline-v1" },
                 HumanReviewStatus = FindingHumanReviewStatus.Approved,
-                ReviewNotes = "Decision: ACCEPT_RISK residual — Defender alert + weekly CAB attestation gates release.",
+                ReviewNotes = "Recorded decision ACCEPT_RISK with Defender alert + CAB attestation prerequisites.",
                 ReviewedByUserId = "architecture.board@northwind-demo.example",
                 ReviewedAtUtc = SeedUtc.AddHours(6),
                 RunIdRef = suffix,
@@ -176,24 +182,23 @@ internal static class ProductTourWorkspaceSeed
             new()
             {
                 FindingId = $"product-tour-{suffix}-sb-privatelink",
-                FindingType = nameof(ComplianceReview),
+                FindingType = "ComplianceReview",
                 Category = "Networking",
                 EngineType = "SecurityBaselineSeed",
                 Severity = FindingSeverity.Warning,
-                Title = "PaaS data planes lack uniform private-link enforcement templates",
+                Title = "PaaS data planes inconsistently invoke private endpoints across demo subscriptions",
                 Rationale =
-                    "sec-base-007 requires default-deny public endpoints where private connectivity exists. Evidence "
-                    + "shows two subscriptions still allow optional public Cosmos endpoints for lab sandboxes.",
+                    "Rule sec-base-007 flags optional public Cosmos endpoints lingering in mirrored sandboxes alongside production peers.",
                 PolicyRuleId = "sec-base-007",
                 RecommendedActions =
                 [
-                    "Adopt reusable Bicep module that toggles deny public network per environment",
-                    "Wire Azure Policy deploy-if-not-exists for zone redundant private endpoints",
+                    "Reuse platform Bicep modules that deny public endpoints in non-authoring environments",
+                    "Apply Azure Policy deploy-if-not-exists for resilient private endpoints",
                 ],
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["pack"] = "security-baseline-v1" },
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["policyPackTheme"] = "security-baseline-v1" },
                 HumanReviewStatus = FindingHumanReviewStatus.Approved,
                 ReviewNotes =
-                    "Decision: REMEDIATE — platform engineering merges template PR before evaluator tour refresh window.",
+                    "Recorded decision REMEDIATE — template backlog merges before evaluator refresh window completes.",
                 ReviewedByUserId = "csp.platforms@northwind-demo.example",
                 ReviewedAtUtc = SeedUtc.AddHours(12),
                 RunIdRef = suffix,
@@ -201,45 +206,42 @@ internal static class ProductTourWorkspaceSeed
             new()
             {
                 FindingId = $"product-tour-{suffix}-sb-kv-rotation",
-                FindingType = nameof(ComplianceReview),
+                FindingType = "ComplianceReview",
                 Category = "Secrets",
                 EngineType = "SecurityBaselineSeed",
                 Severity = FindingSeverity.Warning,
-                Title = "Key Vault purge protection disabled on non-prod clones used for demo tenants",
+                Title = "Key Vault purge protection disabled on non-prod clones that hydrate demo datasets",
                 Rationale =
-                    "sec-base-012 expects parity between production and gated demo vaults — synthetic questionnaire "
-                    + "captures clones without purge-protection to accelerate rebuilds.",
+                    "Rule sec-base-012 expects parity safeguards when clones mirror production classifications even for evaluator tenants.",
                 PolicyRuleId = "sec-base-012",
                 RecommendedActions =
                 [
-                    "Enable purge protection on clones that hydrate production-like datasets",
-                    "Automate KV drift checks in weekly posture export",
+                    "Toggle purge-protection on vaulted clones referencing production-derived datasets",
+                    "Automate KV drift scanners into weekly posture exports",
                 ],
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["pack"] = "security-baseline-v1" },
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["policyPackTheme"] = "security-baseline-v1" },
                 HumanReviewStatus = FindingHumanReviewStatus.Pending,
                 RunIdRef = suffix,
             },
             new()
             {
                 FindingId = $"product-tour-{suffix}-sb-log-forwarding",
-                FindingType = nameof(OperationalReview),
+                FindingType = "OperationalReview",
                 Category = "Observability",
                 EngineType = "SecurityBaselineSeed",
                 Severity = FindingSeverity.Info,
-                Title = "Central SIEM ingestion delays exceed best-practice SLA for Tier-1 workloads",
+                Title = "Central SIEM forwarding delays occasionally exceed tightened tier-1 SLO drafts",
                 Rationale =
-                    "sec-base-020 aligns with SIEM ingestion freshness windows; synthetic metrics show intermittent "
-                    + "five-minute bursts still within tolerances but flagged for buyer storytelling.",
+                    "Rule sec-base-020 reinforces timely evidence streaming; seeded metrics narrate illustrative spikes under tour load envelopes.",
                 PolicyRuleId = "sec-base-020",
                 RecommendedActions =
                 [
-                    "Tune Event Hub throughput units ahead of evaluator peak load tests",
-                    "Add workbook comparing SLA commitments vs routed logs",
+                    "Tune Event Hub TU ahead of scripted evaluator peaks",
+                    "Publish workbook comparing SLA vs observed ingest latency",
                 ],
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["pack"] = "security-baseline-v1" },
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["policyPackTheme"] = "security-baseline-v1" },
                 HumanReviewStatus = FindingHumanReviewStatus.Approved,
-                ReviewNotes =
-                    "Decision: DEFER non-prod uplift — aligns with moderated risk acceptance until SKU refresh milestone.",
+                ReviewNotes = "Recorded decision DEFER uplift for synthetic subscription — documented variance with stakeholders.",
                 ReviewedByUserId = "sre.observability@northwind-demo.example",
                 ReviewedAtUtc = SeedUtc.AddHours(18),
                 RunIdRef = suffix,
@@ -247,23 +249,26 @@ internal static class ProductTourWorkspaceSeed
             new()
             {
                 FindingId = $"product-tour-{suffix}-ai-review-gate",
-                FindingType = nameof(ComplianceReview),
+                FindingType = "ComplianceReview",
                 Category = "ResponsibleAi",
                 EngineType = "AiGovernanceSeed",
                 Severity = FindingSeverity.Warning,
-                Title = "Human escalation matrix missing after-hours reviewer for Tier-3 models",
+                Title = "Human escalation matrix lacks after-hours reviewer for Tier-3 model releases",
                 Rationale =
-                    "ai-gov-008 expects dual-control human review readiness; synthetic questionnaire cites single "
-                    + "duty engineer on-call Fridays.",
+                    "Rule ai-gov-008 expects staffed dual-review coverage; seeded questionnaire cites single Friday engineer on-call roster.",
                 PolicyRuleId = "ai-gov-008",
                 RecommendedActions =
                 [
-                    "Add secondary reviewer routed via Entra privileged access groups",
-                    "Publish SLA for human-in-loop acknowledgements inside manifest metadata",
+                    "Mirror Entra privileged access groups for escalation coverage",
+                    "Publish human-in-loop SLAs beside manifest DecisionTrace linkage",
                 ],
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["pack"] = "ai-governance-responsible-ai-v1" },
+                Properties =
+                    new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["policyPackTheme"] = "ai-governance-responsible-ai-v1",
+                    },
                 HumanReviewStatus = FindingHumanReviewStatus.Approved,
-                ReviewNotes = "Decision: REMEDIATE — governance board schedules tabletop before external tour.",
+                ReviewNotes = "Recorded decision REMEDIATE — playbook update scheduled ahead of externally hosted demos.",
                 ReviewedByUserId = "trusted-ai.mesh@northwind-demo.example",
                 ReviewedAtUtc = SeedUtc.AddHours(30),
                 RunIdRef = suffix,
@@ -271,21 +276,24 @@ internal static class ProductTourWorkspaceSeed
             new()
             {
                 FindingId = $"product-tour-{suffix}-ai-model-registry",
-                FindingType = nameof(ComplianceReview),
+                FindingType = "ComplianceReview",
                 Category = "ModelGovernance",
                 EngineType = "AiGovernanceSeed",
                 Severity = FindingSeverity.Info,
-                Title = "Model versioning registry stalls on adapter-only deployments",
+                Title = "Model registry skips adapter hashing for rapid playground refreshes",
                 Rationale =
-                    "ai-gov-014 expects deterministic mapping between prompting adapters and audited base models "
-                    + "— seeded evidence intentionally omits hashed adapter payloads for readability.",
+                    "Rule ai-gov-014 expects attributable adapter lineage — synthetic uploads intentionally omit LoRA payloads for readability.",
                 PolicyRuleId = "ai-gov-014",
                 RecommendedActions =
                 [
-                    "Store adapter checksums alongside manifests",
-                    "Sync weekly diff report for promoted LoRA weights",
+                    "Store adapter checksum blobs alongside manifests",
+                    "Produce weekly drift diff for promoted adapter weights",
                 ],
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["pack"] = "ai-governance-responsible-ai-v1" },
+                Properties =
+                    new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["policyPackTheme"] = "ai-governance-responsible-ai-v1",
+                    },
                 HumanReviewStatus = FindingHumanReviewStatus.Pending,
                 RunIdRef = suffix,
             },
@@ -295,36 +303,19 @@ internal static class ProductTourWorkspaceSeed
     internal static IReadOnlyList<CanonicalObject> BuildSyntheticEvidenceObjects(Guid authorityRunGuid)
     {
         string seed = authorityRunGuid.ToString("N");
+
         return new List<CanonicalObject>
         {
             EvidenceDoc(
                 seed,
                 "northwind-azure-subscription-inventory.pdf",
-                "Synthetic subscription inventory (App Service, Container Apps, Cosmos, Key Vault, APIM)."),
-            EvidenceDoc(
-                seed,
-                "contoso-cloud-context-diagram-v3.pdf",
-                "Logical diagram — Northwind overlay on Contoso Cloud Platform landing zones."),
-            EvidenceDoc(
-                seed,
-                "northwind-decision-record-dr0029.pdf",
-                "Decision record — network segmentation policy for AI batch spoke."),
-            EvidenceDoc(
-                seed,
-                "security-questionnaire-responses-synthetic.xlsx",
-                "Completed security questionnaire (synthetic answers for Pack B traceability)."),
-            EvidenceDoc(
-                seed,
-                "responsible-ai-readiness-checklist.json",
-                "EU AI Act + NIST AI RMF alignment checklist (Pack A mapping)."),
-            EvidenceDoc(
-                seed,
-                "cost-footprint-estimate.md",
-                "Illustrative FinOps summary for evaluation-only subscription SKUs."),
-            EvidenceDoc(
-                seed,
-                "operational-runbook-excerpt.txt",
-                "Synthetic operations excerpt showing alert routing for inference tier."),
+                "Synthetic inventory of Azure subscription 00000000-0000-0000-demo-000001 with App Service, APIM, Container Apps, Cosmos, Key Vault."),
+            EvidenceDoc(seed, "contoso-cloud-context-diagram-v3.pdf", "Landing zone topology overlay for synthetic Contoso workloads."),
+            EvidenceDoc(seed, "northwind-decision-record-dr0029.pdf", "Decision memo — segmented AI batch spoke egress patterns."),
+            EvidenceDoc(seed, "security-questionnaire-responses-synthetic.xlsx", "Completed baseline questionnaire mapped to Pack B controls."),
+            EvidenceDoc(seed, "responsible-ai-readiness-checklist.json", "Checklist excerpts aligned with Pack A (NIST AI RMF thematic mapping)."),
+            EvidenceDoc(seed, "cost-footprint-estimate.md", "Illustrative FinOps appendix for evaluator-only SKU mix."),
+            EvidenceDoc(seed, "operations-runbook-excerpt.txt", "Synthetic alerting narrative for inference tier regressions."),
         };
     }
 
@@ -338,54 +329,56 @@ internal static class ProductTourWorkspaceSeed
             CreatedUtc = createdUtc,
             Warnings = [],
         };
+
         graph.Nodes.AddRange(
         [
             new GraphNode
             {
                 NodeId = "node-apim",
                 NodeType = "gateway",
-                Label = "API Management",
+                Label = "API Management façade",
                 Category = "edge",
                 SourceType = "product-tour-seed",
-                SourceId = "evidence-01",
+                SourceId = "evidence-azure-subscription-inventory.pdf",
             },
             new GraphNode
             {
                 NodeId = "node-aca-batch",
                 NodeType = "service",
-                Label = "Container Apps — AI batch",
+                Label = "Container Apps AI batch plane",
                 Category = "compute",
                 SourceType = "product-tour-seed",
-                SourceId = "evidence-02",
+                SourceId = "evidence-contoso-diagram.pdf",
             },
             new GraphNode
             {
                 NodeId = "node-openai",
                 NodeType = "service",
-                Label = "Azure OpenAI gateway",
+                Label = "Azure OpenAI inference gateway",
                 Category = "ai",
                 SourceType = "product-tour-seed",
-                SourceId = "evidence-03",
+                SourceId = "evidence-responsible-ai-readiness-checklist.json",
             },
             new GraphNode
             {
                 NodeId = "node-cosmos",
                 NodeType = "datastore",
-                Label = "Cosmos DB — training partitions",
+                Label = "Cosmos partitions (synthetic corpus)",
                 Category = "data",
                 SourceType = "product-tour-seed",
-                SourceId = "evidence-04",
+                SourceId = "evidence-training-corpus-ingest",
             },
             new GraphNode
             {
                 NodeId = "node-kv",
                 NodeType = "security",
-                Label = "Key Vault",
+                Label = "Key Vault — platform secrets bridge",
                 Category = "secrets",
                 SourceType = "product-tour-seed",
-                SourceId = "evidence-05",
+                SourceId = "evidence-kv-health-probe.json",
             },
         ]);
+
         graph.Edges.AddRange(
         [
             new GraphEdge { EdgeId = "edge-apim-aca", FromNodeId = "node-apim", ToNodeId = "node-aca-batch", EdgeType = "routesTo", Weight = 1 },
@@ -400,15 +393,14 @@ internal static class ProductTourWorkspaceSeed
     internal static AuthorityCommittedChainSeedCustomization BuildCustomization(Guid authorityRunGuid, Guid graphSnapshotId, Guid contextSnapshotId,
         DateTime snapshotUtc)
     {
-        Guid runKey = authorityRunGuid;
         IReadOnlyList<string> auditNotes =
         [
-            $"Decision ACCEPT_RISK (sec-base-003) — reviewer {authorityRunGuid:N[..8]}… accepted compensating controls with quarterly smoke proof.",
-            "Decision REMEDIATE (sec-base-007 / ai-gov-008) — assign platform template backlog + Trusted AI playbook owners before GA tour refresh.",
-            "Decision DEFER (sec-base-020) — lagging SIEM ingestion accepted for evaluator-only subscription (documented SLA variance).",
+            "Decision ACCEPT_RISK (finding product-tour-ingress) subject to Defender alert choreography + CAB attestation uploads.",
+            "Decision REMEDIATE (finding product-tour-privatelink / product-tour-ai-review-gate) — template + Trusted AI playbook owners assigned.",
+            "Decision DEFER observability uplift (finding product-tour-log-forwarding) for synthetic evaluator subscription only.",
         ];
 
-        GraphSnapshot graph = BuildGraphSnapshot(graphSnapshotId, contextSnapshotId, runKey, snapshotUtc);
+        GraphSnapshot graph = BuildGraphSnapshot(graphSnapshotId, contextSnapshotId, authorityRunGuid, snapshotUtc);
 
         return new AuthorityCommittedChainSeedCustomization
         {
@@ -430,16 +422,9 @@ internal static class ProductTourWorkspaceSeed
             {
                 ["format"] = Path.GetExtension(filename).TrimStart('.').ToLowerInvariant(),
                 ["summary"] = summary,
-                ["firm"] = "Northwind Architects (synthetic)",
+                ["firmLabel"] = "Northwind Architects (synthetic reviewer)",
+                ["clientSystem"] = SystemName,
             },
         };
     }
-
-    /// <inheritdoc cref="BuildFindings(Guid)"/>
-#pragma warning disable CA1034 // Nested type used only for manifest category constant readability
-#pragma warning restore CA1034
-
-    private static partial class ComplianceReview;
-
-    private static partial class OperationalReview;
 }

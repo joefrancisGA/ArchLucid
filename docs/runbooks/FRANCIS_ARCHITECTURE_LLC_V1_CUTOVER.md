@@ -75,7 +75,7 @@ Produce a single checklist of every surface tied to **personal** or **sole propr
 One bounded PR after legal confirm:
 
 - Replace **`[ArchLucid vendor legal entity]`** and similar placeholders with the LLC’s exact legal string + address where templates require it.
-- Align [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md), [`docs/trust-center.md`](../trust-center.md), [`docs/go-to-market/SUBPROCESSORS.md`](../go-to-market/SUBPROCESSORS.md), and [`docs/go-to-market/PRIVACY_POLICY.md`](../go-to-market/PRIVACY_POLICY.md) controller/processor party names **only** when counsel confirms the LLC is the legal processor/seller of record.
+- Align [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md), [`docs/go-to-market/trust-center.md`](../go-to-market/trust-center.md), [`docs/go-to-market/SUBPROCESSORS.md`](../go-to-market/SUBPROCESSORS.md), and [`docs/go-to-market/PRIVACY_POLICY.md`](../go-to-market/PRIVACY_POLICY.md) controller/processor party names **only** when counsel confirms the LLC is the legal processor/seller of record.
 
 ### 5.7 Operational continuity
 

@@ -200,7 +200,7 @@ We implement technical and organizational measures to protect personal informati
 - Prompt redaction before LLM calls
 - Secret scanning, container scanning, and OWASP ZAP in CI
 
-For full details, see the [Trust Center](../trust-center.md) and [System Threat Model](../security/SYSTEM_THREAT_MODEL.md).
+For full details, see the [Trust Center](trust-center.md) and [System Threat Model](../security/SYSTEM_THREAT_MODEL.md).
 
 ---
 
@@ -236,7 +236,7 @@ For privacy-related questions, requests, or complaints:
 | [PRIVACY_NOTE.md](../security/PRIVACY_NOTE.md) | Operator-facing GDPR Art. 30 processing activity records |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data Processing Agreement template |
 | [SUBPROCESSORS.md](SUBPROCESSORS.md) | Current subprocessor list |
-| [trust-center.md](../trust-center.md) | Trust Center index |
+| [trust-center.md](trust-center.md) | Trust Center index |
 | [PII_EMAIL.md](../security/PII_EMAIL.md) | PII boundary for transactional email |
 | [PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md) | PII classification for conversation data |
 | [AUDIT_RETENTION_POLICY.md](../library/AUDIT_RETENTION_POLICY.md) | Audit data retention tiers |

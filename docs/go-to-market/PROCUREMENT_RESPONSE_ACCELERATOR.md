@@ -1,6 +1,6 @@
 > **Scope:** Procurement questionnaire accelerator — fifty SIG-themed prompts mapped **only** to in-repo evidence links; statuses are labels, not attestations.
 
-> **Spine doc:** [`trust-center.md`](../trust-center.md) — buyer-facing index. **SOC 2 Type II CPA reports are _not_ stated as issued anywhere below** unless you follow a link that explicitly describes status (today: **not yet issued** per linked procurement statement).
+> **Spine doc:** [`trust-center.md`](trust-center.md) — buyer-facing index. **SOC 2 Type II CPA reports are _not_ stated as issued anywhere below** unless you follow a link that explicitly describes status (today: **not yet issued** per linked procurement statement).
 >
 > **Canonical procurement artefact/status table:** **[`PROCUREMENT_PACK_INDEX.md`](PROCUREMENT_PACK_INDEX.md)** — CI validates paths, **Implemented** review-age freshness, and **Procurement artifact status map** tokens (`scripts/ci/check_procurement_pack_index.py`).
 
@@ -36,7 +36,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 
 | # | Prompt | Status | Evidence |
 |---|--------|--------|----------|
-| 1 | Does the vendor publish an information-security / trust index for procurement? | Self-asserted | [trust-center.md](../trust-center.md) |
+| 1 | Does the vendor publish an information-security / trust index for procurement? | Self-asserted | [trust-center.md](trust-center.md) |
 | 2 | Is there a SOC 2 **self-assessment** (explicitly **not** a CPA Type II opinion)? | Self-asserted | [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) |
 | 3 | What is the procurement-facing SOC 2 **Type II issuance** posture? (**Do not answer “issued” unless the linked procurement statement says so.**) | Self-asserted | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) |
 | 4 | Where is the CAIQ-lite pre-fill for cloud questionnaires? | Self-asserted | [CAIQ_LITE_2026.md](../security/CAIQ_LITE_2026.md) |
@@ -50,7 +50,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 | 7 | Is there an architecture / STRIDE threat model for the product boundary? | Self-asserted | [SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) |
 | 8 | Is there threat analysis for Ask / retrieval (RAG) flows? | Self-asserted | [ASK_RAG_THREAT_MODEL.md](../security/ASK_RAG_THREAT_MODEL.md) |
 | 9 | Is there threat analysis for SCIM surfaces? | Self-asserted | [SCIM_THREAT_MODEL.md](../security/SCIM_THREAT_MODEL.md) |
-| 10 | Is an independent penetration test **engagement** underway or scoped? | Deferred V2 | [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) · [trust-center.md](../trust-center.md) |
+| 10 | Is an independent penetration test **engagement** underway or scoped? | Deferred V2 | [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) · [trust-center.md](trust-center.md) |
 |11 | Where is remediation tracking for penetration-test findings described? | Self-asserted | [REMEDIATION_TRACKER.md](../security/pen-test-summaries/REMEDIATION_TRACKER.md) |
 |12 | Are governance simulation / dry-run mitigations documented? | Self-asserted | [GOVERNANCE_DRY_RUN_MITIGATIONS.md](../security/GOVERNANCE_DRY_RUN_MITIGATIONS.md) |
 
@@ -83,7 +83,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 |---|--------|--------|----------|
 |26 | Where does documentation point for infrastructure-as-code posture? | Self-asserted | [SIG_CORE_2026.md](../security/SIG_CORE_2026.md) · [`infra/README.md`](../../infra/README.md) |
 |27 | Procurement evidence-pack overview (controlled artefact index)? | Self-asserted | [EVIDENCE_PACK.md](../security/EVIDENCE_PACK.md) |
-|28 | Evidence-pack download / HTTP behaviours (trust surface)? | Self-asserted | [trust-center.md](../trust-center.md) |
+|28 | Evidence-pack download / HTTP behaviours (trust surface)? | Self-asserted | [trust-center.md](trust-center.md) |
 
 ### F — Physical / data-center inheritance
 
@@ -109,7 +109,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 
 | # | Prompt | Status | Evidence |
 |---|--------|--------|----------|
-|39 | PHI / healthcare positioning (what **not** to upload)? | Self-asserted | [trust-center.md](../trust-center.md) § Healthcare · [HEALTHCARE_VERTICAL_BRIEF.md](HEALTHCARE_VERTICAL_BRIEF.md) |
+|39 | PHI / healthcare positioning (what **not** to upload)? | Self-asserted | [trust-center.md](trust-center.md) § Healthcare · [HEALTHCARE_VERTICAL_BRIEF.md](HEALTHCARE_VERTICAL_BRIEF.md) |
 |40 | Trial limits (abuse / cost guardrails)? | Self-asserted | [TRIAL_LIMITS.md](../security/TRIAL_LIMITS.md) |
 |41 | Privacy note (internal-facing)? | Self-asserted | [PRIVACY_NOTE.md](../security/PRIVACY_NOTE.md) |
 |42 | Email / PII handling notes? | Self-asserted | [PII_EMAIL.md](../security/PII_EMAIL.md) |
@@ -117,8 +117,8 @@ Answers are pointers only; pull quotations from targets during diligence.
 |44 | Subprocessor register draft? | Self-asserted | [SUBPROCESSORS.md](SUBPROCESSORS.md) |
 |45 | DPA template draft? | Self-asserted | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) |
 |46 | Accessibility conformance evidence map? | Self-asserted | [VPAT_EVIDENCE_MAP.md](../security/VPAT_EVIDENCE_MAP.md) · [VPAT_2_5_WCAG_2_1_AA.md](../security/VPAT_2_5_WCAG_2_1_AA.md) · [ACCESSIBILITY_MAILBOX.md](../security/ACCESSIBILITY_MAILBOX.md) |
-|47 | Redacted pen-test summary **publication** posture? | Deferred V2 | [V1_DEFERRED.md](../library/V1_DEFERRED.md) · [trust-center.md](../trust-center.md) |
-|48 | What is intentionally **not** in the default evidence ZIP? | Self-asserted | [trust-center.md](../trust-center.md) · [PROCUREMENT_EVIDENCE_PACK_INDEX.md](PROCUREMENT_EVIDENCE_PACK_INDEX.md) |
+|47 | Redacted pen-test summary **publication** posture? | Deferred V2 | [V1_DEFERRED.md](../library/V1_DEFERRED.md) · [trust-center.md](trust-center.md) |
+|48 | What is intentionally **not** in the default evidence ZIP? | Self-asserted | [trust-center.md](trust-center.md) · [PROCUREMENT_EVIDENCE_PACK_INDEX.md](PROCUREMENT_EVIDENCE_PACK_INDEX.md) |
 |49 | How buyers request procurement materials / pen-test artefacts? | Self-asserted | [HOW_TO_REQUEST_PROCUREMENT_PACK.md](HOW_TO_REQUEST_PROCUREMENT_PACK.md) · [PROCUREMENT_FAQ.md](PROCUREMENT_FAQ.md) |
 |50 | Formal deferrals register beyond trust-center summary? | Deferred V1.1 | [V1_DEFERRED.md](../library/V1_DEFERRED.md) |
 
@@ -128,7 +128,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 
 | Doc | Role |
 |-----|------|
-| [trust-center.md](../trust-center.md) | Canonical buyer index |
+| [trust-center.md](trust-center.md) | Canonical buyer index |
 | [PROCUREMENT_FAQ.md](PROCUREMENT_FAQ.md) | Narrative FAQs |
 | [PROCUREMENT_PACK_COVER.md](PROCUREMENT_PACK_COVER.md) | Pack framing |
 | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | Roadmap (**not an auditor opinion**) |

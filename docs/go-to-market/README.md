@@ -1,0 +1,10 @@
+> **Scope:** Buyer-facing go-to-market index — procurement, trust, positioning, and marketplace artefacts.
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+
+# Go-to-market documentation
+
+**Start here for buyers and procurement:** narrative index [`TRUST_CENTER.md`](TRUST_CENTER.md), consolidated assurance table [`trust-center.md`](trust-center.md) (mirrored in-product at **`/trust`**), sponsor story [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), evaluation guide [`../onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md).
+
+**Evidence inventory:** [`PROCUREMENT_PACK_INDEX.md`](PROCUREMENT_PACK_INDEX.md) — artefact paths validated in CI (`scripts/ci/check_procurement_pack_index.py`).
+
+**Related:** [`../runbooks/README.md`](../runbooks/README.md) (operations), [`../library/DOCUMENTATION_BY_AUDIENCE.md`](../library/DOCUMENTATION_BY_AUDIENCE.md) (role routing).

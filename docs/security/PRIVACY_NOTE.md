@@ -139,7 +139,7 @@ Operators (or their data-controller employer) may request:
 | **Microsoft Azure** (SQL Database) | Per-tenant funnel rows (flag-gated); email idempotency keys | §3.A: `tenantId`, event name, timestamp (RLS-scoped). §3.B: idempotency keys only, no email bodies. |
 | **Microsoft Azure** (Azure Communication Services) | Trial lifecycle transactional email delivery | §3.B: email address (To), email body (metadata-only; not persisted by ACS after delivery). |
 
-The full ArchLucid subprocessor list lives in the Trust Center (`docs/trust-center.md`) and is not duplicated here.
+The full ArchLucid subprocessor list lives in the Trust Center (`docs/go-to-market/trust-center.md`) and is not duplicated here.
 
 ## 6. Change history
 

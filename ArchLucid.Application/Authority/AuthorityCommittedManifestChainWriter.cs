@@ -36,7 +36,8 @@ public sealed class AuthorityCommittedManifestChainWriter(
     /// <inheritdoc/>
     public async Task<AuthorityManifestPersistResult> PersistCommittedChainAsync(ScopeContext scope, Guid authorityRunId, string projectSlug,
         Cm.GoldenManifest contract, AuthorityChainKeying chainIds, DateTime createdUtc, bool richFindingsAndGraph, CancellationToken cancellationToken,
-        IDbConnection? connection = null, IDbTransaction? transaction = null, IReadOnlyList<Finding>? committedFindingsOverride = null)
+        IDbConnection? connection = null, IDbTransaction? transaction = null, IReadOnlyList<Finding>? committedFindingsOverride = null,
+        AuthorityCommittedChainSeedCustomization? seedCustomization = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(projectSlug);
@@ -48,11 +49,13 @@ public sealed class AuthorityCommittedManifestChainWriter(
             throw new ArgumentException("Project slug is required.", nameof(projectSlug));
         if (contract is null)
             throw new ArgumentNullException(nameof(contract));
-        ContextSnapshot context = BuildContextSnapshot(chainIds.ContextSnapshotId, authorityRunId, projectSlug, createdUtc);
-        GraphSnapshot graph = BuildGraphSnapshot(chainIds.GraphSnapshotId, chainIds.ContextSnapshotId, authorityRunId, createdUtc, richFindingsAndGraph);
+        ContextSnapshot context = BuildContextSnapshot(chainIds.ContextSnapshotId, authorityRunId, projectSlug, createdUtc,
+            seedCustomization?.AdditionalCanonicalObjects);
+        GraphSnapshot graph = ResolveGraphSnapshot(chainIds.GraphSnapshotId, chainIds.ContextSnapshotId, authorityRunId, createdUtc, richFindingsAndGraph,
+            seedCustomization);
         (FindingsSnapshot findings, IReadOnlyList<string> acceptedFindingIds) = BuildFindingsSnapshot(chainIds.FindingsSnapshotId, authorityRunId,
             chainIds.ContextSnapshotId, chainIds.GraphSnapshotId, createdUtc, richFindingsAndGraph, committedFindingsOverride);
-        RuleAuditTrace ruleAudit = BuildRuleAudit(scope, chainIds.DecisionTraceId, authorityRunId, createdUtc, acceptedFindingIds);
+        RuleAuditTrace ruleAudit = BuildRuleAudit(scope, chainIds.DecisionTraceId, authorityRunId, createdUtc, acceptedFindingIds, seedCustomization);
         await _contextSnapshots.SaveAsync(context, cancellationToken, connection, transaction);
         await _graphSnapshots.SaveAsync(graph, cancellationToken, connection, transaction);
         await _findingsSnapshots.SaveAsync(findings, cancellationToken, connection, transaction);
@@ -75,22 +78,49 @@ public sealed class AuthorityCommittedManifestChainWriter(
             chainIds.ManifestId);
     }
 
-    private static ContextSnapshot BuildContextSnapshot(Guid snapshotId, Guid runId, string projectSlug, DateTime createdUtc)
+    private static ContextSnapshot BuildContextSnapshot(Guid snapshotId, Guid runId, string projectSlug, DateTime createdUtc,
+        IReadOnlyList<CanonicalObject>? additionalCanonicalObjects)
     {
+        List<CanonicalObject> canonicalObjects =
+        [
+            new CanonicalObject { ObjectType = "system", Name = projectSlug, SourceType = "authority-seed", SourceId = runId.ToString("N") },
+        ];
+
+        if (additionalCanonicalObjects is { Count: > 0 })
+
+            canonicalObjects.AddRange(additionalCanonicalObjects);
+
         return new ContextSnapshot
         {
             SnapshotId = snapshotId,
             RunId = runId,
             ProjectId = projectSlug,
             CreatedUtc = createdUtc,
-            CanonicalObjects =
-            [
-                new CanonicalObject { ObjectType = "system", Name = projectSlug, SourceType = "authority-seed", SourceId = runId.ToString("N") }
-            ],
+            CanonicalObjects = canonicalObjects,
             Warnings = [],
             Errors = [],
-            SourceHashes = new Dictionary<string, string> { ["demo"] = "1" }
+            SourceHashes = new Dictionary<string, string> { ["demo"] = "1" },
         };
+    }
+
+    private static GraphSnapshot ResolveGraphSnapshot(Guid graphSnapshotId, Guid contextSnapshotId, Guid authorityRunId, DateTime createdUtc, bool rich,
+        AuthorityCommittedChainSeedCustomization? customization)
+    {
+        if (customization?.GraphSnapshotOverride is { } substituted)
+            return HarmonizeDerivedGraphIdentifiers(substituted, graphSnapshotId, contextSnapshotId, authorityRunId, createdUtc);
+
+        return BuildGraphSnapshot(graphSnapshotId, contextSnapshotId, authorityRunId, createdUtc, rich);
+    }
+
+    private static GraphSnapshot HarmonizeDerivedGraphIdentifiers(GraphSnapshot graph, Guid graphSnapshotId, Guid contextSnapshotId, Guid authorityRunId,
+        DateTime createdUtc)
+    {
+        graph.GraphSnapshotId = graphSnapshotId;
+        graph.ContextSnapshotId = contextSnapshotId;
+        graph.RunId = authorityRunId;
+        graph.CreatedUtc = createdUtc;
+
+        return graph;
     }
 
     private static GraphSnapshot BuildGraphSnapshot(Guid graphSnapshotId, Guid contextSnapshotId, Guid runId, DateTime createdUtc, bool rich)
@@ -193,8 +223,14 @@ public sealed class AuthorityCommittedManifestChainWriter(
     }
 
     private static RuleAuditTrace BuildRuleAudit(ScopeContext scope, Guid decisionTraceId, Guid runId, DateTime createdUtc,
-        IReadOnlyList<string> acceptedFindingIds)
+        IReadOnlyList<string> acceptedFindingIds, AuthorityCommittedChainSeedCustomization? customization)
     {
+        List<string> notes = ["Seeded authority rule-audit trace (demo / replay FK chain)."];
+
+        if (customization?.AdditionalRuleAuditNotes is { Count: > 0 })
+
+            notes.AddRange(customization.AdditionalRuleAuditNotes);
+
         RuleAuditTracePayload payload = new()
         {
             TenantId = scope.TenantId,
@@ -209,8 +245,9 @@ public sealed class AuthorityCommittedManifestChainWriter(
             AppliedRuleIds = ["demo-seed-rule"],
             AcceptedFindingIds = [.. acceptedFindingIds],
             RejectedFindingIds = [],
-            Notes = ["Seeded authority rule-audit trace (demo / replay FK chain)."]
+            Notes = notes,
         };
+
         return RuleAuditTrace.From(payload);
     }
 }

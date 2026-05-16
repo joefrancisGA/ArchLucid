@@ -32,7 +32,7 @@ The V1 proof is not "autonomous architecture." The V1 proof is narrower and more
 | What is the architecture at a glance? | [Architecture on one page](../ARCHITECTURE_ON_ONE_PAGE.md) |
 | What is in V1 and what is out of scope? | [V1 Scope](../library/V1_SCOPE.md) and [V1 Deferred](../library/V1_DEFERRED.md) |
 | What should a pilot measure? | [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md) and [ROI Model](ROI_MODEL.md) |
-| What is the security/procurement index? | [Trust Center](../trust-center.md) and [Procurement Pack Index](PROCUREMENT_PACK_INDEX.md) |
+| What is the security/procurement index? | [Trust Center](trust-center.md) and [Procurement Pack Index](PROCUREMENT_PACK_INDEX.md) |
 | How do questionnaire answers map to evidence? | [Procurement Response Accelerator](PROCUREMENT_RESPONSE_ACCELERATOR.md) |
 
 ---
@@ -46,8 +46,8 @@ A reviewer should be able to answer these questions from the linked packet befor
 | Product purpose | The product creates reviewable architecture packages, not legal attestations or autonomous infrastructure changes. | [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md) |
 | Pilot success | The pilot has measurable success criteria, not just a demo narrative. | [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md), [ROI Model](ROI_MODEL.md) |
 | Architecture | The platform boundary, data stores, UI/API/worker shape, and external dependencies are documented. | [Architecture on one page](../ARCHITECTURE_ON_ONE_PAGE.md) |
-| Security posture | Authentication, tenant isolation, data handling, trust-center material, and known assurance status are documented. | [Trust Center](../trust-center.md), [Security Overview](../library/SECURITY.md), [Tenant Isolation](TENANT_ISOLATION.md) |
-| Auditability | The product has an audit-event posture and evidence-trail model suitable for human review. | [Audit Coverage Matrix](../library/AUDIT_COVERAGE_MATRIX.md), [Trust Center](../trust-center.md) |
+| Security posture | Authentication, tenant isolation, data handling, trust-center material, and known assurance status are documented. | [Trust Center](trust-center.md), [Security Overview](../library/SECURITY.md), [Tenant Isolation](TENANT_ISOLATION.md) |
+| Auditability | The product has an audit-event posture and evidence-trail model suitable for human review. | [Audit Coverage Matrix](../library/AUDIT_COVERAGE_MATRIX.md), [Trust Center](trust-center.md) |
 | Governance | V1 includes governance workflows and approval concepts, while deeper maturity surfaces remain controlled by scope. | [V1 Scope](../library/V1_SCOPE.md), [Core Pilot path](../CORE_PILOT.md) |
 | Compliance posture | The product is honest about self-assessed, deferred, template, and external/NDA-gated artifacts. | [Procurement Pack Index](PROCUREMENT_PACK_INDEX.md), [Procurement Response Accelerator](PROCUREMENT_RESPONSE_ACCELERATOR.md) |
 | Deferred scope | V1.1/V2 items are explicitly named and should not be treated as hidden V1 promises. | [V1 Deferred](../library/V1_DEFERRED.md) |
@@ -90,7 +90,7 @@ Decision focus:
 
 Start with:
 
-- [Trust Center](../trust-center.md)
+- [Trust Center](trust-center.md)
 - [Procurement Pack Index](PROCUREMENT_PACK_INDEX.md)
 - [Procurement Response Accelerator](PROCUREMENT_RESPONSE_ACCELERATOR.md)
 - [SOC 2 Procurement Status](SOC2_STATUS_PROCUREMENT.md)
@@ -144,7 +144,7 @@ For a sales-led V1 pilot, the buyer-facing packet should include:
 3. [Core Pilot path](../CORE_PILOT.md)
 4. [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md)
 5. [ROI Model](ROI_MODEL.md)
-6. [Trust Center](../trust-center.md)
+6. [Trust Center](trust-center.md)
 7. [Procurement Pack Index](PROCUREMENT_PACK_INDEX.md)
 8. [Procurement Response Accelerator](PROCUREMENT_RESPONSE_ACCELERATOR.md)
 9. [V1 Scope](../library/V1_SCOPE.md)
@@ -174,7 +174,7 @@ Use this answer when a buyer asks for a procurement-ready summary:
 ## 8. Maintenance rules
 
 - Keep this file aligned with [Executive Sponsor Brief](../EXECUTIVE_SPONSOR_BRIEF.md); do not create a second buyer story.
-- Keep assurance and deferral language aligned with [V1 Scope](../library/V1_SCOPE.md), [V1 Deferred](../library/V1_DEFERRED.md), and [Trust Center](../trust-center.md).
+- Keep assurance and deferral language aligned with [V1 Scope](../library/V1_SCOPE.md), [V1 Deferred](../library/V1_DEFERRED.md), and [Trust Center](trust-center.md).
 - Do not add new certifications, attestations, external customer claims, or legal promises here.
 - If a linked source changes status, update this packet in the same PR or cite why no packet update is required.
 - Prefer concise routing and buyer language over a long documentation index.
