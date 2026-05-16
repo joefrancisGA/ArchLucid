@@ -3,8 +3,9 @@ namespace ArchLucid.Application.Governance.DefaultPolicyPacks;
 /// <summary>
 ///     Canonical JSON bodies for policy pack <c>initialContentJson</c> (same shape as
 ///     <c>ArchLucid.Decisioning.Governance.PolicyPacks.PolicyPackContentDocument</c>) that pilots can paste into
-///     <c>POST /v1/policy-packs</c> after tailoring metadata. Includes Azure WAF analogue, SaaS security baseline, and AI
-///     governance starter (<see cref="AiGovernanceResponsibleAiV1Json" />). Not auto-seeded into SQL — avoids surprise tenant
+///     <c>POST /v1/policy-packs</c> after tailoring metadata. Includes Azure WAF analogue, SaaS security baseline, AI
+///     governance starter (<see cref="AiGovernanceResponsibleAiV1Json" />), and cloud security baseline (
+///     <see cref="SecurityArchitectureBaselineV1Json" />). Not auto-seeded into SQL — avoids surprise tenant
 ///     mutations; see <c>docs/library/GOVERNANCE.md</c> and P29-4 for future default seeding.
 /// </summary>
 public static class DefaultPolicyPackTemplates
@@ -113,6 +114,66 @@ public static class DefaultPolicyPackTemplates
             "goldenManifest.governance.fields": "ComplianceTags, PolicyConstraints, RequiredControls, RiskClassification",
             "goldenManifest.metadata.fields": "ManifestVersion, ParentManifestVersion, ChangeDescription, DecisionTraceIds, CreatedUtc",
             "goldenManifest.service.fields": "ServiceId, ServiceName, ServiceType, RuntimePlatform, Purpose, Tags, RequiredControls"
+          }
+        }
+        """;
+
+    /// <summary>
+    ///     Security architecture baseline referencing <c>sec-base-001</c>–<c>sec-base-025</c>; curated narrative in
+    ///     <c>docs/samples/policy-packs/security-architecture-baseline-rules-v1.json</c>. Keys require compliance catalog
+    ///     registration before enforcement — see P29-4 seeding.
+    /// </summary>
+    public const string SecurityArchitectureBaselineV1Json =
+        """
+        {
+          "complianceRuleIds": [],
+          "complianceRuleKeys": [
+            "sec-base-001",
+            "sec-base-002",
+            "sec-base-003",
+            "sec-base-004",
+            "sec-base-005",
+            "sec-base-006",
+            "sec-base-007",
+            "sec-base-008",
+            "sec-base-009",
+            "sec-base-010",
+            "sec-base-011",
+            "sec-base-012",
+            "sec-base-013",
+            "sec-base-014",
+            "sec-base-015",
+            "sec-base-016",
+            "sec-base-017",
+            "sec-base-018",
+            "sec-base-019",
+            "sec-base-020",
+            "sec-base-021",
+            "sec-base-022",
+            "sec-base-023",
+            "sec-base-024",
+            "sec-base-025"
+          ],
+          "alertRuleIds": [],
+          "compositeAlertRuleIds": [],
+          "advisoryDefaults": {
+            "severityFloor": "warning",
+            "scanDepth": "standard"
+          },
+          "metadata": {
+            "templateId": "security-architecture-baseline-v1",
+            "pack.displayName": "Security Architecture Baseline",
+            "pack.category": "Security",
+            "pack.version": "1.0.0",
+            "pack.isDefault": "true",
+            "pack.description": "Starter security posture checks for cloud architecture reviews — identity, network, encryption, logging, and secure SDLC. Aligned to CIS Azure Foundations and OWASP ASVS themes. Not an exhaustive compliance assessment.",
+            "frameworkMappingDisclaimer": "CIS and OWASP references are thematic alignment for architecture review only; they are not an attestation against those frameworks.",
+            "curatedRulesArtifact": "docs/samples/policy-packs/security-architecture-baseline-rules-v1.json",
+            "azureExtractor.normalizedManifest.fields": "SchemaVersion, ScriptVersion, CollectionTimestamp, SubscriptionId, ScopeDescriptor, SwitchesUsed, AzModuleVersion",
+            "goldenManifest.datastore.fields": "DatastoreId, DatastoreName, DatastoreType, RuntimePlatform, PrivateEndpointRequired, EncryptionAtRestRequired",
+            "goldenManifest.governance.fields": "ComplianceTags, PolicyConstraints, RequiredControls, RiskClassification",
+            "goldenManifest.service.fields": "ServiceId, ServiceName, RuntimePlatform, Tags, RequiredControls",
+            "goldenManifest.relationships": "relationshipType AuthenticatesWith, ReadsFrom, WritesTo"
           }
         }
         """;

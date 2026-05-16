@@ -1,0 +1,422 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "Security Architecture Baseline",
+    "description": "Starter security posture checks for cloud architecture reviews — identity, network, encryption, logging, and secure SDLC. Aligned to CIS Azure Foundations and OWASP ASVS themes. Not an exhaustive compliance assessment.",
+    "version": "1.0.0",
+    "category": "Security",
+    "isDefault": true,
+    "suggestedPackType": "ProjectCustom",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/security-architecture-baseline.json"
+  },
+  "rules": [
+    {
+      "id": "sec-base-001",
+      "title": "MFA enforced for privileged access",
+      "description": "Privileged operator and break-glass paths onto Azure control planes must assume phishing-resistant MFA; manifests should evidence Entra Conditional Access posture where extractor switches captured identity exports.",
+      "severity": "Critical",
+      "remediationGuidance": "Document MFA + CA expectations in governance.RequiredControls and tie AuthenticatesWith edges to identity planes; cite extractor ScopeDescriptor when uploads cover subscription IAM exports.",
+      "evidenceHints": [
+        "azureExtractor.manifest.ScopeDescriptor",
+        "azureExtractor.manifest.SwitchesUsed",
+        "relationships[].relationshipType",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "1 Identity and Access Management — MFA enforcement themes" },
+        { "framework": "OWASP ASVS", "requirement": "V2 Authentication — multi-factor controls for privileged accounts (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-002",
+      "title": "Workload authentication uses managed identity",
+      "description": "Azure workloads reaching SQL, Key Vault, Storage, or ARM should prefer managed identities over long-lived client secrets embedded in apps.",
+      "severity": "Critical",
+      "remediationGuidance": "Flag MI adoption on services[].Tags and governance.PolicyConstraints; avoid WritesTo paths that imply secret-bearing connection strings without Key Vault intermediation.",
+      "evidenceHints": [
+        "services[].Tags",
+        "services[].RequiredControls",
+        "relationships[].relationshipType",
+        "datastores[].RuntimePlatform"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "1. Ensure use of IAM-managed credentials / MI patterns" },
+        { "framework": "OWASP ASVS", "requirement": "V2.10 — Service authentication (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-003",
+      "title": "Secrets not stored in source repositories",
+      "description": "Connection strings, SAS tokens, and API keys must not be authoritative in CI-visible source; manifests should reflect Key Vault or platform secret stores.",
+      "severity": "Critical",
+      "remediationGuidance": "Record secret-handling rules in governance.PolicyConstraints and require Key Vault or managed-secret surfaces on ReadsFrom/WritesTo datastore edges.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "datastores[].RuntimePlatform",
+        "services[].Purpose",
+        "azureExtractor.manifest.RawJson"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "8 Container / workload secrets hygiene themes" },
+        { "framework": "OWASP ASVS", "requirement": "V13 — API / secret storage configuration (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-004",
+      "title": "RBAC least privilege applied",
+      "description": "Role assignments should follow least-privilege defaults for operators and workloads; overly broad Owner/Contributor on production scopes must be justified.",
+      "severity": "High",
+      "remediationGuidance": "Encode RBAC posture narratives in governance.RequiredControls and ComplianceTags; pair with extractor SubscriptionId / ScopeDescriptor citations when IAM dumps accompany the package.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "azureExtractor.manifest.SubscriptionId",
+        "azureExtractor.manifest.ScopeDescriptor"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "1 RBAC assignment hygiene themes" },
+        { "framework": "OWASP ASVS", "requirement": "V4 Access Control — authorization granularity (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-005",
+      "title": "Conditional access policies documented",
+      "description": "Organization-specific Conditional Access signals (risk-based policies, compliant devices) should appear as documented assumptions where they gate Azure entry.",
+      "severity": "Medium",
+      "remediationGuidance": "Add CA documentation strings to governance.PolicyConstraints and metadata.ChangeDescription for the manifest snapshot under review.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.CollectionTimestamp"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "1 Strong identity policy documentation themes" },
+        { "framework": "OWASP ASVS", "requirement": "V2 Session / policy documentation (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-006",
+      "title": "Data stores avoid public internet exposure",
+      "description": "PaaS data planes (SQL, storage, Cosmos, Redis) must not rely on implicit public access where Private Link or firewall constraints are expected.",
+      "severity": "High",
+      "remediationGuidance": "Set PrivateEndpointRequired true on sensitive datastores[] and narrate firewall stance in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "datastores[].PrivateEndpointRequired",
+        "datastores[].RuntimePlatform",
+        "relationships",
+        "azureExtractor.manifest.RawJson"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "7 Networking — restrict public access themes" },
+        { "framework": "OWASP ASVS", "requirement": "V13 Transport layer protection adjacency (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-007",
+      "title": "Private endpoints for sensitive PaaS",
+      "description": "High-risk services should declare Private Link expectations consistent with segmented landing zones.",
+      "severity": "High",
+      "remediationGuidance": "Require PrivateEndpointRequired on datastore rows tied to PHI/PCI scopes and mirror Tags on consuming services[].",
+      "evidenceHints": [
+        "datastores[].PrivateEndpointRequired",
+        "services[].Tags",
+        "governance.ComplianceTags"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "7 Private Endpoint adoption themes" },
+        { "framework": "OWASP ASVS", "requirement": "V1 Architecture — trusted zones (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-008",
+      "title": "NSG or firewall rules posture cited",
+      "description": "East-west and north-south filtering expectations should be traceable via governance narrative when extractor captures network inventories.",
+      "severity": "Medium",
+      "remediationGuidance": "Capture NSG/firewall summaries in governance.PolicyConstraints or ComplianceTags and cite extractor SwitchesUsed when network snapshot switches were enabled.",
+      "evidenceHints": [
+        "azureExtractor.manifest.SwitchesUsed",
+        "governance.PolicyConstraints",
+        "azureExtractor.manifest.RawJson"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "7 Network security groups themes" },
+        { "framework": "OWASP ASVS", "requirement": "V13 Network segmentation expectations (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-009",
+      "title": "East-west traffic segmented",
+      "description": "Tier-to-tier lateral movement should encounter documented segmentation boundaries aligned with workload sensitivity.",
+      "severity": "Medium",
+      "remediationGuidance": "Model segmentation via relationships and governance.RequiredControls naming subnet/service tiers.",
+      "evidenceHints": [
+        "relationships",
+        "services[].Tags",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "7 Segmentation themes" },
+        { "framework": "OWASP ASVS", "requirement": "V1 Trusted boundaries (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-010",
+      "title": "Private DNS resolution for Private Link",
+      "description": "Private Endpoint deployments should assume integrated DNS resolution patterns so split-horizon gaps do not leak traffic publicly.",
+      "severity": "Low",
+      "remediationGuidance": "Note DNS integration obligations in governance.PolicyConstraints alongside PrivateEndpointRequired=true rows.",
+      "evidenceHints": [
+        "datastores[].PrivateEndpointRequired",
+        "governance.PolicyConstraints",
+        "azureExtractor.manifest.ScopeDescriptor"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "7 DNS integration with Private Link themes" },
+        { "framework": "OWASP ASVS", "requirement": "V13 Secure configuration defaults (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-011",
+      "title": "Encryption at rest enforced",
+      "description": "Azure-managed CMK posture aside, manifests must flag EncryptionAtRestRequired for persisted sensitive datasets.",
+      "severity": "High",
+      "remediationGuidance": "Ensure EncryptionAtRestRequired=true on regulated datastores[] and cite CMK/HSM expectations in governance.RequiredControls.",
+      "evidenceHints": [
+        "datastores[].EncryptionAtRestRequired",
+        "datastores[].DatastoreType",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "8 Encryption at rest themes" },
+        { "framework": "OWASP ASVS", "requirement": "V8 Data protection — stored secrets/data (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-012",
+      "title": "TLS 1.2 or higher for data in transit",
+      "description": "HTTPS/TLS minimums must apply at ingress and between services where extractor or manifest exposes listeners.",
+      "severity": "High",
+      "remediationGuidance": "Encode TLS minimums in governance.PolicyConstraints and service Tags for API gateways / App Services.",
+      "evidenceHints": [
+        "services[].Tags",
+        "services[].RuntimePlatform",
+        "governance.PolicyConstraints",
+        "relationships"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "8 Encryption in transit themes" },
+        { "framework": "OWASP ASVS", "requirement": "V9 Communications security — TLS baseline (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-013",
+      "title": "Key rotation policy documented",
+      "description": "Cryptographic keys for workloads should show rotation cadence ownership even when Azure platform-managed defaults apply.",
+      "severity": "Medium",
+      "remediationGuidance": "Capture rotation cadence in governance.PolicyConstraints referencing Key Vault runtime surfaces.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "datastores[].RuntimePlatform",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "8 Key management lifecycle themes" },
+        { "framework": "OWASP ASVS", "requirement": "V10 Cryptographic practices — key lifecycle (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-014",
+      "title": "Certificate management automated",
+      "description": "Public endpoints relying on TLS must describe automation for issuance and renewal (Key Vault / App Service managed certs).",
+      "severity": "Medium",
+      "remediationGuidance": "Describe renewal automation in governance.RequiredControls on edge services[].",
+      "evidenceHints": [
+        "services[].RequiredControls",
+        "services[].RuntimePlatform",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "8 Certificate lifecycle automation themes" },
+        { "framework": "OWASP ASVS", "requirement": "V9 TLS certificate lifecycle (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-015",
+      "title": "Centralized logging enabled",
+      "description": "Platform diagnostics should converge to Log Analytics / sentinel-ready workspaces when Azure workloads emit audit planes.",
+      "severity": "High",
+      "remediationGuidance": "Tag observability sinks on services[].Tags and cite extractor RawJson summaries when diagnostic settings exports exist.",
+      "evidenceHints": [
+        "services[].Tags",
+        "azureExtractor.manifest.RawJson",
+        "azureExtractor.manifest.ScriptVersion",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "5 Logging and Monitoring — centralized sinks themes" },
+        { "framework": "OWASP ASVS", "requirement": "V7 Errors / logging integrity (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-016",
+      "title": "Security events forwarded to SIEM",
+      "description": "High-value audit streams (Entra sign-ins, Key Vault, subscription activity) should route to SOC-visible pipelines.",
+      "severity": "High",
+      "remediationGuidance": "Capture forwarding commitments in governance.RequiredControls and ComplianceTags tied to SIEM destinations.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "azureExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "5 Forward security telemetry themes" },
+        { "framework": "OWASP ASVS", "requirement": "V7 Security event pipeline (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-017",
+      "title": "Alerting on authentication failures",
+      "description": "Auth anomaly alerting expectations must exist where workload exposes interactive or machine authentication planes.",
+      "severity": "Medium",
+      "remediationGuidance": "Bind alert posture language to governance.PolicyConstraints and AuthenticatesWith relationships.",
+      "evidenceHints": [
+        "relationships[].relationshipType",
+        "governance.PolicyConstraints",
+        "services[].Tags"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "5 Alerting / anomaly themes" },
+        { "framework": "OWASP ASVS", "requirement": "V7 Intrusion detection adjacency (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-018",
+      "title": "Resource change auditing captured",
+      "description": "Subscription-level mutations should remain observable via Activity Log retention assumptions referenced in governance narrative.",
+      "severity": "Medium",
+      "remediationGuidance": "Note Activity Log / Defender Cloud posture in governance.PolicyConstraints; cite extractor CollectionTimestamp for freshness.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "azureExtractor.manifest.CollectionTimestamp",
+        "azureExtractor.manifest.SubscriptionId"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "5 Audit logging completeness themes" },
+        { "framework": "OWASP ASVS", "requirement": "V7 Logging coverage for privileged actions (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-019",
+      "title": "Log retention meets minimum enterprise baseline",
+      "description": "Retention targets (≥90 days for security-relevant logs) should appear as documented policy even when storage tier choices vary.",
+      "severity": "Low",
+      "remediationGuidance": "Encode retention commitments in governance.PolicyConstraints referencing centralized logging sinks.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "5 Retention themes" },
+        { "framework": "OWASP ASVS", "requirement": "V7 Log retention (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-020",
+      "title": "Default branch protection enforced",
+      "description": "Production-bound repositories must enforce protected default branches preventing direct pushes.",
+      "severity": "Medium",
+      "remediationGuidance": "Reflect SDLC posture in governance.PolicyConstraints or ComplianceTags referencing CI/CD integration surfaces.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.ComplianceTags",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "9 Change / DevOps hygiene themes" },
+        { "framework": "OWASP ASVS", "requirement": "V15 Secure coding lifecycle — SCM protections (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-021",
+      "title": "Peer code review required for merges",
+      "description": "Human review gates reduce unauthorized configuration drift reaching manifests promoted to golden snapshots.",
+      "severity": "Medium",
+      "remediationGuidance": "Capture PR review obligations in governance.RequiredControls tied to CI/CD services[].",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "services[].Tags",
+        "metadata.DecisionTraceIds"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "9 Peer review themes" },
+        { "framework": "OWASP ASVS", "requirement": "V15 Review enforcement (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-022",
+      "title": "Dependency scanning enabled in CI",
+      "description": "Third-party packages feeding Azure-deployed workloads must pass organizational SCA thresholds.",
+      "severity": "High",
+      "remediationGuidance": "Note SCA tooling expectations in governance.PolicyConstraints referencing pipeline services[].",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "services[].ServiceName"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "9 Dependency hygiene themes" },
+        { "framework": "OWASP ASVS", "requirement": "V14 Dependency management (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-023",
+      "title": "Container images scanned prior to deploy",
+      "description": "Images destined for AKS / Container Apps must show vulnerability scanning commitments.",
+      "severity": "High",
+      "remediationGuidance": "Tag container hosts with scanning expectations and relate registry relationships explicitly.",
+      "evidenceHints": [
+        "services[].RuntimePlatform",
+        "services[].Tags",
+        "relationships"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "9 Container security scanning themes" },
+        { "framework": "OWASP ASVS", "requirement": "V14 Supply chain — container artifacts (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-024",
+      "title": "Infrastructure-as-code scanned in CI",
+      "description": "Terraform/Bicep/ARM templates governing Azure deployments should undergo static analysis prior to apply.",
+      "severity": "Medium",
+      "remediationGuidance": "Describe IaC scanning gates in governance.PolicyConstraints aligned with IaC publishing services[].",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "azureExtractor.manifest.AzModuleVersion"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "9 Secure IaC themes" },
+        { "framework": "OWASP ASVS", "requirement": "V5 Misconfiguration defenses — IaC checks (thematic)" }
+      ]
+    },
+    {
+      "id": "sec-base-025",
+      "title": "Secrets scanning before commit",
+      "description": "Pre-commit or CI secrets scanners must guard against accidental leakage of tokens coinciding with extractor uploads.",
+      "severity": "Critical",
+      "remediationGuidance": "Encode mandatory secret scanning in governance.RequiredControls adjacent to repository integration surfaces.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "governance.PolicyConstraints",
+        "azureExtractor.manifest.ScriptVersion"
+      ],
+      "frameworkMappings": [
+        { "framework": "CIS Azure Foundations", "control": "9 Secret hygiene automation themes" },
+        { "framework": "OWASP ASVS", "requirement": "V13 Secrets leakage prevention — scanning (thematic)" }
+      ]
+    }
+  ]
+}

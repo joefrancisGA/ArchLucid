@@ -1,0 +1,51 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "sec-base-001",
+    "sec-base-002",
+    "sec-base-003",
+    "sec-base-004",
+    "sec-base-005",
+    "sec-base-006",
+    "sec-base-007",
+    "sec-base-008",
+    "sec-base-009",
+    "sec-base-010",
+    "sec-base-011",
+    "sec-base-012",
+    "sec-base-013",
+    "sec-base-014",
+    "sec-base-015",
+    "sec-base-016",
+    "sec-base-017",
+    "sec-base-018",
+    "sec-base-019",
+    "sec-base-020",
+    "sec-base-021",
+    "sec-base-022",
+    "sec-base-023",
+    "sec-base-024",
+    "sec-base-025"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "security-architecture-baseline-v1",
+    "pack.displayName": "Security Architecture Baseline",
+    "pack.category": "Security",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Starter security posture checks for cloud architecture reviews — identity, network, encryption, logging, and secure SDLC. Aligned to CIS Azure Foundations and OWASP ASVS themes. Not an exhaustive compliance assessment.",
+    "frameworkMappingDisclaimer": "CIS and OWASP references are thematic alignment for architecture review only; they are not an attestation against those frameworks.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/security-architecture-baseline-rules-v1.json",
+    "azureExtractor.normalizedManifest.fields": "SchemaVersion, ScriptVersion, CollectionTimestamp, SubscriptionId, ScopeDescriptor, SwitchesUsed, AzModuleVersion",
+    "goldenManifest.datastore.fields": "DatastoreId, DatastoreName, DatastoreType, RuntimePlatform, PrivateEndpointRequired, EncryptionAtRestRequired",
+    "goldenManifest.governance.fields": "ComplianceTags, PolicyConstraints, RequiredControls, RiskClassification",
+    "goldenManifest.service.fields": "ServiceId, ServiceName, RuntimePlatform, Tags, RequiredControls",
+    "goldenManifest.relationships": "relationshipType AuthenticatesWith, ReadsFrom, WritesTo"
+  }
+}
