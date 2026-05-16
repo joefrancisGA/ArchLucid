@@ -98,6 +98,8 @@
     <PackageVersion Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.9.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.5" />
     <PackageVersion Include="Tomlyn" Version="0.19.0" />
+    <!-- Test-only: text extraction from QuestPDF PDFs (MIT; package id is PdfPig on NuGet). -->
+    <PackageVersion Include="PdfPig" Version="0.1.14" />
     <PackageVersion Include="System.ClientModel" Version="1.8.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="WireMock.Net" Version="1.25.0" />

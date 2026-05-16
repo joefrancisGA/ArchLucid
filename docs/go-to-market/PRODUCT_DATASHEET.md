@@ -37,7 +37,7 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 | **Explainable Decisions** | Every finding includes a structured `ExplainabilityTrace` — what was examined, what rules applied, what decisions were taken, and why. Provenance graph links evidence to decisions to artifacts. |
 | **Enterprise Governance** | Policy packs define compliance rules. Pre-commit gates block manifests when findings exceed severity thresholds. Approval workflows enforce segregation of duties. SLA tracking with escalation. |
 | **Architecture Drift Detection** | Compare two architecture iterations with structured deltas. Replay and verify mode detects drift between stored and regenerated outputs. Compliance drift trending over time. |
-| **Export and Reporting** | Consulting-grade DOCX reports with embedded architecture diagrams. Markdown export. ZIP artifact bundles. Comparison replay in multiple formats. |
+| **Export and Reporting** | Consulting-grade DOCX reports with embedded architecture diagrams. Markdown export. ZIP artifact bundles. Comparison replay in multiple formats. Sanitized **architecture review board** DOCX/PDF samples: [`docs/go-to-market/samples/`](samples/) — see [`ARCHITECTURE_REVIEW_BOARD_EXPORT.md`](ARCHITECTURE_REVIEW_BOARD_EXPORT.md). |
 | **Durable Audit Trail** | 78 typed audit event types in an append-only SQL store. Paginated search, filtered export (JSON/CSV). CI-enforced event count guard. |
 
 ---

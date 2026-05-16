@@ -15,6 +15,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Evolution;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Application.Marketing;
@@ -234,6 +235,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IManifestSummaryGenerator, MarkdownManifestSummaryGenerator>();
         services.AddScoped<IManifestSummaryService, ManifestSummaryService>();
         services.AddScoped<IArchitectureExportService, MarkdownArchitectureExportService>();
+        services.AddScoped<ArchitectureReviewDocxBuilder>();
+        services.AddScoped<ArchitectureReviewPdfBuilder>();
+        services.AddScoped<IArchitectureReviewExportService, ArchitectureReviewExportService>();
         services.AddScoped<IManifestDiffService, ManifestDiffService>();
         services.AddScoped<IManifestDiffSummaryFormatter, MarkdownManifestDiffSummaryFormatter>();
         services.AddScoped<IManifestDiffExportService, MarkdownManifestDiffExportService>();

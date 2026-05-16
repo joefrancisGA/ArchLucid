@@ -293,6 +293,9 @@ public sealed class ArchitectureReviewDocxBuilder
 
         foreach (ArchitectureReviewBoardExportDispositionItem item in items)
         {
+            if (string.IsNullOrWhiteSpace(item.Summary))
+                continue;
+
             ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, item.Summary.Trim(), "BodyText");
 
             if (!string.IsNullOrWhiteSpace(item.Context))

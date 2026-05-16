@@ -135,6 +135,13 @@ This document zooms into the most important components inside each container/lib
 - **`IExportRecordDiffExportService`**
   - Produces DOCX export for export-record diff replay.
 
+#### Architecture review board packet (`architecture-review-board`)
+
+- **`IArchitectureReviewExportService` / `ArchitectureReviewExportService`**: DOCX/PDF export for a **finalized review** (committed architecture snapshot). Hydrates **`ArchitectureRunDetail`** via **`IRunDetailQueryService`**, builds **`ArchitectureAnalysisReport`** via **`IArchitectureAnalysisService`**, then renders through board builders. Throws **`RunNotFoundException`** / **`ConflictException`** when the review is missing, not finalized, or references a broken snapshot load.
+- **`ArchitectureReviewBoardExportDocumentFactory`**: Maps run detail + analysis report → **`ArchitectureReviewBoardExportDocumentModel`**. Cover and section copy use buyer-facing glossary terms (for example **architecture snapshot**, **Review ID**) aligned with **`docs/go-to-market/UI_GLOSSARY_V1.md`**.
+- **`ArchitectureReviewDocxBuilder`** / **`ArchitectureReviewPdfBuilder`**: Nine-section packet (executive summary through recommended actions). Optional **`WhitelabelConfiguration`** and embedded cover logo (PNG/JPEG magic-byte validation via **`ArchitectureReviewBoardCoverLogoValidator`**).
+- **`ArchitectureReviewBoardExportProfile.Token`**: Stable wire slug **`architecture-review-board`** for audit/export metadata. Operator-facing overview: **`docs/go-to-market/ARCHITECTURE_REVIEW_BOARD_EXPORT.md`**.
+
 ---
 
 ### `ArchLucid.Decisioning.Merge` — manifest merge

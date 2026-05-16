@@ -23,6 +23,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
+    <PackageReference Include="PdfPig" />
     <PackageReference Include="WireMock.Net" />
     <PackageReference Include="Handlebars.Net.Helpers.Humanizer" />
     <PackageReference Include="Humanizer" />
@@ -46,6 +47,11 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Exports\ArchitectureReviewBoard\Golden\architecture-review-board-section-headings-order.txt"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
