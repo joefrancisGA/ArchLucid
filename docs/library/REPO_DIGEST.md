@@ -68,6 +68,12 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 - [`V1_DEFERRED.md`](V1_DEFERRED.md) — deferrals and non-gates for assessments.
 - [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md).
 
+## Weighted readiness assessments (canonical vs archive)
+
+- **Evidence contract:** [`ASSESSMENT_INPUTS.md`](ASSESSMENT_INPUTS.md) — ordered reads before broad scans; **`@Assessment-Scope-V1_1`** for **`(A)` / `(B)`** rules.
+- **Current score + backlog:** [`../assessments/LATEST.md`](../assessments/LATEST.md) only — **one** standing weighted pass.
+- **History:** [`../archive/assessments/`](../archive/assessments/) and archived quality narratives — **not** for quoting today’s headline readiness (see **“One workflow”** in **`ASSESSMENT_INPUTS.md`**).
+
 ## HTTP / OpenAPI (refresh when changing wire shape)
 
 - **Canonical contract:** **`GET /openapi/v1.json`** ([`API_CONTRACTS.md`](API_CONTRACTS.md)).

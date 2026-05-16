@@ -9,9 +9,11 @@ alwaysApply: false
 
 # Assessment passes — read-first and output discipline
 
+**Workflow:** **inputs** (`ASSESSMENT_INPUTS.md`) → **boundary** (`Assessment-Scope-V1_1.mdc` + `LATEST.md` bullets) → **score + backlog** (overwrite **`docs/assessments/LATEST.md`**) → **history** (`docs/archive/assessments/`, archived quality — comparison only). Do not cite archives as the current headline score.
+
 When the prompt is an **architecture / readiness / weighted / first-principles / trust + product composite** assessment of this repository (not a narrow bugfix or single-feature change):
 
-1. **Read [`docs/library/ASSESSMENT_INPUTS.md`](../../docs/library/ASSESSMENT_INPUTS.md)** and treat its table as the default evidence set before scanning thousands of sources.
+1. **Read [`docs/library/ASSESSMENT_INPUTS.md`](../../docs/library/ASSESSMENT_INPUTS.md)** — including **“One workflow (current score vs history)”** — and treat its table as the default evidence set before scanning thousands of sources.
 
    Repo-root shorthand: **`docs/library/ASSESSMENT_INPUTS.md`**.
 
@@ -19,6 +21,6 @@ When the prompt is an **architecture / readiness / weighted / first-principles /
 
 2. **Apply** **`Assessment-Scope-V1_1.mdc`** explicitly — it is **not** always-loaded. In Cursor, **`@Assessment-Scope-V1_1`** / **`@.cursor/rules/Assessment-Scope-V1_1.mdc`**, or read the file directly. `(A)` vs `(B)` scoring boundary is mandatory for these passes.
 3. **Write** the new assessment body to **`docs/assessments/LATEST.md`** (overwrite). Before overwriting, optional: copy the previous `LATEST.md` to **`docs/archive/assessments/`** with a dated filename.
-4. **Do not** treat **`docs/archive/assessments/**`** as mandatory context unless the user asks for historical comparison — that folder is excluded from default indexing in **`.cursorignore`** to reduce token burn on repeat passes.
+4. **Do not** treat **`docs/archive/assessments/**`** or historical narratives under **`docs/archive/quality/**`** as mandatory context unless the user asks for historical comparison — those paths are excluded from default indexing in **`.cursorignore`** where configured to reduce token burn on repeat passes.
 
 For code-specific claims after the canonical doc pass, open **targeted** source files (controllers, orchestrators, ADRs) rather than whole-project file lists.

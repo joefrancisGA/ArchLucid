@@ -2,6 +2,18 @@
 
 # Assessment inputs (canonical read list)
 
+## One workflow (current score vs history)
+
+Use this sequence so **headline readiness** never mixes with **historical narrative**:
+
+1. **Inputs** — This file’s table is the **evaluation contract** (what evidence counts before broad repo scans).
+2. **Boundary** — **`(A)` headline V1 readiness** vs **`(B)` procurement realism** follows **`Assessment-Scope-V1_1.mdc`** (**`@Assessment-Scope-V1_1`**) and the standing boundary bullets in **[`docs/assessments/LATEST.md`](../assessments/LATEST.md)**.
+3. **Score** — **One current weighted outcome:** **[`docs/assessments/LATEST.md`](../assessments/LATEST.md)** only (executive summary + dimensions). Do not cite archived snapshots as today’s number.
+4. **Backlog** — Action queue and improvement IDs live **in `LATEST.md`** alongside that score.
+5. **History** — Prior passes, dated scores, and narrative-only artifacts (**e.g.** **`docs/archive/assessments/`**, **`docs/archive/quality/`**) are **archive-only**: trend and forensic context, **not** canonical readiness.
+
+**Execution prompts** (e.g. **`docs/library/CURSOR_PROMPTS_GA_TASK*.md`**) are **task sequences** for shipping improvements — they are **not** a second scorecard; still align closure notes back into **`LATEST.md`** when the pass completes.
+
 Read these **before** grepping broadly or opening large code regions. For scoring rules and out-of-scope procurement items, load **`Assessment-Scope-V1_1.mdc`** explicitly (**`@Assessment-Scope-V1_1`** in Cursor — it is not always injected).
 
 | Order | Document | Role |
@@ -20,8 +32,8 @@ Read these **before** grepping broadly or opening large code regions. For scorin
 |11 | [`../../.cursor/rules/Architecture-Invariants.mdc`](../../.cursor/rules/Architecture-Invariants.mdc) | INV-* catalog pointer |
 |12 | [`../START_HERE.md`](../START_HERE.md) | Evaluator spine and doc routing |
 
-**Outputs:** Write the latest pass to **[`docs/assessments/LATEST.md`](../assessments/LATEST.md)**. **Do not** add new dated multi-thousand-line files under `docs/library/` unless the team explicitly opts back in — archive under `docs/archive/assessments/` instead.
+**Outputs:** Write the latest pass to **[`docs/assessments/LATEST.md`](../assessments/LATEST.md)** (overwrite in place). **Do not** add new dated multi-thousand-line assessment files under `docs/library/` unless the team explicitly opts back in — archive prior snapshots under **`docs/archive/assessments/`** instead.
 
-**Historical assessments:** Indexed out of default agent context via `.cursorignore`; open explicitly when comparing scores over time.
+**Historical assessments and archived quality prompts:** **Not** canonical for today’s headline score; indexed out of default agent context via **`.cursorignore`** where applicable — open **only** when comparing scores over time or tracing narrative history.
 
 **`V1` assessment hygiene — third-party pen test:** Owner **2026-05-15** (**[`docs/assessments/LATEST.md`](../assessments/LATEST.md)** **P8**): **omit** recurring vendor/budget pen-test questionnaire prompts during **`(A)` V1** planning / execution; external pen test stays **`V2`** (`V1_DEFERRED.md` §6c). Procurement friction without a published assessor summary remains **`(B)` informational** only.
