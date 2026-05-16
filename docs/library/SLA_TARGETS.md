@@ -1,5 +1,5 @@
 > **Scope:** Hosted SaaS service availability target (API + operator UI) — pre-contractual engineering posture.
-> **Spine doc:** [FIRST_5_DOCS.md](../FIRST_5_DOCS.md).
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Hosted SaaS availability target
 

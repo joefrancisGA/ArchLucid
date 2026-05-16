@@ -298,7 +298,7 @@ def main() -> int:
         "stale or partial local merges (or leftover shards under `coverage-gap-1a`) produce misleading percentages — clean the "
         "folder before `dotnet test` or use the CI **`coverage-merged-cobertura`** artifact.",
         ">",
-        "> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). "
+        "> **Spine doc:** [`START_HERE.md`](../START_HERE.md). "
         "Read this file only if you have a specific reason beyond those five entry documents.",
         "",
         "# Coverage gap analysis (merged Cobertura)",
