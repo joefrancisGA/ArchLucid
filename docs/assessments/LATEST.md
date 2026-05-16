@@ -29,9 +29,9 @@
 
 ## Executive Summary
 
-**Overall Readiness:** ArchLucid is a functionally complete V1 product with a solid architectural foundation, capable of executing the core pilot loop (internally run → execute → commit → manifest and artifacts). The platform includes key enterprise and commercial capabilities, such as **native SAML 2.0 SP workforce SSO** (**`V1_SCOPE.md` §2.12**), a buyer-grade **Architecture Review Report** export (DOCX + PDF) with **consultant whitelabeling** (**Marketing alignment Q2/Q5**), and **operator shell labels aligned with marketing workflow language**. **V1 GA still requires** two curated default policy packs (AI governance + security baseline) (**Marketing alignment Q3**), bounded bulk evidence upload (**≤30 files** per operation — **Marketing alignment Q4**), two curated demo workspaces as a hard release gate (**Marketing alignment Q6** / improvement **#31**), and a landing CTA stack aligned to sales-led GA (**Marketing alignment Q7** / improvement **#32**).
+**Overall Readiness:** ArchLucid is a functionally complete V1 product with a solid architectural foundation, capable of executing the core pilot loop (internally run → execute → commit → manifest and artifacts). The platform includes key enterprise and commercial capabilities, such as **native SAML 2.0 SP workforce SSO** (**`V1_SCOPE.md` §2.12**), a buyer-grade **Architecture Review Report** export (DOCX + PDF) with **consultant whitelabeling** (**Marketing alignment Q2/Q5**), **operator shell labels aligned with marketing workflow language**, two curated default policy packs (AI governance + security baseline), bounded bulk evidence upload (**≤30 files** per operation), and a landing CTA stack aligned to sales-led GA. **V1 GA still requires** two curated demo workspaces as a hard release gate (**Marketing alignment Q6** / improvement **#31**).
 
-**Commercial Picture:** The product is ready for sales-led pilots and staging-based trial evaluations. **GA requires differentiated governance starters:** buyer-visible **AI governance** and **security baseline** policy packs (thin MVP counts acceptable), strengthening demo credibility versus empty-pack onboarding. **Evidence capture** gets **bulk upload** at GA with an explicit **≤30-file** ceiling (**Marketing alignment Q4**) — pitch accordingly. **Consultants can white-label client deliverables** (firm name, engagement title, logo — **Marketing alignment Q5**) directly from export — strengthens marketplace / boutique wedge without manual DOCX surgery. **Sales-led and self-serve evaluators both hit fixed demo workspaces** (**self-demo + regulated synthetic**) — GA is blocked until both stay green (**Marketing alignment Q6**). **First-90-days landing posture:** **Request walkthrough** primary, **Try the self-demo** secondary (Workspace **A**), **Early access** tertiary capture — **no public paid-pilot $ band** yet (**Marketing alignment Q7**).
+**Commercial Picture:** The product is ready for sales-led pilots and staging-based trial evaluations. The platform includes differentiated governance starters: buyer-visible **AI governance** and **security baseline** policy packs, strengthening demo credibility versus empty-pack onboarding. **Evidence capture** supports **bulk upload** with an explicit **≤30-file** ceiling — pitch accordingly. **Consultants can white-label client deliverables** (firm name, engagement title, logo) directly from export — strengthens marketplace / boutique wedge without manual DOCX surgery. **First-90-days landing posture** is implemented: **Request walkthrough** primary, **Try the self-demo** secondary (Workspace **A**), **Early access** tertiary capture — **no public paid-pilot $ band** yet. **Sales-led and self-serve evaluators both hit fixed demo workspaces** (**self-demo + regulated synthetic**) — GA is blocked until both stay green (**Marketing alignment Q6**).
 
 **Enterprise Picture:** The system supports robust tenant isolation (database-per-tenant), workforce SSO via **OIDC / Entra ID** and **native SAML 2.0 SP**, and private connectivity. First-party ITSM connectors (Jira, ServiceNow) and Slack/Confluence integrations are strong enterprise features.
 
@@ -47,7 +47,7 @@
 - **Weighted deficiency signal:** 120
 - **Justification:** Tier 1 Azure extraction remains frictionless. **Phase 7.6–7.7** + waived **7.8** (**improvement #2**) **closed 2026-04-19** — see **`docs/ARCHLUCID_RENAME_CHECKLIST.md`**. **Owner decision (Q6):** **two curated demo workspaces** are a **hard GA gate**, shrinking time-to-first-success for evaluators versus blank tenants. **Owner decision (Q7):** landing **hybrid CTA** routes serious buyers to **walkthrough** while offering **self-demo** before calendar load (**#32**). Some **immutable** DbUp history and RLS lineage still carries legacy spellings — procurement-facing docs should say so honestly (**not** unreleased rename backlog). Operator shell labels are aligned with marketing vocabulary.
 - **Tradeoffs:** Demo workspaces create **fixture-maintenance tax** — feature churn can break GA smoke unless **#31** is treated as living backlog.
-- **Improvement recommendations:** **Improvement #2** (**7.6–7.8**) **closed 2026-04-19** per archived checklist — no schedule action. Implement improvement **#31** (demo workspaces — **release-blocking**). Implement improvement **#32** (landing CTA stack — **Q7**). Provide explicit documentation for generic OIDC setup (`improvement #24`).
+- **Improvement recommendations:** **Improvement #2** (**7.6–7.8**) **closed 2026-04-19** per archived checklist — no schedule action. Implement improvement **#31** (demo workspaces — **release-blocking**). Provide explicit documentation for generic OIDC setup (`improvement #24`).
 
 ### 2. AI/Agent Readiness
 - **Score:** 82
@@ -71,7 +71,7 @@
 - **Weighted deficiency signal:** 75
 - **Justification:** The Azure extractor provides cost data, and the comparison replay cost estimator is useful. **Owner decision (Q3):** **V1 GA** ships curated **AI governance** and **security baseline** default packs so pilots immediately surface policy findings aligned to the wedge — demos prove ROI faster than buyer-authored-only onboarding. **Owner decision (Q5):** report export **whitelabel** lets consultants prove tangible client-ready ROI artifacts without offline rebranding. **Owner decision (Q6):** **regulated synthetic demo workspace** gives repeatable proof narrative without bespoke pilot setup. Cross-tenant analytics remain absent for portfolio-wide executive proof.
 - **Tradeoffs:** Tenant isolation (database-per-tenant) makes cross-tenant analytics harder to implement securely. **Curated packs** shift burden to **credible authoring** — MVP rule counts must stay humble (*starting baseline*, not exhaustive compliance) or regulated buyers dismiss the wedge.
-- **Improvement recommendations:** Execute improvement **#29** (seed **AI governance** + **security baseline** packs). Deliver improvement **#31** (**Q6** demo workspaces — ROI storytelling). Ship improvement **#32** (**Q7** landing CTAs → Workspace **A**). Enhance the `ComparisonReplayCostEstimator` with more granular heuristics (**#11**). Implement internal-only cross-tenant analytics (**#12**).
+- **Improvement recommendations:** Deliver improvement **#31** (**Q6** demo workspaces — ROI storytelling). Enhance the `ComparisonReplayCostEstimator` with more granular heuristics (**#11**). Implement internal-only cross-tenant analytics (**#12**).
 
 ### 5. Usability
 - **Score:** 79
@@ -79,7 +79,7 @@
 - **Weighted deficiency signal:** 63
 - **Justification:** The operator UI is functional. **Owner decision:** surface copy shifted from engineering-centric terms (**run**, **commit**, **manifest**) to marketing-aligned governance vocabulary (**Capture**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) without renaming HTTP contracts — reducing cognitive load for regulated EA/security buyers and consultants. **Owner decision (Q4):** **bulk evidence upload** lands in **V1 GA** capped at **≤30 files** per upload so “gather scattered artifacts” demos stay honest without taking unlimited ingestion scope pre-GA. **`/planning`** stays read-only browse; pilot-feedback materialization lives on **`/product-learning`**. **`ui-e2e-live`** now carries targeted **live API negatives** (**improvement #8** **closed 2026-05-15**); most operator-shell Playwright paths remain **`/api/proxy`** mocks until broader expansion lands.
 - **Tradeoffs:** Dual vocabulary (friendly labels vs stable API names) must be documented for integrators and support; translators/tests must reference stable selectors where headers change copy. The **30-file** ceiling avoids abuse and MVP complexity but forces explicit marketing disclosure and may annoy heavy dossier pilots until **V1.1**.
-- **Improvement recommendations:** Implement improvement **#30** (bulk upload with **≤30** enforcement + UX copy). Add `DataArchivalHostHealthCheck` to the dashboard (**#21**).
+- **Improvement recommendations:** Add `DataArchivalHostHealthCheck` to the dashboard (**#21**).
 
 ### 6. Workflow Embeddedness
 - **Score:** 85
@@ -103,7 +103,7 @@
 - **Weighted deficiency signal:** 32
 - **Justification:** The trial funnel is tested in Stripe TEST mode, but live keys and Marketplace publication are intentionally deferred to V1.1. **Curated default packs at GA** sharpen the packaged story (**AI-era governance review** with actionable starter rules), reducing “empty shell” risk for sales-led pilots. **Owner decision (Q5):** **consultant whitelabel** on architecture-review exports improves resale positioning for boutique / marketplace consultants without a separate SKU. **Owner decision (Q6):** **mandatory demo workspaces** package the wedge into predictable buyer-ready flows — GA cannot ship without them. **Owner decision (Q7):** **hybrid landing CTAs** keep copy honest with deferred self-serve while still capturing **Early access** leads.
 - **Tradeoffs:** Deferring live commerce allows for a controlled, sales-led V1 rollout but delays self-serve revenue. Starter packs raise **copy honesty** obligations — claims must match shipped rule depth. **Consultant logos** increase **tenant-upload attack surface** — mitigate with MIME/size caps and existing malware-scan posture (sign-off required — **Q5**). **Early access** tertiary must avoid **bait-and-switch** vs walkthrough-led pilots (**Q7**).
-- **Improvement recommendations:** Execute improvement **#29** (default packs — GA subset). Implement improvement **#28** (**buyer-grade export + whitelabel — Q5**). Implement improvement **#31** (**Q6** — demo workspaces, release gate). Implement improvement **#32** (**Q7** — landing CTAs). Flip Stripe live keys and publish the Marketplace listing **after finance confirms** Partner Center readiness (**P4**, **#7**).
+- **Improvement recommendations:** Implement improvement **#28** (**buyer-grade export + whitelabel — Q5**). Implement improvement **#31** (**Q6** — demo workspaces, release gate). Flip Stripe live keys and publish the Marketplace listing **after finance confirms** Partner Center readiness (**P4**, **#7**).
 
 ### 9. Security
 - **Score:** 88
@@ -182,21 +182,21 @@
 
 1. Lack of cross-tenant analytics to prove ROI to executive buyers.
 2. **GA-gated demo workspaces (#31)** — if automated smoke regresses, sales-led pilots lose a credible first-session story even when core product paths stay healthy.
-3. **Incomplete Buyer-grade Architecture Review Report export:** Until the DOCX/PDF export with consultant whitelabel ships, boutique consultants cannot easily monetize their own deliverables.
-4. **Manual Azure cost estimations:** The Azure extractor's manual cost estimation limits the platform's ability to automatically prove hard infrastructure savings to buyers.
-5. **Coarse `ComparisonReplayCostEstimator` heuristics:** Lack of granular heuristics makes Proof-of-ROI less accurate for complex agent tasks, weakening the commercial business case.
-6. **Lack of cross-tenant analytics (internal):** Without internal tools to aggregate usage and cost savings across tenants, it is difficult to prove ROI and inform product direction.
+3. **Manual Azure cost estimations:** The Azure extractor's manual cost estimation limits the platform's ability to automatically prove hard infrastructure savings to buyers.
+4. **Coarse `ComparisonReplayCostEstimator` heuristics:** Lack of granular heuristics makes Proof-of-ROI less accurate for complex agent tasks, weakening the commercial business case.
+5. **Lack of cross-tenant analytics (internal):** Without internal tools to aggregate usage and cost savings across tenants, it is difficult to prove ROI and inform product direction.
+6. **Lack of self-serve transactability:** With Stripe live keys and Marketplace publication deferred to V1.1, the platform cannot capture self-serve revenue.
 
 ---
 
 ## Top 6 Enterprise Adoption Blockers
 
 1. **Immutable SQL / identity lineage strings** (historic migration bodies, session-context keys, allowlisted CI/doc carve-outs) plus honest disclosure obligations for procurement — **Terraform Phase 7.5 / improvement #1** complete for committed **`infra/**/*.tf`** **2026-05-15**; **Phase 7.6–7.7 / improvement #2** closed **2026-04-19** (**`docs/ARCHLUCID_RENAME_CHECKLIST.md`**); **`terraform state mv`** only when remote state lists **`archiforge`** (**`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**).
-2. **Missing default policy packs:** The absence of bundled AI governance and security baseline policy packs (V1 GA gate) leaves regulated buyers without immediate, actionable compliance findings during initial evaluation.
-3. **Lack of automated tenant data deletion:** Absence of a verifiable GDPR/CCPA "right to be forgotten" mechanism causes friction in enterprise procurement and legal reviews.
-4. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
-5. **IdP configuration documentation gaps:** Missing explicit documentation for `ArchLucidAuth:Authority` configuration causes friction during enterprise SSO onboarding and security reviews.
-6. **Lack of custom rule authoring UI:** Evaluators cannot easily author and test custom governance rules without writing raw code, slowing down enterprise adoption.
+2. **Lack of automated tenant data deletion:** Absence of a verifiable GDPR/CCPA "right to be forgotten" mechanism causes friction in enterprise procurement and legal reviews.
+3. **Noisy neighbor risks in orchestration:** The lack of rate limiting and concurrency controls for the `AuthorityRunOrchestrator` raises reliability concerns for enterprise buyers evaluating multi-tenant SaaS.
+4. **IdP configuration documentation gaps:** Missing explicit documentation for `ArchLucidAuth:Authority` configuration causes friction during enterprise SSO onboarding and security reviews.
+5. **Lack of custom rule authoring UI:** Evaluators cannot easily author and test custom governance rules without writing raw code, slowing down enterprise adoption.
+6. **Absence of compliance attestations:** The lack of a CPA-issued SOC 2 report and third-party penetration test (deferred to V2) will cause friction during procurement and security reviews.
 
 ---
 
@@ -213,7 +213,7 @@
 
 ## Most Important Truth
 
-ArchLucid is a functionally complete V1 product with a solid architectural foundation. **GA commits** to **two curated policy packs** (AI governance + security baseline). **Bulk evidence ingestion is real but bounded:** **≤30 files** per upload at GA — marketing must carry that constraint visibly (**Marketing alignment Q4**). **Architecture Review exports ship consultant whitelabel** (firm/client branding + attribution — **Marketing alignment Q5**) — logo handling must meet the same tenant-upload security bar as other blobs. **GA cannot ship without two green demo workspaces** (**Marketing alignment Q6**) — fixture drift becomes an operational obligation, not optional polish. **First 90 days of landing copy** must mirror **sales-led GA:** walkthrough primary, self-demo secondary, early-access tertiary — **no public paid-pilot price band** until reference deals exist (**Marketing alignment Q7**).
+ArchLucid is a functionally complete V1 product with a solid architectural foundation. The platform includes **two curated policy packs** (AI governance + security baseline), **bounded bulk evidence ingestion** (**≤30 files** per upload), **Architecture Review exports with consultant whitelabel**, and a **hybrid landing CTA stack** aligned to sales-led GA. **GA cannot ship without two green demo workspaces** (**Marketing alignment Q6**) — fixture drift becomes an operational obligation, not optional polish.
 
 ---
 
@@ -327,48 +327,7 @@ ACCEPTANCE CRITERIA
 3. Breaking layout/copy changes caught by failing smoke force fixture updates — treat **#31** as ongoing hygiene (**§ weaknesses #15**).
 ```
 
-10. **Landing page CTA stack** — first **90 days** post-GA (**Marketing alignment Q7**)
-- Why it matters: **V1 GA** is **sales-led**; **Stripe live** + **Marketplace** are **V1.1**. A **primary “Early access”** or **public paid-pilot $** CTA misaligns acquisition with product truth and accelerates procurement before **CPA SOC 2** narrative maturity buyers expect (**external pen test is `V2`** — excluded from **V1** planning Q&A per owner **2026-05-15**, **P8**).
-- Expected impact: **Narrative / commercial honesty** — supports **§1 Adoption** and **§8 Commercial Packaging** without changing weighted headline (**81.55%**) until execution evidence changes. Coordinate with **#31** Workspace **A** URL.
-- Affected qualities: Adoption Friction (evaluator path), Commercial Packaging Readiness (copy integrity).
-- Actionable: Yes
-
-```markdown
-Implement the **hybrid CTA stack** on the marketing / landing surface (repo path for static marketing site or `archlucid-ui` marketing routes — locate current landing implementation).
-
-PRIMARY CTA — **Request walkthrough**
-- Prominent button → calendar booking URL (**config-driven**, e.g. env or CMS) or mailto fallback with **pre-filled subject** tracked in analytics.
-- Analytics: `cta_walkthrough_click` (+ optional UTM preservation).
-
-SECONDARY CTA — **Try the self-demo**
-- Deep-link into **Workspace A** from improvement **#31** (document exact URL pattern in **`docs/go-to-market/`**).
-- Label must not imply full product access parity with paid tenancy; tooltip: short honest line (synthetic workspace, **no PHI**).
-- Analytics: `cta_self_demo_click`.
-
-TERTIARY — **Early access** / waitlist
-- Email capture only; **no** implied instant login, **no** live **Checkout** path at GA.
-- Post-submit copy sets expectation: **team will follow up**; align with **`FirstTenantFunnelEvents`** / CRM handoff if applicable.
-- Analytics: `cta_early_access_submit`.
-
-OUT OF SCOPE (first 90 days)
-- **Public paid-pilot price band** on hero — defer until at least one **reference** design-partner-style deal (**V1.1** marketing revisit).
-- Replacing walkthrough with self-serve **Buy** — blocked by **#7** / **P4** (finance confirms Partner Center readiness).
-
-COPY / LEGAL — MANDATORY
-- Product + marketing review sign-off that **Early access** language matches **walkthrough-led** onboarding.
-- Cross-link FAQ: bulk upload **≤30 files** (**#30**), demo workspaces (**#31**).
-
-TESTS
-- Smoke or unit: landing builds; critical CTAs render and hrefs resolve in **staging**.
-- Optional Playwright: click **Try the self-demo** → lands in Workspace **A** entry route (coordinate with **#31** tests — avoid duplicate full journey if already covered).
-
-ACCEPTANCE CRITERIA
-1. **Hero** shows three CTAs in **primary / secondary / tertiary** visual hierarchy matching this spec.
-2. **Analytics** events fire for each CTA path (verify in staging telemetry or browser devtools contract).
-3. **No** hero **$** pilot pricing for **90-day** window — pricing remains **sales-qualification** path only.
-```
-
-11. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
+10. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
 - Why it matters: Enterprise compliance requires a verifiable way to delete all tenant data upon contract termination or user request.
 - Expected impact: Compliance Readiness (+3 pts).
 - Affected qualities: Compliance Readiness, Security.
@@ -382,7 +341,7 @@ Implement a durable background job to handle tenant offboarding and data deletio
 - Acceptance criteria: A tenant can be fully deleted, and the deletion is durably audited.
 ```
 
-12. **Add explicit OpenTelemetry tracing for LLM API calls**
+11. **Add explicit OpenTelemetry tracing for LLM API calls**
 - Why it matters: AI/Agent Readiness requires deep observability into token usage, latency, and prompt/response pairs for debugging and cost attribution.
 - Expected impact: Observability (+3 pts), AI/Agent Readiness (+2 pts).
 - Affected qualities: Observability, AI/Agent Readiness.
@@ -396,7 +355,7 @@ Enhance the existing OpenTelemetry instrumentation to capture detailed metrics f
 - Acceptance criteria: Token usage and latency for LLM calls are visible in the APM backend.
 ```
 
-13. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
+12. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
 - Why it matters: Prevents a single tenant from exhausting worker resources by submitting too many concurrent architecture review runs.
 - Expected impact: Performance (+3 pts), Reliability (+2 pts).
 - Affected qualities: Performance, Reliability.
@@ -410,7 +369,7 @@ Introduce concurrency limits for the `AuthorityRunOrchestrator` to protect the w
 - Acceptance criteria: A single tenant cannot monopolize the worker pool.
 ```
 
-16. **Enhance `ArchLucid.Decisioning` with custom rule authoring UI**
+13. **Implement automated vulnerability scanning for uploaded evidence blobs**
 - Why it matters: Enterprise security requires scanning all user-uploaded artifacts (e.g., architecture diagrams, PDFs) for malware before processing them in the pipeline.
 - Expected impact: Security (+4 pts), Compliance Readiness (+2 pts).
 - Affected qualities: Security, Compliance Readiness.
@@ -424,7 +383,7 @@ Integrate a malware scanning step into the blob upload pipeline in `ArchLucid.Ap
 - Acceptance criteria: Infected files are blocked from entering the system and are durably audited.
 ```
 
-18. **Add tenant-specific data residency configuration options**
+14. **Add tenant-specific data residency configuration options**
 - Why it matters: European and highly regulated buyers often require explicit guarantees that their data (SQL and blobs) resides in a specific geographic region.
 - Expected impact: Compliance Readiness (+3 pts), Commercial Packaging (+2 pts).
 - Affected qualities: Compliance Readiness, Commercial Packaging.
@@ -438,7 +397,7 @@ Extend the tenant provisioning pipeline to support explicit data residency regio
 - Acceptance criteria: Operators can provision tenants in specific geographic regions.
 ```
 
-19. **Enhance the Knowledge Graph with temporal query support**
+15. **Enhance the Knowledge Graph with temporal query support**
 - Why it matters: Advanced users need to query the state of the architecture at specific points in time to understand how decisions evolved.
 - Expected impact: Explainability (+4 pts), Usability (+2 pts).
 - Affected qualities: Explainability, Usability.
@@ -451,7 +410,20 @@ Add temporal query capabilities to the `ArchLucid.KnowledgeGraph` API.
 - Acceptance criteria: Users can view the knowledge graph exactly as it existed at a past date.
 ```
 
-14. **Implement robust API key rotation and revocation endpoints**
+16. **Implement robust API key rotation and revocation endpoints**
+- Why it matters: Secure programmatic access requires the ability to rotate and revoke API keys without manual database intervention.
+- Expected impact: Security (+3 pts), Reliability (+2 pts).
+- Affected qualities: Security, Reliability.
+- Actionable: Yes
+
+```markdown
+Add API endpoints for managing tenant API keys.
+- Implement `POST /v1/auth/keys/rotate` and `DELETE /v1/auth/keys/{id}`.
+- Ensure the revocation takes effect immediately across all distributed caches.
+- Acceptance criteria: API keys can be securely rotated and revoked via the API.
+```
+
+17. **Expand `ui-e2e-live` to cover the full golden path**
 - Why it matters: The Playwright E2E suite still relies heavily on mocked `/api/proxy` responses, leaving integration blind spots.
 - Expected impact: Correctness (+3 pts), Reliability (+2 pts).
 - Affected qualities: Correctness, Reliability.
@@ -465,7 +437,7 @@ Expand the `ui-e2e-live` test suite to cover the complete golden path of the ope
 - Acceptance criteria: The full operator golden path is validated against a live backend in CI.
 ```
 
-15. **Expand `ui-e2e-live` to cover the full golden path**
+18. **Enhance `ArchLucid.Decisioning` with custom rule authoring UI**
 - Why it matters: Evaluators and enterprise buyers need a way to easily author and test custom governance rules without writing raw code.
 - Expected impact: Customer Self-Sufficiency (+4 pts), Usability (+3 pts).
 - Affected qualities: Customer Self-Sufficiency, Usability.
@@ -484,16 +456,12 @@ Implement a web-based rule authoring interface in `archlucid-ui` that integrates
 ## Prompt Batching Guidance
 
 - **Batch 0 (IaC / state hygiene — coordinated window):** Improvement **#1** (**Terraform Phase 7.5**) **closed** in-repository **2026-05-15** — future brownfield-only **`state mv`** PRs pair **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`** updates with operator **`terraform plan`** sign-off (human-required — **DEV** before **Prod**).
-- **Batch 1b (Marketing artifact — GA gate):** **28** (buyer-grade report export **+ consultant whitelabel — Q5**). Coordinate with **#27** so labels in exported doc match UI glossary (**Architecture snapshot**, **Review**, etc.); coordinate with **#29** so **Policy findings** reflect seeded packs; security review on logo uploads.
-- **Batch 1c (Governance content — GA gate):** **29** — curated pack authoring + seed/bootstrap + docs honesty guardrails; pair with legal/product review of mapping disclaimers; **do not** dilute with landing-zone pack scope creep.
-- **Batch 1d (Evidence capture UX — GA gate):** **30** with **#27** — bulk upload surfaces must reuse glossary (**Evidence**, **Capture**) and visible **“up to 30 files”** disclosure.
-- **Batch 1e (Demo workspaces — GA gate):** **31** alone or with **#29** seed coordination — release-blocking smoke; avoid coupling with unrelated feature PRs close to GA freeze.
-- **Batch 1f (Landing / GTM — GA):** **32** after **#31** Workspace **A** URL is stable — pair copy + analytics; keep out of unrelated feature merges near freeze.
+- **Batch 1e (Demo workspaces — GA gate):** **31** alone or with seed coordination — release-blocking smoke; avoid coupling with unrelated feature PRs close to GA freeze.
 - **Batch 1 (High Leverage, Low Risk):** 3, 4, 17, 24. These address immediate correctness, security, and documentation gaps without major architectural changes.
 - **Batch 2 (Performance & Observability):** 5, 9, 15, 21, 23. These improve the operational characteristics of the system, making it more robust at scale.
 - **Batch 3 (Testing & Analytics):** 8, 11, 12, 14. These improve the testing posture and provide better ROI/cost estimation capabilities.
 - **Batch 4 (DTF orchestration migration — dedicated slice):** 26 alone. This is a foundational change with its own parity-test obligation; give it a full context window and do not mix it with other improvements.
-- **Deferred / V1.1 program (do not batch into V1 execution):** 20 (inbound MCP); **Azure CAF / landing-zone curated policy pack** (extends **#29** mechanics — ship post-GA per owner **Q3**); **bulk evidence upload limit above 30 files**, ZIP expansion, recursive folder ingest (**extends #30**). Keep out of V1 Cursor batches; plan V1.1 slices with dedicated context.
+- **Deferred / V1.1 program (do not batch into V1 execution):** 20 (inbound MCP); **Azure CAF / landing-zone curated policy pack** (ship post-GA per owner **Q3**); **bulk evidence upload limit above 30 files**, ZIP expansion, recursive folder ingest. Keep out of V1 Cursor batches; plan V1.1 slices with dedicated context.
 
 ---
 
