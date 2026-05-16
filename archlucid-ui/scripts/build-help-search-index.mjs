@@ -13,7 +13,7 @@ const REPO_ROOT = join(UI_ROOT, "..");
 /** Repo-relative paths; keep small (<500KB index budget). */
 const CURATED_DOC_PATHS = [
   "docs/library/PILOT_GUIDE.md",
-  "docs/TROUBLESHOOTING.md",
+  "docs/runbooks/TROUBLESHOOTING.md",
   "docs/library/CONFIGURATION_REFERENCE.md",
   "docs/CORE_PILOT.md",
   "docs/go-to-market/PROCUREMENT_FAQ.md",

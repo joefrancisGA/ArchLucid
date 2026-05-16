@@ -42,7 +42,7 @@ These rules load when `*.cs` files are in context (`globs: "**/*.cs"`, `alwaysAp
 | **Modern language** | [`CSharp-Terse-Modern-Language.mdc`](../../.cursor/rules/CSharp-Terse-Modern-Language.mdc) | Pattern matching & `is null`, `??`/`??=`, switch expressions, `=>` members, LINQ pipelines, `[]` collection expressions, target-typed `new`, range/index. |
 | **Construction & layout** | [`CSharp-Members-And-Construction.mdc`](../../.cursor/rules/CSharp-Members-And-Construction.mdc) | Primary constructors, backing-field null coalescing for DI, one-line simple properties, no stacked blank lines, named bounds / magic numbers. |
 
-**Always-on (non-`*.cs`)** rules — agent policy, session hygiene, architecture output shape — live in other `.mdc` files (see `.cursor/rules/` directory listing).
+**Always-on (non-`*.cs`)** rules — agent policy, session hygiene, architecture output shape, user task discipline — live in other `.mdc` files (see `.cursor/rules/` directory listing), including [`User-Task-Discipline.mdc`](../../.cursor/rules/User-Task-Discipline.mdc).
 
 **Supplementary:** CodeQL logging — [`CodeQL-Sanitized-Logging.mdc`](../../.cursor/rules/CodeQL-Sanitized-Logging.mdc).
 
@@ -60,8 +60,11 @@ These are applied above and beyond the Cursor rules — they come from the user'
 6. **No `ConfigureAwait(false)` in tests.**
 7. **All SQL DDL in one file per database** (`ArchLucid.sql`, plus migration scripts under `sql/migrations/`).
 8. **Explain non-obvious code with a comment** ("would a developer with two years of experience understand this in 30 seconds?"). Do **not** narrate obvious code (`// Increment counter` is forbidden).
-9. **Architectural intent before code.** If requirements are ambiguous, ask or state assumptions explicitly.
+9. **Architectural intent before code.** If requirements are ambiguous, ask or state assumptions explicitly. If something becomes unclear *during* the task, say so explicitly — do not make a silent choice and move on.
 10. **Modular methods are fine even if a method has only one line of code.** Reuse aggressively.
+11. **Minimum code, nothing speculative.** Write only what the task requires. Do not add methods, classes, parameters, or abstractions that were not asked for.
+12. **Surgical edits.** Touch only files and lines the task requires. Do not refactor, reformat, or rename outside the scope of the change.
+13. **Success criteria and verification.** Before starting substantive work, state brief acceptance criteria. Do not declare the task done until those criteria are met or the user explicitly defers them.
 
 ---
 

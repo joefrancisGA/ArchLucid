@@ -15,6 +15,7 @@ Full build and CI alignment: **`docs/engineering/BUILD.md`**.
 - **Assessments / readiness passes:** **`docs/library/REPO_DIGEST.md`** (skim; regenerate with **`python scripts/repo_digest/build_repo_digest.py`**), **`docs/library/ASSESSMENT_INPUTS.md`**, **`docs/assessments/LATEST.md`**, `.cursor/rules/Assessment-Read-First.mdc`, and attach **`.cursor/rules/Assessment-Scope-V1_1.mdc`** (**`@Assessment-Scope-V1_1`**) for scoring rules (not always injected).
 - **Session / token hygiene (always-loaded rule):** `.cursor/rules/Session-Hygiene.mdc` — use **`REPO_DIGEST`** for orientation, avoid repeating full-file reads already in-thread, batch with one preamble; suggest a **new chat** when context is enormous or you pivot subsystems.
 - **Agent execution (always-loaded):** `.cursor/rules/Agent-Execution-Policy.mdc` — do the work yourself (no implementation subagents), single-thread by default, hooks block parallel workers unless adjusted with explicit approval.
+- **Task discipline (always-loaded):** `.cursor/rules/User-Task-Discipline.mdc` — surface uncertainty, avoid speculative code, keep edits surgical, state acceptance criteria and verify before calling work done.
 - **Historical artifact snapshots:** `docs/archive/assessments/` (default exclusions in `.cursorignore`).
 
 ## Partial .NET solution load

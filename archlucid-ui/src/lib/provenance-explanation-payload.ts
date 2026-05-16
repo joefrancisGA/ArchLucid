@@ -34,5 +34,5 @@ export function parseProvenanceExplanationPayload(raw: unknown): ExplanationPayl
 }
 
 export function applyPathTemplate(template: string, runId: string): string {
-  return template.replace("{runId}", encodeURIComponent(runId));
+  return template.replaceAll("{runId}", encodeURIComponent(runId));
 }

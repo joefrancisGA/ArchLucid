@@ -6,6 +6,7 @@ import {
   SHOWCASE_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
+import { escapeRegExpSource } from "./helpers/escape-reg-exp-source";
 
 const claimsShowcasePath = "/showcase/claims-intake-modernization";
 
@@ -17,7 +18,7 @@ const SHOWCASE_MANIFEST_DEEP_LINK = /^(?:Open manifest|Manifest|Finalized manife
 
 /** Canonical run detail path is `/reviews/{runId}`; `/runs/*` permanently redirects (see `next.config.ts`). */
 function showcaseDemoReviewDetailUrlPattern(): RegExp {
-  return new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`);
+  return new RegExp(`/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}`);
 }
 
 /**
@@ -74,7 +75,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.getByRole("link", { name: SHOWCASE_MANIFEST_DEEP_LINK }).first().click();
     await expect(page).toHaveURL(
       new RegExp(
-        `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}/manifest)`,
+        `(?:/manifests/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/manifest)`,
       ),
     );
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
@@ -147,7 +148,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       .getByTestId(`runs-row-primary-explore-${SHOWCASE_DEMO_RUN_ID}`)
       .click();
     const afterListClickUrl = new RegExp(
-      `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}/manifest|/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")})`,
+      `(?:/manifests/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/manifest|/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)})`,
     );
     await expect(page).toHaveURL(afterListClickUrl);
 
