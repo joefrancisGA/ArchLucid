@@ -31,7 +31,7 @@ internal abstract class BillingCheckoutEndToEndSqlJwtFactoryBase : GreenfieldSql
     }
 
     /// <summary>PKCS#8 private key PEM path configured for <c>Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath</c>.</summary>
-    protected string PrivatePemPath => _privatePemPath;
+    internal string PrivatePemPath => _privatePemPath;
 
     protected sealed override void ConfigureWebHost(IWebHostBuilder builder)
     {

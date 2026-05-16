@@ -66,9 +66,9 @@
 - **Score:** 85
 - **Weight:** 5
 - **Weighted deficiency signal:** 75
-- **Justification:** The Azure extractor provides cost data, and the comparison replay cost estimator is useful. **V1 GA** ships curated **AI governance** and **security baseline** default packs so pilots immediately surface policy findings aligned to the wedge — demos prove ROI faster than buyer-authored-only onboarding. Report export **whitelabel** lets consultants prove tangible client-ready ROI artifacts without offline rebranding. **Regulated synthetic demo workspace** gives repeatable proof narrative without bespoke pilot setup. Cross-tenant analytics remain absent for portfolio-wide executive proof.
+- **Justification:** The Azure extractor provides cost data, and the comparison replay cost estimator is useful. **Improvement #11 (2026-05-16):** replay cost heuristics inspect persisted comparison JSON (`manifestDiff` structural surface, `agentResultDiff.agentDeltas`, `exportDiffs`, `runDiff`, and export-record diff payloads) so estimates track replay complexity more closely — operator cost-estimate API contract unchanged. **V1 GA** ships curated **AI governance** and **security baseline** default packs so pilots immediately surface policy findings aligned to the wedge — demos prove ROI faster than buyer-authored-only onboarding. Report export **whitelabel** lets consultants prove tangible client-ready ROI artifacts without offline rebranding. **Regulated synthetic demo workspace** gives repeatable proof narrative without bespoke pilot setup. Cross-tenant analytics remain absent for portfolio-wide executive proof.
 - **Tradeoffs:** Tenant isolation (database-per-tenant) makes cross-tenant analytics harder to implement securely. **Curated packs** shift burden to **credible authoring** — MVP rule counts must stay humble (*starting baseline*, not exhaustive compliance) or regulated buyers dismiss the wedge.
-- **Improvement recommendations:** Enhance the `ComparisonReplayCostEstimator` with more granular heuristics (**#11**). Implement internal-only cross-tenant analytics (**#12**).
+- **Improvement recommendations:** Implement internal-only cross-tenant analytics (**#12**).
 
 ### 5. Usability
 - **Score:** 79
@@ -402,34 +402,33 @@
 - **Score:** 82
 - **Weight:** 1
 - **Weighted deficiency signal:** 18
-- **Justification:** Azure cost extractor provides visibility.
-- **Tradeoffs:** Some manual estimation remains.
-- **Improvement recommendations:** Enhance `ComparisonReplayCostEstimator` with granular heuristics to reduce manual estimation.
+- **Justification:** Azure cost extractor provides visibility. Comparison replay cost estimation uses granular payload heuristics (**#11**, **2026-05-16**).
+- **Tradeoffs:** Some manual estimation remains in Azure extractor–adjacent workflows.
+- **Improvement recommendations:** None for comparison replay cost heuristics (**#11** **closed 2026-05-16**); residual gap is broader Azure cost manual estimation surfaces.
 
 ---
 
-## Top 10 Most Important Weaknesses
+## Top 9 Most Important Weaknesses
 
 1. Absence of cross-tenant analytics, limiting Proof-of-ROI for enterprise buyers.
 2. Playwright E2E still relies heavily on mocked **`/api/proxy`** paths — **live** **`ui-e2e-live`** negative API checks (**improvement #8**, **`live-api-negative-paths.spec.ts`**) shrink blind spots but do **not** replace broad golden-path coverage.
-4. Manual nature of some cost estimations in the Azure extractor.
-5. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or teams risk shipping broken demos.
-6. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
-7. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
-8. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity and release-smoke validation remain engineering obligations before the legacy orchestrator can be safely removed.
-9. **Auth mismatches in operational scripts:** Potential authentication mismatches exist in operational scripts (like `v1-rc-drill.ps1`) that assume `DevelopmentBypass`, reducing testing realism against environments secured with JWT or API keys.
-10. **Lack of explicit logging for agent state machine transitions:** Makes it difficult to observe and debug complex agent orchestrations in production.
+3. Manual nature of some cost estimations in the Azure extractor (distinct from comparison replay payload heuristics — **#11** **closed 2026-05-16**).
+4. **Demo workspace fixture drift:** With **two GA-gated workspaces** (**Marketing alignment** / **#31**), UX, export, policy-pack, or graph changes can silently break evaluator smoke — CI/release discipline must pin fixtures or teams risk shipping broken demos.
+5. **Agent orchestration concurrency limits:** The `AuthorityRunOrchestrator` lacks rate limiting and concurrency controls, posing a reliability risk where a single tenant could exhaust worker pool resources during bursty workloads.
+6. **LLM observability gaps:** Missing explicit OpenTelemetry tracing for LLM API calls (token usage, latency) hinders debugging, cost attribution, and AI/Agent readiness at scale.
+7. **Durable Task Framework (DTF) parity gaps:** While SQL production DI is wired to DTF, full multiset parity and release-smoke validation remain engineering obligations before the legacy orchestrator can be safely removed.
+8. **Auth mismatches in operational scripts:** Potential authentication mismatches exist in operational scripts (like `v1-rc-drill.ps1`) that assume `DevelopmentBypass`, reducing testing realism against environments secured with JWT or API keys.
+9. **Lack of explicit logging for agent state machine transitions:** Makes it difficult to observe and debug complex agent orchestrations in production.
 
 ---
 
-## Top 6 Monetization Blockers
+## Top 5 Monetization Blockers
 
 1. Lack of cross-tenant analytics to prove ROI to executive buyers.
 2. **Manual Azure cost estimations:** The Azure extractor's manual cost estimation limits the platform's ability to automatically prove hard infrastructure savings to buyers.
-3. **Coarse `ComparisonReplayCostEstimator` heuristics:** Lack of granular heuristics makes Proof-of-ROI less accurate for complex agent tasks, weakening the commercial business case.
-4. **Lack of cross-tenant analytics (internal):** Without internal tools to aggregate usage and cost savings across tenants, it is difficult to prove ROI and inform product direction.
-5. **Lack of self-serve transactability:** With Stripe live keys and Marketplace publication deferred to V1.1, the platform cannot capture self-serve revenue.
-6. **Lack of a published reference customer:** The absence of a signed design partner or published reference customer may slow early momentum.
+3. **Lack of cross-tenant analytics (internal):** Without internal tools to aggregate usage and cost savings across tenants, it is difficult to prove ROI and inform product direction.
+4. **Lack of self-serve transactability:** With Stripe live keys and Marketplace publication deferred to V1.1, the platform cannot capture self-serve revenue.
+5. **Lack of a published reference customer:** The absence of a signed design partner or published reference customer may slow early momentum.
 
 ---
 
@@ -462,16 +461,9 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
 
 ## Top Improvement Opportunities
 
-1. Enhance `ComparisonReplayCostEstimator` with more granular heuristics
-- Why it matters: Improves Proof-of-ROI readiness by providing more accurate cost estimates.
-- Expected impact: Directly improves Proof-of-ROI Readiness (+4 pts), Explainability (+2 pts). Weighted readiness impact: +0.50%.
-- Affected qualities: Proof-of-ROI Readiness, Explainability.
-- Actionable: Yes
-```markdown
-Enhance the `ComparisonReplayCostEstimator` in `ArchLucid.Application` to use more granular heuristics based on the specific agent tasks and artifact sizes involved in the comparison. Update the scoring logic to account for the complexity of the manifest deltas. Do not change the HTTP API contract for the cost estimate endpoint. Acceptance criteria: Cost estimates are more accurate and reflect the actual complexity of the replay.
-```
+**Closed 2026-05-16 — improvement #11:** `ComparisonReplayCostEstimator` (via `ComparisonReplayPayloadComplexity`) weights persisted comparison JSON: `manifestDiff` structural lists, `agentResultDiff.agentDeltas` line-item surface, `exportDiffs` cardinality, `runDiff.changedFields`, export-record `changedTopLevelFields` / `requestDiff`, plus legacy `manifestDelta` / `artifactSizesBytes`; operator replay cost-estimate response shape unchanged.
 
-2. Add cross-tenant analytics capabilities (internal only)
+1. Add cross-tenant analytics capabilities (internal only)
 - Why it matters: Helps prove ROI across the customer base and informs product direction.
 - Expected impact: Directly improves Proof-of-ROI Readiness (+3 pts), Stickiness (+2 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Proof-of-ROI Readiness, Stickiness.
@@ -480,7 +472,7 @@ Enhance the `ComparisonReplayCostEstimator` in `ArchLucid.Application` to use mo
 Implement an internal-only analytics service that aggregates anonymized usage data, run completion times, and cost savings across all tenants. Ensure this service bypasses RLS safely using a dedicated internal connection string or explicit cross-tenant queries. Do not expose this data to external customers. Acceptance criteria: Internal operators can query aggregated cross-tenant metrics.
 ```
 
-3. Enhance `v1-rc-drill.ps1` to support JWT/API key authentication
+2. Enhance `v1-rc-drill.ps1` to support JWT/API key authentication
 - Why it matters: Reduces auth mismatches and improves testing realism.
 - Expected impact: Directly improves Correctness (+2 pts), Security (+2 pts). Weighted readiness impact: +0.46%.
 - Affected qualities: Correctness, Security.
@@ -489,7 +481,7 @@ Implement an internal-only analytics service that aggregates anonymized usage da
 Update the `v1-rc-drill.ps1` script to accept optional parameters for a JWT bearer token or API key. If provided, use these credentials instead of relying on `DevelopmentBypass`. Update the script documentation to explain how to use these parameters. Do not break the existing `DevelopmentBypass` behavior when no credentials are provided. Acceptance criteria: The RC drill script can be run against an environment secured with JWT or API keys.
 ```
 
-4. Add explicit logging for agent state machine transitions
+3. Add explicit logging for agent state machine transitions
 - Why it matters: Improves observability and debugging of complex agent orchestrations.
 - Expected impact: Directly improves Observability (+5 pts), AI/Agent Readiness (+1 pts). Weighted readiness impact: +0.27%.
 - Affected qualities: Observability, AI/Agent Readiness.
@@ -498,7 +490,7 @@ Update the `v1-rc-drill.ps1` script to accept optional parameters for a JWT bear
 Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker` to log every state transition of the agent execution state machine. Include the run ID, current state, next state, and any relevant task IDs in the log context. Ensure these logs are emitted at the `Information` level. Do not change the state machine logic itself. Acceptance criteria: Agent state transitions are clearly visible in the application logs.
 ```
 
-5. Add snapshot tests for advisory Terraform recommendation emit
+4. Add snapshot tests for advisory Terraform recommendation emit
 - Why it matters: Ensures Terraform snippets remain valid and do not regress.
 - Expected impact: Directly improves Correctness (+3 pts), Security (+1 pts). Weighted readiness impact: +0.56%.
 - Affected qualities: Correctness, Security.
@@ -507,7 +499,7 @@ Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker
 Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` that validate the output of the advisory Terraform recommendation emit. Use a library like `Verify` or `Snapshooter` to ensure the generated Terraform snippets match expected baselines. Ensure the tests verify the presence of the `# ArchLucid advisory` comment. Do not execute `terraform validate` in the unit tests to avoid external dependencies. Acceptance criteria: Snapshot tests cover the major Terraform recommendation scenarios.
 ```
 
-6. Add `DataArchivalHostHealthCheck` to the operator dashboard
+5. Add `DataArchivalHostHealthCheck` to the operator dashboard
 - Why it matters: Improves observability of background data archival processes.
 - Expected impact: Directly improves Observability (+4 pts), Usability (+1 pts). Weighted readiness impact: +0.15%.
 - Affected qualities: Observability, Usability.
@@ -516,7 +508,7 @@ Create snapshot tests in `ArchLucid.Api.Tests` or `ArchLucid.Application.Tests` 
 Update the operator UI dashboard to display the status of the `data_archival` health check. Fetch the health status from the `/health` endpoint and display a warning indicator if the status is `Degraded`. Do not change the underlying health check logic in the backend. Acceptance criteria: Operators can see the data archival health status on the UI dashboard.
 ```
 
-7. Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic
+6. Enhance `SqlScopedResolutionDbConnectionFactory` with connection retry logic
 - Why it matters: Improves resilience against transient database connection failures.
 - Expected impact: Directly improves Correctness (+2 pts), Performance (+1 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Correctness, Performance.
@@ -525,7 +517,7 @@ Update the operator UI dashboard to display the status of the `data_archival` he
 Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Api.DataAccess` to use Polly for transient fault handling when opening SQL connections. Implement a retry policy with exponential backoff for common transient SQL errors (e.g., error numbers 40613, 40197, 40501). Ensure the retry policy is configurable via `appsettings.json`. Do not change the `IDbConnectionFactory` interface. Acceptance criteria: SQL connections automatically retry on transient failures.
 ```
 
-8. Add explicit documentation for `ArchLucidAuth:Authority` configuration
+7. Add explicit documentation for `ArchLucidAuth:Authority` configuration
 - Why it matters: Reduces adoption friction for generic OIDC setup.
 - Expected impact: Directly improves Adoption Friction (+3 pts), Customer Self-Sufficiency (+2 pts). Weighted readiness impact: +0.42%.
 - Affected qualities: Adoption Friction, Customer Self-Sufficiency.
@@ -534,7 +526,7 @@ Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Api.DataAccess` to
 Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides step-by-step instructions for configuring `ArchLucidAuth:Authority` with a non-Microsoft OIDC issuer (e.g., Okta, Auth0). Include examples of claim mapping to `ArchLucidRoles` and troubleshooting tips for common JWKS validation errors. Link this new file from `docs/library/SECURITY.md` and `docs/library/CONFIGURATION_REFERENCE.md`. Acceptance criteria: Clear documentation exists for setting up generic OIDC.
 ```
 
-9. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
+8. **Implement automated tenant data deletion (GDPR/CCPA right to be forgotten)**
 - Why it matters: Enterprise compliance requires a verifiable way to delete all tenant data upon contract termination or user request.
 - Expected impact: Compliance Readiness (+3 pts).
 - Affected qualities: Compliance Readiness, Security.
@@ -548,7 +540,7 @@ Implement a durable background job to handle tenant offboarding and data deletio
 - Acceptance criteria: A tenant can be fully deleted, and the deletion is durably audited.
 ```
 
-10. **Add explicit OpenTelemetry tracing for LLM API calls**
+9. **Add explicit OpenTelemetry tracing for LLM API calls**
 - Why it matters: AI/Agent Readiness requires deep observability into token usage, latency, and prompt/response pairs for debugging and cost attribution.
 - Expected impact: Observability (+3 pts), AI/Agent Readiness (+2 pts).
 - Affected qualities: Observability, AI/Agent Readiness.
@@ -562,7 +554,7 @@ Enhance the existing OpenTelemetry instrumentation to capture detailed metrics f
 - Acceptance criteria: Token usage and latency for LLM calls are visible in the APM backend.
 ```
 
-11. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
+10. **Implement rate limiting and concurrency controls for the `AuthorityRunOrchestrator`**
 - Why it matters: Prevents a single tenant from exhausting worker resources by submitting too many concurrent architecture review runs.
 - Expected impact: Performance (+3 pts), Reliability (+2 pts).
 - Affected qualities: Performance, Reliability.
@@ -576,7 +568,7 @@ Introduce concurrency limits for the `AuthorityRunOrchestrator` to protect the w
 - Acceptance criteria: A single tenant cannot monopolize the worker pool.
 ```
 
-12. **Add tenant-specific data residency configuration options**
+11. **Add tenant-specific data residency configuration options**
 - Why it matters: European and highly regulated buyers often require explicit guarantees that their data (SQL and blobs) resides in a specific geographic region.
 - Expected impact: Compliance Readiness (+3 pts), Commercial Packaging (+2 pts).
 - Affected qualities: Compliance Readiness, Commercial Packaging.
@@ -590,7 +582,7 @@ Extend the tenant provisioning pipeline to support explicit data residency regio
 - Acceptance criteria: Operators can provision tenants in specific geographic regions.
 ```
 
-13. **Enhance the Knowledge Graph with temporal query support**
+12. **Enhance the Knowledge Graph with temporal query support**
 - Why it matters: Advanced users need to query the state of the architecture at specific points in time to understand how decisions evolved.
 - Expected impact: Explainability (+4 pts), Usability (+2 pts).
 - Affected qualities: Explainability, Usability.
@@ -603,7 +595,7 @@ Add temporal query capabilities to the `ArchLucid.KnowledgeGraph` API.
 - Acceptance criteria: Users can view the knowledge graph exactly as it existed at a past date.
 ```
 
-14. **Expand `ui-e2e-live` to cover the full golden path**
+13. **Expand `ui-e2e-live` to cover the full golden path**
 - Why it matters: The Playwright E2E suite still relies heavily on mocked `/api/proxy` responses, leaving integration blind spots.
 - Expected impact: Correctness (+3 pts), Reliability (+2 pts).
 - Affected qualities: Correctness, Reliability.
@@ -617,7 +609,7 @@ Expand the `ui-e2e-live` test suite to cover the complete golden path of the ope
 - Acceptance criteria: The full operator golden path is validated against a live backend in CI.
 ```
 
-15. **Enhance `ArchLucid.Decisioning` with custom rule authoring UI**
+14. **Enhance `ArchLucid.Decisioning` with custom rule authoring UI**
 - Why it matters: Evaluators and enterprise buyers need a way to easily author and test custom governance rules without writing raw code.
 - Expected impact: Customer Self-Sufficiency (+4 pts), Usability (+3 pts).
 - Affected qualities: Customer Self-Sufficiency, Usability.
@@ -631,7 +623,7 @@ Implement a web-based rule authoring interface in `archlucid-ui` that integrates
 - Acceptance criteria: Operators can create, test, and publish custom rules entirely through the UI.
 ```
 
-16. **Add guided baseline collection wizard (onboarding)**
+15. **Add guided baseline collection wizard (onboarding)**
 - Why it matters: Proof-of-ROI and executive value depend on tenant baselines; empty baselines weaken sponsor narratives.
 - Expected impact: Time-to-Value (+3 pts), Proof-of-ROI Readiness (+2 pts), Executive Value Visibility (+2 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Time-to-Value, Proof-of-ROI Readiness, Executive Value Visibility.
@@ -644,7 +636,7 @@ Add a first-run (or settings) wizard in `archlucid-ui` that captures pilot basel
 - Acceptance criteria: A new tenant can complete baseline capture without sales engineering hand-holding.
 ```
 
-17. **Surface Missing Baseline warnings on executive / sponsor surfaces**
+16. **Surface Missing Baseline warnings on executive / sponsor surfaces**
 - Why it matters: Prevents sending abstract executive artifacts when quantified ROI inputs are absent.
 - Expected impact: Executive Value Visibility (+4 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.22%.
 - Affected qualities: Executive Value Visibility, Proof-of-ROI Readiness.
@@ -652,12 +644,12 @@ Add a first-run (or settings) wizard in `archlucid-ui` that captures pilot basel
 
 ```markdown
 On sponsor brief, first-value report, and architecture-review export preview routes, show a prominent **Missing baseline** banner when required ROI baseline fields are unset.
-- Link the banner to the baseline wizard (improvement **#16**).
+- Link the banner to the baseline wizard (improvement **#15**).
 - Do not block read-only preview; block **sendable** or **download** classification when marketing requires quantified claims.
 - Acceptance criteria: Operators cannot mistake an incomplete baseline package for board-ready ROI proof.
 ```
 
-18. **Integrate axe-core accessibility checks in CI**
+17. **Integrate axe-core accessibility checks in CI**
 - Why it matters: Catches regressions on operator-shell pages without claiming full assistive-technology user-study coverage (out of V1 headline scope).
 - Expected impact: Accessibility (+8 pts). Weighted readiness impact: +0.08%.
 - Affected qualities: Accessibility.
@@ -670,7 +662,7 @@ Add `@axe-core/playwright` (or equivalent) to the existing Playwright CI job for
 - Acceptance criteria: CI fails when a serious a11y regression lands on covered routes.
 ```
 
-19. **Implement progressive disclosure for advanced governance routes**
+18. **Implement progressive disclosure for advanced governance routes**
 - Why it matters: Reduces first-session cognitive load while keeping Operate depth available after the pilot proof path.
 - Expected impact: Cognitive Load (+6 pts), Usability (+2 pts), Adoption Friction (+2 pts). Weighted readiness impact: +0.14%.
 - Affected qualities: Cognitive Load, Usability, Adoption Friction.
@@ -683,7 +675,7 @@ In `archlucid-ui` navigation and home CTAs, default to the four-step pilot path 
 - Acceptance criteria: First-time evaluators see a narrow path; power users can still reach advanced routes.
 ```
 
-20. **Expand security baseline policy pack with five additional MVP rules**
+19. **Expand security baseline policy pack with five additional MVP rules**
 - Why it matters: Thin starter packs risk one-and-done pilots; modest depth improves demo credibility without over-claiming compliance.
 - Expected impact: Template and Accelerator Richness (+5 pts), Stickiness (+2 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.09%.
 - Affected qualities: Template and Accelerator Richness, Stickiness, Proof-of-ROI Readiness.
@@ -696,7 +688,7 @@ Add five buyer-credible rules to the shipped **security architecture baseline** 
 - Acceptance criteria: Security baseline pack ships ≥5 additional MVP rules and demo workspace smoke passes.
 ```
 
-21. **Complete DTF multiset parity tests and release-smoke validation**
+20. **Complete DTF multiset parity tests and release-smoke validation**
 - Why it matters: SQL DTF port is wired; legacy orchestrator cannot be removed until parity and smoke prove equivalence.
 - Expected impact: Correctness (+2 pts), Reliability (+3 pts), AI/Agent Readiness (+2 pts). Weighted readiness impact: +0.35%.
 - Affected qualities: Correctness, Reliability, AI/Agent Readiness.
@@ -709,7 +701,7 @@ Add integration tests that run the same authority-run scenarios through DTF and 
 - Acceptance criteria: Parity suite green; release smoke documents DTF path; legacy removal is a follow-up PR gated on green main.
 ```
 
-22. **Harden curated demo workspace smoke and fixture pinning**
+21. **Harden curated demo workspace smoke and fixture pinning**
 - Why it matters: Two GA-gated demo workspaces drift when UX, exports, or policy packs change without fixture updates.
 - Expected impact: Adoption Friction (+3 pts), Commercial Packaging Readiness (+2 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.10%.
 - Affected qualities: Adoption Friction, Commercial Packaging Readiness, Proof-of-ROI Readiness.
@@ -722,7 +714,7 @@ Pin demo workspace seeds (SQL + blob fixtures) to versioned packages consumed by
 - Acceptance criteria: GA checklist cannot pass without both workspaces green on pinned fixtures.
 ```
 
-23. **Add ArchUnitNET (or equivalent) architecture boundary tests**
+22. **Add ArchUnitNET (or equivalent) architecture boundary tests**
 - Why it matters: Large monorepo surface increases accidental coupling; automated boundaries protect maintainability at scale.
 - Expected impact: Maintainability (+4 pts), Modularity (+2 pts). Weighted readiness impact: +0.10%.
 - Affected qualities: Maintainability, Modularity.
@@ -735,7 +727,7 @@ Introduce architecture tests in `ArchLucid.TestSupport` (or a dedicated test pro
 - Acceptance criteria: At least five boundary rules run in CI and block obvious layer violations.
 ```
 
-24. **Surface finding confidence and evidence links prominently in review UI**
+23. **Surface finding confidence and evidence links prominently in review UI**
 - Why it matters: Operators need trust signals to accelerate decisions; buried provenance slows Decision Velocity.
 - Expected impact: Decision Velocity (+5 pts), Explainability (+2 pts), Differentiability (+1 pt). Weighted readiness impact: +0.13%.
 - Affected qualities: Decision Velocity, Explainability, Differentiability.
@@ -747,7 +739,7 @@ On finding detail and list views in `archlucid-ui`, show confidence (or severity
 - Acceptance criteria: PHI/minimization-style demo finding shows visible confidence and evidence navigation without opening the full manifest.
 ```
 
-25. **Implement bi-directional ServiceNow status sync (when dev credentials available)**
+24. **Implement bi-directional ServiceNow status sync (when dev credentials available)**
 - Why it matters: **V1 GA** commitment per `V1_SCOPE.md` §2.13; closes workflow gap for ITSM-led enterprises.
 - Expected impact: Workflow Embeddedness (+5 pts), Interoperability (+2 pts). Weighted readiness impact: +0.21%.
 - Affected qualities: Workflow Embeddedness, Interoperability.

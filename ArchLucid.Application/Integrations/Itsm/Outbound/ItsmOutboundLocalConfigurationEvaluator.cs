@@ -1,6 +1,7 @@
 using System.Net;
 
-using ArchLucid.Core.Configuration;using ArchLucid.Persistence.Integrations;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Persistence.Integrations;
 
 namespace ArchLucid.Application.Integrations.Itsm.Outbound;
 
