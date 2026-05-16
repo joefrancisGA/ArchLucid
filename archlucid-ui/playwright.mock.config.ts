@@ -44,7 +44,7 @@ export default defineConfig({
         "tests/compare.spec.ts",
         "tests/onboarding.spec.ts",
       ],
-      testIgnore: ["**/live-api-*.spec.ts", "tests/e2e/**"],
+      testIgnore: ["**/live-api-*.spec.ts", "**/demo-workspace-*.smoke.spec.ts", "tests/e2e/**"],
       use: { ...devices["Desktop Chrome"] },
     },
     /** axe-core + WCAG 2.1 A/AA tagging — `npm run test:e2e:accessibility` (CI job `ui-playwright-accessibility`). */

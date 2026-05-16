@@ -2262,6 +2262,8 @@ jobs:
           if-no-files-found: warn
 
   # Live API + Sql + Next.js (no mock). Gating — failures block merge.
+  # Runs playwright.config.ts (live-api-*, demo-workspace-*.smoke @release-gate, marketing targets). Demo GA anchors:
+  # docs/go-to-market/DEMO_WORKSPACES.md
   ui-e2e-live:
     name: "Operator UI: e2e live API + SQL (full CI; extended live-a11y matrix via workflow_dispatch input)"
     needs:

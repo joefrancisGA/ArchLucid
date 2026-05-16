@@ -80,6 +80,7 @@ This runs `docker compose ... down -v` and removes named volumes (including Azur
 - **Production-style pilot:** [Pilot Guide](../library/PILOT_GUIDE.md)
 - **Business case:** [ROI_MODEL.md](ROI_MODEL.md) and [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)
 - **Developer / detailed demo seed:** [demo-quickstart.md](../library/demo-quickstart.md)
+- **Hosted GA workspaces (anchors + Smoke):** [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md)
 
 ---
 

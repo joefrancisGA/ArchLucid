@@ -1,5 +1,5 @@
-# Full Playwright live-api suite off the PR critical path (schedule + manual).
-# PRs still run merge-blocking `ui-e2e-live` + `ui-e2e-live-apikey` + `ui-e2e-live-jwt` (subset matrix) in ci.yml before this nightly.
+# Full Playwright live-api suite after PR merge (scheduled + dispatch). Complements `ci.yml`:
+# live-e2e jobs there use `if: github.event_name != 'pull_request'` (see `ci.yml` `ui-e2e-live*`).
 
 name: Live E2E nightly
 

@@ -786,6 +786,42 @@ export async function getRunExportZip(request: APIRequestContext, runId: string)
   });
 }
 
+/** GET `/v1/architecture/run/{runId}/exports` — export audit rows incl. persisted analysis JSON (demo whitelabel pre-fill). */
+export async function getRunArchitectureExportHistoryRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<APIResponse> {
+  return request.get(`${resolveLiveApiBase()}/v1/architecture/run/${encodeURIComponent(runId)}/exports`, {
+    headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+  });
+}
+
+/**
+ * POST `/v1/architecture/run/{runId}/analysis-report/export/docx/consulting` — consulting-template DOCX
+ * (`CanExportConsultingDocx` policy + ExecuteAuthority); returns raw HTTP for Playwright assertions.
+ */
+export async function postConsultingAnalysisDocxRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<APIResponse> {
+  const base = liveJsonHeaders();
+
+  const headers = mergeTenantScope(
+    {
+      ...base,
+      Accept: "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/json",
+    },
+    tenantScope,
+  );
+
+  return request.post(
+    `${resolveLiveApiBase()}/v1/architecture/run/${encodeURIComponent(runId)}/analysis-report/export/docx/consulting`,
+    { data: {}, headers },
+  );
+}
+
 /** Minimal policy pack content JSON (matches `PolicyPackContentDocument` shape used in API tests). */
 export function minimalPolicyPackContentJson(complianceKey: string): string {
   return JSON.stringify({

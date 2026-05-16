@@ -201,7 +201,7 @@ function Write-ReleaseSmokeEvidenceSummary {
         Write-Host '  - CI-style mock UI E2E - archlucid-ui npm run test:e2e (playwright.mock.config.ts)'
         Write-Host '  - Named UI-SQL parity - release-smoke-live-ui-sql.cmd wraps -Profile LiveUiSql'
         Write-Host '  - Ad hoc parity switch - add -LivePlaywright (same SQL prerequisites as steps 5-7)'
-        Write-Host '  - CI live E2E - ui-e2e-live* workflows, playwright.config.ts live-api-* glob'
+        Write-Host '  - CI live E2E - ui-e2e-live* workflows, playwright.config.ts (live-api-*, demo-workspace-*.smoke, tagged @release-gate)'
 
         Write-Host ''
 
@@ -228,7 +228,7 @@ function Write-ReleaseSmokeEvidenceSummary {
 
     Write-Host 'Playwright live parity exercised this run:'
     if ($LiveUiSqlProfile) {
-        Write-Host '  - Via -Profile LiveUiSql (same specs as CI ui-e2e-live live-api-*)'
+        Write-Host '  - Via -Profile LiveUiSql (same specs as CI ui-e2e-live: live-api-* + demo workspace smoke)'
     }
     else {
         Write-Host '  - Via -LivePlaywright (playwright.config.ts and LIVE_API_URL follows -ApiBaseUrl)'
@@ -249,7 +249,7 @@ function Write-ReleaseSmokeEvidenceSummary {
 
     Write-Host ('  - Live UI-SQL claim - ' + $paritySwitchVerb + ' against the same smoke-started API as steps 5-7')
 
-    Write-Host '  - CI ui-e2e-live* UI prebuild plus LIVE_E2E_SKIP_NEXT_BUILD, aligned to playwright.config.ts live-api-* selection'
+    Write-Host '  - CI ui-e2e-live* UI prebuild plus LIVE_E2E_SKIP_NEXT_BUILD, aligned to playwright.config.ts live-api + GA demo selections'
 }
 
 function Invoke-ReleaseSmokePlaywrightWhenRequested
@@ -355,7 +355,7 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
                 & $releaseSmokeNpm exec playwright test
                 if ($LASTEXITCODE -ne 0) {
                     Write-OperatorFailureTriage -Stage 'Playwright E2E (-LivePlaywright)' -Category 'PlaywrightFailure' `
-                        -Details @(('live playwright exited {0} - same suite as CI ui-e2e-live (live-api-* specs).' -f $LASTEXITCODE)) `
+                        -Details @(('live playwright exited {0} - same suite as CI ui-e2e-live (live-api-* + demo-workspace-*.smoke; includes @release-gate GA demo anchors).' -f $LASTEXITCODE)) `
                         -NextSteps @(
                         'cd archlucid-ui; npx playwright install',
                         'Ensure API still listening at LIVE_API_URL',
