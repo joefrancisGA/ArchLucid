@@ -510,7 +510,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.contextSnapshotId ?? "ctx-demo",
 
-        name: "Context captured",
+        name: "Source context captured",
 
       },
 

@@ -485,11 +485,11 @@ ArchLucid is a functionally complete V1 product with a solid architectural found
 Update the `v1-rc-drill.ps1` script to accept optional parameters for a JWT bearer token or API key. If provided, use these credentials instead of relying on `DevelopmentBypass`. Update the script documentation to explain how to use these parameters. Do not break the existing `DevelopmentBypass` behavior when no credentials are provided. Acceptance criteria: The RC drill script can be run against an environment secured with JWT or API keys.
 ```
 
-4. Add explicit logging for agent state machine transitions
-- Why it matters: Improves observability and debugging of complex agent orchestrations.
-- Expected impact: Directly improves Observability (+5 pts), AI/Agent Readiness (+1 pts). Weighted readiness impact: +0.27%.
+4. COMPLETED: Add explicit logging for agent state machine transitions
+- Why it matters: `AuthorityRunOrchestrator`, queued completion, finalize, and the worker-hosted deferred outbox (`AuthorityPipelineWorkProcessor`) now emit Information-level `Agent execution state transition` logs with run id, current/next states, and task or outbox identifiers where applicable.
+- Expected impact: (Delivered **2026-05-16**.) Directly improves Observability (+5 pts), AI/Agent Readiness (+1 pts). Weighted readiness impact: +0.27%.
 - Affected qualities: Observability, AI/Agent Readiness.
-- Actionable: Yes
+- Actionable: Completed
 ```markdown
 Add explicit `ILogger` calls in `AuthorityRunOrchestrator` and `ArchLucid.Worker` to log every state transition of the agent execution state machine. Include the run ID, current state, next state, and any relevant task IDs in the log context. Ensure these logs are emitted at the `Information` level. Do not change the state machine logic itself. Acceptance criteria: Agent state transitions are clearly visible in the application logs.
 ```

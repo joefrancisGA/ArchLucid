@@ -13,10 +13,15 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 using Microsoft.Extensions.Options;
+using System.Linq;
 
 namespace ArchLucid.Host.Core.Hosted;
 
 /// <inheritdoc cref="IAuthorityPipelineWorkProcessor" />
+/// <remarks>
+///     When hosted in <c>ArchLucid.Worker</c>, Information-level <c>Agent execution state transition</c> logs cover the
+///     deferred authority outbox path (run id, states, task ids, outbox id).
+/// </remarks>
 public sealed class AuthorityPipelineWorkProcessor(
     IServiceScopeFactory scopeFactory,
     IOptions<AuthorityPipelineWorkProcessorOptions> processorOptions,
@@ -101,13 +106,25 @@ public sealed class AuthorityPipelineWorkProcessor(
         if (_logger.IsEnabled(LogLevel.Information))
 
             _logger.LogInformation(
-                "Authority pipeline worker state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}",
+                "Agent execution state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}, TaskIds={TaskIds}, AuthorityPipelineWorkOutboxId={OutboxId}",
                 entry.RunId,
                 "queued_outbox_claimed",
-                "authority_pipeline_resume");
+                "authority_pipeline_resume",
+                "(none)",
+                LogSanitizer.Sanitize(entry.OutboxId.ToString()));
 
 
         await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
+
+        if (_logger.IsEnabled(LogLevel.Information))
+
+            _logger.LogInformation(
+                "Agent execution state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}, TaskIds={TaskIds}, AuthorityPipelineWorkOutboxId={OutboxId}",
+                entry.RunId,
+                "authority_pipeline_resume",
+                "post_authority_coordination",
+                "(none)",
+                LogSanitizer.Sanitize(entry.OutboxId.ToString()));
 
         IRunRepository runRepository =
             scope.ServiceProvider.GetRequiredService<IRunRepository>();
@@ -166,17 +183,57 @@ public sealed class AuthorityPipelineWorkProcessor(
 
             await taskRepository.CreateManyAsync(starterTasks, cancellationToken);
 
+        IReadOnlyList<AgentTask> materializedTasksForLog =
+            existingTasks.Count > 0 ? existingTasks : starterTasks;
+
+        if (_logger.IsEnabled(LogLevel.Information))
+
+            _logger.LogInformation(
+                "Agent execution state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}, TaskIds={TaskIds}, AuthorityPipelineWorkOutboxId={OutboxId}",
+                entry.RunId,
+                "post_authority_coordination",
+                "agent_tasks_materialized",
+                FormatTaskIdsForLog(materializedTasksForLog),
+                LogSanitizer.Sanitize(entry.OutboxId.ToString()));
+
+
         RunRecord? statusPatch = await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken);
 
-        if (statusPatch is not null &&
-            !string.Equals(
-                statusPatch.LegacyRunStatus,
-                nameof(ArchitectureRunStatus.TasksGenerated),
-                StringComparison.Ordinal))
+        string nextAfterMaterialize;
+        if (statusPatch is null)
+            nextAfterMaterialize = "run_legacy_status_patch_skipped";
+        else if (!string.Equals(
+                     statusPatch.LegacyRunStatus,
+                     nameof(ArchitectureRunStatus.TasksGenerated),
+                     StringComparison.Ordinal))
         {
             statusPatch.LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated);
             await runRepository.UpdateAsync(statusPatch, cancellationToken);
+            nextAfterMaterialize = "run_legacy_status_tasks_generated";
         }
+        else
+            nextAfterMaterialize = "run_legacy_status_already_tasks_generated";
+
+        if (_logger.IsEnabled(LogLevel.Information))
+
+            _logger.LogInformation(
+                "Agent execution state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}, TaskIds={TaskIds}, AuthorityPipelineWorkOutboxId={OutboxId}",
+                entry.RunId,
+                "agent_tasks_materialized",
+                nextAfterMaterialize,
+                FormatTaskIdsForLog(materializedTasksForLog),
+                LogSanitizer.Sanitize(entry.OutboxId.ToString()));
+
+        if (_logger.IsEnabled(LogLevel.Information))
+
+            _logger.LogInformation(
+                "Agent execution state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}, TaskIds={TaskIds}, AuthorityPipelineWorkOutboxId={OutboxId}",
+                entry.RunId,
+                nextAfterMaterialize,
+                "authority_work_outbox_processed",
+                FormatTaskIdsForLog(materializedTasksForLog),
+                LogSanitizer.Sanitize(entry.OutboxId.ToString()));
+
 
         await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
     }
@@ -267,6 +324,22 @@ public sealed class AuthorityPipelineWorkProcessor(
             RetryBackoffBaseSeconds = baseSecs,
             RetryBackoffMaxSeconds = maxSecs,
         };
+    }
+
+    private static string FormatTaskIdsForLog(IReadOnlyList<AgentTask> tasks)
+    {
+        if (tasks is null || tasks.Count == 0)
+            return "(none)";
+
+        IEnumerable<string> sanitized = tasks
+            .Select(static t => t.TaskId)
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Select(LogSanitizer.Sanitize)
+            .OrderBy(static id => id, StringComparer.OrdinalIgnoreCase);
+
+        string joined = string.Join(',', sanitized);
+
+        return string.IsNullOrEmpty(joined) ? "(none)" : joined;
     }
 
     private static int ClampInt(int value, int minInclusive, int maxInclusive)

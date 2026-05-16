@@ -218,7 +218,7 @@ describe("RunsDashboardPanel", () => {
         expect(screen.getByTestId("operator-home-showcase-demo-banner")).toBeInTheDocument();
       });
       expect(screen.getByText(/workspace preview/i)).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Jump to review journey" })).toHaveAttribute("href", "/#buyer-review-journey");
+      expect(screen.queryByRole("link", { name: "Jump to review journey" })).toBeNull();
       expect(screen.getByRole("link", { name: "Open full review package" })).toHaveAttribute(
         "href",
         "/reviews/claims-intake-modernization",

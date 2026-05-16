@@ -9,7 +9,7 @@ using ArchLucid.Host.Core.Startup.Validation;
 
 namespace ArchLucid.Worker;
 
-/// <summary>Background worker host: advisory scans, data archival, retrieval indexing outbox (no public HTTP API).</summary>
+/// <summary>Background worker host: advisory scans, data archival, retrieval indexing outbox (no public HTTP API). Deferred authority outbox work logs agent execution state transitions in <see cref="Hosted.AuthorityPipelineWorkProcessor"/>.</summary>
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class Program
 {

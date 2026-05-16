@@ -113,6 +113,8 @@ public sealed class AuthorityRunOrchestrator(
 
             pipelineRunIdForDiagnostics = run.RunId;
 
+            LogAgentExecutionStateTransition(run.RunId, "authority_pipeline_start", "run_persisted", "(none)");
+
             if (logger.IsEnabled(LogLevel.Information))
 
                 logger.LogInformation(
@@ -147,13 +149,7 @@ public sealed class AuthorityRunOrchestrator(
             {
                 string deferredEvidenceBundleId = evidenceBundleIdForDeferredWork!.Trim();
 
-                if (logger.IsEnabled(LogLevel.Information))
-
-                    logger.LogInformation(
-                        "Authority pipeline orchestrator transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}",
-                        run.RunId,
-                        "run_persisted",
-                        "queued_authority_pipeline");
+                LogAgentExecutionStateTransition(run.RunId, "run_persisted", "queued_authority_pipeline", "(none)");
 
 
                 AuthorityPipelineWorkPayload payload = new()
@@ -195,16 +191,13 @@ public sealed class AuthorityRunOrchestrator(
                         LogSanitizer.Sanitize(request.ProjectId));
 
 
+                LogAgentExecutionStateTransition(run.RunId, "queued_authority_pipeline", "deferred_authority_pipeline_return",
+                    "(none)");
+
                 return run;
             }
 
-            if (logger.IsEnabled(LogLevel.Information))
-
-                logger.LogInformation(
-                    "Authority pipeline orchestrator transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}",
-                    run.RunId,
-                    "run_persisted",
-                    "inline_authority_pipeline_stages");
+            LogAgentExecutionStateTransition(run.RunId, "run_persisted", "inline_authority_pipeline_stages", "(none)");
 
 
             if (_authorityPipelineStagesExecutionDriver.RequiresCommittedRunHeaderBeforeStages)
@@ -225,7 +218,10 @@ public sealed class AuthorityRunOrchestrator(
 
             if (stageResult.NeedsFinalizeOnCurrentUnitOfWork)
             {
-                return await _authorityCommittedPipelineFinalizer.FinalizeAsync(
+                LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages", "authority_pipeline_finalize",
+                    "(none)");
+
+                RunRecord finalized = await _authorityCommittedPipelineFinalizer.FinalizeAsync(
                     run,
                     ctx.ContextSnapshot!,
                     ctx.FindingsSnapshot!,
@@ -234,10 +230,18 @@ public sealed class AuthorityRunOrchestrator(
                     scope,
                     uow,
                     pipelineCt);
+
+                LogAgentExecutionStateTransition(run.RunId, "authority_pipeline_finalize", "authority_pipeline_committed",
+                    "(none)");
+
+                return finalized;
             }
 
             if (stageResult.CompletedRun is null)
                 throw new InvalidOperationException("Authority pipeline stages completed without a run record.");
+
+            LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages",
+                "authority_pipeline_finished_out_of_band", "(none)");
 
             return stageResult.CompletedRun;
         }
@@ -298,6 +302,9 @@ public sealed class AuthorityRunOrchestrator(
                         request.RunId);
 
 
+                LogAgentExecutionStateTransition(request.RunId, "queued_resume", "skipped_idempotent_context_exists",
+                    "(none)");
+
                 return existing;
             }
 
@@ -314,13 +321,7 @@ public sealed class AuthorityRunOrchestrator(
 
             RunRecord run = existing;
 
-            if (logger.IsEnabled(LogLevel.Information))
-
-                logger.LogInformation(
-                    "Authority pipeline orchestrator transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}",
-                    run.RunId,
-                    "queued_resume",
-                    "inline_authority_pipeline_stages");
+            LogAgentExecutionStateTransition(run.RunId, "queued_resume", "inline_authority_pipeline_stages", "(none)");
 
 
             using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();
@@ -367,7 +368,10 @@ public sealed class AuthorityRunOrchestrator(
 
             if (stageResult.NeedsFinalizeOnCurrentUnitOfWork)
             {
-                return await _authorityCommittedPipelineFinalizer.FinalizeAsync(
+                LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages", "authority_pipeline_finalize",
+                    "(none)");
+
+                RunRecord finalized = await _authorityCommittedPipelineFinalizer.FinalizeAsync(
                     run,
                     ctx.ContextSnapshot!,
                     ctx.FindingsSnapshot!,
@@ -376,10 +380,18 @@ public sealed class AuthorityRunOrchestrator(
                     scope,
                     uow,
                     pipelineCt);
+
+                LogAgentExecutionStateTransition(run.RunId, "authority_pipeline_finalize", "authority_pipeline_committed",
+                    "(none)");
+
+                return finalized;
             }
 
             if (stageResult.CompletedRun is null)
                 throw new InvalidOperationException("Authority pipeline stages completed without a run record.");
+
+            LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages",
+                "authority_pipeline_finished_out_of_band", "(none)");
 
             return stageResult.CompletedRun;
         }
@@ -422,5 +434,18 @@ public sealed class AuthorityRunOrchestrator(
         run.TenantId = scope.TenantId;
         run.WorkspaceId = scope.WorkspaceId;
         run.ScopeProjectId = scope.ProjectId;
+    }
+
+    private void LogAgentExecutionStateTransition(Guid runId, string currentState, string nextState, string taskIds)
+    {
+        if (!logger.IsEnabled(LogLevel.Information))
+            return;
+
+        logger.LogInformation(
+            "Agent execution state transition: RunId={RunId}, CurrentState={CurrentState}, NextState={NextState}, TaskIds={TaskIds}",
+            runId,
+            currentState,
+            nextState,
+            taskIds);
     }
 }

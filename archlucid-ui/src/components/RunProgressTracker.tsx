@@ -142,7 +142,7 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
 
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-36 text-sm font-medium">Context captured</span>
+          <span className="w-36 text-sm font-medium">Source context captured</span>
           <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">

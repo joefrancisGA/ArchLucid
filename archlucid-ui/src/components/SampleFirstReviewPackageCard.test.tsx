@@ -92,7 +92,10 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
       "href",
       "/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Review decision evidence" })).toHaveAttribute("href", "/#buyer-review-journey");
+    expect(screen.getByRole("link", { name: "Open evidence graph" })).toHaveAttribute(
+      "href",
+      "/graph?runId=claims-intake-modernization",
+    );
     expect(screen.getByRole("button", { name: /About this sample review package/i })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Start a new request" })).toBeNull();
   });

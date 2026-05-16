@@ -54,7 +54,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
         <li className="flex flex-wrap items-center gap-2">
           <span className="w-36 text-sm font-medium">
-            <GlossaryTooltip termKey="context_snapshot">Context captured</GlossaryTooltip>
+            <GlossaryTooltip termKey="context_snapshot">Source context captured</GlossaryTooltip>
           </span>
           <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Complete" : "Pending"}</Badge>
         </li>
