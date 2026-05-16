@@ -42,12 +42,13 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
         // skew cannot reject the token at Authentication (401) while identical Reader tokens still validate.
         DateTimeOffset notBefore = now.AddMinutes(-2);
 
+        // Emit roles like JwtLocalSigningIntegrationTests: TokenValidationParameters.RoleClaimType is "roles";
+        // omit ClaimTypes.Role to avoid duplicate app-role payloads that confuse some JwtBearer validations.
         Claim[] claims =
         [
             new(JwtRegisteredClaimNames.Sub, userId.ToString("D")),
             new(JwtRegisteredClaimNames.Email, email),
             new("name", email),
-            new(ClaimTypes.Role, role),
             new("roles", role),
             new("tenant_id", tenantId.ToString("D")),
             new("workspace_id", workspaceId.ToString("D")),

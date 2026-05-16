@@ -45,6 +45,10 @@ public sealed class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program
         builder.UseSetting("ArchLucidAuth:JwtLocalAudience", "api://archlucid-jwt-local-test");
         builder.UseSetting("Authentication:ApiKey:DevelopmentBypassAll", "false");
 
+        // http-only URLs disable HTTPS redirection so TestServer clients keep Authorization headers on redirects
+        // (matches ArchLucid.Api.Tests.ArchLucidApiFactory — see AspNetCoreHostingUrls.ShouldUseHttpsRedirection).
+        builder.UseSetting("ASPNETCORE_URLS", "http://127.0.0.1:0");
+
         builder.ConfigureAppConfiguration((_, config) =>
         {
             Dictionary<string, string?> settings = new()
@@ -69,7 +73,8 @@ public sealed class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program
                 ["ArchLucidAuth:JwtLocalIssuer"] = "https://test.archlucid.local",
                 ["ArchLucidAuth:JwtLocalAudience"] = "api://archlucid-jwt-local-test",
                 ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
-                ["Billing:Provider"] = "Noop"
+                ["Billing:Provider"] = "Noop",
+                ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
             };
 
             ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);

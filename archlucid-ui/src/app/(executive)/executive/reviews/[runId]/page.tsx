@@ -122,7 +122,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
         </Link>
       </div>
 
-      <header className="space-y-2">
+      <header className="space-y-2 rounded-xl border border-neutral-200 bg-gradient-to-br from-teal-50/60 via-white to-transparent px-4 py-4 shadow-sm dark:border-neutral-800 dark:from-teal-950/25 dark:via-neutral-950 dark:to-transparent sm:px-5">
         <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
           Executive summary
         </p>
@@ -159,12 +159,14 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
         <div className="space-y-3">
           <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-start lg:justify-between">
             <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Prioritized findings</h2>
-            <ExecutiveReviewHandoffActions
-              runId={runId}
-              headline={headline}
-              summary={summary}
-              prioritizedFindings={markdownRows}
-            />
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 px-3 py-2 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/50">
+              <ExecutiveReviewHandoffActions
+                runId={runId}
+                headline={headline}
+                summary={summary}
+                prioritizedFindings={markdownRows}
+              />
+            </div>
           </div>
 
           {rows.length === 0 ? (
@@ -172,7 +174,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
               No findings were returned for this review. Check operator shell for pipeline status.
             </p>
           ) : (
-            <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
+            <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 shadow-sm dark:border-neutral-800 md:block">
               <table className="w-full min-w-[640px] border-collapse text-left text-sm">
                 <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
                   <tr>
@@ -186,7 +188,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
                   {rows.map((row) => (
                     <tr
                       key={row.findingId}
-                      className="border-t border-neutral-200 dark:border-neutral-800"
+                      className="border-t border-neutral-200 transition-colors hover:bg-neutral-50/90 dark:border-neutral-800 dark:hover:bg-neutral-900/40"
                     >
                       <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">{row.severity}</td>
                       <td className="px-3 py-2 align-top font-medium text-neutral-900 dark:text-neutral-100">
@@ -214,7 +216,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
           {rows.length > 0 ? (
             <div className="space-y-3 md:hidden">
               {rows.map((row) => (
-                <Card key={row.findingId} className="border border-neutral-200 dark:border-neutral-800">
+                <Card key={row.findingId} className="border border-neutral-200 shadow-sm dark:border-neutral-800">
                   <CardHeader className="space-y-1 pb-2">
                     <CardDescription className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                       {row.severity} · {row.confidence}

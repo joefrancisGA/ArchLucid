@@ -118,75 +118,76 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
 
   return (
     <div className="space-y-3">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Final decision</CardTitle>
-          <CardDescription className="text-neutral-600 dark:text-neutral-400">
-            Plain-language outcome from the aggregate architecture assessment.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">{summary.overallAssessment}</p>
-        </CardContent>
-      </Card>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <Card className="border-teal-200/70 shadow-sm dark:border-teal-900/45 lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Final decision</CardTitle>
+            <CardDescription className="text-neutral-600 dark:text-neutral-400">
+              Plain-language outcome from the aggregate architecture assessment.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">{summary.overallAssessment}</p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Remaining risk</CardTitle>
-          <CardDescription className="text-neutral-600 dark:text-neutral-400">
-            What still needs executive or control-owner attention after this review.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2 pt-0">
-          {remainingRiskParts.map((line, index) => (
-            <p key={index} className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-              {line}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Remaining risk</CardTitle>
+            <CardDescription className="text-neutral-600 dark:text-neutral-400">
+              What still needs executive or control-owner attention after this review.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 pt-0">
+            {remainingRiskParts.map((line, index) => (
+              <p key={index} className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+                {line}
+              </p>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+              Recommended executive action
+            </CardTitle>
+            <CardDescription className="text-neutral-600 dark:text-neutral-400">
+              Highest-signal sponsor move before the next change or steering checkpoint.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+              {pickRecommendedExecutiveAction(summary)}
             </p>
-          ))}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Recommended executive action
-          </CardTitle>
-          <CardDescription className="text-neutral-600 dark:text-neutral-400">
-            Highest-signal sponsor move before the next change or steering checkpoint.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-            {pickRecommendedExecutiveAction(summary)}
-          </p>
-        </CardContent>
-      </Card>
+        <Card className="shadow-sm lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Evidence confidence</CardTitle>
+            <CardDescription className="text-neutral-600 dark:text-neutral-400">
+              How strongly the synthesized narrative aligns to persisted artifacts and deterministic checks.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+              {evidenceConfidenceLine.length > 0
+                ? evidenceConfidenceLine
+                : "Confidence metadata was not returned for this review — use prioritized findings and the manifest package as the authoritative record."}
+            </p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Evidence confidence</CardTitle>
-          <CardDescription className="text-neutral-600 dark:text-neutral-400">
-            How strongly the synthesized narrative aligns to persisted artifacts and deterministic checks.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-            {evidenceConfidenceLine.length > 0
-              ? evidenceConfidenceLine
-              : "Confidence metadata was not returned for this review — use prioritized findings and the manifest package as the authoritative record."}
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Review record</CardTitle>
-          <CardDescription className="text-neutral-600 dark:text-neutral-400">
-            Jump to the sealed artifacts and governance checkpoints that anchor this narrative.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <ul className="m-0 list-none space-y-2 p-0 text-sm">
+        <Card className="shadow-sm lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Review record</CardTitle>
+            <CardDescription className="text-neutral-600 dark:text-neutral-400">
+              Jump to the sealed artifacts and governance checkpoints that anchor this narrative.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <ul className="m-0 list-none space-y-2 p-0 text-sm sm:columns-2 sm:gap-x-8 sm:[&>li]:break-inside-avoid">
             <li>
               <Link
                 className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
@@ -227,8 +228,10 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
                 Start a follow-up review request (operator shell)
               </Link>
             </li>
+          </ul>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
