@@ -3,6 +3,10 @@ description: >-
   Editing coverage gates, Cobertura, Directory.Build.props coverage exclusions,
   Coverlet excludes, *.Tests exclusions, coverage.runsettings, or merge-blocking
   coverage scripts — preserve product-only measurement (exclude TestSupport and tests).
+globs:
+  - "coverage.runsettings"
+  - "**/Directory.Build.props"
+  - "**/*.Tests.csproj"
 alwaysApply: false
 ---
 

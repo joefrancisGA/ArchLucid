@@ -79,14 +79,13 @@ Before approving a new helper, search the repo and the change description for an
 
 ## C# / .NET coding conventions
 
-These map to the user's standing C# rules and the `.cursor/rules/CSharp-*.mdc` files.
+These map to the user's standing C# rules and the consolidated `.cursor/rules/CSharp-Terse-*.mdc` / `CSharp-Members-*.mdc` bundles.
 
 - **Each class in its own file.** Flag multi-class files unless they are tiny private records co-located with their owner.
 - **Concrete types over `var`.** Prefer `Guid runId` over `var runId`. (Exception: `var` is acceptable for obvious anonymous types or LINQ projections where the type is unspeakable.)
 - **LINQ over `foreach`** unless the loop has clear performance impact (hot path, allocation pressure, side-effects). Don't dogmatically convert imperative `foreach` to LINQ in PRs that aren't about performance.
-- **Single-line `throw` after `if`** with no braces — see `.cursor/rules/SingleLineThrowNoBraces.mdc`.
-- **Single-statement `if`/`for`/`foreach`/`while`/`using`/`lock` bodies** drop braces — see `.cursor/rules/CSharp-EmbeddedStatements-NoBraces.mdc`.
-- **Simple auto-properties on one physical line**, no blank lines between adjacent ones — see `.cursor/rules/CSharp-SimpleProperties-OneLine.mdc`.
+- **Guards and braceless control flow** — same-line throws/returns where readable, no braces on single-statement `if`/`foreach`/etc. — see `.cursor/rules/CSharp-Terse-Guards-And-Flow.mdc`.
+- **Simple auto-properties on one physical line**, no blank lines between adjacent ones — see `.cursor/rules/CSharp-Members-And-Construction.mdc`.
 - **Blank line in front of `if` and `foreach`** unless it's the first statement in the method.
 - **Always check nulls** at public method boundaries. Nullable reference types (`string?`) are a hint, not a substitute.
 - **Modular methods.** A one-line method is fine and often preferred over an inline expression that future readers must parse.

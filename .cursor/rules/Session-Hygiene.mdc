@@ -17,10 +17,12 @@ alwaysApply: true
 
 - Do **not** re-read an entire file wholesale if its contents are already in this conversation unless the user asks, something changed on disk, or you need lines you never opened.
 - Prefer **scoped** reads (`Read` with offsets, `Grep`, `SemanticSearch`) over “list everything.”
+- If the user **attached** a path with **`@`** in Cursor, treat the **attachment / summary as already in context** — do not issue a redundant full-file `Read` for that path unless you need specific line ranges that are not in the thread.
+- **Assessment passes:** after reading `docs/assessments/LATEST.md` (or `ASSESSMENT_INPUTS.md`), **cite by section / improvement number** rather than pasting large verbatim blocks into the reply on every follow-up.
 
 ## Batch work
 
-- For a list of related tasks: treat the **first user message** as the shared preamble (scope, pointers, numbered list); work **one item at a time** unless the user says to parallelize against repo policy (`Do-The-Work-Yourself.mdc`).
+- For a list of related tasks: treat the **first user message** as the shared preamble (scope, pointers, numbered list); work **one item at a time** unless the user says to parallelize against repo policy (`Agent-Execution-Policy.mdc`).
 
 ## When to suggest a new chat
 

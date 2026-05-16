@@ -32,56 +32,19 @@ Read [`docs/library/FORMATTING.md`](FORMATTING.md) for the **mechanical** side (
 
 ---
 
-## Rule index — always-on for `**/*.cs`
+## Rule index — file-scoped for `**/*.cs`
 
-These rules are loaded into every Cursor session (`alwaysApply: true`). Each link points to the authoritative `.mdc` file.
+These rules load when `*.cs` files are in context (`globs: "**/*.cs"`, `alwaysApply: false`). **Authoritative text** is the `.mdc` file; this section is an index only.
 
-### Brace & guard discipline
+| Bundle | File | What it covers |
+|--------|------|----------------|
+| **Guards & flow** | [`CSharp-Terse-Guards-And-Flow.mdc`](../../.cursor/rules/CSharp-Terse-Guards-And-Flow.mdc) | Same-line guards, early return (no trailing `else`), braceless single-statement `if`/`foreach`/etc., invert-`if` flattening, single-line `throw`/`continue`, IDE0011 / `FORMATTING.md`. |
+| **Modern language** | [`CSharp-Terse-Modern-Language.mdc`](../../.cursor/rules/CSharp-Terse-Modern-Language.mdc) | Pattern matching & `is null`, `??`/`??=`, switch expressions, `=>` members, LINQ pipelines, `[]` collection expressions, target-typed `new`, range/index. |
+| **Construction & layout** | [`CSharp-Members-And-Construction.mdc`](../../.cursor/rules/CSharp-Members-And-Construction.mdc) | Primary constructors, backing-field null coalescing for DI, one-line simple properties, no stacked blank lines, named bounds / magic numbers. |
 
-| ID | Rule | Summary |
-|----|------|---------|
-| — | [`CSharp-EmbeddedStatements-NoBraces.mdc`](../../.cursor/rules/CSharp-EmbeddedStatements-NoBraces.mdc) | Omit `{ }` for single-statement `if` / `else` / `for` / `foreach` / `while` / `lock` / `using`. |
-| — | [`CSharp-SingleEmbeddedStatement-OneLinePrefer.mdc`](../../.cursor/rules/CSharp-SingleEmbeddedStatement-OneLinePrefer.mdc) | Prefer **same physical line** for short braceless bodies; break when the assembled line is too long. |
-| — | [`SingleLineThrowNoBraces.mdc`](../../.cursor/rules/SingleLineThrowNoBraces.mdc) | Single-line `throw` after `if`, no braces. |
-| — | [`SingleLineContinueNoBraces.mdc`](../../.cursor/rules/SingleLineContinueNoBraces.mdc) | Single-line `continue` after `if`, same line when it reads cleanly. |
-| 01 | [`CSharp-Terse-01-GuardClausesSameLine.mdc`](../../.cursor/rules/CSharp-Terse-01-GuardClausesSameLine.mdc) | Guards on the **same line** as `if` — `return;`, **`return expr;`**, `throw`, etc., when the assembled line stays short. |
-| 12 | [`CSharp-Terse-12-EarlyReturnNoTrailingElse.mdc`(../../.cursor/rules/CSharp-Terse-12-EarlyReturnNoTrailingElse.mdc) | No `else` after a guarded `return` / `throw` / `continue`. |
+**Always-on (non-`*.cs`)** rules — agent policy, session hygiene, architecture output shape — live in other `.mdc` files (see `.cursor/rules/` directory listing).
 
-### Null-safety
-
-| ID | Rule | Summary |
-|----|------|---------|
-| 02 | [`CSharp-Terse-02-PatternMatching.mdc`(../../.cursor/rules/CSharp-Terse-02-PatternMatching.mdc) | Use `is null` / `is not null` / `is { … }` / `is T t` instead of `==` / `!=` / `as`. |
-| 06 | [`CSharp-Terse-06-IsNullPatterns.mdc`(../../.cursor/rules/CSharp-Terse-06-IsNullPatterns.mdc) | Strict subset of #02 — **all** null checks use `is null` / `is not null`. |
-| 07 | [`CSharp-Terse-07-NullCoalescing.mdc`(../../.cursor/rules/CSharp-Terse-07-NullCoalescing.mdc) | `??` and `??=` over if-null fallback blocks; throw via guard, not via `??`. |
-
-### Expression style
-
-| ID | Rule | Summary |
-|----|------|---------|
-| 03 | [`CSharp-Terse-03-SwitchExpressions.mdc`(../../.cursor/rules/CSharp-Terse-03-SwitchExpressions.mdc) | `switch` expression for value mappings; always include a discard arm `_ =>`. |
-| 09 | [`CSharp-Terse-09-ExpressionBodiedMembers.mdc`(../../.cursor/rules/CSharp-Terse-09-ExpressionBodiedMembers.mdc) | `=>` for trivial methods, properties, ctors, operators. |
-| 10 | [`CSharp-Terse-10-LinqGuardPipelines.mdc`(../../.cursor/rules/CSharp-Terse-10-LinqGuardPipelines.mdc) | LINQ pipeline with null-safety over manual `foreach` + accumulator. |
-
-### Construction
-
-| ID | Rule | Summary |
-|----|------|---------|
-| 04 | [`CSharp-Terse-04-CollectionExpressions.mdc`(../../.cursor/rules/CSharp-Terse-04-CollectionExpressions.mdc) | `[]`, `[a, b]`, `[..src, extra]` over `new T[]{}` / `Array.Empty<T>()`. |
-| 05 | [`CSharp-Terse-05-TargetTypedNew.mdc`(../../.cursor/rules/CSharp-Terse-05-TargetTypedNew.mdc) | `new()` on the right when the type is on the left. |
-| 11 | [`CSharp-Terse-11-PrimaryConstructors.mdc`(../../.cursor/rules/CSharp-Terse-11-PrimaryConstructors.mdc) | Primary ctors for DI services and value-shaped records; null checks **stay explicit**. |
-
-### Slicing
-
-| ID | Rule | Summary |
-|----|------|---------|
-| 08 | [`CSharp-Terse-08-RangeAndIndex.mdc`(../../.cursor/rules/CSharp-Terse-08-RangeAndIndex.mdc) | `^n` and `..` over `Length-n` / `Substring` / `.Slice`. |
-
-### Layout
-
-| Rule | Summary |
-|------|---------|
-| [`CSharp-SimpleProperties-OneLine.mdc`(../../.cursor/rules/CSharp-SimpleProperties-OneLine.mdc) | Simple auto-properties on **one line**, no blank lines between consecutive simple properties. |
+**Supplementary:** CodeQL logging — [`CodeQL-Sanitized-Logging.mdc`](../../.cursor/rules/CodeQL-Sanitized-Logging.mdc).
 
 ---
 
@@ -184,16 +147,16 @@ What changed and which rule pulled the lever:
 
 | Edit | Rule(s) |
 |------|---------|
-| `class … : I…` → primary ctor | 11 |
-| Hand-rolled field assignment removed | 11 |
-| `if (… == Guid.Empty) { throw … }` → same-line throw | 01 + `SingleLineThrowNoBraces` |
-| `== null` → `is null` | 02, 06 |
-| `tenants ?? new List<Tenant>()` → `?? []` | 04, 07 |
+| `class … : I…` → primary ctor | **Construction & layout** bundle |
+| Hand-rolled field assignment removed | **Construction & layout** (primary constructors) |
+| `if (… == Guid.Empty) { throw … }` → same-line throw | **Guards & flow** bundle |
+| `== null` → `is null` | **Modern language** bundle (null patterns) |
+| `tenants ?? new List<Tenant>()` → `?? []` | **Modern language** (collection expressions + coalescing) |
 | `var` → `IReadOnlyList<Tenant>` / `DateTime` | user rule (concrete types) |
-| `foreach` + `result.Add(...)` → LINQ pipeline | 10 |
-| Property pattern `is { IsActive: true }` | 02 |
-| Trailing `else { … }` after `continue` removed | 12 |
-| Final block reduced to `return …;` (single expression) | candidate for 09 if extracted to its own helper |
+| `foreach` + `result.Add(...)` → LINQ pipeline | **Modern language** (LINQ pipelines) |
+| Property pattern `is { IsActive: true }` | **Modern language** (pattern matching) |
+| Trailing `else { … }` after `continue` removed | **Guards & flow** (early return) |
+| Final block reduced to `return …;` (single expression) | candidate for **Modern language** (`=>`) if extracted to its own helper |
 
 ---
 
@@ -214,8 +177,8 @@ When a rule and an enterprise-realism concern collide (incomplete requirements, 
 
 ## Maintaining this doc
 
-- Add a new terseness rule: drop a new `CSharp-Terse-NN-…mdc` file under `.cursor/rules/` with `alwaysApply: true`, then add it to the index table above.
-- Retire a rule: change `alwaysApply` to `false` (and explain why in this doc) before deleting the file, so existing references in PRs don't 404.
+- **New style guidance for C#:** add a subsection under the right **bundle** file (`CSharp-Terse-Guards-And-Flow.mdc`, `CSharp-Terse-Modern-Language.mdc`, or `CSharp-Members-And-Construction.mdc`) rather than introducing new `CSharp-Terse-NN-*.mdc` shards — keeps agent context smaller.
+- Retire guidance by editing the bundle; do not leave orphaned `.mdc` filenames linked from here.
 - Bulk style fixes belong in `scripts/` and should be linked from [`docs/FORMATTING.md`](FORMATTING.md), not from here.
 
 ---

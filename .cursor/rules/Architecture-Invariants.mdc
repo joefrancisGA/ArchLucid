@@ -1,5 +1,6 @@
 ---
 description: Points contributors and coding agents at the numbered architecture invariant catalog (`INV-*`) and proposed ADR 0035; enforcement waves live in TECH_BACKLOG (TB-009–TB-012).
+globs: "ArchLucid.*/**/*.cs"
 alwaysApply: false
 ---
 

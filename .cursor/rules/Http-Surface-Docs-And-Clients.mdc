@@ -3,6 +3,12 @@ description: >-
   Changing REST API controllers, Problem Details shapes, GET /openapi/v1.json,
   ArchLucid.Api routes, Contracts DTOs on the wire, OpenAPI snapshots, NSwag /
   Api.Client codegen, npm generate:api-types, or docs/library/API_CONTRACTS.md checklist.
+globs:
+  - "ArchLucid.Api/**/*.cs"
+  - "ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json"
+  - "ArchLucid.Contracts/**/*.cs"
+  - "ArchLucid.Api.Client/**/*.cs"
+  - "archlucid-ui/src/lib/api-types.generated.ts"
 alwaysApply: false
 ---
 
