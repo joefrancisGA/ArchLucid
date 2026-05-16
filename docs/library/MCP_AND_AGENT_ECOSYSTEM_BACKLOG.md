@@ -11,7 +11,7 @@
 
 - [V1_SCOPE.md](V1_SCOPE.md) is the **V1 contract**. MCP is **out of V1** and a **V1.1 candidate** in **§3** (MCP row) — aligned with this backlog.
 - [V1_DEFERRED.md](V1_DEFERRED.md) is the **doc inventory** of partial / V1.1+ stories; **§6d** records the **V1.1** MCP membrane commitment at the same level as other release-window pins.
-- [adr/README.md](../adr/README.md) is the durable decision log. The accompanying ADR for the membrane is **`adr/0029-mcp-membrane-and-agent-ecosystem.md`** (draft).
+- [adr/README.md](../architecture/adr/README.md) is the durable decision log. The accompanying ADR for the membrane is **`adr/0029-mcp-membrane-and-agent-ecosystem.md`** (draft).
 - [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md), [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md), [security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) — the existing posture this plan must respect.
 
 **Rules of the road:**
@@ -91,7 +91,7 @@ The plan resolves to three architectural decisions:
 
 ### 4.3 Dual-pipeline alignment
 
-The membrane sits **outside** the persistence seam described in [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md). It calls into the unified read façade for queries and into the Authority pipeline for proposal writes. It does **not** invoke the Coordinator string-run path directly. This keeps the membrane on the right side of [adr/0021-coordinator-pipeline-strangler-plan.md](../adr/0021-coordinator-pipeline-strangler-plan.md).
+The membrane sits **outside** the persistence seam described in [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md). It calls into the unified read façade for queries and into the Authority pipeline for proposal writes. It does **not** invoke the Coordinator string-run path directly. This keeps the membrane on the right side of [adr/0021-coordinator-pipeline-strangler-plan.md](../architecture/adr/0021-coordinator-pipeline-strangler-plan.md).
 
 ---
 
@@ -128,7 +128,7 @@ This subsection is the **contractual V1.1 minimum** for inbound MCP. Anything no
 | **Outbound MCP** | **Out of scope:** `ArchLucid.Mcp.Client` and any ArchLucid-as-MCP-client allowlist remain **V2** unless a **new** owner row promotes them ([V1_DEFERRED.md](V1_DEFERRED.md) §6d). |
 | **NuGet MCP SDK** | **Pin at V1.1 engineering kickoff** with verification before merge (§9.2 item **9**); pre-1.0 churn risk stays acknowledged in §2 **Assumptions**. |
 
-**Explicit non-goals for this slice:** marketplace agent stores; MCP tool descriptions templated from `Retrieval`; LLM-self-classified approval classes; coordinator-only HTTP bypass ([ADR 0021](../adr/0021-coordinator-pipeline-strangler-plan.md)); SMB/445 or public-internet MCP without private endpoints (§9.5).
+**Explicit non-goals for this slice:** marketplace agent stores; MCP tool descriptions templated from `Retrieval`; LLM-self-classified approval classes; coordinator-only HTTP bypass ([ADR 0021](../architecture/adr/0021-coordinator-pipeline-strangler-plan.md)); SMB/445 or public-internet MCP without private endpoints (§9.5).
 
 ---
 
@@ -167,9 +167,9 @@ This section satisfies the "every design must explicitly address security" rule.
 
 | Dimension | Stance | Evidence / control |
 |---|---|---|
-| **Scalability** | Membrane is stateless and horizontally scalable; bottleneck remains the SQL pipeline behind it. | Same hosting model as `ArchLucid.Api` per [adr/0001-hosting-roles-api-worker-combined.md](../adr/0001-hosting-roles-api-worker-combined.md). |
+| **Scalability** | Membrane is stateless and horizontally scalable; bottleneck remains the SQL pipeline behind it. | Same hosting model as `ArchLucid.Api` per [adr/0001-hosting-roles-api-worker-combined.md](../architecture/adr/0001-hosting-roles-api-worker-combined.md). |
 | **Reliability** | MCP server degrades to "API unavailable" cleanly; no stale tenant data on circuit-open. | Reuse `CircuitBreakingAgentCompletionClient`-style breaker; add `CircuitBreakerHealthCheck` rows for MCP. |
-| **Cost** | Per-MCP-session token cap; reuse `LlmTokenQuotaWindowTracker`, `LlmCompletionResponseCacheOptions`. | Per [adr/0005-llm-completion-pipeline.md](../adr/0005-llm-completion-pipeline.md). |
+| **Cost** | Per-MCP-session token cap; reuse `LlmTokenQuotaWindowTracker`, `LlmCompletionResponseCacheOptions`. | Per [adr/0005-llm-completion-pipeline.md](../architecture/adr/0005-llm-completion-pipeline.md). |
 | **Observability** | OTel spans per MCP tool call; metrics `archlucid.mcp.tool.calls`, `archlucid.mcp.tool.latency`, `archlucid.mcp.tool.tokens`, `archlucid.mcp.approval_class.outcome`. | Reuse `ArchLucidInstrumentation`. |
 | **Supportability** | `archlucid doctor` and `support-bundle` extended to capture MCP session diagnostics; `/version` reports MCP SDK version. | Per [PILOT_GUIDE.md](PILOT_GUIDE.md). |
 | **Audit / compliance** | One typed audit event per tool call; `AUDIT_COVERAGE_MATRIX.md` gains a new section. | Per [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md). |
@@ -240,7 +240,7 @@ Promoting a row out of §9.1 into a sprint pulls a small ripple of doc updates. 
 
 - [V1_SCOPE.md](V1_SCOPE.md) — §3 non-goals row when an item is *explicitly* deferred; new §2.x sub-section when an item ships.
 - [V1_DEFERRED.md](V1_DEFERRED.md) — promote rows; remove on ship.
-- [adr/README.md](../adr/README.md) — append `0029` (and any future MCP/agent ADRs) to the table.
+- [adr/README.md](../architecture/adr/README.md) — append `0029` (and any future MCP/agent ADRs) to the table.
 - [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) — add MCP tool rows when audit events ship.
 - [security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) — note the MCP server principal pattern.
 - [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md) — confirm membrane sits outside the historical dual-path map.

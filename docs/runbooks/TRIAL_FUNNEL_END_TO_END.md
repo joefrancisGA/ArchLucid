@@ -298,4 +298,4 @@ Two failure shapes show **PASS** at the smoke layer:
 - [`TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md), [`TRIAL_END_TO_END.md`](TRIAL_END_TO_END.md), [`TRIAL_FUNNEL.md`](TRIAL_FUNNEL.md), [`TRIAL_LIFECYCLE.md`](TRIAL_LIFECYCLE.md)
 - [`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](../library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)
 - [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) § 3.1 — provenance of the baseline review-cycle hours when the form was skipped
-- [`adr/0021-coordinator-pipeline-strangler-plan.md`](../adr/0021-coordinator-pipeline-strangler-plan.md) — `Run.CommitCompleted` dual-write window
+- [`adr/0021-coordinator-pipeline-strangler-plan.md`](../architecture/adr/0021-coordinator-pipeline-strangler-plan.md) — `Run.CommitCompleted` dual-write window

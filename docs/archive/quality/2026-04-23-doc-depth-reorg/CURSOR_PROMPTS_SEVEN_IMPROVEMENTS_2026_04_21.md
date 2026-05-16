@@ -19,7 +19,7 @@ This file records what was implemented from the seven-improvement prompt set ver
 
 **Not executed:** Full Phase 3 deletes `ICoordinator*` and coordinator audit constants — gated by ADR 0021 soak windows and live E2E.
 
-**Shipped:** [`docs/adr/0022-coordinator-phase3-deferred.md`](adr/0022-coordinator-phase3-deferred.md) tracking placeholder.
+**Shipped:** [`docs/architecture/adr/0022-coordinator-phase3-deferred.md`](../../../architecture/adr/0022-coordinator-phase3-deferred.md) tracking placeholder.
 
 ## 3. ArchLucid.Api coverage ≥ 79%
 

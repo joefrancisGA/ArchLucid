@@ -30,4 +30,4 @@ ArchLucid acts as a **SCIM 2.0 Service Provider** (RFC 7644). Your identity prov
 
 - Operator procedures: [`SCIM_OPERATOR_RUNBOOK.md`](SCIM_OPERATOR_RUNBOOK.md)
 - Threat model: [`../security/SCIM_THREAT_MODEL.md`](../security/SCIM_THREAT_MODEL.md)
-- ADR: [`../adr/0032-scim-v2-service-provider.md`](../adr/0032-scim-v2-service-provider.md)
+- ADR: [`../architecture/adr/0032-scim-v2-service-provider.md`](../architecture/adr/0032-scim-v2-service-provider.md)

@@ -33,11 +33,11 @@ A serialized point-in-time capture of structured context (infrastructure declara
 
 ## Decision trace
 
-A structured log of every decisioning step during a run: which rules fired, which findings applied, what the outcome was. Persisted in two flavors: coordinator-layer (`IDecisionTraceRepository` in **`ArchLucid.Persistence.Data.*`**) and authority-layer (`IDecisionTraceRepository` in **`ArchLucid.Decisioning`**). See **ADR 0010** (`docs/adr/0010-dual-manifest-trace-repository-contracts.md`).
+A structured log of every decisioning step during a run: which rules fired, which findings applied, what the outcome was. Persisted in two flavors: coordinator-layer (`IDecisionTraceRepository` in **`ArchLucid.Persistence.Data.*`**) and authority-layer (`IDecisionTraceRepository` in **`ArchLucid.Decisioning`**). See **ADR 0010** (`docs/architecture/adr/0010-dual-manifest-trace-repository-contracts.md`).
 
 ## Effective governance
 
-The **merged** `PolicyPackContentDocument` that results from applying all applicable policy pack assignments to a scope (project → workspace → tenant precedence). Computed by **`IEffectiveGovernanceResolver`**. Drives alerts, compliance filtering, and advisory defaults. See **ADR 0007** (`docs/adr/0007-effective-governance-merge.md`) and `GET /v1/governance-resolution`.
+The **merged** `PolicyPackContentDocument` that results from applying all applicable policy pack assignments to a scope (project → workspace → tenant precedence). Computed by **`IEffectiveGovernanceResolver`**. Drives alerts, compliance filtering, and advisory defaults. See **ADR 0007** (`docs/architecture/adr/0007-effective-governance-merge.md`) and `GET /v1/governance-resolution`.
 
 ## Evidence bundle
 
@@ -57,7 +57,7 @@ The committed, versioned output of a completed architecture run — the "source 
 
 ## Hosting role
 
-**`Hosting:Role`** configuration (`Api` / `Worker` / `Combined`). Controls which hosted services and controllers are activated in a process. Production typically splits API and Worker; local dev defaults to Combined. See **ADR 0001** (`docs/adr/0001-hosting-roles-api-worker-combined.md`) and **`docs/DEPLOYMENT_TERRAFORM.md`**.
+**`Hosting:Role`** configuration (`Api` / `Worker` / `Combined`). Controls which hosted services and controllers are activated in a process. Production typically splits API and Worker; local dev defaults to Combined. See **ADR 0001** (`docs/architecture/adr/0001-hosting-roles-api-worker-combined.md`) and **`docs/DEPLOYMENT_TERRAFORM.md`**.
 
 ## Knowledge graph
 
@@ -69,7 +69,7 @@ A SQL-backed lease mechanism (**`IHostLeaderLeaseRepository`**, `dbo.HostLeaderL
 
 ## Outbox (transactional outbox)
 
-SQL tables where deferred work is **enqueued atomically inside the same transaction** as the triggering operation. Includes **`dbo.AuthorityPipelineWorkOutbox`**, **`dbo.RetrievalIndexingOutbox`**, and **`dbo.IntegrationEventOutbox`** (integration events toward Service Bus). A background worker polls and processes rows. Failed integration publishes use **retry with exponential backoff** and then **dead-letter** (`DeadLetteredUtc`); operators can list and re-queue rows via admin API (`GET/POST .../admin/integration-outbox/...`). Prevents lost work on crash. See **ADR 0004** (`docs/adr/0004-transactional-outbox-retrieval-indexing.md`).
+SQL tables where deferred work is **enqueued atomically inside the same transaction** as the triggering operation. Includes **`dbo.AuthorityPipelineWorkOutbox`**, **`dbo.RetrievalIndexingOutbox`**, and **`dbo.IntegrationEventOutbox`** (integration events toward Service Bus). A background worker polls and processes rows. Failed integration publishes use **retry with exponential backoff** and then **dead-letter** (`DeadLetteredUtc`); operators can list and re-queue rows via admin API (`GET/POST .../admin/integration-outbox/...`). Prevents lost work on crash. See **ADR 0004** (`docs/architecture/adr/0004-transactional-outbox-retrieval-indexing.md`).
 
 ## Policy pack
 
@@ -81,11 +81,11 @@ The three-level hierarchical identifier that isolates data between customers and
 
 ## Simulator mode / Real mode
 
-**`AgentExecution:Mode`** setting. **`Simulator`** (default) uses `DeterministicAgentSimulator` — no Azure OpenAI calls, deterministic outputs, safe for tests and CI. **`Real`** uses `RealAgentExecutor` + Azure OpenAI completions. See **ADR 0005** (`docs/adr/0005-llm-completion-pipeline.md`) and **`docs/OPERATIONS_LLM_QUOTA.md`**.
+**`AgentExecution:Mode`** setting. **`Simulator`** (default) uses `DeterministicAgentSimulator` — no Azure OpenAI calls, deterministic outputs, safe for tests and CI. **`Real`** uses `RealAgentExecutor` + Azure OpenAI completions. See **ADR 0005** (`docs/architecture/adr/0005-llm-completion-pipeline.md`) and **`docs/OPERATIONS_LLM_QUOTA.md`**.
 
 ## Storage provider
 
-**`ArchLucid:StorageProvider`** (`InMemory` / `Sql`). Switches the entire persistence graph between in-memory singletons (dev/test) and Dapper SQL repositories (production). See **ADR 0011** (`docs/adr/0011-inmemory-vs-sql-storage-provider.md`).
+**`ArchLucid:StorageProvider`** (`InMemory` / `Sql`). Switches the entire persistence graph between in-memory singletons (dev/test) and Dapper SQL repositories (production). See **ADR 0011** (`docs/architecture/adr/0011-inmemory-vs-sql-storage-provider.md`).
 
 ## Unit of work (UoW)
 

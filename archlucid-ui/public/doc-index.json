@@ -39,7 +39,7 @@
     "title": "ADR directory",
     "summary": "Architecture decision records describing major structural choices.",
     "category": "Architecture",
-    "url": "https://github.com/ArchiForge/ArchiForge/tree/main/docs/adr"
+    "url": "https://github.com/ArchiForge/ArchiForge/tree/main/docs/architecture/adr"
   },
   {
     "title": "Trusted baseline (Contoso Retail)",

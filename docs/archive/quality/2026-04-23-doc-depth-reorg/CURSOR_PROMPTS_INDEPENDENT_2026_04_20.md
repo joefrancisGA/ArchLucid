@@ -102,9 +102,9 @@ Verification:
 Goal: Promote ADR 0021 from Proposed to Accepted and ship **Phase 1** per the ADR (single read-side adapter — additive). Owner has approved breaking deprecated Coordinator-only **public HTTP** surface in v1 (no /v2 URL bump) **when** a concrete endpoint is chosen for deprecation — align any HTTP deprecation with ADR Phase 2+ notes and API_CONTRACTS.md.
 
 Canonical ADR (verified):
-- docs/adr/0021-coordinator-pipeline-strangler-plan.md — Phase 0 shipped; Phase 1 = introduce IUnifiedGoldenManifestReader in ArchLucid.Decisioning.Interfaces; **no deletion of ICoordinator* yet**
+- docs/architecture/adr/0021-coordinator-pipeline-strangler-plan.md — Phase 0 shipped; Phase 1 = introduce IUnifiedGoldenManifestReader in ArchLucid.Decisioning.Interfaces; **no deletion of ICoordinator* yet**
 - docs/DUAL_PIPELINE_NAVIGATOR.md — update "Why we have not collapsed these" once ADR is Accepted
-- docs/adr/0010-dual-manifest-trace-repository-contracts.md — remains Accepted until superseding ADR after Phase 3
+- docs/architecture/adr/0010-dual-manifest-trace-repository-contracts.md — remains Accepted until superseding ADR after Phase 3
 
 Existing regression tests (extend these; do not duplicate with vague "NetArchTest coordinator namespace" unless you add a **new** rule in ArchLucid.Architecture.Tests):
 - ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs
@@ -119,7 +119,7 @@ Other context:
 - ArchLucid.Architecture.Tests/DependencyConstraintTests.cs — only if a **new** cross-assembly rule is justified; prefer extending DualPipelineRegistrationDisciplineTests first
 
 Tasks:
-1. Update docs/adr/0021-coordinator-pipeline-strangler-plan.md header: Status: Accepted; add architecture-review note (reviewers + date) in the PR body or a short subsection per ADR § Decision review gate.
+1. Update docs/architecture/adr/0021-coordinator-pipeline-strangler-plan.md header: Status: Accepted; add architecture-review note (reviewers + date) in the PR body or a short subsection per ADR § Decision review gate.
 2. Implement Phase 1: IUnifiedGoldenManifestReader + façade + migrate internal read call sites per ADR § Phase 1. The ADR cites docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md for parity evidence — that file is **not** in repo yet; add it as a new runbook (template tables for p95/p99 latency, audit-row counts, replay parity) and fill what you can from staging metrics.
 3. If product also wants an HTTP-visible deprecation in this PR: pick the **smallest** Coordinator-only or duplicate surface, mark [Obsolete] on controller action **and** document Authority equivalent in BREAKING_CHANGES.md. **Do not** delete implementations in this PR (ADR Phase 3).
 

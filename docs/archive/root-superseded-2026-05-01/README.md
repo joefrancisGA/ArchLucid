@@ -2,7 +2,7 @@
 
 # Root superseded — 2026-05-01
 
-These files were **`docs/*.md`** and are **archived here** so `docs/` stays aligned with the active spine (`START_HERE.md`, buyer stubs, contributor redirects, `CHANGELOG`, coverage output target, marketplace/billing entry stubs, and ADRs under `docs/adr/`).
+These files were **`docs/*.md`** and are **archived here** so `docs/` stays aligned with the active spine (`START_HERE.md`, buyer stubs, contributor redirects, `CHANGELOG`, coverage output target, marketplace/billing entry stubs, and ADRs under `docs/architecture/adr/`).
 
 | File | Notes |
 |------|---------|

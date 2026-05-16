@@ -5,7 +5,7 @@
 
 # Azure App Configuration — future adoption plan
 
-**Companion to:** [ADR 0017](../adr/0017-azure-app-configuration-deferred.md)
+**Companion to:** [ADR 0017](../architecture/adr/0017-azure-app-configuration-deferred.md)
 **Status:** Plan-only (not yet adopted)
 **Last reviewed:** 2026-04-18
 

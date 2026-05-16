@@ -7,7 +7,7 @@
 
 # Cursor prompts — Azure Logic Apps (Standard) for ArchLucid
 
-**Index entry:** linked from [`CURSOR_PROMPTS_CANONICAL.md`](archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_CANONICAL.md). **Architecture decision:** [ADR 0019 — Logic Apps Standard edge orchestration](adr/0019-logic-apps-standard-edge-orchestration.md). **Terraform root:** [`infra/terraform-logicapps/`](../infra/terraform-logicapps/README.md). **Operator runbook:** [`LOGIC_APPS_STANDARD.md`](runbooks/LOGIC_APPS_STANDARD.md).
+**Index entry:** linked from [`CURSOR_PROMPTS_CANONICAL.md`](archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_CANONICAL.md). **Architecture decision:** [ADR 0019 — Logic Apps Standard edge orchestration](../../../architecture/adr/0019-logic-apps-standard-edge-orchestration.md). **Terraform root:** [`infra/terraform-logicapps/`](../infra/terraform-logicapps/README.md). **Operator runbook:** [`LOGIC_APPS_STANDARD.md`](runbooks/LOGIC_APPS_STANDARD.md).
 
 Logic Apps are a **narrow, high-value** fit: cross-system orchestration, human-in-the-loop, and SaaS connectors you would otherwise hand-roll. ArchLucid remains the **system of record**; Logic Apps are **subscribers** and **callers** (Service Bus → Teams / Outlook → callback to API), not replacements for JWT verification, SQL idempotency, or governance transitions.
 
@@ -49,7 +49,7 @@ Logic Apps are a **narrow, high-value** fit: cross-system orchestration, human-i
 
 1. Workflow `trial-lifecycle-email` with trigger on `com.archlucid.notifications.trial-lifecycle-email.v1` (`IntegrationEventTypes.TrialLifecycleEmailV1`) and optional daily recurrence calling a read-only internal “due envelopes” API if you retire `TrialLifecycleEmailScanHostedService`.
 2. **Templating:** ACS Email primary, Outlook fallback; per-`TrialLifecycleEmailTrigger` templates.
-3. **Retry:** Connector exponential backoff + dead-letter path to an internal admin endpoint (mirror `docs/adr/0009-digest-delivery-failure-semantics.md` spirit).
+3. **Retry:** Connector exponential backoff + dead-letter path to an internal admin endpoint (mirror `docs/architecture/adr/0009-digest-delivery-failure-semantics.md` spirit).
 4. **Flag:** `ArchLucid:Notifications:TrialLifecycle:Owner` ∈ `{ Hosted, LogicApp }` for safe cutover — **implemented:** binds `TrialLifecycleEmailRoutingOptions`; `LogicApp` skips `TrialLifecycleEmailScanHostedService` registration and short-circuits `TrialScheduledLifecycleEmailScanner`.
 
 ---
@@ -67,7 +67,7 @@ Logic Apps are a **narrow, high-value** fit: cross-system orchestration, human-i
 
 1. Trigger on `com.archlucid.alert.fired` (`IntegrationEventTypes.AlertFiredV1`); payload schema `schemas/integration-events/alert-fired.v1.schema.json`.
 2. Severity-based routing to Teams / PagerDuty; adaptive card actions **Acknowledge** / **Mute** posting to **existing** alert APIs (add routes if missing; Logic App must not publish new alert events to avoid loops).
-3. Companion workflow on `com.archlucid.alert.resolved` to mark Teams cards resolved using stable correlation keys (`deduplicationKey` per `docs/adr/0008-alert-dedupe-scopes.md`).
+3. Companion workflow on `com.archlucid.alert.resolved` to mark Teams cards resolved using stable correlation keys (`deduplicationKey` per `docs/architecture/adr/0008-alert-dedupe-scopes.md`).
 
 ---
 
@@ -118,5 +118,5 @@ What landed in this repository for the **marketplace / ADR 0016 hand-off** slice
 
 - `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`
 - `docs/runbooks/LOGIC_APPS_INCIDENT_CHATOPS.md`
-- `docs/adr/0016-billing-provider-abstraction.md`
-- `docs/adr/0018-background-workloads-container-apps-jobs.md`
+- `docs/architecture/adr/0016-billing-provider-abstraction.md`
+- `docs/architecture/adr/0018-background-workloads-container-apps-jobs.md`

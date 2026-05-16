@@ -587,7 +587,7 @@ Phase 3).
 ## Constraints
 
 - This is a copy-only change. No `.cs` file identifiers change. No `.ts` type or variable names change.
-- Do not touch `docs/adr/` files — ADRs are historical.
+- Do not touch `docs/architecture/adr/` files — ADRs are historical.
 - Do not touch `docs/archive/` files — archived content stays as written.
 - Estimated effort: ~2 hours of search-and-replace + review.
 ```

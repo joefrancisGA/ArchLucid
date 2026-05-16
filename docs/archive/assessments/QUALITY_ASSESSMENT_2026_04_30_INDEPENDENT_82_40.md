@@ -36,7 +36,7 @@ Strong baseline: tenant isolation narratives, RBAC surfaces, audit catalog, inte
 
 **Engineering picture**
 
-Documentation, CI discipline, and test tiers are unusually mature ([`V1_READINESS_SUMMARY.md`](V1_READINESS_SUMMARY.md)). Residual risks center on strangler-pattern completion ([ADR 0030](../adr/0030-coordinator-authority-pipeline-unification.md)), async observability edges, and aligning HTTP denial semantics with security vs debuggability splits ([`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) — 403 vs 404).
+Documentation, CI discipline, and test tiers are unusually mature ([`V1_READINESS_SUMMARY.md`](V1_READINESS_SUMMARY.md)). Residual risks center on strangler-pattern completion ([ADR 0030](../architecture/adr/0030-coordinator-authority-pipeline-unification.md)), async observability edges, and aligning HTTP denial semantics with security vs debuggability splits ([`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) — 403 vs 404).
 
 ---
 
@@ -135,7 +135,7 @@ Legend: **Weighted impact on readiness** = (score × weight) ÷ **Σw**. **Σw =
 
 19–22. **Reliability**, **Data Consistency**, **Maintainability**, **AI/Agent Readiness** — **80**, **2**, **40** each — async failure modes, strangler DDL policy, noisy perf gates optional — [`TECH_BACKLOG.md`](TECH_BACKLOG.md) TB-002/TB-003; golden-cohort secrets owner-gated (item **15**/25 ). **Mixed V1 automation vs owner spend.**
 
-23. **Policy and Governance Alignment** — **85**, **2**, **30**. SoD + ADR **0034** — [`ADR 0034`](../adr/0034-segregation-of-duties-entra-oid-actor-keys.md). **Improve:** document org compensating controls. **Fixable in V1 (docs)**.
+23. **Policy and Governance Alignment** — **85**, **2**, **30**. SoD + ADR **0034** — [`ADR 0034`](../architecture/adr/0034-segregation-of-duties-entra-oid-actor-keys.md). **Improve:** document org compensating controls. **Fixable in V1 (docs)**.
 
 24. **Explainability** — **85**, **2**, **30**. Typed findings — [`DECISIONING_TYPED_FINDINGS.md`](DECISIONING_TYPED_FINDINGS.md). **Expand coverage** incrementally — **Fixable in V1.**
 
@@ -192,7 +192,7 @@ Legend: **Weighted impact on readiness** = (score × weight) ÷ **Σw**. **Σw =
 
 ## Top 5 Engineering Risks
 
-1. **Incomplete authority migration** prior to hardened deletion milestones — regressions manifest as commit/export skew ([ADR **0030**](../adr/0030-coordinator-authority-pipeline-unification.md)).
+1. **Incomplete authority migration** prior to hardened deletion milestones — regressions manifest as commit/export skew ([ADR **0030**](../architecture/adr/0030-coordinator-authority-pipeline-unification.md)).
 2. **Async audit write failures** — must not crater workers or silently lose evidence ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) Resolved 2026-04-29 policy).
 3. **Performance sentinel noise** absent allowlist discipline — gates erode confidence ([`TECH_BACKLOG.md`](TECH_BACKLOG.md) TB-003).
 4. **SCIM role override semantics** — must emit auditable deltas when overriding manual assignments ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) Improvement **1**).

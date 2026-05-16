@@ -11,7 +11,7 @@
 
 **Evaluator / buyer — first review package without the deep stack:** [CORE_PILOT.md](../CORE_PILOT.md#first-session-checklist) (four steps + what to send a sponsor).
 
-**First real Azure OpenAI on the demo stack:** [FIRST_REAL_VALUE.md](FIRST_REAL_VALUE.md) (`archlucid try --real`, **`ARCHLUCID_REAL_AOAI=1`**, ADR **[`../adr/0033-first-real-value-single-env-var-flip.md`](../adr/0033-first-real-value-single-env-var-flip.md)**).
+**First real Azure OpenAI on the demo stack:** [FIRST_REAL_VALUE.md](FIRST_REAL_VALUE.md) (`archlucid try --real`, **`ARCHLUCID_REAL_AOAI=1`**, ADR **[`../architecture/adr/0033-first-real-value-single-env-var-flip.md`](../architecture/adr/0033-first-real-value-single-env-var-flip.md)**).
 
 **Prior pilot narrative:** [archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](../archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md)
 

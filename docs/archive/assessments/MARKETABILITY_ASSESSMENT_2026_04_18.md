@@ -623,7 +623,7 @@ B) Take Stripe billing from prompt-B2 in-progress to GA, including
 WORKSTREAM A — PUBLIC MARKETING SITE GO-LIVE
 
 A.1 Decide the hosting target via a one-page ADR
-   docs/adr/0015-marketing-site-hosting.md:
+   docs/architecture/adr/0015-marketing-site-hosting.md:
    - Compare Azure Static Web Apps (preferred for the marketing pages
      because they are server-rendered Next.js with a small surface) vs
      Container Apps revision routing on the existing app.
@@ -737,7 +737,7 @@ B.8 Docs (per Markdown-Generosity rule)
    - Update docs/security/TRIAL_LIMITS.md to link the 402 → upgrade path.
    - Update docs/go-to-market/PRICING_PHILOSOPHY.md only by linking,
      never by restating numbers (the CI single-source check enforces).
-   - ADR docs/adr/0016-stripe-billing-ga.md.
+   - ADR docs/architecture/adr/0016-stripe-billing-ga.md.
 
 CROSS-CUTTING CONSTRAINTS
 - All infra in Terraform (per workspace rule).

@@ -4,7 +4,7 @@
 
 # ADR template — strict sections (canonical)
 
-**Use:** Copy the block below into `docs/adr/NNNN-short-slug-kebab-case.md` per [README.md](README.md). Replace every `⌈placeholder⌉`.
+**Use:** Copy the block below into `docs/architecture/adr/NNNN-short-slug-kebab-case.md` per [README.md](README.md). Replace every `⌈placeholder⌉`.
 
 **Immutability:** Once **Accepted**, do not rewrite; supersede with another ADR.
 

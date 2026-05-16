@@ -85,4 +85,4 @@ That is **17 assertions** with clear failure messages — strong floor.
 
 ## Companion: project consolidation
 
-`docs/PROJECT_CONSOLIDATION_PROPOSAL.md` is open. After landing the Tier 5 assertions, pick the two smallest sibling projects with the heaviest mutual coupling and merge them under an ADR (`docs/adr/0022-project-consolidation-step-1.md`). Update this roadmap when that lands.
+`docs/PROJECT_CONSOLIDATION_PROPOSAL.md` is open. After landing the Tier 5 assertions, pick the two smallest sibling projects with the heaviest mutual coupling and merge them under an ADR (`docs/architecture/adr/0022-project-consolidation-step-1.md`). Update this roadmap when that lands.

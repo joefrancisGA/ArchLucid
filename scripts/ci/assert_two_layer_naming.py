@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fail if buyer-facing docs under docs/ (excluding docs/archive and docs/adr) contain
+Fail if buyer-facing docs under docs/ (excluding docs/archive and docs/architecture/adr) contain
 legacy layer labels "Advanced Analysis" or "Enterprise Controls".
 
 Canonical naming: Pilot + Operate (see docs/library/PRODUCT_PACKAGING.md).

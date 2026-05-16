@@ -6,7 +6,7 @@
 
 **Assumptions:** You use the operator UI or public APIs with a normal tenant scope. Storage is SQL-backed with row-level security.
 
-**Constraints:** Detailed contributor maps and ADR receipts live under `docs/adr/` and `docs/archive/dual-pipeline-navigator-superseded.md` for engineering-only deep dives.
+**Constraints:** Detailed contributor maps and ADR receipts live under `docs/architecture/adr/` and `docs/archive/dual-pipeline-navigator-superseded.md` for engineering-only deep dives.
 
 ---
 

@@ -4,7 +4,7 @@
 
 # ADR template — full skeleton (mandatory reasoning sections)
 
-**How to use:** Copy into `docs/adr/NNNN-short-slug-kebab-case.md` per [README.md](README.md). Replace every `⌈placeholder⌉`. Remove optional blocks only when they truly do not apply—**never** remove the three mandated sections below.
+**How to use:** Copy into `docs/architecture/adr/NNNN-short-slug-kebab-case.md` per [README.md](README.md). Replace every `⌈placeholder⌉`. Remove optional blocks only when they truly do not apply—**never** remove the three mandated sections below.
 
 **Immutability:** Once **Accepted**, do not rewrite; supersede with another ADR.
 

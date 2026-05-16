@@ -152,7 +152,7 @@ Read first:
 - docs/go-to-market/COMPETITIVE_LANDSCAPE.md
 - docs/go-to-market/POSITIONING.md
 - docs/EXECUTIVE_SPONSOR_BRIEF.md
-- docs/adr/0027-demo-preview-cached-anonymous-commit-page.md
+- docs/architecture/adr/0027-demo-preview-cached-anonymous-commit-page.md
 - docs/DEMO_PREVIEW.md
 - archlucid-ui/src/app/(operator)/why-archlucid/page.tsx
 - archlucid-ui/src/app/(marketing)/  (find the marketing route group)
@@ -237,7 +237,7 @@ governance approval requested, alert raised.
 Read first:
 - docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md
 - schemas/integration-events/catalog.json
-- docs/adr/0019-logic-apps-standard-edge-orchestration.md
+- docs/architecture/adr/0019-logic-apps-standard-edge-orchestration.md
 - infra/terraform-logicapps/  (existing five workflow templates)
 - integrations/github-action-manifest-delta/  (mirror the layout)
 - integrations/azure-devops-task-manifest-delta/
@@ -281,10 +281,10 @@ ADR 0022 (coordinator Phase 3 deferred) so the dual interface families
 collapse, and add a CI guard against accidental regression.
 
 Read first:
-- docs/adr/0021-coordinator-pipeline-strangler-plan.md
-- docs/adr/0022-coordinator-phase3-deferred.md
-- docs/adr/0010-dual-manifest-trace-repository-contracts.md
-- docs/adr/0002-dual-persistence-architecture-runs-and-runs.md
+- docs/architecture/adr/0021-coordinator-pipeline-strangler-plan.md
+- docs/architecture/adr/0022-coordinator-phase3-deferred.md
+- docs/architecture/adr/0010-dual-manifest-trace-repository-contracts.md
+- docs/architecture/adr/0002-dual-persistence-architecture-runs-and-runs.md
 - docs/PERSISTENCE_SPLIT.md
 - docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md
 - ArchLucid.Persistence/Data/Repositories/ICoordinatorGoldenManifestRepository.cs
@@ -330,7 +330,7 @@ Read first:
 - docs/STRYKER_RATchet_TARGET_72.md
 - docs/MUTATION_TESTING_STRYKER.md
 - docs/RUNBOOK_REPLAY_DRIFT.md
-- docs/adr/0005-llm-completion-pipeline.md
+- docs/architecture/adr/0005-llm-completion-pipeline.md
 - docs/runbooks/LLM_PROMPT_REDACTION.md
 - ArchLucid.AgentRuntime/  (RealAgentExecutor, agent simulator)
 - ArchLucid.Decisioning/Validation/SchemaValidationService.cs

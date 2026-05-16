@@ -66,7 +66,7 @@
 - **Dual pipeline navigator** – Coordinator (string run) vs Authority (ingestion) paths, shared artifacts, `RunEventTrace` vs `RuleAuditTrace` (JSON still one `DecisionTrace` envelope with `kind`); now opens with a "Which path do I use?" decision tree and a "Why we have not collapsed these" section linking ADR 0010, ADR 0012, and proposed ADR 0021  
   - `docs/CANONICAL_PIPELINE.md` (operator); `docs/archive/dual-pipeline-navigator-superseded.md` (engineering archive)
 - **Coordinator pipeline strangler plan** – proposed phased retirement of the Coordinator interface family in favour of the Authority family; **`Status: Proposed`** — implementation gated on architecture-review acceptance per the ADR's own decision-review gate  
-  - `docs/adr/0021-coordinator-pipeline-strangler-plan.md`
+  - `docs/architecture/adr/0021-coordinator-pipeline-strangler-plan.md`
 - **DI registration map** – `AddArchLucidApplicationServices` order (`ArchLucid.Host.Composition`), `AddArchLucidStorage`, partial `ServiceCollectionExtensions`, config gates  
   - `docs/DI_REGISTRATION_MAP.md`
 - **Key flows** – run, export, comparison, replay sequences  
@@ -133,9 +133,9 @@
   - `docs/library/CONCEPT_VOCABULARY.md`
 - **Changelog** – per-release summaries (55R → latest); archived design-session logs in `docs/archive/`  
   - `docs/CHANGELOG.md`
-- **ADRs** – numbered decisions (`docs/adr/README.md` index); no shared prefix IDs  
-  - `docs/adr/README.md`
-- **Architecture invariants** — registry `INV-001`–`INV-015`, enforcement waves `TB-009`–`TB-012` (`docs/library/TECH_BACKLOG.md`), proposed governance `docs/adr/0035-architecture-invariant-catalog.md`  
+- **ADRs** – numbered decisions (`docs/architecture/adr/README.md` index); no shared prefix IDs  
+  - `docs/architecture/adr/README.md`
+- **Architecture invariants** — registry `INV-001`–`INV-015`, enforcement waves `TB-009`–`TB-012` (`docs/library/TECH_BACKLOG.md`), proposed governance `docs/architecture/adr/0035-architecture-invariant-catalog.md`  
   - `docs/library/ARCHITECTURE_INVARIANTS.md`
 - **Contributor onboarding** – stub → `docs/onboarding/day-one-developer.md`; archived checklist  
   - `docs/CONTRIBUTOR_ONBOARDING.md`, `docs/archive/ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md`

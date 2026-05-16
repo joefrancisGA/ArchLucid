@@ -18,7 +18,7 @@ When a file moves here:
 
 ## What is **not** archived here
 
-- ADRs (`docs/adr/`) — those have their own status field (`Accepted`, `Superseded by`).
+- ADRs (`docs/architecture/adr/`) — those have their own status field (`Accepted`, `Superseded by`).
 - Runbooks (`docs/runbooks/`) — runbooks are operational; if one becomes stale, fix it or delete it deliberately.
 - The most recent file in each assessment family — keep it on the top level.
 

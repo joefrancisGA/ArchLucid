@@ -293,7 +293,7 @@ Below, each quality follows the requested structure (**score / weight / weighted
 #### Architectural Integrity — Score **81**, Weight **3**
 
 - **Weighted impact:** +2.38 pts.
-- **Why:** Clear seams (Api/Application/Persistence/Worker), ADRs present ([docs/adr/](../adr/)).
+- **Why:** Clear seams (Api/Application/Persistence/Worker), ADRs present ([docs/architecture/adr/](../architecture/adr/)).
 - **Tradeoffs:** Many assemblies increase **navigation overhead** for newcomers.
 - **Improvements:** Maintain architecture poster automation checks vs code references ([ARCHITECTURE_ON_A_PAGE.md](ARCHITECTURE_ON_A_PAGE.md)).
 - **Fix horizon:** **v1**.
@@ -455,7 +455,7 @@ Below, each quality follows the requested structure (**score / weight / weighted
 - **Weighted impact:** +0.78 pts.
 - **Why:** Entra, MI, Key Vault patterns pervasive.
 - **Tradeoffs:** Reduces appeal for teams demanding **non-Azure primary**.
-- **Improvements:** Explicit “neutral portability” boundaries in ADRs ([ADR 0020](../adr/0020-azure-primary-platform-permanent.md)).
+- **Improvements:** Explicit “neutral portability” boundaries in ADRs ([ADR 0020](../architecture/adr/0020-azure-primary-platform-permanent.md)).
 - **Fix horizon:** **v1** positioning clarity.
 
 #### Cognitive Load — Score **60**, Weight **1**

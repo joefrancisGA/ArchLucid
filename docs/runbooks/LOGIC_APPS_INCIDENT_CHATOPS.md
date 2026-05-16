@@ -61,6 +61,6 @@ Give operators **Teams / PagerDuty** visibility into **`com.archlucid.alert.fire
 ## Related
 
 - `infra/terraform-logicapps/workflows/incident-chatops/README.md`
-- `docs/adr/0008-alert-dedupe-scopes.md`
+- `docs/architecture/adr/0008-alert-dedupe-scopes.md`
 - `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`
 - `docs/runbooks/LOGIC_APPS_STANDARD.md`

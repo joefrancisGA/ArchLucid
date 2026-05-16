@@ -20,7 +20,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 | **Done (archived)** | Original items **1–7** live under [Archive (completed items 1–7)](#archive-completed-items-17). §8 (rate limiting documentation) is done — see §8 header. |
 | **Deferred / Obsolete** | Triage in a dedicated pass: mark deferred items inline with `(deferred: reason)` or move obsolete entries into the archive with `(obsolete: reason)` and today’s date. |
 
-**Contracts service-interface split (future batch):** Move the heaviest **service interfaces** still living in **`ArchLucid.Contracts`** into their **owning** assemblies (e.g. decisioning vs coordinator ports) once team boundaries or circular-reference risk justify the churn; keep DTOs and cross-cutting contracts in **`ArchLucid.Contracts`** until then. See **ADR 0013** (`docs/adr/0013-api-versioning-and-json-schema-versioning.md`) for HTTP + JSON **`schemaVersion`** direction.
+**Contracts service-interface split (future batch):** Move the heaviest **service interfaces** still living in **`ArchLucid.Contracts`** into their **owning** assemblies (e.g. decisioning vs coordinator ports) once team boundaries or circular-reference risk justify the churn; keep DTOs and cross-cutting contracts in **`ArchLucid.Contracts`** until then. See **ADR 0013** (`docs/architecture/adr/0013-api-versioning-and-json-schema-versioning.md`) for HTTP + JSON **`schemaVersion`** direction.
 
 ---
 
@@ -2104,7 +2104,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls up major themes only.
 
-- [x] Documentation & ADRs (155–169): complete (155 XML doc pieces 12–21 done; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
+- [x] Documentation & ADRs (155–169): complete (155 XML doc pieces 12–21 done; 156–169 largely addressed via `docs/architecture/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
 - [x] Unit tests (170–194): complete for 170–190, 191–194 (170–171 Persistence.Tests; 183–185, 190 as listed above; 189 UTC calculator documented).
 - [x] Integration / E2E (195–204): complete for backlog scope (195–204; **201** k6 doc/script, **203** N−1 migrator test, **204** policy-packs Playwright).
 - [x] Observability & reliability (205–214): complete (205–214; **214** SLO runbook).

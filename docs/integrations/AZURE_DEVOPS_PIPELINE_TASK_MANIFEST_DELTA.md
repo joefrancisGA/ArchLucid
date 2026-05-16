@@ -50,4 +50,4 @@ See **[`integrations/azure-devops-task-manifest-delta/example.azure-pipelines.ym
 ## Related
 
 - [`AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md`](AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md) — sibling template that posts the same Markdown to a **sticky PR thread** + **PR status**.
-- [ADR 0024 — Azure DevOps pipeline task parity](../adr/0024-azure-devops-pipeline-task-parity-with-github-action.md)
+- [ADR 0024 — Azure DevOps pipeline task parity](../architecture/adr/0024-azure-devops-pipeline-task-parity-with-github-action.md)

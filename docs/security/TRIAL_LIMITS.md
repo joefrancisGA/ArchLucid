@@ -56,7 +56,7 @@ Enforce SaaS **trial quotas** and **read-only after expiry** for tenants whose `
 
 - **Metrics / audits:** **`TrialLimitExceeded`** audit when the API returns **402** (see implementation filters).
 - **SQL integration tests:** `DapperRunRepositoryTrialIncrementTests` validate atomic run counter behavior when SQL is configured locally.
-- **ADRs:** **`docs/adr/0014-trial-enforcement-boundary.md`**.
+- **ADRs:** **`docs/architecture/adr/0014-trial-enforcement-boundary.md`**.
 
 ## Related documentation
 

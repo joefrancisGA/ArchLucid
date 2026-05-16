@@ -484,7 +484,7 @@
 - Onboarding: `day-one-developer.md`, `day-one-sre.md`, `day-one-security.md`.
 - Runbooks: 13 operational procedures in `docs/runbooks/`.
 - Architecture: C4-style context/container/component diagrams.
-- ADRs: `docs/adr/` — 11 entries.
+- ADRs: `docs/architecture/adr/` — 11 entries.
 - `.cursor/rules/Navigation.mdc` — quick-start for developers.
 
 **Tradeoffs**: Comprehensive docs require maintenance. The rename will touch ~800 occurrences in docs alone.

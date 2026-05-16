@@ -463,7 +463,7 @@ DemoSeedService and ReplayRunService.
 
 Read first:
 - docs/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md  (sections 1.5, 1.8, 1.20 and §3 Improvement 8)
-- docs/adr/0030-coordinator-authority-pipeline-unification.md  (the canonical plan)
+- docs/architecture/adr/0030-coordinator-authority-pipeline-unification.md  (the canonical plan)
 - docs/PENDING_QUESTIONS.md  (Resolved 2026-04-23 SaaS-framing follow-on Q&A — Decision A and Decision B)
 - ArchLucid.Decisioning/  (Authority engine)
 - ArchLucid.Persistence/Migrations/111_DropGoldenManifestVersions_Legacy.sql  (PR A4 reference)

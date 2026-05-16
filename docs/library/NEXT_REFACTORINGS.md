@@ -27,4 +27,4 @@ Use that file when you need the original write-ups for items already marked done
 
 ## Contracts note (unchanged)
 
-Move heavy **service interfaces** out of **`ArchLucid.Contracts`** into owning assemblies when team boundaries justify churn; keep DTOs in **Contracts**. See **ADR 0013** (`docs/adr/0013-api-versioning-and-json-schema-versioning.md`).
+Move heavy **service interfaces** out of **`ArchLucid.Contracts`** into owning assemblies when team boundaries justify churn; keep DTOs in **Contracts**. See **ADR 0013** (`docs/architecture/adr/0013-api-versioning-and-json-schema-versioning.md`).

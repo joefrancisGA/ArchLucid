@@ -38,4 +38,4 @@ For LLM-adjacent and user-influenced identifiers in logs, follow **`.cursor/rule
 
 ## Architecture invariants
 
-Numbered cross-cutting rules: **`docs/library/ARCHITECTURE_INVARIANTS.md`** (**`INV-*`**). Governance: **`docs/adr/0035-architecture-invariant-catalog.md`**.
+Numbered cross-cutting rules: **`docs/library/ARCHITECTURE_INVARIANTS.md`** (**`INV-*`**). Governance: **`docs/architecture/adr/0035-architecture-invariant-catalog.md`**.

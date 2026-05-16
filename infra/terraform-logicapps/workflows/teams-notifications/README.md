@@ -33,4 +33,4 @@ Grant the Logic App’s **system-assigned managed identity** `Azure Service Bus 
 ## References
 
 - [`docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`](../../../docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)
-- [`docs/adr/0019-logic-apps-standard-edge-orchestration.md`](../../../docs/adr/0019-logic-apps-standard-edge-orchestration.md)
+- [`docs/architecture/adr/0019-logic-apps-standard-edge-orchestration.md`](../../../docs/architecture/adr/0019-logic-apps-standard-edge-orchestration.md)

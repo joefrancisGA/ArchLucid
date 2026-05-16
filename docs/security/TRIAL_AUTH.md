@@ -62,5 +62,5 @@ Document the **trust boundary**, **configuration switches**, and **operational t
 ## Related
 
 - **`docs/security/SYSTEM_THREAT_MODEL.md`**
-- **`docs/adr/0015-trial-tier-authentication-model.md`**
+- **`docs/architecture/adr/0015-trial-tier-authentication-model.md`**
 - **`docs/security/TRIAL_LIMITS.md`**

@@ -15,7 +15,7 @@ Provide a **minimum file touch list** per change type so work stays inside the r
 ## 2. Assumptions
 
 - You are on **`main`** with a green **fast core** (`Suite=Core&Category!=Slow&Category!=Integration`) before pushing.
-- **Storage** is either `Sql` (production-like) or `InMemory` (local/tests); parity matters for both when the feature touches workflow data ([ADR 0011](adr/0011-inmemory-vs-sql-storage-provider.md)).
+- **Storage** is either `Sql` (production-like) or `InMemory` (local/tests); parity matters for both when the feature touches workflow data ([ADR 0011](../architecture/adr/0011-inmemory-vs-sql-storage-provider.md)).
 - **OpenAPI** drift fails CI until the snapshot is regenerated ([OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md)).
 
 ---

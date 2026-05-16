@@ -60,7 +60,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 
 - **Catalog:** [`ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (**`INV-001`** … **`INV-015`**).
 - **Rule pointer:** [`.cursor/rules/Architecture-Invariants.mdc`](../../.cursor/rules/Architecture-Invariants.mdc).
-- **ADR:** [`0035-architecture-invariant-catalog.md`](../adr/0035-architecture-invariant-catalog.md).
+- **ADR:** [`0035-architecture-invariant-catalog.md`](../architecture/adr/0035-architecture-invariant-catalog.md).
 
 ## V1 headline / deferrals (read sources; do not treat this digest as canonical)
 
