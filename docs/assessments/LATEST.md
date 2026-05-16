@@ -10,9 +10,9 @@
 - **ServiceNow bi-directional status sync:** **`V1` GA** per **`docs/library/V1_SCOPE.md` §2.13** — unchanged. As of **2026-05-15**: **no** ServiceNow developer instance **yet**; bidirectional sync implementation proceeds when a **cost-free** **ServiceNow Developer Program** / personal developer-style instance is available (**paid** sandbox **not** a **`V1` GA** prerequisite). Until provisioned, engineering is **queued only** — explicit scope demotion requires **`V1_SCOPE.md`** / **`PENDING_QUESTIONS.md`** amendment **if** a **free** path never materializes.
 - **Durable Task Framework (DTF):** SQL storage hosts bind the authority pipeline to the Durable Task port (`DtfAuthorityRunOrchestrator`); `ArchLucid.Application` still has no compile-time dependency on `Microsoft.DurableTask.*`. InMemory / simulator paths remain on the legacy adapter until separately migrated.
 
-- **V2-only (deferral docs):** Items committed only to **V2** in **`V1_DEFERRED.md`** are **omitted** from **Pending Questions** in this file and **do not** reduce **`(A)`** weighted V1 scores (track in deferral/scope docs only).
+- **V2-only (deferral docs):** Items committed only to **V2** in **`V1_DEFERRED.md`** are **omitted** from **Pending technical questions** in this file and **do not** reduce **`(A)`** weighted V1 scores (track in deferral/scope docs only).
 
-- **V1.1-only (scope + pinned backlogs):** Capabilities deferred to **V1.1** in **`V1_SCOPE.md`** / **`V1_DEFERRED.md`**, with implementation detail only in nested backlog docs, are **omitted** from **Pending Questions** in this file and **do not** reduce **`(A)`** weighted V1 scores.
+- **V1.1-only (scope + pinned backlogs):** Capabilities deferred to **V1.1** in **`V1_SCOPE.md`** / **`V1_DEFERRED.md`**, with implementation detail only in nested backlog docs, are **omitted** from **Pending technical questions** in this file and **do not** reduce **`(A)`** weighted V1 scores.
 - **Operator UI vocabulary vs marketing workflow (V1):** Buyer-facing labels in **`archlucid-ui`** align with the evidence-backed governance narrative (e.g. **Capture system**, **Evidence**, **Review**, **Findings**, **Decisions**, **Report**) mapped from existing flows (**run**, **manifest**, **commit**, **authority** remain internal/API). **REST routes, OpenAPI operation IDs, CLI commands, and audit event names are unchanged** unless separately versioned. **Usability** headline (**77**) reflects **Marketing alignment** row **1** (glossary) plus bounded bulk capture (row **4**).
 
 - **Buyer-grade architecture review export:** A **default DOCX/PDF export profile** matching the landing-page report narrative (executive summary, system overview, evidence reviewed, architecture decisions, key risks, policy findings, AI-assisted analysis with human-review framing, traceability appendix, recommended next actions) is a **V1 GA gate** (**Marketing alignment** row 2). **Consultant whitelabel** on cover/metadata is **also GA** per row **5** — same export pipeline. Landing demos and downloadable sample reports assume both ship with GA.
@@ -772,7 +772,7 @@ Implement status sync between ArchLucid review/findings state and ServiceNow cha
 
 ## Marketing alignment
 
-Sequential decisions so marketing ↔ technical V1 stay aligned.
+Sequential decisions so marketing ↔ technical V1 stay aligned. **Do not** duplicate these rows under **§ Pending technical questions** — that section is for technical / commercial-owner backlog only.
 
 | # | Topic | Answer |
 |---|--------|--------|
