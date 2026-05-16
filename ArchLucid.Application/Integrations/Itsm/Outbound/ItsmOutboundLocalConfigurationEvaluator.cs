@@ -1,5 +1,6 @@
-using ArchLucid.Core.Configuration;
-using ArchLucid.Persistence.Integrations;
+using System.Net;
+
+using ArchLucid.Core.Configuration;using ArchLucid.Persistence.Integrations;
 
 namespace ArchLucid.Application.Integrations.Itsm.Outbound;
 
@@ -14,7 +15,7 @@ public static class ItsmOutboundLocalConfigurationEvaluator
         ArgumentNullException.ThrowIfNull(options);
 
         string url = options.Jira.CloudBaseUrl.Trim();
-        bool urlOk = TryValidateHttpsUrl(url);
+        bool urlOk = TryValidateItsmOutboundVendorBaseUrl(url);
 
         string projectFallback = options.Jira.DefaultProjectKey.Trim();
         string? projectOverride = tenantItsm?.JiraProjectKeyOverride?.Trim();
@@ -44,7 +45,7 @@ public static class ItsmOutboundLocalConfigurationEvaluator
         ArgumentNullException.ThrowIfNull(options);
 
         string url = options.ServiceNow.InstanceBaseUrl.Trim();
-        bool urlOk = TryValidateHttpsUrl(url);
+        bool urlOk = TryValidateItsmOutboundVendorBaseUrl(url);
         bool userOk = !string.IsNullOrWhiteSpace(options.ServiceNow.Username.Trim());
         bool passOk = !string.IsNullOrWhiteSpace(options.ServiceNow.Password.Trim());
 
@@ -67,5 +68,37 @@ public static class ItsmOutboundLocalConfigurationEvaluator
 
         return Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) &&
                string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    ///     Production URLs must be <c>https://</c>. <c>http://</c> is permitted only for loopback hosts so local WireMock /
+    ///     test doubles match real probe paths without TLS setup.
+    /// </summary>
+    public static bool TryValidateItsmOutboundVendorBaseUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return false;
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
+            return false;
+
+        if (string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(uri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase))
+            return IsLoopbackHttpHost(uri);
+
+        return false;
+    }
+
+    private static bool IsLoopbackHttpHost(Uri uri)
+    {
+        if (string.Equals(uri.Host, "localhost", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (!IPAddress.TryParse(uri.Host, out IPAddress? ip))
+            return false;
+
+        return IPAddress.IsLoopback(ip);
     }
 }

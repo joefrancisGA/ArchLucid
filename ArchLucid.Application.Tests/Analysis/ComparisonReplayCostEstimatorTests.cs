@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -142,6 +143,83 @@ public sealed class ComparisonReplayCostEstimatorTests
         baseline.Should().NotBeNull();
         rich.ApproximateRelativeScore.Should().BeGreaterThan(baseline.ApproximateRelativeScore);
         rich.Factors.Should().Contain(f => f.Contains("manifest delta", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public async Task TryEstimateAsync_persisted_manifestDiff_structural_surface_adds_factor_and_score()
+    {
+        JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "a".PadRight(32, 'a'),
+            RightRunId = "b".PadRight(32, 'b'),
+            ManifestDiff = new ManifestDiffResult { AddedServices = [..Enumerable.Repeat("service", 35)] }
+        };
+        string payloadJson = JsonSerializer.Serialize(report, jsonOptions);
+
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = payloadJson
+            });
+
+        ComparisonReplayCostEstimator sut = new(repo.Object);
+
+        ComparisonReplayCostEstimate? rich =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        repo.Setup(r => r.GetByIdAsync("c2", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c2",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = "{}"
+            });
+
+        ComparisonReplayCostEstimate? baseline =
+            await sut.TryEstimateAsync("c2", "markdown", "artifact", false, CancellationToken.None);
+
+        rich.Should().NotBeNull();
+        baseline.Should().NotBeNull();
+        rich.ApproximateRelativeScore.Should().BeGreaterThan(baseline.ApproximateRelativeScore);
+        rich.Factors.Should()
+            .Contain(f => f.Contains("manifest", StringComparison.OrdinalIgnoreCase) && f.Contains("structural", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public async Task TryEstimateAsync_export_record_diff_payload_with_many_changed_fields_adds_factor()
+    {
+        JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "l",
+            RightExportRecordId = "r",
+            LeftRunId = "lr",
+            RightRunId = "rr",
+            ChangedTopLevelFields = [..Enumerable.Range(1, 14).Select(static i => $"f{i}")],
+            RequestDiff = new ExportRecordRequestDiff { ChangedFlags = [..Enumerable.Repeat("flag", 12)] }
+        };
+        string payloadJson = JsonSerializer.Serialize(diff, jsonOptions);
+
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.ExportRecordDiff,
+                PayloadJson = payloadJson
+            });
+
+        ComparisonReplayCostEstimator sut = new(repo.Object);
+
+        ComparisonReplayCostEstimate? result =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result.Factors.Should().Contain(f => f.Contains("Export record", StringComparison.Ordinal));
     }
 
     [SkippableFact]
