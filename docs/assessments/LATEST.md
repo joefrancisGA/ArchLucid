@@ -442,7 +442,7 @@ ACCEPTANCE CRITERIA
 3. Security review signs off logo handling (same bar as other tenant-uploaded blobs).
 ```
 
-29. Ship **curated default policy packs** — **V1 GA subset** (AI governance + security baseline); **landing-zone pack → V1.1**
+19. Ship **curated default policy packs** — **V1 GA subset** (AI governance + security baseline); **landing-zone pack → V1.1**
 - Why it matters: The policy-pack **platform** exists (`IPolicyPacksAppService`, persistence, UI), but **tenant-visible curated content** was effectively empty — regulated buyers expecting **AI governance findings** saw no starter signal. Shipping **two** MVP packs closes the narrative gap without pretending exhaustive compliance coverage.
 - Expected impact: Proof-of-ROI Readiness **80→82**, Stickiness **78→79**, Commercial Packaging **80→81**; weighted readiness **+0.30%** toward headline (**stacked before Q4**). Coordinate with **#28** so export **Policy findings** sections populate credibly from seeded rules.
 - Affected qualities: Proof-of-ROI Readiness, Commercial Packaging Readiness, Stickiness; secondary Explainability via mapping appendices.
@@ -477,7 +477,7 @@ ACCEPTANCE CRITERIA
 3. No regression to RBAC / RLS boundaries on pack read paths.
 ```
 
-30. **Bulk evidence upload** — **V1 GA** with **≤30 files** per operation (server-enforced); larger batches **V1.1**
+20. **Bulk evidence upload** — **V1 GA** with **≤30 files** per operation (server-enforced); larger batches **V1.1**
 - Why it matters: Marketing needs honest **“gather scattered evidence”** narrative without implying infinite dossier ingestion pre-GA; consultants ship dozens of artifacts per engagement — **30** covers MVP demos while bounding abuse, timeouts, and storage spikes.
 - Expected impact: Usability **76→77**, Customer Self-Sufficiency **80→81**; weighted readiness **+~0.09%** toward headline (**stacked before Q5 / cumulative **81.55%** after later deltas). Coordinate with **#27** copy (**Evidence / Capture**) so UI and landing page disclose the cap.
 - Affected qualities: Usability, Customer Self-Sufficiency; secondary Correctness if API contracts are additive.
@@ -508,7 +508,7 @@ ACCEPTANCE CRITERIA
 3. Durable **`AuditEvent`** (or equivalent) emitted on bulk attach matches single-file parity expectations — verify vs **`AUDIT_COVERAGE_MATRIX.md`**.
 ```
 
-31. **Two curated demo workspaces** — **hard V1 GA gate** (**Marketing alignment Q6**)
+21. **Two curated demo workspaces** — **hard V1 GA gate** (**Marketing alignment Q6**)
 - Why it matters: Marketing promises a **guided wedge demo**; blank tenants waste evaluator attention and inflate sales labor. Two workspaces package **happy-path tour** + **regulated synthetic** proof without exposing customer data.
 - Expected impact: Adoption Friction **76→77**, Proof-of-ROI **83→84**, Commercial Packaging **82→83**; weighted readiness **+~0.28%** toward headline **81.55%**. **Merge-blocking:** GA checklist fails if either workspace smoke fails.
 - Affected qualities: Adoption Friction, Proof-of-ROI Readiness, Commercial Packaging Readiness; secondary Customer Self-Sufficiency (faster eval).
@@ -544,7 +544,7 @@ ACCEPTANCE CRITERIA
 3. Breaking layout/copy changes caught by failing smoke force fixture updates — treat **#31** as ongoing hygiene (**§ weaknesses #15**).
 ```
 
-32. **Landing page CTA stack** — first **90 days** post-GA (**Marketing alignment Q7**)
+22. **Landing page CTA stack** — first **90 days** post-GA (**Marketing alignment Q7**)
 - Why it matters: **V1 GA** is **sales-led**; **Stripe live** + **Marketplace** are **V1.1**. A **primary “Early access”** or **public paid-pilot $** CTA misaligns acquisition with product truth and accelerates procurement before **CPA SOC 2** narrative maturity buyers expect (**external pen test is `V2`** — excluded from **V1** planning Q&A per owner **2026-05-15**, **P8**).
 - Expected impact: **Narrative / commercial honesty** — supports **§1 Adoption** and **§8 Commercial Packaging** without changing weighted headline (**81.55%**) until execution evidence changes. Coordinate with **#31** Workspace **A** URL.
 - Affected qualities: Adoption Friction (evaluator path), Commercial Packaging Readiness (copy integrity).
