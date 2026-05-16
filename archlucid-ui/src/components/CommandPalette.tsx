@@ -271,8 +271,8 @@ export function CommandPalette() {
 
   const polishedShell = buyerPolishedShell;
 
-  const polishedPaletteLabel = "Search this review's evidence";
-  const polishedPalettePlaceholder = "Search this review's evidence or find a page…";
+  const polishedPaletteLabel = "Search review evidence";
+  const polishedPalettePlaceholder = "Search review evidence or find a page…";
 
   return (
     <>

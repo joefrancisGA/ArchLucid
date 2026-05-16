@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { resolveBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
 import { buyerPolishedOperateBackLink } from "@/lib/buyer-polished-operate-back-link";
@@ -13,8 +13,15 @@ import { LayerContextStrip } from "./LayerContextStrip";
 /** Client bridge: `usePathname()` → `getLayerForRoute()` → `LayerContextStrip` (App Router operator shell). */
 export function LayerContextFromRoute() {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const buyerRouteOrientation = buyerPolishedShell ? buyerPolishedRouteOrientation(pathname) : null;
+  const searchRunIdFromUrl =
+    pathname.startsWith("/search") ? (searchParams.get("runId")?.trim() ?? "") : "";
+  const buyerRouteOrientation = buyerPolishedShell
+    ? buyerPolishedRouteOrientation(pathname, {
+        searchRunId: searchRunIdFromUrl.length > 0 ? searchRunIdFromUrl : undefined,
+      })
+    : null;
   const buyerOperateBackLink = buyerPolishedShell ? buyerPolishedOperateBackLink(pathname) : null;
   const buyerGoldenJourneyNav = buyerPolishedShell ? resolveBuyerGoldenJourneyNav(pathname) : null;
 

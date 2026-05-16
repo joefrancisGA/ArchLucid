@@ -4,10 +4,18 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 
+export type BuyerPolishedRouteOrientationOptions = {
+  /** When `/search` carries `runId`, header copy can reflect a scoped review package. */
+  readonly searchRunId?: string;
+};
+
 /**
  * Stable header strip orientation for buyer-polished shell — replaces abstract layer questions where path is known.
  */
-export function buyerPolishedRouteOrientation(pathname: string): {
+export function buyerPolishedRouteOrientation(
+  pathname: string,
+  options?: BuyerPolishedRouteOrientationOptions,
+): {
   readonly label: string;
   readonly line: string;
 } | null {
@@ -118,9 +126,18 @@ export function buyerPolishedRouteOrientation(pathname: string): {
   }
 
   if (path.startsWith("/search")) {
+    const searchRunId = options?.searchRunId?.trim() ?? "";
+
+    if (searchRunId.length > 0) {
+      return {
+        label: "Search this review's evidence",
+        line: "Find language across this review package's summaries, manifest, and linked metadata.",
+      };
+    }
+
     return {
-      label: "Search this review's evidence",
-      line: "Find language across review summaries, manifests, and linked metadata (tenant-scoped).",
+      label: "Search review evidence",
+      line: "Find language across review summaries, manifests, and linked metadata (tenant-scoped). Narrow with an optional run filter when you open Search from a review.",
     };
   }
 

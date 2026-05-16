@@ -15,8 +15,8 @@ export type GetBreadcrumbsOptions = {
   /** Buyer-polished shell uses calmer create-flow labels on the wizard path. */
   readonly buyerPolishedShell?: boolean;
   /**
-   * When set (e.g. `runId` query on graph / governance / audit / ask hubs), buyer-polished shell can insert
-   * the active review package title between Home and the hub page.
+   * When set (e.g. `runId` on graph, audit, ask, search, `/governance`, or `/governance/findings`),
+   * buyer-polished shell can insert the active review package title after **Home**.
    */
   readonly queryRunId?: string;
 };
@@ -25,7 +25,16 @@ function newReviewWizardCrumbLabel(buyerPolishedShell: boolean | undefined): str
   return buyerPolishedShell === true ? "New review" : "New request";
 }
 
-const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>(["graph", "audit", "ask", "governance"]);
+const BUYER_HUB_RUN_SCOPED_SEGMENTS = new Set<string>([
+  "graph",
+  "audit",
+  "ask",
+  "governance",
+  "search",
+]);
+
+/** Governance routes that mirror review workflow context when `runId` is on the query string. */
+const BUYER_GOVERNANCE_RUN_SCOPED_PATHS = new Set<string>(["/governance/findings"]);
 
 const SEGMENT_LABELS: Record<string, string> = {
   onboarding: "Onboarding",
@@ -213,7 +222,22 @@ function injectBuyerShowcaseReviewPackageCrumb(
     return items;
   }
 
+  const normalizedNoTrailing = normalizedPath.replace(/\/$/, "") || "/";
   const rawSegments = normalizedPath.split("/").filter(Boolean);
+
+  if (BUYER_GOVERNANCE_RUN_SCOPED_PATHS.has(normalizedNoTrailing)) {
+    if (items.length < 2 || items[0]?.label !== "Home") {
+      return items;
+    }
+
+    const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+
+    return [
+      items[0]!,
+      { label: reviewTitle, href: reviewHref },
+      ...items.slice(1),
+    ];
+  }
 
   if (rawSegments.length !== 1) {
     return items;
@@ -336,6 +360,11 @@ function labelForSegment(
     if (buyer === true && segment === "graph") {
 
       return "Evidence graph";
+    }
+
+    if (buyer === true && segment === "search") {
+
+      return "Search review evidence";
     }
 
     return mapped;

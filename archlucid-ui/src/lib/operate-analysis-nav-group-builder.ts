@@ -67,8 +67,8 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/search",
-          label: "Search this review's evidence",
-          title: "Search — indexed architecture content",
+          label: "Search review evidence",
+          title: "Search — indexed architecture content (optional review run filter)",
           icon: Search,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",

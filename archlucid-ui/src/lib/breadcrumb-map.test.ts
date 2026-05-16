@@ -119,7 +119,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("does not inject review package crumb on governance subpaths despite showcase runId (buyer wording)", () => {
+  it("buyer-polished: showcase runId on governance findings inserts review package title after Home", () => {
     expect(
       getBreadcrumbs("/governance/findings", {
         buyerPolishedShell: true,
@@ -127,8 +127,22 @@ describe("getBreadcrumbs", () => {
       }),
     ).toEqual([
       { label: "Home", href: "/" },
+      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
       { label: "Governance", href: "/governance" },
       { label: "Findings" },
+    ]);
+  });
+
+  it("buyer-polished: search hub with showcase runId inserts review package title before search crumb", () => {
+    expect(
+      getBreadcrumbs("/search", {
+        buyerPolishedShell: true,
+        queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      }),
+    ).toEqual([
+      { label: "Home", href: "/" },
+      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
+      { label: "Search review evidence" },
     ]);
   });
 

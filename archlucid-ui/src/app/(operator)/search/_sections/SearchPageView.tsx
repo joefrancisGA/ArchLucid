@@ -34,12 +34,15 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     setRunId,
   } = model;
 
+  const buyerSearchTitle =
+    buyerShell === true ? (runId.trim().length > 0 ? "Search this review's evidence" : "Search review evidence") : "Semantic Search";
+
   if (isDemo) {
     // Same heading chrome as the live page so demo builds keep a recognizable route title below the shell.
     return (
       <div className="max-w-4xl">
         <OperatorPageHeader
-          title={buyerShell === true ? "Search this review's evidence" : "Semantic Search"}
+          title={buyerSearchTitle}
           helpKey="semantic-search"
           subtitle={semanticSearchPageSubtitleOperator}
         />
@@ -57,7 +60,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
   return (
     <div className="max-w-4xl">
       <OperatorPageHeader
-        title={buyerShell === true ? "Search this review's evidence" : "Semantic Search"}
+        title={buyerSearchTitle}
         helpKey="semantic-search"
         subtitle={semanticSearchPageSubtitleOperator}
       />
