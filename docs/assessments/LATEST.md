@@ -631,15 +631,146 @@ Implement a web-based rule authoring interface in `archlucid-ui` that integrates
 - Acceptance criteria: Operators can create, test, and publish custom rules entirely through the UI.
 ```
 
+16. **Add guided baseline collection wizard (onboarding)**
+- Why it matters: Proof-of-ROI and executive value depend on tenant baselines; empty baselines weaken sponsor narratives.
+- Expected impact: Time-to-Value (+3 pts), Proof-of-ROI Readiness (+2 pts), Executive Value Visibility (+2 pts). Weighted readiness impact: +0.35%.
+- Affected qualities: Time-to-Value, Proof-of-ROI Readiness, Executive Value Visibility.
+- Actionable: Yes
+
+```markdown
+Add a first-run (or settings) wizard in `archlucid-ui` that captures pilot baseline fields required by `docs/library/PILOT_ROI_MODEL.md` (e.g. manual prep hours, review cycle length).
+- Persist values tenant-scoped via existing settings or ROI API contracts; do not invent a parallel store without aligning OpenAPI.
+- Block or warn on sponsor-export actions when required baseline fields are empty.
+- Acceptance criteria: A new tenant can complete baseline capture without sales engineering hand-holding.
+```
+
+17. **Surface Missing Baseline warnings on executive / sponsor surfaces**
+- Why it matters: Prevents sending abstract executive artifacts when quantified ROI inputs are absent.
+- Expected impact: Executive Value Visibility (+4 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.22%.
+- Affected qualities: Executive Value Visibility, Proof-of-ROI Readiness.
+- Actionable: Yes
+
+```markdown
+On sponsor brief, first-value report, and architecture-review export preview routes, show a prominent **Missing baseline** banner when required ROI baseline fields are unset.
+- Link the banner to the baseline wizard (improvement **#16**).
+- Do not block read-only preview; block **sendable** or **download** classification when marketing requires quantified claims.
+- Acceptance criteria: Operators cannot mistake an incomplete baseline package for board-ready ROI proof.
+```
+
+18. **Integrate axe-core accessibility checks in CI**
+- Why it matters: Catches regressions on operator-shell pages without claiming full assistive-technology user-study coverage (out of V1 headline scope).
+- Expected impact: Accessibility (+8 pts). Weighted readiness impact: +0.08%.
+- Affected qualities: Accessibility.
+- Actionable: Yes
+
+```markdown
+Add `@axe-core/playwright` (or equivalent) to the existing Playwright CI job for golden-path operator routes (Home, Reviews list, Review detail, Manifest).
+- Fail the job on serious/critical violations; allow a short documented allowlist file checked into `archlucid-ui` with expiry comments.
+- Do not replace manual AT studies — document that limitation in the test README.
+- Acceptance criteria: CI fails when a serious a11y regression lands on covered routes.
+```
+
+19. **Implement progressive disclosure for advanced governance routes**
+- Why it matters: Reduces first-session cognitive load while keeping Operate depth available after the pilot proof path.
+- Expected impact: Cognitive Load (+6 pts), Usability (+2 pts), Adoption Friction (+2 pts). Weighted readiness impact: +0.14%.
+- Affected qualities: Cognitive Load, Usability, Adoption Friction.
+- Actionable: Yes
+
+```markdown
+In `archlucid-ui` navigation and home CTAs, default to the four-step pilot path (Capture → Evidence → Review → Report).
+- Move Alerts, Planning, Digests, Advisory, and similar routes behind an **Advanced** section or role-gated expander until the tenant completes a committed review or an admin enables full shell.
+- Preserve deep links and RBAC; do not delete routes.
+- Acceptance criteria: First-time evaluators see a narrow path; power users can still reach advanced routes.
+```
+
+20. **Expand security baseline policy pack with five additional MVP rules**
+- Why it matters: Thin starter packs risk one-and-done pilots; modest depth improves demo credibility without over-claiming compliance.
+- Expected impact: Template and Accelerator Richness (+5 pts), Stickiness (+2 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.09%.
+- Affected qualities: Template and Accelerator Richness, Stickiness, Proof-of-ROI Readiness.
+- Actionable: Yes
+
+```markdown
+Add five buyer-credible rules to the shipped **security architecture baseline** pack (e.g. private endpoint posture, Key Vault secret usage, TLS minimums) with framework **mapping only** (no certification claims).
+- Seed rules into demo workspace **B** so regulated synthetic smoke surfaces real findings.
+- Update pack metadata version and `docs/go-to-market` honesty copy if rule counts change.
+- Acceptance criteria: Security baseline pack ships ≥5 additional MVP rules and demo workspace smoke passes.
+```
+
+21. **Complete DTF multiset parity tests and release-smoke validation**
+- Why it matters: SQL DTF port is wired; legacy orchestrator cannot be removed until parity and smoke prove equivalence.
+- Expected impact: Correctness (+2 pts), Reliability (+3 pts), AI/Agent Readiness (+2 pts). Weighted readiness impact: +0.35%.
+- Affected qualities: Correctness, Reliability, AI/Agent Readiness.
+- Actionable: Yes
+
+```markdown
+Add integration tests that run the same authority-run scenarios through DTF and legacy paths and assert equivalent manifest, audit, and terminal states.
+- Extend `release-smoke` (or equivalent) to exercise DTF on SQL storage hosts in staging.
+- Document rollback switch in operator runbook; do not delete legacy adapter until parity suite is green in CI.
+- Acceptance criteria: Parity suite green; release smoke documents DTF path; legacy removal is a follow-up PR gated on green main.
+```
+
+22. **Harden curated demo workspace smoke and fixture pinning**
+- Why it matters: Two GA-gated demo workspaces drift when UX, exports, or policy packs change without fixture updates.
+- Expected impact: Adoption Friction (+3 pts), Commercial Packaging Readiness (+2 pts), Proof-of-ROI Readiness (+1 pt). Weighted readiness impact: +0.10%.
+- Affected qualities: Adoption Friction, Commercial Packaging Readiness, Proof-of-ROI Readiness.
+- Actionable: Yes
+
+```markdown
+Pin demo workspace seeds (SQL + blob fixtures) to versioned packages consumed by Playwright and `release-smoke`.
+- Add a CI job that fails when Workspace **A** / **B** smoke diverges from `docs/go-to-market/DEMO_WORKSPACES.md` URLs and expected finding counts.
+- Document fixture update procedure in `DEMO_WORKSPACES.md` when product changes intentionally break smoke.
+- Acceptance criteria: GA checklist cannot pass without both workspaces green on pinned fixtures.
+```
+
+23. **Add ArchUnitNET (or equivalent) architecture boundary tests**
+- Why it matters: Large monorepo surface increases accidental coupling; automated boundaries protect maintainability at scale.
+- Expected impact: Maintainability (+4 pts), Modularity (+2 pts). Weighted readiness impact: +0.10%.
+- Affected qualities: Maintainability, Modularity.
+- Actionable: Yes
+
+```markdown
+Introduce architecture tests in `ArchLucid.TestSupport` (or a dedicated test project) that enforce layer rules (e.g. `ArchLucid.Core` must not reference `ArchLucid.Api`, UI must not reference persistence).
+- Start with a minimal rule set matching `.cursor/rules/Architecture-Invariants.mdc` INV-* pointers; expand incrementally.
+- Wire into existing `dotnet test` CI; fail on violation.
+- Acceptance criteria: At least five boundary rules run in CI and block obvious layer violations.
+```
+
+24. **Surface finding confidence and evidence links prominently in review UI**
+- Why it matters: Operators need trust signals to accelerate decisions; buried provenance slows Decision Velocity.
+- Expected impact: Decision Velocity (+5 pts), Explainability (+2 pts), Differentiability (+1 pt). Weighted readiness impact: +0.13%.
+- Affected qualities: Decision Velocity, Explainability, Differentiability.
+- Actionable: Yes
+
+```markdown
+On finding detail and list views in `archlucid-ui`, show confidence (or severity rationale) and one-click **View evidence** / graph deep-link when provenance exists.
+- Do not change finding schema without OpenAPI/versioning discipline.
+- Acceptance criteria: PHI/minimization-style demo finding shows visible confidence and evidence navigation without opening the full manifest.
+```
+
+25. **Implement bi-directional ServiceNow status sync (when dev credentials available)**
+- Why it matters: **V1 GA** commitment per `V1_SCOPE.md` §2.13; closes workflow gap for ITSM-led enterprises.
+- Expected impact: Workflow Embeddedness (+5 pts), Interoperability (+2 pts). Weighted readiness impact: +0.21%.
+- Affected qualities: Workflow Embeddedness, Interoperability.
+- Actionable: Yes (blocked on **P10** cost-free developer instance — queue engineering until credentials exist)
+
+```markdown
+Implement status sync between ArchLucid review/findings state and ServiceNow change/incident records per existing webhook/controller patterns.
+- Map terminal review states to ServiceNow fields bidirectionally; emit durable audit events on sync.
+- Gate feature behind configuration; document setup in `docs/integrations/recipes/`.
+- Acceptance criteria: Status change in ArchLucid updates ServiceNow and vice versa in a developer-instance integration test.
+```
+
 ---
 
 ## Prompt Batching Guidance
 
-- **Batch 1 (High Leverage, Low Risk):** 3, 4, 14. These address immediate correctness, security, and documentation gaps without major architectural changes.
-- **Batch 2 (Performance & Observability):** 5, 10, 11, 13. These improve the operational characteristics of the system, making it more robust at scale.
-- **Batch 3 (Testing & Analytics):** 8, 12. These improve the testing posture and provide better ROI/cost estimation capabilities.
-- **Batch 4 (DTF orchestration migration — dedicated slice):** 26 alone. This is a foundational change with its own parity-test obligation; give it a full context window and do not mix it with other improvements.
-- **Deferred / V1.1 program (do not batch into V1 execution):** 20 (inbound MCP); **Azure CAF / landing-zone curated policy pack** (ship post-GA); **bulk evidence upload limit above 30 files**, ZIP expansion, recursive folder ingest. Keep out of V1 Cursor batches; plan V1.1 slices with dedicated context.
+- **Batch 1 (High Leverage, Low Risk):** 3, 4, 8, 14, 17, 18. Correctness, observability, documentation, live E2E, executive baseline honesty, and a11y CI without large architecture moves.
+- **Batch 2 (Performance & Observability):** 5, 7, 10, 11, 21. Operational robustness, SQL retries, LLM tracing, orchestration limits, and DTF parity smoke.
+- **Batch 3 (Testing, Analytics & ROI):** 1, 2, 12, 16. Cost heuristics, internal analytics, data residency, and baseline wizard.
+- **Batch 4 (UX & adoption):** 6, 15, 19, 20, 22, 24. Dashboard health, rule UI, progressive disclosure, pack depth, demo smoke, and finding trust signals.
+- **Batch 5 (Architecture hygiene):** 23. ArchUnitNET boundaries — isolated PR, expand rules incrementally.
+- **Batch 6 (Integrations — credential-dependent):** 25. ServiceNow bi-directional sync when **P10** developer instance is available; do not block other batches.
+- **Deferred / V1.1 program (do not batch into V1 execution):** inbound MCP; **Azure CAF / landing-zone curated policy pack**; **bulk evidence upload above 30 files**, ZIP expansion, recursive folder ingest; Stripe live keys / Marketplace (**#7** in commercial packaging notes). Plan V1.1 slices with dedicated context.
 
 ---
 
